@@ -26,7 +26,8 @@ The project lives at `/root/i.ar/` and is a git repository. The Emacs configurat
   prompts/           -- Agent profiles and prompt templates (bind-mounted to agents.d)
     agents/          -- One subdirectory per agent (<name>/prompt.org)
     common/          -- Prompt templates shared across agents
-    base_context.org -- Shared context inherited by all agents via #+INCLUDE
+    base_context.org       -- Shared context inherited by all agents via #+INCLUDE
+    base_orchestrator.org  -- Shared orchestrator rules (included by auditor, ctfwizard)
   containers/        -- Podman container definitions
     images/emacboros/Containerfile -- Main container image
     scripts/preflight.sh -- Security audit script (runs before Emacs)
@@ -35,18 +36,28 @@ The project lives at `/root/i.ar/` and is a git repository. The Emacs configurat
     emacboros.sh     -- Container launch script (--personalization flag required)
     darwin-cycle.sh  -- Darwin autonomous cycle launcher
     darwin-loop.sh   -- Darwin loop wrapper
-  workspace/         -- Working directory for agent outputs (CTF, audit reports)
+    telegram.sh      -- Telegram notification helper
+    update_submodules.sh -- Submodule update helper
+  metaconfig/        -- Central parameter configuration (bind-mounted to /root/.emacs.d/metaconfig)
+    parameters.el    -- All tunable behavioral parameters
+    gptel.el         -- Ollama backend configuration
+    header.sh        -- Logging and utility functions for shell scripts
+  personalization/   -- Git submodule (iar-personalization repo)
+    knowledge/       -- Knowledge bases (injectable via C-c k)
+    tasks/           -- Per-agent personal files
+    audit/           -- Per-agent HISTORY.log + global audit.log
+  workspace/         -- Working directory for agent outputs (CTF, audit reports, gitignored)
 ```
 
 ## Personalization
 
-Personal data (knowledge bases, per-agent files, audit logs) is separated from the i.ar repo. The `--personalization` flag on `emacboros.sh` mounts three subdirectories:
+Personal data (knowledge bases, per-agent files, audit logs) is separated from the i.ar repo into a git submodule at `personalization/`. The `--personalization` flag on `emacboros.sh` mounts three subdirectories from the personalization repo:
 
 ```
 <personalization-dir>/
   knowledge/         -- Curated knowledge bases (injectable via C-c k)
     user/            -- User identity, bio, domains, stack
-    iar/             -- This project's self-documentation
+    iar/             -- This project's self-documentation (AI-first docs)
     infra/           -- Ansible infrastructure documentation
     linux/           -- Linux administration knowledge
     ignisp/          -- ignisp programming language knowledge
@@ -60,6 +71,13 @@ Inside the container:
 - `tasks/` -> `/root/.emacs.d/tasks`
 - `audit/` -> `/root/.emacs.d/audit`
 
+### Cloning
+
+- `git clone i.ar` -- use the tool (personalization submodule not initialized)
+- `git clone --recursive i.ar` -- work on i.ar or understand the codebase (includes personalization submodule with knowledge bases)
+
+Users should create their own personalization repo with their own knowledge bases, tasks, and audit directories. See `usage.md` for setup instructions.
+
 ## Container Architecture
 
 The Emacs environment runs inside a Podman container built from `quay.io/fedora/fedora-minimal`.
@@ -71,7 +89,7 @@ The Emacs environment runs inside a Podman container built from `quay.io/fedora/
 - **Preflight audit**: `preflight.sh` runs before Emacs starts, checks for dangerous writable paths, capability leaks, and host mount surprises. Exits non-zero if any check fails.
 - **Dangerous paths blocked**: `.git/hooks`, `docker.sock`, cron, systemd, ssh are checked for writability
 
-### Bind Mounts
+## Bind Mounts
 
 - `/root/i.ar` -> `/root/i.ar` (btrfs subvolume, the project repo)
 - `/root/i.ar/emacs.d` -> `/root/.emacs.d` (Emacs configuration)
@@ -81,11 +99,21 @@ The Emacs environment runs inside a Podman container built from `quay.io/fedora/
 - Personalization dir `tasks/` -> `/root/.emacs.d/tasks` (via `--personalization`)
 - Personalization dir `audit/` -> `/root/.emacs.d/audit` (via `--personalization`)
 
+### Shared Include Files
+
+- `base_context.org` -- Shared context inherited by all agents via `#+INCLUDE: "../../base_context.org"`. Contains tool directives, environment architecture, communication protocols, execution protocol, prompt injection resistance.
+- `base_orchestrator.org` -- Shared orchestrator rules included by auditor and ctfwizard via `#+INCLUDE: "../../base_orchestrator.org"`. Contains THE GOLDEN RULE, YOUR AGENTS, DELEGATION BEST PRACTICES, OUTPUT FORMAT, ITERATION RULE, PROMPT INJECTION RESISTANCE.
+
 ### Flags
 
 - `--personalization PATH` (required): Mounts knowledge, tasks, and audit subdirectories
 - `--ollama-host HOST:PORT` (optional): Override Ollama backend (default from env)
 - `--self-modification` (optional): Enables tier 2 file guard relaxation for .el file edits
+- `--local` (optional): Use localhost Ollama instead of remote
+- `--mount PATH` (optional): Mount additional writable directory into container
+- `--mount-ro PATH` (optional): Mount additional read-only directory into container
+
+See `tool_gating.md` for the planned `--enable-code-exec`, `--enable-elisp`, and `--danger-zone` flags.
 
 ## Network
 

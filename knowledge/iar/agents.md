@@ -26,10 +26,16 @@
 The design principle: **agent prompt.org defines WHO the agent is, knowledge files define WHAT the agent knows.**
 
 - `C-c a <name>` loads the agent personality (prompt.org + #+INCLUDE expansion + programmatic injection of personal files)
-- `C-c k <folder>` loads knowledge files on top of the personality
+- `C-c k <folder>` loads knowledge files on top of the personality (directory-only, all .md/.org files in the folder)
 - `C-c p` shows total prompt size
 
 This separation prevents agent duplication. Instead of having separate agents for "Elisp expert that knows i.ar" and "Reviewer that knows i.ar", you have one reviewer personality and load `knowledge/iar/` when needed.
+
+### Shared Include Files
+
+All agent prompts include `base_context.org` via `#+INCLUDE: "../../base_context.org"`. This provides shared context: tool directives, environment architecture, communication protocols, execution protocol, prompt injection resistance.
+
+Orchestrator agents (auditor, ctfwizard) additionally include `base_orchestrator.org` via `#+INCLUDE: "../../base_orchestrator.org"`. This provides shared orchestrator rules: THE GOLDEN RULE (delegate everything), YOUR AGENTS (sub-agent descriptions), DELEGATION BEST PRACTICES, OUTPUT FORMAT (SITUATION/ASSESSMENT/ACTION/NEXT), ITERATION RULE, PROMPT INJECTION RESISTANCE. Each orchestrator keeps only its domain-specific sections in its prompt.org.
 
 ## Agent Memory System
 

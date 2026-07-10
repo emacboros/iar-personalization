@@ -6,7 +6,7 @@
 
 | Agent | Role | Status |
 |-------|------|--------|
-| **nacho** | Mirror agent for Ignacio. Challenges assumptions, pushes back on practicality, helps decide things. | Active, primary |
+| **mirror** | Mirror agent for the user. Challenges assumptions, pushes back on practicality, helps decide things. | Active, primary |
 | **darwin** | Autonomous self-modifying agent. Runs in cycles, makes one small change, tests, logs, sleeps. | Active, autonomous |
 | **auditor** | Security audit orchestrator. Delegates recon, analysis, action. Non-destructive. | Active, used for real audits |
 | **ctfwizard** | CTF orchestrator. Delegates to specialists, coordinates attack chains. | Active, used for CTFs |
@@ -21,22 +21,11 @@
 | **researcher** | Security researcher. CVE analysis, threat intelligence. | auditor, ctfwizard |
 | **reviewer** | Strict code reviewer. Security-first, no flattery. | darwin (for code review) |
 
-### Deprecated/Experimental Agents
-
-| Agent | Status | Notes |
-|-------|--------|-------|
-| **mccarthy** | Deprecated | Lisp philosopher personality. Knowledge should move to `knowledge/iar/`. |
-| **ouroboros** | Deprecated | Original self-modification agent. Replaced by darwin. |
-| **sage** | Deprecated | Elisp expert. Knowledge already in `knowledge/iar/modules.md`. |
-| **finch** | Deprecated | Harold Finch roleplay. Fun but underutilized. |
-| **machine** | Deprecated | The Machine roleplay. Companion to finch. |
-| **ignisp** | Experimental | ignisp programming language design agent. Separate project. |
-
 ## Personality vs Knowledge
 
 The design principle: **agent prompt.org defines WHO the agent is, knowledge files define WHAT the agent knows.**
 
-- `C-c a <name>` loads the agent personality (prompt.org + #+INCLUDE expansion)
+- `C-c a <name>` loads the agent personality (prompt.org + #+INCLUDE expansion + programmatic injection of personal files)
 - `C-c k <folder>` loads knowledge files on top of the personality
 - `C-c p` shows total prompt size
 
@@ -46,11 +35,11 @@ This separation prevents agent duplication. Instead of having separate agents fo
 
 Each agent has three memory tiers:
 
-1. **HISTORY.log** -- Operational log. Append-only. File-guard protected (cannot be overwritten). Format: `[YYYY-MM-DD HH:MM:SS] AgentName: concise description`. Used for audit trail.
+1. **HISTORY.log** -- Operational log. Append-only. File-guard protected (cannot be overwritten). Lives at `audit/<name>/HISTORY.log`. Format: `[YYYY-MM-DD HH:MM:SS] AgentName: concise description`. Used for audit trail.
 
-2. **LOGS.md** -- Semantic session notes. What was discussed, decided, learned. Included in agent prompt via `#+INCLUDE`. Updated after significant sessions.
+2. **LOGS.md** -- Semantic session notes. What was discussed, decided, learned. Lives at `tasks/<name>/LOGS.md`. Injected into agent prompt programmatically by `agent_loader.el` (not via #+INCLUDE). Updated after significant sessions.
 
-3. **SUMMARY.md** -- Compressed memory. The `C-c m` command (memory_tools.el) sends the conversation to the LLM for summarization, producing a compressed set of bullet points. Included in agent prompt via `#+INCLUDE`.
+3. **SUMMARY.md** -- Compressed memory. Lives at `tasks/<name>/SUMMARY.md`. The `C-c m` command (memory_tools.el) sends the conversation to the LLM for summarization, producing a compressed set of bullet points. Injected into agent prompt programmatically by `agent_loader.el`.
 
 As LOGS.md and SUMMARY.md grow, they consume prompt tokens. Use `C-c p` to monitor total prompt size. If it gets too large, summarize and trim.
 

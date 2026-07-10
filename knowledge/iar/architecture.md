@@ -12,36 +12,53 @@ The project lives at `/root/i.ar/` and is a git repository. The Emacs configurat
 /root/i.ar/
   emacs.d/          -- Emacs configuration (bind-mounted to /root/.emacs.d)
     init.el          -- Entry point, loads all modules
-    init.d/          -- Modular Emacs Lisp components (auto-discovered)
+    init.d/           -- Modular Emacs Lisp components (auto-discovered)
+      core/           -- Locale, package setup, UI, evil mode, gptel setup
+      agent/          -- Agent loader, knowledge loader, delegate, prompt loader, tools
+      tools/          -- FS tools, code tools, replacement tool, check elisp
+      security/       -- File guard, audit log, loop guard, output sanitizer
+      session/        -- Session-aware quit
+      dynamic/        -- Auto-discovered modules (darwin drops new modules here)
     metaconfig/      -- Central parameter configuration (bind-mounted)
       parameters.el  -- All tunable behavioral parameters
       gptel.el       -- Ollama backend configuration
+    test/            -- Test suite (run-tests.el + per-module tests)
   prompts/           -- Agent profiles and prompt templates (bind-mounted to agents.d)
     agents/          -- One subdirectory per agent (<name>/prompt.org)
     common/          -- Prompt templates shared across agents
     base_context.org -- Shared context inherited by all agents via #+INCLUDE
-    HISTORY.log      -- Shared operational log for all agents
-  infra/             -- Ansible infrastructure as code
-    playbooks/       -- Site-wide and component-specific playbooks
-    roles/           -- Ansible roles (base, caddy, wireguard, ollama, etc.)
-    inventory/       -- Host inventory with group/host vars
-    docs/            -- Infrastructure documentation (ARCHITECTURE.md, etc.)
   containers/        -- Podman container definitions
     images/emacboros/Containerfile -- Main container image
     scripts/preflight.sh -- Security audit script (runs before Emacs)
     build.sh         -- Container build script
   utils/             -- Utility scripts
-    emacboros.sh     -- Container launch script (--knowledge flag for custom KB path)
+    emacboros.sh     -- Container launch script (--personalization flag required)
     darwin-cycle.sh  -- Darwin autonomous cycle launcher
     darwin-loop.sh   -- Darwin loop wrapper
-  knowledge/         -- Curated knowledge base (injectable via C-c k, mountable via --knowledge)
-    linux/           -- Linux administration knowledge
-    iar/             -- This project's self-documentation
-    ignisp/          -- ignisp programming language knowledge
-  metaconfig/        -- Duplicated metaconfig (may be consolidated)
-  logs/              -- System logs
-  workspace/         -- Working directory for agent outputs
+  workspace/         -- Working directory for agent outputs (CTF, audit reports)
 ```
+
+## Personalization
+
+Personal data (knowledge bases, per-agent files, audit logs) is separated from the i.ar repo. The `--personalization` flag on `emacboros.sh` mounts three subdirectories:
+
+```
+<personalization-dir>/
+  knowledge/         -- Curated knowledge bases (injectable via C-c k)
+    user/            -- User identity, bio, domains, stack
+    iar/             -- This project's self-documentation
+    infra/           -- Ansible infrastructure documentation
+    linux/           -- Linux administration knowledge
+    ignisp/          -- ignisp programming language knowledge
+  tasks/<agent>/     -- Per-agent personal files: TODO.md, IDEAS.md, LOGS.md, SUMMARY.md, MEMORIES.md
+  audit/<agent>/     -- Per-agent HISTORY.log files
+  audit/audit.log    -- Global audit log
+```
+
+Inside the container:
+- `knowledge/` -> `/root/.emacs.d/knowledge`
+- `tasks/` -> `/root/.emacs.d/tasks`
+- `audit/` -> `/root/.emacs.d/audit`
 
 ## Container Architecture
 
@@ -60,13 +77,21 @@ The Emacs environment runs inside a Podman container built from `quay.io/fedora/
 - `/root/i.ar/emacs.d` -> `/root/.emacs.d` (Emacs configuration)
 - `/root/i.ar/prompts` -> `/root/.emacs.d/agents.d` (agent profiles and prompt templates)
 - `/root/i.ar/metaconfig` -> `/root/.emacs.d/metaconfig` (parameters)
-- Knowledge directory -> `/root/.emacs.d/knowledge` (bind mount, path configurable via `--knowledge` flag, defaults to `i.ar/knowledge/`)
+- Personalization dir `knowledge/` -> `/root/.emacs.d/knowledge` (via `--personalization`)
+- Personalization dir `tasks/` -> `/root/.emacs.d/tasks` (via `--personalization`)
+- Personalization dir `audit/` -> `/root/.emacs.d/audit` (via `--personalization`)
 
-### Network
+### Flags
+
+- `--personalization PATH` (required): Mounts knowledge, tasks, and audit subdirectories
+- `--ollama-host HOST:PORT` (optional): Override Ollama backend (default from env)
+- `--self-modification` (optional): Enables tier 2 file guard relaxation for .el file edits
+
+## Network
 
 The container connects to Ollama via WireGuard mesh network:
 - Ollama host: `10.66.0.5:11434` (server-pc, RTX 3080)
-- Configurable via `EMACBOROS_OLLAMA_HOST` environment variable
+- Configurable via `EMACBOROS_OLLAMA_HOST` environment variable or `--ollama-host` flag
 - All traffic goes through WireGuard -- no direct internet exposure
 
 ## Network Topology
@@ -96,7 +121,7 @@ Ollama request params: temperature 0.7, top_p 0.90, num_ctx 1048576 (1M), num_pr
 
 ## Security Model
 
-1. **Single entry point**: Only randzzo-ar has public web ports. Everything else is WireGuard-only.
+1. **Single entry point**: Only randazzo-ar has public web ports. Everything else is WireGuard-only.
 2. **TLS everywhere**: Caddy handles Let's Encrypt automatically.
 3. **No exposed Ollama**: Ollama binds to WireGuard IP only.
 4. **Key-only SSH**: Password auth disabled, fail2ban active.

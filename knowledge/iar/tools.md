@@ -52,28 +52,28 @@
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `read_tasks` | none | Read TODO.md and IDEAS.md from current agent's directory. |
-| `read_history` | `agent_name` (optional) | Read per-agent HISTORY.log or unified merged history. |
+| `read_tasks` | none | Read TODO.md and IDEAS.md from current agent's tasks directory (`tasks/<name>/`). |
+| `read_history` | `agent_name` (optional) | Read per-agent HISTORY.log from `audit/<name>/` or unified merged history from all agents. |
 
 ## File Guard Protection
 
 The file guard (`file_guard.el`) intercepts `write_file`, `replace_in_file`, and `append_file` calls.
 
 ### Always Protected (cannot be bypassed)
-- Agent prompt files: `agents.d/<name>/prompt.org`
+- Agent prompt files: `agents.d/agents/<name>/prompt.org`
 - Shared context: `agents.d/base_context.org`
 - HISTORY.log files: append-only (overwrite and replace blocked)
 
 ### Conditionally Protected (relaxed in self-modification mode)
-- Emacs Lisp source: `init.el`, `init.d/*.el`
+- Emacs Lisp source: `init.el`, `init.d/**/*.el`
 - Container config: `Containerfile`, `emacboros.sh`
 - Git hooks: `.git/hooks/*`
 
-Self-modification mode is controlled by `my-gptel--guard-allow-self-modification` (set in init.el via customize, currently `t`).
+Self-modification mode is controlled by the `EMACBOROS_SELF_MODIFICATION` environment variable (set via `--self-modification` flag on `emacboros.sh`). When unset, all guards are active. When set to `1`, tier 2 guards are relaxed but tier 1 (agent prompts, base context, history logs) remains enforced.
 
 ## Audit Logging
 
-All file operations (`write_file`, `append_file`, `replace_in_file`) and command executions (`execute_code_local`) are logged to an audit log. The log rotates at `my-gptel--audit-log-max-size` (default 10MB), keeping one generation (`audit.log.1`).
+All file operations (`write_file`, `append_file`, `replace_in_file`) and command executions (`execute_code_local`) are logged to `audit/audit.log`. The log rotates at `my-gptel--audit-log-max-size` (default 10MB), keeping one generation (`audit.log.1`).
 
 ## Loop Guard
 

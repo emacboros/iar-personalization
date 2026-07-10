@@ -35,7 +35,7 @@ All Emacs Lisp modules live in `init.d/` and are organized into subdirectories b
 | Module | Purpose |
 |--------|---------|
 | `tools/fs_tools.el` | Filesystem tools for gptel: `read_file`, `write_file`, `append_file`, `list_directory`. Size-limited reads. |
-| `tools/code_tools.el` | `execute_code_local` tool: runs bash commands in the container. Full toolset: bash, dig, nmap, openssl, python3, jq, git, curl, rg, gcc, make, etc. |
+| `tools/code_tools.el` | `execute_code_local` tool: runs bash commands in the container. Full toolset: bash, dig, nmap, openssl, python3, jq, git, curl, rg, gcc, make, etc. Exports `GIT_PAGER=cat` and `TERM=dumb` so git commands don't hang on `less` across `&&` chains. |
 | `tools/replacement_tool.el` | `replace_in_file` tool: surgical text replacement in files. |
 | `tools/check_elisp_tool.el` | `check_elisp` tool: byte-compiles .el files and reports errors/warnings without modifying them. |
 

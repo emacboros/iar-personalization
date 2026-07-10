@@ -55,7 +55,7 @@ Orchestrator agents (auditor, ctfwizard) delegate to specialist agents (reader, 
 
 Key properties:
 - **Async**: Delegate runs in a separate buffer, Emacs stays responsive
-- **Streaming**: Sub-agent output is mirrored into parent buffer in real-time
+- **Async result**: Sub-agent output is returned as a tool result when complete (no live streaming into parent buffer)
 - **Depth-limited**: Max delegation depth (default 3) prevents infinite recursion
 - **Turn-limited**: Max text-only turns (default 15) prevents models that narrate instead of acting from running forever
 - **Timeout**: Default 600 seconds per delegation
@@ -65,13 +65,16 @@ Key properties:
 
 Darwin is special. It runs in a loop without human direction:
 
-1. Read own source code
-2. Identify one small improvement
-3. Make the change
-4. Run tests
-5. Log what it did and why
-6. Sleep
-7. Repeat
+1. MEMORIES.md (last 200 lines) is in system prompt -- no need to re-read
+2. Read recent HISTORY.log via read_history tool
+3. Read TODOs/IDEAS via read_tasks tool (continuity across cycles)
+4. Make one small change
+5. Delegate to reviewer for code review
+6. Run tests (revert if fail)
+7. Commit, log, update memories
+8. Update TODO.md/IDEAS.md for long-term planning
+9. Sleep
+10. Repeat
 
 Darwin's constraints:
 - `init.el` is immutable (cannot modify the entry point)
@@ -80,4 +83,4 @@ Darwin's constraints:
 - One change per cycle (small, deliberate mutations)
 - Self-modification mode must be enabled for .el file changes
 
-Darwin has its own elisp modules (`darwin_cycle.el`) and shell scripts (`darwin-cycle.sh`, `darwin-loop.sh`) for cycle management.
+Darwin uses the shared agent cycle infrastructure (`agent_cycle.el`, `agent_loop.sh`) for autonomous operation. Any orchestrator agent can be run autonomously via `agent_loop.sh --agent <name>`.

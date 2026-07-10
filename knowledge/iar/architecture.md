@@ -34,14 +34,9 @@ The project lives at `/root/i.ar/` and is a git repository. The Emacs configurat
     build.sh         -- Container build script
   utils/             -- Utility scripts
     emacboros.sh     -- Container launch script (--personalization flag required)
-    darwin-cycle.sh  -- Darwin autonomous cycle launcher
-    darwin-loop.sh   -- Darwin loop wrapper
+    agent_loop.sh    -- Autonomous agent loop runner (any orchestrator agent)
     telegram.sh      -- Telegram notification helper
     update_submodules.sh -- Submodule update helper
-  metaconfig/        -- Central parameter configuration (bind-mounted to /root/.emacs.d/metaconfig)
-    parameters.el    -- All tunable behavioral parameters
-    gptel.el         -- Ollama backend configuration
-    header.sh        -- Logging and utility functions for shell scripts
   personalization/   -- Git submodule (iar-personalization repo)
     knowledge/       -- Knowledge bases (injectable via C-c k)
     tasks/           -- Per-agent personal files

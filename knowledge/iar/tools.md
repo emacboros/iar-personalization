@@ -34,7 +34,7 @@
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `delegate` | `agent` (required), `task` (required), `context` (optional), `timeout` (optional) | Spawn sub-agent with specific profile. Async with streaming. Default timeout 600s. |
+| `delegate` | `agent` (required), `task` (required), `context` (optional), `timeout` (optional) | Spawn sub-agent with specific profile. Async, returns final response as tool result. Default timeout 600s. |
 
 ### Code Quality (check_elisp_tool.el)
 

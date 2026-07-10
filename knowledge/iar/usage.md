@@ -81,19 +81,27 @@ cd i.ar
 
 The mirror agent is your thinking partner. Load `knowledge/iar/` into it and ask it about the codebase, design decisions, or to review a change you're planning. The mirror challenges your assumptions, pushes back on scope, and helps you think through problems.
 
-### Running Darwin (Autonomous Mode)
+### Running Autonomous Agents
 
-Darwin runs in cycles without human direction. Use the shell scripts:
+Any orchestrator agent can run autonomously in cycles. Use `agent_loop.sh`:
 
 ```bash
-# Run a single cycle:
-./utils/darwin-cycle.sh --personalization ~/repos/iar-personalization --self-modification
+# Run a single darwin cycle (default agent):
+./utils/agent_loop.sh --personalization ~/repos/iar-personalization --self-modification
 
-# Run a loop (continuous cycles with cooldown):
-./utils/darwin-loop.sh --personalization ~/repos/iar-personalization --self-modification
+# Run a long darwin loop (50 cycles with cooldown):
+./utils/agent_loop.sh --personalization ~/repos/iar-personalization --self-modification --max-cycles 50
+
+# Run a different agent autonomously:
+./utils/agent_loop.sh --personalization ~/repos/iar-personalization --agent auditor --max-cycles 10
+
+# With specific knowledge bases:
+./utils/agent_loop.sh --personalization ~/repos/iar-personalization --knowledge infra/ --knowledge iar/
 ```
 
-Darwin reads its own memories, picks one thing to improve, makes the change, delegates to reviewer for code review, runs tests, commits, logs, and sleeps. One mutation per cycle.
+Darwin reads its memories (injected in system prompt, truncated to 200 lines), reads TODOs/IDEAS via read_tasks, picks one thing to improve, makes the change, delegates to reviewer for code review, runs tests, commits, logs, and sleeps. One mutation per cycle. Knowledge bases (default: iar/) are loaded automatically into the system prompt.
+
+Telegram notifications require `AGENT_TELEGRAM_BOT_TOKEN` and `AGENT_TELEGRAM_CHAT_ID` environment variables.
 
 ## Setting Up Your Personalization Repo
 

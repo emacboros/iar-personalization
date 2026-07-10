@@ -9,7 +9,7 @@ All Emacs Lisp modules live in `init.d/` and are organized into subdirectories b
 | Module | Purpose |
 |--------|---------|
 | `init.el` | Entry point. Loads all modules explicitly, then auto-discovers the rest. Sets `load-prefer-newer t` to avoid stale byte-compiled code. |
-| `metaconfig/parameters.el` | Central parameter configuration. All tunable parameters (delegate depth, darwin cycle limits, loop guard thresholds, memory limits, file read limits, audit log rotation). Loaded before any init.d module. |
+| `metaconfig/parameters.el` | Central parameter configuration. All tunable parameters (delegate depth, agent cycle limits, loop guard thresholds, memory limits, file read limits, personal file injection line cap, audit log rotation). Loaded before any init.d module. |
 | `metaconfig/gptel.el` | Ollama backend configuration. Defines models, host, request params. |
 | `core/locale.el` | UTF-8 locale configuration. Must load first. |
 | `core/package_setup.el` | Package manager setup (MELPA, use-package). |
@@ -21,14 +21,14 @@ All Emacs Lisp modules live in `init.d/` and are organized into subdirectories b
 
 | Module | Purpose |
 |--------|---------|
-| `agent/agent_loader.el` | **C-c a** -- Interactive agent profile loader. Discovers `agents.d/agents/<name>/prompt.org`, expands `#+INCLUDE` directives via org-export, injects personal files (LOGS.md, SUMMARY.md, MEMORIES.md) from `tasks/<name>/` programmatically, sets `gptel-system-prompt`. Tracks current agent name and file. Resets knowledge state on agent switch. Reports prompt size on load. |
-| `agent/knowledge_loader.el` | **C-c k** -- Interactive knowledge folder loader. Reads all `.md`/`.org` files from a `knowledge/<folder>/` directory, appends to system prompt with delimiters. Supports multiple knowledge bases loaded simultaneously. Idempotent (same knowledge reload is no-op). **C-c p** -- Prompt size info (chars + approximate tokens). |
-| `agent/delegate_tool.el` | Async multi-agent delegation. Spawns sub-agent buffers with streaming output mirrored to parent. Timeout handling, max depth limiting, unknown tool blocking, text-only turn re-prompting. |
-| `agent/prompt_loader.el` | Loads prompt templates from `agents.d/common/*.org`. Used by delegate_tool, darwin_cycle, loop_guard, memory_tools. |
+| `agent/agent_loader.el` | **C-c a** -- Interactive agent profile loader. Discovers `agents.d/agents/<name>/prompt.org`, expands `#+INCLUDE` directives via org-export, injects personal files (LOGS.md, SUMMARY.md, MEMORIES.md) from `tasks/<name>/` programmatically (truncated to last N lines via `my-gptel-personal-file-max-lines`), sets `gptel-system-prompt`. Tracks current agent name and file. Resets knowledge state on agent switch. Reports prompt size on load. |
+| `agent/knowledge_loader.el` | **C-c k** -- Interactive knowledge folder loader. Reads all `.md`/`.org` files from a `knowledge/<folder>/` directory, appends to system prompt with delimiters. Supports multiple knowledge bases loaded simultaneously. Idempotent (same knowledge reload is no-op). **C-c p** -- Prompt size info (chars + approximate tokens). Also provides `my-gptel-load-knowledge-dir` for non-interactive use (used by agent_cycle.el to load knowledge in batch mode). |
+| `agent/delegate_tool.el` | Async multi-agent delegation. Spawns sub-agent buffers with timeout handling, max depth limiting, unknown tool blocking, text-only turn re-prompting. Sub-agent output is returned as tool result (no live streaming into parent buffer). |
+| `agent/prompt_loader.el` | Loads prompt templates from `agents.d/common/*.org`. Used by delegate_tool, agent_cycle, loop_guard, memory_tools. |
 | `agent/reload_tools.el` | **reload_os** tool: re-evaluates init.el, rebuilds gptel-tools. **reload_agent** tool: re-reads current agent's prompt.org. |
 | `agent/memory_tools.el` | **C-c m** -- Memory summarization. Sends conversation to LLM for summarization, stores in LOGS.md/SUMMARY.md. |
 | `agent/task_tools.el` | Reads TODO.md and IDEAS.md from `tasks/<name>/`. Reads per-agent and unified HISTORY.log from `audit/<name>/`. |
-| `agent/darwin_cycle.el` | Autonomous agent cycle runner. Darwin mode: agent runs in a loop, making one change per cycle, testing, logging, sleeping. Has its own cycle buffer, timeout, max turns, continue prompting. |
+| `agent/agent_cycle.el` | Autonomous agent cycle runner (`agent-run-cycle`). Any orchestrator agent can run autonomously in a loop: one change per cycle, testing, logging, sleeping. Has its own cycle buffer, timeout, max turns, continue prompting. Loads shared `agent_cycle.org` prompt. Supports `:agent`, `:knowledge`, `:self-modification` parameters. |
 
 ### Filesystem and Code Tools
 
@@ -98,8 +98,8 @@ These are injected into the agent prompt programmatically by `agent_loader.el` (
 `prompts/common/` contains prompt templates used by the system (not user-facing, bind-mounted to `agents.d/common/`):
 - `delegated_task.org` -- Template for delegate task prompts
 - `delegate_continue.org` -- Re-prompt for delegates that narrate instead of acting
-- `darwin_cycle.org` -- Darwin cycle prompt
-- `darwin_cycle_continue.org` -- Darwin cycle continuation
+- `agent_cycle.org` -- Shared cycle prompt for all autonomous agents
+- `agent_cycle_continue.org` -- Shared cycle continuation prompt
 - `memory_summarizer.org` -- Memory summarization prompt
 - `loop_soft_block.org` -- Loop guard soft block message
 - `loop_hard_stop.org` -- Loop guard hard stop message

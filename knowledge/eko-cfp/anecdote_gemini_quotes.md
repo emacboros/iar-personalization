@@ -141,7 +141,7 @@ The five-day progression is now complete:
 ## Full Conversation
 
 The complete Gemini chat is publicly available at:
-https://gemini.google.com/app/233cbd8c766ebea2
+https://gemini.google.com/share/d/125vr6Y3kMpH4OTsH-vEHEFCbeoCIDxJX
 
 This can be referenced in slide footnotes and the talk's references section. Useful for capturing screenshots of the original messages for slides.
 

@@ -27,7 +27,7 @@ Security researcher and embedded systems engineer with 8+ years across ASIC digi
 
 ## Professional Experience
 
-### Security Researcher -- Maxwell Security (2024-2025, Argentina)
+### Security Researcher -- Maxwell Security (2024-2025, Argentina) [PAST ROLE]
 
 - Led vulnerability review and classification for client security assessments, categorizing findings by severity and producing actionable remediation reports.
 - Designed and developed AI-assisted audit tooling that accelerated vulnerability discovery and reduced assessment times.

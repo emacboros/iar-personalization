@@ -48,6 +48,14 @@ All Emacs Lisp modules live in `init.d/` and are organized into subdirectories b
 | `security/loop_guard.el` | Detects repetitive tool call loops. Soft threshold: blocks and warns. Hard threshold: stops the request entirely. |
 | `security/output_sanitizer.el` | Output filtering for tool results. |
 
+### Debug and Monitoring
+
+| Module | Purpose |
+|--------|---------|
+| `debug/buffer_monitor.el` | Buffer size monitor. Logs conversation buffer size (bytes, chars, approx tokens) to audit.log and per-agent `audit/<agent>/BUFFER.log` before each `gptel-send` via `advice-add :before`. Warning threshold at `my-gptel-buffer-warn-size` (default 5MB chars). Optional hard cap at `my-gptel-buffer-hard-cap` (default nil = disabled) aborts send to prevent host crash from unbounded buffer growth. |
+| `debug/request_logger.el` | Request logger. Captures full JSON payloads sent to and received from the LLM. Outgoing: advice-add `:around` on `gptel-curl--get-config` extracts JSON from config string. Incoming: advice-add `:before` on `gptel-curl--stream-cleanup` and `gptel-curl--sentinel` snapshots raw process buffer before gptel parses it. Writes to `audit/<agent>/REQUESTS.log`. Settles whether the model returns 2 tool calls or gptel splits one. |
+| `debug/fsm_tracer.el` | FSM state tracer + tool call inspector. Logs every `gptel--fsm-transition` call (old state, new state, tool-use count, tool-result count, error status) via advice-add `:before`. Also replaces `gptel--process-tool-call` with an instrumented version that logs tool name, remaining count before/after, and whether transition fired. Writes to `audit/<agent>/FSM.log`. |
+
 ### Session Management
 
 | Module | Purpose |

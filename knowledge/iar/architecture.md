@@ -148,7 +148,7 @@ Without `--self-modification`, agents have no access to the repo at all -- only 
 | `--mount PATH` | No | Mount additional writable directory |
 | `--mount-ro PATH` | No | Mount additional read-only directory |
 | `--ssh-key-dir PATH` | No | Directory containing agent SSH keys (default: ~/.ssh) |
-| `--ssh-key NAME` | No | SSH key name (default: <agent>_ed25519). Skipped if key doesn't exist. |
+| `--ssh-key NAME` | No | SSH key name (default: emacboros_ed25519). Skipped if key doesn't exist. |
 | `--gptel-fork PATH` | No | Mount a local gptel fork directory |
 | `--self-modification` | No | Enable self-modification mode |
 | `--memory LIMIT` | No | Podman memory limit (default: 8g) |

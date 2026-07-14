@@ -31,7 +31,7 @@ All Emacs Lisp modules live in `init.d/` and are organized into subdirectories b
 | Module | Purpose |
 |--------|---------|
 | `init.el` | Entry point. Loads all modules explicitly, then auto-discovers the rest. Sets `load-prefer-newer t` to avoid stale byte-compiled code. Sets self-modification mode from `EMACBOROS_SELF_MODIFICATION` env var before file guard loads. |
-| `core/iar-locale.el` | UTF-8 locale configuration. Must load first. |
+| `core/iar-locale.el` | UTF-8 locale configuration. Must load first. In a containerized environment, locale may not be set via environment variables, so UTF-8 is enforced at the Emacs level. Calls `set-terminal-coding-system`, `set-keyboard-coding-system`, `set-selection-coding-system` (all to `'utf-8`), `prefer-coding-system` (`'utf-8`), and `set-language-environment` (`"UTF-8"`). Key insight: `char-displayable-p` returns nil for non-ASCII when `terminal-coding-system` is nil, causing Emacs to render escape sequences instead of glyphs. Setting terminal coding system is the critical fix. Provide symbol: `iar-locale`. |
 | `core/iar-package-setup.el` | Package manager setup (MELPA, use-package). |
 | `core/iar-ui-cleanup.el` | UI cleanup (no toolbar, no scrollbar, no menu bar). |
 | `core/iar-evil-mode.el` | Evil mode (vim keybindings in Emacs). |

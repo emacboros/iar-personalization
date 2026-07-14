@@ -58,6 +58,12 @@
 |------|------|-------------|
 | `send_telegram` | `message` (required) | Send Telegram notification via Bot API. Async tool (callback pattern). Message auto-prefixed with `[AgentName]`. Credentials from `AGENT_TELEGRAM_BOT_TOKEN` and `AGENT_TELEGRAM_CHAT_ID` env vars. Uses curl POST with 15s timeout. Parses JSON response to verify success. Audit-logged. |
 
+### Git (tools/git/)
+
+| Tool | Args | Description |
+|------|------|-------------|
+| `git_commit` | `repo_path`, `message` (required) | Stage all changes (`git add -A`) and commit in a git repository. Sync tool using `call-process` directly (no shell, no injection surface). Validates repo directory and `.git` presence. Git identity auto-configured from `iar-git-author-name`/`iar-git-author-email` defvars (parameters.el), falls back to "i.ar Agent" / `<agent>@i.ar.local`. Checks for staged changes before committing (returns "No changes to commit" if clean). Audit-logged with repo path, truncated message (100 chars), and exit code. Returns `Success:` or `Error:` string. |
+
 ## File Guard Protection
 
 The file guard (`iar-file-guard.el`) intercepts `write_file`, `replace_in_file`, and `append_file` calls. Protected paths are defined as defcustoms in `parameters.el` as (regex reason append-allowed) triples.

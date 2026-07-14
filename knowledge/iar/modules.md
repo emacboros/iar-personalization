@@ -35,7 +35,7 @@ All Emacs Lisp modules live in `init.d/` and are organized into subdirectories b
 | `core/iar-package-setup.el` | Package manager setup (MELPA, use-package). |
 | `core/iar-ui-cleanup.el` | UI cleanup (no toolbar, no scrollbar, no menu bar). |
 | `core/iar-evil-mode.el` | Evil mode (vim keybindings in Emacs). Sets `evil-want-integration` to `t` and `evil-want-keybinding` to `nil` (both declared as defvars before use to silence byte-compiler). Loads `evil` via `use-package` with `:ensure t` and `:config (evil-mode 1)`. Loads `evil-collection` via `use-package` with `:after evil`, `:ensure t`, and `:config (evil-collection-init)`. Provide symbol: `iar-evil-mode`. |
-| `core/iar-gptel-setup.el` | Loads gptel package and applies metaconfig/gptel.el settings. |
+| `core/iar-gptel-setup.el` | Loads gptel package and applies metaconfig/gptel.el settings. Declares defvars `iar-gptel-backend`, `iar-gptel-default-model`, `iar-fork-path` (from metaconfig). Fork override: if `iar-fork-path` is a valid directory, prepends it to `load-path` so the fork takes precedence over the ELPA-installed package (used when a fix is merged upstream but not yet shipped in ELPA). Loads gptel via `use-package` with `:ensure t` and `:config` that calls `(load-file metaconfig/gptel.el)` then `setq-default` for `gptel-backend` and `gptel-model`. Provide symbol: `iar-gptel-setup`. |
 
 ### Agent System
 

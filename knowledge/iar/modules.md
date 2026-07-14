@@ -24,7 +24,7 @@ All Emacs Lisp modules live in `init.d/` and are organized into subdirectories b
 | Module | Purpose |
 |--------|---------|
 | `init.d/shared/iar-utils.el` | Consolidated utilities: `iar--get-agent-name` (agent name resolution with fallback), `iar--approx-token-count` (character-to-token estimation), `iar--audit-log-path` (audit log path resolution), `iar--with-suppressed-save-hooks` (macro for atomic writes). |
-| `init.d/shared/iar-agent-utils.el` | Agent validation and path resolution: `iar--valid-name-p` (agent/task name validation), `iar--resolve-agent-dir` (path resolution with traversal defense), `iar--resolve-task-path`. |
+| `init.d/shared/iar-agent-utils.el` | Agent validation and path resolution: `iar--valid-name-p` (agent/task name validation with string anchors `\`...\'` to prevent multi-line bypass), `iar--validate-agent-name`/`iar--validate-task-name` (error wrappers that signal on invalid names), `iar--resolve-agent-dir` (base) -- resolves per-agent directory under "tasks" or "audit" with `file-truename` traversal defense, `iar--resolve-agent-tasks-dir`/`iar--resolve-agent-audit-dir` (convenience wrappers), `iar--resolve-task-path` (task-name) -- adds `.md` extension, validates name, checks traversal. Backward compat aliases: `iar--valid-agent-name-p`, `iar--valid-task-name-p` (both alias `iar--valid-name-p`), `iar--get-agent-dir` (aliases `iar--resolve-agent-tasks-dir`). Declares defvars `iar-tasks-path`, `iar-audit-path` (from parameters.el). Requires cl-lib, subr-x, iar-utils. Provide symbol: `iar-agent-utils`. |
 
 ### Core Infrastructure
 

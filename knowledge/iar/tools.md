@@ -6,7 +6,7 @@
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `read_file` | `filepath` (required) | Read file contents into context. Size-limited by `iar-fs-read-max-size` (default 1MB). |
+| `read_file` | `filepath` (required) | Read file contents into context. Size-limited by `iar-fs-read-max-size` (default 1MB) using character count (not byte count, since `insert-file-contents` decodes and token consumption correlates with characters). Truncation notice appended when limit exceeded. Error handling via `condition-case`, returns `Error:` string on failure. |
 | `write_file` | `filepath`, `content` (required) | Create or overwrite a file. File-guard enforced. Atomic writes with suppressed save hooks. |
 | `append_file` | `filepath`, `content` (required) | Append to end of file. Auto-prepends newline if needed. Used for HISTORY.log and LOGS.md. |
 | `list_directory` | `path` (required) | List directory contents. |

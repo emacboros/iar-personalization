@@ -50,7 +50,7 @@
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `iar--memory-summarize` | none (interactive, C-c m) | Summarize conversation to LOGS.md/SUMMARY.md via LLM. |
+| `iar-summarize-session` | none (interactive, C-c m) | Summarize conversation to LOGS.md/SUMMARY.md via LLM. |
 
 ### Notification (tools/notify/)
 

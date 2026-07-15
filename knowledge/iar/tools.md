@@ -56,7 +56,7 @@
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `send_telegram` | `message` (required) | Send Telegram notification via Bot API. Async tool (callback pattern). Message auto-prefixed with `[AgentName]`. Credentials from `AGENT_TELEGRAM_BOT_TOKEN` and `AGENT_TELEGRAM_CHAT_ID` env vars. Uses curl POST with 15s timeout. Parses JSON response to verify success. Audit-logged. |
+| `send_telegram` | `message` (required) | Send Telegram notification via Bot API. Async tool (callback pattern per gptel `:async` convention). Core function `iar--mygptel--tool-telegram` (callback, message). Message prefixed with `[AgentName]` via `iar--get-agent-name`. Credentials from `AGENT_TELEGRAM_BOT_TOKEN` and `AGENT_TELEGRAM_CHAT_ID` env vars. Error handling: returns error if credentials missing or message empty. Uses curl POST with `-m 10` (10s curl timeout) and `:connection-type 'pipe`. Emacs-level 15s timeout via `run-with-timer` (kills process on hang). JSON payload via `json-serialize`; response parsed with `json-read` + `json-object-type 'plist`, checks `:ok` field. Audit-logged via `my-gptel--audit-log` with message truncated to 100 chars. Requires gptel, iar-utils, iar-audit-log. |
 
 ### Git (tools/git/)
 

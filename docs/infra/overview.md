@@ -2,7 +2,9 @@
 
 ## What This Is
 
-Ansible-based infrastructure as code for 5 hosts: 3 cloud VPS + 2 local machines. Unified by a WireGuard hub-and-spoke mesh network with Cloudflare Tunnel fallback. All servers run Fedora Server 44 or AlmaLinux 10 (RHEL family only).
+Ansible-based infrastructure as code for 3 hosts: 1 cloud VPS + 2 local machines. Unified by a WireGuard hub-and-spoke mesh network. All servers run Fedora Server 44 or Fedora Workstation (RHEL family only).
+
+Consolidated 2026-08-04: daftpunk + greenday killed. rammstein is sole VPS.
 
 ## Network Topology
 
@@ -11,133 +13,101 @@ Ansible-based infrastructure as code for 5 hosts: 3 cloud VPS + 2 local machines
                          │              INTERNET                           │
                          │                                                 │
     ┌────────────────────┤                    │                            │
-    │  randazzo.ar       │  0b.ar             │  i.ar                     │
-    │  randazzo.com.ar   │                    │  grafana.i.ar             │
-    │  (redirect)        │                    │  camaras.randazzo.ar       │
-    │                    │                    │                            │
+    │  randazzo.ar       │                    │  i.ar (landing)            │
+    │  randazzo.com.ar   │                    │  app.i.ar (SecPlatform)    │
+    │  caldav.randazzo.ar│                    │  app-bo.i.ar (SecPlatform) │
+    │  (→redirect)       │                    │  auth.i.ar (Keycloak)      │
+    │                    │                    │  camaras.randazzo.ar       │
+    │                    │                    │  wiki.randazzo.ar          │
+    │                    │                    │  agora.randazzo.ar (Zulip) │
     ▼                    ▼                    ▼                            │
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐                     │
-│  rammstein   │  │   greenday   │  │   daftpunk   │                     │
-│  VPS 2c/4GB  │  │  VPS 16c/16G │  │  16c/64GB    │                     │
-│  Proxy Hub   │  │  AI Play     │  │  Ollama CPU  │                     │
-│  Caddy + TLS │  │  Docker      │  │  Static page │                     │
-│  CF Tunnel   │  │  SSH for AI  │  │  Grafana      │                     │
-│  WG:10.66.0.1│  │  WG:10.66.0.2│  │  WG:10.66.0.3│                     │
-└──────┬───────┘  └──────┬───────┘  └──────┬───────┘                     │
-       │   WireGuard      │   WireGuard      │   WireGuard                 │
-       │   (hub)          │   (spoke)        │   (spoke)                   │
+┌──────────────────────────────────────────────────────────────────────┐  │
+│  rammstein (sole VPS)                                                │  │
+│  VPS 2c/4GB -- Fedora 44                                            │  │
+│  Caddy + TLS (all domains)                                           │  │
+│  Static pages: randazzo.ar + i.ar                                    │  │
+│  Caddy proxy: app.i.ar -> sophon:8091 (SecPlatform client)          │  │
+│  Caddy proxy: app-bo.i.ar -> sophon:8092 (SecPlatform BO)           │  │
+│  Caddy proxy: auth.i.ar -> sophon:8080 (Keycloak)                   │  │
+│  Caddy proxy: camaras.randazzo.ar -> sophon:8971 (Frigate)           │  │
+│  Caddy proxy: caldav.randazzo.ar -> localhost:5232 (Radicale)        │  │
+│  Caddy static: wiki.randazzo.ar -> /var/lib/wiki/build               │  │
+│  Caddy proxy: agora.randazzo.ar -> sophon:8090 (Zulip)              │  │
+│  Radicale CalDAV server (localhost:5232)                             │  │
+│  Wiki build (ruby + pandoc + pagefind, post-receive hook)            │  │
+│  Git bare repos (auto-discovered, mirrors to sophon)                │  │
+│  Restic remote target (SFTP, restic user)                            │  │
+│  WireGuard hub: 10.66.0.1                                            │  │
+└──────┬───────────────────────────────────────────────────────────────┘  │
+       │   WireGuard (hub)                                                │
        ═══════════════════════════════════════════════════════════════════ │
-       │                  │                  │                              │
+       │                                                                  │
        ▼                                              ▼                     │
-┌──────────────┐                              ┌──────────────┐             │
-│    yoga      │                              │   sophon     │             │
-│  Intel Ultra │                              │ 12c/96GB    │             │
-│  NPU (future)│                              │ RTX 3080    │             │
-│  WG:10.66.0.4│                              │ Ollama GPU  │             │
-└──────────────┘                              │ Frigate NVR │             │
-                                               │ WG:10.66.0.5│             │
-                                               └──────────────┘             │
-                                                                            │
-                    randazzo.net.ar -> Cloudflare Tunnel (fallback VPN)     │
+┌──────────────┐                              ┌──────────────────────────┐ │
+│    yoga      │                              │   sophon                 │ │
+│  Intel Ultra │                              │ 12c/96GB, RTX 3080      │ │
+│  Fedora WS   │                              │ Ollama GPU              │ │
+│  WG:10.66.0.4│                              │ Frigate NVR             │ │
+│  pass client │                              │ SecPlatform (podman)    │ │
+│  restic      │                              │ Zulip chat (podman)     │ │
+│  backup      │                              │ i.ar agents             │ │
+│              │                              │ Git bare repos          │ │
+│              │                              │ Restic local target     │ │
+│              │                              │ WG:10.66.0.5            │ │
+└──────────────┘                              └──────────────────────────┘ │
                                                                             │
                          └─────────────────────────────────────────────────┘
 ```
 
 ## Host Inventory
 
-| Host | Codename | WG IP | Domain | Role | Hardware |
-|------|----------|-------|--------|------|----------|
-| rammstein | randazzo-ar | 10.66.0.1 | randazzo.ar, randazzo.com.ar | Proxy hub, Caddy, CF Tunnel | VPS 2c/4GB |
-| greenday | ob-ar | 10.66.0.2 | 0b.ar | AI playground, Docker, SSH for AI agent | VPS 16c/16GB |
-| daftpunk | i-ar | 10.66.0.3 | i.ar | Ollama (CPU), static page, Grafana | 16c/64GB |
-| yoga | laptop | 10.66.0.4 | (none) | Future NPU agent | Intel Core Ultra |
-| sophon | server-pc | 10.66.0.5 | (none) | Ollama GPU, Frigate NVR | 12c/96GB, RTX 3080 10GB |
+| Host | Codename | WG IP | Role | Hardware |
+|------|----------|-------|------|----------|
+| rammstein | randazzo-ar | 10.66.0.1 | Proxy hub, Caddy, WG hub, git bare repos, Radicale, wiki, restic remote | VPS 2c/4GB |
+| yoga | laptop | 10.66.0.4 | Daily driver, backup client, pass client | Intel Ultra, Fedora Workstation |
+| sophon | server-pc | 10.66.0.5 | GPU Ollama, Frigate NVR, SecPlatform, Zulip, i.ar agents, git mirror, restic local | 12c/96GB, RTX 3080 |
 
-## Inventory Groups (Functional)
+Only rammstein has public web ports (80/443). All else WireGuard-only.
 
-Hosts can belong to multiple groups. Adding a host to a group auto-includes it in relevant playbooks.
+## Ansible Structure
 
-| Group | Hosts | Purpose |
-|-------|-------|---------|
-| `cloud` | rammstein, greenday, daftpunk | All VPS hosts (get admin user, SSH key) |
-| `local` | sophon, yoga | Local machines (use personal user `nacho`) |
-| `proxy` | rammstein | Caddy + CF Tunnel |
-| `ai_playground` | greenday | Docker + AI agent environment |
-| `ollama_hosts` | daftpunk, sophon | Ollama instances |
-| `frigate_hosts` | sophon | Frigate NVR |
-| `debug_container_hosts` | sophon, rammstein | i.ar debug container deployment for remote agent access |
+- Inventory: `inventory/hosts.yml` with functional groups (cloud, local, proxy, ollama_hosts, secplatform_hosts, etc.)
+- Variables layered: role defaults -> group_vars/all -> group_vars/<group> -> host_vars -> vault
+- Vault: `inventory/group_vars/all/vault.yml` (encrypted)
+- Playbooks: site.yml (full), base.yml, wireguard.yml, ollama.yml, secplatform.yml, zulip.yml, etc.
 
-## Variable Hierarchy (DRY)
+## Key Services
 
-Variables are layered -- each layer overrides the one above:
+- Caddy: automatic TLS, reverse proxy for all web services
+- Ollama: sophon (GPU). WireGuard-only, never public.
+- Frigate NVR: 8 cameras on sophon, proxied via rammstein
+- SecPlatform: multi-tenant SaaS on sophon (podman compose + docker-compose v2), proxied via rammstein
+- Zulip: self-hosted chat on sophon (podman compose), proxied via rammstein as agora.randazzo.ar
+- i.ar debug containers: on sophon + rammstein, SSH over WireGuard, host root at /host (read-only)
 
-| Layer | File | Purpose |
-|-------|------|---------|
-| 1. Role defaults | `roles/<name>/defaults/main.yml` | Safe defaults for standalone role use |
-| 2. Group vars (all) | `inventory/group_vars/all/main.yml` | Global: packages, domains, WG, SSH, Ollama defaults |
-| 3. Group vars (group) | `inventory/group_vars/<group>.yml` | Per-group settings (cloud, local) |
-| 4. Host vars | `inventory/host_vars/<host>.yml` | Per-host: WG IP, enabled services, models, cameras |
-| 5. Vault | `inventory/group_vars/all/vault.yml` | Secrets (encrypted with ansible-vault) |
+## Domains
 
-**Rule:** Define a variable at the highest layer where it is constant. Only push it down to host_vars when it varies per host.
+| Domain | Service | Backend |
+|--------|---------|---------|
+| randazzo.ar | Portfolio (static) | rammstein local |
+| randazzo.com.ar | Redirect to randazzo.ar | rammstein |
+| i.ar | Landing page (static) | rammstein local |
+| app.i.ar | SecPlatform customer portal | sophon:8091 |
+| app-bo.i.ar | SecPlatform back-office | sophon:8092 |
+| auth.i.ar | Keycloak (OIDC) | sophon:8080 |
+| camaras.randazzo.ar | Frigate NVR | sophon:8971 |
+| wiki.randazzo.ar | Wiki (static) | rammstein local |
+| caldav.randazzo.ar | Radicale CalDAV | rammstein localhost:5232 |
+| agora.randazzo.ar | Zulip chat | sophon:8090 |
 
-## Ansible Configuration
+## Security
 
-- Inventory: `inventory/hosts.yml`
-- Vault password: `.vault_pass` (gitignored)
-- Fact caching: jsonfile in `.ansible/facts/` (24h timeout)
-- SSH: ControlMaster auto, ControlPersist 60s
-- Become: sudo as root by default
-- Callbacks: profile_tasks (shows task timing)
-- Retry files: disabled
+- Key-only SSH, password auth disabled, fail2ban
+- Firewalld default deny on all hosts
+- Ollama binds to WireGuard IP only
+- SecPlatform services bind to WireGuard IP only (10.66.0.5)
+- Zulip binds to localhost:8090, Caddy provides TLS + public access
 
-## Key Files
+## Full Docs
 
-| File | Purpose |
-|------|---------|
-| `ansible.cfg` | Ansible configuration |
-| `inventory/hosts.yml` | Host inventory with functional groups |
-| `inventory/group_vars/all/main.yml` | Global variables (domains, WG, packages, defaults) |
-| `inventory/group_vars/all/vault.yml` | Encrypted secrets (WG keys, CF tokens, RTSP creds) |
-| `inventory/host_vars/<host>.yml` | Per-host overrides (WG IP, enabled services, models) |
-| `scripts/generate-wg-keys.sh` | One-time WireGuard keypair generation for all hosts |
-| `.vault_pass` | Ansible vault password file (gitignored, must exist locally) |
-| `.gitignore` | Protects secrets: .vault_pass, wg-keys/, *.private, *.key, .ansible/ |
-
-## Domains and Web Services
-
-| Domain | Served By | Type | Backend |
-|--------|-----------|------|---------|
-| randazzo.ar | rammstein (Caddy) | Static portfolio | file_server -> /var/www/randazzo.ar |
-| randazzo.com.ar | rammstein (Caddy) | Redirect | -> https://randazzo.ar |
-| camaras.randazzo.ar | rammstein (Caddy) | Reverse proxy | -> 10.66.0.5:8971 (Frigate) |
-| i.ar | daftpunk (Caddy) | Static landing page | file_server -> /var/www/emacboros |
-| grafana.i.ar | daftpunk (Caddy) | Reverse proxy | -> 10.66.0.3:3000 (Grafana) |
-| 0b.ar | greenday (Caddy) | Reverse proxy | -> 127.0.0.1:80 (AI playground) |
-
-All sites get automatic TLS via Caddy + Let's Encrypt. Security headers (HSTS, X-Frame-Options, nosniff, no-referrer) applied.
-
-## Ollama Configuration
-
-| Host | Mode | Listen Address | Models |
-|------|------|---------------|--------|
-| daftpunk | CPU-only | 10.66.0.3:11434 (WG only) | llama3.3:70b, north-mini-code-1.0:q8_0 |
-| sophon | GPU offload | 10.66.0.5:11434 (WG only) | nemotron-3-super:120b, gpt-oss:120b |
-
-Ollama never binds to 0.0.0.0 on production hosts. WireGuard IP only = no public exposure.
-
-## Frigate NVR (sophon)
-
-8 cameras (3 interior, 5 exterior) connected via RTSP. Camera IPs are in host_vars; credentials come from vault. Frigate runs via Podman Compose with NVIDIA TensorRT for object detection. Web UI at port 8971, proxied through rammstein as camaras.randazzo.ar.
-
-Retention: continuous 3 days, motion 7 days, alerts/detections 30 days.
-
-## i.ar Debug Containers
-
-Debug containers are deployed on infrastructure hosts via the `iar-debug-container` Ansible role. They provide remote i.ar agent access for debugging sessions over WireGuard.
-
-- **Hosts:** sophon, rammstein (defined in `debug_container_hosts` inventory group)
-- **Playbook:** `playbooks/debug-containers.yml`
-- **Container features:** Host root filesystem mounted read-only at `/host`, SSH key-only auth, unprivileged `debug-agent` user
-- **Linux file permissions:** Sensitive files (WireGuard keys 0600 root:root, vault files, SSH host keys) are unreadable by the unprivileged container user
-- **On-site audit capability:** The role includes a template (`iar-pentest-container.service.j2`) for deploying the pentest container image on-site for security assessments. The pentest container has outbound internet access, runs as an unprivileged user, and is isolated from personal data. Agents can run commands in the pentest container via `execute_code_remote` over WireGuard SSH. Controlled by `iar_pentest_container_enabled` variable.
+operations.md (deployment, recovery), overview.md (detailed topology), playbooks.md (playbook reference), roles.md (role reference), security.md (security details). Use read_file for details.

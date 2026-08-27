@@ -1,99 +1,46 @@
 # i.ar Roadmap
 
-No dates. Dependencies and ordering only. Completion is implicit: if a task directory exists, it's not done. If it's gone (removed via remove_task), it's done.
+Cleared 2026-08-21. Previous roadmap items dropped -- completed in sprint or no longer relevant.
 
-## Current Priority: SecPlatform Agent Integration
+## Current Priority: yoga ansible + automated backups
 
-Integrate iar.sh one-shot agent scans into SecPlatform so users can trigger pentest agent scans from the frontend. Results parsed back into the vulnerabilities table.
+### Context
 
-Design doc: docs/iar-prod/agent-integration.md
+Notebook failure lost all audit logs, history, and state files. Operational files
+were never in git (correctly gitignored) and had no backup. Rebuilding with proper
+automated restic backups to prevent recurrence.
 
-### Step 20: secplatform/agent-runner [DONE]
+yoga was reinstalled with Fedora Workstation (i3 spin), replacing Silverblue.
+rammstein VPS also needs reinstall -- SSH keys lost with notebook.
 
-Built the host-side agent-runner Python HTTP service. Stdlib only, no deps.
+### What's Done (code changes in iar-infrastructure repo)
 
-### Step 21: secplatform/bff-agent-routes [DONE]
+- yoga.yml host_vars updated: removed manage_packages: false, updated restic backup
+  paths (repos, data, .config, .ssh), added local external drive config (/dev/sda1
+  at /mnt/backups, restic repo at /mnt/backups/restic)
+- restic role extended for 3-target backup (local drive -> sophon RAID1 -> rammstein offsite)
+- restic templates updated: backup service, check service now handle optional local repo
+- restic defaults updated with new architecture docs
+- base/podman/wireguard/pass role comments cleaned up (removed Silverblue references)
 
-BFF routes for creating agent scans and polling status. Prompt construction, DB migration (agent_job_id column), agent-runner config in compose env.
+### What's Pending (manual -- see tasks)
 
-### Step 22: secplatform/parser-agent [DONE]
+1. Reinstall rammstein VPS (SSH keys lost)
+2. Generate new WG keys for yoga, update vault
+3. Generate new GPG key for pass on yoga, update vault
+4. Format external drive (or set restic_format_local_drive: true for first run)
+5. Create /home/nacho/data directory
+6. Run ansible playbook (base + wireguard + restic + pass on yoga, then full site.yml)
 
-vuln-parser agent personality (one-shot, strict JSON output). Project file + agent-loader mapping.
+### Open Question
 
-### Step 23: secplatform/frontend-agent-scan [DONE]
+Restic backup service uses && chaining -- if local backup fails, offsite doesn't run.
+Consider switching to ; for backup commands so offsite always runs regardless of
+local drive state. Decide before running playbook.
 
-Frontend UI: agent scan modal (scan type, depth, focus, rate limit), status polling, results display.
+### After Manual Steps Complete
 
-### Step 24: secplatform/ansible-agent-runner [DONE]
-
-Ansible role updated: deploy agent-runner.py, create systemd service, vault template, host_vars.
-
-### Step 25: secplatform/e2e-test [PENDING]
-
-End-to-end test: trigger scan from frontend, verify agent runs, verify results in DB. Manual testing after deploy.
-
-## Previous Roadmap (Remaining Items)
-
-### Step 17: refactor/consolidation-pass [IN PROGRESS]
-
-Phases A-C complete. Remaining:
-
-- Phase D: Interactive feature testing (human + mirror). Work through test plan in docs/test/plan.md. Known bugs: send_telegram hangs, async process cleanup.
-- Phase E: Wiki pipeline integration (Rakefile, post-receive hook).
-- Phase F: Final verification (tests pass, guidelines clean, docs updated).
-
-## Post-Alpha Assessment
-
-After Step 17 and Step 25 are complete: Final review to verify all alpha capabilities are fully implemented plus the SecPlatform integration. Declare alpha and begin next roadmap.
-
-## Next Roadmap (After Alpha)
-
-- Concept library: degree summarization (40 subjects, starting with pure math)
-- Long-term plan Phase 5: Ruby-Godot bridge, co-simulation framework
-- Pentesting automation: bounty hunting with autonomous agents
-- Advanced life-org: alerting, continuous monitoring, maintenance scheduling
-
-## Completed (Previous Sessions)
-
-Step 1: knowledge-system/phase-1-reorganization-and-tooling [DONE]
-Step 2: agent-architecture/define-archetypes [DONE]
-Step 3: agent-architecture/prompt-assembly [DONE]
-Step 4: agent-architecture/memory-system [DONE]
-Step 5: agent-architecture/per-project-migration [DONE]
-Step 6: agent-architecture/one-shot-execution-model [DONE]
-Step 7: delegation-pipeline [DONE]
-Step 8: (absorbed into Step 5) [DONE]
-Step 9: i-ar-expansion/multi-container-execution [DONE]
-Step 10: i-ar-expansion/mcp-integration [DONE]
-Step 11: i-ar-expansion/rate-limiter [DONE]
-Step 12: i-ar-expansion/pentesting-suite [DONE]
-Step 13: i-ar-expansion/concepts-container-image [DONE]
-Step 14: i-ar-expansion/first-concept-and-authoring-workflow [DONE]
-Step 15: i-ar-expansion/gardener-guidelines-checker [DONE]
-Step 16: i-ar-expansion/life-org-integration [DONE]
-Step 18: agent-architecture/coverage-to-100 [DONE]
-Step 19: i-ar-expansion/reduce-prompt-tokens [DONE]
-Step 20: secplatform/agent-runner [DONE]
-Step 21: secplatform/bff-agent-routes [DONE]
-Step 22: secplatform/parser-agent [DONE]
-Step 23: secplatform/frontend-agent-scan [DONE]
-Step 24: secplatform/ansible-agent-runner [DONE]
-
-## Removed from Roadmap
-
-- knowledge-system/phase-2-infrastructure-flag -- Absorbed by #+MOUNTS in project files.
-- knowledge-system/phase-4-wiki-pipeline -- Absorbed into Step 17.
-- knowledge-system/phase-5-simulation-tools -- Renumbered to Step 13.
-- i-ar-expansion/graphical-emacs-in-container -- QoL, not on critical path.
-- i-ar-expansion/execute-code-local-security -- Absorbed into Step 9.
-- i-ar-expansion/agent-ssh-read-only-access -- Absorbed into Step 9.
-
-## Cycle Guidelines for Continuous Agents
-
-When working autonomously:
-1. read_roadmap to get this file
-2. Walk the steps in order. For each step, read_task on the path to check if it exists
-3. If the task directory exists, it's not done -- work on it
-4. If the task directory is gone, it's done -- move to the next step
-5. One task per cycle. Small, deliberate changes.
-6. When a task is complete: remove_task, log to HISTORY.log, end with LOOP_COMPLETE
+- Verify backups: run restic-backup.service manually, check all 3 repos have snapshots
+- Verify WireGuard mesh: ping all hosts from yoga
+- Verify pass: test pass init and git push to remotes
+- Update infra docs to reflect yoga = Fedora Workstation (i3 spin)

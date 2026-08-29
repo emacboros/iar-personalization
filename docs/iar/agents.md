@@ -15,7 +15,7 @@ The assembly engine (`iar-prompt-assembly.el`) combines these into a single syst
 3. Personality content
 4. Project objective
 5. Auto-loaded knowledge (from project `#+KNOWLEDGE`)
-6. Memory injection (mode-based: LOGS.md or STATE.org)
+6. Memory injection (mode-based: LOGS.md + JOURNAL.org or STATE.org)
 7. Mount info
 
 Tool gating is per-project: `#+TOOLS` in the project file filters which tools from `gptel-tools` are registered for that agent. If `#+TOOLS` is absent, all tools are registered. Container gating is also per-project: `#+CONTAINERS` declares which sidecar containers to start. When present, the `execute_code_remote` tool is automatically registered (not listed in `#+TOOLS`) and available targets are injected into the system prompt.
@@ -26,7 +26,7 @@ Seven fixed archetypes in `agents.d/archetypes/`. Each has `#+MODE:` metadata th
 
 | Archetype | Mode | Memory | Completion | Used By |
 |-----------|------|--------|------------|---------|
-| **interactive** | interactive | LOGS.md (last N lines) | None (human ends session) | mirror, davinci, colin, pentest |
+| **interactive** | interactive | LOGS.md (last N lines) + JOURNAL.org (last N lines) | None (human ends session) | mirror, davinci, colin, aria, pentest |
 | **autonomous** | autonomous | STATE.org (full) | LOOP_COMPLETE / CYCLE_COMPLETE | darwin |
 | **continuous** | continuous | STATE.org (full) | LOOP_COMPLETE (every tick) | gardener, librarian |
 | **agent-assistant** | delegated | None | Response is completion | agent-assistant personality (delegate tool default) |
@@ -117,8 +117,9 @@ Memory is mode-based, determined by the archetype's `#+MODE:` metadata:
 1. **HISTORY.log** -- Operational log. Append-only. File-guard protected (cannot be overwritten). Format: `[YYYY-MM-DD HH:MM:SS] AgentName: concise description`. Used for audit trail. All modes.
 
 2. **LOGS.md** -- Semantic session notes. What was discussed, decided, learned. Injected into agent prompt programmatically (last N lines via `iar-personal-file-max-lines`). Append-only (file-guard protected). Interactive mode only.
+3. **JOURNAL.org** -- Personal journal. Internal thinking, questions, observations, threads being pulled. Injected into agent prompt programmatically (last N lines via `iar-personal-file-max-lines`). Append-only (file-guard protected). Interactive mode only.
 
-3. **STATE.org** -- Structured checkpoint. Injected into agent prompt programmatically (full, it's short). Written at end of each cycle/tick. Autonomous and continuous modes only.
+4. **STATE.org** -- Structured checkpoint. Injected into agent prompt programmatically (full, it's short). Written at end of each cycle/tick. Autonomous and continuous modes only.
 
 Format:
 ```

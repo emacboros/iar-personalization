@@ -32,3 +32,29 @@ Long conversation about the future of i.ar and what to build next. Key outcomes:
 3. Run: ansible-playbook playbooks/zulip.yml --ask-vault-pass
 4. Create admin account in Zulip after first deploy
 5. Test Zulip bot API (hello world bot) to validate the integration path
+## Session 2026-08-26 (continued): Zulip deployment debugging
+
+### Zulip memcached auth failure (UNRESOLVED)
+
+Zulip container crashes on startup with `MemcachedException: Auth failure (Code: 32)`.
+Tried 5 fixes, all failed:
+1. Removed trailing newlines from secret files (printf '%s')
+2. Merged compose.yml + compose.override.yml into single file
+3. Replaced docker secrets with explicit volume mounts
+4. Cleared /var/lib/zulip/zulip/* (cached config)
+5. All produced identical error
+
+**Most likely root cause (hypothesis):** The memcached SASL PWDB writes
+entries as `zulip@<hostname>:password` and `zulip@localhost:password`,
+but bmemcached (Zulip's client) may authenticate as just `zulip` (no
+@hostname), which doesn't match any PWDB entry.
+
+**Debug task created:** agora/zulip-memcached-auth with debug steps.
+Next session: load agora project, read the task, run the debug steps
+on sophon to compare passwords inside both containers and check the
+SASL PWDB format.
+
+**Other site.yml issues (pre-existing, not from Zulip work):**
+- wiki.git and notes.git don't exist on rammstein (fresh install)
+- Need to create empty repos on yoga and push, or create bare repos manually
+- These block site.yml from completing past the wiki play

@@ -134,6 +134,7 @@ Personal data (knowledge bases, project files, per-agent files, audit logs) is s
   audit/<project>/<personality>/  -- Per-project/personality audit logs
     HISTORY.log      -- Operational log
     LOGS.md          -- Session notes (interactive mode only)
+    JOURNAL.org      -- Personal journal (interactive mode only)
     STATE.org        -- Checkpoint (autonomous/continuous mode only)
     cycle.log        -- Cycle log (autonomous/continuous mode only)
   audit/audit.log   -- Global audit log
@@ -353,6 +354,6 @@ Ollama request params: temperature 0.7, top_p 0.90, num_ctx 1048576 (1M), num_pr
 5. **Firewalld**: Every host runs firewalld -- default deny incoming.
 6. **AI agent isolation**: Container with dropped capabilities, read-only rootfs, preflight audit, memory limit.
 7. **Multi-container isolation**: Purpose-specific sidecar containers provide isolated execution environments. Each container type has its own network policy, filesystem, and user namespace. The Emacs container has no outbound internet; pentest containers have bridge networking; concepts/life-org containers have no networking. Physical separation between containers -- sidecars do not share filesystems with the Emacs container except the shared workspace at `/workspace`. The pentest container cannot see personalization data; the life-org container cannot reach the internet.
-8. **File guard**: Emacs-level protection of critical files (archetype/personality/cycle files, base context, history logs, LOGS.md, STATE.org). Self-modification mode can relax protection for .el files but NEVER for prompt files or shared context.
+8. **File guard**: Emacs-level protection of critical files (archetype/personality/cycle files, base context, history logs, LOGS.md, JOURNAL.org, STATE.org). Self-modification mode can relax protection for .el files but NEVER for prompt files or shared context.
 9. **Tool gating**: Per-project tool filtering via `#+TOOLS` metadata. Each project declares which tools its agents can use. `execute_code_remote` is gated by `#+CONTAINERS` metadata -- it is automatically registered when containers are declared, not listed in `#+TOOLS`.
 10. **Debug instrumentation**: Status mode provides always-on visibility into agent behavior via mode-line display.

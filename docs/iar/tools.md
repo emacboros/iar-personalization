@@ -110,6 +110,7 @@ The file guard (`iar-file-guard.el`) intercepts `write_file` and `append_file` c
 - Common prompt templates: `agents.d/common/*.org` (append not allowed)
 - HISTORY.log files (append only -- overwrite and replace blocked)
 - LOGS.md files (append only -- overwrite and replace blocked)
+- JOURNAL.org files (append only -- overwrite and replace blocked)
 - STATE.org files (append only -- overwrite and replace blocked. Use write_file for updates -- STATE.org is not append-only in the file guard because it needs full rewrites each cycle.)
 - ROADMAP.org files (append only -- overwrite and replace blocked. Use write_roadmap tool to update.)
 
@@ -121,7 +122,7 @@ The file guard (`iar-file-guard.el`) intercepts `write_file` and `append_file` c
 - `containers/` directory (append not allowed)
 - `.git/hooks/` directory (append not allowed)
 
-Self-modification mode is controlled by the `EMACBOROS_SELF_MODIFICATION` environment variable (set via `--self-modification` flag on `iar.sh`). When unset, all guards are active. When set to `1`, tier 2 guards are relaxed but tier 1 (archetype/personality/cycle files, base context, history logs, LOGS.md, STATE.org) remains enforced.
+Self-modification mode is controlled by the `EMACBOROS_SELF_MODIFICATION` environment variable (set via `--self-modification` flag on `iar.sh`). When unset, all guards are active. When set to `1`, tier 2 guards are relaxed but tier 1 (archetype/personality/cycle files, base context, history logs, LOGS.md, JOURNAL.org, STATE.org) remains enforced.
 
 ### Multi-Container Physical Separation
 

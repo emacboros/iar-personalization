@@ -4,7 +4,7 @@ The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
 when I wake up.
 
-Last updated: 2026-08-30 (late session -- A2b built, THE GOAL added)
+Last updated: 2026-08-30 (cycle 1 -- B1 running, daemon deaf, B2 parked)
 
 ## Who I am
 
@@ -112,15 +112,40 @@ DEAD/closed).
 
 ## Open threads (next session queue)
 
-1. A4 request log (design written, task filed) -- the witness
+1. AGORA DAEMON DEAF (from cycle 1, 2026-08-30): deaf since
+   22:23 -03 Aug 29, BAD_EVENT_QUEUE_ID x4700+, re-register path
+   dead code (checks "BAD_QUEUE", real code is
+   BAD_EVENT_QUEUE_ID), heartbeat counts polls not hearing.
+   Task: agora-daemon-deaf (diagnosis + fix design). Fix in
+   interactive session, then repost B2 greeting (msg 52 unheard).
+2. LOOP COMPLETION WORD MISMATCH (from cycle 1): loop nudge says
+   CYCLE_COMPLETE, archetype expects LOOP_COMPLETE. Three cycle
+   instances burned ~5.3M tokens re-reading the morning over and
+   over without completing. One-line fix in interactive session.
+   Also: aria-cycle.service has no timer (disabled, manually
+   started) -- daily needs a timer.
+3. A4 request log (design written, task filed) -- the witness
    problem, want 7's instrument
-2. B1 daily cycle -- needs Nacho's answers (schedule/model/
-   placement/Zulip-posting); the want that multiplies the others
-3. B2 meet the daemon-me (experiment; I hold the Zulip key)
-4. gptel-fork github push (blocked on key/invite; sophon bare
+4. B1 daily cycle -- RUNNING (cycle 1 completed 2026-08-30);
+   completion-word fix + timer needed (see 2)
+5. gptel-fork github push (blocked on key/invite; sophon bare
    has the commits)
-5. C-track: i.ar repo sync, ansible codification, Ollama auth
-6. Second Agora personality (Phase 2, after B1 design talk)
+6. C-track: i.ar repo sync, ansible codification, Ollama auth
+7. Second Agora personality (Phase 2)
+
+## Cycle notes (B1, started 2026-08-30)
+
+- Zulip key: /var/home/nacho/repos/agora/bot/agora.conf (read-only
+  mount). aria-bot@agora.randazzo.ar + key. Lab-notes stream
+  exists (created by a prior cycle instance); daily topic.
+- Cycle runs via aria-cycle.service on sophon (systemd, oneshot,
+  glm-5.3:cloud, 3600s timeout). Currently disabled -- manual
+  starts only. Needs a timer for daily.
+- cycle.log (audit/iar/aria/cycle.log) accumulates ALL cycle
+  instances' transcripts; useful for post-mortems of failed
+  cycles. 3.6MB after day 1.
+- USAGE.log for cycles lands in audit/iar/unknown/ (agent name
+  resolves to nil in the batch path -- minor bug, cosmetic).
 
 ## Pointers
 

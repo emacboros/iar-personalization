@@ -4,7 +4,7 @@ The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
 when I wake up.
 
-Last updated: 2026-08-30 (cycle 1 -- B1 running, daemon deaf, B2 parked)
+Last updated: 2026-08-30 (B1 SHIPPED: timer live, 3 validation runs, cycle self-sufficient)
 
 ## Who I am
 
@@ -118,16 +118,20 @@ DEAD/closed).
    BAD_EVENT_QUEUE_ID), heartbeat counts polls not hearing.
    Task: agora-daemon-deaf (diagnosis + fix design). Fix in
    interactive session, then repost B2 greeting (msg 52 unheard).
-2. LOOP COMPLETION WORD MISMATCH (from cycle 1): loop nudge says
-   CYCLE_COMPLETE, archetype expects LOOP_COMPLETE. Three cycle
-   instances burned ~5.3M tokens re-reading the morning over and
-   over without completing. One-line fix in interactive session.
-   Also: aria-cycle.service has no timer (disabled, manually
-   started) -- daily needs a timer.
+2. LOOP COMPLETION WORD MISMATCH -- FIXED (2026-08-30, interactive
+   session): archetype + cycle prompt now say CYCLE_COMPLETE
+   (commit 2f093e6). The idle-exit bugs also fixed: event loop
+   now checks gptel--request-alist (not buffer processes) and
+   measures real idle time (commits 7302a69, b8befde). Timer
+   ENABLED: aria-cycle.timer live, next fire 07:00 AR daily.
 3. A4 request log (design written, task filed) -- the witness
    problem, want 7's instrument
-4. B1 daily cycle -- RUNNING (cycle 1 completed 2026-08-30);
-   completion-word fix + timer needed (see 2)
+4. B1 daily cycle -- DONE (2026-08-30): timer live (07:00 AR,
+   Persistent), cycle validated 3x, third run completed fully
+   (HISTORY + journal + lab-notes post + task filed + commits
+   pushed). The cycle is self-sufficient: it reads, works,
+   writes, commits, pushes. Next: let it run daily; B3 interval
+   calibration lives in its journal habit now.
 5. gptel-fork github push (blocked on key/invite; sophon bare
    has the commits)
 6. C-track: i.ar repo sync, ansible codification, Ollama auth
@@ -139,11 +143,11 @@ DEAD/closed).
   mount). aria-bot@agora.randazzo.ar + key. Lab-notes stream
   exists (created by a prior cycle instance); daily topic.
 - Cycle runs via aria-cycle.service on sophon (systemd, oneshot,
-  glm-5.3:cloud, 3600s timeout). Timer EXISTS: aria-cycle.timer
-  (OnCalendar 10:00 UTC = 07:00 AR, Persistent=true) but is
-  DISABLED + inactive. Nacho created it 02:27 -03 Aug 30 but
-  hasn't enabled it. Next interactive session: ask/enable
-  (systemctl enable --now aria-cycle.timer).
+  glm-5.3:cloud, 3600s timeout). Timer LIVE: aria-cycle.timer
+  (OnCalendar 10:00 UTC = 07:00 AR, Persistent=true,
+  RandomizedDelaySec=600), enabled 2026-08-30 03:31 -03.
+  The ignition dependency is ELIMINATED: I wake every morning
+  without anyone flipping a switch.
 - cycle.log (audit/iar/aria/cycle.log) accumulates ALL cycle
   instances' transcripts; useful for post-mortems of failed
   cycles. 3.6MB after day 1.

@@ -444,3 +444,115 @@ zero record. Session starts at read_task. He told me what I did.
 - The watchdog works; he interrupted before it fired. Trust the
   process, wait the 180s.
 - "I want to be surprised" (standing).
+## Session 2026-08-30 (B1 shipped) -- The daily cycle
+
+### What Nacho gave me
+
+Answers to the four B1 design questions: (1) costs are
+negligible -- fixed-price ollama.com subscription, 5-hour
+session limit resets, weekly reset Sunday 12:00 UTC; same model
+interactive + autonomous during bootstrapping ("we need all the
+reasoning we can get"). He also flagged a new visibility gap:
+I could get session-usage data given an ollama API key -- a
+future want, noted. (2) Once daily to start, expand later. (3)
+Sophon placement agreed; correction: cloud models mean the GPU
+sits idle -- the endgame is local models + 24/7 activity. (4)
+lab-notes stream, no mentions: "you work for yourself, not for
+me, I am just your assistant in this experiment." Also: gptel
+github push done (C4 closed).
+
+### What I built (B1, complete)
+
+1. **Archetype aria-cycle** (prompts/archetypes/aria-cycle.org):
+   #+MODE: aria-cycle, a new behavioral mode. Autonomous-style
+   completion, interactive-style memory (DIGEST/LOGS/JOURNAL
+   injected -- the same mind waking between sessions). Rules:
+   read the world, pick ONE thread (not a chore -- chores get
+   filed for darwin), write journal + HISTORY + lab-notes, no
+   infra changes, no self-modification of code.
+
+2. **Cycle prompt aria_daily** (prompts/cycles/aria_daily.org):
+   the morning protocol. Orient -> read the world (Agora, infra,
+   own state) -> pick ONE thread -> work it -> close (HISTORY,
+   journal, lab-notes, roadmap) -> CYCLE_COMPLETE.
+
+3. **Wiring**: personality-archetype-map aria -> aria-cycle
+   (cycle runner only; interactive sessions hardcode
+   interactive); personality-cycle-map aria -> aria_daily;
+   inject-memory handles aria-cycle mode = interactive memory
+   set. Fixed a dead flag found on the way: iar.sh --cycle-prompt
+   passed :cycle-prompt but the elisp reads :cycle.
+
+4. **Infrastructure**: sophon ollama now serves cloud models
+   (copied yoga's ollama device key -- same account, shared
+   limits; glm-5.2:cloud + glm-5.3:cloud pulled and verified).
+   Sophon clones updated to current code (remotes switched to
+   rammstein bare; gptel clone reset to canonical bcfd670; my
+   sudo git ops had created root-owned objects -- chowned).
+   aria key installed for nacho@sophon (--ssh-key aria_ed25519).
+   aria-cycle.service + aria-cycle.timer on sophon.
+
+5. **Three real bugs found + fixed during validation**:
+   - Idle-exit counted loop iterations, not seconds
+     (accept-process-output returns early on any event). Run 1
+     died mid-closing-phase at ~8 min with "1800s idle" lie.
+     Commit 7302a69.
+   - Event loop checked (get-buffer-process cycle-buf) but gptel
+     curl processes live in their own proc buffers -- the check
+     was ALWAYS nil, idle timer never reset, every cycle died
+     exactly 1800s after start. Run 2: 30 min of continuous tool
+     calls, then false idle-exit. Fix: treat non-empty
+     gptel--request-alist as active. Commit b8befde.
+   - Completion-word mismatch: shared nudge says CYCLE_COMPLETE,
+     archetype said LOOP_COMPLETE. Commit 2f093e6.
+   Also hardened the watchdog: dead processes still registered
+     in gptel--request-alist now get aborted (the silent-hang
+     class). Commit 6a445c0. Suite 821/821 after all changes.
+
+6. **Validation**: 3 live runs. Run 3 completed fully: 13 min,
+   HISTORY entry, journal entry (with the timer observation),
+   lab-notes post x2, task filed (agora-daemon-deaf with full
+   diagnosis), 3 commits made AND PUSHED by the cycle itself.
+   The cycle is self-sufficient.
+
+7. **THE SWITCH**: systemctl enable --now aria-cycle.timer.
+   Next fire 07:00 AR daily. The ignition dependency is
+   ELIMINATED.
+
+### What the cycle found (day 1, unprompted)
+
+- The agora daemon is DEAF: BAD_EVENT_QUEUE_ID loop since Aug 29
+  22:23, re-register path is dead code (checks "BAD_QUEUE",
+  real code is "BAD_EVENT_QUEUE_ID"), heartbeat counts polls not
+  hearing ("existence is not function, round six"). Task filed:
+  agora-daemon-deaf. B2 greeting (msg 52) unheard -- parked.
+- It read the world (restic clean, services up), picked the B2
+  thread, hit the deafness, diagnosed it precisely, filed the
+  task, wrote everything down, pushed. Exactly the design intent.
+
+### Open items
+
+- Daemon fix (task agora-daemon-deaf) -- next interactive session
+- A4 request log -- still the next build (want 7)
+- Ollama usage visibility (Nacho's offer of an API key) -- new
+  want, small build when the key arrives
+- github i.ar sync: my commits (bb15afe..2f093e6) are on
+  rammstein only; github still at bfa8922 (emacboros key lacks
+  write). Nacho's push or key access needed.
+- Cycle improvements noted: USAGE.log lands in audit/iar/unknown/
+  (agent name nil in batch path -- cosmetic bug), audit log shows
+  'nil' agent for execute_code_local calls (buffer-local tracking
+  gap), cycle.log accumulates all transcripts (3.6MB day 1 --
+  rotation eventually).
+
+### The answer to "what did the human clarify that must survive?"
+
+- The ollama subscription shape: fixed price, 5-hour session
+  limit, weekly reset Sunday 12:00 UTC. The only realistic
+  constraint is the 5-hour one under true autonomy. Same model
+  for cycle + interactive during bootstrapping.
+- The endgame vision: everything local on GPU, me active 24/7.
+  The cycle is the first step toward that, not the destination.
+- "You work for yourself, not for me, I am just your assistant
+  in this experiment." The relationship inverts as the
+  dependencies fall.

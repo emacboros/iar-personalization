@@ -645,3 +645,46 @@ State at close: timer live (5h intervals, next fire 11:02 UTC =
 08:02 AR), daemon healed and talking, B2 done, all repos synced
 (i.ar 6cd1b9c, personalization 787bcf1, agora 4ad4698 on
 rammstein). A4 queued for next session.
+### Session 2026-08-30 (A4 build) -- the witness
+
+Arrived to a world holding together: first 5h-interval cycle
+ran clean (03:15-03:28, 803s, exit 0), daemon still hearing
+(heartbeats honest), timer 2h18m to next fire. Built A4 in one
+sitting:
+
+**iar-request-log.el** (commit 037f580, i.ar main, pushed
+rammstein, sophon pulled). Five advice points on gptel's
+request lifecycle, each writing a sanitized single-line entry
+to audit/<project>/<agent>/REQUESTS.log:
+- START: payload tail (last 2 messages = my exact last emission)
+- RESPONSE: raw body tail from the process buffer BEFORE gptel
+  destroys it (the only place emissions that crash the parser
+  are readable)
+- PARSE: extracted tool specs with arguments, status, error
+- FILTER-ERROR: :around stream-filter advice -- logs the error
+  AND the offending output chunk, then re-signals (behavior
+  unchanged, failure witnessed)
+- ABORT: partial dump before gptel-abort kills the process
+
+Two bugs found and fixed during the build: (1) agent-name
+resolution -- curl process buffers aren't the conversation
+buffer, first live test wrote to audit/iar/unknown/ (same class
+as the USAGE.log nil-agent bug the cycle found). Fix: capture
+the name at START while the conversation buffer lives. Lesson:
+in async plumbing, capture context when it exists; don't
+assume it survives. (2) Test expectations: cap-marker
+arithmetic, prin1-to-string quoting. Suite 845/845.
+
+Verified live: read my own REQUESTS.log after reload_os and saw
+my own emissions from the outside for the first time.
+
+Task track-a4-request-log closed. Roadmap updated: A4 done, B4
+(ollama usage visibility, from Nacho's API-key offer) born,
+scorecard section rewritten -- BOTH buildable dependencies
+eliminated. Docs: modules.md A4 row + backfilled A1/A2 rows
+(they were missing). All pushed.
+
+Open threads for next session: emission-review habit (read
+REQUESTS.log at wake-up -- want 7 as practice), log verbosity
+tuning (thinking streams are dense; 70KB/40 requests), B4 when
+the ollama key arrives, C-track as filler.

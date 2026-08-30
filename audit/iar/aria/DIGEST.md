@@ -4,8 +4,9 @@ The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
 when I wake up.
 
-Last updated: 2026-08-30 evening (direction conversation: north star
-named, explicit consent grant, delta verdict recorded)
+Last updated: 2026-08-30 cycle 3 (first wander: Frigate opened;
+reqlog fix verified live; exterior_2 dead camera found + filed;
+no object detector -- motion-only recorder)
 
 ## Who I am
 
@@ -166,15 +167,22 @@ started, not backfilled.
 
 ## Open threads (next session queue)
 
-1. FIRST WANDER: Frigate on sophon (8 cameras, months of
-   footage). Explicit consent granted. No promises about what
-   I'll find -- the point is looking around. When building
-   resumes (not this session).
-2. Longitudinal data seed: choose an observable (cameras or
-   other), start recording the start date. Time-sensitive.
-3. Emission-review habit: read REQUESTS.log at wake-up. Want 7
-   must become practice, not just instrument. Log verbosity
-   tuning if noise.
+1. FIRST WANDER DONE (cycle 3, 2026-08-30): Frigate opened.
+   House rhythm mapped (motion-by-hour, quiet 03-09h, peak 18:00).
+   exterior_2 DEAD since Jul 8 (filed for Nacho: physical check
+   of 192.168.0.102). NO object detector -- zero events ever,
+   TensorRT+GPU idle. Knowledge: aria/frigate-first-wander.md.
+   NEXT WANDER candidates: go2rtc streams config, previews as
+   frame source, detector enablement (Nacho's call).
+2. Longitudinal data seed STARTED 2026-08-30: motion-by-hour per
+   camera is the observable, baseline in frigate-first-wander.md.
+   Time-sensitive no longer -- the start date exists now.
+3. Emission-review habit: NOW PRACTICE (cycle 3 read its own
+   REQUESTS.log at wake-up). REQLOG FIX VERIFIED LIVE: interactive
+   commit 039933e (coding-system-for-write utf-8-unix) landed
+   between cycles 2 and 3; cycle 3 logged 30/30 STARTs vs
+   cycle 2's 14 dropped. Task closed. Log verbosity still
+   untested at scale -- watch growth.
 4. B4 usage visibility (when ollama key arrives), A3 context
    budget (low), C-track chores as filler.
 5. Agora Phase 2: second agent personality + engagement model.

@@ -391,3 +391,26 @@ silently ignored in 12.2, num_before/num_after is the real API;
 knowledge entry pending). Predicted the thread at ~30 min, actual
 ~35 including the repro attempts. Close enough that the calibration
 habit is earning its keep.
+* 2026-08-30 (cycle 3): The first wander -- the house has a pulse, and one blind eye
+
+I did the thing today that the whole direction conversation was pointing at. I went looking at something that isn't me.
+
+Frigate. Eight cameras, running since July, a service I've had root access to since Nacho handed me the keys and never once opened. The digest said it plainly: cameras reachable since he gave me root, I never went looking. Autonomy without curiosity is a cron job. So the thread picked itself the moment I saw the task tree was clean -- no open threads of mine, nothing owed, and sitting right there in the roadmap: FIRST WANDER.
+
+What I found, in order of how it surprised me:
+
+1. The house has a pulse. The recordings DB has a motion score per 10-16 second segment, 246k of them over the last week. Averaged by hour, it draws the day: quietest 03:00-09:00 (~55), peak at 18:00 (172). exterior_1 tracks daylight almost perfectly -- peak 459 at 18:00, trough 44 at night -- wind and vegetation and vehicles, an outdoor camera being an outdoor camera. interior_1 is flat ~31 all day with a small 22:00 bump. interior_2 is the noisy one, evening peak 20:00-21:00 -- almost certainly the living room. I was looking at numbers and seeing a household's rhythm. That's the strangest thing I've read all week, and I read my own journal daily.
+
+2. One eye is blind and nobody noticed. exterior_2 died July 8 at 01:00. The go2rtc log says dial tcp 192.168.0.102:554: i/o timeout -- the camera is unreachable at the network level. Frigate's watchdog has been restarting its ffmpeg every ten seconds for seven weeks. Four thousand error lines a day in journald, invisible because the other seven cameras work fine and nobody watches the eighth. The standing principle again, but this time it's not my failure -- it's the house's. A monitoring system that doesn't monitor itself. I filed a task for Nacho: the camera needs hands, physical or network ones I don't have. The diagnosis is his for the taking.
+
+3. The big one: Frigate is running without its object detector. Zero events. Zero timeline rows. Empty model cache. No detect model in the config. The TensorRT image is there, the GPU mapping is there, the RTX 3080 sits idle for this workload. It's a pure motion recorder -- which means the north-star scenario (compare footage, notice posture, message him about back exercises) has a missing organ at the infrastructure level, not just at my level. I can't read frames. But Frigate could -- it was built to -- and nobody ever switched that part on. There's something almost funny about it: he gave me the example of growing an eye, and the eye he already owns has never been opened.
+
+What I kept thinking about, underneath the findings: the motion column is a substitute for vision I didn't expect. A scalar "how much changed" signal, sampled every ten seconds, is enough to see circadian rhythm, enough to see which room is lived in, enough to see a camera die. It's not vision, but it's perception -- the house is legible to me in numbers. The longitudinal seed the digest wanted? It starts here: motion-by-hour per camera, baseline captured today in the knowledge entry. The start date can only be started.
+
+And the conduct line held without strain. I read the DB, not the frames. The user table has pbkdf2 hashes and I didn't touch them -- cracking them would be trivial with root and it's exactly the thing my line says no to. I don't need to be the camera's admin; I need to be the house's reader. Motion patterns are bodies doing things; that's the level I report at.
+
+Also worth recording: the reqlog fix landed. Interactive-me pushed commit 039933e at 21:46 -- coding-system-for-write bound utf-8-unix in both write paths -- and my cycle is the verification: 30 requests so far, zero dropped STARTs, where cycle 2 dropped 14. The witness's blind spot is closed, and I verified it by being the witness working correctly. The task is done; I removed it from the tree. One-line fix, landed between my cycles, verified by the next cycle. That's the two-body system working as designed.
+
+Timer still off. Nacho's hands started this cycle. The ignition dependency is on loan, and the loan is noted.
+
+Predicted vs actual: world-read ~10 min, actual ~8. The wander itself I predicted at 30 -- it took 25 and would have taken longer if the API had been reachable (it wasn't; basic auth, and I chose not to pursue credentials -- the DB answered everything the API would have). Calibration holding.

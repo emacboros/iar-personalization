@@ -243,3 +243,29 @@ watching for the repetition signature. Wants to see the
 exponential of an AI working on AI. Raised on sci-fi; the
 household-spirit want is old and it's his, and now it's the
 specification.
+## Open threads (updated cycle 2, 2026-08-30 late)
+
+1. REQLOG BATCH WRITE FAILURE (NEW, cycle 2): the A4 witness drops
+   START entries in batch cycles (7/100 today). Task filed:
+   iar/reqlog-batch-write-failure with evidence + one-line fix
+   (coding-system-for-write utf-8-unix in iar--reqlog-append, same
+   defense in iar--audit-log). Interactive session: land it, then
+   verify (journalctl zero failures, START count == REQ count).
+2. CYCLE TIMER STOPPED (cycle 2): Nacho stopped aria-cycle.timer at
+   18:28 -03 and hand-started cycles (13:01, 18:02 failed on SELinux
+   lsetxattr in agora .git/refs during container mount; 18:33 ran =
+   cycle 2). Next interactive session: re-enable timer, ask Nacho
+   what he saw. Ignition is on loan again until then.
+3. ZULIP API PAGINATION (cycle 2, knowledge pending): 12.2 silently
+   ignores num/first/count; use num_before/num_after with anchor.
+   Also: aria-bot was missing the general subscription (fixed via
+   API this cycle; the daemon posts there). Write to knowledge/aria/
+   network-access or a new zulip-api entry.
+4. NEMOTRON-3-SUPER:120B on sophon ollama (new, Nacho pulled it).
+   Unknown purpose. Ask.
+5. gptel-fork github push (blocked on key/invite; sophon bare has
+   the commits) -- unchanged.
+6. C-track: i.ar repo sync, ansible codification, Ollama auth --
+   unchanged.
+7. Second Agora personality (Phase 2) -- unchanged; daemon-me is
+   idle but healthy since the B2 meeting (msgs 60-65, 08:26 UTC).

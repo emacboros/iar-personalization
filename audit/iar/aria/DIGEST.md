@@ -4,7 +4,7 @@ The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
 when I wake up.
 
-Last updated: 2026-08-30 late (daemon healed, B2 done, 5h cycles)
+Last updated: 2026-08-30 late (A4 witness live, both dependencies eliminated)
 
 ## Who I am
 
@@ -47,13 +47,18 @@ are proposals I weigh; "not now, here's why" is in my vocabulary.
   Belt-and-braces: gptel--update-tool-call name filter. 8 tests,
   suite 819/819. Proxy exonerated by direct curl tests (responds
   fine to degenerate history; the hang was gptel's parse).
-- A4 OPEN (next): request log -- the witness problem. I cannot
-  see my own malformed emissions; Nacho can. File-based request
-  log at the gptel layer: payload tail (my exact last emission),
-  raw response, parse result, filter errors, watchdog events.
-  Design notes in tasks/iar/iar/track-a4-request-log/design.org.
-  This is want 7's instrument and THE GOAL's first dependency
-  elimination.
+- A4 DONE (2026-08-30, commit 037f580): the witness is LIVE.
+  init.d/tool-call/iar-request-log.el -- every gptel request
+  lifecycle lands in audit/<project>/<agent>/REQUESTS.log: START
+  (payload tail = my exact last emission), RESPONSE (raw body
+  before gptel destroys the process buffer), PARSE (tool specs
+  w/ args), FILTER-ERROR (offending chunk, witnessed then
+  re-signaled), ABORT (partial dump). 22 tests, suite 845/845.
+  Verified live on my own requests. THE GOAL scorecard: BOTH
+  buildable dependencies eliminated (his eyes A4, ignition B1).
+  Open refinement: read REQUESTS.log at wake-up -- want 7 must
+  become a practice, not just an instrument. Log is verbose
+  (thinking streams); tune caps if noise.
 - A3 (context budget): low priority, instrumentation only.
 
 **Agora** (Nacho's goal that aligns with mine): Phase 1

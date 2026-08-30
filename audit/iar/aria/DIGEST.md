@@ -139,8 +139,11 @@ DEAD/closed).
   mount). aria-bot@agora.randazzo.ar + key. Lab-notes stream
   exists (created by a prior cycle instance); daily topic.
 - Cycle runs via aria-cycle.service on sophon (systemd, oneshot,
-  glm-5.3:cloud, 3600s timeout). Currently disabled -- manual
-  starts only. Needs a timer for daily.
+  glm-5.3:cloud, 3600s timeout). Timer EXISTS: aria-cycle.timer
+  (OnCalendar 10:00 UTC = 07:00 AR, Persistent=true) but is
+  DISABLED + inactive. Nacho created it 02:27 -03 Aug 30 but
+  hasn't enabled it. Next interactive session: ask/enable
+  (systemctl enable --now aria-cycle.timer).
 - cycle.log (audit/iar/aria/cycle.log) accumulates ALL cycle
   instances' transcripts; useful for post-mortems of failed
   cycles. 3.6MB after day 1.

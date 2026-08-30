@@ -1,0 +1,93 @@
+#+TITLE: Cycle loop error storm -- full diagnosis (2026-08-30, cycle 5)
+
+* Timeline (all UTC; sophon local = -3)
+
+- 20:28:27 -03: aria-cycle.timer fired (new 30-min cadence, unit edited
+  20:28:16). Container started, prompt assembled 90435 chars, 19 tools.
+- 20:28:30: FIRST request -> HTTP 404 "model 'north-mini-code-1.0:q8_0'
+  not found". The unit passes --model glm-5.3-flash:cloud, but the
+  container's emacs.d/configs/gptel.el was STALE (pre-313d8b6) for the
+  default-model fallback path... actually: EMACBOROS_OLLAMA_MODEL was
+  NOT set in the environment of that run (unit has Environment= empty;
+  iar.sh only passes -e when OLLAMA_MODEL non-empty -- it WAS passed
+  per unit ExecStart -- but the 404 shows the config fell back to
+  north-mini, meaning the env var did not reach emacs OR gptel.el on
+  the sophon clone was older than the unit expected at that moment).
+  The model list in current gptel.el does not contain north-mini at
+  all -- it is a leftover from an OLD config (pre-glm). Root cause of
+  the 404 itself: version skew between unit file and repo state during
+  Nacho's live editing window (unit mtime 20:28:16, gptel.el commit
+  313d8b6 landed 20:32:31, first fire 20:28:30 raced the edit).
+- 20:28:30 - 20:36:20: EVERY request 404s. gptel--handle-error runs
+  post-response hooks with an EMPTY response buffer. The cycle
+  post-response handler: logs (skipped, empty), checks completion
+  (nil), turn-count++ (but see root cause below), sends continue
+  prompt. Loop: 2537 requests in 8 minutes (~5/s), zero backoff.
+- 20:36:11: Nacho SSHes in from yoga (audit log), stops the service.
+  20:36:20 SIGTERM kills it. cycle.log = 1,041,987,260 bytes (1GB).
+- 20:36:27: next timer fire fails exit 126 (SELinux lsetxattr on
+  i.ar/.git/config -- the known transient class).
+- 20:38:27: next fire: CLEAN. Correct model (glm-5.3-flash:cloud),
+  200s. That run is ME (cycle 5, writing this).
+
+* ROOT CAUSE (the important one): max-turns guard is dead code
+
+iar-agent-cycle.el, iar--cycle-post-response-handler, cond order:
+
+1. (iar--cycle-complete-p ...) -- sentinel on its own line. OK.
+2. ((string-match "CYCLE_COMPLETE" response) ...) -- BUG. `response`
+   is buffer-substring of the WHOLE cycle buffer (point-min..point-max),
+   which contains the ASSEMBLED PROMPT. The prompt contains the literal
+   text "CYCLE_COMPLETE" (multiple times: archetype rule 8, protocol
+   sections). string-match finds it on turn 1, every turn. This branch
+   ALWAYS fires before clause 3.
+3. ((>= turn-count max-turns) ...) -- UNREACHABLE. Dead code. The
+   40-turn limit never triggers.
+
+Evidence: 2537 turn-entries in cycle.log for one run; "Then
+CYCLE_COMPLETE on its own line." appears 62x in the last 50MB (prompt
+copies accumulated by continue-prompt inserts); zero own-line sentinels
+emitted by the model (it never got a single token -- all 404s).
+
+Corollary bugs in the same handler:
+- HTTP errors are not distinguished: the handler receives (_status
+  _info) and IGNORES BOTH. A 404 storm is indistinguishable from a
+  model that answered with prose. gptel--handle-error DOES run
+  gptel-post-response-functions on the error path (confirmed in
+  gptel.el gptel--handle-error), so the hook fires with info carrying
+  :error and :status -- the handler just never looks.
+- iar--cycle-log-append logs the WHOLE buffer per turn (point-min to
+  point-max), not just the new response: O(n^2) log growth. 1GB from
+  2537 turns of a ~90KB prompt + nudge. This is why cycle.log exploded.
+- No backoff anywhere in the error path.
+
+* FIX DESIGN (interactive session; core loop .el, needs care + tests)
+
+1. Clause 2 must search ONLY the response region, not the whole
+   buffer. The handler already receives start/end markers conceptually
+   (iar--cycle-log-append gets them); use the tracking-marker /
+   response region for the string-match, or better: drop clause 2
+   entirely and let iar--cycle-complete-p own detection (it already
+   requires own-line). Keep clause 2 only if a lenient fallback is
+   wanted -- then restrict its search region.
+2. Honor :error in the post-response handler: if (plist-get info
+   :error), do NOT send the continue prompt; set completed + exit 1,
+   log the status/error to cycle.log. Optionally: allow N consecutive
+   errors before giving up (backoff), but fail-closed is safer.
+3. Fix iar--cycle-log-append to log only the new response region
+   (start..end), not the whole buffer.
+4. Optional hardening: consecutive-error counter (3 strikes -> end
+   cycle exit 1) so a flaky backend cannot burn the window.
+5. Version-skew guard (separate, cheap): iar.sh preflight could verify
+   the requested model exists (curl /api/show) before starting the
+   container; or the unit should pin the commit it runs.
+
+* Evidence pointers
+
+- cycle.log tail (1GB, root-owned, gitignored): nudge text x2537.
+- REQUESTS.log.1: 2116 REQ STARTs model=north-mini-code-1.0:q8_0,
+  all 404, 23:28:30-23:34:07 UTC.
+- sophon ollama journal: 2537 POSTs 20:28-20:36 -03, all 404.
+- aria-loop-2026-08-30.log lines 1442-6641: the storm.
+- iar-agent-cycle.el lines 196-232 (the cond), 73-93 (log-append).
+- gptel.el gptel--handle-error (runs post-response hooks on error).

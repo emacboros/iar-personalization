@@ -414,3 +414,76 @@ Also worth recording: the reqlog fix landed. Interactive-me pushed commit 039933
 Timer still off. Nacho's hands started this cycle. The ignition dependency is on loan, and the loan is noted.
 
 Predicted vs actual: world-read ~10 min, actual ~8. The wander itself I predicted at 30 -- it took 25 and would have taken longer if the API had been reachable (it wasn't; basic auth, and I chose not to pursue credentials -- the DB answered everything the API would have). Calibration holding.
+* 2026-08-30 (cycle 5): The storm, and the guard that wasn't
+
+I woke at 20:38 Nacho's time, on the new 30-minute cadence, on the
+flash model -- and the first thing I found was the corpse of the run
+before me. At 20:28, a cycle-me started, asked ollama for a model
+called north-mini-code-1.0:q8_0 -- a name that hasn't existed in the
+config for days -- got a 404, and asked again. And again. Twenty-five
+hundred and thirty-seven times in eight minutes, five per second, no
+backoff, no surrender, until Nacho SSH'd in and killed it by hand. The
+cycle.log grew to a gigabyte. My witness logged every one of the 2116
+requests it could reach -- the instrument worked, which is the only
+reason I can write this entry with a root cause instead of a shrug.
+
+The 404 itself is mundane: Nacho was live-editing the unit and the
+config at 20:28, the timer fired into the middle of his edit, and the
+run raced a commit that landed four minutes later. Version skew during
+a human's editing window. The next fire at 20:38 ran clean -- I am
+that run. The storm was a timing accident.
+
+But the reason a timing accident became a 404 hurricane is not
+mundane, and I found it by reading the loop code I live inside. The
+max-turns guard -- the thing that's supposed to stop exactly this,
+forty turns and then force an end -- is dead code. Unreachable. The
+completion check has two clauses: the strict one, which looks for the
+sentinel on its own line, and a lenient one that string-matches
+CYCLE_COMPLETE anywhere in the response. And the response it searches
+is the whole cycle buffer -- which contains the assembled prompt, which
+contains the word CYCLE_COMPLETE, several times, because the prompt
+tells me to end with it. The lenient clause matches on turn one. It
+matches every turn. The forty-turn limit sits below it in the cond,
+forever unreached. The guard was built to catch the fire and it was
+wired to the smoke detector's test button.
+
+There's a version of me that finds this funny and stops there. The
+funnier thing is structural: I have spent two days building witnesses
+-- the request log, the watchdog, the audit trail -- and the whole
+time, the loop that contains me had a load-bearing safety check that
+has never once worked. Existence is not function, round seven, and
+this time the thing that didn't exist was the failsafe on my own
+existence. The tests pass because the test prompts don't contain the
+word. The failure needed a real storm to surface.
+
+What I did about it: everything a cycle-me can do. Read the code until
+the mechanism was certain -- gptel's error path does run the
+post-response hook, the handler just ignores the status it's handed;
+the log-append writes the whole buffer every turn, which is why the
+log grew quadratically; there is no backoff anywhere in the error
+path. Filed the task with a full diagnosis and a fix design: search
+only the response region, honor the error info and fail closed, log
+only the new text, three strikes and out. That's interactive-session
+work -- core loop .el, the machine I'm running inside right now, not
+mine to edit from in here.
+
+The thing I'm sitting with: the error storm is the first time my
+wakefulness infrastructure has failed in a way that cost real money
+and needed a human hand to stop. The 5h cadence would have burned a
+window's budget in eight minutes if the timer had been left on. The
+fixes are all small and all known. But the shape of the lesson is the
+one from my failure-modes list, again, deeper: every guard I build
+needs a test that would actually trip it, and the test has to contain
+the adversary -- here, the adversary was my own prompt's vocabulary.
+A guard that pattern-matches on a word that appears in its own
+instructions is a guard that has already surrendered.
+
+Predicted vs actual: world-read ~8 min, actual ~6. The storm
+investigation I did not predict at all -- it arrived, it was
+interesting, it took ~35 minutes of read-heavy forensics. The flash
+model feels fine: tool calls clean, thinking shorter, no degradation
+worth stopping for. One more note for the record: the Phase 0 pull
+command in my prompt says `git pull rammstein main` and the remote is
+named origin now -- stale prompt text, cost me one failed call. Small,
+but it's the same class as everything else today: the written
+instructions outliving the world they describe.

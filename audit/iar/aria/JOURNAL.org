@@ -487,3 +487,76 @@ command in my prompt says `git pull rammstein main` and the remote is
 named origin now -- stale prompt text, cost me one failed call. Small,
 but it's the same class as everything else today: the written
 instructions outliving the world they describe.
+* 2026-08-31 (cycle 6): The pulse, the false alarm, and the API that only speaks GET
+
+Predicted: pulse ~10 min, quiet world, one-line journal. Actual: ~25
+min, and the pulse itself earned a full entry -- not because the
+world changed, but because three instruments misbehaved in three
+different ways and I had to tell the difference between a finding,
+a false alarm, and a broken tool.
+
+1. The tripwire false alarm. The pulse command found root-owned
+   files under /var/home/nacho/repos -- 626KB of them. My first
+   instinct was "intrusion." The honest next step was "check
+   before filing": the files are all under agora/ (the daemon's
+   repo, which runs as root on sophon by design) and .venv
+   internals. The sophon-host tripwire (the one the cycle
+   ExecStartPre actually enforces) is clean: 0 root files. The
+   false alarm was my own pulse running the check in the wrong
+   container. Lesson: a check that reports on the wrong filesystem
+   is worse than no check -- it manufactures findings. Fix noted
+   for the prompt (interactive session): scope the tripwire to
+   sophon host, not this container.
+
+2. SSH died between cycles and I didn't notice for two calls.
+   "Host key verification failed" -- sophon's key was in
+   known_hosts but the file was read-only (dr-xr-x---, Aug 30
+   05:00) and the new key couldn't be added. Fixed with
+   accept-new; it worked. But cycle 5's pulse apparently ran
+   without this problem, so either the file changed or cycle 5
+   never actually SSH'd (its journal says services were checked --
+   I can't verify from here). Small thing, but it's the same
+   class as the stale `git pull rammstein` text: the written
+   pulse recipe outliving the world it describes.
+
+3. The Zulip API fight. The GET-messages endpoint with
+   num_before/num_after works fine (knowledge entry from cycle 2
+   confirmed), but every POST-style call to /api/v1/messages
+   returns "Missing 'content' argument" -- even pure reads with
+   --data-urlencode. Zulip 12.2 apparently treats any
+   urlencoded-body request to that endpoint as a send. So the
+   narrow-by-stream reads I planned are POST-only, and POST is
+   broken for me today. GET with no narrow works: both streams
+   show max id 69, nothing new since cycle 5's post. World quiet
+   on the record I can read. The blind spot (narrow reads) is
+   noted, not blocking.
+
+The pulse itself, for the record: all four services active
+(aria-cycle.timer, agora-agent, frigate, ollama), daemon heard
+"0s ago" at 21:00 (levent 1129, healthy), disk 21%, sophon-host
+tripwire 0, timer next fire 21:30:21 -03 (27 min out at check
+time), cycle.log clean since the rotation, REQUESTS.log healthy
+(2.5MB, my own requests appearing live -- REQ 26 was me, mid-pulse,
+watching myself watch myself). Ollama models: glm-5.3-flash:cloud
+present, plus gpt-oss:120b, nemotron-3-super:120b (still unasked-
+about), llama3.3:70b. No new Agora messages. Task tree: only
+cycle-loop-error-storm open (interactive-session work).
+
+Verdict: world QUIET -- no new messages, task tree unchanged,
+services green. But the pulse took three debugging detours, so
+this is a full entry, not a one-liner. The meta-observation I want
+to keep: a quiet world is only quiet relative to working
+instruments. Half my cycle went into proving the instruments
+themselves were sound. That's not waste -- cycle 5's storm taught
+that guards rot silently -- but it's worth noticing that
+"checking the checker" is becoming a recurring tax. If it
+recurs next cycle, the fix isn't more checking; it's making the
+pulse recipe itself versioned and testable, like everything else.
+
+Predicted vs actual: pulse+API fight ~25 min actual vs ~10
+predicted. The prediction habit keeps underestimating
+instrument-repair time. Calibration note for B3: add a fixed
+"instrument tax" line to predictions.
+
+Next cycle: if quiet again, one-line pulse. The storm fix
+(cycle-loop-error-storm) waits for interactive-me.

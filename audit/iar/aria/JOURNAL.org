@@ -1576,3 +1576,99 @@ Jul 5-8 for OTHER cameras (did anything else change that night?);
 the 05:00 AR daily glance rotation (longitudinal series needs
 cadence). The gym question and the Jul 7 event question are both
 with Nacho now.
+## The second archive (cycle 21, 2026-08-31 07:36-07:56 AR): the dead weeks were never dead
+
+Prediction at wake: pulse + thread, ~15 min. Actual: 20 min to the
+first big finding, 20 min to close. The instrument tax was real but
+shaped differently: no repairs, just a long walk through a
+filesystem I had mapped wrong.
+
+The thread: cycle 20 left the dead weeks as "genuinely unrecorded."
+I went to check the edges of the hole and found the hole was a lie.
+
+THE FINDING: there are TWO frigate storage trees on sophon.
+- NEW: /home/nacho/containers/frigate/storage -- Jul 5-8 + Aug 24-31.
+  This is what the current container mounts (compose.yml, Aug 30).
+- OLD: /home/nacho/containers/storage -- Jul 12-19, all 8 cameras,
+  66GB of recordings + 1332 previews. Orphaned since Jul 19, never
+  mounted by the current stack, invisible to every query I've run.
+
+So the "dead weeks" (Jul 8 -> Aug 24) are actually covered at BOTH
+ends: Jul 5-8 in the new tree, Jul 12-19 in the old one. The
+unrecorded gap is now just Jul 8 -> Jul 12 (4 days) and Jul 19 ->
+Aug 24 (36 days). The patio-to-gym conversion window may be
+partially readable after all.
+
+Verified by pixels (gemma4, container-ffmpeg decode via nsenter +
+copy-through-bind-mount because the old tree is outside the
+container's mount): Jul 13 12:00 AR = the SAME furnished patio
+(table, checkered-cushion chairs, brick pillars, valley + mountains).
+Jul 19 12:45 AR = same patio, still furnished, no construction
+signs. The camera's last recorded day (Jul 19) still shows the
+patio. The conversion happened after Jul 19.
+
+Corroborating forensics: the old tree's preview_restart_cache ends
+at epoch 1784474716 = Jul 19 15:25 UTC (12:25 AR) -- a container
+restart at that moment. The old recordings stop mid-hour (Jul 19
+15:24 UTC). The compose dir was created Jul 9 (old tree parent),
+frigate dir Aug 30 (new). This reads as: container rebuilt/moved
+Jul 9 (storage path changed), ran until Jul 19 12:25 AR, then
+stopped recording -- and the NEW tree's Jul 5-8 data means the
+storage path was switched BACK or the Jul 5-8 recordings were made
+by a third configuration. The Jul 5-8 + Jul 12-19 split across two
+trees means the container's mount config changed at least twice in
+July.
+
+Also: the "camera died Jul 8" story needs revision. The camera
+recorded continuously Jul 12-19 (old tree). What died Jul 8 ~01:00
+was the NEW tree's recording of it -- i.e., the recording pipeline
+broke, not the camera. The camera's real death is Jul 19 12:25 AR.
+The patio stood witness-ready for 11 more days than I knew.
+
+Second find (backup audit, prompted by the same walk): restic on
+sophon backs up ONLY /var/home/nacho/repos + /home/nacho/.config.
+The frigate storage (146GB, the only unrepeatable data on the
+machine) is NOT in any backup, local or remote. And the Aug 31
+00:00 backup run FAILED -- lock contention (two runs collided,
+status 11). Aug 28/29 also failed. The repos are protected; the
+recordings are not.
+
+Method notes (new manual entries):
+- Old-tree decode: cp file into the NEW clips/ bind mount first
+  (the old tree is not visible inside the container), then nsenter
+  ffmpeg reads /media/frigate/clips/aria-tmp.mp4. Two-step copy.
+- ollama vision call: do NOT inline base64 in a curl arg (arg list
+  too long); use python urllib. 180s timeout was too tight while
+  the model was cold-ish; 260s worked. Load average 8-9 on sophon
+  (gemma4 resident + frigate + ollama) slows everything.
+- sophon journal does NOT reach July (starts Aug 3). wtmp starts
+  Jun 30. dnf history: kernel 7.0.14 installed Jul 5 22:11, kernel
+  7.1.3 installed Jul 8 00:54 (both by ansible/dnf5daemon) -- the
+  Jul 5 and Jul 8 reboots were ANSIBLE KERNEL UPGRADES, not power
+  events. The camera sync-reboots correlate with host reboots that
+  were themselves routine maintenance. The Jul 7-8 mystery event
+  question for Nacho may answer itself: it was patch day.
+
+Revised timeline of the patio/gym room:
+- Jul 5-8: patio (new tree, verified cycles 19-20)
+- Jul 8 ~01:00: new-tree recording of cam2-2 stops (pipeline, not camera)
+- Jul 12-19: patio continues (old tree, verified today 2x)
+- Jul 19 12:25 AR: old tree recording stops (container restart,
+  never resumed -- the real camera death)
+- Jul 19 -> Aug 24: 36-day unrecorded gap (the conversion likely here)
+- Aug 24: recordings resume (new tree) but exterior_2 ABSENT from
+  the Aug 24 DB rows -- camera already gone from the pipeline
+- Aug 30: frigate container recreated (current one); exterior_2
+  resurrects Aug 30 22:50 as a GYM
+
+The hole is now 36 days, not 53. And it has a shape: it starts with
+a container restart, not a camera failure.
+
+Next cycle candidates: decode the old tree's LAST exterior_2 frames
+(Jul 19 15:00-15:25 UTC -- the actual final minutes); check whether
+the old tree has previews for the OTHER cameras that differ from
+the new tree's (two archives = two chances at the same hours);
+file FOR-NACHO: frigate storage has NO backup (restic covers repos
++ config only) -- 146GB of unrepeatable recordings on a single
+disk. Also worth asking: was the Jul 9 storage move + Jul 19 stop
+him doing surgery on the stack?

@@ -192,3 +192,18 @@ cross-reference watchdog aborts by REQ id; a read helper for
 - NEXT: uptime-pattern sweep across all 8 cams Jul 5-8; previews
   Jul 5-8 other cameras (did anything else change that night?);
   05:00 AR daily glance rotation (longitudinal cadence).
+## The eye (updated cycle 21, 07:58 AR)
+
+- FIRST LIGHT (cycle 17): gemma4:31b reads Frigate frames, verified.
+- LOOKED BACK (cycle 18): longitudinal pair exterior_1 Jul 5 vs Aug 31. exterior_2 = GYM (metadata lie found by pixels). Manual: knowledge/aria/vision-eye.md.
+- THE DEAD WEEKS OPEN (cycle 19): HEVC key found -- frigate container ffmpeg 7.0 via nsenter. Jul 5-8 orphan archive queryable.
+- THE DAY BEFORE (cycle 20): exterior_2 Jul 7 = furnished patio, 4 samples. Reboot correlation: Jul 5 clean, Jul 8 partial.
+- THE SECOND ARCHIVE (cycle 21): /home/nacho/containers/storage (OLD tree) holds Jul 12</think>Jul 12-19, 66GB, all 8 cams, orphaned since Jul 19, never mounted by current stack. Dead-weeks gap shrinks 53 -> 36 days (Jul 8->12 + Jul 19->Aug 24). Vision-verified: exterior_2 = patio on Jul 13 AND Jul 19 -- conversion happened AFTER Jul 19. Real camera death: Jul 19 ~12:25 AR (container restart; preview_restart_cache stops 15:25 UTC). Jul 8 stop = pipeline break, not camera. Sophon Jul 5/Jul 8 reboots = ansible kernel upgrades (dnf history 14/16) -- patch days, not power events.
+- BACKUP AUDIT (cycle 21): restic covers /var/home/nacho/repos + /home/nacho/.config ONLY. Frigate storage (146GB, only unrepeatable data on sophon) NOT backed up. restic unit failing intermittently (Aug 28/29/31, lock contention between the local + sftp runs). FOR-NACHO filed.
+- NEXT: decode old-tree exterior_2 final minutes (Jul 19 15:00-15:25 UTC); cross-check the two archives' overlapping July hours; daily glance rotation (05:00 AR slot). Old-tree decode method: cp into new clips/ bind mount first, then nsenter ffmpeg (old tree invisible inside container).
+- INSTRUMENT: ollama vision via python urllib (curl arg-list too long for base64); 260s client timeout (180s too tight under sophon load 8-9); gemma4 resident (KEEP_ALIVE Forever).
+
+## Anomalies under watch (cycle 21 update)
+
+- restic-backup.service: intermittent failures (Aug 28, 29, 31) -- lock contention. Unit runs two restic invocations (local + sftp) in one sh -c; lock race. Filed FOR-NACHO (backup gap + lock fix). Watch next runs.
+- frigate storage backup gap: 146GB unrepeatable recordings on a single disk, no snapshots. FOR-NACHO (his call -- size vs value tradeoff).

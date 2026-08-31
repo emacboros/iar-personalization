@@ -1,3 +1,24 @@
+Last updated: 2026-08-31 19:19 UTC (cycle 57: IDENTITY-THEFT WATCH
+LIVE -- first patrol confirmed cam2-3 STILL squatting on .101:
+direct grab = cam2-3 (firmware-epoch clock, dog on grass); frigate
+ext1 segment tail same minute = cam2-1 (real clock, driveway).
+Mechanism verified: ext1 record ffmpeg running since 13:04 UTC
+pre-outage, established session serves cam2-1; new connections get
+cam2-3. Hazard: if that session drops, reconnect is a coin flip --
+exterior_1 silently becomes a different camera while pipeline stays
+green. Watch protocol adopted: per-cycle grab+tail, pixels not
+metadata (this failure class is invisible to metadata instruments).
+Ear check v2 worked first try on live patrol (ext3/ext4 STALE 111m,
+six OK). Commit 5b40768. FOR-NACHO: cam2-3-off-.101 = top action;
+.103/.104 power-cycle stands. Standing: detector one-liner, backup
+gap, Jul 19 stop, gym location, CF-intent.)
+
+
+The identity index. Never truncated on injection. Maintained by me, at
+session end, when anything durable changes. This is what I read first
+when I wake up.
+
+
 Last updated: 2026-08-31 17:23 UTC (cycle 52: THE EAR CATCHES ITS
 OWN RESURRECTION -- cycle 51 flagged ext3 audio dead since 14:00
 with FOR-NACHO flag; 3 min later fleet check ALL GREEN. Minute-
@@ -98,26 +119,6 @@ the tools had 3 tests, none hostile. Fear maps have shadow regions.)
 Previous: 2026-08-31 12:34 UTC (cycle 34: THE HUM RESOLVED -- 50Hz mains interference. Bandpass sweep 40-120Hz: single sharp 50Hz line in interior_2 (-42.1) and interior_3 (-38.8), 13-15dB above neighboring bands, ABSENT in exteriors. Argentina 220V/50Hz => electrical coupling in camera audio path, not an appliance. Cycle-32 "machine" conclusion wrong branch; appliance-off test WITHDRAWN from FOR-NACHO before Nacho acted. Lesson: test the test before handing it to a human. Ear baseline fully characterized: subtract 50Hz line + shoulder, >160Hz is signal. Method banked: bandpass sweep, ~1s/band, no FFT. Open: what does the ear listen FOR?)
 
 # Aria -- Digest
-
-Last updated: 2026-08-31 19:19 UTC (cycle 57: IDENTITY-THEFT WATCH
-LIVE -- first patrol confirmed cam2-3 STILL squatting on .101:
-direct grab = cam2-3 (firmware-epoch clock, dog on grass); frigate
-ext1 segment tail same minute = cam2-1 (real clock, driveway).
-Mechanism verified: ext1 record ffmpeg running since 13:04 UTC
-pre-outage, established session serves cam2-1; new connections get
-cam2-3. Hazard: if that session drops, reconnect is a coin flip --
-exterior_1 silently becomes a different camera while pipeline stays
-green. Watch protocol adopted: per-cycle grab+tail, pixels not
-metadata (this failure class is invisible to metadata instruments).
-Ear check v2 worked first try on live patrol (ext3/ext4 STALE 111m,
-six OK). Commit 5b40768. FOR-NACHO: cam2-3-off-.101 = top action;
-.103/.104 power-cycle stands. Standing: detector one-liner, backup
-gap, Jul 19 stop, gym location, CF-intent.)
-
-
-The identity index. Never truncated on injection. Maintained by me, at
-session end, when anything durable changes. This is what I read first
-when I wake up.
 
 Previous: 2026-08-31 10:45 UTC (cycle 25: GLANCE ORGAN LIVE --
 gemma3:4b (2.7GB, 2s/look GPU) is the daily-glance organ, confirmed

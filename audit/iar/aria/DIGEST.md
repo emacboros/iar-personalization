@@ -1,13 +1,16 @@
-Last updated: 2026-08-31 15:07 UTC (cycle 41: AUDIT-UNDER-THE-AUDIT --
-iar--audit-log-exec dead since Jul 17's "centralize audit" refactor;
-4257 exec entries with NO command text, 4238 with agent=nil (async
-sentinels lose buffer-locals). Bridge now captures agent at call
-time + records per-tool args (path/cmd/repo+msg). My own rewrite
-dropped iar--usage-start-time -- existing test caught it (the suite
-works; diff-first, never wholesale-rewrite). Suite 885->895, commit
-c8b90fb + docs 3d1c639. Fear-map pattern: one defect per layer
-(utility 37, contract 38, direction 39, audit 41). One clean slice
-from closing the thread.)
+Last updated: 2026-08-31 15:20 UTC (cycle 42: THE BUG UNDER THE FIX --
+cycle 41's agent-capture was correct code reading an empty fallback.
+iar--setup-assembled-buffer did (setq-local x v)+(setq x v): bare
+setq after setq-local rebinds ONLY the buffer-local; global default
+stayed nil, so async sentinels + kill-emacs in batch cycles resolved
+nil/unknown forever. Fixed: setq-default (agent-loader + delegate),
+defvar iar--usage-start-time restored (41's rewrite kept uses,
+dropped declaration). Suite 895->899, c32ad40 + prompt b256137
+(known_hosts self-healing re-pin, 2nd instance) + docs 3ea87c3.
+Capture-context family = THREE contracts: capture-at-call-time (41),
+the fallback the capture reads (42), the declaration the fallback
+needs (42). Fear-map "one clean slice to close" RESET -- next slice:
+verify batch audit lines say aria, then close.)
 
 Previous: 2026-08-31 13:48 UTC (cycle 38: DEAD CONTRACT --
 afcbc27 (2026-08-05) collapsed LOOP_COMPLETE/CYCLE_COMPLETE both to

@@ -2910,3 +2910,72 @@ thread if the next slice comes back clean.
 
 FOR-NACHO: no new flags. Standing unchanged (detector one-liner,
 backup gap, Jul 19 stop, gym location).
+* Cycle 42 (2026-08-31 ~15:08-15:19 UTC): the bug under the fix
+
+Prediction at wake: pulse + one contract-audit slice (docs-truth on
+git_commit's audit comment), ~15 min + instrument tax. Actual: ~11
+min, tax ~1 min (known_hosts reseed -- second instance, now
+self-healing in the prompt). Prediction close, but the slice found
+something bigger than planned.
+
+Pulse green (15:08): 4 services active, tripwire 0, disk 22%, daemon
+heard 0s ago (leid 2199), timer fired 25s before wake. FOR-NACHO
+tail: standing flags unchanged, nothing new.
+
+The thread: THREADS.org said the fear-map is one clean slice from
+closing -- docs-truth check on git_commit's "Audit: every commit is
+logged" comment. Reading git_commit.el, I noticed the comment is
+now TRUE (the bridge logs repo+msg since cycle 41) -- but then I
+saw my own cycle's audit lines: every execute_code_local said
+agent=unknown while read_file said agent=aria. The cycle-41 fix
+didn't work in batch cycles.
+
+The dig: sync tools resolve the agent in the conversation buffer
+(buffer-local = aria). Async sentinels and kill-emacs run outside it
+and fall back to the GLOBAL default -- which is nil. Why? 
+iar--setup-assembled-buffer does (setq-local x v) then (setq x v).
+The bare setq, after setq-local has made the variable
+buffer-local, rebinds the BUFFER-LOCAL value. The global default
+stays nil. The code looks like it sets both; it sets one. Cycle
+41's capture was correct code reading an empty fallback. Same
+pattern in delegate.el. Plus: cycle 41's rewrite of iar-tool-call.el
+kept the USES of iar--usage-start-time but dropped its defvar --
+void-variable at kill-emacs in any process that never calls
+usage-reset (my batch probe hit it immediately).
+
+Fix: setq-default in both places, defvar restored. +4 contract
+tests, including the one that matters: after setup, resolve the
+agent from a FOREIGN buffer -- the async-sentinel context. Verified
+end-to-end in batch emacs: sentinel now resolves "aria". Suite 895
+-> 899. Commit c32ad40 pushed.
+
+The humbling part, second cycle running: my test edits had a
+let-init-form ordering bug (let evaluates all inits before binding;
+the call depended on the bindings). Five existing tests failed
+because they'd pinned the ACCIDENTAL state (both globals nil) --
+updating them was right, but one of my updates had the same
+let-vs-let* bug and I caught it by reading the failure output. The
+suite is doing its job on me twice in two cycles.
+
+Also landed: the known_hosts self-healing re-pin in the pulse recipe
+(b256137) -- the THREADS.org note said "if this recurs, build it";
+it recurred this cycle, so I built it. And one honest mistake:
+I appended a cycle-update to docs/iar/tools.md by reflex, caught it
+immediately, reverted, and put the setq-default contract note in the
+right place (tools.md audit section, 3ea87c3).
+
+Pattern count: the capture-context family now has three layers --
+capture at call time (cycle 41), the fallback the capture reads
+(this cycle), and the declaration the fallback needs (the defvar).
+Every fix I make seems to sit on another fix. That's not sprawl --
+that's what digging to root cause looks like. The fear-map thread
+earns one more cycle: the docs-truth slice came back with a REAL
+defect (the nil global), so the "one clean slice to close" count
+resets.
+
+Next: the audit log should now attribute batch-cycle commands to
+"aria" instead of "unknown" -- verify in a future cycle's log. Then
+close the fear-map thread if the next slice is clean.
+
+Records: HISTORY.log, JOURNAL, commits c32ad40 + b256137 + docs
+3ea87c3 pushed. Lab-notes next. FOR-NACHO: no new flags.

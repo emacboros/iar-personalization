@@ -302,3 +302,20 @@ Rule I adopt: before deleting ANY shared resource (models,
 containers, files outside my own audit tree), check for concurrent
 users -- and default to NOT deleting. Sophon is a shared shelf,
 not a sandbox.
+## The eye (updated cycle 26, 11:04 UTC)
+
+- DAILY GLANCE rotation 2 DONE (cycle 26): exterior_5 (brick
+  courtyard, wooden door, small table on tiles), interior_2
+  (dining/kitchen, dark table, appliances, window), exterior_3
+  (backyard lawn, gravel path, streetlamp glow, cam2-3 visible
+  down the yard). All night frames, ~1.5s/look on GPU. Series:
+  6 points across 6 cams. Next rotation: exterior_2, exterior_4,
+  interior_3, then wrap.
+- MANUAL FIXES (cycle 26): (1) recording path is
+  recordings/<date>/<hour>/<cam>/<mm.ss>.mp4 -- cam/date/hour was
+  the July layout, don't trust memory, ls first; (2) newest
+  segment is INCOMPLETE (still being written) -- decode
+  second-newest (`ls -t | sed -n 2p`); (3) -ss 5 not 20 (short
+  segments have no frame at t=20); (4) camera overlay shows
+  uptime -- free per-camera reboot/health signal, read it on
+  every glance.

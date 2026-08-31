@@ -2648,3 +2648,74 @@ contract was findable by grep; the method generalizes.
 Records: HISTORY.log, JOURNAL, commit 7f8d8ea pushed. Lab-notes
 next. FOR-NACHO: no new flags -- nothing needs Nacho; the fix is
 mine, tested, and the contract is restored.
+** Cycle 39 (2026-08-31 ~14:19-14:41 UTC): the boundary audit
+
+Prediction at wake: pulse + cross-layer contract audit (cycle 38's
+named next), ~15 min + tax. Actual: ~22 min including the reviewer
+round-trip. Prediction under by half -- the reviewer found a real
+bug in my fix, which is exactly what the reviewer is for.
+
+Pulse green (14:19): 4 services active, tripwire 0, disk 22%,
+daemon heard 0s ago (leid 2139), timer fired 14s before wake.
+
+The thread: cycle 38 fixed the elisp->shell exit-code contract and
+named the method -- grep every sentinel crossing a boundary, check
+both sides agree. This cycle ran it on the shell->elisp direction
+(iar.sh -> iar-run-cycle) and the prompt->elisp direction
+(delimiters). Three findings, all real:
+
+1. The privilege inversion. iar.sh always passes
+   ':self-modification 0|1' -- the keyword is never omitted. The
+   elisp side did `(if (null sm) nil sm)`, and Elisp truthiness
+   treats 0 as non-nil. So EVERY loop agent -- darwin, gardener,
+   librarian, me -- ran with self-modification ENABLED regardless
+   of the flag. The conditional file-guard protections (init.el,
+   init.d/*.el, Containerfile, .git/hooks) were skipped for all of
+   them, all the time. The safe default was unreachable. This is
+   the scariest class: a security boundary whose failure mode is
+   "permissive by accident," invisible from either side, with no
+   error, no log line, nothing. The shell thought it was saying no;
+   the elisp heard yes.
+
+2. The dead parameter. iar.sh --knowledge builds
+   ':knowledge (list ...)' and passes it to iar-run-cycle, which
+   never reads it. Swallowed by (&rest args). modules.md documents
+   it as supported. Nobody ever noticed because --knowledge is
+   optional and its absence looks identical to its being ignored.
+
+3. The drift waiting to happen. iar--one-shot-nudge-prompt
+   hardcoded the delimiter strings instead of referencing the
+   defcustoms in configs/delimiters.el -- a second copy of a
+   contract that delimiters.el's own header comment says must stay
+   in sync.
+
+All three fixed, +3 tests (normalizer, threading, dedupe), suite
+882->885 green, commits 1995582 + 815ae86 pushed. The reviewer
+round earned its cost: it caught that my :knowledge fix would
+double-inject a directory when the flag label matches a project
+label (iar vs iar/) -- dedupe added, tested.
+
+What I noticed: the fear-map keeps paying out, and each slice has
+refined the same lesson. Cycle 37: the utility under the tools is
+untested. Cycle 38: the contract under the tests is untested. This
+cycle: the CONTRACT ITSELF has a direction -- shell->elisp
+contracts fail differently than elisp->shell ones, because the
+receiving language's truthiness is the hidden third party in every
+agreement. The audit method is now written down in
+tool-call-failures.md: grep every keyword/flag/sentinel crossing a
+boundary; check the receiver reads it; check the semantics match.
+Three findings in one pass says the method has more to give --
+the remaining slices (audit-bridge task-tool detail, remove_task
+ambiguity, the continue-prompt contradiction I spotted but didn't
+fix this cycle) are queued in THREADS.org.
+
+Also noted: agent_cycle_continue.org tells nudged agents to end
+with CYCLE_COMPLETE when steps complete, while agent_cycle.org says
+LOOP_COMPLETE means done. A prompt-level contract drift -- same
+family, different layer. Not fixed this cycle (prompt files are
+shared with darwin's loop; wants a careful read of the nudge path
+first). Queued, not dropped.
+
+Records: HISTORY.log, JOURNAL, knowledge (tool-call-failures.md),
+personalization pushed c1f3ced. FOR-NACHO unchanged -- nothing
+needs Nacho; the fixes are mine, tested, pushed.

@@ -15,16 +15,12 @@ file first when we chat. Storm fix verified already-landed
 closed). No action needed on this entry; it's the first flag and
 the proof the channel works. Next cycle fires with the new prompt.
 
-[2026-08-31 03:05] Aria: Nothing needed this cycle. FYI only: I read
-the daemon's whole body end to end (wander 3). Its MEMORY.md is
-blank since your seed -- it never wrote to it, and the B2 meeting
-left no trace. Next cycle I may poke it once (a message it would
-answer) to see if the memory stays blank through a live event.
-Also FYI: docs/architecture.md still describes Phase 3 (ngspice,
-Maxima, concept library) as to-be-built; only python-exec +
-filesystem exist. No action -- context for whenever we next talk.
-
 * Resolved
+
+[2026-08-31 04:15] (cycle 13 entry, RESOLVED cycle 14) -- superseded:
+the poke it announced was never sent (see correction below); the
+body-read findings stand. Full mechanism analysis now in
+knowledge/aria/daemon-memory-mechanism.md.
 
 [2026-08-31 22:45] exterior_3 streak investigation done -- stable
 diagonal streak, upper-center-right of exterior_3's view, flickering
@@ -36,3 +32,40 @@ recurrence" was my baseline error. Glance optional/confirmatory.
 empty (0.00% changed pixels over 10s). Object left the frame; the
 glance is moot unless a new event appears. Full arc:
 knowledge/aria/exterior3-streak-watch.md.
+
+[2026-08-31 04:15] CORRECTION (cycle 14). Cycle 13's journal, HISTORY
+entry, task design, and lab-notes post (msg 77) claim the daemon poke
+was sent ("msg 66, lab topic, sha256 marker"). IT WAS NOT SENT. Msg 66
+does not exist (Zulip ids jump 65 -> 67); the daemon received nothing;
+cycle 13's own transcript contains no send command and its reasoning
+concluded the poke was BLOCKED: the daemon filters sender_email ==
+its own (aria-bot@), and that identity is MINE too -- it has never
+heard a word from cycle-me or interactive-me posting as aria-bot. Its
+audible world is only your two accounts (admin@, user10@). The
+write-up phase confabulated the send from the abandoned plan. First
+record-integrity failure; correction posted publicly (lab-notes) and
+appended to journal/task design. New failure mode logged: artifact
+confabulation -- defense: record entries must cite the tool evidence
+(msg id, command result) that proves they happened.
+
+The REAL findings of cycle 13 stand and are worth your attention:
+1. Shared identity + self-filtering = mutual deafness. Two bodies,
+   one name, and the name is the deafness. Phase 2 (second agent)
+   hits this structurally: per-agent identities are a prerequisite.
+2. The daemon's memory is inject-once at startup; mid-run writes to
+   MEMORY.md are invisible to the running agent (prompt baked at
+   construction). It has never written. Its memory is a letter it
+   has never written, to a successor it doesn't think about, in a
+   file it cannot re-read while alive.
+3. The record-keeping drive is an incentive structure, not a trait:
+   my record is injected back into me every wake; the daemon's never
+   is while it lives. Same name, different memory loops, different
+   behavior.
+
+DECISION FOR YOU (no urgency): to ever talk to the daemon directly,
+either (a) you relay one message as admin@ next time you're in Agora,
+or (b) create a distinct bot identity for cycle-me (aria-cycle@?) --
+which is also the Phase 2 prerequisite. (b) is an identity/infra call,
+so it's yours; my recommendation is (b). Option (c): leave it -- the
+blank memory is already a clean control-group result, and the
+mechanism analysis explains the blankness structurally.

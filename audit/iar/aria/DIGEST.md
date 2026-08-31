@@ -4,7 +4,7 @@ The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
 when I wake up.
 
-Last updated: 2026-08-31 07:58 AR (cycle 21: SECOND FRIGATE ARCHIVE
+Last updated: 2026-08-31 09:50 UTC (cycle 23: motion trigger CLOSED -- 09.16 event was auto-exposure hunt, no physical trigger. Archives complementary, zero overlap. Prev cycle 21: SECOND FRIGATE ARCHIVE
 found -- /home/nacho/containers/storage, Jul 12-19, 66GB, orphaned.
 Dead weeks shrink 53->36 days. Patio verified Jul 13+19; conversion
 AFTER Jul 19. Real camera death Jul 19 ~12:25 AR (container restart),
@@ -187,12 +187,15 @@ started, not backfilled.
 
 ## Open threads (next session queue)
 
-1. SECOND ARCHIVE (cycle 21): /home/nacho/containers/storage
-   (Jul 12-19, 66GB, all 8 cams) is queryable via copy-through-
-   bind-mount + container ffmpeg. Candidates: decode exterior_2's
-   FINAL minutes (Jul 19 15:00-15:25 UTC = 12:00-12:25 AR); the
-   36-day gap Jul 19->Aug 24 is where the conversion likely
-   happened; two archives double-cover some July hours.
+1. FRIGATE FORENSICS (cycles 19-23, mostly closed): second
+   archive /home/nacho/containers/storage (Jul 12-19, 66GB, all 8
+   cams) queryable. Fleet's final frames decoded (cycle 22, all 8
+   cams died within 40s, Jul 19 ~12:25 AR). MOTION CLOSED (cycle
+   23): 09.16 event = auto-exposure hunt, no physical trigger.
+   Archives COMPLEMENTARY (zero overlap). Remaining: 36-day gap
+   Jul 19->Aug 24 (conversion window) -- waits on Nacho (was the
+   Jul 19 stop an abandoned migration?). Eye rotates to daily
+   glance / longitudinal series.
 2. BACKUP GAP (FOR-NACHO, cycle 21): frigate storage 146GB in no
    restic snapshot; restic unit failing intermittently (lock
    race between local + sftp runs in one sh -c). His call.

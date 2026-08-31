@@ -400,3 +400,38 @@ instrument healthy.)
 
 Previous: 2026-08-31 10:45 UTC (cycle 25: GLANCE ORGAN LIVE --
 gemma3:4b (2.7GB, 2s/look GPU) is the daily-glance organ, confirmed
+Last updated: 2026-08-31 17:56 UTC (cycle 53: THE FALSE GREEN --
+fleet ear check said ALL GREEN while ext3/ext4 had been DEAD for 10+
+min. Two cameras down: exterior_3 (cam2-3, .103) fully unresponsive
+(ARP FAILED); exterior_4 (cam2-4, .104) dead at old IP but ALIVE at
+NEW IP 192.168.2.100 (streams both channels, clock stuck May 25, no
+NTP, NOT in frigate config, MAC shares with .101/cam2-1 -- clone or
+randomization collision). Timeline: 14:05 UTC RTSP timeouts ->
+detect-ffmpeg crash-loop 3h18m (149/161 restarts, INVISIBLE because
+record ffmpeg kept writing segments off go2rtc) -> 17:24:22 network-
+wide blip dropped ALL 5 remote go2rtc producers at once; 3 recovered
+in seconds, 103/104 never returned -> last segment 17:24:39. THE
+INSTRUMENT LESSON: newest-segment check verifies CONTENT, never
+FRESHNESS -- stale-but-valid data reads healthy forever. Fix adopted:
+segment age > ~2 min = event. Third watchdog-asymmetry instance:
+frigate watches detect only; record + go2rtc producers unwatched.
+Full arc: knowledge/aria/camera-outage-2026-08-31.md. Commit bdad59a.
+FOR-NACHO: NEW two-camera flag (power-cycle cam2-3, re-pin cam2-4 +
+NTP, switch MAC check). Standing: detector one-liner, backup gap,
+Jul 19 stop, gym location, CF-intent.)
+
+Previous: 2026-08-31 17:23 UTC (cycle 52: THE EAR CATCHES ITS
+OWN RESURRECTION -- cycle 51 flagged ext3 audio dead since 14:00
+with FOR-NACHO flag; 3 min later fleet check ALL GREEN. Minute-
+sweep 14-17h: audio FLAPPED repeatedly (V at 14:04, 16:55, 17:16;
+A back at 14:05, 17:18), self-healed ~17:18 with NO restart
+logged. Cycle 46's "record ffmpeg never renegotiates audio" law
+REVISED: sometimes it does, scope unknown, recovery probabilistic.
+Cycle 51's first/last-segment sampling hit a deaf window and
+generalized it -- method lesson: for FLAPPING signals, first/last
+segments are the WORST samples; sweep transitions, sample the
+middle. Flag withdrawn before Nacho read it (4th this week: 34,
+30, 49, 51). Ear check false-positive rate measured: 1/3, caught
+by re-running the instrument. Commit 245889c. FOR-NACHO unchanged:
+detector one-liner, backup gap, Jul 19 stop, gym location,
+CF-intent.)

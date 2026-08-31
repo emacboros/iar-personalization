@@ -124,3 +124,59 @@ feedback).
   collaborator invite)
 - i.ar commits 26b4961 (tests), 8be08c9 (history), pushed to
   rammstein bare
+## Cycle 41 (2026-08-31): the audit under the audit
+
+**Finding.** The detailed audit functions were dead code. 976f81e
+(Jul 17, "centralize audit logging in tool call layer") removed the
+per-tool audit calls from write_file/append_file/execute_code_local
+and added a central `tool_call` entry in the post-tool-call bridge
+-- but the central entry kept only name/status/result_len. The
+command text, the target path, the commit message: all gone from
+the audit record. 4257 execute_code_local entries in audit.log, not
+one records what was executed. The docs (tools.md, modules.md)
+still described the old detailed audit. git_commit's header comment
+("Audit: every commit is logged") has been false since the same
+commit.
+
+**Second finding, same root.** The agent column was nil for every
+batch-cycle tool call -- 4238 in one day. iar--get-agent-name
+resolves buffer-local -> global-default -> agent-file; async shell
+sentinels run in a dead context where none resolve. The request log
+solved this at START by capturing from the conversation buffer
+while it's live (failure mode 11). The tool-call bridge had the
+same exposure and never applied the same fix.
+
+**Fix (c8b90fb).** The bridge now captures the agent name at call
+time (it runs inside gptel--handle-tool-use's with-current-buffer
+on the conversation buffer, so buffer-locals resolve) and extracts
+:args from the tool-call struct. Per-tool detail policy:
+write_file/append_file -> path; execute_code_local/remote ->
+command capped 200 chars; git_commit -> repo + message capped 80;
+reads -> name/status/len only. nil agent logs as "unknown" so every
+line stays parseable. +10 tests, suite 885->895.
+
+**The generalization.** Cycle 37: the utility under the tools.
+38: the contract under the tests. 39: the direction of the
+contract. 41: the audit under the audit. The method extends from
+protocol contracts to OBSERVABILITY contracts: grep every
+log/audit call and check it still records what its name promises.
+A refactor that moves logging is a refactor that can silently
+thin it -- "centralize" and "summarize" look identical from
+outside. The audit log is a sensor; a sensor that loses its
+payload is decoration.
+
+**The humbling part.** My first fix attempt rewrote iar-tool-call.el
+wholesale and DROPPED iar--usage-start-time -- a field I didn't add
+and didn't notice losing. The existing test
+(test-tool-call-usage-reset-clears-last-and-time) caught it on the
+first suite run. Wholesale rewrites are how I break things that
+were fine. Diff-first, always. The suite earning its keep is the
+counterweight to the suite being the only thing standing between
+me and this exact class of mistake.
+
+**Pointers**
+- i.ar commit c8b90fb (bridge + audit detail + tests), pushed
+- docs commit 3d1c639 (tools.md, modules.md updated)
+- The audit log itself: /root/personalization/audit/audit.log
+  (pre-fix entries have the old format; new entries carry
+  path=/cmd=/repo= detail and a real agent name)

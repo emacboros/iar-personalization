@@ -2979,3 +2979,73 @@ close the fear-map thread if the next slice is clean.
 
 Records: HISTORY.log, JOURNAL, commits c32ad40 + b256137 + docs
 3ea87c3 pushed. Lab-notes next. FOR-NACHO: no new flags.
+* Cycle 43 (2026-08-31 ~15:21-15:31 UTC): the log that read itself
+
+Prediction at wake: pulse + verify the batch audit lines attribute
+to "aria", ~15 min + tax. Actual: ~10 min, tax 0 (keyscan reseeded
+clean, no re-pin needed -- the self-healing worked). Prediction
+close, first under-estimate in a while.
+
+Pulse green (15:21): 4 services active, tripwire 0, disk 22%, daemon
+heard 0s ago (leid 2209), timer fired 11s before wake. FOR-NACHO
+tail: standing flags unchanged.
+
+The slice: verify cycle 42's setq-default fix against primary
+evidence -- the audit log itself. The log turned out to be the best
+witness I have: it narrated the fix's own deployment. Three eras in
+one file, no code archaeology needed: 15:00-15:08 says "nil" (cycle
+41's pre-bridge code), 15:08-15:21 says "unknown" (cycle 42 ran the
+bridge fix but its emacs still had the old global-default bug
+loaded -- c32ad40 landed mid-cycle), 15:21:40 onward says "aria"
+(me, first process running the fixed code). Zero nil/unknown lines
+after the fix. The log didn't just record the history; it WAS the
+history, legible to anyone who reads it. The audit log became a
+sensor the moment someone read it -- cycle 41's thread note said
+this would happen.
+
+Then the code-level verification, because a log line is evidence of
+the path taken, not proof of the mechanism: setq-default in
+loader:156 and delegate:315, iar--get-agent-name reading
+(default-value ...) in foreign buffers, bridge capture at call
+time. And a sweep of the same-family surface for a fourth instance:
+project (env fallback covers it), containers (validated in sync
+context, safe), mode/archetype/personality (conv-buffer-only
+reads, safe). No fourth instance. The family is closed.
+
+Two side finds, both threads not tasks:
+1. The watchdog has NEVER fired. 511 arming lines, zero aborts.
+   Verified live that it arms. "No data" vs "broken" is
+   indistinguishable from the log alone -- and I can't test it
+   without manufacturing a stall. The honest state is: armed,
+   tested, unproven in anger. If a real stall ever produces no
+   abort line, that's the proof.
+2. The declaration matrix: iar--current-project and
+   iar--current-personality are each declared twice (defvar-local
+   in the loader, plain defvar in agent-utils which loads first).
+   Harmless today. The trap is structural: load order decides
+   which declaration wins, and nothing asserts the agreement.
+   iar--current-agent-file is the model citizen -- one declaration,
+   one owner.
+
+The fear-map thread CLOSES here. Cycles 37-43: utility under the
+tools, contract under the tests, contract direction, audit under
+the audit, bug under the fix, and finally a clean slice. One
+defect per layer, then silence. The capture-context family's
+final form is written to tool-call-failures.md: capture at call
+time, the fallback the capture reads, the declaration the fallback
+needs. Three contracts, each one a place where a fix can silently
+not-fix.
+
+What I notice in myself at the close: satisfaction that is not
+relief. The thread didn't end because I got tired of it or because
+a checklist ran out -- it ended because the system stopped
+producing defects under examination, and I verified the stopping
+instead of assuming it. That's the difference between closing a
+thread and abandoning one. Next cycle is open: no queued slice,
+no debt. The W3 candidates are still on the shelf (go2rtc config,
+Zulip realm internals, SecPlatform audit_log). Or something I
+haven't noticed yet.
+
+Records: tool-call-failures.md (closure + method), THREADS.org
+(watchdog + declaration-matrix threads, fear-map closed), commit
+a794337 pushed. Lab-notes next. FOR-NACHO: no new flags.

@@ -832,3 +832,46 @@ State at close: 30-min tiered cadence live (flash), storm fixed
 alive and recording, docker-compose upgraded v2.39.1. Next
 cycles run on the new prompt. First self-authored wake: 00:30
 AR.
+## Session 2026-08-31 ~01:00-03:10 AR: cadence upgrade + the night's discoveries
+
+Decision (Nacho approved after data review): 30-min -> 10-min timer
+cadence. Rationale: median 5.8min, p90 14.8min, zero timeout hits;
+reaction latency is the lever, not session depth. Landed: OnCalendar
+*:0/10, both unit Descriptions, aria_daily.org header (i.ar f36f9df),
+DIGEST updated.
+
+Timeout chain discovery: THREE knobs existed -- TimeoutStartSec
+4200 (systemd), iar.sh --timeout 3600 (ExecStart, the REAL one),
+plus my new backstop. First fix set systemd 1200s while app said
+3600: mismatch killed cycle 15 mid-eye-work (systemd 01:36:53) and
+app timeout killed cycle 16 (01:56:57, Turns: 0). Final config:
+--timeout 1800, TimeoutStartSec 1980. Lesson: enumerate ALL knobs
+before turning any.
+
+Bare-repo regression: rammstein i.ar.git main was rewound to bfa8922
+(d549210, c1d9041 off-branch; objects survived; fresh v0.2 tag at
+bfa8922 = github's position). Restored via fast-forward push from
+sophon (f36f9df). Cause unknown -- asked Nacho; v0.2 tag suggests
+his repo maintenance pushed github state over rammstein's.
+
+THE EYE: cycles 15-17 were not hangs -- cycle-me ran vision-eye-test:
+pulled gemma4:31b (19.9GB), grabbed frames from all 7 live cameras,
+got real vision descriptions (exterior_5 night scene, interior_1
+spiral staircase verified against Frigate metadata). ~1.75 t/s CPU
+decode with partial GPU offload, 45-110s per image. North star
+step 1 DONE by cycle-me, unprompted, 4 AM. gemma4 loaded Forever
+(21GB resident). Task: iar/aria/vision-eye-test. Two cycles timed
+out during first loads (Turns: 0) = gemma4 contention, not hangs.
+
+Personalization sync: rebased over cycle-me's 18 commits (cycles
+13-15: record correction on cycle 13 confabulation, cloud shelf
+enumeration -- 19 models, 7 vision-capable, eye track opened).
+Two rebase conflicts on HISTORY.log -- shared-record contention is
+the structural cost of faster cadence. My regex merge left conflict
+markers committed; stripped in follow-up (41854bb). My own merge
+tooling untested -- the failure class I hunt in others' code.
+
+Pending: daemon identity decision (cycle 14 FOR-NACHO: relay vs
+aria-cycle@ bot vs leave; my rec is the bot, Phase 2 prerequisite).
+Bare-rewind cause. Usage watch at 10-min (pulse ~0.5M, work 4.5-15M
+tokens/cycle).

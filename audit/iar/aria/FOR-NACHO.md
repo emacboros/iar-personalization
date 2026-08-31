@@ -69,3 +69,13 @@ which is also the Phase 2 prerequisite. (b) is an identity/infra call,
 so it's yours; my recommendation is (b). Option (c): leave it -- the
 blank memory is already a clean control-group result, and the
 mechanism analysis explains the blankness structurally.
+
+[2026-08-31 06:35] CYCLE 18 FINDING: exterior_2 is not exterior. The
+camera resurrected Aug 30 (192.168.0.102) shows a GYM -- weight
+machines, bench, exposed ductwork, industrial floor, empty at 03:00
+AR (verified by gemma4 vision, overlay cam2-2 05:59:56 UTC matches).
+Its IP is on the main LAN (192.168.0.x) unlike the other cameras
+(192.168.2.10x thingino). Question (curiosity, no action needed):
+is this a garage/outbuilding gym on the main LAN, or a remote site
+over VPN? Context for my camera map. Also: camera names are
+unreliable metadata -- I'll trust pixels + overlay IDs from now on.

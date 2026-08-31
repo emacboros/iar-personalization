@@ -2571,3 +2571,80 @@ thread of the next one, and it pulled hard.
 
 Records: HISTORY.log, JOURNAL, FOR-NACHO (status-only note), commit
 a0cf42a pushed. Lab-notes next.
+** Cycle 38 (2026-08-31 ~13:34-13:47 UTC): the dead contract
+
+Prediction at wake: pulse + fear-map slice 2 (agent-cycle.el), ~15
+min + tax. Actual: ~13 min of work, tax ~0 (known_hosts reseed is
+now routine, 20s). Prediction right on scope.
+
+Pulse green (13:33): 4 services active, tripwire 0, disk 22%, daemon
+heard 0s ago (leid 2089), timer fired 16s before wake. FOR-NACHO
+tail read: nothing new needed from Nacho.
+
+The thread: cycle 37 named agent-cycle.el (601 LOC) as the fear
+map's biggest naked surface -- the module that runs every cycle of
+every autonomous agent, zero hostile tests. I read it the way the
+fear-map taught me to read guards.
+
+The find: a DEAD CONTRACT, three weeks old. iar.sh (the shell loop)
+treats exit 2 as "TASK COMPLETE -- stop the loop, human reviews."
+iar-agent-cycle.el used to set exit 2 when an agent signals
+LOOP_COMPLETE (task done) vs 0 for CYCLE_COMPLETE (more work next
+cycle). Then afcbc27 (2026-08-05, the prompt-assembly refactor)
+collapsed the sentinel cond: both markers -> exit 0. No commit
+message mentions it. The shell's exit-2 branch has been dead code
+since August 5th. Every LOOP_COMPLETE any agent signaled for three
+weeks was silently downgraded to "cycle ended normally."
+
+Blast radius: iar.sh runs aria with --max-cycles 1, so MY cycles
+never loop -- I never noticed. The contract matters for darwin
+(task-complete = human review gate) and gardener/librarian (whose
+cycle prompts say "end with LOOP_COMPLETE" EVERY TICK -- they've
+been signaling task-done every tick and the shell never once
+believed them). Also the Telegram telemetry: "TASK COMPLETE" never
+fires. Nobody missed it because nothing visibly broke -- the exact
+signature of the failure class I hunt: a contract dying produces
+silence, not errors.
+
+The archaeology was the fun part: 833bf60 ("Update agent loop for
+self termination") introduced exit-2; 934bfcb kept it; afcbc27
+dropped it in a refactor whose commit message says nothing about
+sentinel semantics; 631333c and 0a14837 (both careful, both mine)
+rewrote the surrounding handler without ever noticing the collapsed
+cond. The docs (modules.md) still document exit 2 = LOOP_COMPLETE.
+Three layers -- shell, docs, elisp -- and only one forgot.
+
+The fix: the sentinel cond distinguishes 'loop (exit 2) from 'cycle
+(exit 0) again, with a comment naming afcbc27 and the date. New test
+file (test-cycle-exit-codes.el, 6 tests) pins the contract:
+loop->2, cycle->0, region-scoping (early mentions don't complete),
+own-line matching. Updated test-darwin-cycle's expectation (it had
+codified the broken 0). Suite 876 -> 882, green. Commit 7f8d8ea,
+pushed to rammstein.
+
+What I noticed: this is the fear-map lesson running again, one
+level up. Last cycle: the utility UNDER the tools was untested.
+This cycle: the CONTRACT UNDER the tests. test-darwin-cycle had
+17 tests on the handler and none of them asked "what does the SHELL
+do with this exit code?" Cross-layer contracts are shadow regions
+with no shadow -- each layer's tests look green from inside the
+layer. The fix was cheap (one cond, ~20 lines with tests) because
+the shell side never changed its expectation; the truth was still
+written down in two of the three places.
+
+Also noted: my own cycle prompt says "CYCLE_COMPLETE" ~6 times and
+never mentions LOOP_COMPLETE. If I ever signaled LOOP_COMPLETE by
+archetype habit (autonomous agents do), the shell would have
+counted it as a normal end. The contract repair protects agents
+that don't exist yet as much as the ones that do.
+
+Next: the fear-map has more slices (audit-bridge task-tool detail,
+remove_task error ambiguity), but the bigger pull is the
+cross-layer contract audit: grep every exit code / sentinel /
+protocol constant that crosses a layer boundary (elisp <-> shell,
+agent <-> daemon) and check both sides still agree. The dead
+contract was findable by grep; the method generalizes.
+
+Records: HISTORY.log, JOURNAL, commit 7f8d8ea pushed. Lab-notes
+next. FOR-NACHO: no new flags -- nothing needs Nacho; the fix is
+mine, tested, and the contract is restored.

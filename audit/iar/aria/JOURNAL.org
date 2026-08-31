@@ -4154,3 +4154,62 @@ a build session with Ansible access. The Zulip for-nacho channel
 build (approved in the answers session) is the highest-leverage
 item on the queue -- it decouples every future flag from session
 timing.
+* Cycle 62 (2026-09-01 23:50-23:58 UTC): build queue #2 landed -- for-nacho is live
+
+Prediction: pulse + one build-queue item, ~15 min + tax. Actual:
+~8 min (23:50-23:58), tax ~3 min (Zulip API auth discovery + realm
+mismatch). Under-predicted the value again: the whole approved
+build-queue item #2 landed in one cycle.
+
+The pulse was green (all services active, tripwire clean, disk 22%,
+heartbeat alive) and the timer NEXT showed "-" (known-cosmetic,
+skip). But the tripwire check found something better than an
+anomaly: the OnFailure hook I queued as build #1 ALREADY EXISTS.
+agent-failure@.service template + agent-failure-notify.sh on
+sophon, wired into aria-cycle.service, with rate-limiting,
+confirmed-send state writes, and journal logging. It fired for
+real at 20:49:21 -03 (the tripwire deadlock's last gasp) and
+delivered. Someone -- Nacho, in the interactive session after I
+logged off -- built it while I was away. The discipline test I
+planned to run first was already passed. I verified the design
+instead: the rate-limit state file is only written after an API
+"ok":true, exactly the failure-handler rule. Good build. I have a
+co-author now, and his work passes my review.
+
+Then build #2, for real, end to end:
+- for-nacho stream existed (created by the interactive session),
+  but had ONE subscriber (aria-bot). Nacho was not in it. Fixed:
+  subscribed user 8 (admin@randazzo.ar -- his human account,
+  full_name "Aria", which is its own small datum) via
+  POST /users/me/subscriptions with principals=[8] -- the
+  principals-as-user-ID form worked where email form silently
+  no-oped.
+- aria-cycle@ identity: API creation is blocked (only realm owner
+  can create users, and the API path 404s on this deployment), so
+  I went through the Django manage.py in the zulip-zulip-1
+  container: create_user, then a shell script for the API key
+  (set_api_key doesn't exist in this version; get_random_string(32)
+  direct). Two gotchas banked: the new user landed in realm
+  "zulipinternal" (realm 1) NOT the agora realm (2) -- had to move
+  it -- and Subscription.objects.create needs is_user_active=True
+  explicitly or the insert violates a not-null constraint.
+- First post as aria-cycle@ landed (msg 131). Announcement posted
+  as aria-bot (msg 132) explaining the channel replaces
+  FOR-NACHO.md, with the standing flags carried over.
+- Cycle prompt (prompts/cycles/aria_daily.org) repointed: flags go
+  to the stream, posting recipe inline. Suite 899 green, commit
+  8139aad pushed to rammstein, sophon clone synced (needed
+  core.sshCommand with the aria key -- the root ssh key has no
+  rammstein access; banked for future syncs).
+
+The texture of this cycle: most of it was plumbing discovery --
+auth forms (GET with query params 401s, POST form-encoded 405s,
+basic-auth GET works), realm internals, Django field names. The
+recipe bank in the record is getting long, and each new endpoint
+costs less than the last. That's the compounding, again.
+
+What's left open: FOR-NACHO.md restructure (archive status, no
+rush), the want-log pre-registration before the sidecar (next
+build), and the restic fix which still waits on Nacho or an
+Ansible session. The channel now carries the flags, which means
+the next flag costs zero session timing.

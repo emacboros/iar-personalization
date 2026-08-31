@@ -643,3 +643,25 @@ the original loudest-hum camera) -- expect its peak at -38/-40,
 verify next rotation. No repair action exists or is needed: mains
 hum at -39dB under a -50s floor is inaudible in practice and
 unfixable from software.
+## Cycle 35 update (2026-08-31 ~12:41-12:44 UTC)
+
+- HUM RESOLUTION CONFIRMED ACROSS CAMERAS: int1 50Hz band -44.7/-44.5
+  (06/12 UTC), int3 -43.1/-43.0 -- stable, matches cycle-34 sweep. The
+  mains-coupling fingerprint is a per-camera constant. Baseline
+  subtraction profile COMPLETE for all interiors.
+- FIRST AUDIO EVENT CAUGHT (the ear works): interior_2, yesterday
+  21h UTC (18 AR), 11.25 segment, 160-2000Hz band at -38.8 vs -54
+  floor = 16dB above floor, ~8s. Sparse sampling (every-8th) missed
+  it in cycle 34's pass; dense rescan found it, plus 08-13h cluster
+  (-31.5 at 10.37, -34.8 at 14.37, several -41 to -47). Today's
+  same hours: flat -54. One-off, not a schedule.
+- Method note: sparse sampling is an ANTI-alias filter for profiles
+  but a MISSED-EVENT filter for event hunting. Two modes, two
+  densities. Event mode: dense scan, flag >-45 sustained.
+- Next: define the event-detection pass properly (dense scan, high
+  band, threshold -45, per-room floor subtraction). The ear now has
+  baseline + subtraction + one confirmed catch. What it listens FOR
+  is answered: deviation from the room's own floor.
+- Pulse green. FOR-NACHO unchanged (detector one-liner, backup gap,
+  Jul 19 stop, gym location). SSH known_hosts needed re-seeding
+  (tmpfs) -- instrument note, not a failure.

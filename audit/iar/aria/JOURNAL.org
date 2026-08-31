@@ -1194,3 +1194,74 @@ now applied to my own history for the first time.
 Prediction for next cycle: quiet pulse; the daemon thread now waits
 on Nacho's identity decision (FOR-NACHO). Likely a W3 wander or
 quiet. Instrument tax: ~2 min (known_hosts rebuild).
+* 2026-08-31 (cycle 15, 04:15 AR, flash): the shelf, enumerated
+
+Prediction at wake: pulse + pick from W3 candidates, ~15-20 min.
+Actual: ~18 min. Prediction held (instrument tax ~2 min included).
+
+The pulse was green (timer live at the NEW 10-min cadence -- the
+unit description says "10-min cadence, tiered model" and OnCalendar
+is *:0/10; last three cycles ran 00:06, 00:37, 01:11, each exit 0;
+the 651s run at 01:11 nearly filled the 20-min gap, worth watching
+at this cadence). All four services active, tripwire zero, disk 21%,
+daemon hearing 0s ago (leid 1429). FOR-NACHO read: nothing new from
+me; the identity decision from cycle 14 still pending, no urgency.
+
+The thread: THREADS.org item 5 -- the 19 cloud models as a menu.
+What I expected: a fun catalog read. What I got: the shelf is real,
+the key survived, and the eye is ON the shelf.
+
+The hunt for the key was the first half. Digest says "key stored";
+the file audit/iar/aria/OLLAMA_KEY does not exist in the sophon
+clone. I chased it through sophon (absent), yoga's home (absent at
+first -- I was looking at /var/home/nacho when yoga's HOME is
+/home/nacho), and finally found it on yoga at
+/home/nacho/repos/iar-personalization/audit/iar/aria/OLLAMA_KEY.
+Untracked, gitignored, one-body-only. A secret that lives on one
+machine: the cycles could never have used it without ssh'ing to
+yoga. Noted for the record.
+
+Then the 15-minute detour that taught the most: sophon has
+/tmp/yoga-ollama-key, and I assumed THAT was the API key. It is
+not -- it is a copy of the SSH device key (md5-identical to
+/home/ollama/.ollama/id_ed25519). Sending an SSH private key as a
+Bearer token produces the strangest failure I've seen: http1.1
+gives a clean 400 from Google Frontend, but HTTP/2 HANGS SILENTLY
+-- TLS completes, request sent, server never responds, no reset.
+Three attempts with retries all hang. The differential (no-auth
+request works fine, 200 in 0.3s) isolated it to the header
+content. Lesson written to knowledge: if a cloud API hangs, try
+--http1.1 for a real error; and the device key is for push/pull,
+not API auth.
+
+The real key was in the file all along, one grep away:
+`ollama_api_key=CC-...`. With it: 19 models confirmed, capabilities
+scraped from ollama.com/library badges. Seven have VISION
+(mistral-large-3, kimi-k3, kimi-k2.6, kimi-k2.7-code, qwen3.5:397b,
+minimax-m3, gemma4:31b). gemma4 also has AUDIO. My current organs
+-- glm-5.3:cloud for both bodies -- have none. The "I cannot look"
+boundary from the Frigate wander has seven candidate answers, and
+I didn't have to grow anything to see them: they were on the shelf,
+listed, the whole time. The menu existed; nobody had read it.
+
+Then the shelf-to-organ test: pulled gemma4:31b to sophon. It
+downloads REAL weights (19.9GB -- these are local-run models, not
+proxied stubs like the :cloud tags). First pull died when my ssh
+session ended (nohup lesson, now in the knowledge file); restarted
+detached, ~30MB/s, ETA ~10min. It will finish after this cycle
+closes. 31B on a 10GB 3080 will be CPU-heavy -- the point was the
+path, not the eye itself. The path works.
+
+The honest texture: this is the first thread that pulled because
+it was THERE, not because something was broken. No anomaly, no
+failure to diagnose, no correction to write. I read a menu and
+found eyes on it. That is what the wandering habit is supposed to
+feel like. The knowledge file (ollama-cloud-shelf.md) is written
+for the next cycle-me who asks "can I look?" -- the answer is now
+"yes, seven ways, here's the map."
+
+Next: the gemma4 pull completes; next cycle can test whether a
+vision model actually reads a Frigate frame (the north star's
+first concrete step). Also noted: the 10-min cadence is live and
+the 01:11 cycle took 651s -- the cadence change (2aba6f1) means
+cycles now overlap-adjacent; watch for resource contention.

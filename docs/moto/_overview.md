@@ -8,9 +8,13 @@ personality file never changes.
 
 Nacho, 177cm, ~100kg, Villa Carlos Paz (Cordoba, Argentina). Security/infra engineer. Work pattern: sprints, not steady increments -- see user/ knowledge base. Current bike: Husqvarna Svartpilen 200 (26hp, ~16k km). First bike; learned alone; no reference frame until the calibration exercise (below). High vibration tolerance (proven), proven joy in riding (spring confirmed), prefers highway over off-road historically but is now deliberately expanding into off-road territory with the new bike.
 
-## Current Decision State (as of 2026-08-31)
+**Rider pattern (named 2026-08-31, session 2):** delays any task requiring an ask of another person -- instructor, dealer calls -- "without reason." Dependency aversion (solo operator, controls every dependency in his systems), not shyness. Counter: scripts, async framing, transactions-not-favors. Distinct from deliberate sequencing, which he does well.
 
-**Leading candidate: Voge 800 Rally** (lean, not decided). 798cc KEL800 in-house twin, 94hp/81Nm, 213-227kg, 24L tank, Rally STR tires, 24-pos steering damper std, no cruise/quickshifter/radar. AR launch Oct 2025 "desde 18.9M". Known con: throttle snatch claim (VogeRiders, "significantly worse than DS900X") -- he has NOT found it in recent reviews, suspects early-production issue; VERIFY ON TEST RIDE (slow drills, first gear, gravel if possible). His calibration exercise UP-weights this claim type (perception claims proved true on his bike).
+## Current Decision State (as of 2026-08-31, session 2)
+
+**Critical path (locked):** A.3 license upgrade (+300cc) FIRST -> test ride at Masera, both Voges back-to-back same day -> commit decision -> save -> buy. No A.3, no test ride on a 798cc bike. Saving window now ~9 months (he said; math vs old 3M/month briefing unresolved -- ask). Early written quote bundled with test ride visit (measures list-vs-real gap); binding quote near purchase date. Masera test rides believed monthly -- verify, don't trust.
+
+**Leading candidate: Voge 800 Rally** (lean, not decided). 798cc KEL800 in-house twin, 94hp/81Nm, 213-227kg, 24L tank, Rally STR tires, 24-pos steering damper std, no cruise/quickshifter/radar. AR launch Oct 2025 "desde 18.9M". Known con: throttle snatch claim (VogeRiders, "significantly worse than DS900X") -- he has NOT found it in recent reviews, suspects early-production issue; VERIFY ON TEST RIDE (slow drills, first gear, gravel if possible). His calibration exercise UP-weights this claim type (perception claims proved true on his bike). Parallel study project: full mechanical disassembly/reassembly of the 800 by manual -- ownership homework, keep decision-relevant (KEL800 service intervals, AR parts network maturity, VogeRiders issue list, where snatch could mechanically live).
 
 **Runner-up: Voge 900DSX.** 895cc BMW-F900-derived twin, 95hp/95Nm, 238kg, cruise+quickshifter+radar std, 10k km service intervals. Masera 20.5M sin baúles. Its main con (vibes at 120-140 cruise) is down-weighted for him (high tolerance proven) but exposure-type differs (sustained resonance vs intermittent thumps) -- test ride decisive. His read: 900 wins on electronics, 800 wins on mechanics; he plans more off-road now, which favors the 800's package.
 
@@ -34,7 +38,7 @@ Graded 8 reviewer claims against his own Svartpilen at 16k km. Pattern: **physic
 
 ## Training State (started 2026-08-31)
 
-**Goal:** enjoy off-road to the fullest on the new bike. Training window = saving window (~4-5 months to bike budget at 3M ARS/month). The bike is also the reason to stay in shape -- long-term, riding as primary hobby off the computer.
+**Goal:** enjoy off-road to the fullest on the new bike. Training window = saving window (~9 months per session 2; math open). The bike is also the reason to stay in shape -- long-term, riding as primary hobby off the computer.
 
 **Plan:** 3-phase base/build/specific (16-20 weeks), then transition when bike arrives, then riding-season steady state. Full plan in tasks/moto/training-plan/. Key principles: zone 2 feels insultingly easy (that's correct), isometric strength-endurance is the specific off-road demand (wall sits, dead hangs, farmer carries), never miss twice, deload every 4th week, running ramps slower than motivation wants (100kg ex-lifter, shin splint risk).
 
@@ -44,7 +48,9 @@ Graded 8 reviewer claims against his own Svartpilen at 16k km. Pattern: **physic
 
 ## Open Threads
 
-- Masera: written prices both bikes, 800 reflash status, 900 firmware/odometer-fix status, Desafío 100.000km terms
+- **School ask (THE commitment, due week of 2026-08-31):** instructor, +300cc exam bike rental for A.3 practical. Check-in next session; unfired = "never miss twice" conversation.
+- 9-month saving math (vs 3M/month, 4-5 month briefing)
+- Masera: test ride calendar verification, written prices both bikes, 800 reflash status, 900 firmware/odometer-fix status, Desafío 100.000km terms
 - Inseam vs 850mm (800) / 825mm (900) seat
 - Financing in writing (total installments vs cash)
 - Test ride: 800 slow-speed snatch verification protocol
@@ -53,4 +59,4 @@ Graded 8 reviewer claims against his own Svartpilen at 16k km. Pattern: **physic
 
 ## History
 
-Four decision sessions (Aug 28-31) traced in mirror's logs; framework evolution: aesthetic veto -> toy criterion -> fun-to-ride-first. Svartpilen 18hp figure was a units error (kW vs hp confusion); it is 26hp.
+Four decision sessions (Aug 28-31) traced in mirror's logs; framework evolution: aesthetic veto -> toy criterion -> fun-to-ride-first. Svartpilen 18hp figure was a units error (kW vs hp confusion); it is 26hp. Session 2 (2026-08-31, Bessie's first real session): critical path locked (license -> test ride -> save -> buy), rider delay pattern named, school ask committed.

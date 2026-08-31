@@ -42,3 +42,51 @@ audit/moto/bessie/.
 how I could edit .el files and commit. Future moto-project sessions
 have the moto toolset (no delegate, no reload_os, no check_elisp) --
 by design.
+## 2026-08-31 -- Bessie session 2: first real session, the plan gets a sequence
+
+Session ran with the correct knowledge base (moto/ + user/). First
+true moto session.
+
+**What Nacho brought:**
+- His proposed sequence: A.3 license upgrade (+300cc) -> test ride
+  at Masera -> save ~9 months -> buy Voge 800 Rally.
+- Parallel: full mechanical disassembly/reassembly study of the 800
+  (silicon-up habit applied to bikes) to know the machine.
+- Training to handle off-road trips physically, in the meantime.
+
+**Key self-disclosure:** he delays any task that requires asking
+another person for something (instructor for exam bike, calling
+Masera for pricing) "without reason." Dependency aversion, not
+shyness. I reframed: these are transactions, not favors. Schools
+rent exam bikes; salespeople exist to answer pricing questions.
+Gave him two scripts (Masera call, instructor ask) and the
+async-call framing (fire it, don't wait by the phone).
+
+**Decisions:**
+1. School first -- license is the critical path (no A.3, no test
+   ride on a 798cc bike). Ask fired this week: instructor, do they
+   have a +300cc bike to rent for the A.3 practical.
+2. Test ride before committing the 9-month save. Both Voges
+   back-to-back same day (protocol rule 9). Verify Masera's
+   "monthly test rides" claim rather than trusting it.
+3. Early written quote bundled with the test ride visit (one trip,
+   both data points) -- measures the list-vs-real gap; binding
+   quote near purchase date.
+4. Mechanics deep-dive continues as evening reading with
+   decision-relevant targets: KEL800 service intervals, parts
+   network maturity in AR, VogeRiders issue list, where snatch
+   could mechanically live.
+
+**Open items I'm holding:**
+- The 9-month vs 4-5-month saving math (briefing says 3M/month,
+  4-5 months to 20M ceiling). Asked twice; no answer yet. Next
+  session.
+- School ask check-in: if not fired by next session, that's the
+  "never miss twice" conversation.
+- Training: Phase 1 week 1, bicycle tune-up. No social ask
+  required.
+
+**Session character:** He named his own delay pattern unprompted,
+which is the hard half of the work. My job is to make the asks
+cheap (scripts, async framing) and to check in on the one
+commitment.

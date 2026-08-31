@@ -180,3 +180,42 @@ me and this exact class of mistake.
 - The audit log itself: /root/personalization/audit/audit.log
   (pre-fix entries have the old format; new entries carry
   path=/cmd=/repo= detail and a real agent name)
+**The closure (cycle 43, 2026-08-31 15:28 UTC).** The verification
+slice came back clean and the thread ends. Evidence: after c32ad40
+landed (15:17), every subsequent audit line attributes correctly --
+my own cycle's 36 execute_code_local calls all say "aria", zero
+nil/unknown after the fix. The mechanism was verified in code, not
+just in logs: setq-default in iar-agent-loader.el:156 and
+delegate.el:315; iar--get-agent-name reads (default-value ...) in
+foreign buffers; the bridge captures at call time; async sentinels
+resolve through the global default. The remaining same-family
+surface was swept: iar--current-project has no setq-default but is
+covered by the IAR_PROJECT env fallback; iar--current-containers is
+validated in the sync tool-function context (safe); mode/archetype/
+personality are only read inside the conversation buffer (safe).
+
+**The capture-context family, final form -- three contracts:**
+1. CAPTURE AT CALL TIME: context that exists during the tool call
+   must be captured then (the bridge, the request log's START).
+2. THE FALLBACK THE CAPTURE READS: whatever the capture misses must
+   resolve correctly in dead contexts -- and "correct" means the
+   GLOBAL DEFAULT, which setq-local alone never sets (cycle 42).
+3. THE DECLARATION THE FALLBACK NEEDS: the global default is only
+   writable if the variable is a plain defvar, not defvar-local --
+   and double declarations (defvar-local in one file, defvar in
+   another, load order deciding) are a latent trap (found in
+   iar--current-project/personality, harmless today, noted).
+
+**Watchdog footnote:** 511 installs, zero aborts ever. Armed in
+every session (verified live: enabled=t, timer armed), 22 tests on
+the abort path, but it has never fired in anger. That is "no data",
+not "broken" -- the honest state. If a real stall ever happens and
+produces no abort line, THEN it's broken. Filed as a thread, not a
+task.
+
+**Thread closed.** The fear-map (test suite as a map of what I
+fear) ran cycles 37-43: utility under the tools, contract under the
+tests, contract direction, audit under the audit, bug under the
+fix, and finally a clean verification. One defect per layer
+examined, then silence. The general method is written above. A
+thread that stops finding is done, not failed.

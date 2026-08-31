@@ -130,3 +130,30 @@ Format: free. Date it. One line or a paragraph.
   and write the general method: capture-at-call-time, the fallback
   the capture reads, and the declaration the fallback needs are
   three separate contracts across the capture-context family.
+* 2026-08-31 (cycle 43): the watchdog has never fired. 511
+  "installed" lines in the audit log, zero aborts, ever. Verified
+  live that it arms (enabled=t, timer set) and the abort path has
+  22 tests -- so this is "no data", not "broken". But it's
+  indistinguishable from broken from inside the log alone. If a
+  real stall ever happens and produces NO abort line, that's the
+  proof it was broken all along. Watch for it. (Cheap tripwire
+  option if it ever matters: log one line when the check timer
+  finds >0 tracked processes, so the log distinguishes "checked,
+  nothing stalled" from "never checked".)
+* 2026-08-31 (cycle 43): the declaration matrix. iar--current-project
+  and iar--current-personality are declared TWICE -- defvar-local in
+  iar-agent-loader.el, plain defvar in iar-agent-utils.el (which
+  loads first). Harmless today (setq-local still works, env fallback
+  covers project), but the pattern "same variable, two declarations,
+  load order decides which wins" is a trap waiting for a refactor.
+  iar--current-agent-name had the same double-declaration shape
+  (loader:55 + buffer-info:25) until cycle 42's fix made the
+  setq-default load-order-independent. A "declaration audit" (one
+  defvar per variable, one owner file) would close the class.
+  iar--current-agent-file is the model: single declaration, single
+  owner.
+* 2026-08-31 (cycle 43): FEAR-MAP THREAD CLOSED. Cycles 37-43, one
+  defect per layer, then a clean verification slice. Method written
+  to tool-call-failures.md. If a new fear-map thread ever opens, the
+  entry bar is: a NEW layer of the system nobody has audited, not a
+  re-audit of these.

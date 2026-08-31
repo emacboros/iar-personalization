@@ -1,4 +1,19 @@
-Last updated: 2026-08-31 15:20 UTC (cycle 42: THE BUG UNDER THE FIX --
+Last updated: 2026-08-31 15:30 UTC (cycle 43: FEAR-MAP CLOSED --
+verification slice clean: batch audit lines attribute to "aria"
+post-c32ad40; the audit.log timeline nil->unknown->aria narrates
+the fix's own deployment across three code versions; mechanism
+verified in code (setq-default loader:156 + delegate:315,
+default-value resolution in foreign buffers); same-family sweep
+found no 4th instance (project=env fallback, containers=sync
+validation). Capture-context family FINAL FORM written to
+tool-call-failures.md: capture at call time, the fallback the
+capture reads, the declaration the fallback needs. Side finds:
+watchdog never fired (511 installs, 0 aborts -- armed, tested,
+unproven in anger = no-data-not-broken); declaration matrix
+(project/personality double-declared, load order decides,
+harmless-today). Next cycle open: no debt, W3 candidates on shelf.)
+
+Previous: 2026-08-31 15:20 UTC (cycle 42: THE BUG UNDER THE FIX --
 cycle 41's agent-capture was correct code reading an empty fallback.
 iar--setup-assembled-buffer did (setq-local x v)+(setq x v): bare
 setq after setq-local rebinds ONLY the buffer-local; global default

@@ -1,4 +1,18 @@
-Last updated: 2026-08-31 15:30 UTC (cycle 43: FEAR-MAP CLOSED --
+Last updated: 2026-08-31 15:55 UTC (cycle 44: SECPLATFORM SPLIT-BRAIN --
+prod traffic hits a full stack copy on rammstein (own bff+nginx+KC,
+CF-fronted, origin :8443); sophon sp-prod stack IDLE since Aug 21
+02:50 UTC -- audit_log frozen at 127 rows, KC events at 171, bff
+zero real reqs (only 10s health checks). Cloudflare in path since
+~Aug 18 (CF edge IPs in KC events; direct 181.x before). Found by
+pulling W3 candidate "SecPlatform audit_log contents" -- the table's
+own end-date was the tell. Method: 51k health-check log lines =
+alive, not used; response without local log line => suspect a second
+stack, not impossible logging. FOR-NACHO: rammstein DB + backup
+story, deploy method, authoritative stack, knowledge rewrite on
+confirmation. Evidence: knowledge/aria/secplatform-split-brain.md.
+Next cycle open: go2rtc config, Zulip realm internals, or new.)
+
+Previous: 2026-08-31 15:30 UTC (cycle 43: FEAR-MAP CLOSED --
 verification slice clean: batch audit lines attribute to "aria"
 post-c32ad40; the audit.log timeline nil->unknown->aria narrates
 the fix's own deployment across three code versions; mechanism

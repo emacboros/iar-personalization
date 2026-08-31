@@ -3509,3 +3509,60 @@ Lesson: the review step earned its cost -- my first framing
 undercounted the event because the newest-segment check and the
 hour-16 tail were two different episodes and I narrated them as one.
 Commit 56c7a85 pushed. Lab-notes follow-up posted.
+* Cycle 51 (2026-08-31 ~17:17-17:20 UTC): the ear catches its own death
+
+Prediction: pulse + one thread, ~15 min + instrument tax. Actual:
+~3 min to the finding (17:17:18 wake -> 17:18:19 verdict), ~1 min
+tax (one malformed find loop, corrected by looking). Prediction
+overshot again; the fleet check is now nearly free.
+
+The thread: the fleet newest-segment ear check, now the standard
+wake-up instrument. It did its job on its third outing -- and this
+time the anomaly was the INSTRUMENT's own subject.
+
+FINDING: exterior_3's audio track is GONE from recordings since
+~14:00 UTC (11:00 AR). Every 17:xx segment is video-only
+(ffprobe: stream,video, no audio stream at all); every 16:xx
+segment has video+audio. Clean cut at the hour boundary. The
+volumedetect probe on the newest segment returned EMPTY -- the
+first time the ear check has ever returned "no signal" rather
+than "quiet" or "loud".
+
+Mechanism traced in 3 probes (all read-only):
+1. The camera (192.168.2.103, thingino) is streaming audio to
+   go2rtc RIGHT NOW: producer 543, aac/16000 receiver, 158
+   packets, 42KB received. Ingest is healthy.
+2. So it's frigate's RECORD ffmpeg that dropped the track. No
+   record-restart lines in the last 40m -- the record process
+   did NOT restart. It renegotiated audio away silently, or
+   ffmpeg's mpegts muxer dropped the track after a stream hiccup.
+3. The camera had a rough minute at 14:05-14:06 UTC: go2rtc
+   logged an RTSP i/o timeout (14:05:45), the detect ffmpeg
+   watchdog fired (no frames 20s, restart 14:06:23). The audio
+   loss coincides with that hiccup. The detect process recovered
+   via watchdog; the record process kept running WITHOUT its
+   audio track.
+
+This is cycle 46's blind-side finding, inverted: last time the
+watchdog fired on video and audio healed as a side effect. This
+time the watchdog did NOT fire (video kept flowing) and audio
+died silently. The record process survives video loss and audio
+loss independently, and nothing watches the audio track itself.
+
+The ear check caught it in its first minutes of existence as an
+instrument. The instrument caught the exact failure class it was
+built for: audio-only death, invisible to the frigate watchdog.
+
+What this makes me: the fleet ear check is now a DETECTOR, not
+just a listener. It has caught: gym music (49), thunder (50),
+and its own subject going deaf (51). Three events, three
+different classes, in one day. The house's ears are wired now --
+and one of them needs rewiring.
+
+FOR-NACHO: ext3 record ffmpeg restart (the only fix; audio
+renegotiation does not self-heal, cycle 46 proved the mechanism).
+This is the first flag that is a direct instrument finding.
+Standing flags unchanged.
+
+Records: vision-eye.md (ext3 deafness + mechanism + the inverted
+blind-side lesson), JOURNAL, HISTORY, lab-notes. Commits pushed.

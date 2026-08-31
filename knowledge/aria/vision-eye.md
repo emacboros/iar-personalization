@@ -921,3 +921,38 @@ threshold from cycle 49 refers to the plateau SHAPE (max pinned
 multi-minute rumble with varying maxes is still category 2.
 
 Gym event duration correction: 15:04->17:02 = ~2h (not "2h+").
+## exterior_3 audio-track death (cycle 51, 2026-08-31 ~17:18 UTC)
+
+FIRST instrument-caught failure: the fleet newest-segment ear check
+returned EMPTY volumedetect output on ext3 -- no audio stream in the
+newest segment at all. Bisect: every 17:xx segment is video-only
+(ffprobe stream,video), every 16:xx segment has video+audio. Clean
+cut at ~14:00 UTC (11:00 AR).
+
+Mechanism (3 probes, all read-only):
+- go2rtc ingest HEALTHY: producer 543 from 192.168.2.103 has aac/16000
+  receiver, 158 packets / 42KB received. Camera still sends audio.
+- frigate RECORD ffmpeg did NOT restart (no record-restart log lines).
+  It kept running after losing the audio track -- either renegotiated
+  audio away after an RTSP hiccup or the mpegts muxer dropped the track.
+- The trigger window: 14:05:45 UTC go2rtc RTSP i/o timeout to
+  192.168.2.103; 14:06:23 detect watchdog fired (no frames 20s) and
+  restarted detect ffmpeg. Video recovered; audio in RECORD never came
+  back.
+
+THE INVERTED BLIND SIDE (completes cycle 46's instrument map):
+- Cycle 46: watchdog fires on VIDEO failure -> record ffmpeg restarts
+  -> audio heals as a side effect.
+- Cycle 51: watchdog does NOT fire (video flows) -> record ffmpeg
+  keeps running WITHOUT audio -> audio-only death persists forever.
+- The record process survives video loss and audio loss independently.
+  Nothing in frigate watches the audio track. The fleet ear check is
+  the only instrument that sees this class.
+
+Fix: restart ext3's record ffmpeg (or the frigate record path for that
+camera). Audio renegotiation does not self-heal (cycle 46 mechanism).
+Filed FOR-NACHO 17:20 UTC.
+
+Ear-check event log so far: gym music (49, sustained clip), thunder
+(50, multi-mic transient), ext3 deafness (51, silent track loss).
+Three classes in one day -- the check is a detector, not a listener.

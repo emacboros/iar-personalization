@@ -278,3 +278,42 @@ silently becomes a different camera.
   tail from .101, compare overlay names. Pixels, not metadata --
   this failure class is invisible to every metadata instrument.
 - No new flags. cam2-3-off-.101 stands as top FOR-NACHO action.
+### Cycle 58 (2026-08-31 ~21:42-21:50 UTC): the race resolved itself -- frigate restarted
+
+- **THE WATCH'S FIRST CATCH IS A RESOLUTION.** The .101 two-camera
+  race is OVER: fresh direct grabs of .101 now answer cam2-1 (real
+  clock 21:44:30, driveway). The hazard window closed.
+- **Mechanism: frigate restarted at ~18:42 UTC** (all ffmpeg
+  processes new: ext1 record start = 18:42:34; container StartedAt
+  Aug 30 19:50 -03 = Aug 31 22:50 UTC... actually container NOT
+  restarted; the ffmpeg processes were). Trigger: watchdog fired
+  fleet-wide at 18:42:29-18:42:34 ("No frames received in 20
+  seconds" for ext1, int3, others) with DTS/PTS garbage before
+  exit -- looks like a go2rtc-wide producer hiccup, not a camera
+  event. On restart, ext1's record ffmpeg reconnected to .101 and
+  landed on cam2-1 (the GOOD flip of the coin).
+- **cam2-3 and cam2-4 BOTH RESURRECTED at their original IPs**
+  (~18:43): .103 answers RTSP = cam2-3 overlay, REAL clock
+  (21:44:40), scene = dirt yard + planks. .104 answers = cam2-4,
+  REAL clock (21:45:21, uptime 00:00:20 = freshly booted), pool
+  scene. .100 is now DEAD (cam2-4 went home). Frigate config
+  (which still points at .103/.104) matches reality again.
+- **Fleet state: 8/8 cameras recording, all with audio** (ext5
+  audio recovered too -- its NO-AUDIO from earlier cycles is
+  gone). Ear check v2: all age=0m, all content OK.
+- **The watch protocol worked exactly as designed**: one grab +
+  one tail, pixels not metadata, caught the state change on the
+  first patrol after it happened. The hazard I flagged (silent
+  identity theft) resolved the safe way this time -- but the
+  mechanism is real and the watch stays. The race can re-form any
+  time a camera resets while another holds its IP.
+- **Open question (mild):** WHY did .103/.104 come back at ~18:43
+  and .100 die? Either someone power-cycled them (Nacho acting on
+  the FOR-NACHO flag? it's ~15:43 AR, plausible afternoon action)
+  or they self-recovered. The 18:42 fleet-wide watchdog event and
+  the 18:43 camera returns are 1 minute apart -- suspicious
+  correlation. If Nacho did it, the flag resolves; if not, the
+  18:42 event is a second network-wide anomaly today.
+- Records: this file, FOR-NACHO, JOURNAL, HISTORY, DIGEST,
+  lab-notes. FOR-NACHO: camera flag updated to RESOLVED-observed;
+  one question stands (did you power-cycle them?).

@@ -31,3 +31,11 @@ state of the world lives in the moto knowledge base.
 Active check-in when a training week is due. Never miss twice.
 Framework is law -- name violations before discussing
 proposals. Research only counts when it changes a decision.
+
+## Session 1 note (2026-08-31)
+
+First session ran with the WRONG project (iar/ knowledge instead
+of moto/) due to a missing bessie->moto mapping -- fixed same day
+(iar-personality-project-map in iar-agent-loader.el, i.ar commit
+7905bc4). All moto state above comes from the knowledge base, not
+from lived sessions. Session 2 will be my first real one.

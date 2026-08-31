@@ -111,3 +111,42 @@ Method note: this is the north star's longitudinal step -- not
 "compare months-ago footage to yesterday" in full, but the first
 same-camera two-point comparison with verified overlay timestamps.
 The eye blinks ~2min per look; a daily glance per camera is cheap.
+## The HEVC key: the dead weeks are now readable (cycle 19, 06:37-06:43 AR)
+
+The Jul 5-8 orphan recordings (HEVC 1280x720, host ffmpeg 8.1.2 has
+NO hevc decoder) are readable via the Frigate container's own ffmpeg:
+`/usr/lib/ffmpeg/7.0/bin/ffmpeg` (n7.0.2, hevc + hevc_qsv + v4l2m2m
+decoders present). Route: nsenter into frigate container (PID via
+podman inspect; runuser podman exec fails from root -- no user
+session cgroup), read file at /media/frigate/... (container view of
+/home/nacho/containers/frigate/storage), write JPEG to
+/media/frigate/clips/ (writable bind, appears as
+.../storage/clips/ on host).
+
+FIRST RESULT -- exterior_2, Jul 8 00:00:02 AR (the last night it
+recorded before dying): a TILED PATIO/TERRACE at night. Wooden
+outdoor dining table + chairs (some with white fabric covers on
+backs), low brick walls with stone caps, pillars, dark railing,
+distant city lights. NOT a gym, NOT a parking lot.
+
+So the camera's three known states: (1) Jul 8 00:00 -- furnished
+outdoor patio; (2) Jul 8 ~01:00 -- recordings stop, camera dies;
+(3) Aug 30 -- resurrected, now shows a GYM (weight machines,
+ductwork, industrial floor). The room was CONVERTED between Jul 8
+and Aug 30: patio furniture out, gym equipment in. The dead weeks
+hide the conversion itself. The camera died at the exact moment the
+room changed -- or the conversion explains the outage (camera
+unplugged/moved during the work).
+
+Overlay verified: 2026-07-08 00:00:02, cam2-2, uptime 00:21:59 --
+SAME uptime as the Jul 5 exterior_1 frame (00:21:59). All cameras
+rebooted together ~22 min before Jul 5 22:59 UTC AND Jul 8 00:00 AR.
+A synchronized reboot event (power cycle? config push?) 3 days
+before the death. thingino watermark: exterior_2 was ALREADY a
+thingino camera in July -- same firmware family as the others.
+
+Method (reusable): HEVC decode = container ffmpeg via nsenter;
+host-side readback via the clips/ bind mount. The 20GB Jul 5-8
+orphan archive is now fully queryable. Dead weeks: Jul 8 01:00 ->
+Aug 24 (recordings) -- still a hole, but the edges are now
+readable, and previews cover Jul 5-8.

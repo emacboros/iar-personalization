@@ -1,0 +1,114 @@
+#!/bin/bash
+# aria fleet-check v1 (2026-08-31, cycle 59)
+# -------------------------------------------------------------
+# One-command per-cycle patrol: ear check v2 + identity watch.
+# Runs ON sophon as root. Executed from the i.ar container via:
+#   ssh root@10.66.0.5 'bash -s' < fleet-check.sh
+# The version in git IS the running version -- no copy on sophon.
+#
+# Checks:
+#   1. EAR CHECK v2: per camera, newest recording segment ->
+#      age (STALE if >120s) + audio track presence + volume.
+#   2. IDENTITY WATCH: direct RTSP grab of .101 vs frigate's own
+#      newest exterior_1 segment tail -> vision-read both overlays
+#      (gemma4:31b, think off) -> MATCH / RACE / VISION-UNCLEAR.
+#      This failure class (same IP, two cameras, session-age
+#      decides) is invisible to metadata instruments. Pixels only.
+#   3. ARP: are .103/.104 reachable (cameras staying home)?
+#
+# Exit: 0 = all green, 1 = anything flagged. Output is compact,
+# one line per camera + verdict lines. Cleanup: temp jpgs removed
+# same-run (container /tmp and storage bind).
+# ------------------------------------------------------------
+set -u
+R=/home/nacho/containers/frigate/storage/recordings
+P="podman --url unix:///run/user/1000/podman/podman.sock"
+TODAY=$(date -u +%Y-%m-%d)
+FAIL=0
+CAMERAS="exterior_1 exterior_2 exterior_3 exterior_4 exterior_5 interior_1 interior_2 interior_3"
+
+echo "== fleet-check $TODAY $(date -u +%H:%M:%S) UTC =="
+
+# --- 1. EAR CHECK v2 (age + audio) ---
+echo "-- ear check --"
+for cam in $CAMERAS; do
+  n=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -1)
+  if [ -z "$n" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi
+  age=$(( $(date +%s) - $(stat -c %Y "$n") ))
+  if [ "$age" -gt 120 ]; then echo "$cam STALE(${age}s)"; FAIL=1; fi
+  # audio: map 0:a fails on video-only segments -> NO-AUDIO
+  aout=$(timeout 30 ffmpeg -hide_banner -i "$n" -map 0:a -af volumedetect -f null - 2>&1)
+  if echo "$aout" | grep -q "matches no streams"; then
+    echo "$cam age=${age}s NO-AUDIO"; FAIL=1
+  else
+    v=$(echo "$aout" | grep -oE "\-?[0-9.]+ dB" | head -2 | tr '\n' ' ')
+    echo "$cam age=${age}s mean/max: $v"
+  fi
+done
+
+# --- 2. IDENTITY WATCH (pixels, not metadata) ---
+echo "-- identity watch --"
+WDIR=/tmp/aria-watch
+$P exec frigate sh -c "mkdir -p $WDIR && rm -f $WDIR/*.jpg /media/frigate/aria_watch_*.jpg 2>/dev/null" 2>/dev/null
+
+# 2a. direct grab of .101 (container ffmpeg: host ffmpeg lacks hevc)
+grab=$($P exec frigate sh -c "timeout 25 /usr/lib/ffmpeg/7.0/bin/ffmpeg -y -loglevel error -rtsp_transport tcp -i 'rtsp://thingino:thingino@192.168.2.101/ch0' -frames:v 1 $WDIR/direct.jpg && cp $WDIR/direct.jpg /media/frigate/aria_watch_direct.jpg && echo OK" 2>/dev/null)
+if [ "$grab" != "OK" ]; then echo "DIRECT-GRAB FAIL (is .101 up?)"; FAIL=1; fi
+
+# 2b. ext1 newest segment tail (host path -> container path)
+n=$(find $R/$TODAY -path "*exterior_1*" -name "*.mp4" 2>/dev/null | sort | tail -1)
+if [ -n "$n" ]; then
+  nc="${n/\/home\/nacho\/containers\/frigate\/storage//media/frigate}"
+  tail=$($P exec frigate sh -c "timeout 25 /usr/lib/ffmpeg/7.0/bin/ffmpeg -y -loglevel error -sseof -2 -i '$nc' -frames:v 1 $WDIR/seg.jpg && cp $WDIR/seg.jpg /media/frigate/aria_watch_seg.jpg && echo OK" 2>/dev/null)
+  [ "$tail" != "OK" ] && { echo "SEG-TAIL FAIL"; FAIL=1; }
+else
+  echo "SEG-TAIL FAIL (no ext1 segment)"; FAIL=1
+fi
+
+# 2c. vision read both frames, compare overlay cam names
+if [ "$grab" = "OK" ] && [ "${tail:-}" = "OK" ]; then
+  python3 - <<'EOF'
+import base64, json, re, sys, urllib.request
+def look(path):
+    img = base64.b64encode(open(path, "rb").read()).decode()
+    req = urllib.request.Request("http://127.0.0.1:11434/api/chat",
+        data=json.dumps({"model": "gemma4:31b", "stream": False, "think": False,
+            "options": {"num_predict": 120},
+            "messages": [{"role": "user",
+              "content": "Security camera frame. Quote the overlay text exactly (camera name and timestamp). Then one sentence of scene.",
+              "images": [img]}]}).encode(),
+        headers={"Content-Type": "application/json"})
+    r = json.load(urllib.request.urlopen(req, timeout=300))
+    return r["message"]["content"]
+try:
+    d = look("/home/nacho/containers/frigate/storage/aria_watch_direct.jpg")
+    s = look("/home/nacho/containers/frigate/storage/aria_watch_seg.jpg")
+    dc = re.findall(r"cam\d+-\d+", d, re.I)
+    sc = re.findall(r"cam\d+-\d+", s, re.I)
+    print("direct overlay:", d.replace("\n", " ")[:120])
+    print("segment overlay:", s.replace("\n", " ")[:120])
+    if dc and sc:
+        if dc[0].lower() == sc[0].lower():
+            print(f"VERDICT: MATCH ({dc[0]}) -- no race")
+        else:
+            print(f"VERDICT: RACE -- direct={dc[0]} frigate={sc[0]}")
+            sys.exit(1)
+    else:
+        print("VERDICT: VISION-UNCLEAR (no overlay name parsed)")
+        sys.exit(1)
+except Exception as e:
+    print(f"VERDICT: VISION-FAIL ({e})")
+    sys.exit(1)
+EOF
+  [ $? -ne 0 ] && FAIL=1
+fi
+
+# cleanup: same-run, both sides
+$P exec frigate sh -c "rm -f $WDIR/*.jpg /media/frigate/aria_watch_*.jpg" 2>/dev/null
+
+# --- 3. ARP: are the resurrected cameras staying? ---
+echo "-- arp --"
+ip neigh show | grep -E "192\.168\.2\.10[034]" || echo "no ARP entries for .100/.103/.104"
+
+echo "== fleet-check done (FAIL=$FAIL) =="
+exit $FAIL

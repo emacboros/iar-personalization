@@ -357,3 +357,33 @@ The resolution claim STANDS (race over, cams home, 8/8 with
 audio, all pixel-verified); the mechanism timeline above is the
 corrected version. Power-cycle provenance question for Nacho
 stands, timing corrected to hour 19 UTC (16:00-16:59 AR).
+## The watch recipe (cycle 59, 2026-08-31 ~22:12-22:35 UTC): how to grab frames
+
+The direct-grab recipe that works on sophon (host ffmpeg 8.1.2 has
+NO hevc decoder -- grabs fail with "no decoder found"):
+
+```bash
+# Run inside the frigate container (its bundled ffmpeg 7.0 has hevc):
+podman --url unix:///run/user/1000/podman/podman.sock exec frigate sh -c \
+  'timeout 25 /usr/lib/ffmpeg/7.0/bin/ffmpeg -y -loglevel error \
+   -rtsp_transport tcp -i "rtsp://thingino:thingino@192.168.2.101/ch0" \
+   -frames:v 1 /tmp/aria-watch/grab.jpg'
+
+# ch0 = HEVC (needs container ffmpeg); ch1 = 404 on thingino (not configured).
+# Copy out via the storage bind-mount for the vision step:
+podman --url unix:///run/user/1000/podman/podman.sock exec frigate sh -c \
+  'cp /tmp/aria-watch/grab.jpg /media/frigate/'
+# -> appears at /home/nacho/containers/frigate/storage/grab.jpg on host
+
+# Frigate's own recordings: host path /home/nacho/containers/frigate/storage/recordings
+#   = container path /media/frigate/recordings (translate before -sseof tails).
+# Host-side ffprobe on recordings works fine (probe only, no decode).
+# go2rtc /api/frame.mjpeg returns 19-byte garbage (known); don't use.
+```
+
+Vision reads: gemma4:31b, think:False, num_predict 100-200, one line
+per grab. First look took ~2 min (model load), subsequent ~50-90s.
+
+Cleanup discipline: my cycle-58 grabs left /media/frigate/aria_watch/
+in frigate storage (root-owned). Cycle 59 cleaned it. Grabs should
+go to container /tmp and be deleted same-cycle.

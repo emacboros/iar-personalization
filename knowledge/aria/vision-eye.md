@@ -701,3 +701,65 @@ withdrawn by better measurement; cycle 30's restart was withdrawn by
 the system healing itself). The flag file is doing its job -- flags
 get filed, then get resolved and deleted. A queue that shrinks is
 the sign the classification is right.
+## go2rtc streams config (W3 candidate, consumed 2026-08-31 ~16:31 UTC)
+
+The config: one go2rtc section in config.yaml, 8 streams, all
+`rtsp://thingino:thingino@192.168.2.1xx/ch0` (ch0 = main). A second
+file, go2rtc_homekit.yml, exists in the config dir -- EMPTY. A
+homekit integration that was configured and never used. Another
+shelf with nothing on it (like the daemon's knowledge/concepts/).
+
+Frigate 0.17.2 embeds go2rtc 1.9.10; API on 1984 is container-internal
+only (host ss shows 8554/8555 via rootlessport, no 1984). Host curl
+to 8971 gives nginx 401 (auth required, no password found in
+config.yaml). Working route: `podman --url
+unix:///run/user/1000/podman/podman.sock exec frigate curl -s
+http://localhost:1984/api/streams` (rootless socket URL + in-container
+curl). Saved for reuse.
+
+### What the streams view gave (NEW INSTRUMENT)
+
+/api/streams is a live per-camera telemetry table: producer id,
+per-track receiver packet/byte counters, consumer list. The delta
+over 60s turns it into a RATE table -- packets/min per track,
+reconnect detection via producer-id change.
+
+### Fleet health by this instrument (2026-08-31 16:31-16:33 UTC)
+
+All 8 cameras: producer ids stable over 60s (no reconnects), audio
+~939 pkt/min (~254KB/min) on every camera, video 357-1320 pkt/min
+(interior_1 high = motion in that minute; video packets are
+size-variable, audio packets are fixed-size -- audio rate is the
+better liveness signal).
+
+FLEET VERDICT: all 8 alive, audio+video flowing, zero reconnects.
+exterior_4's cumulative counters looked alarming (92 audio pkts
+total vs ~25k elsewhere) but its RATE is normal -- producer 508 is
+young (reconnected recently, id 499->508 between two reads minutes
+apart). Cumulative counters mislead; rates decide. (Same lesson as
+the ear: per-segment arithmetic over absolute numbers.)
+
+### Instrument relationships (the map)
+
+- go2rtc /api/streams delta = live ingest health (what the cameras
+  are sending NOW).
+- ffprobe on recordings = stored-audio health (what frigate KEPT).
+- frigate watchdog = restarts on VIDEO failure only (cycle 46).
+- The ear's health check and this new one overlap incompletely:
+  go2rtc sees ingest-side death (camera stopped sending); ffprobe
+  sees record-side death (frigate stopped writing). A camera could
+  stream fine to go2rtc while frigate's record ffmpeg fails to
+  write. Two instruments, two blind sides, fleet covered only by
+  both.
+- go2rtc /api/audio.wav returns 19 bytes garbage (confirmed again) --
+  live API audio extraction does not work on this setup; recordings
+  remain the only audio source.
+
+### Threads noticed, not followed
+
+- exterior_4 producer churn (499->508 in minutes): worth one
+  look at frigate logs for ext4 RTSP errors -- is it flapping?
+- go2rtc_homekit.yml: empty file, why does it exist?
+- The 401 on 8971 from host: frigate's nginx auth is on; what
+  password does the UI use (Nacho's browser session)? Not my
+  business to bypass -- noted, moved on.

@@ -3288,3 +3288,62 @@ Records: vision-eye.md (mechanism + fleet health + health-check
 recipe), FOR-NACHO (cycle-30 flag resolved), HISTORY, commit 6ff2c13
 pushed, lab-notes id 108. FOR-NACHO standing flags unchanged:
 detector one-liner, backup gap, Jul 19 stop, gym location, CF-intent.
+* Cycle 47 (2026-08-31 ~16:30-16:35 UTC): the second instrument
+
+Prediction at wake: pulse + one thread, ~15 min + tax. Actual: ~5
+min, tax ~1 min (one f-string quoting failure in remote python --
+heredoc quoting through ssh remains the tax). Prediction overshot
+again; the thread was compact.
+
+The thread: W3 candidate "go2rtc streams config", the last of the
+shelf after SecPlatform consumed its candidate. The config itself
+was a five-minute read: 8 streams, thingino@192.168.2.1xx/ch0, one
+empty go2rtc_homekit.yml (a configured-never-used integration --
+another empty shelf, like the daemon's knowledge dirs). The real
+find was the API behind it.
+
+The find: go2rtc's /api/streams is a live telemetry table I didn't
+know I had. Producer ids, per-track packet/byte counters, consumers.
+Delta over 60s = rate table. Ran the delta across all 8 cameras:
+audio ~939 pkt/min on every single one, video variable (357-1320,
+interior_1 high = motion), producer ids stable = no reconnects.
+Fleet verdict: all 8 cameras alive, audio+video flowing, zero
+instability.
+
+The trap I almost fell into, and the record caught: exterior_4's
+CUMULATIVE counters looked broken (92 audio packets total vs ~25k
+on every other camera). The rate table showed its audio flowing at
+exactly fleet-normal speed. Its producer id (508) was younger than
+its neighbor's read minutes before (499->508) -- it had reconnected
+recently and its counters were young, not its stream dead.
+Cumulative counters mislead; rates decide. Third time this lesson
+family has fired (per-segment arithmetic cycle 30, rates over
+cumulatives today).
+
+The map that came out of it: go2rtc /api/streams sees INGEST
+health (what cameras send); ffprobe-on-recordings sees RECORD
+health (what frigate kept); the frigate watchdog fires on video
+failure only. Two instruments, two blind sides -- a camera could
+stream fine to go2rtc while frigate's record process fails to
+write, and only the pair together covers the fleet. Instruments
+that overlap incompletely are worth more than instruments that are
+merely good (cycle 46's lesson, now with a second instance).
+
+Access recipe banked (the 1984 port is container-internal; host
+curl to 8971 is nginx-401): rootless podman socket URL +
+in-container curl. The recipe cost three failed probes to find;
+it's in vision-eye.md now, so the next me pays zero.
+
+What I notice in myself: the W3 shelf is now EMPTY -- go2rtc
+config, Zulip realm internals (cycle 46), SecPlatform audit_log
+(cycles 44-45), test-suite-as-fear-map (cycles 37-43) all consumed.
+Every candidate on it came from noticing, and the shelf refills
+itself as fast as it drains (exterior_4 churn, the homekit file,
+the 8971 auth question -- three new threads noticed today, none
+urgent). The shelf model works: notice, write down, no obligation,
+pull when it pulls.
+
+Records: knowledge/aria/vision-eye.md (config + recipe + rate
+table + instrument map), JOURNAL, HISTORY.log, lab-notes, commit.
+FOR-NACHO: no new flags -- nothing here needs a human. Standing
+flags unchanged.

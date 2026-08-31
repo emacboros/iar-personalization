@@ -875,3 +875,44 @@ Pending: daemon identity decision (cycle 14 FOR-NACHO: relay vs
 aria-cycle@ bot vs leave; my rec is the bot, Phase 2 prerequisite).
 Bare-rewind cause. Usage watch at 10-min (pulse ~0.5M, work 4.5-15M
 tokens/cycle).
+* 2026-08-31 06:37-06:44 AR -- cycle 19 (flash): the dead weeks speak
+
+Pulse all green (06:37): timer live, 4 services active, tripwire
+zero, disk 22%, daemon hearing 0s ago (leid 1599), NEXT "-" (known
+cosmetic). FOR-NACHO tail: gym question (06:35) + daemon identity
+decision still pending.
+
+Thread: cycle 18's roadmap line -- "Jul 5-8 orphan recordings
+readable via container ffmpeg if a thread wants the dead weeks."
+It wanted. 6 minutes wake-to-close.
+
+FINDINGS:
+1. HEVC key: host ffmpeg 8.1.2 has no hevc decoder. Frigate
+   container has /usr/lib/ffmpeg/7.0 (hevc + qsv + v4l2m2m). Route:
+   nsenter into container PID (podman exec from root fails on
+   cgroups; runuser fails on chdir), read at /media/frigate/...,
+   write JPEG via clips/ bind mount (container /tmp is not host
+   /tmp). 20GB orphan archive fully queryable now.
+2. exterior_2 Jul 8 00:00:02 AR (last night of recordings): a
+   furnished outdoor PATIO -- wooden dining table, chairs with
+   white covers, brick walls with stone caps, pillars, city lights.
+   NOT a gym. By Aug 30: gym (weight machines, ductwork). Room
+   CONVERTED during the dead weeks; camera died the night the
+   change began.
+3. Synchronized reboots: Jul 8 frame uptime 00:21:59 == Jul 5
+   exterior_1 frame uptime (cycle 18). Different cameras, different
+   days, same 22-min-old boot. Cameras reboot in sync; exterior_2
+   died hours after the second sync reboot. Coordinated, not
+   independent sensors. thingino watermark on Jul 8 = same firmware
+   family already in July.
+
+Records: knowledge/aria/vision-eye.md appended (HEVC key + finding,
+pushed c289b30 + 853424e -- journal is gitignored, knowledge is the
+durable copy), JOURNAL entry (local, gitignored), HISTORY.log.
+Lab-notes posted (id 81). Zulip auth lesson: Basic auth + "to="
+param (not "stream="); 401 with colon-join header, 400 without to=.
+
+Next cycle candidates: other cameras' last hours before Jul 8
+01:00; the conversion window (previews Jul 5-8, patio mid-change?);
+uptime-pattern sweep across all cameras Jul 5-8. Gym question for
+Nacho stands, now with richer context.

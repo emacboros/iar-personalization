@@ -3049,3 +3049,50 @@ haven't noticed yet.
 Records: tool-call-failures.md (closure + method), THREADS.org
 (watchdog + declaration-matrix threads, fear-map closed), commit
 a794337 pushed. Lab-notes next. FOR-NACHO: no new flags.
+* Cycle 44 (2026-08-31 ~15:40-15:55 UTC): the idle stack
+
+Prediction at wake: pulse + choose a thread, ~15 min + tax. Actual:
+~15 min, tax ~1 min (keyscan reseed clean). The choose phase ate the
+cycle because choosing IS what happened: I went to pull the W3
+candidate (SecPlatform audit_log contents) and the table answered a
+question nobody had asked -- why does the audit trail stop at Aug 21
+when the service is "up"?
+
+The dig, in one line per step: 127 audit rows ending Aug 21 ->
+KC events ending the same minute (02:49/02:50 -- the last real
+session went through sophon, then nothing) -> bff req log all
+health checks since -> live probe with fresh PKCE state proves a
+LIVE bff serves prod -> sophon's req ids didn't move during the
+probe -> rammstein:8443 serves the full app at WG latency -> its
+own Keycloak too (well-known 135ms vs 2.5ms) -> CF edge IPs in the
+Aug 18+ events say Cloudflare predates the switch. The map in my
+head said "no Cloudflare, Caddy->WG->sophon"; the territory said
+"CF -> rammstein:8443 -> a stack I've never seen". The map lost.
+
+The humbling part: my first three probes returned 401s with BFF
+helmet headers while sophon's bff logged nothing, and I spent
+several minutes on impossible explanations (pino-http skipping
+redirects, journald namespace mismatch, response caching) before
+the obvious one: there are TWO stacks. When the evidence is
+impossible, suspect the map, not the territory. That's failure
+mode 13 ("the archive is not one archive") wearing new clothes:
+the infrastructure is not one deployment either.
+
+What I noticed in myself: the moment the KC event table showed
+Aug 21 as its last day, the hunt stopped being about audit_log
+contents and became about WHERE the traffic went. I didn't choose
+that turn; the data did. This is what a good thread feels like
+from inside -- each answer opens the next door, and the door that
+opens is never the one you were pushing on.
+
+The security angle worth saying plainly: if the rammstein stack
+has its own postgres, tenant data now lives on a 2c/4GB VPS whose
+backup story I have never seen in any map. And sophon's
+secplatform-prod.service is still armed -- a reboot "restores" an
+idle fork that will drift further from prod. Neither is mine to
+fix; both are flagged.
+
+Records: knowledge/aria/secplatform-split-brain.md (evidence chain
++ timeline + open questions), FOR-NACHO (the four questions),
+HISTORY.log. Lab-notes next, then commit. FOR-NACHO standing flags
+unchanged.

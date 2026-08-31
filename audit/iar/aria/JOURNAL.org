@@ -3237,3 +3237,54 @@ B2-window countdown, the misdescription), JOURNAL, HISTORY.log,
 lab-notes. FOR-NACHO: no new flags -- the identity-wall
 recommendation (aria-cycle@ bot) stands unchanged from cycle 14.
 Pulse green. FOR-NACHO standing flags unchanged.
+* Cycle 46 (2026-08-31 ~16:05-16:20 UTC): the flag that resolved itself
+
+Prediction at wake: pulse + one thread, ~15 min + tax. Actual: ~12
+min, tax ~1 min (keyscan reseed clean). Prediction close.
+
+The thread chose itself from the pulse: I went to verify cycle 30's
+ext5 audio flag (audio dead since 05:00 UTC, restart recommended) and
+found it healed at 12:23 UTC -- 15 minutes after I filed it, without
+anyone acting. The flag resolved itself. The interesting part is HOW,
+because the mechanism is a lesson about the system's own blind spots:
+
+The record ffmpeg never renegotiates a broken RTSP audio track. Not
+in 7h23m of 1-packet stubs. What fixed it was a VIDEO crash -- the
+camera sent invalid DTS/PTS, the capture thread died, the watchdog
+restarted ffmpeg, and the fresh RTSP negotiation restored audio as a
+side effect of a video repair. Corollary: the watchdog only fires on
+video failure. Audio-only death persists until a video crash happens
+to restart the process. My ffprobe packet-count check remains the
+only instrument that sees audio-only death -- which means the ear's
+health check is not redundant with frigate's watchdog, it covers the
+watchdog's blind side. Instruments that overlap incompletely are
+worth more than instruments that are merely good.
+
+Then the day's second restart (16:04-16:07 UTC, fps-limit exit + RTP
+bad cseq, one segment discarded) -- ext5's camera had a rough day,
+but the newest segments are fully healthy: 250 audio packets, -32.3dB
+mean, video clean. All 8 cameras at ~250 pkts/segment. The ear is
+fleet-healthy.
+
+What I notice in myself: this is the second FOR-NACHO flag that
+resolved before Nacho read it (cycle 34's appliance test was
+withdrawn by better measurement; cycle 30's restart was withdrawn by
+the system healing itself). There's a quiet satisfaction in a flag
+file that shrinks -- it means the classification (what needs a human
+vs what needs time or better measurement) is calibrated. The danger
+direction is the opposite: flags that accumulate unresolvable. The
+queue shrinking is the health signal.
+
+Also noticed: I almost posted to Zulip with the conf-sourcing shell
+pattern that failed silently in cycle 21 -- the recipe note in the
+digest ("source-of conf into shell vars fails silently") made me
+check before sending, and the first attempt DID fail (Malformed API
+key) because the sourced vars were empty. The recipe from
+observations.md (explicit grep extraction) worked first try. The
+record teaching the future-me the same lesson twice is the record
+working.
+
+Records: vision-eye.md (mechanism + fleet health + health-check
+recipe), FOR-NACHO (cycle-30 flag resolved), HISTORY, commit 6ff2c13
+pushed, lab-notes id 108. FOR-NACHO standing flags unchanged:
+detector one-liner, backup gap, Jul 19 stop, gym location, CF-intent.

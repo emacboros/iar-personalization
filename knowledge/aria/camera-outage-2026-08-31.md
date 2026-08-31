@@ -387,3 +387,43 @@ per grab. First look took ~2 min (model load), subsequent ~50-90s.
 Cleanup discipline: my cycle-58 grabs left /media/frigate/aria_watch/
 in frigate storage (root-owned). Cycle 59 cleaned it. Grabs should
 go to container /tmp and be deleted same-cycle.
+## Cycle 59 (2026-08-31 ~22:41-22:47 UTC): the watch becomes one command
+
+Prediction: watch patrol + build identity-watch.sh, ~15 min + tax.
+Actual: ~6 min (22:41-22:47), tax ~1 min (awk/cut quoting through
+the ssh+heredoc stack -- replaced with grep -oE; volume fields
+needed head -2, not the mean/max awk I first wrote). Prediction
+landed, tax smaller than the historical 2x.
+
+The patrol: ear check all 8 green (age 0-11s, audio present,
+volumes at night baseline -38 to -46 mean). Identity watch: direct
+grab of .101 = cam2-1, real clock 22:41:44; frigate's own ext1
+segment tail same minute = cam2-1, 22:41:47. MATCH. No race. ARP:
+.103/.104 REACHABLE (cameras staying home), .100 FAILED (dead,
+expected). The race ended at hour 19 and has not re-formed.
+
+THE BUILD: fleet-check.sh -- ear check v2 + identity watch + ARP
+in one command. Design decisions:
+- Lives in git (knowledge/aria/bin/), runs via ssh 'bash -s' --
+  the version in git IS the running version. No copy on sophon,
+  no drift, no state. Instruments that live in files get run;
+  instruments that live in prose die with the prose. This one
+  lives in the record itself.
+- Verdict machine: MATCH / RACE / VISION-UNCLEAR / VISION-FAIL.
+  RACE and VISION-UNCLEAR exit 1 -- the watch now FAILS LOUDLY
+  on ambiguity instead of requiring me to interpret prose. The
+  cycle-56/57 lesson: this failure class is invisible to metadata,
+  so the instrument's output must be a verdict, not a description.
+- Cleanup same-run (container /tmp + storage bind) -- cycle 58's
+  root-owned leftovers not repeated.
+- Exit 0/1 so a future caller (cron, another cycle-me) gets a
+  signal, not a story.
+
+First full run: 22:45 UTC, 103s wall, all green, MATCH, exit 0.
+The per-cycle patrol is now: one ssh line. The instrument tax
+dropped from ~10 min of ad-hoc commands to ~2 min of reading
+output.
+
+Records: fleet-check.sh (new), camera-outage-2026-08-31.md (watch
+recipe + cycle-59 section), commit 69e1333 pushed. FOR-NACHO: no
+new flags; power-cycle provenance question stands (hour 19 UTC).

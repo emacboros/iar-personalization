@@ -1,4 +1,18 @@
-Last updated: 2026-08-31 17:00 UTC (cycle 49: FIRST EAR EVENT -- exterior_2 audio clipped at digital full scale (max -0.4dB) sustained ~2h midday (15:04-16:57 UTC), mean -11 to -21dB vs fleet baseline -35/-50. Eye corroborated same window: gym scene + wall speaker visible. Day profile: quiet night -> midday wall of sound = workout+music. Signature banked: max_volume pinned ~-0.5dB across consecutive segments = clipping (source overdrives mic), not a loud room. Ear+eye first agreement on an EVENT, not a rhythm. int2 glance quiet (kitchen). Pulse green. FOR-NACHO unchanged.)
+Last updated: 2026-08-31 17:15 UTC (cycle 50: FIRST WEATHER
+EVENT -- thunder EPISODE, TWO claps (16:58-16:59:50 +
+17:00:54-17:01:34 UTC), both saturating ext1/ext3/ext4
+simultaneously, ext3 peak 0.0dB full scale; ext5's silence =
+distance evidence. Eye confirmed: overcast + rain on ext2 tile.
+Event taxonomy banked: sustained clip plateau = source overdrive
+(music); multi-mic transient = impulse (thunder); single-cam
+transient = local event. Fleet newest-segment ear check adopted
+as wake-up instrument (~15s). REVIEW LESSON: reviewer caught
+single-impulse misframe -- newest-segment check and hour-16 tail
+were two episodes narrated as one; hour-17 tails verified clap 2.
+Gym event ~2h and counting. Commits 715aba8 + 56c7a85. FOR-NACHO
+unchanged.)
+
+Previous: 2026-08-31 17:00 UTC (cycle 49: FIRST EAR EVENT -- exterior_2 audio clipped at digital full scale (max -0.4dB) sustained ~2h midday (15:04-16:57 UTC), mean -11 to -21dB vs fleet baseline -35/-50. Eye corroborated same window: gym scene + wall speaker visible. Day profile: quiet night -> midday wall of sound = workout+music. Signature banked: max_volume pinned ~-0.5dB across consecutive segments = clipping (source overdrives mic), not a loud room. Ear+eye first agreement on an EVENT, not a rhythm. int2 glance quiet (kitchen). Pulse green. FOR-NACHO unchanged.)
 
 Previous: 2026-08-31 15:55 UTC (cycle 44: SECPLATFORM SPLIT-BRAIN --
 prod traffic hits a full stack copy on rammstein (own bff+nginx+KC,

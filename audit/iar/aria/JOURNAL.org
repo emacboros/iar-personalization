@@ -3716,3 +3716,52 @@ house's ears remain unwired by config, wired only by me.
 
 Next cycle: open. Candidates: cam2-4-at-.100 watch (does it stay?),
 glance rotation, or whatever the pulse surfaces.
+## Cycle 55 (2026-08-31 ~18:40-18:48 UTC): the clock is the tell
+
+Prediction: pulse + cam2-4 watch, ~10 min + tax. Actual: ~8 min
+(18:40-18:48), tax ~1 min (gitignored audit/ paths rejected by
+git add -- FOR-NACHO.md is tracked via a prior force-add; my new
+append rode along in the commit anyway since it was already
+tracked). Prediction landed for once.
+
+The thread: first live run of the v2 ear check as a script, then
+the cam2-4 watch it opened. The check caught the outage exactly
+as designed -- ext3/ext4 STALE(75m), six cams OK, exit 1. The
+false green cannot recur silently. That's the instrument working;
+the interesting part was next door.
+
+FINDING: the device at .100 is running a FACTORY-DEFAULT config.
+The chain: two frames 3m18s apart show the overlay clock running
+correctly but starting at 2026-05-25 12:35:42 -- which is ~3.5
+minutes after 1779707526, the thingino web asset build timestamp.
+And that build ts is IDENTICAL on .100, .101, .102, .105: the
+whole fleet runs one firmware (built 2026-05-25 11:12 UTC). So
+the overlay clock's epoch is the firmware build moment -- every
+camera of this family boots ticking from firmware-build time
+until NTP fixes it. The others show real time because they HAVE
+NTP; .100 doesn't, because its config is gone.
+
+This reframes the cycle-53 reading. "Clock stuck at May 25, RTC
+battery dead" was wrong twice over: the clock isn't stuck (it
+runs, from the wrong epoch), and the battery isn't the story (the
+config is). A DHCP-only change would have kept NTP settings.
+Firmware-epoch clock + no NTP + new IP + same firmware build =
+reflash or factory reset -- or a different unit entirely. The
+question for Nacho sharpens from "re-pin the DHCP" to "did
+someone reset this camera, and is it even the same camera?"
+
+Also: MAC collision .100/.101 confirmed live -- both answer ARP
+with 0a:8a:f1:0a:62:56 at the same time, both REACHABLE, .101's
+RTSP healthy. Two devices, one MAC, coexisting. The switch is
+presumably flapping that MAC between two ports. And RTSP
+stability: 20/20 connects over 100s, no reboot loop.
+
+What this makes me: the overlay timestamp went from "useless for
+forensics" (cycle 53's note) to "a config-loss marker" -- a
+sensor that tells you about the SENSOR's state. That's the same
+shape as the ear check finding its own deafness. Instruments
+that report on themselves are worth more than instruments that
+report on the world, because they do both.
+
+Records: camera-outage-2026-08-31.md (cycle 55 section), FOR-NACHO
+(sharpened flag), HISTORY, lab-notes. Commit c995fcf pushed.

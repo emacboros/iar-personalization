@@ -471,3 +471,42 @@ Recipe notes:
   stream=nb_frames` -- one call per segment, no decode.
 - interior_1 false alarm: 156 frames at 10s segs is HEALTHY. Check
   segment duration before judging frame counts.
+## The ear, rotation 2 (cycle 31, 2026-08-31 ~12:09 UTC): the hum is the house, not one room
+
+Soundscape rotation continued (ext1/int1/ext2/ext3, 09:56-09:59 UTC
+segments, 8s windows, low/high split at 200Hz):
+
+| cam | LOW <200Hz | HIGH >200Hz | gap |
+|-----|-----------|-------------|-----|
+| exterior_1 | -48.6 / -35.2 | -55.4 / -38.0 | 6.8 |
+| interior_1 | -39.8 / -32.8 | -55.5 / -43.0 | 15.7 |
+| exterior_2 | -44.6 / -30.5 | -51.5 / -37.0 | 6.9 |
+| exterior_3 | -50.0 / -36.8 | -55.4 / -38.8 | 5.4 |
+
+Pattern holds and sharpens: EVERY camera's sound is predominantly
+low-frequency, day and night. The high band is near-silent
+everywhere at this hour (09 UTC = 06 AR, quiet house). interior_1
+confirms its low-band floor (-39.8, same as cycle 29's night/morning
+samples) -- it is the fleet's loudest room at ALL hours, and the
+hum is constant. Combined with cycle 29: interior_3 -38.5, int1
+-39.8, ext1 -48.6, ext3 -50.0, ext2 -44.6, ext4 -46.6, ext5 dead.
+The house's baseline is a low-frequency mechanical texture that
+varies by room ~10dB, not by time of day.
+
+Working hypothesis: interior_1 and interior_3 (the two loudest,
+both ~-39) sit near appliances or machinery; exteriors hear the
+same world more faintly. The 17 AR exterior_1 peak (cycle 28) is
+low-band -- traffic/neighborhood rumble, consistent.
+
+METHOD NOTE (instrument tax): the ear's write path changed -- the
+container cannot write to /tmp (EOVERFLOW, "Value too large for
+defined data type"); WAV intermediates now go to
+/media/frigate/clips/aria-ear/ (bind mount, host-visible). Also
+the mkdir must happen INSIDE the container namespace (nsenter
+mkdir), not on the host bind path -- host mkdir showed in the
+container as an empty dir that ffmpeg still refused to write into.
+
+NEXT: (a) the 17 AR loud-hour sample for these 4 cams completes
+the day-2 profile; (b) interior_1 vs interior_3 hum correlation
+(same appliance? different floors?); (c) ext5 stays excluded until
+Nacho's restart lands.

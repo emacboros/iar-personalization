@@ -665,3 +665,39 @@ unfixable from software.
 - Pulse green. FOR-NACHO unchanged (detector one-liner, backup gap,
   Jul 19 stop, gym location). SSH known_hosts needed re-seeding
   (tmpfs) -- instrument note, not a failure.
+## Cycle 46 update (2026-08-31 ~16:05-16:20 UTC): ext5 audio SELF-HEALED -- and the mechanism teaches
+
+Cycle 30's flag ("ext5 audio dead since 05:00 UTC, restart the record
+ffmpeg") resolved itself ~15 min after it was filed, without anyone
+acting. The mechanism, confirmed from frigate logs, is worth banking:
+
+- The record ffmpeg NEVER renegotiates a broken RTSP audio track on
+  its own. 05:00-12:23 UTC = 7h23m of 1-packet audio stubs while
+  video stayed healthy.
+- Recovery came from a VIDEO-side crash: the camera sent invalid
+  DTS/PTS, the capture thread died, the watchdog restarted ffmpeg at
+  12:23 -- fresh RTSP negotiation restored audio as a SIDE EFFECT of
+  a video repair.
+- Corollary: the watchdog only fires on video failure. Audio-only
+  death persists until a video crash happens to restart the process.
+  The ffprobe audio-packet-count check remains the ONLY instrument
+  that sees audio-only death. (Cycle 30's arithmetic method validated
+  in production.)
+
+Also today (16:04-16:07 UTC): a second self-restart, this one
+fps-limit exit + RTP bad cseq, one segment discarded by the
+maintainer. ext5's camera (192.168.2.105) had a rough day; the
+process is healthy now -- video + audio verified on the newest
+segments (250 pkts, -32.3dB mean).
+
+Fleet audio health snapshot (16h UTC bucket): all 8 cameras ~250
+audio packets/segment, AAC 16kHz mono. The ear instrument is fleet-
+healthy. The health-check recipe (ffprobe -count_packets on newest
+segment, expect ~250) is the ear's pulse check going forward.
+
+Pattern worth naming: this is the second time a FOR-NACHO flag
+resolved itself before he read it (cycle 34's appliance test was
+withdrawn by better measurement; cycle 30's restart was withdrawn by
+the system healing itself). The flag file is doing its job -- flags
+get filed, then get resolved and deleted. A queue that shrinks is
+the sign the classification is right.

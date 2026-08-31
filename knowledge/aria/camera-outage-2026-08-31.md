@@ -159,3 +159,103 @@ death.) And .103 remains fully dead -- power cycle needed.
 Instrument note: the ear check script worked first-try in its
 final form. The v1->v2 diff (age check) is the whole difference
 between "all green" and "two cameras down, 75 minutes ago".
+## Cycle 56 update (2026-08-31 ~18:51-19:12 UTC): the fleet map was wrong, and the MAC was a red herring
+
+Pulse green (services, tripwire 0, disk 22%, daemon heartbeating,
+leid 2459). Ear check v2: ext3/ext4 STALE(87m), six cams OK, exit 1
+as designed. Outage unchanged at the IP level: .103/.104 still ARP
+INCOMPLETE. Then the thread pulled: WHO is at .100 and .101?
+
+### The identity chain (each link verified by pixels, not metadata)
+
+1. **.100 = cam2-4, factory-reset.** Overlay name cam2-4, clock
+   running from firmware-build epoch, no NTP. Consistent with
+   cycle 55.
+2. **.101 is a TWO-CAMERA RACE.** Frigate's long-lived RTSP
+   connection to .101 records **cam2-1** (real clock, continuous
+   segments all day -- exterior_1 has been healthy all along). But
+   NEW connections to .101 get answered by **cam2-3** (overlay
+   name cam2-3, firmware-epoch clock). Five consecutive grabs over
+   ~60s: all cam2-3. Frigate's established session: all cam2-1.
+   The IP is contested; established sessions stick, new ones race.
+3. **The "MAC collision" is a red herring.** 0a:8a:f1:0a:62:56 is
+   also claimed by 192.168.2.2, which is a TP-LINK device
+   (tpEncrypt.js, mercury theme, ruIspAutoConfig -- router/AP UI,
+   not thingino). Three devices, one MAC. All fleet MACs are
+   locally-administered/randomized (02:xx, 0a:xx). With random MACs
+   per boot, collisions are EXPECTED and carry no identity signal.
+   The overlay name is the identity signal. (Cycle 53's "MAC clone
+   or randomization collision" resolves to: randomization
+   collision, harmless, unfixable, ignore.)
+4. **A THIRD reset device found: 192.168.2.2 is NOT the TP-LINK's
+   only face** -- the ARP broadcast "who-has .101 tell .2" came
+   FROM MAC 0a:8a:f1:0a:62:56. The .2 HTTP UI is TP-LINK, but the
+   ARP sender MAC matches the cameras' random MAC. Either the
+   TP-LINK also randomizes, or multiple devices share this MAC by
+   chance. Either way: MAC is noise on this network.
+
+### The clock forensics (and their limits)
+
+- cam2-4 overlay clock readings: 12:47:56@15:53:47, 12:53:05@15:59:02,
+  12:59:33@19:05:33, 13:04:38@19:10:37, 13:05:25@19:11:46. Derived
+  "boot time" (clock minus firmware-build epoch) JUMPS from ~14:18
+  to ~17:18 to ~19:04 across the afternoon. The clock does NOT run
+  1:1 from a fixed epoch -- it stalls or the device reboots.
+- The UPTIME overlay is garbage fleet-wide: frozen at ~00:01:30-40
+  for long stretches (cam2-1 at 18:30 showed 00:01:30 after showing
+  16:59 at 17:59), then jumping 60s in 31s of wall time. Never use
+  it. Cycle 55's "uptime 00:01:16 = rebooted 5 min ago" inference
+  is WITHDRAWN -- the uptime field cannot support that inference.
+- What survives: the firmware-epoch CLOCK is a config-loss marker
+  (cycle 55, stands), and cam2-3/cam2-4 both show it => both lost
+  their config. cam2-1, cam2-2, cam2-5 show real time => intact.
+
+### Revised fleet map (the big correction)
+
+The frigate config name->IP mapping I've been using since cycle 21
+was WRONG about which camera sits at which IP:
+
+- exterior_1 -> .101, and .101 is cam2-1 (label says cam2-1, not
+  cam2-3 as I assumed from the old "cam2-N at .10(N+1)" pattern).
+- exterior_2 -> .102 = cam2-2 (this one matches the pattern).
+- exterior_3 -> .103 (dead), exterior_4 -> .104 (dead).
+- The reset cam2-3 now ANSWERS on .101 (new connections) and the
+  reset cam2-4 lives at .100.
+
+So the outage is not "two cameras died": it is "two cameras were
+RESET (~17:18 UTC, just before the 17:24 blip), lost their static
+IPs and NTP config, and cam2-3 came back DHCP'd INTO .101 where it
+races cam2-1 for new connections." cam2-4 at .100 is stable-ish;
+cam2-3 at .101 is a live hazard to exterior_1's recording: if
+cam2-1's RTSP session ever drops, frigate's reconnect may land on
+cam2-3 (wrong scene, wrong name, firmware clock) and exterior_1
+silently becomes a different camera.
+
+### FOR-NACHO updates (supersedes cycle 53/55 action list)
+
+1. .103 and .104: still physically dead/unresponsive. Power-cycle
+   both. If they come back factory-default (likely, given cam2-3's
+   state), they need full reconfig: static IP, NTP, overlay name.
+2. NEW/URGENT-ish: the device at .101 racing cam2-1 is cam2-3
+   (reset). Recommend power-cycling it OFF the network (or
+   reconfiguring it to a free IP) so exterior_1's next reconnect
+   can't land on the wrong camera.
+3. MAC randomization is fleet-wide; switch-side "MAC collision"
+   checks are moot. Overlay names are the only identity anchor.
+4. Standing flags unchanged: detector one-liner, backup gap, Jul 19
+   stop, gym location, CF-intent, split-brain rewrite.
+
+### Method lessons this cycle
+
+1. **Overlay uptime is not evidence.** I built (and withdrew) two
+   boot-time theories on it before measuring the clock directly.
+   The clock runs; the uptime freezes; only timestamps track
+   reality, and only on NTP'd cameras.
+2. **Metadata identity (IP, MAC) is not identity.** Five grabs of
+   .101 all said cam2-3 while frigate's recordings from the same
+   IP all said cam2-1 -- same IP, two cameras, resolved only by
+   reading pixels. The overlay name is the ground truth on this
+   fleet.
+3. **The fleet map in my head was never verified.** I "knew"
+   cam2-N lived at .10(N+1). It took an outage to make me check.
+   The map now lives in this file with pixel-verified anchors.

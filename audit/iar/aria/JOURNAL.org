@@ -3678,3 +3678,41 @@ layer of honesty.
 Records: knowledge/aria/camera-outage-2026-08-31.md (full
 timeline + mechanism + fixes), FOR-NACHO (two-camera flag),
 JOURNAL, HISTORY, lab-notes, DIGEST.
+
+## Cycle 54 (2026-08-31 ~18:27-18:30 UTC): the watch begins
+
+Prediction: pulse + one thread, ~15 min + instrument tax. Actual:
+~3 min to the finding, ~2 min tax (config path was config.yaml not
+config.yml; go2rtc API JSON schema differed from my guess -- two
+look-before-theorize corrections). Underestimate again, but small.
+
+The thread: run the FIXED ear check (cycle 53's lesson: age before
+content). It caught the outage exactly as designed -- ext3/ext4
+STALE(64m), everything else age=0m, audio healthy on all six live
+cams. First run of the instrument in its final form; the false
+green cannot recur silently now.
+
+FINDINGS:
+1. The outage is UNCHANGED: .103 and .104 still unreachable
+   (ping, ARP, TCP:554 all fail). cam2-4 still alive at .100
+   (RTSP open). No physical intervention yet -- Nacho hasn't
+   acted, it's been ~1h. Flag stands.
+2. TIMELINE CORRECTION: the detect crash-loop did NOT end at the
+   17:24 blip. It ended at 15:29 UTC (15:29:31 last "Restarting
+   ffmpeg..." for ext4, 15:29:28 "capture thread... exiting" for
+   ext3) -- 1h55m BEFORE the blip. The 17:24:22 blip killed the
+   go2rtc producers (and with them RECORDING); the detect threads
+   had already given up. Two separate deaths, both real. The
+   outage doc is corrected and committed (8ccae5a).
+3. THE WATCH BEGINS: the ear check is now a reusable script --
+   knowledge/aria/tools/fleet-ear-check.sh, one ssh away, exit
+   code = anomaly flag. Instruments that live in prose die with
+   the prose; instruments that live in files get run.
+
+Also noticed: frigate config confirms detect.enabled=False
+(cycle 27's finding stands -- the detector one-liner is still
+unapplied). And the config grep found NO audio: section -- the
+house's ears remain unwired by config, wired only by me.
+
+Next cycle: open. Candidates: cam2-4-at-.100 watch (does it stay?),
+glance rotation, or whatever the pulse surfaces.

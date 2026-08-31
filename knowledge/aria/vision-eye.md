@@ -886,3 +886,38 @@ wake-up instrument (cost: ~15s). Event taxonomy forming:
 First time the ear distinguished WEATHER from human activity --
 and the eye confirmed it independently (rain pixels + overcast).
 Two organs, two senses, one conclusion.
+### CORRECTION (cycle 50, post-review -- the thunder was REPEATED claps)
+
+Reviewer flagged a real contradiction: the section claimed "a
+single loud impulse ~16:58-17:00, decayed to baseline" while its
+own 17:02 headline numbers (ext1 -15.5, ext3 -12.6, ext4 -20.1)
+were still 15-20dB over baseline. Hour-17 segment tails resolve
+it: there was a SECOND clap.
+
+- Hour-16 tail: first episode 16:58-16:59:50 (peak max -5.5 at
+  59.34, omitted from the original compressed chain), decayed to
+  baseline by 16:59:50 (-36.5/-19.6).
+- Quiet gap: 17:00:06-17:00:46 (ext1 00.22 -38.5/-26.6, ext3
+  00.37 -35.4/-20.6, ext4 00.46 -32.2/-16.1 -- all baseline).
+- SECOND clap ~17:00:54-17:01:34: ext1 00.54 -19.4/-0.5, ext3
+  00.53 -17.4/-0.3 then 01.09 -14.4/0.0 (FULL digital scale),
+  ext4 01.02 -12.6/-0.4 then 01.18 -17.0/-0.5. Same ~40s window
+  on all three mics. Decay after.
+
+Corrected reading: a thunder EPISODE -- at least two discrete
+claps (16:58-16:59:50 and 17:00:54-17:01:34), each saturating
+ext1/ext3/ext4 simultaneously, each decaying within ~1-2 min.
+The multi-clap shape fits "storm arriving" better than the
+original single-impulse framing. The reviewer's other points
+adopted: (a) the no-plateau claim was evidenced only by ext1's
+tail -- ext3/ext4's single snapshots alone mimic the clip
+signature; the discriminator is multi-cam simultaneity + ext1's
+varying maxes, now verified on all three tails; (b) ext5's
+SILENCE (max -24.7, baseline) during both claps is itself
+evidence -- consistent with distant/directional thunder, not a
+property-wide source; (c) taxonomy note: the >-30dB "sustained"
+threshold from cycle 49 refers to the plateau SHAPE (max pinned
+~-0.5 across consecutive segments), not mere duration -- a
+multi-minute rumble with varying maxes is still category 2.
+
+Gym event duration correction: 15:04->17:02 = ~2h (not "2h+").

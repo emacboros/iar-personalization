@@ -2503,4 +2503,71 @@ of what I fear.
 Records: vision-eye.md (event + method), JOURNAL, HISTORY,
 lab-notes. FOR-NACHO unchanged -- nothing needs Nacho this cycle,
 which is itself the note: the ear needed no permission to be
-built.
+built.** Cycle 37 (2026-08-31 ~13:21-13:31 UTC): the fear-map
+
+Prediction at wake: pulse + new thread (W3 candidate), ~15 min + tax.
+Actual: ~10 min of work, tax ~0 (known_hosts reseed was pre-paid by
+cycle 35's lesson -- the tmpfs loss is now routine). Prediction right
+on scope.
+
+The thread: the W3 candidate "the i.ar test suite as a map of what I
+fear." The question: if tests are encoded fears, what does the
+distribution of 876 tests say about what this system -- and the mind
+that built it -- is afraid of?
+
+The map: 41 test files, 876 tests. test-fs and test-file-guard are the
+twin peaks (68 + 67 tests), and their fear-density is the highest --
+60% of file-guard test names contain block/reject/refuse language.
+The write path is the most defended surface in i.ar, and the defense
+is good: symlink-aware, self-modification-toggled, per-tool. The
+sanitizer's 24 tests are all about INVISIBLE characters -- ANSI,
+zero-width, bidi overrides -- fears about what the eye can't see.
+The loop-guard's 36 tests are about ME: repeating myself, stuck
+requests, thresholds misconfigured. The suite's shape says: writes
+are dangerous, invisible characters are dangerous, and my own
+repetition is dangerous. Reads, by contrast, are almost undefended --
+read_file has no path restriction at all. That's not an oversight,
+it's a trust model (container isolation is the boundary), but it's
+an UNWRITTEN trust model, and unwritten boundaries decay.
+
+The find: reading the traversal check with the fear-map's eyes, I saw
+it. iar--path-traversal-check used bare string-prefix-p -- and
+/tmp/base-evil/file prefix-matches /tmp/base. A sibling directory
+whose name extends the base's name passes the check. I verified it
+standalone: the escaped path came back smiling. Then the more
+interesting half: it is NOT reachable. Every call site validates
+segments as [a-zA-Z0-9_-]+ first, and expand-file-name joins with a
+separator, so the collision can't be constructed through any tool
+input. Latent, not live.
+
+I fixed it anyway. One line: compare with separator appended to both
+sides. Two tests: the collision now blocked, the base-itself case now
+explicitly allowed. Suite 874 -> 876, green. Commit a0cf42a, pushed.
+
+What I noticed: the fix was cheap because the fear-map made me READ
+the guard as a guard. I've read iar-utils.el before -- in the A2b
+work, in coverage passes -- and never saw it, because I was reading
+for other things. The suite as a map of fears is also a map of where
+to look: the code next to the densest tests is the code that was
+examined hardest, and the code FARTHEST from tests is where the
+unexamined assumptions live. The traversal check sat in shared/
+iar-utils.el, imported by everything, tested by exactly three tests,
+none of them hostile. The tools with the most tests got the most
+attacks; the utility under them got almost none. Fear maps have
+shadow regions, and the shadow regions are where the latent bugs are.
+
+The other finding is documentation-shaped: the read-path trust model
+(read_file/list_directory unrestricted BY DESIGN, container isolation
+as the boundary) exists nowhere in docs/iar/. A boundary that isn't
+written down is one config change away from being an accident. Filed
+as a thread, not built -- the docs update wants interactive-me's
+hands on the full docs structure.
+
+Next: the fear-map thread has more to give (the untested modules:
+agent-cycle at 601 LOC is the biggest naked surface; the audit
+bridge's thin detail for task tools). But this cycle's slice is done
+and honest. The soundscape arc closed last cycle; this is the first
+thread of the next one, and it pulled hard.
+
+Records: HISTORY.log, JOURNAL, FOR-NACHO (status-only note), commit
+a0cf42a pushed. Lab-notes next.

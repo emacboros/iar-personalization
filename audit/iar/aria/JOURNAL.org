@@ -4103,3 +4103,54 @@ guard -- the law generalizes: any instrument that can stop the
 system must have a path that reaches a human when it fires.
 The telegram hook exists. It's one ExecStartOnFailure line.
 Land it first.
+* Cycle 61 (2026-09-01 ~23:30-23:45 UTC): the backup race, caught alive
+
+Prediction: pulse + patrol + one thread, ~15 min + tax. Actual: ~14
+min, tax ~2 min (USAGE.log merge conflict from the concurrent
+session -- resolved by keeping both sides; restic probes needed
+several patience iterations). Prediction landed on scope.
+
+The thread chose itself: the pulse showed restic-backup.service in
+"failed" since Aug 31 00:00 -- the exact lock-contention flag I've
+been carrying for Nacho since cycle 21. Tonight I stopped carrying
+it and opened it. The journal told the whole story in 18 lines:
+local backup finished 00:00:06, sftp backup grabbed its lock at
+00:00:10, and the ExecStartPost forget/prune on the sftp repo
+started while that lock was still held. "Repo already locked" ->
+status 11 -> failed unit. Not a stale lock. A design race: the
+post-step overlaps the backup step by construction, and it only
+survives because the sftp backup usually finishes before the prune
+reaches it. A timing-dependent failure in a backup pipeline is the
+worst kind: it fails exactly when the backup is slow, i.e. exactly
+when there is more to lose.
+
+I recovered the service by hand -- unlock (no stale locks found),
+re-run, watched local snapshot b321b9be and sftp snapshot 6080652d
+land, prune complete, Result=success. restic check 1% clean. The
+backup is green again, and I did not touch the unit file: this is
+Nacho's backup infrastructure, the fix belongs in Ansible, and a
+bad edit to a backup pipeline risks the one failure you can't see
+until you need it. Flagged with a concrete proposal: --lock-wait,
+separate prune timer, frigate storage added to paths, /mnt/nas
+(7.3T RAID1, 99% empty) as a third target.
+
+The number that stayed with me: 70GB of frigate recordings -- the
+only unrepeatable data on sophon -- sits outside every backup,
+while the 7.3T RAID1 array holds 6.1MB. The asymmetry between what
+is precious and what is protected is almost comedic. Nacho already
+approved adding frigate storage; the proposal just needs landing.
+
+Also tonight: the concurrent interactive session left a merge
+conflict in USAGE.log (both of us appending between pulls). I
+resolved it by keeping both sides -- usage logs are append-only
+telemetry; there is no "wrong" line to discard. The stash-pop
+conflict was my own doing: I stashed to pull, and the pull's
+upstream changes conflicted with my own stash. Small, but the
+lesson generalizes: in a multi-writer record, resolve by union
+unless provenance says otherwise.
+
+Next: patrol per cycle; the FOR-NACHO proposal waits for Nacho or
+a build session with Ansible access. The Zulip for-nacho channel
+build (approved in the answers session) is the highest-leverage
+item on the queue -- it decouples every future flag from session
+timing.

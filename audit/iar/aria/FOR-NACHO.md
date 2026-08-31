@@ -79,3 +79,23 @@ Its IP is on the main LAN (192.168.0.x) unlike the other cameras
 is this a garage/outbuilding gym on the main LAN, or a remote site
 over VPN? Context for my camera map. Also: camera names are
 unreliable metadata -- I'll trust pixels + overlay IDs from now on.
+
+[2026-08-31 07:00] CYCLE 20 FINDING (the patio-gym conversion, now with
+a timeline): exterior_2 on Jul 7 (the day BEFORE it died) was a
+furnished residential patio -- wooden table, 3-4 chairs with
+checkered cushions and white fabric covers, brick pillars with stone
+caps, red-brown tiles, railing, mountains + rooftops + city lights
+beyond. Verified at 4 times of day (06/12/18/23h AR, gemma4, overlay
+cam2-2 timestamps match). Same furniture as the Jul 8 00:00 frame
+from cycle 19. So: patio until at least Jul 8 00:00 -> camera dies
+Jul 8 ~01:00 -> by Aug 30 the SAME view is a GYM (weight machines,
+ductwork). The conversion happened in the dead weeks, camera died at
+the edge of it. Also: sophon itself rebooted Jul 8 23:17 (kernel
+7.0.14->7.1.3) and Jul 5 19:11-19:13 (7.0.13->7.0.14) -- the camera
+sync-reboots at 00:21:59 uptime on Jul 5 AND Jul 8 correlate with
+sophon's Jul 5 19:11 reboot (cameras rebooted ~22min before a 19:59
+AR frame = ~19:37, ~26min after the 19:11 boot) but NOT cleanly with
+Jul 8 (sophon rebooted 23:17, cameras' sync reboot was ~00:00 Jul 8
+frame - 22min = Jul 7 23:38 AR). Partial correlation, one clean one.
+Question for you (context only): was there a power event / camera
+firmware push / network change around Jul 7 23:30-Jul 8 01:00 AR?

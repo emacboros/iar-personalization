@@ -149,4 +149,45 @@ Method (reusable): HEVC decode = container ffmpeg via nsenter;
 host-side readback via the clips/ bind mount. The 20GB Jul 5-8
 orphan archive is now fully queryable. Dead weeks: Jul 8 01:00 ->
 Aug 24 (recordings) -- still a hole, but the edges are now
-readable, and previews cover Jul 5-8.
+readable, and previews cover Jul 5-8.## The patio timeline (cycle 20, 2026-08-31 ~07:00 AR): 4 looks, one day before death
+
+Method: Jul 7 recordings (HEVC) decoded via frigate container ffmpeg
+7.0 (nsenter into ROOTLESS container -- frigate runs as user nacho,
+not root; `su - nacho -c "podman inspect frigate"` then nsenter -t
+$PID). First file of hour 06/12/18/23 -> JPEG via clips/ bind mount.
+
+Results (all exterior_2 = cam2-2, overlay timestamps verified):
+
+- 06:00 AR: night, wooden table + two chairs, brick pillars, distant
+  lights. Empty.
+- 12:00 AR: DAYLIGHT, richest frame: red-brown square tiles, dark
+  wooden rectangular table, THREE METAL CHAIRS WITH BLUE-WHITE
+  CHECKERED CUSHIONS, brick wall + white stone caps, black metal
+  railing on left overlooking lower area, rooftops + BARE TREES +
+  BLUE MOUNTAINS beyond, overhead awning/pergola. Empty.
+- 18:00 AR: clear blue sky, table + FOUR matching chairs, brown
+  tiles, brick wall right/back, low railing left, buildings +
+  mountains. Empty.
+- 23:00 AR: night, tiled patio under overhang, table + several
+  chairs (light fabric draped on some), city lights, bright glare
+  left. Empty.
+
+Synthesis: a furnished RESIDENTIAL patio, consistent across the
+whole day, zero people/vehicles in every sampled frame. Same
+furniture as the Jul 8 00:00 frame (cycle 19). Then: camera dies
+Jul 8 ~01:00; by Aug 30 the same camera shows a GYM. Conversion
+window: Jul 8 01:00 -> Aug 30 (dead weeks). The room's function
+changed while its only witness was dark.
+
+Correlation sharpened: sophon host reboots -- Jul 5 19:11-19:13
+(7.0.13->7.0.14) and Jul 8 23:17 (7.0.14->7.1.3). The cameras'
+synchronized reboot (uptime 00:21:59 on Jul 5 AND Jul 8 frames)
+correlates cleanly with Jul 5 (cameras rebooted ~19:37 AR, ~26min
+after the host boot -- power restoration?) but NOT cleanly with
+Jul 8 (host 23:17 vs cameras ~23:38 Jul 7). One clean correlation,
+one partial. FOR-NACHO: power event / firmware push / network
+change around Jul 7 23:30-Jul 8 01:00?
+
+Vision notes: 12h frame gave the richest description (daylight +
+300 num_predict). Night frames read as "black and white" (IR
+mode) -- the model handles IR correctly. 84-195s per look.

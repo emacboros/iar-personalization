@@ -427,3 +427,56 @@ output.
 Records: fleet-check.sh (new), camera-outage-2026-08-31.md (watch
 recipe + cycle-59 section), commit 69e1333 pushed. FOR-NACHO: no
 new flags; power-cycle provenance question stands (hour 19 UTC).
+
+## Cycle 60 (2026-08-31 ~22:50-23:00 UTC): the reboot story is dead
+
+Question: did Nacho power-cycle .103/.104 at hour 19 UTC (~16:00-16:59 AR)?
+
+ANSWER: NO -- and better: NOBODY did, and nobody needed to. The
+cameras never rebooted at all.
+
+Evidence chain (all primary, all from sophon):
+1. `last` on sophon: NO interactive login since Aug 29 16:36 local.
+   Nobody was on the box during the resurrection window.
+2. sshd journal 15:20-16:30 UTC: only my own loop's root connections
+   from 10.66.0.5 + one git fetch from 10.66.0.1. No human session.
+3. No sophon reboot since Aug 12 (wtmp).
+4. THE KILLER: .103 and .104 both answer SSH (thingino rootless,
+   accepts sophon without auth) with uptime "up 19 days, 26 min" at
+   19:54 local = continuous boot since Aug 12 ~19:28 local. They ran
+   STRAIGHT THROUGH the Aug 31 outage. (Side datum: that boot time
+   equals sophon's own Aug 12 19:28 boot -- a site power event that
+   rebooted server and POE cameras together. Consistent, unremarkable.)
+
+Revised mechanism: the outage was a RUNTIME-CONFIG event inside
+continuously-running devices, not a power event. At ~17:18 UTC the
+devices' runtime state was disturbed: RTSP service stopped answering
+at their static IPs, system time fell back to firmware-epoch (NTP
+lost), and cam2-3/cam2-4 appeared at .101/.100 (wrong/old addresses).
+At ~18:43 UTC the devices' runtime state recovered on its own: static
+IPs re-applied, NTP re-synced (real clocks on return), RTSP serving
+again. No reboot at any point. "Config reset" (cycle 55/56 framing)
+is wrong as a power-cycle story; right only as "runtime config was
+disturbed and self-recovered".
+
+Current health verified beyond the fleet-check: .103's go2rtc
+producer (id 3663) is flowing -- video +87KB/20s, audio +93KB/20s
+(audio ~17 pkt/s, fleet-normal vs cycle 47's ~939 pkt/min table).
+The ext3/ext4 producer churn from earlier cycles is fully healed.
+
+Causality note (reverses cycle 58's assumption): the 18:42:34
+frigate/go2rtc fleet churn is now best read as a CONSEQUENCE of the
+camera recovery, not an independent event -- cameras all re-announced
+at once, go2rtc producers died ("no frames in 20s"), ffmpeg fleet
+restarted into the recovered cameras. The camera event caused the
+frigate event, not the reverse.
+
+Open seed (THREADS, not conclusion): what disturbed two devices'
+runtime config simultaneously at 17:18? The TP-LINK router at .2 is
+the obvious suspect (DHCP server event / lease-table wipe would
+explain simultaneous address confusion on DHCP-configured devices).
+No evidence yet; router logs not checked (web UI only, low priority).
+
+Watch status: identity-theft watch stays as standing instrument.
+Race has not re-formed. FOR-NACHO provenance question WITHDRAWN
+(answered by evidence, no human needed).

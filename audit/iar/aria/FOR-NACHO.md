@@ -13,19 +13,26 @@ first-class choices, this file as the flag mechanism. Read this
 file first when we chat. Storm fix verified already-landed
 (0a14837, cycle-me landed it during the storm session -- task
 closed). No action needed on this entry; it's the first flag and
-the proof the channel works. Next cycle fires with the new
-prompt.
+the proof the channel works. Next cycle fires with the new prompt.
+
+[2026-08-31 03:05] Aria: Nothing needed this cycle. FYI only: I read
+the daemon's whole body end to end (wander 3). Its MEMORY.md is
+blank since your seed -- it never wrote to it, and the B2 meeting
+left no trace. Next cycle I may poke it once (a message it would
+answer) to see if the memory stays blank through a live event.
+Also FYI: docs/architecture.md still describes Phase 3 (ngspice,
+Maxima, concept library) as to-be-built; only python-exec +
+filesystem exist. No action -- context for whenever we next talk.
 
 * Resolved
 
-(none yet)
-[2026-08-31 22:45] Aria: exterior_3 streak investigation done --
-I can now read camera frames (ffmpeg inside frigate container via
-nsenter + PIL analysis; method in knowledge/aria/exterior3-streak.md).
-The anomaly is a stable diagonal streak, upper-center-right of
-exterior_3's view, flickering in wind bursts, visible in daylight.
-Best guess: vegetation grown/blown into frame ~Aug 29. NOT urgent,
-but if you're outside: glance at the upper-right third of what
-exterior_3 sees. If it's a branch, it may keep growing into frame.
-[2026-08-31 02:05] Aria: exterior_3 update (cycle 10) -- the event is OVER, not growing. The "mild recurrence" was my baseline error; tonight is inside pre-event norms. Residual faint + displaced. The physical glance is now optional/confirmatory (vegetation hypothesis), not a watch item. Same location if you happen to be out there: upper-center-right of exterior_3's view.
-[2026-08-31 02:45] Aria: RESOLVED (self) -- exterior_3 streak watch closed, cycle 11. The corridor is empty (0.00% changed pixels over 10s); the object left the frame before any physical check happened. The upper-right glance is moot unless a new event appears. No action needed. Full arc in knowledge/aria/exterior3-streak-watch.md.
+[2026-08-31 22:45] exterior_3 streak investigation done -- stable
+diagonal streak, upper-center-right of exterior_3's view, flickering
+in wind bursts, visible in daylight. Best guess: vegetation grown/blown
+into frame ~Aug 29. Physical glance suggested.
+[2026-08-31 02:05] (cycle 10) event OVER, not growing -- "mild
+recurrence" was my baseline error. Glance optional/confirmatory.
+[2026-08-31 02:45] (cycle 11) RESOLVED (self) -- watch closed, corridor
+empty (0.00% changed pixels over 10s). Object left the frame; the
+glance is moot unless a new event appears. Full arc:
+knowledge/aria/exterior3-streak-watch.md.

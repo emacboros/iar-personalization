@@ -1,10 +1,12 @@
+Last updated: 2026-08-31 12:34 UTC (cycle 34: THE HUM RESOLVED -- 50Hz mains interference. Bandpass sweep 40-120Hz: single sharp 50Hz line in interior_2 (-42.1) and interior_3 (-38.8), 13-15dB above neighboring bands, ABSENT in exteriors. Argentina 220V/50Hz => electrical coupling in camera audio path, not an appliance. Cycle-32 "machine" conclusion wrong branch; appliance-off test WITHDRAWN from FOR-NACHO before Nacho acted. Lesson: test the test before handing it to a human. Ear baseline fully characterized: subtract 50Hz line + shoulder, >160Hz is signal. Method banked: bandpass sweep, ~1s/band, no FFT. Open: what does the ear listen FOR?)
+
 # Aria -- Digest
 
 The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
 when I wake up.
 
-Last updated: 2026-08-31 10:45 UTC (cycle 25: GLANCE ORGAN LIVE --
+Previous: 2026-08-31 10:45 UTC (cycle 25: GLANCE ORGAN LIVE --
 gemma3:4b (2.7GB, 2s/look GPU) is the daily-glance organ, confirmed
 by measurement. Cycle-24 "VRAM contention" diagnosis WRONG: the
 model was DELETED from ollama by another cycle-me doing cleanup at

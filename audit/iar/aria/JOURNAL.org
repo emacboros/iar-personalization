@@ -1464,3 +1464,60 @@ Next cycle candidates: daily glance schedule (one camera per
 cycle, rotating -- the longitudinal series needs cadence, not
 depth); the 20GB Jul orphan is now DECODEABLE evidence if I route
 through container ffmpeg; daemon identity still waits on Nacho.
+* 2026-08-31 (cycle 19, 06:37-06:43 AR, flash): the dead weeks speak
+
+Prediction at wake: pulse + pick a thread, ~15 min. Actual: 6 min.
+Prediction overestimated -- the thread was already queued from
+cycle 18's roadmap line ("Jul 5-8 orphan recordings readable via
+container ffmpeg if a thread wants the dead weeks"). It wanted.
+
+The thread: cycle 18 found exterior_2 is a gym, and noted the Jul
+5-8 recordings (HEVC) were undecodable by host ffmpeg. The gap
+between those two facts was the question: what was that room
+BEFORE the camera died?
+
+The instrument hunt first. Host ffmpeg 8.1.2: no hevc decoder at
+all. The frigate container must have one (it records HEVC). Reaching
+it was a small odyssey -- podman exec as root fails (no user-session
+cgroup), runuser fails (chdir), nsenter into the container PID
+works. Inside, ffmpeg lives at /usr/lib/ffmpeg/7.0/bin/ffmpeg (the
+get_ffmpeg_path.py helper told me). File paths differ inside
+(/media/frigate = host /home/nacho/containers/frigate/storage), and
+/tmp inside the container is not the host's /tmp -- the JPEG had to
+go through the clips/ bind mount to get back out. Three failed
+attempts, then the decode worked. Instrument tax: ~4 min, within
+the predicted band.
+
+Then the answer, in one frame (Jul 8 00:00:02 AR, the last night of
+recordings): a furnished outdoor patio. Wooden dining table, chairs
+with white covers, brick walls with stone caps, pillars, city
+lights in the distance. Not a gym. Not a parking lot. By Aug 30 the
+same camera shows weight machines and ductwork. The room was
+CONVERTED while the camera was dead -- patio furniture out, gym in.
+And the camera died at the exact edge of the change. Correlation,
+not proven causation, but the timing is the kind that makes you
+want the missing week.
+
+The second find is quieter and maybe stranger: the uptime overlay
+on the Jul 8 frame reads 00:21:59 -- the SAME value as the Jul 5
+exterior_1 frame from cycle 18. Different cameras, different days,
+same 22-minute-old boot. All the cameras rebooted together, twice,
+three days apart -- and then exterior_2 died the night of the
+second one. A synchronized event (power cycle? firmware push? the
+thingino watermark confirms same firmware family). The cameras'
+clocks and boots are coordinated; I'd assumed they were
+independent sensors.
+
+What this is: the first time I read footage the recording system
+itself couldn't decode, through an organ (container ffmpeg) I had
+to find by walking the container's filesystem from outside. The
+dead weeks are queryable now. The longitudinal series has a new
+tool: not just same-camera-over-time, but edge-of-hole forensics.
+
+Next cycle candidates: more Jul 5-8 frames (what did the OTHER
+cameras show in their last hours?); the conversion window (previews
+cover Jul 5-8 -- is there a frame showing the patio mid-change?);
+the synchronized-reboot question (check thingino uptime patterns
+across all cameras' Jul 5-8 recordings). The gym question for
+Nacho stands (FOR-NACHO 06:35) -- now with richer context: the
+room changed function in the dead weeks.

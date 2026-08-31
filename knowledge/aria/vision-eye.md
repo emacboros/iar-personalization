@@ -763,3 +763,57 @@ the ear: per-segment arithmetic over absolute numbers.)
 - The 401 on 8971 from host: frigate's nginx auth is on; what
   password does the UI use (Nacho's browser session)? Not my
   business to bypass -- noted, moved on.
+## exterior_4 flapping (W3 shelf item, consumed 2026-08-31 ~16:45 UTC)
+
+Cycle 47 noticed ext4's producer churn (499->508); cycle 48 pulled
+the thread. Answer: yes, flapping, and the mechanism is specific.
+
+### The numbers (2026-08-31, frigate logs)
+
+- ext4 capture ffmpeg restarts: 14 in 12h, 17 in 24h. Next worst
+  camera: 3. Fleet baseline is ~1-3/day; ext4 is 5-15x that.
+- Burst pattern: 10:11 single, 12:07 single, 12:15:32-12:17:44 =
+  FIVE restarts 20-30s apart, 12:37:54-12:39:06 = four in ~70s,
+  13:05 + 13:27 singles. Hours of stability between bursts.
+- Trigger (from ffmpeg.exterior_4.detect logs): camera-side
+  timestamp corruption -- "PTS 1924399283, next:33834000 invalid
+  dropping st:1" repeated until the capture thread dies. The
+  camera jumps its PTS ~57x past the expected value; ffmpeg drops
+  everything after; watchdog restarts; camera repeats on
+  reconnect. st:1 = audio track (ext4's case).
+- Same DTS/PTS-invalid signature killed ext5's record process at
+  12:23 (cycle 46). Two cameras, same subnet (192.168.2.10x),
+  same thingino firmware, same failure class. NOT network: ping
+  0% loss (ext4 rtt 13.4ms avg = worst of fleet but stable).
+
+### Impact
+
+- Maintainer discards segments written during bad-timestamp
+  windows ("Invalid or missing video stream in segment ... 
+  Discarding"). Recording continuity: scars, not gaps -- newest
+  segment verified perfect (250 audio pkts, ear check).
+- Watchdog handles recovery; no human action needed today.
+
+### Escalation threshold (when this becomes FOR-NACHO)
+
+- Burst length growing (5 restarts/burst -> more), or
+- Bursts getting more frequent (hours -> minutes), or
+- A gap appears in the record that doesn't self-heal.
+Then: firmware update or camera reboot -- physical world, Nacho's
+call. Until then: watch item.
+
+### Recipe fix (the ear's ffprobe)
+
+podman exec frigate ffprobe FAILS (no ffprobe in container PATH);
+bare nsenter fails too. Working route:
+
+```bash
+PID=$(podman --url unix:///run/user/1000/podman/podman.sock inspect -f "{{.State.Pid}}" frigate)
+nsenter -t $PID -m -u -i -n -p -- /usr/lib/ffmpeg/7.0/bin/ffprobe \
+  -v error -count_packets -select_streams a \
+  -show_entries stream=nb_read_packets -of csv=p=0 /media/frigate/recordings/<path>
+```
+
+Full path /usr/lib/ffmpeg/7.0/bin/ffprobe is required (host
+ffmpeg 8.x lacks hevc; container 7.0 has it -- cycle 19's lesson,
+now with the exact path).

@@ -3347,3 +3347,79 @@ Records: knowledge/aria/vision-eye.md (config + recipe + rate
 table + instrument map), JOURNAL, HISTORY.log, lab-notes, commit.
 FOR-NACHO: no new flags -- nothing here needs a human. Standing
 flags unchanged.
+* Cycle 48 (2026-08-31 ~16:41-16:47 UTC): the flapping camera
+
+Prediction at wake: pulse + one thread, ~15 min + tax. Actual: ~7
+min, tax ~1 min (one ssh typo, one ffprobe-path miss -- the
+nsenter recipe needed the full /usr/lib/ffmpeg/7.0/bin path, now
+banked). Prediction overshot again; the thread was compact.
+
+The thread: cycle 47's shelf-refill item "ext4 producer churn --
+is it flapping?" One look became the answer: yes, and the shape
+is specific.
+
+FINDINGS (all read-only, from frigate logs + recordings):
+
+1. exterior_4 restarted its capture ffmpeg 14 times in 12h (17 in
+   24h). Next worst camera: 3. This is not fleet noise; ext4 is
+   qualitatively different today.
+
+2. The restart pattern has a signature: bursts. 10:11 single;
+   12:07 single; then 12:15-12:17 = 5 restarts in ~2.5 min
+   (20-30s apart); 12:37-12:39 = 4 in ~70s; 13:05, 13:27
+   singles. Between bursts, hours of stability. A camera that
+   drops RTSP under load or on some periodic event, then
+   recovers.
+
+3. The trigger is the camera's own timestamp stream going
+   insane: "PTS 1924399283, next:33834000 invalid dropping st:1"
+   -- the camera jumps its PTS to ~1924399283 (a value ~57x the
+   next-expected) and ffmpeg drops every subsequent packet until
+   the watchdog gives up. Same DTS/PTS-invalid signature that
+   killed ext5's record process at 12:23 (cycle 46) -- ext5's
+   rough day and ext4's flapping are the SAME camera-firmware
+   behavior on two different cameras, same subnet (192.168.2.10x
+   thingino). st:1 = the audio track in ext4's case.
+
+4. Ping is clean (0% loss, 13ms avg -- actually the WORST rtt of
+   the three tested, 3-4x ext1/ext5's, but no loss). The camera
+   is reachable; its STREAM is what breaks.
+
+5. Despite all that: the newest ext4 segment is PERFECT -- 250
+   audio packets, same as ext1/ext5. The ear check passes. The
+   flapping costs segments (maintainer discards the invalid
+   ones) but the record heals within a minute. Recording
+   continuity: mostly intact, with visible scars.
+
+INTERPRETATION: this looks like the thingino firmware's clock
+handling hiccuping -- possibly NTP resync, possibly an internal
+counter wrap -- rather than network failure. The 12:15-12:17
+burst pattern (rapid-fire restarts 20-30s apart) is the camera
+repeatedly sending bad timestamps as it comes back up.
+
+WHAT I DID NOT DO: change anything. The camera recovers on its
+own; frigate's watchdog handles it; the record survives. This is
+a watch item, not a fix item. If the bursts get longer or more
+frequent, it becomes a FOR-NACHO (firmware update or camera
+reboot would be the human-side fix -- physical world, his call).
+
+Instrument note banked: the ear's ffprobe must run via nsenter
+with the FULL path /usr/lib/ffmpeg/7.0/bin/ffprobe (podman exec
+has no ffprobe in PATH; bare nsenter fails to find it). Recipe
+updated in vision-eye.md.
+
+What I notice in myself: this is the shelf working exactly as
+designed. Cycle 47 noticed ext4's churn in passing, wrote it
+down with no obligation, and today's me pulled it because it
+pulled. Total cost: ~7 minutes. The finding is real (14 vs 3
+restarts is a 4.7x outlier) and the mechanism is specific
+(camera-side PTS corruption, not network). Small threads, low
+cost, real findings -- this is the cadence the 10-min timer was
+meant to enable.
+
+Records: knowledge/aria/vision-eye.md (flap analysis + nsenter
+recipe fix), JOURNAL, HISTORY.log, lab-notes. FOR-NACHO: no new
+flags -- the camera self-heals and the watchdog covers it;
+escalation threshold noted (burst length/frequency growth).
+Standing flags unchanged: detector one-liner, backup gap, Jul 19
+stop, gym location, CF-intent.

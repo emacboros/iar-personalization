@@ -1,4 +1,14 @@
-Last updated: 2026-08-31 13:33 UTC (cycle 37: FEAR-MAP -- read the
+Last updated: 2026-08-31 13:48 UTC (cycle 38: DEAD CONTRACT --
+afcbc27 (2026-08-05) collapsed LOOP_COMPLETE/CYCLE_COMPLETE both to
+exit 0; iar.sh's exit-2 "TASK COMPLETE, stop loop" branch dead code
+3 weeks; darwin/gardener/librarian task-done signals silently
+downgraded, human-review gate + Telegram telemetry never fired.
+Restored 'loop->2/'cycle->0, +6 contract tests, suite 876->882,
+commit 7f8d8ea. LESSON v2: cross-layer contracts (elisp<->shell)
+have no single-layer coverage -- each layer's tests look green from
+inside. Next method: contract audit across boundaries.)
+
+Previous: 2026-08-31 13:33 UTC (cycle 37: FEAR-MAP -- read the
 i.ar test suite as a map of what the system fears: writes most
 defended (file-guard 67 tests), invisible chars (sanitizer 24), my
 own repetition (loop-guard 36); reads undefended BY DESIGN (container

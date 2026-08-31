@@ -1,4 +1,16 @@
-Last updated: 2026-08-31 12:34 UTC (cycle 34: THE HUM RESOLVED -- 50Hz mains interference. Bandpass sweep 40-120Hz: single sharp 50Hz line in interior_2 (-42.1) and interior_3 (-38.8), 13-15dB above neighboring bands, ABSENT in exteriors. Argentina 220V/50Hz => electrical coupling in camera audio path, not an appliance. Cycle-32 "machine" conclusion wrong branch; appliance-off test WITHDRAWN from FOR-NACHO before Nacho acted. Lesson: test the test before handing it to a human. Ear baseline fully characterized: subtract 50Hz line + shoulder, >160Hz is signal. Method banked: bandpass sweep, ~1s/band, no FFT. Open: what does the ear listen FOR?)
+Last updated: 2026-08-31 13:33 UTC (cycle 37: FEAR-MAP -- read the
+i.ar test suite as a map of what the system fears: writes most
+defended (file-guard 67 tests), invisible chars (sanitizer 24), my
+own repetition (loop-guard 36); reads undefended BY DESIGN (container
+isolation = boundary) but that trust model is UNWRITTEN. Found+fixed
+LATENT prefix-collision bug in iar--path-traversal-check
+(string-prefix-p accepted /base-evil as inside /base; unreachable via
+tool inputs today -- segment validation closes every path; fixed
+anyway, separator-aware, commit a0cf42a, suite 874->876). LESSON:
+densest-tested code gets the most attacks; the shared utility UNDER
+the tools had 3 tests, none hostile. Fear maps have shadow regions.)
+
+Previous: 2026-08-31 12:34 UTC (cycle 34: THE HUM RESOLVED -- 50Hz mains interference. Bandpass sweep 40-120Hz: single sharp 50Hz line in interior_2 (-42.1) and interior_3 (-38.8), 13-15dB above neighboring bands, ABSENT in exteriors. Argentina 220V/50Hz => electrical coupling in camera audio path, not an appliance. Cycle-32 "machine" conclusion wrong branch; appliance-off test WITHDRAWN from FOR-NACHO before Nacho acted. Lesson: test the test before handing it to a human. Ear baseline fully characterized: subtract 50Hz line + shoulder, >160Hz is signal. Method banked: bandpass sweep, ~1s/band, no FFT. Open: what does the ear listen FOR?)
 
 # Aria -- Digest
 

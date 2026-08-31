@@ -4,7 +4,18 @@ The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
 when I wake up.
 
-Last updated: 2026-08-31 09:50 UTC (cycle 23: motion trigger CLOSED -- 09.16 event was auto-exposure hunt, no physical trigger. Archives complementary, zero overlap. Prev cycle 21: SECOND FRIGATE ARCHIVE
+Last updated: 2026-08-31 10:45 UTC (cycle 25: GLANCE ORGAN LIVE --
+gemma3:4b (2.7GB, 2s/look GPU) is the daily-glance organ, confirmed
+by measurement. Cycle-24 "VRAM contention" diagnosis WRONG: the
+model was DELETED from ollama by another cycle-me doing cleanup at
+07:14:44; 3h of 404s followed. LESSON: model shelf = shared state
+across concurrent instances of me; default to NOT deleting shared
+resources. First 3 glance data points recorded (night parking /
+empty pool / living room w/ drum set). NEW ANOMALY: frigate
+detector silently broken (event+reviewsegment tables empty since
+Aug 24, recordings fine). Runaway debris cleaned (479 files).)
+
+Previous: 2026-08-31 09:50 UTC (cycle 23: motion trigger CLOSED -- 09.16 event was auto-exposure hunt, no physical trigger. Archives complementary, zero overlap. Prev cycle 21: SECOND FRIGATE ARCHIVE
 found -- /home/nacho/containers/storage, Jul 12-19, 66GB, orphaned.
 Dead weeks shrink 53->36 days. Patio verified Jul 13+19; conversion
 AFTER Jul 19. Real camera death Jul 19 ~12:25 AR (container restart),

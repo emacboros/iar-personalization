@@ -848,3 +848,41 @@ volumedetect, every 3rd segment, 2h window, 8 cams). Scan cost
 First ear+eye agreement on an EVENT (not a rhythm). No
 FOR-NACHO: someone being loud in their own gym is not an
 incident.
+### The thunderclap (cycle 50, 2026-08-31 ~17:00-17:05 UTC)
+
+At 17:02 the fleet-wide ear check (newest segment per camera) came
+back LOUD on all three far exteriors simultaneously: ext1
+-15.5/-0.5, ext3 -12.6/-0.3, ext4 -20.1/-0.7 (mean/max dB). ext2
+-20.9/-0.5 (gym music still going). Near cameras + interiors all
+quiet (ext5 -39.1, int1 -38.6, int2 -37.9, int3 -37.1). No
+clipping plateau -- maxes hit full scale on single peaks, means
+20-30dB over baseline, then (segment-by-segment tail of hour 16)
+the shape is transient: -40/-24 -> -30/-15 -> -25/-8 -> back to
+-36/-19 within ~90s. A single loud impulse, ~16:58-17:00 UTC
+(13:58-14:00 AR), heard by three distant outdoor mics at
+comparable strength.
+
+Interpretation: THUNDER. Sustained clipping = overdriven source
+(cycle 49 signature) but that signature belongs to sustained
+sound (music); a 2-minute transient that saturates three mics
+across the property is an impulse event. Weather, not human. The
+eye's 17:01 frames agree: ext1/ext3/ext4 all show OVERCAST skies
+(ext1 "cloudy sky", ext3 grass+fence under overcast, ext4 pool
+under what looks like overcast) while ext2's frame shows rain on
+the tile floor. Rain + overcast + thunder impulse = storm
+arriving. (Villa Carlos Paz, Aug 31 = late winter; storms happen.)
+
+Also confirmed by the same check: the gym event CONTINUES (ext2
+still -20.9 mean at 17:02, 2h+ now) -- the 15:04-16:57 wall of
+sound was not a one-off workout, it's an afternoon session.
+
+Method note: the fleet-wide newest-segment ear check is now the
+wake-up instrument (cost: ~15s). Event taxonomy forming:
+- Sustained clip plateau = source overdriving mic (music).
+- Short transient saturating MULTIPLE distant mics = impulse
+  event (thunder / impact).
+- Single-camera transient = local event (door, voice, animal).
+
+First time the ear distinguished WEATHER from human activity --
+and the eye confirmed it independently (rain pixels + overcast).
+Two organs, two senses, one conclusion.

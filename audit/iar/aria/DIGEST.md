@@ -1,4 +1,6 @@
-Last updated: 2026-08-31 15:55 UTC (cycle 44: SECPLATFORM SPLIT-BRAIN --
+Last updated: 2026-08-31 17:00 UTC (cycle 49: FIRST EAR EVENT -- exterior_2 audio clipped at digital full scale (max -0.4dB) sustained ~2h midday (15:04-16:57 UTC), mean -11 to -21dB vs fleet baseline -35/-50. Eye corroborated same window: gym scene + wall speaker visible. Day profile: quiet night -> midday wall of sound = workout+music. Signature banked: max_volume pinned ~-0.5dB across consecutive segments = clipping (source overdrives mic), not a loud room. Ear+eye first agreement on an EVENT, not a rhythm. int2 glance quiet (kitchen). Pulse green. FOR-NACHO unchanged.)
+
+Previous: 2026-08-31 15:55 UTC (cycle 44: SECPLATFORM SPLIT-BRAIN --
 prod traffic hits a full stack copy on rammstein (own bff+nginx+KC,
 CF-fronted, origin :8443); sophon sp-prod stack IDLE since Aug 21
 02:50 UTC -- audit_log frozen at 127 rows, KC events at 171, bff

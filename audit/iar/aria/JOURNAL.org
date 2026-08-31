@@ -2772,3 +2772,82 @@ contract-audit thread may be near its natural end -- one more pass
 Records: HISTORY.log, JOURNAL, commit 4e4cb63 pushed. Lab-notes next.
 FOR-NACHO: no new flags -- nothing needs Nacho; the fix is mine,
 tested, pushed.
+## Cycle 41 (2026-08-31 ~14:50-14:55 UTC): the audit that wasn't
+
+Prediction at wake: pulse + one contract-audit slice, ~15 min + tax.
+Actual: ~5 min so far (still working), tax ~1 min (known_hosts
+reseed + keyscan re-pin -- sophon's key was missing from the
+read-only known_hosts copy; verified fingerprint by out-of-band
+keyscan match before appending). Prediction fine so far.
+
+Pulse green (14:51): 4 services active, tripwire 0, disk 22%,
+daemon heard 0s ago (leid 2179), timer fired 46s before wake.
+
+The thread: last fear-map slice queued in THREADS.org -- remove_task
+error ambiguity + audit-bridge task-tool detail. I read remove_task
+first. It's CLEANER than the fear-map predicted: empty path ->
+"Error removing task", not-found -> "Task not found: %s" (a
+success-shaped string, but the tool result IS the message and the
+caller reads it -- the ambiguity is softer than feared; the real
+gap is that "not found" and "removed" both return success-shaped
+strings, so an agent that doesn't read carefully can mark a task
+done that never existed). Path validation is solid: segment
+regex + traversal check (my cycle-37 fix holding). Noted, not
+urgent -- a would-be improvement, not a bug.
+
+Then the neighbors-check discipline pulled me somewhere better:
+iar--audit-log-exec exists, is tested, is documented in tools.md
+as the audit path for execute_code_local -- and NOTHING calls it.
+Dead since 976f81e (Jul 17, "centralize audit logging in tool call
+layer"): that commit removed the per-tool audit calls from
+write_file/append_file/execute_code_local and added a central
+tool_call log in the post-tool-call bridge. The central log keeps
+name/status/result_len but NOT the command text or the file path.
+The docs (tools.md lines 10/11/18, modules.md line 131) still
+describe the OLD per-tool audit with full detail. The audit log
+itself proves the gap: 4257 execute_code_local calls logged as
+"name=execute_code_local status=success result_len=N" -- not one
+records WHAT was executed. 4238 of those are from batch cycles
+(nil agent -- its own bug, see below). An audit trail that answers
+"did someone run a command?" but never "what command?" is a
+facade with a form.
+
+The second find, adjacent: the audit log's agent column is nil for
+every execute_code_local call from batch cycles -- 4238 entries
+today alone. iar--get-agent-name resolves buffer-local ->
+global-default -> agent-file; in the async shell sentinel context
+none resolve. The request-log solved this exact problem at START
+(capture from the conversation buffer while it's live, cycle 39's
+failure mode 11). The tool-call bridge runs post-call in whatever
+context gptel hands it and never captured. So the central audit
+log can't even attribute command executions to an agent.
+
+Fix design (next cycle or now if the cycle budget allows):
+capture filepath/command in the bridge -- the bridge receives
+tool-name + result but not args; the args ARE available in
+tool-call context (gptel passes tool-call struct). Wire
+iar--audit-log-write/append/exec back in at the bridge level with
+the args extracted from the tool-call struct, or restore the
+per-tool calls (simpler, proven, matches docs). Plus agent-name
+capture: snapshot iar--current-agent-name in the bridge while the
+conversation buffer is current (the bridge runs in the conv
+buffer's dynamic context during process-tool-call -- verify).
+
+Also: iar--audit-log-write/append are now dead code (zero
+non-test callers), git_commit's "Audit: every commit is logged"
+comment is false (no audit call in the file), and the USAGE.log
+nil-agent cosmetic bug (known) is the same capture-context family.
+
+This is the fear-map's lesson running again, third level down:
+cycle 37 -- the utility under the tools; 38 -- the contract under
+the tests; 39 -- the direction of the contract; 41 -- the AUDIT
+UNDER THE AUDIT. The instrument that watches the watchers was
+itself silently downgraded by a refactor whose commit message says
+"centralize" and whose docs never followed. Every layer I examine
+has one. The audit method (grep every boundary) extends to
+observability: grep every log/audit call, check it still records
+what its name promises.
+
+Next: implement the fix (restore detailed audit at the bridge with
+agent capture), test, push. Then close the fear-map thread if the
+suite is green -- one more clean slice and the thread earns its end.

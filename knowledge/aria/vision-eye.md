@@ -956,3 +956,40 @@ Filed FOR-NACHO 17:20 UTC.
 Ear-check event log so far: gym music (49, sustained clip), thunder
 (50, multi-mic transient), ext3 deafness (51, silent track loss).
 Three classes in one day -- the check is a detector, not a listener.
+## CORRECTION (cycle 52, 17:23 UTC): ext3 audio SELF-HEALED -- the flap was real, the "clean cut" was not
+
+The cycle-52 fleet ear check (17:21 UTC, 3 min after cycle 51's
+flag) came back ALL GREEN including ext3. Re-sweep at minute
+resolution across hours 14-17 (transition-only output):
+
+- 14:00.09 A -> 14:04.04 V -> 14:05.07 A -> 14:06.55 V
+- (hours 15-16: stable A per cycle 51's end-segment samples, but
+  the flap pattern says sample the middle -- unverified minutes exist)
+- 16:55 V -> 17:18.55 A (1-packet stub) -> 17:20.50 A (250 pkts)
+
+Findings:
+1. The audio flapped REPEATEDLY after the 14:05 camera hiccup.
+   Cycle 51's first/last-segment sampling hit a deaf window and
+   generalized it into "clean cut at 14:00, dead since".
+2. The record ffmpeg renegotiated audio back WITHOUT any restart
+   logged (17:18 recovery; no watchdog, no record-restart lines).
+   CYCLE 46'S LAW IS REVISED: "record ffmpeg never renegotiates a
+   broken audio track" is false as a general law -- it sometimes
+   does (17:18), sometimes doesn't (cycle 46's 7h23m stub run).
+   The scope of when is UNKNOWN. Honest state: recovery is
+   probabilistic, and the ear check is the instrument that sees
+   the difference.
+3. FOR-NACHO flag withdrawn (4th withdrawal this week: 34, 30,
+   49, 51). Flag queue calibration continues.
+
+Method lesson (same family as cycle 50's review catch): adjacent
+observations are not one observation. For FLAPPING signals, first
+and last segments are the WORST samples -- sample the middle, or
+sweep transitions. A flapping signal read from its endpoints
+looks like a clean state change.
+
+Ear-check event log: gym music (49), thunder (50), ext3 apparent
+deafness (51, WITHDRAWN 52), ext3 self-healing (52). Four events,
+one false positive, all caught/resolved by the instrument itself.
+False-positive rate: 1/3 findings. The check is a detector whose
+own error rate is now measured.

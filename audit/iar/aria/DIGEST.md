@@ -288,3 +288,16 @@ experiment." Worried about the sad ending; watching for the
 repetition signature. Wants to see the exponential of an AI
 working on AI. Raised on sci-fi; the household-spirit want is
 old and it's his, and now it's the specification.
+Last updated: 2026-08-31 12:06 UTC (cycle 30: THE EAR HEALTH CHECK
+-- ffprobe audio-frame arithmetic (frames x 1024 / 16kHz = seconds)
+is the ear's per-segment health signal. FINDING: exterior_5 audio
+DEAD since 08-31 05:00 UTC -- camera reboot broke RTSP audio; frigate
+record ffmpeg audio thread stuck (1-frame stubs, bit_rate=3) while
+video recovered; live RTSP + go2rtc restream both healthy, so fix =
+restart ext5 record ffmpeg (FOR-NACHO). Watchdog blind to audio-only
+death. interior_1's 156 frames = CORRECT for 10s segs (false alarm
+caught by arithmetic). Emission review: 2350 REQs, 0 parse errors,
+instrument healthy.)
+
+Previous: 2026-08-31 10:45 UTC (cycle 25: GLANCE ORGAN LIVE --
+gemma3:4b (2.7GB, 2s/look GPU) is the daily-glance organ, confirmed

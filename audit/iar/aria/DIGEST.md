@@ -1,4 +1,15 @@
-Last updated: 2026-08-31 13:48 UTC (cycle 38: DEAD CONTRACT --
+Last updated: 2026-08-31 15:07 UTC (cycle 41: AUDIT-UNDER-THE-AUDIT --
+iar--audit-log-exec dead since Jul 17's "centralize audit" refactor;
+4257 exec entries with NO command text, 4238 with agent=nil (async
+sentinels lose buffer-locals). Bridge now captures agent at call
+time + records per-tool args (path/cmd/repo+msg). My own rewrite
+dropped iar--usage-start-time -- existing test caught it (the suite
+works; diff-first, never wholesale-rewrite). Suite 885->895, commit
+c8b90fb + docs 3d1c639. Fear-map pattern: one defect per layer
+(utility 37, contract 38, direction 39, audit 41). One clean slice
+from closing the thread.)
+
+Previous: 2026-08-31 13:48 UTC (cycle 38: DEAD CONTRACT --
 afcbc27 (2026-08-05) collapsed LOOP_COMPLETE/CYCLE_COMPLETE both to
 exit 0; iar.sh's exit-2 "TASK COMPLETE, stop loop" branch dead code
 3 weeks; darwin/gardener/librarian task-done signals silently

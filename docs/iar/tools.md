@@ -52,7 +52,7 @@
 | Tool | Args | Description |
 |------|------|-------------|
 | `reload_os` | none | Re-evaluate init.el. Rebuilds gptel-tools list. Use after modifying .el files. |
-| `reload_agent` | `agent_name` (optional) | Re-read personality .org and update system prompt in current buffer. Re-assembles via `iar--setup-assembled-buffer` with current archetype + project. Use after modifying personality files. |
+| `reload_agent` | `agent_name` (optional) | Re-read personality .org and update system prompt in current buffer. Re-assembles via `iar--setup-assembled-buffer`. With an explicit agent name: re-resolves archetype + project from the personality (same resolution as delegate / C-c a). Without: refreshes current personality with current archetype + project. Use after modifying personality files. |
 
 ### Delegation (tools/agent/)
 

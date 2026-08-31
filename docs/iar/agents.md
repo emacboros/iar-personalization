@@ -71,6 +71,7 @@ Personalities live in `agents.d/personalities/<name>.org`. They are pure voice/c
 | **implementer** | Focused builder. Does the work, reports what was done. Does not question the task | implementer |
 | **reviewer** | Critical evaluator. Finds real problems, not style preferences. Structured review | reviewer |
 | **pentest** | Methodical security auditor | pentest |
+| **bessie** | Motorcycle companion. Coach, advisor, record keeper for the human's riding | moto |
 
 ## Projects
 
@@ -94,7 +95,7 @@ Projects live in `personalization/projects/<name>.org`. Each project file contai
 | **reviewer** | iar/ | list, read, exec, check_elisp | (none) | (none) | Critical evaluation for delegation pipeline |
 | **pentest** | pentest/, iar/, infra/, user/ | Explicit #+TOOLS list + execute_code_remote (auto from #+CONTAINERS) | pentest | /var/home/nacho/repos/iar-infrastructure:rw | Pentesting and security research. Burp Suite via MCP, nmap/curl/python via pentest container. On-site audit deployment via Ansible. |
 
-The `iar--project-for-personality` function resolves projects: if a project file matching the personality name exists, it uses that. Otherwise, it falls back to the `iar` project.
+The `iar--project-for-personality` function resolves projects in three steps: (1) explicit override in `iar-personality-project-map` (for personalities whose project name differs from the personality name, e.g., bessie -> moto); (2) if a project file matching the personality name exists, it uses that; (3) otherwise, it falls back to the `iar` project.
 
 ## Cycles
 

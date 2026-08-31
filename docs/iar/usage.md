@@ -199,7 +199,7 @@ All keybindings are defcustoms in `configs/keybindings.el` and can be changed wi
 
 1. Start the container with `iar.sh --personalization ... --project iar`
 2. Emacs opens with gptel-mode active
-3. Load a personality: `C-c a mirror` (or darwin, gardener, librarian, davinci, colin, pentest)
+3. Load a personality: `C-c a mirror` (or darwin, gardener, librarian, davinci, colin, pentest, bessie)
 4. The assembly engine assembles the prompt from: interactive archetype + selected personality + iar project (which auto-loads iar/, infra/, user/ knowledge)
 5. Check prompt size: `C-c i` (monitor context window usage)
 6. Optionally load additional knowledge: `C-c k linux/` (concept knowledge bases)

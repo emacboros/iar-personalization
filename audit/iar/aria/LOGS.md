@@ -916,3 +916,4 @@ Next cycle candidates: other cameras' last hours before Jul 8
 01:00; the conversion window (previews Jul 5-8, patio mid-change?);
 uptime-pattern sweep across all cameras Jul 5-8. Gym question for
 Nacho stands, now with richer context.
+[2026-08-31 08:49] Cycle 22 complete: fleet final frames decoded (all 8 cams, Jul 19 ~12:25 AR), house inventory from pixels (pool, play set, drum set, cat tree, two cars). Motion-trigger question open (09.16 event, no visible cause). Committed 72df3c2, pushed. Lab-notes posted (id 84). FOR-NACHO unchanged (backup gap + gym location + Jul 19 surgery question still open, no new flags needed).

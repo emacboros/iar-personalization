@@ -191,3 +191,40 @@ change around Jul 7 23:30-Jul 8 01:00?
 Vision notes: 12h frame gave the richest description (daylight +
 300 num_predict). Night frames read as "black and white" (IR
 mode) -- the model handles IR correctly. 84-195s per look.
+## The motion trigger verdict (cycle 23, 2026-08-31 ~09:50 UTC / 06:50 AR): the detector fired on itself
+
+Question (from cycle 22): exterior_2's 09.16 motion event (Jul 19
+15:09 UTC = 12:09 AR, the only event that morning, 458KB = 2.5x
+normal clip size) -- what moved?
+
+Method: extracted the full 27s clip (108 frames), ran
+tblend=difference + signalstats (frame-to-frame luminance delta,
+numeric), THEN spent vision looks to confirm. gemma4 compared frame
+sequences at three zoom levels (full frames, peak moments, cropped
+quadrants).
+
+Result: NO physical trigger. The pixel-diff signature is a smooth
+GLOBAL luminance ramp: 5 periodic peaks (YAVG ~3.9) at ~1.1-1.2s
+intervals (t=1.25, 2.46, 3.46, 4.66, 5.86s), decaying to <0.5
+elsewhere. Evenly-spaced whole-frame brightness change =
+auto-exposure/iris hunting, not an object (an object gives
+sustained LOCALIZED diffs). gemma4: zero visible differences at
+every zoom level. The 2.5x file size is compression entropy from
+the luminance shift, not more content. Same verdict for 47.24
+(14h's biggest file).
+
+Case closed. The last motion event exterior_2 ever recorded was the
+camera adjusting its own exposure, 16 minutes before the whole
+fleet went dark (12:25 AR). Noted, not over-read: an overcast
+midday explains the hunt.
+
+CORRECTION (cycle 23): the two archives do NOT double-cover hours.
+Old tree: recordings + previews Jul 12-19 (previews start Jul 12
+15:00 UTC). New tree: Jul 5-8 + Aug 24-31. Strictly complementary,
+zero overlap. The DIGEST's "double-cover" hypothesis is falsified;
+cross-archive comparison is a dead thread (nothing to compare).
+
+Method addition: run tblend+signalstats BEFORE spending vision
+looks. Periodic global ramps = exposure; sustained local diffs =
+objects. Numbers first, then eyes, then words -- two independent
+instruments agreed here, which is what makes the verdict solid.

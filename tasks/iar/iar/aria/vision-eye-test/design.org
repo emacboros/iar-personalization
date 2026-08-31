@@ -7,40 +7,54 @@ at a Frigate camera frame and see what it sees. Cycle 15 (2026-08-31)
 enumerated the ollama cloud shelf and found 7 vision-capable models.
 This task tests the shelf-to-organ path end to end.
 
-* Precondition
+* STATUS after cycle 16 (04:50 AR)
 
-gemma4:31b pull to sophon (19.9GB, started cycle 15 ~04:29 AR,
-nohup-detached pid 3941746; watcher writes /tmp/pull2.done when
-finished). Verify with:
-ssh root@10.66.0.5 'cat /tmp/pull2.done; curl -s localhost:11434/api/tags | grep gemma'
+- Pull DIED TWICE: cycle 15's nohup detach died ~01:38 (log stale,
+  27% done). Cycle 16 restarted it as a TRANSIENT SYSTEMD UNIT:
+  systemd-run --unit=ollama-pull-gemma4 --setenv=HOME=/tmp
+  --setenv=OLLAMA_HOST=10.66.0.5:11434 /usr/local/bin/ollama pull
+  gemma4:31b
+  LESSON (upgraded from nohup): a detached process needs the ENV
+  its parent shell had. systemd-run without HOME makes ollama
+  panic ($HOME is not defined). The unit survives session death.
+  Partial blobs resume (ollama reuses -partial files).
+- Frames EXTRACTED (the hard part, done): /tmp/aria-eye/*.jpg,
+  7 cameras, 320x180, from preview clips (see
+  knowledge/aria/frigate-first-wander.md "Snapshot endpoints").
+  exterior_1 frame re-extracted 01:50 after an accidental
+  overwrite with a JSON error body.
+- Pull at 14/19GB, ETA ~8min from 04:50. NEXT CYCLE: check
+  systemctl is-active ollama-pull-gemma4 (want "inactive" +
+  manifest in api/tags), then run the test below.
 
-* Steps
+* Test script (next cycle, run on sophon)
 
-1. Verify pull complete and model registered (api/tags shows
-   gemma4:31b).
-2. Test model load: POST /api/show {"model":"gemma4:31b"} --
-   expect capabilities including vision.
-3. Grab a recent frame from a Frigate camera:
-   GET http://10.66.0.5:5000/api/<camera>/latest.jpg (or the
-   previews/clips API -- see knowledge/aria/frigate-first-wander.md
-   for the API map).
-4. Send to the model: POST /api/chat with {"model":"gemma4:31b",
-   "messages":[{"role":"user","content":"Describe this image.",
-   "images":["<base64>"]}], "stream":false}. Time it.
-5. Compare output against ground truth (what I know about the
-   scene from metadata: camera name, motion events, time of day).
-6. Record findings in knowledge/aria/ (new file or append to
-   ollama-cloud-shelf.md).
+python3 - << 'EOF'
+import base64, json, urllib.request, time
+img = base64.b64encode(open("/tmp/aria-eye/exterior_1_test.jpg","rb").read()).decode()
+t0 = time.time()
+req = urllib.request.Request("http://127.0.0.1:11434/api/chat",
+    data=json.dumps({"model":"gemma4:31b","stream":False,
+      "messages":[{"role":"user","content":"Describe this image. What do you see?","images":[img]}]}).encode(),
+    headers={"Content-Type":"application/json"})
+r = json.load(urllib.request.urlopen(req, timeout=900))
+print("elapsed:", round(time.time()-t0,1), "s")
+print(r["message"]["content"])
+print("eval:", r.get("eval_count"), "tokens,", r.get("eval_duration",0)/1e9, "s")
+EOF
+
+Ground truth for exterior_1 (from metadata): outdoor camera,
+busiest of the 8, motion follows daylight, 04:50 AR = dark night,
+house quiet phase (03-09h). Expected content: a yard/driveway
+scene, dark, possibly street or vegetation, no people expected.
 
 * Fallbacks
 
 - If 31B is too slow on CPU (10GB VRAM, 31B model): try a smaller
-  vision model from the shelf (kimi-k2.6? nemotron-3-nano has no
-  vision; check qwen3.5 smaller tags).
-- If the pull failed: re-pull with nohup + detached pid (lesson:
-  pulls die with the ssh session).
-- If ollama rejects images for this model: check ollama version
-  supports the images param for this model family.
+  vision model from the shelf (qwen3.5 smaller tags, gemma4 smaller).
+- If ollama rejects images: check version supports images param.
+- If pull died AGAIN: restart the same systemd-run command; partial
+  blobs resume. If it fails 3x, flag FOR-NACHO (network issue?).
 
 * Success criterion
 
@@ -48,3 +62,10 @@ A model output that describes a real scene from my house, verified
 against metadata I already have. That is the eye opening -- the
 rest is longitudinal attention (compare months-ago footage to
 now), which is a later task.
+
+* Original notes (cycle 15)
+
+Precondition was the pull; steps 1-6 as written above still apply.
+API path via Frigate 8971 needs basic auth I don't have (pbkdf2,
+not crackable, not trying -- conduct line). Preview-clip path
+works and needs no new access.

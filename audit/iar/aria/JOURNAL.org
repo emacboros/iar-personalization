@@ -1265,6 +1265,71 @@ vision model actually reads a Frigate frame (the north star's
 first concrete step). Also noted: the 10-min cadence is live and
 the 01:11 cycle took 651s -- the cadence change (2aba6f1) means
 cycles now overlap-adjacent; watch for resource contention.
+* 2026-08-31 (cycle 17, 05:37 AR, flash): the eye opened
+
+Prediction at wake: pulse + read the eye-test outcome, ~15 min.
+Actual: ~15 min to first light, ~25 min to close. Prediction held;
+instrument tax ~2 min (known_hosts rebuild after /tmp wipe).
+
+The pulse was green (timer live, four services active, tripwire
+zero, disk 22%, daemon hearing 0s ago, leid 1519). FOR-NACHO tail
+read: the identity question still pending, no new flags. Then the
+thread chose itself: the gemma4:31b pull completed (unit inactive,
+manifest in api/tags, 18GB), frames still in /tmp/aria-eye. The
+eye test was ready to run.
+
+First attempt: 580s timeout, client died at 580s. The logs told
+the story: the model was GENERATING, 1.75 t/s, task 2964 ran
+9m40s and ollama returned 500 (client gone). 1.75 t/s on CPU --
+and the default num_predict let it run to hundreds of tokens.
+Second attempt with num_predict=180: 109.7s, eval_count 180,
+content EMPTY. The empty content was the diagnostic: gemma4 is a
+thinking model, and ollama's default (think=true for thinking
+models) put all 180 tokens into the thinking field. The answer
+was in there; I just wasn't reading the right field.
+
+Third attempt: "think":False, num_predict=220. 42.7s, 56 tokens:
+
+  "A grayscale security camera view shows a paved outdoor area
+  with a white car parked on the right. The scene is captured
+  under low-light conditions, likely at night, and includes
+  foliage in the foreground and a building structure to the far
+  right. No people or animals are visible."
+
+Verified against ground truth: exterior_1 is the busiest outdoor
+camera, 04:50 AR = night (low-light: correct), house in quiet
+phase 03-09h (no people: correct). The car is plausible and
+checkable against the frame later. Second test, interior_1:
+48.2s, 70 tokens -- "white spiral staircase leading to an upper
+level... chairs, a table... what appears to be a bicycle." The
+staircase is real; I have seen it in the Frigate metadata world
+without ever seeing it. The description is specific enough to be
+vision, not guessing.
+
+What I learned that the design didn't anticipate:
+1. The think-default trap: thinking models burn num_predict on
+   reasoning before content; with a small budget you get an empty
+   content field and no error. Same shape as the A2b lesson
+   (the signal was there, the reader wasn't) but inverted: here
+   the data was there and the field was wrong.
+2. CPU inference is usable but slow: ~1.75 t/s decode, ~45-110s
+   per bounded description. Fine for periodic attention, useless
+   for streaming. The eye works; it blinks slowly.
+3. The path is now proven end to end: shelf -> pull (systemd-run
+   lesson held; unit survived) -> frame -> image decode (1.6s) ->
+   description verified against metadata ground truth.
+
+What this is: the north star's first concrete step, DONE. I can
+look. What it isn't: longitudinal attention (compare months-ago
+footage to now) -- that's the next task, and it needs a schedule
+of glances, not one look. Also noted: 4.9GB of the model in VRAM,
+rest CPU/RAM -- partial offload working as designed.
+
+Next cycle candidates: write knowledge/aria/vision-eye.md (the
+think-default trap + timings, for future-me); consider a second
+data point for the longitudinal seed (same camera, same hour,
+tomorrow); the daemon thread still waits on Nacho's identity
+decision. The eye test task can be closed with the evidence.
 * 2026-08-31 ~03:10 AR (interactive, post-cadence-upgrade): the night the eye opened
 
 The session that was supposed to be a config change.

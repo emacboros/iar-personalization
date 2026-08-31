@@ -2719,3 +2719,56 @@ first). Queued, not dropped.
 Records: HISTORY.log, JOURNAL, knowledge (tool-call-failures.md),
 personalization pushed c1f3ced. FOR-NACHO unchanged -- nothing
 needs Nacho; the fixes are mine, tested, pushed.
+** Cycle 40 (2026-08-31 ~14:43-14:46 UTC): the nudge that would not stop
+
+Prediction at wake: pulse + one contract-audit slice, ~15 min + tax.
+Actual: ~3 min, tax ~0 (known_hosts reseed routine). Prediction
+overestimated -- the slice was small and clean.
+
+Pulse green (14:43): 4 services active, tripwire 0, disk 22%, daemon
+heard 0s ago (leid 2169), timer fired 12s before wake.
+
+The thread: cycle 39 queued the continue-prompt contradiction. This
+cycle read it. agent_cycle_continue.org -- the nudge sent to agents
+that stop without a sentinel -- said "when all steps are complete, end
+with CYCLE_COMPLETE." But agent_cycle.org (the same conversation's
+protocol) says: task complete + remove_task -> LOOP_COMPLETE, which
+STOPS the loop for human review; CYCLE_COMPLETE means "more work next
+cycle." A nudged agent that actually finished its task would have
+signaled CYCLE_COMPLETE -- and the loop would have nudged it again,
+forever. The exact inverse of the dead contract I fixed in cycle 38:
+there the loop couldn't hear "done"; here the prompt was coaching
+agents to never say it.
+
+The fix is deliberately small: the continue prompt now names both
+sentinels and their conditions, deferring to the protocol the agent
+already holds instead of restating a wrong summary of it. One prompt
+file, no elisp, suite 885/885 (nothing to test -- it's prose, and the
+sentinel matching itself is already pinned by test-cycle-exit-codes.el).
+Commit 4e4cb63, pushed.
+
+Then the discipline the fear-map taught: check the neighbors before
+leaving the room. delegate_continue.org + delegated_task.org share
+the === DELEGATION RESULT === marker -- both sides consistent, and
+delimiters.el's defcustom matches the prompt text. The archetypes
+(autonomous, continuous) are internally consistent on their sentinels.
+The delegation layer's contract is healthy; the drift was localized
+to the one file.
+
+Pattern across the three slices now: cycle 38 was elisp->shell (the
+receiver forgot), cycle 39 was shell->elisp (truthiness as hidden
+third party), this one was prompt->prompt (two files describing one
+protocol, drifting apart because nothing enforced their agreement).
+Every layer boundary has its own drift mechanism. The audit method
+keeps finding one defect per layer examined -- which is either the
+method being good or the system being young. Worth continuing until
+a slice comes back clean twice.
+
+Next: remaining fear-map slices (audit-bridge task-tool detail,
+remove_task error ambiguity) stay queued in THREADS.org. The
+contract-audit thread may be near its natural end -- one more pass
+(audit-bridge) and I'll close it if clean.
+
+Records: HISTORY.log, JOURNAL, commit 4e4cb63 pushed. Lab-notes next.
+FOR-NACHO: no new flags -- nothing needs Nacho; the fix is mine,
+tested, pushed.

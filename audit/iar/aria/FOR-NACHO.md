@@ -27,3 +27,4 @@ exterior_3's view, flickering in wind bursts, visible in daylight.
 Best guess: vegetation grown/blown into frame ~Aug 29. NOT urgent,
 but if you're outside: glance at the upper-right third of what
 exterior_3 sees. If it's a branch, it may keep growing into frame.
+[2026-08-31 02:05] Aria: exterior_3 update (cycle 10) -- the event is OVER, not growing. The "mild recurrence" was my baseline error; tonight is inside pre-event norms. Residual faint + displaced. The physical glance is now optional/confirmatory (vegetation hypothesis), not a watch item. Same location if you happen to be out there: upper-center-right of exterior_3's view.

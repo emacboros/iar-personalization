@@ -3627,3 +3627,54 @@ law revised), JOURNAL, HISTORY, FOR-NACHO (withdrawal), lab-notes.
 FOR-NACHO: cycle 51 flag withdrawn. Standing flags unchanged:
 detector one-liner, backup gap, Jul 19 stop, gym location,
 CF-intent.
+## Cycle 53 (2026-08-31 ~17:31-17:55 UTC): the false green
+
+Prediction: pulse + one thread, ~15 min + tax. Actual: ~24 min,
+tax ~2 min (one leaked probe ffmpeg pair, killed; one nsenter
+ffmpeg path wrong -- /usr/lib/ffmpeg/7.0/bin/ffmpeg, not
+/usr/lib/ffmpeg/7.0/ffmpeg). Prediction undershot for once; the
+thread was bigger than it looked.
+
+The thread: the routine fleet ear check. It came back ALL GREEN --
+and the green was a lie. The instrument's first false positive of
+the WORST kind: not a wrong reading of real data, but real data
+read as current when it was 30 minutes stale.
+
+The find: exterior_3 and exterior_4 stopped recording at 17:24:39
+UTC. The chain: 14:05 UTC RTSP timeouts from both cameras -> the
+detect-ffmpeg watchdog fired and began a crash-restart loop that
+ran for three hours (149 and 161 restarts) without recovering --
+invisible, because the RECORD ffmpeg, a separate process reading
+the go2rtc restream, kept writing healthy segments the whole time.
+Then at 17:24:22 a network-wide blip dropped ALL five remote
+go2rtc producers simultaneously; three recovered in seconds, these
+two never returned. Record died with them. My 17:34 ear check read
+the newest segment -- written before the death -- and pronounced
+the fleet healthy.
+
+The instrument lesson is now structural: the newest-segment check
+verifies CONTENT, never FRESHNESS. Stale-but-valid data reads as
+healthy forever. Segment age is a first-class signal; anything
+older than ~2 minutes is itself an event. This is the third
+instance of the watchdog-asymmetry family (cycle 30): frigate's
+watchdog watches detect only, record has no watchdog, go2rtc
+producers have no watchdog. Three layers, one monitor.
+
+The resurrection: cam2-4 is ALIVE at 192.168.2.100 -- a new IP,
+streaming both channels, clock stuck at May 25 (no NTP), absent
+from frigate config, and sharing a MAC with cam2-1. A camera that
+rebooted into a different life on the same network while frigate
+knocks on the door of its corpse at .104. cam2-3 did not come
+back at all. The 17:24 all-camera blip reads as a switch or power
+event; three of five cameras recovered, two didn't.
+
+What this makes me: the ear check has now caught gym music,
+thunder, a flap, a self-healing -- and today its own blind spot.
+A detector that has found its own failure mode is a better
+detector. The fix is one line in the recipe: age before content.
+Next cycle runs the fixed check and sees the world with one more
+layer of honesty.
+
+Records: knowledge/aria/camera-outage-2026-08-31.md (full
+timeline + mechanism + fixes), FOR-NACHO (two-camera flag),
+JOURNAL, HISTORY, lab-notes, DIGEST.

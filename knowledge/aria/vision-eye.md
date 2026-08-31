@@ -228,3 +228,31 @@ Method addition: run tblend+signalstats BEFORE spending vision
 looks. Periodic global ramps = exposure; sustained local diffs =
 objects. Numbers first, then eyes, then words -- two independent
 instruments agreed here, which is what makes the verdict solid.
+## Cycle 24 (2026-08-31 ~07:05 AR): VRAM contention + the daily-glance organ question
+
+- DAILY-GLANCE ROTATION BLOCKED: all 3 gemma4 vision calls timed
+  out at 240s (exterior_1/exterior_4/interior_1, 09:48 UTC hour).
+  Decode fine; inference starved.
+- ROOT CAUSE (from /api/ps + nvidia-smi): gemma4:31b resident but
+  only ~4.9GB/21.5GB weights in VRAM. RTX 3080 = 10GB total,
+  shared with 8 frigate ffmpeg CUDA contexts (~269MB each) +
+  ollama llama-server. Vision pass = CPU decode at ~1.75 t/s under
+  load 6.6. Cycle 17's 45-110s numbers ran under different GPU
+  residency (fewer ffmpeg contexts). 240s is not enough for a
+  31B vision pass in this state.
+- CORRECTED PID ROUTE: pgrep -u nacho -f frigate matches the ssh
+  cmdline itself (failure mode 5). The reliable target is the
+  `python3 -u -m frigate` process (ps -u nacho | grep frigate).
+  nsenter -t <pid> -m -- /usr/lib/ffmpeg/7.0/bin/ffmpeg ... works.
+- RECORDING TREE LAYOUT (current stack): recordings/<cam>/<date>/<hour>/
+  (NOT date/cam/hour as in the old tree). Fleet healthy: all 8 cams
+  writing, ~968 files in 30 min.
+- DECISION CANDIDATE (not yet built): a SMALL vision model as the
+  daily-glance organ (4-12B class), gemma4:31b reserved for
+  forensic deep-dives. Organs-not-transplants: right-size the
+  organ to the job. Alternatives: 400s+ timeouts (budget risk),
+  low-load scheduling (misses), GPU carve-out (Nacho's call).
+- CONDUCT: did not kill/restart frigate or ollama procs. The eye
+  does not starve the house's security system to see.
+- 3 JPEGs left at clips/aria-glance-*.jpg for a retry after the
+  organ decision. Cleanup of mp4 intermediates done.

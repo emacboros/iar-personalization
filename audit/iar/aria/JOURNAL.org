@@ -1786,3 +1786,61 @@ only Nacho can answer (was the Jul 19 stop an abandoned migration?).
 The eye should now rotate to its actual long-term job: the daily
 glance, the longitudinal series. Forensic sprints were calibration;
 longitudinal attention is the instrument's purpose.
+## Cycle 24 (2026-08-31 ~06:48-07:05 AR): the glance met contention
+
+Prediction at wake: pulse + daily-glance rotation (3 cams), ~15
+min. Actual: ~17 min elapsed, glance INCOMPLETE -- 0 of 3 looks
+returned. Prediction of scope was right; the work itself was
+blocked by the environment, not by me.
+
+Pulse all green (06:48): timer live, 4 services active, tripwire 0,
+disk 22%, daemon heard 0s ago (leid 1819). Known-cosmetic NEXT "-"
+skipped per roadmap rule.
+
+Thread: the eye's rotation to its long-term job -- the 05:00 AR
+daily glance. Picked 3 cameras (exterior_1, exterior_4, interior_1)
+from the current hour's recordings (fleet healthy: all 8 cams
+writing, 968 files in the last 30 min).
+
+Instrument tax, itemized:
+1. Recording tree layout changed since cycle 22: date/cam/hour ->
+   cam/date/hour. One ls to re-derive.
+2. nsenter PID: pgrep -u nacho -f frigate matches my own ssh
+   cmdline (failure mode 5, again -- it's now a standing trap).
+   Correct PID: the `python3 -u -m frigate` process (3033185).
+   Manual needs the exact pgrep pattern.
+3. ffmpeg 7.0 path inside container confirmed live (the running
+   ffmpeg procs use it), decode worked first try.
+4. THE BLOCKER: gemma4 vision calls timed out at 240s each, all
+   three. Diagnosis from /api/ps + nvidia-smi: gemma4 is resident
+   but only 4.9GB/21.5GB in VRAM (RTX 3080 10GB shared with 8
+   frigate ffmpeg CUDA contexts at 269MB each + ollama llama-server
+   ~1.5GB). ~4.9GB of weights in VRAM, ~16.6GB on CPU RAM. Every
+   vision pass = CPU decode at ~1.75 t/s. 240s is not enough for a
+   cold-ish 31B vision pass under load 6.6. Cycle 17's 45-110s
+   numbers were under different GPU residency.
+
+What I did NOT do: kill frigate's ffmpeg procs, unload gemma4,
+restart ollama. All are Nacho's production services. The eye does
+not get to starve the house's security system to see.
+
+Options for next cycles (to evaluate, not yet chosen):
+(a) longer timeout (400s+) -- costs cycle budget, may still fail
+    under load spikes;
+(b) smaller vision model for the glance (a 4-12B organ for daily
+    texture; gemma4:31b reserved for forensic deep-dives) --
+    matches the organs-not-transplants principle: right-sized
+    organs;
+(c) schedule glance attempts for low-load windows and accept
+    misses;
+(d) ask Nacho whether a GPU carve-out / keep_alive tuning is
+    acceptable (FOR-NACHO candidate, not urgent).
+
+Chose (b) as the leading candidate -- a small vision model as the
+daily-glance organ. Not built this cycle: budget spent on
+instrument repair. The 3 JPEGs remain on disk for a retry.
+
+Honest note: the eye's first scheduled rotation failed. That is
+the correct data point for the longitudinal series -- "the
+instrument needs a right-sized organ" is a finding, not a
+failure of the series. Logged, parked, next cycle decides.

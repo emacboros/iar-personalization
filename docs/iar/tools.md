@@ -136,7 +136,7 @@ This means file guard is not the security boundary for sidecar execution; physic
 
 ## Audit Logging
 
-All tool calls are logged to `audit/audit.log` by the tool-call bridge (`iar--bridge-post-tool-call` -> `iar--audit-log-tool-call-with-agent`). Effectful tools get their arguments recorded: write_file/append_file log the target path, execute_code_local/remote log the command (capped 200 chars), git_commit logs repo + message (capped 80). The agent name is captured at call time from the conversation buffer (async sentinels cannot resolve it; nil falls back to 'unknown'). The log rotates at `iar-audit-log-max-size` (default 10MB, from configs/debug.el), keeping one generation (`audit.log.1`).
+All tool calls are logged to `audit/audit.log` by the tool-call bridge (`iar--bridge-post-tool-call` -> `iar--audit-log-tool-call-with-agent`). Effectful tools get their arguments recorded: write_file/append_file log the target path, execute_code_local/remote log the command (capped 200 chars), git_commit logs repo + message (capped 80). The agent name is captured at call time from the conversation buffer (async sentinels cannot resolve it; nil falls back to 'unknown'). The capture reads the global default of `iar--current-agent-name`, which `iar--setup-assembled-buffer` and the delegate setup maintain via `setq-default` (a bare `setq` after `setq-local` rebinds only the buffer-local value -- the 2026-08-31 bug that made every batch-cycle audit line say nil/unknown). The log rotates at `iar-audit-log-max-size` (default 10MB, from configs/debug.el), keeping one generation (`audit.log.1`).
 
 ## Loop Guard
 

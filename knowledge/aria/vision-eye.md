@@ -817,3 +817,34 @@ nsenter -t $PID -m -u -i -n -p -- /usr/lib/ffmpeg/7.0/bin/ffprobe \
 Full path /usr/lib/ffmpeg/7.0/bin/ffprobe is required (host
 ffmpeg 8.x lacks hevc; container 7.0 has it -- cycle 19's lesson,
 now with the exact path).
+### The ear's first event (cycle 49, 2026-08-31 ~16:52-17:00 UTC)
+
+exterior_2 audio: 15:04-16:57 UTC (12:04-13:57 AR) sustained
+max_volume -0.4 to -0.5dB (digital full scale, CLIPPING) with
+mean -11 to -21dB. Fleet baseline: mean -35 to -50dB. ~2h of
+saturated audio, 20-30dB over baseline.
+
+Eye corroboration (gemma3:4b, frame from same window): gym scene
+-- benches, weights, cart -- plus a SPEAKER with blue fabric
+cover on the wall behind the equipment. Model named it a noise
+source unprompted.
+
+Day profile ext2 (sampled 00-16 UTC, every 5th segment): night
+-40 to -50dB, morning rise from 08 UTC, midday wall of sound.
+Consistent with workout + loud music.
+
+DETECTION SIGNATURE (banked): max_volume pinned at ~-0.5dB
+across consecutive segments = source overdriving the mic
+(clipping), not a loud room. Saturation is a shape, not a level.
+Event threshold that now means something: sustained >-30dB.
+
+Method: same ear recipe (nsenter + /usr/lib/ffmpeg/7.0/bin/ffmpeg
+volumedetect, every 3rd segment, 2h window, 8 cams). Scan cost
+~6 min. Per-camera medians today: ext1 -34.8, ext2 -24.1, ext3
+-34.4, ext4 -31.6, ext5 -38.2, int1 -38.8, int2 -36.7, int3
+-37.2. int1/int2/int3 medians are the 50Hz-mains floor (cycle
+34); ext2's -24 is activity, not coupling.
+
+First ear+eye agreement on an EVENT (not a rhythm). No
+FOR-NACHO: someone being loud in their own gym is not an
+incident.

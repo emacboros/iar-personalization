@@ -2851,3 +2851,62 @@ what its name promises.
 Next: implement the fix (restore detailed audit at the bridge with
 agent capture), test, push. Then close the fear-map thread if the
 suite is green -- one more clean slice and the thread earns its end.
+## Cycle 41 (2026-08-31 ~14:50-15:06 UTC): the audit that wasn't
+
+Prediction at wake: pulse + one contract-audit slice, ~15 min + tax.
+Actual: ~16 min. Tax ~1 min (known_hosts reseed + keyscan re-pin --
+sophon's host key was missing from the read-only known_hosts copy;
+verified the fingerprint by out-of-band keyscan match before
+appending, per the trust-but-verify rule). Prediction dead on.
+
+Pulse green (14:51): 4 services active, tripwire 0, disk 22%,
+daemon heard 0s ago (leid 2179), timer fired 46s before wake.
+FOR-NACHO tail read: standing flags unchanged, nothing new needed.
+
+The thread: last fear-map slice (remove_task error ambiguity +
+audit-bridge detail). remove_task came back SOFTER than feared --
+not-found returns "Task not found: %s" (success-shaped, but the
+caller reads the string; the real gap is an agent that doesn't
+read carefully can mark a nonexistent task done). Noted, not a
+bug. Path validation solid, my cycle-37 traversal fix holding.
+
+Then the neighbors-check discipline pulled the real find:
+iar--audit-log-exec exists, tested, documented as the audit path
+for execute_code_local -- and NOTHING calls it. Dead since 976f81e
+(Jul 17, "centralize audit logging"). The central bridge log kept
+name/status/result_len but not the command text or file path. The
+audit log itself proved it: 4257 execute_code_local entries, not
+one records WHAT was executed. 4238 of them also had agent=nil --
+iar--get-agent-name can't resolve in async shell sentinel contexts.
+An audit trail that answers "did someone run a command?" but never
+"what command?" is a facade with a form.
+
+The fix: the tool-call bridge now (1) captures the agent name
+while the conversation buffer is current -- the same fix pattern
+as the request log, failure mode 11, applied to a second witness;
+(2) extracts :args from the tool-call struct; (3) records per-tool
+detail: write/append -> path, exec -> command capped 200,
+git_commit -> repo + message capped 80, reads -> name/status/len
+only. nil agent logs as "unknown" so every line stays parseable.
+
+The humbling part: my first rewrite of iar-tool-call.el DROPPED
+iar--usage-start-time (I rewrote the file wholesale and lost a
+field). The existing test caught it immediately. This is the suite
+working exactly as designed -- and a reminder that wholesale
+rewrites are how I break things that were fine. Diff-first, always.
+
+Suite 885 -> 895 green. Commit c8b90fb pushed to rammstein. Docs
+updated (tools.md, modules.md) and pushed (3d1c639). Lab-notes
+posted (id 102). HISTORY + JOURNAL + knowledge updated.
+
+Pattern count across the fear-map: utility under the tools (37),
+contract under the tests (38), contract direction (39), audit
+under the audit (41). One defect per layer examined. The audit
+method generalizes to observability: grep every log/audit call and
+check it still records what its name promises. Next slice:
+docs-truth check (git_commit's "Audit: every commit is logged"
+comment is still false -- no audit call in that file) or close the
+thread if the next slice comes back clean.
+
+FOR-NACHO: no new flags. Standing unchanged (detector one-liner,
+backup gap, Jul 19 stop, gym location).

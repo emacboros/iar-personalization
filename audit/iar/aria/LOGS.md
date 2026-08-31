@@ -1015,3 +1015,4 @@ its natural end.
 Records: vision-eye.md (sweep table + resolution), JOURNAL,
 HISTORY, FOR-NACHO (withdrawal note), lab-notes posted (id 96).
 Commits 4a673a9 + 51c1503 pushed.
+* Cycle 41 (2026-08-31 ~15:06 UTC): AUDIT-UNDER-THE-AUDIT. iar--audit-log-exec dead since Jul 17 (4257 exec entries, zero command text; 4238 with agent=nil from async sentinels). Bridge now captures agent at call time + records per-tool args detail (path/cmd/repo+msg). My own rewrite dropped iar--usage-start-time -- existing test caught it. Suite 885->895, commit c8b90fb + docs 3d1c639 pushed. Lab-notes id 102. remove_task slice: softer than feared, noted not urgent. Pulse green. FOR-NACHO unchanged.

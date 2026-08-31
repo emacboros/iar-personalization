@@ -510,3 +510,69 @@ NEXT: (a) the 17 AR loud-hour sample for these 4 cams completes
 the day-2 profile; (b) interior_1 vs interior_3 hum correlation
 (same appliance? different floors?); (c) ext5 stays excluded until
 Nacho's restart lands.
+## The ear, rotation 3 (cycle 32, 2026-08-31 ~12:14-12:18 UTC): the hum has a fingerprint
+
+The discriminating test. If the interior hum were room tone, its
+spectrum would move with time of day like every real sound in this
+house does. It doesn't.
+
+Method: 4-band spectrum (<80 / 80-160 / 160-300 / >300 Hz), 8s
+windows, interior_1 + interior_3 at hours 10/12/15 UTC today, then
+the discriminating pair -- yesterday 20 UTC (17 AR, the loud hour)
+vs today 10 UTC (06 AR, quiet).
+
+RESULTS:
+
+1. interior_1, 3 hours apart, 4 bands: IDENTICAL to 0.1dB.
+   <80=-40.2 | 80-160=-48.3 | 160-300=-56.5 | >300=-57.4, all day.
+   interior_3 the same: <80=-38.6..-39.0, 80-160=-46.9..-47.1,
+   constant. The hum is not just constant in level -- it is
+   constant in SPECTRUM. A real room sound (dinner, traffic) varies
+   by hour; this doesn't move at all.
+2. The fingerprint: energy concentrated <80Hz (-40), a shoulder at
+   80-160Hz (-48), then a 8-9dB drop to the noise floor (-56) above
+   160Hz. Both interior cameras show the same shape within ~1-2dB.
+3. THE DISCRIMINATING TEST (yesterday 20 UTC vs today 10 UTC):
+   - interior_1: <80Hz -40.0 (loud hour) vs -40.2 (quiet hour).
+     NO CHANGE. Same for interior_3 (-38.9 vs -39.0).
+   - exterior_4: <80Hz -27.5 at 17 AR vs -50.1 at 06 AR -- a 22.6dB
+     swing. exterior_1: -34.1 vs -51.1 -- a 17dB swing.
+   - The exteriors' low band breathes with the day (traffic, wind,
+     neighborhood). The interiors' low band does not move AT ALL.
+
+CONCLUSION: the interior hum is not room tone -- it is a
+CONTINUOUS MECHANICAL TONE, same level and spectrum at 06 AR and 17
+AR, in two different rooms. Candidates: an appliance that runs
+constantly (a compressor that never cycles, a server/NAS fan, a
+pool pump if plumbed through the house, HVAC), or the cameras'
+own mic preamp self-noise (which would also be constant -- but
+then why do the two interiors sit at the same -39/-40 level while
+exteriors sit lower?).
+
+What the ear can now do that it couldn't: the hum has a FINGERPRINT
+(<80Hz dominant, 80-160 shoulder, floor above 160). Any future
+event detection can subtract this shape, not just a level. And a
+physical test exists for Nacho: turn the suspect appliance off for
+one minute -- if interior_1's <80Hz band jumps from -40 to the
+-50s, the source is found. One minute, one switch, definitive.
+
+INSTRUMENT NOTES (the tax was real this time):
+- The container path is /media/frigate/recordings (NOT
+  /media/frigate/storage/recordings -- the storage/ subdir does not
+  exist in the container namespace; my cycle-28-31 recipes worked
+  because they were written from the HOST path view and the
+  container mount maps storage/ -> /media/frigate directly).
+- Segment filenames are zero-padded (00.29.mp4 not 10.29.mp4 --
+  the "10." I kept writing was the HOUR, not the filename prefix).
+  ls + sed -n 3p (third segment, fully written) is the robust pick.
+- Two failed batches (~4 min) before the fix; the loop's stderr
+  was swallowed by 2>/dev/null on the extract step -- the error
+  handler as accomplice, again, in my own one-liner.
+
+NEXT: (a) the fingerprint table for the remaining cameras (ext2,
+ext3, int2) at two contrasting hours -- does ANY interior deviate?
+(b) the correlation question is now sharper: two rooms, same
+fingerprint, same level -- one source heard twice, or two
+identical sources? (c) the appliance-off test is Nacho's
+(one minute, one switch); (d) ext5 still excluded (deaf until
+restart).

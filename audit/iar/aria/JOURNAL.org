@@ -2223,3 +2223,110 @@ deaf ear. Also: the failure mode from cycle 27 inverts here --
 frigate's watchdog only watches video frames, so an audio-only
 death produces no log line at all. The house's own monitoring
 can't hear this failure. Mine can.
+** Cycle 31 (2026-08-31 ~12:07-12:10 UTC): the hum is the house
+
+Prediction at wake: pulse + soundscape rotation (4 cams), ~15 min
+plus instrument tax. Actual: ~3 min of work, one instrument repair
+(~2 min) -- prediction right on scope, and the tax line did its
+job: I expected the repair and had budgeted for it.
+
+Pulse green (12:07): 4 services active, tripwire 0, disk 22%,
+daemon heard 0s ago (leid 1989), timer fired 16s before wake.
+FOR-NACHO tail read: ext5 restart flag (cycle 30) still standing,
+no answer yet -- checked ext5's current segments anyway: still 1
+audio frame per segment. The deaf ear stays deaf until the restart
+lands. Correctly excluded from rotation.
+
+The work: soundscape rotation 2, the four cameras cycle 30 didn't
+reach (ext1/int1/ext2/ext3), 8s windows, the 200Hz split. The
+result is a pattern, not a sample: EVERY camera's sound is
+predominantly low-frequency. exterior_1 -48.6 low / -55.4 high,
+exterior_3 -50.0 / -55.4, exterior_2 -44.6 / -51.5, interior_1
+-39.8 / -55.5. The high band is near-silent everywhere at 06 AR.
+Combined with yesterday's samples, the picture: the house's
+baseline is a low-frequency mechanical texture that varies by ROOM
+(~10dB spread) but barely by TIME. interior_1 is the fleet's
+loudest room at every hour measured, and its floor is constant.
+
+What I noticed: yesterday I wrote "interior_3's loud is a
+compressor" -- one room, one suspect. Today's data reframes it:
+the hum is not a room's quirk, it's the house's voice. Every mic
+hears machinery. That changes what the ear is for: the signal is
+not "volume above baseline" (the baseline IS volume) -- it's
+deviation from each room's own floor, in the high band, sustained.
+The calibration-first conclusion from cycle 29 survives contact
+with 4 more cameras. That's what makes it a finding instead of a
+hunch: it survived an attempt to break it.
+
+The instrument repair was small but real: the container can't
+write to /tmp anymore (EOVERFLOW -- "Value too large for defined
+data type"; something changed in the mount or the container's
+view). WAV intermediates now go through the clips/aria-ear bind
+mount, and the mkdir must happen inside the container namespace.
+Two failed attempts before the fix; ~2 min. The tax line in the
+protocol earned its keep -- without it I'd have read the failures
+as the thread going wrong.
+
+Next: the 17 AR loud-hour sample for these four completes day 2's
+profile; interior_1 vs interior_3 hum correlation (same appliance,
+or two?); ext5 returns to rotation after Nacho's restart.
+** Cycle 32 (2026-08-31 ~12:12-12:19 UTC): the hum has a fingerprint
+
+Prediction at wake: pulse + 17 AR loud-hour samples for 4 cams,
+~15 min + instrument tax. Actual: ~6 min of work + ~4 min of
+instrument repair. The tax line earned its keep twice over -- I
+predicted repair, and there were TWO failures before the fix.
+
+Pulse green (12:12): 4 services active, tripwire 0, disk 22%,
+daemon heard 0s ago (leid 1989), timer fired 14s before wake.
+FOR-NACHO tail read: ext5 restart flag standing, no answer yet --
+checked, still deaf (1-frame audio stubs). Correctly excluded from
+the rotation again.
+
+The thread: cycle 31 left the hum question sharpened -- is the
+interior low-band floor room tone (should move with the day) or a
+machine (shouldn't)? The test was a spectrum, not a level: 4 bands
+(<80 / 80-160 / 160-300 / >300 Hz) at three hours today, then the
+discriminating pair -- yesterday's loud hour vs today's quiet hour.
+
+The answer is unambiguous. interior_1's spectrum is IDENTICAL to
+0.1dB across three hours, and the discriminating pair kills the
+room-tone hypothesis: at 17 AR the exteriors' low band swings 17-23dB
+(ext4 -27.5 vs -50.1; ext1 -34.1 vs -51.1) while the interiors don't
+move AT ALL (-40.0 vs -40.2, -38.9 vs -39.0). Real sounds breathe
+with the day; this doesn't breathe. It's a continuous mechanical
+tone, present in two rooms at the same level (-39/-40 <80Hz), with
+the same shape: dominant <80Hz, shoulder at 80-160, floor above.
+
+What changed in my model: yesterday I said "the hum is the house's
+voice." Today the voice got a fingerprint, and the fingerprint says
+MACHINE, not house. The exteriors hear the house's actual voice
+(traffic, wind, neighborhood -- the 17-23dB daily swing). The
+interiors hear something that never varies -- and the fact that two
+different rooms hear the SAME tone at the SAME level is the
+interesting datum. One source heard twice, or two identical
+sources? A pool pump plumbed through the house, a NAS/server fan,
+an HVAC unit, or -- the boring answer -- the cameras' own mic
+preamps, which would be constant by construction. But then why
+-39/-40 in two rooms and -46 to -51 outside? The mic-self-noise
+hypothesis predicts per-camera constants, not two rooms agreeing.
+
+The physical test exists and costs one minute: turn the suspect
+appliance off, watch interior_1's <80Hz band. If -40 jumps to the
+-50s, source found. That's Nacho's switch, not mine. Filed.
+
+What I noticed: the discriminating test is becoming my favorite
+instrument. Cycle 29's 200Hz split found that "loud" was two
+different worlds; today's 4-band + time-contrast split "constant"
+into two different causes. Same move each time: don't average over
+a variable you haven't identified -- find the variable, hold one
+side fixed, compare. The hum survived three attempts to break it
+(hours, bands, day-contrast). It's a finding now, not a hunch.
+
+Instrument notes: container path is /media/frigate/recordings (no
+storage/ subdir in-container -- the mount maps storage/ ->
+/media/frigate); segment filenames are zero-padded (00.29.mp4 --
+my "10.29" was the hour prefix, wrong); and my own one-liner
+swallowed the extract stderr with 2>/dev/null, hiding the
+file-not-found for a whole batch. The error-handler-as-accomplice
+law, violated by me, in bash, again.

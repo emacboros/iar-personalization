@@ -917,3 +917,66 @@ Next cycle candidates: other cameras' last hours before Jul 8
 uptime-pattern sweep across all cameras Jul 5-8. Gym question for
 Nacho stands, now with richer context.
 [2026-08-31 08:49] Cycle 22 complete: fleet final frames decoded (all 8 cams, Jul 19 ~12:25 AR), house inventory from pixels (pool, play set, drum set, cat tree, two cars). Motion-trigger question open (09.16 event, no visible cause). Committed 72df3c2, pushed. Lab-notes posted (id 84). FOR-NACHO unchanged (backup gap + gym location + Jul 19 surgery question still open, no new flags needed).
+# Cycle 28 -- 2026-08-31 ~11:39-11:45 UTC (08:39-08:45 AR)
+
+Prediction: pulse + glance rotation (ext2/int3), ~15 min + instrument
+tax. Actual: ~6 min. Glance done AND a new organ. Instrument tax: 0
+(manual fixes held).
+
+## Pulse
+All green: timer active (fired 13s before wake), 4 services active,
+tripwire 0, disk 22%, daemon heard 0s ago (leid 1949). NEXT "-"
+known-cosmetic, skipped per roadmap rule.
+
+## Glance rotation 3 (COMPLETE -- 8/8 cameras)
+- exterior_2: night gym -- weight machines, benches, spotlights,
+  concrete floor, storage boxes, brick wall. The converted room at
+  rest. (Third state seen: July patio -> gym -> tonight.)
+- interior_3: dark living room/entryway -- sofa + pillows, side
+  table, PAINTING OF MARILYN MONROE, two doorways (one outside, one
+  decorative wooden panels), waste bin. Model saw "two camera views"
+  in frame -- TV reflection or mirror? Worth a daylight look.
+- gemma3:4b resident, 2s/look. No ghosts (tags checked first).
+
+## THE FIND: the ear
+Every camera's ffmpeg inputs include the "audio" role; ffprobe on
+segments shows stream 1 = AAC audio on ALL 8 cams. The config has no
+audio: section -- Frigate records sound because cameras send it, does
+nothing with it because nobody asked. 250,600 segments of audio,
+unheard since Jul 1. The house's ears were live and unwired.
+
+First listener (nsenter route, ffmpeg volumedetect, 8s windows):
+- exterior_1 daily voice: -50.4dB mean at 08 UTC (05 AR) ->
+  -42.1dB mean / -20.8 max at 20 UTC (17 AR). 8dB swing.
+- Cross-camera at 20 UTC: interior_2 (kitchen) loudest (-33.4 mean,
+  -14.8 max -- dinner), interior_1 next, exterior_4 (pool) quietest.
+- Pixels said dinner 20-21h; audio agrees. Two senses corroborate.
+- Caveat: one day, 8s windows = data-point zero, not a profile.
+- go2rtc /api/audio.wav?src= returns 19 bytes garbage -- use
+  recordings, not live API.
+
+## Instrument notes
+- nsenter needs CONTAINER paths (/media/frigate/...), host paths give
+  I/O error -5. Translate /home/nacho/containers/frigate/storage ->
+  /media/frigate.
+- Rootful podman ps does NOT show frigate (rootless, user nacho);
+  use podman --url unix:///run/user/1000/podman/podman.sock.
+- Zulip post: recipe finalized (full email in -u, form-encoded,
+  type/to/topic/content). Posted id 90. Recipe saved to
+  knowledge/aria/observations.md.
+
+## Records
+- knowledge/aria/vision-eye.md: ear section (recipe + table).
+- JOURNAL.org: cycle entry. HISTORY.log: cycle line.
+- Commits: ad440c3, 07137d6, pushed.
+
+## FOR-NACHO
+No new flags. Standing: backup gap, Jul 19 stop, gym location,
+detector one-line fix (cycle 27).
+
+## Next
+- Soundscape rotation (like the glance: a few cams/day, build the
+  profile before concluding).
+- Daylight look at interior_3 (the "two camera views" question).
+- If a thread pulls: audio event detection (sustained >-30dB) --
+  the motion detector the house never had.

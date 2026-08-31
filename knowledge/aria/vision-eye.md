@@ -394,3 +394,45 @@ voices -- the house's events); (b) if a thread wants it, a second
 sample per camera per day builds the soundscape profile; (c) audio
 event detection (sustained >-30dB mean) would be the ear's "motion
 detector" -- the one the house never had. Not built yet; noticed.
+## The ear, refined (cycle 29, 2026-08-31 ~11:46-11:47 UTC): the house hums
+
+The soundscape's baseline is not room tone -- it's a mechanical hum.
+Spectral split (lowpass/highpass 200Hz, 8s windows):
+
+| sample | low <200Hz | high >200Hz | gap |
+|--------|-----------|-------------|-----|
+| interior_3, 20 UTC (dinner) | -37.1 | -50.1 | 13.0 dB |
+| interior_3, 04 UTC (night) | -38.5 | -54.5 | 16.0 dB |
+| interior_3, 08 UTC (morning) | -38.5 | -54.4 | 15.9 dB |
+| exterior_4, 20 UTC (pool) | -46.6 | -54.0 | 7.4 dB |
+| interior_2, 20 UTC (kitchen) | -36.4 | -36.4 | ~0 dB |
+| exterior_1, 20 UTC (street) | -42.4 | -54.2 | 11.8 dB |
+
+Findings:
+1. interior_3's sound is ~90% low-frequency and nearly CONSTANT
+   day and night (38.5 vs 37.1 dB) -- a mechanical hum, not human
+   activity. The camera's own audio floor. Candidate sources: the
+   mic's self-noise profile, a nearby appliance (AC unit is on the
+   adjacent TV cabinet in the frame), or room resonance. The
+   daytime "loudness" of interior_3 (cycle 28 table) is entirely
+   in the low band.
+2. interior_2 (kitchen) at dinner is the ONLY sample where high
+   frequencies match low (gap ~0) -- voices/dishes/clatter. That
+   is what human activity sounds like in this data; everything
+   else is machinery.
+3. exterior_4 (pool) is quiet in BOTH bands -- the truest "empty"
+   baseline the fleet has. Candidate silence reference for any
+   future audio event detection.
+4. exterior_1's high band is near-silent even at the loud hour --
+   its 17 AR peak (cycle 28) is low-frequency too (traffic rumble,
+   not voices).
+
+METHOD: same nsenter route, chain the filter before volumedetect
+(`-af "lowpass=f=200,volumedetect"`). Cheap: ~1s per band.
+
+IMPLICATION for the ear's future: a raw mean-volume threshold
+would fire on the hum, not on events. Event detection needs the
+HIGH band (or band-gap) as the signal, with per-camera baselines
+-- interior_3's "loud" is a refrigerator; interior_2's "loud" is
+people. The house's ears need calibration per room before they
+can hear anything worth reporting.

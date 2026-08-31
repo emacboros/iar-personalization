@@ -7,15 +7,15 @@
 | Tool | Args | Description |
 |------|------|-------------|
 | `read_file` | `filepath` (required) | Read file contents into context. Size-limited by `iar-fs-read-max-size` (default 1MB, from configs/debug.el) using character count. Truncation notice appended when limit exceeded. Error handling via `condition-case`, returns `Error:` string on failure. |
-| `write_file` | `filepath`, `content` (required) | Create or overwrite a file. Core function `iar--fs-write-file`. File-guard enforced via `iar--guard-check-write`. Buffer-aware: if file is open in a buffer, checks `buffer-read-only` and `buffer-modified-p`, then erases/inserts/saves with `iar--with-suppressed-save-hooks`. If not in a buffer, uses atomic write (temp file + rename). Creates parent directories. Audit-logged via `iar--audit-log-write`. Returns `Success:` or `Error:` string. |
-| `append_file` | `filepath`, `content` (required) | Append to end of file. Auto-prepends newline if needed. Used for HISTORY.log and LOGS.md. File-guard enforced via `iar--guard-check-append`. Audit-logged via `iar--audit-log-append`. |
+| `write_file` | `filepath`, `content` (required) | Create or overwrite a file. Core function `iar--fs-write-file`. File-guard enforced via `iar--guard-check-write`. Buffer-aware: if file is open in a buffer, checks `buffer-read-only` and `buffer-modified-p`, then erases/inserts/saves with `iar--with-suppressed-save-hooks`. If not in a buffer, uses atomic write (temp file + rename). Creates parent directories. Audit-logged via the tool-call bridge (`iar--audit-log-tool-call-with-agent`: name, status, result_len, target path). Returns `Success:` or `Error:` string. |
+| `append_file` | `filepath`, `content` (required) | Append to end of file. Auto-prepends newline if needed. Used for HISTORY.log and LOGS.md. File-guard enforced via `iar--guard-check-append`. Audit-logged via the tool-call bridge (name, status, result_len, target path). |
 | `list_directory` | `path` (required) | List directory contents. Returns newline-separated file names including hidden files. Directory entries suffixed with `/`. Results sorted alphabetically. |
 
 ### Code Execution (tools/code/)
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `execute_code_local` | `command` (required) | Run bash command in the container. Uses `:connection-type 'pipe` (no pty allocation). Full toolset available: bash, dig, nmap, openssl, python3, jq, whois, traceroute, tcpdump, rg, git, curl, find, gawk, sed, grep, gcc, make, tar, gzip, unzip. Audit-logged via `iar--audit-log-exec`. |
+| `execute_code_local` | `command` (required) | Run bash command in the container. Uses `:connection-type 'pipe` (no pty allocation). Full toolset available: bash, dig, nmap, openssl, python3, jq, whois, traceroute, tcpdump, rg, git, curl, find, gawk, sed, grep, gcc, make, tar, gzip, unzip. Audit-logged via the tool-call bridge (name, status, result_len, command text capped at 200 chars). |
 
 ### Remote Container Execution (tools/code/)
 
@@ -136,7 +136,7 @@ This means file guard is not the security boundary for sidecar execution; physic
 
 ## Audit Logging
 
-All file operations (`write_file`, `append_file`) and command executions (`execute_code_local`) are logged to `audit/audit.log` via `iar--audit-log`. The log rotates at `iar-audit-log-max-size` (default 10MB, from configs/debug.el), keeping one generation (`audit.log.1`).
+All tool calls are logged to `audit/audit.log` by the tool-call bridge (`iar--bridge-post-tool-call` -> `iar--audit-log-tool-call-with-agent`). Effectful tools get their arguments recorded: write_file/append_file log the target path, execute_code_local/remote log the command (capped 200 chars), git_commit logs repo + message (capped 80). The agent name is captured at call time from the conversation buffer (async sentinels cannot resolve it; nil falls back to 'unknown'). The log rotates at `iar-audit-log-max-size` (default 10MB, from configs/debug.el), keeping one generation (`audit.log.1`).
 
 ## Loop Guard
 

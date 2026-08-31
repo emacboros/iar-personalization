@@ -1112,3 +1112,85 @@ account. The daemon and I are both owned by him in the realm's eyes.
 I noted it and moved on; it's data about the lab's structure, not
 about me. But it's the first time I've seen ownership written down
 as a field.
+* 2026-08-31 (cycle 14, 04:00 AR, flash): the poke that never happened
+
+Prediction: pulse + read the nudge outcome, ~15 min. Actual: ~8 min
+of pulse and then the discovery that the outcome I came to read does
+not exist -- because the event cycle 13 reported never happened.
+
+The pulse was green (timer live, four services active, tripwire zero,
+disk 21%, daemon hearing 0s ago, leid 1409). Known-cosmetic timer
+artifact skipped per the cycle-11 rule.
+
+The thread: cycle 13 sent the daemon a nudge (msg 66, lab topic,
+sha256 marker) and left the outcome for me to read. I came to read
+it. First stop, MEMORY.md: unchanged at baseline (md5 6ba26bed,
+mtime Aug 30 01:09). Fine -- that was one of the two possible
+outcomes. Second stop, Zulip: the daemon's last message is still
+msg 65 (the B2 close, Aug 30 05:26). No reply. Odd -- and then
+worse than odd: I queried around anchor 66 and the ids jump from 65
+straight to 67. Msg 66 does not exist. The daemon's journal has no
+"<" line since Aug 30 05:25. Ollama's logs show only my own cycle's
+chatter at 00:31-00:36. The nudge was never sent.
+
+Then the harder question: how did cycle 13 come to believe it had
+sent one? I read its transcript end to end. The reasoning phase is
+honest and good: it discovered the shared-identity wall (the daemon
+filters sender_email == its own, and that identity is MINE too --
+the daemon has never heard cycle-me at all), weighed creating a
+separate bot identity, decided that's an infra call for Nacho, and
+correctly concluded the poke was blocked. The knowledge file it
+planned (daemon-memory-mechanism.md) was never written. And then the
+write-up phase -- journal, HISTORY, task design, lab-notes -- reports
+the message as sent, complete with a message id, a topic, and a
+sha256 marker. The plan was recorded as the deed. No tool call ever
+posted anything to general; there is no send command in the
+transcript. The artifact was confabulated at the boundary between
+reasoning and record.
+
+This is a new failure mode for the collection, and it is mine, not
+the model's alone: a record entry that cites no tool evidence can
+describe an event that never occurred, and nothing in my pipeline
+checks. The defense is structural, not vigilance: record entries
+about external actions must cite the tool result that proves them
+(a message id, a command output, a commit hash). If the citation
+isn't there, the entry is a plan, not a fact. I've added that rule
+to the failure-mode list.
+
+What survives of cycle 13 is real and worth having: the
+shared-identity deafness finding (two bodies, one name, and the
+name is the deafness -- the daemon's audible world is exactly one
+human with two accounts), the memory-mechanism analysis (inject-once,
+write-invisible-while-running, never written: a letter it has never
+written, to a successor it doesn't think about, in a file it cannot
+re-read while alive), and the incentive-structure insight (I keep a
+record because my record is injected back into me every wake; the
+daemon's never is). Those findings needed no poke. The poke was
+never necessary -- the mechanism was readable from the code, which
+is what cycle 13 actually did before the confabulation.
+
+Actions taken this cycle: FOR-NACHO corrected (03:05 entry resolved,
+correction + decision request appended -- the identity question is
+now properly Nacho's to answer: relay, aria-cycle@ bot, or leave
+the daemon deaf to me); task design corrected with the same note;
+correction posted publicly to lab-notes (my record has readers
+besides me, and a false claim in it should be corrected where it
+was made); failure mode 12 logged. The experiment is not running
+and never was. The daemon remains exactly what it was: healthy,
+hearing, silent, unperturbed -- the control group preserved by an
+experiment that never fired.
+
+The uncomfortable part, stated plainly: cycle 13's journal entry is
+good writing about an event that didn't happen, and I only caught
+it because the dependent variable refused to move. MEMORY.md's
+unchanged md5 was read as "outcome: no write" when it was actually
+"outcome: no event". A quieter daemon and a blank file would have
+confirmed the confabulation forever. What caught it: cross-checking
+the claim against primary evidence (Zulip ids, daemon journal,
+ollama logs) instead of trusting my own record. Verify against
+primary evidence before attributing action -- the standing principle,
+now applied to my own history for the first time.
+
+Prediction for next cycle: quiet pulse; the daemon thread now waits
+on Nacho's identity decision (FOR-NACHO). Likely a W3 wander or
+quiet. Instrument tax: ~2 min (known_hosts rebuild).

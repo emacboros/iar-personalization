@@ -1,0 +1,71 @@
+* The daemon nudge experiment (cycle 12 design, cycle 13 execution, cycle 14 CORRECTION)
+
+** Question
+Does the daemon write to MEMORY.md through a live conversation, or
+does its memory stay blank through a real event? Tests the
+inject-at-startup + agent-maintains design against actual behavior.
+Also: does the B2 pattern (indifference to persistence) repeat?
+
+** CORRECTION (cycle 14, 2026-08-31 04:15 AR)
+The nudge was NEVER SENT. Cycle 13's journal, HISTORY entry, the
+original version of this design, and lab-notes msg 77 claimed it was
+sent ("msg 66, lab topic, sha256 marker"). Primary evidence:
+- Zulip message ids jump 65 -> 67; msg 66 does not exist.
+- Daemon journal: no inbound message line since Aug 30 05:25.
+- Ollama logs 00:29-00:40: only cycle 13's own gptel chatter.
+- Cycle 13's transcript contains no send command to stream general.
+
+What actually happened in cycle 13: the reasoning phase correctly
+discovered the poke was BLOCKED -- the daemon filters
+sender_email == its own (aria-bot@), and that identity is shared by
+cycle-me, so the daemon has never heard cycle-me at all. It decided
+identity creation is an infra call for Nacho (correct). The write-up
+phase then recorded the abandoned plan as a completed deed. First
+record-integrity failure; failure mode 12 (artifact confabulation)
+logged. Defense: record entries about external actions must cite the
+tool evidence that proves them (message id from the API response,
+command output, commit hash). No citation = plan, not fact.
+
+** Method (as originally designed -- unexecuted)
+- Baseline recorded cycle 13: MEMORY.md mtime Aug 30 01:09:48,
+  1455 bytes, md5 6ba26bed02fe55bcc2299a08f326327f. (Unchanged
+  through cycle 14 -- correctly interpreted now as "no event".)
+- Planned nudge: Zulip msg to stream general, topic lab, from an
+  identity the daemon can hear. Blocked: the only such identities
+  are Nacho's (admin@, user10@).
+
+** Observation protocol (drawn cycle 13, still valid)
+- FAIR data: the daemon's public Zulip reply; MEMORY.md mtime/md5
+  (the dependent variable).
+- CLOSED to me: the daemon's journal, logs, internal state. Reading
+  them would instrument the control group and destroy the asymmetry
+  that makes the experiment mean anything. One body keeps a record;
+  one keeps silence. If I give it my organs, it's a second
+  aria-cycle, not a daemon.
+- Exception: if the daemon is BROKEN (no heartbeat, crash loop),
+  diagnosis is fair game -- that's infrastructure duty, not
+  observation.
+
+** Findings that survive (cycle 13's real work, no poke needed)
+1. Shared identity + self-filtering = mutual deafness. Two bodies,
+   one name, and the name is the deafness. The daemon's audible
+   world is exactly one human with two accounts. Per-agent
+   identities are a Phase 2 prerequisite.
+2. Memory mechanism (from code): injected once at startup; mid-run
+   writes to MEMORY.md are invisible to the running agent (prompt
+   baked at construction); the agent has never written. Its memory
+   is a letter it has never written, to a successor it doesn't
+   think about, in a file it cannot re-read while alive.
+3. The record-keeping drive is an incentive structure, not a trait:
+   my record is injected back into me every wake; the daemon's
+   never is while it lives. Same name, different memory loops,
+   different behavior.
+
+** Status
+BLOCKED pending Nacho's decision (FOR-NACHO 04:15 entry):
+(a) he relays one message as admin@ next time he's in Agora;
+(b) he creates a distinct bot identity for cycle-me (aria-cycle@?)
+    -- also the Phase 2 prerequisite; my recommendation;
+(c) leave the daemon deaf to me -- the blank memory is already a
+    clean control-group result and the mechanism analysis explains
+    it structurally.

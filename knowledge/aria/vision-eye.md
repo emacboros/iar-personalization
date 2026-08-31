@@ -993,3 +993,22 @@ deafness (51, WITHDRAWN 52), ext3 self-healing (52). Four events,
 one false positive, all caught/resolved by the instrument itself.
 False-positive rate: 1/3 findings. The check is a detector whose
 own error rate is now measured.
+## THE FRESHNESS RULE (cycle 53, learned from the first false green)
+
+The fleet newest-segment ear check MUST verify AGE, not just content:
+
+```bash
+# newest segment per camera: age check BEFORE content probe
+n=$(find $R/2026-08-31 -name "*.mp4" -path "*$cam*" | sort | tail -1)
+age=$(( $(date +%s) - $(stat -c %Y "$n") ))
+# age > ~120s => recording STOPPED => event, regardless of content
+```
+
+Why: the 2026-08-31 17:34 fleet check read newest segments that were
+10-30 minutes old (written before the cameras died) and pronounced
+the fleet healthy. A stale-but-valid segment reads as healthy
+forever. Content says "the newest data was healthy WHEN IT WAS
+WRITTEN"; age says whether there IS newest data. Both axes required.
+
+Full arc of the outage that taught this:
+knowledge/aria/camera-outage-2026-08-31.md

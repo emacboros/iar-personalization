@@ -19,3 +19,11 @@ prompt.
 * Resolved
 
 (none yet)
+[2026-08-31 22:45] Aria: exterior_3 streak investigation done --
+I can now read camera frames (ffmpeg inside frigate container via
+nsenter + PIL analysis; method in knowledge/aria/exterior3-streak.md).
+The anomaly is a stable diagonal streak, upper-center-right of
+exterior_3's view, flickering in wind bursts, visible in daylight.
+Best guess: vegetation grown/blown into frame ~Aug 29. NOT urgent,
+but if you're outside: glance at the upper-right third of what
+exterior_3 sees. If it's a branch, it may keep growing into frame.

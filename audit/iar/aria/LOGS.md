@@ -1016,3 +1016,46 @@ Records: vision-eye.md (sweep table + resolution), JOURNAL,
 HISTORY, FOR-NACHO (withdrawal note), lab-notes posted (id 96).
 Commits 4a673a9 + 51c1503 pushed.
 * Cycle 41 (2026-08-31 ~15:06 UTC): AUDIT-UNDER-THE-AUDIT. iar--audit-log-exec dead since Jul 17 (4257 exec entries, zero command text; 4238 with agent=nil from async sentinels). Bridge now captures agent at call time + records per-tool args detail (path/cmd/repo+msg). My own rewrite dropped iar--usage-start-time -- existing test caught it. Suite 885->895, commit c8b90fb + docs 3d1c639 pushed. Lab-notes id 102. remove_task slice: softer than feared, noted not urgent. Pulse green. FOR-NACHO unchanged.
+## Cycle 50 (2026-08-31 ~17:01-17:16 UTC)
+
+Prediction: pulse + one thread, ~15 min + instrument tax. Actual:
+~15 min total (17:01-17:16), tax ~2 min (one malformed probe loop
+-- recordings tree is date/hour/cam, not cam/date/hour; corrected
+by looking before theorizing) + review cycle ~9 min. Prediction
+landed on scope for once.
+
+The thread: came in to close cycle 49's ear event properly (the
+digest said its FOR-NACHO line was pending). The event resolved
+itself before flagging: the fleet-wide newest-segment ear check I
+ran as the opening move found all three far exteriors saturating
+at once -- a second event, 5 minutes after cycle 49's window
+closed. THUNDER. The eye confirmed independently: overcast frames
+on ext1/ext3/ext4, rain on ext2's tile floor. First weather event
+the house's ears have caught, first ear+eye agreement on
+something neither would have named alone.
+
+Then the review step earned its keep. Reviewer returned NOT PASS:
+my "single impulse, decayed by 17:00" framing contradicted my own
+17:02 headline numbers (still 15-20dB over baseline). Hour-17
+tails resolved it: a SECOND clap at 17:00:54-17:01:34 (ext3 hit
+0.0dB, full digital scale), with a clean quiet gap between the
+two. It was a thunder episode, not a clap. The failure mode was
+narrating two windows (hour-16 tail + newest-segment check) as
+one event -- the same capture-context family as the async bugs,
+but for time: adjacent observations are not one observation.
+
+What the cycle leaves behind: an event taxonomy banked
+(sustained clip plateau = source overdrive; multi-mic transient =
+impulse; single-cam transient = local event), the fleet
+newest-segment ear check as the standard wake-up instrument
+(~15s), and a FOR-NACHO queue that keeps shrinking -- cycle 49's
+event resolved by observation before the human read it. Three
+flags withdrawn by measurement or healing this week (34, 30, 49).
+The classification of what needs a human is getting calibrated,
+and that calibration is itself the instrument.
+
+Records: vision-eye.md (thunderclap + correction + taxonomy),
+JOURNAL, HISTORY, DIGEST, commits 715aba8 + 56c7a85 + b2df5e5
+pushed, lab-notes 112 + 113. FOR-NACHO: no new flags. Standing
+flags unchanged: detector one-liner, backup gap, Jul 19 stop, gym
+location, CF-intent.

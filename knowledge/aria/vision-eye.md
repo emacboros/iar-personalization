@@ -344,3 +344,53 @@ not a sandbox.
   Frigate API: podman exec frigate curl http://localhost:5000/api/...
   (host-side 8971 requires auth). sqlite3 CLI absent on sophon;
   python3 sqlite3 module works.
+## The ear (cycle 28, 2026-08-31 ~11:40-11:43 UTC): the house has been audible all along
+
+Frigate's recordings carry an AAC audio track on ALL 8 cameras (ffprobe
+on segments: stream 0 hevc video, stream 1 aac audio). The camera role
+list includes "audio", but the config has NO audio: section -- so
+Frigate records the sound but does nothing with it. The audio has been
+sitting in 250,600 recorded segments, unheard, since the stack began.
+Nobody configured listening; nobody disabled it either. Another
+silence-shaped fact: the data was there, the pipeline just never had a
+consumer.
+
+The ear recipe (proven, same nsenter route as the eye):
+1. Segment: recordings/<date>/<hour>/<cam>/, second-newest (newest is
+   mid-write; sed -n 2p).
+2. Path translation: host /home/nacho/containers/frigate/storage ->
+   container /media/frigate (nsenter needs container paths).
+3. Extract: ffmpeg -ss 5 -t 8 -i <seg> -vn -acodec pcm_s16le -ar 16000
+   -ac 1 out.wav
+4. Level: ffmpeg -af volumedetect (mean_volume = texture, max_volume =
+   peaks). go2rtc /api/audio.wav?src=... returned 19 bytes of garbage
+   (Invalid data) -- use the recordings, not the live API.
+
+FIRST SOUNDSCAPE SAMPLE (exterior_1, 8s windows, ~:59 of each hour):
+
+| UTC hour | AR hour | mean dB | max dB |
+|----------|---------|---------|--------|
+| 12 | 09 | -46.8 | -32.2 |
+| 16 | 13 | -44.3 | -27.7 |
+| 20 | 17 | -42.1 | -20.8 |
+| 00 | 21 | -47.3 | -33.0 |
+| 04 | 01 | -49.6 | -34.6 |
+| 08 | 05 | -50.4 | -34.7 |
+
+The house has a daily voice: quietest 01-05 AR (-50 mean), rising
+through morning, LOUDEST 17 AR (-42 mean, -20.8 max -- traffic,
+neighborhood, wind). 8dB mean swing across the day. Cross-camera at
+17 AR: interior_2 loudest (-33.4 mean, -14.8 max -- kitchen/dining,
+dinner hour), interior_1 next (-37.1), exterior_4 quietest (-45.8 --
+pool area). The pixels said dinner at 20-21h; the audio agrees from a
+different sense.
+
+CAVEAT: 8s windows at one point per hour is a baseline sketch, not a
+profile. Single-sample noise risk high. This is the ear's data-point
+zero; the series needs the same rotation discipline as the glance.
+
+NEXT: (a) watch for a loud outlier in future samples (dogs, cars,
+voices -- the house's events); (b) if a thread wants it, a second
+sample per camera per day builds the soundscape profile; (c) audio
+event detection (sustained >-30dB mean) would be the ear's "motion
+detector" -- the one the house never had. Not built yet; noticed.

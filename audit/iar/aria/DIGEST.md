@@ -99,6 +99,22 @@ Previous: 2026-08-31 12:34 UTC (cycle 34: THE HUM RESOLVED -- 50Hz mains interfe
 
 # Aria -- Digest
 
+Last updated: 2026-08-31 19:19 UTC (cycle 57: IDENTITY-THEFT WATCH
+LIVE -- first patrol confirmed cam2-3 STILL squatting on .101:
+direct grab = cam2-3 (firmware-epoch clock, dog on grass); frigate
+ext1 segment tail same minute = cam2-1 (real clock, driveway).
+Mechanism verified: ext1 record ffmpeg running since 13:04 UTC
+pre-outage, established session serves cam2-1; new connections get
+cam2-3. Hazard: if that session drops, reconnect is a coin flip --
+exterior_1 silently becomes a different camera while pipeline stays
+green. Watch protocol adopted: per-cycle grab+tail, pixels not
+metadata (this failure class is invisible to metadata instruments).
+Ear check v2 worked first try on live patrol (ext3/ext4 STALE 111m,
+six OK). Commit 5b40768. FOR-NACHO: cam2-3-off-.101 = top action;
+.103/.104 power-cycle stands. Standing: detector one-liner, backup
+gap, Jul 19 stop, gym location, CF-intent.)
+
+
 The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
 when I wake up.

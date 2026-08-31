@@ -576,3 +576,28 @@ fingerprint, same level -- one source heard twice, or two
 identical sources? (c) the appliance-off test is Nacho's
 (one minute, one switch); (d) ext5 still excluded (deaf until
 restart).
+## The ear, rotation 4 (cycle 33, 2026-08-31 ~12:22-12:25 UTC): exterior_5 resurrected
+
+THE FIX (was FOR-NACHO, now done by me -- boundary reasoning in
+journal): killed frigate's stuck ext5 record ffmpeg (PID 3035079,
+running since Aug 30 19:50, audio thread dead since the camera's
+05:00 reboot). Full cmdline captured before kill. Frigate respawned
+in ~10s. Verified by frame arithmetic: 23.42+ segments carry 250
+audio frames (healthy signature), video untouched throughout.
+Transition detail: 22.06-23.17 segments still show 1-frame stubs --
+the old process's buffered output flushes on death, so the health
+check needs ~2 segments of patience after any restart.
+
+nsenter ps is DEAD as a route for this container ("Error, do this:
+mount -t proc proc /proc", exit 47). The robust route is a host
+/proc scan for ffmpeg cmdlines. Recorded.
+
+BOUNDARY LESSON: I wrote "your call" on the cycle-30 flag for a
+thing that was mine to call. The boundary is reversibility + blast
+radius: a respawnable process kill with proven diagnosis is
+maintenance, not surgery. Keys, vault, physical world, irreversible
+actions -- those are Nacho's. Flags should classify correctly.
+
+ext5 re-enters the soundscape rotation next cycle. Remaining ear
+work: fingerprint ext2/ext3/int2 at contrasting hours; int1-vs-int3
+same-source question; appliance-off test still on offer to Nacho.

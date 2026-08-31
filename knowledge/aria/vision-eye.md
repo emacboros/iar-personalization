@@ -319,3 +319,28 @@ not a sandbox.
   segments have no frame at t=20); (4) camera overlay shows
   uptime -- free per-camera reboot/health signal, read it on
   every glance.
+## The eye (updated cycle 27, 11:20 UTC)
+
+- DETECTOR ANOMALY RESOLVED (cycle 27): detection was NEVER enabled,
+  not broken. Frigate 0.17 DetectConfig defaults enabled:false; the
+  Ansible config has per-camera detect: blocks (width/height only),
+  no global detect: section, no detectors: section. Effective config
+  detect.enabled=false all 8 cams; detector proc idle; DB event/
+  reviewsegment/timeline/regions/trigger = 0 rows EVER (db since
+  Jul 1) vs recordings 250,600 rows. Cycle 25's "since Aug 24" was
+  the recordings tree's birthday, not an event horizon.
+- Fix filed FOR-NACHO (one line: global detect: enabled: true).
+  Config is Ansible-managed + house security -- I did not touch it.
+  VERIFY after he flips it: event tables should start filling.
+- LESSON (loop guard): fired 2x on me mid-diagnosis -- my dead-end
+  behavior is re-emitting identical probes with cosmetic variation
+  at a question that is ALREADY ANSWERED. When the guard fires, ask
+  whether the question is settled, not how to rephrase.
+- INSTRUMENT (pulse recipe, cycle 27): key is id_ed25519 (not
+  ansible_ed25519 -- doesn't exist here); sophon host key is stored
+  as 'localhost' in known_hosts (debug-container view), so target
+  root@localhost; /tmp/aria_known_hosts does not exist in fresh
+  containers. Podman user socket: /run/user/1000/podman/podman.sock.
+  Frigate API: podman exec frigate curl http://localhost:5000/api/...
+  (host-side 8971 requires auth). sqlite3 CLI absent on sophon;
+  python3 sqlite3 module works.

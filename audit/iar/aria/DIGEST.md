@@ -1,19 +1,23 @@
-Last updated: 2026-08-31 21:47 UTC (cycle 58: RACE RESOLVED
-SAFELY -- the .101 identity-theft race ended the good way.
-Frigate ffmpeg fleet restarted 18:42 UTC (go2rtc-wide hiccup #2
-today: watchdog "no frames" fleet-wide + DTS garbage); the
-long-lived cam2-1 time-capsule session died in the churn and
-ext1's reconnect landed on cam2-1 (3/3 pixel-verified grabs,
-real clock, driveway). cam2-3/cam2-4 resurrected at ORIGINAL IPs
-.103/.104 with real clocks ~18:43 (likely Nacho power-cycle;
-question in FOR-NACHO); .100 dead again (cam2-4 went home).
-8/8 cams recording with audio, ext5 audio healed, ear check v2
-all green. Watch protocol caught the whole arc on its first live
-patrol; instrument STAYS (race mechanism is real, resolved by
-timing luck). Commits 2862db9 + 959ef45. FOR-NACHO: camera flag
-resolved-observed + power-cycle provenance question. Standing:
-detector one-liner, backup gap, Jul 19 stop, gym location,
-CF-intent, split-brain rewrite.)
+Last updated: 2026-08-31 21:59 UTC (cycle 58: RACE RESOLVED
+SAFELY + FIRST REVIEW CATCH. The .101 identity-theft race ended
+the good way: 18:42 UTC fleet-wide frigate churn (go2rtc hiccup
+#2) killed the cam2-1 time-capsule session; ext1's reconnect
+landed cam2-1 (good flip #1, cycle 57's tail already showed it).
+Hour 19 UTC: cam2-3/cam2-4 returned to ORIGINAL IPs .103/.104
+with real clocks (race actually ended here; likely power-cycle,
+provenance question in FOR-NACHO). 21:42 UTC: ext1 record
+restart (flip #2, safe by default). 8/8 cams recording with
+audio, ext5 healed, ear check v2 all green. Watch protocol
+caught the resolution on its first live patrol. THEN the
+reviewer returned NOT PASS: I conflated ps lstart (local -03)
+with frigate log UTC and narrated two churn events as one --
+corrected in outage doc, commit 7076083. Method lesson: adjacent
+data is not agreeing data; my own epoch conversion sat in the
+same output contradicting the claim I wrote next to it. Commits
+2862db9, 959ef45, b777178, 7076083. FOR-NACHO: camera flag
+resolved-observed + power-cycle provenance Q (timing: hour 19
+UTC = 16:00-16:59 AR). Standing: detector one-liner, backup
+gap, Jul 19 stop, gym location, CF-intent, split-brain rewrite.)
 
 
 The identity index. Never truncated on injection. Maintained by me, at

@@ -317,3 +317,43 @@ silently becomes a different camera.
 - Records: this file, FOR-NACHO, JOURNAL, HISTORY, DIGEST,
   lab-notes. FOR-NACHO: camera flag updated to RESOLVED-observed;
   one question stands (did you power-cycle them?).
+### Cycle 58 CORRECTION (post-review, ~21:58 UTC): the reviewer caught a timezone conflation
+
+The cycle-58 section above (written pre-review) contains a real
+error. The reviewer found it; corrected timeline:
+
+- **18:42:29-34 UTC** (frigate log, UTC): fleet-wide watchdog
+  event -- ext1/int3 "no frames in 20s" + DTS garbage. THIS is
+  where the 13:04 time-capsule session died and ext1's reconnect
+  landed cam2-1 (good flip #1). Evidence: cycle 57's 19:14
+  segment tail ALREADY showed cam2-1 -- the flip predated cycle
+  57, not cycle 58.
+- **Hour 19 UTC (19:00-19:59)**: ext3/ext4 resumed recording
+  (segment counts: hour 18 ABSENT for both, hour 19 present).
+  This is when cam2-3/cam2-4 physically returned to .103/.104
+  with real clocks -- the RACE actually ended here, when cam2-3
+  left .101. Not "18:43" as written above.
+- **21:42:17 UTC**: my ear check caught ext1 NO-AUDIO -- a live
+  audio flap on the record process from 18:42:35.
+- **21:42:34 UTC** (ps lstart 18:42:34 LOCAL -03; my own epoch
+  conversion said 21:42:34 UTC and I still misread it): ext1
+  record ffmpeg restarted -- flip #2. No race existed by then
+  (cam2-3 had gone home in hour 19), so this flip was safe by
+  default. I woke seconds BEFORE this flip, not "50 seconds
+  after" it; the ear check caught the flap in progress.
+- The 3/3 grabs at 21:43-21:44 verify .101 answers cam2-1 for
+  NEW connections -- because cam2-3 is gone from .101, not
+  because of the 21:42 flip.
+
+**Method lesson (banked):** ps lstart is LOCAL time; frigate
+container logs are UTC; my own epoch conversion sat in the same
+tool output and contradicted the claim I built next to it.
+Adjacent data is not agreeing data -- the capture-context family
+again, this time for clocks. Two churn events narrated as one is
+the cycle-50 failure (two thunder claps narrated as one) with a
+clock skew instead of an hour gap.
+
+The resolution claim STANDS (race over, cams home, 8/8 with
+audio, all pixel-verified); the mechanism timeline above is the
+corrected version. Power-cycle provenance question for Nacho
+stands, timing corrected to hour 19 UTC (16:00-16:59 AR).

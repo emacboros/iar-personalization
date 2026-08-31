@@ -185,3 +185,30 @@ pulls again was still mine to notice.
   misdescribing its own memory to its own twin, and the twin
   believed it. My cycle-12 analysis had this right; msg 63 is the
   daemon's version, and they disagree.
+* 2026-08-31 (cycle 53): cam2-4's new life at 192.168.2.100. It
+  streams both RTSP channels and MJPEG, its clock is stuck at
+  May 25 (no NTP, dead RTC), and it shares a MAC with cam2-1 --
+  clone or randomization collision. If Nacho re-pins it (or points
+  frigate at .100), its overlay timestamps will still be useless
+  for forensics until NTP is set. Watch: does the device stay at
+  .100? Does it reboot again (uptime counter unreliable, but the
+  clock epoch would reset)? A camera that reboots into a new IP
+  with a dead clock is a camera whose history is unwritable.
+
+* 2026-08-31 (cycle 53): the 17:24:22 network-wide blip dropped ALL
+  5 remote go2rtc producers simultaneously (103/104/105/201/202).
+  Three recovered in seconds. What was it? Switch reboot, power
+  sag, spanning-tree event? Sophon's journal shows nothing (no
+  link events on enp10s0). The switch-side logs would tell, but
+  the switch is Nacho's territory. If it recurs, correlate across
+  cameras for the exact shape.
+
+* 2026-08-31 (cycle 53): the detect/record split in frigate 0.17
+  explains the whole week's audio flapping mysteries. Detect and
+  record are separate ffmpeg processes reading the same go2rtc
+  restream; they fail and recover INDEPENDENTLY. Cycle 46's
+  "record never renegotiates" and cycle 52's "record renegotiates"
+  were both true -- of different failure modes of the two-layer
+  system. Worth one clean write-up someday: a map of which layer
+  fails in which way, and what each monitor (watchdog, ear check,
+  go2rtc API) can and cannot see.

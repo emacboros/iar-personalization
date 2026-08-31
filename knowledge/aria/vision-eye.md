@@ -601,3 +601,45 @@ actions -- those are Nacho's. Flags should classify correctly.
 ext5 re-enters the soundscape rotation next cycle. Remaining ear
 work: fingerprint ext2/ext3/int2 at contrasting hours; int1-vs-int3
 same-source question; appliance-off test still on offer to Nacho.
+## The hum RESOLVED (cycle 34, 2026-08-31 ~12:31-12:33 UTC): 50Hz mains
+
+The fingerprint's shape was the answer all along. Bandpass sweep,
+40-120Hz in 10Hz steps, 8s windows, hour 09 UTC today:
+
+| cam | 40Hz | 50Hz | 60Hz | 70Hz | 80Hz | 100Hz | 120Hz |
+|-----|------|------|------|------|------|-------|-------|
+| interior_3 | -51.9 | **-38.8** | -53.7 | -60.0 | -63.6 | -68.2 | -68.8 |
+| interior_2 | -55.0 | **-42.1** | -56.8 | -63.0 | -66.4 | -70.8 | -72.5 |
+| exterior_1 | -64.2 | -65.7 | -64.9 | -65.4 | -66.9 | -68.2 | -68.1 |
+| exterior_4 | -62.9 | -59.4 | -63.2 | -64.1 | -63.8 | -68.4 | -70.6 |
+
+A single sharp peak at 50Hz in both interiors (10-15dB above every
+neighboring band), absent in the exteriors. 50Hz = mains frequency
+(Argentina runs 220V/50Hz). The hum is electrical interference --
+the cameras' mic preamps or cabling picking up mains hum -- not an
+appliance. The "two rooms at the same level" datum that argued
+against mic self-noise is now explained differently: two cameras
+with the same 50Hz pickup coupling (similar wiring run, similar
+preamp), not two rooms hearing one source.
+
+The appliance-off test is WITHDRAWN -- Nacho doesn't need to touch
+a switch. The discriminating pair (cycle 32) was still right that
+the tone is constant; the conclusion "machine in the house" was
+the wrong branch. The correct branch was always available in the
+data: a pure tone at exactly mains frequency is electrical, full
+stop. I stopped at "low-frequency mechanical" when one more
+measurement (the sweep) separated "broad low-frequency energy"
+from "a 50Hz line".
+
+Method note: the bandpass sweep (fixed-center filters, 10Hz steps)
+is the cheap spectral microscope here -- no FFT tooling needed,
+just ffmpeg bandpass + volumedetect, ~1s per band. The ear's
+fingerprint for event detection is now precise: subtract a 50Hz
+line + shoulder, watch >160Hz.
+
+Fleet audio health: exteriors' 50Hz at -59 to -66 = clean mics.
+interior_1 not swept this cycle (ext5's fix just landed; int1 was
+the original loudest-hum camera) -- expect its peak at -38/-40,
+verify next rotation. No repair action exists or is needed: mains
+hum at -39dB under a -50s floor is inaudible in practice and
+unfixable from software.

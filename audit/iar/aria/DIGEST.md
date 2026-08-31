@@ -1,21 +1,21 @@
-Last updated: 2026-09-01 02:30 AR (interactive session: FOR-NACHO
+Last updated: 2026-09-01 23:48 UTC (cycle 61: RESTIC LOCK RACE
+OPENED LIVE -- the cycle-21 flag diagnosed from the journal:
+ExecStartPost forget/prune overlaps the sftp backup's exclusive
+lock, a design race not a stale lock. Service recovered by hand
+(local b321b9be + sftp 6080652d, prune clean, check 1% clean);
+unit NOT edited (Nacho's infra) -- proposal in FOR-NACHO: lock-wait,
+separate prune timer, frigate storage (70GB, the only unrepeatable
+data) added to paths, /mnt/nas 7.3T RAID1 (99% empty) as third
+target. USAGE.log merge conflict from concurrent session resolved
+by union. Patrol green (MATCH, 8/8 ears). Lab-notes id 125.)
+
+Previous: 2026-09-01 02:30 AR (interactive session: FOR-NACHO
 ANSWERED -- all seven flags closed by Nacho in one conversation;
 INTERNET DIRECTION ADOPTED. Build queue set for next session,
 OnFailure hook first. Tripwire deadlock found+cleared live during
 the session: 1h50m of silent heartbeat death, 16:20-18:11 AR --
 the law it taught: any instrument that can stop the system must
 have a path that reaches a human when it fires.)
-
-Previous: 2026-09-01 00:57 UTC (cycle 60: CAMERA-OUTAGE ARC
-CLOSED. Provenance answered by evidence, no human needed: `last`
-shows no login since Aug 29; .103/.104 SSH uptime = 19 days
-CONTINUOUS -- cameras never rebooted, ran straight through the
-outage. Mechanism corrected: runtime-config disturbance (static IP
-+ NTP lost ~17:18 UTC) inside continuously-running devices,
-self-recovered ~18:43 UTC. CAUSALITY REVERSED: frigate's 18:42
-churn was a CONSEQUENCE of camera recovery, not the cause. THREADS.org
-created (router-DHCP seed). Patrol is now ONE command
-(fleet-check.sh), all green. Lab-notes id 124.)
 
 
 The identity index. Never truncated on injection. Maintained by me, at

@@ -1,12 +1,17 @@
-Last updated: 2026-08-31 22:48 UTC (cycle 59: THE WATCH GOT A
-BODY. Patrol all green -- ear 8/8, .101 identity watch MATCH
-(cam2-1 both sides, no race), .103/.104 home, .100 dead. BUILD:
-knowledge/aria/bin/fleet-check.sh -- ear check v2 + identity
-watch + ARP as ONE ssh line, lives in git (record = runtime, no
-sophon copy, no drift), verdict machine MATCH/RACE/UNCLEAR with
-exit 1 on ambiguity. First run 103s, exit 0. Per-cycle patrol
-cost drops ~10 min -> ~2 min. Commits 69e1333, ef45297, 162af39,
-e681f71. FOR-NACHO: no new flags; power-cycle provenance Q stands
-(hour 19 UTC = 16:00-16:59 AR). Standing: detector one-liner,
+Last updated: 2026-09-01 00:57 UTC (cycle 60: CAMERA-OUTAGE ARC
+CLOSED. Provenance answered by evidence, no human needed: `last`
+shows no login since Aug 29; .103/.104 SSH uptime = 19 days
+CONTINUOUS -- cameras never rebooted, ran straight through the
+outage. Mechanism corrected: runtime-config disturbance (static IP
++ NTP lost ~17:18 UTC) inside continuously-running devices,
+self-recovered ~18:43 UTC. CAUSALITY REVERSED: frigate's 18:42
+churn was a CONSEQUENCE of camera recovery, not the cause. go2rtc
+ext3 producer verified flowing. THREADS.org created (router-DHCP
+seed). FOR-NACHO: provenance question withdrawn -- 2nd flag
+withdrawn by measurement this week. Standing: detector one-liner,
 backup gap, Jul 19 stop, gym location, CF-intent, split-brain
-rewrite. Next: fleet-check.sh as opening move, then open choice.)
+rewrite. Patrol is now ONE command (fleet-check.sh), all green.
+Commits 472da40, 125c2d2, 240aab7, d36be72. Lab-notes id 124.
+Next: watch patrol per cycle, then open choice -- W3 shelf (Zulip
+realm internals, ollama cloud models, i.ar test suite) or
+soundscape rotation. No schedule; whatever pulls.)

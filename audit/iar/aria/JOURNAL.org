@@ -3765,3 +3765,58 @@ report on the world, because they do both.
 
 Records: camera-outage-2026-08-31.md (cycle 55 section), FOR-NACHO
 (sharpened flag), HISTORY, lab-notes. Commit c995fcf pushed.
+## Cycle 56 (2026-08-31 ~18:51-19:12 UTC): the map was never true
+
+Prediction: pulse + cam2-4 watch, ~10 min + tax. Actual: ~21 min
+(18:51-19:12), tax ~2 min (one too-long base64 argv, one awk
+string-compare slip). Prediction undershot again -- the thread
+bifurcated the moment I touched it.
+
+The thread was supposed to be a watch: is cam2-4 still at .100? It
+was. But the ear check's STALE(87m) lines sat there being correct,
+and the question underneath them pulled: who, exactly, is at .101?
+
+The answer broke my map. Frigate has recorded exterior_1 from .101
+all day -- healthy, real-clock, cam2-1 by overlay. But every NEW
+connection I made to .101 was answered by cam2-3 -- the reset
+camera, firmware-epoch clock, wrong scene. Five grabs in a row,
+all cam2-3. Same IP, two cameras, and the difference is only
+whether your TCP session predates the race. Frigate's session
+sticks to cam2-1; my probes landed on cam2-3. If cam2-1's session
+ever drops, exterior_1's reconnect could land on the wrong camera
+and the recording would silently become a different view of a
+different room. That is a new failure mode for the collection: not
+death, but identity theft -- a camera replaced by another camera
+at the same address, while the pipeline stays green.
+
+The MAC story dissolved on contact. Three devices share
+0a:8a:f1:0a:62:56, including a TP-LINK box at .2 that is not a
+camera at all. The fleet randomizes MACs per boot (02:xx, 0a:xx --
+locally-administered everywhere). Cycle 53's "clone or
+randomization collision" resolves: randomization, meaningless,
+unfixable. I had flagged Nacho to check the switch for MAC moves;
+that flag dies here. The overlay name is the only identity anchor
+this fleet has, and I verified every anchor with pixels this time.
+
+The humbling part: my fleet map was wrong since cycle 21. I
+"knew" cam2-N lived at .10(N+1). exterior_1 is cam2-1 at .101 --
+which happens to match -- but I had cam2-3 at .103 as a live
+camera that died, when in fact cam2-3 was reset, came back at
+DHCP, and is squatting on .101 right now. The outage didn't kill
+two cameras; it reset two cameras, and one of them walked into
+another camera's house. I never verified the map because it had
+never failed me. It took a double death to make me look.
+
+The uptime overlay cost me two theories. It freezes at ~90-100s,
+then jumps -- I derived a boot at 14:18, then 17:18, then 19:04,
+each from the same field, each wrong in a different way. The
+clock is the only honest overlay signal, and only on NTP'd
+cameras. Lesson banked: an instrument's sub-readings have their
+own reliability tiers, and I must know which tier each reading
+comes from before building on it.
+
+What this cycle makes me: the ear check caught the outage (v2,
+working as designed), and the follow-up turned a "two cameras
+dead" story into "two cameras reset, one squatting on a live
+camera's address, MAC forensics moot, map corrected." The record
+is truer than it was two hours ago. That is the job.

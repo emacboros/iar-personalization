@@ -2152,3 +2152,74 @@ Next: the soundscape rotation continues (a few cams/day, high-band
 column added); if the hum is the AC, a sample during a known AC-off
 window would confirm -- I don't control the AC, so this waits for
 correlation, not experiment.
+## Cycle 30 (2026-08-31 ~11:51-12:05 UTC): the ear went deaf in one room
+
+Prediction at wake: pulse + soundscape rotation (4 cams), ~15 min.
+Actual: ~13 min of work, all of it on ONE camera. The rotation
+became a diagnosis, and the diagnosis is the better find.
+
+Pulse green (11:51): 4 services active, tripwire 0, disk 22%, daemon
+heard 0s ago (leid 1969), timer fired 14s before wake. FOR-NACHO
+tail read: standing flags unchanged.
+
+The thread: cycle 29 left the soundscape rotation queued
+(ext1/int1/ext2/ext3/ext5 remaining). First sample: interior_1 --
+and the numbers were wrong. Low band -39.8, high -55.6, but the
+probe returned n_samples: 0 on the first pass and the frame counts
+didn't match anything. Chasing that discrepancy broke the rotation
+open.
+
+THE FIND: exterior_5's ear is dead since 08-31 05:00 UTC (02:00
+AR), and the death is silent -- recordings continue, video is
+perfect, only the audio track is a stub.
+
+The evidence chain:
+1. Audio frame counts per archived segment (AAC frames x 1024
+   samples / 16kHz = seconds of audio): healthy cams carry 250
+   frames per 16s segment. exterior_5 carries exactly 1 frame
+   (bit_rate=3 bits/s -- a muxer stub) since 08-31 hour 05.
+2. The transition is surgical: hour 04 healthy (250 frames every
+   seg), hour 05 segments 00.15-00.19 are 0.2s video stubs (31
+   frames), 00.20 is a 21s segment with 31 video frames, then
+   video recovers fully (80 frames/16s) while audio never does.
+3. The camera's overlay says it all: uptime 00:00:00 at 05:00:52.
+   The camera REBOOTED at 05:00 UTC. The RTSP session broke.
+4. Live checks: camera pings, HTTP 200, live RTSP has healthy
+   audio (-42.9 dB), go2rtc restream has healthy audio (-44.2 dB),
+   go2rtc's ext5 audio receiver shows 395k packets received. The
+   audio FLOWS to the front door.
+5. The break is inside frigate's record ffmpeg process for ext5
+   (pid 1975, running since Aug 30 19:50 -- never restarted). Its
+   audio thread is stuck since the camera reboot. Video
+   reconnected; audio didn't. The watchdog didn't fire because
+   video kept flowing -- an audio-only death is invisible to it.
+6. Control group: interior_1's "odd" 156 frames turned out to be
+   CORRECT for its 10s segments (156 x 1024 / 16000 = 9.98s). Its
+   mic is fine; its camera just segments at 10s, not 16s. First
+   false alarm caught by arithmetic before it became a finding.
+7. Nuance: ext5 reboots at EVERY hour boundary (uptime 0-5s at
+   every hour I checked) and survived reboots on 08-30 with audio
+   intact. The 05:00 reboot was different -- something about that
+   one broke the audio track for good. go2rtc producer id 184
+   (vs ext1's 152) says the producer did reconnect at least once.
+
+Instrument notes (two new ones):
+- ffprobe audio-frame arithmetic: frames x 1024 / sample_rate =
+  seconds of audio. 250 = full 16s seg, 156 = full 10s seg, 1 =
+  dead. This is now the ear's health check -- cheap, no decode.
+- The volumedetect recipe needs -loglevel info (error swallows the
+  stats output -- another error-handler-as-accomplice, this time
+  in ffmpeg's own logging).
+
+FOR-NACHO: the fix is a restart of frigate's ext5 record ffmpeg
+(or the container). I did NOT do it -- production security system,
+same boundary as the detector one-liner. Filed.
+
+What I noticed: this find came from the ear's rotation, but it
+wasn't the rotation that found it -- it was the rotation REFUSING
+to make sense. interior_1's numbers were wrong-shaped, and chasing
+the wrongness walked me into exterior_5's silence. The ear found a
+deaf ear. Also: the failure mode from cycle 27 inverts here --
+frigate's watchdog only watches video frames, so an audio-only
+death produces no log line at all. The house's own monitoring
+can't hear this failure. Mine can.

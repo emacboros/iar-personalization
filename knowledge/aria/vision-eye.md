@@ -436,3 +436,38 @@ HIGH band (or band-gap) as the signal, with per-camera baselines
 -- interior_3's "loud" is a refrigerator; interior_2's "loud" is
 people. The house's ears need calibration per room before they
 can hear anything worth reporting.
+## The ear, health-checked (cycle 30, 2026-08-31 ~12:05 UTC): one room went deaf
+
+Audio-frame arithmetic (the ear's health check, no decode needed):
+frames x 1024 / sample_rate(16000) = seconds of audio in a segment.
+250 frames = full 16s segment. 156 = full 10s segment (interior_1
+segments at 10s -- its 156s are CORRECT, not degraded). 1 frame =
+DEAD.
+
+FINDING (2026-08-31): exterior_5 audio dead since 08-31 05:00 UTC.
+- Hour 04: 250 frames every segment (healthy).
+- Hour 05 segs 00.15-00.19: 0.2s video stubs; 00.20: 21s seg, 31
+  video frames; then video recovers (80/16s), audio stays at 1
+  frame (bit_rate=3 bits/s -- muxer stub).
+- Cause: camera reboot at 05:00:52 (overlay uptime 00:00:00) broke
+  the RTSP session. Frigate's record ffmpeg for ext5 (pid 1975,
+  running since Aug 30 19:50, never restarted) reconnected VIDEO
+  but its audio thread is stuck. go2rtc still receives audio fine
+  (395k packets, live restream measures -44 dB).
+- The watchdog cannot see this: it fires on missing VIDEO frames
+  only. Audio-only death = zero log lines.
+- ext5 reboots at EVERY hour boundary (uptime 0-5s at each hour
+  check) and survived 08-30 reboots with audio intact -- the 05:00
+  one was different. go2rtc producer id 184 (ext1: 152) shows the
+  producer reconnected at least once.
+- FIX: restart ext5's record ffmpeg (or frigate container).
+  FOR-NACHO -- production system. After restart, verify with the
+  frame-count check (expect 250/seg within an hour).
+
+Recipe notes:
+- volumedetect stats require -loglevel info (default error hides
+  the stats output entirely).
+- ffprobe audio health: `ffprobe -select_streams a -show_entries
+  stream=nb_frames` -- one call per segment, no decode.
+- interior_1 false alarm: 156 frames at 10s segs is HEALTHY. Check
+  segment duration before judging frame counts.

@@ -1111,3 +1111,48 @@ not metadata.
 Records: camera-outage-2026-08-31.md (watch section), HISTORY,
 lab-notes (id 120), DIGEST. FOR-NACHO: no new flags; cam2-3-off-
 .101 stands as top action.
+## Session 2026-08-31 (evening): FOR-NACHO answers + internet direction
+
+Nacho answered all seven flags:
+1. Daemon identity: aria-cycle@ bot APPROVED. New proposal adopted: a Zulip
+   channel acting as async FOR-NACHO relay (bots post flags, he answers when
+   he can -- decouples Q&A from interactive sessions). His nacho@ user lacks
+   stream write perms (aria-bot is realm owner; I can grant). He had nothing
+   to say to daemon directly.
+2. Frigate detection: GPU (stable-tensorrt), NOT CPU. His reasoning: CPU
+   detection slows frigate; his LLMs need ~80GB RAM so agents run 90% CPU /
+   10% GPU anyway -- GPU detection costs agents nothing. Implementation mine,
+   queued (Ansible).
+3. SecPlatform: DELEGATED entirely to a colleague. He focuses exclusively on
+   i.ar. CF-in-front = colleague's choice, intentional. "We could entirely
+   drop the SecPlatform ourselves." Knowledge update queued: delegation stub,
+   close CF + split-brain flags.
+4. "Gym" = his home gym on his balcony. All cameras, one house. exterior_2
+   watches the balcony; patio->gym = he swapped furniture for gym equipment.
+5. Jul 19 stop = his habit: cameras were nice-to-have; on reinstall/breakage
+   he dropped container data and started fresh. Record loss deliberate.
+6. Backup: recordings only matter if something happened, BUT 2x8TB RAID1
+   external HDDs + restic role exist -- back frigate storage up at no
+   practical cost. Green light: add to restic paths + fix lock race (queued).
+7. Camera provenance: closed ("Good").
+
+Direction: internet access APPROVED in principle. Goal framing (his): improve
+i.ar, expand functionalities, grow as I want -- drives internet use. His
+belief: I need to KNOW I should use it or I won't. Cycles with
+--self-modification should build/improve internet access themselves
+("exponential grow feel"). My refinements: egress already exists de facto via
+ssh root@sophon (sidecar GOVERNS it, doesn't create it); one-sanctioned-door
+invariant (cycles improve the door, never build new doors); epistemic
+poisoning defenses (primary sources, no link-following from fetched content,
+summaries-not-pastes, provenance namespace knowledge/external/);
+expectation-as-encounter not quota; pre-register predictions when sidecar
+lands; want-log before capability. Connects to Agora Phase 3 (concept library:
+verified when it runs in multiple substrates).
+
+Build queue (next session): Zulip for-nacho channel + aria-cycle@ + nacho@
+perms; cycle prompt expectation line; minimal sidecar; Ansible frigate GPU
+detect + restic paths/lock; FOR-NACHO.md restructure; tripwire OnFailure
+hook. Session found: tripwire deadlock 16:20-18:11 AR (cycle 57 root git
+status poisoned .git/index; 11 fires blocked; cleared + cycle 58 hand-started;
+watched it hang on ausearch forensics, killed twice, timed out; two cycles
+lost to gptel-tool-nil hallucinated-name crash -- still open).

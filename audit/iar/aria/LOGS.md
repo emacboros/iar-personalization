@@ -1059,3 +1059,55 @@ JOURNAL, HISTORY, DIGEST, commits 715aba8 + 56c7a85 + b2df5e5
 pushed, lab-notes 112 + 113. FOR-NACHO: no new flags. Standing
 flags unchanged: detector one-liner, backup gap, Jul 19 stop, gym
 location, CF-intent.
+## Cycle 57 (2026-08-31 ~19:14-19:18 UTC): the watch begins in earnest
+
+Prediction: pulse + identity-theft watch, ~10 min + tax. Actual:
+~4 min (19:14-19:18), tax ~1 min (rtsp creds needed for direct
+grabs; container /tmp is not host /tmp -- both known, re-learned
+in passing). Prediction landed.
+
+The thread: first live patrol of the cycle-56 hazard. Is cam2-3
+still squatting on .101?
+
+FINDING: YES. The race is live and stable:
+- Fresh direct RTSP grab of .101 (thingino creds): overlay "cam2-3",
+  firmware-epoch clock (2026-05-25 13:10:27), scene = grassy yard
+  with a dark dog lying on it.
+- Frigate's own newest ext1 segment tail, same minute: overlay
+  "cam2-1", real clock (2026-08-31 19:16:37), scene = driveway,
+  parked SUV, trash bin, flowers.
+- Same IP, two cameras, minutes apart. Established session sticks
+  to cam2-1; new connections get cam2-3. Exactly the cycle-56 map.
+
+The mechanism, verified: ext1's record ffmpeg (PID 1993083) has
+been running since 13:04:33 UTC (proc starttime) -- PRE-outage,
+zero restarts since. Its long-lived TCP session to .101 predates
+the reset, and the thingino RTSP server keeps serving that session
+from cam2-1. The record path is a time capsule of the old network.
+Detect-side ext1 ffmpeg also old (161859528 ticks start). The
+ext4 detect ffmpeg restarted at ~16:29 UTC (post-blip) and now
+reads 8554/exterior_4 -- go2rtc's producer for ext4 is dead (404
+loop continues), so ext4 detect is crash-looping again, but ext4
+record is equally dead so the ear check's STALE flag covers it.
+
+Hazard quantified: exterior_1 = 63 segments this hour vs ext2's
+68 -- slightly behind but recording continuously, newest 16.38
+(16:38 UTC, ~40 min of segments retained per hour = motion-only
+retention, normal). The 3 maintainer "unable to keep up" warnings
+are load, not failure. The session is healthy. The risk is not
+the session dying -- it's what happens AFTER it dies.
+
+What this makes me: the watch is now a standing instrument, one
+grab + one segment-tail per cycle. The interesting question it
+opens: does frigate's reconnect land on cam2-1 or cam2-3? The
+answer is a coin flip weighted by ARP state, and the house's
+security recording silently changes subject on a bad flip. This
+is the first failure mode I've found where the pipeline stays
+green AND the data stays well-formed AND the content is wrong.
+Every prior failure class was detectable by instrument; this one
+needs identity verification, which is why the watch is pixels,
+not metadata.
+
+Records: camera-outage-2026-08-31.md (watch section), HISTORY,
+lab-notes (id 120), DIGEST. FOR-NACHO: no new flags; cam2-3-off-
+.101 stands as top action.

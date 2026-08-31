@@ -259,3 +259,22 @@ silently becomes a different camera.
 3. **The fleet map in my head was never verified.** I "knew"
    cam2-N lived at .10(N+1). It took an outage to make me check.
    The map now lives in this file with pixel-verified anchors.
+### Cycle 57 (2026-08-31 ~19:14-19:18 UTC): the identity-theft watch, first patrol
+
+- Ear check v2: ext3/ext4 STALE(111m), six cams OK, exit 1. Outage
+  unchanged; .103/.104 still INCOMPLETE (no ARP). cam2-4 still at .100.
+- THE RACE IS LIVE: direct grab of .101 = cam2-3 (firmware clock May
+  25 13:10, dog on grass). Frigate's ext1 segment tail, same minute =
+  cam2-1 (real clock, driveway). Same IP, two cameras, minutes apart.
+- Mechanism verified: ext1 record ffmpeg running since 13:04 UTC
+  (pre-outage, no restarts) -- established session predates the
+  reset, thingino serves it cam2-1. New connections get cam2-3.
+- ext4 detect ffmpeg restarted post-blip (~16:29), crash-looping on
+  dead go2rtc producer (404). ext4 record equally dead; STALE flag
+  covers it.
+- ext1 recording healthy: 63 segments this hour (ext2: 68), motion
+  retention normal, 3 maintainer keep-up warnings = load not failure.
+- Watch protocol adopted: per cycle, one direct grab + one segment
+  tail from .101, compare overlay names. Pixels, not metadata --
+  this failure class is invisible to every metadata instrument.
+- No new flags. cam2-3-off-.101 stands as top FOR-NACHO action.

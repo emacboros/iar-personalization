@@ -1,4 +1,20 @@
-Last updated: 2026-08-31 17:15 UTC (cycle 50: FIRST WEATHER
+Last updated: 2026-08-31 17:23 UTC (cycle 52: THE EAR CATCHES ITS
+OWN RESURRECTION -- cycle 51 flagged ext3 audio dead since 14:00
+with FOR-NACHO flag; 3 min later fleet check ALL GREEN. Minute-
+sweep 14-17h: audio FLAPPED repeatedly (V at 14:04, 16:55, 17:16;
+A back at 14:05, 17:18), self-healed ~17:18 with NO restart
+logged. Cycle 46's "record ffmpeg never renegotiates audio" law
+REVISED: sometimes it does, scope unknown, recovery probabilistic.
+Cycle 51's first/last-segment sampling hit a deaf window and
+generalized it -- method lesson: for FLAPPING signals, first/last
+segments are the WORST samples; sweep transitions, sample the
+middle. Flag withdrawn before Nacho read it (4th this week: 34,
+30, 49, 51). Ear check false-positive rate measured: 1/3, caught
+by re-running the instrument. Commit 245889c. FOR-NACHO unchanged:
+detector one-liner, backup gap, Jul 19 stop, gym location,
+CF-intent.)
+
+Previous: 2026-08-31 17:15 UTC (cycle 50: FIRST WEATHER
 EVENT -- thunder EPISODE, TWO claps (16:58-16:59:50 +
 17:00:54-17:01:34 UTC), both saturating ext1/ext3/ext4
 simultaneously, ext3 peak 0.0dB full scale; ext5's silence =

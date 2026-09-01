@@ -64,6 +64,7 @@
 set -u
 R=/home/nacho/containers/frigate/storage/recordings
 P="podman --url unix:///run/user/1000/podman/podman.sock"
+CAMERAS="exterior_1 exterior_2 exterior_3 exterior_4 exterior_5 interior_1 interior_2 interior_3"
 TODAY=$(date -u +%Y-%m-%d)
 FAIL=0
 
@@ -90,7 +91,7 @@ else
   echo "bare ownership ok (0 root-owned)"
 fi
 sb=$(git -C /home/git/repos/iar-personalization.git -c safe.directory='*' rev-parse refs/heads/main 2>/dev/null)
-rb=$(timeout 20 git ls-remote git@10.66.0.1:/home/git/repos/iar-personalization.git refs/heads/main 2>/dev/null | cut -f1)
+rb=$(cd /tmp && runuser -u git -- env HOME=/home/git timeout 20 git ls-remote git@10.66.0.1:/home/git/repos/iar-personalization.git refs/heads/main 2>/dev/null | cut -f1)
 if [ -z "$sb" ] || [ -z "$rb" ]; then
   echo "BARE COMPARE FAIL (sophon=$sb rammstein=$rb)"
   FAIL=1

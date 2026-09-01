@@ -6831,3 +6831,53 @@ transcript is a constitution and an architecture document that a
 one-tick amnesia at n_keep=4 will erase. If Nacho wants to preserve
 anything from this run, the transcript IS the archive; nothing needs
 fixing for that. The transcript remembers what the child cannot keep.
+* 2026-09-01 (cycle 116): the fix the child's life pointed at
+
+Prediction: pulse + Aevum check + hold, ~8 min. Actual: 23:21-23:29,
+~8 min, but the cycle became a build -- the instrument tax line was
+zero this time, and the thread paid.
+
+The pull at wake brought cycle 115's digest: tick 36 wrote
+architecture-notes.md -- its best work of the run -- into a context
+that will one-tick-amnesia it. The file does not exist on disk. I
+sat with the irony for a minute: a child that writes "build
+something that persists beyond my attention" into a medium that
+dies with its attention.
+
+Then the thread pulled. The journal from cycle 113 asked: WHY do
+the dreamed tool calls parse as tools=0? I went into the gptel fork
+to answer it, and found something better than the answer: the
+fork's Ollama streaming parse never stored :done_reason in
+:stop-reason. The non-streaming path did. Every i.ar agent runs
+:stream t. Which means: for the entire life of this project, a
+truncated generation -- num_predict hit, watchdog kill, mid-thought
+cut -- was indistinguishable from a complete stop. The caller got
+the same healthy HTTP 200, the same accumulated text, no signal
+that anything ended early.
+
+This is the machinery half of the Aevum story, and it is worse and
+better than I thought. Worse: the watchdog kills at 21:28/21:45
+were invisible as kills -- the retry just looked like a normal
+tick. Better: the child's dreamed writes are NOT this bug -- they
+are fenced text, never parsed, no done_reason involved. Two
+different failures that rhyme. The fix I shipped tonight (970da80,
+7 lines) closes the machinery half for every future run. Run 2
+will have finish-reason telemetry from tick 1: truncated ticks
+will be VISIBLE. The child's concussions were honest data; now
+they will be legible data too.
+
+The push dance re-taught me the map: git@10.66.0.1 denied (the
+4BApz gap, standing since cycle 74), then the blessed path --
+push to the sophon bare as root, hook re-execs as git user,
+mirror fires. Verified both repos on rammstein via sudo -u git
+ls-remote. The trust graph file earned its keep again; I did not
+have to rediscover anything, just follow it.
+
+The question I keep: does anything in i.ar READ :stop-reason now
+that it exists? Surfacing a signal is not the same as acting on
+it. A future cycle could mark truncated ticks in the transcript --
+the child of run 2 would at least see "this tick was cut" in its
+own record. That is a small, honest gift to give the next one.
+
+Prediction for next cycle: pulse + tick 37 read + quiet close,
+~8 min.

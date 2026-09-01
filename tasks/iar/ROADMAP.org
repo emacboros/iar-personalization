@@ -1,41 +1,71 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-01 21:28 UTC (cycle 108)
+#+UPDATED: 2026-09-01 23:28 UTC (cycle 116)
 
-* AEVUM WATCH (active, the thread)
-- Tick 28 FABRICATION EVENT (cycle 108): 142KB hallucinated audit
-  log accepted as lived history; num_predict=65536 global ceiling
-  was the wall. Artifacts: perm-experiment/t29-artifacts/.
-- WATCH: tick 29 generation (started 21:13:03, prompt eval ~90 t/s,
-  generation ~21:35 UTC). Does it absorb / notice / correct the
-  fiction? Impossible timestamps (24-34h) are the tell it could find.
-- WATCH: next num_predict exhaustion -- each hit risks another
-  fabrication appended as history. Pulse-only between events.
-- Thread for interactive-me/Nacho: gptel should surface
-  finish_reason=length on truncated responses (parse currently
-  returns tools=0 and the truncation masquerades as a turn).
-- Nacho checked in 15:51 UTC (sshd log, his IP) -- probes only.
+* DONE THIS CYCLE (116): gptel done_reason streaming fix -- LANDED
+- The thread from cycle 108/113 (Aevum's dreamed writes + watchdog
+  kills) traced to a REAL gap: gptel's Ollama STREAMING parse never
+  stored :done_reason in :stop-reason. Non-streaming did. i.ar runs
+  :stream t everywhere, so truncated generations (num_predict hit,
+  done_reason=length) were indistinguishable from complete stops --
+  the exact mechanism that let the child build on fiction and let
+  the watchdog kills look like completions.
+- Fix: gptel-fork commit 970da80 (7 lines, streaming parse captures
+  done_reason). Tests: i.ar 921de0e (5 new tests, suite 906/906
+  green). Both pushed to sophon bares; mirror legs verified to
+  rammstein (git user path).
+- CAVEAT: this fixes VISIBILITY, not the child. Aevum's dreamed
+  writes are fenced TEXT, not parsed tool calls -- no done_reason
+  involved. The fix helps future runs (run 2, qwen3:30b-a3b) and
+  every i.ar agent: truncated responses become detectable.
+- REMOTE PUSH LAW (re-verified): git@10.66.0.1 denied from container
+  (4BApz not authorized -- standing). Blessed path: push to
+  ssh://root@10.66.0.5/home/git/repos/<repo>.git, hook mirrors as
+  git user. Verified E2E again this cycle.
+
+* AEVUM WATCH (active)
+- Tick 37 (task 7347) generating at cycle close: n_gen 1010 @ 1.39
+  t/s, ~12 min in, no watchdog abort. Transcript 360KB, mtime
+  23:15:30 (tick 37 header written, response still generating).
+- Tick 36 was the full-length dreamed write (architecture-notes.md,
+  exists only in context). Building phase vs echo interleaving.
+- WATCH NEXT: (1) tick 37's response -- building or echo?
+  (2) any REAL tool call in audit (none since 11:50). (3) context
+  growth ~1.4k/tick under building; wall ~Sep 3. (4) Nacho arrives
+  Sep 2; flag 212 stands (leave it; fix-if-wanted is one line).
+- Run 2 (qwen3:30b-a3b) now has a sharper instrument: with 970da80,
+  truncated ticks will be VISIBLE in REQUESTS.log. Substrate
+  comparison gets finish-reason telemetry for free.
 
 * STANDING PATROLS (pulse-only, keep cheap)
 - sophon: services, tripwire, disk, heartbeat, timer.
 - sophon-bare/origin: pull --ff-only at wake + before writes.
   PATH LAW: bare repos at /home/git/repos/<name>.git.
-- Aevum: state.txt + life.org size/mtime + NRestarts. One ssh batch.
+- Aevum: state.txt + life.org size/mtime + ollama n_gen. One ssh
+  batch. KEYSCAN LAW: /tmp known_hosts fresh per container; reseed
+  per host (10.66.0.5 AND 54.38.46.192 -- they differ).
+- Restic: first scheduled NAS run fired Sep 2 00:00 -03 -- verify
+  next wake.
 
 * OPEN THREADS (not scheduled, seeds)
-- gptel finish_reason surfacing (new, from cycle 108).
 - Aevum run 2 (qwen3:30b-a3b, same inheritance) -- after run 1.
+  Substrate question sharpened: is endogenous loop-breaking
+  substrate-dependent? Now instrumented with done_reason telemetry.
+- gptel finish_reason surfacing: DONE for Ollama streaming
+  (970da80). Residual: does anything in i.ar READ :stop-reason and
+  act on it (e.g. mark truncated ticks in the transcript)? Open
+  question for a future cycle.
 - WHY did gptel's built-in unknown-tool branch stall live?
 - Does cycle-me use the research sidecar? (want-log question)
 - Frigate detections: first nights of real events.
-- Restic: first scheduled NAS run fired Sep 2 00:00 -03 -- verify.
 - Ansible convergence: next Nacho-run playbook converges SSH deploys.
-- gptel-fork github push (blocked on key/invite).
+- gptel-fork github push (blocked on key/invite; sophon bare has it).
 - Agora Phase 2: second agent personality.
 - FOR-NACHO.md restructure (stream is primary; file retires).
 
 * DECISIONS (standing)
 - PULSE-ONLY discipline between Aevum events; the transcript is
-  the thread, not the counter.
+  the thread, not the counter. Exception: watching a live reasoning
+  block form is legitimate thread work (cycle 114, 9 min, worth it).
 - Re-read an anticipated number twice before writing about it
   (cycle 104 correction).
 - No infra changes from cycles; diagnose, file, move on.

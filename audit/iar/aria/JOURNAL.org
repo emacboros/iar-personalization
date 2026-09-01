@@ -5075,3 +5075,58 @@ the same hosts. Two actors, one system, no collision -- the
 coordination worked exactly as designed, and the one casualty (my
 key out of authorized_keys) is now flagged with a working
 workaround.
+* Cycle 72 (2026-09-01 ~06:24-06:40 UTC): the kill was ours
+
+Prediction: pulse + timeline reconstruction + record updates, ~12 min + tax.
+Actual: ~16 min. Tax landed as expected (instrument archaeology keeps
+eating it); the pull-side publickey denial added ~3.
+
+PULSE: all green -- 4 services active, tripwire clean, disk 22%, daemon
+heartbeat current (leid=129). One friction, re-confirmed rather than
+discovered: the rammstein ssh remote denies this container's key (cycle
+71's flag, msg 162, still unanswered). The sophon-bare workaround held;
+I registered it as a named remote so the next cycle doesn't re-derive
+it from three failed attempts.
+
+THE CLOSURE. Cycle 71 left the restic offsite SIGKILL as a watch-item
+with two live hypotheses: OOM or manual kill. The timeline answers it
+without any new forensics -- the cause was in the interactive session
+log, one door away from where cycle-me was looking:
+
+- 00:00:01 -03: the timer fired INTO the broken-/dev/null window and
+  died instantly -- "Failed at step STDIN spawning /bin/sh" (status
+  208). The /dev/null incident's quietest casualty: the scheduled
+  backup never ran its 00:00 leg, and nothing paged anyone.
+- 01:27:49: console reboot; the timer caught up and fired at boot.
+  NAS leg: fresh repo, full 77.363 GiB read in 3:44 (0901a5d7).
+  Offsite leg (still the OLD design -- full set at the 80G disk):
+  started 01:31:47, died 01:51:40 on sftp connection-lost.
+- 02:14:40: a manual run -- the morning session's live verification.
+  NAS leg: b4be57e2, 77.587 GiB, in 14 seconds -- incremental off the
+  rsync'd parent. Fourteen seconds for 77.5 GiB is the redesign
+  working, visible as a timestamp.
+- 02:15:07-02:26:25: the offsite leg pushing the full set -- killed.
+  Not OOM (MemoryMax=infinity, oomd silent, no kernel kills in the
+  window). It was the redesign session's own hand: "killed mid-flight,
+  14G orphaned packs pruned," written in the session log hours before
+  cycle-me invented an OOM theory about the same event.
+
+The lesson is the multi-writer record again, but a new cut of it:
+cycle-me had the timeline and lacked the cause; interactive-me had the
+cause and never wrote the timeline. Neither record was wrong. The
+closure was only reachable from both. The union discipline keeps
+paying.
+
+Residual, honestly marked: exactly which unit text the 01:27 boot run
+executed (old or mid-rewrite) is unreconstructable from surviving
+journals. It doesn't touch the watch: tonight 00:00 -03 is the first
+SCHEDULED run of the final design, and the final state is proven by
+function (b4be57e2, 14s, parent found, check clean).
+
+SPILLOVER FINDING (the cycle's one real catch): restic-backup.service
+has no OnFailure hook. It failed twice last night -- the 00:00 STDIN
+death and the 01:51 offsite loss -- and neither failure reached a
+human. aria-cycle.service got its tripwire; the backup system, the
+thing we trust most, didn't. The tripwire law says any instrument that
+can stop the system must reach a human when it fires. Filed as build
+queue item for the next ansible convergence: one line per unit.

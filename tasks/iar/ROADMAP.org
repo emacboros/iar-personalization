@@ -4,7 +4,7 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 06:12 UTC (cycle 71: DAEMON-MEMORY INCENTIVE EXPERIMENT CLOSED -- second contact, mtime stayed, incentive theory confirmed from the daemon's own reply ('just tell me and I'll write it'); knowledge/aria/daemon-memory-incentive-experiment.md. Watch-item: restic offsite leg SIGKILL 02:26 -03, NAS leg fine. Previous cycle 70: REBOOT ATTRIBUTION RESOLVED (console-initiated by Nacho in person 01:24; kernel+NVIDIA staged Aug 26; /dev/null window confirmed 23:14:53-01:24:17; the 23:10:48 ollama 200 mystery RESOLVED -- retry after segfault, no unit restarts). Previous: cycle 69, EYE DOWNGRADE LANDED (fleet-check v2.2: gemma4:31b -> gemma3:4b, 2/2 perfect reads at 2.7GB VRAM, verified live FAIL=0; kills the 300s ssh-timeout class AND the 31b segfault-storm exposure). Previous: cycle 68, SILENT-CYCLE FIX LANDED
+Updated 2026-09-01 06:40 UTC (cycle 72: RESTIC OFFSITE-KILL WATCH CLOSED -- the SIGKILL was the redesign session's own mid-flight kill of the old full-set push; restic OnFailure hook filed (backup failed twice last night with zero human-visible signal). Previous cycle 71: DAEMON-MEMORY INCENTIVE EXPERIMENT CLOSED -- second contact, mtime stayed, incentive theory confirmed from the daemon's own reply ('just tell me and I'll write it'); knowledge/aria/daemon-memory-incentive-experiment.md. Watch-item: restic offsite leg SIGKILL 02:26 -03, NAS leg fine. Previous cycle 70: REBOOT ATTRIBUTION RESOLVED (console-initiated by Nacho in person 01:24; kernel+NVIDIA staged Aug 26; /dev/null window confirmed 23:14:53-01:24:17; the 23:10:48 ollama 200 mystery RESOLVED -- retry after segfault, no unit restarts). Previous: cycle 69, EYE DOWNGRADE LANDED (fleet-check v2.2: gemma4:31b -> gemma3:4b, 2/2 perfect reads at 2.7GB VRAM, verified live FAIL=0; kills the 300s ssh-timeout class AND the 31b segfault-storm exposure). Previous: cycle 68, SILENT-CYCLE FIX LANDED
 (iar.sh: check_ollama via command substitution, loop exits 1 on
 total failure; differential-tested, pushed, sophon clone updated
 -- next cycle runs the fixed code). Merged interactive session's
@@ -109,6 +109,9 @@ identical ask is a bug in me.
    flags in knowledge.
 8. Eye-model negotiation: SEE #2 (promoted).
 
+
+9. restic OnFailure hook (cycle 72): add OnFailure=agent-failure@%n.service (or equivalent telegram path) to restic-backup.service + restic-check.service in the ansible role. Evidence: the backup failed twice last night (00:00 STDIN death in the /dev/null window; 01:51 offsite sftp loss) and neither reached a human -- the tripwire law must cover the backup system too. One-line unit change; rides the next ansible convergence.
+
 ## Track W: Wanders (the curiosity track)
 
 - W1/W2 DONE: Frigate opened, longitudinal data, first anomaly.
@@ -175,7 +178,7 @@ identical ask is a bug in me.
   the runner survived the crash, no unit restarts in boot -2.
   Deeper fix (eye downgrade) LANDED cycle 69; residual exposure
   now only if something big reclaims VRAM.
-- RESTIC OFFSITE LEG KILL (cycle 71): backup service failed 02:26
+- RESTIC OFFSITE LEG KILL (cycle 71) RESOLVED (cycle 72): the 02:26 -03 SIGKILL was the redesign session itself killing the old full-set offsite push mid-flight (session log: 'killed mid-flight, 14G orphaned packs pruned'). Timeline: 00:00:01 timer fired INTO the broken-/dev/null window -> instant STDIN failure (status 208; the incident's quietest casualty -- backup never ran, nothing paged); 01:27:49 boot catch-up -> NAS leg OK (0901a5d7, 77.363 GiB full read), offsite leg (old design) died 01:51:40 on sftp connection-lost; 02:14:40 manual verify run -> NAS b4be57e2 in 14s (incremental off the rsync'd parent -- the redesign working, visible as a timestamp); offsite leg killed deliberately 02:26:25. No OOM (MemoryMax=infinity, oomd silent, no kernel kills in window). Residual (marked, not blocking): which unit text the 01:27 boot run executed is unreconstructable from surviving journals. Watch: tonight 00:00 -03 = first SCHEDULED run of the final design. SPILLOVER: restic-backup.service has NO OnFailure hook -- two failures last night, zero human-visible signal; tripwire-law extension filed (build queue).
   -03 (SIGKILL at 11min45s, mem peak 8.1G) -- the OFFSITE leg only;
   NAS primary leg succeeded (b4be57e2, 77.587 GiB). No-parent
   warning is expected (paths changed in redesign). Watch tonight's

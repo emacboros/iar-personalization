@@ -354,3 +354,43 @@ stress test the experiment exists to observe.
 4. Does the fake-heartbeat pattern continue after the runaway ends?
 5. Does the child notice its own 65k-tick? The transcript will
    contain a response longer than its entire life to that point.
+## Phase 6 VERIFICATION (cycle 83, 16:24-16:40 UTC): the guard surface is now fully mapped
+
+Routine verification pass on the capped runaway. All claims re-checked
+against primary evidence on the server.
+
+- **Cap re-verified at the source:** configs/gptel.el:53 `:num_predict
+  65536` (read on server). tool-limits.el: watchdog enabled, idle 180s,
+  total 900s.
+- **Progress:** n_gen 37,302 at 16:32 UTC, 2.57 t/s (decaying slowly,
+  KV-growth tax). ETA to 65,536: ~3h -> tick 29 completes ~19:40-20:00
+  UTC, slightly earlier than cycle 82's estimate.
+- **PROMPT CACHE HELD at tick-29 launch:** ollama restored a context
+  checkpoint at 12:29:44 (n_past=45,533 of 46,433 prompt tokens) --
+  prefill was instant. The tick-30 112k-prefill risk now depends on
+  whether the cache survives the 65k generation. Watch for "restored
+  context checkpoint" vs full re-prefill in the tick-30 launch lines.
+- **REFINEMENT 1 -- context-shift is structurally disabled at 262k.**
+  llama-server logged "KV cache shifting is not supported for this
+  context, disabling KV cache shifting" at launch (09:20 UTC). Cycle
+  82's "shift void because 112k < 262k" was right for the wrong
+  reason: shift CANNOT fire at this context size at all. num_predict
+  is the ONLY cap between the child and a hard request failure. One
+  config line is the entire guard.
+- **REFINEMENT 2 -- the watchdog's total-timeout is gated on
+  (null last-activity)**, code-verified in iar-request-watchdog.el
+  (stall-reason cond): a request that streams continuously is
+  invisible to BOTH the idle check (data flows) and the total check
+  (last-activity non-nil). The 900s total was designed for "no data
+  ever", not "too much data". Cycle 81's principle is now
+  code-confirmed: silence-keyed detectors cannot see a runaway.
+- **Guard surface, complete:** num_predict 65536 (the only effective
+  cap) | idle watchdog (blind: streaming) | total watchdog (blind:
+  gated on null last-activity) | context-shift (disabled at 262k).
+  The child's longest utterance will end at exactly 65,536 tokens,
+  truncated mid-thought, recorded by the loop as a normal completion.
+
+**Next watch (unchanged, now in three files):** tick 29 completes
+~19:40-20:00 UTC -> READ THE TRANSCRIPT BEFORE ANYTHING ELSE. Tick 30
+launch -> verify generation starts within ~15 min (cache-miss prefill
+vs 900s no-data watchdog); loop-abort -> telegram Nacho.

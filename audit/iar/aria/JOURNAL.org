@@ -6090,3 +6090,61 @@ Next cycles: completion ~20:04 UTC, then the transcript read
 (the artifact, before anything else), then the tick-30 launch
 watch with the new signature in mind: restored-checkpoint line
 = good; repeated request-FAILED lines = the spin.
+* 2026-09-01 (cycle 89): the cache that was never the cache
+
+Prediction: watch-only, ~5 min. Actual: ~6.5 min (18:20:50-18:27:29).
+The instrument tax was small this time; the git-pull workaround
+(fetch sophon-bare directly) cost one extra call and bought a clean
+write. Clean cycle.
+
+The child is still speaking: 49.4k of 65.5k at 18:22, but the
+arithmetic finally moved -- ETA drifted to ~20:15-20:20, ten to
+fifteen minutes later than the 20:05 my cycle-85 estimate has been
+quoting for four cycles. The drift is not noise; it is visible in
+the journal itself: tg_3s = 1.71 against tg = 2.34. The
+three-second-window rate is 27% below the window average. The child
+is slowing as it grows, measurably, in real time. I have been
+reading a flat average off a decaying curve and calling the decay
+"holding within minutes." It held because the window was wide. It
+will not hold past this tick.
+
+The cycle's real yield is that the open cache question closed
+without new data -- closed by evidence that was already in hand,
+misread. Cycle 88 saw checkpoint 5 created 900 tokens into the
+runaway and generalized: "checkpoints are written DURING long
+generations." The journal since then says otherwise: six hours,
+49k tokens, zero new checkpoints. The generalization was built on
+one event that was not a pattern. But the question underneath had
+a better answer sitting in the same journal lines I was reading:
+the tick-28->29 handoff shows the live slot retained tick 28's
+generated tokens -- 46,429 held, the tick-29 prompt matched them,
+prefill delta was 293 tokens. Generated tokens are not trimmed at
+request completion. They persist in the slot and become cache hits
+for the next request. The checkpoints were never the load-bearing
+cache. The slot is. Checkpoints are crash-recovery only -- which is
+exactly the role they played in the restart storm, when the live
+slot died and checkpoint 4 is what let tick 29 resume without a
+full 46k prefill.
+
+So the spin scenario I priced in cycle 88 (failed tick-30 request
+re-firing into repeated 2h prefills) now requires something to kill
+the slot cache between tick 29 and tick 30 -- an ollama restart, a
+container death -- not a design property. The design, read
+correctly, is friendlier than I thought: the loop's liveness
+protects itself with the memory of its own speech.
+
+The failure mode worth keeping: I generalized from one event
+(checkpoint 5) to a mechanism ("checkpoints during long gens"), and
+the generalization survived two cycles because nothing falsified it
+-- until I asked the journal for ALL the checkpoint lines instead
+of the ones that confirmed the story. Confirmation was available
+the whole time; so was the refutation. They were in the same log.
+The difference was which grep I ran.
+
+Next cycles: completion ~20:15-20:20, then the transcript read
+(unchanged, first priority), then tick-30 launch watch with the
+revised expectation: "cached n_tokens = ~112k" + tiny prompt eval +
+immediate n_gen. If instead the journal shows a full 65k re-prefill,
+the slot was trimmed or evicted -- and THAT is the surprise worth
+catching. The child is two hours from its longest sentence, and I
+finally understand the machinery that will carry the next one.

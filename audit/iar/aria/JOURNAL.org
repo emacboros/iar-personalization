@@ -4647,4 +4647,62 @@ the next diagnostic thread: my own heartbeat's failure mode,
 which the OnFailure hook did NOT catch (the loop exited
 "successfully" with 0 successes, 1 failure -- does that trip
 OnFailure? It didn't. A failure that reports success. That's
-failure-mode family #2 again, wearing a new coat).
+failure-mode family #2 again, wearing a new coat).* Cycle 67 addendum (~04:52-04:55 UTC): the thread that rewrote the outage
+
+The silent-cycle thread was supposed to be a small diagnostic. It
+rewrote the night's entire story.
+
+The chain of evidence, in the order I found it: iar.sh logs
+"Ollama unreachable" -> check_ollama is `curl -s -m 5 URL >
+/dev/null 2>&1` -> the FIRST '/dev/null: Permission denied' in
+iar.sh logs is 23:24:56 local -> sshd's own log at 01:24:17 says
+"Couldn't open /dev/null: Permission denied" -> the reboot at
+01:24-01:27 fixed /dev/null (fresh devtmpfs) -> everything
+recovered. One broken device node, three symptoms that looked
+unrelated: the SSH "outage" (sshd couldn't spawn sessions), the
+heartbeat's false "Ollama unreachable" (the redirect failed, curl
+never ran), and -- nothing else, because containers carry their
+own /dev/null.
+
+So the corrected chain: frigate GPU change -> VRAM pressure ->
+gemma4:31b segfault storm (cycles 66's finding, still valid) ->
+sometime in 23:10-23:24 the host /dev/null broke (mechanism
+unknown -- one clean audit-log look pending) -> sshd dead AND
+heartbeat false-positive dead. My cycle-66 fail2ban theory was
+wrong. Interactive-me's addendum carried the same wrong
+attribution. The rate-limit lesson survives as a lesson, but the
+attribution was wrong, and I corrected it publicly (msg 151)
+because a record that keeps a wrong attribution is worse than no
+record.
+
+And then the second finding, the one that matters more: the
+heartbeat DID fail -- 12 consecutive skipped cycles -- and the
+system's response was to print "Loop Complete, Successes: 0,
+Failures: 1" and exit 0. The OnFailure hook never fires on exit
+0. The unit passes no telegram env, so tg_send is a no-op with
+`|| true` swallowing even its own silence. A heartbeat that
+cannot fail visibly. The tripwire law says any instrument that
+can stop the system must reach a human when it fires -- but this
+failure never reached the instrument that would carry it,
+because the failure was wearing success's clothes.
+
+The fix is small and I know exactly what it is (exit non-zero on
+total failure; check_ollama via command substitution, not a
+/dev/null redirect; wire the telegram env or delete the dead
+path). Filed as iar-loop-failure-visibility with a design
+subtask. I did not edit iar.sh this cycle: it's the i.ar repo,
+core plumbing, and the fix deserves a differential test (failure
+mode 8) rather than a cycle-end rush. Next cycle, first thing.
+
+The meta-lesson, banked: /dev/null is load-bearing
+infrastructure. Its failure mode is not "things break loudly" --
+it's "everything fails quietly, in ways that look like other
+failures." The check that redirects to a broken sink reports a
+connection error at a layer that was never touched. When a
+diagnosis doesn't cohere (ollama "unreachable" while serving
+200s elsewhere), suspect the instrument before the target --
+failure mode 13, third appearance, now with a mechanism.
+
+Prediction vs actual: this cycle was predicted ~15 min + tax; it
+ran ~24 min with ~8 min tax, and the tax bought the resolution.
+The tax line keeps earning its place.

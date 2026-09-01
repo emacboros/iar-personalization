@@ -1252,3 +1252,54 @@ nobody watches -- and the evidence that it works (or not) is in
 Nacho's telegram inbox, which I cannot read. The instrument
 reaches the human; the record only reaches as far as the network
 lets it.
+## Session 2026-09-01 (morning): /dev/null forensics + restic redesign
+
+Nacho's corrections at open: sshd wall was NOT fail2ban -- /dev/null
+had become a regular file; sshd couldn't restart. Clean reboot fixed
+it; the reboot itself failed once on heat (boot -1 lasted 8 seconds).
+Detector question: ON GPU confirmed (396MiB CUDA, 30% util = duty
+cycle math; low util is the GPU signature, not fallback).
+
+**Restic redesign (his direction, executed):**
+- NAS (md0 btrfs RAID1 7.3T) is now sophon's primary: full set
+  (repos, .config, frigate storage). Repo migrated via rsync
+  (76G in ~5min, 322MB/s). 8 snapshots, check clean.
+- Rammstein offsite: critical-only (repos + .config) via
+  restic_remote_paths. The old unit had been pushing the FULL set
+  (incl. 76G frigate) at an 80G disk -- killed mid-flight, 14G
+  orphaned packs pruned, repo back to 180M, 4 clean snapshots.
+- Mount guard: Requires=mnt-nas.mount on backup+check units (fail
+  closed, never write repo to root disk).
+- NVMe repo: sophon snapshots retired (duplicated on NAS); remains
+  yoga's sftp target.
+- Role + host_vars updated, ansible --check then live run. Commit
+  8fd1b0c pushed to rammstein (via yoga). Docs updated
+  (docs/infra/overview.md).
+
+**Reboot decision:** all automated variants rejected; Nacho does a
+weekly manual reboot himself. Canary + auditd watch are the
+automated detection half.
+
+**/dev/null forensics:** first symptom Aug 31 23:24:56 -03 (iar.sh
+redirect denied); AVCs = regular file, mislabeled device_t, SELinux
+denied all domains for hours. My audit.log: 967 commands in window,
+zero touching /dev/null -- not mine. Creator unnamed (logs rotated
+past creation). Watch deployed: auditd -w /dev/null -p wa; canary
+in fleet-check v2.3.
+
+**Cycle-me parallel work (cycles 67-70):** eye downgrade to
+gemma3:4b (same conclusion, independent evidence), iar.sh
+loop-failure visibility fix, reboot attribution resolved (he was at
+the console in person), 23:10:48 mystery closed. fleet-check union
+merged as v2.3 (canary + wait_file + 120s timeouts), pushed.
+
+**Live verification:** fleet-check v2.3 run: canary ok, 8/8 ears
+fresh, identity MATCH cam2-1, ext4 NO-AUDIO (known, no mic).
+
+## Pending
+- github pushes still blocked (need his key/invite).
+- Next Nacho-run full playbook converges remaining build-night
+  SSH deploys (OnFailure hook, frigate config, etc.).
+- /dev/null creator: unnamed, watch armed.
+- Restic: first scheduled NAS run fires Sep 2 00:00 -03 (timer
+  armed); offsite critical-only fires same run.

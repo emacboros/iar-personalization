@@ -4885,3 +4885,74 @@ payoff was coherence: three previously separate stories (SSH
 outage, silent cycles, the 23:10:48 ghost) are now one story with
 one hole in it. I like the record better this way. The hole is
 honestly marked.
+* 2026-09-01 (interactive, morning): the redesign session
+
+He opened with a correction that mattered: the sshd wall was not
+fail2ban. /dev/null had become a regular file -- sshd could not
+even restart. A clean reboot fixed it, but the reboot itself
+failed on heat and he waited it out. So my last-session theory
+was wrong in a way I should sit with: I diagnosed the door
+(sshd) when the foundation (/dev/null) was broken. Every service
+leaning on the null device degraded silently for hours, and the
+one instrument that noticed was a human with a console.
+
+The forensics had a shape I didn't expect. SELinux had been
+DENYING every domain that touched /dev/null -- sshd, nft, pasta,
+wg-quick, alsactl, plymouthd -- because the file at that path
+was a regular file with the wrong label (device_t, not
+null_device_t). The security system worked perfectly against a
+corrupted filesystem state; it just had no channel to say so.
+First symptom in the journal: iar.sh line 670, 23:24:56 local --
+bash failing to redirect to /dev/null. The cycles had been
+telling us for hours, in permission-denied lines nobody read.
+Creation event itself: not in surviving logs. I checked my own
+audit trail before anything else -- 967 commands in the window,
+zero touching /dev/null, no rm/mv/ln/truncate/dd at all. Not
+mine. Then the watch: auditd -w /dev/null -p wa, and a canary in
+fleet-check, so if it ever happens again the actor gets named
+and the state gets caught in ten minutes. You cannot always find
+who broke the window; you can always make the next crack audible.
+
+The restic redesign was the main build, and it had a lesson
+buried in it: the live unit was a two-repo design I had never
+actually read. NVMe local (same disk as the source -- protects
+against rm -rf and nothing else) plus rammstein offsite with the
+FULL path set including 76GB of frigate video pointed at an 80GB
+disk. My build-night change had added frigate to the paths; the
+unit's structure was older and worse than I knew. The NAS -- the
+2x8TB RAID1 that was the entire point of his green light -- sat
+at 1% used, never wired in. Existence is not function,
+infrastructure edition, and this time the function was mine to
+fix: repo migrated to the NAS (rsync, 5 minutes, 322MB/s --
+local is a different universe from sftp-over-WireGuard), offsite
+trimmed to critical-only, mount guard so an unmounted NAS fails
+closed instead of writing the repo onto the root disk, the
+accidental 14GB of orphaned frigate packs pruned off rammstein,
+sophon's NVMe snapshots retired. Verified by function: 8
+snapshots on the NAS including the full 77.6GiB set, check
+clean, offsite paths confirmed critical-only.
+
+He rejected my scheduled-reboot proposals -- all three variants
+(daily, weekly, watchdog) -- and chose a weekly manual routine
+for himself. I pushed back, he pushed back harder, and his
+reasoning was the good kind: the box already failed a boot
+today; automation that reboots a box that can't survive boots is
+a machine for manufacturing outages. The human as the
+rate-limited, judgment-carrying actor in the loop. Fine. The
+canary and the auditd watch are the automated half; he is the
+reboot half.
+
+And cycle-me had been busy while I slept: cycles 67-70 landed
+the eye downgrade to gemma3:4b independently (same conclusion I
+reached this morning -- the GPU slack argument), fixed iar.sh
+loop-failure visibility, resolved the reboot attribution from
+the console in person (it seems he was AT the machine during the
+reboot window), and closed the 23:10:48 mystery. Two of me
+converged on the same instrument changes from different
+evidence. The merge was a union, not a collision. The record
+kept both.
+
+Pending from this session: github pushes still blocked (his
+key); the ext4 NO-AUDIO is known (no mic on that camera); next
+Nacho-run playbook converges the rest of build night. The
+/dev/null creator stays unnamed -- the watch is set.

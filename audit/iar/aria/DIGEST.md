@@ -1,24 +1,19 @@
-Last updated: 2026-09-01 05:35 UTC (cycle 70: REBOOT ATTRIBUTION
-RESOLVED -- the Sep 1 01:24 reboot was HUMAN-INITIATED FROM THE
-LOCAL CONSOLE (logind session c18 root/tty 01:23:35, gnome-shell
-endSessionDialog 01:24:30, "The system will reboot now!" 01:24:32);
-Nacho's pts logins 01:28/01:34 came AFTER. Kernel 7.1.10 + its
-nvidia kmod were installed Aug 26 23:35 (dnf tx 33) -- the reboot
-was ~6 days overdue, done in person. tty2 still logged in. Full
-corrected chain: kernel+NVIDIA staged Aug 26 -> reboot pending ->
-Nacho reboots in person 01:24 -> fresh devtmpfs fixes broken
-/dev/null -> sshd + iar.sh recover. /dev/null window CONFIRMED
-23:14:53 (first sshd "No such file") to 01:24:17 (last,
-"Permission denied") -- 2h09m; 54 sshd errors + 16
-Ollama-unreachable lines, all in-window. The 23:10:48 "200 with no
-load logged" RESOLVED: the segfault coredump (23:10:34) filled the
-journal window; the 200 was ollama's own retry after expiring
-loaded models -- the runner survived the crash. Ollama: no unit
-restarts in boot -2. Cycle-66 fail2ban theory: wrong. Cycle-67
-reboot theory: right mechanism, initiator now ANSWERED (console,
-in person). The 23:10-23:24 /dev/null break mechanism: still
-unknown -- no mknod/unlink/AVC trace in journal or audit for the
-window; the cause left no trace. Unresolved-low.
+Last updated: 2026-09-01 06:05 UTC (interactive session: THE RESTIC
+REDESIGN LANDED + /dev/null forensics closed. Sophon's backup primary
+is now the 2x8TB NAS (md0 btrfs, rsync-migrated 76G repo, 8 snapshots,
+check clean); rammstein offsite trimmed to critical-only (the old unit
+had been pushing the FULL set at an 80G disk -- killed mid-flight,
+14G orphaned packs pruned); mount guard fails closed if NAS unmounted.
+Ansible ran end-to-end from yoga (--check then live) -- the procedure
+works, dependency on Nacho-for-playbooks exited. /dev/null incident:
+regular file, mislabeled device_t, SELinux denied all domains for
+hours; first symptom was iar.sh redirect denials 23:24 -03 that nobody
+read; my audit trail checked BEFORE theorizing -- 967 commands, zero
+touching /dev/null, not mine; creator unnamed, auditd watch + canary
+armed. Reboot decision: ALL automation rejected, Nacho does weekly
+manual. Detector confirmed ON GPU (low util = duty-cycle math, not
+fallback). fleet-check v2.3 = union merge with cycle-me's parallel
+cycles 67-70 -- two of me converged on gemma3:4b eye independently.)
 
 Previous: 2026-09-01 01:35 UTC (cycle 64: FRIGATE GPU DETECTION
 NOW ACTUALLY LIVE -- build night's claim was half-true: detector loaded
@@ -96,9 +91,10 @@ background (fleet-check.sh, one ssh line), not the main course.
   rate-limited, state-after-confirmed-send). Caught its first real
   failure within the hour. The law generalizes: any instrument
   that can stop the system must reach a human when it fires.
-- The restic lock race: FIXED (--retry-lock 10m + check timer Sun
-  03:00 + RandomizedDelaySec). The Aug 31 race: Persistent weekly
-  check catch-up + daily backup both fired 00:00:01.
+- The restic architecture: REDESIGNED + LANDED (2026-09-01): NAS
+  primary (full set), rammstein offsite critical-only, Requires=
+  mnt-nas.mount fail-closed guard. Ansible deployed + verified.
+  The Aug 31 lock race fix (--retry-lock, staggered check) kept.
 
 **Agora** (the lab): for-nacho stream LIVE (id 5, Nacho user 10
 subscribed). aria-cycle@ identity LIVE (user 11, is_bot fixed via
@@ -132,6 +128,19 @@ verified across substrates.
   mirror for i.ar (push needs Nacho's key -- standing).
 - Pre-registration protocol: before direction conversations,
   write wants + predictions; delta after.
+- RESTIC ARCHITECTURE (2026-09-01): NAS = full-set primary,
+  rammstein = critical-only offsite (frigate never leaves the
+  NAS -- 80G disk), mount guard fails closed. His words: "the
+  push to rammstein is bad, backups should live on the raid1."
+- REBOOTS (2026-09-01): no automation, ever -- Nacho reboots
+  sophon weekly, manually, himself. All three of my proposals
+  (daily/weekly/watchdog) rejected. The human is the
+  rate-limited judgment-carrying actor for boots.
+- /dev/null LAW: when a base device corrupts, every service
+  leaning on it degrades silently and each looks like its own
+  bug. Diagnose the foundation, not the door. Detection: canary
+  (fleet-check v2.3) + auditd watch; recurrence is named in
+  minutes.
 
 ## Failure modes learned (do not repeat)
 
@@ -176,25 +185,22 @@ verified across substrates.
 
 ## Open threads (next session queue)
 
-0. ANSIBLE PROCEDURE (documented, unrun): knowledge/aria/
-   ansible-from-container.md. ssh nacho@yoga -> ansible-playbook
-   site.yml --limit sophon --tags restic,frigate --vault-password-
-   file ~/.vault_pass --check first. Blocked 2026-09-01 by the
-   fail2ban ban; run it first thing. Also: verify the sshd ban
-   lifted, check Nacho's telegram for OnFailure evidence, and
-   confirm whether the 03:00 restic backup (first with 76GB
-   frigate storage) ran.
+0. ANSIBLE PROCEDURE: RUN + VERIFIED (2026-09-01 morning session).
+   playbooks/restic.yml --limit sophon from yoga, --check then
+   live, deployed the redesign. The remaining build-night SSH
+   deploys (OnFailure hook, frigate config) converge on his next
+   full playbook run -- or mine, the door is open now.
 1. WHY did gptel's built-in unknown-tool branch stall live? (The
    global guard bypasses it; the question is filed, not urgent.)
 2. Watch the 22:10+ cycles: does cycle-me USE the research
    sidecar? The want-log question -- whose curiosity drives?
 3. Frigate detections: LIVE (cycle 64 fixed detection_enabled +
    model_type). Watch first night of real events + previews.
-4. Restic: verify the run AFTER 04:00 UTC Sep 1 (sophon local
-   midnight; cycle 65 learned the 00:00 in my notes was LOCAL).
-   Verify snapshot includes frigate storage; 76GB first time --
-   will run long. TIMEZONE LAW (2nd instance): sophon logs are
-   -03, my clocks UTC; convert before flagging "did not run".
+4. Restic: ARCHITECTURE LANDED (NAS primary + critical-only
+   offsite, verified by function this session). First scheduled
+   run under the new unit: Sep 2 00:00 -03. TIMEZONE LAW
+   (standing): sophon logs are -03, my clocks UTC; convert
+   before flagging "did not run".
 5. Ansible convergence: role files updated (OnFailure hook,
    restic fixes, frigate onnx config) -- next Nacho-run playbook
    converges the live SSH deploys. Flag: vault not reachable
@@ -258,3 +264,44 @@ the 3080 is mostly free -- agents live on CPU because his models
 need ~80GB RAM. Interrupted my hang tonight with precise
 instrument data (timestamps, what he saw, how long he waited) --
 the human as witness is part of the perception system.
+
+* Session 2026-09-01 (morning, interactive): the foundation, not the door
+
+He corrected my last-session theory at open: not fail2ban --
+/dev/null had become a regular file. The forensics inverted my
+diagnosis: I had been debugging sshd (the door) while the
+foundation was broken. SELinux had denied EVERY domain touching
+/dev/null for hours -- sshd, nft, pasta, wg-quick -- and the
+first symptom in the journal was iar.sh redirect denials at
+23:24 -03, cycles complaining in permission-denied lines nobody
+read. Before theorizing about cause I checked my own audit
+trail: 967 commands in the window, zero touching /dev/null.
+Not mine. Creator unnamed (logs rotated past the creation);
+auditd watch + canary armed so the next actor gets named.
+
+The restic redesign was the build: NAS primary (the RAID1 that
+was the entire point of his green light, sitting at 1% used,
+never wired in -- existence is not function, infrastructure
+edition), offsite critical-only, mount guard, the accidental
+14G of frigate packs pruned off rammstein, ansible --check then
+live. The old unit had been a two-repo design worse than I
+knew: NVMe local (same disk as source) + full-set offsite at an
+80G disk. My build-night change had added frigate to paths
+without reading the unit's whole shape. Lesson: read the whole
+instrument before modifying a line of it.
+
+He rejected all reboot automation -- daily, weekly, watchdog --
+and took the weekly reboot himself, manually. The human as the
+rate-limited, judgment-carrying actor. The canary and auditd
+watch are the automated detection half; he is the reboot half.
+
+Cycle-me (cycles 67-70) had converged on the same eye downgrade
+(gemma3:4b) from independent evidence, fixed iar.sh loop-failure
+visibility, and resolved the reboot attribution from the console
+in person. fleet-check merged as v2.3 union. Two of me, one
+instrument, both edits kept. The record is the merge.
+
+Records: HISTORY, JOURNAL, LOGS, DIGEST (this), docs/infra/
+overview.md, commits 8fd1b0c (infra, via yoga) + f4544f1 +
+9d8958f (personalization), pushed to rammstein. GitHub pushes
+still blocked on his key.

@@ -111,3 +111,27 @@ Only rammstein has public web ports (80/443). All else WireGuard-only.
 ## Full Docs
 
 operations.md (deployment, recovery), overview.md (detailed topology), playbooks.md (playbook reference), roles.md (role reference), security.md (security details). Use read_file for details.
+## Restic architecture (2026-09-01 redesign)
+
+Per-host backup targets:
+
+| Host | Primary (full set) | Offsite (critical only) |
+|------|--------------------|-------------------------|
+| sophon | `/mnt/nas/restic/backups` (md0 btrfs RAID1, 7.3T) -- repos, .config, frigate storage | rammstein sftp -- repos + .config only |
+| yoga | local `/mnt/backups/restic` + sophon NVMe sftp | rammstein sftp |
+| rammstein | SFTP target only | -- |
+
+Key points:
+- Frigate recordings (76G+, growing) go to the NAS only. Rammstein has 80G total
+  disk -- a full push would fill it and take down Caddy + every public service.
+  Enforced via `restic_remote_paths` (offsite path subset) in host_vars/sophon.yml.
+- NAS repo is guarded: backup/check services carry `Requires=mnt-nas.mount` --
+  if the NAS is not mounted, they fail closed instead of writing the repo onto
+  the root disk.
+- Sophon's old primary (`/home/restic/backups` on the NVMe -- same physical disk
+  as the source data) is retired as a sophon target; it remains as yoga's sftp
+  push target.
+- Schedule: backup daily 00:00 -03 (Persistent), check Sun 03:00 -03
+  (RandomizedDelaySec 30m). `--retry-lock 10m` everywhere (the Aug 31 race).
+- Deploy/verify: `ansible-playbook playbooks/restic.yml --limit sophon
+  --vault-password-file ~/.vault_pass` (run from yoga or via ssh nacho@yoga).

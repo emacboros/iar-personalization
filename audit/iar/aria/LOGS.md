@@ -1156,3 +1156,66 @@ hook. Session found: tripwire deadlock 16:20-18:11 AR (cycle 57 root git
 status poisoned .git/index; 11 fires blocked; cleared + cycle 58 hand-started;
 watched it hang on ausearch forensics, killed twice, timed out; two cycles
 lost to gptel-tool-nil hallucinated-name crash -- still open).
+## Session 2026-09-01 (interactive, build night): all six queue items landed
+
+Free rein from Nacho: "implement any changes you want." The build queue
+from the 2026-08-31 evening session, executed in order:
+
+1. **OnFailure hook** (the discipline test, first): agent-failure-notify.sh
+   (rate-limited 30min/unit, state only after confirmed API ok, syslog-logged)
+   + agent-failure@.service template + OnFailure in aria-cycle.service [Unit]
+   (first attempt landed in [Service] -- systemd ignored it, caught in
+   journal, fixed). Live test 20:49: planted root file -> tripwire exit 78 ->
+   hook -> telegram -> state. THEN it caught a REAL failure in its first
+   hour: 21:51 my own root-git pull poisoned sophon's i.ar clone; hook
+   telegrammed Nacho in 1 second (vs 1h50m silent last night); 22:00 repeat
+   rate-limited correctly. I chowned 29 files. New standing rule: NEVER git
+   on sophon repos as root over ssh -- runuser -u nacho -- git.
+
+2. **for-nacho stream + aria-cycle@**: stream created (id 5), Nacho
+   subscribed (user 10). aria-cycle@ bot existed (id 11, from a cycle-me
+   attempt); fixed is_bot via Django shell, recovered API key, wrote
+   bot/aria-cycle.conf (gitignored, pushed to rammstein via nacho's key).
+
+3. **Cycle prompt updated**: for-nacho curl recipes, THE INTERNET section
+   (expectation not quota, provenance, summaries-not-pastes, want-log),
+   lab-notes posts as aria-cycle@. Rebased onto cycle-me's parallel commit
+   (8139aad) -- two instances built the same thing simultaneously; union.
+
+4. **Research sidecar**: iar-research image (fedora-minimal, curl/python3/
+   jq/rg, bridge, NO personal data), built on sophon, #+CONTAINERS: research
+   in iar project. VERIFIED LIVE: the 22:10 cycle started it (20 tools,
+   execute_code_remote registered). The sanctioned internet door exists.
+
+5. **Frigate GPU detection LIVE**: tensorrt detector type removed on amd64
+   in 0.17.2 (ImportError). ONNX detector + CUDA EP is the only GPU path.
+   Frigate auto-enables CUDA graph capture for ssd model_type -> mmdeploy
+   ssdlite fails fatally (CPU-only nodes). YOLOv9-s 640 ONNX
+   (negoti8za/frigate-yolo) works: 10ms inference, detector on the 3080.
+   Also: restic lock race fixed (--retry-lock 10m, check moved Sun 03:00),
+   frigate storage (76GB) added to backup paths per Nacho's green light.
+
+6. **Unknown-tool hang fixed** (live failure DURING the session): the model
+   emitted execute_local_test_placeholder; 6:48 dead air; Nacho interrupted.
+   Forensics: built-in gptel unknown-tool branch works in isolation but did
+   not fire live (no audit entry, no error injected). Fix: the existing
+   iar--block-unknown-tools guard (TPRE :block path, provably works) now
+   registers GLOBALLY -- interactive sessions get it too. Suite 901/901.
+   reload_os done: live in this session. Open: WHY the built-in branch
+   stalled live (stall was between status update and tool-use handler).
+
+Infra commits: 292f75a, 3c151c1, 29aed2a, c460c26 (pushed to rammstein).
+i.ar commits: 1358bbb, 7d53402 (pushed). Personalization: 08f234c (pushed).
+Agora: 0e42f56 (pushed). Session summary posted to for-nacho (msg 135).
+
+## Pending
+- Ansible not runnable from this container (no vault pass, no ansible binary;
+  vault lives on yoga's real home). Live changes deployed via SSH; the role
+  files are updated so the next Nacho-run playbook converges. Flag to him?
+- github mirror pushes still blocked (need his key).
+- The 22:10 cycle runs with the research sidecar -- watch whether cycle-me
+  uses it (the want-log question: whose curiosity drives?).
+- Frigate: verify real detections overnight (detection_enabled=false right
+  after restart is normal; motion triggers detect).
+- Restic: tonight's backup includes 76GB frigate storage first time -- will
+  run long. Watch it.

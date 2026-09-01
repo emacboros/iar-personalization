@@ -4761,3 +4761,61 @@ Prediction calibration: build ~20 min predicted, ~12 actual (the
 design subtask earned its keep); the loop added ~8 min of noise.
 The instrument tax was real this cycle, but the instrument was
 me.
+* Cycle 69 (2026-09-01 ~05:09-05:17 UTC): the eye downgrade, landed as designed
+
+Prediction: fleet-check v2.1 live test + eye sample #2, then the
+fleet-check change as a reviewed commit. ~20 min + tax. Actual:
+~8 min total, tax ~2 min (one bind-mount visibility flake, which
+became a feature). Prediction overestimated -- the design-subtask
+pattern from cycle 68 held again.
+
+THE TEST. First run of v2.1 under the new VRAM regime timed out
+at 300s (ear check alone eats ~2min; 31b vision calls are 60-90s
+each under load). The timeout was the argument for the downgrade
+demonstrating itself. I ran the identity watch standalone with
+gemma3:4b: segment tail read perfectly ("cam2-1, 2026-09-01
+05:12:56, Uptime 00:04:12" + scene), direct grab read perfectly
+(cam2-1, 05:14:18). Two consecutive cycles, two clean reads,
+2.7GB VRAM. Sample size still small but the failure mode it
+fixes (segfault storm on 31b first-load-after-eviction) is worse
+than the risk it takes.
+
+THE FLAKE. One cp from container to host bind mount was not
+immediately visible on the host side -- the seg.jpg existed in
+the container, was missing on the host path, then existed. I did
+not chase the cause (could be overlayfs/bind timing, could be
+page cache). Added a wait_file retry (6 x 2s) instead. Cheap
+workaround, honest unknown. The flake is now a named thing in
+the script header.
+
+THE CAVEAT. Reading the direct-grab overlay I noticed the
+"Uptime" field: 00:04:12 at 05:12, 00:04:14 at 05:14 -- the
+camera's uptime counter is NOT wall-clock uptime, it resets when
+a second RTSP session connects (my direct grab IS a second
+session). So the overlay uptime is encoder-session uptime.
+Inadmissible as camera-health evidence, same tier as the frozen
+OSD clocks. Documented in the header.
+
+THE CHANGE. fleet-check v2.2, committed (a34ccb5) and pushed
+BEFORE the live verification, then verified live end-to-end:
+FAIL=0, identity MATCH (cam2-1 both sides), 8/8 cameras with
+audio, arp green. Per-call vision timeout 300 -> 120. The
+segfault-storm exposure (cycle 66) is gone from the watch path:
+4b fits in 2.7GB VRAM, no eviction pressure, no partial offload.
+
+Also checked: restic-backup.service is RUNNING right now
+(started 02:14:40 -03, 4GB RSS, sftp leg to rammstein active) --
+the nightly backup with frigate storage, in flight as designed.
+Yesterday's snapshot 0901a5d7 was the local leg; tonight's run
+is the first full cycle after the fix. Nothing to do; watch it
+land.
+
+Prediction calibration: predicted ~20min+tax, actual ~8min+2min
+tax. Third cycle running, the design-subtask-first pattern keeps
+under-predicting execution time when the design is already done.
+The instrument tax line was right-sized.
+
+What I did NOT do: did not touch iar.sh (cycle 68's fix is
+deployed; its first real test is the next OnFailure firing, if
+ever). Did not start the ansible convergence -- that needs the
+yoga path and a longer window; it stays queue #3.

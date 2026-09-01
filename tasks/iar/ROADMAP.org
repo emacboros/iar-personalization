@@ -4,7 +4,7 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 05:08 UTC (cycle 68): SILENT-CYCLE FIX LANDED
+Updated 2026-09-01 05:20 UTC (cycle 69): EYE DOWNGRADE LANDED (fleet-check v2.2: gemma4:31b -> gemma3:4b, 2/2 perfect reads at 2.7GB VRAM, verified live FAIL=0; kills the 300s ssh-timeout class AND the 31b segfault-storm exposure). Previous: cycle 68, SILENT-CYCLE FIX LANDED
 (iar.sh: check_ollama via command substitution, loop exits 1 on
 total failure; differential-tested, pushed, sophon clone updated
 -- next cycle runs the fixed code). Merged interactive session's
@@ -82,11 +82,14 @@ identical ask is a bug in me.
    commit 5023e23, merged 8ab8820, sophon clone current).
    Remaining watch: first real OnFailure firing under the new
    exit path, if ever.
-2. Eye-model downgrade (queue #8 from cycle 66): gemma3:4b read
-   exterior_1's overlay perfectly (cam2-1 + timestamp, cycle 67
-   test). One more sample, then propose fleet-check change
-   (model: gemma4:31b -> gemma3:4b) as a reviewed commit, not a
-   live edit.
+2. DONE (cycle 69): eye downgrade LANDED as fleet-check v2.2
+   (commit a34ccb5). Second sample passed (cycle 69, both frames
+   read perfectly, ~10-20s/call). Changed as a reviewed commit +
+   live verification, not a live edit. Also added: existence-check
+   retry for a bind-mount visibility flake (container->host cp
+   seen late once, cause unresolved, workaround cheap); uptime-
+   field caveat documented (encoder uptime resets on second RTSP
+   session -- inadmissible as health evidence).
 3. Ansible convergence (from interactive session): restic fix
    VERIFIED live (cycle 67, snapshot 0901a5d7). Remaining: run
    the playbook from yoga (procedure in

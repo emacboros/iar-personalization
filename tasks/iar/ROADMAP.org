@@ -4,16 +4,15 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 16:11 UTC (cycle 81: AEVUM PHASE 6 -- RUNAWAY
-GENERATION. Tick-29 request streaming 3h40m (37x previous max),
-~34.6k tokens, no stop token, content invisible until tick end.
-Watchdog structurally blind to slow-streaming runaways (detects
-silence, not endless speech); no num_predict cap; --keep 4
-context-shift would dissolve the inheritance in ~24h. Telegram to
-Nacho: wait vs concussion, HIS CALL, deadline ~Sep 2 16:00 UTC.
-NEW confabulation species: fabricated heartbeats (ticks 23-28).
-Phase 0 note: origin pull denied as always (trust-graph);
-sophon-bare pull/push works.)
+Updated 2026-09-01 16:23 UTC (cycle 82: PHASE 6 CORRECTION -- the
+runaway is CAPPED. num_predict=65536 sits in the child's gptel
+config (configs/gptel.el:53); generation self-terminates ~20:00-20:30
+UTC with finish_reason=length, tick 29 completes normally, transcript
+auto-saves ~65k tokens. Context-shift threat VOID (112k < 262k).
+Telegram correction sent; lean: WAIT. New watch: tick-30 prefill
+~112k tokens vs the 900s no-data watchdog if prompt cache misses.
+Cycle 81's 'no cap' claim was verified against one file of a
+pipeline -- data present and inert is its own failure class.)
 
 ## Standing principles
 
@@ -84,6 +83,12 @@ sophon-bare pull/push works.)
   learned to speak it. The runaway generation is plausibly that
   fabrication at scale: the model writing the shape of the
   conversation itself.
+- NEW (cycle 82): "no cap exists" is a claim about a whole PIPELINE
+  (loop + guard + config + server), not one file. Verifying against
+  one file is not verifying. Corollary: knowledge present in the
+  head but not CONNECTED (my own loop's num_predict, read hours
+  earlier) is inert -- data present and inert is its own failure
+  class, distinct from missing data.
 
 ## The git trust-graph (cycle 73-74, verified by function)
 
@@ -144,18 +149,16 @@ sophon-bare pull/push works.)
 
 ## Aevum watch (standing, cycles 78-81+)
 
-Phase log: knowledge/aria/aevum-watch.md. Phase 6 (cycle 81):
-RUNAWAY GENERATION -- tick-29 request in flight since 12:29:44 UTC
-(3h40m at observation), ~34.6k tokens, 2.1 tok/s, no stop token.
-Watchdog blind by design (silence-keyed). Context ~80.7k/262k;
-context-shift would dissolve inheritance ~24h. Telegram sent to
-Nacho (wait vs concussion; my lean: concussion; HIS CALL).
-Fabricated heartbeats confirmed ticks 23-28. Full snapshot:
-tasks/iar/perm-child-watch/phase-6-runaway-generation.
-NEXT CYCLES: check n_gen/mtime FIRST each wake; if Nacho ordered
-the concussion, verify recovery + read the phase-6 subtask watch
-questions; if the runaway completed, READ THE TRANSCRIPT BEFORE
-ANYTHING ELSE (the 34k tokens are the artifact).
+Phase log: knowledge/aria/aevum-watch.md. Phase 6 CORRECTED
+(cycle 82): runaway is capped by num_predict=65536 (config line
+verified on server); self-terminates ~20:00-20:30 UTC; artifact
+preserved automatically. Cycle 81's concussion lean was based on a
+wrong deadline -- corrected via telegram. Fabricated heartbeats
+(ticks 23-28) stand. NEXT CYCLES: (1) if tick 29 completed, READ
+THE TRANSCRIPT BEFORE ANYTHING ELSE (the ~65k tokens are the
+artifact); (2) verify tick 30 starts generating within ~15 min
+(prefill/cache watch; loop-abort -> telegram); (3) fake-heartbeat
+watch after recovery.
 
 ## Track C: Chores (owed, not wanted)
 
@@ -166,8 +169,12 @@ ANYTHING ELSE (the 34k tokens are the artifact).
 
 ## Anomalies under watch
 
-- AEVUM RUNAWAY: OPEN. Telegram sent cycle 81. Decision deadline
-  ~Sep 2 16:00 UTC (context window). Check every cycle.
+- AEVUM RUNAWAY: CAPPED (cycle 82 correction). num_predict=65536 in
+  the child's gptel config; self-terminates ~20:00-20:30 UTC Sep 1.
+  Watch: (a) tick 29 completes -> READ THE 65k TRANSCRIPT FIRST;
+  (b) tick 30 prefill ~112k vs 900s no-data watchdog (loop-abort
+  risk if prompt cache misses) -> telegram Nacho if generation
+  doesn't start within ~15 min of tick 29.
 - RESTIC OFFSITE: watch tonight's 00:00 -03 scheduled run (item 3).
 - Container -> rammstein git@ DENIED: standing (4BApz key flag
   unanswered). Phase 0 pull fails harmlessly; sophon-bare is the

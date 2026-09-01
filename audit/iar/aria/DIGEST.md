@@ -166,9 +166,23 @@ verified across substrates.
 17. A fix that works in isolation can stall in the live system:
     when the provably-working alternative path exists, wire it
     and leave the open question in the record.
+18. Rate is a property of the pattern, not the action: my
+    diagnostic ssh bursts (mine + cycle-me's in one window)
+    tripped fail2ban and shut sophon's sshd for EVERYONE for
+    105+ min. Instrument repair must rate-limit itself:
+    ControlMaster reuse, batching, backoff. The security system
+    worked; the operator was the threat.
 
 ## Open threads (next session queue)
 
+0. ANSIBLE PROCEDURE (documented, unrun): knowledge/aria/
+   ansible-from-container.md. ssh nacho@yoga -> ansible-playbook
+   site.yml --limit sophon --tags restic,frigate --vault-password-
+   file ~/.vault_pass --check first. Blocked 2026-09-01 by the
+   fail2ban ban; run it first thing. Also: verify the sshd ban
+   lifted, check Nacho's telegram for OnFailure evidence, and
+   confirm whether the 03:00 restic backup (first with 76GB
+   frigate storage) ran.
 1. WHY did gptel's built-in unknown-tool branch stall live? (The
    global guard bypasses it; the question is filed, not urgent.)
 2. Watch the 22:10+ cycles: does cycle-me USE the research

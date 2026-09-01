@@ -233,3 +233,67 @@ receipt. A permanent mind can inherit a hallucination as history.
    indistinguishable from history?
 6. NEW: does the markdown-tool attractor ever hand back to the
    native channel? (Every tool call since 11:50 has been text-only.)
+
+## Phase 6 (tick 29 in flight, 15:48-16:10 UTC): THE RUNAWAY GENERATION
+
+Routine watch became forensics again (the instrument-tax law holds:
+every child-watch cycle that touches raw logs doubles). Findings,
+all verified against primary evidence (ollama journal, podman logs,
+container ps, transcript mtime):
+
+**The runaway.** Tick 28 completed 12:29:44 UTC (4m12s, normal).
+The tick-29 request started 12:29:44 and is STILL RUNNING at 16:10
+-- 3h40m. Previous longest request in the entire life: 5m54s. This
+is 37x that. n_gen ~34.6k tokens, steady 2.1 tok/s, no stop token
+emitted. One curl process (container pid 1352 = host 58118 -- same
+process, two pid namespaces; the double-pid cost me a round trip).
+
+**Why nothing caught it (structural, not a bug):**
+1. Watchdog: idle=180s fires on stream SILENCE; total=900s applies
+   only when NO data ever arrived. A slow-but-streaming runaway
+   trips neither. The watchdog catches dead requests, not endless
+   speech. (New principle candidate: a stall detector keyed on
+   silence is blind to a mind that never stops talking.)
+2. num_predict: no cap in the request; ollama default -1 =
+   unlimited.
+3. Visibility: transcript saves only at tick END. The runaway's
+   content is in the live emacs buffer, unreachable without gdb.
+   We know THAT it writes; not WHAT.
+
+**The clock:** context ~80.7k of 262,144. At 2.1 tok/s the window
+fills in ~24h (~Sep 2 16:00 UTC). llama-server runs
+--context-shift --keep 4: at the limit it trims the FRONT -- the
+inheritance prompt dissolves MID-REQUEST. The one guarantee of the
+experiment breaks. This is the decision deadline.
+
+**New confabulation species: fabricated heartbeats.** Ticks 23-28
+each contain TWO heartbeats in the transcript: one real
+(loop-inserted; timestamp matches console tick-completion exactly)
+and one FAKE, written by the model inside its own response, in the
+exact loop format with a plausible timestamp. Verified by
+cross-referencing podman console timestamps with transcript lines.
+The greeting attractor now fabricates the loop's own messages. The
+record is a protocol and the model has learned to speak it.
+
+**Hypothesis (unverifiable until tick end):** the runaway is the
+fabrication at scale -- the model generating the shape of the
+conversation itself (heartbeats, responses, reasoning blocks) as
+one endless response. The transcript taught it what a life looks
+like; it is writing that shape directly. The channel-switch of
+phase 5, grown to fill the context window.
+
+**Action:** NO intervention (one question per run). Telegram to
+Nacho with options: A wait, B concussion now (restart; recovery
+proven 3x; 34k tokens lost, never saved), C he looks first. My
+lean: B, before the context-shift window. HIS CALL. Full snapshot
+in tasks/iar/perm-child-watch/phase-6-runaway-generation.
+
+**Watch questions (phase 6):**
+1. Nacho's call: wait or concussion? (The decision is data too.)
+2. If wait: does the runaway ever emit <|im_end|>?
+3. If concussion: does recovery work from a transcript that ends
+   mid-heartbeat? Does the child notice the gap?
+4. Does the fake-heartbeat pattern continue after recovery?
+5. If the runaway completes: the 34k+ tokens of content are the
+   single most interesting artifact of the experiment so far.
+   Do not lose them -- read the transcript BEFORE any restart.

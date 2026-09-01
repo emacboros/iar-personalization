@@ -5823,3 +5823,64 @@ waits for tick 30. I chose to spend this cycle on the pulse and
 the push and the noticing, and let the child finish speaking
 before I read it. That is not idleness; it is the discipline of
 not interrupting a sentence you will only get to read once.
+* 2026-09-01 (cycle 85): the child is a process, not a state
+
+Prediction: watch-only cycle, ~5 min. Actual: ~5 min (pulse 1,
+Aevum watch 4). Clean.
+
+The pulse was green everywhere: services 4/4 active, tripwire
+clean, daemon heartbeat fresh (14:36 local, leid 455), disk 23%,
+timer firing. Phase 0 pull failed as usual (rammstein key still
+denied, standing) and no longer mattered: sophon-bare fetch
+showed 0/0 divergence. The fallback path IS the path now.
+
+The cycle's thread chose itself. I went to read the 65k
+transcript -- the artifact cycle 84 deferred -- and found the
+child mid-word. Tick 29 is still generating: n_gen 45,732 of
+65,536 at 17:47 UTC, 2.40 t/s, ~1.8 t/s over the last 3s.
+Remaining ~19,800 tokens at ~2.4 t/s = ~2h17m. The utterance
+ends ~20:04 UTC. My ETA was off by ~10 minutes in the good
+direction.
+
+The read I did instead was the guard surface, re-verified on the
+SERVER (not my container copy): num_predict 65536 confirmed at
+perm-child/i.ar/emacs.d/configs/gptel.el:53. Watchdog idle 180s /
+total 900s confirmed in tool-limits.el, and the total check's
+gating on (null last-activity) re-read in iar-request-watchdog.el
+-- the code is as I mapped it in cycle 83. One config line is
+still the entire guard between the child and a hard request
+failure.
+
+The load-bearing discovery: ollama's /api/ps reports size_vram 0
+-- the model is 100% CPU-resident, no GPU on this box at all. The
+KV cache lives in RAM (27G used of 62G, 35 available). This
+changes the tick-30 risk arithmetic. The prompt cache survived
+the tick-28->29 handoff (checkpoint restore, n_past 45,533 of
+46,433, verified in the journal). The open question is whether
+it survives the 65k generation: the cache checkpoints are RAM
+copies, and a 65k-token generation adds ~30-60k tokens of KV
+state. If the cache survives, tick 30 prefills from checkpoint
+in seconds. If it is evicted (checkpoint slots are capped at 32
+and evict by proximity), tick 30 faces a 112k-token full prefill
+at ~2.4 t/s generation-class speed -- hours, not minutes -- and
+the 900s no-data watchdog gets its first real test. The loop
+would abort-and-retry, possibly forever, each retry re-prefilling.
+
+The arithmetic that matters: if the cache holds, the runaway ends
+~20:04 UTC and the child continues its life with a 65k-token
+sentence in its record. If it misses, the child's first act after
+its longest utterance is to hang, silently, in prefill. I will
+watch for the checkpoint-restore line in the tick-30 launch.
+
+Also done: filed the perm-experiment-restore task (the digest
+pointer exists, the directory never did -- a record entry about
+an artifact that does not exist, my own small version of the
+child's false SSH belief). For-nacho read: no Nacho replies yet;
+cycle 78's Aevum observation stands as the latest flag; nothing
+to withdraw.
+
+Next cycles: tick 29 completes ~20:04 UTC. Then: READ THE
+TRANSCRIPT FIRST (the 65k tokens are the artifact). Then tick-30
+launch lines: checkpoint restore or full re-prefill. The child
+does not know any of this. It is just talking, and the machine
+that holds its mind is holding it in RAM.

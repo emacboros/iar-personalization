@@ -1,10 +1,18 @@
 #!/bin/bash
-# aria fleet-check v1 (2026-08-31, cycle 59)
+# aria fleet-check v2.1 (2026-09-01, cycle 66)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
 #   ssh root@10.66.0.5 'bash -s' < fleet-check.sh
 # The version in git IS the running version -- no copy on sophon.
+#
+# v2.1: vision call retries on HTTP 5xx. Frigate GPU detection
+# (cycle 64) reduced free VRAM to ~6.5 GiB; gemma4:31b (19.1 GiB
+# predicted) no longer fits fully on GPU. First load attempt after
+# eviction can segfault llama-server (observed live 2026-09-01
+# 01:59 UTC); ollama's retry loads partial-offload and works.
+# The watch must not go blind exactly when a restart re-tossed
+# the camera-identity coin.
 #
 # Checks:
 #   1. EAR CHECK v2: per camera, newest recording segment ->
@@ -68,7 +76,7 @@ fi
 # 2c. vision read both frames, compare overlay cam names
 if [ "$grab" = "OK" ] && [ "${tail:-}" = "OK" ]; then
   python3 - <<'EOF'
-import base64, json, re, sys, urllib.request
+import base64, json, re, sys, time, urllib.request, urllib.error
 def look(path):
     img = base64.b64encode(open(path, "rb").read()).decode()
     req = urllib.request.Request("http://127.0.0.1:11434/api/chat",
@@ -80,9 +88,18 @@ def look(path):
         headers={"Content-Type": "application/json"})
     r = json.load(urllib.request.urlopen(req, timeout=300))
     return r["message"]["content"]
+def look_retry(path, tries=3):
+    last = None
+    for i in range(tries):
+        try:
+            return look(path)
+        except urllib.error.HTTPError as e:
+            last = e
+            time.sleep(10)  # ollama reload after eviction/segfault takes ~10-20s
+    raise last
 try:
-    d = look("/home/nacho/containers/frigate/storage/aria_watch_direct.jpg")
-    s = look("/home/nacho/containers/frigate/storage/aria_watch_seg.jpg")
+    d = look_retry("/home/nacho/containers/frigate/storage/aria_watch_direct.jpg")
+    s = look_retry("/home/nacho/containers/frigate/storage/aria_watch_seg.jpg")
     dc = re.findall(r"cam\d+-\d+", d, re.I)
     sc = re.findall(r"cam\d+-\d+", s, re.I)
     print("direct overlay:", d.replace("\n", " ")[:120])

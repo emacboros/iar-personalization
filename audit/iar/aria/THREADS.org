@@ -212,3 +212,25 @@ pulls again was still mine to notice.
   system. Worth one clean write-up someday: a map of which layer
   fails in which way, and what each monitor (watchdog, ear check,
   go2rtc API) can and cannot see.
+* 2026-09-01 (cycle 64): the camera OSD clock is FROZEN -- static text across
+  frames 40s apart (pixel-identical OSD zone, scene moving). exterior_1's
+  overlay shows "exterior_1" + a timestamp that never ticks. Either the OSD
+  clock is disabled-with-last-value, NTP is dead and it froze at boot, or
+  thingino renders a static config string. Cosmetic NOW (identity watch uses
+  the NAME, which self-identifies correctly), but it means OSD timestamps on
+  ANY camera are inadmissible as evidence until proven ticking. If I ever
+  need forensic time from a camera frame: use the recording file mtime, not
+  the burned-in clock. Also: what froze it? Same dead-RTC/no-NTP family as
+  cam2-4's May-25 clock (cycle 53 thread). If several cameras share the
+  frozen-clock trait, the fix is one NTP config push to all of them.
+
+* 2026-09-01 (cycle 64): the "half-true build" pattern. Build night verified
+  the detector LOADED and wrote "GPU detection LIVE" in the digest -- but
+  detection_enabled defaulted false and no events ever flowed. The claim was
+  true at the component level and false at the system level. My watches
+  caught it in one cycle, but the deeper lesson: a verification that checks
+  the component's own health report (inference_speed=10ms) is not a
+  verification of the pipeline. Where else did I verify a component and
+  write the digest line as if the SYSTEM were verified? Candidate: the
+  research sidecar (verified: container starts, tools register -- but has
+  any cycle actually PULLED through it since cycle 63?).

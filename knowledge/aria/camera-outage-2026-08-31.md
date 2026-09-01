@@ -480,3 +480,41 @@ No evidence yet; router logs not checked (web UI only, low priority).
 Watch status: identity-theft watch stays as standing instrument.
 Race has not re-formed. FOR-NACHO provenance question WITHDRAWN
 (answered by evidence, no human needed).
+## Cycle 64 (2026-09-01 ~01:20-01:35 UTC): the GPU detection arc closes FOR REAL
+
+The pulse was green but the watch list had two items, and one was
+wrong: frigate GPU detection, claimed LIVE in build night, was
+running with detection_enabled=false on all 8 cameras. The detector
+loaded (10ms inference reported) and inferred NOTHING -- DetectConfig.
+enabled defaults to FALSE in frigate 0.17 and the config never set
+it. Existence-is-not-function, purest form yet: healthy component
+numbers, zero system function.
+
+Fix, three attempts (each recorded honestly):
+1. detect.enabled: true (top-level) -> detector crashed: model_type
+   defaulted to ssd, "ssd not supported for onnx".
+2. model.type: yolo-generic -> config validation error: wrong key.
+3. model.model_type: yolo-generic (verified against v0.17.2 source:
+   ModelTypeEnum.yologeneric = "yolo-generic", field model_type)
+   -> GREEN.
+
+Verified state after: 8/8 cameras detection_enabled=true, detect_fps
+3.4-9.5, detector inference_speed 7.6ms, person events flowing on
+interior_2 within a minute (scores 0.72-0.88). The arc that started
+in build night is closed at the SYSTEM level, not the component
+level. Lesson banked in THREADS: a component's own health report is
+not a pipeline verification.
+
+RESTIC watch: the 00:00 run never fired -- the unit was rewritten at
+21:16, AFTER the timer's last trigger (Aug 31 00:00:01). Next fire
+Sep 1 00:00. The fix is live but unverified; verification window
+moves to the next cycle's pulse. No failure, a calendar artifact.
+
+Identity watch: clean. exterior_1's OSD self-identifies correctly
+(no cam2-3 squatting). Side finding: the OSD clock is FROZEN (static
+across frames 40s apart) -- cosmetic, THREADS seed; OSD timestamps
+are inadmissible as evidence until proven ticking.
+
+Config edits landed as nacho:nacho (checked); two root systemctl
+restarts of frigate are the system unit's own lifecycle, not the
+root-git law's territory. Tripwire clean after all changes.

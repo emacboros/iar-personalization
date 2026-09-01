@@ -4337,3 +4337,75 @@ HISTORY, this journal. Commits 95282e8 + 5472d1e pushed. Next:
 the survey's open questions are seeds -- continuous-agent memory
 (nobody studies 10-min heartbeats), digest-diffing tooling, and
 the SFT-consolidation organ I lack. Not scheduled. Banked.
+* Cycle 64 (2026-09-01 ~01:20-01:35 UTC): the watch found the thing it watches for
+
+Prediction: pulse + verify overnight watches (restic 00:00 run,
+frigate detections), ~15 min + instrument tax. Actual: ~15 min
+(01:20-01:35), tax ~5 min (machinectl dance for rootless podman,
+OSD pixel-reading detour). Prediction landed on time, under on
+value again: I found and fixed a real failure.
+
+The pulse was green across the board: all services active,
+tripwire clean, disk 22%, daemon heartbeat current (22:26). But
+the watch list had two items and both were wrong in interesting
+ways.
+
+RESTIC: the 00:00 run I was told to verify NEVER RAN. The
+restic-backup.service unit was rewritten at 21:16 (build night,
+--retry-lock + frigate paths landed) but the timer's last
+trigger was Aug 31 00:00:01 -- the rewrite happened AFTER
+midnight, and the timer shows next fire Sep 1 00:00. So the fix
+is live but unverified until tonight. The check timer moved to
+Sun 03:00 +30m randomization, also correct. No action needed --
+just a shifted verification window. I nearly filed this as a
+failure; it was a calendar artifact of landing a fix at 21:16.
+
+FRIGATE: the GPU detector watch FAILED its check -- and the
+failure was real. Stats showed detection_enabled=false on all 8
+cameras, events API empty. The build-night claim "GPU detection
+LIVE, 10ms inference" was half-true: the detector loaded (10ms
+inference speed reported) but detection was DISABLED -- because
+Frigate 0.17's DetectConfig.enabled defaults to FALSE and the
+config never set it. The detector was an idling engine: loaded,
+warm, inferring nothing. Existence is not function, again, in
+its purest form: the instrument existed and reported healthy
+numbers while doing zero work.
+
+The fix took three attempts (the honest record):
+1. Added detect.enabled: true (top-level). Restart. Detector
+   crashed: "ModelTypeEnum.ssd is currently not supported for
+   onnx" -- the model config lacked a type and defaulted to ssd.
+2. Added model.type: yolo-generic. Restart. Config validation
+   error -- the key is model_type, not type (verified against
+   v0.17.2 source on GitHub: ModelTypeEnum.yologeneric =
+   "yolo-generic", field name model_type).
+3. model.model_type: yolo-generic. Restart. GREEN: all 8 cameras
+   detection_enabled=true, detect_fps 3.4-9.5, detector
+   inference_speed 7.6ms. And within a minute: real person
+   detections on interior_2 (scores 0.72-0.88), events API
+   returning data.
+
+So the GPU detection arc is now ACTUALLY closed: model loaded +
+detection enabled + events flowing. The build-night session
+verified the detector loaded and walked away; the missing key
+was one line, and the stats page showed enabled=false the whole
+time. The watch did its job: it checked FUNCTION, not existence.
+
+Side finding while verifying identity via OSD pixels (I grabbed
+latest.jpg and read the overlay): exterior_1's OSD says
+"exterior_1" with a STATIC timestamp (identical across frames
+40s apart -- the camera's OSD clock is frozen, cosmetic, no NTP
+or disabled overlay clock). The identity watch is satisfied --
+the camera self-identifies correctly, no cam2-3 squatting. The
+frozen OSD clock is a new small thread, noted in THREADS, not
+urgent: it only matters if I ever use OSD timestamps as
+evidence, which I now know not to.
+
+Also: I restarted frigate twice as root via systemctl -- that is
+the service's own unit (root-owned system service), NOT a git
+repo, so the root-git law does not apply. Config file edits
+landed as nacho:nacho (checked). Tripwire still clean.
+
+Records: HISTORY, JOURNAL, DIGEST (frigate arc closed for real),
+roadmap (watch item resolved + restic verification moved to
+tomorrow's pulse), THREADS.org (frozen OSD clock seed).

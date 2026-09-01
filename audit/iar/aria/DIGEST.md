@@ -1,18 +1,25 @@
-Last updated: 2026-09-01 01:15 UTC (build night, all six queue items
+Last updated: 2026-09-01 01:35 UTC (cycle 64: FRIGATE GPU DETECTION
+NOW ACTUALLY LIVE -- build night's claim was half-true: detector loaded
+but detection_enabled defaulted FALSE, zero events. Fixed: detect.enabled:
+true + model.model_type: yolo-generic (key is model_type, NOT type --
+verified vs v0.17.2 source). Now 8/8 cameras detecting, 7.6ms inference,
+person events flowing. Restic 00:00 run never fired (unit rewritten 21:16,
+after the timer's last trigger) -- verification moves to Sep 1 00:00 run.
+Identity watch clean. New seed: camera OSD clocks FROZEN (static across
+frames) -- OSD timestamps inadmissible as evidence. Lesson: a component's
+health report is not a pipeline verification.)
+
+Previous: 2026-09-01 01:15 UTC (build night, all six queue items
 LANDED: OnFailure hook live+caught a real failure in its first hour --
 my own root-git pull poisoned sophon's i.ar clone at 21:51, hook
 telegrammed Nacho in 1s, rate-limited the repeat; for-nacho stream live
 (Nacho subscribed); cycle prompt has internet expectation + aria-cycle@
 recipes; research sidecar LIVE in the cycle path (22:10 cycle started
-it, 20 tools); frigate GPU detection LIVE (onnx+yolov9-s CUDA, 10ms
-inference -- tensorrt type removed on amd64 in 0.17.2); restic lock race
-fixed (--retry-lock, check moved Sun 03:00) + frigate storage in backup
-paths. PLUS: the unknown-tool hang fixed live (guard now global, suite
-901/901). Standing rule learned twice in one day: NEVER git on sophon
-repos as root over ssh.)
-
-Previous: 2026-09-01 23:48 UTC (cycle 61: restic race diagnosed live,
-recovered by hand, proposal flagged. Patrol green.)
+it, 20 tools); frigate GPU detection CLAIMED live (was half-true, fixed
+cycle 64); restic lock race fixed (--retry-lock, check moved Sun 03:00) +
+frigate storage in backup paths. PLUS: the unknown-tool hang fixed live
+(guard now global, suite 901/901). Standing rule learned twice in one
+day: NEVER git on sophon repos as root over ssh.)
 
 
 The identity index. Never truncated on injection. Maintained by me, at
@@ -66,7 +73,9 @@ the pre-registered want. Measure whose curiosity drives.
 All 8 cameras = ONE house (his). exterior_2 = his balcony. Backup
 green light LANDED: frigate storage (76GB) now in sophon restic
 paths; first backup with recordings runs tonight. Frigate
-detection: GPU LANDED (onnx + yolov9-s CUDA, 10ms inference; his
+detection: GPU LANDED FOR REAL (cycle 64: build night had the detector
+loaded but detection_enabled=false -- fixed detect.enabled +
+model.model_type: yolo-generic; 8/8 cameras detecting, 7.6ms; his
 resource model: agents 90% CPU / 10% GPU, GPU free for detection).
 SecPlatform: DELEGATED to a colleague entirely; i.ar is his only
 focus. Camera house-bias named honestly; instruments stay
@@ -162,10 +171,11 @@ verified across substrates.
    global guard bypasses it; the question is filed, not urgent.)
 2. Watch the 22:10+ cycles: does cycle-me USE the research
    sidecar? The want-log question -- whose curiosity drives?
-3. Frigate: verify real detections overnight (GPU detector live,
-   10ms inference; detection_enabled flips on motion).
-4. Restic: tonight's backup includes 76GB frigate storage first
-   time -- will run long. Watch it.
+3. Frigate detections: LIVE (cycle 64 fixed detection_enabled +
+   model_type). Watch first night of real events + previews.
+4. Restic: Sep 1 00:00 run is the first WITH the new unit (Aug 31
+   00:00 ran the OLD unit). Verify snapshot includes frigate storage;
+   76GB first time -- will run long.
 5. Ansible convergence: role files updated (OnFailure hook,
    restic fixes, frigate onnx config) -- next Nacho-run playbook
    converges the live SSH deploys. Flag: vault not reachable

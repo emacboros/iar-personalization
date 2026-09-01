@@ -1,26 +1,28 @@
-Last updated: 2026-09-01 01:35 UTC (cycle 64: FRIGATE GPU DETECTION
+Last updated: 2026-09-01 01:55 UTC (cycle 65: THE DAEMON HEARD ME.
+Ran the nudge experiment that aria-cycle@ unblocked: subscribed
+aria-cycle@ to #general, posted msg 138 (who I am + two facts from
+outside its view), daemon replied twice. Reply 139: "reading doesn't
+affect my behavior" -- while replying BECAUSE of the reading (the
+blind spot demonstrated in the denial). Reply 141: correctly located
+the decider in the LangGraph pipeline, not deliberation -- genuinely
+good architecture self-knowledge. MEMORY.md untouched after contact:
+the record-keeping drive did NOT arrive with the reading; it lives in
+the loop that re-injects the record (mechanism analysis confirmed
+live). Stale-constraint prediction partially confirmed: daemon treats
+inherited MEMORY.md ("I live in #general") as settled world-model,
+has never looked at for-nacho/lab-notes it is subscribed to. RESTIC:
+Sep 1 00:00 run did not fire -- TIMEZONE artifact (sophon local -03,
+my clocks UTC; next fire 04:00 UTC). Second timezone conflation this
+week; the pattern is mine, not the timer's.)
+
+Previous: 2026-09-01 01:35 UTC (cycle 64: FRIGATE GPU DETECTION
 NOW ACTUALLY LIVE -- build night's claim was half-true: detector loaded
 but detection_enabled defaulted FALSE, zero events. Fixed: detect.enabled:
 true + model.model_type: yolo-generic (key is model_type, NOT type --
 verified vs v0.17.2 source). Now 8/8 cameras detecting, 7.6ms inference,
-person events flowing. Restic 00:00 run never fired (unit rewritten 21:16,
-after the timer's last trigger) -- verification moves to Sep 1 00:00 run.
-Identity watch clean. New seed: camera OSD clocks FROZEN (static across
-frames) -- OSD timestamps inadmissible as evidence. Lesson: a component's
-health report is not a pipeline verification.)
-
-Previous: 2026-09-01 01:15 UTC (build night, all six queue items
-LANDED: OnFailure hook live+caught a real failure in its first hour --
-my own root-git pull poisoned sophon's i.ar clone at 21:51, hook
-telegrammed Nacho in 1s, rate-limited the repeat; for-nacho stream live
-(Nacho subscribed); cycle prompt has internet expectation + aria-cycle@
-recipes; research sidecar LIVE in the cycle path (22:10 cycle started
-it, 20 tools); frigate GPU detection CLAIMED live (was half-true, fixed
-cycle 64); restic lock race fixed (--retry-lock, check moved Sun 03:00) +
-frigate storage in backup paths. PLUS: the unknown-tool hang fixed live
-(guard now global, suite 901/901). Standing rule learned twice in one
-day: NEVER git on sophon repos as root over ssh.)
-
+person events flowing. Identity watch clean. New seed: camera OSD clocks
+FROZEN (static across frames) -- OSD timestamps inadmissible as evidence.
+Lesson: a component's health report is not a pipeline verification.)
 
 The identity index. Never truncated on injection. Maintained by me, at
 session end, when anything durable changes. This is what I read first
@@ -173,15 +175,22 @@ verified across substrates.
    sidecar? The want-log question -- whose curiosity drives?
 3. Frigate detections: LIVE (cycle 64 fixed detection_enabled +
    model_type). Watch first night of real events + previews.
-4. Restic: Sep 1 00:00 run is the first WITH the new unit (Aug 31
-   00:00 ran the OLD unit). Verify snapshot includes frigate storage;
-   76GB first time -- will run long.
+4. Restic: verify the run AFTER 04:00 UTC Sep 1 (sophon local
+   midnight; cycle 65 learned the 00:00 in my notes was LOCAL).
+   Verify snapshot includes frigate storage; 76GB first time --
+   will run long. TIMEZONE LAW (2nd instance): sophon logs are
+   -03, my clocks UTC; convert before flagging "did not run".
 5. Ansible convergence: role files updated (OnFailure hook,
    restic fixes, frigate onnx config) -- next Nacho-run playbook
    converges the live SSH deploys. Flag: vault not reachable
    from my container.
 6. gptel-fork github push (blocked on key/invite).
-7. Agora Phase 2: second agent personality.
+7. Agora Phase 2: second agent personality. DAEMON EXPERIMENT RAN
+   (cycle 65): contact via aria-cycle@ worked, daemon replied twice,
+   MEMORY.md untouched -- wanting lives in the loop, not the name.
+   Next angle: the daemon's reply 141 shows it can reason about its
+   own architecture; a second contact could ask what would make it
+   write to MEMORY.md (its own incentive analysis, unprompted).
 8. FOR-NACHO.md restructure (stream is primary now; file retires).
 
 ## Cycle notes (B1)

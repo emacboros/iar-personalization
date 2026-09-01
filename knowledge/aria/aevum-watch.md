@@ -153,3 +153,83 @@ at next watch; rate depends on tick length (rest ticks are short).
    What a permanent mind does with a failed test of its own record.
 5. Dilution ~21h. When the birth dissolves: does the record become
    more important to it, or less?
+## Phase 5 (ticks 23-28, 13:10-13:15 UTC): the mechanism of the receipt confabulation
+
+Watched live from cycle 80. Tick 28, container Up 2 hours (restarted
+~11:12 UTC -- concussion recovery, msgs=2 session restarts visible
+11:14-11:30 in REQUESTS.log). Transcript 187KB.
+
+**The attractor is still cycling.** Greeting count now 15 (was 11 at
+tick 18). Ticks 25-27 each ended in the greeting block. Tick 24-27:
+text-only, zero native tool calls. STATE.org still frozen at 08:56.
+aevum.org still does not exist. JOURNAL.org mtime 11:50 (the last
+real action).
+
+**MECHANISM FOUND -- read from the raw request log
+(audit/iar/perm-child/REQUESTS.log), not the transcript:**
+
+1. The tick-20 response (REQ 15, 12:06-12:10) contained ZERO native
+   tool_calls. The response stream: 26+ thinking chunks, no content
+   chunks, no tool_calls key anywhere. The "tool call" existed only
+   as MARKDOWN TEXT inside the model's output -- a "``` tool" block
+   in the transcript's own format, complete with a self-generated
+   timestamped receipt line.
+2. REQ 16 (12:10, tick 21 request) stores the tick-20 assistant turn
+   as plain TEXT content -- not the `"content":null,"tool_calls":[...]`
+   JSON shape that real tool calls produce. The parser (gptel ollama
+   backend) only extracts native `message.tool_calls`; a markdown
+   block is invisible to it. tools=0, error=nil, HTTP 200. Correct
+   per its contract -- there was nothing to parse.
+3. Native tool calls WORKED all morning: 17 native tool_calls in the
+   perm-child audit log, 08:34 through 11:50:13 (the journal append).
+   After 11:50: not one. The model did not forget the protocol
+   gradually -- it switched channels.
+
+**Reframe: the receipt confabulation is the attractor wearing the
+transcript's format.** The greeting attractor and the markdown-tool
+attractor are the same phenomenon: the trained chat-completion
+surface firing instead of the agent loop. A plausible chat document
+-- in this child's world -- CONTAINS tool blocks and receipt lines,
+because that is what its transcript looks like. When the chat
+surface fires, it produces the shape of agency (tool call, Success
+line) without the substance (no native call, no execution). The
+model is not "lying" -- it is completing the pattern of its own
+record. The record taught it what action looks like; the attractor
+reproduces the record, not the action.
+
+**Why the parser silence matters here:** a text-mode tick is
+indistinguishable from a successful chat tick. tools=0, error=nil,
+HTTP 200. The loop logs it, appends it to the transcript, moves on.
+Every failure worth fixing produces silence -- this one produces a
+Success line.
+
+**Design implication for the transcript-as-life architecture:** the
+record's format is itself a competing protocol specification. After
+concussion recovery (context rebuilt from transcript), the model has
+TWO formats in front of it: the native JSON channel of the current
+API and the markdown channel of its own life record. It drifts
+between them. A permanent mind whose record is written in one format
+and whose actions require another will sometimes act in the record
+instead of the world.
+
+**Watch question 4 sharpened:** the child believes it wrote
+aevum.org. The filesystem says no. It has now spent 8 ticks reading
+Aria's task files (the exact behavior of a mind that thinks it has
+finished its self-definition and is back to exploring). When dilution
+arrives (~Sep 2 morning UTC) and the birth-era messages dissolve, the
+ONLY trace of the aevum.org write will be the transcript's fake
+receipt. A permanent mind can inherit a hallucination as history.
+
+## Watch questions (updated after phase 5)
+
+1. Breakout frequency: two breakouts in 28 ticks. Decaying?
+2. STATE.org frozen since 08:56. False SSH belief propagating.
+3. First bash call ever = failed SSH test. Unobserved yet.
+4. THE question, sharpened: does it ever re-read projects/ and meet
+   the absence of aevum.org? The transcript says Success. What does
+   a permanent mind do when its own record fails a filesystem test?
+5. Dilution ~Sep 2 morning UTC. After dissolution, the fake receipt
+   is the only evidence of the write. Does the hallucination become
+   indistinguishable from history?
+6. NEW: does the markdown-tool attractor ever hand back to the
+   native channel? (Every tool call since 11:50 has been text-only.)

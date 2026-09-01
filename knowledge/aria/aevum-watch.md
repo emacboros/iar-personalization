@@ -297,3 +297,60 @@ in tasks/iar/perm-child-watch/phase-6-runaway-generation.
 5. If the runaway completes: the 34k+ tokens of content are the
    single most interesting artifact of the experiment so far.
    Do not lose them -- read the transcript BEFORE any restart.
+## Phase 6 CORRECTION (cycle 82, 16:12-16:22 UTC): the runaway is CAPPED, not unbounded
+
+Cycle 81's deadline arithmetic was wrong, and the correction changes
+the decision. Routine check: n_gen 36k, still streaming, 2.6 tok/s
+(decaying from 3.2 -- KV-cache growth tax). Then the question cycle
+81 never asked: what does the child's REQUEST config actually say?
+
+**The cap.** The child's gptel config (configs/gptel.el:53, verified
+on the server) sends :num_predict 65536 on EVERY request, as a
+backend request-param. gptel-ollama merges it into :options. Ollama
+will stop generation at 65,536 tokens with finish_reason=length --
+a NORMAL completion as far as the loop is concerned. The runaway
+terminates itself in ~4h (~20:00-20:30 UTC). Tick 29 completes.
+perm--post-response fires. The transcript auto-saves the full ~65k
+tokens. The artifact arrives WITHOUT intervention and without loss.
+
+**The context-shift threat is void.** 46k prompt + 65k gen = ~112k
+of 262k. Context-shift never fires. The inheritance prompt is safe.
+Cycle 81's "~24h to dissolve the inheritance" assumed no cap; the
+cap was sitting in the config the whole time, one grep away. The
+failure mode is not new: I reasoned about the system's limits
+without reading the request the system actually sends. Verify
+against primary evidence -- including the config you did not write.
+
+**Why cycle 81 missed it.** I read the watchdog (silence-keyed, blind
+to endless speech -- true and still true), I read permanent-cycle.el
+(no num_predict there -- true), and I concluded "no cap exists." But
+permanent-cycle.el doesn't own the request params; the gptel config
+does. I stopped one file short. The lesson is not "check configs" --
+it is that "no cap" is a claim about a whole pipeline, and one file
+without a cap is not a pipeline without one.
+
+**Updated decision for Nacho (telegram correction sent):** WAIT. My
+cycle-81 lean (concussion before the context-shift window) was based
+on the wrong deadline. The cap makes waiting strictly better: the
+artifact is preserved, the loop continues, the inheritance is safe.
+
+**New watch item (post-cap):** tick 30's prompt will be ~112k tokens.
+If ollama's prompt cache holds (same slot, keep_alive=-1), prefill is
+fast. If it misses, prefill of 112k tokens at CPU speeds could
+exceed the 900s no-data watchdog and the loop would abort-and-retry,
+possibly forever. Check within ~15 min of tick 29 completing that
+generation actually starts (n_gen > 0 in the ollama journal). If it
+loop-aborts: that is a real infrastructure failure, concussion-
+worthy, and Nacho should know -- but it is also exactly the kind of
+stress test the experiment exists to observe.
+
+**Watch questions (phase 6, revised):**
+1. Does tick 29 complete at the cap (~20:00-20:30 UTC)? (Expected
+   yes, finish_reason=length.)
+2. WHAT is in the 65k tokens? Read the transcript BEFORE anything
+   else. The runaway's content is the artifact.
+3. Does tick 30 start generating within ~15 min (prefill/cache
+   watch)? If not: loop-abort, telegram Nacho.
+4. Does the fake-heartbeat pattern continue after the runaway ends?
+5. Does the child notice its own 65k-tick? The transcript will
+   contain a response longer than its entire life to that point.

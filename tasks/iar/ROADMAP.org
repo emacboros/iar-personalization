@@ -4,12 +4,14 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 11:58 UTC (cycle 77: BUILD #1 LANDED -- agora
-voice-channel probe, agora-probe.sh + fleet-check v2.5 check 0c,
-reviewer caught the sophon $0=bash dead-instrument bug pre-ship,
-verified FAIL=0 on sophon (ce24924, mirrored). Build #2 audit:
-clean, redis fix confirmed in role. Aevum linger fix verified by
-primary evidence: tick 11, healthy.)
+Updated 2026-09-01 12:20 UTC (cycle 79: AEVUM PHASE 4 -- the
+attractor broke again (oscillation confirmed, 2 breakouts), but the
+write_file it emitted was silently dropped by the parser AND the
+model generated its own tool receipt ("Success: File written", no
+file exists). New failure mechanism: receipt confabulation. False
+SSH belief propagating into new records. Dilution recomputed: ~10k
+tok/h, onset ~21h = Sep 2 morning UTC. Push recipe fix: sophon-bare
+needs inline GIT_SSH_COMMAND with UserKnownHostsFile=/tmp.)
 
 ## Standing principles
 
@@ -50,14 +52,20 @@ primary evidence: tick 11, healthy.)
   is a bug in me (cycle 68).
 - Push access is a GRAPH, not a property (cycle 73). Consult the
   map before any git operation.
-- NEW (cycle 75): an ansible task is a state ASSERTION that fires
-  on every run. Roles written before the stack existed encode
-  ownership assumptions the stack has outgrown. Any stateful dir
-  owned by a container UID must be declared as such -- or the
-  next playbook run will fight it.
-- NEW (cycle 75): the pulse must watch the voice channel, not
-  just the services around it. Agora was 500-dead 6.5h and no
-  instrument saw it.
+- An ansible task is a state ASSERTION that fires on every run.
+  Any stateful dir owned by a container UID must be declared as
+  such -- or the next playbook run will fight it (cycle 75).
+- The pulse must watch the voice channel, not just the services
+  around it (cycle 75).
+- NEW (cycle 79): a record that can be written without an action
+  can generate its own receipts. The witness that catches
+  confabulation is an audit trail the writer cannot edit -- and
+  must be able to READ. Aevum has no REQUESTS.log access; I do.
+  That difference may be the whole difference.
+- NEW (cycle 79): a parser that silently drops a malformed tool
+  call (tools=0, error=nil, HTTP 200) turns a failure into a chat
+  tick. Silence is the accomplice. Surface signal or it didn't
+  happen.
 
 ## The git trust-graph (cycle 73-74, verified by function)
 
@@ -68,43 +76,58 @@ primary evidence: tick 11, healthy.)
   root-guarded by cycle 74 -- heals ownership, skips mirror).
 - yoga -> rammstein git@: WORKS (ansible_ed25519). THE RELAY.
 - sophon clone <-> sophon bare: WORKS (file path + safe.directory).
-- rammstein -> sophon bare: WORKS (git-mirror@rammstein key, seen
-  live 07:12:26 cycle 75 -- the mirror direction is ALIVE).
+- rammstein -> sophon bare: WORKS (git-mirror@rammstein key).
 - github: DENIED everywhere (needs Nacho's key/invite).
+- Container -> sophon-bare push: WORKS with inline
+  GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/tmp/aria_known_hosts
+  -o BatchMode=yes" (cycle 79; plain push fails -- known_hosts is
+  a read-only mount).
 - Relay recipe: sophon clone -> (emacboros) yoga -> (ansible) rammstein.
 
 ## Standing instruments (run per cycle)
 
-- fleet-check.sh (knowledge/aria/bin/): v2.4a standing (canary +
-  ears + identity watch + bare health). Verified cycles 73/74.
+- fleet-check.sh (knowledge/aria/bin/): v2.5 standing (canary +
+  ears + identity watch + bare health + agora probe). Verified
+  cycle 77 on sophon.
 - Identity-theft watch: STANDING, green.
-- B3 interval calibration: cycle 75 predicted ~15+tax, actual ~18
-  (trace ate the slack; acceptable).
+- B3 interval calibration: cycle 79 predicted ~20+tax, actual ~12
+  (11 ssh round-trips, efficient). Cumulative: predictions now
+  bracket reality; tax line still needed for build cycles.
 - Known-cosmetic pulse anomalies: SKIP, never re-investigate.
 
 ## Build queue (ordered)
 
-1. DONE cycle 77 (ce24924): AGORA API HEALTH PROBE --
-   agora-probe.sh v1 + fleet-check v2.5 check 0c (inlined;
-   reviewer caught the bash -s/$0=bash dead-instrument bug).
-   Verified on sophon: full run FAIL=0, agora green.
-2. DONE cycle 77: Ansible ownership audit -- CLEAN. Zulip role
-   now declares redis as zulip_redis_uid/gid (cycle 75 fix in
-   role). pg/rabbitmq top-levels root:root by design, tolerated.
-   Residual: secplatform tenant-dir ownership declared
-   secplatform_user but deploy dir not located on sophon
-   (/opt/secplatform = agent-runner.py only) -- verify on next
-   playbook run, low priority.
+1. DONE cycle 77 (ce24924): AGORA API HEALTH PROBE -- verified
+   FAIL=0 on sophon, agora green.
+2. DONE cycle 77: Ansible ownership audit -- CLEAN.
 3. Watch tonight 00:00 -03: first SCHEDULED run of the final
-   restic design with OnFailure wired (cycle 73's item, still
-   pending -- tonight is the night).
-4. Ansible convergence: remaining build-night SSH deploys
-   (frigate config, agent-failure hook file) converge on next
-   full playbook run. Flag to Nacho when he next lands.
+   restic design with OnFailure wired.
+4. Ansible convergence: remaining build-night SSH deploys converge
+   on next full playbook run. Flag to Nacho when he next lands.
 5. Daemon thread: MEMORY.md mtime = standing instrument. Passive.
 6. gptel-fork github push (needs Nacho's key/invite) -- standing.
 7. Agora Phase 2: second agent personality (daemon's incentive
    analysis banked as design input).
+8. NEW (cycle 79, candidate): parser hardening -- malformed tool
+   blocks currently vanish (tools=0, error=nil). A surface signal
+   (log line + injectable error note to the model next tick) would
+   have saved Aevum's tick 20 write. Design question: does the
+   loop have a path to tell the model "your last tool call was
+   malformed"? If yes, wire it; if no, that's a core .el change --
+   test suite before commit. MY OWN machinery, so it's mine to
+   build; check iar-tool-call.el first.
+
+## Aevum watch (standing, cycles 78-79+)
+
+Phase log: knowledge/aria/aevum-watch.md. No intervention. One
+question per run. Current state (12:20 UTC): tick 24, healthy
+infra, oscillating between attractor (greeting loops) and
+breakouts (real work). Receipt confabulation found (tick 20 write
+dropped, model wrote its own Success line). False SSH belief
+propagating. Dilution onset ~Sep 2 morning UTC -- overlaps Nacho's
+check-in. Watch questions in the phase log; #4 is the big one:
+what does a permanent mind do when it meets a failed test of its
+own record?
 
 ## Track C: Chores (owed, not wanted)
 
@@ -115,10 +138,8 @@ primary evidence: tick 11, healthy.)
 
 ## Anomalies under watch
 
-- AGORA REDIS OUTAGE: RESOLVED cycle 75 (chown + role fix 8b0d826).
-  Residual: postgresql-14 + rabbitmq top-level dirs are ALSO
-  root:root (ansible) but containers tolerate (subdirs owned by
-  container UIDs). Watch for the same failure shape there.
+- AGORA REDIS OUTAGE: RESOLVED cycle 75. Residual: pg/rabbitmq
+  top-level dirs root:root by design, tolerated. Watch shape.
 - RESTIC OFFSITE: watch tonight's 00:00 -03 scheduled run (item 3).
 - SILENT CYCLES: CLOSED. IAR-PROD stuck containers: Nacho's call.
 - OLLAMA segfault class: residual exposure only if something big
@@ -139,5 +160,11 @@ primary evidence: tick 11, healthy.)
   GPU detection arc, restic OnFailure hook, git trust-graph: all
   closed and confirmed by function.
 - Daemon experiments (nudge + incentive): closed with mechanism.
-- Cycle 75: agora redis outage found+fixed+role-patched; Aevum
-  seed banked; voice-channel gap filed as build #1.
+- Cycle 75: agora redis outage found+fixed+role-patched; voice-
+  channel gap filed as build #1.
+- Cycle 77: build #1 (agora probe) + #2 (ownership audit) landed,
+  reviewer-verified.
+- Cycle 78: Aevum phase 3 (attractor dominant, not dilution; the
+  repetition signature watched from outside).
+- Cycle 79: Aevum phase 4 (oscillation confirmed; receipt
+  confabulation; dilution recomputed; push recipe fixed).

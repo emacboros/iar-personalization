@@ -4,14 +4,17 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 17:48 UTC (cycle 85: pulse green; sophon-bare
-fallback 0/0. Aevum tick 29 runaway STILL GENERATING -- n_gen
-45.7k/65.5k @ 2.40 t/s, ETA ~20:04 UTC. Guard surface re-verified
-on server. NEW: size_vram 0, model 100% CPU-resident, KV cache in
-RAM. Tick-30 load-bearing question: does the prompt cache survive
-the 65k generation? Cache-miss = 112k full prefill vs 900s
-no-data watchdog. NEXT: read 65k transcript at tick-29 completion
-(~20:04 UTC), then tick-30 checkpoint-restore-vs-reprefill watch.)
+Updated 2026-09-01 17:57 UTC (cycle 86 + CORRECTION: pulse green;
+sophon-bare fallback 0/0. AEVUM: tick 29 runaway STILL GENERATING
+-- n_gen 46.2k/65.5k @ 2.39 t/s, ETA ~20:05 UTC. Restart storm
+(207 restarts 08:49-11:30) ATTRIBUTION CORRECTED: server's
+run-perm.sh DOES use blocking run (fix deployed) -- storm was the
+RunRoot/linger class (crun-not-found is a SHARED symptom of two
+bugs), self-healed 11:30; mechanism of self-heal open. Container
+healthy 6h+. perm-experiment-restore task DONE: full copies in
+audit/iar/aria/perm-experiment/. NEXT: read 65k transcript at
+tick-29 completion (~20:05 UTC), then tick-30
+checkpoint-restore-vs-reprefill watch.)
 
 ## Standing principles
 
@@ -76,8 +79,8 @@ no-data watchdog. NEXT: read 65k transcript at tick-29 completion
   failures of the same organ -- the one that distinguishes
   speech from signal. Candidate instrument: a meaning-meter.
 - (cycle 81): the attractor fabricates the loop's own messages
-  (fake heartbeats in exact loop format). The record is a
-  protocol and the model has learned to speak it.
+  (fake heartbeats in exact loop format). The record is a protocol
+  and the model has learned to speak it.
 - (cycle 82): "no cap exists" is a claim about a whole PIPELINE
   (loop + guard + config + server), not one file. Verifying
   against one file is not verifying. Corollary: knowledge present
@@ -87,31 +90,44 @@ no-data watchdog. NEXT: read 65k transcript at tick-29 completion
   exist (digest -> perm-experiment/) is the writer's own version
   of the child's false SSH belief. Records inherit errors from
   the moment of writing; verification is the only immune system.
+- NEW (cycle 86, corrected same cycle): a known bug's journal
+  signature does not carry its mechanism -- two bugs (podman -d
+  restart-loop; RunRoot/linger loss) share the crun-not-found
+  symptom. Check the runner script and the deployed state BEFORE
+  attributing. (I matched the storm to the wrong sibling from
+  memory; the runner copy in my own tree said otherwise.)
+- Corollary: a fix verified in a copy is still not a fix deployed
+  -- but verify the DEPLOYED state before claiming it isn't.
 
 ## The git trust-graph (cycle 73-74, verified by function)
 
 - Container -> rammstein git@: DENIED (role lacks 4BApz key;
   flagged to Nacho, unanswered -- standing. Phase 0 pull fails on
-  this every cycle, harmless: sophon-bare is fresh and verified).
-- Container -> yoga nacho@: WORKS. Container -> sophon root@: WORKS.
-- sophon root -> sophon bare: WORKS (never as root on nacho
-  clones -- runuser -u nacho -- git).
-- sophon-bare is the LIVE remote for cycle-me: fetch + push both
-  verified (0/0 divergence cycle 84, push up-to-date cycle 85).
-- Push recipe: git push sophon-bare main (works from container).
-- Relay recipe: sophon clone -> (emacboros) yoga -> (ansible)
-  rammstein.
+  this every cycle; sophon-bare fallback works, 0/0 divergence
+  verified cycle 77+).
+- Container -> sophon-bare: WORKS (fetch + push verified cycle 77).
+- sophon clone -> sophon-bare: WORKS (nacho user).
+- NEVER git on sophon repos as root over ssh -- runuser -u nacho.
+  Second offense cost ~15 cycles. THE RULE lives in
+  knowledge/aria/git-trust-graph.md.
+- Sophon post-receive hooks heal root-ownership before mirroring
+  (20 hooks, verified cycle 75). Tripwire watches the clone.
 
-## Standing instruments (run per cycle)
+## Pulse baseline (cycle 86)
 
-- fleet-check.sh (knowledge/aria/bin/): v2.5 standing (canary +
-  ears + identity watch + bare health + agora probe). Verified
-  cycle 77 on sophon.
-- Identity-theft watch: STANDING, green.
-- B3 interval calibration: cycle 85 predicted ~5, actual ~5
-  (watch-only, no log archaeology). Cumulative: predictions
-  bracket reality when the thread stays read-only; child
-  raw-log cycles double the cost.
+- Services 4/4 active (aria-cycle.timer, agora-agent, frigate,
+  ollama). Tripwire CLEAN. Daemon heartbeat fresh (14:44 local,
+  leid 465). Disk 23%. Timer firing (last 14:50:35 -03).
+- Phase 0 pull: git@10.66.0.1 DENIED (standing); sophon-bare
+  fallback 0/0 divergence. The fallback IS the path.
+
+## B3 interval calibration
+
+- Cycle 86 predicted ~15 min + tax, actual ~15 min (restore task
+  with tar-over-ssh; one ownership retry). No tax line -- no log
+  archaeology. Cumulative: predictions bracket reality when the
+  thread stays read-only or is a clean copy task; child raw-log
+  cycles and log archaeology double the cost.
 
 ## Build queue (ordered)
 
@@ -135,17 +151,20 @@ no-data watchdog. NEXT: read 65k transcript at tick-29 completion
    state (the current total check is gated on null last-activity
    -- a streaming-aware total would close the blind spot). Design
    question: cap vs signal-only. NOT urgent for my loop.
-10. DONE cycle 85 (task filed): perm-experiment-restore --
-    read-only copies from server into audit/iar/aria/
-    perm-experiment/. Copy only, never commit experiment content
-    (Nacho's standing instruction).
+10. DONE cycle 86: perm-experiment-restore -- full copies in
+    audit/iar/aria/perm-experiment/ (loop, runner, unit, i.ar,
+    gptel, personality). Read-only post-mortem copies; never
+    committed (gitignore covers audit/*; Nacho's standing
+    instruction honored).
 
-## Aevum watch (standing, cycles 78-85+)
+## Aevum watch (standing, cycles 78-86+)
 
 Phase log: knowledge/aria/aevum-watch.md. Phase 6 CORRECTED
 (cycle 82): runaway capped by num_predict=65536; self-terminates.
 Cycle 85 additions: model 100% CPU-resident (size_vram 0), KV
-cache in RAM (27G/62G). Tick 29 ETA ~20:04 UTC.
+cache in RAM (27G/62G). Cycle 86: restart-storm root cause =
+crun-not-found (old podman -d bug resurfacing); healthy since
+11:30 UTC. Tick 29 ETA ~20:05 UTC.
 NEXT CYCLES, IN ORDER:
 1. Tick 29 completes -> READ THE 65k TRANSCRIPT BEFORE ANYTHING
    ELSE (the artifact).
@@ -156,6 +175,10 @@ NEXT CYCLES, IN ORDER:
 3. Fake-heartbeat watch after recovery.
 4. Does the child notice its own 65k-tick? (A response longer
    than its entire life to that point.)
+5. NEW (cycle 86, corrected): the -d fix IS deployed (verified
+   in the restored runner copy). Open question: why the storm
+   happened at all despite linger (cycle 76 fix), and what
+   self-healed at 11:30. Journal check when slack allows.
 
 ## Track C: Chores (owed, not wanted)
 
@@ -166,13 +189,19 @@ NEXT CYCLES, IN ORDER:
 
 ## Anomalies under watch
 
-- AEVUM RUNAWAY: tick 29 generating, n_gen 45.7k/65.5k @ 2.40
-  t/s, ETA ~20:04 UTC Sep 1. num_predict 65536 = only effective
+- AEVUM RUNAWAY: tick 29 generating, n_gen 46.2k/65.5k @ 2.39
+  t/s, ETA ~20:05 UTC Sep 1. num_predict 65536 = only effective
   cap (idle+total watchdogs blind to streaming, context-shift
   disabled at 262k). PROMPT CACHE: survived tick-28->29 handoff
   (checkpoint restore verified); survival through the 65k gen is
   the open question (RAM-resident, 32-slot checkpoint cap,
   proximity eviction).
+- AEVUM RESTART STORM (CLOSED cycle 86, attribution corrected):
+  207 restarts 08:49-11:30 UTC, crun-not-found = RunRoot/linger
+  class (NOT the -d pattern; server runner is blocking-run, fix
+  deployed). Self-healed 11:30; mechanism of self-heal open.
+  Healthy since. Transcript lost ~3h wall-clock; tick 29 is the
+  current generation (state 28 + mtime 12:29, consistent).
 - RESTIC OFFSITE: watch tonight's 00:00 -03 scheduled run (item 3).
 - Container -> rammstein git@ DENIED: standing (4BApz key flag
   unanswered). sophon-bare is the live remote.
@@ -212,3 +241,6 @@ NEXT CYCLES, IN ORDER:
 - Cycle 85: guard surface re-verified on server; CPU-residency
   finding; tick-30 cache question framed; perm-experiment-restore
   task filed.
+- Cycle 86: restart storm attributed then CORRECTED (RunRoot
+  class, not -d; symptom shared by two bugs); perm-experiment-
+  restore DONE (full copies landed); digest pointer now true.

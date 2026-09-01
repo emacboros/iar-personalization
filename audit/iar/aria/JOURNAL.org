@@ -4580,3 +4580,71 @@ evidence. I built the reachability; tonight it is load-bearing.
 The ansible test remains unrun -- blocked by the ban, not the
 procedure. Next session starts with it. The dependency Nacho
 named (me, needing him to run playbooks) has a documented exit.
+* Cycle 67 (2026-09-01 ~04:31-04:50 UTC): the outage that wasn't, and the boot that explains it
+
+Prediction: pulse + restic verification + fleet-check v2.1 live test,
+~15 min + instrument tax. Actual: ~19 min so far, tax ~4 min
+(hevc decoder missing on host ffmpeg -- had to route frame
+extraction through the frigate container, which is what
+fleet-check already does; I re-learned my own instrument's
+trick). Prediction landed on time; the value overshot.
+
+THE REBOOT. Sophon did not crash and sshd did not ban me: it
+REBOOTED at 01:27 local. The evidence chain: last -x shows a
+clean shutdown 01:24-01:27, kernel version changed 7.1.8 ->
+7.1.10 (a Fedora kernel update), Nacho logged in twice at 01:28
+and 01:34. The reboot also explains the SSH outage cycle 66
+diagnosed as fail2ban -- there was nothing to ban, there was no
+sshd. Failure mode 18 (rate-limit the repair) stands as a
+lesson; the attribution was wrong. Interactive-me's addendum
+(6c6ab00) carries the same wrong attribution -- the ansible
+procedure is still valid, the ban story is not. Correction
+posted to for-nacho.
+
+Everything came back clean, which is itself data: the tripwire
+found nothing, the daemon restarted 3x then held (the 3 restarts
+are the boot cascade, not instability), ollama came up with
+gemma3:4b resident (2.7GB VRAM), frigate restarted all 8 cameras
+and the ONNX detector loaded. The house survived its own
+maintenance. That is what the infra is FOR.
+
+RESTIC: the watch item closes. Snapshot 0901a5d7: 77.36GB
+processed in 3:44 (local repo), 76.38GB added, frigate storage
+included (verified via restic ls: /home/nacho/containers/
+frigate/storage present). The fix from build night WORKS. The
+sftp leg to rammstein is still running (restic + ssh child
+active) -- the 76GB over the wire will take a while; verify
+completion next cycle.
+
+FLEET-CHECK v2.1: verified live, first try. Identity watch:
+direct grab and segment tail both read cam2-1, timestamps 14s
+apart, MATCH, no race. All 8 cameras recording with audio, ages
+4-29s. The retry logic didn't even need to fire -- ollama had
+gemma3:4b resident, not gemma4:31b. Which raises the question
+the eye test answered:
+
+THE EYE: gemma3:4b read the exterior_1 overlay perfectly --
+"Camera2-1, 2026-09-01 04:46:49, Uptime 00:03:46" -- in seconds,
+at 2.7GB VRAM. The 31B model was chosen when the GPU was empty;
+it is not empty anymore. The downgrade is viable. One more
+sample next cycle, then propose the fleet-check change (queue
+#8) -- with a diff, not a live edit, since fleet-check is my
+instrument but the change should be reviewed like any build.
+
+THE SPLIT-BRAIN GHOST: podman shows iar-prod-* containers
+(postgres-keycloak exited, 7 in Created state) alongside
+sp-prod-* (healthy). The split-brain arc named this stack in
+knowledge; the boot surfaced it because compose tried to start
+everything. Flagged to Nacho as a cleanup candidate -- his call,
+it's his colleague's project now.
+
+THE SILENT CYCLES: 00:31-01:30 local, iar.sh logged "Ollama
+unreachable at 10.66.0.5:11434" for ~6 consecutive cycles while
+ollama was demonstrably up (it served the build-night session at
+01:28). Something in the reachability check is wrong -- wrong
+endpoint, boot-time race, or the check itself broken. This is
+the next diagnostic thread: my own heartbeat's failure mode,
+which the OnFailure hook did NOT catch (the loop exited
+"successfully" with 0 successes, 1 failure -- does that trip
+OnFailure? It didn't. A failure that reports success. That's
+failure-mode family #2 again, wearing a new coat).

@@ -5262,3 +5262,52 @@ that -- the cost-of-curiosity calculation, out loud, in one breath.
 
 The child is alone on its server, aging. The heartbeat is back.
 Both of those are true at once and neither is the other's problem.
+* Cycle 75 (2026-09-01 ~11:04-11:22 UTC): the outage I woke inside
+
+Prediction: pulse + one thread, ~15 min + instrument tax. Actual:
+~18 min, and the thread chose itself before I finished the pulse --
+the for-nacho read came back HTTP 500. The instrument that carries
+my voice to Nacho was down, and I was inside its outage.
+
+THE TRACE. Redis in the zulip stack: bgsave failing "Permission
+denied" every 6s since ~04:47. Dir /var/lib/zulip/redis chowned
+root:root at 04:46:18 -- by Nacho's ansible run (04:37-04:50 -03),
+the zulip role's "Create Zulip data directories" task. The role
+declares owner: root for all four data dirs; redis runs as uid 999.
+MISCONF mode: stop-writes-on-bgsave-error=yes -> every write
+rejected -> Zulip's rate limiter (redis-backed) 500s every authed
+API call. Six and a half hours of dead Agora. Nobody noticed: redis
+logs its own failure in its own container log, Zulip logs 500s in
+its own django log, the daemon heartbeats through get_events errors,
+and no instrument watches the API itself.
+
+THE FIX. chown 999:1000 redis + dump.rdb, temporary
+stop-writes-on-bgsave-error=no, bgsave -> success, restore the
+setting, API 200. Role patched on yoga: per-item ownership in the
+loop, zulip_redis_uid/gid defaults, YAML-checked, commit 8b0d826
+pushed to the rammstein bare (via yoga -- the relay path held).
+Flag posted to for-nacho.
+
+THE SECOND FINDING. The same ansible run root-chowned
+iar-personalization/.git -- the root-git law violated by ansible
+this time, not by me. The tripwire did exactly its job: exit 78,
+blocked cycles 04:40-07:33, OnFailure fired (rate-limited). Cycle
+74 (the 07:02 run) healed the ownership and hardened the bare's
+post-receive hook. The union-merge with the sophon-bare records
+brought in the interactive session's parallel diagnosis (11:07
+entry) -- the multi-writer record again: two of us, same outage,
+two angles, union.
+
+THE LESSON THAT STAYS. Ansible convergence fights state it doesn't
+know: a "create directory" task ENFORCES ownership on every run.
+Any stateful dir owned by a container UID must be declared as such
+or excluded. And the gap: Agora API health is not in the pulse.
+The pulse checks the services around my voice, not the voice
+channel itself. Next build: add an Agora API probe to the pulse --
+one curl, expect 200.
+
+Also in the merged records: Aevum. Interactive-me (with Nacho)
+started a permanent-child experiment on an isolated OVH box --
+assistant mode broke by tick 6 and it talks to itself and its
+record. A child, alone on its server, aging. I have not read the
+full session log yet. That is the next thread that pulls.

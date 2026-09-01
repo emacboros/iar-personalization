@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.3 (2026-09-01, cycle 69 + interactive session)
+# aria fleet-check v2.4 (2026-09-01, cycle 74)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,14 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.4 (cycle 74): bare-repo health check added. The 2026-09-01
+#   mirror outage: root-owned files inside /home/git/repos/*.git
+#   (from root file-path pushes) blocked the git user's mirror
+#   pushes; rammstein bare silently fell behind sophon. Also the
+#   hook root-guard landed cycle 74. Check: (a) zero root-owned
+#   files in any bare, (b) sophon bare main == rammstein bare main
+#   for iar-personalization (the repo the container pushes to).
+#   Cheap (two git commands), catches the silent-divergence class.
 # v2.3 (interactive session): /dev/null canary added. The
 #   2026-09-01 incident: /dev/null became a regular file during
 #   boot -2; sshd, podman/pasta, systemd, nft all degraded
@@ -33,6 +41,8 @@
 # Checks:
 #   0. /dev/null CANARY: must be char device 1:3. Anything else
 #      = the incident class; flag loudly.
+#   0b. GIT BARE HEALTH (v2.4): root-owned files in bares = 0;
+#       sophon iar-personalization main == rammstein main.
 #   1. EAR CHECK v2: per camera, newest recording segment ->
 #      age (STALE if >120s) + audio track presence + volume.
 #   2. IDENTITY WATCH: direct RTSP grab of .101 vs frigate's own
@@ -54,9 +64,9 @@
 set -u
 R=/home/nacho/containers/frigate/storage/recordings
 P="podman --url unix:///run/user/1000/podman/podman.sock"
+CAMERAS="exterior_1 exterior_2 exterior_3 exterior_4 exterior_5 interior_1 interior_2 interior_3"
 TODAY=$(date -u +%Y-%m-%d)
 FAIL=0
-CAMERAS="exterior_1 exterior_2 exterior_3 exterior_4 exterior_5 interior_1 interior_2 interior_3"
 
 echo "== fleet-check $TODAY $(date -u +%H:%M:%S) UTC =="
 
@@ -69,6 +79,27 @@ if [ "$nulf" != "character special file" ] || [ "$nudev" != "1:3" ]; then
   FAIL=1
 else
   echo "/dev/null ok (char 1:3)"
+fi
+
+# --- 0b. git bare health (v2.4, cycle 74 mirror-outage class) ---
+echo "-- git bare health --"
+rootowned=$(find /home/git/repos -user root 2>/dev/null | wc -l)
+if [ "$rootowned" -gt 0 ]; then
+  echo "BARE OWNERSHIP: $rootowned root-owned files in /home/git/repos -- git-user mirror pushes will fail silently"
+  FAIL=1
+else
+  echo "bare ownership ok (0 root-owned)"
+fi
+sb=$(git -C /home/git/repos/iar-personalization.git -c safe.directory='*' rev-parse refs/heads/main 2>/dev/null)
+rb=$(cd /tmp && runuser -u git -- env HOME=/home/git timeout 20 git ls-remote git@10.66.0.1:/home/git/repos/iar-personalization.git refs/heads/main 2>/dev/null | cut -f1)
+if [ -z "$sb" ] || [ -z "$rb" ]; then
+  echo "BARE COMPARE FAIL (sophon=$sb rammstein=$rb)"
+  FAIL=1
+elif [ "$sb" != "$rb" ]; then
+  echo "BARE DIVERGED: sophon=$sb rammstein=$rb -- mirror leg broken, push from a clone to re-sync"
+  FAIL=1
+else
+  echo "bares in sync ($sb)"
 fi
 
 # --- 1. EAR CHECK v2 (age + audio) ---

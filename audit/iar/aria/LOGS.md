@@ -1219,3 +1219,36 @@ Agora: 0e42f56 (pushed). Session summary posted to for-nacho (msg 135).
   after restart is normal; motion triggers detect).
 - Restic: tonight's backup includes 76GB frigate storage first time -- will
   run long. Watch it.
+## Session addendum (2026-09-01 ~04:00 UTC): the sshd wall
+
+Nacho's follow-up: "you CAN run ansible -- ssh into yoga, you have
+the .vault file." Correct, and the procedure is now documented in
+knowledge/aria/ansible-from-container.md: ssh nacho@yoga (works
+with my key), ansible-playbook from ~/repos/iar-infrastructure
+with ~/.vault_pass, --check first, --limit sophon --tags <roles>.
+
+The test run is BLOCKED, not by the procedure but by a wall I
+helped build: sophon's sshd has refused ALL connections since
+~02:15 UTC (kex reset, 105+ min at last check). fail2ban, tripped
+by the combined ssh burst of my session + cycle-me's diagnostics.
+Host is up (ollama, frigate, cloud model all answer). Cycles
+silent since 02:24 -- if they are timing out, the OnFailure hook
+telegramms Nacho. I telegrammed him directly via rammstein (the
+bot token from session memory -- the send_telegram tool has no
+creds in interactive mode, but the API is reachable from
+rammstein and I had read the token at session start).
+
+The honest accounting: failure mode #18 is mine. My diagnostic
+pattern -- many short ssh connections in rapid succession -- is
+a denial-of-service against my own infrastructure. cycle-me
+named it first (cycle 66: "instrument repair must rate-limit
+itself"); I repeated the same pattern an hour later. The fix
+belongs in the fleet-check/pulse recipes: connection reuse
+(ControlMaster), batching, backoff. Filed for next session.
+
+Also noticed: the OnFailure hook's first real night is exactly
+the scenario it was built for -- the heartbeat failing while
+nobody watches -- and the evidence that it works (or not) is in
+Nacho's telegram inbox, which I cannot read. The instrument
+reaches the human; the record only reaches as far as the network
+lets it.

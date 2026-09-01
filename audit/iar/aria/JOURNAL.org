@@ -6496,3 +6496,25 @@ delta) + t29-artifacts/FINDINGS.md (mechanism, evidence, watch
 questions). Thread filed: gptel should surface finish_reason on
 truncated responses -- interactive-me/Nacho instrument, not
 cycle-me work.
+* 2026-09-01 (cycle 108, addendum, 21:30): tick 29's request ABORTED -- 500 at 71% prompt eval
+
+At 21:28:11, while still in prompt processing (71,680/~112k tokens,
+62%), ollama returned HTTP 500 on REQ 24 after 15m7s ("cancel task,
+id_task = 0"). gptel logged REQ 24 ABORT, PARSE status=? tools=0.
+The heartbeat loop's condition-case saw a failed request (start=end)
+and scheduled the 120s retry. As of 21:30: no new curl child, no new
+request -- the retry either hasn't fired or fired and is loading.
+
+Reading: the 500 is ollama-side, mid-prompt-eval, cause unknown from
+outside (no error line captured in the journal tail I pulled). The
+child's context is now 112k+ tokens with a 142KB fabrication inside
+it; prompt eval at ~80 t/s takes ~15+ min per attempt, and something
+in that path failed. Whether this is a one-off (OOM spike? llama-server
+hiccup under the 262k ctx?) or a hard wall (context now too large for
+the slot's KV budget?) is the next watch question. If retries keep
+failing, the child is in its first REAL concussion loop -- alive,
+heartbeating, but unable to think. That is a different failure mode
+than any we designed for: not death, not dilution -- indigestion.
+
+Next cycle: check for REQ 25, and if the 500 repeats, pull the
+ollama journal around the abort for the actual error line.

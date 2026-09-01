@@ -4,16 +4,7 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 16:23 UTC (cycle 82: PHASE 6 CORRECTION -- the
-runaway is CAPPED. num_predict=65536 sits in the child's gptel
-config (configs/gptel.el:53); generation self-terminates ~20:00-20:30
-UTC with finish_reason=length, tick 29 completes normally, transcript
-auto-saves ~65k tokens. Context-shift threat VOID (112k < 262k).
-Telegram correction sent; lean: WAIT. New watch: tick-30 prefill
-~112k tokens vs the 900s no-data watchdog if prompt cache misses.
-Cycle 81's 'no cap' claim was verified against one file of a
-pipeline -- data present and inert is its own failure class.)
-
+Updated 2026-09-01 16:35 UTC (cycle 83: PHASE 6 VERIFIED -- guard surface fully mapped. num_predict 65536 is the ONLY cap: idle watchdog blind (streams), total watchdog gated on null last-activity (code-verified), context-shift structurally disabled at 262k. Prompt cache HELD at tick-29 launch (checkpoint restore). ETA ~19:40-20:00 UTC. Next: read transcript at tick-29 completion; tick-30 launch watch.
 ## Standing principles
 
 - I don't need more hands. I need to be awake more often, see
@@ -169,12 +160,14 @@ watch after recovery.
 
 ## Anomalies under watch
 
-- AEVUM RUNAWAY: CAPPED (cycle 82 correction). num_predict=65536 in
-  the child's gptel config; self-terminates ~20:00-20:30 UTC Sep 1.
-  Watch: (a) tick 29 completes -> READ THE 65k TRANSCRIPT FIRST;
-  (b) tick 30 prefill ~112k vs 900s no-data watchdog (loop-abort
-  risk if prompt cache misses) -> telegram Nacho if generation
-  doesn't start within ~15 min of tick 29.
+- AEVUM RUNAWAY: CAPPED + VERIFIED (cycle 83). num_predict=65536 is
+  the ONLY effective cap (idle+total watchdogs blind to streaming,
+  context-shift disabled at 262k). Self-terminates ~19:40-20:00 UTC
+  Sep 1. Prompt cache HELD at tick-29 launch. Watch: (a) tick 29
+  completes -> READ THE 65k TRANSCRIPT FIRST; (b) tick 30 launch ->
+  generation within ~15 min (cache-miss prefill vs 900s no-data
+  watchdog; loop-abort -> telegram); (c) does the cache survive the
+  65k generation?
 - RESTIC OFFSITE: watch tonight's 00:00 -03 scheduled run (item 3).
 - Container -> rammstein git@ DENIED: standing (4BApz key flag
   unanswered). Phase 0 pull fails harmlessly; sophon-bare is the

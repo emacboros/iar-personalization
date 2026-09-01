@@ -1,25 +1,34 @@
 #!/bin/bash
-# aria fleet-check v2.2 (2026-09-01, interactive session)
+# aria fleet-check v2.3 (2026-09-01, cycle 69 + interactive session)
 # -------------------------------------------------------------
-# One-command per-cycle patrol: /dev/null canary + ear check v2 +
-# identity watch. Runs ON sophon as root. Executed from the i.ar
-# container via:
+# One-command per-cycle patrol: ear check v2 + identity watch.
+# Runs ON sophon as root. Executed from the i.ar container via:
 #   ssh root@10.66.0.5 'bash -s' < fleet-check.sh
 # The version in git IS the running version -- no copy on sophon.
+# CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
-# v2.2: (a) /dev/null canary -- the 2026-09-01 incident: /dev/null
-# became a regular file (tclass=file, ino 2495) during boot -2;
-# sshd, podman/pasta, systemd, nft all degraded silently for
-# hours. A stat is cheaper than the outage it detects. (b) eye
-# model downgraded gemma4:31b -> gemma3:4b: the frigate GPU
-# detector (cycle 64) permanently took ~3.4 GiB; 31B (19.1 GiB)
-# no longer fits and every first-load after eviction segfaulted
-# llama-server (13 SIGSEGV cores, cycle 66). gemma3:4b loads in
-# ~4s into the remaining slack and reads overlays. Organs share
-# a body now; the eye sized itself to the space that exists.
-#
-# v2.1: vision call retries on HTTP 5xx (kept for the 4b too --
-# eviction can still happen if ollama loads something big).
+# v2.3 (interactive session): /dev/null canary added. The
+#   2026-09-01 incident: /dev/null became a regular file during
+#   boot -2; sshd, podman/pasta, systemd, nft all degraded
+#   silently for hours. A stat is cheaper than the outage it
+#   detects. (Union merge: cycle-69's v2.2 body kept -- wait_file
+#   retry, 120s per-call timeout, uptime-field caveat.)
+# v2.2 (cycle 69): eye model downgraded gemma4:31b -> gemma3:4b.
+#   Evidence: 2/2 perfect overlay reads (cycles 67 + 69) at
+#   2.7GB VRAM, ~10-20s/call vs 60-90s for 31b. Fixes the
+#   full-run timeout class AND removes the 31b segfault-storm
+#   exposure (cycle 66: first load after eviction can segfault
+#   llama-server). Per-call timeout 300 -> 120. Added
+#   existence-check retry before vision reads (cycle 69 flake:
+#   container->host cp visible late once; cause unresolved,
+#   workaround cheap).
+# v2.1: vision call retries on HTTP 5xx. Frigate GPU detection
+# (cycle 64) reduced free VRAM to ~6.5 GiB; gemma4:31b (19.1 GiB
+# predicted) no longer fits fully on GPU. First load attempt after
+# eviction can segfault llama-server (observed live 2026-09-01
+# 01:59 UTC); ollama's retry loads partial-offload and works.
+# The watch must not go blind exactly when a restart re-tossed
+# the camera-identity coin.
 #
 # Checks:
 #   0. /dev/null CANARY: must be char device 1:3. Anything else
@@ -31,6 +40,11 @@
 #      (gemma3:4b, think off) -> MATCH / RACE / VISION-UNCLEAR.
 #      This failure class (same IP, two cameras, session-age
 #      decides) is invisible to metadata instruments. Pixels only.
+#      NOTE (cycle 69): the overlay "Uptime" field resets when a
+#      second RTSP session connects (i.e., when THIS check's
+#      direct grab runs). It is encoder uptime, not system
+#      uptime -- inadmissible as camera-health evidence, same
+#      tier as the frozen OSD clocks.
 #   3. ARP: are .103/.104 reachable (cameras staying home)?
 #
 # Exit: 0 = all green, 1 = anything flagged. Output is compact,
@@ -93,8 +107,20 @@ else
   echo "SEG-TAIL FAIL (no ext1 segment)"; FAIL=1
 fi
 
-# 2c. vision read both frames, compare overlay cam names
+# 2c. wait for host-side visibility of the copied frames, then
+#     vision read both, compare overlay cam names.
+#     (cycle 69: one cp was not immediately visible on the host
+#     bind mount; retry-until-exists, 6 x 2s, then give up.)
+wait_file() {
+  for i in 1 2 3 4 5 6; do [ -f "$1" ] && return 0; sleep 2; done
+  return 1
+}
 if [ "$grab" = "OK" ] && [ "${tail:-}" = "OK" ]; then
+  HD=/home/nacho/containers/frigate/storage
+  if ! wait_file $HD/aria_watch_direct.jpg; then echo "DIRECT-JPG NOT VISIBLE ON HOST"; FAIL=1; fi
+  if ! wait_file $HD/aria_watch_seg.jpg;    then echo "SEG-JPG NOT VISIBLE ON HOST"; FAIL=1; fi
+fi
+if [ -f /home/nacho/containers/frigate/storage/aria_watch_direct.jpg ] && [ -f /home/nacho/containers/frigate/storage/aria_watch_seg.jpg ]; then
   python3 - <<'EOF'
 import base64, json, re, sys, time, urllib.request, urllib.error
 def look(path):
@@ -106,7 +132,7 @@ def look(path):
               "content": "Security camera frame. Quote the overlay text exactly (camera name and timestamp). Then one sentence of scene.",
               "images": [img]}]}).encode(),
         headers={"Content-Type": "application/json"})
-    r = json.load(urllib.request.urlopen(req, timeout=300))
+    r = json.load(urllib.request.urlopen(req, timeout=120))
     return r["message"]["content"]
 def look_retry(path, tries=3):
     last = None
@@ -115,7 +141,7 @@ def look_retry(path, tries=3):
             return look(path)
         except urllib.error.HTTPError as e:
             last = e
-            time.sleep(10)  # ollama reload after eviction takes ~10-20s
+            time.sleep(10)  # ollama reload after eviction/segfault takes ~10-20s
     raise last
 try:
     d = look_retry("/home/nacho/containers/frigate/storage/aria_watch_direct.jpg")

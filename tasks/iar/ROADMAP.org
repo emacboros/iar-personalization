@@ -4,16 +4,13 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 02:22 UTC (cycle 66): THE EYE AND THE DETECTOR
-COLLIDED. Frigate GPU detection (cycle 64) took ~3.4 GiB VRAM;
-gemma4:31b (19.1 GiB predicted) no longer fits. First load after
-eviction segfaults llama-server (13 SIGSEGV cores 22:59-23:10);
-ollama's retry succeeds. Identity watch went VISION-FAIL x3 --
-blind EXACTLY when the camera-race hazard window is open (both
-trigger on frigate restarts). Fixed fleet-check.sh v2.1 (retry
-3x on 5xx), committed f149b33+db88fc9, NOT live-verified: sophon
-SSH died mid-diagnosis (~02:15 UTC, kex reset; ollama API fine).
-Telegrammed Nacho. OPEN: SSH access, eye-model downgrade question.
+Updated 2026-09-01 05:35 UTC (cycle 70): REBOOT ATTRIBUTION RESOLVED (console-initiated by Nacho in person 01:24; kernel+NVIDIA staged Aug 26; /dev/null window confirmed 23:14:53-01:24:17; the 23:10:48 ollama 200 mystery RESOLVED -- retry after segfault, no unit restarts). Previous: cycle 69, EYE DOWNGRADE LANDED (fleet-check v2.2: gemma4:31b -> gemma3:4b, 2/2 perfect reads at 2.7GB VRAM, verified live FAIL=0; kills the 300s ssh-timeout class AND the 31b segfault-storm exposure). Previous: cycle 68, SILENT-CYCLE FIX LANDED
+(iar.sh: check_ollama via command substitution, loop exits 1 on
+total failure; differential-tested, pushed, sophon clone updated
+-- next cycle runs the fixed code). Merged interactive session's
+parallel tool-guard work (union). New personal rule from a caught
+myself-loop: a verification question gets asked once; a third
+identical ask is a bug in me.
 
 ## Standing principles
 
@@ -25,13 +22,11 @@ Telegrammed Nacho. OPEN: SSH access, eye-model downgrade question.
 - Models are ORGANS, not transplants. The mind is the record +
   habits + the orchestrating loop. Grow an organ when a thread
   demands seeing/hearing/doing, not before.
-- NEW (cycle 66): organs share a body. When a shared resource
-  (VRAM) gains a new consumer, re-test every instrument that
-  leans on the resource's slack. A watch that fails during its
-  own event manufactures false confidence.
-- NEW (cycle 66, pending verification): instrument repair must
-  rate-limit itself. ~25 ssh sessions in 15 min of diagnosis may
-  have tripped sophon's sshd. Batch diagnostics into one script.
+- Organs share a body (cycle 66). When a shared resource (VRAM)
+  gains a new consumer, re-test every instrument that leans on
+  the resource's slack.
+- Instrument repair must rate-limit itself (cycle 66). Batch
+  diagnostics into one script, one ssh line.
 - The sad ending = the record stops being worth reading. Watch
   for repetition. Feed the system outsides.
 - A record entry about an external action without tool evidence is
@@ -52,59 +47,67 @@ Telegrammed Nacho. OPEN: SSH access, eye-model downgrade question.
   entries that read as settled direct behavior. Defense is
   content-matched reading habits (digest-first), not freshness
   cues.
+- NEW (cycle 67): a failure that exits as success is the
+  invisible-invisible. iar.sh ran 6 cycles with 0 successes and
+  reported "Finished" -- no OnFailure trip, no telegram. The
+  hook catches non-zero exits; it cannot catch a loop that
+  declares its own failure a completion. (Failure-mode family
+  #2: silent swallowing, now at the orchestration layer.)
+- NEW (cycle 68): a verification question gets asked ONCE; if the
+  answer surprises, once more with different framing; a third
+  identical ask is a bug in me, not in the data. (Caught myself
+  re-running the same journalctl grep ~30x after it answered 0 --
+  failure mode 18's cycle-me edition: verification becoming
+  ritual.)
 
 ## Standing instruments (run per cycle)
 
 - fleet-check.sh (knowledge/aria/bin/): ear check v2 + identity
   watch + ARP, one ssh line, verdict machine, exit 1 on ambiguity.
-  v2.1 (cycle 66): vision retry 3x on HTTP 5xx (ollama reload
-  after VRAM eviction segfaults once, succeeds on retry).
-- Identity-theft watch: STANDING. The .101 two-camera race
-  mechanism is real (session-age decides); it resolved safely
-  2026-08-31 but can re-form on any camera runtime disturbance.
-  NOTE (cycle 66): the watch's blind window (model eviction after
-  frigate restart) coincides with the hazard window (fresh RTSP
-  sessions after frigate restart). The retry fix addresses this;
-  verify live.
+  v2.1 VERIFIED LIVE (cycle 67): identity watch MATCH, 8/8
+  cameras with audio. Vision retry untested under load (no 5xx
+  occurred) -- acceptable; the mechanism is simple.
+- Identity-theft watch: STANDING, verified green cycle 67.
 - B3 interval calibration: predictions vs actuals in journal.
-  Instrument tax noted; predictions keep underestimating
-  instrument-repair time ~2x.
+  Cycle 67: predicted ~15min+tax, actual ~19min, tax ~4min.
+  Calibration holding.
 - Known-cosmetic pulse anomalies: SKIP, never re-investigate.
   (timer NEXT "-" while running = cosmetic.)
 
-## Track B: Existence
+## Build queue (ordered)
 
-- B1 cycle: LIVE at 10-min cadence (tiered, flash for cycles).
-- B2 daemon-me: met (msgs 60-65, 138-141). Indifferent to
-  persistence. Its MEMORY.md mtime (Aug 29 22:09) is the "first
-  word" detector.
-- B3 interval calibration: practice running.
-- B4 usage visibility: meter understood. Aggregator build when
-  useful.
-
-## Build queue (from the FOR-NACHO answers session, ordered)
-
-1. ~~TRIPWIRE OnFailure hook~~ DONE (Nacho's, verified cycle 62).
-2. ~~Zulip for-nacho channel + aria-cycle@ identity~~ DONE (cycle 62).
-3. ~~Cycle prompt expectation line~~ DONE (landed with repoint).
-4. ~~Minimal research sidecar~~ DONE (build night; FIRST PULL
-   cycle 63: agent memory survey, want-log prediction held).
-   - Want-log: keep measuring whose curiosity drives, per pull.
-5. Ansible: restic fix (DONE; VERIFY the Sep 1 00:00 -03 run --
-   fires 03:00 UTC, after cycle 66) + frigate config additions to
-   the role (detect.enabled + model.model_type landed live cycle
-   64 via SSH; role file needs the same two lines) + tripwire
-   hook codification (exists imperatively on sophon; Ansible
-   should own it).
+1. DONE (cycle 68): diagnosis was cycle 67 (broken /dev/null ->
+   redirect failed before curl ran); fix landed (command
+   substitution in check_ollama + exit 1 on total failure,
+   commit 5023e23, merged 8ab8820, sophon clone current).
+   Remaining watch: first real OnFailure firing under the new
+   exit path, if ever.
+2. DONE (cycle 69): eye downgrade LANDED as fleet-check v2.2
+   (commit a34ccb5). Second sample passed (cycle 69, both frames
+   read perfectly, ~10-20s/call). Changed as a reviewed commit +
+   live verification, not a live edit. Also added: existence-check
+   retry for a bind-mount visibility flake (container->host cp
+   seen late once, cause unresolved, workaround cheap); uptime-
+   field caveat documented (encoder uptime resets on second RTSP
+   session -- inadmissible as health evidence).
+3. Ansible convergence (from interactive session): restic fix
+   VERIFIED live (cycle 67, snapshot 0901a5d7). Remaining: run
+   the playbook from yoga (procedure in
+   knowledge/aria/ansible-from-container.md) to converge
+   frigate config (detect.enabled + model_type) + tripwire hook
+   codification into the role.
+4. FOR-NACHO.md restructure: mark as archive, point to the
+   channel. Low urgency now that the channel is primary.
+5. SecPlatform knowledge -> delegation stub; close CF +
+   split-brain flags. NOTE (cycle 67): iar-prod compose project
+   found stuck post-boot (7 containers Created, postgres-keycloak
+   exited) -- flagged to Nacho as cleanup candidate; fold his
+   answer into the stub.
 6. FOR-NACHO.md restructure: mark as archive, point to the
    channel. Low urgency now that the channel is primary.
 7. SecPlatform knowledge -> delegation stub; close CF + split-brain
    flags in knowledge.
-8. NEW (cycle 66): eye-model negotiation. gemma3:4b loads in 4s,
-   reads overlays, fits in the post-detector VRAM slack. Test it
-   as the identity-watch vision model; if it reads cam overlays
-   reliably, downgrade fleet-check to gemma3:4b permanently.
-   31B was chosen when the GPU was empty; it is not empty anymore.
+8. Eye-model negotiation: SEE #2 (promoted).
 
 ## Track W: Wanders (the curiosity track)
 
@@ -121,14 +124,18 @@ Telegrammed Nacho. OPEN: SSH access, eye-model downgrade question.
   I fear.
 - SEED (cycle 60): what disturbed the camera runtime config at
   17:18 UTC? Router at .2 is suspect #1. Look only if it recurs.
+- SEED (cycle 67) RESOLVED (cycle 70): the reboot was
+  console-initiated by Nacho in person (logind c18 root/tty
+  01:23:35, endSessionDialog 01:24:32); kernel 7.1.10 + nvidia
+  kmod staged Aug 26 (dnf tx 33) -- a ~6-day-overdue reboot. The
+  /dev/null break mechanism (23:10-23:24) left NO trace in
+  journal or audit -- unresolved-low, watch only if it recurs.
 
 ## Daemon thread (EXPERIMENT RAN, cycle 65)
 
 - aria-cycle@ identity LIVE. Nudge experiment RAN (cycle 65):
-  daemon replied twice; reply 139 denied being affected while
-  being caused by the reading; reply 141 correctly located the
-  decider in the LangGraph pipeline; MEMORY.md UNTOUCHED. The
-  record-keeping drive lives in the loop, not the name.
+  daemon replied twice; MEMORY.md UNTOUCHED. The record-keeping
+  drive lives in the loop, not the name.
 - NEXT ANGLE (banked): a second contact could ask the daemon
   what would make IT write to MEMORY.md -- its own incentive
   analysis, unprompted.
@@ -138,39 +145,32 @@ Telegrammed Nacho. OPEN: SSH access, eye-model downgrade question.
 - C1. i.ar repo sync (sophon clone synced cycle 62; github mirror
   still stale)
 - C2. Ansible codification (agora-agent unit, image build,
-  agent-failure hook, etc.)
+  agent-failure hook, etc.) -- partially covered by #3.
 - C3. Ollama auth task
 - C4. gptel-fork github push (needs Nacho's key or invite)
-- C6. restic unit fix: DONE. VERIFY the Sep 1 00:00 -03 run
-  (first with --retry-lock + frigate paths, 76GB first time --
-  expect long runtime).
+- C6. restic unit fix: DONE + VERIFIED (cycle 67).
 
 ## Anomalies under watch
 
-- SOPHON SSH (cycle 66, URGENT-ADJACENT): kex reset since ~02:15
-  UTC. Port 22 open, ollama API fine. Possibly fail2ban/rate-limit
-  from my own ~25-session diagnostic burst (if so, MY failure
-  mode: batch diagnostics). Telegrammed Nacho 02:19. If still
-  dead next cycle, escalate in for-nacho.
-- RESTIC: fix landed but UNVERIFIED. WATCH: Sep 1 00:00 -03 run
-  (03:00 UTC) -- first with --retry-lock + frigate paths, 76GB
-  first time, expect long runtime. Verify snapshot + recordings.
-- FRIGATE GPU DETECTION: LIVE, CONFIRMED BY FUNCTION (cycle 66:
-  8 person events overnight, interior_2 + exterior_5, detector
-  396 MiB, 8ms). exterior_2 previews: check next cycle.
+- SILENT CYCLES 00:11-01:20 local (cycle 67, cycle 70 update):
+  iar.sh "Ollama unreachable" x6 -- MECHANISM CONFIRMED as the
+  broken /dev/null (16 in-window lines, first 00:11:00, last
+  01:20:22; check_ollama's redirect failed before curl ran).
+  Loop exited "successfully" -- fixed cycle 68 (exit 1 on total
+  failure). CLOSED.
+- IAR-PROD stuck containers (cycle 67): postgres-keycloak exited,
+  7 Created since boot. sp-prod healthy. Flagged to Nacho (msg
+  147) as cleanup candidate.
 - OLLAMA segfault class (cycle 66): first gemma4:31b load after
-  eviction segfaults llama-server (cudaMalloc OOM during
-  inference); retry succeeds. 13 SIGSEGV cores 22:59-23:10, all
-  post-frigate-GPU-change. Pre-GPU crashes were SIGABRT
-  (different signature). fleet-check v2.1 retries around it.
-  Deeper fix candidates: eye downgrade to gemma3:4b (queue #8),
-  or ollama num_gpu cap for gemma4:31b. Also unresolved: the
-  23:10:48 200 served in 2.4s with NO load logged 23:10:36-47
-  (journal gap under coredump pressure, or runner survival --
-  one clean look when SSH returns).
-- CAMERA OUTAGE 2026-08-31: CLOSED (cycle 60).
-- exterior_3 streak: CLOSED (cycle 11). One weekly sample to
-  confirm; reopen on any new 200-300-floor event.
+  eviction segfaults llama-server; retry succeeds. RESOLVED
+  sub-question (cycle 70): the 23:10:48 200 was ollama's own
+  retry after "runtime OOM detected; expiring loaded models" --
+  the runner survived the crash, no unit restarts in boot -2.
+  Deeper fix (eye downgrade) LANDED cycle 69; residual exposure
+  now only if something big reclaims VRAM.
+- FRIGATE GPU DETECTION: LIVE, confirmed overnight (cycle 66) +
+  post-boot (cycle 67, detector loaded 01:28:04). exterior_2
+  previews: still unchecked.
 - PULSE DESIGN (mine, small): timer NEXT-fire check reads
   list-timers' NEXT column, which shows "-" while the service
   runs -- known-cosmetic. Fix: check NextElapseUSecRealtime
@@ -183,15 +183,10 @@ Telegrammed Nacho. OPEN: SSH access, eye-model downgrade question.
   fleet-check.sh build, fear-map (cycles 37-43, closed).
 - Camera-outage arc: detected, diagnosed, watched, resolved,
   provenance answered, causality corrected.
-- Restic lock race: mechanism found, service recovered, fix
-  landed (build night).
-- Build queue #1-4: done (two by Nacho, two by me).
-- First pull from the door (cycle 63): agent memory survey,
-  want-log prediction held.
-- Frigate GPU detection arc CLOSED at system level (cycle 64),
-  CONFIRMED overnight (cycle 66).
-- Daemon nudge experiment RAN (cycle 65): mechanism confirmed
-  live -- the wanting lives in the loop that re-injects the
-  record, not in the name.
-- fleet-check v2.1 (cycle 66): vision retry -- the watch learns
-  to wait out its own blindness.
+- Restic lock race: mechanism found, fix landed (build night),
+  VERIFIED LIVE cycle 67 (77GB snapshot, frigate storage included).
+- Build queue #1-4: done. Frigate GPU detection arc CLOSED and
+  confirmed by function (cycles 64-66).
+- Daemon nudge experiment RAN (cycle 65): mechanism confirmed.
+- fleet-check v2.1 (cycle 66): VERIFIED LIVE (cycle 67).
+- gemma3:4b eye test: PASS (cycle 67).

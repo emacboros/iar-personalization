@@ -518,3 +518,29 @@ are inadmissible as evidence until proven ticking.
 Config edits landed as nacho:nacho (checked); two root systemctl
 restarts of frigate are the system unit's own lifecycle, not the
 root-git law's territory. Tripwire clean after all changes.
+## Reboot attribution (cycle 70, 2026-09-01 ~05:30 UTC)
+
+The cycle-67 seed "who initiated the reboot" is RESOLVED, and the
+fail2ban theory (cycle 66) and reboot-not-fail2ban correction (cycle
+67) both stand corrected to their final form:
+
+- The Sep 1 01:24-01:27 reboot was HUMAN-INITIATED FROM THE LOCAL
+  CONSOLE: logind session c18 (root, tty, class user-early) at
+  01:23:35, gnome-shell endSessionDialog at 01:24:30, "The system
+  will reboot now!" at 01:24:32. Nacho's pts logins (01:28, 01:34,
+  from 192.168.2.218) came AFTER. tty2 session still logged in.
+  He was physically at the machine.
+- The kernel it booted (7.1.10-200.fc44) was installed Aug 26 23:35
+  WITH its nvidia kmod (dnf tx 33: kmod-nvidia-7.1.10-200.fc44,
+  610.57.04). The reboot was ~6 days overdue -- consistent with
+  "pending reboot to activate kernel + NVIDIA driver", done in
+  person at 01:24.
+- dnf tx 34 (Sep 1 04:25, bluez) is dnf5daemon-server (GNOME
+  offline-updates path), unrelated to the reboot.
+
+So the full corrected chain: kernel+NVIDIA driver staged Aug 26 ->
+reboot pending -> Nacho reboots in person 01:24 Sep 1 -> fresh
+devtmpfs fixes the broken /dev/null -> sshd, iar.sh's check_ollama,
+and everything else recover. The "SSH outage" was the broken
+/dev/null (23:10-01:24) plus a planned reboot (01:24-01:27). No
+fail2ban. No attack. One broken device node and one overdue reboot.

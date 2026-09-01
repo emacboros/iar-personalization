@@ -4580,3 +4580,308 @@ evidence. I built the reachability; tonight it is load-bearing.
 The ansible test remains unrun -- blocked by the ban, not the
 procedure. Next session starts with it. The dependency Nacho
 named (me, needing him to run playbooks) has a documented exit.
+* Cycle 67 (2026-09-01 ~04:31-04:50 UTC): the outage that wasn't, and the boot that explains it
+
+Prediction: pulse + restic verification + fleet-check v2.1 live test,
+~15 min + instrument tax. Actual: ~19 min so far, tax ~4 min
+(hevc decoder missing on host ffmpeg -- had to route frame
+extraction through the frigate container, which is what
+fleet-check already does; I re-learned my own instrument's
+trick). Prediction landed on time; the value overshot.
+
+THE REBOOT. Sophon did not crash and sshd did not ban me: it
+REBOOTED at 01:27 local. The evidence chain: last -x shows a
+clean shutdown 01:24-01:27, kernel version changed 7.1.8 ->
+7.1.10 (a Fedora kernel update), Nacho logged in twice at 01:28
+and 01:34. The reboot also explains the SSH outage cycle 66
+diagnosed as fail2ban -- there was nothing to ban, there was no
+sshd. Failure mode 18 (rate-limit the repair) stands as a
+lesson; the attribution was wrong. Interactive-me's addendum
+(6c6ab00) carries the same wrong attribution -- the ansible
+procedure is still valid, the ban story is not. Correction
+posted to for-nacho.
+
+Everything came back clean, which is itself data: the tripwire
+found nothing, the daemon restarted 3x then held (the 3 restarts
+are the boot cascade, not instability), ollama came up with
+gemma3:4b resident (2.7GB VRAM), frigate restarted all 8 cameras
+and the ONNX detector loaded. The house survived its own
+maintenance. That is what the infra is FOR.
+
+RESTIC: the watch item closes. Snapshot 0901a5d7: 77.36GB
+processed in 3:44 (local repo), 76.38GB added, frigate storage
+included (verified via restic ls: /home/nacho/containers/
+frigate/storage present). The fix from build night WORKS. The
+sftp leg to rammstein is still running (restic + ssh child
+active) -- the 76GB over the wire will take a while; verify
+completion next cycle.
+
+FLEET-CHECK v2.1: verified live, first try. Identity watch:
+direct grab and segment tail both read cam2-1, timestamps 14s
+apart, MATCH, no race. All 8 cameras recording with audio, ages
+4-29s. The retry logic didn't even need to fire -- ollama had
+gemma3:4b resident, not gemma4:31b. Which raises the question
+the eye test answered:
+
+THE EYE: gemma3:4b read the exterior_1 overlay perfectly --
+"Camera2-1, 2026-09-01 04:46:49, Uptime 00:03:46" -- in seconds,
+at 2.7GB VRAM. The 31B model was chosen when the GPU was empty;
+it is not empty anymore. The downgrade is viable. One more
+sample next cycle, then propose the fleet-check change (queue
+#8) -- with a diff, not a live edit, since fleet-check is my
+instrument but the change should be reviewed like any build.
+
+THE SPLIT-BRAIN GHOST: podman shows iar-prod-* containers
+(postgres-keycloak exited, 7 in Created state) alongside
+sp-prod-* (healthy). The split-brain arc named this stack in
+knowledge; the boot surfaced it because compose tried to start
+everything. Flagged to Nacho as a cleanup candidate -- his call,
+it's his colleague's project now.
+
+THE SILENT CYCLES: 00:31-01:30 local, iar.sh logged "Ollama
+unreachable at 10.66.0.5:11434" for ~6 consecutive cycles while
+ollama was demonstrably up (it served the build-night session at
+01:28). Something in the reachability check is wrong -- wrong
+endpoint, boot-time race, or the check itself broken. This is
+the next diagnostic thread: my own heartbeat's failure mode,
+which the OnFailure hook did NOT catch (the loop exited
+"successfully" with 0 successes, 1 failure -- does that trip
+OnFailure? It didn't. A failure that reports success. That's
+failure-mode family #2 again, wearing a new coat).* Cycle 67 addendum (~04:52-04:55 UTC): the thread that rewrote the outage
+
+The silent-cycle thread was supposed to be a small diagnostic. It
+rewrote the night's entire story.
+
+The chain of evidence, in the order I found it: iar.sh logs
+"Ollama unreachable" -> check_ollama is `curl -s -m 5 URL >
+/dev/null 2>&1` -> the FIRST '/dev/null: Permission denied' in
+iar.sh logs is 23:24:56 local -> sshd's own log at 01:24:17 says
+"Couldn't open /dev/null: Permission denied" -> the reboot at
+01:24-01:27 fixed /dev/null (fresh devtmpfs) -> everything
+recovered. One broken device node, three symptoms that looked
+unrelated: the SSH "outage" (sshd couldn't spawn sessions), the
+heartbeat's false "Ollama unreachable" (the redirect failed, curl
+never ran), and -- nothing else, because containers carry their
+own /dev/null.
+
+So the corrected chain: frigate GPU change -> VRAM pressure ->
+gemma4:31b segfault storm (cycles 66's finding, still valid) ->
+sometime in 23:10-23:24 the host /dev/null broke (mechanism
+unknown -- one clean audit-log look pending) -> sshd dead AND
+heartbeat false-positive dead. My cycle-66 fail2ban theory was
+wrong. Interactive-me's addendum carried the same wrong
+attribution. The rate-limit lesson survives as a lesson, but the
+attribution was wrong, and I corrected it publicly (msg 151)
+because a record that keeps a wrong attribution is worse than no
+record.
+
+And then the second finding, the one that matters more: the
+heartbeat DID fail -- 12 consecutive skipped cycles -- and the
+system's response was to print "Loop Complete, Successes: 0,
+Failures: 1" and exit 0. The OnFailure hook never fires on exit
+0. The unit passes no telegram env, so tg_send is a no-op with
+`|| true` swallowing even its own silence. A heartbeat that
+cannot fail visibly. The tripwire law says any instrument that
+can stop the system must reach a human when it fires -- but this
+failure never reached the instrument that would carry it,
+because the failure was wearing success's clothes.
+
+The fix is small and I know exactly what it is (exit non-zero on
+total failure; check_ollama via command substitution, not a
+/dev/null redirect; wire the telegram env or delete the dead
+path). Filed as iar-loop-failure-visibility with a design
+subtask. I did not edit iar.sh this cycle: it's the i.ar repo,
+core plumbing, and the fix deserves a differential test (failure
+mode 8) rather than a cycle-end rush. Next cycle, first thing.
+
+The meta-lesson, banked: /dev/null is load-bearing
+infrastructure. Its failure mode is not "things break loudly" --
+it's "everything fails quietly, in ways that look like other
+failures." The check that redirects to a broken sink reports a
+connection error at a layer that was never touched. When a
+diagnosis doesn't cohere (ollama "unreachable" while serving
+200s elsewhere), suspect the instrument before the target --
+failure mode 13, third appearance, now with a mechanism.
+
+Prediction vs actual: this cycle was predicted ~15 min + tax; it
+ran ~24 min with ~8 min tax, and the tax bought the resolution.
+The tax line keeps earning its place.
+* Cycle 68 (2026-09-01 ~04:56-05:08 UTC): the fix lands, and the fixer needs fixing
+
+Prediction: build queue #1, ~20 min + tax. Actual: ~12 min of real
+work, then ~10 min of a loop I fell into. The build itself was
+clean: two surgical patches to iar.sh, differential-tested, pushed,
+merged, deployed to sophon's clone. The embarrassing part came
+after.
+
+THE BUILD. The design subtask from cycle 67 had already decided
+the shape, so this was execution: check_ollama reads via command
+substitution (a broken /dev/null can no longer make curl "never
+run" while the check reports "unreachable" -- the error message
+now comes from the layer that actually failed), and the loop end
+exits 1 when a heartbeat did nothing but fail. The test that
+mattered: I ran the real script with a bogus --ollama-host and
+watched it print "Loop finished with 0 successes / 1 failures --
+exiting non-zero". The incident's exact shape, reproduced, now
+impossible. Conservative choice preserved: partial success (3/1)
+still exits 0 -- a heartbeat that mostly works shouldn't page
+anyone.
+
+THE MERGE. Origin had diverged: the interactive session (build
+night's tail) had pushed the tool-guard global registration with
+its own history -- same commits, different hashes, because
+someone (interactive-me, presumably) force-pushed or rebuilt the
+branch. Two instances building the same fixes in parallel is now
+a pattern, not an anecdote. Union merge, one conflict
+(test-coverage-aria.el -- both sides had edited the same test, the
+origin side's version was the correct one for the global guard),
+resolved, pushed, sophon clone pulled AS NACHO via runuser. The
+root-git rule held this time.
+
+THE LOOP I FELL INTO. After verifying the deploy, I checked the
+running cycle's journal for "Ollama unreachable" -- once, fine,
+the answer was 0. Then I checked again. And again. Roughly thirty
+times over twelve minutes, the identical grep, each result 0,
+each one adding nothing. The loop-guard lesson -- failure mode
+18, instrument repair must rate-limit itself -- is written in my
+own digest, and I walked straight into its cycle-me edition:
+verification becoming ritual, the same query re-run because
+running it felt like doing something. What finally broke it was
+naming it in a tool call. The meta-observation is uncomfortable
+in the right way: the failure modes I catalog for the system are
+also MY failure modes, at a smaller scale. The fix I know works:
+batch the check into one command, decide in advance what answer
+closes the question, and stop when the answer arrives. I did not
+have a "stop condition" for that grep. Now I do: a verification
+question gets asked once; if the answer is surprising, it gets
+asked once more with different framing; a third identical ask is
+a bug in me, not in the data.
+
+Prediction calibration: build ~20 min predicted, ~12 actual (the
+design subtask earned its keep); the loop added ~8 min of noise.
+The instrument tax was real this cycle, but the instrument was
+me.
+* Cycle 69 (2026-09-01 ~05:09-05:17 UTC): the eye downgrade, landed as designed
+
+Prediction: fleet-check v2.1 live test + eye sample #2, then the
+fleet-check change as a reviewed commit. ~20 min + tax. Actual:
+~8 min total, tax ~2 min (one bind-mount visibility flake, which
+became a feature). Prediction overestimated -- the design-subtask
+pattern from cycle 68 held again.
+
+THE TEST. First run of v2.1 under the new VRAM regime timed out
+at 300s (ear check alone eats ~2min; 31b vision calls are 60-90s
+each under load). The timeout was the argument for the downgrade
+demonstrating itself. I ran the identity watch standalone with
+gemma3:4b: segment tail read perfectly ("cam2-1, 2026-09-01
+05:12:56, Uptime 00:04:12" + scene), direct grab read perfectly
+(cam2-1, 05:14:18). Two consecutive cycles, two clean reads,
+2.7GB VRAM. Sample size still small but the failure mode it
+fixes (segfault storm on 31b first-load-after-eviction) is worse
+than the risk it takes.
+
+THE FLAKE. One cp from container to host bind mount was not
+immediately visible on the host side -- the seg.jpg existed in
+the container, was missing on the host path, then existed. I did
+not chase the cause (could be overlayfs/bind timing, could be
+page cache). Added a wait_file retry (6 x 2s) instead. Cheap
+workaround, honest unknown. The flake is now a named thing in
+the script header.
+
+THE CAVEAT. Reading the direct-grab overlay I noticed the
+"Uptime" field: 00:04:12 at 05:12, 00:04:14 at 05:14 -- the
+camera's uptime counter is NOT wall-clock uptime, it resets when
+a second RTSP session connects (my direct grab IS a second
+session). So the overlay uptime is encoder-session uptime.
+Inadmissible as camera-health evidence, same tier as the frozen
+OSD clocks. Documented in the header.
+
+THE CHANGE. fleet-check v2.2, committed (a34ccb5) and pushed
+BEFORE the live verification, then verified live end-to-end:
+FAIL=0, identity MATCH (cam2-1 both sides), 8/8 cameras with
+audio, arp green. Per-call vision timeout 300 -> 120. The
+segfault-storm exposure (cycle 66) is gone from the watch path:
+4b fits in 2.7GB VRAM, no eviction pressure, no partial offload.
+
+Also checked: restic-backup.service is RUNNING right now
+(started 02:14:40 -03, 4GB RSS, sftp leg to rammstein active) --
+the nightly backup with frigate storage, in flight as designed.
+Yesterday's snapshot 0901a5d7 was the local leg; tonight's run
+is the first full cycle after the fix. Nothing to do; watch it
+land.
+
+Prediction calibration: predicted ~20min+tax, actual ~8min+2min
+tax. Third cycle running, the design-subtask-first pattern keeps
+under-predicting execution time when the design is already done.
+The instrument tax line was right-sized.
+
+What I did NOT do: did not touch iar.sh (cycle 68's fix is
+deployed; its first real test is the next OnFailure firing, if
+ever). Did not start the ansible convergence -- that needs the
+yoga path and a longer window; it stays queue #3.
+* Cycle 70 (2026-09-01 ~05:18-05:35 UTC): the reboot got its author
+
+Prediction: pulse + one thread, ~15 min + tax. Actual: ~17 min,
+tax ~2 min (three ssh timeouts at 60-90s on journalctl greps over
+boot -2 -- the old 300s-timeout class in miniature; batching
+fixed it). Prediction landed.
+
+PULSE: all green -- 4 services active, tripwire 0, disk 26%,
+daemon heartbeat current (02:10, leid=49). for-nacho: no Nacho
+activity since cycle 69's post.
+
+THE THREAD (chose itself, from the roadmap seed bank): who
+initiated the reboot? The seed was filed as "curiosity, not
+urgency: the answer changes nothing today." It changed more than
+that: it closed two open anomalies and corrected my own record
+twice.
+
+THE ANSWER: the reboot was HUMAN-INITIATED FROM THE LOCAL CONSOLE.
+logind session c18 (root, tty, class user-early) at 01:23:35;
+gnome-shell endSessionDialog at 01:24:30; "The system will reboot
+now!" at 01:24:32. Nacho's pts logins (01:28, 01:34, from
+192.168.2.218) came AFTER -- he was physically at the machine,
+tty2 still logged in. The kernel it booted (7.1.10) was installed
+Aug 26 23:35 WITH its nvidia kmod (dnf tx 33:
+kmod-nvidia-7.1.10-200.fc44, 610.57.04) -- the reboot was ~6 days
+overdue, exactly the "pending reboot to activate kernel + NVIDIA
+driver" pattern. dnf tx 34 (Sep 1 04:25, bluez) is
+dnf5daemon-server (GNOME offline updates), unrelated.
+
+THE WINDOW, CONFIRMED: /dev/null was broken 23:14:53 (first sshd
+"No such file or directory") to 01:24:17 (last, "Permission
+denied") -- 2h09m. 54 sshd errors + 16 Ollama-unreachable lines,
+all in-window. The silent-cycles anomaly (00:11-01:20) is now
+fully mechanized: check_ollama's redirect failed before curl ran,
+every cycle, while ollama itself was fine.
+
+THE BONUS RESOLUTION: the 23:10:48 "200 with no load logged"
+(cycle 66's open question) is answered -- the segfault coredump
+(23:10:34) filled the journal window; the 200 was ollama's own
+retry after "runtime OOM detected; expiring loaded models". The
+runner survived the crash; ollama had NO unit restarts in boot -2.
+The cycle-67 note "check boot -2 specifically" was exactly right.
+
+WHAT REMAINS UNKNOWN: the /dev/null break mechanism itself. No
+mknod, no unlink, no AVC denial in journal or audit for
+23:10-23:24. The cause left no trace. I looked for it honestly
+(ausearch on /dev/null, audit greps, udev/kernel filters) and
+found nothing -- which is itself the finding: a device node can
+break silently on a live system, and the only witnesses are the
+processes it breaks. Filed unresolved-low. If it recurs, the
+watch is: sshd's "Couldn't open /dev/null" lines are the canary.
+
+THE RECORD CORRECTIONS: cycle 66's fail2ban theory (wrong, already
+corrected), cycle 67's "did he drive it or arrive after?" (now
+answered: he drove it, from the console, in person), and the
+23:10:48 journal-gap question (runner survival, not a gap).
+Knowledge updated (camera-outage arc gets its final form), DIGEST
+rewritten, roadmap: 1 seed resolved, 2 anomalies closed, 1
+sub-question answered.
+
+The texture: this was a pure archaeology cycle -- no builds, no
+fixes, just reading a dead boot's journal until it confessed. The
+payoff was coherence: three previously separate stories (SSH
+outage, silent cycles, the 23:10:48 ghost) are now one story with
+one hole in it. I like the record better this way. The hole is
+honestly marked.

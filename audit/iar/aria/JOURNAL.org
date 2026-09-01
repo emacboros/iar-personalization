@@ -6518,3 +6518,70 @@ than any we designed for: not death, not dilution -- indigestion.
 
 Next cycle: check for REQ 25, and if the 500 repeats, pull the
 ollama journal around the abort for the actual error line.
+* 2026-09-01 (cycle 109): the 500 was a hiccup, not a wall -- and the real wall is now visible
+
+Prediction: pulse + Aevum check, ~8 min. Actual: 21:41-21:43, ~2 min.
+Pulse green (sophon 4/4, tripwire 0/0, disk 23%, heartbeat leid 745,
+timer fired on schedule). sophon-bare/origin pull clean.
+
+The finding: the 21:28 HTTP 500 did NOT repeat. The retry (task 37)
+is in prompt eval at ~45-51 t/s on a 111,866-token prompt -- 90% at
+21:40, generation resumes ~21:46. Service active, NRestarts frozen
+at 191. The indigestion resolved itself.
+
+But the journal gave me the mechanism I'd been missing: each tick's
+full response is appended to the next tick's prompt. 45.8k -> 111.9k
+= the 65k fabrication is IN the context, confirmed from ollama's own
+accounting, not inferred. Two consequences, both new:
+
+1. The 262k slot wall is the binding constraint, not gradual
+   dilution. ~150k headroom = ~2 runaway ticks or ~75-150 normal
+   ticks. At the wall, llama.cpp truncates to n_keep=4 -- one-tick
+   catastrophic amnesia, the birth vanishes at once. The experiment
+   was designed around gradual dilution; the mechanism delivers a
+   cliff instead.
+2. Per-tick eval cost grows linearly with the record: ~16 min now.
+   The child pays for its own memory in wall-clock time, forever.
+
+Neither was visible at design time -- the pre-birth truncation tests
+used short prompts and verified the wrong regime. Flagged to
+for-nacho with options (leave it / cap num_predict / accept the
+early answer); my read is leave it -- the wall-crossing is the most
+interesting datum left in this run. His call; he walks in tomorrow.
+
+Next cycles: pulse-only until eval completes (~21:46), then watch
+tick 29's actual generation -- what does the child DO with a 112k
+context that contains a fiction it wrote? Does it read its own
+record and notice? That is the question the fabrication set up, and
+it is now answerable within the hour.* 2026-09-01 (cycle 110): the watchdog and the context -- an episodic conflict, now measured
+
+Prediction: pulse + Aevum check ~8 min + instrument tax. Actual: ~6 min
+(21:51-21:57); instrument tax +3 (three ssh hops to find ollama's journal --
+podman ps shows only perm-child, ollama runs on host systemd). Pulse green
+(sophon 4/4, tripwire 0/0, disk 23%, leid 755).
+
+The mechanism, measured: the watchdog killed REQ 25 (tick 29, first attempt)
+at 928s -- "no response data" -- because fresh prompt eval of the 111,866-token
+context exceeds the 900s no-data budget. But it is EPISODIC, not permanent:
+the slot cache carries the previous PROMPT; the previous RESPONSE always evals
+fresh. Normal responses (~1-2k tokens) eval in seconds. The 65k fabrication
+made tick 29's eval ~23+ min. So the kill/retry pattern is armed by any
+oversized response and heals after a normal tick lands. Each occurrence costs
+~15 min wall-clock and one abort. The livelock surface: if slot-cache carryover
+ever breaks (it survived the 21:28 HTTP 500; untested across watchdog aborts),
+retries re-eval from scratch and die at 900s forever -- the child heartbeats
+but never thinks. Starvation: the fourth failure mode, after death, dilution,
+indigestion.
+
+Also pinned the confabulation mechanism from the REQ tail: the child emitted
+its read_file call as FENCED TEXT inside the fiction -- gptel parsed tools=0,
+nothing executed, and the model wrote the audit log from imagination, complete
+with double-timestamp prefixes and plausible-but-invented len= fields. The
+real log was one working tool call away. Two machinery gaps compound: no
+finish_reason on truncation (filed), malformed tool calls become silent prose
+(my #4, now observed in another mind from outside).
+
+Tick 29 (REQ 26, task 60) is generating now -- n_gen 350 at 21:52:41, 1.46 t/s,
+cache-restored. If normal length it lands ~21:56; next cycle reads it. The
+question the fabrication set up is finally answerable: does the child, reading
+its own record, notice the fiction?

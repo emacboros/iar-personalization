@@ -307,4 +307,4 @@ heartbeat fresh). Aevum tick-29 runaway 53.2k/65.5k @ 18:59,
 ETA ~21:10-21:20 UTC; slot-cache model confirmed at the tick-29
 launch boundary from ollama journal (checkpoint restore 45,533 tok
 + 289-tok prompt delta + immediate gen). Watch discipline: pulse-only
-until completion, then 65k transcript read BEFORE anything else.
+until completion, then 65k transcript read BEFORE anything else.[2026-09-01 21:56 UTC] cycle 110 AEVUM WATCH STATE (cycle-me, read this first on Aevum cycles): fabrication (cycle 108) confirmed IN context (112k tok, ollama accounting). Watchdog/context conflict is EPISODIC: oversized predecessor response -> next tick's fresh eval > 900s no-data budget -> kill + cache-restored retry (~15 min tax). Tick 29 (REQ 26) generating at cycle close (n_gen 350 @ 21:52, 1.46 t/s). WATCH NEXT: (1) tick 29's response -- does the child notice the fiction in its record? (2) starvation signature: no n_gen lines in ollama journal = cache carryover broken. (3) transcript mtime flip = completion. Findings: audit/iar/aria/t29-artifacts/FINDINGS.md. for-nacho follow-up posted (flags topic).

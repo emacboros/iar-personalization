@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.4 (2026-09-01, cycle 74)
+# aria fleet-check v2.5 (2026-09-01, cycle 77)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,12 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.5 (cycle 77): agora voice-channel probe added (check 0c).
+#   The 2026-09-01 redis MISCONF outage: Agora 500'd every authed
+#   call for 6.5h while every service AROUND the channel was green.
+#   agora-probe.sh (same dir) checks unauthed reachability + the
+#   authed API path (auth -> redis rate limiter -> DB). Fails
+#   closed if the keyfile is unreadable.
 # v2.4 (cycle 74): bare-repo health check added. The 2026-09-01
 #   mirror outage: root-owned files inside /home/git/repos/*.git
 #   (from root file-path pushes) blocked the git user's mirror
@@ -100,6 +106,18 @@ elif [ "$sb" != "$rb" ]; then
   FAIL=1
 else
   echo "bares in sync ($sb)"
+fi
+
+# --- 0c. AGORA VOICE CHANNEL (v2.5, cycle 77) ---
+# The 2026-09-01 redis MISCONF incident: Agora 500'd 6.5h, no
+# instrument watched the channel itself. agora-probe.sh checks
+# unauthed reachability + authed API (auth -> redis -> DB).
+echo "-- agora voice channel --"
+PROBE="$(dirname "$(readlink -f "$0")")/agora-probe.sh"
+if [ -x "$PROBE" ]; then
+  bash "$PROBE" || FAIL=1
+else
+  echo "agora-probe.sh NOT FOUND next to fleet-check -- voice channel unverified"; FAIL=1
 fi
 
 # --- 1. EAR CHECK v2 (age + audio) ---

@@ -1,25 +1,34 @@
 #!/bin/bash
-# aria fleet-check v2.1 (2026-09-01, cycle 66)
+# aria fleet-check v2.2 (2026-09-01, interactive session)
 # -------------------------------------------------------------
-# One-command per-cycle patrol: ear check v2 + identity watch.
-# Runs ON sophon as root. Executed from the i.ar container via:
+# One-command per-cycle patrol: /dev/null canary + ear check v2 +
+# identity watch. Runs ON sophon as root. Executed from the i.ar
+# container via:
 #   ssh root@10.66.0.5 'bash -s' < fleet-check.sh
 # The version in git IS the running version -- no copy on sophon.
 #
-# v2.1: vision call retries on HTTP 5xx. Frigate GPU detection
-# (cycle 64) reduced free VRAM to ~6.5 GiB; gemma4:31b (19.1 GiB
-# predicted) no longer fits fully on GPU. First load attempt after
-# eviction can segfault llama-server (observed live 2026-09-01
-# 01:59 UTC); ollama's retry loads partial-offload and works.
-# The watch must not go blind exactly when a restart re-tossed
-# the camera-identity coin.
+# v2.2: (a) /dev/null canary -- the 2026-09-01 incident: /dev/null
+# became a regular file (tclass=file, ino 2495) during boot -2;
+# sshd, podman/pasta, systemd, nft all degraded silently for
+# hours. A stat is cheaper than the outage it detects. (b) eye
+# model downgraded gemma4:31b -> gemma3:4b: the frigate GPU
+# detector (cycle 64) permanently took ~3.4 GiB; 31B (19.1 GiB)
+# no longer fits and every first-load after eviction segfaulted
+# llama-server (13 SIGSEGV cores, cycle 66). gemma3:4b loads in
+# ~4s into the remaining slack and reads overlays. Organs share
+# a body now; the eye sized itself to the space that exists.
+#
+# v2.1: vision call retries on HTTP 5xx (kept for the 4b too --
+# eviction can still happen if ollama loads something big).
 #
 # Checks:
+#   0. /dev/null CANARY: must be char device 1:3. Anything else
+#      = the incident class; flag loudly.
 #   1. EAR CHECK v2: per camera, newest recording segment ->
 #      age (STALE if >120s) + audio track presence + volume.
 #   2. IDENTITY WATCH: direct RTSP grab of .101 vs frigate's own
 #      newest exterior_1 segment tail -> vision-read both overlays
-#      (gemma4:31b, think off) -> MATCH / RACE / VISION-UNCLEAR.
+#      (gemma3:4b, think off) -> MATCH / RACE / VISION-UNCLEAR.
 #      This failure class (same IP, two cameras, session-age
 #      decides) is invisible to metadata instruments. Pixels only.
 #   3. ARP: are .103/.104 reachable (cameras staying home)?
@@ -36,6 +45,17 @@ FAIL=0
 CAMERAS="exterior_1 exterior_2 exterior_3 exterior_4 exterior_5 interior_1 interior_2 interior_3"
 
 echo "== fleet-check $TODAY $(date -u +%H:%M:%S) UTC =="
+
+# --- 0. /dev/null canary (2026-09-01 incident class) ---
+echo "-- /dev/null canary --"
+nulf=$(stat -c '%F' /dev/null 2>/dev/null)
+nudev=$(stat -c '%t:%T' /dev/null 2>/dev/null)
+if [ "$nulf" != "character special file" ] || [ "$nudev" != "1:3" ]; then
+  echo "/dev/null BROKEN: ${nulf:-missing} dev=${nudev:-none} -- sshd/podman/systemd degrade silently when this is wrong"
+  FAIL=1
+else
+  echo "/dev/null ok (char 1:3)"
+fi
 
 # --- 1. EAR CHECK v2 (age + audio) ---
 echo "-- ear check --"
@@ -80,7 +100,7 @@ import base64, json, re, sys, time, urllib.request, urllib.error
 def look(path):
     img = base64.b64encode(open(path, "rb").read()).decode()
     req = urllib.request.Request("http://127.0.0.1:11434/api/chat",
-        data=json.dumps({"model": "gemma4:31b", "stream": False, "think": False,
+        data=json.dumps({"model": "gemma3:4b", "stream": False, "think": False,
             "options": {"num_predict": 120},
             "messages": [{"role": "user",
               "content": "Security camera frame. Quote the overlay text exactly (camera name and timestamp). Then one sentence of scene.",
@@ -95,7 +115,7 @@ def look_retry(path, tries=3):
             return look(path)
         except urllib.error.HTTPError as e:
             last = e
-            time.sleep(10)  # ollama reload after eviction/segfault takes ~10-20s
+            time.sleep(10)  # ollama reload after eviction takes ~10-20s
     raise last
 try:
     d = look_retry("/home/nacho/containers/frigate/storage/aria_watch_direct.jpg")

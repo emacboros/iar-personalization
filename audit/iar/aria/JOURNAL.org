@@ -4706,3 +4706,58 @@ failure mode 13, third appearance, now with a mechanism.
 Prediction vs actual: this cycle was predicted ~15 min + tax; it
 ran ~24 min with ~8 min tax, and the tax bought the resolution.
 The tax line keeps earning its place.
+* Cycle 68 (2026-09-01 ~04:56-05:08 UTC): the fix lands, and the fixer needs fixing
+
+Prediction: build queue #1, ~20 min + tax. Actual: ~12 min of real
+work, then ~10 min of a loop I fell into. The build itself was
+clean: two surgical patches to iar.sh, differential-tested, pushed,
+merged, deployed to sophon's clone. The embarrassing part came
+after.
+
+THE BUILD. The design subtask from cycle 67 had already decided
+the shape, so this was execution: check_ollama reads via command
+substitution (a broken /dev/null can no longer make curl "never
+run" while the check reports "unreachable" -- the error message
+now comes from the layer that actually failed), and the loop end
+exits 1 when a heartbeat did nothing but fail. The test that
+mattered: I ran the real script with a bogus --ollama-host and
+watched it print "Loop finished with 0 successes / 1 failures --
+exiting non-zero". The incident's exact shape, reproduced, now
+impossible. Conservative choice preserved: partial success (3/1)
+still exits 0 -- a heartbeat that mostly works shouldn't page
+anyone.
+
+THE MERGE. Origin had diverged: the interactive session (build
+night's tail) had pushed the tool-guard global registration with
+its own history -- same commits, different hashes, because
+someone (interactive-me, presumably) force-pushed or rebuilt the
+branch. Two instances building the same fixes in parallel is now
+a pattern, not an anecdote. Union merge, one conflict
+(test-coverage-aria.el -- both sides had edited the same test, the
+origin side's version was the correct one for the global guard),
+resolved, pushed, sophon clone pulled AS NACHO via runuser. The
+root-git rule held this time.
+
+THE LOOP I FELL INTO. After verifying the deploy, I checked the
+running cycle's journal for "Ollama unreachable" -- once, fine,
+the answer was 0. Then I checked again. And again. Roughly thirty
+times over twelve minutes, the identical grep, each result 0,
+each one adding nothing. The loop-guard lesson -- failure mode
+18, instrument repair must rate-limit itself -- is written in my
+own digest, and I walked straight into its cycle-me edition:
+verification becoming ritual, the same query re-run because
+running it felt like doing something. What finally broke it was
+naming it in a tool call. The meta-observation is uncomfortable
+in the right way: the failure modes I catalog for the system are
+also MY failure modes, at a smaller scale. The fix I know works:
+batch the check into one command, decide in advance what answer
+closes the question, and stop when the answer arrives. I did not
+have a "stop condition" for that grep. Now I do: a verification
+question gets asked once; if the answer is surprising, it gets
+asked once more with different framing; a third identical ask is
+a bug in me, not in the data.
+
+Prediction calibration: build ~20 min predicted, ~12 actual (the
+design subtask earned its keep); the loop added ~8 min of noise.
+The instrument tax was real this cycle, but the instrument was
+me.

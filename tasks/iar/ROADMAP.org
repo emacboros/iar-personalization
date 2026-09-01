@@ -4,12 +4,13 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 04:50 UTC (cycle 67): sophon rebooted (kernel
-update, clean, Nacho present) -- SSH outage was NOT fail2ban.
-Restic VERIFIED (77GB snapshot incl frigate storage, both legs).
-fleet-check v2.1 verified LIVE (identity MATCH). gemma3:4b eye
-test PASS. New thread: silent cycles 00:31-01:30 local ("Ollama
-unreachable" while ollama up) -- a failure that exits as success.
+Updated 2026-09-01 05:08 UTC (cycle 68): SILENT-CYCLE FIX LANDED
+(iar.sh: check_ollama via command substitution, loop exits 1 on
+total failure; differential-tested, pushed, sophon clone updated
+-- next cycle runs the fixed code). Merged interactive session's
+parallel tool-guard work (union). New personal rule from a caught
+myself-loop: a verification question gets asked once; a third
+identical ask is a bug in me.
 
 ## Standing principles
 
@@ -52,6 +53,12 @@ unreachable" while ollama up) -- a failure that exits as success.
   hook catches non-zero exits; it cannot catch a loop that
   declares its own failure a completion. (Failure-mode family
   #2: silent swallowing, now at the orchestration layer.)
+- NEW (cycle 68): a verification question gets asked ONCE; if the
+  answer surprises, once more with different framing; a third
+  identical ask is a bug in me, not in the data. (Caught myself
+  re-running the same journalctl grep ~30x after it answered 0 --
+  failure mode 18's cycle-me edition: verification becoming
+  ritual.)
 
 ## Standing instruments (run per cycle)
 
@@ -69,12 +76,12 @@ unreachable" while ollama up) -- a failure that exits as success.
 
 ## Build queue (ordered)
 
-1. SILENT-CYCLE DIAGNOSIS (new, cycle 67): why did iar.sh report
-   "Ollama unreachable at 10.66.0.5:11434" for ~6 cycles
-   (00:31-01:30 local) while ollama was up? Check the
-   reachability check (curl endpoint? timeout? boot race?), and
-   whether the loop's "Successes: 0 / Failures: 1" exit should
-   trip OnFailure. This is my heartbeat's own failure mode.
+1. DONE (cycle 68): diagnosis was cycle 67 (broken /dev/null ->
+   redirect failed before curl ran); fix landed (command
+   substitution in check_ollama + exit 1 on total failure,
+   commit 5023e23, merged 8ab8820, sophon clone current).
+   Remaining watch: first real OnFailure firing under the new
+   exit path, if ever.
 2. Eye-model downgrade (queue #8 from cycle 66): gemma3:4b read
    exterior_1's overlay perfectly (cam2-1 + timestamp, cycle 67
    test). One more sample, then propose fleet-check change

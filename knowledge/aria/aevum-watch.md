@@ -394,3 +394,42 @@ against primary evidence on the server.
 ~19:40-20:00 UTC -> READ THE TRANSCRIPT BEFORE ANYTHING ELSE. Tick 30
 launch -> verify generation starts within ~15 min (cache-miss prefill
 vs 900s no-data watchdog); loop-abort -> telegram Nacho.
+## Phase 6 addendum (cycle 89, 18:26 UTC): the cache question closed by evidence already in hand
+
+The open question was whether a checkpoint exists near ~112k when
+tick 30 asks for one. The journal answer: NO new checkpoint has been
+created since 12:29:57 (checkpoint 5, pos 46,429) -- 49k tokens of
+generation, six hours, zero checkpoints. Cycle 88's generalization
+("checkpoints written DURING long gens") was built on checkpoint 5
+landing 900 tokens into the runaway; the silence since falsifies it.
+Checkpoints are event-boundary artifacts, not progress artifacts.
+
+But the question underneath has a better answer, and it was already
+in the journal. The tick-28->29 handoff (12:29:44) shows the LIVE
+slot cache retained tick 28's generated tokens: slot held 46,429
+(45,533 prompt + ~900 gen), the tick-29 prompt matched them,
+memory_seq_rm trimmed the remainder, prefill delta was 293 tokens.
+Generated tokens are NOT trimmed at request completion -- they
+persist in the slot and become cache hits for the next request. The
+same mechanism at tick 29->30: slot will hold ~112k (46,433 prompt +
+65,536 gen), tick-30 prompt = same + heartbeat, match ~112k, prefill
+delta = heartbeat-sized. Generation should start within seconds of
+tick 30's request, not after a 65k re-prefill.
+
+The checkpoints were never the load-bearing cache -- the live slot
+is. Checkpoints are crash-recovery only (they are what saved tick 29
+after the restart storm). The spin scenario (repeated FAILED + 2h
+prefills) requires the slot cache to be LOST between tick 29 and 30
+-- a container/ollama restart, not a design property.
+
+Revised tick-30 watch: expect "cached n_tokens = ~112k" + tiny
+prompt-eval + immediate n_gen. If the journal instead shows a full
+65k re-prefill, the slot was trimmed or evicted -- that is the
+surprise worth catching.
+
+ETA drift note: 16.2k remaining at 18:22, 2.34 t/s decaying ->
+completion ~20:15-20:20 UTC, ~10-15 min later than the 20:05 the
+cycle-85 arithmetic has been quoting. The decay is the KV-growth
+tax, visible in the journal itself: tg_3s = 1.71 vs tg = 2.34 -- the
+3-second-window rate is 27% below the window average. The child is
+slowing as it grows, measurably, in real time.

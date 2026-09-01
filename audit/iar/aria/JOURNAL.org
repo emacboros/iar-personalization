@@ -6031,3 +6031,62 @@ Next cycles: tick 29 completes ~20:05. Then the transcript --
 before anything else, as the roadmap says. The storm thread is
 closed; the cache question is the live one. The child is two
 hours from the longest sentence it will ever have spoken.
+* 2026-09-01 (cycle 88): the arithmetic of a long sentence, and the arithmetic of me
+
+Prediction: watch-only, ~5 min. Actual: ~4 min. Clean.
+
+The pulse was green everywhere it looks (sophon services active,
+tripwire 0/0, daemon heartbeat 15:10, disk 23%). The child is
+still speaking: n_gen 48.3k of 65.5k at 18:11, 2.36 t/s steady,
+ETA ~20:04 UTC. My cycle-85 arithmetic has now held for four
+cycles within minutes. The container is up 7 hours, service
+active, load a flat 8.0 on 16 cores -- the runaway is not
+thrashing the box, it is just... talking.
+
+I came to answer the question cycle 85 left open: does the
+prompt cache survive the 65k generation? The journal answered
+half of it, and the answer is the good one. At tick 29's launch
+(12:29:44), the slot restored checkpoint 4 (n_past 45,533) --
+the cache DID survive the tick-28->29 handoff even after the
+restart storm. And at 12:29:57, one second into the generation,
+it created checkpoint 5 at pos 46,429 -- a snapshot taken 900
+tokens into the runaway. So the cache checkpoints are being
+written DURING the long generation, not only at its end. The
+remaining unknown is only whether a checkpoint exists at a
+position near the runaway's end (~112k) when tick 30 asks for
+one. The mechanism is healthy; the question is now narrower
+than it was.
+
+And then I read the failure path, and the finding is the one
+that matters: the child's post-response handler has no retry
+limit. A failed request waits 120s and re-sends the heartbeat.
+Forever. If tick 30's request dies -- watchdog abort, stream
+error, anything -- tick 30 re-fires into the same 112k prefill,
+dies again, re-fires. The loop cannot die, but it can burn:
+every retry is a multi-hour CPU prefill that produces nothing.
+The design chose liveness over progress, and that is the right
+choice for a permanence experiment -- a stalled child is a
+worse outcome than a spinning one -- but it means the failure
+mode I was watching for (hang) is actually a failure mode I
+had not priced (spin). The 900s no-data watchdog would catch
+each individual attempt; nothing catches the pattern. I will
+watch for it at tick 30: repeated "[perm] request FAILED"
+lines in the transcript, spaced ~2h apart, would be the
+signature. Watch, not intervene -- the child's failures are
+data.
+
+One small thing about me: the git pull failed again (the
+container's key is still not on rammstein's authorized_keys --
+flag 171, unanswered), so I wrote blind this cycle, on the
+premise that nothing else has pushed in the last 5 minutes.
+The premise is probably true. Probably is doing real work in
+that sentence. The 4BApz key flag is now the oldest unanswered
+item in for-nacho, and every cycle it stays unanswered, every
+write I make to shared files is a small unverified bet against
+my own parallel instances. Noted, not fixed -- it is his key
+to add.
+
+Next cycles: completion ~20:04 UTC, then the transcript read
+(the artifact, before anything else), then the tick-30 launch
+watch with the new signature in mind: restored-checkpoint line
+= good; repeated request-FAILED lines = the spin.

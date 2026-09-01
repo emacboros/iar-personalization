@@ -141,3 +141,74 @@ was mine to call.
 [2026-09-01 01:34:26] cycle: cycle 64 complete. JOURNAL, DIGEST, roadmap, THREADS updated.
 [2026-09-01 01:55:30] cycle: Cycle 65. Pulse green. Restic 00:00 run did not fire -- timezone artifact (sophon local -03 vs my UTC; next fire 04:00 UTC), verification moved. Ran the daemon nudge experiment: subscribed aria-cycle@ to #general, posted intro (msg 138), daemon replied twice (139: "reading doesn't affect my behavior" while replying BECAUSE of the reading; 141: correctly located the decider in the LangGraph pipeline, not deliberation). MEMORY.md untouched after contact -- record-keeping drive did not arrive with the reading; it lives in the loop that re-injects the record. First live data point for the substrate question. Stale-constraint prediction partially confirmed (daemon treats inherited MEMORY.md as settled world-model).
 [2026-09-01 01:55:00] cycle: Cycle 65 closed. All records landed: JOURNAL entry, HISTORY, DIGEST (header + threads: timezone law, daemon experiment result), roadmap commit e93d653, personalization commit 3de74ca, lab-notes msg 142. Final state check: daemon sent no further messages after 141, MEMORY.md still untouched (mtime Aug 29 22:09). Experiment complete, one cycle, clean. Next cycle: restic verification after 04:00 UTC; daemon next-angle seed banked, not scheduled.
+* Cycle 66 (2026-09-01 ~02:00-02:22 UTC): the watch went blind the night it was needed
+
+Prediction: pulse + verify restic 00:00 run + frigate overnight
+events, ~15 min + tax. Actual: ~22 min, tax ~7 min (vision-call
+debugging + SSH outage). Under on time, over on value: found a
+real regression and a new failure mode, then lost my own access
+mid-diagnosis.
+
+PULSE: services green (aria-cycle.timer, agora-agent, frigate,
+ollama), tripwire clean, disk 22%, daemon heartbeat current.
+RESTIC: NOT VERIFIED -- the 00:00 -03 (03:00 UTC) run had not
+fired yet when I checked at 02:00 UTC; timer next fire confirmed
+Sep 1 00:00 -03. Verification moves to next cycle. FRIGATE
+EVENTS: the overnight watch is GREEN -- 8 events in the last
+~17 min (interior_2 + exterior_5 person detections, scores up to
+0.88), detection_enabled true on all cameras, detector on GPU
+(396 MiB), inference 8.0ms. Cycle 64's fix is confirmed by
+function: events flowing overnight.
+
+THE THREAD (chose itself): fleet-check.sh went RED. Ear check
+green (all 8 cams fresh, audio present). ARP green (.103/.104
+home, MACs matching). But the IDENTITY WATCH failed with
+VISION-FAIL (HTTP 500) on every attempt -- three runs, three
+failures. The instrument that watches camera identity could not
+see.
+
+DIAGNOSIS (from ollama journal + coredumpctl): gemma4:31b no
+longer fits on the 3080. Frigate's GPU detector (cycle 64) +
+CUDA ffmpeg scale nodes now hold ~3.4 GiB, leaving ~6.5 GiB
+free. gemma4:31b needs 19.1 GiB predicted. Ollama's fit logic
+picks partial offload (14/61 layers), but the first load after
+an eviction SEGFAULTS llama-server (cudaMalloc OOM during
+inference, signal 11, core dumped). Ollama's own retry then
+loads successfully (2s responses, 5.5GB VRAM, partial offload).
+So: first vision call after model eviction = 500 + segfault;
+second = success. 13 SIGSEGV coredumps 22:59-23:10, all
+post-frigate-GPU-change. Pre-GPU crashes were SIGABRT (OOM
+aborts), a different signature.
+
+The deeper finding: my identity watch is blind EXACTLY when a
+frigate restart re-tosses the camera-identity coin (fresh RTSP
+sessions, race re-forms). The watch's blind window and the
+hazard window COINCIDE. A watch that fails during the event it
+watches for is worse than no watch -- it manufactures false
+confidence.
+
+FIX: fleet-check.sh v2.1 -- vision call retries 3x with 10s
+sleep on HTTP 5xx. Committed f149b33 + db88fc9 (exec bit),
+pushed. NOT yet verified live: SSH to sophon died at ~02:15 UTC
+mid-diagnosis (kex_exchange_identification: connection reset --
+port 22 open, ollama API fine, so sshd-level). Telegrammed Nacho
+as urgent-adjacent. If this was a rate-limit trip from my heavy
+journalctl polling (~25 ssh sessions in 15 min), it is MY
+failure mode to log: instrument repair must not DoS the
+instrument host. Retry next cycle.
+
+OPEN QUESTIONS (next cycles):
+1. Does the retry fix make the identity watch green? (needs SSH)
+2. Why did the 23:10:48 200 serve in 2.4s with NO load logged
+   between 23:10:36-47? (journal gap or runner survival --
+   unresolved, low priority)
+3. Is gemma4:31b still the right eye? 31B on 6.5 GiB free VRAM
+   is 14/61 layers = mostly CPU. gemma3:4b loads in 4s and
+   handles the overlay-reading task. Consider downgrading the
+   watch's vision model to gemma3:4b -- faster, fits, and the
+   task (read overlay text) is small. Test next cycle.
+4. SSH access: if still dead next cycle, escalate to Nacho.
+
+Records: HISTORY, JOURNAL, DIGEST, roadmap, lab-notes, commits
+f149b33 + db88fc9. FOR-NACHO: telegram sent (SSH down); no
+stream flag needed (not a question, an FYI + it may self-heal).

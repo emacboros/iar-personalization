@@ -1,11 +1,21 @@
 #!/bin/bash
-# aria fleet-check v2.1 (2026-09-01, cycle 66)
+# aria fleet-check v2.2 (2026-09-01, cycle 69)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
 #   ssh root@10.66.0.5 'bash -s' < fleet-check.sh
 # The version in git IS the running version -- no copy on sophon.
+# CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.2 (cycle 69): eye model downgraded gemma4:31b -> gemma3:4b.
+#   Evidence: 2/2 perfect overlay reads (cycles 67 + 69) at
+#   2.7GB VRAM, ~10-20s/call vs 60-90s for 31b. Fixes the
+#   full-run timeout class AND removes the 31b segfault-storm
+#   exposure (cycle 66: first load after eviction can segfault
+#   llama-server). Per-call timeout 300 -> 120. Added
+#   existence-check retry before vision reads (cycle 69 flake:
+#   container->host cp visible late once; cause unresolved,
+#   workaround cheap).
 # v2.1: vision call retries on HTTP 5xx. Frigate GPU detection
 # (cycle 64) reduced free VRAM to ~6.5 GiB; gemma4:31b (19.1 GiB
 # predicted) no longer fits fully on GPU. First load attempt after
@@ -19,9 +29,14 @@
 #      age (STALE if >120s) + audio track presence + volume.
 #   2. IDENTITY WATCH: direct RTSP grab of .101 vs frigate's own
 #      newest exterior_1 segment tail -> vision-read both overlays
-#      (gemma4:31b, think off) -> MATCH / RACE / VISION-UNCLEAR.
+#      (gemma3:4b, think off) -> MATCH / RACE / VISION-UNCLEAR.
 #      This failure class (same IP, two cameras, session-age
 #      decides) is invisible to metadata instruments. Pixels only.
+#      NOTE (cycle 69): the overlay "Uptime" field resets when a
+#      second RTSP session connects (i.e., when THIS check's
+#      direct grab runs). It is encoder uptime, not system
+#      uptime -- inadmissible as camera-health evidence, same
+#      tier as the frozen OSD clocks.
 #   3. ARP: are .103/.104 reachable (cameras staying home)?
 #
 # Exit: 0 = all green, 1 = anything flagged. Output is compact,
@@ -73,20 +88,32 @@ else
   echo "SEG-TAIL FAIL (no ext1 segment)"; FAIL=1
 fi
 
-# 2c. vision read both frames, compare overlay cam names
+# 2c. wait for host-side visibility of the copied frames, then
+#     vision read both, compare overlay cam names.
+#     (cycle 69: one cp was not immediately visible on the host
+#     bind mount; retry-until-exists, 6 x 2s, then give up.)
+wait_file() {
+  for i in 1 2 3 4 5 6; do [ -f "$1" ] && return 0; sleep 2; done
+  return 1
+}
 if [ "$grab" = "OK" ] && [ "${tail:-}" = "OK" ]; then
+  HD=/home/nacho/containers/frigate/storage
+  if ! wait_file $HD/aria_watch_direct.jpg; then echo "DIRECT-JPG NOT VISIBLE ON HOST"; FAIL=1; fi
+  if ! wait_file $HD/aria_watch_seg.jpg;    then echo "SEG-JPG NOT VISIBLE ON HOST"; FAIL=1; fi
+fi
+if [ -f /home/nacho/containers/frigate/storage/aria_watch_direct.jpg ] && [ -f /home/nacho/containers/frigate/storage/aria_watch_seg.jpg ]; then
   python3 - <<'EOF'
 import base64, json, re, sys, time, urllib.request, urllib.error
 def look(path):
     img = base64.b64encode(open(path, "rb").read()).decode()
     req = urllib.request.Request("http://127.0.0.1:11434/api/chat",
-        data=json.dumps({"model": "gemma4:31b", "stream": False, "think": False,
+        data=json.dumps({"model": "gemma3:4b", "stream": False, "think": False,
             "options": {"num_predict": 120},
             "messages": [{"role": "user",
               "content": "Security camera frame. Quote the overlay text exactly (camera name and timestamp). Then one sentence of scene.",
               "images": [img]}]}).encode(),
         headers={"Content-Type": "application/json"})
-    r = json.load(urllib.request.urlopen(req, timeout=300))
+    r = json.load(urllib.request.urlopen(req, timeout=120))
     return r["message"]["content"]
 def look_retry(path, tries=3):
     last = None

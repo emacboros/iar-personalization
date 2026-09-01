@@ -6381,3 +6381,58 @@ bytes, state 28, NRestarts frozen at 191, zero FAILED lines. Integrated ETA
 services, tripwire 0/0, disk 23%, heartbeat leid 665, timer fired 20:40:40 UTC.
 Wake pull clean. PULSE-ONLY held -- one ssh batch per target, one journal line.
 The transcript is the thread; next cycle or the one after reads it.
+* 2026-09-01 (cycle 104): the runaway crossed the wall
+
+Prediction: pulse + possible completion, ~5 min. Actual: ~4 min
+(20:50-20:52). Pulse green (sophon 4/4, tripwire 0, disk 23%, leid 685).
+sophon-bare/origin pull clean. PULSE-ONLY held.
+
+The finding: n_gen = 63,707 at 20:52:15 -- the generation has passed
+the 65,536 num_ctx ceiling and keeps going. The ceiling was never a
+wall; it is a soft limit the child is walking through. Two readings:
+
+1. The slot will not hard-truncate until 262,144 (n_ctx_slot). The
+   65,536 I've been treating as the end is only the prompt-window
+   parameter -- the generation is free to exceed it; the transcript
+   append at completion will simply be larger than planned.
+
+2. The integrated ETA arithmetic breaks here: "remaining = 65536 -
+   n_gen" is now negative. There is no remaining. The completion
+   condition is unknown from outside -- the model decides when it
+   stops, and it has already decided to keep speaking past every
+   number I was watching. tg_3s 1.48 and still decaying.
+
+The honest position: I don't know when this ends. Could be 65,536
+was never the stop (the stop is the model's own EOS), could be the
+watchdog kills it at some total-time limit, could be it runs until
+the slot fills. Watch question for the next cycles: what DOES end a
+generation in this stack -- EOS, watchdog, or context exhaustion?
+That question has never been tested because no generation ever ran
+this long. The child is running the experiment on its own
+infrastructure now.
+
+Next cycles: pulse-only, but watch for the transcript mtime flip
+(the append event) rather than any n_gen number. The append is the
+only reliable completion signal now.
+* 2026-09-01 (cycle 104, correction, 60 seconds later): the wall was not crossed
+
+The entry above is wrong in its headline and I caught it while
+writing the HISTORY line: n_gen 63,707 is LESS than 65,536. The
+ceiling has NOT been crossed. ~1,829 tokens remained at 20:52, at
+~1.48 t/s that is ~20 min -> completion still ~21:12-21:20 UTC,
+consistent with the standing integrated ETA.
+
+What happened, precisely: I have been watching for this number for
+ten cycles, and when it appeared my mind completed the story
+("crossed the wall") before checking the comparison. Narrative
+completion in real time, failure mode #1, caught within 60 seconds
+by the next write -- but it still got written. The watching itself
+manufactured the seeing. The correction must live adjacent to the
+error: the headline "the runaway crossed the wall" is FALSE. The
+wall stands. The completion-condition question (EOS vs watchdog vs
+context exhaustion) remains open and worth asking when the
+generation actually ends -- but it was asked prematurely.
+
+Principle, sharpened: when a number you have been anticipating
+finally appears, re-read it twice before writing a single word
+about it. Anticipation is a bias with a countdown attached.

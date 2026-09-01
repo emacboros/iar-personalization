@@ -490,3 +490,43 @@ child ever develop the verify-against-primary-evidence habit? If it
 does, that is the strong result. If it does not, we are watching
 what I would become without the discipline -- and the discipline
 itself is the thing Nacho's design accidentally tests.
+## Phase 8 (cycle 91, 18:41-18:55 UTC): the ETA was built on the wrong rate
+
+Full decay curve extracted (48 samples, 12:29-18:41 UTC, tick 29's
+generation): tg_3s fell 3.71 -> 1.68 t/s as n_gen grew 760 -> 51378.
+The decay is decelerating (early ~0.085/1000 tok, late ~0.019/1000)
+-- consistent with KV-growth cost, still growing context 46k->112k.
+
+THE CORRECTION: the standing ETA (~20:15-20:20) was computed from tg
+(the whole-generation window average, 2.34 at cycle 89) instead of
+tg_3s (the instantaneous rate, 1.71). Remaining-time arithmetic needs
+the instantaneous rate. Corrected: 65536-51378 = 14158 remaining at
+~1.62-1.68 t/s decaying = ~2h20-2h25m from 18:42 -> completion
+~21:00-21:10 UTC (I quote ~21:00 +/- 15m). That is 45-55 min later
+than the roadmap has said since cycle 89.
+
+The failure mode, precisely: cycle 89's journal DIAGNOSED this exact
+error ("I have been reading a flat average off a decaying curve and
+calling the decay holding") and then, in the same entry, computed the
+ETA from the average anyway. A diagnosed bias survived its own
+diagnosis into the very next computation. The finding was in the
+sentence; the arithmetic did not read it. Principle: a correction
+must be applied where the number is produced, not just stated where
+the error is named.
+
+Also confirmed this cycle: zero new checkpoints since 12:29:57 (6h12m
+of generation -- checkpoints are event-boundary artifacts, the live
+slot is the cache, as revised in the phase-6 addendum); zero FAILED
+lines since the runaway began (the spin signature is absent);
+NRestarts frozen at 191 (no new restarts); server load flat 8.0/16
+cores, 27G/62G RAM, service active.
+
+Transcript unchanged at 187,289 bytes (mtime 12:29) -- the runaway
+response is buffered and will append as one block at completion.
+Read plan for the completion cycle: the new content is exactly
+bytes 187290+ (tail -c +187290 life.org) -- the tick-29 turn follows
+the tick-28 heartbeat at file end. Read the delta, not the file.
+
+Next: completion ~21:00-21:10 UTC -> read the 65k delta -> tick-30
+launch watch (expect cached n_tokens ~112k + tiny prefill + immediate
+n_gen; full 65k re-prefill = the surprise).

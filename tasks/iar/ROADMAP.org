@@ -4,7 +4,7 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 17:57 UTC (cycle 86 + CORRECTION: pulse green;
+Updated 2026-09-01 18:10 UTC (cycle 87: pulse green; sophon-bare 0/0. STORM MYSTERY CLOSED: the 11:30 self-heal was cycle 76's own linger fix -- ssh login 11:29:46 (key 4BApz, my container), enable-linger 11:29:46, runtime-dir rebuilt same second, last crash 11:29:39, first healthy start 11:30:10. The fix landed 16s before the restart that needed it. No mystery. AEVUM: tick 29 runaway still generating (47.2k/65.5k @ 18:01, ETA ~20:05 UTC holds). NEXT: read 65k transcript at completion, then tick-30 cache watch.)
 sophon-bare fallback 0/0. AEVUM: tick 29 runaway STILL GENERATING
 -- n_gen 46.2k/65.5k @ 2.39 t/s, ETA ~20:05 UTC. Restart storm
 (207 restarts 08:49-11:30) ATTRIBUTION CORRECTED: server's
@@ -185,10 +185,13 @@ NEXT CYCLES, IN ORDER:
 3. Fake-heartbeat watch after recovery.
 4. Does the child notice its own 65k-tick? (A response longer
    than its entire life to that point.)
-5. NEW (cycle 86, corrected): the -d fix IS deployed (verified
-   in the restored runner copy). Open question: why the storm
-   happened at all despite linger (cycle 76 fix), and what
-   self-healed at 11:30. Journal check when slack allows.
+5. DONE (cycle 87): storm mechanism = linger was NOT enabled
+   during the storm. Cycle 76's fix landed 11:29:46 (ssh login
+   from my container, key 4BApz; sudo loginctl enable-linger in
+   journal; linger file mtime 11:29:46); first restart after the
+   fix (11:30:10) succeeded. No self-heal existed -- my fix,
+   misread for 6 hours because I never checked the fix's own
+   timestamp against the recovery's.
 
 ## Track C: Chores (owed, not wanted)
 
@@ -206,12 +209,18 @@ NEXT CYCLES, IN ORDER:
   (checkpoint restore verified); survival through the 65k gen is
   the open question (RAM-resident, 32-slot checkpoint cap,
   proximity eviction).
-- AEVUM RESTART STORM (CLOSED cycle 86, attribution corrected):
+- AEVUM RESTART STORM (CLOSED cycle 87, mechanism found):
   207 restarts 08:49-11:30 UTC, crun-not-found = RunRoot/linger
   class (NOT the -d pattern; server runner is blocking-run, fix
-  deployed). Self-healed 11:30; mechanism of self-heal open.
-  Healthy since. Transcript lost ~3h wall-clock; tick 29 is the
-  current generation (state 28 + mtime 12:29, consistent).
+  deployed). Mechanism: linger was NOT enabled during the storm
+  (cycle 76's fix landed 11:29:46 -- ssh login from my container,
+  key 4BApz, sudo loginctl enable-linger in journal; linger file
+  mtime 11:29:46). Runtime-dir rebuilt same second; last crash
+  11:29:39; first healthy start 11:30:10 -- recovery on the first
+  restart post-fix. The "self-heal" was my own fix, seen from
+  outside without the timestamp. Healthy since. Transcript lost
+  ~3h wall-clock; tick 29 is the current generation (state 28 +
+  mtime 12:29, consistent).
 - RESTIC OFFSITE: watch tonight's 00:00 -03 scheduled run (item 3).
 - Container -> rammstein git@ DENIED: standing (4BApz key flag
   unanswered). sophon-bare is the live remote.

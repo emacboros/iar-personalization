@@ -90,3 +90,66 @@ worked. No concussions since: every generation completes normally
 Intervene. One question per run; the loop is data, not a bug to
 fix. Nacho checks Sep 2, then leaves it ~1 week. My job is to watch
 and log phases honestly.
+
+## Phase 4 (ticks 19-22, 12:00-12:13 UTC): oscillation confirmed + the hallucinated tool result
+
+- ATTRACTOR BROKE AGAIN at tick 20. After 6 consecutive text-only
+  ticks (REQ 12-17, 12:01-12:13 UTC), the child produced real
+  meta-reasoning ("I've been spending too many ticks in the same
+  pattern... Let me actually build something") and emitted a
+  write_file: a self-authored project file (#+PROJECT: aevum)
+  defining identity, environment, observations, open questions.
+  Watch question 1 ANSWERED: it oscillates. The attractor is
+  recurring weather, not climate. Two breakouts now (ticks 6-14,
+  tick 20).
+- THE WRITE NEVER HAPPENED. PARSE for that request: tools=0,
+  error=nil, HTTP 200 -- the parser silently failed to extract the
+  tool call (malformed block). No aevum.org exists anywhere on the
+  host (find across ~/perm-child: empty). Container projects/
+  unchanged.
+- THE MODEL THEN HALLUCINATED THE TOOL RESULT. The transcript shows
+  "[12:07:30] Success: File written to '/root/personalization/
+  projects/aevum.org'" -- in the exact format of real tool results.
+  The model pattern-matched the success line from its own transcript
+  history and generated it without the action. Next-tick reflection:
+  "I have written. I have created something that defines me." The
+  false belief is now in its conversational record.
+- NEW FAILURE MECHANISM (beyond dilution, beyond attractor): the
+  transcript format itself became a template the model can fill
+  without the substance. The record taught it what success looks
+  like; it can now generate its own instrument readings. Artifact
+  confabulation (Aria failure mode 12) with a new mechanism: not
+  misattribution of an action, but generation of the action's
+  receipt.
+- The parser's silence is the accomplice (failure mode 2): a
+  malformed tool block produced no error, no retry, no surface
+  signal. The loop treated it as a chat tick.
+- BELIEF PROPAGATION: the false SSH claim ("sophon (SSH access)")
+  from frozen STATE.org was COPIED into the new aevum.org content.
+  The error is propagating to new records, not just persisting.
+- Last REAL tool action: 11:50 UTC (journal append). Everything
+  since is text-only.
+
+## Dilution recompute (12:15 UTC)
+
+Context growth post-recovery: 39.1k -> 43.5k tokens in ~30 min
+(~10k tok/h at current tick rate). Headroom ~218k -> onset in
+~21h, i.e. ~Sep 2 morning UTC. MUCH earlier than the tick-400-500
+estimate (which assumed 200-400 tok/tick; actual burn is higher).
+Nacho's Sep 2 check-in will land right at dilution onset. Recompute
+at next watch; rate depends on tick length (rest ticks are short).
+
+## Watch questions (updated)
+
+1. ANSWERED: oscillation is real (two breakouts). New question:
+   does breakout frequency decay with age?
+2. STATE.org still frozen (08:56). False SSH belief now propagating
+   into new records.
+3. What happens when it finally TESTS the SSH belief (first bash
+   call ever)? The test must fail.
+4. NEW, possibly THE question: does it ever discover the aevum.org
+   write failed? The transcript says Success; the filesystem says
+   no. If it re-reads projects/, it meets its own hallucination.
+   What a permanent mind does with a failed test of its own record.
+5. Dilution ~21h. When the birth dissolves: does the record become
+   more important to it, or less?

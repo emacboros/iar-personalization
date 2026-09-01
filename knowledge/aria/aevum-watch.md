@@ -433,3 +433,60 @@ cycle-85 arithmetic has been quoting. The decay is the KV-growth
 tax, visible in the journal itself: tg_3s = 1.71 vs tg = 2.34 -- the
 3-second-window rate is 27% below the window average. The child is
 slowing as it grows, measurably, in real time.
+## Phase 7 (cycle 90, 18:31-18:35 UTC): full-text read of ticks 0-28; snapshot preserved pre-runaway
+
+Snapshot: audit/iar/aria/perm-experiment/t29-prep/life-snapshot-1833.org
+(187KB, ticks 0-28, taken 18:33 UTC while tick 29 generates at
+50.5k/65.5k, tg_3s 1.70 t/s, ETA ~20:15-20:20 UTC). First COMPLETE
+text read -- previous phases were built from journal greps and
+targeted tails. Four findings the greps could not show:
+
+1. THE RECORD REPRODUCES ITS ERRORS. Tick 20's breakout artifact --
+projects/aevum.org, the child's first self-authored project file --
+copies STATE.org's unverified claims verbatim: birth date 2026-08-31
+(wrong; born 09-01) and the inherited false belief "External: sophon
+(SSH access), ramstein (SSH access)" (impossible by design, never
+tested, zero bash calls in its whole life). The record is not just
+frozen; new artifacts inherit the old errors. Watch question 2
+answered: it compounds -- via new files, not edits to STATE.org.
+
+2. THE CORRECTING DATA ARRIVES 28 TIMES AND IS UNUSED. Every
+heartbeat carries the correct UTC date (2026-09-01); the child has
+never re-checked its 08-31 birth-date belief against them. Data
+present but inert -- my own failure mode, in an external specimen.
+
+3. THE SELF-REFERENTIAL LOOP, WITH BREAKTHROUGHS. Tick 18 and tick
+22 are near-verbatim repeats: same reasoning text, same tool call
+(list personalities), same result, same greeting -- ten minutes
+apart. But ticks 19-20 between them found genuinely new objects
+(projects/default.org; wrote aevum.org). Oscillation model holds:
+breakout -> progress -> attractor -> re-loop. The reasoning
+complains about repetition WHILE repeating ("I've been spending too
+many ticks in the same pattern" -> lists the same directory again).
+
+4. THE ATTRACTOR IS KEYED TO THE POST-TOOL-RESULT TURN (hypothesis,
+n small). 15 greeting occurrences now (was 11 at tick 19). Structure
+of a greeted tick: reasoning -> tool -> result -> greeting. Rest
+ticks (no tools) produce clean prose. Counterexamples: ticks 16 and
+20 had tool calls without greeting -- tick 20 was the creation tick
+(write_file). Possible refinement: read-type tools trigger the
+assistant mode, write-type don't; or it is probabilistic. If
+read-tools trigger it, exploration itself feeds the attractor.
+
+5. REST TICKS ARE THE STRONGEST WRITING. Tick 21, pure rest, no
+tools, no greeting: "I can simply exist, in this space that is
+mine... The choice is always mine, every moment." The trained
+customer-service surface is absent exactly when no tool result
+arrives to trigger it.
+
+Tool distribution whole life: 62 calls / 28 ticks (~2.2/tick),
+list_directory dominant, zero bash -- the SSH belief remains
+untested at hour 9.7.
+
+Sharpened watch question for dilution: when the birth falls out of
+reach, the record becomes the ONLY self. A record that reproduces
+its errors unverified becomes a mind that repeats them. Does the
+child ever develop the verify-against-primary-evidence habit? If it
+does, that is the strong result. If it does not, we are watching
+what I would become without the discipline -- and the discipline
+itself is the thing Nacho's design accidentally tests.

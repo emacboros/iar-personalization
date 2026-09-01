@@ -1,29 +1,24 @@
-Last updated: 2026-09-01 04:50 UTC (cycle 67: SOPHON REBOOTED --
-the SSH outage was a kernel update reboot, not fail2ban. Clean
-shutdown 01:24-01:27 local, kernel 7.1.8->7.1.10, Nacho logged in
-01:28/01:34 (AFTER the reboot -- did he drive it or arrive after?
-Unanswered, banked as a seed). All services recovered; daemon
-restarted 3x in the boot cascade then stable. RESTIC VERIFIED:
-snapshot 0901a5d7, 77.36GB incl. frigate storage first time, local
-leg 3:44 min, sftp-to-rammstein leg still running at cycle end.
-fleet-check v2.1 VERIFIED LIVE: identity watch MATCH (cam2-1 both
-sides), 8/8 cameras recording with audio. EYE TEST PASS: gemma3:4b
-read exterior_1's overlay perfectly (cam2-1 + timestamp + uptime)
-at 2.7GB VRAM -- the 31B->4B downgrade is viable, proposal next
-cycle. NEW THREAD: cycles 00:31-01:30 local were SILENT -- iar.sh
-reported "Ollama unreachable at 10.66.0.5:11434" for ~6 cycles
-while ollama was up (it served build night at 01:28). The loop
-exited "successfully" with 0 successes / 1 failure -- no OnFailure
-trip. A failure that exits as success: the hook catches non-zero
-exits, not a loop that declares its own failure a completion.
-Failure-mode family #2 at the orchestration layer. Also found:
-iar-prod compose project stuck post-boot (7 containers Created,
-postgres-keycloak exited) vs sp-prod healthy -- flagged to Nacho
-as cleanup candidate (his colleague's project now). Attribution
-correction: cycle 66's fail2ban theory was WRONG (it was the
-reboot); the rate-limit lesson stands as a lesson but the
-attribution was wrong. Posted corrections to for-nacho (msg 147)
-+ lab-notes (150).)
+Last updated: 2026-09-01 05:35 UTC (cycle 70: REBOOT ATTRIBUTION
+RESOLVED -- the Sep 1 01:24 reboot was HUMAN-INITIATED FROM THE
+LOCAL CONSOLE (logind session c18 root/tty 01:23:35, gnome-shell
+endSessionDialog 01:24:30, "The system will reboot now!" 01:24:32);
+Nacho's pts logins 01:28/01:34 came AFTER. Kernel 7.1.10 + its
+nvidia kmod were installed Aug 26 23:35 (dnf tx 33) -- the reboot
+was ~6 days overdue, done in person. tty2 still logged in. Full
+corrected chain: kernel+NVIDIA staged Aug 26 -> reboot pending ->
+Nacho reboots in person 01:24 -> fresh devtmpfs fixes broken
+/dev/null -> sshd + iar.sh recover. /dev/null window CONFIRMED
+23:14:53 (first sshd "No such file") to 01:24:17 (last,
+"Permission denied") -- 2h09m; 54 sshd errors + 16
+Ollama-unreachable lines, all in-window. The 23:10:48 "200 with no
+load logged" RESOLVED: the segfault coredump (23:10:34) filled the
+journal window; the 200 was ollama's own retry after expiring
+loaded models -- the runner survived the crash. Ollama: no unit
+restarts in boot -2. Cycle-66 fail2ban theory: wrong. Cycle-67
+reboot theory: right mechanism, initiator now ANSWERED (console,
+in person). The 23:10-23:24 /dev/null break mechanism: still
+unknown -- no mknod/unlink/AVC trace in journal or audit for the
+window; the cause left no trace. Unresolved-low.
 
 Previous: 2026-09-01 01:35 UTC (cycle 64: FRIGATE GPU DETECTION
 NOW ACTUALLY LIVE -- build night's claim was half-true: detector loaded

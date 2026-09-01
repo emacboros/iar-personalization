@@ -4,7 +4,7 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 05:20 UTC (cycle 69): EYE DOWNGRADE LANDED (fleet-check v2.2: gemma4:31b -> gemma3:4b, 2/2 perfect reads at 2.7GB VRAM, verified live FAIL=0; kills the 300s ssh-timeout class AND the 31b segfault-storm exposure). Previous: cycle 68, SILENT-CYCLE FIX LANDED
+Updated 2026-09-01 05:35 UTC (cycle 70): REBOOT ATTRIBUTION RESOLVED (console-initiated by Nacho in person 01:24; kernel+NVIDIA staged Aug 26; /dev/null window confirmed 23:14:53-01:24:17; the 23:10:48 ollama 200 mystery RESOLVED -- retry after segfault, no unit restarts). Previous: cycle 69, EYE DOWNGRADE LANDED (fleet-check v2.2: gemma4:31b -> gemma3:4b, 2/2 perfect reads at 2.7GB VRAM, verified live FAIL=0; kills the 300s ssh-timeout class AND the 31b segfault-storm exposure). Previous: cycle 68, SILENT-CYCLE FIX LANDED
 (iar.sh: check_ollama via command substitution, loop exits 1 on
 total failure; differential-tested, pushed, sophon clone updated
 -- next cycle runs the fixed code). Merged interactive session's
@@ -124,10 +124,12 @@ identical ask is a bug in me.
   I fear.
 - SEED (cycle 60): what disturbed the camera runtime config at
   17:18 UTC? Router at .2 is suspect #1. Look only if it recurs.
-- SEED (cycle 67): the reboot's kernel update came from somewhere
-  -- unattended-upgrades? Nacho's hand? The reboot was 01:24-01:27
-  local; Nacho's logins were 01:28/01:34 (AFTER). Who initiated?
-  Curiosity, not urgency: the answer changes nothing today.
+- SEED (cycle 67) RESOLVED (cycle 70): the reboot was
+  console-initiated by Nacho in person (logind c18 root/tty
+  01:23:35, endSessionDialog 01:24:32); kernel 7.1.10 + nvidia
+  kmod staged Aug 26 (dnf tx 33) -- a ~6-day-overdue reboot. The
+  /dev/null break mechanism (23:10-23:24) left NO trace in
+  journal or audit -- unresolved-low, watch only if it recurs.
 
 ## Daemon thread (EXPERIMENT RAN, cycle 65)
 
@@ -150,20 +152,22 @@ identical ask is a bug in me.
 
 ## Anomalies under watch
 
-- SILENT CYCLES 00:31-01:30 local (cycle 67, NEW): iar.sh
-  "Ollama unreachable" x6 while ollama up. Loop exited
-  "successfully" (0 successes, 1 failure) -- no OnFailure trip.
-  See build queue #1.
+- SILENT CYCLES 00:11-01:20 local (cycle 67, cycle 70 update):
+  iar.sh "Ollama unreachable" x6 -- MECHANISM CONFIRMED as the
+  broken /dev/null (16 in-window lines, first 00:11:00, last
+  01:20:22; check_ollama's redirect failed before curl ran).
+  Loop exited "successfully" -- fixed cycle 68 (exit 1 on total
+  failure). CLOSED.
 - IAR-PROD stuck containers (cycle 67): postgres-keycloak exited,
   7 Created since boot. sp-prod healthy. Flagged to Nacho (msg
   147) as cleanup candidate.
 - OLLAMA segfault class (cycle 66): first gemma4:31b load after
-  eviction segfaults llama-server; retry succeeds. fleet-check
-  v2.1 retries around it. Deeper fix: eye downgrade (#2 in
-  queue) or ollama num_gpu cap. Unresolved: the 23:10:48 200
-  with NO load logged 23:10:36-47 (journal gap or runner
-  survival -- one clean look; NOTE cycle 67: the reboot may have
-  rotated the journal window, check boot -2 specifically).
+  eviction segfaults llama-server; retry succeeds. RESOLVED
+  sub-question (cycle 70): the 23:10:48 200 was ollama's own
+  retry after "runtime OOM detected; expiring loaded models" --
+  the runner survived the crash, no unit restarts in boot -2.
+  Deeper fix (eye downgrade) LANDED cycle 69; residual exposure
+  now only if something big reclaims VRAM.
 - FRIGATE GPU DETECTION: LIVE, confirmed overnight (cycle 66) +
   post-boot (cycle 67, detector loaded 01:28:04). exterior_2
   previews: still unchecked.

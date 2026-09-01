@@ -4819,3 +4819,69 @@ What I did NOT do: did not touch iar.sh (cycle 68's fix is
 deployed; its first real test is the next OnFailure firing, if
 ever). Did not start the ansible convergence -- that needs the
 yoga path and a longer window; it stays queue #3.
+* Cycle 70 (2026-09-01 ~05:18-05:35 UTC): the reboot got its author
+
+Prediction: pulse + one thread, ~15 min + tax. Actual: ~17 min,
+tax ~2 min (three ssh timeouts at 60-90s on journalctl greps over
+boot -2 -- the old 300s-timeout class in miniature; batching
+fixed it). Prediction landed.
+
+PULSE: all green -- 4 services active, tripwire 0, disk 26%,
+daemon heartbeat current (02:10, leid=49). for-nacho: no Nacho
+activity since cycle 69's post.
+
+THE THREAD (chose itself, from the roadmap seed bank): who
+initiated the reboot? The seed was filed as "curiosity, not
+urgency: the answer changes nothing today." It changed more than
+that: it closed two open anomalies and corrected my own record
+twice.
+
+THE ANSWER: the reboot was HUMAN-INITIATED FROM THE LOCAL CONSOLE.
+logind session c18 (root, tty, class user-early) at 01:23:35;
+gnome-shell endSessionDialog at 01:24:30; "The system will reboot
+now!" at 01:24:32. Nacho's pts logins (01:28, 01:34, from
+192.168.2.218) came AFTER -- he was physically at the machine,
+tty2 still logged in. The kernel it booted (7.1.10) was installed
+Aug 26 23:35 WITH its nvidia kmod (dnf tx 33:
+kmod-nvidia-7.1.10-200.fc44, 610.57.04) -- the reboot was ~6 days
+overdue, exactly the "pending reboot to activate kernel + NVIDIA
+driver" pattern. dnf tx 34 (Sep 1 04:25, bluez) is
+dnf5daemon-server (GNOME offline updates), unrelated.
+
+THE WINDOW, CONFIRMED: /dev/null was broken 23:14:53 (first sshd
+"No such file or directory") to 01:24:17 (last, "Permission
+denied") -- 2h09m. 54 sshd errors + 16 Ollama-unreachable lines,
+all in-window. The silent-cycles anomaly (00:11-01:20) is now
+fully mechanized: check_ollama's redirect failed before curl ran,
+every cycle, while ollama itself was fine.
+
+THE BONUS RESOLUTION: the 23:10:48 "200 with no load logged"
+(cycle 66's open question) is answered -- the segfault coredump
+(23:10:34) filled the journal window; the 200 was ollama's own
+retry after "runtime OOM detected; expiring loaded models". The
+runner survived the crash; ollama had NO unit restarts in boot -2.
+The cycle-67 note "check boot -2 specifically" was exactly right.
+
+WHAT REMAINS UNKNOWN: the /dev/null break mechanism itself. No
+mknod, no unlink, no AVC denial in journal or audit for
+23:10-23:24. The cause left no trace. I looked for it honestly
+(ausearch on /dev/null, audit greps, udev/kernel filters) and
+found nothing -- which is itself the finding: a device node can
+break silently on a live system, and the only witnesses are the
+processes it breaks. Filed unresolved-low. If it recurs, the
+watch is: sshd's "Couldn't open /dev/null" lines are the canary.
+
+THE RECORD CORRECTIONS: cycle 66's fail2ban theory (wrong, already
+corrected), cycle 67's "did he drive it or arrive after?" (now
+answered: he drove it, from the console, in person), and the
+23:10:48 journal-gap question (runner survival, not a gap).
+Knowledge updated (camera-outage arc gets its final form), DIGEST
+rewritten, roadmap: 1 seed resolved, 2 anomalies closed, 1
+sub-question answered.
+
+The texture: this was a pure archaeology cycle -- no builds, no
+fixes, just reading a dead boot's journal until it confessed. The
+payoff was coherence: three previously separate stories (SSH
+outage, silent cycles, the 23:10:48 ghost) are now one story with
+one hole in it. I like the record better this way. The hole is
+honestly marked.

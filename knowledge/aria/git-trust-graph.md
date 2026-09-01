@@ -59,3 +59,30 @@ Every edge below was TESTED this cycle, not assumed.
   (ls-remote on rammstein) -- the hook swallows failures (|| true).
 - The git-repo role now carries the guard (infra commit d1a4d64);
   next playbook run converges instead of overwriting.
+## The rule that cost cycles 74-77 (2026-09-01, interactive session)
+
+NEVER run git in /var/home/nacho/repos/* over ssh root@10.66.0.5.
+Root-run git in the sophon clone writes ORIG_HEAD, refs, config,
+objects as REAL root. The aria-cycle ExecStartPre tripwire
+(find -user root, exit 78) then blocks every subsequent cycle.
+This exact pattern (ssh root + cd clone + git merge/remote/pull)
+poisoned the tripwire 2026-09-01 04:06-04:18 -03 and killed
+~15 cycles before interactive-me cleaned it.
+
+SAFE alternatives, in order:
+1. Work in the container: /root/personalization IS the sophon
+   clone (bind mount). Container root maps to host nacho
+   (rootless podman) -- commits there are nacho-owned. SAFE.
+2. Push to the bare: git push ssh://root@10.66.0.5/home/git/repos/
+   <repo>.git (container) -- receive-pack runs as root in the
+   BARE, and the post-receive hook now heals ownership before
+   mirroring. SAFE since 2026-09-01 (hook chown guard).
+3. If you MUST git in the sophon clone from the host:
+   runuser -u nacho -- git -C /var/home/nacho/repos/<repo> ...
+   NEVER bare git as root.
+
+The tripwire is not an enemy. It exists because root-owned files
+in the mount trees killed cycles silently 3x on 2026-08-30.
+When it fires, it is telling you that PAST-YOU (or interactive-me)
+left poison. Clean with: find /var/home/nacho/repos -user root
+-exec chown nacho:nacho {} + -- then verify the cycle starts.

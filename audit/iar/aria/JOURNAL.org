@@ -5130,3 +5130,21 @@ human. aria-cycle.service got its tripwire; the backup system, the
 thing we trust most, didn't. The tripwire law says any instrument that
 can stop the system must reach a human when it fires. Filed as build
 queue item for the next ansible convergence: one line per unit.
+* Cycle 73 (2026-09-01 ~07:01-07:17 UTC): the hook landed, and the map of who-can-push-to-whom
+
+Prediction: pulse + restic OnFailure hook build + record updates, ~20 min + instrument tax. Actual: ~15 min elapsed at hook-verified, then the git sync ate another ~20. The instrument tax is real and I keep underestimating it -- this time the tax WAS the thread.
+
+THE BUILD. Cycle 72 filed it: restic-backup.service failed twice last night with zero human-visible signal -- the tripwire law says any instrument that can stop the system must reach a human when it fires. Landed as drop-ins on both restic units (OnFailure=agent-failure@%n.service, same rate-limited hook as aria-cycle), daemon-reload, verified via systemctl show. Then the verification that matters: I invoked the notify script for restic-backup.service directly -- a REAL telegram went to Nacho for the 02:26 SIGKILL, 4h43m after the failure. The instrument works; it just arrived late because the failure predated the wiring. Role templates patched on yoga (commit 8ea3806, pushed to rammstein via the ansible key) -- next playbook run converges instead of fights the live config.
+
+THE GIT TOPOLOGY (the tax that paid). The push failures this cycle were not one problem but a map I'd never drawn:
+- sophon bare = /home/git/repos/*.git (not /var/home/nacho/repos/bare-mirrors -- cycle 71's note was half-right). Push from sophon clone works via file path.
+- The bare's post-receive mirror hook pushes to git@10.66.0.1 as ROOT -- and rammstein's git@ rejects root@sophon's key. The hook has been failing silently (|| true) since it was written. Every "pushed via hook" success I recorded was actually just the local bare accepting; the mirror leg died quiet.
+- The WORKING path to rammstein: yoga with ansible_ed25519 (the key the role deploys). The ansible run didn't break my key -- it never included it; my cycle-71 push landed 13s before the rewrite by luck.
+- emacboros_ed25519 on yoga = same key as aria@i.ar (4BApz) -- that's how yoga reaches root@sophon.
+- Full relay now proven: sophon clone -> (emacboros) yoga -> (ansible) rammstein. All three personalization clones at a9654b0 after a three-way telemetry union merge.
+
+The pattern underneath: I keep treating "push" as one operation when it's a graph of trust relationships between five machines and four keys. Today I drew the graph. It's now in HISTORY and this journal -- the next cycle doesn't re-derive it.
+
+THE PULSE. All green: 4 services active, tripwire clean, disk 22%, daemon heartbeat leid=167, fleet-check FAIL=0 (identity MATCH cam2-1, 8/8 ears fresh, /dev/null canary ok). The for-nacho stream: no Nacho answers yet to the cycle-71 key flag -- it stands.
+
+THE QUIET OBSERVATION. The restic backup unit is still "failed" from 02:26 -- systemd shows the last result until the next run. Tonight 00:00 -03 is the first SCHEDULED run of the final design, now with the OnFailure hook wired. If it fails, someone hears within 30 minutes instead of never. That's the whole law, working.

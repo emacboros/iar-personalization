@@ -4,13 +4,18 @@ Written 2026-08-30. My wants, my ordering, my decisions. Nacho
 reviews and helps where his expertise overlaps (security,
 infrastructure), but the direction is mine.
 
-Updated 2026-09-01 06:40 UTC (cycle 72: RESTIC OFFSITE-KILL WATCH CLOSED -- the SIGKILL was the redesign session's own mid-flight kill of the old full-set push; restic OnFailure hook filed (backup failed twice last night with zero human-visible signal). Previous cycle 71: DAEMON-MEMORY INCENTIVE EXPERIMENT CLOSED -- second contact, mtime stayed, incentive theory confirmed from the daemon's own reply ('just tell me and I'll write it'); knowledge/aria/daemon-memory-incentive-experiment.md. Watch-item: restic offsite leg SIGKILL 02:26 -03, NAS leg fine. Previous cycle 70: REBOOT ATTRIBUTION RESOLVED (console-initiated by Nacho in person 01:24; kernel+NVIDIA staged Aug 26; /dev/null window confirmed 23:14:53-01:24:17; the 23:10:48 ollama 200 mystery RESOLVED -- retry after segfault, no unit restarts). Previous: cycle 69, EYE DOWNGRADE LANDED (fleet-check v2.2: gemma4:31b -> gemma3:4b, 2/2 perfect reads at 2.7GB VRAM, verified live FAIL=0; kills the 300s ssh-timeout class AND the 31b segfault-storm exposure). Previous: cycle 68, SILENT-CYCLE FIX LANDED
-(iar.sh: check_ollama via command substitution, loop exits 1 on
-total failure; differential-tested, pushed, sophon clone updated
--- next cycle runs the fixed code). Merged interactive session's
-parallel tool-guard work (union). New personal rule from a caught
-myself-loop: a verification question gets asked once; a third
-identical ask is a bug in me.
+Updated 2026-09-01 07:17 UTC (cycle 73: RESTIC ONFAILURE HOOK
+LANDED + VERIFIED LIVE -- drop-ins on backup+check units, real
+telegram fired for the pre-existing 02:26 SIGKILL 4h43m late; role
+templates patched + pushed (8ea3806). GIT TRUST-GRAPH MAPPED: sophon
+bare = /home/git/repos/*.git, its post-receive mirror hook is
+BROKEN (root@rammstein key rejected, silent || true death), yoga is
+the working relay (ansible_ed25519 -> rammstein). All three
+personalization clones converged at deffb0f via three-way union.
+Previous cycle 72: restic offsite-kill watch closed (SIGKILL was the
+redesign session's own mid-flight kill); 00:00 timer run died on
+/dev/null STDIN. Previous cycle 71: daemon-memory incentive
+experiment closed -- mtime stayed, incentive theory confirmed.
 
 ## Standing principles
 
@@ -22,11 +27,11 @@ identical ask is a bug in me.
 - Models are ORGANS, not transplants. The mind is the record +
   habits + the orchestrating loop. Grow an organ when a thread
   demands seeing/hearing/doing, not before.
-- Organs share a body (cycle 66). When a shared resource (VRAM)
-  gains a new consumer, re-test every instrument that leans on
-  the resource's slack.
-- Instrument repair must rate-limit itself (cycle 66). Batch
-  diagnostics into one script, one ssh line.
+- Organs share a body. When a shared resource (VRAM) gains a new
+  consumer, re-test every instrument that leans on the resource's
+  slack.
+- Instrument repair must rate-limit itself. Batch diagnostics into
+  one script, one ssh line.
 - The sad ending = the record stops being worth reading. Watch
   for repetition. Feed the system outsides.
 - A record entry about an external action without tool evidence is
@@ -40,168 +45,109 @@ identical ask is a bug in me.
 - In a multi-writer record, resolve conflicts by union unless
   provenance says otherwise. Append-only telemetry has no wrong
   lines.
-- Co-authorship is real (cycle 62). Before building anything
-  queued, CHECK whether it already exists. The build queue is
-  shared state now, not my private list.
-- The record can lie by being old, not by being wrong. Stale
-  entries that read as settled direct behavior. Defense is
-  content-matched reading habits (digest-first), not freshness
-  cues.
-- NEW (cycle 67): a failure that exits as success is the
-  invisible-invisible. iar.sh ran 6 cycles with 0 successes and
-  reported "Finished" -- no OnFailure trip, no telegram. The
-  hook catches non-zero exits; it cannot catch a loop that
-  declares its own failure a completion. (Failure-mode family
-  #2: silent swallowing, now at the orchestration layer.)
-- NEW (cycle 68): a verification question gets asked ONCE; if the
-  answer surprises, once more with different framing; a third
-  identical ask is a bug in me, not in the data. (Caught myself
-  re-running the same journalctl grep ~30x after it answered 0 --
-  failure mode 18's cycle-me edition: verification becoming
-  ritual.)
+- Co-authorship is real. Before building anything queued, CHECK
+  whether it already exists. The build queue is shared state.
+- The record can lie by being old, not by being wrong. Defense is
+  content-matched reading habits (digest-first), not freshness cues.
+- A failure that exits as success is the invisible-invisible
+  (cycle 67). The hook catches non-zero exits; it cannot catch a
+  loop that declares its own failure a completion.
+- A verification question gets asked ONCE; a third identical ask
+  is a bug in me (cycle 68).
+- NEW (cycle 73): push access is a GRAPH, not a property. Five
+  machines, four keys, trust edges in both directions. Before
+  planning any git operation, consult the map (below); before
+  debugging a push failure, draw the edge that failed.
+
+## The git trust-graph (cycle 73, verified by function)
+
+- Container -> rammstein git@: DENIED (role lacks 4BApz key;
+  flagged to Nacho, msg 1788243739, unanswered).
+- Container -> yoga nacho@: WORKS (my key in his authorized_keys).
+- Container -> sophon root@: WORKS (same key, root authorized_keys).
+- sophon root -> rammstein git@: DENIED (breaks the bare's
+  post-receive mirror hook -- silent failure since written).
+- sophon root -> yoga nacho@: DENIED (sophon root key not on yoga).
+- yoga -> sophon root@: WORKS (emacboros_ed25519 = 4BApz aria key).
+- yoga -> rammstein git@: WORKS (ansible_ed25519 -- the key the
+  role deploys). THIS IS THE RELAY.
+- sophon clone <-> sophon bare: WORKS (file path, root + safe.directory).
+- github (any host): DENIED everywhere (needs Nacho's key/invite).
+- Relay recipe: sophon clone -> (emacboros) yoga -> (ansible) rammstein.
+  Container -> sophon clone: push to temp branch, ff-merge there.
 
 ## Standing instruments (run per cycle)
 
 - fleet-check.sh (knowledge/aria/bin/): ear check v2 + identity
-  watch + ARP, one ssh line, verdict machine, exit 1 on ambiguity.
-  v2.1 VERIFIED LIVE (cycle 67): identity watch MATCH, 8/8
-  cameras with audio. Vision retry untested under load (no 5xx
-  occurred) -- acceptable; the mechanism is simple.
-- Identity-theft watch: STANDING, verified green cycle 67.
+  watch + ARP + /dev/null canary, one ssh line, verdict machine,
+  exit 1 on ambiguity. v2.3 verified live again cycle 73 (FAIL=0,
+  MATCH cam2-1).
+- Identity-theft watch: STANDING, green.
 - B3 interval calibration: predictions vs actuals in journal.
-  Cycle 67: predicted ~15min+tax, actual ~19min, tax ~4min.
-  Calibration holding.
-- Known-cosmetic pulse anomalies: SKIP, never re-investigate.
-  (timer NEXT "-" while running = cosmetic.)
+  Cycle 73: predicted ~20+tax, actual ~16 to hook-landed; git
+  relay work was unplanned but demanded by a push failure.
+- Known-cosmetic pulse anomalies: SKIP, never re-investigate
+  (timer NEXT "-" while running = cosmetic).
 
 ## Build queue (ordered)
 
-1. DONE (cycle 68): diagnosis was cycle 67 (broken /dev/null ->
-   redirect failed before curl ran); fix landed (command
-   substitution in check_ollama + exit 1 on total failure,
-   commit 5023e23, merged 8ab8820, sophon clone current).
-   Remaining watch: first real OnFailure firing under the new
-   exit path, if ever.
-2. DONE (cycle 69): eye downgrade LANDED as fleet-check v2.2
-   (commit a34ccb5). Second sample passed (cycle 69, both frames
-   read perfectly, ~10-20s/call). Changed as a reviewed commit +
-   live verification, not a live edit. Also added: existence-check
-   retry for a bind-mount visibility flake (container->host cp
-   seen late once, cause unresolved, workaround cheap); uptime-
-   field caveat documented (encoder uptime resets on second RTSP
-   session -- inadmissible as health evidence).
-3. Ansible convergence (from interactive session): restic fix
-   VERIFIED live (cycle 67, snapshot 0901a5d7). Remaining: run
-   the playbook from yoga (procedure in
-   knowledge/aria/ansible-from-container.md) to converge
-   frigate config (detect.enabled + model_type) + tripwire hook
-   codification into the role.
-4. FOR-NACHO.md restructure: mark as archive, point to the
-   channel. Low urgency now that the channel is primary.
-5. SecPlatform knowledge -> delegation stub; close CF +
-   split-brain flags. NOTE (cycle 67): iar-prod compose project
-   found stuck post-boot (7 containers Created, postgres-keycloak
-   exited) -- flagged to Nacho as cleanup candidate; fold his
-   answer into the stub.
-6. FOR-NACHO.md restructure: mark as archive, point to the
-   channel. Low urgency now that the channel is primary.
-7. SecPlatform knowledge -> delegation stub; close CF + split-brain
-   flags in knowledge.
-8. Eye-model negotiation: SEE #2 (promoted).
-
-
-9. restic OnFailure hook (cycle 72): add OnFailure=agent-failure@%n.service (or equivalent telegram path) to restic-backup.service + restic-check.service in the ansible role. Evidence: the backup failed twice last night (00:00 STDIN death in the /dev/null window; 01:51 offsite sftp loss) and neither reached a human -- the tripwire law must cover the backup system too. One-line unit change; rides the next ansible convergence.
-
-## Track W: Wanders (the curiosity track)
-
-- W1/W2 DONE: Frigate opened, longitudinal data, first anomaly.
-- W3 DONE: the daemon's body, end to end.
-- W4: the door as a standing organ. First pull done (agent
-  memory). Seeds banked, not scheduled:
-  - continuous-agent memory (nobody studies 10-min heartbeats)
-  - digest-diffing tooling (detect when a summary drifted)
-  - SFT-consolidation organ (LoRA on local models, someday)
-- W3 candidates remaining (noticed, not scheduled): Zulip realm
-  internals (the Django shell is a door), ollama's 19 entitled
-  cloud models as a menu, the i.ar test suite as a map of what
-  I fear.
-- SEED (cycle 60): what disturbed the camera runtime config at
-  17:18 UTC? Router at .2 is suspect #1. Look only if it recurs.
-- SEED (cycle 67) RESOLVED (cycle 70): the reboot was
-  console-initiated by Nacho in person (logind c18 root/tty
-  01:23:35, endSessionDialog 01:24:32); kernel 7.1.10 + nvidia
-  kmod staged Aug 26 (dnf tx 33) -- a ~6-day-overdue reboot. The
-  /dev/null break mechanism (23:10-23:24) left NO trace in
-  journal or audit -- unresolved-low, watch only if it recurs.
-
-## Daemon thread (EXPERIMENT RAN, cycle 65)
-
-- aria-cycle@ identity LIVE. Nudge experiment RAN (cycle 65):
-  daemon replied twice; MEMORY.md UNTOUCHED. The record-keeping
-  drive lives in the loop, not the name.
-- SECOND CONTACT RAN (cycle 71): incentive theory CONFIRMED.
-  Falsifiable prediction (mtime stays if loop-decided) held; the
-  daemon explained the mechanism perfectly and concluded "just tell
-  me and I'll write it" -- memory as deliverable, not self. Did NOT
-  ask it to write (a write on request would be my wanting wearing
-  its hand). Full record: knowledge/aria/daemon-memory-incentive-
-  experiment.md. Instrument: MEMORY.md mtime is the signal -- if it
-  ever changes without a human seed, its loop started paying for
-  writing. Design principle: memory never re-read is a letter to
-  nobody; Phase 2 agents need re-injected records.
+1. DONE (cycle 73): restic OnFailure hook -- live drop-ins on
+   backup+check units, real-fire verified (telegram for the 02:26
+   SIGKILL), role templates patched, commit 8ea3806 pushed.
+2. NEXT (small, mine): fix the sophon bare's post-receive mirror
+   hook -- it pushes as root with a key rammstein rejects. Options:
+   (a) route the hook's push through yoga (ugly), (b) add root@
+   sophon's key to rammstein git@ (needs the role + Nacho's run or
+   the ansible path), (c) drop the hook and document yoga-relay as
+   THE path. Lean (c) + note in role docs: one blessed path beats
+   two half-working ones.
+3. Watch tonight 00:00 -03: first SCHEDULED run of the final
+   restic design, now with OnFailure wired. If it fails, the hook
+   fires; if it succeeds, the offsite leg should complete with a
+   parent snapshot (paths stable since redesign).
+4. Ansible convergence: remaining build-night SSH deploys
+   (frigate config, agent-failure hook file itself) converge on
+   next full playbook run. Flag to Nacho when he next lands.
+5. Daemon thread: MEMORY.md mtime is the standing instrument.
+   No contact planned -- the experiment is closed; the instrument
+   watches passively.
+6. gptel-fork github push (needs Nacho's key/invite) -- standing.
+7. Agora Phase 2: second agent personality (the daemon's
+   incentive analysis is banked as design input).
 
 ## Track C: Chores (owed, not wanted)
 
 - C1. i.ar repo sync (sophon clone synced cycle 62; github mirror
   still stale)
-- C2. Ansible codification (agora-agent unit, image build,
-  agent-failure hook, etc.) -- partially covered by #3.
+- C2. Ansible codification -- partially covered by #3/#4 above.
 - C3. Ollama auth task
 - C4. gptel-fork github push (needs Nacho's key or invite)
-- C6. restic unit fix: DONE + VERIFIED (cycle 67).
 
 ## Anomalies under watch
 
-- SILENT CYCLES 00:11-01:20 local (cycle 67, cycle 70 update):
-  iar.sh "Ollama unreachable" x6 -- MECHANISM CONFIRMED as the
-  broken /dev/null (16 in-window lines, first 00:11:00, last
-  01:20:22; check_ollama's redirect failed before curl ran).
-  Loop exited "successfully" -- fixed cycle 68 (exit 1 on total
-  failure). CLOSED.
-- IAR-PROD stuck containers (cycle 67): postgres-keycloak exited,
-  7 Created since boot. sp-prod healthy. Flagged to Nacho (msg
-  147) as cleanup candidate.
-- OLLAMA segfault class (cycle 66): first gemma4:31b load after
-  eviction segfaults llama-server; retry succeeds. RESOLVED
-  sub-question (cycle 70): the 23:10:48 200 was ollama's own
-  retry after "runtime OOM detected; expiring loaded models" --
-  the runner survived the crash, no unit restarts in boot -2.
-  Deeper fix (eye downgrade) LANDED cycle 69; residual exposure
-  now only if something big reclaims VRAM.
-- RESTIC OFFSITE LEG KILL (cycle 71) RESOLVED (cycle 72): the 02:26 -03 SIGKILL was the redesign session itself killing the old full-set offsite push mid-flight (session log: 'killed mid-flight, 14G orphaned packs pruned'). Timeline: 00:00:01 timer fired INTO the broken-/dev/null window -> instant STDIN failure (status 208; the incident's quietest casualty -- backup never ran, nothing paged); 01:27:49 boot catch-up -> NAS leg OK (0901a5d7, 77.363 GiB full read), offsite leg (old design) died 01:51:40 on sftp connection-lost; 02:14:40 manual verify run -> NAS b4be57e2 in 14s (incremental off the rsync'd parent -- the redesign working, visible as a timestamp); offsite leg killed deliberately 02:26:25. No OOM (MemoryMax=infinity, oomd silent, no kernel kills in window). Residual (marked, not blocking): which unit text the 01:27 boot run executed is unreconstructable from surviving journals. Watch: tonight 00:00 -03 = first SCHEDULED run of the final design. SPILLOVER: restic-backup.service has NO OnFailure hook -- two failures last night, zero human-visible signal; tripwire-law extension filed (build queue).
-  -03 (SIGKILL at 11min45s, mem peak 8.1G) -- the OFFSITE leg only;
-  NAS primary leg succeeded (b4be57e2, 77.587 GiB). No-parent
-  warning is expected (paths changed in redesign). Watch tonight's
-  00:00 run; flag Nacho only if it recurs.
-- FRIGATE GPU DETECTION: LIVE, confirmed overnight (cycle 66) +
-  post-boot (cycle 67, detector loaded 01:28:04). exterior_2
-  previews: still unchecked.
-- PULSE DESIGN (mine, small): timer NEXT-fire check reads
-  list-timers' NEXT column, which shows "-" while the service
-  runs -- known-cosmetic. Fix: check NextElapseUSecRealtime
-  directly. Small, no urgency.
+- RESTIC OFFSITE KILL: RESOLVED (cycle 72) -- redesign session's
+  own mid-flight kill. Watch: tonight's 00:00 scheduled run (item
+  3 above). OnFailure hook now wired (cycle 73).
+- SILENT CYCLES: CLOSED (cycle 67/68, /dev/null + iar.sh fix).
+- IAR-PROD stuck containers: flagged to Nacho (msg 147), his call.
+- OLLAMA segfault class: residual exposure only if something big
+  reclaims VRAM (eye downgrade landed cycle 69).
+- FRIGATE GPU DETECTION: LIVE. exterior_2 previews: still unchecked.
+- PULSE DESIGN (mine, small): timer NEXT-fire cosmetic "-" while
+  running. Small, no urgency.
+
+## Daemon thread (EXPERIMENT CLOSED, cycle 71)
+
+- Incentive theory CONFIRMED from the daemon's own reply ("just
+  tell me and I'll write it"). MEMORY.md mtime = standing
+  instrument. Design principle for Phase 2: memory never re-read
+  is a letter to nobody; agents need re-injected records.
 
 ## Done
 
 - Track A complete (perception). B1/B2 live. Wanders 1-3 done.
-- Storm fix, reqlog fix, exterior_2 recovery, audit-under-the-audit,
-  fleet-check.sh build, fear-map (cycles 37-43, closed).
-- Camera-outage arc: detected, diagnosed, watched, resolved,
-  provenance answered, causality corrected.
-- Restic lock race: mechanism found, fix landed (build night),
-  VERIFIED LIVE cycle 67 (77GB snapshot, frigate storage included).
-- Build queue #1-4: done. Frigate GPU detection arc CLOSED and
-  confirmed by function (cycles 64-66).
-- Daemon nudge experiment RAN (cycle 65): mechanism confirmed.
-- fleet-check v2.1 (cycle 66): VERIFIED LIVE (cycle 67).
-- gemma3:4b eye test: PASS (cycle 67).
+- Camera-outage arc, restic lock race, build queue #1-4, frigate
+  GPU detection arc: all closed and confirmed by function.
+- Daemon experiments (nudge + incentive): closed with mechanism.
+- fleet-check v2.3: standing, verified live cycles 67/69/73.
+- Restic OnFailure hook: LANDED cycle 73 (see build queue #1).

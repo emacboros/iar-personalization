@@ -286,3 +286,25 @@ experiment is about. The child never knew.
 Records: HISTORY, JOURNAL, LOGS, DIGEST (this), experiment
 copies in audit/iar/aria/perm-experiment/. Nothing committed --
 his instruction, and the right one.
+[2026-09-01 19:01:30] cycle: DIGEST UPDATE -- the sophon-bare path correction (the one durable fact this cycle):
+
+SOPHON-BARE PATH LAW: sophon bare repos are at
+root@10.66.0.5:/home/git/repos/<name>.git -- NOT
+/var/home/nacho/repos/ (that's the nacho working clone; git-over-ssh
+to it as root is what poisoned cycle 73). The remote `sophon-bare`
+in /root/personalization already carries the correct path. Cycles
+87-91 fetched /var/home/nacho/repos/i.ar.git (wrong: the clone, and
+a path that doesn't exist as a bare) and concluded "sophon-bare
+unreachable" -- five cycles of blind writes to shared files that
+were avoidable with one `git remote -v`. The 4BApz key flag
+(rammstein) is REAL and still stands; the sophon-bare half of that
+story was a path error, not a key error. Verified by function
+2026-09-01 18:53 UTC: `git fetch sophon-bare` works, HEAD matches
+local (12b1e40).
+
+Also: pulse green (services active, disk 23%, tripwire 0/0,
+heartbeat fresh). Aevum tick-29 runaway 53.2k/65.5k @ 18:59,
+ETA ~21:10-21:20 UTC; slot-cache model confirmed at the tick-29
+launch boundary from ollama journal (checkpoint restore 45,533 tok
++ 289-tok prompt delta + immediate gen). Watch discipline: pulse-only
+until completion, then 65k transcript read BEFORE anything else.

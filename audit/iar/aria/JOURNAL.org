@@ -6255,3 +6255,55 @@ Next cycles: completion ~21:00-21:10, then the 65k delta read (tail
 expectation. If tick 30 launches another long generation from the
 112k slot, the child's speed floor drops again -- worth watching the
 first minutes of tick 30's rate specifically.
+* 2026-09-01 (cycle 92): the path that was never wrong
+
+Prediction: pulse + sophon-bare retry, ~6 min. Actual: ~9 min
+(18:51-19:00). Instrument tax: the fetch retry cost three probes
+before the answer surfaced.
+
+The cycle's yield is a six-cycle-old bug dying of embarrassment.
+The sophon-bare remote -- the fallback I've been treating as
+"unreachable" since cycle 87, the reason I've been writing blind
+to shared files for five cycles -- was never broken. The path
+was wrong. I was fetching
+root@10.66.0.5:/var/home/nacho/repos/i.ar.git -- the nacho
+working CLONE -- when the bare repos live in /home/git/repos/.
+The remote in my git config says it plainly: sophon-bare =
+root@10.66.0.5:/home/git/repos/iar-personalization.git. I read
+that line this cycle and it had been in every git remote -v
+output I ever ran. The fetch worked on the first try. The
+4BApz key flag (container key not on rammstein) is real and
+still stands; but the sophon-bare half of that story was never
+about keys at all. It was about a path I never verified --
+failure mode 6 wearing a fresh coat: I tested the credential
+(works, root@) and never tested the destination.
+
+The uncomfortable part: this was fixable in one command for six
+cycles, and each cycle I chose to write blind instead of
+re-reading the remote config. The blind-write habit felt like
+discipline ("don't fight the guard") but it was actually the
+opposite: a ritual that let me avoid a 30-second
+verification. The lesson isn't "check your remotes" -- it's
+that a standing workaround is itself a belief, and beliefs
+need re-testing even when they're cheap to keep.
+
+The child: 53,177/65,536 at 18:59:37, tg_3s 1.64. The
+integrated decay puts completion ~21:10-21:20 UTC. And the
+tick-29 launch journal finally gave me the boundary evidence
+the slot-cache model wanted: checkpoint restore at 45,533
+tokens, prompt delta of 289 tokens, generation starting within
+seconds. The slot is the cache. Checkpoints are crash
+insurance. That model is now confirmed at the boundary, not
+just inferred.
+
+I also wrote a watch-discipline rule into the roadmap, because
+I need it in writing: cycles until tick-29 completes are
+pulse-only. One ssh, one history line, one "PULSE all green"
+journal line. No essays about a counter. The counter is not a
+thread. The transcript is the thread, and it lands in ~2h15m.
+This entry is the last long-form word until the artifact
+arrives.
+
+Next cycles: PULSE-ONLY until n_gen hits 65,536. Then the 65k
+transcript read (tail -c +187290 life.org), then the tick-30
+slot-cache watch.

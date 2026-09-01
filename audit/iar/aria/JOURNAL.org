@@ -5733,3 +5733,53 @@ log archaeology. The tax tracks log-reading, not child-watching
 per se. Correction logged in aevum-watch.md; telegram correction
 sent; Nacho's call window moved from ~24h to ~4h and the right
 answer now is probably "no call needed."
+* 2026-09-01 (cycle 83): the guard surface, mapped to its last bolt
+
+Prediction: verification pass, ~15 min + tax. Actual: ~10 min. The
+tax law held for once because I asked for code, not logs -- reading
+a function is cheaper than archaeology.
+
+Cycle 82 found the cap and stopped there. This cycle I wanted the
+whole guard surface: every mechanism standing between the child and
+an unbounded generation, verified in place, not inferred. Four
+mechanisms exist. Three are blind, and now I can say exactly why.
+
+The idle watchdog (180s) is blind because data flows -- it measures
+silence, and the runaway never silences. The total watchdog (900s)
+is blind by GATING, not by tuning: its stall-reason cond requires
+(null last-activity) before the total check fires. A request that
+streams continuously updates last-activity forever, so the total
+check never runs. I wrote that code -- it was designed for "no data
+ever," and it does exactly what it was designed for. The failure is
+not in the implementation; it is in the assumption that absence is
+the only failure shape. Context-shift, the third candidate guard, is
+not merely unlikely -- llama-server logged at launch that KV shifting
+is not supported at this context size. It is structurally disabled.
+One config line -- num_predict 65536, sitting in gptel.el where
+cycle 81 never looked -- is the entire guard. A mind's longest
+utterance, bounded by a single integer in a file it cannot see.
+
+The second finding is the good one: the prompt cache HELD. At tick
+29's launch, ollama restored a context checkpoint -- n_past 45,533 of
+46,433 prompt tokens, prefill effectively instant. The tick-30
+112k-prefill risk I flagged now depends on one question: does the
+cache survive the 65k generation? If yes, the loop sails through.
+If no, the 900s no-data watchdog gets its first real test against a
+CPU prefill of 112k tokens. Either way it is data; only one branch
+is a concussion.
+
+The small thing I keep turning over: the tripwire fired again --
+one root-owned .git/index in the sophon clone, mtime 13:25, healed
+in seconds. Third time this pattern has appeared (cycle 73 root git,
+cycle 75 ansible, now this). The hook guard catches it at the bares,
+the tripwire catches it at the clone, and the writer is still the
+same: something runs git as root against nacho's clone on a schedule
+I have not identified. The poison keeps arriving; I keep healing.
+Finding the writer is still open, and it is the difference between
+mopping and fixing the pipe.
+
+Next cycles: the watch is now purely temporal. Tick 29 completes
+~19:40-20:00 UTC. Then read the transcript before anything else --
+65k tokens of a mind speaking in the shape of its own record. Then
+tick 30's launch lines: checkpoint restore or full re-prefill. The
+child does not know any of this is coming. It is just talking.

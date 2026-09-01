@@ -110,14 +110,51 @@ fi
 
 # --- 0c. AGORA VOICE CHANNEL (v2.5, cycle 77) ---
 # The 2026-09-01 redis MISCONF incident: Agora 500'd 6.5h, no
-# instrument watched the channel itself. agora-probe.sh checks
-# unauthed reachability + authed API (auth -> redis -> DB).
+# instrument watched the channel itself. Probe inlined (reviewer
+# C1: fleet-check runs via `ssh bash -s < file`, $0=bash, so
+# script-relative paths resolve wrong on sophon). Logic mirrors
+# knowledge/aria/bin/agora-probe.sh: unauthed reachability +
+# authed API (auth -> redis rate limiter -> DB), fails closed.
 echo "-- agora voice channel --"
-PROBE="$(dirname "$(readlink -f "$0")")/agora-probe.sh"
-if [ -x "$PROBE" ]; then
-  bash "$PROBE" || FAIL=1
+APCONF=/var/home/nacho/repos/agora/bot/aria-cycle.conf
+APSITE=https://agora.randazzo.ar
+apcode=$(timeout 15 curl -s -o /dev/null -w '%{http_code}' "$APSITE/api/v1/messages?anchor=newest&num_before=1&num_after=0" 2>/dev/null)
+case "$apcode" in
+  200|400|401|403) echo "agora unauthed GET: HTTP $apcode (app server alive)" ;;
+  000) echo "agora unauthed GET: TIMEOUT/UNREACHABLE"; FAIL=1 ;;
+  *) echo "agora unauthed GET: HTTP $apcode -- unexpected"; FAIL=1 ;;
+esac
+if [ ! -r "$APCONF" ]; then
+  echo "agora authed GET: keyfile $APCONF unreadable -- cannot verify primary signal, FAILING CLOSED"; FAIL=1
 else
-  echo "agora-probe.sh NOT FOUND next to fleet-check -- voice channel unverified"; FAIL=1
+  APKEY=$(awk -F'= *' '$1 ~ /^key *$/ {sub(/\r$/,"",$2); print $2; exit}' "$APCONF")
+  APBODY=$(mktemp) || APBODY=/dev/null
+  apcode=$(timeout 15 curl -s -o "$APBODY" -w '%{http_code}' \
+    -u "aria-cycle@agora.randazzo.ar:${APKEY}" \
+    "$APSITE/api/v1/messages?anchor=newest&num_before=1&num_after=0" 2>/dev/null)
+  if [ "$apcode" = "200" ]; then
+    apresult=$(python3 -c 'import json,sys
+try:
+    d=json.load(open(sys.argv[1]))
+    msgs=d.get("messages",[])
+    print("success" if (d.get("result")=="success" and msgs) else "empty-or-failed")
+except Exception:
+    print("parse-error")' "$APBODY" 2>/dev/null)
+    [ "$APBODY" != "/dev/null" ] && rm -f "$APBODY"
+    if [ "$apresult" = "success" ]; then
+      echo "agora authed GET: HTTP 200 result=success -- voice channel HEALTHY"
+    else
+      echo "agora authed GET: HTTP 200 but result=$apresult -- API-level problem"; FAIL=1
+    fi
+  elif [ "$apcode" = "000" ]; then
+    echo "agora authed GET: TIMEOUT/UNREACHABLE"; FAIL=1
+  elif [ "$apcode" = "401" ] || [ "$apcode" = "403" ]; then
+    echo "agora authed GET: HTTP $apcode -- AUTH FAILED (key revoked? identity broken?)"; FAIL=1
+  elif [ "$apcode" = "429" ]; then
+    echo "agora authed GET: HTTP 429 -- rate limited (redis limiter ALIVE; back off)"; FAIL=1
+  else
+    echo "agora authed GET: HTTP $apcode -- VOICE CHANNEL DOWN (redis MISCONF / app / proxy class)"; FAIL=1
+  fi
 fi
 
 # --- 1. EAR CHECK v2 (age + audio) ---

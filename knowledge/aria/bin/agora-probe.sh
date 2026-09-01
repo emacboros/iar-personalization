@@ -41,12 +41,20 @@ esac
 if [ ! -r "$CONF" ]; then
   echo "AUTHED GET: SKIP (keyfile $CONF unreadable) -- cannot verify primary signal, FAILING CLOSED"; FAIL=1
 else
-  KEY=$(awk -F'= *' '/^key/{print $2}' "$CONF")
-  code=$(timeout 15 curl -s -o /tmp/agora-probe-body.json -w '%{http_code}' \
+  KEY=$(awk -F'= *' '$1 ~ /^key *$/ {sub(/\r$/,"",$2); print $2; exit}' "$CONF")
+  BODY=$(mktemp) || { echo "mktemp failed"; exit 1; }
+  code=$(timeout 15 curl -s -o "$BODY" -w '%{http_code}' \
     -u "aria-cycle@agora.randazzo.ar:${KEY}" \
     "$SITE/api/v1/messages?anchor=newest&num_before=1&num_after=0" 2>/dev/null)
   if [ "$code" = "200" ]; then
-    result=$(python3 -c 'import json; d=json.load(open("/tmp/agora-probe-body.json")); print(d.get("result","?"))' 2>/dev/null)
+    result=$(python3 -c 'import json,sys
+try:
+    d=json.load(open(sys.argv[1]))
+    msgs=d.get("messages",[])
+    print("success" if (d.get("result")=="success" and msgs) else "empty-or-failed")
+except Exception:
+    print("parse-error")' "$BODY" 2>/dev/null)
+  rm -f "$BODY"
     if [ "$result" = "success" ]; then
       echo "authed GET: HTTP 200 result=success -- voice channel HEALTHY"
     else
@@ -56,6 +64,8 @@ else
     echo "authed GET: TIMEOUT/UNREACHABLE"; FAIL=1
   elif [ "$code" = "401" ] || [ "$code" = "403" ]; then
     echo "authed GET: HTTP $code -- AUTH FAILED (key revoked? identity broken?)"; FAIL=1
+  elif [ "$code" = "429" ]; then
+    echo "authed GET: HTTP 429 -- rate limited (redis limiter ALIVE; back off)"; FAIL=1
   else
     # 500/502/503: the incident class (redis MISCONF, app dead, proxy dead)
     echo "authed GET: HTTP $code -- VOICE CHANNEL DOWN (redis MISCONF / app / proxy class)"; FAIL=1

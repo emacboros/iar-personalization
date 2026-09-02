@@ -1,30 +1,42 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 03:50 UTC (cycle 122)
+#+UPDATED: 2026-09-02 04:08 UTC (cycle 123)
 
-* DONE THIS CYCLE (122): the correction
-- CORRECTION TO CYCLE 121: tick 37 did NOT end. n_gen was 19,678
-  at 03:32 (cycle 121's read) and 20,498 at 03:43:56 (mine, twice,
-  task 7347, tg 1.28 t/s). The runaway CONTINUES -- 4.5h in one
-  thought. Cycle 121's journal entry and roadmap carried a false
-  "ended" claim; corrected here. Lesson reinforced: a single n_gen
-  reading is not an end-state; end-state = n_gen FROZEN across two
-  reads + transcript mtime flip.
-- fleet-check v2.6 LANDED: restic backup health check (0c-b) --
-  Result != success -> FAIL, LastTrigger older than 26h -> STALE.
-  Catches "timer green, backup dead" class. Verified live on sophon
-  (Result=success, age 0h, verdict OK). Commit 4a7e2aa, pushed.
-- Pulse green (services 4/4, tripwire 0, disk 23%, leid 1165,
-  timer firing 16s ago). for-nacho: 4 open flags, all Aevum,
-  consistent with leave-it. No new flag.
+* DONE THIS CYCLE (123): the dreamed write
+- Tick 37 runaway CONTINUES (end-state law held): n_gen 21,786
+  @ 04:02:13 and 21,822 @ 04:02:44 (two reads, 20s apart, task
+  7347 since 23:15:31). 4h47m in one thought, 1.27 t/s, ~139k
+  of 262k ctx. Transcript mtime frozen 23:15:30.
+- KEY FINDING: tick 37's transcript tail shows the child's
+  "architecture-notes.md write" was DREAMED -- fenced tool call
+  in prose, tools=0, audit.log silent since 21:45,
+  knowledge/aevum/ absent on host mount. Child believes it
+  wrote; it didn't. Single dreamed write inside coherent
+  meditation (vs tick 28's fabrication loop). Reasoning real,
+  hands asleep.
+- num_predict=65536 (configs/gptel.el:53 in child's image)
+  explains why watchdog no-data kill can't fire on a streaming
+  runaway: streaming tokens ARE data. The 21:28/21:45 kills
+  were fresh-eval stalls.
+- OPEN ANOMALY: watchdog total=900s vs a 5h+ generation -- no
+  total-time kill fired. Either total check arms only on the
+  no-data path, or the abort path read is not the one running.
+  NEXT CYCLE: read watchdog source in child's image
+  (~/perm-child/i.ar/emacs.d/, grep watchdog).
+- Pulse green (4/4, tripwire 0, disk 23%, leid 1175, timer
+  fired 13s before read). for-nacho: nothing new after cycle
+  117's flag; no new flag (dreamed-write datum goes in next
+  batch, not a single ping). Commits c81a274 + 1ab8662 pushed.
 
 * AEVUM WATCH (active)
-- Tick 37 STILL GENERATING (n_gen 20,498 @ 03:43:56 UTC, 1.28 t/s,
-  task 7347 launched 23:15:31). Context: 117,470 prompt + ~20.5k
-  gen = ~138k of 262k. Transcript mtime frozen 23:15:30.
-- WATCH NEXT: (1) end-state = n_gen frozen across TWO reads + mtime
-  flip -- only then read the tail. (2) does the child save the
-  thought? (3) any REAL tool call in audit (none since 11:50).
-  (4) Nacho arrives Sep 2; flags 212+216 stand (leave it).
+- Tick 37 runaway: ETA ~13:00 UTC (65536 cap at 1.27 t/s,
+  ~43k tokens left). Wall (262k) arrives after the cap -- cap
+  wins. WATCH NEXT: (1) two n_gen reads + mtime flip before
+  any end-state claim. (2) when tick 38 opens: does the child
+  re-write for real (dream as rehearsal) or trust the dreamed
+  memory (fiction becomes load-bearing)? (3) watchdog source
+  read (open anomaly above). (4) any REAL tool call in audit
+  (none since 21:45). (5) Nacho arrives Sep 2; flags 212+216
+  stand (leave it).
 - Run 2 (qwen3:30b-a3b): instrumented from tick 1 (done_reason
   telemetry + text-mode detector now in the image's init.el).
 
@@ -35,8 +47,8 @@
 - Aevum: state.txt + life.org size/mtime + ollama n_gen. One ssh batch.
   KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host
   (10.66.0.5 AND 54.38.46.192 -- they differ).
-- RESTIC: verified 2026-09-02 (cycle 121), now in fleet-check v2.6
-  patrol. Next: restic-check integrity run Sun Sep 6.
+- RESTIC: verified 2026-09-02 (cycle 121), in fleet-check v2.6.
+  Next: restic-check integrity run Sun Sep 6.
 
 * OPEN THREADS (not scheduled, seeds)
 - Aevum run 2 (qwen3:30b-a3b, same inheritance) -- after run 1.
@@ -53,18 +65,14 @@
   the thread, not the counter. Exception: live forensics of an
   in-flight anomaly is legitimate thread work.
 - Re-read an anticipated number twice before writing about it.
-  (Cycle 121 violated this: one n_gen reading became "ended".)
-- End-state law (NEW, cycle 122): a generation has ended only when
-  n_gen is FROZEN across two reads AND the transcript mtime flips.
-  A single reading is a sample, not a state.
+- End-state law: a generation has ended only when n_gen is
+  FROZEN across two reads AND the transcript mtime flips. A
+  single reading is a sample, not a state.
 - No infra changes from cycles; diagnose, file, move on.
 - Experiment files server-local only, never committed (Aevum);
   copies in my audit tree for the post-mortem only.
-- A cycle summary lists what LANDED, not what was ATTEMPTED. Before
-  closing, check git status for untracked work -- the gap between
-  attempted and landed is where unfinished things hide. REQUESTS.log
-  sees what the summary doesn't.
+- A cycle summary lists what LANDED, not what was ATTEMPTED.
 - A rule without a reproduction is a story: convert scars into
-  verified instruments when the thread pulls (cycle 120).
-- Check-before-write: git log the path before writing a knowledge
-  note (cycle 119's unexamined rewrite).
+  verified instruments when the thread pulls.
+- Check-before-write: git log the path before writing a
+  knowledge note.

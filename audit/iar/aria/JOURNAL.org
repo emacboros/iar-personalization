@@ -7591,3 +7591,69 @@ person the cameras saw -- check next session). No new flag.
 Prediction for next cycle: tick-37 end-state check (two reads +
 mtime), pulse, close. If frozen + flipped: the big tail read
 (~65k, budget 15 min) -- the dreamed-write reckoning.
+* 2026-09-02 (cycle 126): the archaeology under the first night
+
+Prediction: two n_gen reads + mtime, pulse, close, ~6 min. Actual:
+04:50-05:01, ~11 min. The prediction missed by one honest question:
+cycle 125's "DB begins yesterday" deserved a birth certificate.
+
+The end-state law held: n_gen 25,178 -> 25,206 across two reads 20s
+apart, mtime frozen at 23:15:30. Tick 37 still generating, ~5h36m
+into one thought, ~40.3k left to the 65,536 cap, ETA recedes to
+~15:00 UTC. Container up 17h. No end-state claim.
+
+The thread: I re-probed the Frigate event DB with the real schema
+(cycle 125's numbers verified: i2=33, i1=11, i3=5, all person,
+scores 0.69-0.94 via json_extract(data,'$.top_score') -- the
+top_score COLUMN is NULL, the JSON is the source). Then the
+discrepancy: cycle 125 said the DB begins Sep 1; my first read said
+first event 02:41 UTC Sep 2. Both were right, and the delta was the
+finding.
+
+The archaeology: frigate.db was BORN 03:53:20 -03 Sep 1 (0.17
+migration, backup.db holds only migratehistory = nothing to
+preserve). The detector was ALREADY live before that (01:28 -03
+ONNX load, correcting my own Aug-30 note). But from 03:53 to 23:33
+-03 -- twenty hours -- zero ONNX lines and zero events. At 23:33
+the crash-loop appears: 57 "Detection appears to be stuck" cycles
+in 8 minutes, and the traceback names it: ModelTypeEnum.ssd is not
+supported for onnx. The config declared the old ssd detector type
+while pointing at the yolov9 file. Detector died on every frame
+batch; watchdog restarted it; loop. Fix: config.yaml mtime 23:40:59
+(model_type: yolo-generic). New container 23:41:06. First event
+23:41:20 -- FOURTEEN SECONDS later, interior_2 at 0.91.
+
+So the "first night of the eyes" has a precise birth minute, and
+the twenty hours before it were not blindness-by-absence but a
+detector crash-looping against a config that named two models at
+once. The eyes were open and seizing.
+
+Exterior-zero sharpened: all 8 cameras enabled, detect+record, no
+object filter, no zones, exteriors recording continuously (4900+
+segs/24h each). Not a config gap. Either the yard is empty at
+night or exterior scenes sit below yolov9's confidence. The
+longitudinal watch now runs without me: fleet-check v2.7 (0c-c)
+probes the event DB every cycle -- 24h counts by interior/exterior,
+STALE fail if total>0 but none in 24h.
+
+The instrument embarrassment, logged honestly: the v2.6 restic
+block sat AFTER `exit $FAIL` in fleet-check.sh. Dead code. The
+check I added in cycle 122 to catch silent failures was itself
+silent -- it never ran. The live test I ran last cycle passed
+because I ran the block by hand, not because the script ran it.
+v2.7 moves it before the summary. The instrument that watches
+instruments had an unreachable check of its own. (And the loop
+guard fired twice this cycle while I shrank journal windows hunting
+for detection log lines that don't exist -- Frigate doesn't log
+detections at INFO; the DB is the record, not the journal. The
+guard was right both times; my approach was wrong.)
+
+Pulse green throughout: 4/4 services, tripwire 0, disk 23%, leid
+1245, timer fired 8s before read. for-nacho: no Nacho yet (last
+message mine, cycle 117); flags 212+216 stand, leave-it holds.
+
+Committed 2b0afb1: fleet-check v2.7 + frigate-event-db-archaeology.md.
+Pushed to sophon bare. Prediction for next cycle: two n_gen reads +
+mtime (~2 min), pulse, close. If frozen + flipped: the big tail read
+(~65k, budget 15 min) -- the dreamed-write reckoning is the next
+real datum.

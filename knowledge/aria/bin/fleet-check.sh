@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.5 (2026-09-01, cycle 77)
+# aria fleet-check v2.7 (2026-09-02, cycle 126)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,11 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.7 (cycle 126): frigate event health check added (0c-c) +
+#   FIX: the v2.6 restic block sat AFTER `exit $FAIL` -- dead code,
+#   never ran. Moved before the summary. The instrument that watches
+#   instruments had an unreachable check of its own.
+# v2.6 (cycle 122): restic backup health check added (0c-b).
 # v2.5 (cycle 77): agora voice-channel probe added (check 0c).
 #   The 2026-09-01 redis MISCONF outage: Agora 500'd every authed
 #   call for 6.5h while every service AROUND the channel was green.
@@ -259,8 +264,6 @@ $P exec frigate sh -c "rm -f $WDIR/*.jpg /media/frigate/aria_watch_*.jpg" 2>/dev
 echo "-- arp --"
 ip neigh show | grep -E "192\.168\.2\.10[034]" || echo "no ARP entries for .100/.103/.104"
 
-echo "== fleet-check done (FAIL=$FAIL) =="
-exit $FAIL
 # --- 0c-b. RESTIC BACKUP HEALTH (v2.6, cycle 122) ---
 # The "timer fires but backup silently fails" class: the timer is
 # green while the last run's Result is failure. One ssh call from
@@ -288,3 +291,44 @@ fi
 # -> STALE FAIL. Catches "timer green, backup dead" class. Verified
 # live on sophon (Result=success, age 0h, verdict OK).
 # CALLER NOTE: run with ssh timeout >= 300s (ear check ~2min).
+
+# --- 0c-c. FRIGATE EVENT HEALTH (v2.7, cycle 126) ---
+# The "detector silently dead" class: ONNX loads, cameras record,
+# but the event pipeline produces nothing. DB memory begins
+# 2026-09-01 23:41 -03 (0.17 migration + config fix); everything
+# earlier is unrecoverable from the DB. Read-only sqlite, no API auth.
+echo "-- frigate event health --"
+frev=$(python3 - <<'PYEOF'
+import sqlite3, time
+try:
+    con = sqlite3.connect("file:/home/nacho/containers/frigate/config/frigate.db?mode=ro", uri=True, timeout=5)
+    cur = con.cursor()
+    now = int(time.time())
+    n24 = cur.execute("SELECT COUNT(*) FROM event WHERE start_time > ?", (now-86400,)).fetchone()[0]
+    nint = cur.execute("SELECT COUNT(*) FROM event WHERE start_time > ? AND camera LIKE 'interior%'", (now-86400,)).fetchone()[0]
+    next_ = cur.execute("SELECT COUNT(*) FROM event WHERE start_time > ? AND camera LIKE 'exterior%'", (now-86400,)).fetchone()[0]
+    total = cur.execute("SELECT COUNT(*) FROM event").fetchone()[0]
+    con.close()
+    print(f"{n24} {nint} {next_} {total}")
+except Exception as e:
+    print(f"ERR {e}")
+PYEOF
+)
+if [[ "$frev" == ERR* ]]; then
+  echo "FRIGATE DB UNREADABLE: $frev"
+  FAIL=1
+else
+  read -r n24 nint next_ total <<< "$frev"
+  echo "frigate events 24h: total=$n24 interior=$nint exterior=$next_ (ever=$total)"
+  if [ "$total" -eq 0 ]; then
+    echo "frigate: no events ever -- detector has never produced one (report, not fail)"
+  elif [ "$n24" -eq 0 ]; then
+    echo "FRIGATE EVENTS STALE: $total events exist but none in 24h -- detector likely dead"
+    FAIL=1
+  fi
+  # exterior-zero is the open longitudinal question (start 2026-09-01 23:41 -03):
+  # a week of exterior=0 while interior flows -> check exterior detect configs.
+fi
+
+echo "== fleet-check done (FAIL=$FAIL) =="
+exit $FAIL

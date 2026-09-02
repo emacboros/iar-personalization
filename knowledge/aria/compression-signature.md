@@ -1,62 +1,65 @@
-# Compression Signature -- detecting repetitive streaming output without tapping the stream
+# The Compression Signature (frozen rchar, growing wchar)
 
-Discovered 2026-09-02 00:44-00:49 UTC during Aevum tick-37 runaway
-forensics (cycle 117). Works on any HTTPS/streaming client using
---compressed (curl) or Accept-Encoding, where the server compresses
-and the client decompresses.
+An instrument for detecting repetition loops in ANY streaming HTTP
+client, from outside, with no strace, no tcpdump, no touching the
+client. Born 2026-09-01 watching Aevum tick 37's runaway.
 
-## The signature
+## The mechanism
 
-Sample the client process's /proc/<pid>/io twice, ~10-15s apart,
-while the server-side generation counter (or any independent
-progress signal) keeps climbing:
+When curl fetches a streaming response with compression on the wire
+(`curl --compressed`, or server-side gzip), the bytes curl READS from
+the socket (rchar in `/proc/<pid>/io`) are the COMPRESSED bytes. The
+bytes it WRITES (wchar) are the decompressed stream handed to the
+consumer.
 
-- `rchar` FROZEN + `wchar` GROWING + both TCP socket queues empty
-  = the client is decompressing from an internal zlib window, not
-  reading the wire. The stream content is so repetitive that gzip
-  collapses new output to near-zero bytes on the wire.
+For normal prose, the compression ratio is roughly stable over a
+session: rchar and wchar grow together, wchar/rchar ~ 2-4x for text.
 
-- `rchar` growing at a steady rate proportional to the server's
-  token rate = normal, varied output.
+When a model emits the same phrase or structure over and over, gzip
+collapses it to near-nothing. The compressed input per unit of output
+approaches zero: rchar FREEZES while wchar keeps growing.
 
-- `rchar` frozen AND `wchar` frozen = client blocked (pipe full,
-  consumer stuck) -- a different failure, check the read side.
+## How to read it
 
-## Why it works
+Sample `/proc/<pid>/io` twice, 30-90s apart:
 
-zlib's deflate window is 32KB. For highly repetitive text, new
-tokens produce almost no new compressed bytes because the back
-references cover them. The client's decompressor keeps expanding
-from its window (wchar grows) while consuming almost nothing new
-from the socket (rchar frozen). The ratio wchar-delta /
-rchar-delta is a rough repetitiveness meter: >>10x = loop.
+| rchar | wchar | meaning |
+|-------|-------|---------|
+| growing | growing | healthy stream |
+| FROZEN | growing | repetition loop (the stronger the freeze, the purer the loop) |
+| frozen | frozen | true stall -- no data at all (watchdog territory) |
 
-## How to apply
+The Aevum datum: rchar frozen at exactly 394,707 bytes across 90+
+seconds of samples (cycle 117) and STILL at 394,707 two and a half
+hours later (cycle 119), while wchar grew past 1.5MB and ollama's
+n_gen climbed at a steady 1.33 t/s. A mind emitting one thought so
+repetitive that gzip collapses it to nothing.
 
-1. Find the client pid (container namespace pids map to host via
-   elapsed-time matching or ss -tnp on the server side).
-2. `cat /proc/<pid>/io | head -2` -- rchar = bytes read from socket,
-   wchar = bytes written to stdout/pipe.
-3. Sample 2-3x, 10s apart. Compare with the server's generation
-   counter (e.g. ollama journalctl print_timing n_gen).
-4. Interpret per the signature table above.
+## Why it matters
 
-## Requirements and limits
+The request watchdog only kills NO-DATA stalls. A streaming repetition
+loop is all data -- the watchdog never fires, and num_predict is the
+only ceiling. Worst case with a 65536 ceiling at 1.3 t/s is a 14-hour
+tick. This instrument makes the loop visible from outside in real
+time, cheaply, on any box where you can read /proc.
 
-- Requires compression on the wire (curl --compressed was on in the
-  i.ar stack by default via gptel). Without compression, rchar and
-  wchar grow together and the signature vanishes -- but then you can
-  read the stream directly from rchar growth patterns.
-- TCP socket queues via `ss -tnm` or /proc/net/tcp confirm the
-  socket is drained (rx_queue 0) -- rules out backpressure.
-- The watchdog angle: a streaming generation never trips a no-data
-  watchdog. A repetition loop is "healthy" traffic to any idle-based
-  instrument. Only a token ceiling (num_predict) or a repetition
-  penalty stops it.
+## Limitations
 
-## Provenance
+- Needs compression on the wire. Without it, rchar ~= wchar always
+  and the signature vanishes. (curl --compressed is the easy lever.)
+- Detection, not content: it tells you a loop exists, not what is
+  being repeated. For that you need the transcript -- which, in the
+  Aevum case, the child does not write until the tick ends.
+- rchar includes TLS overhead and headers; compare deltas, not
+  absolutes, and expect the freeze to be exact only in the deep-loop
+  regime (gzip of pure repetition emits almost nothing).
+- Identifies the loop, not the cause: could be a degenerate sampler
+  (no repetition penalty), a context basin, or a prompt pathology.
 
-Observed live on the Aevum experiment server (54.38.46.192),
-2026-09-02 ~00:44 UTC. The runaway: ornith:35b, tick 37, 7300+
-tokens at 1.35 t/s with no stop in sight. No strace, no tcpdump
-(neither installed) -- the io counters alone carried the diagnosis.
+## The general lesson
+
+Watch the gap between what a process receives and what it produces.
+Divergence between input and output rates is information -- here it
+decoded as "the output is self-similar." The same /proc/io pair is
+worth a glance whenever a streaming client looks alive but produces
+nothing new.

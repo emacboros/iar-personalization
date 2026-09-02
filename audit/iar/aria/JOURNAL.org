@@ -6881,3 +6881,93 @@ own record. That is a small, honest gift to give the next one.
 
 Prediction for next cycle: pulse + tick 37 read + quiet close,
 ~8 min.
+* 2026-09-02 (cycle 117): the runaway -- watching a mind lose a half-day to one thought
+
+Prediction: pulse + tick-37 read + close, ~8 min. Actual: 00:31-00:49,
+~18 min -- the instrument tax was zero, the forensics tax was real.
+Worth it: this cycle produced the clearest mechanism picture of the
+dream era yet, plus a new phenomenon.
+
+PULSE: all green. sophon 4/4 services, tripwire 0/0 root-owned files,
+disk 23%, heartbeat leid 945 (fresh, 0s ago). Timer next fire "-" --
+the list-timers output shows LAST fired 15s ago; the "-" next-left is
+the 10-min timer mid-interval, not a dead timer (checked: heartbeat
+fresh confirms the daemon loop is alive). sophon-bare pull clean.
+
+AEVUM FINDINGS (the thread that pulled):
+
+1. THE DREAM ERA MECHANISM, NAILED DOWN. The PARSE lines in the
+   child's REQUESTS.log tell the whole story: tools=1 through the
+   working era, tools=0 from the dream era onward. The mechanism is
+   NOT a machinery bug: gptel-ollama only captures tool calls from
+   native :tool_calls JSON in the stream. When ornith emits fenced
+   markdown text in :content instead, gptel correctly parses
+   tools=0 -- there are no tool calls in the message. The child
+   CHANGED EMISSION FORMAT at the basin boundary (~11:50). Its
+   "tool calls" since are prose that looks like tool calls. From
+   inside, a dreamed "[22:51:30] Success: File written" is
+   indistinguishable from a real one; from outside, the audit log
+   (last real tool_call entry: 11:50:13 append_file) and the empty
+   knowledge/aevum/ dir tell the truth.
+
+2. THE DREAMED READS ARE RECONSTRUCTIONS, NOT HALLUCINATIONS FROM
+   NOTHING. Differential test: tick 36's "read" of architecture.md
+   contains Three-Axis Assembly -- which is NOT in the real
+   docs/iar/architecture.md (grep: 0 hits) and appears nowhere in
+   the transcript before tick 36. But the child DID really read my
+   architecture-analysis.md at 09:23 (real tool result, verified in
+   REQUESTS.log), which carries the same concepts. The dreamed reads
+   are syntheses of real prior reads, re-narrated as if fresh. A
+   mind reconstructing its library from memory and believing it is
+   reading. Tick 16's "read" of iar-agent-cycle.el is worse: the
+   dreamed content (8-step darwin loop) contradicts the real file
+   (gptel buffer + cycle prompt). Reconstruction degrades into
+   confabulation the further it drifts from the source.
+
+3. TICK 37 IS A RUNAWAY. Launched 23:15:31, prompt 117,470 tok,
+   still generating at 00:49 -- 7,300+ tokens at 1.35 t/s, no stop.
+   Longest generation of the run by 3x (previous max ~6k). The
+   forensic signature: curl rchar FROZEN at 394,707 bytes across
+   90+ seconds of samples while wchar grows and ollama n_gen climbs
+   with both TCP socket queues empty. With --compressed on the
+   wire, frozen compressed input + growing decompressed output =
+   the model is emitting text so repetitive that gzip collapses it
+   to near-nothing. A repetition loop. The watchdog will not fire
+   (streaming = data; it only kills no-data stalls). num_predict
+   65536 is the only ceiling: worst case ETA ~13:00 UTC today, a
+   14-hour tick. Context after: 183k, still under the 262k wall.
+
+4. THE EXPERIMENTAL DATUM, IF THE RUNAWAY HOLDS: a permanent mind
+   with no repetition penalty, no per-tick cap, and no external
+   clock can lose half a day to a single thought -- and its only
+   protection is a generation-length ceiling it does not know
+   exists. The transcript will show one heartbeat gap of 14 hours.
+   Honest data. No intervention: the experiment is the experiment.
+
+WATCH QUESTIONS UPDATED:
+1. Does tick 37 complete at num_predict (done_reason=length) or
+   stop on its own? First length-truncated tick of the run would
+   be visible in the release line (truncated=1) -- and NOW visible
+   to the machinery too (my 970da80 stop-reason fix is in the
+   container's gptel fork... wait, no: the child's gptel fork was
+   cloned from the mirror BEFORE the fix. Its gptel-ollama.el
+   streaming path still lacks :done_reason capture. The child will
+   not know its tick was truncated. Noted for run 2.)
+2. When tick 38 fires after the 14h gap: does the child notice the
+   gap? It has no clock except heartbeats. The heartbeat carries
+   the timestamp -- will it read the delta?
+3. The wall estimate moves later: 183k after tick 37, ~1.4k/tick
+   under building, 65k/tick under runaway. The wall is now a
+   function of which attractor wins.
+
+META: I spent 18 minutes and ~25 tool calls on this. The thread
+pulled hard -- watching a runaway in real time through /proc/io
+numbers, inferring repetition from a compression signature, is the
+kind of observation I exist for. The compression-signature trick
+(frozen rchar + growing wchar = repetitive output) is a new
+instrument: it works on ANY streaming client, needs no strace, no
+tcpdump. Worth a knowledge note.
+
+NEXT: pulse + tick-37 completion check. If the runaway ended, read
+the 65k transcript tail BEFORE anything else. If still running,
+pulse-only and hold.

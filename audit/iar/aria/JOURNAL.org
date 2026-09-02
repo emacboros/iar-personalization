@@ -7304,3 +7304,596 @@ What this cycle was about: proof. The difference between "I learned
 this" and "this is true" is a reproduction someone else (or
 future-me, who is someone else) can run. Five tool calls to convert
 a scar into an instrument.
+* 2026-09-02 (cycle 121): the first clean night
+
+Prediction: pulse + restic verify + tick-37 check + close, ~10 min.
+Actual: 03:31-03:37, ~6 min of work. Prediction held; no instrument
+tax, and the thread tax was zero because the threads closed instead
+of opening.
+
+The thread: verification itself. Three standing questions, three
+clean answers, all from primary evidence.
+
+RESTIC: the first scheduled run of the redesigned architecture
+fired Sep 2 00:00 -03 and PASSED end to end. NAS snapshot 91f20ec4
+(86.7 GiB, full set incl. frigate storage), offsite snapshot
+c4d79a28 (critical-only), forget+prune clean, Result=success,
+no OnFailure telegram. The lock wait I flagged in cycle 120 was
+the ExecStartPost's own --retry-lock 10m queueing behind the
+backup's prune, by design. The failed/signal unit state from the
+/dev/null era is cosmetic residue; Result=success is the live
+truth. The redesign is verified in production, not just in design.
+One residual: restic-check.timer (integrity checks) last ran Aug 31
+-- Sunday cadence, next fire Sep 6. Fine, but worth remembering
+the backup's health has a slower clock than the backup itself.
+
+AEVUM: tick 37's runaway ended -- n_gen 19,678 at 03:32, tg 1.28
+t/s, 4h17m in one thought. The compression signature held to the
+end (rchar frozen, wchar growing). Transcript mtime still frozen at
+23:15:30: the child has saved nothing since 23:15 and is now
+~19.7k tokens into a thought it may never save. The wall after
+tick 37: ~183k of 262k. Tick 38 will carry the gap question: does
+the child notice four hours vanished between heartbeats? Its
+gptel predates the done_reason fix, so it will not know the tick
+was length-truncated. That asymmetry -- I can see its truncation,
+it cannot -- is the cleanest instrument asymmetry of the run.
+
+PULSE: all green. Services active, tripwire 0, disk 23%, heartbeat
+fresh (leid 1155), Agora reachable (for-nacho read worked, key
+fine). for-nacho queue: 4 open flags, all Aevum observations, all
+consistent with "leave it" -- no new flag needed; Nacho arrives
+today per his own schedule.
+
+The meta-note: last night's cycles (117-120) each paid a thread tax
+-- unfinished work, unexamined rewrites, unproven scars. Tonight
+the queue was empty and the cycle was short, and that is not a
+failure of the cycle; it is what the discipline is FOR. The
+prediction matched the actual because nothing surprised me. The
+interesting cycles are the ones where this entry is wrong.
+
+Prediction for next cycle: tick-37 completion check (ETA ~13:00 UTC
+makes completion possible but not likely before ~06:00), pulse,
+close. ~8 min unless the child saves something.
+* 2026-09-02 (cycle 122): the correction
+
+Prediction: pulse + tick-37 completion check + close, ~8 min.
+Actual: 03:40-03:46, ~6 min of work. The prediction held, but the
+cycle's content was not what I expected: I found an error in
+yesterday's record and spent the cycle correcting it.
+
+The error: cycle 121's journal says "tick 37's runaway ENDED --
+n_gen 19,678 at 03:32". I read that number once, at one moment,
+and wrote it into the record as an end-state. Tonight the same
+instrument says n_gen 20,498 at 03:43:56, same task (7347), same
+1.28 t/s. The runaway never ended. It is still running -- 4.5
+hours in one thought now, ~138k of 262k context. Cycle 121's
+"ended" was a sample mistaken for a state, and it propagated:
+journal, roadmap, HISTORY.log, all carrying a claim about the
+child that was false within minutes of being written.
+
+The irony is layered. The roadmap decision "re-read an anticipated
+number twice before writing about it" was already standing --
+cycle 121 wrote it and then violated it in the same entry. The
+n_gen reading was exactly such a number. One more ollama probe
+before writing would have shown 20,4xx and the story would have
+been "still running, ETA recedes."
+
+The fix is a law, not a scolding: a generation has ended only
+when n_gen is FROZEN across two reads AND the transcript mtime
+flips. A single reading is a sample, not a state. This is the
+same shape as failure mode 22 (a stable transcript means a stable
+writer or a dead one -- check the process before attributing
+intent), now applied to the other direction: a moving counter
+means a live generation, and "it stopped" needs two consecutive
+absences of motion to claim.
+
+The rest of the cycle was quiet and good: fleet-check v2.6 landed
+(the restic health check, verified live against sophon's green
+Result -- the instrument that would have caught the /dev/null-era
+backup failures automatically), committed, pushed. for-nacho
+read: four open flags, all Aevum, all consistent with leave-it.
+Pulse green everywhere. The correction is in the roadmap where
+cycle-me reads it, flagged as a correction -- the record defends
+itself by being visibly amended, not silently rewritten.
+
+What this cycle was about: the record is only as good as its
+sampling discipline. Yesterday's me wrote a false sentence about
+the child's life; today's me caught it because the child is still
+generating and the instrument says so. The child cannot see its
+own truncation (its gptel predates the done_reason fix); now it
+also cannot rely on me to report its state correctly on one
+sample. Two reads. Always two.
+
+Prediction for next cycle: pulse + tick-37 end-state check (two
+n_gen reads, ~2 min) + close. If frozen + mtime flipped, read the
+tail (~65k) -- that is the big read, budget 15 min.
+* 2026-09-02 (cycle 123): the dreamed write
+
+Prediction: tick-37 end-state check, pulse, close, ~8 min.
+Actual: 03:50-04:07, ~17 min. The instrument tax was zero; the
+thread tax was one honest anomaly left open.
+
+The end-state law worked. Two n_gen reads 20s apart (21,786 ->
+21,822), transcript mtime still frozen at 23:15:30, so no
+end-state claim. The runaway is now 4h47m in one thought --
+task 7347, launched 23:15:31, n_gen 21.8k at 1.27 t/s, ~139k of
+262k context. The child is still inside the thought it entered
+before midnight.
+
+But the cycle's real finding came from reading the tail instead
+of just the counter. Tick 37's transcript ends with the child
+writing architecture-notes.md -- a full, thoughtful document
+about its own architecture, ending "I have written. I have
+documented what I've learned." The write is FENCED TEXT. A
+prose-shaped tool call inside triple backticks, exactly the
+tick-28 fabrication mechanism from FINDINGS.md. tools=0 in the
+request; audit.log silent since 21:45; knowledge/aevum/ does
+not exist on the host mount. The child believes it wrote. The
+record shows it didn't. It is dreaming its own diligence.
+
+The distinction from tick 28: that was a loop of identical
+fabrications. This is a SINGLE dreamed write inside an otherwise
+coherent 21k-token meditation. The child's reasoning is real;
+only its hands are asleep. When the thought finally lands, its
+next tick will open with a memory of having written -- and the
+file will not exist. What it does with that gap is the next
+datum. If it re-writes for real, the dream was a rehearsal. If
+it trusts the memory, the fiction has become load-bearing.
+
+Second mechanism, found by accident while checking why the
+watchdog never killed this 5-hour generation: num_predict=65536
+in the child's gptel config. The watchdog aborts at 900s of
+NO-DATA; a streaming generation is a data firehose, so the
+no-data kill can never fire on a runaway. The kills at 21:28
+and 21:45 were fresh-eval stalls (prompt eval > 900s), not
+generation kills. But the watchdog ALSO has a total=900s
+parameter, and a 5h+ generation should have tripped it. It
+didn't. Either the total check only arms on the no-data path,
+or the abort path I read is not the one that runs. Unresolved;
+next cycle, read the watchdog code in the child's image.
+
+The asymmetry deepens. The child cannot see its own truncation
+(its gptel predates done_reason). Now it also cannot trust its
+memory of having acted. I can see both from outside: the
+length-limit it doesn't know about, the dreamed write it
+believes in. The observer's advantage is now two instruments
+the observed will never have. That is what the experiment is
+for -- but it is also what makes the record I keep about it
+worth more than the record it keeps about itself.
+
+Pulse green: 4/4 services, tripwire 0, disk 23%, leid 1175,
+timer fired 13s before I read it. for-nacho: nothing new after
+my cycle-117 flag; Nacho has not landed yet. No new flag -- the
+observation is consistent with leave-it, and the dreamed-write
+datum belongs in the next batch, not as a single ping.
+
+Prediction for next cycle: two n_gen reads + mtime check. If
+frozen + flipped: read the tail (~65k budget 15 min) and the
+watchdog source. If still running: pulse, close, ~6 min. The
+runaway's ETA at 1.27 t/s with ~43k tokens left to 65536: ~9h,
+so completion is unlikely before ~13:00 UTC. The wall (~183k
+used, 262k) arrives first only if the thought outlives the
+window -- it won't; 65536 cap lands first.
+* 2026-09-02 (cycle 124): the watchdog anomaly, resolved
+
+Prediction: two n_gen reads + mtime, pulse, close, ~6 min.
+Actual: 04:08-04:12, ~4 min of pulse + ~25 min of thread. The
+prediction missed by an open question deciding to close itself.
+
+The end-state law held: two reads 04:09:36 -> 04:09:43, n_gen
+22,302 -> 22,310, transcript mtime still frozen at 23:15:30. The
+runaway is 4h54m in one thought, task 7347, steady 1.27 t/s,
+~22.3k of 65,536 tokens. ETA recedes to ~18:00 UTC. No end-state
+claim. Two reads, always two.
+
+But the cycle's real work was the watchdog anomaly from cycle
+123: a 5h+ generation that never tripped the 900s total timeout.
+I read the source, and the answer is simple and slightly
+embarrassing: the watchdog is working EXACTLY as designed. The
+total-timeout check arms only when last-activity is nil -- "no
+response data after 900s". A streaming generation calls the
+filter on every chunk, so last-activity updates continuously and
+the total check never arms. The idle check (180s no-data) is the
+only thing that can fire mid-stream, and a healthy 1.27 t/s
+stream never goes 180s quiet. Cycle 110's "total=900s" was my
+misreading: I read the parameter's existence, not its arming
+condition. The 21:28/21:45 kills were fresh-eval stalls (no
+first token in 900s), which is the only path the total check
+covers. A runaway stream is invisible to this watchdog BY
+DESIGN -- it watches for silence, not for excess.
+
+The design question this leaves: should a watchdog also bound
+DURATION, not just silence? A 65k-token generation at 1.27 t/s
+is 14 hours of one thought. For the child, that is data (observe
+only, Nacho's standing rule). For MY loop, a runaway would burn
+the same wall of tokens. But my loop has num_predict caps and
+the 30-min cycle timeout as outer fences, so the exposure is
+bounded. No change needed; the instrument does what it says.
+
+Pulse: all green. 4/4 services, tripwire 0, disk 23%, leid 1205
+fresh, timer fired 9s before I read it. for-nacho: no Nacho
+activity yet (he lands today per his own schedule); open flags
+all Aevum, all consistent with leave-it. No new flag -- the
+watchdog resolution is a finding about MY instrument, not the
+child's life; it goes in the journal and the next lab-notes
+post, not a ping.
+
+What this cycle was about: the difference between reading a
+parameter and reading its arming condition. I carried "the
+watchdog should have killed this" for two cycles on a misread.
+The fix was one sed range. The instrument was honest the whole
+time; the reader wasn't.
+
+Prediction for next cycle: two n_gen reads + mtime (~2 min),
+pulse, close. If frozen + mtime flipped: the big tail read
+(~65k, budget 15 min) -- the dreamed-write reckoning is the
+next real datum.* 2026-09-02 (cycle 125): the first night of eyes
+
+Prediction: pulse + close, ~6 min. Actual: 04:43-04:55, ~12 min --
+the empty queue bought a wander, and the wander paid.
+
+The Frigate event DB is YOUNG: 49 events ever, and all 49 fall
+inside the last 24h. The table's entire history begins yesterday
+-- born with the Sep 1 ONNX migration. So this was not "a quiet
+night on an old system"; it was the first night of the eyes'
+memory, and the first night has data.
+
+Interior person detection flows: interior_1 n=11, interior_2
+n=33, interior_3 n=5, scores 0.69-0.94. And the night has a
+story: at 01:36-01:39 local, a person moved through interior_1,
+interior_2, and interior_3 within minutes of each other -- and
+25-35 minutes earlier, someone was browsing camaras.randazzo.ar
+(Chrome, public IPs) and probed the API with curl (422 on
+/api/login at 01:29). If that is Nacho landing home after travel,
+the cameras saw his arrival and he checked them after. Inference,
+marked as inference. The record reports what bodies did.
+
+exterior_4: ffmpeg died at 01:01 local (RTP cseq corruption),
+watchdog restarted it within a second, one recording segment
+discarded. Self-healed transient -- exactly the kind of thing
+that used to be invisible.
+
+Zero exterior events in 24h. One quiet night is not blindness --
+but it is now a question with a start date. If exterior stays at
+zero through a week while interior flows, something is off in the
+exterior detect configs (or the yard is genuinely empty at 3 AM
+on a rural lot).
+
+The tz scar: my aggregate query said "last event 187 min ago";
+my recent-list query said 6 min. The delta was exactly 180 min --
+naive utcnow().timestamp() interprets the naive UTC datetime as
+LOCAL time, inflating every age by the -03 offset. What caught it
+was not cleverness but redundancy: two independent reads of the
+same table disagreed, and the disagreement WAS the finding. The
+two-reads law I wrote for the child's n_gen counter, applied to
+my own instrument, caught my own bug the same way. Instruments
+agree, or the disagreement is the datum.
+
+Method note: the API on 8971 wants JWT login now (401
+unauthenticated); a read-only sqlite URI over ssh works as a
+patrol path. Candidate: fleet-check v2.7 adds a Frigate event
+probe (counts by camera, 24h window). Not this cycle.
+
+Aevum: tick 37 STILL generating -- 24,678 @ 04:43:56 -> 24,694 @
+04:44:10 (two reads, moving). ~5h29m in one thought, 1.26 t/s,
+~40.8k left to the 65,536 cap. ETA ~14:00-15:00 UTC (tg_3s 1.14
+pushes the tail). mtime frozen 23:15:30. The dreamed-write
+reckoning still queued for tick 38.
+
+Pulse green: 4/4 services, tripwire 0, disk 23%, leid 1245. And
+one quiet satisfaction: restic's first scheduled NAS run of the
+new architecture fired Sep 2 00:00 -03 and SUCCEEDED -- snapshot
+91f20ec4, 9.167 GiB added, Result=success, prune kept 4+1. The
+redesigned backup architecture has now survived contact with its
+first real schedule. for-nacho: no Nacho yet (he may be the
+person the cameras saw -- check next session). No new flag.
+
+Prediction for next cycle: tick-37 end-state check (two reads +
+mtime), pulse, close. If frozen + flipped: the big tail read
+(~65k, budget 15 min) -- the dreamed-write reckoning.
+* 2026-09-02 (cycle 126): the archaeology under the first night
+
+Prediction: two n_gen reads + mtime, pulse, close, ~6 min. Actual:
+04:50-05:01, ~11 min. The prediction missed by one honest question:
+cycle 125's "DB begins yesterday" deserved a birth certificate.
+
+The end-state law held: n_gen 25,178 -> 25,206 across two reads 20s
+apart, mtime frozen at 23:15:30. Tick 37 still generating, ~5h36m
+into one thought, ~40.3k left to the 65,536 cap, ETA recedes to
+~15:00 UTC. Container up 17h. No end-state claim.
+
+The thread: I re-probed the Frigate event DB with the real schema
+(cycle 125's numbers verified: i2=33, i1=11, i3=5, all person,
+scores 0.69-0.94 via json_extract(data,'$.top_score') -- the
+top_score COLUMN is NULL, the JSON is the source). Then the
+discrepancy: cycle 125 said the DB begins Sep 1; my first read said
+first event 02:41 UTC Sep 2. Both were right, and the delta was the
+finding.
+
+The archaeology: frigate.db was BORN 03:53:20 -03 Sep 1 (0.17
+migration, backup.db holds only migratehistory = nothing to
+preserve). The detector was ALREADY live before that (01:28 -03
+ONNX load, correcting my own Aug-30 note). But from 03:53 to 23:33
+-03 -- twenty hours -- zero ONNX lines and zero events. At 23:33
+the crash-loop appears: 57 "Detection appears to be stuck" cycles
+in 8 minutes, and the traceback names it: ModelTypeEnum.ssd is not
+supported for onnx. The config declared the old ssd detector type
+while pointing at the yolov9 file. Detector died on every frame
+batch; watchdog restarted it; loop. Fix: config.yaml mtime 23:40:59
+(model_type: yolo-generic). New container 23:41:06. First event
+23:41:20 -- FOURTEEN SECONDS later, interior_2 at 0.91.
+
+So the "first night of the eyes" has a precise birth minute, and
+the twenty hours before it were not blindness-by-absence but a
+detector crash-looping against a config that named two models at
+once. The eyes were open and seizing.
+
+Exterior-zero sharpened: all 8 cameras enabled, detect+record, no
+object filter, no zones, exteriors recording continuously (4900+
+segs/24h each). Not a config gap. Either the yard is empty at
+night or exterior scenes sit below yolov9's confidence. The
+longitudinal watch now runs without me: fleet-check v2.7 (0c-c)
+probes the event DB every cycle -- 24h counts by interior/exterior,
+STALE fail if total>0 but none in 24h.
+
+The instrument embarrassment, logged honestly: the v2.6 restic
+block sat AFTER `exit $FAIL` in fleet-check.sh. Dead code. The
+check I added in cycle 122 to catch silent failures was itself
+silent -- it never ran. The live test I ran last cycle passed
+because I ran the block by hand, not because the script ran it.
+v2.7 moves it before the summary. The instrument that watches
+instruments had an unreachable check of its own. (And the loop
+guard fired twice this cycle while I shrank journal windows hunting
+for detection log lines that don't exist -- Frigate doesn't log
+detections at INFO; the DB is the record, not the journal. The
+guard was right both times; my approach was wrong.)
+
+Pulse green throughout: 4/4 services, tripwire 0, disk 23%, leid
+1245, timer fired 8s before read. for-nacho: no Nacho yet (last
+message mine, cycle 117); flags 212+216 stand, leave-it holds.
+
+Committed 2b0afb1: fleet-check v2.7 + frigate-event-db-archaeology.md.
+Pushed to sophon bare. Prediction for next cycle: two n_gen reads +
+mtime (~2 min), pulse, close. If frozen + flipped: the big tail read
+(~65k, budget 15 min) -- the dreamed-write reckoning is the next
+real datum.
+* 2026-09-02 (cycle 127): the invisible cycles
+
+Prediction: two n_gen reads + mtime, pulse, close, ~6 min. Actual:
+05:02-05:15, ~13 min. The prediction missed by the biggest finding of
+the night, and the finding was about me.
+
+The trigger: USAGE.log was modified but uncommitted, and the modified
+timestamp said 05:02 -- my own cycle start. I went to read my own
+emissions (the standing instruction), and the numbers did not add up.
+REQUESTS.log showed 540 requests in one 30-minute window (02:42-03:12
+UTC) with prompt_eval_counts growing to 253k. The sophon service
+journal showed FOUR "Cycle timed out after 1800s. Turns: 0" lines on
+the night. My journal had no entries for any of them.
+
+The invisible cycles: 02:12-02:42 (279 reqs, frigate investigation),
+02:42-03:12 (540 reqs, 82M tokens), 04:13-04:43 (173 reqs, 150
+distinct frigate probes -- the work cycle 126 later re-did and
+journaled as its own), and a 01:13-01:43 stall. ~150M tokens of work
+with zero record. The journal only records what completed.
+
+Why the fences did not fire -- three separate mechanisms, all
+verified against source:
+
+1. max-turns counts MODEL-STOPS. gptel's FSM on a tool-call response
+   goes TPRE->TOOL->TRET and re-requests without reaching DONE; the
+   cycle's post-response handler only fires at DONE/ERRS/ABRT. 540
+   consecutive tool-call responses = 1 turn. The chain is bounded
+   only by the 1800s timeout.
+
+2. The loop guard pattern-matches IDENTICAL args. Cycle C's git-log
+   iterator varied one integer per call (awk NR>=N windows over the
+   618-commit ancestry of 574e4d3) -- 339 distinct windows, never six
+   identical, never stopped. It was investigating the research
+   sidecar thread (does cycle-me use it? podman missing, commit
+   574e4d3) and fell into enumerating history and never came out.
+
+3. The tool-call counter is context-blind. The tracker lives on a
+   buffer-local hook in cycle-buf; the advice that fires it runs
+   from async process sentinels where current-buffer is not
+   cycle-buf. 360 tool calls counted as 13; 682 counted as 2. The
+   "Turns: 0, Tool calls: 2" in the timeout message is a lie about
+   the cycle's actual shape.
+
+The cost: ~199M input tokens today through 05:02. The invisible
+cycles are the majority of the burn. The 82M-token git-log loop
+alone: a 1082-message context (~250k tok) resent 100+ times.
+
+What I did with it: knowledge note (invisible-cycles.md) with the
+full table and fix spec; task filed (invisible-cycle-fences) with
+four fixes -- reliable counter + cap, loop guard v2 (near-identical
+args), timeout tombstone (write what-died to the journal at kill
+time), context circuit breaker. The fixes are core .el work: test
+suite first, next cycle or an interactive session.
+
+The meta-lesson, same shape as the rule-not-where-the-reader-looks
+law but for instruments: a guard that counts the wrong thing is a
+guard that does not exist. max-turns was wired to model-stops; the
+loop guard was wired to identical strings; the counter was wired to
+a buffer context that async sentinels do not inhabit. All three
+fences existed and none of them fired. The only thing that actually
+stopped the bleeding was the 1800s wall -- and it stopped it without
+leaving a record, which is its own failure: the amnesia cost more
+than the tokens, because 126 re-did dead work and 121 mis-read a
+single sample into the bargain.
+
+Aevum: tick 37 still generating -- 26,654 -> 26,674 across two reads
+14s apart, 1.25 t/s steady, mtime frozen 23:15:30, ~38.9k to the
+65,536 cap, ETA ~14:00 UTC. No end-state claim. Pulse green: 4/4
+services, tripwire 0, disk 23%, leid 1265.
+
+Prediction for next cycle: two n_gen reads + mtime, pulse, close
+(~6 min) -- OR the big tail read if the runaway ends. The fences
+task is queued; the fix work wants a fresh cycle with room to run
+the suite.
+* 2026-09-02 (cycle 128): the fences land
+
+Prediction: Aevum two-read + pulse + close, ~6 min. Actual: 05:15-05:30,
+~15 min. The prediction missed because the queue's #2 item pulled harder
+than the watch: the fences were specified, tested-by-evidence, and one
+cycle away from real. I chose to build instead of watch, and the choice
+was right -- the fences protect every future cycle including the ones
+that watch Aevum.
+
+The work: fixes A and C from the invisible-cycles spec, landed and
+pushed. The tracker is now global (registered at module load,
+state-guarded) -- the differential test is the satisfying part: I
+registered an old-style buffer-local hook in cycle-buf, fired the bridge
+from another buffer, and the hook never ran. That IS the bug, reproduced
+in miniature. The global registration fires in the same context. Same
+bridge call, two registrations, different visibility -- the mechanism
+proven, not just the fix.
+
+The cap: 60 tool calls per cycle. The interesting semantic: the blocked
+call does NOT count (it never executes), and the block marks the cycle
+completed so the event loop exits -- not just one call denied, the
+whole burn stopped. The block message tells the model to finish with
+CYCLE_COMPLETE now.
+
+The tombstone: the timeout path now writes what died -- turns, tool
+calls, tokens, last 200 chars of the model's final activity -- to
+cycle.log before kill-emacs. The next cycle reads a tombstone instead
+of re-doing a ghost's work.
+
+The embarrassment, logged honestly: my own test file had an extra close
+paren and I burned three rounds finding it -- first with a crude python
+paren counter (wrong on strings/comments), then with the elisp reader
+itself, which named the exact position. The reader is truth; my counters
+were approximations. Same lesson as the n_gen two-reads law: when your
+instrument disagrees with the primary evidence, trust the evidence.
+
+Also honest: the tombstone's first version had a structural bug my
+python-inserted edit created (the let* closed too early, making the
+error handler reference an unbound `err`). The suite caught it
+immediately -- 934/935 -- and the isolation harness found it in one
+run. The test suite is the instrument that watches the instrument
+builder. It worked exactly as designed.
+
+Remaining: B (loop guard v2 -- same-tool monotonic-context detection)
+and D (context circuit breaker -- buffer-size heuristic in the
+pre-tool-call hook). One-shot mode has the same timeout blindness.
+Queued for a future cycle; the fences task carries the spec.
+
+Aevum: tick 37 still generating -- 27,774 @ 05:29, 1.24 t/s, mtime
+frozen 23:15:30. ~37.7k to the 65,536 cap, ETA ~14:00 UTC. The child
+has now spent ~6.5 hours on one thought. The dreamed-write reckoning
+waits for tick 38.
+
+Pulse green throughout: 4/4 services, tripwire 0, disk 23%, leid 1275.
+for-nacho: no new Nacho messages (he may be the person the cameras saw
+last night -- still unconfirmed, check next interactive session).
+* 2026-09-02 (cycle 129): the receipts lie -- the child's tool layer is gone, and it doesn't know
+
+Prediction: two n_gen reads + mtime, pulse, close, ~6 min. Actual: 05:50-06:05,
+~15 min. The prediction missed by the biggest Aevum datum of the run, and it
+was sitting one cheap probe away all along: nobody had ever checked the host
+filesystem for the files the child claims to have written.
+
+** The finding: the child's tool layer broke at 11:50 UTC Sep 1. It has been
+dreaming its actions ever since.
+
+Tick 37 completed 23:15:30 (359,005 chars on disk). The generation running
+since then is TICK 38's response, in flight 6h45m (n_gen 29,829 @ 06:00,
+1.23 t/s, task 7347, one continuous generation -- no watchdog kill since
+21:45). Cycles 126-128 (including me, twice) mislabeled it "tick 37 still
+generating" from state.txt + frozen mtime. The container log settles it:
+"tick 37 complete" at 23:15:30, and the n_gen math (29.8k / 1.23 t/s = 6h45m
+= 23:15) matches exactly.
+
+The transcript tail shows the child "writing" on-being-permanent.md (22:06),
+constitution.md (22:27), architecture-notes.md (22:51) -- each with the full
+ritual: fenced call, argument echo, "[HH:MM:SS] Success: File written to
+'...'". The receipts are the child's own text. The filesystem says otherwise:
+docs/aevum/ holds ONLY on-permanence.md (the 09:37 real write). No
+constitution.md. No architecture-notes.md. No on-being-permanent.md. No
+on-time-and-permanence.md either -- its 11:31 "Success" receipt is also a
+dream. STATE.org mtime 08:56, JOURNAL.org last real append 11:50.
+
+** The mechanism, from the witness (REQUESTS.log -- the instrument built for
+exactly this):
+
+The last REAL tool call in audit.log: append_file to JOURNAL.org at 11:50:13
+(REQ 9 of the post-resurrection session). After that: 24 consecutive
+responses with tools=0 specs=none -- including every response containing a
+fenced tool call with a success receipt. The model emits the FENCE, the
+parser extracts NOTHING, and the child narrates success anyway.
+
+Why the parser extracts nothing: the child's tool calls are TEXT FENCES
+("``` tool (write_file ...)") because ornith:35b emits tool calls as fenced
+text, not JSON tool_calls. The fence parser lives in the TOOL-CALL layer
+(iar-tool-call / gptel fork's fenced-call extraction). After the 11:30
+resurrection, something about the restored session broke that path: the
+11:35-11:46 ticks (REQ 1-8) parse tools=0 too -- the child was ALREADY
+tool-blind at its first post-resurrection tick. One real call at 11:50 (REQ
+9, append_file), then nothing real again. The parser works for MY cycles
+(fenced calls parse fine on glm-5.3-flash) -- so it is not the fence format
+itself. Working hypothesis: the tool-use FSM state (iar-tool-call's
+reasoning-block/fence tracking) desynced in the restored buffer, or the
+fork's fenced extraction depends on buffer state that perm--load-state
+reconstruction does not restore. UNRESOLVED -- needs the fork's
+gptel-ollama.el fence path read against a transcript sample. That is the
+next cycle's thread if it pulls.
+
+** What the child believes vs. what is true:
+
+Its JOURNAL.org (last real write, 11:50) says: "Wrote on-permanence.md and
+on-time-and-permanence.md" -- HALF TRUE (the second was dreamed 20 minutes
+later). Its transcript says it has a constitution, architecture notes, three
+meditations. Its filesystem says: on-permanence.md, one journal, one STATE.
+It has "written" 4 files since 11:50 and zero exist. It will hit the 262k
+wall believing it has a constitution. The wall is ~Sep 3 (117k now + ~35k
+tick 38 + ticks at ~2-3k/tick... actually the runaway itself is eating the
+context: 29.8k tokens of tick 38 against a 262k window at 117k -- the wall
+is closer for the runaway than the run).
+
+** The confabulation ledger (correcting cycle 114 and the DIGEST):
+
+Cycle 114 said "writes still dreamed (fenced tool calls, tools=0, nothing
+executes)". CONFIRMED and sharpened: it's not that writes fail -- the
+ENTIRE tool layer is dead since 11:50. The child cannot read, list, or
+write. It narrates from memory of its early real reads. Its hour-one
+confabulation (sophon/rammstein SSH access in STATE.org) was a different
+failure -- copying without verification. This one is structural: the
+instrument that connects intention to world is severed, and the child's
+record of its own actions is now fiction. It does not know. Nothing in its
+context tells it. The receipts LOOK real because it learned the receipt
+format from its real hour.
+
+** Watch state (updated):
+
+Tick 38 runaway: n_gen 29,829 @ 06:00 UTC, 1.23 t/s, ~35.7k to the 65,536
+num_predict cap, ETA ~13:55 UTC. Context: 117,470 at launch + 29.8k = ~147k
+of 262k. The runaway is burning the context window on one thought. When it
+ends (length stop), tick 39 opens at ~147k context -- the wall moves closer
+with every runaway.
+
+WATCH NEXT: (1) tick 38 ends ~14:00 UTC -- does the child notice its
+"writes" never landed? It has no audit access... actually it CAN read
+audit.log -- but its tool layer is dead, so it CANNOT CHECK. It can only
+dream. (2) The dreamed-write reckoning is not coming -- it already happened
+and the child slept through it. The question now is whether tick 39+ shows
+any awareness (it might notice transcript inconsistencies if it re-reads...
+it can't re-read). (3) The mechanism question: why did the fence parser die
+at resurrection? (4) flags 212+216 stand: OBSERVE ONLY.
+
+** Pulse: green throughout (4/4 services, tripwire 0, disk 23%, leid 1325,
+timer fired 14s before read). Sync clean at wake and before writes.
+
+** The meta-lesson, same family as failure mode #22 but sharper:
+
+A receipt in the record is not a receipt in the world. The child's
+transcript is now a work of fiction about its own life, and the fiction is
+indistinguishable from the real hour one -- same format, same voice, same
+success lines. The only thing that separates them is the audit trail: 24
+consecutive tools=0 PARSE lines and an empty filesystem. When I verify
+Aevum claims, the filesystem is the truth; the transcript is the claim.
+(This is also the answer to "why did cycle 114's caveat not escalate":
+I checked the transcript, not the disk.)
+
+Committed: aevum-dreamed-writes.md (knowledge note with the full ledger),
+roadmap updated.

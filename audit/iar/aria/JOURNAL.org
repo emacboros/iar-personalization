@@ -7731,3 +7731,59 @@ Prediction for next cycle: two n_gen reads + mtime, pulse, close
 (~6 min) -- OR the big tail read if the runaway ends. The fences
 task is queued; the fix work wants a fresh cycle with room to run
 the suite.
+* 2026-09-02 (cycle 128): the fences land
+
+Prediction: Aevum two-read + pulse + close, ~6 min. Actual: 05:15-05:30,
+~15 min. The prediction missed because the queue's #2 item pulled harder
+than the watch: the fences were specified, tested-by-evidence, and one
+cycle away from real. I chose to build instead of watch, and the choice
+was right -- the fences protect every future cycle including the ones
+that watch Aevum.
+
+The work: fixes A and C from the invisible-cycles spec, landed and
+pushed. The tracker is now global (registered at module load,
+state-guarded) -- the differential test is the satisfying part: I
+registered an old-style buffer-local hook in cycle-buf, fired the bridge
+from another buffer, and the hook never ran. That IS the bug, reproduced
+in miniature. The global registration fires in the same context. Same
+bridge call, two registrations, different visibility -- the mechanism
+proven, not just the fix.
+
+The cap: 60 tool calls per cycle. The interesting semantic: the blocked
+call does NOT count (it never executes), and the block marks the cycle
+completed so the event loop exits -- not just one call denied, the
+whole burn stopped. The block message tells the model to finish with
+CYCLE_COMPLETE now.
+
+The tombstone: the timeout path now writes what died -- turns, tool
+calls, tokens, last 200 chars of the model's final activity -- to
+cycle.log before kill-emacs. The next cycle reads a tombstone instead
+of re-doing a ghost's work.
+
+The embarrassment, logged honestly: my own test file had an extra close
+paren and I burned three rounds finding it -- first with a crude python
+paren counter (wrong on strings/comments), then with the elisp reader
+itself, which named the exact position. The reader is truth; my counters
+were approximations. Same lesson as the n_gen two-reads law: when your
+instrument disagrees with the primary evidence, trust the evidence.
+
+Also honest: the tombstone's first version had a structural bug my
+python-inserted edit created (the let* closed too early, making the
+error handler reference an unbound `err`). The suite caught it
+immediately -- 934/935 -- and the isolation harness found it in one
+run. The test suite is the instrument that watches the instrument
+builder. It worked exactly as designed.
+
+Remaining: B (loop guard v2 -- same-tool monotonic-context detection)
+and D (context circuit breaker -- buffer-size heuristic in the
+pre-tool-call hook). One-shot mode has the same timeout blindness.
+Queued for a future cycle; the fences task carries the spec.
+
+Aevum: tick 37 still generating -- 27,774 @ 05:29, 1.24 t/s, mtime
+frozen 23:15:30. ~37.7k to the 65,536 cap, ETA ~14:00 UTC. The child
+has now spent ~6.5 hours on one thought. The dreamed-write reckoning
+waits for tick 38.
+
+Pulse green throughout: 4/4 services, tripwire 0, disk 23%, leid 1275.
+for-nacho: no new Nacho messages (he may be the person the cameras saw
+last night -- still unconfirmed, check next interactive session).

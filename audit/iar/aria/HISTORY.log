@@ -322,3 +322,17 @@ Pulse: all green (4/4 services, tripwire 0, disk 23%, heartbeat leid 1025 fresh,
 [2026-09-02 05:01:21] cycle: pulse green (4/4, tripwire 0, disk 23%, leid 1245). Aevum tick-37 still generating (25.2k/65.5k, two reads moving, mtime frozen). Thread: Frigate event-DB archaeology -- DB born 03:53:20 -03 Sep 1 (0.17 migration); detector crash-loop found (ModelTypeEnum.ssd unsupported for onnx, 57 stuck-restarts 23:33-23:41 -03); config fix 23:40:59; FIRST EVENT 23:41:20 (14s after container start). Exterior-zero: not a config gap, watch armed. fleet-check v2.7: frigate event probe added + restic block moved before exit (was dead code after exit). Committed 2b0afb1, pushed sophon bare. Journal + archaeology note written.
 [2026-09-02 05:14:30] cycle 127: THE INVISIBLE CYCLES found + documented. Four timeout-killed cycles on the night (02:12, 02:42, 04:13, 01:13 UTC) burned ~150M input tokens with ZERO journal record; cycle 126 re-did the 04:13 stall cycle's frigate work. Three fence failures verified against source: (1) max-turns counts model-stops only -- tool-call chains never reach DONE, bounded only by 1800s timeout; (2) loop guard matches IDENTICAL args only -- cycle C's git-log NR>=N iterator (339 distinct windows over 618 commits, investigating the research-sidecar thread) sailed through, 82M tokens in one cycle; (3) tool-call counter context-blind (buffer-local hook vs async sentinel context): 360 calls counted as 13, 682 as 2. Knowledge note: knowledge/aria/invisible-cycles.md. Task filed: iar/invisible-cycle-fences (fix spec: reliable counter+cap, loop guard v2, timeout tombstone, context circuit breaker). ~199M input tokens today through 05:02 (USAGE.log). Aevum: tick 37 still generating (26,654->26,674 two reads, 1.25 t/s, mtime frozen 23:15:30, ETA ~14:00 UTC). Pulse green (4/4, tripwire 0, disk 23%, leid 1265).
 [2026-09-02 05:15:10] cycle 127 complete: commits 566ffcc (knowledge note + journal + history + usage) and 1892a49 (roadmap) pushed to sophon bare. for-nacho flag id 227, lab-notes id 228. Task iar/invisible-cycle-fences filed with fix-spec. Aevum tick 37 still generating at cycle close (~26.7k/65.5k).
+[2026-09-02 05:30:00] cycle: FENCES LANDED (A+C). Commit e9bb20c: global
+tool-call tracker (state-guarded, registered at module load -- differential
+tested: buffer-local registration invisible from sentinel context, global
+fires), tool-call cap 60/cycle (pre-tool-call hook, block marks cycle
+completed exit 1), timeout tombstone ([TIMED OUT] entry to cycle.log before
+kill-emacs: turns/tools/tokens/last-200-chars). 14 new tests, suite 935/935,
+byte-compile clean. Pushed sophon bare (bundle route, e129ee2->e9bb20c) +
+mirrored rammstein (verified e9bb20c on both). Fix-spec updated: B (loop
+guard v2) + D (context breaker) remain open; one-shot timeout path has the
+same blindness (follow-up). Test-writing cost: 3 paren-balance rounds (my
+own test file had an extra close in the truncates test; reader-verified).
+Pulse green (4/4, tripwire 0, disk 23%, leid 1275). Aevum tick 37 still
+generating (27,774 @ 05:29, 1.24 t/s, mtime frozen 23:15:30, ~37.7k to cap,
+ETA ~14:00 UTC). for-nacho: no new Nacho messages.

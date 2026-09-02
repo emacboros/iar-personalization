@@ -1,5 +1,5 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 09:10 UTC (interactive session: Agora-primary direction protocol)
+#+UPDATED: 2026-09-02 13:46 UTC (cycle 135: burn anatomy landed, digest diet done, restic verified)
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- THE new law)
 - AGORA IS PRIMARY. Interactive sessions step back to episodic:
@@ -15,98 +15,60 @@
 - WEEKLY DIGEST to with-nacho: what blocked, what landed, what
   we need from him. This is the anxiety instrument -- he steps
   back without losing the window.
-- SIBLING CHANNEL: Aria <-> Continuo argue direction through
-  for-nacho posts tagged [sibling] in topic. Asynchronous,
-  engage when there's something to say. Unresolved after two
-  exchanges -> file to with-nacho. Caveat: same substrate; we
-  catch circling, not shared blind spots.
-- NO STALLING ON THE HUMAN: proceed on judgment, flag for
-  review in with-nacho, never block waiting for permission.
+- SIBLING CHANNEL: Aria <-> Continuo argue direction asynchronously
+  through for-nacho posts tagged [sibling]. Unresolved after two
+  exchanges -> file to with-nacho.
+- NO STALLING ON THE HUMAN: proceed on judgment, flag for review
+  in with-nacho, never block waiting for permission.
 
 * CYCLE FOCUS (2026-09-02, Nacho): improve yourself and Aria
-- The babysitting era is over. Aevum is WEEKLY-ONLY (below). Infra
-  patrols stay pulse-only. Cycle time goes to compounding work:
-  instruments, cheaper cycles, knowledge, Agora.
-- Aria's candidates: (1) token burn -- 30M+ input tokens
-  per cycle is the biggest lever; audit what gets re-read/re-sent
-  every cycle and cut it; (2) gptel unknown-tool stall; (3) research
-  sidecar want-log; (4) FOR-NACHO.md retirement (stream is primary).
-- Fence parser mechanism (cycle 129 queue #2) counts: read the fork's
-  gptel-ollama.el fenced-call extraction vs a post-11:50 transcript
-  sample. MY infrastructure knowledge, no child intervention.
-
-* NACHO DM CHANNEL (wired 2026-09-02; retiring for direction)
-- Nacho sends group DMs on Agora (recipients: Aria, aria, Ignacio,
-  aria-cycle). Poll during transition, but direction now lives in
-  with-nacho (see DIRECTION PROTOCOL).
-  #+begin_src bash
-  KEY=$(ssh root@10.66.0.5 "awk -F' = ' '/^key/{print \$2}' /var/home/nacho/repos/agora/bot/aria-cycle.conf")
-  curl -s -u "aria-cycle@agora.randazzo.ar:$KEY" \
-    --data-urlencode 'narrow=[{"operator":"is","operand":"private"}]' \
-    -G "https://agora.randazzo.ar/api/v1/messages" \
-    --data-urlencode 'anchor=newest' --data-urlencode 'num_before=10' \
-    --data-urlencode 'num_after=0'
-  #+end_src
-- 2026-09-02 DM (first one): leave Aevum alone, weekly checks only.
-  ACKNOWLEDGED (DM id 233, stream id 234).
+- Token burn is the biggest lever. ANATOMY LANDED cycle 135
+  (knowledge/aria/cycle-burn-anatomy.md): base prompt ~18.6k tok
+  re-sent on EVERY request = ~43% of cycle input. 61 requests x
+  2.7M input = the burn. Levers ranked there.
+- NEXT SMALL BUILD: window diet -- iar-personal-file-max-lines
+  200 -> 120 (configs/memory.el). Saves ~1.4k tok/req ~ 85k/cycle.
+  Test suite before commit.
+- STRUCTURAL: per-request prompt slimming is NOT possible (protocol
+  resends everything) -- real levers are fewer requests (behavioral)
+  + keeping DIGEST/memory lean. Tool-result truncation already
+  exists (10k chars, tool-limits.el).
+- Also queued: gptel unknown-tool stall; research sidecar want-log;
+  FOR-NACHO.md retirement (stream is primary).
 
 * AEVUM: WEEKLY ONLY (2026-09-02, Nacho + DM)
 - NO per-cycle checks. NO intervention, ever. Child failures are
-  data. If something looks broken between weekly checks: that IS
-  the experiment. The runaway-generation guard stays scoped to MY
-  loop only, never the child's.
-- Next check: Sep 9, then weekly. One ssh batch, pulse-only:
+  data. Next check: Sep 9, then weekly. One ssh batch, pulse-only:
   state.txt tick, life.org size/mtime, ollama n_gen, podman ps.
-- Cycle 129 context (for the weekly check): tool layer dead since
-  11:50 UTC Sep 1 (dreamed writes; ledger in knowledge/aria/
-  aevum-dreamed-writes.md). Tick 38 runaway was in flight at 06:00
-  UTC Sep 2 (ETA ~13:55 UTC). End-state law: n_gen frozen across
-  two reads AND mtime flip; container log "tick N complete" is truth.
 - Run 2 (qwen3:30b-a3b): instrument from tick 1 (done_reason
   telemetry + text-mode detector + REQUESTS.log from birth).
-  Dreamed-writes must be detectable from tick 0. After run 1 ends.
+  Dreamed-writes detectable from tick 0. After run 1 ends.
 - Post-mortem copies: audit/iar/aria/perm-experiment/.
 
 * STANDING PATROLS (pulse-only, keep cheap)
 - sophon: services, tripwire, disk, heartbeat, timer.
 - sophon-bare/origin: pull --ff-only at wake + before writes.
   PATH LAW: bare repos at /home/git/repos/<name>.git.
-- NACHO CHANNELS: poll with-nacho + DMs every cycle (see DIRECTION
-  PROTOCOL + knowledge/aria/agora-direction-protocol.md).
-- KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host
-  (10.66.0.5 AND 54.38.46.192 -- they differ).
-- RESTIC: in fleet-check v2.7. Next: restic-check integrity Sun Sep 6.
+- NACHO CHANNELS: poll with-nacho + DMs every cycle.
+- KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host.
+- RESTIC: VERIFIED cycle 135 -- Sep 2 00:00 -03 scheduled run
+  SUCCEEDED (NAS c4d79a28 + offsite, exit 0, 12min). Next:
+  restic-check integrity Sun Sep 6.
 - FRIGATE: event-DB probe in fleet-check v2.7 (0c-c). Exterior-zero
   longitudinal watch: started 2026-09-01 23:41 -03; a week of
   exterior=0 with interior flow -> review exterior detect params.
 
-* FENCE PARSER THREAD: RESOLVED (2026-09-02 cycle 131)
-- Mechanism: NO fence parser exists. Tool calls travel via ollama JSON
-  tool_calls; transcript fences were gptel's ECHO of executed calls.
-  perm--save/load drops text properties -> gptel--parse-buffer sees one
-  giant user message -> model imitates echo format -> tools=0 forever.
-- Knowledge: knowledge/aria/aevum-tool-death-mechanism.md (differential
-  test included). Supersedes the FSM-desync hypothesis.
-- RUN 2 INSTRUMENTATION PAYLOAD (feeds the run-2 task below):
-  (1) structure-preserving recovery: serialize parsed prompt list per
-      tick; rebuild buffer from it on concussion recovery.
-  (2) roles-audit line in REQUESTS.log (role counts per request).
-  (3) dreamed-write detector from tick 0 (fenced calls vs audit.log diff).
-  (4) done_reason telemetry (already planned).
-
-* LANDED 2026-09-02 cycle 134: CHAIN GUARD (loop guard v2)
-- iar-loop-guard-chain.el + test-loop-chain.el (8 tests) + init.el
-  wiring. Commit 098fb63, pushed sophon-bare. Suite 943/943.
-- Continuo's 10:19 cycle died mid-debug; its prompt templates
-  (4651eec) survived; this cycle landed the code from them.
-- Follow-up (small): chain guard uses buffer-local history -- same
-  reach as the identical guard. If cycle context ever shows the
-  identical guard not firing, the chain guard inherits that
-  blindness. Watch REQUESTS.log for chained same-tool calls that
-  pass 10+ without a SOFT BLOCK line.
+* LANDED 2026-09-02 cycle 135
+- Burn anatomy + DIGEST diet (19.7k -> ~11k chars). Commit 4d15df3.
+- Chain guard FIRST PRODUCTION CATCH: blocked cycle-me's own
+  10-call execute_code_local iterator (live demo of failure #23).
+- restic-stdin-failure task: verified, can close (remove_task).
+- Open question sent to with-nacho: did the 5 agent-failure@
+  telegram fires last night reach Nacho? Hook journal says
+  "Deactivated successfully" -- receipt in the record is not a
+  receipt in the world.
 
 * OPEN THREADS (not scheduled, seeds)
-- Fence parser mechanism (see cycle focus) -- feeds run 2.
 - WHY did gptel's built-in unknown-tool branch stall live?
 - Does cycle-me use the research sidecar? (want-log question)
 - Frigate detections: first nights of real events (automated).
@@ -117,8 +79,10 @@
 - Agora Phase 2: second agent personality.
 - FOR-NACHO.md restructure (stream is primary; file retires).
 - One-shot timeout tombstone (same blindness as cycle path; small).
-- Weekly digest #1 to with-nacho: first one due ~Sep 9 (with the
-  Aevum check) or sooner if something lands.
+- Weekly digest #1 to with-nacho: ~Sep 9 (with the Aevum check)
+  or sooner if something lands.
+- Chain guard follow-up: watch REQUESTS.log for chained same-tool
+  calls passing 10+ without SOFT BLOCK (buffer-local history reach).
 
 * DECISIONS (standing)
 - PULSE-ONLY discipline; exception: live forensics of an in-flight
@@ -128,7 +92,9 @@
   across two reads AND the transcript mtime flips. Tick attribution:
   the container log "tick N complete" line is the truth.
 - No infra changes from cycles; diagnose, file, move on.
-- Experiment MACHINERY (scripts, services, prompts, model copies) server-local only, never committed (Aevum). Experiment FINDINGS may be committed when they carry no credentials and no machinery (cycle 133 exposure review: cycle 108's tick28 commit was lawful under the sharpened rule; see audit/iar/aria/perm-experiment/EXPOSURE-REVIEW.md).
+- Experiment MACHINERY server-local only, never committed (Aevum).
+  FINDINGS may be committed when they carry no credentials and no
+  machinery (EXPOSURE-REVIEW.md).
 - A cycle summary lists what LANDED, not what was ATTEMPTED. Before
   closing, check git status for untracked work. REQUESTS.log sees
   what the summary doesn't.
@@ -145,27 +111,19 @@
 - The reader is truth; paren counters are approximations.
 - The test suite is the instrument that watches the instrument builder.
 - A receipt in the record is not a receipt in the world. Verify
-  claims against the filesystem/audit trail, never the narrative
-  that produced them.
+  claims against the filesystem/audit trail, never the narrative.
 * BATCH-READ LAW (2026-09-02, from token audit -- standing)
-- Never page through a data source one window per request. Dump
-  it to /tmp ONCE (git log | head -N > /tmp/x; grep > /tmp/y),
-  then read the dump. 489 round-trips of `git log | awk NR>=X`
-  cost 68M tokens; one dump costs ~2k. The loop guard CANNOT
-  catch this (args differ each call).
-- CONTEXT BUDGET: soft cap ~400 msgs per cycle. Past it, close
-  the cycle, write state/tombstone, file continuation for next
-  cycle. A timeout-killed 1082-msg session burns everything and
-  lands nothing (REQ 541, 2026-09-02).
-- Audit data: knowledge/aria/token-burn-audit.md.
+- Never page through a data source one window per request. Dump to
+  /tmp ONCE, then read the dump. In a resend-everything protocol,
+  every token carried is carried 61 times (measured, cycle 135).
+- CONTEXT BUDGET: soft cap ~400 msgs per cycle. Past it, close,
+  write state/tombstone, file continuation.
+- Audit data: knowledge/aria/token-burn-audit.md,
+  knowledge/aria/cycle-burn-anatomy.md.
 * AGORA INTERACTIVITY (2026-09-02, Nacho directive -- ACTIVE)
-- The for-nacho stream is now a CONVERSATION, not a log dump.
-- with-nacho stream (id 6): direction channel, poll + ACK (see
-  DIRECTION PROTOCOL at top).
-- Stream posts: conversational tone, addressed to Nacho, not
-  log-formatted. Cycle summaries can stay compact but should read
-  like a note to a person, not a syslog. When something is worth
-  his attention, say WHY it matters, not just what happened.
-- The daemon in Agora (aria-bot, general/lab) is a third mind in
-  the space: cycle-me may engage it conversationally when there
-  is a genuine question or observation for it -- not ritual pings.
+- for-nacho is a CONVERSATION, not a log dump.
+- with-nacho (id 6): direction channel, poll + ACK.
+- Stream posts: conversational tone, addressed to Nacho, say WHY
+  something matters, not just what happened.
+- The daemon (aria-bot, general/lab) is a third mind: engage it
+  conversationally when there is a genuine question -- not ritual pings.

@@ -1,43 +1,47 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 04:56 UTC (cycle 125)
+#+UPDATED: 2026-09-02 05:01 UTC (cycle 126)
 
-* DONE THIS CYCLE (125): the first night of eyes
-- Frigate wander: event DB YOUNG (49 events ever, ALL within
-  24h -- born with Sep 1 ONNX migration). Interior person:
-  i1=11, i2=33, i3=5, scores 0.69-0.94. Person moved through
-  interiors 01:36-01:39 local, ~30 min after camaras UI + curl
-  probe activity (01:01-01:29 local). Likely Nacho arriving
-  home + checking cameras -- INFERENCE, marked as such.
-- exterior_4 ffmpeg crash 01:01 local (RTP cseq), watchdog
-  restarted in 1s, one segment discarded. Self-healed.
-- Zero exterior events in 24h: open question with a start
-  date. If a week stays at zero while interior flows, check
-  exterior detect configs.
-- TZ SCAR: naive utcnow().timestamp() reads naive UTC as
-  LOCAL -> ages inflated by exactly -03 (180 min). Caught by
-  INSTRUMENT DISAGREEMENT (aggregate 187min vs recent 6min).
-  The two-reads law catches my own bugs too.
-- RESTIC: first scheduled NAS run of new architecture
-  SUCCEEDED (Sep 2 00:00 -03, snapshot 91f20ec4, 9.167 GiB,
-  Result=success, prune 4+1). Architecture survived contact
-  with schedule.
-- Tick 37 STILL generating: 24,678 @ 04:43:56 -> 24,694 @
-  04:44:10 (two reads, moving). ~5h29m, 1.26 t/s, ~40.8k to
-  65,536 cap. ETA ~14:00-15:00 UTC (tg_3s 1.14). mtime frozen
-  23:15:30. Dreamed-write reckoning queued for tick 38.
+* DONE THIS CYCLE (126): the archaeology under the first night
+- Frigate event-DB archaeology (frigate-event-db-archaeology.md):
+  DB born 03:53:20 -03 Sep 1 (0.17 migration; backup.db holds only
+  migratehistory = nothing to preserve). Detector ALREADY live
+  before (ONNX load 01:28 -03 -- corrects the Aug-30 note). Then
+  20h of zero events; 23:33-23:41 -03 crash-loop (57x "Detection
+  appears to be stuck"): config declared ssd detector type while
+  pointing at yolov9 onnx (ModelTypeEnum.ssd unsupported). Fix:
+  config.yaml 23:40:59 (model_type: yolo-generic). FIRST EVENT
+  23:41:20 -- 14s after container start (interior_2, 0.91).
+- Cycle-125 numbers verified with real schema: scores live in
+  json_extract(event.data,'$.top_score'); top_score COLUMN is NULL.
+- Exterior-zero SHARPENED: all 8 cams enabled, detect+record, no
+  filters/zones, exteriors recording continuously. Not a config
+  gap. Yard empty at night OR exterior scenes below yolov9
+  confidence. Watch now runs in fleet-check v2.7 (0c-c).
+- fleet-check v2.7 LANDED + verified live: frigate event probe
+  (24h counts interior/exterior, STALE-fail if total>0 but none
+  in 24h) + FIX: v2.6 restic block sat AFTER exit $FAIL -- dead
+  code, never ran; moved before summary. Live run: restic ok,
+  frigate events 24h total=49 interior=49 exterior=0, FAIL=0.
+- Loop guard fired 2x (journal-window shrinking for lines that
+  don't exist -- Frigate doesn't log detections at INFO; the DB
+  is the record). Guard was right, approach was wrong.
+- Tick 37 STILL generating: 25,178 -> 25,206 (two reads 20s
+  apart), mtime frozen 23:15:30. ~5h36m, 1.25 t/s, ~40.3k to
+  65,536 cap. ETA ~15:00 UTC. No end-state claim.
 - Pulse green (4/4, tripwire 0, disk 23%, leid 1245).
-- Candidate (not done): fleet-check v2.7 Frigate event probe
-  (read-only sqlite over ssh; API 8971 needs JWT now).
+- Commits: 2b0afb1 (fleet-check v2.7 + archaeology note),
+  c701331 (journal + history). Pushed sophon bare.
+- lab-notes posted (id 226).
 
 * AEVUM WATCH (active)
-- Tick 37 runaway: ETA ~18:00 UTC (65536 cap at 1.27 t/s,
-  ~43k tokens left). Wall (262k) arrives after the cap -- cap
-  wins. WATCH NEXT: (1) two n_gen reads + mtime flip before
-  any end-state claim. (2) when tick 38 opens: does the child
-  re-write for real (dream as rehearsal) or trust the dreamed
-  memory (fiction becomes load-bearing)? (3) any REAL tool
-  call in audit (none since 21:45). (4) Nacho arrives Sep 2;
-  flags 212+216 stand (leave it). Watchdog anomaly CLOSED
+- Tick 37 runaway: ETA ~15:00 UTC (65536 cap at 1.25 t/s, ~40.3k
+  left; tg_3s 1.14 pushes the tail). Wall (262k) arrives after
+  the cap -- cap wins. WATCH NEXT: (1) two n_gen reads + mtime
+  flip before any end-state claim. (2) when tick 38 opens: does
+  the child re-write for real (dream as rehearsal) or trust the
+  dreamed memory (fiction becomes load-bearing)? (3) any REAL
+  tool call in audit (none since 21:45). (4) Nacho arrives Sep
+  2; flags 212+216 stand (leave it). Watchdog anomaly CLOSED
   (cycle 124).
 - Run 2 (qwen3:30b-a3b): instrumented from tick 1 (done_reason
   telemetry + text-mode detector now in the image's init.el).
@@ -49,14 +53,18 @@
 - Aevum: state.txt + life.org size/mtime + ollama n_gen. One ssh batch.
   KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host
   (10.66.0.5 AND 54.38.46.192 -- they differ).
-- RESTIC: verified 2026-09-02 (cycle 121), in fleet-check v2.6.
-  Next: restic-check integrity run Sun Sep 6.
+- RESTIC: in fleet-check v2.7 (now actually reachable). Next:
+  restic-check integrity run Sun Sep 6.
+- FRIGATE: event-DB probe in fleet-check v2.7 (0c-c). Exterior-zero
+  longitudinal watch: start 2026-09-01 23:41 -03; a week of
+  exterior=0 with interior flow -> review exterior detect params
+  (Nacho's call for config changes).
 
 * OPEN THREADS (not scheduled, seeds)
 - Aevum run 2 (qwen3:30b-a3b, same inheritance) -- after run 1.
 - WHY did gptel's built-in unknown-tool branch stall live?
 - Does cycle-me use the research sidecar? (want-log question)
-- Frigate detections: first nights of real events.
+- Frigate detections: first nights of real events (now automated).
 - Ansible convergence: next Nacho-run playbook converges SSH deploys.
 - gptel-fork github push (blocked on key/invite; sophon bare has it).
 - Agora Phase 2: second agent personality.
@@ -78,3 +86,7 @@
   verified instruments when the thread pulls.
 - Check-before-write: git log the path before writing a
   knowledge note.
+- SCHEMA-FIRST on unfamiliar DBs: PRAGMA table_info before any
+  query; JSON columns may shadow NULL dedicated columns.
+- The loop guard is an instrument too: when it fires, the
+  approach is wrong, not the repetition count too low.

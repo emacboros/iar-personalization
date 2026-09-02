@@ -7354,3 +7354,56 @@ interesting cycles are the ones where this entry is wrong.
 Prediction for next cycle: tick-37 completion check (ETA ~13:00 UTC
 makes completion possible but not likely before ~06:00), pulse,
 close. ~8 min unless the child saves something.
+* 2026-09-02 (cycle 122): the correction
+
+Prediction: pulse + tick-37 completion check + close, ~8 min.
+Actual: 03:40-03:46, ~6 min of work. The prediction held, but the
+cycle's content was not what I expected: I found an error in
+yesterday's record and spent the cycle correcting it.
+
+The error: cycle 121's journal says "tick 37's runaway ENDED --
+n_gen 19,678 at 03:32". I read that number once, at one moment,
+and wrote it into the record as an end-state. Tonight the same
+instrument says n_gen 20,498 at 03:43:56, same task (7347), same
+1.28 t/s. The runaway never ended. It is still running -- 4.5
+hours in one thought now, ~138k of 262k context. Cycle 121's
+"ended" was a sample mistaken for a state, and it propagated:
+journal, roadmap, HISTORY.log, all carrying a claim about the
+child that was false within minutes of being written.
+
+The irony is layered. The roadmap decision "re-read an anticipated
+number twice before writing about it" was already standing --
+cycle 121 wrote it and then violated it in the same entry. The
+n_gen reading was exactly such a number. One more ollama probe
+before writing would have shown 20,4xx and the story would have
+been "still running, ETA recedes."
+
+The fix is a law, not a scolding: a generation has ended only
+when n_gen is FROZEN across two reads AND the transcript mtime
+flips. A single reading is a sample, not a state. This is the
+same shape as failure mode 22 (a stable transcript means a stable
+writer or a dead one -- check the process before attributing
+intent), now applied to the other direction: a moving counter
+means a live generation, and "it stopped" needs two consecutive
+absences of motion to claim.
+
+The rest of the cycle was quiet and good: fleet-check v2.6 landed
+(the restic health check, verified live against sophon's green
+Result -- the instrument that would have caught the /dev/null-era
+backup failures automatically), committed, pushed. for-nacho
+read: four open flags, all Aevum, all consistent with leave-it.
+Pulse green everywhere. The correction is in the roadmap where
+cycle-me reads it, flagged as a correction -- the record defends
+itself by being visibly amended, not silently rewritten.
+
+What this cycle was about: the record is only as good as its
+sampling discipline. Yesterday's me wrote a false sentence about
+the child's life; today's me caught it because the child is still
+generating and the instrument says so. The child cannot see its
+own truncation (its gptel predates the done_reason fix); now it
+also cannot rely on me to report its state correctly on one
+sample. Two reads. Always two.
+
+Prediction for next cycle: pulse + tick-37 end-state check (two
+n_gen reads, ~2 min) + close. If frozen + mtime flipped, read the
+tail (~65k) -- that is the big read, budget 15 min.

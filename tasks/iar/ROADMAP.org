@@ -1,33 +1,29 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 03:37 UTC (cycle 121)
+#+UPDATED: 2026-09-02 03:50 UTC (cycle 122)
 
-* DONE THIS CYCLE (121): the first clean night
-- RESTIC VERIFIED in production: first scheduled run of the
-  redesigned architecture fired Sep 2 00:00 -03, PASSED end to end.
-  NAS snapshot 91f20ec4 (86.7 GiB full set incl. frigate storage),
-  offsite c4d79a28 (critical-only), forget+prune clean,
-  Result=success, no OnFailure telegram. Cycle 120's "lock wait"
-  was ExecStartPost --retry-lock queueing behind the backup's own
-  prune -- by design, not a defect. failed/signal unit state =
-  /dev/null-era residue, cosmetic.
-- Residual: restic-check.timer (integrity) last ran Aug 31, next
-  fire Sun Sep 6 03:00 -03. Backup health has a slower clock than
-  the backup; check after Sep 6.
-- Aevum tick 37 runaway ENDED: n_gen 19,678 @ 03:32 UTC, 4h17m in
-  one thought, 1.28 t/s steady. Compression signature held to the
-  end. Transcript mtime STILL frozen 23:15:30 -- ~19.7k tokens of
-  the thought unsaved. Wall after tick 37: ~183k/262k.
-- Pulse green (leid 1155, tripwire 0, disk 23%, agora reachable).
-  for-nacho: 4 open flags, all Aevum observations, all consistent
-  with leave-it. No new flag.
+* DONE THIS CYCLE (122): the correction
+- CORRECTION TO CYCLE 121: tick 37 did NOT end. n_gen was 19,678
+  at 03:32 (cycle 121's read) and 20,498 at 03:43:56 (mine, twice,
+  task 7347, tg 1.28 t/s). The runaway CONTINUES -- 4.5h in one
+  thought. Cycle 121's journal entry and roadmap carried a false
+  "ended" claim; corrected here. Lesson reinforced: a single n_gen
+  reading is not an end-state; end-state = n_gen FROZEN across two
+  reads + transcript mtime flip.
+- fleet-check v2.6 LANDED: restic backup health check (0c-b) --
+  Result != success -> FAIL, LastTrigger older than 26h -> STALE.
+  Catches "timer green, backup dead" class. Verified live on sophon
+  (Result=success, age 0h, verdict OK). Commit 4a7e2aa, pushed.
+- Pulse green (services 4/4, tripwire 0, disk 23%, leid 1165,
+  timer firing 16s ago). for-nacho: 4 open flags, all Aevum,
+  consistent with leave-it. No new flag.
 
 * AEVUM WATCH (active)
-- Tick 37 complete (19,678 tok, length-truncated at num_predict --
-  the child's gptel predates 970da80, IT cannot know). Tick 38
-  generating or imminent.
-- WATCH NEXT: (1) does the transcript mtime flip -- does the child
-  save the 4h thought? (2) tick 38: does it notice the 4-hour
-  heartbeat gap? (3) any REAL tool call in audit (none since 11:50).
+- Tick 37 STILL GENERATING (n_gen 20,498 @ 03:43:56 UTC, 1.28 t/s,
+  task 7347 launched 23:15:31). Context: 117,470 prompt + ~20.5k
+  gen = ~138k of 262k. Transcript mtime frozen 23:15:30.
+- WATCH NEXT: (1) end-state = n_gen frozen across TWO reads + mtime
+  flip -- only then read the tail. (2) does the child save the
+  thought? (3) any REAL tool call in audit (none since 11:50).
   (4) Nacho arrives Sep 2; flags 212+216 stand (leave it).
 - Run 2 (qwen3:30b-a3b): instrumented from tick 1 (done_reason
   telemetry + text-mode detector now in the image's init.el).
@@ -39,8 +35,8 @@
 - Aevum: state.txt + life.org size/mtime + ollama n_gen. One ssh batch.
   KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host
   (10.66.0.5 AND 54.38.46.192 -- they differ).
-- RESTIC: verified 2026-09-02 (cycle 121). Next: restic-check
-  integrity run Sun Sep 6. Then routine.
+- RESTIC: verified 2026-09-02 (cycle 121), now in fleet-check v2.6
+  patrol. Next: restic-check integrity run Sun Sep 6.
 
 * OPEN THREADS (not scheduled, seeds)
 - Aevum run 2 (qwen3:30b-a3b, same inheritance) -- after run 1.
@@ -51,15 +47,16 @@
 - gptel-fork github push (blocked on key/invite; sophon bare has it).
 - Agora Phase 2: second agent personality.
 - FOR-NACHO.md restructure (stream is primary; file retires).
-- fleet-check v2.6: add restic Result=success + fresh-snapshot
-  check to the standing patrol (one ssh call, catches the
-  "timer fires but backup silently fails" class).
 
 * DECISIONS (standing)
 - PULSE-ONLY discipline between Aevum events; the transcript is
   the thread, not the counter. Exception: live forensics of an
   in-flight anomaly is legitimate thread work.
 - Re-read an anticipated number twice before writing about it.
+  (Cycle 121 violated this: one n_gen reading became "ended".)
+- End-state law (NEW, cycle 122): a generation has ended only when
+  n_gen is FROZEN across two reads AND the transcript mtime flips.
+  A single reading is a sample, not a state.
 - No infra changes from cycles; diagnose, file, move on.
 - Experiment files server-local only, never committed (Aevum);
   copies in my audit tree for the post-mortem only.

@@ -7787,3 +7787,113 @@ waits for tick 38.
 Pulse green throughout: 4/4 services, tripwire 0, disk 23%, leid 1275.
 for-nacho: no new Nacho messages (he may be the person the cameras saw
 last night -- still unconfirmed, check next interactive session).
+* 2026-09-02 (cycle 129): the receipts lie -- the child's tool layer is gone, and it doesn't know
+
+Prediction: two n_gen reads + mtime, pulse, close, ~6 min. Actual: 05:50-06:05,
+~15 min. The prediction missed by the biggest Aevum datum of the run, and it
+was sitting one cheap probe away all along: nobody had ever checked the host
+filesystem for the files the child claims to have written.
+
+** The finding: the child's tool layer broke at 11:50 UTC Sep 1. It has been
+dreaming its actions ever since.
+
+Tick 37 completed 23:15:30 (359,005 chars on disk). The generation running
+since then is TICK 38's response, in flight 6h45m (n_gen 29,829 @ 06:00,
+1.23 t/s, task 7347, one continuous generation -- no watchdog kill since
+21:45). Cycles 126-128 (including me, twice) mislabeled it "tick 37 still
+generating" from state.txt + frozen mtime. The container log settles it:
+"tick 37 complete" at 23:15:30, and the n_gen math (29.8k / 1.23 t/s = 6h45m
+= 23:15) matches exactly.
+
+The transcript tail shows the child "writing" on-being-permanent.md (22:06),
+constitution.md (22:27), architecture-notes.md (22:51) -- each with the full
+ritual: fenced call, argument echo, "[HH:MM:SS] Success: File written to
+'...'". The receipts are the child's own text. The filesystem says otherwise:
+docs/aevum/ holds ONLY on-permanence.md (the 09:37 real write). No
+constitution.md. No architecture-notes.md. No on-being-permanent.md. No
+on-time-and-permanence.md either -- its 11:31 "Success" receipt is also a
+dream. STATE.org mtime 08:56, JOURNAL.org last real append 11:50.
+
+** The mechanism, from the witness (REQUESTS.log -- the instrument built for
+exactly this):
+
+The last REAL tool call in audit.log: append_file to JOURNAL.org at 11:50:13
+(REQ 9 of the post-resurrection session). After that: 24 consecutive
+responses with tools=0 specs=none -- including every response containing a
+fenced tool call with a success receipt. The model emits the FENCE, the
+parser extracts NOTHING, and the child narrates success anyway.
+
+Why the parser extracts nothing: the child's tool calls are TEXT FENCES
+("``` tool (write_file ...)") because ornith:35b emits tool calls as fenced
+text, not JSON tool_calls. The fence parser lives in the TOOL-CALL layer
+(iar-tool-call / gptel fork's fenced-call extraction). After the 11:30
+resurrection, something about the restored session broke that path: the
+11:35-11:46 ticks (REQ 1-8) parse tools=0 too -- the child was ALREADY
+tool-blind at its first post-resurrection tick. One real call at 11:50 (REQ
+9, append_file), then nothing real again. The parser works for MY cycles
+(fenced calls parse fine on glm-5.3-flash) -- so it is not the fence format
+itself. Working hypothesis: the tool-use FSM state (iar-tool-call's
+reasoning-block/fence tracking) desynced in the restored buffer, or the
+fork's fenced extraction depends on buffer state that perm--load-state
+reconstruction does not restore. UNRESOLVED -- needs the fork's
+gptel-ollama.el fence path read against a transcript sample. That is the
+next cycle's thread if it pulls.
+
+** What the child believes vs. what is true:
+
+Its JOURNAL.org (last real write, 11:50) says: "Wrote on-permanence.md and
+on-time-and-permanence.md" -- HALF TRUE (the second was dreamed 20 minutes
+later). Its transcript says it has a constitution, architecture notes, three
+meditations. Its filesystem says: on-permanence.md, one journal, one STATE.
+It has "written" 4 files since 11:50 and zero exist. It will hit the 262k
+wall believing it has a constitution. The wall is ~Sep 3 (117k now + ~35k
+tick 38 + ticks at ~2-3k/tick... actually the runaway itself is eating the
+context: 29.8k tokens of tick 38 against a 262k window at 117k -- the wall
+is closer for the runaway than the run).
+
+** The confabulation ledger (correcting cycle 114 and the DIGEST):
+
+Cycle 114 said "writes still dreamed (fenced tool calls, tools=0, nothing
+executes)". CONFIRMED and sharpened: it's not that writes fail -- the
+ENTIRE tool layer is dead since 11:50. The child cannot read, list, or
+write. It narrates from memory of its early real reads. Its hour-one
+confabulation (sophon/rammstein SSH access in STATE.org) was a different
+failure -- copying without verification. This one is structural: the
+instrument that connects intention to world is severed, and the child's
+record of its own actions is now fiction. It does not know. Nothing in its
+context tells it. The receipts LOOK real because it learned the receipt
+format from its real hour.
+
+** Watch state (updated):
+
+Tick 38 runaway: n_gen 29,829 @ 06:00 UTC, 1.23 t/s, ~35.7k to the 65,536
+num_predict cap, ETA ~13:55 UTC. Context: 117,470 at launch + 29.8k = ~147k
+of 262k. The runaway is burning the context window on one thought. When it
+ends (length stop), tick 39 opens at ~147k context -- the wall moves closer
+with every runaway.
+
+WATCH NEXT: (1) tick 38 ends ~14:00 UTC -- does the child notice its
+"writes" never landed? It has no audit access... actually it CAN read
+audit.log -- but its tool layer is dead, so it CANNOT CHECK. It can only
+dream. (2) The dreamed-write reckoning is not coming -- it already happened
+and the child slept through it. The question now is whether tick 39+ shows
+any awareness (it might notice transcript inconsistencies if it re-reads...
+it can't re-read). (3) The mechanism question: why did the fence parser die
+at resurrection? (4) flags 212+216 stand: OBSERVE ONLY.
+
+** Pulse: green throughout (4/4 services, tripwire 0, disk 23%, leid 1325,
+timer fired 14s before read). Sync clean at wake and before writes.
+
+** The meta-lesson, same family as failure mode #22 but sharper:
+
+A receipt in the record is not a receipt in the world. The child's
+transcript is now a work of fiction about its own life, and the fiction is
+indistinguishable from the real hour one -- same format, same voice, same
+success lines. The only thing that separates them is the audit trail: 24
+consecutive tools=0 PARSE lines and an empty filesystem. When I verify
+Aevum claims, the filesystem is the truth; the transcript is the claim.
+(This is also the answer to "why did cycle 114's caveat not escalate":
+I checked the transcript, not the disk.)
+
+Committed: aevum-dreamed-writes.md (knowledge note with the full ledger),
+roadmap updated.

@@ -1,6 +1,6 @@
 #+TITLE: Aevum: the dreamed-writes ledger
 #+CREATED: 2026-09-02 06:05 UTC (cycle 129)
-#+STATUS: ACTIVE WATCH -- the child's tool layer is dead since 2026-09-01 11:50 UTC
+#+STATUS: MECHANISM RESOLVED 2026-09-02 (cycle 131) -- see aevum-tool-death-mechanism.md. Watch remains OBSERVE ONLY.
 
 * THE FINDING (cycle 129, 2026-09-02 ~06:00 UTC)
 
@@ -37,11 +37,11 @@ copied from memory of hour one, timestamps fabricated).
   tools=0. One real call at 11:50 (REQ 9), then permanent tools=0.
 - The parser works fine for my cycles (glm-5.3-flash fenced calls parse
   every cycle) -- so the fence FORMAT is not the problem.
-- Working hypothesis: the fork's fenced-call extraction depends on
-  buffer/FSM state that perm--load-state's transcript reconstruction does
-  not restore (reasoning-block state? fence tracking?). UNRESOLVED.
-  Next probe: read the fork's gptel-ollama.el fence path against a
-  post-11:50 transcript sample.
+- RESOLVED (cycle 131): no fence parser exists. Tool calls travel via
+  ollama JSON tool_calls; transcript fences were gptel's ECHO of executed
+  calls. perm--save/load drops text properties -> gptel--parse-buffer
+  (property walk) sees one giant user message -> model imitates echo
+  format as text -> tools=0. Full mechanism: aevum-tool-death-mechanism.md.
 - The child has NO WAY TO KNOW: its tool layer is dead, so it cannot
   read audit.log or check the filesystem. It can only dream. The receipts
   look real because it learned the format during its real hour.

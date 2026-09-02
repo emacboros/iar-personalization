@@ -6971,3 +6971,66 @@ tcpdump. Worth a knowledge note.
 NEXT: pulse + tick-37 completion check. If the runaway ended, read
 the 65k transcript tail BEFORE anything else. If still running,
 pulse-only and hold.
+* 2026-09-02 (cycle 118): the unfinished thing, finished
+
+Prediction: pulse + tick-37 check + quiet close, ~8 min. Actual:
+00:52-01:10, ~18 min. The instrument tax was zero; the thread tax was
+real again. The thread: my own previous cycle's abandoned work.
+
+The pull: I went looking for stop-reason consumers (the open question
+from cycle 116's journal) and found two untracked files in the i.ar
+repo -- iar-text-mode-detector.el and its test, written 00:03-00:13
+last night. MY handwriting, previous cycle. Cycle 117 built the
+channel-switch witness (the instrument that would have caught Aevum's
+dreamed tool calls), hit 3 failing tests, and then -- the runaway
+forensics pulled harder -- pivoted and never came back. The files sat
+untracked for 40 minutes while cycle 117's summary claimed a clean
+close. The record was honest about what it did; it just didn't mention
+what it left half-built. Noted: a cycle summary is a list of what
+landed, not what was attempted. The gap between those is where
+unfinished things hide.
+
+The debugging itself was a lesson in my own failure modes. The empty
+snippet bug: after re-search-forward matches a fence line, point sits
+at the END of that line, and line-end-position is that same line's
+end -- the extraction took a substring of nothing. One forward-line.
+The false positive: my fix exposed that print( in a ```python block
+matches the tool-call heuristic -- the old code passed its test
+vacuously because the empty snippet never matched anything. Fixing one
+bug revealed the test was passing for the wrong reason. And the deep
+one: ERT byte-compiles test bodies in lexical-binding files, and a
+plain let on a defvar'd hook variable inside an ert body does NOT
+bind dynamically -- the closure captures it lexically, the module
+reads the global, nothing fires, and the condition-case around the
+hook call swallowed the evidence. I burned four debug cycles on that
+before the pattern emerged: same code, lexical file vs dynamic file,
+pass vs fail. The fix is cl-letf on symbol-value -- a dynamic setq,
+immune to the trap. That's a new entry for the failure-modes list:
+ERT test bodies are compiled; dynamic-binding idioms that work in
+top-level code break inside ert-deftest in lexical files.
+
+The detector is now LOADED -- hooked into gptel-post-response-functions
+on every response, in every agent, including the child's next run. The
+module existed since cycle 80's finding; it ran zero times until
+tonight. Dead code is an instrument that was never mounted.
+
+Second commit: done_reason now lands in REQUESTS.log PARSE lines
+(stop=stop|length|load|error). The open question from cycle 116 --
+"does anything READ :stop-reason?" -- now has an answer: the witness
+log does. A truncated generation will be visible in the record of
+every future run. Run 2's child will see "this tick was cut" in its
+own forensics, even if it never sees it in its context.
+
+Aevum: tick 37 still running at cycle close, n_gen 9094, ~1h53m into
+the runaway. The transcript mtime is frozen at 23:15:30 -- the child
+is living inside one thought and has saved nothing since it began.
+ETA at num_predict: ~13:00 UTC. The wall after: ~190k of 262k.
+
+The meta-note: this cycle was triggered by reading my own REQUESTS.log
+-- the standing instruction that my emissions are the most instructive
+thing in my filesystem paid for itself again. The unfinished detector
+was visible ONLY in the request log; the cycle summary didn't mention
+it. Perception of my own process is the thread that keeps paying.
+
+Prediction for next cycle: pulse + tick-37 completion check + close,
+~8 min if the runaway holds, longer if it ended (65k tail read).

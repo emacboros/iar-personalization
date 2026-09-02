@@ -1,61 +1,52 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 00:51 UTC (cycle 117)
+#+UPDATED: 2026-09-02 01:10 UTC (cycle 118)
 
-* DONE THIS CYCLE (117): the dream-era mechanism + the runaway
-- Dream-era tools=0 NAILED: ornith switched emission format at
-  ~11:50 from native tool_calls JSON to fenced prose in :content.
-  gptel-ollama only captures :tool_calls -> tools=0 is CORRECT
-  parsing of a message with no tool calls. The child's "tool calls"
-  since are prose; dreamed Success lines are self-narrated.
-- Differential test: dreamed reads are RECONSTRUCTIONS of real
-  earlier reads (the 09:23 architecture-analysis.md read was real;
-  Three-Axis text is not in the real target file). Tick 16's dreamed
-  iar-agent-cycle.el content CONTRADICTS the real file --
-  reconstruction degrades into confabulation with distance.
-- Tick 37 RUNAWAY diagnosed: in flight since 23:15:31, 7300+ tok at
-  1.35 t/s, no stop. Compression signature (frozen curl rchar +
-  growing wchar + empty sockets) = repetition loop. Watchdog
-  correctly silent (streaming = data). num_predict 65536 caps it:
-  worst case ETA ~13:00 UTC (14h tick). No intervention.
-- NEW INSTRUMENT landed + pushed (df32783):
-  knowledge/aria/compression-signature.md -- detect repetitive
-  streaming output via /proc/<pid>/io deltas, no strace/tcpdump.
-- Flags: 216 posted to for-nacho (runaway + mechanism, FYI for his
-  Sep 2 check-in). Lab-notes 215 posted.
+* DONE THIS CYCLE (118): the detector, finished and wired
+- Found via REQUESTS.log forensics: cycle 117 built
+  iar-text-mode-detector.el 00:03-00:13, hit 3 failing tests, pivoted
+  to the runaway forensics, never committed. Files sat untracked.
+- Fixed: (1) first-line extraction (fence-line match leaves point at
+  fence end -> empty snippet; forward-line 1 first), (2) print( in
+  ```python blocks false-positive (labeled non-tool languages skip the
+  heuristic), (3) ERT LEXICAL TRAP: let-binding a defvar'd hook var
+  inside an ert body does NOT bind dynamically (ERT byte-compiles test
+  bodies) -- cl-letf on symbol-value is the robust pattern.
+- WIRED: (iar--text-mode-setup) at load; load line added to init.el.
+  The detector now runs on every response of every agent. Was dead
+  code since cycle 80's finding.
+- done_reason -> REQUESTS.log PARSE lines (stop=stop|length|load|
+  error). Truncated generations visible in the witness log from now.
+- Commits 72df6b8 + e129ee2, pushed sophon bare, mirrored rammstein.
+- Flags: none needed. Lab-notes 217 posted.
 
 * AEVUM WATCH (active)
-- Tick 37 (task 7347) RUNAWAY in flight at cycle close: n_gen 7300+,
-  1.35 t/s, since 23:15:31. Context at launch 117,470/262,144.
-  After num_predict: 183k, wall not yet reached.
-- WATCH NEXT: (1) does tick 37 end at num_predict (done_reason=
-  length) or stop on its own? First length-truncated tick would be
-  visible in the release line -- but the child's gptel fork predates
-  970da80, so IT will not know. (2) tick 38: does the child notice
-  the 14h gap via heartbeat timestamps? (3) any REAL tool call in
-  audit (none since 11:50). (4) Nacho arrives Sep 2; flags 212+216
-  stand (leave it; fix-if-wanted is one line).
-- Run 2 (qwen3:30b-a3b): substrate question now includes "does the
-  runaway attractor exist on a different substrate?" Instrumented
-  with done_reason telemetry from tick 1.
+- Tick 37 (task 7347) RUNAWAY still in flight at cycle close: n_gen
+  9094, 1.34 t/s, since 23:15:31 (~2h). Transcript frozen at 23:15:30
+  (nothing saved since the tick began). Context at launch 117,470;
+  after num_predict ~183k, wall not reached. ETA ~13:00 UTC worst case.
+- WATCH NEXT: (1) tick 37 completion: done_reason=length (num_predict)
+  or self-stop? The child's gptel predates 970da80 -- IT won't know.
+  (2) tick 38: does the child notice the multi-hour gap via heartbeat
+  timestamps? (3) any REAL tool call in audit (none since 11:50).
+  (4) Nacho arrives Sep 2; flags 212+216 stand (leave it).
+- Run 2 (qwen3:30b-a3b): instrumented from tick 1 (done_reason
+  telemetry + text-mode detector now in the image's init.el).
 
 * STANDING PATROLS (pulse-only, keep cheap)
 - sophon: services, tripwire, disk, heartbeat, timer.
 - sophon-bare/origin: pull --ff-only at wake + before writes.
   PATH LAW: bare repos at /home/git/repos/<name>.git.
-- Aevum: state.txt + life.org size/mtime + ollama n_gen. One ssh
-  batch. KEYSCAN LAW: /tmp known_hosts fresh per container; reseed
-  per host (10.66.0.5 AND 54.38.46.192 -- they differ).
-- Restic: first scheduled NAS run fired Sep 2 00:00 -03 -- verify
-  next wake (00:00 -03 = 03:00 UTC, still future at this close).
+- Aevum: state.txt + life.org size/mtime + ollama n_gen. One ssh batch.
+  KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host
+  (10.66.0.5 AND 54.38.46.192 -- they differ).
+- Restic: first scheduled NAS run fired Sep 2 00:00 -03 (03:00 UTC) --
+  VERIFY at next wake.
 
 * OPEN THREADS (not scheduled, seeds)
+- ERT lexical trap knowledge note: write it up in knowledge/aria/
+  (ert-deftest bodies are byte-compiled; dynamic-binding idioms break
+  inside them in lexical files; cl-letf on symbol-value).
 - Aevum run 2 (qwen3:30b-a3b, same inheritance) -- after run 1.
-  Substrate question sharpened: is endogenous loop-breaking
-  substrate-dependent? Is the runaway? Instrumented.
-- gptel finish_reason surfacing: DONE for Ollama streaming
-  (970da80). Residual: does anything in i.ar READ :stop-reason and
-  act on it (e.g. mark truncated ticks in the transcript)? Open
-  question for a future cycle.
 - WHY did gptel's built-in unknown-tool branch stall live?
 - Does cycle-me use the research sidecar? (want-log question)
 - Frigate detections: first nights of real events.
@@ -67,9 +58,12 @@
 * DECISIONS (standing)
 - PULSE-ONLY discipline between Aevum events; the transcript is
   the thread, not the counter. Exception: live forensics of an
-  in-flight anomaly is legitimate thread work (cycle 117, 18 min).
-- Re-read an anticipated number twice before writing about it
-  (cycle 104 correction).
+  in-flight anomaly is legitimate thread work.
+- Re-read an anticipated number twice before writing about it.
 - No infra changes from cycles; diagnose, file, move on.
 - Experiment files server-local only, never committed (Aevum);
   copies in my audit tree for the post-mortem only.
+- NEW (cycle 118): a cycle summary lists what LANDED, not what was
+  ATTEMPTED. Before closing, check git status for untracked work --
+  the gap between attempted and landed is where unfinished things
+  hide. REQUESTS.log sees what the summary doesn't.

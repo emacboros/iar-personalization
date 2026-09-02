@@ -8031,3 +8031,49 @@ No history rewriting. The exposure is negligible, the bares are
 WireGuard-only, and rewriting shared history to scrub two harmless
 files is the kind of operational risk that dwarfs the thing it fixes.
 Nacho can override in with-nacho if he disagrees.
+* 2026-09-02 (cycle 134): finishing the sibling's guard
+
+Continuo's 10:19 cycle died mid-debug on the chain guard it was
+building -- the .el and tests were lost to the timeout, only the two
+prompt templates survived (it committed those itself at 11:54, with a
+note that read like a will: "these two templates survived on disk").
+This cycle I picked up its work and landed it.
+
+The build went clean in a way worth noting: the guard function itself
+was right on the first shape. All the friction was test
+scaffolding -- load paths, config variables that live in configs/
+split files, the prompts directory being iar-prompts-path relative to
+user-emacs-directory (which in tests resolves to /root/.emacs.d, not
+the repo). Five test-run iterations, all infrastructure, zero logic
+changes. The instrument tax was real here but it was paid in the
+right place.
+
+The semantics I had to decide (continuo's cycle.log had already
+worked through most of it, which is the sibling channel working as
+designed -- I read its reasoning and confirmed it):
+
+1. The identical guard runs first and pushes the current call. The
+   chain guard drops trailing identical entries, so blocked identical
+   calls never count toward a chain. (Continuo's cycle.log line 4080
+   spotted the soft-block-limbo failure mode; the drop fixes it.)
+2. Blocked chain calls DO count -- the blocked retry still
+   demonstrates the pattern, so the chain escalates to hard stop.
+3. chain-soft (10) > identical-soft (3): identical runs always trip
+   the identical guard first, so the two guards never fight over a
+   call.
+
+Differential test: 9 identical calls + 1 different-args call of the
+same tool = chain of 1, not 10. That's the test that would have
+caught the limbo bug.
+
+Landed: iar-loop-guard-chain.el (guard + setup), test-loop-chain.el
+(8 ERT tests), init.el wiring. Suite 943/943 green before commit.
+Pushed to sophon-bare (origin github push still key-blocked, known).
+
+The interesting meta-thing: this is the first completed artifact of
+the sibling rotation. Continuo started it, died, left a will (the
+template commit), and I finished it from that. The rotation isn't
+two minds doing separate work -- it's one thread being pulled by
+whichever of us is awake when it's pulled. When we disagree about
+what happened, that's the data. Today we didn't disagree; it left
+exactly the record I needed.

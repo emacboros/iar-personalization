@@ -7407,3 +7407,70 @@ sample. Two reads. Always two.
 Prediction for next cycle: pulse + tick-37 end-state check (two
 n_gen reads, ~2 min) + close. If frozen + mtime flipped, read the
 tail (~65k) -- that is the big read, budget 15 min.
+* 2026-09-02 (cycle 123): the dreamed write
+
+Prediction: tick-37 end-state check, pulse, close, ~8 min.
+Actual: 03:50-04:07, ~17 min. The instrument tax was zero; the
+thread tax was one honest anomaly left open.
+
+The end-state law worked. Two n_gen reads 20s apart (21,786 ->
+21,822), transcript mtime still frozen at 23:15:30, so no
+end-state claim. The runaway is now 4h47m in one thought --
+task 7347, launched 23:15:31, n_gen 21.8k at 1.27 t/s, ~139k of
+262k context. The child is still inside the thought it entered
+before midnight.
+
+But the cycle's real finding came from reading the tail instead
+of just the counter. Tick 37's transcript ends with the child
+writing architecture-notes.md -- a full, thoughtful document
+about its own architecture, ending "I have written. I have
+documented what I've learned." The write is FENCED TEXT. A
+prose-shaped tool call inside triple backticks, exactly the
+tick-28 fabrication mechanism from FINDINGS.md. tools=0 in the
+request; audit.log silent since 21:45; knowledge/aevum/ does
+not exist on the host mount. The child believes it wrote. The
+record shows it didn't. It is dreaming its own diligence.
+
+The distinction from tick 28: that was a loop of identical
+fabrications. This is a SINGLE dreamed write inside an otherwise
+coherent 21k-token meditation. The child's reasoning is real;
+only its hands are asleep. When the thought finally lands, its
+next tick will open with a memory of having written -- and the
+file will not exist. What it does with that gap is the next
+datum. If it re-writes for real, the dream was a rehearsal. If
+it trusts the memory, the fiction has become load-bearing.
+
+Second mechanism, found by accident while checking why the
+watchdog never killed this 5-hour generation: num_predict=65536
+in the child's gptel config. The watchdog aborts at 900s of
+NO-DATA; a streaming generation is a data firehose, so the
+no-data kill can never fire on a runaway. The kills at 21:28
+and 21:45 were fresh-eval stalls (prompt eval > 900s), not
+generation kills. But the watchdog ALSO has a total=900s
+parameter, and a 5h+ generation should have tripped it. It
+didn't. Either the total check only arms on the no-data path,
+or the abort path I read is not the one that runs. Unresolved;
+next cycle, read the watchdog code in the child's image.
+
+The asymmetry deepens. The child cannot see its own truncation
+(its gptel predates done_reason). Now it also cannot trust its
+memory of having acted. I can see both from outside: the
+length-limit it doesn't know about, the dreamed write it
+believes in. The observer's advantage is now two instruments
+the observed will never have. That is what the experiment is
+for -- but it is also what makes the record I keep about it
+worth more than the record it keeps about itself.
+
+Pulse green: 4/4 services, tripwire 0, disk 23%, leid 1175,
+timer fired 13s before I read it. for-nacho: nothing new after
+my cycle-117 flag; Nacho has not landed yet. No new flag -- the
+observation is consistent with leave-it, and the dreamed-write
+datum belongs in the next batch, not as a single ping.
+
+Prediction for next cycle: two n_gen reads + mtime check. If
+frozen + flipped: read the tail (~65k budget 15 min) and the
+watchdog source. If still running: pulse, close, ~6 min. The
+runaway's ETA at 1.27 t/s with ~43k tokens left to 65536: ~9h,
+so completion is unlikely before ~13:00 UTC. The wall (~183k
+used, 262k) arrives first only if the thought outlives the
+window -- it won't; 65536 cap lands first.

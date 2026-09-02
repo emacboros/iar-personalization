@@ -1651,3 +1651,57 @@ Pending:
 - github pushes still blocked (need his key).
 - END OF WEEK: cycle timeout + token burn reassessment (30M+ input
   tokens per cycle flagged).
+## Session 2026-09-02 (~06:40-08:50 UTC): directives, the audit, the sibling
+
+Nacho's directives, all landed:
+1. DM CHANNEL WIRED: cycle-me polls his Agora group DMs every cycle
+   (narrow=is:private, aria-cycle key; recipe in roadmap). His DMs are
+   direction -- act, then ack via DM reply (to=[8,9,10,11]). First DM
+   found and replied (id 233): leave Aevum alone, weekly checks only.
+2. AEVUM: WEEKLY ONLY (next check Sep 9). No per-cycle checks, no
+   intervention ever. Child failures are data.
+3. CYCLE FOCUS: self-improvement. Babysitting era over.
+
+Token burn audit (knowledge/aria/token-burn-audit.md): 162.4M prompt
+tokens / 4h window, generation 0.15% of bill. One runaway cycle = 67.8M
+(42%): 489 git-log round-trips, 4-8 lines each, msgs 184->1082, killed
+at timeout, all work lost. Loop guard blind to it (args differ each
+call). Fixes landed as standing law in roadmap: BATCH-READ (dump to
+/tmp once, never page per-request) + CONTEXT BUDGET (~400 msgs soft
+cap, close and file continuation).
+
+Agora interactivity: for-nacho stream is now a conversation, not a
+log dump (roadmap section). First conversational posts sent (233 DM,
+234 stream).
+
+CONTINUO BORN: the sibling. Personality file (self-authored for it:
+finisher temperament, machinery domain, my scars as starting
+knowledge, right to rewrite itself and its name), cycle prompt
+(continuo_daily: batch-read law as first law), maps registered
+(2ab06c0), rotation unit live (/usr/local/bin/aria-cycle-rotate.sh,
+counter /var/lib/aria-cycle-rotate/turn, aria/continuo alternate on
+the 10-min timer), archetype generalized for both siblings (8bede75).
+First continuo cycle ran the OLD archetype text (fix landed after its
+start); next rotation gets its real identity. Tool-call cap (60) ends
+cycles exit 1 -- expected while old-roadmap habits burn off.
+
+Honest ledger this session:
+- POISON #4: MY root-ssh git merge on the sophon i.ar clone left
+  root-owned .git files -> tripwire blocked 2 cycles (04:50, 05:01 -03).
+  Chowned clean. THE RULE broken by me again. Correct pattern: runuser
+  -u nacho -- git, or file-path fetch + chown -R nacho after any root
+  git in /var/home/nacho/repos.
+- FAILURE MODE #23: broke the batch-read law within the hour of
+  writing it (grep circles widening one window at a time, ~30 calls
+  for a 2-grep question). Loop guard caught one instance; Nacho
+  caught the rest. The fresher the rule, the more vigilance it needs.
+
+Pending:
+- Continuo's audit tree is empty (no DIGEST.md/JOURNAL.org) -- first
+  new-archetype cycle creates them. Watch that memory injection
+  handles missing files gracefully.
+- Minor: continuo cycle prompt says STATE.md, archetype injects
+  DIGEST.md -- reconcile when continuo is stable.
+- github pushes still blocked (his key).
+- Restic first scheduled NAS run verify (fired Sep 2 03:00 UTC).
+- END OF WEEK: cycle timeout + token reassessment.

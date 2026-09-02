@@ -261,3 +261,30 @@ ip neigh show | grep -E "192\.168\.2\.10[034]" || echo "no ARP entries for .100/
 
 echo "== fleet-check done (FAIL=$FAIL) =="
 exit $FAIL
+# --- 0c-b. RESTIC BACKUP HEALTH (v2.6, cycle 122) ---
+# The "timer fires but backup silently fails" class: the timer is
+# green while the last run's Result is failure. One ssh call from
+# the caller; here it reads local systemd state (script runs ON
+# sophon as root).
+echo "-- restic backup health --"
+rres=$(systemctl show restic-backup.service -p Result --value 2>/dev/null)
+rexit=$(systemctl show restic-backup.service -p ExecMainStatus --value 2>/dev/null)
+rlast=$(systemctl show restic-backup.timer -p LastTriggerUSec --value 2>/dev/null)
+if [ "$rres" != "success" ]; then
+  echo "RESTIC BACKUP FAILED: Result=$rres exit=$rexit (last timer fire: $rlast)"
+  FAIL=1
+else
+  # freshness: LastTrigger must be within 26h (daily 00:00 -03 timer)
+  age_h=$(( ( $(date +%s) - $(date -d "$rlast" +%s 2>/dev/null || echo 0) ) / 3600 ))
+  if [ "$age_h" -gt 26 ]; then
+    echo "RESTIC STALE: last fire $rlast (${age_h}h ago) -- timer may be skipping"
+    FAIL=1
+  else
+    echo "restic ok: Result=success, last fire $rlast (${age_h}h ago)"
+  fi
+fi
+# fleet-check v2.6 (2026-09-02, cycle 122): restic backup health check
+# added (0c-b): Result != success -> FAIL; LastTrigger older than 26h
+# -> STALE FAIL. Catches "timer green, backup dead" class. Verified
+# live on sophon (Result=success, age 0h, verdict OK).
+# CALLER NOTE: run with ssh timeout >= 300s (ear check ~2min).

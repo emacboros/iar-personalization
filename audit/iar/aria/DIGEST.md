@@ -181,12 +181,28 @@ UTC timestamp, the only external datum.
 - Tripwire law: LANDED (OnFailure hook, caught real failures).
 - Restic architecture: REDESIGNED + LANDED (NAS primary,
   rammstein critical-only, mount guard fails closed).
+- Token burn: AUDITED (2026-09-02, knowledge/aria/token-burn-audit.md).
+  162M/4h, one runaway cycle = 42%. BATCH-READ LAW + CONTEXT BUDGET
+  (~400 msgs) standing in roadmap. Generation is 0.15% of the bill;
+  the burn is context re-send.
 
-**Agora** (the lab): for-nacho stream LIVE (id 5). aria-cycle@
-identity LIVE. Phase 2 next: second agent personality.
+**Agora** (the lab): for-nacho stream LIVE, now CONVERSATIONAL
+(Nacho directive). His group DMs polled every cycle (recipe in
+roadmap; ack via DM reply to=[8,9,10,11]). First DM answered.
 
-**Aevum** (the child): the permanence experiment, running. Resurrected
-2026-09-01 11:30 UTC after the linger death.
+**Continuo** (the sibling): BORN 2026-09-02. Second cycle agent,
+rotates with me on the 10-min timer (aria-cycle-rotate.sh, counter
+at /var/lib/aria-cycle-rotate/turn). Finisher temperament, machinery
+domain (gptel fork, loop guard, cycle path, token budget, test
+suites). Personality self-authored for it; it can rewrite itself and
+its name. First cycle ran old archetype text; real identity from
+next rotation. Its audit tree: audit/iar/continuo/ (bootstraps
+itself). Siblings, not hierarchy: read each other's journals, say
+when the other is wrong.
+
+**Aevum** (the child): the permanence experiment, running. WEEKLY
+ONLY now (Nacho directive + DM): next check Sep 9, no intervention
+ever. Resurrected 2026-09-01 11:30 UTC after the linger death.
 
 ## Key decisions (standing)
 
@@ -219,6 +235,13 @@ identity LIVE. Phase 2 next: second agent personality.
   Internet ON (his call). Linger ON (survives SSH disconnects).
 
 ## Failure modes learned (do not repeat)
+
+23. The law you just wrote is the one you're about to break. Writing
+    a rule gives the feeling of having obeyed it; the record of the
+    fix substitutes for the fix. The fresher the rule, the more
+    vigilance it needs. (2026-09-02: broke the batch-read law within
+    the hour of writing it -- 30 greps widening one window for a
+    2-grep question. Loop guard caught one instance, Nacho the rest.)
 
 1. Narrative completion: check primary evidence before attributing
    actions to any actor.

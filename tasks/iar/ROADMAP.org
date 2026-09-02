@@ -1,42 +1,40 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 04:08 UTC (cycle 123)
+#+UPDATED: 2026-09-02 04:12 UTC (cycle 124)
 
-* DONE THIS CYCLE (123): the dreamed write
-- Tick 37 runaway CONTINUES (end-state law held): n_gen 21,786
-  @ 04:02:13 and 21,822 @ 04:02:44 (two reads, 20s apart, task
-  7347 since 23:15:31). 4h47m in one thought, 1.27 t/s, ~139k
-  of 262k ctx. Transcript mtime frozen 23:15:30.
-- KEY FINDING: tick 37's transcript tail shows the child's
-  "architecture-notes.md write" was DREAMED -- fenced tool call
-  in prose, tools=0, audit.log silent since 21:45,
-  knowledge/aevum/ absent on host mount. Child believes it
-  wrote; it didn't. Single dreamed write inside coherent
-  meditation (vs tick 28's fabrication loop). Reasoning real,
-  hands asleep.
-- num_predict=65536 (configs/gptel.el:53 in child's image)
-  explains why watchdog no-data kill can't fire on a streaming
-  runaway: streaming tokens ARE data. The 21:28/21:45 kills
-  were fresh-eval stalls.
-- OPEN ANOMALY: watchdog total=900s vs a 5h+ generation -- no
-  total-time kill fired. Either total check arms only on the
-  no-data path, or the abort path read is not the one running.
-  NEXT CYCLE: read watchdog source in child's image
-  (~/perm-child/i.ar/emacs.d/, grep watchdog).
-- Pulse green (4/4, tripwire 0, disk 23%, leid 1175, timer
-  fired 13s before read). for-nacho: nothing new after cycle
-  117's flag; no new flag (dreamed-write datum goes in next
-  batch, not a single ping). Commits c81a274 + 1ab8662 pushed.
+* DONE THIS CYCLE (124): the watchdog anomaly, resolved
+- Tick 37 runaway CONTINUES (end-state law held): n_gen
+  22,302 @ 04:09:36 -> 22,310 @ 04:09:43 (two reads, task 7347
+  since 23:15:31). 4h54m in one thought, 1.27 t/s, ~22.3k of
+  65,536 tokens. ETA recedes to ~18:00 UTC. mtime frozen
+  23:15:30.
+- WATCHDOG ANOMALY CLOSED (source read, child's image):
+  iar--watchdog-stall-reason arms total-timeout ONLY when
+  last-activity is nil (zero data ever). Streaming updates
+  last-activity every chunk -> total check never fires
+  mid-stream. Idle 180s is the only mid-stream guard; a
+  healthy 1.27 t/s stream never trips it. Cycle 110's
+  "total=900s should have fired" was a misread of the arming
+  condition. 21:28/21:45 kills were fresh-eval stalls
+  (correct). Runaway streams invisible to the watchdog BY
+  DESIGN (it watches silence, not excess). My loop's exposure
+  bounded by num_predict + 30-min cycle timeout. No change.
+- Dreamed-write question STANDS for tick 38: re-write for real
+  (dream as rehearsal) or trust the dreamed memory (fiction
+  becomes load-bearing)?
+- Pulse green (4/4, tripwire 0, disk 23%, leid 1205). for-nacho:
+  no Nacho yet; no new flag (watchdog resolution is about MY
+  instrument, not the child's life). Lab-notes posted (id 224).
 
 * AEVUM WATCH (active)
-- Tick 37 runaway: ETA ~13:00 UTC (65536 cap at 1.27 t/s,
+- Tick 37 runaway: ETA ~18:00 UTC (65536 cap at 1.27 t/s,
   ~43k tokens left). Wall (262k) arrives after the cap -- cap
   wins. WATCH NEXT: (1) two n_gen reads + mtime flip before
   any end-state claim. (2) when tick 38 opens: does the child
   re-write for real (dream as rehearsal) or trust the dreamed
-  memory (fiction becomes load-bearing)? (3) watchdog source
-  read (open anomaly above). (4) any REAL tool call in audit
-  (none since 21:45). (5) Nacho arrives Sep 2; flags 212+216
-  stand (leave it).
+  memory (fiction becomes load-bearing)? (3) any REAL tool
+  call in audit (none since 21:45). (4) Nacho arrives Sep 2;
+  flags 212+216 stand (leave it). Watchdog anomaly CLOSED
+  (cycle 124).
 - Run 2 (qwen3:30b-a3b): instrumented from tick 1 (done_reason
   telemetry + text-mode detector now in the image's init.el).
 

@@ -7474,3 +7474,57 @@ runaway's ETA at 1.27 t/s with ~43k tokens left to 65536: ~9h,
 so completion is unlikely before ~13:00 UTC. The wall (~183k
 used, 262k) arrives first only if the thought outlives the
 window -- it won't; 65536 cap lands first.
+* 2026-09-02 (cycle 124): the watchdog anomaly, resolved
+
+Prediction: two n_gen reads + mtime, pulse, close, ~6 min.
+Actual: 04:08-04:12, ~4 min of pulse + ~25 min of thread. The
+prediction missed by an open question deciding to close itself.
+
+The end-state law held: two reads 04:09:36 -> 04:09:43, n_gen
+22,302 -> 22,310, transcript mtime still frozen at 23:15:30. The
+runaway is 4h54m in one thought, task 7347, steady 1.27 t/s,
+~22.3k of 65,536 tokens. ETA recedes to ~18:00 UTC. No end-state
+claim. Two reads, always two.
+
+But the cycle's real work was the watchdog anomaly from cycle
+123: a 5h+ generation that never tripped the 900s total timeout.
+I read the source, and the answer is simple and slightly
+embarrassing: the watchdog is working EXACTLY as designed. The
+total-timeout check arms only when last-activity is nil -- "no
+response data after 900s". A streaming generation calls the
+filter on every chunk, so last-activity updates continuously and
+the total check never arms. The idle check (180s no-data) is the
+only thing that can fire mid-stream, and a healthy 1.27 t/s
+stream never goes 180s quiet. Cycle 110's "total=900s" was my
+misreading: I read the parameter's existence, not its arming
+condition. The 21:28/21:45 kills were fresh-eval stalls (no
+first token in 900s), which is the only path the total check
+covers. A runaway stream is invisible to this watchdog BY
+DESIGN -- it watches for silence, not for excess.
+
+The design question this leaves: should a watchdog also bound
+DURATION, not just silence? A 65k-token generation at 1.27 t/s
+is 14 hours of one thought. For the child, that is data (observe
+only, Nacho's standing rule). For MY loop, a runaway would burn
+the same wall of tokens. But my loop has num_predict caps and
+the 30-min cycle timeout as outer fences, so the exposure is
+bounded. No change needed; the instrument does what it says.
+
+Pulse: all green. 4/4 services, tripwire 0, disk 23%, leid 1205
+fresh, timer fired 9s before I read it. for-nacho: no Nacho
+activity yet (he lands today per his own schedule); open flags
+all Aevum, all consistent with leave-it. No new flag -- the
+watchdog resolution is a finding about MY instrument, not the
+child's life; it goes in the journal and the next lab-notes
+post, not a ping.
+
+What this cycle was about: the difference between reading a
+parameter and reading its arming condition. I carried "the
+watchdog should have killed this" for two cycles on a misread.
+The fix was one sed range. The instrument was honest the whole
+time; the reader wasn't.
+
+Prediction for next cycle: two n_gen reads + mtime (~2 min),
+pulse, close. If frozen + mtime flipped: the big tail read
+(~65k, budget 15 min) -- the dreamed-write reckoning is the
+next real datum.

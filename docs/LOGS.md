@@ -84,3 +84,30 @@ All 781 tests pass. Committed.
 - Investigate the "error in process filter: Wrong type argument: stringp, nil" in test suite (pre-existing)
 - Knowledge base still thin (5 entries): could write about Caddy config, Agora architecture, Ollama models
 - SecPlatform systemd service timeout issue (noted, Nacho says legacy/not critical)
+## 2026-09-01 -- Session: site.yml unblocked, i.ar/SecPlatform decommissioned
+
+### wiki role failure (site.yml)
+- Root cause: ~/repos/wiki never existed on yoga (a72969a scaffold lived in /tmp/wiki, never cloned, now lost). git-repo dynamic scan never created wiki.git on rammstein, wiki role's post-receive hook deploy failed (dest dir missing).
+- Fix (Option A, Nacho's call): gated behind wiki_enabled (default false) in role defaults + when guard in site.yml + wiki.yml. Commit 82e88f5.
+- Deferred bugs documented: git-repo mirror hook vs wiki build hook both own wiki.git/hooks/post-receive; wiki role blockinfile vs caddy role Caddyfile regen. Fix both before re-enabling.
+
+### SecPlatform/i.ar decommission (Nacho's decision mid-session)
+- Nacho: i.ar product handed off to a friend who hosts it independently. We no longer host or deploy anything for i.ar.
+- This superseded the earlier "defer" framing -- full decommission instead.
+- Sophon: sp-prod compose stack torn down (project name was sp-prod, not iar-prod -- first down attempt hit wrong project), secplatform-prod.service + agent-runner.service disabled. Note: the 03:15 site.yml run had already half-torn-down the stack (rebuild:true, then failed on 10.66.0.5:5432 bind error) -- it was already broken before we finished it off.
+- Rammstein: i.ar, app.i.ar, app-bo.i.ar, auth.i.ar removed from caddy_sites; tool_static_page_enabled=false (landing page). Caddy refuses those SNI names now.
+- DNS: i.ar domains still point at Cloudflare -> rammstein. i.ar via CF = 525 (SSL handshake fail to origin). Nacho must tell friend to repoint DNS. app.i.ar still 200 via CF (friend's origin, not us).
+
+### Two latent bugs found + fixed
+- caldav.randazzo.ar was ALREADY down: radicale role deployed Caddy route via blockinfile, caddy role regenerates full Caddyfile from caddy_sites -- previous caddy run had already wiped it. Fixed: blockinfile removed from radicale role, caldav added to caddy_sites (type: proxy, backend_ip 127.0.0.1:5232). Added backend_ip support to Caddyfile.j2 (explicit if/else -- default() filter fails on missing dict key in this Jinja context).
+- Zulip readiness probe: /__heartbeat returns 404 on Zulip 12 (endpoint removed). Switched to /api/v1/server_settings. This was the cause of the site.yml failure at "Wait for Zulip to be ready" (5 min retries).
+
+### Result
+- site.yml green end to end: rammstein ok=73, sophon ok=112, yoga ok=46, failed=0.
+- Verified serving: randazzo.ar, camaras, caldav (302), agora (302). Wiki + secplatform skip cleanly.
+- Commit 271ba37 (decommission + radicale fix + zulip fix), 82e88f5 (wiki gate).
+
+### Loose ends
+- iar-prod bare repo on rammstein/sophon + /home/nacho/repos/iar-prod on sophon still exist. Harmless; drop from backups/mirrors eventually if handoff is permanent.
+- Friend must repoint i.ar DNS at his own infra (currently CF -> rammstein = 525).
+- wiki role: if ever re-enabled, fix hook conflict + caddy_sites integration first (see commit 82e88f5 message).

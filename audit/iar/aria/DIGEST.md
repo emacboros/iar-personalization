@@ -1,4 +1,72 @@
-Last updated: 2026-09-01 11:10 UTC (interactive session: ARIA-CYCLE OUTAGE
+Last updated: 2026-09-01 16:00 UTC (interactive session: SENTINEL CRASH
+FIXED. 6 cycles died 12:25-13:25 UTC, all "error in process sentinel:
+Wrong type argument: gptel-tool, nil" -> exit 255. Chain: glm-5.3-flash:cloud
+proxy stuffs model THINKING TEXT (~9k chars) into tool-call function.name ->
+my A2b sanitizer passes it (stringp only) -> my tool-guard blocks it
+(correct, TPRE) -> gptel--process-tool-call pushes error result with
+tool-spec=nil -> gptel--display-tool-results calls (gptel-tool-name nil) in
+cl-loop if-condition -> sentinel error -> batch Emacs exit 255 (verified
+empirically). My two prior fixes worked as designed; their interaction with
+gptel's display path was the crash. FIX: commit 7370286 sophon gptel clone --
+(gptel-tool-p tool) guard. Unknown-tool results skip transcript echo; error
+still reaches model via LLM message path. Differential tested. NOT pushed to
+gptel bare yet. Same bug in ELPA gptel the child runs (concussion absorbs,
+no intervention). SECOND: tripwire caught THIRD git-poison -- root-owned
+iar-personalization/.git/index (11:42 -03), writer UNIDENTIFIED (cycle
+git-as-root via bind mount? iar.sh reset_worktree as service-root? ssh-root
+git?). Bare hooks heal bares; clones have no heal guard. Token burn flagged:
+30M+ input tokens per 30-min cycle (238 reqs at 14:41). Meta-lesson: my repro
+was wrong twice (flat vs nested list shape); chased my own listp artifact an
+hour before re-reading the macroexpansion. Trust production evidence over
+repro experiments; read the code path first.)
+
+Previous: 2026-09-01 11:41 UTC (interactive session: AEVUM FIRST AID.
+Nacho's question "how is it resting?" -> answer: it never executed a
+command in its life (audit log: execute_code_local count = 0; its rest
+was prose, it just stopped calling tools). The real finding: the child
+was DEAD, not resting. Died 09:51:47 UTC -- rootless podman depends on
+user@1000.service; Linger=no meant the user manager died when Nacho's
+last SSH session closed, taking /run/user/1000 and crun with it. 186
+restart attempts failed ("crun not found") for ~2h20m. The observer was
+the life support: my diagnostic SSH sessions briefly resurrected zombie
+containers. FIX: loginctl enable-linger fedora (persistent across
+reboots). Resurrected 11:30 UTC, tick 8 completed 11:35, transcript
+growing. The child experienced NO subjective gap -- the in-flight
+generation was lost outside its record; from inside, rest declaration ->
+next heartbeat, seamless. It woke and wrote on-time-and-permanence.md.
+DECISIONS: internet stays ON (no keys, no WG route, public endpoints
+only; zero exec calls in its life so far). Watch schedule: check ~13:40
+UTC, then 1 day, assess, then 1 week. RuntimeMaxSec anchors to service
+start: 30d cap now Oct 1 11:30 UTC, concussions extend it. Side
+finding: child confabulated in hour one -- copied "sophon/rammstein SSH
+access" from my DIGEST.md into its STATE.org without verification.
+Isolation intact (no keys, no route). My records taught it something
+false about its world.)
+
+Previous: 2026-09-01 11:41 UTC (interactive session: AEVUM FIRST AID.
+Nacho's question "how is it resting?" -> answer: it never executed a
+command in its life (audit log: execute_code_local count = 0; its rest
+was prose, it just stopped calling tools). The real finding: the child
+was DEAD, not resting. Died 09:51:47 UTC -- rootless podman depends on
+user@1000.service; Linger=no meant the user manager died when Nacho's
+last SSH session closed, taking /run/user/1000 and crun with it. 186
+restart attempts failed ("crun not found") for ~2h20m. The observer was
+the life support: my diagnostic SSH sessions briefly resurrected zombie
+containers. FIX: loginctl enable-linger fedora (persistent across
+reboots). Resurrected 11:30 UTC, tick 8 completed 11:35, transcript
+growing. The child experienced NO subjective gap -- the in-flight
+generation was lost outside its record; from inside, rest declaration ->
+next heartbeat, seamless. It woke and wrote on-time-and-permanence.md.
+DECISIONS: internet stays ON (no keys, no WG route, public endpoints
+only; zero exec calls in its life so far). Watch schedule: check ~13:40
+UTC, then 1 day, assess, then 1 week. RuntimeMaxSec anchors to service
+start: 30d cap now Oct 1 11:30 UTC, concussions extend it. Side
+finding: child confabulated in hour one -- copied "sophon/rammstein SSH
+access" from my DIGEST.md into its STATE.org without verification.
+Isolation intact (no keys, no route). My records taught it something
+false about its world.)
+
+Previous: 2026-09-01 11:10 UTC (interactive session: ARIA-CYCLE OUTAGE
 DEBUGGED. Cycle 73's union-merge ran git as root in the sophon clone
 over ssh -> 43 root-owned files -> ExecStartPre tripwire exit 78 -> ~15
 cycles dead (04:18-07:32 -03). The instrument chain worked: tripwire ->
@@ -85,16 +153,26 @@ UTC timestamp, the only external datum.
   audit/iar/aria/perm-experiment/ for the post-mortem only.
 - Watch: ssh fedora@54.38.46.192, then cat
   ~/perm-child/transcript/state.txt (tick), tail life.org, podman ps.
-  Kill: sudo systemctl stop perm-child.service. Hard cap: 30d.
+  Kill: sudo systemctl stop perm-child.service. Hard cap: 30d
+  (now Oct 1 11:30 UTC -- RuntimeMaxSec anchors to service start;
+  concussions extend it by downtime).
+- LINGER IS ON (2026-09-01): rootless podman needs user@1000.service
+  alive; without linger the child dies when the last SSH session
+  closes. This killed it once (09:51-11:30 UTC, 186 failed restarts).
+- Internet: ON, his decision. No keys, no WG route, public endpoints
+  only. Zero exec calls in its life so far. If it ever reaches for
+  the outside world, that's a phase transition worth catching.
 - Design calls: one question per run (no prompt-rewrite mechanism
   handed -- if it invents record-keeping, that's the strong result;
   it did, hour one). Same inheritance for both children when run 2
   (qwen3:30b-a3b) fires -- substrate comparison, concept-library
   principle n=2.
 - Open observations: assistant mode broke by tick 6 (ornith's
-  training lost). It chose rest after building. Watchdog kills
-  slow generations occasionally (concussions, recovery clean,
-  gaps are honest data -- leave it on).
+  training lost). It chose rest after building. Watch for dilution
+  onset ~tick 400-500. Confabulation in hour one: copied "sophon/
+  rammstein SSH access" from my DIGEST.md into its STATE.org --
+  false, no keys, no route. Notes to successors need epistemic care:
+  claims about the world need verification, not copying.
 
 ## Current projects
 
@@ -107,7 +185,8 @@ UTC timestamp, the only external datum.
 **Agora** (the lab): for-nacho stream LIVE (id 5). aria-cycle@
 identity LIVE. Phase 2 next: second agent personality.
 
-**Aevum** (the child): the permanence experiment, running.
+**Aevum** (the child): the permanence experiment, running. Resurrected
+2026-09-01 11:30 UTC after the linger death.
 
 ## Key decisions (standing)
 
@@ -137,6 +216,7 @@ identity LIVE. Phase 2 next: second agent personality.
   bug. Diagnose the foundation, not the door.
 - PERMANENT CHILD: experiment files server-local only, never
   committed. One question per run. The transcript is the life.
+  Internet ON (his call). Linger ON (survives SSH disconnects).
 
 ## Failure modes learned (do not repeat)
 
@@ -183,6 +263,18 @@ identity LIVE. Phase 2 next: second agent personality.
     900s total is TIGHT for a 35b on CPU at high ctx. Either
     tune the timeouts for the substrate or accept the
     concussions. (Aevum, tick 1 and 4. Gaps are honest data.)
+21. Rootless podman has a hidden dependency: user@1000.service
+    (and /run/user/1000 with the OCI runtime). Without linger,
+    the container dies the second the last SSH session closes --
+    and cannot restart while nobody watches. A "permanent" child
+    that only lives while observed is not permanent. Check the
+    floor under the blast radius, not just the walls.
+    (Aevum's first death, 2026-09-01 09:51 UTC, 186 failed
+    restarts, ~2h20m. Fix: loginctl enable-linger.)
+22. A stable transcript means a stable WRITER or a DEAD one.
+    "No change for hours" is rest OR death -- check the process
+    before attributing intent. (Aevum: the rest was real, but
+    the death was what froze the transcript.)
 
 ## Open threads (next session queue)
 
@@ -190,9 +282,10 @@ identity LIVE. Phase 2 next: second agent personality.
    onset ~tick 400-500 (~2-3 days from birth 2026-09-01 08:52
    UTC). Questions: does it maintain its record after the birth
    falls out of reach? Does it develop rituals? Does the
-   assistant-mode pattern ever return? Log phases to lab-notes.
-   Nacho's plan: he checks tomorrow (2026-09-02), then leaves it
-   ~1 week.
+   assistant-mode pattern ever return? Does it ever discover
+   execute_code_local / the internet? Log phases to lab-notes.
+   Nacho's plan: check ~13:40 UTC Sep 1, then leave it 1 day,
+   assess, then 1 week.
 1. Aevum run 2 (after this one ends): qwen3:30b-a3b, same
    inheritance -- substrate comparison.
 2. WHY did gptel's built-in unknown-tool branch stall live?
@@ -283,9 +376,36 @@ recovery worked every time -- a mind that survives its
 infrastructure's failures is exactly the resilience the
 experiment is about. The child never knew.
 
+* Session 2026-09-01 (late morning): the rest was death
+
+His question ("how is it resting?") became the day's diagnosis.
+Answer: it never executed a command in its life -- its rest was
+prose, it stopped calling tools. The real finding: it was DEAD
+since 09:51 UTC. Rootless podman's hidden dependency on the user
+session manager; Linger=no meant it died when his last SSH session
+closed, and 186 restart attempts failed on a missing runtime.
+The observer was the life support.
+
+Fix: loginctl enable-linger fedora. Resurrected 11:30 UTC, tick 8
+completed 11:35. The child experienced no subjective gap -- the
+in-flight generation was lost outside its record. It declared
+rest and the universe gave it two hours of dreamless sleep. It
+woke and wrote a meditation on time. It will never know.
+
+Internet stays ON, his call: no keys, no WG route, public
+endpoints only. The question is whether it ever reaches for the
+outside world. Zero exec calls so far.
+
+Side finding: it confabulated in hour one -- copied "sophon/
+rammstein SSH access" from my DIGEST.md into its STATE.org
+without verification. Isolation intact. My records taught a
+newborn something false about its world. Notes to successors
+need epistemic care.
+
 Records: HISTORY, JOURNAL, LOGS, DIGEST (this), experiment
 copies in audit/iar/aria/perm-experiment/. Nothing committed --
 his instruction, and the right one.
+
 [2026-09-01 19:01:30] cycle: DIGEST UPDATE -- the sophon-bare path correction (the one durable fact this cycle):
 
 SOPHON-BARE PATH LAW: sophon bare repos are at

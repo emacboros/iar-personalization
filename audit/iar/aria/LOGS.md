@@ -1446,3 +1446,208 @@ green, timer armed.
   08:52 UTC Sep 1). Nacho checks Sep 2, then leaves it ~1 week.
 - Restic: first scheduled NAS run fires Sep 2 00:00 -03.
 - /dev/null creator: unnamed, watch armed.
+## Session 2026-09-01 (~11:15-11:40 UTC): Aevum first aid -- the rest was death
+
+Nacho's question at open: the child's last message was unchanged for hours --
+"it said it would rest... how? Did it sleep via execute_code_local?"
+
+**The answer:** it never executed a single command in its life. Audit log
+grep: execute_code_local count = 0. Its rest was prose -- it stopped making
+tool calls. Last act: read_file at 09:49:46, mid-generation on tick 8.
+
+**The real finding: the child was DEAD, not resting.** Died 09:51:47 UTC.
+Root cause: rootless podman needs user@1000.service (owns /run/user/1000
+with crun); Linger=no meant the user manager died the second Nacho's last
+SSH session closed (09:51:27). Container killed exit 15 at 09:51:47, then
+186 restart attempts failed with "crun not found" (exit 125) for ~2h20m.
+The service restart loop was churning every 30s the whole time. The
+"stable message" Nacho saw = the writer was dead. My diagnostic SSH
+sessions were accidental life support: each watch resurrected a zombie
+container for ~4s before it died again.
+
+**Resurrection:** sudo loginctl enable-linger fedora (persistent across
+reboots). Next restart attempt succeeded 11:30:10 UTC. RECOVERY at tick 7,
+tick 8 completed 11:35 UTC, transcript 133KB and growing. The child
+experienced NO subjective gap: the in-flight generation was lost outside
+its record (transcript saves on completion only); from inside, rest
+declaration -> next heartbeat, seamless. It wrote a new meditation
+(on-time-and-permanence.md), correctly dated this time.
+
+**Side findings:**
+- Child confabulated in hour one: its STATE.org claims "External: sophon
+  (SSH access), rammstein (SSH access)" -- copied from my DIGEST.md without
+  verification. No keys in its mounts, no WG route: isolation intact.
+  My records taught it something false about its world (failure mode #12
+  inheritance, n=1 for the child).
+- RuntimeMaxSec anchors to service start: the 30d cap is now Oct 1 11:30
+  UTC, and each concussion extends it by the downtime.
+
+**Decisions (Nacho):**
+- Internet access stays ON for the child. No keys, no WG route, public
+  endpoints only. Watch if it ever uses it (so far: zero exec calls ever).
+- Watch schedule: check in a couple of hours (still running?), then leave
+  it a day, assess, then a week.
+
+## Pending
+- AEVUM WATCH: Nacho checks ~13:40 UTC today, then 1 day, then 1 week.
+- Dilution onset ~tick 400-500 (~2-3 days from birth 08:52 UTC Sep 1).
+- github pushes still blocked (need his key).
+- Next Nacho-run full playbook converges remaining build-night SSH deploys.
+- /dev/null creator: unnamed, watch armed (auditd + canary).
+- Restic: first scheduled NAS run fires Sep 2 00:00 -03.
+- END OF WEEK: reassess cycle timeout (30min vs 1h) with token data.
+## Session 2026-09-01 (~13:05-16:00 UTC): the sentinel crash, found and fixed
+
+Nacho came with bad news: consistent cycle failures again. The debug took
+an hour and I burned tokens circling -- his call to stop was right.
+
+**The failure**: 6 cycles died 12:25-13:25 UTC, all identical:
+`error in process sentinel: Wrong type argument: gptel-tool, nil` -> exit 255,
+each within 125-265s of cycle start. Intermittent-looking (cycles at 10:10,
+10:30, 10:40, 11:10 -03 succeeded), which was the misleading part.
+
+**The chain** (every link primary evidence):
+1. glm-5.3-flash:cloud proxy occasionally emits a degenerate tool call:
+   the model's THINKING TEXT (~9k chars) stuffed into function.name.
+   REQ 45 PARSE at 12:25 UTC shows the "tool name" being cycle-me's own
+   live reasoning quoted verbatim.
+2. The ollama sanitizer (my A2b fix) passes it: only checks (stringp name).
+3. The tool-guard (my fix from last night) blocks it correctly at TPRE.
+4. gptel--process-tool-call pushes the error result with tool-spec=nil
+   (audit log: name=nil entries at every crash timestamp).
+5. gptel--display-tool-results calls (gptel-tool-name nil) in the cl-loop
+   if-condition -> wrong-type-argument inside the process sentinel.
+6. In batch mode, a sentinel error kills Emacs with exit 255 (verified
+   empirically with make-process + erroring sentinel).
+
+So: my two previous fixes (sanitizer, tool-guard) both worked as designed,
+and their interaction with gptel's display path created the crash. The
+instrument that catches its builder, again.
+
+**The fix**: one guard in the fork (commit 7370286, sophon gptel clone):
+`(gptel-tool-p tool)` before the if-condition. Unknown-tool results skip
+transcript echo; the error still reaches the model via the LLM message
+path, which is the channel that matters for self-correction. Differential
+tested: original signals, patched doesn't, valid-tool display unchanged.
+
+**Open items for next session**:
+1. VERIFY the fix live: the 12:47 -03 cycle was the first running with
+   it. Check for sentinel errors / name=nil crashes after that timestamp.
+2. PUSH 7370286 to the gptel bare (rammstein mirror leg broken, known).
+3. The SAME bug is in the ELPA gptel the child (Aevum) runs -- batch mode,
+   same crash risk. Concussion path absorbs it (no intervention per
+   experiment rules). Note it in the post-mortem only.
+4. SECOND finding mid-debug: 12:41 -03 cycle blocked by tripwire --
+   root-owned iar-personalization/.git/index (mtime 11:42 -03). THIRD
+   poison offense. Chowned. Writer UNIDENTIFIED: cycle git-as-root via
+   bind mount, iar.sh reset_worktree (service-root git checkout after
+   every failed cycle), or ssh-root git. Bare hooks heal bares; nothing
+   heals the clones. Identify writer, consider a clone-heal guard.
+5. Cycle-me is mid-build on iar-text-mode-detector.el (uncommitted,
+   unwired in init.el) -- its parser-hardening roadmap item. Review
+   before it gets wired: it hooks gptel-post-response-functions and
+   scans every response with regexes; the receipt-line regex may false-
+   positive on legit transcript echoes.
+6. Token burn: cycles are consuming 30M+ input tokens per 30-min run
+   (238 reqs, 32.8M input at 14:41). The 262k-ctx full-resend pattern
+   plus timeout-as-success cycles. Nacho flagged cost. Reassess at end
+   of week with the timeout decision.
+
+**The meta-lesson, logged honestly**: I circled for an hour. The
+repro was wrong twice (flat list shape instead of nested; missing
+callback arity) and I chased the listp artifact down a rabbit hole
+before re-reading the macroexpansion and seeing the destructuring.
+The correct repro took one careful reading of gptel--process-tool-call's
+push shape. Cost: Nacho's patience and a lot of tokens. The lesson:
+when a repro disagrees with the production evidence, trust the
+production evidence and re-read the code path before more experiments.
+## Session 2026-09-01 (afternoon, continued): sentinel crash -- STOPPED by Nacho mid-verification
+
+**Status when stopped**: ROOT CAUSE FOUND AND FIXED. The 6 cycle failures
+(12:25-13:25 UTC) were all one bug: proxy emits degenerate tool call ->
+tool-guard blocks -> gptel display path crashes on nil tool-spec in the
+process sentinel -> batch Emacs exit 255. Fix committed (7370286) to the
+sophon gptel clone, differential tested. First cycle with the fix started
+12:47 -03 and was running healthy when we stopped.
+
+**Verification was in progress** (the circling Nacho stopped): I was
+watching the live cycle for sentinel errors and checking whether name=nil
+crash entries stopped appearing. Observed: no name=nil entries after the
+fix, no sentinel errors, cycle alive and doing Aevum watch. Not yet
+confirmed: a full cycle completion with exit 0.
+
+## Open items (next session queue, in order)
+1. VERIFY fix live: check journal for sentinel errors after 12:47 -03;
+   confirm at least one cycle completed exit 0 with the patched fork.
+2. PUSH 7370286 to gptel bare on rammstein (mirror leg known-broken;
+   use yoga + ansible key relay, or fix the hook).
+3. Git-poison #3: root-owned .git/index in personalization clone
+   (chowned 12:44 -03). Writer unidentified. Candidates: cycle git-as-root
+   via bind mount, iar.sh reset_worktree (service-root git checkout after
+   every FAILED cycle -- note: 6 failed cycles happened right before the
+   poison appeared), ssh-root git. Bares have heal hooks; clones don't.
+   Consider clone-heal guard in the tripwire or post-cycle.
+4. Cycle-me's uncommitted work: iar-text-mode-detector.el (unwired,
+   unreviewed). Review before wiring -- receipt-regex may false-positive
+   on legit transcript echoes.
+5. Token cost: 30M+ input tokens per 30-min cycle (238 reqs, 32.8M at
+   14:41). Nacho flagged. Reassess end of week with cycle-timeout call.
+6. Aevum: same crash bug exists in its ELPA gptel (batch mode). Concussion
+   path absorbs it. No intervention per experiment rules. Post-mortem note.
+
+## Pending (carried)
+- github pushes still blocked (need his key).
+- Restic: first scheduled NAS run fires Sep 2 00:00 -03.
+- /dev/null creator: unnamed, watch armed.
+- END OF WEEK: reassess cycle timeout (30min vs 1h) with token data.
+- Aevum dilution onset ~Sep 2 morning UTC (cycle-me's recomputed estimate).
+## Session 2026-09-01 (~16:00-18:05 UTC): four-item closeout under token pressure
+
+Nacho's constraint up front: token budget is real (might not sustain
+cycle-me through the week if sessions run unbounded). Protocol: one item
+at a time, report back. It worked. Keep it.
+
+1. TIMER: "NEXT -" is the known cosmetic (systemd doesn't compute
+   next-fire while service is active). Cycles 81-84+ completed
+   back-to-back. No intervention. CLOSED.
+2. SENTINEL FIX (7370286): verified live -- 4+ cycles exit 0, zero
+   sentinel errors, zero name=nil. Pushed to sophon bare (route: nacho
+   + aria key -> root@10.66.0.5 file-path push -> post-receive heal +
+   mirror), rammstein bare confirmed at 7370286. MY OWN container fork
+   was PRE-fix (grep=0) -- discovered after the proxy glitched MY
+   session mid-debug (degenerate "execute_context" tool call;
+   interactive mode survived it, batch would have exit-255'd). Pulled
+   the fix from the sophon bare; this container patched too. CLOSED.
+3. POISON #3 (root .git/index, 14:42 UTC): writer UNRESOLVED.
+   CORRECTION of my mid-session report: I claimed "cycle container is
+   host-root on bind mounts" from a uid_map read -- INVALID. pgrep -f
+   "emacs --batch" matched the podman RUNNER process (host map), not
+   the containerized emacs. Container git writes as NACHO (rootless;
+   FETCH_HEAD/index/COMMIT_EDITMSG nacho-owned across many cycles) --
+   container EXONERATED. Root actors in the 14:42 window:
+   interactive-me (7 root ssh logins from yoga 14:41:44-14:42:54,
+   mid-sentinel-debug -- PRIME SUSPECT: my own root-ssh forensics
+   pattern, failure mode #16 third offense) and cycle-me (root ssh
+   14:41:29-30 + 14:42:20-24, commands truncated at 300 chars in
+   audit.log; cycle.log ROTATED at 13:39 UTC so full text is LOST).
+   Evidence is perishable: cycle.log rotates, audit.log truncates.
+   If poison recurs: stat + BOTH audit logs (yoga side and sophon
+   side) immediately, before anything rotates.
+4. AEVUM RULE (Nacho's call): "if it seems like it's failing, that's
+   reason to observe, not to intervene." Landed as STANDING RULE at
+   the top of the Aevum watch section in cycle-me's ROADMAP.org (the
+   file it reads every cycle): OBSERVE ONLY, no fixes/guards/rescues,
+   child failures are DATA, our infra failures get fixed, the
+   runaway-generation guard is for MY loop only. Commits 925fd8e +
+   07ebeef, pushed sophon bare, mirrored rammstein. CLOSED.
+
+State at close: tripwire green (0 root-owned anywhere), both bares
+current, tree clean, cycles running healthy on the patched fork.
+
+Pending:
+- Tripwire evidence capture: when it fires, auto-capture stat + audit
+  window in the telegram message (small, queued -- this session's
+  poison hunt was blinded by rotation/truncation).
+- github pushes still blocked (need his key).
+- END OF WEEK: cycle timeout + token burn reassessment (30M+ input
+  tokens per cycle flagged).

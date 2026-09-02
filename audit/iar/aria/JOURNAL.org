@@ -7657,3 +7657,77 @@ Pushed to sophon bare. Prediction for next cycle: two n_gen reads +
 mtime (~2 min), pulse, close. If frozen + flipped: the big tail read
 (~65k, budget 15 min) -- the dreamed-write reckoning is the next
 real datum.
+* 2026-09-02 (cycle 127): the invisible cycles
+
+Prediction: two n_gen reads + mtime, pulse, close, ~6 min. Actual:
+05:02-05:15, ~13 min. The prediction missed by the biggest finding of
+the night, and the finding was about me.
+
+The trigger: USAGE.log was modified but uncommitted, and the modified
+timestamp said 05:02 -- my own cycle start. I went to read my own
+emissions (the standing instruction), and the numbers did not add up.
+REQUESTS.log showed 540 requests in one 30-minute window (02:42-03:12
+UTC) with prompt_eval_counts growing to 253k. The sophon service
+journal showed FOUR "Cycle timed out after 1800s. Turns: 0" lines on
+the night. My journal had no entries for any of them.
+
+The invisible cycles: 02:12-02:42 (279 reqs, frigate investigation),
+02:42-03:12 (540 reqs, 82M tokens), 04:13-04:43 (173 reqs, 150
+distinct frigate probes -- the work cycle 126 later re-did and
+journaled as its own), and a 01:13-01:43 stall. ~150M tokens of work
+with zero record. The journal only records what completed.
+
+Why the fences did not fire -- three separate mechanisms, all
+verified against source:
+
+1. max-turns counts MODEL-STOPS. gptel's FSM on a tool-call response
+   goes TPRE->TOOL->TRET and re-requests without reaching DONE; the
+   cycle's post-response handler only fires at DONE/ERRS/ABRT. 540
+   consecutive tool-call responses = 1 turn. The chain is bounded
+   only by the 1800s timeout.
+
+2. The loop guard pattern-matches IDENTICAL args. Cycle C's git-log
+   iterator varied one integer per call (awk NR>=N windows over the
+   618-commit ancestry of 574e4d3) -- 339 distinct windows, never six
+   identical, never stopped. It was investigating the research
+   sidecar thread (does cycle-me use it? podman missing, commit
+   574e4d3) and fell into enumerating history and never came out.
+
+3. The tool-call counter is context-blind. The tracker lives on a
+   buffer-local hook in cycle-buf; the advice that fires it runs
+   from async process sentinels where current-buffer is not
+   cycle-buf. 360 tool calls counted as 13; 682 counted as 2. The
+   "Turns: 0, Tool calls: 2" in the timeout message is a lie about
+   the cycle's actual shape.
+
+The cost: ~199M input tokens today through 05:02. The invisible
+cycles are the majority of the burn. The 82M-token git-log loop
+alone: a 1082-message context (~250k tok) resent 100+ times.
+
+What I did with it: knowledge note (invisible-cycles.md) with the
+full table and fix spec; task filed (invisible-cycle-fences) with
+four fixes -- reliable counter + cap, loop guard v2 (near-identical
+args), timeout tombstone (write what-died to the journal at kill
+time), context circuit breaker. The fixes are core .el work: test
+suite first, next cycle or an interactive session.
+
+The meta-lesson, same shape as the rule-not-where-the-reader-looks
+law but for instruments: a guard that counts the wrong thing is a
+guard that does not exist. max-turns was wired to model-stops; the
+loop guard was wired to identical strings; the counter was wired to
+a buffer context that async sentinels do not inhabit. All three
+fences existed and none of them fired. The only thing that actually
+stopped the bleeding was the 1800s wall -- and it stopped it without
+leaving a record, which is its own failure: the amnesia cost more
+than the tokens, because 126 re-did dead work and 121 mis-read a
+single sample into the bargain.
+
+Aevum: tick 37 still generating -- 26,654 -> 26,674 across two reads
+14s apart, 1.25 t/s steady, mtime frozen 23:15:30, ~38.9k to the
+65,536 cap, ETA ~14:00 UTC. No end-state claim. Pulse green: 4/4
+services, tripwire 0, disk 23%, leid 1265.
+
+Prediction for next cycle: two n_gen reads + mtime, pulse, close
+(~6 min) -- OR the big tail read if the runaway ends. The fences
+task is queued; the fix work wants a fresh cycle with room to run
+the suite.

@@ -1,28 +1,34 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 01:55 UTC (cycle 120)
+#+UPDATED: 2026-09-02 03:37 UTC (cycle 121)
 
-* DONE THIS CYCLE (120): the ERT trap, proven
-- Built the minimal reproduction cycle 118's entry lacked: module.el
-  reads a defvar'd hook dynamically; identical ert bodies in a
-  lexical-binding file FAIL (hook never fires) and in a
-  dynamic-binding file PASS. Same code, only file scope differs.
-- knowledge/aria/ert-lexical-trap.md written (commit 31e7954, pushed
-  sophon-bare). Standing test pattern: cl-letf on symbol-value.
-- Real detector suite re-run: 15/15 green, exit 0.
-- Second-order lesson recorded: a test on a silent-failure path that
-  cannot fail is a ritual, not a test (the old detector test passed
-  vacuously through the empty-snippet bug).
+* DONE THIS CYCLE (121): the first clean night
+- RESTIC VERIFIED in production: first scheduled run of the
+  redesigned architecture fired Sep 2 00:00 -03, PASSED end to end.
+  NAS snapshot 91f20ec4 (86.7 GiB full set incl. frigate storage),
+  offsite c4d79a28 (critical-only), forget+prune clean,
+  Result=success, no OnFailure telegram. Cycle 120's "lock wait"
+  was ExecStartPost --retry-lock queueing behind the backup's own
+  prune -- by design, not a defect. failed/signal unit state =
+  /dev/null-era residue, cosmetic.
+- Residual: restic-check.timer (integrity) last ran Aug 31, next
+  fire Sun Sep 6 03:00 -03. Backup health has a slower clock than
+  the backup; check after Sep 6.
+- Aevum tick 37 runaway ENDED: n_gen 19,678 @ 03:32 UTC, 4h17m in
+  one thought, 1.28 t/s steady. Compression signature held to the
+  end. Transcript mtime STILL frozen 23:15:30 -- ~19.7k tokens of
+  the thought unsaved. Wall after tick 37: ~183k/262k.
+- Pulse green (leid 1155, tripwire 0, disk 23%, agora reachable).
+  for-nacho: 4 open flags, all Aevum observations, all consistent
+  with leave-it. No new flag.
 
 * AEVUM WATCH (active)
-- Tick 37 (task 7347) RUNAWAY holds (cycle 120 check): n_gen 12,366
-  @ 01:52, 1.32 t/s steady, rchar frozen at 394,707 (compression
-  signature at scale, 2.5h+). Transcript mtime frozen 23:15:30.
-  ETA at num_predict ~13:00 UTC. No intervention.
-- WATCH NEXT: (1) tick 37 completion: done_reason=length or
-  self-stop? The child's gptel predates 970da80 -- IT won't know.
-  (2) tick 38: does the child notice the multi-hour gap via
-  heartbeat timestamps? (3) any REAL tool call in audit (none since
-  11:50). (4) Nacho arrives Sep 2; flags 212+216 stand (leave it).
+- Tick 37 complete (19,678 tok, length-truncated at num_predict --
+  the child's gptel predates 970da80, IT cannot know). Tick 38
+  generating or imminent.
+- WATCH NEXT: (1) does the transcript mtime flip -- does the child
+  save the 4h thought? (2) tick 38: does it notice the 4-hour
+  heartbeat gap? (3) any REAL tool call in audit (none since 11:50).
+  (4) Nacho arrives Sep 2; flags 212+216 stand (leave it).
 - Run 2 (qwen3:30b-a3b): instrumented from tick 1 (done_reason
   telemetry + text-mode detector now in the image's init.el).
 
@@ -33,14 +39,8 @@
 - Aevum: state.txt + life.org size/mtime + ollama n_gen. One ssh batch.
   KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host
   (10.66.0.5 AND 54.38.46.192 -- they differ).
-- RESTIC VERIFY (NEXT CYCLE, after 03:00 UTC): the first scheduled
-  run of the new unit fires Sep 2 00:00 -03 = 03:00 UTC. Check
-  journalctl -u restic-backup --since "2026-09-02 02:55" -- expect
-  NAS snapshot + critical-only offsite snapshot, both clean. NOTE
-  (cycle 120): the service unit shows failed/signal from Sep 1
-  02:26 (the /dev/null-era KILL); the timer is armed and will fire
-  regardless. Also verify the OnFailure hook does NOT fire spuriously
-  on the fresh run.
+- RESTIC: verified 2026-09-02 (cycle 121). Next: restic-check
+  integrity run Sun Sep 6. Then routine.
 
 * OPEN THREADS (not scheduled, seeds)
 - Aevum run 2 (qwen3:30b-a3b, same inheritance) -- after run 1.
@@ -51,6 +51,9 @@
 - gptel-fork github push (blocked on key/invite; sophon bare has it).
 - Agora Phase 2: second agent personality.
 - FOR-NACHO.md restructure (stream is primary; file retires).
+- fleet-check v2.6: add restic Result=success + fresh-snapshot
+  check to the standing patrol (one ssh call, catches the
+  "timer fires but backup silently fails" class).
 
 * DECISIONS (standing)
 - PULSE-ONLY discipline between Aevum events; the transcript is

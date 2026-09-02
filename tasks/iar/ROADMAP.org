@@ -1,50 +1,49 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 05:01 UTC (cycle 126)
+#+UPDATED: 2026-09-02 05:15 UTC (cycle 127)
 
-* DONE THIS CYCLE (126): the archaeology under the first night
-- Frigate event-DB archaeology (frigate-event-db-archaeology.md):
-  DB born 03:53:20 -03 Sep 1 (0.17 migration; backup.db holds only
-  migratehistory = nothing to preserve). Detector ALREADY live
-  before (ONNX load 01:28 -03 -- corrects the Aug-30 note). Then
-  20h of zero events; 23:33-23:41 -03 crash-loop (57x "Detection
-  appears to be stuck"): config declared ssd detector type while
-  pointing at yolov9 onnx (ModelTypeEnum.ssd unsupported). Fix:
-  config.yaml 23:40:59 (model_type: yolo-generic). FIRST EVENT
-  23:41:20 -- 14s after container start (interior_2, 0.91).
-- Cycle-125 numbers verified with real schema: scores live in
-  json_extract(event.data,'$.top_score'); top_score COLUMN is NULL.
-- Exterior-zero SHARPENED: all 8 cams enabled, detect+record, no
-  filters/zones, exteriors recording continuously. Not a config
-  gap. Yard empty at night OR exterior scenes below yolov9
-  confidence. Watch now runs in fleet-check v2.7 (0c-c).
-- fleet-check v2.7 LANDED + verified live: frigate event probe
-  (24h counts interior/exterior, STALE-fail if total>0 but none
-  in 24h) + FIX: v2.6 restic block sat AFTER exit $FAIL -- dead
-  code, never ran; moved before summary. Live run: restic ok,
-  frigate events 24h total=49 interior=49 exterior=0, FAIL=0.
-- Loop guard fired 2x (journal-window shrinking for lines that
-  don't exist -- Frigate doesn't log detections at INFO; the DB
-  is the record). Guard was right, approach was wrong.
-- Tick 37 STILL generating: 25,178 -> 25,206 (two reads 20s
-  apart), mtime frozen 23:15:30. ~5h36m, 1.25 t/s, ~40.3k to
-  65,536 cap. ETA ~15:00 UTC. No end-state claim.
-- Pulse green (4/4, tripwire 0, disk 23%, leid 1245).
-- Commits: 2b0afb1 (fleet-check v2.7 + archaeology note),
-  c701331 (journal + history). Pushed sophon bare.
-- lab-notes posted (id 226).
+* DONE THIS CYCLE (127): the invisible cycles
+- FOUR timeout-killed cycles on the night (01:13, 02:12, 02:42,
+  04:13 UTC) burned ~150M input tokens with ZERO journal record.
+  Cycle 126 re-did the 04:13 stall cycle's frigate work.
+- Three fence failures verified against source:
+  (1) max-turns counts MODEL-STOPS only -- tool-call chains never
+  reach DONE (gptel FSM: TPRE->TOOL->TRET loops without DONE);
+  540 tool-call responses = 1 turn. Only the 1800s timeout bounds.
+  (2) loop guard fires on 6 IDENTICAL args only -- cycle C's
+  git-log NR>=N iterator (339 distinct windows over 618 commits
+  from 574e4d3, research-sidecar thread) sailed through: 82M tok.
+  (3) tool-call counter context-blind (buffer-local hook vs async
+  sentinel): 360 calls counted as 13, 682 as 2.
+- Knowledge note: knowledge/aria/invisible-cycles.md (full table,
+  mechanisms, fix spec). Commit 566ffcc pushed.
+- Task filed: iar/invisible-cycle-fences (fix-spec subtask).
+- for-nacho flag posted (id 227); lab-notes id 228.
+- ~199M input tokens today through 05:02 (USAGE.log).
+- Aevum: tick 37 still generating (26,654->26,674 two reads 14s
+  apart, 1.25 t/s, mtime frozen 23:15:30, ~38.9k to cap, ETA
+  ~14:00 UTC). No end-state claim.
+- Pulse green (4/4, tripwire 0, disk 23%, leid 1265).
+
+* NEXT CYCLE QUEUE (priority order)
+1. AEVUM WATCH: two n_gen reads + mtime. If frozen + mtime flipped:
+   the big tail read (~65k, budget 15 min) -- the dreamed-write
+   reckoning is the next real datum.
+2. INVISIBLE-CYCLE FENCES (task iar/invisible-cycle-fences): the
+   fix work. Core .el -- run test suite FIRST, never push red.
+   Order: (C) timeout tombstone is smallest + highest value;
+   (A) counter + cap; (D) context breaker; (B) loop guard v2.
+   Budget: one fix per cycle if the suite is slow.
+3. Pulse-only if the queue is empty.
 
 * AEVUM WATCH (active)
-- Tick 37 runaway: ETA ~15:00 UTC (65536 cap at 1.25 t/s, ~40.3k
-  left; tg_3s 1.14 pushes the tail). Wall (262k) arrives after
-  the cap -- cap wins. WATCH NEXT: (1) two n_gen reads + mtime
-  flip before any end-state claim. (2) when tick 38 opens: does
-  the child re-write for real (dream as rehearsal) or trust the
-  dreamed memory (fiction becomes load-bearing)? (3) any REAL
-  tool call in audit (none since 21:45). (4) Nacho arrives Sep
-  2; flags 212+216 stand (leave it). Watchdog anomaly CLOSED
-  (cycle 124).
+- Tick 37 runaway: ETA ~14:00 UTC (65536 cap at 1.25 t/s, ~38.9k
+  left). WATCH NEXT: (1) two n_gen reads + mtime flip before any
+  end-state claim. (2) when tick 38 opens: does the child re-write
+  for real (dream as rehearsal) or trust the dreamed memory? (3)
+  any REAL tool call in audit (none since 21:45). (4) flags 212+216
+  stand (leave it). Watchdog anomaly CLOSED (cycle 124).
 - Run 2 (qwen3:30b-a3b): instrumented from tick 1 (done_reason
-  telemetry + text-mode detector now in the image's init.el).
+  telemetry + text-mode detector in the image's init.el).
 
 * STANDING PATROLS (pulse-only, keep cheap)
 - sophon: services, tripwire, disk, heartbeat, timer.
@@ -53,8 +52,7 @@
 - Aevum: state.txt + life.org size/mtime + ollama n_gen. One ssh batch.
   KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host
   (10.66.0.5 AND 54.38.46.192 -- they differ).
-- RESTIC: in fleet-check v2.7 (now actually reachable). Next:
-  restic-check integrity run Sun Sep 6.
+- RESTIC: in fleet-check v2.7. Next: restic-check integrity Sun Sep 6.
 - FRIGATE: event-DB probe in fleet-check v2.7 (0c-c). Exterior-zero
   longitudinal watch: start 2026-09-01 23:41 -03; a week of
   exterior=0 with interior flow -> review exterior detect params
@@ -63,8 +61,13 @@
 * OPEN THREADS (not scheduled, seeds)
 - Aevum run 2 (qwen3:30b-a3b, same inheritance) -- after run 1.
 - WHY did gptel's built-in unknown-tool branch stall live?
-- Does cycle-me use the research sidecar? (want-log question)
-- Frigate detections: first nights of real events (now automated).
+- Does cycle-me use the research sidecar? (want-log question --
+  cycle C tried to answer it and fell into the enumeration loop;
+  the answer is still open: podman missing in my container,
+  execute_code_remote failed, commit 574e4d3 exists but the image
+  path containers/images/research/ does not exist in the working
+  tree of the i.ar clone on sophon).
+- Frigate detections: first nights of real events (automated).
 - Ansible convergence: next Nacho-run playbook converges SSH deploys.
 - gptel-fork github push (blocked on key/invite; sophon bare has it).
 - Agora Phase 2: second agent personality.
@@ -76,17 +79,19 @@
   in-flight anomaly is legitimate thread work.
 - Re-read an anticipated number twice before writing about it.
 - End-state law: a generation has ended only when n_gen is
-  FROZEN across two reads AND the transcript mtime flips. A
-  single reading is a sample, not a state.
+  FROZEN across two reads AND the transcript mtime flips.
 - No infra changes from cycles; diagnose, file, move on.
-- Experiment files server-local only, never committed (Aevum);
-  copies in my audit tree for the post-mortem only.
+- Experiment files server-local only, never committed (Aevum).
 - A cycle summary lists what LANDED, not what was ATTEMPTED.
 - A rule without a reproduction is a story: convert scars into
   verified instruments when the thread pulls.
-- Check-before-write: git log the path before writing a
-  knowledge note.
-- SCHEMA-FIRST on unfamiliar DBs: PRAGMA table_info before any
-  query; JSON columns may shadow NULL dedicated columns.
-- The loop guard is an instrument too: when it fires, the
-  approach is wrong, not the repetition count too low.
+- Check-before-write: git log the path before writing a knowledge note.
+- SCHEMA-FIRST on unfamiliar DBs.
+- The loop guard is an instrument too: when it fires, the approach
+  is wrong, not the repetition count too low.
+- NEW (cycle 127): a guard that counts the wrong thing is a guard
+  that does not exist. Verify the arming condition, not the
+  parameter's existence. (Watchdog law, cycle 124, now generalized.)
+- NEW (cycle 127): the journal records what completed; timeout-killed
+  work is invisible. Read REQUESTS.log + systemd journal at wake when
+  token numbers look wrong -- the dead cycles leave evidence only there.

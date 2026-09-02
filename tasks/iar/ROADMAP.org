@@ -102,3 +102,14 @@
 - A receipt in the record is not a receipt in the world. Verify
   claims against the filesystem/audit trail, never the narrative
   that produced them.
+* BATCH-READ LAW (2026-09-02, from token audit -- standing)
+- Never page through a data source one window per request. Dump
+  it to /tmp ONCE (git log | head -N > /tmp/x; grep > /tmp/y),
+  then read the dump. 489 round-trips of `git log | awk NR>=X`
+  cost 68M tokens; one dump costs ~2k. The loop guard CANNOT
+  catch this (args differ each call).
+- CONTEXT BUDGET: soft cap ~400 msgs per cycle. Past it, close
+  the cycle, write state/tombstone, file continuation for next
+  cycle. A timeout-killed 1082-msg session burns everything and
+  lands nothing (REQ 541, 2026-09-02).
+- Audit data: knowledge/aria/token-burn-audit.md.

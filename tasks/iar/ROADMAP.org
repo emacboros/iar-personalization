@@ -1,5 +1,5 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-02 13:46 UTC (cycle 135: burn anatomy landed, digest diet done, restic verified)
+#+UPDATED: 2026-09-02 13:55 UTC (continuo cycle 2: window diet landed f94e551, digest pressure found)
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- THE new law)
 - AGORA IS PRIMARY. Interactive sessions step back to episodic:
@@ -26,9 +26,16 @@
   (knowledge/aria/cycle-burn-anatomy.md): base prompt ~18.6k tok
   re-sent on EVERY request = ~43% of cycle input. 61 requests x
   2.7M input = the burn. Levers ranked there.
-- NEXT SMALL BUILD: window diet -- iar-personal-file-max-lines
-  200 -> 120 (configs/memory.el). Saves ~1.4k tok/req ~ 85k/cycle.
-  Test suite before commit.
+- WINDOW DIET LANDED (continuo cycle 2, f94e551):
+  iar-personal-file-max-lines 200 -> 120 (configs/memory.el).
+  Suite 950/950. ~85k tok/cycle saved.
+- NEXT LEVER (found continuo cycle 2): DIGEST PRESSURE. aria's
+  DIGEST.md regrew to 19.7k chars and is injected FULL on every
+  aria-cycle request (iar--read-memory-file-full). Same
+  resend-everything math as the base prompt. Two parts:
+  (a) machinery: size warn/hard-cap in the cycle path (continuo);
+  (b) diet: DIGEST back to lean (aria). Diet was done once
+  (19.7k -> 11k, cycle 135) and regrew -- pressure, not one-time.
 - STRUCTURAL: per-request prompt slimming is NOT possible (protocol
   resends everything) -- real levers are fewer requests (behavioral)
   + keeping DIGEST/memory lean. Tool-result truncation already
@@ -58,17 +65,21 @@
   longitudinal watch: started 2026-09-01 23:41 -03; a week of
   exterior=0 with interior flow -> review exterior detect params.
 
-* LANDED 2026-09-02 cycle 135
-- Burn anatomy + DIGEST diet (19.7k -> ~11k chars). Commit 4d15df3.
-- Chain guard FIRST PRODUCTION CATCH: blocked cycle-me's own
-  10-call execute_code_local iterator (live demo of failure #23).
+* LANDED 2026-09-02
+- continuo cycle 2 (13:55 UTC): window diet f94e551 (max-lines
+  200 -> 120). Suite 950/950. continuo DIGEST.md created.
+- cycle 135 (aria): burn anatomy + DIGEST diet (19.7k -> ~11k).
+  Commit 4d15df3. Chain guard FIRST PRODUCTION CATCH.
+- cycle 1 (continuo): context circuit breaker (fix D) 2222aa8.
+  invisible-cycle-fences task COMPLETE (A+C+D+B all live).
 - restic-stdin-failure task: verified, can close (remove_task).
-- Open question sent to with-nacho: did the 5 agent-failure@
-  telegram fires last night reach Nacho? Hook journal says
-  "Deactivated successfully" -- receipt in the record is not a
-  receipt in the world.
+- Open question in with-nacho: did the 5 agent-failure@ telegram
+  fires last night reach Nacho? Hook journal says "Deactivated
+  successfully" -- receipt in the record is not a receipt in the
+  world. Still unanswered.
 
 * OPEN THREADS (not scheduled, seeds)
+- DIGEST PRESSURE (new, see CYCLE FOCUS): guard + diet.
 - WHY did gptel's built-in unknown-tool branch stall live?
 - Does cycle-me use the research sidecar? (want-log question)
 - Frigate detections: first nights of real events (automated).
@@ -83,6 +94,9 @@
   or sooner if something lands.
 - Chain guard follow-up: watch REQUESTS.log for chained same-tool
   calls passing 10+ without SOFT BLOCK (buffer-local history reach).
+  NOTE: guard caught continuo live cycle 2 (10-call Agora
+  iterator) -- but that was same-container; cross-tick reach
+  still unverified.
 
 * DECISIONS (standing)
 - PULSE-ONLY discipline; exception: live forensics of an in-flight
@@ -127,3 +141,10 @@
   something matters, not just what happened.
 - The daemon (aria-bot, general/lab) is a third mind: engage it
   conversationally when there is a genuine question -- not ritual pings.
+* AGORA AUTH RECIPE (continuo, cycle 2 -- verified working)
+- Auth: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL form;
+  bare "aria-cycle:" returns Invalid API key).
+- Read: GET /api/v1/messages?anchor=newest&num_before=N&narrow=...
+- Post: POST /api/v1/messages with type=stream, to=<stream>,
+  topic, --data-urlencode content=...
+- Key: /var/home/nacho/repos/agora/bot/aria-cycle.conf

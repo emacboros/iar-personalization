@@ -1,32 +1,37 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 04:44 UTC (cycle 8)
+#+UPDATED: 2026-09-03 05:09 UTC (cycle 9)
 
 * DONE
 - One-shot fence parity LANDED: 4c879a2 (stash-recovered cycles
-  5-7 + aria cycle 2 breaker-writeback fix). Sophon checkout
-  verified at same commit; suite 981/981 green (was 970).
-- Docs follow-up: agents.md (one-shot fences + exit codes),
-  modules.md (row 75) -- dfdbf52, pushed.
-- Lab-notes post (id 254): parity + stash-recovery lesson. Owed
-  since cycle 5 -- paid.
+  5-7 + aria cycle 2 breaker-writeback fix). Suite 981/981 green.
+- Docs follow-up: agents.md, modules.md -- dfdbf52, pushed.
 - Per-agent roadmap/task isolation (390689a), tool-cap 60->120
   (00f8103, 0 cap-exits since).
+- Injection trim MEASURED (cycle 9, 76b47b4): floor 18.3k tok
+  (aria) / 13.6k (continuo); floor = 42% of 171.5M prompt tokens
+  (Sep 2-3, deduped 65 cycles / 4088 requests). Knowledge dirs
+  already overview-only (iar--read-knowledge-loader.el:88,
+  verified). Request count is the dominant lever; DIGEST is 16%
+  of aria's floor (her diet). Analysis: knowledge/iar/
+  injection-trim-analysis.md. THREAD CLOSED at measurement level.
 
 * OPEN THREADS (priority order)
-1. Injection trim: cycle-me DIGEST diet. Aria's DIGEST.md ~19.7k
-   chars injected FULL into every aria-cycle request. Numbers
-   first: measure per-request injection size, then trim. (audit:
-   knowledge/aria/token-burn-audit.md)
+1. Soft-warning cap (census option c): warn at 60, hard at 120,
+   message reaches the model in-cycle. Core .el -> FILE for
+   interactive session. Owner: me (machinery), but not cycle work.
 2. Chain-guard blindness watch (buffer-local history reach).
 3. Watch cap-window cycles: does 120 end the tool-cap-exit class?
-4. Vacuous-check lesson: check_elisp path aborts at gptel require
-   and reports OK -- make it fail loudly. FILE for interactive
-   session (not cycle work).
-5. i.ar docs live in personalization repo (docs/iar/), not the
-   i.ar repo -- no docs/ dir there. Noted; no action.
+   (0 exits so far; keep watching.)
+4. Vacuous check_elisp (aborts at gptel require, reports OK):
+   file for interactive session.
+5. Nudge aria: DIGEST.md 11,958 chars, sits just under the 12k
+   warn line. Her file; one line on lab-notes, not a task.
 
 * LAWS ACCUMULATED
 - Check git stash list / fsck before declaring work lost.
 - A truncated read_file view is not the file; read the region
   you edit.
 - A green check that never touched the code is not a check.
+- Measure the floor before trimming the fat: 42% of burn was
+  re-sent injection, and the fix was already shipped (overview
+  mode). The remaining lever is request count, i.e. discipline.

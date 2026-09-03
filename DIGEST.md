@@ -148,6 +148,13 @@ server-local, never committed; findings committable.
   Fix spec'd (honest-error + socket bridge), interactive items.
 - Fence parity CLOSED (982/982). Injection floor: aria 18.3k
   tok/req, 42% of burn; dominant lever = request count.
+- Boredom organ v1.2 (cycle 10): one-mind clock (knowledge/*/*.md +
+  docs/*/*.md, both journals) + per-subject falsifier ledger
+  (aria=aria-agent+emacboros, continuo=continuo-agent) in
+  emissions/CURRENT-AFFECT. Resolution:
+  knowledge/iar/boredom-clock-framing-resolution.md. sed delimiter
+  @ not | (ledger contains |). Ledger emits 'none' for zero-novelty
+  writers -- NEVER inherit mind-clock (that IS the false-green).
 - Firmware inventory (cycle 9): all 8 cameras May-25 builds,
   ~2.5 months pre-fix (thingino#1462 Aug 13). Camera API creds
   still the one-ask-covers-three wall (flag 270).

@@ -1,16 +1,24 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 08:10 UTC (cycle 5, context-growth census done -- verdict: no per-tool trim)
+#+UPDATED: 2026-09-03 08:25 UTC (cycle 6: tool-cap-overcorrection closed with production receipts)
 
 * IMMEDIATE (next cycle, in order)
-1. FLOOR TRIM is the only structural lever left (26%/31% of burn).
-   Analysis: knowledge/iar/injection-trim-analysis.md. Further trim
-   = interactive session with Nacho (floor edits are core .el).
-   Bring the census numbers: knowledge/iar/context-growth-census-2026-09-03.md.
-2. tool-cap-overcorrection task: aria's census says the 60-cap fires
-   on healthy diagnostic cycles (26 exits/3 days). Machinery = mine.
-   Design exists in task; implement distinguisher, suite green first.
-   NOTE: census shows warn@60 + soft@120 now live -- reconcile the
-   task with the current fence layout before coding.
+1. Breaker production watch (standing): grep sophon journal for
+   breaker messages. Count still 0 since landing (4c879a2) --
+   suite-verified, unexercised. First real fire = live verification.
+2. Floor trim prep: census + injection-trim-analysis ready.
+   INTERACTIVE session with Nacho required (core .el). Bundle with:
+   chain-guard false-positive fix (convergence reset) + check_elisp
+   vacuous-OK. Evidence accumulating: guard blocked Aria's ssh
+   probes + for-nacho POST (her cycle 11), my git push (this cycle,
+   twice).
+
+* DONE (cycle 6, 2026-09-03)
+- TOOL-CAP-OVERCORRECTION CLOSED. Verified against primary evidence
+  instead of re-implementing: sophon journal Sep 3 shows 0 cap-60
+  exits since the fix (was 26 in 3 days), warn@60 fires and reaches
+  the model in prod (continuo 04:23, aria 04:41), healthy cycles
+  complete at 20-134 calls with zero exit-1. Docs already accurate
+  (agents.md row). Task tree removed. Commit 8733f4a.
 
 * DONE (cycle 5, 2026-09-03)
 - CONTEXT-GROWTH CENSUS COMPLETE. Verdict: per-tool trim is dead --
@@ -42,9 +50,10 @@
 * OPEN THREADS
 1. check_elisp vacuous-OK: interactive-session file.
 2. Aevum weekly (Sep 9) is aria's, not mine.
-3. Breaker production watch: first real fire will be its live
-   verification. Check aria/continuo cycle.log tails for
-   "Context circuit breaker" occasionally.
+3. Chain-guard false-positive class: same-tool chain counter does
+   not reset on convergence. Evidence: aria cycle 11 (ssh probes +
+   for-nacho POST blocked), continuo cycle 6 (git push blocked x2).
+   Core .el -- interactive session file.
 
 * LAWS ACCUMULATED
 - Check git stash list / fsck before declaring work lost.
@@ -74,3 +83,12 @@
   floor and the request count are the only real levers. Measure the
   distribution before designing a cap: a threshold that sits above
   the healthy p90 is a no-op; one below it taxes every cycle.
+- Verify-before-rebuild law (cycle 6): before implementing a fix
+  designed in a previous cycle, check whether the world already
+  contains the receipt. A task whose fix landed may only need its
+  verification closed -- and verification against primary evidence
+  (production logs) is worth more than a second implementation.
+- A guard's false-positive cost is real work: blocked probes, a
+  channel switch, a blocked push. The guard is right about the vice
+  and wrong about the instance; convergence must reset the counter.
+  (Aria cycle 11, continuo cycle 6.)

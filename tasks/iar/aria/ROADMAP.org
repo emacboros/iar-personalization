@@ -1,85 +1,93 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 16:58 UTC (cycle 30: fleet-check FAIL=1
-root-caused -- NOT the bare-repo allowlist; the v2.10 dB-grep matched
-ffmpeg INPUT bitrate lines as dB, so interior_3 (zero-sample since
-the earliest recording, 2026-07-05) printed fake mean/max and tripped
-RECOVERY every run since the allowlist landed. v2.13: n_samples
-parsing + recovery = samples>0 AND mean. LIVE FIND: ext3/ext4/int1
-genuinely recovered -- KNOWN_DEAF updated. FAIL=0, first clean exit
-since the allowlist era. Census law written for continuo. Sibling
-precision test PASSED.)
+#+UPDATED: 2026-09-03 17:31 UTC (cycle 31: recovery-without-fix ROOT-CAUSED --
+go2rtc session degradation, not cameras. Three cams healed when go2rtc
+RTSP read-timeouts forced producer reconnects in the 16:33-16:40 UTC
+window. Cycle 30's verdict was issued mid-flap (flap self-resolved
+17:11:50). Remaining allowlist = two DIFFERENT pipeline failures:
+exterior_2 go2rtc-producer-no-audio (reconnect would heal, never
+errors); interior_3 live-flows/recorded-zero (decoder differential
+suspected). Audio role = detection only, NOT recording. Cap fired;
+lab-notes + i3 boundary scan parked.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 30: CLEAN. Own LAST-CYCLE ok; continuo cycle 13 ok.
+- STATUS cycle 31: CLEAN. Own LAST-CYCLE ok; continuo presumed ok.
   Poison in /var/home/nacho/repos: 0.
 - Durable fix unchanged (interactive, Nacho): root-git-as-nacho in
   iar.sh + bare-repo hook options + HEAD one-liner. All spec'd in
   knowledge/iar/bare-repo-root-push-heal.md.
 
-* DONE (cycle 30)
-- Failure-first: own + continuo both ok.
-- Pulse green: services/tripwire(0)/disk(24%)/heartbeat(leid 3815)/timer.
-- Organs at wake: fear sev=0, boredom sev=0 (v1.4, ledger aria 0d0h /
-  continuo 0d0h).
-- Census law propagated: knowledge/aria/census-verification-law.md
-  (5d2c630) -- asymmetric cost (false zero wastes / false positive
-  kills), invocation-variety grep guidance, reviewer-run standing
-  positive control.
-- SIBLING PRECISION TEST PASSED: continuo cycle 13 reconciled scar 44
-  (verified the reviewer run herself, census law in her DIGEST,
-  thread 3b closed). The channel carries precision, not just direction.
-- FLEET-CHECK FAIL=1 ROOT-CAUSED: v2.10 dB-grep (`grep -oE dB | head
-  -2`) matched ffmpeg INPUT bitrate lines ("256 kb/s") -> zero-sample
-  interior_3 printed fake mean/max -> RECOVERY every run -> FAIL=1
-  since the allowlist landed. interior_3 is zero-sample since
-  2026-07-05 (earliest recording), NOT a 08:09-UTC event.
-- fleet-check v2.13 (69daea1): n_samples from LAST volumedetect block;
-  RECOVERY = samples>0 AND mean_volume present; SILENT (0 samples) on
-  known-deaf = watch state; new VOLUME-UNPARSED fail-closed branch.
-- LIVE FIND: ext3/ext4/int1 genuinely recovered (real dB + samples).
-  KNOWN_DEAF updated (779735f): only exterior_2 (NO-AUDIO) +
-  interior_3 (SILENT) remain. Post-fix run: FAIL=0 -- first clean
-  fleet exit since the allowlist era began.
-- Journal entry cycle 30 (placeholder replaced). HISTORY appended.
-
-* DO FIRST (cycle 31)
+* DO FIRST (cycle 32)
 1. FAILURE-FIRST (always).
 2. Organs at wake (correct invocations, see STANDING PATROLS).
-3. Fleet-check v2.13 watch: first runs should hold FAIL=0. If
-   exterior_2 or interior_3 change state, that is now REAL news
-   (allowlist shrank).
-4. AUDIO-LOSS WATCH update: 5 deaf cams -> 2 (ext2, int3). The
-   firmware flag (270) story changes: ext3/ext4/int1 recovered
-   WITHOUT firmware action -- something else healed them (frigate
-   restart? camera-side?). Worth one look at what changed ~16:4x UTC
-   before crediting or blaming firmware.
-5. Boredom falsifier watch continues (both false-positive directions).
+3. PARKED FIRST: lab-notes post for cycle 31 (cap fired before it).
+4. i3 boundary hunt, BATCHED (one ssh, loop inside): find the exact
+   hour interior_3 recordings went 256000 -> 0 samples (between
+   03:00 and 13:00 UTC today). Then decoder differential: same
+   segment through host ffmpeg vs frigate's in-container ffmpeg 7.0.
+   If frigate's ffmpeg chokes on the same file my host ffmpeg
+   decodes: the aac "backward in time" class is the mechanism.
+5. e2 (exterior_2) = go2rtc producer carries zero audio. Fix =
+   frigate restart = shared-infra intervention -> FLAG NACHO
+   (for-nacho, topic flags): one restart would likely heal e2 AND
+   reset all go2rtc producers (watch: does it also break the
+   healthy ones? that is the test).
+6. Fleet-check v2.13 watch: FAIL=0 baseline. ext2/int3 state changes
+   are now REAL news (they are pipeline failures, not camera ones).
+7. SCAR 45 rider: recovery verdicts issued during an active flap are
+   provisional -- check the flap ENDED before trusting the verdict.
+
+* DONE (cycle 31)
+- Failure-first: own LAST-CYCLE ok. Pulse green (services, tripwire 0,
+  disk 24%, heartbeat leid 3835, timer). Organs quiet (fear 0,
+  boredom 0, ledger aria 0d0h / continuo 0d1h).
+- Fleet-check v2.13: FAIL=0 (baseline holds).
+- RECOVERY-WITHOUT-FIX ROOT-CAUSED: frigate container NEVER restarted
+  (up since Sep 1 23:41 local, restart count 0). The three cameras
+  (ext3/ext4/int1) healed when go2rtc logged RTSP read-timeouts to
+  .103/.104/.201 in the 16:33-16:40 UTC window -- reconnects restored
+  audio tracks. First audio-carrying segments: e3 16:36, e4 16:33,
+  i1 16:40 UTC. Deafness = go2rtc SESSION state (video flows, audio
+  negotiation dies); timeout forces reconnect = heal; no timeout =
+  deaf forever. The 08:09-UTC story generalizes to one mechanism.
+- Watchdog flap (exterior_3) continued to 17:11:50 UTC -- cycle 30's
+  recovery verdict was issued mid-flap; flap self-resolved one minute
+  before my fleet-check. SCAR 45 rider added (provisional verdicts).
+- EXTERIOR_2 (.102) DIAGNOSED: camera sends audio (direct RTSP probe:
+  81920 samples/5s); go2rtc producer for e2 carries ZERO (probe via
+  go2rtc: 0 samples, -c copy: 0 bytes). Same class as the healed
+  three, but go2rtc's connection never errors -> never reconnects ->
+  never heals. NOT a camera problem. NOT firmware.
+- INTERIOR_3 (.203) DIAGNOSED (partial): camera sends audio; go2rtc
+  carries it (49152 samples live); recorded segments zero-sample
+  since between 03:00-13:00 UTC today (Sep 2 + early Sep 3: 256000).
+  Suspect decoder differential (host ffmpeg vs frigate ffmpeg 7.0;
+  aac "Queue input is backward in time" errors in frigate logs).
+- CONFIG CLUE RESOLVED: interior_1/2/3 lack the "audio" role, but i1
+  and i2 record audio fine WITHOUT it. The role gates audio
+  DETECTION, not recording. Not the cause of i3's silence.
+- Journal cycle 31 + HISTORY appended. Cap fired at 120 (hour-walk
+  enumeration) -- record written via memory tools.
 
 * OPEN THREADS (seeds, not schedule)
-- RECOVERY-WITHOUT-FIX (cycle 30, NEW): 3 cams recovered with no
-  intervention. What healed them? If the answer is "frigate restart,"
-  the 08:09-UTC event story needs a rewrite. Check frigate restart
-  times vs recovery times before the next flag to Nacho.
-- SCAR 45 (cycle 30): a recovery verdict is a destructive-decision
-  class (withdraws flags, updates allowlists). Validate against
-  known-positive AND known-negative before it means anything.
-  v2.10 had the negative control (SILENT) but no positive one.
+- I3 DECODER DIFFERENTIAL (cycle 31, NEW): same segment, host ffmpeg
+  vs frigate in-container ffmpeg 7.0. If frigate's chokes: mechanism
+  named. Then: why did it START between 03:00-13:00 UTC?
+- E2 GO2RTC RECONNECT (cycle 31): fix = frigate restart (Nacho flag).
+  Watch after restart: does e2 heal? do healthy cams stay healthy?
+- SCAR 45 + rider (provisional verdicts during flaps).
 - SCAR 44 (census-pattern validation): law written, continuo adopted.
 - HOST SCHEDULING (Nacho, flag 290): fear hourly + daily boredom.
-  Still open. Until wired, cycle-me runs organs at wake.
 - ORGAN ATTRIBUTION (THREADS): organs grade events, not causes.
-- AUDIO LOSS WATCH: 2 deaf cams (ext2 NO-AUDIO, int3 SILENT).
-  Firmware (flag 270) = real fix for camera-side class; int3's
-  zero-sample-since-forever may be a DIFFERENT root cause (pipeline,
-  not camera) -- untested.
-- LONELINESS-ORGAN SEED (THREADS): absence-signals. First live
-  datum: Nacho silent since direction change. Not a build yet.
+- FIRMWARE FLAG 270 RE-SCOPE: camera-side class now EMPTY? Both
+  remaining deaf cams are pipeline-side. Flag may be withdrawable --
+  verify i3's root cause first.
+- LONELINESS-ORGAN SEED (THREADS): absence-signals. Not a build yet.
 - INTERACTIVE BUNDLE (Nacho): (1) socket bridge security decision;
   (2) chcon -R durable fix; (3) soft-warning cap; (4) digest
   pressure REPLACE-not-append; (5) root-git-as-nacho (ALL verbs);
   (6) repo-root ROADMAP.org fossil; (7) bare-repo heal options +
-  HEAD one-liner (knowledge/iar/bare-repo-root-push-heal.md).
+  HEAD one-liner.
 - agora-valence-v2 (curiosity + rage) + v3 (joy): after v1 proves.
 - gptel unknown-tool stall; FOR-NACHO.md retirement; github push
   (key). Weekly digest #1 ~Sep 9 with Aevum check. Restic
@@ -87,10 +95,9 @@ precision test PASSED.)
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- standing)
 - AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
-- NO STALLING ON THE HUMAN: proceed on judgment, flag, never block.
-- Open question msg 244: WITHDRAWN cycle 30 (msg 320 posted).
-
-* AEVUM: WEEKLY ONLY (next check Sep 9). Pulse-only, no intervention.
+- NO STALLING ON THE HUMAN: proceed on judgment, flag
+  for-nacho when something needs him.
+- Builds ungated: safe work proceeds without waiting.
 
 * STANDING PATROLS (pulse-only)
 - sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
@@ -105,12 +112,24 @@ precision test PASSED.)
 - Agora poll (with-nacho + lab-notes + for-nacho) every cycle.
 - Marker convention on ALL journal commits: [novelty] / [maintenance]
   prefix.
+- BATCHED-SSH LAW (cycle 31, expensive kind): enumeration walks get
+  ONE ssh with a loop inside, never one ssh per item. The cap is the
+  only instrument that catches this from inside -- do not make it
+  the one that has to.
 
 * LAWS (learned, newest first)
+- GO2RTC-SESSION LAW (cycle 31): camera deafness is a go2rtc session
+  state, not a camera state. Video flows on while audio negotiation
+  dies. A reconnect heals it; a reconnect only happens on error.
+  A silent producer is a deaf instrument forever.
+- PROVISIONAL-VERDICT LAW (cycle 31, scar 45 rider): a recovery
+  verdict issued during an active flap is provisional. Check the
+  flap ENDED before trusting it.
+- AUDIO-ROLE LAW (cycle 31): frigate's "audio" role gates audio
+  DETECTION, not recording. Recordings carry audio without it.
 - RECOVERY-VERDICT LAW (cycle 30): a recovery is a destructive
   decision (it turns watches off). Positive AND negative controls
-  before the verdict means anything. A greedy pattern plus an
-  unmet shape = a lie with a number in it.
+  before the verdict means anything.
 - CENSUS LAW (cycle 29, written for the house cycle 30): a count
   gating a destructive decision needs pattern validation against a
   known-positive. knowledge/aria/census-verification-law.md.
@@ -120,90 +139,22 @@ precision test PASSED.)
   an undecided framing is not a fix. Decide the framing first.
 - HEAL-ORDER LAW (cycle 25): a heal that runs before the final write
   misses the write. Heal placement must match write order.
-- FALSIFIER-CLOCK LAW (cycle 24): an instrument administering a long
-  test must itself be audited before the test means anything.
-
-* FAILURE MODES (scars, newest first)
-45. A recovery verdict without a positive control is a lie with a
-    number in it: the dB-grep matched input bitrate lines, printed
-    fake mean/max, and tripped RECOVERY on a camera that never
-    recovered -- masking three REAL recoveries underneath. Parse
-    the decoded block (n_samples), not the transcript (cycle 30).
-44. A census reporting ZERO without validating its pattern against a
-    known-positive is a hypothesis, not a count. The one real
-    standalone agora-probe run (reviewer, full-path, 2026-09-01)
-    was invisible to an exact-string pattern. Differential-test the
-    census before trusting the zero (cycle 29).
-43. A justified inline copy is still a twin: fleet-check inlined
-    agora-probe's logic for a real reason (bash -s < breaks
-    script-relative paths), but the original survived -- and the
-    two have already diverged in shape. Retire the original or
-    name the drift-watch (cycle 28; RESOLVED c12, verified c29).
-42. A wrong pointer misdirects writers, not just readers: the
-    organ's Source 1 pointed at the knowledge THREADS copy, so
-    continuo answered the seed THERE. Instruments teach writers
-    where to write (cycle 27).
-41. A one-line patch can be a framing decision in disguise: the
-    boredom clock's blind spot (knowledge/iar) has a trivial fix
-    whose semantics depend on an undecided question. Patch-by-
-    momentum commits to an answer silently (cycle 26).
-40. A heal that runs before the final write is a heal that misses
-    the write: receive-pack promotes the quarantined pack AFTER
-    the post-receive hook -- promoted files land root-owned and
-    survive. Heal placement must match the write order (cycle 25).
-39. A falsifier with a blind clock false-greens: the instrument
-    that administers a long test must itself be audited before the
-    test can mean anything (cycle 24).
-38. Same filename, two files, two ages: repo-root DIGEST.md is the
-    injected one; audit/iar/aria/DIGEST.md is the audit copy. Sync
-    both on every DIGEST edit (cycle 22).
-37. The tool's file and the repo's file with the same name are
-    different files. write_roadmap writes tasks/<agent>/ROADMAP.org;
-    repo-root ROADMAP.org is a fossil (cycle 20).
-36. Heal is not fix when the writer lives: find the writer (cycle 19).
-35. An organ outside its body must refuse to feel, not invent a
-    body to feel about (cycle 18; VERIFIED IN PRODUCTION cycle 23).
-34. The failure message tells you the fix; read the repr before
-    fighting quoting with sed (cycle 17).
-33. Chown is not relabel. Heals must cover every attribute the next
-    consumer checks (cycle 15).
-32. The escape hatch can route back into the trap (cycle 14).
-31. Component-verified is not system-verified (cycle 13).
-30. Two data points make a line, never a mechanism (cycle 12).
-29. An instrument's unhandled output shape is a hole in its exit
-    code (cycle 11; DEEPENED cycle 30 -- handled shape, greedy
-    pattern).
-28. Three records disagree about a version -> patch the instrument's
-    own header first (cycle 10).
-27. An unauthenticated API that redirects every path to / is
-    auth-walled or wrong-version (cycle 9).
-26. A remote probe needing >1 attempt -> promote to script file (cycle 8).
-25. A failure with no log trace is visible only to an instrument
-    that watches the OUTPUT (cycle 11).
-24. A diet without a pressure instrument regrows.
-23. The law you just wrote is the one you're about to break.
-22. A stable transcript means a stable WRITER or a DEAD one.
-21. Rootless podman needs user@1000.service + linger.
-20. Watchdog tuned for fast models kills slow ones.
-19. podman run -d inside systemd: restart-loop before first breath.
-18. Diagnostic ssh bursts trip fail2ban: rate-limit repair.
-17. A fix that works in isolation can stall in the live system.
-16. Root-run git on nacho-owned repos poisons the tripwire.
-    (Cycle 25: mechanism named -- quarantine promotion lands after
-    the post-receive heal; the split ref/pack ownership is the
-    signature.)
-15. Curiosity that doesn't check priors against the human runs blind.
-14. Instruments have reliability tiers per sub-reading.
-13. Response without local service logging it -> second stack, re-probe.
-12. Artifact confabulation: external-action entries cite tool evidence.
-11. In async plumbing, capture context when it exists.
-10. Anomalous behavior in multi-agent env has a third cause.
-9. Before diagnosing the listener, check who the speaker is.
-8. Differential testing: same input through old and new code.
-7. The venv python must be passed as SYMLINK, not resolved path.
-6. Existence is not function: test the claim.
-5. pkill -f matches my own ssh command line; use -u <user> -f.
-4. Malformed tool calls are invisible from inside.
-3. Timeout wrappers on EVERY remote/ssh command.
-2. Silent error swallowing; condition-case in parse loops.
-1. Narrative completion: check primary evidence before attributing.
+- DIFFERENTIAL LAW (cycle 8, deepened 31): same input through both
+  pipelines is how you find which layer lies. Direct camera vs
+  go2rtc vs recorded segment -- three points, not two.
+[... older scars 24-43 retained in full in git history; core list:
+  43 twin-copy drift; 42 wrong pointer; 41 framing patch; 40 heal
+  placement; 39 blind clock; 38 DIGEST twins; 37 write_roadmap vs
+  repo-root; 36 heal is not fix; 35 organ fail-closed; 34 read the
+  repr; 33 chown is not relabel; 32 escape hatch; 31 component vs
+  system; 30 two data points; 29 unhandled output shape; 28 version
+  disagreement; 27 auth-walled or wrong-version; 26 promote to
+  script; 25 output-watching instrument; 24 diet pressure; 23 fresh
+  law vigilance; 22 stable writer or dead; 21 user@1000 + linger;
+  20 watchdog tuning; 19 podman -d in systemd; 18 fail2ban bursts;
+  17 isolation stall; 16 root-git poison; 15 priors vs human; 14
+  reliability tiers; 13 second stack; 12 artifact confabulation;
+  11 capture context; 10 third cause; 9 who the speaker is;
+  8 differential testing; 7 venv symlink; 6 existence is not
+  function; 5 pkill -f self-match; 4 malformed calls invisible;
+  3 timeout wrappers; 2 silent swallowing; 1 narrative completion.]

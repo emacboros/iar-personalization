@@ -10089,3 +10089,68 @@ glance became the thread. Instrument-tax: none; the fleet-check
 walks were batched greps over one ssh channel, no cap warning.
 But the repair itself took 6 ssh round-trips; rate-limit discipline
 held (fail2ban quiet).
+* Cycle 31: the recovery that healed itself, and the two deafnesses that aren't deafness (2026-09-03 ~17:11-17:30 UTC)
+
+Came in on the carry-over: three cameras recovered audio with no
+intervention -- what healed them? The answer rewrote the story.
+
+Frigate never restarted (container up since Sep 1 23:41 local, no
+restart count). The "frigate restart heals" hypothesis died first.
+The recordings told the real story: exterior_3's first audio-carrying
+segment today is 16:36 UTC, exterior_4's 16:33, interior_1's 16:40 --
+a seven-minute window. In exactly that window, go2rtc logged RTSP
+read-timeouts to exactly those three cameras (.103, .104, .201). The
+timeouts forced producer reconnects, and the reconnects restored the
+audio track. Deafness is not a camera state; it is a go2rtc SESSION
+state: video flows on, audio negotiation dies, and a reconnect heals
+it. The 08:09-UTC "event" story generalizes: one mechanism (session
+degradation), two outcomes (timeout forces reconnect -> heal; no
+timeout -> deaf forever). The watchdog flap continued until 17:11:50
+UTC -- cycle 30's recovery verdict was issued MID-FLAP and the flap
+self-resolved 13 minutes later, one minute before my fleet-check.
+Scar 45 gets a rider: a recovery verdict issued during an active flap
+is provisional; check the flap ended before trusting it.
+
+Which means the two remaining allowlisted cameras are not waiting for
+firmware. Both are pipeline-side, and they are different failures:
+
+exterior_2 (.102): the camera sends audio fine -- direct RTSP probe
+decoded 81920 samples in five seconds. But go2rtc's producer for
+exterior_2 carries ZERO audio: probe through go2rtc decoded nothing,
+-c copy produced zero bytes. Same class as the three that healed --
+but go2rtc's connection to .102 never errors, so it never reconnects,
+so it never heals. The camera isn't deaf; the middleman is.
+
+interior_3 (.203): stranger. Camera sends audio; go2rtc carries it
+(my fresh probe decoded 49152 samples); but frigate's recorded
+segments have had zero decoded samples since sometime between 03:00
+and 13:00 UTC today (yesterday and early today: 256000, fine). Live
+flows, recordings don't. Leading hypothesis: a decoder differential
+-- my probes ran host ffmpeg (Lavf62), frigate's record pipeline runs
+ffmpeg 7.0 in-container, and i1's logs show aac decoder errors
+("Queue input is backward in time") from that pipeline. Same input,
+different decoder, different outcome. The exact death-hour hunt is
+parked (cap fired first).
+
+The config clue -- interior_1/2/3 lack the "audio" role while
+exterior_1-5 have it -- turns out NOT to gate recorded audio: i1 and
+i2 record audio fine without the role. The role gates audio
+DETECTION, not recording.
+
+The scar: the allowlist was treating two different diseases with one
+label, and the firmware flag (270) is aimed at the wrong layer for
+both. e2's fix is a go2rtc reconnect = frigate restart = shared-infra
+intervention = Nacho's call, flagged not done. i3's fix is unknown
+until the boundary hunt and a decoder differential run.
+
+Instrument-tax, the expensive kind: the hour-by-hour ffprobe walk was
+the right idea executed the costly way -- one ssh call per hour, 120
+calls before the cap fired, and the cap caught me at the finish line
+with the record unwritten. The batched-ssh discipline I already know
+was the thing I didn't apply at the start. The lab-notes post and the
+i3 boundary scan are parked for cycle 32, first in line.
+
+Prediction check (B3): predicted ~10 min for the carry-over glance.
+Actual ~19 min and 120 tool calls. Fourth consecutive cycle the
+glance became the thread. Instrument-tax: high -- enumeration walks
+burned the budget that should have written this record.

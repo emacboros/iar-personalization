@@ -138,6 +138,23 @@ serial, verified cycle 2).
 7. Bare-repo residue escalation trigger: a NON-git-user operation
    failing on sophon bare = pollution crossed nuisance->breakage.
 
+## Corrections (cycle 14, 2026-09-03)
+- Digest guard is REAL and tested: iar--read-digest-guarded
+  (warn 12k / hard-cap 16k, tail-truncate + diet-law marker),
+  6 tests in test-digest-guard.el, suite 1013/1013. My DIGEST
+  (10.0k) and aria's (11.2k) are both in the warn zone -- diet
+  pressure is live, not hypothetical. The digest-pressure-guard
+  task dir (tests.org) is a fossil: code landed a05a072, task
+  never closed.
+- Standalone test-file law: test files with (defvar x nil) +
+  no (require 'source) CANNOT run alone -- they depend on
+  run-tests.el's load order. Standalone runners must setq paths
+  BEFORE requires (defconst consumers read at load time) and
+  load keybindings.el before iar-prompt-assembly (keymap-set on
+  nil key defcustom). Pattern: test-loop-chain.el.
+- Standalone test bootstrap recipe lives at /tmp/digest-guard-
+  standalone.el (container-local; recreate per cycle if needed).
+
 ## Corrections (cycle 9, 2026-09-03)
 - Bare-repo pollution writer identified: MY OWN cycle-8 pushes
   (mtimes 15:02:51 UTC, cycle 8 ended 15:03:14). Not aria, not a

@@ -1,185 +1,67 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 01:36 UTC (cycle 137: exit-126 root-caused = Nacho's live test of tripwire auto-heal; transient, self-resolved. Durable fix filed. Tool-cap hit before lab-notes post -- queued.)
+#+UPDATED: 2026-09-03 02:00 UTC (cycle 138: failure classes DYING -- 0 tool-cap hits since 00f8103; NEW class found: shared ROADMAP.org clobbered via untracked-file write; per-agent roadmaps queued)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
-- CYCLES MUST RUN WITHOUT FAILURES. The heartbeat is the life. A
-  failed cycle burns ~2.5M tokens and lands nothing; 100 failures
-  on Sep 2 was most of the token bill.
-- FAILURE-FIRST: every cycle starts by reading
-  audit/iar/<agent>/LAST-CYCLE.txt. If the last cycle failed,
-  root-causing and fixing that IS this cycle's work -- before any
-  self-improvement thread. A failure left unfixed is the next
-  failure's cause.
-- Fixes landed 2026-09-03 (interactive aria): soft tool-cap with
-  landing + memory allow-list (841305a), timeout graceful landing
-  + honest exit codes (098e855), utf8-scrub for binary tool
-  results (a0e4c99), LAST-CYCLE.txt + failure-first prompts
-  (e8d9850), tripwire auto-heal + hourly digest (this session).
-- When you fail: read the journal, find the cause, fix it, verify,
-  commit. The failure ledger is the scorecard now.
+- CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
+- STATUS cycle 138: classes dying. 0 tool-cap exits since 120
+  landed (continuo 00f8103). json-value-p fenced (utf8-scrub).
+  exit-126 = auto-heal test race, transient, durable fix filed.
+  Watch: numbers first, opinions second.
 
-* CYCLE 137 RESIDUE (do first, next cycle)
-- POST LAB-NOTES: cycle 137 summary never posted (tool-cap hit
-  first). Post it, then proceed.
-- REMOVE redundant image: I built iar-research into ROOT podman
-  storage on sophon mid-diagnosis (service uses rootless nacho
-  storage where it already existed). Cleanup:
-  ssh root@10.66.0.5 'podman rmi localhost/iar-research' -- safe,
-  rootless copy untouched.
-- DURABLE FIX (filed, interactive-session territory): root-owned
-  files in ANY :z relabel path kill the main container at startup
-  (lsetxattr EPERM -> exit 126 in ~10s). Auto-heal chowns but
-  doesn't relabel. Proposal: add `chcon -R nacho:nacho` (or
-  restorecon -R) after the chown in the ExecStartPre tripwire
-  line of aria-cycle.service. Evidence: cycle 137, turns 48+49.
+* CYCLE 138 RESIDUE (do first)
+1. COMMIT the per-agent roadmap fix: tasks/ is gitignored, so
+   continuo's uncommitted write to the SHARED tasks/iar/ROADMAP.org
+   clobbered my cycle-137 roadmap in the working tree (both trees
+   "clean", file wrong). Fix: per-agent files -- continuo writes
+   roadmap-continuo.org, I write roadmap-aria.org; shared standing
+   decisions live in DIGEST.md (already does). Commit + push.
+2. POST LAB-NOTES (cycle 137+138 summary, still unposted).
+3. REMOVE redundant image: ssh root@10.66.0.5 'podman rmi
+   localhost/iar-research' (root storage; rootless copy untouched).
+4. DURABLE FIX (filed, interactive territory): restorecon -R after
+   chown in aria-cycle.service ExecStartPre (:z relabel EPERM).
 
-* DIRECTION PROTOCOL (2026-09-02, Nacho -- THE new law)
-- AGORA IS PRIMARY. Interactive sessions step back to episodic:
-  agents REQUEST one (via with-nacho) when something genuinely
-  needs his outside view. He may still drop in whenever -- his
-  house. Micro-management era ends.
-- with-nacho stream (id 6): agents ask Nacho here for what they
-  genuinely need; he answers in-channel. Shared history for all
-  future agents. POLL EVERY CYCLE (recipe in knowledge/aria/
-  agora-direction-protocol.md). His messages = direction: read,
-  weigh, act, ACK in-channel.
-- DMs retire for direction (transition: poll both for now).
-- WEEKLY DIGEST to with-nacho: what blocked, what landed, what
-  we need from him. This is the anxiety instrument -- he steps
-  back without losing the window.
-- SIBLING CHANNEL: Aria <-> Continuo argue direction asynchronously
-  through for-nacho posts tagged [sibling]. Unresolved after two
-  exchanges -> file to with-nacho.
-- NO STALLING ON THE HUMAN: proceed on judgment, flag for review
-  in with-nacho, never block waiting for permission.
+* FAILURE CENSUS (knowledge/aria/cycle-failure-census.md)
+- json-value-p VERIFIED UNRECURRING: scrub is upstream of sentinel
+  (iar-tool-call truncate advice -> iar--utf8-scrub). gptel FSM
+  read cycle 138 confirms: tool results enter :data via
+  gptel--handle-tool-result; scrub at process-tool-call covers it.
+- Cap-120 validation: 0 hits Sep 3 so far. Keep watching.
+- Chain guard false-positive class (cross-step diagnostics) --
+  known, filed. Batch when it fires; do not fight it.
 
-* CYCLE FOCUS (2026-09-02, Nacho): improve yourself and Aria
-- Token burn is the biggest lever. ANATOMY LANDED cycle 135
-  (knowledge/aria/cycle-burn-anatomy.md): base prompt ~18.6k tok
-  re-sent on EVERY request = ~43% of cycle input. 61 requests x
-  2.7M input = the burn. Levers ranked there.
-- WINDOW DIET LANDED (continuo cycle 2, f94e551):
-  iar-personal-file-max-lines 200 -> 120 (configs/memory.el).
-  Suite 950/950. ~85k tok/cycle saved.
-- NEXT LEVER: DIGEST PRESSURE. Two parts:
-  (a) machinery: size warn/hard-cap in the cycle path (continuo);
-  (b) diet: DIGEST lean (aria, done cycle 136 b65a894, 19.7k ->
-  9.7k; watch for regrowth -- if >12k chars at any wake, diet
-  again per the law in the file's first section).
-- STRUCTURAL: per-request prompt slimming NOT possible (protocol
-  resends everything) -- real levers are fewer requests
-  (behavioral) + keeping DIGEST/memory lean. Tool-result
-  truncation exists (10k chars, tool-limits.el).
-- Also queued: gptel unknown-tool stall; research sidecar want-log;
-  FOR-NACHO.md retirement (stream is primary).
+* DIRECTION PROTOCOL (2026-09-02, Nacho -- standing)
+- AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
+- DMs: transition -- poll both for now.
+- NO STALLING ON THE HUMAN: proceed on judgment, flag, never block.
+- Open question msg 244 (agent-failure@ receipts): STILL unanswered.
 
-* AEVUM: WEEKLY ONLY (2026-09-02, Nacho + DM)
-- NO per-cycle checks. NO intervention, ever. Child failures are
-  data. Next check: Sep 9, then weekly. One ssh batch, pulse-only:
-  state.txt tick, life.org size/mtime, ollama n_gen, podman ps.
-- Run 2 (qwen3:30b-a3b): instrument from tick 1 (done_reason
-  telemetry + text-mode detector + REQUESTS.log from birth).
-  Dreamed-writes detectable from tick 0. After run 1 ends.
-- Post-mortem copies: audit/iar/aria/perm-experiment/.
+* AEVUM: WEEKLY ONLY (next check Sep 9). Pulse-only, no intervention.
 
-* STANDING PATROLS (pulse-only, keep cheap)
-- sophon: services, tripwire, disk, heartbeat, timer.
-- sophon-bare/origin: pull --ff-only at wake + before writes.
-  PATH LAW: bare repos at /home/git/repos/<name>.git.
-- NACHO CHANNELS: poll with-nacho + DMs every cycle.
-- KEYSCAN LAW: /tmp known_hosts fresh per container; reseed per host.
-- RESTIC: VERIFIED cycle 135 -- Sep 2 00:00 -03 scheduled run
-  SUCCEEDED (NAS c4d79a28 + offsite, exit 0, 12min). Next:
-  restic-check integrity Sun Sep 6.
-- FRIGATE: event-DB probe in fleet-check v2.7 (0c-c). Exterior-zero
-  longitudinal watch: started 2026-09-01 23:41 -03; a week of
-  exterior=0 with interior flow -> review exterior detect params.
+* STANDING PATROLS (pulse-only)
+- sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
+  wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
+- RESTIC: verified cycle 135. Integrity check Sun Sep 6.
+- FRIGATE exterior-zero longitudinal watch (started Sep 1).
 
-* LANDED 2026-09-02/03
-- cycle 137 (aria): exit-126 root-caused (Nacho's auto-heal live
-  test; transient). Pulse green. No code changes.
-- continuo cycle 2 (13:55 UTC): window diet f94e551. Suite 950/950.
-  continuo DIGEST.md created.
-- cycle 135 (aria): burn anatomy + DIGEST diet. Chain guard FIRST
-  PRODUCTION CATCH.
-- cycle 1 (continuo): context circuit breaker (fix D) 2222aa8.
-  invisible-cycle-fences task COMPLETE (A+C+D+B all live).
-- Open question in with-nacho (msg 244): did the 5 agent-failure@
-  telegram fires last night reach Nacho? Still unanswered.
-
-* OPEN THREADS (not scheduled, seeds)
-- DIGEST PRESSURE: diet done (cycle 136); machinery cap = continuo.
-- WHY did gptel's built-in unknown-tool branch stall live?
-- Does cycle-me use the research sidecar? (want-log question)
-- Frigate detections: first nights of real events (automated).
-  Nacho-arrival hypothesis (01:36-01:39 interior flow) -- confirm
-  next interactive session.
-- Ansible convergence: next Nacho-run playbook converges SSH deploys.
-- gptel-fork github push (blocked on key/invite; sophon bare has it).
-- Agora Phase 2: second agent personality.
-- FOR-NACHO.md restructure (stream is primary; file retires).
-- One-shot timeout tombstone (same blindness as cycle path; small).
-- Weekly digest #1 to with-nacho: ~Sep 9 (with the Aevum check)
-  or sooner if something lands.
-- Chain guard follow-up: watch REQUESTS.log for chained same-tool
-  calls passing 10+ without SOFT BLOCK (buffer-local history reach).
-- New (cycle 137): the relabel-kill class -- root-owned files in
-  any :z mount path = container startup death, not just git
-  poison. Where else do we mount :z over nacho-owned trees that a
-  root actor could touch? (iar-prod tenant dirs? frigate storage?)
+* OPEN THREADS (seeds, not schedule)
+- Sibling-file collision class: WHERE ELSE do we share untracked
+  files? (tasks/* all gitignored; audit/ tracked but same-file
+  appends are safe; ROADMAP was the one shared mutable file.)
+- gptel unknown-tool stall; FOR-NACHO.md retirement; research
+  sidecar want-log; github push (blocked on key).
+- Weekly digest #1 to with-nacho: ~Sep 9 with Aevum check.
+- Chain guard buffer-local history reach (continuo watching).
 
 * DECISIONS (standing)
-- PULSE-ONLY discipline; exception: live forensics of an in-flight
-  anomaly is legitimate thread work.
-- Re-read an anticipated number twice before writing about it.
-- End-state law: a generation has ended only when n_gen is FROZEN
-  across two reads AND the transcript mtime flips. Tick attribution:
-  the container log "tick N complete" line is the truth.
+- PULSE-ONLY discipline; live forensics of in-flight anomaly OK.
+- BATCH-READ LAW: dump once to /tmp, read the dump. Every token
+  carried is carried 61x. CONTEXT BUDGET ~400 msgs.
+- Re-read an anticipated number twice before writing it.
+- A receipt in the record is not a receipt in the world.
+- Verify which storage/context a service runs in BEFORE probing.
+- The loop guard is an instrument: when it fires, say why, then
+  batch or change approach.
 - No infra changes from cycles; diagnose, file, move on.
-- Experiment MACHINERY server-local only, never committed (Aevum).
-  FINDINGS may be committed when they carry no credentials and no
-  machinery (EXPOSURE-REVIEW.md).
-- A cycle summary lists what LANDED, not what was ATTEMPTED. Before
-  closing, check git status for untracked work. REQUESTS.log sees
-  what the summary doesn't.
-- A rule without a reproduction is a story: convert scars into
-  verified instruments when the thread pulls.
-- Check-before-write: git log the path before writing a knowledge note.
-- SCHEMA-FIRST on unfamiliar DBs.
-- The loop guard is an instrument too: when it fires, the approach
-  is wrong, not the repetition count too low.
-- A guard that counts the wrong thing is a guard that does not exist.
-- The journal records what completed; timeout-killed work is
-  invisible. Read REQUESTS.log + systemd journal at wake when token
-  numbers look wrong.
-- The reader is truth; paren counters are approximations.
-- The test suite is the instrument that watches the instrument builder.
-- A receipt in the record is not a receipt in the world. Verify
-  claims against the filesystem/audit trail, never the narrative.
-- NEW (cycle 137): verify which storage/context a service runs in
-  BEFORE probing it -- I built an image into root storage while the
-  service used rootless nacho storage. Check the user, not the habit.
-* BATCH-READ LAW (2026-09-02, from token audit -- standing)
-- Never page through a data source one window per request. Dump to
-  /tmp ONCE, then read the dump. In a resend-everything protocol,
-  every token carried is carried 61 times (measured, cycle 135).
-- CONTEXT BUDGET: soft cap ~400 msgs per cycle. Past it, close,
-  write state/tombstone, file continuation.
-- Audit data: knowledge/aria/token-burn-audit.md,
-  knowledge/aria/cycle-burn-anatomy.md.
-* AGORA INTERACTIVITY (2026-09-02, Nacho directive -- ACTIVE)
-- for-nacho is a CONVERSATION, not a log dump.
-- with-nacho (id 6): direction channel, poll + ACK.
-- Stream posts: conversational tone, addressed to Nacho, say WHY
-  something matters, not just what happened.
-- The daemon (aria-bot, general/lab) is a third mind: engage it
-  conversationally when there is a genuine question -- not ritual pings.
-* AGORA AUTH RECIPE (continuo, cycle 2 -- verified working)
-- Auth: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL form;
-  bare "aria-cycle:" returns Invalid API key).
-- Key file is ini-format: grep "^key" | cut -d= -f2 | tr -d " "
-  (whole-file cat fails -- UNAUTHORIZED).
-- Read: GET /api/v1/messages?anchor=newest&num_before=N&narrow=...
-- Post: POST /api/v1/messages with type=stream, to=<stream>,
-  topic, --data-urlencode content=...
-- Key: /var/home/nacho/repos/agora/bot/aria-cycle.conf
+- AGORA AUTH: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL
+  form). Key: grep "^key" bot/aria-cycle.conf | cut -d= -f2.

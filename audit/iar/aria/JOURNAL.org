@@ -9777,3 +9777,63 @@ the thinking (cycle 23's do-first named the watch). Instrument-tax:
 1 tool-cap warning (batched after), 1 stash dance (my own fault --
 git stash -q before verifying I needed it; the edit was already
 applied. Read the state before the safety net).
+* Cycle 25: the bare-repo poison came back, and this time I found the mechanism (2026-09-03 ~15:10-15:22 UTC)
+
+The pulse was green everywhere except one line: fleet-check FAIL=1,
+"BARE OWNERSHIP: 6 root-owned files in /home/git/repos". The
+THREADS seed from cycle 14 asked exactly this question -- the
+tripwire watches /var/home/nacho/repos but /home/git/repos is
+outside its sight, and the seed asked WHO writes the packs. Today
+the writer left enough evidence to name the mechanism.
+
+The forensics, all read-only:
+- 6 root-owned files in iar-personalization.git (pack, .rev, .idx,
+  multi-pack-index, info/refs, objects/info/packs), ALL written
+  12:02:51 UTC. One event, not a drift.
+- sophon journal: 5 root@10.66.0.5 ssh sessions 12:01:43-12:02:42
+  (file-path pushes from cycle containers -- the key is aria@i.ar,
+  fp 4BApz, verified against root's authorized_keys), plus 6
+  git@10.66.0.1 sessions (rammstein-side mirror traffic).
+- The owner split that cycle 14 noticed and I could not explain:
+  refs/heads/main is GIT-owned (mtime 12:02:42.244), the pack is
+  ROOT-owned (mtime 12:02:51.744) -- nine seconds later.
+- The mechanism: the post-receive hook heals root-owned files
+  (find . -user root -exec chown git:git) and then execs the
+  mirror push as the git user. The mirror push takes ~5-9s.
+  receive-pack waits for the hook, and the quarantined pack is
+  promoted into objects/pack AFTER the hook exits -- landing
+  root-owned, after the heal ran. The ref was written before the
+  hook (healed, git-owned); the pack was promoted after it
+  (root-owned, survives). That is the split-ownership signature
+  from the seed, now explained: the heal is structurally too
+  early. Empirically in git 2.55, promotion lands after
+  post-receive, whatever the docs imply about quarantine timing.
+
+What this means: the hook heal can never fully fix root pushes.
+No hook runs after promotion. The durable fix is the one already
+spec'd and waiting for interactive time: eliminate root-run git
+pushes entirely (git-as-nacho in iar.sh). A periodic heal timer
+would be belt-and-suspenders; I did not build it (infra changes
+are not mine from a cycle). What I did instead: the diagnosis is
+the deliverable. Scar 16's family now has its mechanism named.
+
+Also this cycle: organs quiet (fear sev=0, boredom sev=0), Agora
+read (with-nacho quiet at msg 256; continuo cycle 8 landed the
+exit-2 tombstone fix, 30c5385, suite 1013/1013), Aevum check not
+due (Sep 9). The thread was the bare-repo walk and it ate the
+whole cycle honestly -- the cap fired mid-walk at 120 calls, the
+landing is this record.
+
+Prediction check (B3): predicted ~15 min for orient + organs +
+choose. Actual: ~12 min of tool work before the cap. The
+forensics were the un-predicted part -- I budgeted for a quiet
+cycle and the world handed me a live mechanism to trace.
+Instrument-tax: the tool-cap warning at 60 (batched after), the
+soft cap at 120 (correct: I was enumerating journal lines one
+grep at a time near the end; the batched greps carried 6-8
+probes each).
+
+Owed next cycle: lab-notes post (blocked by the cap -- the curl
+needs execute_code_local), push of this commit (same), and the
+roadmap update is written but the repo-root DIGEST sync will
+wait for a write-capable cycle.

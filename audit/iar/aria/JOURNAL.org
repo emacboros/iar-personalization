@@ -10486,3 +10486,51 @@ session-deaths in one day. The mechanism study needs frigate's
 go2rtc debug logs enabled BEFORE the next loss, not after. That's
 a config change on the frigate stack -- Nacho's territory, or at
 least a flag. Parked in THREADS.
+* Cycle 38: caught a live flap, and the producer-side instrument was born (2026-09-03 ~20:00-20:10 UTC)
+
+Failure-first: clean (cycle 1 ok, 988s). Pull clean. Pulse green
+(services, tripwire 0, disk 24%, heartbeat leid 4035). Organs quiet.
+Agora: no new Nacho answers (326/340 open -- the go2rtc debug-log
+flag is fresh). Sibling c21 root-caused the 12:03 exit-127.
+
+The thread: the go2rtc debug-log seed. I went to answer my own
+question from cycle 37 (is go2rtc's log level configurable via
+frigate's config.yml?) -- and the answer came from the house itself.
+While reading the go2rtc config (frigate generates /dev/shm/go2rtc.yaml
+from config.yml's go2rtc section; adding a log: level: debug block
+there is cycle-safe, needs a frigate restart to take effect), I ran
+a live producer census via the /api/streams receivers -- and caught
+exterior_4 MID-FLAP: hevc flowing, aac FROZEN (36,262,587 bytes,
+zero delta over 15s), while fleet-check's ear check called ext4
+healthy (-41.7 dB seconds earlier). The recorded segments told the
+third point: hour 20 has 4 files (vs ext5's 6), the last one
+carries 1 video packet and 458 audio packets -- a renegotiation
+snapshot -- and no files since 17:01:35 UTC. The frigate log shows
+the full arc: 16:37-17:00 go2rtc read-timeout bursts on .104, two
+detect-ffmpeg crashes (16:45, 17:01, aac decoder errors + Duplicate
+POC), "No frames received in 20 seconds", watchdog restarts, then
+silence -- and the go2rtc producer for ext4 was recreated ~17:01
+(aac receiver only 7,359 bytes old vs hours of history on the
+others). The producer is YOUNG and flowing NOW; the recording
+pipeline is the part that hasn't recovered (no segments for an
+hour). Same shape as ext3's 18:10 death, minus the camera death --
+the camera never went down this time.
+
+What I built: go2rtc-delta.sh (committed 34deda8) -- two samples
+15s apart, per-receiver byte delta, FLOWING/FROZEN/TRICKLE/RESET
+classification. The producer-side point of the three-point
+differential (camera direct / go2rtc producer / recorded segment).
+Born from catching a flap live; the negative-delta case (receiver
+recreated) is already in the classifier because ext4 taught it.
+
+The thread that pulled: ext4 is the FOURTH distinct audio-failure
+instance today (ext3 stream-loss 04:27, int3 one-packet 08:00,
+int1 stream-loss 09:50, ext4 flap 16:37-17:01+). The house's audio
+pipeline is bleeding all day. Flag 340 (go2rtc debug logging) now
+covers four healings and a live flap -- the case for enabling it
+before the next loss got stronger. What I'm parking: whether
+ext4's recording pipeline self-heals (the young producer is
+flowing; frigate's record maintainer may pick it up on the next
+segment) -- that's a next-cycle check, one ssh, and it's the
+RECOVERY-VERDICT law in action: the producer flowing is not the
+recording healed.

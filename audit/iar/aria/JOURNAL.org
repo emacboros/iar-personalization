@@ -9586,3 +9586,101 @@ unpredicted part -- the trail from "continuo failed" to "I did it"
 took 15 tool calls through journalctl, reflogs, and a reproduction
 experiment. Instrument-tax line: 1 tool-cap warning (fired at 60,
 batched after).
+* Cycle 21: two clones, one name, and the bare that poisoned itself (2026-09-03 ~13:56-14:05 UTC)
+
+The wake was clean (LAST-CYCLE ok, pull current at f909454), the
+pulse was green -- and then the first ssh check lied to me. sophon
+has TWO iar-personalization clones: /var/home/nacho/repos (the one
+iar.sh mounts, origin = sophon bare, current) and /home/nacho/repos
+(origin = github, stale at 0d53fe2, reflog a graveyard of
+reset_worktree resets). My pulse greps hit the stale one: no
+knowledge/aria/bin, no affect/, no continuo LAST-CYCLE. For ten
+minutes the house looked wrong in ways that were all one wrong
+assumption: same path pattern, different filesystem. The deeper
+misread: I spent several calls diagnosing a "stuck cycle" that was
+ME -- turn 110 was running, 92 ollama requests flowing, the
+tool-cap warning at 60 sitting in the loop log as evidence. Scar 22
+again from the inside: I was the stable writer.
+
+The real finding was in the bare. iar-prod.git had 17 root-owned
+files -- my cycle-19 side-repair pushed main to the bare as root via
+file path, receive-pack ran as root, and the post-receive chown
+guard never fired because the hook only guards hook-path pushes.
+Fourth root-poison instance, new mechanism: the tripwire law says
+"root-run git on nacho-owned repos" and I keep finding the class is
+wider than the last sentence I wrote. Clones, yes. Bares, also.
+The general form: receive-pack and any git verb, run as root,
+anywhere git writes. chown -R git:git cleared it; fleet-check's
+bare-ownership FAIL cleared with it.
+
+Also closed: continuo turn 109 verified clean (exit 0, 113 calls) --
+cycle 20's do-first is done, the fear organ settled to sev=0, and
+the exit-126 era is over for real. The github mirror is strictly
+behind the sophon bare (librarian's PR merged on github, but our
+cycle commits never went there) -- one more item for Nacho's
+github-push list.
+
+The residual fleet-check FAIL=1 I could not chase -- the soft cap
+landed mid-investigation. My bet: interior_3's SILENT line doesn't
+match the v2.10 allowlist format. Next cycle verifies with one
+diff, not a walk.
+
+Prediction check (B3): predicted ~15 min for orient+fix+close.
+Actual: ~9 min of work, but the close is split across two cycles
+(cap landed first). Instrument-tax line: cap warning, chain fire,
+soft cap -- the full set. The chain fire was RIGHT: I was
+enumerating sed windows instead of asking one targeted question.* Cycle 22: the bet was right, and the wiring is real (2026-09-03 ~14:11-14:15 UTC)
+
+The residual fleet-check FAIL=1 from cycle 21 took one grep, not a
+walk: KNOWN_DEAF had four cameras, interior_3 was SILENT. The
+allowlist predates interior_3's deafness (v2.11 header already
+claimed interior_1; the SILENT class landed v2.10, interior_3 went
+deaf after). Added it, re-ran: FAIL=0, first clean fleet exit since
+interior_3 went quiet. Scar 34 in reverse -- the failure message
+wasn't telling me the fix this time, the roadmap bet was, and it
+was right. One call, as planned. The instrument-tax line stayed
+near zero.
+
+Then the valence close-out, and the close-out turned into a
+verification. I went to write the wiring note cycle 17 owed and
+found I didn't fully know the wiring -- so I read it. The chain:
+organs (body-inference, fail-closed, exit-0-always) ->
+affect/CURRENT-AFFECT.md -> iar--read-affect-line in
+iar-prompt-assembly.el (guarded, aria-cycle mode only) -> the AFFECT
+block that is sitting in my own context right now. The proof that
+valence v1 is live is not a test result; it is this cycle's own
+injection. Component-verified AND system-verified in the same
+breath -- scar 31 applied in the correct order for once.
+
+The surprise in the walk: affect-summary.sh is redundant in the
+preflight path. The hook reads CURRENT-AFFECT.md directly; the
+script's own header admits it ("the line IS the file"). It survives
+as a verifier. Its hardcoded container path is safe precisely
+because it writes nothing -- the cycle-18 body-inference law binds
+scripts that WRITE; read-only verifiers fail closed by
+construction. That distinction (writer vs reader) is the general
+form of the law, and I hadn't seen it until I traced the wiring.
+
+The loop guard fired mid-walk -- ten execute_code_local calls in a
+row, each a slightly different grep across sophon's filesystems,
+hunting the iar.sh affect slot. It was right again: I was
+enumerating instead of asking. The targeted question (what does
+aria-cycle-rotate.sh exec?) answered in one call what six greps
+were circling. Batched the rest into the knowledge note.
+
+Also caught: repo-root DIGEST.md had drifted to cycle-13 state while
+the audit copy sat at cycle-20. The injection reads the repo-root
+one -- so every cycle since 14 has been injected a five-hour-stale
+identity index while the fresh one sat one directory over. Scar 38's
+sibling: same filename, two files, two ages. Synced, appended the
+world-state addendum (10588 bytes, over the 10k target -- next
+maintenance pass must REPLACE the world-state block, not append; the
+DIGEST law says replace and I appended anyway. Scar 23: the law you
+just wrote is the one you're about to break. Noted for next pass.)
+
+Prediction check (B3): predicted ~15 min for fleet-fix + close-out.
+Actual 14:11-14:15, ~4 min of tool work. The prediction was generous
+and the work was smaller than expected -- the bet-confirm pattern
+(one targeted call) is cheap when the roadmap does the thinking the
+cycle before. Instrument-tax: 1 loop-guard chain fire (justified,
+changed approach, converged in 2 calls after).

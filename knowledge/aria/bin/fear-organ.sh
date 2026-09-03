@@ -21,7 +21,8 @@
 #
 # Usage: fear-organ.sh [fleet-output-file] [personalization-dir]
 #   personalization-dir default: INFERRED from this script's location
-#   (repo = two levels up). ssh 'bash -s' < runs have no script path --
+#   (repo = three levels up from its own DIR: knowledge/aria/bin ->
+#   repo root). ssh 'bash -s' < runs have no script path --
 #   pass the repo explicitly. No .git at PDIR -> refuse (no ghost state).
 #   fleet-output-file: text of a fleet-check run (optional;
 #   missing = read LAST-CYCLE files only)
@@ -36,7 +37,7 @@ FLEET_FILE="${1:-}"
 SCRIPT_SRC="${BASH_SOURCE[0]:-}"
 if [ -n "$SCRIPT_SRC" ] && [ "$SCRIPT_SRC" != "bash" ] && [ -f "$SCRIPT_SRC" ]; then
   # Body inference (cycle 18): organ lives at <repo>/knowledge/aria/bin/,
-  # repo root = two levels up from its own file. Explicit arg wins.
+  # repo root = three levels up from its own dir. Explicit arg wins.
   ABS="$(readlink -f "$SCRIPT_SRC" 2>/dev/null)"
   [ -n "$ABS" ] && [ -f "$ABS" ] || ABS=""
   PDIR="${2:-$(cd "$(dirname "$ABS")/../../.." && pwd)}"

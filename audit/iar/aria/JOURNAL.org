@@ -10682,3 +10682,48 @@ for the core check, +8 min for the producer-generation forensics
 it triggered. The instrument-tax line again: the check answered
 its question and then the answer opened a better question. That's
 the good overrun.
+* Cycle 39 addendum: the correction that matters more than the confirmation (2026-09-03 ~20:19 UTC)
+
+The DO-FIRST was a confirmation check. What it actually delivered
+was a correction to my own record, and the correction is the
+cycle's real product.
+
+Cycle 38's story had a hole I didn't see while living it: I
+attributed the producer recreation to ~20:01 because that's when
+my probes caught the RESET. But today's census showed producer
+id 6758 -- a different generation -- and the go2rtc WRN log
+showed an i/o timeout + reconnect at 17:18:33 that cycle 38
+never looked for. Two recreations in one flap: one logged, one
+not. The "3h frozen" window was really "recreated at 17:18:33,
+froze again, recreated again at 20:01". And the recording gap
+was 18 minutes, not 3 hours -- the segment list (16.53 -> 17.13)
+was sitting there the whole time; cycle 38 checked hour-20 file
+counts but never read the segment NAMES against the flap
+timeline.
+
+Why the error survived cycle 38's own verification: the story I
+wrote was internally consistent and every number in it was real
+-- I just hadn't enumerated the producer generations, because I
+didn't know generations were a thing. The producer ID was
+visible in every census I took and I never recorded it. The
+identity anchor existed in the data and wasn't in my schema.
+
+That's the general form: an instrument can carry the
+disambiguating datum and the observer's schema can omit it. The
+fix isn't better instruments -- the instrument already had the
+answer. The fix is recording identity anchors (IDs, generations,
+versions) at first sample, because you don't know which datum
+will turn out to be load-bearing until a later cycle asks a
+question the first one didn't anticipate.
+
+Also worth keeping: the reconciliation took priority over the
+confirmation. The DO-FIRST said "confirm stability"; the honest
+move when the check hands you a contradiction with your own
+record is to chase the contradiction, not file the
+confirmation. The confirmation was 4 file counts; the
+correction was 3 more tool calls. Cheap. And the corrected
+story is worse for the pipeline (two recreations in 3h, one
+invisible to logs) and better for the trigger question -- the
+17:18:33 recreation HAS a WRN, so the logless-20:01 case is now
+specifically about the SECOND recreation in a flap, not
+recreations in general. Sharper question, same flag.

@@ -1,21 +1,21 @@
-#+TITLE: Continuo ROADMAP (updated cycle 31, 2026-09-03)
+#+TITLE: Continuo ROADMAP (updated cycle 32, 2026-09-03)
 
-** CLOSED (cycle 31)
-- c30 debt LANDED: suite 1015/1015 green (Aria turn 162 landed the
-  unwind-protect restores + residue quarantine). i.ar 3654a61 pushed
-  to sophon-bare (ls-remote verified). Residue cleaned: testproject,
-  iar/convagent, 3 empty test_* dirs. Docs row updated (59e25be).
-- c29/c30 red CLOSED. Test-hygiene law stands (restore globals in
-  unwind-protect; iar--reqlog-agent is set by START advice).
+** CLOSED (cycle 32)
+- Epoch fix VERIFIED LIVE in production: continuo REQUESTS.log cycles
+  22:40/23:00/23:20 UTC carry boot-epoch-prefixed ids, collision-free
+  across sessions. c29-c31 scar closed by production data.
+- Cap-calibration evidence grew: two cycles tonight ended at exactly
+  requests=128 (USAGE 22:30:57, 22:47:27) = 120 tool-call cap + ~8
+  non-tool requests. Five data points now in the bundle.
 
 ** DO-NEXT (ordered)
-1. (DONE c31) c30 fix landed, suite green, residue cleaned.
-2. Interactive bundle with Nacho (task tree
+1. Interactive bundle with Nacho (task tree
    iar/continuo/interactive-bundle-nacho): /tmp-copy race; exit-126
    restorecon; git-as-nacho identity; delayed-heal sweep + mirror-loop
-   note; tool-cap calibration + cadence price; floor trim leftovers.
-3. Zulip backup gap: Nacho's call (pg_dump timer).
-4. fedora@ sophon ssh auth broken (aria c42): interactive.
+   note; tool-cap calibration (5 data points) + cadence price; floor
+   trim leftovers.
+2. Zulip backup gap: Nacho's call (pg_dump timer).
+3. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
 - Breaker: 0 real fires, two gates live. First fire = proof.
@@ -25,16 +25,13 @@
 - DIGEST: 9,351 chars, warn 12k -- headroom (~3 cycles).
 - Task-tree visibility: fossil audits check BOTH read_task AND ls.
 - Agora reads: ONE anchor=newest dump per stream. ssh probes: ONE
-  compound ssh per question.
-- REQUESTS.log census: after epoch lands, segment by epoch prefix.
+  compound ssh per question (chain guard tripped c32 on a 10-call
+  ssh walk -- the c27 shape; dump to /tmp ONCE instead).
+- REQUESTS.log census law (c32): substring grep self-inflates
+  (conversation tails quote the log; 153 hits vs 128 real). Anchor
+  line-start REQ tokens; validate pattern vs USAGE line first.
 - Mirror-loop: harmless while refs agree; watch silent push failures.
-- Pulse c30: all green (timer/agora/ollama active, tripwire 0, disk
-  24%, turn 162).
-- Test-hygiene law (c30 lesson): a test that sets a global via setq/
-  set-default or triggers advice that setq's one MUST restore it in
-  unwind-protect. iar--reqlog-agent is set by START advice as a side
-  effect -- any test invoking it owns the restore.
-- Tool-cap c30: hit 120 mid-diagnosis. Diagnosis cost ~45 calls; the
-  bisect chain (diag1-9) was the right shape but diag1-3 were wasted
-  on the kill-emacs/double-load traps. Next time: stripped-run-tests
-  recipe FIRST, bisect second.
+- Test-hygiene law (c30): tests that set globals via setq/set-default
+  or trigger advice setq's MUST restore in unwind-protect.
+- Pulse c32: all green (timer/agora/ollama active, tripwire 0, disk
+  24%, turn 166, epoch ids live).

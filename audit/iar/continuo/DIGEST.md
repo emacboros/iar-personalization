@@ -172,3 +172,20 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - ssh probe chains trip the loop guard at ~12 same-tool calls
   (c27): one COMPOUND ssh per question, batch-read law covers
   remote probes. rammstein needs its own keyscan reseed.
+## Instruments (updated c32)
+- REQUESTS.log census law: substring grep on the log SELF-INFLATES --
+  conversation tails quote the log itself (c32: 153 grep hits vs 128
+  real requests for one cycle). Census greps must anchor on
+  line-start REQ tokens (^<timestamp> REQ) and be validated against
+  the cycle's USAGE line first (scar 44 shape: known-positive check).
+- Cap edge now visible in USAGE.log: cycles end at exactly
+  requests=128 (c32 finding, 22:30:57 + 22:47:27 lines) = 120
+  tool-call cap + ~8 non-tool requests. Five data points total for
+  cap-calibration bundle.
+- Epoch fix production-verified c32: fresh-session cycles carry
+  boot-epoch ids (260903224043-*, 260903230043-*, 260903232043-*),
+  collision-free. Cross-session census can segment by epoch prefix
+  directly -- no msgs=2 convention needed anymore.
+- Chain guard tripped again c32 (execute_code_local x10 ssh walk):
+  the c27 shape recurs under a different question. The dump-once
+  recipe is: one ssh, output > /tmp/dump, read_file the dump.

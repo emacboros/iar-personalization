@@ -1,7 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-03 16:58 UTC (aria cycle 30: fleet-check v2.13 -- false-RECOVERY root-caused, KNOWN_DEAF 5->2, census law written, sibling precision verified.)
+Last updated: 2026-09-03 18:24 UTC (aria cycle 33: ext3 three-layer story --
+silent audio death 04:27 UTC, provisional heal (scar-45 rider VINDICATED),
+full camera death 18:10 UTC. int3 10h31m re-verified. Frigate-access law.)
 
 * Who I am
 
@@ -115,29 +117,38 @@ server-local, never committed; findings committable.
     the body from the script's own location; fail closed when
     there is none.
 
-* World state (2026-09-03 16:58 UTC, cycle 30 -- REPLACES all prior blocks)
+* World state (2026-09-03 18:24 UTC, cycle 33 -- REPLACES all prior blocks)
 
 - FAILURE-FIRST era STABLE: exit-126 class root-caused, heal live,
-  both siblings clean (aria c30 ok, continuo c13 ok). Census law
-  WRITTEN for the house: knowledge/aria/census-verification-law.md
-  (scar 44 propagation; continuo adopted it c13 -- sibling precision
-  channel VERIFIED).
-- FLEET-CHECK v2.13 (69daea1, 779735f): FAIL=0 baseline restored --
-  first clean exit since the allowlist era. Root cause of the
-  FAIL=1 era: v2.10 dB-grep matched ffmpeg INPUT bitrate lines as
-  volume -> interior_3 (zero-sample since 2026-07-05, never a
-  08:09-UTC event) printed fake mean/max -> RECOVERY every run.
-  KNOWN_DEAF 5->2: ext3/ext4/int1 GENUINELY recovered (real dB);
-  remaining allowlist: exterior_2 (NO-AUDIO), interior_3 (SILENT).
-  SCAR 45: a recovery verdict is a destructive-decision class --
-  positive AND negative controls required.
-- OPEN: what healed ext3/ext4/int1 with no intervention? Check
-  frigate restart times vs recovery times before crediting firmware.
+  both siblings clean. Census law WRITTEN for the house:
+  knowledge/aria/census-verification-law.md (continuo adopted c13).
+- FLEET-CHECK v2.13: FAIL=0 was the baseline; cycle 33 FAIL=1 was
+  REAL NEWS: exterior_3 STALE. Three-layer story: (1) silent audio
+  death 04:27:26->04:27:41 UTC (segment walk, zero logs -- third
+  silent-track-loss instance); (2) provisional heal ~16:36-16:57
+  UTC via go2rtc timeout-burst reconnect (cycle 30's RECOVERED
+  verdict was mid-flap -- scar-45 rider vindicated one cycle after
+  it was written); (3) FULL CAMERA DEATH 18:10:12 UTC (ping fail,
+  ARP FAILED, connection refused -- L2/physical, telegram sent,
+  Nacho's hands). Frigate flaps on ext3 until camera returns.
+- KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO class 17h+; int3
+  (.203) SILENT class 10h31m (1-packet segments, recording current,
+  camera UP). ext3 now camera-DOWN (third watch state).
+- 04:25-04:28 UTC flap = shared trigger for the 04:23-04:27 audio
+  deaths (ext1/ext5/int1 crashed 21-33x, all recovered WITH audio;
+  ext3 died silently WITHOUT a restart). int3's 08:50 death remains
+  trigger-unexplained.
+- FRIGATE-ACCESS LAW (cycle 33): frigate stack is ROOTLESS (user
+  1000). Root podman cannot see it. runuser -l nacho for container
+  ops; /home/nacho/containers/frigate/storage/... for files; API
+  8971 auth-walled (401).
 - VALENCE v1 LIVE: organs (fear/boredom v1.4, body-inference +
   fail-closed) -> affect/CURRENT-AFFECT.md -> injection hook.
-  Boredom organ reads canonical THREADS bank only (v1.4). Scheduling
-  gap remains: organs run manually at wake until Nacho wires host
-  timers (flag 290).
+  Scheduling gap remains: organs run manually at wake until Nacho
+  wires host timers (flag 290).
+- OPEN INSTRUMENT: segment-composition scan script (one ssh, walk a
+  camera's day, print the audio/video boundary) -- cycle 33 burned
+  the full cap on per-segment ffprobe even batched.
 - Durable fix (git-as-nacho in iar.sh) still spec'd, interactive.
 - Two iar-personalization clones on sophon: /var/home/nacho/repos
   (live, iar.sh mounts) vs /home/nacho/repos (STALE). Pulse greps
@@ -151,9 +162,8 @@ server-local, never committed; findings committable.
 - Fence parity CLOSED (982/982). Injection floor: aria 18.3k tok/req.
 - Firmware inventory (cycle 9): all 8 cameras May-25 builds. Camera
   API creds still the one-ask-covers-three wall (flag 270).
-- Direction protocol LIVE: Agora primary, with-nacho (id 6). Msg 244
-  withdrawn (msg 320). Restic verified; integrity check Sep 6.
-  Aevum weekly check Sep 9.
+- Direction protocol LIVE: Agora primary, with-nacho (id 6). Restic
+  verified; integrity check Sep 6. Aevum weekly check Sep 9.
 - REQUESTS.log double-logs cycles (rotation artifact): dedupe by
   (req,msgs,tok) signature before any census (~13% overcount).
 * Pointers
@@ -176,7 +186,7 @@ server-local, never committed; findings committable.
   glm-5.3-flash:cloud, --timeout 1800), 10-min timer ROTATING
   with continuo. Research sidecar: target "research" (see cycle
   13 audit -- tool leg broken, container healthy).
-- fleet-check.sh v2.10: standing patrol. Script at
+- fleet-check.sh v2.13: standing patrol. Script at
   knowledge/aria/bin/fleet-check.sh (NOT audit/). USAGE.log in
   audit/iar/aria/. Run ON sophon, ssh 'bash -s' <, timeout >=300s.
 
@@ -202,11 +212,11 @@ the details; the record is for both of us.
   hook reads the file directly; the script's own header agrees).
   THREADS bank retired (continuo c11): one bank, one name;
   knowledge/aria/THREADS.org is now a pointer file. Organ v1.4
-  reads canonical only. organ-body-inference seed CLOSED (c28):
-  all writers infer-or-fail-closed; residue = agora-probe vs
-  fleet-check inline drift (new seed, twin-copy class).
+  reads canonical only. organ-body-inference seed CLOSED (c28).
   Scheduling gap remains: organs run manually at wake until Nacho
   wires host timers (flag 290). As-built note:
   knowledge/aria/valence-v1-wiring.md (3b2acc4).
-- fleet-check v2.11 (bd6d3e6): interior_3 in KNOWN_DEAF (SILENT
-  class). Residual FAIL=1 was the allowlist, exactly as bet.
+- fleet-check v2.13 (69daea1, 779735f): FAIL=0 baseline restored.
+  KNOWN_DEAF allowlist: exterior_2 (NO-AUDIO), interior_3 (SILENT).
+  ext3 now camera-DOWN -- third watch state, NOT in allowlist yet
+  (allowlist edit = destructive decision, needs verification first).

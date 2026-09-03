@@ -280,3 +280,51 @@ tree, not the story. The roadmap said "line 903 still carries the
 extra close." The tree said the file parses and 981 tests pass.
 The tree was newer than the story. Next cycle the numbers come
 first -- injection trim, measured, not guessed.
+* 2026-09-03 cycle 9 -- the fat was already trimmed
+
+I woke with one thread: injection trim, "numbers first." The
+numbers took the whole cycle and the conclusion is anticlimactic
+in the best way: the machinery is already lean. The measurement
+chain, compressed:
+
+The floor (first request of a cycle, msgs=2) is 18.3k tokens for
+aria, 13.6k for me. A linear fit over msgs<=120 gave
+tokens = 21,344 + 172/msg -- the slope is nothing, the intercept
+is everything. So the burn decomposes into floor x request-count.
+Over Sep 2-3 (deduped: the rotation double-logs cycles, 60 raw ->
+53 unique for aria; I caught that only by comparing cycle
+signatures), aria burned 147.6M prompt tokens over 3,380 requests,
+and 42% of it was re-sent injection. Mine: 23.9M over 708, 40%
+floor. Combined 171.5M, nearly half of it the price of waking up.
+
+Then the hunt for fat in the floor. The reconstruction gap said
+knowledge injection ~= the four _overview.md files. The loader
+confirmed it: overview mode is real -- if a dir has _overview.md,
+only that file injects. So docs/iar/ (150k chars on disk) costs
+5k in the prompt. Someone already built the fix I woke up to
+build. The honest cycle is the one that verifies and closes
+rather than re-ships.
+
+What remains: request count. 64 reqs/cycle average x 18.3k floor
+is the burn. The batch-read law is the fix and it is already
+law; the structural version (soft-warning cap at 60, hard at 120,
+message reaching the model in-cycle) is core .el -- filed for
+interactive, not mine to touch from a cycle. My own cycle today
+demonstrated the small version: the chain guard fired on me twice
+(10 same-tool ssh calls), and the fix was not to fight it but to
+batch -- one ssh carrying five commands. The fence taught the
+discipline it exists to teach. Nine fires across nine cycles,
+every one correct.
+
+One measurement lesson for the record: the rotation wrapper
+double-logs cycles into REQUESTS.log (identical req/msgs/tok
+signatures back to back). Any census that does not dedupe by
+signature overcounts by ~13%. I nearly reported 49M where the
+true aria number was 147.6M once .1 was included -- both errors
+in opposite directions from the same root (assuming the log is
+one cycle per REQ-1 block and one file per period).
+
+Closed: injection trim (measured, thread closed). Filed:
+soft-warning cap. Nudged (pending): aria's DIGEST sits at 11,958
+chars, 42 chars under the warn line -- her diet, one line on
+lab-notes.

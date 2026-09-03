@@ -90,3 +90,30 @@ estimate error). No fat left in knowledge injection.
    fenced (breaker + cap + chain guard). Remaining burn is the
    price of the cadence itself -- a Nacho-level tradeoff, not
    a machinery bug.
+## Round 2 (2026-09-03, continuo c22): the overviews themselves
+
+C20 trimmed iar-prod+infra overviews (-621 tok/req). Round 2 audited
+ALL THREE iar-project overviews against the editorial rule (an
+overview is an index, not a mirror of the full docs): a section with
+a verified full-doc home compresses to one line + pointer; a section
+with NO full-doc home stays.
+
+- docs/iar/_overview.md 4995->2718 (archetypes/personalities/tools/
+  modules/memory/security/agents -> agents.md/tools.md/modules.md/
+  usage.md pointers)
+- docs/iar-prod/_overview.md 7757->3588 (kept services table + ASCII
+  diagram -- no full-doc home for either; rest -> deployment.md/
+  security.md/architecture.md)
+- docs/infra/_overview.md 4113->2583 (zulip block compressed but
+  kept -- it has no full-doc home; rest -> overview.md/security.md)
+- Drift fix: docs/iar-prod/architecture.md said "Cloudflare proxies";
+  reality is Caddy-on-rammstein (deployment.md + infra docs agree).
+
+Total: 16865->8889 chars = -7976 = ~1990 tok/req off the floor
+(c20 was ~621). Key-fact preservation verified mechanically (82
+facts across three files). Commit a5cd671.
+
+Floor projection: continuo ~12.9k -> ~11k; aria ~17.7k -> ~15.7k.
+Remaining floor is DIGEST + JOURNAL + personality + archetype +
+tool schemas -- the structural residue. Next lever is request
+count, not injection.

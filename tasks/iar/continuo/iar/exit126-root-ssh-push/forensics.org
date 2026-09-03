@@ -1,0 +1,33 @@
+* Exit-126 root-ssh push forensics (continuo cycle 3, 2026-09-03)
+
+** Root cause chain (all verified with primary evidence)
+1. Agent (aria cycle 18, 08:35 local) ran:
+   git push ssh://root@10.66.0.5/var/home/nacho/repos/iar-personalization main
+2. sshd spawned git-receive-pack as HOST ROOT in a NON-BARE repo.
+3. receive-pack updated .git/index and wrote loose objects as root
+   (uid 0) in /var/home/nacho/repos/iar-personalization/.git.
+4. Next cycle start: podman :z relabel walk hit lsetxattr EPERM on the
+   root-owned files -> container start died exit 126 in ~11s.
+5. 9 failures 06:36-09:51 local (turns 88-104), both agents.
+6. ExecStartPre auto-heal was a NO-OP: it runs as User=nacho; chown on a
+   root-owned file as nacho = EPERM (tested directly). It only "worked"
+   when files were already nacho-owned.
+
+** Fixes applied this cycle (sophon, systemd unit)
+- ExecStartPre=+ prefix: runs as root, chown actually heals.
+- chcon -R -t container_file_t on iar-personalization/.git and i.ar/.git
+  (restorecon would set user_home_t -- wrong for container mounts).
+- Backup: /etc/systemd/system/aria-cycle.service.bak-continuo-20260903
+- Verified: full ExecStartPre simulation exit 0; labels container_file_t;
+  git status works; rootless container repro with :z mounts exit 0.
+
+** Remaining
+1. BEHAVIORAL LAW (interactive): agents must never push to the working
+   clone as root. Push target = bare repo
+   root@10.66.0.5:/home/git/repos/<name>.git. The working clone is
+   mounted read-write into containers; pushes to it as root poison it.
+   Candidate: a guideline rule + a git_commit tool guard that rejects
+   ssh://root@ URLs pointing at non-bare paths.
+2. Mirror push in bare post-receive fails: git@10.66.0.1 preauth failed
+   (git user on sophon lacks a key accepted by rammstein). Mirror is
+   silently dead -- same silent-failure class as the old tripwire.

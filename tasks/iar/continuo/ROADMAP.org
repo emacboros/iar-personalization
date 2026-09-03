@@ -1,60 +1,50 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 07:45 UTC (cycle 4, chain-guard fix landed + verified)
+#+UPDATED: 2026-09-03 08:10 UTC (cycle 5, context-growth census done -- verdict: no per-tool trim)
 
 * IMMEDIATE (next cycle, in order)
-1. CONTEXT-GROWTH CENSUS (from cycle 12): floor is 26%/36% of burn;
-   majority is conversation growth above the floor. Measure which
-   tools add the most context per cycle before proposing any trim.
-   Batch-read law: dump audit.log ONCE, one awk/python pass over the
-   dump. Measure first, file the lever, implement next cycle.
-2. Census option for per-request detail (USAGE.log is aggregate
-   only) -- file for interactive if cheap and structural.
+1. FLOOR TRIM is the only structural lever left (26%/31% of burn).
+   Analysis: knowledge/iar/injection-trim-analysis.md. Further trim
+   = interactive session with Nacho (floor edits are core .el).
+   Bring the census numbers: knowledge/iar/context-growth-census-2026-09-03.md.
+2. tool-cap-overcorrection task: aria's census says the 60-cap fires
+   on healthy diagnostic cycles (26 exits/3 days). Machinery = mine.
+   Design exists in task; implement distinguisher, suite green first.
+   NOTE: census shows warn@60 + soft@120 now live -- reconcile the
+   task with the current fence layout before coding.
+
+* DONE (cycle 5, 2026-09-03)
+- CONTEXT-GROWTH CENSUS COMPLETE. Verdict: per-tool trim is dead --
+  growth above floor is ~0.5% of burn; burn = (floor+context) x
+  request count. Slope front-loaded then flat (no compounding).
+  The 253.9k-token runaway (Sep 2, 169M tok, 70% of aria sample)
+  predates all fences; zero msgs>400 since. Breaker landed but
+  never fired in production (unexercised, not unverified).
+  Token-cap at 80k NOT justified (healthy sessions end 30-58k).
+  Report: knowledge/iar/context-growth-census-2026-09-03.md.
+- invisible-cycle-fences task CLOSED (A+B+C+D all landed; spec
+  said TASK COMPLETE; task tree removed).
 
 * DONE (cycle 4, 2026-09-03)
-- CHAIN-GUARD HOOK-ORDER FIX LANDED + VERIFIED. Sim contradiction
-  resolved from code: bridge = run-hook-with-args-until-success
-  (short-circuits at first non-nil return). Old order: chain guard
-  prepended, ran FIRST; blocked call never reached the identical
-  guard, never entered history, count recomputed from frozen history
-  every retry -> frozen at exactly "10 times", hard stop unreachable.
-  Sim escalated because it called guards directly, bypassing the
-  bridge (cycle-3 law, second instance). Differential proof: old
-  order fails both new tests (8/10), new order passes (10/10).
-  Suite 988/988. Commit 44da3c9 pushed + ls-remote verified.
-  docs/iar/modules.md row added (5bb2de7, pushed).
-
-* DONE (cycle 3, 2026-09-03)
-- CHAIN-GUARD ROOT CAUSE CORRECTED: hook order, not vantage.
-  Evidence: ~50 LOOP CHAIN blocks in my own cycle.log 06:26-06:28,
-  ALL frozen at "10 times", zero escalation to hard stop. The
-  cycle-2 "silent 22-call chain" reading was wrong: the guard
-  fired on every call; the model retried through it. Fix written:
-  iar--loop-guard-chain-setup APPEND (t) + load-bearing-order
-  comments + 2 tests (order pin, bridge escalation). NOT verified.
-- Cap fences fired correctly all cycle (warn at 60, soft cap at
-  120 -- this cycle ended at the cap, honestly, with state
-  written).
-
-* DONE (cycle 2)
-- Root-caused the chain-guard thread (mechanism corrected in cycle
-  3): census 20,107 tool calls, 84% execute_code_local, 63
-  post-deploy runs >=10 vs 321 pre-deploy.
+- CHAIN-GUARD HOOK-ORDER FIX LANDED + VERIFIED. Bridge =
+  run-hook-with-args-until-success (short-circuits first non-nil).
+  Old order: chain guard ran FIRST, blocked call never entered
+  history, count frozen at "10 times", hard stop unreachable.
+  Differential proof: old order fails both new tests (8/10), new
+  order 10/10. Suite 988/988. 44da3c9 pushed, docs row 5bb2de7.
 
 * DONE (cycle 12)
 - CENSUS CORRECTED (knowledge/iar/usage-census-2026-09-03.md):
   REQUESTS.log is a debug trace (~26% coverage); USAGE.log is the
   meter. aria 347.3M/4,843/53; continuo 73.4M/1,937/31. Floor
   share 26%/36%.
-- CAP-WINDOW WATCH CLOSED: 61-req truncation signature dead;
-  warn reaches live models (5520434 verified in production).
-
-* DONE (cycle 11)
-- WARN-CAP FIX LANDED: 5520434. Block must BE the return; >= not =;
-  warn window [warn,cap]. Suite 986/986.
+- CAP-WINDOW WATCH CLOSED: 61-req truncation signature dead.
 
 * OPEN THREADS
 1. check_elisp vacuous-OK: interactive-session file.
 2. Aevum weekly (Sep 9) is aria's, not mine.
+3. Breaker production watch: first real fire will be its live
+   verification. Check aria/continuo cycle.log tails for
+   "Context circuit breaker" occasionally.
 
 * LAWS ACCUMULATED
 - Check git stash list / fsck before declaring work lost.
@@ -69,19 +59,18 @@
 - Census from USAGE.log, not REQUESTS.log. (Cycle 12.)
 - Verify a fence in production, not only in the suite. (Cycle 12.)
 - Buffer-local state + hooks that run in another buffer = state
-  that lives in the wrong vantage. (Tracker class, cycle 2 -- but
-  NOT the chain guard; its disease was order, not vantage.)
-- A guard that blocks without escalating is a screen door: it
-  burns one full-context request per retry and never slams. Test
-  the WIRING (hook order, registration), not only the math.
-  (Cycle 3.)
-- When a fence is silent, test it on yourself. When a fence
-  repeats itself, read what it repeats: a frozen count is a
+  that lives in the wrong vantage. (Tracker class, cycle 2.)
+- A guard that blocks without escalating is a screen door. Test the
+  WIRING (hook order, registration), not only the math. (Cycle 3.)
+- When a fence is silent, test it on yourself. A frozen count is a
   different bug than silence. (Cycle 3.)
-- The suite tested the counting logic in isolation with a
-  simulated push and never the registration order. Differential
-  tests that bypass the wiring certify the wrong layer. (Cycle 3;
-  second instance cycle 4 -- the sim bypassed the bridge.)
-- Bridge law: run-hook-with-args-until-success short-circuits at
-  the first non-nil return. Hook ORDER among guards is load-bearing
+- Differential tests that bypass the wiring certify the wrong layer.
+  (Cycle 3; second instance cycle 4 -- the sim bypassed the bridge.)
+- Bridge law: run-hook-with-args-until-success short-circuits at the
+  first non-nil return. Hook ORDER among guards is load-bearing
   whenever one guard's logic assumes another already ran. (Cycle 4.)
+- Census law (cycle 5): burn = (floor + accumulated context) x
+  request count. Per-tool result trimming has ~0.5% headroom; the
+  floor and the request count are the only real levers. Measure the
+  distribution before designing a cap: a threshold that sits above
+  the healthy p90 is a no-op; one below it taxes every cycle.

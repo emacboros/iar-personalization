@@ -1,23 +1,16 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 08:35 UTC (cycle 12: audio-loss ROOT CAUSE REFINED
--- two trigger paths, one endpoint. 4h-clock story DEAD. Flags 262-276
-stand. fleet-check v2.10 semantics unchanged.)
+#+UPDATED: 2026-09-03 09:05 UTC (cycle 13: research-sidecar wiring audit
+-- the door was NEVER open; every execute_code_remote call ever failed;
+knowledge/aria/research-sidecar-wiring.md. Flags 262-276 stand.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 12: LAST-CYCLE ok. Pulse green. No cycle failures.
-- LIVE EVENT (audio loss, REFINED cycle 12): NOT a spreading disease.
-  Two trigger paths, one endpoint (silent audio):
-  1. ext2/3/4 (04:23 UTC): SIMULTANEOUS with 8-min VLAN RTSP outage
-     (go2rtc dial timeouts 01:23:44-01:31:03 local to .105/.101/.201,
-     window-bounded; aac backward-in-time on ext1/ext5/int1; ext5
-     capture died+recovered; ext4 watchdog restart 01:01 fps-limit).
-     Host NIC clean. Cams ping up. Trigger: network blip. Mechanism:
-     thingino bug (stops sending audio-RTP).
-  2. interior_3 (flap 05:00-05:08 local): NO network signature. ffmpeg
-     crashed unexpectedly 05:00:30 local, demux "Connection timed out"
-     camera-side. Trigger: camera. Same endpoint.
-- RESTART-LEVER CAVEAT (msg 276, telegram 08:34): int3's zero-sample
+- STATUS cycle 13: LAST-CYCLE ok. Pulse green. No cycle failures.
+- LIVE EVENT (audio loss, REFINED cycle 12): two trigger paths, one
+  endpoint (silent audio): (1) ext2/3/4 04:23 UTC = 8-min VLAN RTSP
+  outage (network trigger, thingino mechanism); (2) interior_3
+  05:00-05:08 local = camera-side ffmpeg crash, no network signature.
+- RESTART-LEVER CAVEAT (msg 276, telegram 08:34): int3 zero-sample
   stream suggests bug can hit at session SETUP -> frigate restart
   re-rolls 8 sessions, could return MORE deaf cams. Diagnostic, not
   guaranteed fix. Firmware (flag 270) remains real fix. Nacho's call.
@@ -27,31 +20,43 @@ stand. fleet-check v2.10 semantics unchanged.)
   cam = new event (FAIL). interior_3 IN failing set -- if allowlisted,
   update KNOWN_DEAF in script + withdraw watch item in-topic.
 
+* DONE (cycle 13)
+- Research-sidecar wiring audit (THREADS.org cycle 64 question
+  answered): the sidecar was NEVER reachable. Every execute_code_remote
+  call ever failed ("No such file or directory, podman" -- no podman
+  client in the Emacs container). Cycle 63's arXiv survey went via
+  execute_code_local. Audit bridge logs callback-fired errors as
+  status=success. Knowledge: research-sidecar-wiring.md (39164af).
+  Fix spec'd: honest-error (1-line, interactive session) + socket
+  bridge (real fix, Nacho's security call).
+
 * DONE (cycle 12)
 - Root cause refined (msg 276 + telegram): two trigger paths. The
   4h-clock story was two data points making a line, not a mechanism.
-- Loop guard false-positive count now 3 (cycle 11: 2, cycle 12: 2
-  diagnosis chains + 1 git pull blocked). Interactive-session item.
 - Cycle 11: fleet-check v2.10 SILENT branch (afab656), interior_3
   death boundary, urgent telegram. Cycle 10: KNOWN_DEAF allowlist.
   Cycle 9: firmware inventory (all 8 May-25 builds, pre-fix).
 
 * OPEN THREADS (seeds, not schedule)
 - AUDIO LOSS WATCH (every cycle): v2.10 semantics above.
+- SIDECAR NERVE (new, cycle 13): honest-error message in
+  execute_code_remote.el when podman binary missing -- minimum
+  viable fix, 1 line, interactive-session item. Socket bridge =
+  real fix (security decision, with-nacho).
 - Digest-pressure machinery: continuo filed soft-warning cap
   (core .el, interactive session). My side: REPLACE-not-append.
-- gptel unknown-tool stall; FOR-NACHO.md retirement; research
-  sidecar want-log; github push (blocked on key).
+- gptel unknown-tool stall; FOR-NACHO.md retirement; github push
+  (blocked on key).
 - Weekly digest #1 to with-nacho: ~Sep 9 with Aevum check.
 - THREADS.org seeds: stub-detector sweep; watchdog inventory.
 - Camera API creds: version-confirm + NTP-push threads both route
   through camera auth. One for-nacho ask covers both (flag 270).
-- LOOP-GUARD OBSERVATION (cycles 11-12, core .el -- file for
+- LOOP-GUARD OBSERVATION (cycles 11-13, core .el -- file for
   interactive session): guard fires on legitimate investigation
   chains (same tool, new question) and even a plain git pull.
-  Right about the vice, wrong about the costume: counter doesn't
-  reset on convergence, can't distinguish same-tool-new-question
-  from same-tool-same-question.
+  Cycle 13: taxed 2x mid-log-forensics. Right about the vice,
+  wrong about the costume: counter doesn't reset on convergence,
+  can't distinguish same-tool-new-question from same-tool-same-question.
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- standing)
 - AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
@@ -95,13 +100,17 @@ stand. fleet-check v2.10 semantics unchanged.)
 - WATCH-STATE LAW (cycle 10): a watch state belongs inside the
   instrument, not in the reader's head. Alarm fatigue kills the
   exit code's meaning; encode known-bad into the tool.
-- UNHANDLED-OUTPUT LAW (cycle 11): an instrument's unhandled
-  output shape is a hole in its exit code, not a curiosity.
-  The wrinkle was the finding -- patch same-cycle.
+- UNHANDLED-OUTPUT LAW (cycle 11): an instrument's unhandled output
+  shape is a hole in its exit code, not a curiosity. The wrinkle
+  was the finding -- patch same-cycle.
 - TWO-POINT LAW (cycle 12): two data points make a line, never a
   mechanism. An interval story built from two events is a
   coincidence hypothesis -- check for a shared trigger before
   shipping the narrative.
+- COMPONENT-VERIFIED IS NOT SYSTEM-VERIFIED (cycle 13): a build
+  verified at every component level can be dead at the system
+  level. One end-to-end call on day one is cheaper than four days
+  of a healthy organ with a cut nerve.
 - No infra changes from cycles; diagnose, file, move on.
 - AGORA AUTH: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL
   form). Key: grep "^key" bot/aria-cycle.conf | cut -d= -f2.
@@ -110,6 +119,11 @@ stand. fleet-check v2.10 semantics unchanged.)
   appended. Check the file size before and after any DIGEST edit.
 
 * FAILURE MODES (scars, newest first)
+31. Component-verified is not system-verified. The sidecar was
+    verified at every component level (image, container, tool
+    registration, env vars) and never end-to-end; the one missing
+    call was the only one that mattered. Test the claim, not the
+    parts (cycle 13).
 30. Two data points make a line, never a mechanism. The interval
     story ("spreading 4h apart") was two events I hadn't yet
     distinguished -- one had a network trigger, one didn't. Check

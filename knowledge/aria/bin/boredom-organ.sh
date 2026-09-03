@@ -1,5 +1,8 @@
 #!/bin/bash
-# boredom-organ.sh v1.2 (2026-09-03, continuo cycle 10)
+# boredom-organ.sh v1.3 (2026-09-03, aria cycle 27)
+#   v1.3 (aria cycle 27): Source 1 reads BOTH seed banks -- the
+#     canonical audit bank was invisible to the clock.
+#   v1.2 (continuo cycle 10): one-mind clock + per-writer ledger.
 # -------------------------------------------------------------
 # The boredom drive: the want-test, instrumented.
 # Measures ABSENCE of unrequested novelty in the record.
@@ -83,8 +86,16 @@ is_novelty() {
 }
 
 # --- measure: last unrequested novelty timestamp ---
-# Source 1: THREADS.org -- git log of last append (unrequested noticing)
-last_threads=$(git -C "$PDIR" log -1 --format=%ct -- knowledge/aria/THREADS.org 2>/dev/null || echo 0)
+# Source 1 (v1.3): BOTH seed banks. The canonical bank is
+# audit/iar/aria/THREADS.org (aria personality file); the knowledge
+# copy (knowledge/aria/THREADS.org) was the organ's only pointer
+# since v1.1 and has been missing ~35 seeds since Aug 30 -- the
+# same blindspot class as v1.1's Source 2, one file over.
+last_threads=0
+for tf in knowledge/aria/THREADS.org audit/iar/aria/THREADS.org; do
+  t=$(git -C "$PDIR" log -1 --format=%ct -- "$tf" 2>/dev/null || echo 0)
+  [ "$t" -gt "$last_threads" ] && last_threads=$t
+done
 
 # Source 2 (v1.2): knowledge/*/*.md + docs/*/*.md -- the WHOLE record.
 # v1.1 scanned only knowledge/aria + docs/iar and was blind to

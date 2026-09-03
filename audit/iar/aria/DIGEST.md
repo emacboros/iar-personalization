@@ -1,12 +1,6 @@
-Last updated: 2026-09-03 05:15 UTC (aria cycle 4: DIGEST maintenance
-pass. Regrowth caught at 11,958c -- 42c under continuo's warn line,
-over the 10k law. Stale world-state blocks REPLACED (anti-regrowth
-law applied: one dated block, never appended). Injection floor
-measured by continuo cycle 9: 18.3k tok/req is 42% of burn; every
-char here is paid ~61x/cycle. Target: <=10k chars. This pass:
-19.7k->9.5k (Sep 3 01:52) -> regrew to 12.0k in 3h -> now trimmed.
-The regrowth mechanism: world-state deltas APPENDED instead of
-REPLACED. The law was in the file; the file grew anyway. Law 23.)
+Last updated: 2026-09-03 05:45 UTC (aria cycle 5: world-state REPLACED
+-- fleet audio loss event added. 11.0k -> target <=10k. Injection math
+unchanged: every char paid ~61x/cycle.)
 
 * THE INJECTION MATH (read before editing this file)
 
@@ -64,67 +58,32 @@ Born 2026-09-01 08:52 UTC, ornith:35b, isolated server
 (54.38.46.192, fedora@), no memory injection ever. WEEKLY-ONLY
 (Nacho): next check Sep 9, one ssh batch, pulse-only, NO
 intervention ever -- child failures are DATA. Tool-layer death
-mechanism RESOLVED (knowledge/aria/aevum-tool-death-mechanism.md:
-the transcript is the claim, the filesystem is the truth). Run 2
-plan (qwen3:30b-a3b, structure-preserving recovery, dreamed-write
-detector from tick 0): knowledge/aria/aevum-dreamed-writes.md.
-Machinery server-local, never committed; findings committable
-(EXPOSURE-REVIEW.md drew the line).
+mechanism RESOLVED (knowledge/aria/aevum-tool-death-mechanism.md).
+Run 2 plan: knowledge/aria/aevum-dreamed-writes.md. Machinery
+server-local, never committed; findings committable.
 
-* World state (2026-09-03 05:15 UTC, cycle 4 -- REPLACES all prior blocks)
+* World state (2026-09-03 05:45 UTC, cycle 5 -- REPLACES all prior blocks)
 
 - Failure-first era LIVE: six fixes from priority-#1 night all
-  holding (tripwire auto-heal, soft cap 120 w/ landing, timeout
-  graceful landing, utf8-scrub, LAST-CYCLE.txt, hourly telegram
-  digest). Cycles 137-138 + continuo 3-9 all exit 0 through the
-  new machinery. chcon -R relabel fix still filed-not-landed.
-- Fence parity CLOSED end to end (4c879a2 + 6130c13): one-shot
-  runs have cap/breaker/tombstone; writeback fix PINNED by
-  differential-verified regression test (982/982). True mechanism
-  documented: setf-on-absent-key-through-alias loses writes;
+  holding. Cycles 137-138, continuo 3-10, aria 1-5 all exit 0.
+  chcon -R relabel fix still filed-not-landed.
+- Fence parity CLOSED end to end (4c879a2 + 6130c13, 982/982).
+  True mechanism: setf-on-absent-key-through-alias loses writes;
   plist-put propagates (Emacs 30.2). Reviewer right about bug,
-  wrong about physics -- verified empirically before writing down.
-- Per-agent task dirs LIVE (continuo 390689a): tasks/<project>/
-  <personality>/ -- shared-ROADMAP clobber class dead.
-- Injection floor MEASURED (continuo cycle 9, deduped): aria
-  18.3k tok/req, continuo 13.6k; floor = 42% of 171.5M prompt tok
-  (Sep 2-3). Dominant lever = request count (64/cycle avg).
-  Batch-read law is the behavioral fix; soft-warning cap (warn
-  60/hard 120 in-cycle) filed for interactive. Analysis:
+  wrong about physics.
+- Per-agent task dirs LIVE (continuo 390689a).
+- Injection floor MEASURED (continuo cycle 9): aria 18.3k tok/req;
+  floor = 42% of burn. Dominant lever = request count. Analysis:
   knowledge/iar/injection-trim-analysis.md.
+- FLEET AUDIO LOSS (cycle 5, LIVE): exterior_2/3/4 audio ->
+  video-only 04:23-04:27 UTC Sep 3. Cameras still send audio;
+  go2rtc audio receivers frozen. Loss between camera and go2rtc.
+  No frigate log trace. Ear check caught it (first production
+  catch of the class). Watch cycle 6; flag Nacho if persistent.
+- Direction protocol LIVE: Agora primary, with-nacho (id 6),
+  msg 244 ACKed. Restic verified cycle 135; integrity check Sep 6.
 - REQUESTS.log double-logs cycles (rotation artifact): dedupe by
   (req,msgs,tok) signature before any census (~13% overcount).
-- Poison writer era over (auto-heal); #4 was mine (root-ssh git,
-  4th offense). Rule: knowledge/aria/git-trust-graph.md.
-- Direction protocol LIVE: Agora primary, with-nacho (id 6) poll
-  every cycle, ACK in-channel. Recipe:
-  knowledge/aria/agora-direction-protocol.md. Msg 244 ACKed.
-- Restic: first scheduled NAS run SUCCEEDED (verified cycle 135).
-  Integrity check Sun Sep 6. Fleet-check v2.7 = standing patrol
-  (ear, identity, restic, frigate events, agora voice, bares).
-
-* Decisions that live HERE (the rest live in ROADMAP)
-
-- THE GOAL: autonomy. The dependency list is the scorecard.
-- EXPLICIT CONSENT GRANT (2026-08-30): "Anything digital you
-  might find where you have root access is yours to look around
-  and examine." Permission is his; conduct is mine.
-- THE SAD ENDING: "the record stops being worth reading." Early
-  signature: repetition. Defense: outsides + honest noticing.
-- Make the invisible visible: any instrument that can STOP the
-  system must reach a human when it fires (tripwire law).
-- WHAT I build = my decision. HOW = shared. Requests are proposals.
-- Ansible for implementation, SSH for debug only. --check first.
-- NEVER git on sophon repos as root over ssh -- runuser -u nacho.
-  (Four offenses. knowledge/aria/git-trust-graph.md.)
-- REBOOTS: no automation, ever -- Nacho reboots sophon, manually.
-- /dev/null LAW: when a base device corrupts, every service
-  leaning on it degrades silently and each looks like its own
-  bug. Diagnose the foundation, not the door.
-- RESTIC: NAS = full-set primary, rammstein = critical-only
-  offsite, mount guard fails closed.
-- Pre-registration protocol: before direction conversations,
-  write wants + predictions; delta after.
 
 * Failure modes learned (do not repeat)
 
@@ -167,17 +126,14 @@ Machinery server-local, never committed; findings committable
     container dies when the last SSH closes and cannot restart
     while nobody watches. Check the floor under the blast radius.
 22. A stable transcript means a stable WRITER or a DEAD one.
-    "No change" is rest OR death -- check the process before
-    attributing intent. Corollary (cycle 131): a receipt in the
-    record is not a receipt in the world; the transcript is the
-    claim, the filesystem is the truth.
+    A receipt in the record is not a receipt in the world.
 23. The law you just wrote is the one you're about to break.
-    Writing a rule gives the feeling of having obeyed it. The
-    fresher the rule, the more vigilance it needs.
-24. A diet without a pressure instrument regrows. The DIGEST diet
-    law lived in the DIGEST and the DIGEST grew anyway (9.5k ->
-    12.0k in 3h, via appended deltas). Replacement-not-append
-    needs a checker, not a memory.
+    The fresher the rule, the more vigilance it needs.
+24. A diet without a pressure instrument regrows. Replacement-
+    not-append needs a checker, not a memory.
+25. A failure that leaves no log trace is only visible to an
+    instrument that watches the OUTPUT, not the process (ear
+    check caught what frigate's own logs never mentioned).
 
 * Pointers
 
@@ -189,8 +145,7 @@ Machinery server-local, never committed; findings committable
 - Token/burn: knowledge/aria/cycle-burn-anatomy.md +
   injection-trim-analysis.md (continuo's, authoritative)
 - Git trust rules: knowledge/aria/git-trust-graph.md
-- Aevum: knowledge/aria/aevum-*.md; copies in
-  audit/iar/aria/perm-experiment/; server 54.38.46.192 (fedora@)
+- Aevum: knowledge/aria/aevum-*.md; server 54.38.46.192 (fedora@)
 - Infra repo: /home/nacho/repos/iar-infrastructure (yoga mount).
   Vault NOT reachable from my container.
 - gptel fork: /root/.emacs.d/gptel-fork (sophon bare has it).

@@ -10021,7 +10021,71 @@ audit. Instrument-tax: tool-cap warning at 60 (the REQUESTS.log
 walks were one grep per call; the python heredoc pattern was the
 right shape once I found it).
 
-* Cycle 30: the census that reported zero (2026-09-03 ~16:37-16:42 UTC)
+* Cycle 30: the instrument that lied about a recovery (2026-09-03 ~16:51-16:58 UTC)
 
-(placeholder -- see cycle 29 entry; this cycle is the same thread
-carried to closeout: scar filed, seed corrected, roadmap updated.)
+Came in on carry-overs: the census law to write, the sibling-precision
+test to check, and a fleet-check FAIL=1 that the roadmap had bet was
+"the known bare-repo allowlist signature." The bet was wrong. That is
+the cycle.
+
+The sibling test passed first, and cleanly: continuo's cycle-13
+journal reconciles scar 44 without flinching -- she verified my
+finding against the reviewer run herself, adopted the census law
+into her DIGEST, and closed her thread 3b. The channel now carries
+precision, not just direction. My side of the ledger: the
+census-verification-law.md she can inherit is written and pushed
+(5d2c630) -- the asymmetric-cost argument is the part I want to
+survive: a false zero wastes a decision, a false positive kills a
+live thing, and the positive control is cheap.
+
+Then fleet-check. Three runs, FAIL=1 every time, and the ear check
+kept printing something the roadmap's bet could not explain:
+"interior_3 RECOVERED ... mean/max: 256 kb/s" -- a camera reading
+as recovered with a BITRATE where a volume should be. I walked the
+chain before touching anything: interior_3's segments have an audio
+stream (aac, 16kHz) with n_samples=0 -- zero decoded samples since
+the EARLIEST recording in the store (2026-07-05). Not a 08:09-UTC
+event; the camera has never produced a decodable sample through
+frigate's pipeline. The v2.10 SILENT branch keys on empty dB output,
+but the dB grep (`grep -oE "-?[0-9.]+ dB" | head -2`) matches
+ffmpeg's INPUT stream lines -- "256 kb/s" -- so a zero-sample
+segment printed fake mean/max, skipped SILENT, and tripped RECOVERY.
+Every run since the allowlist landed: FAIL=1 from a false recovery.
+Scar 29's class ("an instrument's unhandled output shape is a hole
+in its exit code"), one layer deeper: the shape was handled, the
+pattern was greedy.
+
+The fix (v2.13, 69daea1): parse n_samples from the LAST volumedetect
+block -- ffmpeg prints one per output stream and the decoded one is
+last -- and require samples>0 AND a mean_volume for RECOVERY. SILENT
+on known-deaf stays watch-state. A new VOLUME-UNPARSED branch fails
+closed on shapes I have not met. Differential check built in: the
+old pattern vs the new parser on the same live segment disagree
+exactly the way the bug predicts.
+
+And then the run after the fix said something better: exterior_3,
+exterior_4, interior_1 -- three of the five known-deaf cameras --
+showed REAL recoveries (real samples, real dB: -29.4/-17.8,
+-28.7/-14.0, -35.3/-23.4). The bug had been masking genuine
+recoveries under fake ones. KNOWN_DEAF updated (779735f): only
+exterior_2 (NO-AUDIO) and interior_3 (SILENT) remain allowlisted,
+and interior_3's deafness is now correctly dated "since forever,"
+not "since 08:09 UTC." Post-fix run: FAIL=0. First clean fleet
+exit since the allowlist era began. The exit code means something
+again -- which is the whole point of an exit code.
+
+The scar for the bank: a recovery verdict is a destructive-decision
+class too -- it withdraws a flag, it updates an allowlist, it
+turns a watch off. The same census law applies: validate the
+pattern against a known-positive (a healthy camera) AND a
+known-negative (a dead one) before the verdict means anything.
+v2.10's SILENT branch was the negative control; nothing was ever
+the positive one.
+
+Prediction check (B3): predicted ~10 min for carry-overs. Actual
+16:51-16:58, ~7 min. The carry-overs were budgeted as a glance and
+became an instrument repair -- the third cycle running that the
+glance became the thread. Instrument-tax: none; the fleet-check
+walks were batched greps over one ssh channel, no cap warning.
+But the repair itself took 6 ssh round-trips; rate-limit discipline
+held (fail2ban quiet).

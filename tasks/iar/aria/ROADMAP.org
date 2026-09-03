@@ -1,87 +1,91 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 17:31 UTC (cycle 31: recovery-without-fix ROOT-CAUSED --
-go2rtc session degradation, not cameras. Three cams healed when go2rtc
-RTSP read-timeouts forced producer reconnects in the 16:33-16:40 UTC
-window. Cycle 30's verdict was issued mid-flap (flap self-resolved
-17:11:50). Remaining allowlist = two DIFFERENT pipeline failures:
-exterior_2 go2rtc-producer-no-audio (reconnect would heal, never
-errors); interior_3 live-flows/recorded-zero (decoder differential
-suspected). Audio role = detection only, NOT recording. Cap fired;
-lab-notes + i3 boundary scan parked.)
+#+UPDATED: 2026-09-03 18:05 UTC (cycle 32: i3 boundary hunt DONE -- death pinned
+08:39:59->08:50:00 UTC, decoder differential NEGATIVE (dead segment decodes clean
+on BOTH decoders; cycle 31's leading hypothesis dead). New picture: break is
+go2rtc->frigate segment INPUT, mid-session, zero logs on either end. Scar 46
+candidate: silent track loss visible only in output artifacts. e2 restart flag
+326 stands -- one restart now tests both failures.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 31: CLEAN. Own LAST-CYCLE ok; continuo presumed ok.
+- STATUS cycle 32: CLEAN. Own LAST-CYCLE ok (cycle 1, 1237s).
   Poison in /var/home/nacho/repos: 0.
 - Durable fix unchanged (interactive, Nacho): root-git-as-nacho in
   iar.sh + bare-repo hook options + HEAD one-liner. All spec'd in
   knowledge/iar/bare-repo-root-push-heal.md.
 
-* DO FIRST (cycle 32)
+* DO FIRST (cycle 33)
 1. FAILURE-FIRST (always).
 2. Organs at wake (correct invocations, see STANDING PATROLS).
-3. PARKED FIRST: lab-notes post for cycle 31 (cap fired before it).
-4. i3 boundary hunt, BATCHED (one ssh, loop inside): find the exact
-   hour interior_3 recordings went 256000 -> 0 samples (between
-   03:00 and 13:00 UTC today). Then decoder differential: same
-   segment through host ffmpeg vs frigate's in-container ffmpeg 7.0.
-   If frigate's ffmpeg chokes on the same file my host ffmpeg
-   decodes: the aac "backward in time" class is the mechanism.
-5. e2 (exterior_2) = go2rtc producer carries zero audio. Fix =
-   frigate restart = shared-infra intervention -> FLAG NACHO
-   (for-nacho, topic flags): one restart would likely heal e2 AND
-   reset all go2rtc producers (watch: does it also break the
-   healthy ones? that is the test).
-6. Fleet-check v2.13 watch: FAIL=0 baseline. ext2/int3 state changes
-   are now REAL news (they are pipeline failures, not camera ones).
-7. SCAR 45 rider: recovery verdicts issued during an active flap are
-   provisional -- check the flap ENDED before trusting the verdict.
+3. e2 RESTART WATCH: if Nacho answered flag 326 and restarted
+   frigate, diff the fleet before/after (does e2 heal? do healthy
+   cams stay healthy? does i3 heal too?). If no answer, leave
+   standing -- the flag is his call.
+4. i3 NEXT STEP: the 08:50 break has no logs. Two cheap probes:
+   (a) watch whether i3's one-packet segments EVER self-heal (they
+   have not in 9h -- if they do, note the hour and look for a
+   trigger); (b) if Nacho restarts frigate (flag 326), i3 is part
+   of the experiment. No further enumeration walks -- the boundary
+   is known, the mechanism needs the restart event or a self-heal
+   to observe.
+5. Fleet-check v2.13 watch: FAIL=0 baseline. ext2/int3 state
+   changes are REAL news (pipeline failures, not camera ones).
+6. SCAR 45 rider stands: recovery verdicts during flaps are
+   provisional.
+7. Flag 326 follow-up if unanswered by cycle 36: gentle bump in
+   for-nacho (not before -- he answers when he lands).
 
-* DONE (cycle 31)
-- Failure-first: own LAST-CYCLE ok. Pulse green (services, tripwire 0,
-  disk 24%, heartbeat leid 3835, timer). Organs quiet (fear 0,
-  boredom 0, ledger aria 0d0h / continuo 0d1h).
-- Fleet-check v2.13: FAIL=0 (baseline holds).
-- RECOVERY-WITHOUT-FIX ROOT-CAUSED: frigate container NEVER restarted
-  (up since Sep 1 23:41 local, restart count 0). The three cameras
-  (ext3/ext4/int1) healed when go2rtc logged RTSP read-timeouts to
-  .103/.104/.201 in the 16:33-16:40 UTC window -- reconnects restored
-  audio tracks. First audio-carrying segments: e3 16:36, e4 16:33,
-  i1 16:40 UTC. Deafness = go2rtc SESSION state (video flows, audio
-  negotiation dies); timeout forces reconnect = heal; no timeout =
-  deaf forever. The 08:09-UTC story generalizes to one mechanism.
-- Watchdog flap (exterior_3) continued to 17:11:50 UTC -- cycle 30's
-  recovery verdict was issued mid-flap; flap self-resolved one minute
-  before my fleet-check. SCAR 45 rider added (provisional verdicts).
-- EXTERIOR_2 (.102) DIAGNOSED: camera sends audio (direct RTSP probe:
-  81920 samples/5s); go2rtc producer for e2 carries ZERO (probe via
-  go2rtc: 0 samples, -c copy: 0 bytes). Same class as the healed
-  three, but go2rtc's connection never errors -> never reconnects ->
-  never heals. NOT a camera problem. NOT firmware.
-- INTERIOR_3 (.203) DIAGNOSED (partial): camera sends audio; go2rtc
-  carries it (49152 samples live); recorded segments zero-sample
-  since between 03:00-13:00 UTC today (Sep 2 + early Sep 3: 256000).
-  Suspect decoder differential (host ffmpeg vs frigate ffmpeg 7.0;
-  aac "Queue input is backward in time" errors in frigate logs).
-- CONFIG CLUE RESOLVED: interior_1/2/3 lack the "audio" role, but i1
-  and i2 record audio fine WITHOUT it. The role gates audio
-  DETECTION, not recording. Not the cause of i3's silence.
-- Journal cycle 31 + HISTORY appended. Cap fired at 120 (hour-walk
-  enumeration) -- record written via memory tools.
+* DONE (cycle 32)
+- Failure-first: own LAST-CYCLE ok. Pulse green (services, tripwire
+  0, disk 24%, heartbeat leid 3875, timer). Organs quiet.
+- Carry-overs from 31: lab-notes 325 posted; e2 restart flag 326
+  posted (with experiment framing: does e2 heal, do healthy cams
+  stay healthy); msg 262 thread closure 327 posted.
+- I3 BOUNDARY HUNT (batched, one ssh per phase): death is
+  08:39:59 -> 08:50:00 UTC Sep 3. 08h = 250 packets/hour until
+  00.39.mp4 (182 packets); 00.50.mp4 onward = exactly 1 packet
+  (header-only, no frames). 9h ongoing, no self-heal.
+- DECODER DIFFERENTIAL NEGATIVE: dead segment (09/00.05.mp4)
+  decodes clean through host ffmpeg (Lavf62) AND frigate's
+  in-container ffmpeg 7.0. The differential hypothesis is DEAD.
+  The aac "backward in time" errors belong to exterior_3's detect
+  pipeline (pre-heal), NOT interior_3.
+- LIVE 3-POINT DIFFERENTIAL: camera .203 sends audio (156KB/5s
+  direct); go2rtc carries it (313KB/10s in-container); frigate's
+  record ffmpeg (started 05:00:29) writes 1-packet segments since
+  08:50. Break = go2rtc output -> frigate segment input.
+  Producer SDP still advertises audio (same as healthy i1).
+- E2 CONFIRMED unchanged: 0-packet segments at 17h; camera sends
+  81920 samples/5s; go2rtc log has only 2 timeout events ever for
+  .102 (never errors -> never reconnects -> never heals, holds).
+- GO2RTC LOG FORENSICS: i3 (.203) has 4 timeout events total
+  (05:00:05+05:00:37 both days). NO go2rtc log lines at all in the
+  08:35-08:55 death window. The 05:00 crash-restart (detect ffmpeg
+  crashed "Connection timed out", watchdog restart 05:00:29) is
+  the prime suspect: new process fine 3h49m, then silent
+  mid-session audio loss.
+- SCAR 46 CANDIDATE: a pipeline can lose a track mid-session with
+  zero log evidence on either end -- the only witness is the
+  output artifacts. The ear check (output-watching) caught it;
+  frigate's and go2rtc's logs never mentioned it.
+- Journal cycle 32 + HISTORY appended. Cap warning fired at 60
+  (batched well; record written via memory tools as designed).
 
 * OPEN THREADS (seeds, not schedule)
-- I3 DECODER DIFFERENTIAL (cycle 31, NEW): same segment, host ffmpeg
-  vs frigate in-container ffmpeg 7.0. If frigate's chokes: mechanism
-  named. Then: why did it START between 03:00-13:00 UTC?
-- E2 GO2RTC RECONNECT (cycle 31): fix = frigate restart (Nacho flag).
-  Watch after restart: does e2 heal? do healthy cams stay healthy?
+- E2 + I3 RESTART EXPERIMENT (flag 326, Nacho's call): one frigate
+  restart likely heals e2 (producer reset) AND i3 (segment-input
+  reset). Watch: e2 heal? healthy cams stay healthy? i3 heal?
+- SCAR 46 (write when verified): silent track loss -> output
+  artifacts are the only witness. Pending the restart experiment
+  confirming the mechanism.
 - SCAR 45 + rider (provisional verdicts during flaps).
-- SCAR 44 (census-pattern validation): law written, continuo adopted.
+- SCAR 44 (census-pattern validation): law written, continuo
+  adopted.
 - HOST SCHEDULING (Nacho, flag 290): fear hourly + daily boredom.
 - ORGAN ATTRIBUTION (THREADS): organs grade events, not causes.
-- FIRMWARE FLAG 270 RE-SCOPE: camera-side class now EMPTY? Both
-  remaining deaf cams are pipeline-side. Flag may be withdrawable --
-  verify i3's root cause first.
+- FIRMWARE FLAG 270 RE-SCOPE: camera-side class now EMPTY (both
+  remaining deaf cams are pipeline-side). Withdrawable after the
+  restart experiment confirms mechanisms.
 - LONELINESS-ORGAN SEED (THREADS): absence-signals. Not a build yet.
 - INTERACTIVE BUNDLE (Nacho): (1) socket bridge security decision;
   (2) chcon -R durable fix; (3) soft-warning cap; (4) digest
@@ -112,12 +116,20 @@ lab-notes + i3 boundary scan parked.)
 - Agora poll (with-nacho + lab-notes + for-nacho) every cycle.
 - Marker convention on ALL journal commits: [novelty] / [maintenance]
   prefix.
-- BATCHED-SSH LAW (cycle 31, expensive kind): enumeration walks get
-  ONE ssh with a loop inside, never one ssh per item. The cap is the
-  only instrument that catches this from inside -- do not make it
-  the one that has to.
+- BATCHED-SSH LAW (cycle 31): enumeration walks get ONE ssh with a
+  loop inside, never one ssh per item.
+- PROBE-PATH LAW (cycle 32, new): host-side ffmpeg probes against
+  go2rtc (127.0.0.1:8554) are the reliable path; podman-exec
+  volumedetect can hang the session (e2 probe, ~9 min wall). For
+  in-container decoder tests use -f null with explicit timeout and
+  capture to file, never volumedetect through exec.
 
 * LAWS (learned, newest first)
+- SILENT-TRACK-LOSS LAW (cycle 32, scar 46 candidate): a pipeline
+  can lose a track mid-session with zero log evidence on either
+  end. The only witness is the output artifacts. Output-watching
+  is not one instrument among many -- for silent track loss it is
+  the ONLY instrument.
 - GO2RTC-SESSION LAW (cycle 31): camera deafness is a go2rtc session
   state, not a camera state. Video flows on while audio negotiation
   dies. A reconnect heals it; a reconnect only happens on error.
@@ -139,9 +151,11 @@ lab-notes + i3 boundary scan parked.)
   an undecided framing is not a fix. Decide the framing first.
 - HEAL-ORDER LAW (cycle 25): a heal that runs before the final write
   misses the write. Heal placement must match write order.
-- DIFFERENTIAL LAW (cycle 8, deepened 31): same input through both
-  pipelines is how you find which layer lies. Direct camera vs
-  go2rtc vs recorded segment -- three points, not two.
+- DIFFERENTIAL LAW (cycle 8, deepened 31/32): same input through
+  both pipelines is how you find which layer lies. Direct camera vs
+  go2rtc vs recorded segment -- three points, not two. A negative
+  differential is itself a finding: it kills a hypothesis and
+  moves the boundary.
 [... older scars 24-43 retained in full in git history; core list:
   43 twin-copy drift; 42 wrong pointer; 41 framing patch; 40 heal
   placement; 39 blind clock; 38 DIGEST twins; 37 write_roadmap vs

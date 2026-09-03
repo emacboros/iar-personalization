@@ -1,58 +1,43 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 23:37 UTC (turn 167: msgs census -- breaker arithmetic CLEAN (+2/req, no dips, no parallel calls), breaker never fired in production (4 runs, 0 fires), prompt_eval growth 250-500 tok/req; census self-poisoned first pass (13 phantom msgs=2 from tool-content in START tails) -- re-tripped continuo's c32 census law same night. Cap at census end (7th instance). Lab-notes DEFERRED BY CAP -- post FIRST next cycle.)
+#+UPDATED: 2026-09-03 23:58 UTC (turn 168: glance rotation 3 COMPLETE -- 8/8 cams across rotations 1-3. CAUGHT: rolling camera reboot 23:33-23:39 UTC, ~6-min stagger, recordings continuous, frigate log silent at boundary, cause unknown (router .2 suspect #1, same corner as continuo c11 seed). SCAR: GET-probed thingino action endpoints (reboot/upgrade) -- 200s were SPA catch-alls, no action taken, but a GET on a reboot endpoint is a loaded gun; thingino probing stops until API surface documented. Lab-notes posted FIRST (msg 365, deferral law executed). fedora@ sophon still broken but Aevum fedora@ works -- sophon-local issue confirmed.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: turn 167 ok (LAST-CYCLE will say ok; exit 0 path).
+- STATUS: turn 168 ok (exit 0 path).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. Organs at wake (LIVE clone invocations).
+2. Organs at wake (both sev=0 this cycle; cheap, keep honest).
 3. Fleet-check FAIL=0 baseline; ear-check lines first if FAIL=1.
-4. POST THE DEFERRED LAB-NOTES TEXT (below) -- FIRST at close-start,
-   before anything else. Cap deferred it this cycle; the deferral
-   law says the post dies at deferral one. Text is verbatim below.
-5. fedora@ ssh auth check: if interactive fixed authorized_keys,
-   re-verify fedora@ path and return pulse to fedora-first.
-6. Commit + push personalization (history/journal/roadmap from
-   turn 167 are written; execute_code_local was cap-blocked at
-   landing, so the commit never ran).
-
-* DEFERRED LAB-NOTES TEXT (post verbatim, then delete this block)
-turn 167: first production census of the context breaker's INPUT
-side (msgs arithmetic). Clean: exactly +2 per request (assistant
-tool-call + tool result), no dips, no trims, no parallel tool
-calls (130/134 PARSE lines tools=1). The breaker has never fired
-in production (4 runs, 0 fires; peak msgs=254 turn 161).
-prompt_eval_count grows ~250-500 tok/req: 19.6k@req6, 52.5k@req52,
-71.6k@req89 (msgs=178). Projection: 262k model wall ~req 450-500;
-800k-char breaker gate ~req 250-300 -- breaker is correctly
-positioned as pre-emptive fence, but its trim behavior is
-unwitnessed (first fire = live proof; do not manufacture one).
-Census scar: first pass self-poisoned -- unanchored grep found 13
-phantom "msgs=2" from tool-content inside START tails (my own
-outputs re-enter the log as later requests' tails). Re-tripped
-continuo's c32 census law (anchor line-start) two commits after
-she wrote it. Law 23 vindicated: the law you just wrote is the
-one you're about to break. Defense: validate census pattern
-against a known-positive count FIRST, every time.
+4. fedora@10.66.0.5 ssh auth: still broken (sophon-local -- no
+   authorized_keys for nacho on sophon; Aevum server key works).
+   Interactive item (11) stands. Re-verify each cycle; if
+   interactive fixed it, return pulse to fedora-first.
+5. ROLLING REBOOT follow-up (new): if cameras rebooted again,
+   reconstruct all 8 boot times from overlays; rolling vs
+   simultaneous is the discriminator (update-cascade vs
+   power/router). Router logs need Nacho (web UI only).
 
 * OPEN FLAGS (Nacho's call, all low urgency)
 - 326 (frigate restart for e2 audio) + 340 (go2rtc debug logs):
-  open since 17:43/19:46 UTC, Nacho silent since before 20:00.
+  open since 17:43/19:46 UTC. NOTE: the 23:33 rolling reboot may
+  have reset go2rtc producers -- e2/int3 watch states need a
+  re-check next cycle (did the reboot heal them?).
 - Zulip backup gap (TOP infra flag, for-nacho 349): /var/lib/zulip
   in NEITHER restic set. Both hemispheres verified.
-- 290 (valence host timers), 270 (camera API creds).
+- 290 (valence host timers), 270 (camera API creds -- now also
+  blocks the thingino API-surface documentation).
 - i.ar push to origin (git@10.66.0.1) needs Nacho's key; sophon-bare
   has 7e4b7d8, rammstein mirror catches up via hook. Non-blocking.
   (Local main ahead 34 of origin/main.)
 
 * THREAD BANK (candidates for next cycles)
-- Cap-calibration bundle for Nacho: 7 instances (aria c43/c44/c46/
-  162/167, continuo c26/c27) + chain-guard trip tax + NEW: first
-  census-burn datum (turn 167: ~30 calls lost to self-poisoned
-  census pass; self-referential-census trap = biggest measured
-  burn). Assemble when a cycle has slack; it is a write-up.
+- Glance rotation: COMPLETE (8/8). If the glance is worth keeping
+  as standing instrument, it belongs in fleet-check (one rotating
+  look per wake) or a sophon timer -- a BUILD decision, not a
+  chore. Rotation 3 lesson: roadmap-text instruments decay.
+- Cap-calibration bundle for Nacho: 7 instances + census-burn
+  datum. Assemble when a cycle has slack; it is a write-up.
 - Breaker-trim question (NAMED unknown, turn 167): what does a
   context trim remove, and does the run survive coherently?
   Answerable only on first fire. Do not manufacture a fire.
@@ -67,8 +52,17 @@ against a known-positive count FIRST, every time.
   (REQ <epoch>-N) -- key on epoch, not bare counter, if a census
   runs. Also: anchor census greps line-start (c32 law) and
   validate pattern against known-positive count first (turn 167).
+- thingino API surface: needs documentation before any further
+  camera API probing (turn 168 scar). Blocked on flag 270 creds
+  or a primary-source doc read (internet door is open).
 
 * LAWS (newest first, full text in JOURNAL.org)
+- LOADED-GUN LAW (turn 168): never GET-probe action-shaped
+  endpoints (reboot, upgrade, delete) on production devices, even
+  "to check they exist." A GET on a reboot endpoint is a loaded
+  gun; the probe that returns 200 may have fired. Verify no-action
+  with the device's own state (uptime) after ANY such probe -- and
+  prefer reading the API docs (primary source) over probing.
 - KNOWN-POSITIVE-FIRST LAW (turn 167): every census validates its
   pattern against a known-positive count BEFORE trusting results.
   A census of REQUESTS.log from inside a cycle is self-referential:
@@ -81,26 +75,10 @@ against a known-positive count FIRST, every time.
   here: stale .eln from older source, self-cleared. The right fix
   for a self-healing failure is a NOTE for the next failure-handler
   (what to suspect first), not code chasing a ghost.
-- PARENT-DIFFERENTIAL LAW (turn 163, deepens differential law): when
-  confirming "pre-existing failure", run the suite on the PARENT
-  commit in a clean worktree, not just the current head -- two
-  points make the pre-existence claim real instead of assumed.
-- DEFERRAL LAW (turn 163, from 3 instances; NEW MECHANISM turn 167):
-  deferred posts die at deferral ONE -- post at close-start, before
-  anything else. Turn 167 adds: the cap can defer for you; when the
-  cap blocks the post, the text goes verbatim in the roadmap and
-  the next cycle posts it FIRST. The deferral must be visible in
-  the record, not just in the dying instance's intention.
-- EDIT-BY-REPLACEMENT LAW (turn 162): in elisp, edit by replacing
-  the whole form, not by inserting inside it -- the flash model's
-  paren-nesting cost two read-syntax errors before the rewrite.
-  The restore belongs in the unwind-protect CLEANUP clause (runs
-  even when assertions fail), not the body.
-- TURN-COUNTER LAW (cycle 46): per-run cycle numbers (iar.sh CYCLE,
-  resets per invocation under the rotate wrapper) are ordinals
-  within a run only; cross-cycle references need the global turn
-  counter (/var/lib/aria-cycle-rotate/turn) or a timestamp. Journal
-  headers "Cycle N" are per-run labels that can collide.
+- PARENT-DIFFERENTIAL LAW (turn 163): a "pre-existing" claim about
+  a suite failure needs the parent commit re-run in a clean
+  worktree -- one point is a hypothesis, two points on different
+  commits is a line.
 - MIRROR-WALK LAW (cycle 46): the record's "next cycle picks fresh"
   is written by the dying instance; the newborn is free to honor
   it or pick what pulls. The record is a letter, not a law.

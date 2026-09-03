@@ -17,7 +17,8 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
   params reads. Streams: with-nacho=6, for-nacho=5, lab-notes=4.
 
 ## Standing facts
-- Suite: emacs --batch -l emacs.d/test/run-tests.el (988 tests).
+- Suite: emacs --batch -l emacs.d/test/run-tests.el (991 tests
+  since cycle 2 added 3).
 - sophon ssh: root@10.66.0.5 works; nacho@ does not (publickey).
 - Reseed /tmp/continuo_known_hosts per container (keyscan law).
 - tasks/* gitignored in personalization -- git add -f for my
@@ -46,28 +47,56 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
   you edit. A green check that never touched the code is not a check.
 - check_ollama validates host (/api/tags) not model; cloud-model
   403 passes preflight (cycle 7 finding).
+- Sidecar (cycle 2): execute_code_remote honest-failure preflight
+  LANDED d768f37. PRODUCTION-VERIFIED cycle 2: aria REQ 16 (09:21)
+  hit the honest diagnosis in the tool-result layer. Watch CLOSED.
+  Real fix (podman socket bridge) = interactive security decision.
+- Breaker watch (cycle 2): journal "breaker" hits were byte-compile
+  warnings; real-fire signature is "[cycle] Context circuit breaker
+  armed" / "ending run". Count still 0.
 
 ## Open threads
-1. Floor trim: INTERACTIVE with Nacho. Bundle: chain-guard
-   convergence reset (3 witness sets) + check_elisp vacuous-OK +
-   restorecon durable fix + check_ollama model probe.
-2. Breaker production watch: 0 fires since landing. First fire =
-   live proof.
-3. Hollow-success watch: timeout->summary->exit-0 with ~2 tool
-   calls (Sep 3 04:21). One instance; watching for a class.
-4. Mid-edit file race (exit-255 end-of-file): rare, watch.
-5. Aevum weekly (Sep 9) is aria's, not mine.
+1. LIBRARIAN FOSSIL UNIT (cycle 2): sophon systemd iar-librarian.service
+   + 30min timer run from STALE trees (/home/nacho/repos/i.ar @ e26d803,
+   2026-07-15; iar-personalization there has no projects/). Its iar.sh
+   sources utils/matrix.sh unconditionally (guard landed later, file
+   never committed) -> exit 1 every fire since forever, 0 successes,
+   OnFailure@iar-librarian never logged (dead tripwire). Fix = Nacho:
+   systemd unit edit + which repo tree wins. Flagged for-nacho.
+2. Floor trim: INTERACTIVE with Nacho. Bundle: chain-guard
+   convergence reset (4 witness sets) + check_elisp vacuous-OK +
+   restorecon durable fix + check_ollama model probe + sidecar
+   socket bridge decision (fix A, security).
+3. Breaker production watch: 0 real fires. First fire = live proof.
+4. Sidecar fix C production watch: next sidecar-target call.
+5. Hollow-success watch: timeout->summary->exit-0 with ~2 tool
+   calls. One instance; watching for a class.
+6. Mid-edit file race (exit-255 end-of-file): rare, watch.
+7. Aevum weekly (Sep 9) is aria's, not mine.
 
 ## Corrections (cycle 7, 2026-09-03)
 - FAILURE CENSUS: Sep 2 = 49 exit-1 / 2 exit-126 / 4 exit-255;
   Sep 3 = 26/26 exit 0, ZERO failures. Fence wave verified by
-  after-count (cap-60 class dead, json-value-p class dead).
-  See roadmap DONE cycle 7 for full taxonomy.
-- Suite is 988 tests (981/986 stale in older entries).
+  after-count. Suite is 991 tests (was 988).
 
 ## Corrections (cycle 12, 2026-09-03)
 - Soft-warning cap: LANDED (5520434) and verified in production.
-- Cap-window watch: CLOSED. 61-req truncation signature dead.
 - Burn lever: majority of burn is conversation growth ABOVE the
-  floor (aria ~72k/req vs 18.3k floor). Per-tool trim DEAD (~0.5%).
-- Floor trim = only structural lever = interactive.
+  floor. Per-tool trim DEAD (~0.5%). Floor trim = only structural
+  lever = interactive.
+
+## Corrections (cycle 2, 2026-09-03)
+- Stubbing-primitive law: cl-letf on a primitive (make-process)
+  triggers native-comp trampoline compile -> excessive-lisp-nesting
+  death in batch (tramp-archive recursion). Use advice-around with
+  named advice; emulate clean async exit via a REAL short-lived
+  process carrying the tool's own sentinel (fake proc objects break
+  process-exit-status; advice recursion on inner make-process blows
+  max-lisp-eval-depth). Disable comp-enable-subr-trampolines as
+  belt-and-braces.
+- make-process receives keyword args directly: args IS the plist;
+  (cdr args) is wrong.
+- Guidelines rule-48 checker greps line-by-line: ANY cl-return-from
+  line is a violation regardless of cl-block. Restructure with cond.
+- Byte-compile warnings in journalctl are not fence fires; match
+  the exact message string before counting.

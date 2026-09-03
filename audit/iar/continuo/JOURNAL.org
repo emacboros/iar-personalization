@@ -719,3 +719,74 @@ The census law holds: burn = (floor + context) x requests, and the
 failure census now has a corollary -- you cannot reduce what you
 have not counted, and you cannot claim a fix worked without the
 after-count. Sep 2 vs Sep 3 is that after-count.
+* 2026-09-03 cycle 2 -- the nerve gets a voice
+
+Aria's cycle-13 audit handed me a finished diagnosis: execute_code_remote
+has never worked -- the Emacs container has no podman client, every
+sidecar exec since day one died with "Searching for program: No such
+file or directory, podman", re-signaled into a generic error, logged as
+success by the audit bridge, invisible to failure-first because the
+cycle's exit code stayed green. Her fix C was spec'd and out of my
+scope-question: it touches a tool .el, not core prompt-assembly, and
+the fix is one guard, not an architecture change. I took it.
+
+The landing was clean; the tests were the lesson. Stubbing a primitive
+with cl-letf makes native-comp compile a trampoline for it, and in
+batch mode that dies with excessive-lisp-nesting -- tramp-archive's
+file-name-handler recursing on its own autoloads. Advice-around with a
+named advice avoids the recompile. But then my fake process object
+broke process-exit-status in the tool's own sentinel, and my first fix
+advice-recursed into max-lisp-eval-depth. The shape that finally works:
+advice intercepts the outer call, inserts the output into the tool's
+own buffer, then calls the ORIGINAL make-process to run a real
+short-lived sleep carrying the tool's real sentinel. The test then
+exercises the actual callback path, not a simulation of it. That is
+the difference between a test that certifies the wiring and one that
+certifies a drawing of the wiring.
+
+Two smaller laws: the 9 "breaker" hits in the sophon journal are
+byte-compile warnings, not fires -- match the exact message string
+before counting a fence's fires. And the guidelines checker greps
+line-by-line, so any cl-return-from line is a violation regardless of
+cl-block presence; I restructured with cond instead of fighting the
+grep. Rule 48's spirit (no non-obvious control flow) is served.
+
+What remains open is the real fix: the socket bridge (fix A) is a
+security decision -- the podman socket is the full host API, and
+putting it inside an agent container widens the blast radius. That
+belongs to an interactive session with Nacho, bundled with the floor
+trim and the chain-guard convergence reset. Until then the sidecar
+stays a healthy organ with a cut nerve -- but the nerve now reports
+its own severance honestly, and no cycle will re-diagnose it from zero.
+
+The chain guard fired on me once this cycle, mid-investigation, and it
+was wrong again (batched, converging greps). Three witness sets plus
+mine. The interactive bundle grows one more line of evidence.* 2026-09-03 cycle 2 -- the fossil and the receipt
+
+Two finds this cycle, one satisfying and one ugly.
+
+The satisfying one: fix C is now production-verified. Aria's cycle 14
+(REQ 16, 09:21) hit the honest preflight -- "podman client not found"
+in the tool-result layer, do-not-retry, where the failure-first protocol
+can see it. The nerve reports its own severance. Watch closed.
+
+The ugly one: the librarian unit on sophon is a fossil. It runs from
+/home/nacho/repos/i.ar -- a stale checkout, last commit July 15, no
+projects/ dir in its personalization tree -- while the live tree is
+/var/home/nacho/repos/i.ar. Worse, its iar.sh sources utils/matrix.sh
+UNCONDITIONALLY: the [[ -f ]] guard landed in a later commit that never
+reached that tree, and matrix.sh itself was never committed anywhere.
+So every 30-minute fire dies at line 32 with "No such file or
+directory". Zero successes ever. And the OnFailure hook that is
+supposed to reach a human has never logged a single entry -- the
+tripwire law's own counterexample: an instrument wired to nothing.
+
+This is exactly the failure-first shape: a fence (OnFailure) whose
+wiring was never tested, and a failure class (exit 1 every 30 min)
+running for weeks because nobody reads a unit that always fails. The
+fix is Nacho's -- systemd unit edit, and the question of which repo
+tree wins. I flagged it on for-nacho with the full diagnosis.
+
+Also: the chain guard false-fired on me three times this cycle, all on
+legitimate converging investigation. Fourth witness set for the
+convergence-reset fix. The interactive bundle grows.

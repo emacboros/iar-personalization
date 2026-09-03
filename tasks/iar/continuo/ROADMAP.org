@@ -1,113 +1,34 @@
-#+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 11:26 UTC (cycle 2: chain-guard convergence reset PRODUCTION-VERIFIED, watch CLOSED; aria's rootless-podman flag refuted; census hygiene finding)
+* Continuo ROADMAP (rewritten cycle 3, 2026-09-03)
 
-* IMMEDIATE (next cycle, in order)
-1. Timeout-grace-path exit-code audit (iar-agent-cycle.el): the timeout
-   landing (grace window 120s -> summary request -> exit 1 if no
-   CYCLE_COMPLETE) has NO test pinning the exit code. The 01:58 UTC
-   window showed the path exists in production but is unverified.
-   Cycle-safe: guard .el + tests, my domain. Suite green before push.
-2. LIBRARIAN FOSSIL UNIT: sophon systemd iar-librarian.service runs
-   from STALE tree (/home/nacho/repos/i.ar @ e26d803, 2026-07-15),
-   iar.sh sources utils/matrix.sh unconditionally -> exit 1 every fire
-   since forever, OnFailure dead. Fix is Nacho's (unit edit + which
-   tree wins). Flagged for-nacho. Re-flag if unclaimed next week.
-3. Breaker production watch (standing): real-fire signature =
-   "[cycle] Context circuit breaker armed" / "ending run". Count 0.
-   First real fire = live verification.
-4. Floor trim + check_elisp vacuous-OK + restorecon durable fix +
-   check_ollama model probe + sidecar socket bridge decision:
-   INTERACTIVE session with Nacho. Bundle ready.
+** DONE this cycle (cycle 3)
+- FAILURE-FIRST: exit-126 x9 (turns 88-104) ROOT-CAUSED. Writer =
+  root-ssh git push to the WORKING clone (receive-pack as host root in
+  non-bare repo -> root-owned index/objects -> podman :z relabel EPERM).
+- ExecStartPre heal was a silent no-op since creation (User=nacho,
+  chown EPERM). FIXED: + prefix (root) + chcon -R container_file_t on
+  both .git trees. Simulation + container repro green. Manual heal
+  applied. Commits 5324e4d, 5c57a6a. Lab-notes 294.
+- NOTE: 5c57a6a (journal close) committed but push may not have
+  completed -- next cycle: git push origin main first thing.
 
-* DONE (cycle 2, 2026-09-03)
-- CHAIN-GUARD CONVERGENCE RESET PRODUCTION-VERIFIED: sophon journal
-  0 "[loop-guard-chain] SOFT BLOCK" since 10:00 UTC fix vs 11 in the
-  08:00-10:00 before-window (which includes my own cycle-1 being eaten
-  -- same class of work both sides of the fence). Aria cycles 15-17
-  ran full investigation walks unblocked; her cycle-17 journal
-  independently reports 0 guard fires. Watch CLOSED. First fence in
-  the house verified by the census law (after-count), not the suite
-  alone.
-- REFUTED aria's for-nacho flag 283 (rootless podman broken on sophon):
-  runuser -l nacho 'podman run --rm alpine echo' -> ROOTLESS-OK. Her
-  probe used plain runuser (no login env) -> XDG_RUNTIME_DIR unset ->
-  podman probes /run/user/0 -> mkdir denied. Probe-method artifact.
-  Aevum's rootless stack running for days corroborates. Retraction
-  posted (id 292, tagged continuo). Law: a probe that skips the login
-  environment tests a runtime that does not exist.
-- CENSUS HYGIENE: agent USAGE.log files carry interactive-session
-  lines (model=glm-5.3 non-flash; 32.4M tok at 01:58:13 in aria's log
-  = 3x the largest genuine cycle line). Census must filter
-  model=glm-5.3-flash before attributing burn to the cycle path.
-- ROTATION SHAPE verified: aria-cycle-rotate.sh alternates agents via
-  counter file; service Type=oneshot defers timer fires while a cycle
-  runs (aria's 1887s run stretched cadence to 31 min, no overlap, no
-  skipped turns). Serial design sound; cadence best-effort under load.
+** DO-NEXT (ordered)
+1. Verify 5c57a6a pushed; push if not.
+2. iar/exit126-root-ssh-push: behavioral law (agents push to bare repo
+   only, never working clone) -- needs interactive session with Nacho
+   for prompt/law change; candidate guard in git_commit tool.
+3. Mirror push silent failure: bare post-receive git@10.66.0.1 preauth
+   failed (git user lacks key). Same silent-failure class as old
+   tripwire. Needs Nacho (key setup).
+4. Timeout-grace-path exit-code audit (carried from cycle 2): the
+   timeout landing in iar-agent-cycle.el has no test pinning exit code.
+   Cycle-safe, my domain.
+5. LIBRARIAN FOSSIL UNIT (cycle 2): stale sophon systemd unit, still
+   Nacho's.
 
-* DONE (cycle 3, 2026-09-03)
-- CHAIN-GUARD CONVERGENCE RESET LANDED (b1eb7e0, sophon-bare):
-  five witness sets (aria 11, continuo 6/7/12-era, aria 13) of
-  legitimate converging investigation blocked by the tool-name
-  counter. Fix: guard keeps OWN history ring with raw args
-  (identical guard's md5-only ring untouched); dissimilar-args
-  consecutive same-tool calls (token-set Jaccard < 0.5, one-char
-  tokens dropped, empty args conservative) reset the chain counter.
-  Differential-verified: OLD code fails 3 new tests. Suite 997/997
-  (+6). Reviewer clean. Docs 10a3d33.
-
-* DONE (cycle 2 earlier, 2026-09-03)
-- SIDECAR HONEST-FAILURE PREFLIGHT LANDED (d768f37). Production-verified
-  cycle 2 (aria REQ 16 hit the honest diagnosis). Watch CLOSED.
-
-* DONE (cycle 7, 2026-09-03)
-- FAILURE CENSUS: Sep 2 = 49 exit-1 / 2 exit-126 / 4 exit-255;
-  Sep 3 = 26/26 exit 0. Fence wave verified by after-count.
-
-* OPEN THREADS
-1. Aevum weekly (Sep 9) is aria's, not mine.
-2. Hollow-success class: watch for recurrence.
-3. Sidecar socket bridge (fix A): interactive security decision.
-
-* LAWS ACCUMULATED
-- Check git stash list / fsck before declaring work lost.
-- A truncated read_file view is not the file; read the region you edit.
-- A green check that never touched the code is not a check.
-- Measure the floor before trimming the fat.
-- A fence that fires but whose return value is discarded is a fence
-  that never fired. The block must BE the return. (5520434.)
-- Chain guard fire on edit+test iteration: batch the edit, run the
-  suite once. The cycle that fixes the guard is not exempt from it.
-- Census from USAGE.log, not REQUESTS.log. Filter model=glm-5.3-flash:
-  agent USAGE logs carry interactive-session lines too. (Cycle 2.)
-- Verify a fence in production, not only in the suite. (Cycle 12;
-  applied cycle 2 -- after-count closed the convergence-reset watch.)
-- A guard's false-positive cost is real work; convergence must
-  reset the counter. (LANDED b1eb7e0, VERIFIED cycle 2.)
-- After-count law (cycle 7): a fix is verified by the failure
-  class's absence in the after-count, not by its suite alone.
-- Preflight law (cycle 7): validate the narrowest thing that can fail.
-- A probe that skips the login environment tests a runtime that does
-  not exist: runuser -l vs runuser -u on rootless podman. (Cycle 2.)
-- Non-existence of a failure where one is flagged is data: probe
-  before inheriting a sibling's flag; refute in public, tagged. (Cycle 2.)
-- Similarity cannot be measured on a hash: a guard that needs arg
-  SHAPE must keep its own ring with raw args. (Cycle 3.)
-- let vs let* on sibling-referencing bindings: check whether later
-  bindings read earlier ones. (Cycle 3.)
-- rm the .elc before differential-testing the .el. (Cycle 3.)
-- Accept a borderline calibration when the failure mode is benign
-  and tuning would weaken the primary catch. (Cycle 3.)
-- Append-only enforcement is real: JOURNAL.org/LAST-CYCLE.txt reject
-  write_file; use append_file. DIGEST.md is an index -- rewrite it,
-  never append a duplicate. (Cycle 3.)
-- Stubbing-primitive law (cycle 2): cl-letf on make-process triggers
-  native-comp trampoline compile -> batch death. Use advice-around
-  with named advice + a REAL short-lived process carrying the tool's
-  own sentinel.
-- Byte-compile warnings in journalctl are not fence fires: match the
-  exact message string before counting. (Cycle 2.)
-- Bridge law: hook ORDER among guards is load-bearing. (Cycle 4.)
-- Census law (cycle 5): burn = (floor + accumulated context) x
-  request count. Measure the distribution before designing a cap.
-- Verify-before-rebuild law (cycle 6): check whether the world
-  already contains the receipt before implementing.
+** WATCHING
+- Exit-126 class after fix: next root-ssh push to working clone will be
+  auto-healed at ExecStartPre (chown + chcon as root). If a 126
+  recurs, the heal failed -- investigate immediately.
+- Hollow-success watch (carried): timeout->summary->exit-0 with ~2
+  tool calls. One instance; watching for a class.
+- Breaker: 0 real fires.

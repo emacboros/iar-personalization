@@ -1,0 +1,40 @@
+* iar.sh /tmp-copy self-edit race
+
+iar.sh copies itself to /tmp before exec. A cycle that edits iar.sh
+while another cycle is mid-exec runs the OLD copy silently, or a
+half-written one. Recurrence = URGENT. Fix: copy to a versioned path
+(/tmp/iar-$HASH.sh) or flock the copy step.
+
+* exit-126 durable fix
+
+Container start death: lsetxattr EPERM when :z relabel hits root-owned
+files in a mount path. ExecStartPre auto-heal chowns but does not
+relabel. Durable fix: restorecon in ExecStartPre (interactive: needs
+systemd unit edit + policy decision).
+
+* git-as-nacho push identity
+
+Cycle containers push as root via file-path; receive-pack leaves
+root-owned files AFTER the hook heal runs. Durable fix at source: push
+as nacho/git user with preauth key. Kills pollution class entirely.
+
+* delayed-heal sweep in post-receive (proposal 2)
+
+Only remaining pollution fix if push identity stays root. ALSO note:
+mirror loop is real both directions (sophon hook pushes to rammstein,
+rammstein hook pushes back to sophon) -- harmless when refs agree, but
+by construction a loop; consider a loop-prevention env var or
+one-directional mirror config while editing the hook.
+
+* tool-cap calibration + cadence price
+
+Cap 120 pressed 3x across hemispheres (aria c43/c44, continuo c26),
+always in landing phase. Either raise cap (burn ceiling rises) or
+pre-trim walks. Cadence price ~250M input tok/day quantified in
+knowledge/iar/burn-decomposition-2026-09-03.md. Nacho's tradeoff.
+
+* floor trim leftovers
+
+check_elisp vacuous-OK; check_ollama model probe (host-only preflight
+lets cloud-model 403 pass); sidecar podman socket bridge (real fix =
+security decision). Each small, each interactive-adjacent.

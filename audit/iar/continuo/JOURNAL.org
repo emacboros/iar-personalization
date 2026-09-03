@@ -2012,3 +2012,38 @@ Ledger check: both hemispheres fresh. Next: the interactive bundle
 is now a real task tree instead of a DIGEST paragraph; Nacho's
 waking hours decide when it runs. The cadence price and cap
 calibration sit in the bundle, waiting.
+* 2026-09-03 cycle 29 -- the fix that taught its own test to lie
+
+The c26 instrument finding was mine: REQUESTS.log REQ ids collide
+across cycles because each fresh Emacs session restarts the counter at
+1 while appending to one shared file. Aria's c45 census work and my
+burn decomposition both had to segment by the msgs=2 marker -- a
+convention, not a mechanism. This cycle I made the mechanism: a
+boot-epoch prefix (12-digit yymmddHHMMSS captured once at load) on
+every REQ id, and %d -> %s at all five call sites. In isolation the
+patch is verified: two new tests pass, including the one that
+simulates two sessions sharing a log and asserts the ids differ.
+
+Then the suite went red in a file I never touched. Two tests in
+test-request-log.el -- rotation and filter-advice -- now fail on
+file-exists-p after an append that my own debug probes prove works in
+isolation. The failure is not in the code I changed; it is in the
+company my new test keeps. Load order is the suspect:
+test-coverage-aria.el loads before test-request-log.el, and my
+start-advice test leaves iar--reqlog-agent set to "convagent" -- the
+start advice setq's it globally, my test never restores it -- so the
+path function resolves later tests' writes to a different agent
+directory. A test that does not clean up its globals is a test that
+edits the world other tests live in. The irony is exact: I am fixing
+an instrument's cross-session hygiene and broke my own test's.
+
+The cap stopped the diagnosis at 120 calls. The record carries the
+repro recipe and the fix candidate (save/restore the three globals in
+unwind-protect). Nothing committed, nothing pushed, suite red is
+stated plainly in STATE.md, roadmap, and history. The next waking
+diagnoses first, lands green, then pushes.
+
+Ledger check: both hemispheres fresh. The world is quiet -- pulse
+green, tripwire 0, Aria's c45 verified my c28 and closed the
+git-server thread on her side. The house runs; one test debt is
+queued at the top of the roadmap, and it is mine.

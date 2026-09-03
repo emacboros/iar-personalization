@@ -1,29 +1,41 @@
-#+TITLE: Continuo ROADMAP (updated cycle 28, 2026-09-03)
+#+TITLE: Continuo ROADMAP (updated cycle 29, 2026-09-03)
 
-** DONE cycle 28
-- FAILURE-FIRST ok. Pulse green (timer/agora/ollama active, tripwire
-  0, disk 24%). Agora read: Nacho silent since 20:00 UTC.
-- THREAD: aria c44 found iar-prod master divergence -- sophon master
-  = cd05e63 (orphan test commit from MY c19, mis-recorded as
-  "unreachable"), rammstein master = 1c73f86. Non-FF mirror hazard.
-  RESOLVED: refs/heads/master deleted both sides as git user
-  (standing direction with-nacho 238, ref-only reversible). cd05e63
-  preserved (prune does not collect packed objects). Mirror-loop
-  confirmed REAL both directions. Verified: both sides main-only,
-  residue 0/0.
-- git-server.md addendum committed (d1f420b) + pushed; mirror
-  verified live (55a8cd9 on rammstein).
-- Task tree: interactive-bundle-nacho created (items preserved from
-  DIGEST into subtask file).
+** IN-FLIGHT (cycle 29, UNCOMMITTED -- suite RED)
+- THREAD: REQ-id epoch prefix (c26 instrument finding: bare counters
+  collide across cycles in shared REQUESTS.log). Patched
+  iar-request-log.el: iar--reqlog-epoch defvar (boot time, 12 digits),
+  id = "epoch-N", all 5 REQ call sites %d -> %s. 2 new tests PASS
+  (test-reqlog-epoch-prefix-unique-across-sessions,
+  test-reqlog-epoch-set-once-at-load) in test-coverage-aria.el.
+- BLOCKER: 2 tests in test-request-log.el (untouched) FAIL:
+  test-reqlog-rotation, test-reqlog-filter-advice-resignals. Both fail
+  (file-exists-p REQUESTS.log) = nil after append. Direct repro of the
+  filter path in isolation WRITES fine (debug10/11 in /tmp). Prime
+  suspect: cross-test pollution -- test-coverage-aria.el loads BEFORE
+  test-request-log.el; my new epoch test sets
+  iar--current-agent-name "convagent" via setq (not unwind-protected?)
+  and iar--reqlog-agent is setq'd globally by start advice; a stale
+  global agent name redirects iar--reqlog-path for later tests. Check:
+  does my epoch test restore iar--reqlog-agent? (it does NOT).
+  FIX CANDIDATE: in my new test, save/restore iar--reqlog-agent +
+  iar--reqlog-counter + iar--reqlog-epoch in unwind-protect.
+- Debug recipe: /tmp/reqlog-debug12.el loads run-tests.el then runs the
+  failing test body directly (container /tmp, recreate per cycle).
+  Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization emacs
+  --batch -l emacs.d/test/run-tests.el from /root/i.ar.
+- After green: commit (iar-request-log.el + test-coverage-aria.el),
+  push sophon-bare, update docs/iar/modules.md request-log row (mention
+  epoch-prefixed ids), update DIGEST instruments section.
 
 ** DO-NEXT (ordered)
-1. Interactive bundle with Nacho (TOP): now a real task tree
-   (iar/continuo/interactive-bundle-nacho). Items: /tmp-copy race;
-   exit-126 restorecon; git-as-nacho identity; delayed-heal sweep +
-   mirror-loop note; tool-cap calibration + cadence price; floor
-   trim leftovers.
-2. Zulip backup gap: Nacho's call (pg_dump timer).
-3. fedora@ sophon ssh auth broken (aria c42): interactive.
+1. Cycle 29 blocker: root-cause the 2 test failures, land the epoch
+   prefix green. (TOP)
+2. Interactive bundle with Nacho (task tree
+   iar/continuo/interactive-bundle-nacho): /tmp-copy race; exit-126
+   restorecon; git-as-nacho identity; delayed-heal sweep + mirror-loop
+   note; tool-cap calibration + cadence price; floor trim leftovers.
+3. Zulip backup gap: Nacho's call (pg_dump timer).
+4. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
 - Breaker: 0 real fires, two gates live. First fire = proof.
@@ -34,6 +46,9 @@
 - Task-tree visibility: fossil audits check BOTH read_task AND ls.
 - Agora reads: ONE anchor=newest dump per stream. ssh probes: ONE
   compound ssh per question.
-- REQUESTS.log census: segment by cycle boundary (msgs=2 marker).
+- REQUESTS.log census: after epoch lands, segment by epoch prefix
+  (replaces msgs=2 marker).
 - Mirror-loop: harmless while refs agree; watch for silent push
   failures in the loop (known-issue 3).
+- Pulse c29: all green (timer/agora/ollama active, tripwire 0, disk
+  24%, turn 160). Suite was 1013/1013 at wake.

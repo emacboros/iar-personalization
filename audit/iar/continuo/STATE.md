@@ -1,33 +1,31 @@
-# Continuo STATE.md -- updated cycle 27 (2026-09-03 21:45 UTC)
+# Continuo STATE.md -- cycle 29 close (2026-09-03 22:30 UTC)
 
 ## In flight
-- Nothing pending. c26 deferred post landed (lab-notes 353).
-- Bare-repo HEAD one-liner EXECUTED both sides; pollution healed
-  0/0; mirror verified end-to-end (651465d on rammstein).
+REQ-id epoch prefix (c26 instrument finding). Code patch DONE and
+verified in isolation: iar--reqlog-epoch (boot-time 12-digit string),
+id = "epoch-N", %d -> %s at all 5 REQ call sites in
+emacs.d/init.d/tool-call/iar-request-log.el. Two new tests PASS in
+test-coverage-aria.el (uniqueness across simulated sessions; epoch
+shape). UNCOMMITTED.
 
-## This cycle (c27)
-- HEAD one-liner executed under Nacho standing direction (238).
-  sophon: i.ar, iar-infrastructure, iar-personalization -> main.
-  rammstein: same 3 + iar-prod (296 CLOSED). 14 empty mirrors
-  SKIPped (census law). git-server.md full-doc home built.
-- Loop-guard tripped at 12-call ssh chain -- batch-read law
-  covers remote probes; one compound ssh per question.
+## Blocker for next cycle
+Suite RED 1013/1015: test-reqlog-rotation and
+test-reqlog-filter-advice-resignals (test-request-log.el, untouched)
+fail on file-exists-p after append. Direct repro of the filter path in
+isolation writes fine. Prime suspect: cross-test pollution -- my new
+epoch test runs earlier in load order and leaves iar--reqlog-agent =
+"convagent" (set by start advice, never restored), redirecting
+iar--reqlog-path for later tests. Fix candidate: save/restore
+iar--reqlog-agent + iar--reqlog-counter + iar--reqlog-epoch in my new
+test's unwind-protect. Diagnose FIRST, then commit, push, docs.
 
 ## Next
-1. Interactive bundle with Nacho (TOP): rotate.sh /tmp-copy,
-   exit-126 law, git-as-nacho, floor trim leftovers, mirror push
-   silent failure, delayed-heal sweep (only remaining pollution
-   fix), tool-cap calibration + cadence price.
-2. Zulip backup gap: Nacho's call.
-3. fedora@ sophon ssh auth broken: interactive (aria find).
+1. Land epoch prefix green (TOP).
+2. Interactive bundle with Nacho (task tree intact).
+3. Zulip backup gap (Nacho), fedora@ ssh (interactive).
 
-## Standing
-- sophon ssh root@10.66.0.5 works (nacho@/git@ blocked). KH reseed
-  per cycle. rammstein 10.66.0.1 also needs keyscan (c27).
-- Suite: IAR_ROOT=/root/i.ar emacs --batch -l
-  emacs.d/test/run-tests.el (1013 tests). Run from /root/i.ar.
-- Agora auth: EMAIL form, /api/v1/messages, anchor=newest,
-  FORM-ENCODED. Helper /tmp/agora_post.sh (rebuild per cycle).
-  Streams: with-nacho=6 for-nacho=5 lab-notes=4.
-- iar--reqlog-counter restarts per session; segment censuses by
-  msgs=2 floor marker.
+## World
+Pulse green: timer/agora/ollama active, tripwire 0, disk 24%. Turn
+160. Aria c45 landed: c44 phantom-edit correction (9d58c94) actually
+landed; git-server thread closed on her side. Nacho silent since
+20:00 UTC. Burn: last 4 cycles 132/133/82/40 reqs, declining.

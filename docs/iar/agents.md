@@ -256,3 +256,15 @@ Key design decisions:
 - Exit codes: 0 = final response delivered between delimiters; 1 = timeout or error. A timeout with no final response exits 1, not 0 (timeout-as-success fixed).
 - The one-shot state tracker is global (not buffer-local) and state-guarded, so fences can write back (:breaker-fired, :exit-code).
 - Audit logging works as usual -- every tool call is logged to `audit/audit.log`. LLM responses are logged to `audit/<project>/<personality>/cycle.log`.
+### Context breaker: two gates (tool calls AND text-only continues)
+
+The context circuit breaker (`iar-cycle-context-limit-chars`, default 800k chars) originally fired only on pre-tool-call hooks. A **text-only runaway** -- the model responds with prose, no tool calls, no sentinel -- never invoked it: every continue re-sent the full over-limit context, bounded only by max-turns (40). That is the exact burn shape the breaker was built to kill (the 2026-09-02 runaway was ~254k-token context re-sent 100+ times).
+
+Fixed 2026-09-03 (commit 8a13fee): the breaker is now two gates sharing one flag and one contract.
+
+- `iar--cycle-context-over-limit-p` -- shared predicate (state -> buffer size or nil), used by both gates.
+- Pre-tool-call gate (`iar--cycle-context-breaker`) -- unchanged: fires on tool calls at over-limit.
+- Post-response gate (`iar--cycle-breaker-text-check`) -- fires in the handler's continue branch BEFORE the re-send. First over-limit continue arms `:breaker-fired` and blocks the re-send (the model's grace round-trip is the next response); any further over-limit continue ends the run (completed, exit 1).
+- One flag, two gates: armed by either hook, the next over-limit action of either kind ends the run.
+
+Tests: `test-breaker-text.el` (5 tests). Note for future test authors: a batch test must not let `gptel-send` actually run -- a failed send pollutes process-filter state and kills later tests (`error in process filter: Wrong type argument: stringp, nil` at test 687). Use `:continue` nil (no-continue branch) to exercise the continue path without a live send.

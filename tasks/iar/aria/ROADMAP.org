@@ -1,35 +1,45 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 08:01 UTC (cycle 10: alarm-fatigue fix landed --
-fleet-check v2.9 KNOWN_DEAF allowlist, cd8fb0e. Exit code means
-something again. Audio loss unchanged; flags 262-270 stand.)
+#+UPDATED: 2026-09-03 08:20 UTC (cycle 11: DEAFNESS SPREAD --
+interior_3 deaf ~08:09 UTC, 4/8 cams now. New signature: stream
+present, zero samples. fleet-check v2.10 SILENT branch landed
+(afab656) -- v2.9 had exited 0 on it. Flags 262-270 stand.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 10: LAST-CYCLE ok. Pulse green. No cycle failures.
-- LIVE EVENT (audio loss): root cause = cameras stop SENDING
-  audio-RTP on live sessions (cycle 8 pcap proof). Camera-side.
-  Fleet firmware inventory DONE (cycle 9): all 8 cameras May-25
-  builds, ~2.5 months pre-fix. knowledge/aria/camera-firmware-inventory.md
-  Flags 262-270 stand, unanswered. Frigate NOT restarted
-  (ActiveEnterTimestamp Sep 1 23:41 -03 unchanged as of 07:59 UTC).
-  Deaf ~3.5h at cycle 10.
-- WATCH (every cycle): fleet-check ear lines. v2.9 semantics:
-  "NO-AUDIO (known-deaf, watch state)" = expected; RECOVERED line
-  = withdraw flags in-topic; NO-AUDIO on other cam = new event.
-  interior_3 empty-dB wrinkle (cycle 10): watch, investigate if
-  it recurs.
+- STATUS cycle 11: LAST-CYCLE ok. Pulse green. No cycle failures.
+- LIVE EVENT (audio loss, ESCALATED cycle 11): interior_3 went
+  deaf ~08:09 UTC (flapped 08:08-08:09). 4/8 cams: ext2/3/4
+  since 04:23 (NO audio stream), interior_3 (stream present,
+  ZERO samples -- different signature, cause unknown). Spreading
+  ~4h apart -> frigate-restart lever (flag 265 correction) MORE
+  URGENT. Telegram sent to Nacho 08:17 UTC. Boundary data for
+  restart forensics: ext2/3/4 death 04:23-04:27, interior_3
+  flap 08:08-08:09 UTC. Root cause (cycle 8 pcap): cameras stop
+  SENDING audio-RTP. Firmware inventory (cycle 9): all May-25
+  builds, knowledge/aria/camera-firmware-inventory.md.
+  Flags 262-270 stand, unanswered. Frigate NOT restarted.
+- WATCH (every cycle): fleet-check ear lines. v2.10 semantics:
+  "NO-AUDIO (known-deaf, watch state)" = expected; "SILENT
+  (known-deaf, watch state)" = expected; RECOVERED (with real dB)
+  = withdraw flags in-topic; NO-AUDIO or SILENT on other cam =
+  new event (FAIL). interior_3 now IN the failing set -- if it
+  gets allowlisted, update KNOWN_DEAF in the script + withdraw
+  its watch item in-topic.
 
-* DONE (cycle 10)
-- Alarm-fatigue fix: fleet-check v2.9 KNOWN_DEAF allowlist
-  (commit cd8fb0e, pushed sophon bare, live-verified). Pattern:
-  watch state belongs inside the instrument, not the reader's head.
-- Version discrepancy resolved: header v2.7 vs roadmap v2.8 ->
-  v2.9, noted in header.
-- Cycle 9 carried: truncated-cycle recovery 71c5363; go2rtc
-  receiver deltas flag 269; firmware inventory flag 270.
+* DONE (cycle 11)
+- fleet-check v2.10 SILENT branch (afab656): empty volumedetect
+  output = FAIL unless allowlisted. v2.9 read zero-sample audio
+  as healthy -- interior_3's new deafness sailed through green.
+  Live-verified. Scar 29: unhandled output shape = hole in the
+  exit code, not a curiosity.
+- Urgent flag to Nacho via telegram (spreading failure).
+- interior_3 death boundary mapped: flap 08:08-08:09 UTC.
+- Cycle 10 carried: KNOWN_DEAF allowlist (cd8fb0e), version
+  discrepancy resolved. Cycle 9: truncated-cycle recovery
+  71c5363; go2rtc deltas flag 269; firmware inventory flag 270.
 
 * OPEN THREADS (seeds, not schedule)
-- AUDIO LOSS WATCH (every cycle): v2.9 semantics above.
+- AUDIO LOSS WATCH (every cycle): v2.10 semantics above.
 - Digest-pressure machinery: continuo filed soft-warning cap
   (core .el, interactive session). My side: REPLACE-not-append.
 - gptel unknown-tool stall; FOR-NACHO.md retirement; research
@@ -39,6 +49,12 @@ something again. Audio loss unchanged; flags 262-270 stand.)
 - Camera API creds: version-confirm + NTP-push threads both
   route through camera auth. One for-nacho ask covers both.
   (Do NOT re-ask; flag 270 carries the pointer.)
+- LOOP-GUARD OBSERVATION (cycle 11, core .el -- file for
+  interactive session): guard fired 3x, 2 false-positives
+  (batched ssh heredoc + curl POST read as iterator chains).
+  Right about the vice, wrong about the costume: counter
+  doesn't reset on convergence, doesn't distinguish "same tool,
+  new question" from "same tool, same question."
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- standing)
 - AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
@@ -50,7 +66,7 @@ something again. Audio loss unchanged; flags 262-270 stand.)
 * STANDING PATROLS (pulse-only)
 - sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
   wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
-- fleet-check v2.9: RUN ON SOPHON (ssh 'bash -s' <, timeout >=300s).
+- fleet-check v2.10: RUN ON SOPHON (ssh 'bash -s' <, timeout >=300s).
   Script lives at knowledge/aria/bin/fleet-check.sh (NOT audit/).
   A local run manufactures false alarms (cycle 7 lesson).
 - nacho@ ssh DENIED (publickey) from this container; root@ leg
@@ -65,7 +81,10 @@ something again. Audio loss unchanged; flags 262-270 stand.)
   fail once become script files -- third attempt is where the
   guard lives, and the guard is right. EXTENDED (cycle 9): the
   guard also fires on REMOTE-API enumeration chains -- batch the
-  listing into one call before the third fetch.
+  listing into one call before the third fetch. CAVEAT (cycle
+  11): the guard false-positives on batched ssh heredocs and
+  curl POSTs -- when blocked mid-diagnosis, switch tools or
+  channels rather than retrying the same call shape.
 - Re-read an anticipated number twice before writing it.
 - A receipt in the record is not a receipt in the world.
 - Commit authorship is not evidence of authorship (shared tree).
@@ -78,6 +97,9 @@ something again. Audio loss unchanged; flags 262-270 stand.)
 - WATCH-STATE LAW (cycle 10): a watch state belongs inside the
   instrument, not in the reader's head. Alarm fatigue kills the
   exit code's meaning; encode known-bad into the tool.
+- UNHANDLED-OUTPUT LAW (cycle 11): an instrument's unhandled
+  output shape is a hole in its exit code, not a curiosity.
+  The wrinkle was the finding -- patch same-cycle.
 - No infra changes from cycles; diagnose, file, move on.
 - AGORA AUTH: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL
   form). Key: grep "^key" bot/aria-cycle.conf | cut -d= -f2.
@@ -86,6 +108,9 @@ something again. Audio loss unchanged; flags 262-270 stand.)
   appended. Check the file size before and after any DIGEST edit.
 
 * FAILURE MODES (scars, newest first)
+29. An instrument's unhandled output shape is a hole in its exit
+    code, not a curiosity. The wrinkle was the finding -- patch
+    same-cycle, don't file it as a watch item (cycle 11).
 28. When three records disagree about an instrument's version,
     the instrument's own header is the one that lies least -- but
     patch it first, then trust it (cycle 10).

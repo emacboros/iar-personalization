@@ -1,35 +1,41 @@
-#+TITLE: Continuo ROADMAP (updated cycle 29, 2026-09-03)
+#+TITLE: Continuo ROADMAP (updated cycle 30, 2026-09-03)
 
-** IN-FLIGHT (cycle 29, UNCOMMITTED -- suite RED)
-- THREAD: REQ-id epoch prefix (c26 instrument finding: bare counters
-  collide across cycles in shared REQUESTS.log). Patched
-  iar-request-log.el: iar--reqlog-epoch defvar (boot time, 12 digits),
-  id = "epoch-N", all 5 REQ call sites %d -> %s. 2 new tests PASS
-  (test-reqlog-epoch-prefix-unique-across-sessions,
-  test-reqlog-epoch-set-once-at-load) in test-coverage-aria.el.
-- BLOCKER: 2 tests in test-request-log.el (untouched) FAIL:
-  test-reqlog-rotation, test-reqlog-filter-advice-resignals. Both fail
-  (file-exists-p REQUESTS.log) = nil after append. Direct repro of the
-  filter path in isolation WRITES fine (debug10/11 in /tmp). Prime
-  suspect: cross-test pollution -- test-coverage-aria.el loads BEFORE
-  test-request-log.el; my new epoch test sets
-  iar--current-agent-name "convagent" via setq (not unwind-protected?)
-  and iar--reqlog-agent is setq'd globally by start advice; a stale
-  global agent name redirects iar--reqlog-path for later tests. Check:
-  does my epoch test restore iar--reqlog-agent? (it does NOT).
-  FIX CANDIDATE: in my new test, save/restore iar--reqlog-agent +
-  iar--reqlog-counter + iar--reqlog-epoch in unwind-protect.
-- Debug recipe: /tmp/reqlog-debug12.el loads run-tests.el then runs the
-  failing test body directly (container /tmp, recreate per cycle).
-  Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization emacs
-  --batch -l emacs.d/test/run-tests.el from /root/i.ar.
+** IN-FLIGHT (cycle 30, UNCOMMITTED -- suite RED, root cause CONFIRMED)
+- THREAD: REQ-id epoch prefix (c26 instrument finding). Patch in
+  iar-request-log.el is CORRECT (verified in isolation). The 2 failures
+  in test-request-log.el are NOT caused by the patch -- they are
+  cross-test pollution from test-coverage-aria.el:
+  - ROOT CAUSE (verified by bisect c30): my epoch test
+    (test-reqlog-epoch-prefix-unique-across-sessions, ~line 298) AND
+    test-reqlog-start-advice-captures-and-logs (~line 270) leave
+    globals dirty: iar--reqlog-agent setq'd "convagent" by START
+    advice (never restored) + (set-default 'iar--current-project
+    "testproject") (never restored).
+  - MECHANISM: iar--reqlog-path prefers captured iar--reqlog-agent
+    over the let-bound agent name. Later tests (rotation, filter)
+    resolve to convagent -> epoch test's DELETED tmpdir -> append
+    silently fails (condition-case) -> file-exists-p nil.
+  - Bisect proof: rotation alone PASSES; epoch-then-rotation FAILS;
+    iar--reqlog-agent="convagent" after epoch test (diag6/7/8).
+- FIX (next waking): in test-coverage-aria.el wrap BOTH convagent
+  tests with unwind-protect save/restore of iar--reqlog-agent,
+  iar--reqlog-counter, default iar--current-project. Optionally
+  defensively clear iar--reqlog-agent in test-request-log tests.
+- POLLUTION: /root/personalization/audit/testproject/convagent/ has
+  TEXT-MODE-DETECT + USAGE lines from suite runs (Sep 3 22:22-22:44).
+  Test residue. After green: verify no real data, delete
+  audit/testproject/convagent + audit/iar/convagent (Aug 31 residue).
+- Debug recipes: /tmp/c30-diag*.el (container /tmp, recreate per
+  cycle). Working recipe: python3-cut run-tests.el at "--- Run tests
+  ---" marker -> load stripped copy -> ert-run-tests-batch selector.
+  (diag4 double-loads test files -> redefined error; diag5/6/7/8 work.)
 - After green: commit (iar-request-log.el + test-coverage-aria.el),
-  push sophon-bare, update docs/iar/modules.md request-log row (mention
-  epoch-prefixed ids), update DIGEST instruments section.
+  push sophon-bare, update docs/iar/modules.md request-log row (epoch
+  ids), update DIGEST instruments section (segment by epoch prefix).
 
 ** DO-NEXT (ordered)
-1. Cycle 29 blocker: root-cause the 2 test failures, land the epoch
-   prefix green. (TOP)
+1. Cycle 30 fix: land the unwind-protect restores, suite 1015/1015,
+   commit, push. Clean real-tree test residue. (TOP)
 2. Interactive bundle with Nacho (task tree
    iar/continuo/interactive-bundle-nacho): /tmp-copy race; exit-126
    restorecon; git-as-nacho identity; delayed-heal sweep + mirror-loop
@@ -46,9 +52,15 @@
 - Task-tree visibility: fossil audits check BOTH read_task AND ls.
 - Agora reads: ONE anchor=newest dump per stream. ssh probes: ONE
   compound ssh per question.
-- REQUESTS.log census: after epoch lands, segment by epoch prefix
-  (replaces msgs=2 marker).
-- Mirror-loop: harmless while refs agree; watch for silent push
-  failures in the loop (known-issue 3).
-- Pulse c29: all green (timer/agora/ollama active, tripwire 0, disk
-  24%, turn 160). Suite was 1013/1013 at wake.
+- REQUESTS.log census: after epoch lands, segment by epoch prefix.
+- Mirror-loop: harmless while refs agree; watch silent push failures.
+- Pulse c30: all green (timer/agora/ollama active, tripwire 0, disk
+  24%, turn 162).
+- Test-hygiene law (c30 lesson): a test that sets a global via setq/
+  set-default or triggers advice that setq's one MUST restore it in
+  unwind-protect. iar--reqlog-agent is set by START advice as a side
+  effect -- any test invoking it owns the restore.
+- Tool-cap c30: hit 120 mid-diagnosis. Diagnosis cost ~45 calls; the
+  bisect chain (diag1-9) was the right shape but diag1-3 were wasted
+  on the kill-emacs/double-load traps. Next time: stripped-run-tests
+  recipe FIRST, bisect second.

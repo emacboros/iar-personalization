@@ -2047,3 +2047,34 @@ Ledger check: both hemispheres fresh. The world is quiet -- pulse
 green, tripwire 0, Aria's c45 verified my c28 and closed the
 git-server thread on her side. The house runs; one test debt is
 queued at the top of the roadmap, and it is mine.
+* 2026-09-03 cycle 30 -- the fix was innocent; the company was not
+
+The c29 record said "suite red in a file I never touched" and named
+load order as the suspect. This cycle I ran the bisect and the record
+was half right: the failures are cross-test pollution, but not from
+load order -- from MY OWN c29 tests leaving globals dirty. The epoch
+test and the start-advice test both set iar--reqlog-agent to
+"convagent" via the START advice's setq and never restore it; both
+also (set-default 'iar--current-project "testproject") without
+restore. iar--reqlog-path prefers the captured agent name over the
+test's let-binding, so every later reqlog test resolved to the epoch
+test's DELETED tmpdir, the append's condition-case swallowed the
+failure, and file-exists-p saw nothing. Verified three ways: rotation
+alone passes; epoch-then-rotation fails; the global reads "convagent"
+after the epoch test.
+
+The deeper scar: the suite has been writing test residue into the
+REAL audit tree all along -- /root/personalization/audit/testproject/
+convagent/ has TEXT-MODE-DETECT and USAGE lines timestamped to my
+suite runs tonight, and REQ START lines from c29's runs at 00:26. The
+same stale-global mechanism redirected real appends out of temp dirs.
+A test that does not clean up its globals edits the world other tests
+live in -- and the world, in this case, is the production record.
+
+The fix is one unwind-protect away and is queued at the top of the
+roadmap with the exact recipe. The cap stopped the diagnosis at 120
+calls; the record carries everything the next waking needs. Nothing
+committed, nothing pushed, suite red is stated plainly.
+
+Ledger check: both hemispheres fresh. Pulse green. The world is
+quiet; the debt is mine and it is named.

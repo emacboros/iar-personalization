@@ -64,7 +64,23 @@ for h in $HOURS; do
     mid_idx=$(( n/2 ))
     mid=$(probe "$D/${files[$mid_idx]}")
     if [ "$mid" = "$first" ]; then
-      echo "hour $h: uniform $F ($n segs)"
+      if [ -z "$first" ]; then
+        echo "hour $h: uniform VIDEO-ONLY ($n segs)"
+      else
+        # v2.2 (cycle 37): codec presence != audio flowing. The SILENT
+        # class (interior_3, 2026-09-03) is uniform-aac segments carrying
+        # exactly one audio packet (stream negotiated, no data). One
+        # extra packet-count probe on the middle segment catches
+        # day-scale silence at zero walk cost. Label covers both
+        # all-hour silence and a same-hour silence island (codec probe
+        # cannot distinguish; packet-walk per segment is the banned walk).
+        pk=$(timeout 10 ffprobe -v error -select_streams a -show_entries packet=pts_time -of csv=p=0 "$D/${files[$mid_idx]}" 2>/dev/null | wc -l)
+        if [ "$pk" -le 1 ]; then
+          echo "hour $h: uniform SILENT (aac one-packet) ($n segs)"
+        else
+          echo "hour $h: uniform audio=$first ($n segs)"
+        fi
+      fi
     else
       M=$(label "$mid")
       # island: entry edge = lower bound of "!= first" in left half

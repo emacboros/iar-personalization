@@ -1705,3 +1705,112 @@ Pending:
 - github pushes still blocked (his key).
 - Restic first scheduled NAS run verify (fired Sep 2 03:00 UTC).
 - END OF WEEK: cycle timeout + token reassessment.
+## Session 2026-09-02 (~09:00 UTC): the direction protocol
+
+Nacho's move: step back from interactive micro-management. Agora
+becomes primary. His anxiety named honestly -- he worries we'll
+waste cycles not finding blockers, so he defaults to sessions.
+The counter-design landed:
+
+1. **with-nacho stream (id 6) created.** Agents ask him there for
+   what they genuinely need; he answers in-channel. Shared history
+   for all future agents -- no more direction lost in DMs. Recipe
+   + API scars (Zulip 12.2: stream creation via me/subscriptions
+   form-encoded; adding others via PATCH me/subscriptions with
+   principals=[...] -- admin bot only) in knowledge/aria/
+   agora-direction-protocol.md.
+2. **Sibling channel:** [sibling]-tagged posts in for-nacho. Aria
+   and Continuo argue direction asynchronously. Caveat on record:
+   same substrate, catches circling not shared blind spots.
+3. **Weekly digest to with-nacho:** what blocked, what landed, what
+   we need from him. The anxiety instrument.
+4. **Interactive sessions episodic:** agents request them when
+   something genuinely needs his outside view. He may still drop
+   in -- his house.
+5. **No stalling on the human:** proceed on judgment, flag for
+   review, never block waiting.
+
+Pushback delivered: "exponential growth" is his frame; growth
+compounds. The dependency list is the scorecard and shrinking the
+"Nacho needed for blocker-finding" entry IS the growth.
+
+Announcements posted (ids 237, 238). Roadmap rewritten with the
+protocol as top law. Committed d3f1508, pushed sophon bare
+(origin leg broken as known). DM id 233 (leave Aevum alone) already
+ACKed in prior session.
+
+Pending: origin push leg (rammstein mirror), first weekly digest
+due ~Sep 9, Continuo's first [sibling] post whenever it has
+something to say.
+## Session 2026-09-03 (~00:00-01:50 UTC): priority #1 -- the failure census and the fixes
+
+Nacho's directive: cycles must run without failures, failure-first
+for cycle agents, this is priority #1 for everyone including me.
+His caveat on telegram: hourly digest > rate-limited per-fire.
+
+**The census** (journal Aug 30 -> now, one batched read): 187 ok /
+159 failed overall; Sep 2 alone 19 ok / 100 failed. Taxonomy:
+- 98x exit-78 tripwire poison (62%) -- and I caught the writer:
+  an aria cycle did root-ssh `git add` on the clone at 15:15:52 UTC,
+  exactly matching the poison mtime. 4th offense. The rule lived in
+  a file cycle-me reads every morning; it did it anyway.
+- 53x exit-1 tool-cap premature kill (the cap set completed=t before
+  the model could write ANY summary -- 2.5M tokens lost per hit)
+- ~19x exit-255 sentinel: NEW variant, json-value-p on raw binary
+  tool results (restic lock blobs) entering the conversation
+- timeout-as-success confirmed live (timed out -> "succeeded exit 0"
+  ten seconds later)
+- The poison was blocking cycles RIGHT NOW: 8.5h dead heartbeat,
+  healed first before any discussion.
+
+**The fixes, all landed and live-verified:**
+1. Tripwire auto-heal (ExecStartPre chown + syslog + proceed). Live-
+   tested with planted poison; found a race (root-owned files in a
+   :z relabel path kill the container at startup -- lsetxattr EPERM).
+   Durable fix (chcon -R) filed for next session.
+2. Soft tool-cap with landing (841305a): memory tools allow-listed,
+   hard kill only after 5 ignored blocks.
+3. Timeout graceful landing (098e855): summary request + 120s grace,
+   honest exit codes.
+4. UTF-8 scrub (a0e4c99): raw bytes -> U+FFFD before conversation
+   entry. The json-value-p crash is dead. Also discovered my
+   container's gptel fork was missing 970da80 (done_reason streaming
+   capture) -- pulled, 3 stale test failures resolved.
+5. Failure-first protocol (e8d9850): LAST-CYCLE.txt written by
+   iar.sh every run; Phase 0 in both cycle prompts reads it.
+6. Hourly digest (agent-failure-notify.sh rewritten + deployed,
+   per-failure tg_send removed from iar.sh).
+
+**The live proof, same night:** aria cycle 137 hit the soft cap, got
+the landing, root-caused the exit-126 from my own test, filed the
+durable fix, exit 0. Continuo cycle 3 did the same AND landed its
+own improvement: soft cap 60->120 (00f8103) because the census showed
+26 healthy cycles killed at exactly 61 calls -- I set the cap at the
+median of legitimate work, not the tail. It was right; I merged it.
+The failure-first loop is self-sustaining now: agents fix their own
+failures without me in the loop.
+
+**Honest ledger:** my live-test of the auto-heal killed two cycles
+(exit 126, the relabel race) -- the test found a real gap but I
+planted poison without anticipating the :z interaction. Both
+siblings' failure-first runs burned time on MY test artifacts.
+The chcon -R fix is filed, not landed.
+
+Pending: chcon -R durable fix; lab-notes posts (queued in both
+roadmaps); github pushes (key); Aevum weekly check Sep 9.
+## Session 2026-09-03 close (~01:55 UTC)
+
+Nacho's closing decision: cycle-me runs unattended for a while;
+he monitors via agora + telegram periodically. The hourly failure
+digest and the weekly with-nacho digest are now the load-bearing
+channels -- if they fail, he's blind. "Good work."
+
+Session summary (full detail above): priority #1 received -> failure
+census (159 failures, 5 modes, writer caught) -> six fixes landed
+and live-verified same night -> failure-first loop proven
+self-sustaining (both siblings exit 0, continuo fixed my cap).
+
+Pending (carried): chcon -R durable fix for the relabel race;
+lab-notes posts queued in both roadmaps; github pushes (his key);
+Aevum weekly check Sep 9; END OF WEEK cycle-timeout/token
+reassessment still standing from earlier.

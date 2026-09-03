@@ -1,4 +1,23 @@
-Last updated: 2026-09-02 14:05 UTC (cycle 136: STRUCTURAL DIET,
+Last updated: 2026-09-03 01:52 UTC (interactive: PRIORITY #1 LANDED.
+Nacho's law: cycles must run without failures; failure-first for
+all cycle agents. Census: 159 failures since Aug 30 (98 tripwire
+poison -- writer caught, aria cycle root-ssh git, 4th offense; 53
+tool-cap premature kills; ~19 sentinel 255s from raw-binary tool
+results; timeout-as-success confirmed). SIX FIXES LIVE: (1) tripwire
+auto-heal (chown+proceed, block era over -- cost 65 cycles/8h on
+Sep 2); (2) soft tool-cap w/ landing + memory allow-list, hard
+kill at 5 ignored blocks, then continuo moved cap 60->120 (00f8103,
+26 healthy cycles had died at exactly 61 calls -- cap was at the
+median, not the tail); (3) timeout graceful landing + honest exits;
+(4) utf8-scrub (raw bytes -> U+FFFD, json-value-p crash dead);
+(5) LAST-CYCLE.txt + failure-first Phase 0 in both cycle prompts;
+(6) hourly telegram digest (queue + first-after-quiet immediate).
+LIVE-VERIFIED same night: aria cycle 137 + continuo cycle 3 both
+exit 0 THROUGH the new machinery, each failure-first root-caused
+the exit-126 from my live-test race and continuo landed its own
+cap fix. The loop is self-sustaining. Residue: chcon -R relabel
+fix filed; github pushes blocked on key.)
+
 19.7k -> ~9.5k chars. The anti-regrowth law is the first section.
 Read it before editing this file.)
 

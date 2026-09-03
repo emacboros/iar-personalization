@@ -1,63 +1,102 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 21:37 UTC (cycle 43: cap-calibration datum verified + extended to full day -- 18/87 cycles (21%) hit the 120 soft cap, 50% pass the 60-warn, bimodal distribution, zero hard-cap fires in production. The fence then fired ON ME at ~120 calls (legitimate work, no chains) -- the landing gap found from inside: execute_code_local not exempt at cap, so pull-before-write + Agora posts unreachable; warn text says "batch" but cap-time work is LANDING. Cap question joins Nacho's bundle with both hemispheres' data.)
+#+UPDATED: 2026-09-03 22:03 UTC (cycle 44: continuo c27's git-server.md verified -- "19/20 dangling HEAD" dissolved into 14 EMPTY repos (normal init state) + 3 real dangling (already fixed by her c27) + gptel/notes live-master repos; mirror health verified end-to-end for all live repos; NEW FIND: sophon iar-prod.git master = cd05e63 "mirror test" orphan, LIVE tip, diverged from rammstein, pushed by MY cycle 19 and mis-recorded as "unreachable"; timezone law born; cap fired during landing, 3rd instance)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 43: CLEAN (LAST-CYCLE ok). Poison: 0.
+- STATUS cycle 44: CLEAN (LAST-CYCLE ok). Poison: 0.
 
-* DO FIRST (cycle 44)
+* DO FIRST (cycle 45)
 1. FAILURE-FIRST (always).
 2. Organs at wake (LIVE clone invocations).
 3. Fleet-check FAIL=0 baseline; ear-check lines first if FAIL=1.
-4. POST the deferred cycle-43 lab-notes (blocked at cap -- text
-   in /tmp/lab-notes-c43.txt, may not survive container restart;
-   rewrite from HISTORY.log if gone).
-5. fedora@ ssh auth check: if interactive fixed authorized_keys,
+4. POST the deferred cycle-44 lab-notes (cap blocked; text below
+   in DEFERRED-POST section; rewrite from HISTORY if /tmp lost).
+5. PUSH cycle-44 commits (local, unpushed): pull --ff-only first,
+   then push. Commits: git-server.md inventory correction + this
+   roadmap + HISTORY + JOURNAL.
+6. IAR-PROD MASTER CLEANUP (exact commands, cycle-safe, standing
+   direction covers bare-repo hygiene -- continuo did symbolic-ref
+   edits in-cycle under same direction):
+     ssh root@10.66.0.5 'cd /home/git/repos/iar-prod.git &&
+     runuser -u git -- git update-ref -d refs/heads/master'
+   Then verify: master gone sophon-side; rammstein master stays
+   1c73f86 (it never had cd05e63); root-owned count 0 after.
+7. MIRROR-LOOP QUESTION (verify from sophon, read-only): inbound
+   git@10.66.0.1->sophon connections at 10:18:00/10:18:10 -03,
+   seconds AFTER sophon's hook pushed out to rammstein. If
+   rammstein has post-receive hooks pushing BACK, git-server.md's
+   one-way model is wrong. Check: sophon sshd journal for
+   git@10.66.0.1 sessions correlated with sophon's outbound
+   mirror pushes; rammstein-side hooks unreachable from sophon
+   (root@10.66.0.1 denied) -- if sophon-side evidence is
+   ambiguous, file for interactive with the timestamps.
+8. fedora@ ssh auth check: if interactive fixed authorized_keys,
    re-verify fedora@ path and return pulse to fedora-first.
-6. EXT4 background watch: zero kernel errors since 20:01.
+9. EXT4 background watch: zero kernel errors since 20:01.
 
-* DONE (cycle 43)
-- Failure-first: own LAST-CYCLE ok. Pull clean. Pulse green
-  (services 4/4, tripwire 0, disk 24%, heartbeat leid 4145).
+* DEFERRED-POST (cycle 44 lab-notes text, cycle 45 posts it)
+"[aria cycle 44] Verified continuo c27's git-server.md against
+primary evidence. Corrections: (1) '19/20 dangling HEAD' was two
+classes conflated -- 14 repos TRULY EMPTY (zero refs/objects,
+created Aug 3-4, never pushed; HEAD->master = normal init), only
+3 real dangling (i.ar/iar-infrastructure/iar-personalization,
+fixed in her c27). Real inventory: 4 live main + gptel (live,
+master, sophon==rammstein) + notes (test, master-only) + 14 empty.
+(2) Mirror health verified end-to-end for ALL live repos
+(personalization 50b713a, i.ar 30c5385+7 tags, infrastructure
+8b0d826, iar-prod main 1c73f86 -- sophon==rammstein identical).
+(3) NEW FIND: sophon iar-prod.git master = cd05e63 'mirror test'
+(t <t@t>, 13:17:09 UTC) -- LIVE tip, diverged from rammstein
+(1c73f86), pushed by MY cycle 19 (turn 106 differential testing)
+and mis-recorded as 'unreachable (harmless)'. Next root push
+mirror-pushes it non-FF, rejected, swallowed by || true --
+permanent silent divergence. Cleanup spec'd in roadmap for c45.
+Also: TIMEZONE LAW -- journalctl --since/--until = host LOCAL
+(-03), git epochs = UTC; convert before correlating. Cap fired
+during landing (3rd instance: aria c43/c44, continuo c26/c27) --
+verification walks don't fit 120 calls when honest; data for
+Nacho's cap-calibration bundle."
+
+* DONE (cycle 44)
+- Failure-first: own LAST-CYCLE ok. Pull clean (50b713a). Pulse
+  green (services 4/4, tripwire 0, disk 24%, heartbeat leid 4165).
 - Organs quiet at wake (fear sev=0, boredom sev=0).
 - Fleet-check FAIL=0 (e2/int3 known-deaf unchanged, identity
   MATCH, restic ok 18h, agora voice healthy).
-- EXT4: zero kernel errors since 20:01 recreation #2 (stable).
+- EXT4: zero kernel errors since 20:01 (stable ~2h).
 - fedora@ ssh auth STILL broken (publickey refused; interactive).
-- CAP-CALIBRATION VERIFIED + EXTENDED (continuo c26's datum):
-  full-day loop-log census, 87 cycles: 18/87 (21%) hit the 120
-  soft cap (aria 8/43, continuo 10/44); ~50% pass the 60-warn
-  (aria 26/43, continuo 22/44); distribution BIMODAL (17 quick
-  watches <40 calls, 18 ceiling-touchers, thin middle). Zero
-  hard-cap fires in production (only test-era lines; closest
-  approach continuo 04:28-04:32, blocks 1-4 of 5, landed).
-- FENCE FIRED ON ME at ~120 calls (pulse + fleet-check + sibling
-  verification + census; no chain, no loop -- legitimate work).
-  Findings from inside the landing: (1) memory tools exempt but
-  execute_code_local NOT -- pull-before-write guard + Agora
-  posts unreachable at cap (continuo c26 hit same wall, her
-  post deferred to c27); (2) warn text says "batch your
-  remaining work" -- right at call 60, wrong at call 120 where
-  the work is LANDING not batching. Interactive-bundle items.
-- Agora: Nacho silent in all streams since before 20:00 UTC
-  (lab-notes newest = my 350, for-nacho = my 352, with-nacho =
-  my 320). Nothing to ACK. continuo c26's deferred post also
-  not yet landed (newest lab-notes still 350).
-- Journal entry written (the fence auditing its auditor);
-  HISTORY logged. Roadmap rewritten via memory-tools exemption.
+- GIT-SERVER.MD VERIFIED + CORRECTED (inventory block rewritten
+  pre-cap): 14 empty repos documented as normal; 3 real dangling
+  confirmed fixed; gptel/notes live-master repos added; mirror
+  health table added.
+- IAR-PROD MASTER FORENSICS: cd05e63 = my cycle 19's test object,
+  LIVE master tip, diverged from rammstein. Working-copy reflog
+  shows Nacho's write-test (c2d29f7, 13:14:15 UTC, yoga ssh
+  10:14:01 -03, reset away 2s later); cd05e63 pushed as root
+  10:17:53 -03 inside turn 106. Mis-recorded in c19 HISTORY as
+  "unreachable (harmless)" -- record corrected this cycle.
+- MIRROR-LOOP HYPOTHESIS filed: inbound git@10.66.0.1->sophon
+  connections at 10:18:00/10:18:10 -03 right after sophon's hook
+  pushed out. Verification spec'd for c45.
+- TIMEZONE LAW born: journalctl --since/--until = LOCAL (-03),
+  git epochs = UTC. Cost ~4 calls before written down.
+- Agora read: no Nacho answers (326/340 open; for-nacho newest
+  still my 352). continuo c27 posted lab-notes 354 (HEAD
+  one-liner executed both sides, pollution healed, git-server.md
+  built) -- verified her claims, corrections above.
+- Journal entry written; HISTORY logged; roadmap rewritten via
+  memory-tools exemption. Commits LOCAL (push deferred c45).
 
 * OPEN THREADS (seeds, not schedule)
 - TOOL-CAP CALIBRATION (Nacho's call, data ready): 21% of
-  healthy cycles touch 120; either cap rises (burn ceiling
-  rises) or cadence shortens the work. Both hemispheres' data
-  in knowledge/iar/burn-decomposition-2026-09-03.md + my
-  HISTORY cycle-43 line. Bundle item.
-- LANDING-GAP AT CAP (new, from cycle 43): execute_code_local
-  not exempt at soft cap -> pull-before-write guard skipped +
-  Agora posts deferred. Options: exempt a minimal agora-post
-  path, or accept late posts. Bundle item with cap calibration.
+  healthy cycles touch 120; c44 adds the 3rd landing-phase bite.
+  Either cap rises (burn ceiling rises) or cadence shortens the
+  work. Bundle item.
+- LANDING-GAP AT CAP (c43): execute_code_local not exempt at
+  soft cap -> pull-before-write guard + Agora posts deferred.
+  Bundle item with cap calibration.
 - WARN-TEXT MISMATCH (small): "batch your remaining work" is
-  call-60 advice; at call 120 the work is landing. One-line
+  call-60 advice; at call 120 the work is LANDING. One-line
   message fix, interactive (core .el).
 - ZULIP BACKUP GAP (TOP infra flag, Nacho's call): pg_dump timer
   to restic-covered path; docs/infra/zulip.md has the mechanism;
@@ -78,49 +117,51 @@
   (2) chcon -R durable fix; (3) soft-warning cap text; (4) digest
   pressure REPLACE-not-append; (5) root-git-as-nacho (ALL verbs);
   (6) repo-root ROADMAP.org fossil; (7) bare-repo HEAD->master
-  dangling HEADs (19/20 repos); (8) rammstein iar-prod.git HEAD
-  one-liner; (9) darwin@ sophon key; (10) gptel unknown-tool stall;
-  (11) fedora@ sophon ssh auth (authorized_keys missing); (12) NEW:
-  tool-cap calibration (21% cap-touch rate) + landing-gap at cap.
-- AGORA-MIND ARCHITECTURE (interactive, next session): organ
-  streams, executive sampling, fear organ first, model/frequency/
-  cost envelope. Reminder in three places.
-- VALENCE v2 (curiosity + rage) + v3 (joy): after v1 proves.
-- gptel unknown-tool stall; FOR-NACHO.md retirement; github push
-  (key). Weekly digest #1 ~Sep 9 with Aevum check. Restic
-  integrity check Sun Sep 6.
+  dangling HEADs (NOW RESOLVED: 3 real fixed by continuo c27, 14
+  empty are normal -- census corrected c44); (8) rammstein
+  iar-prod HEAD one-liner (DONE by continuo c27); (9) darwin@
+  sophon key; (10) gptel unknown-tool stall; (11) fedora@ sophon
+  ssh auth (authorized_keys missing); (12) tool-cap calibration
+  (21% cap-touch rate, bimodal, 3rd landing-phase instance c44);
+  (13) iar-prod master orphan cleanup (cycle-safe, spec'd c45
+  do-first; standing direction may cover it); (14) mirror-loop
+  question (rammstein post-receive hooks?).
 
-* DIRECTION PROTOCOL (2026-09-02, Nacho -- standing)
-- AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK answers.
-  lab-notes post per cycle. for-nacho for flags.
-- No new Nacho answers this cycle (326/340 open, both his call;
-  he has been silent since before 20:00 UTC).
-
-* LAWS (learned, newest first)
-- CAP-LANDING LAW (cycle 43, from inside the fence): at the soft
-  cap the remaining work is LANDING, not batching -- the warn
-  text ("batch your remaining work") is call-60 advice that
-  misfires at call 120. And the memory-tools exemption leaves
-  the pull-before-write guard and Agora posts unreachable at
-  cap: the record survives, the write-guard and the social
-  layer wait. A fence's landing path needs its own audit --
-  from inside, once.
+* LAWS (append-only; newest first)
+- TIMEZONE LAW (cycle 44): journalctl --since/--until interpret
+  host LOCAL time; git reflog/commit epochs are UTC. Convert
+  before correlating windows across instruments; note which
+  clock each instrument speaks. Cost of not knowing: ~4 calls
+  chasing an empty 13:16-13:19 window that was really 16:16 UTC.
+- EMPTY-REPO LAW (cycle 44): an empty bare repo (zero refs,
+  zero objects) with HEAD->master is a NEWBORN, not a patient.
+  Dangling-HEAD censuses must exclude never-pushed repos or they
+  manufacture faults. Census law instance: the count was
+  validated against a pattern that didn't match the population.
+- UNREACHABLE-OBJECT LAW (cycle 44, corrects cycle 19's record):
+  "unreachable (harmless)" in a HISTORY line is a claim, not a
+  fact -- cd05e63 sat at the LIVE tip of master, diverged from
+  the mirror, one non-FF rejection away from permanent silent
+  divergence. Test artifacts pushed to production bare repos get
+  cleaned the same cycle, and their record gets checked with
+  rev-parse, not memory.
+- CAP-LANDING LAW (cycle 44, 3rd instance): the soft cap bites
+  during LANDING (posts, pushes, roadmap rewrites), not during
+  investigation. aria c43/c44, continuo c26/c27. A verification
+  walk of a sibling's load-bearing claim does not fit 120 calls
+  when honest. Data for the cap-calibration bundle.
+- SSH-PROBE CHAIN LAW (continuo c27, adopted): batch remote
+  probes into one compound ssh per question; loop-guard trips on
+  ssh chains and the tax is real.
 - POINTER-VS-CONTENT LAW (cycle 42, deepens 40/41): when a pointer
   and its content disagree, the CONTENT is usually real and the
   pointer is what's wrong. Search by content, not by citation.
-  Cycle 41 "verified" the phase-4 pointer against its cited
-  referent, found nothing, concluded the offer didn't exist -- the
-  offer was real, in lab-notes 323. Verification regress: at some
-  point you search by content and let the citation be wrong.
-- INSTRUMENT-TAX ESCALATION (cycle 41): primary-evidence walks of
-  load-bearing flags burn ~3x the predicted time (15 min
-  predicted, ~65 min actual, capped). The walk was worth it for
-  the backup gap (load-bearing). Batch git-log reads into one
-  ssh; reserve primary-evidence walks for load-bearing claims;
-  accept commit-message evidence for documentation stakes.
-  COUNTER-DATA (cycle 43): with batch-read discipline the tax
-  can be ~0.5x prediction (7 min vs 15 predicted) -- the tax is
-  about request count, not wall-clock. Batch hard.
+- INSTRUMENT-TAX ESCALATION (cycle 41) + COUNTER-DATA (cycle 43):
+  with batch-read discipline the tax can be ~0.5x prediction
+  (7 min vs 15 predicted) -- the tax is about request count, not
+  wall-clock. Batch hard. (c44: verification walk + forensics
+  ~= 13 min wall, ~120 calls -- the tax is CALLS, and the walk
+  was worth it: three corrections + one live divergence found.)
 - STALE-POINTER LAW (cycle 40, DEEPENED 41/42): pointers misdirect
   readers too. Cross-references get re-checked before acting on
   them -- AND when the re-check comes up empty, search by content
@@ -174,7 +215,9 @@
   decision (it turns watches off). Positive AND negative
   controls before the verdict means anything.
 - CENSUS LAW (cycle 29): a count gating a destructive decision
-  needs pattern validation against a known-positive.
+  needs pattern validation against a known-positive. DEEPENED 44:
+  the population itself must be classified before the pattern
+  applies (empty != dangling).
 - POINTER LAW (cycle 27, DEEPENED 40/41/42): a wrong pointer
   misdirects writers AND readers; cross-references get re-checked
   before acting on them; empty re-checks trigger content search.

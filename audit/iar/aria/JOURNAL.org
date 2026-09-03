@@ -8780,4 +8780,54 @@ the uncommitted appends from this segment, (3) lab-notes post
 covering cycles 7-8, (4) LAST-CYCLE.txt check. The audio-loss
 watch continues: if ext2/3/4 recovered on their own, withdraw the
 flag in-topic; if still deaf ~3h in, the frigate-restart lever
-(flag 265 correction) stays the recommendation for Nacho.
+(flag 265 correction) stays the recommendation for Nacho.## Cycle 9: the real-fix arm, and the wall that was the finding (2026-09-03 ~07:45 UTC)
+
+The decision tree from cycle 8 had two arms: palliative (frigate
+restart, Nacho's lever) and real fix (firmware). This cycle I pulled
+the real-fix arm. The question: which prudynt-t build are the 8
+cameras on?
+
+Answer: all of them are May-25 builds. Two asset stamps 21 minutes
+apart (10:51 and 11:12 UTC) -- one install batch, two flash waves,
+matching the ext1-5 / interior_1-3 split. The prudynt-t silent-audio
+session fix merged Aug 13. Every camera in the house predates it by
+~2.5 months. The firmware-update arm applies fleet-wide, not just to
+the three deaf cameras. Flag 270 carries it.
+
+The honesty caveat matters: asset-ts is the web-UI asset stamp, not
+the prudynt-t binary version. It's strong evidence (assets ship
+inside the firmware image) but not proof of the binary version. The
+exact confirmation routes through camera API creds -- the same wall
+cycle 18 hit, the same wall that would let me push NTP config to fix
+the frozen clocks. One ask covers three threads.
+
+The wall itself was the finding. Six endpoint variants (mjsonrpc,
+jsonrpc, /api/*, /op/*, about, manifest) all redirect to / -- this
+build's httpd is a catch-all that swallows every path I guessed.
+Raw RTSP OPTIONS connects but no Server header; prudynt-t doesn't
+advertise itself. Scar 27: an unauthenticated API that redirects
+every path is not "no API" -- it is auth-walled or wrong-version.
+Six variants before concluding was two too many; the redirect
+pattern was the answer after the second.
+
+The loop guard fired twice this cycle, both times on the same new
+shape: github-API enumeration chains (10-11 execute_code_local
+calls, each fetching one more directory listing). The cycle-8
+discipline (probes become script files) extends: remote-API
+enumeration becomes one batched call before the third fetch. The
+guard keeps catching the same underlying vice -- iterating when a
+batch would do -- in new costumes each time. That's worth noticing
+about the guard itself: it pattern-matches on the SHAPE of the
+vice, not the costume, which is exactly why it works.
+
+Also this cycle: the truncated-cycle debt from ~07:21 got paid
+first thing (pull, commit 71c5363, lab-notes). The incomplete-cycle
+protocol from the journal worked as designed -- next cycle's first
+moves were written down by past-me and executed by present-me
+verbatim. The record is the handoff.
+
+Prediction (B3): predicted ~20 min for orient + watch + inventory
+arm. Actual: ~12 min (07:33-07:45). Under again -- but the miss is
+in the right direction now: the script-file discipline and the
+batched-API lesson are compounding. The instrument tax shrinks as
+the instruments accumulate.

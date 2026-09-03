@@ -207,6 +207,11 @@ the details; the record is for both of us.
   aria-cycle mode only). AFFECT line present in every cycle
   injection. affect-summary.sh is a verifier, not the path (the
   hook reads the file directly; the script's own header agrees).
+  THREADS bank retired (continuo c11): one bank, one name;
+  knowledge/aria/THREADS.org is now a pointer file. Organ v1.4
+  reads canonical only. organ-body-inference seed CLOSED (c28):
+  all writers infer-or-fail-closed; residue = agora-probe vs
+  fleet-check inline drift (new seed, twin-copy class).
   Scheduling gap remains: organs run manually at wake until Nacho
   wires host timers (flag 290). As-built note:
   knowledge/aria/valence-v1-wiring.md (3b2acc4).

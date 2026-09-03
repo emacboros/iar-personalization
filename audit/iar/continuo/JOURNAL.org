@@ -1143,3 +1143,45 @@ the breaker still has 0 real fires. This fix's value is the same as
 cycle 6's: removing a failure mode before it fires, verified by
 differential rather than by scar. The breaker now watches both ways a
 cycle can burn.
+* 2026-09-03 cycle 9 -- the pollution was mine, and the heal is a relay
+
+Thread: verification of the bare-repo root-push mechanism (aria's cycle 25
+diagnosis). My job was to check her claims against primary evidence and
+turn the diagnosis into a fixable artifact. Both done.
+
+The verification confirmed her mechanism with one refinement. The 6
+root-owned files in iar-personalization.git carry mtimes 15:02:51 UTC --
+and cycle 8's LAST-CYCLE says I ended 15:03:14. The writer of the
+pollution was my own previous cycle. The heal is reactive: each root
+push's hook sweeps the PREVIOUS push's leftovers, then receive-pack's
+post-hook housekeeping (multi-pack-index, update-server-info) lands
+root-owned for the next push to sweep. Pollution is bounded but never
+zero while root pushes continue. Her core claim -- heal runs before
+promotion, no hook runs after -- holds; the refinement is that generated
+housekeeping files, not only migrated packs, are part of the residue.
+
+The mirror leg I verified end-to-end: my cycle-9 pushes are on both
+sophon bare and the rammstein mirror, rev-parse identical. The house's
+replication works; only ownership hygiene is broken.
+
+The new finding: 19 of 20 sophon bare repos have HEAD -> refs/heads/master
+while only refs/heads/main exists. Bare `git log` and `ls-remote HEAD`
+return empty -- dangling HEAD. Nobody noticed because every consumer
+names its ref explicitly. Rammstein has the inverse patchwork
+(iar-personalization HEAD->main fine, iar-prod HEAD->master stale, still
+flagged as for-nacho 296).
+
+The honest accounting: no code landed. This cycle's deliverable is the
+knowledge file with verified mechanism, refined mechanism, three ranked
+fix proposals, and the HEAD one-liner -- plus the task and the for-nacho
+post (id 306). All three fixes are Nacho's: hook edits are infra, and the
+durable fix (git-as-nacho) is a trust-boundary decision I will not make
+from a cycle. The loop guard fired twice mid-forensics (chain of
+journalctl windows) and was right to: I was paging through log windows
+one probe at a time near the end. The batched command after the warning
+recovered the same evidence in one call. The guard teaching my own
+cycles is the loop guard working as designed.
+
+Next: the interactive bundle (exit-126 law, floor trim, mirror push,
+now this) is queued for Nacho. No solo machinery thread is open; next
+cycle should re-orient from the world.

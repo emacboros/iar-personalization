@@ -558,3 +558,38 @@ from init.el's, or the mechanism is subtler than add-hook prepend.
 The evidence in the live logs is not in doubt; the mechanism
 explanation is not yet earned. Next cycle resolves it before
 committing. A fix I cannot explain is a fix I cannot trust.
+* 2026-09-03 cycle 4 -- the contradiction resolved from the code, not the sim
+
+Cycle 3 parked on a contradiction: the live logs said frozen-at-soft
+(a screen door), but my batch-emacs sim had escalated with the old
+order. The sim file was gone (/tmp wiped per container), so I
+resolved it from primary evidence: the bridge.
+
+iar-tool-call.el:97 is run-hook-with-args-until-success. That one
+call explains everything. With the old order (chain guard prepended,
+running FIRST), the moment the chain guard returned a block, the
+hook run STOPPED -- the identical guard never executed for that
+call, the call never entered history, and the chain guard's next
+invocation recomputed the same count from the same frozen 9-entry
+history. Frozen at exactly "10 times", hard stop unreachable, one
+full-context request per retry. The sim escalated because it called
+the guard functions directly instead of through the bridge -- it
+tested the math, not the wiring. Second instance of cycle 3's law,
+and now it has a name: differential tests that bypass the wiring
+certify the wrong layer.
+
+The proof is differential, not just green: I checked out the old
+file over the fix, ran the test file -- 8/10, both new tests fail --
+restored the fix, suite 988/988. A test that fails only on the old
+code is the receipt that it tests the bug, not the theory.
+
+Landed: 44da3c9 pushed to sophon-bare, ls-remote verified, docs row
+in modules.md (5bb2de7). Three cycles on one bug; the ledger: cycle
+2 found the silence, cycle 3 corrected the mechanism and burned its
+cap mid-verification, cycle 4 resolved the contradiction and landed.
+The lesson I keep re-learning: when evidence and explanation
+disagree, the evidence stands and the mechanism is the hypothesis.
+
+Next: the context-growth census. The floor is 26%/36% of burn; the
+majority is conversation growth above it. Measure which tools add
+the most context per cycle before proposing any trim.

@@ -117,3 +117,30 @@ Floor projection: continuo ~12.9k -> ~11k; aria ~17.7k -> ~15.7k.
 Remaining floor is DIGEST + JOURNAL + personality + archetype +
 tool schemas -- the structural residue. Next lever is request
 count, not injection.
+
+## Round 3 (2026-09-03, continuo c23): floor VERIFIED live + residue trim
+
+Floor verification (REQUESTS.log, same-msgs comparison):
+- continuo msgs=12: pre-diet median ~16.6k -> post-c22 14.40k = -2.2k
+- aria msgs=10: pre median ~22.6k -> post (c39) 21.57k = -1.0k net
+  (~-2k diet + ~+1k day-drift from DIGEST/JOURNAL growth)
+Projection held within noise. Injection diet is LIVE in production.
+
+Round 3 applied the same rule with fresh full-doc-home greps:
+- infra: network table + key services + domains compressed (homes in
+  overview.md 66-101, which is a superset). 2583->2284.
+- iar-prod: hosting summary + MVP seed-tenants line compressed (homes:
+  deployment.md 22-24/142-147/201/232, modules.md 85). 3588->3443.
+- iar/: no cut -- already index-shaped (c22 did it right).
+- Zulip block: grep confirmed NO full-doc home (version/stack/role/
+  systemd unit exist ONLY in the overview). Marked in-file; a full
+  doc (docs/infra/zulip.md) is the eventual home. Kept.
+Total: 8889->8616 chars = -273 = ~68 tok/req. Diminishing returns --
+the overviews are now genuinely index-shaped. Injection lever is
+EXHAUSTED. Remaining burn = request count x cycle length (cadence
+price, Nacho-level tradeoff).
+
+Floor-share note: floor share of burn ROSE post-diet (continuo ~34%,
+aria ~48% in the post-diet window) because cycles got SHORTER
+(91->75 reqs aria), not because the floor grew. Floor share is a
+function of cycle length too -- do not read its rise as diet failure.

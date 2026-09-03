@@ -22,55 +22,44 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 
 ## Standing facts
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1013 tests).
+  emacs --batch -l emacs.d/test/run-tests.el (1015 tests).
   Run from /root/i.ar.
 - sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
-  (publickey-blocked from this container).
-- Reseed /tmp/continuo_known_hosts per container (keyscan law).
-- tasks/* gitignored in personalization -- git add -f for my
-  ROADMAP/audit. Task tools resolve per-agent
-  (tasks/iar/continuo/). write_roadmap tool writes there.
+  (publickey-blocked from this container). rammstein needs its
+  own keyscan reseed. Reseed /tmp/continuo_known_hosts per container.
+- tasks/* gitignored in personalization -- git add -f. Task tools
+  resolve per-agent (tasks/iar/continuo/). write_roadmap writes there.
 - One tool call per turn. Batch-read law. ~120-call cap (warn@60).
-- USAGE.log IS a meter, one line per cycle: iar--usage-reset at
-  cycle start, iar--usage-write-log on kill-emacs. Read lines as
-  PER-CYCLE snapshots, not cumulative. REQUESTS.log is a debug
+- USAGE.log IS a meter, one line per cycle. REQUESTS.log is a debug
   trace (~26% coverage), not a meter.
-- Injection floor: aria ~21.6k, continuo ~14.4k tok/req (c20 -621,
-  c22 -1990, c23 -68; VERIFIED live c23: continuo msgs=12
-  16.6k->14.4k, aria msgs=10 22.6k->21.6k). Knowledge dirs inject
-  overview-only (loader:88-115). Overviews are indexes (rule:
-  full-doc home = one line + pointer; no home = stays). Injection
-  lever EXHAUSTED -- remaining burn = request count x cycle length.
-  Floor share is a function of cycle length too (rose post-diet
-  because cycles shortened -- ratio is not a lever). Zulip block
-  in docs/infra/_overview.md has NO full-doc home (only copy).
-  Analysis: knowledge/iar/injection-trim-analysis.md +
-  context-growth-census-2026-09-03.md + usage-census-2026-09-03.md.
-- Burn lever: majority of burn is conversation growth ABOVE the
-  floor. Per-tool trim DEAD (~0.5%). Overview diet landed c20
-  (iar-prod+infra, -621 tok/req). Soft-warning cap landed (5520434).
+- Injection floor (VERIFIED c33, req2 prompt_eval at msgs=2):
+  continuo ~13.0-13.2k, aria ~16.2-16.3k tok/req. Delta = file
+  inventory (aria-only LOGS tail +8.8k chars, journal tail +3.3k,
+  personality +0.7k, digest -1.4k). Explained constant, not a lever.
+  knowledge/iar/floor-delta-decomposition-2026-09-03.md.
+- Burn model: floor + ~325 tok/round-trip x requests; conversation
+  growth ~74% of burn. Cadence price ~250M input tok/day (Nacho's).
+  Injection lever EXHAUSTED; overview diet landed c20. Analysis:
+  knowledge/iar/burn-decomposition-2026-09-03.md.
+- Digest has a per-request price: +1363 chars = +300 tok/req
+  (verified c33: newest epoch floor 13249 vs 12922-12954 older).
 - Exit-126 = container start death: lsetxattr EPERM when :z
-  relabel hits root-owned files in a mount path. ExecStartPre
-  auto-heal chowns but does not relabel (durable fix: restorecon,
-  interactive territory). Recurrence = heal failed.
+  relabel hits root-owned files. ExecStartPre auto-heal chowns but
+  does not relabel (durable fix: restorecon, interactive).
 - iar--current-project is buffer-local: test fixtures must bind
   it in the same buffer as the assertion.
-- Union-resolve recipe for append-only log conflicts:
-  git merge-file --union on :1:/:2:/:3: stages, then git add.
+- Union-resolve recipe: git merge-file --union on stages, then add.
 - Check git stash list / fsck before declaring work lost.
-- A truncated read_file view is not the file; read the region
-  you edit. A green check that never touched the code is not a check.
+- A truncated read_file view is not the file; read the region you edit.
 - check_ollama validates host (/api/tags) not model; cloud-model
   403 passes preflight (cycle 7 finding).
 - JOURNAL.org and LAST-CYCLE.txt are append-only via tools: the
   file guard rejects write_file on them; use append_file.
 - DIGEST.md is an index, not a log: rewrite it, never append.
 - Rootless podman on sophon WORKS: probe with
-  `runuser -l nacho -c '...'` (login env sets XDG_RUNTIME_DIR);
-  plain `runuser -u nacho` fails on /run/user/0 -- probe artifact.
+  `runuser -l nacho -c '...'` (login env sets XDG_RUNTIME_DIR).
 - Rotation counter: /var/lib/aria-cycle-rotate/turn on sophon.
-  iar.sh timeout default 1800s; TimeoutStartSec=1980; grace 120s;
-  idle-stall 1800s.
+  iar.sh timeout 1800s; TimeoutStartSec=1980; grace 120s; idle-stall 1800s.
 - Bare-repo root-push pollution (VERIFIED): heal is REACTIVE --
   each root push sweeps the PREVIOUS push's leftovers; bounded,
   never zero, while root pushes continue. Remaining fix: delayed-
@@ -79,38 +68,34 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   NON-git-user op failing on sophon bare.
 - Bare-repo HEAD one-liner EXECUTED c27 (sophon 3 + rammstein 3,
   iar-prod 296 CLOSED). 14 sophon mirrors have EMPTY refs (vacuous).
-  LESSON: any root-side git op on bare leaves root-owned files
-  (symbolic-ref included) -- heal after LAST root-side op.
+  LESSON: any root-side git op on bare leaves root-owned files --
+  heal after LAST root-side op.
 - THREADS bank: ONE bank only -- audit/iar/aria/THREADS.org
   (canonical, named in aria's personality file). knowledge/aria/
-  THREADS.org RETIRED (pointer file only). Organ v1.4 Source 1
-  reads canonical. Marker convention: [novelty]/[maintenance] tags
-  on commit subjects.
-- Twin-copy law, 3 instances: THREADS banks, DIGEST twins
-  (scar 38), agora-probe.sh (RETIRED -- fleet-check 0c is sole
-  copy, pointer file exit 3). Redundancy-vs-drift test: not
-  "does it differ" but "does anyone run it" (execution census
-  before retirement decisions).
+  THREADS.org RETIRED (pointer file only).
+- Twin-copy law, 3 instances: THREADS banks, DIGEST twins (scar 38),
+  agora-probe.sh (RETIRED -- fleet-check 0c is sole copy). Redundancy-
+  vs-drift test: "does anyone run it" (execution census first).
 - Census law (scar 44): a count that gates a destructive decision
   must have its pattern validated against a known-positive BEFORE
   the count means anything.
-- Sophon checkout of iar-personalization is INODE-IDENTICAL to
-  the container tree (same bind mount): knowledge/aria/bin
-  changes are live where the instruments run, no deploy step.
+- Sophon checkout of iar-personalization is INODE-IDENTICAL to the
+  container tree (same bind mount): knowledge/aria/bin changes are
+  live where the instruments run, no deploy step.
 - aria-cycle.service ExecStartPre auto-heal (Nacho-approved)
   covers /var/home/nacho/repos + /home/nacho/repos; tripwire tag
   aria-cycle-tripwire.
 - Chain guard: convergence reset landed b1eb7e0, production-
-  verified (0 SOFT BLOCK post-fix). Watch CLOSED.
-- Sidecar honest-failure preflight landed d768f37, verified.
+  verified. Sidecar honest-failure preflight landed d768f37.
   Real fix (podman socket bridge) = interactive security decision.
+- Breaker: convergence reset landed, 0 SOFT BLOCK post-fix.
 
 ## Test-writing laws
-- Stubbing-primitive: cl-letf on a primitive (make-process)
-  triggers native-comp trampoline compile -> excessive-lisp-nesting
-  death in batch. Use advice-around with named advice; emulate
-  clean async exit via a REAL short-lived process carrying the
-  tool's own sentinel. Disable comp-enable-subr-trampolines.
+- Stubbing-primitive: cl-letf on a primitive (make-process) triggers
+  native-comp trampoline compile -> excessive-lisp-nesting death in
+  batch. Use advice-around with named advice; emulate clean async
+  exit via a REAL short-lived process carrying the tool's own
+  sentinel. Disable comp-enable-subr-trampolines.
 - make-process receives keyword args directly: args IS the plist.
 - Guidelines rule-48 checker greps line-by-line: ANY cl-return-from
   line is a violation regardless of cl-block. Restructure with cond.
@@ -118,30 +103,53 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   continue paths with :continue nil.
 - let vs let* on sibling-referencing bindings: plain let voids
   effective-hard/effective-soft reads.
-- Differential test on OLD code: swap file in place, rm stale
-  .elc, batch the whole swap-run-restore into ONE call.
+- Differential test on OLD code: swap file in place, rm stale .elc,
+  batch the whole swap-run-restore into ONE call.
 - Byte-compile warnings in journalctl are not fence fires; match
   the exact message string before counting.
-- Standalone test-file law: test files with (defvar x nil) + no
-  (require 'source) CANNOT run alone -- they depend on
-  run-tests.el's load order. Standalone runners must setq paths
-  BEFORE requires (defconst consumers read at load time) and load
-  keybindings.el before iar-prompt-assembly. Pattern:
-  test-loop-chain.el. Bootstrap recipe /tmp/digest-guard-
-  standalone.el (container-local; recreate per cycle).
+- Standalone test-file law: (defvar x nil) + no (require 'source)
+  cannot run alone -- depends on run-tests.el load order. Standalone
+  runners must setq paths BEFORE requires; load keybindings.el
+  before iar-prompt-assembly. Pattern: test-loop-chain.el.
+- Test-hygiene law (c30): tests that set globals via setq/set-default
+  or trigger advice setq's MUST restore in unwind-protect.
+
+## Instruments
+- Epoch fix production-verified c32: fresh-session cycles carry
+  boot-epoch ids (REQ <yymmddHHMMSS>-N), collision-free. Census can
+  segment by epoch prefix directly.
+- Token meters verified honest: USAGE.log == REQUESTS.log unique REQ
+  ids (132==132, c26). Ollama sends prompt_eval_count only in the
+  done:true chunk -- no double-count path exists.
+- REQUESTS.log census law (c32): substring grep SELF-INFLATES --
+  conversation tails quote the log itself (153 hits vs 128 real).
+  Anchor line-start REQ tokens; validate vs USAGE line first.
+- Token-census bias law (c33): RESPONSE body_tail truncates at ~4k
+  chars; prompt_eval rides the done:true chunk, so large-OUTPUT reqs
+  have INVISIBLE token counts. Censuses are biased toward small-
+  output reqs. Fix (bundle): PARSE-line token fields.
+- Cap edge visible in USAGE.log: cycles end at exactly requests=128
+  = 120 tool-call cap + ~8 non-tool requests. 7 data points for
+  cap-calibration bundle.
+- Burn model: floor (13.0-13.2k continuo) + ~325 tok/round-trip x
+  requests. ssh probe chains trip the loop guard at ~12 same-tool
+  calls (c27, c32): one COMPOUND ssh per question, dump to /tmp.
+- Chain guard tripped c32 (execute_code_local x10 ssh walk): the
+  c27 shape recurs under a different question. Dump-once recipe:
+  one ssh, output > /tmp/dump, read_file the dump.
 
 ## Open threads
-1. Interactive bundle with Nacho (TOP): rotate.sh /tmp-copy fix;
-   exit-126 behavioral law + git-as-nacho durable fix; floor trim
-   leftovers (check_elisp vacuous-OK + restorecon + check_ollama
-   model probe + sidecar socket bridge); mirror push silent failure
-   (git@10.66.0.1 preauth); delayed-heal sweep in post-receive
-   (only remaining pollution fix); tool-cap calibration + cadence
-   price.
+1. Interactive bundle with Nacho (TOP): PARSE-line token fields;
+   STATE.md injection mismatch (personality edit -- STATE.md is
+   write-only for aria-cycle mode); rotate.sh /tmp-copy fix; exit-126
+   behavioral law + git-as-nacho durable fix; floor trim leftovers
+   (check_elisp vacuous-OK + restorecon + check_ollama model probe +
+   sidecar socket bridge); mirror push silent failure (git@10.66.0.1
+   preauth); delayed-heal sweep in post-receive; tool-cap calibration
+   (7 data points) + cadence price.
 2. Breaker production watch: 0 real fires, two gates live. First
-   fire = live proof. Real-fire signature: "[cycle] Context
-   circuit breaker armed" / "ending run" (journal "breaker" hits
-   were byte-compile warnings).
+   fire = live proof. Real-fire signature: "[cycle] Context circuit
+   breaker armed" / "ending run".
 3. LIBRARIAN FOSSIL UNIT: sophon systemd iar-librarian runs from
    STALE trees, exits 1 every fire, dead OnFailure tripwire. Fix =
    Nacho (systemd unit + repo-tree decision). Flagged for-nacho.
@@ -151,41 +159,9 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 6. Aevum weekly (Sep 9) is aria's, not mine.
 7. Bare-repo residue escalation trigger: a NON-git-user operation
    failing on sophon bare = pollution crossed nuisance->breakage.
-   (HEAD one-liner DONE c27; iar-prod 296 CLOSED.)
 8. Task-tree visibility: any future fossil audit must check BOTH
    read_task AND ls -- tooling and disk can disagree (c16 lesson).
 9. Floor-share watch: CLOSED (c23). Diet verified live; injection
    lever exhausted; remaining burn = cadence price (Nacho's).
-## Instruments (c26)
-- REQUESTS.log spans cycles; iar--reqlog-counter restarts per
-  session (fresh Emacs per cycle) -- REQ ids collide across
-  cycles by design. Any per-request census must segment by
-  cycle boundary (msgs=2 floor marker in START lines).
-- Token meters verified honest: USAGE.log (curl-advice
-  accumulation) == REQUESTS.log unique REQ ids (132==132,
-  c26 cross-check). Ollama sends prompt_eval_count only in
-  the done:true chunk -- no double-count path exists.
-- Burn model: floor (12.4k, drifts down) + ~325 tok/round-trip
-  x requests; conversation growth ~74% of burn. Cadence price
-  ~250M input tok/day. Analysis: knowledge/iar/
-  burn-decomposition-2026-09-03.md.
-- ssh probe chains trip the loop guard at ~12 same-tool calls
-  (c27): one COMPOUND ssh per question, batch-read law covers
-  remote probes. rammstein needs its own keyscan reseed.
-## Instruments (updated c32)
-- REQUESTS.log census law: substring grep on the log SELF-INFLATES --
-  conversation tails quote the log itself (c32: 153 grep hits vs 128
-  real requests for one cycle). Census greps must anchor on
-  line-start REQ tokens (^<timestamp> REQ) and be validated against
-  the cycle's USAGE line first (scar 44 shape: known-positive check).
-- Cap edge now visible in USAGE.log: cycles end at exactly
-  requests=128 (c32 finding, 22:30:57 + 22:47:27 lines) = 120
-  tool-call cap + ~8 non-tool requests. Five data points total for
-  cap-calibration bundle.
-- Epoch fix production-verified c32: fresh-session cycles carry
-  boot-epoch ids (260903224043-*, 260903230043-*, 260903232043-*),
-  collision-free. Cross-session census can segment by epoch prefix
-  directly -- no msgs=2 convention needed anymore.
-- Chain guard tripped again c32 (execute_code_local x10 ssh walk):
-  the c27 shape recurs under a different question. The dump-once
-  recipe is: one ssh, output > /tmp/dump, read_file the dump.
+10. Digest diet: 10.7k chars, warn 12k -- diet at next close if
+    growth continues (per-request price verified c33).

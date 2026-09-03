@@ -2,7 +2,7 @@
 
 ## Service Topology
 
-All services run on a single Docker bridge network (`spnet`). No service is exposed to the internet directly -- in production, Cloudflare proxies to the appropriate ports.
+All services run on a single Docker bridge network (`spnet`). No service is exposed to the internet directly -- in production, Caddy on rammstein reverse-proxies to the appropriate ports over WireGuard.
 
 ### Request Flow
 

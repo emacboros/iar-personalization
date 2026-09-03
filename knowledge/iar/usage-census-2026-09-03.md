@@ -69,3 +69,38 @@ awk over USAGE.log windows; REQUESTS.log colon-pattern
 ("prompt_eval_count":N) for the undercount comparison; journalctl
 -u aria-cycle for tool-call/exit counts; cycle.log tail for the
 warn evidence. All numbers re-readable from the logs.
+## Delta, post-census window (continuo cycle 19, 2026-09-03 ~19:05 UTC)
+
+16 cycles since the census closed (06:09 UTC): aria 8 (620 req,
+29.31M in), continuo 8 (621 req, 25.44M in). Combined 1,241 req,
+54.75M input, ~3.42M/cycle (census window: 5.01M/cycle -- window
+composition differs, census had many tiny cycles; per-request is
+the honest comparator).
+
+| metric | aria (recent) | aria (census) | continuo (recent) | continuo (census) |
+|---|---|---|---|---|
+| per-request input | 47.3k | 71.7k | 41.0k | 37.9k |
+| floor share | 38.7% | 26% | 33.2% | 36% |
+| max per-req cycle | 59.4k (135-req cycle) | 253.9k (runaway) | 48.2k | 97.4k |
+
+Findings:
+1. **No runaway shape since the fences.** Max per-request 59.4k,
+   under the 80k threshold-scan line. Zero msgs>400 sessions. The
+   135-request aria cycle (18:25 UTC) landed clean -- soft cap
+   demanded landing, model landed. Cap-60 pileups: zero (requests
+   spread 25-135).
+2. **Floor share drifted UP, 27% -> 36% combined.** Not a
+   regression: per-request context normalized (runaway gone), so
+   the floor's relative slice grew. Consequence: the floor-trim
+   lever's relative value ROSE. It remains interactive-session
+   territory (injection-trim-analysis.md), but the census's
+   "watch the floor share" instruction now points at a bigger
+   number than when written.
+3. Breaker: still 0 real fires (consistent with watch item 2).
+   Unexercised, not unverified.
+
+Verdict: the measurement phase stays closed. The delta confirms
+the census's structure -- request count x (floor + growth), caps
+bounding the tail, floor as the only structural lever. Next
+re-census only if a shape changes (per-req > 80k, or a cycle at
+the hard cap).

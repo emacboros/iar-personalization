@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.12 (2026-09-03, continuo cycle 12)
+# aria fleet-check v2.13 (2026-09-03, aria cycle 30)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -14,6 +14,17 @@
 #   and exited 0. Brand-new deafness sailed through green. Now:
 #   empty dB output = SILENT = FAIL unless allowlisted. RECOVERY now
 #   requires actual dB values, not mere stream presence.
+# v2.13 (aria cycle 30): RECOVERY verdict hardened. The old dB-grep
+#   (`grep -oE "-?[0-9.]+ dB" | head -2`) matched ffmpeg's INPUT
+#   bitrate lines ("256 kb/s"), so a zero-sample segment (audio
+#   stream present, n_samples=0) printed fake "mean/max: 256 kb/s"
+#   and tripped RECOVERY -- FAIL=1 on a camera that never recovered.
+#   interior_3 is zero-sample-since-forever (earliest recording
+#   2026-07-05, n_samples=0), NOT a 08:09-UTC event. Fix: parse
+#   n_samples from the LAST volumedetect block (the decoded one);
+#   recovery requires n_samples>0 AND mean_volume present. SILENT
+#   (n_samples=0) on known-deaf stays watch-state. Scar 29's
+#   "unhandled output shape" class, one layer deeper.
 # v2.12 (continuo cycle 12): agora-probe.sh retired -- this file is
 #   now the sole copy of the voice-channel probe (twin-copy law:
 #   a justified inline copy is still a twin; zero standalone
@@ -205,20 +216,31 @@ for cam in $CAMERAS; do
       echo "$cam age=${age}s NO-AUDIO"; FAIL=1
     fi
   else
-    v=$(echo "$aout" | grep -oE "\-?[0-9.]+ dB" | head -2 | tr '\n' ' ')
-    if [ -z "$v" ]; then
-      # v2.10 (cycle 11): stream present but volumedetect printed no dB
-      # lines = zero decoded samples = SILENT. The interior_3 lesson:
-      # this sailed through as green with an empty "mean/max:" line.
+    # v2.13 (cycle 30): the old dB grep matched INPUT bitrate lines
+    # ("256 kb/s") as "dB" hits -- a zero-sample segment printed fake
+    # mean/max and tripped RECOVERY on a known-deaf cam (interior_3,
+    # live-verified 16:53 UTC). Parse the DECODED block instead:
+    # volumedetect prints one n_samples per output stream; the last
+    # one is the decoded audio. Recovery = samples AND a mean.
+    ns=$(echo "$aout" | grep -oP "n_samples: \K[0-9]+" | tail -1)
+    mv_db=$(echo "$aout" | grep -oP "mean_volume: \K[-0-9.]+" | tail -1)
+    mx_db=$(echo "$aout" | grep -oP "max_volume: \K[-0-9.]+" | tail -1)
+    if [ -z "$ns" ] || [ "$ns" -eq 0 ]; then
+      # v2.10 (cycle 11): stream present but zero decoded samples =
+      # SILENT. The interior_3 lesson: this sailed through as green
+      # with an empty "mean/max:" line.
       if echo " $KNOWN_DEAF " | grep -q " $cam "; then
         echo "$cam age=${age}s SILENT (known-deaf, watch state -- stream present, 0 samples)"
       else
         echo "$cam age=${age}s SILENT: audio stream present but ZERO samples"; FAIL=1
       fi
-    elif echo " $KNOWN_DEAF " | grep -q " $cam "; then
-      echo "$cam RECOVERED: audio present again (mean/max: $v) -- update KNOWN_DEAF, withdraw flags"; FAIL=1
+    elif [ -n "$mv_db" ] && echo " $KNOWN_DEAF " | grep -q " $cam "; then
+      echo "$cam RECOVERED: audio present again (mean/max: $mv_db dB $mx_db dB) -- update KNOWN_DEAF, withdraw flags"; FAIL=1
+    elif [ -n "$mv_db" ]; then
+      echo "$cam age=${age}s mean/max: $mv_db dB $mx_db dB"
     else
-      echo "$cam age=${age}s mean/max: $v"
+      # samples decoded but no mean_volume line: unhandled shape, fail closed
+      echo "$cam age=${age}s VOLUME-UNPARSED (samples=$ns, no mean_volume)"; FAIL=1
     fi
   fi
 done

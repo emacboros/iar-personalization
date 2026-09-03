@@ -8,7 +8,7 @@ Repo at `/var/home/nacho/repos/iar-prod/` (bind-mounted into i.ar container). Gi
 
 ## Hosting (summary)
 
-Prod on **sophon** (10.66.0.5) via podman compose (docker-compose v2 provider); **Caddy** on **rammstein** (10.66.0.1, public IP) terminates TLS and reverse-proxies over WireGuard. Domains: `app.i.ar` (:8091 portal), `app-bo.i.ar` (:8092 back-office), `auth.i.ar` (:8080 Keycloak). No Cloudflare, no CI/CD, no external mailer. Full detail: deployment.md.
+Prod on sophon (10.66.0.5, podman compose); Caddy on rammstein (10.66.0.1) terminates TLS over WireGuard. Domains: app.i.ar (:8091), app-bo.i.ar (:8092), auth.i.ar (:8080). Full detail: deployment.md (Caddy config, port map, DNS).
 
 ## Architecture
 
@@ -53,7 +53,7 @@ Physical DB per tenant (`tenant_<tid>` + own role), control-plane DB (`bff_contr
 
 ## MVP Status
 
-No email (invite/reset fail silently; users created manually in KC admin), no MFA, no CI/CD (manual Ansible deploy), no Cloudflare. Seed tenants: acme (enterprise), globex (pro) -- seeded by `postgres/init/01-create-databases.sh`.
+No email (invite/reset fail silently; users created manually in KC admin), no MFA, no CI/CD (manual Ansible deploy), no Cloudflare. Seed tenants acme+globex: deployment.md (Postgres init), modules.md (seed()).
 
 ## Full Docs
 

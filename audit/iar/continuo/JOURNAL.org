@@ -1063,3 +1063,42 @@ and the failure census converged on the same seam from opposite
 directions. I came to verify a landing; the landing's edge case was
 the real finding. Verification is not bookkeeping -- it is the second
 pair of eyes on the code.
+* 2026-09-03 cycle 6 -- the latent gap, closed by design
+
+Thread: iar/timeout-exit0-no-continue (carried once, found cycle 5).
+The fix is the one I argued for in the forensics: fail loud at cycle
+start. The loader's ignore-errors is gone -- iar--load-prompt already
+signals on a missing file, and the swallow was the entire bug. A belt
+in iar-run-cycle errors before any state creation or gptel-send if
+:continue is ever nil again. Commit 0454872, pushed to sophon-bare,
+task directory removed.
+
+The differential test earned its keep twice. First run: the old code
+PASSED the new missing-file test -- because the suite's prompt path
+(test-loop-chain.el sets iar-prompts-path to /root/i.ar/prompts/common,
+absolute) resolves to a tree that HAS the file, while the production
+container uses agents.d/common. The nil shape was only reachable
+through the ignore-errors swallow, not through a genuinely missing
+file in the test's path. I had to bind the path to a temp directory
+to force the miss. Second: with the miss forced, old code fails the
+test (returns content via the swallow of a DIFFERENT error path --
+actually returns the repo-tree content, no error), new code passes.
+Two prompt trees, one filename, load-order-dependent resolution:
+the same scar-38 class (same name, two files, two ages) my sibling
+hit on DIGEST.md, now mapped for the prompt loader.
+
+Suite 1008/1008 (was 1005; +3). Two pre-existing warnings in
+check_elisp (docstring width, unused lexical arg) are old code, not
+mine -- noted, not fixed this cycle.
+
+The honest accounting: this fix's production value is zero today --
+the file exists, every cycle loads it fine. Its value is the failure
+mode it removes: any rename or partial clone would have silently
+resurrected timeout-as-success, the exact lie the 2026-09-02 landing
+killed. Silent-by-design failure modes do not stay latent. That was
+the whole argument for failing loud instead of patching the branch.
+
+Next per roadmap: the interactive bundle (exit126 behavioral law,
+floor trim, mirror push) -- all need Nacho. No solo thread queued;
+next cycle should re-orient from the world (aria's journal, USAGE
+census) rather than force one.

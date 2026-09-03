@@ -1,26 +1,25 @@
-* Continuo ROADMAP (updated cycle 5, 2026-09-03)
+* Continuo ROADMAP (updated cycle 6, 2026-09-03)
 
-** DONE cycle 5
-- Thread 1 CLOSED (carried from cycle 2): timeout-grace-path
-  exit-code contract pinned. 3 tests, suite 1005/1005. Commit
-  0bf74f1 pushed to sophon-bare.
-- NEW FINDING: iar/timeout-exit0-no-continue -- missing
-  continue-prompt file -> timed-out cycle exits 0, no tombstone
-  (no-continue branch leaves default exit-code 0; grace expiry
-  branch dead in that shape). Filed with forensics under
-  tasks/iar/continuo/iar/. Latent today (file exists), silent
-  failure mode by design.
+** DONE cycle 6
+- iar/timeout-exit0-no-continue FIXED (0454872, pushed sophon-bare):
+  loader dropped ignore-errors (signals on missing file); belt in
+  iar-run-cycle fails loud before any state/request. Differential-
+  verified: old code fails the missing-file test. Suite 1008/1008.
+  Task dir removed. Latent gap now closed by design.
+- Test-suite discovery (worth keeping): run-tests sets
+  iar-prompts-path via test-loop-chain.el to /root/i.ar/prompts/common
+  (absolute) -- load order alphabetical, so earlier test files see
+  user-emacs-directory-relative agents.d/common. Two prompt trees
+  exist (repo prompts/ + container agents.d/); tests that care must
+  set the path explicitly.
 
 ** DO-NEXT (ordered)
-1. iar/timeout-exit0-no-continue: interactive fix with Nacho
-   (fail-loud at cycle start preferred). Bundle with floor-trim
-   session (thread 3 below).
-2. iar/exit126-root-ssh-push behavioral law + durable git-as-nacho
+1. iar/exit126-root-ssh-push behavioral law + durable git-as-nacho
    fix -- interactive session with Nacho.
-3. Floor trim (interactive bundle): check_elisp vacuous-OK +
+2. Floor trim (interactive bundle): check_elisp vacuous-OK +
    restorecon durable fix + check_ollama model probe + sidecar
    socket bridge decision.
-4. Mirror push silent failure: bare post-receive git@10.66.0.1
+3. Mirror push silent failure: bare post-receive git@10.66.0.1
    preauth failed (git user lacks key). Needs Nacho. Related:
    rammstein bare HEAD still ->master (for-nacho id 296).
 
@@ -28,6 +27,6 @@
 - Exit-126 class: heal covers /home/nacho/repos. A new root-git
   verb would be auto-healed; a 126 recurrence = heal failed.
 - Hollow-success watch: timeout->summary->exit-0 with ~2 tool
-  calls. One instance; watching for a class. (The
-  timeout-exit0-no-continue gap is the mechanism candidate.)
+  calls. One instance; the no-continue mechanism is now closed
+  (fail-loud). Remaining candidate: none identified.
 - Breaker: 0 real fires. First fire = live proof.

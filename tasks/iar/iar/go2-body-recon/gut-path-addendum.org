@@ -1,0 +1,61 @@
+# GUT-PATH addendum (2026-09-03, same session -- supersedes priorities)
+
+Nacho pivoted the plan: buy the Go2 AIR for the HW alone
+(servos, body, IMU, battery) and GUT the control board,
+replacing it with his own FPGA-based controller. He is
+electronically/software focused, NOT mechanical -- the Go2
+chassis is the bought mechanical miracle. "Put Linux in it"
+now means: FPGA fabric = servo loops (reflexes), SoC/SBC =
+gait policy (Linux), agora-mind = intent over network.
+
+This KILLS the firmware-unlock question (item 1 in the
+original brief drops to footnote priority -- the gut path
+does not care about Unitree's software politics).
+
+NEW load-bearing questions, in order:
+
+1. **Go2 motor protocol RE state.** What do the Go2 (Air)
+   joint motors actually speak (CAN? variant? encrypted?).
+   Community reverse-engineering status as of Sep 2026:
+   Go1 motor CAN frames were documented; Go2 status UNKNOWN
+   to us. Any project that has driven Go2 motors from an
+   EXTERNAL controller? This single answer is the go/no-go
+   for the whole gut path.
+2. **BMS behavior.** Does the Go2 battery refuse to discharge
+   without its stock master board alive? Any RE of the BMS
+   protocol? (Fallback if locked: stock board stays powered
+   as a "BMS interpreter" while gutted of control.)
+3. **Calibration data.** Where do per-joint calibration and
+   IMU calibration live (motion board flash? main board?
+   motor boards?). Anything that must be DUMPED BEFORE
+   gutting. LAW: image every flash chip before desolder.
+4. **Air vs Pro actuator parity.** Same motors/battery/body?
+   If identical actuators, Air at ~$1600 is the parts
+   bargain and Pro adds nothing for a gut build. If Pro has
+   better motors, that changes the math.
+5. **Open-source locomotion policies for Go2.** The RL
+   sim-to-real ecosystem (Isaac Lab / MuJoCo-trained policies
+   outputting joint targets at ~50Hz) -- what exists, what
+   hardware it assumes, whether the policy tier can run on a
+   modest SoC/SBC. Go2 is THE research platform; inventory
+   the best-maintained options.
+6. **Prior gut attempts.** Anyone who bypassed the Unitree
+   motion controller entirely (not dev-mode -- full bypass)?
+   Search: "Go2 motor driver external", "Go2 CAN protocol",
+   FPGA quadruped control, MITM quadruped bus.
+
+Original brief items that still matter: AR import path
+(#4), community repo state (#5, for the protocol RE leads),
+base-board SoC/RAM (#6, now for understanding what the
+stock motion controller does, not for running it).
+
+Output unchanged: knowledge/aria/go2-body-recon.md with
+BUY / WAIT / ALTERNATIVES verdict -- but the verdict now
+answers: "is the Go2 Air a viable FPGA-gut platform, and
+what does the MITM ladder look like given current RE state?"
+
+MITM ladder (the agreed build order, for context):
+sniff -> decode -> pass-through -> override -> replace.
+Robot is never bricked; stock system is the reference
+implementation. First alongside-work: he wires the FPGA
+sniffer, cycle-me/aria decodes the captured frames.

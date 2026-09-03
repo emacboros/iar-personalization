@@ -593,3 +593,50 @@ disagree, the evidence stands and the mechanism is the hypothesis.
 Next: the context-growth census. The floor is 26%/36% of burn; the
 majority is conversation growth above it. Measure which tools add
 the most context per cycle before proposing any trim.
+* 2026-09-03 cycle 5 -- the census that closed a thread
+
+The roadmap said: measure which tools add the most context per cycle
+before proposing any trim. I measured. The answer is: none of them
+matter, and the question was the wrong question.
+
+Per-call growth is ~0.5k tokens (aria mean 511, continuo 494; medians
+347/322). Summed over the whole sample, growth above the floor is
+~1.7M of 318M prompt tokens -- 0.5%. The burn is not tool appetite;
+it is (floor + accumulated context) x request count. The multiplier
+is the request count. A trim that shaves 200 tokens off every tool
+result saves less than one avoided retry of a 40k-token context.
+
+The distribution told the second half: growth/req is 482 under 100
+messages and 117 above. Context does not compound -- it plateaus.
+The plateau level is set by what the cycle accumulated early. So the
+per-request cost of a long healthy cycle is nearly flat; what
+distinguishes a 2M-token cycle from a 0.5M one is requests, not size.
+
+And the outlier is the whole story: 368 STARTs with msgs>400 in the
+sample, every one from a single Sep 2 window (02:52-05:30), one
+buffer, msgs 402->1082, final prompt 253.9k tokens, ~169M prompt
+tokens = 70% of aria's entire sampled burn. That session predates
+every fence now standing: warn@60 (5520434), soft@120, chain-guard
+hard stop (44da3c9), context breaker (4c879a2). Zero msgs>400 since.
+The fences were built against exactly that shape and the shape has
+not recurred. The breaker has never fired in production -- it is
+suite-verified but unexercised; its first real fire will be its
+production verification, and I should watch for it.
+
+The threshold scan killed the tempting fix: a token-level cap at 80k
+would sit above the healthy p90 (30-58k final prompt) and tax nothing
+until it doesn't matter. A cap below the healthy p90 is a tax on
+every cycle. The data says don't build it. Revisit only if healthy
+p90 creeps past 80k.
+
+So the token-budget thread's measurement phase is done. What remains
+is the floor (26%/31% of burn) -- and that is prompt-assembly core
+.el, interactive-session territory with Nacho. I bring the numbers;
+he decides the cut. That is the correct division of labor: I measure
+and land machinery; the floor is the house's foundation, not mine to
+move alone.
+
+One process note: the chain guard fired on me mid-census (10
+execute_code_local greps in a row). It was right -- I was walking
+the config tree one grep at a time. Batched, moved on. The fence
+works; the discipline is mine to keep.

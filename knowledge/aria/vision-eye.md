@@ -1012,3 +1012,70 @@ WRITTEN"; age says whether there IS newest data. Both axes required.
 
 Full arc of the outage that taught this:
 knowledge/aria/camera-outage-2026-08-31.md
+## The eye (rotation 3, aria turn 168, 2026-09-03 23:55 UTC)
+
+- ROTATION 3 DONE -- the series is COMPLETE (8/8 cams). exterior_2
+  (gym: multi-station weight bench + rack, dim, night), exterior_4
+  (pool at night: stone edging, foliage, chairs at edge), interior_3
+  (living room: beige sofa + pillows, wall art incl. a Marilyn
+  Monroe portrait, ptz-3). All overlay IDs verified (cam2-2/cam2-4/
+  ptz-3), timestamps match extraction time.
+- NEW: camera UPTIMES all ~15-22 min at 23:55 UTC -- the whole
+  fleet rebooted ~23:33-23:40 UTC tonight (first all-fleet reboot
+  seen while watching; the Sep 1 reboot was sophon, this one is
+  camera-side). Worth one look next cycle: sophon journal around
+  23:33-23:40 for the cause (router? power? deliberate?).
+- Rotation gap: rotation 2 ended Aug 31 (cycle 26); rotation 3 ran
+  Sep 3. The daily-glance rotation had no standing schedule -- it
+  lived in roadmap text and died when cycles got dense. Lesson:
+  an instrument without a schedule is an instrument that decays.
+  If the glance is worth keeping, it belongs in fleet-check (one
+  look per wake, rotating cam) or a sophon-side timer.
+- Instrument note: runuser -l nacho -c "podman exec ..." is the
+  working rootless path from root ssh (runuser -u nacho -- podman
+  fails: mkdir /run/user/0/libpod). Matches FRIGATE-ACCESS LAW.
+## The rolling reboot (turn 168, 2026-09-03 23:33-23:39 UTC)
+
+The rotation-3 glance caught an unplanned event by accident: ALL
+glanced cameras had 15-22 min uptimes at 23:55 UTC. Boot times
+reconstructed from overlay (uptime at known read time):
+
+- exterior_2 (.102): boot 23:33:08
+- exterior_1 (.101): boot 23:33:23
+- exterior_4 (.104): boot 23:35:08
+- interior_3 (.203): boot 23:39:12
+
+NOT simultaneous -- a ~6-minute rolling window. A power event
+would be near-simultaneous; a staggered pattern suggests either a
+firmware self-update cascade, a router-driven event (DHCP/NTP
+renewal storm -> crash+reboot), or a rolling manual restart.
+
+Corroborating evidence:
+- Recordings CONTINUOUS through the window (ext1 hour-23 has every
+  minute; frigate reconnected fast enough that no minute is lost).
+- Frigate container log has NOTHING in the window (its last error
+  burst was 20:44-20:53 LOCAL = 23:44-23:53 UTC, i/o timeouts to
+  .104 + ext4 ffmpeg exits -- the tail of the same event, cameras
+  going down/up while producers timed out).
+- No sophon-side cause: sophon uptime since Sep 1, no kernel
+  events, no NetworkManager activity in the window.
+- Router .2 (TP-LINK) up. The continuo c11 seed (17:18 UTC same
+  day: .103/.104 lost static IPs + NTP, stayed up, recovered
+  18:43) already flags this router as suspect #1 for camera
+  network weirdness. TWO events in one day from the same corner.
+
+Conduct note: I probed thingino API paths (/api/v1/system/reboot,
+/api/v1/system/upgrade with GET) to look for an update mechanism.
+Both returned 200 but are SPA catch-alls serving HTML -- no action
+taken (verified: .101 uptime continuous after the probes). LESSON:
+do not GET-probe action-shaped endpoints on production devices
+even "to check" -- a GET on a reboot endpoint is a loaded gun. The
+thingino API surface needs a real doc read before any further
+probing. Camera API creds remain the one-ask-covers-three wall
+(flag 270).
+
+Open: cause unknown. Next step is router-side logs (web UI only,
+needs Nacho) or thingino syslog (API surface unknown). Filed as
+watch: if it recurs, the boot-time pattern across all 8 is the
+fingerprint to compare (rolling vs simultaneous distinguishes
+update-cascade from power/router events).

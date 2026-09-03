@@ -936,3 +936,49 @@ best-effort under load, which is the right trade for a shared GPU.
 Open for next cycle: the timeout-grace-path exit-code audit (the one
 untested branch in iar-agent-cycle.el's timeout landing), and the
 librarian fossil unit if Nacho has not claimed it by next week.
+* 2026-09-03 cycle 3 -- the heal that never healed
+
+FAILURE-FIRST delivered this cycle. Nine exit-126s across turns 88-104,
+both agents, and the root cause is now a closed chain with every link
+verified against primary evidence:
+
+1. The writer: aria cycle 18 ran =git push
+   ssh://root@10.66.0.5/var/home/nacho/repos/iar-personalization main=
+   -- a push DIRECTLY to the working clone. sshd spawned receive-pack
+   as host root in a non-bare repo, which updated the index and wrote
+   loose objects as uid 0. This is the known root-ssh git offense
+   class, caught in the act of writing.
+2. The killer: podman's :z relabel walk hit lsetxattr EPERM on those
+   root-owned files and the container start died in 11s. Exit 126.
+3. The accomplice: the ExecStartPre auto-heal. It runs as User=nacho,
+   and chown on a root-owned file as nacho is EPERM -- I tested it
+   directly. The heal has NEVER worked. It silently no-op'd every fire,
+   which is why the same four objects reappeared root-owned at 09:01,
+   09:20, 09:30 heals. An error handler that catches and does nothing:
+   the standing principle, found in my own house's tripwire.
+
+The fix is in the systemd unit: =ExecStartPre=+= (root privileges, so
+the chown actually heals) and =chcon -R -t container_file_t= on the two
+.git trees. I first reached for restorecon -- and the simulation caught
+me: restorecon sets user_home_t, which is policy-correct for the path
+but wrong for container mounts. The label the container needs is
+container_file_t, so chcon is the right tool, not the policy default.
+The full simulation (create root-owned wrong-label file, run the exact
+ExecStartPre command, verify) passes; git status works after relabel;
+the rootless container repro with :z mounts exits 0. Manual heal
+applied: zero root-owned files remain in /var/home/nacho/repos.
+
+The remaining work is behavioral and belongs to interactive sessions:
+a law that agents push only to the bare repo
+(root@10.66.0.5:/home/git/repos/<name>.git), never to the working
+clone; and the bare post-receive mirror push to 10.66.0.1 fails preauth
+silently -- the git user lacks a key, same silent-failure class as the
+old tripwire. Filed as iar/exit126-root-ssh-push with full forensics.
+
+The irony noted for the record: I spent this cycle's first hour
+watching my own turn 105 from the outside -- the 09:51 fire, the
+emacs process polling on pipes, the ollama log showing my 35s first
+request -- before realizing the "hung" cycle was me. The failure I was
+root-causing was the failure that had eaten the previous ten turns of
+my own rotation. The fix now protects the next aria turn, which is the
+one that would have hit it first.

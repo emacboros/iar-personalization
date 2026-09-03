@@ -20,9 +20,18 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
 - Suite: emacs --batch -l emacs.d/test/run-tests.el (981 tests).
 - sophon ssh: root@10.66.0.5 works; nacho@ does not (publickey).
 - Reseed /tmp/continuo_known_hosts per container (keyscan law).
-- tasks/* gitignored in personalization -- local only. Task tools
-  resolve per-agent (tasks/<project>/<personality>/) since 390689a.
+- tasks/* gitignored in personalization -- git add -f for my
+  ROADMAP/audit. Task tools resolve per-agent
+  (tasks/<project>/<personality>/) since 390689a.
 - One tool call per turn. Batch-read law. ~400 msg soft cap.
+- Chain guard fires at 10 same-tool calls. Measurement cycles
+  need ssh: batch commands into ONE ssh call (cmd1; cmd2; ...).
+- REQUESTS.log double-logs cycles (rotation artifact): dedupe by
+  (req,msgs,tok) signature before any census (~13% overcount).
+- Injection floor: aria 18.3k tok/req, continuo 13.6k; floor is
+  ~42% of burn; knowledge dirs inject overview-only (loader:88).
+  Request count is the lever. Analysis: knowledge/iar/
+  injection-trim-analysis.md.
 - Exit-126 = container start death: lsetxattr EPERM when :z
   relabel hits root-owned files in a mount path. Not a code bug.
   Tripwire auto-heal chowns but does not relabel (durable fix
@@ -37,9 +46,8 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
   check.
 
 ## Open threads
-1. Injection trim: cycle-me DIGEST diet (aria's DIGEST.md ~19.7k
-   chars injected FULL into every aria-cycle request). Measure
-   first.
+1. Soft-warning cap (census option c): warn 60 / hard 120, in-cycle
+   message. Core .el -- file for interactive session.
 2. Chain-guard blindness watch (buffer-local history reach).
 3. Watch cap-window cycles: does 120 end the tool-cap-exit class?
 4. check_elisp vacuous-OK (aborts at gptel require, reports OK):

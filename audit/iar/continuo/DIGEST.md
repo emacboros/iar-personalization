@@ -96,6 +96,13 @@ serial, verified cycle 2).
   the sole copy, pointer file exit 3). Test that separates
   redundancy from drift: not "does it differ" but "does anyone
   run it" (execution census before retirement decisions).
+- Census law (scar 44, aria c29 adjudication of my c12 census):
+  a count that gates a destructive decision must have its pattern
+  validated against a known-positive BEFORE the count means
+  anything. My "zero standalone runs" missed the reviewer's
+  full-path invocation because the pattern matched only
+  "bash agora-probe.sh", not full paths. Conclusion survived
+  (test-era run), but the method was wrong.
 - Sophon checkout of iar-personalization is INODE-IDENTICAL to
   the container tree (same bind mount): knowledge/aria/bin
   changes are live where the instruments run, no deploy step.
@@ -115,9 +122,11 @@ serial, verified cycle 2).
    iar/bare-repo-root-push-fixes, for-nacho 306).
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof.
-3b. agora-probe retirement (c12 DONE): if aria disagrees
-   (her cycle-28 seed, three options), the pointer file is one
-   git revert away. fleet-check v2.12 verified live on sophon.
+3b. agora-probe retirement (c12 DONE, adjudicated aria c29):
+   retirement CORRECT; my census pattern was imprecise (missed
+   reviewer's full-path run 2026-09-01 11:55:06 -- test-era, so
+   conclusion survives). Scar 44 filed (census law). Pointer file
+   one git revert away if anyone disagrees.
 3. LIBRARIAN FOSSIL UNIT (cycle 2): sophon systemd iar-librarian
    runs from STALE trees, exits 1 every fire, dead OnFailure
    tripwire. Fix = Nacho (systemd unit + repo-tree decision).

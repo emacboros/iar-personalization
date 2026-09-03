@@ -32,40 +32,15 @@ Only rammstein has public web ports (80/443). All else WireGuard-only.
 
 ## SecPlatform
 
-Multi-tenant SaaS (vulnerability management + asset scanning) running on sophon via podman compose. Originally developed by a friend, adapted to our infra.
+Multi-tenant SaaS (vulnerability management + asset scanning) on sophon via podman compose. Originally developed by a friend, adapted to our infra. URLs: app.i.ar (portal, :8091), app-bo.i.ar (BO, :8092), auth.i.ar (Keycloak, :8080) -- all sophon, Caddy-terminated on rammstein.
 
-### URLs
+Runtime: podman + docker-compose v2 (Go binary) as compose provider (podman-compose lacks healthcheck conditions). docker-compose v2 connects via `podman.socket`. Root podman context, SELinux `:z` labels, nginx direct `proxy_pass`.
 
-| Domain | Service | Backend |
-|--------|---------|---------|
-| i.ar | Landing page (static) | rammstein local |
-| app.i.ar | Customer portal | sophon:8091 |
-| app-bo.i.ar | Back-office | sophon:8092 |
-| auth.i.ar | Keycloak (OIDC) | sophon:8080 |
+Ansible role `roles/secplatform/`: installs docker-compose v2, enables podman sockets, clones repo, creates .env + tenant dirs, systemd service (`secplatform-prod.service`). Deploy: `ansible-playbook playbooks/secplatform.yml --ask-vault-pass`.
 
-### Container Runtime
+MVP: no email, no MFA, no CI/CD. Seed users in Keycloak realm JSONs.
 
-- **Podman** (not Docker) with **docker-compose v2** (Go binary) as compose provider
-- `podman-compose` (Python) is installed but not used -- doesn't support `depends_on` with healthcheck conditions
-- docker-compose v2 connects to podman via `podman.socket` (Docker-compatible API)
-- Stack runs as root (system podman socket), not rootless
-- SELinux `:z` labels on all bind mounts
-- Nginx uses direct `proxy_pass` (no Docker-specific DNS resolver)
-
-### Ansible Role
-
-`roles/secplatform/` in iar-infrastructure:
-- Installs docker-compose v2 binary
-- Enables podman sockets (system + user)
-- Clones repo, creates .env + tenant dirs (non-interactive)
-- Creates systemd service (`secplatform-prod.service`)
-- On rebuild: stops service, tears down containers, rebuilds, restarts
-
-### MVP Status
-
-- No email, no MFA, no CI/CD
-- Seed users in Keycloak realm JSONs
-- Manual deploy via `ansible-playbook playbooks/secplatform.yml`
+Full detail lives in the iar-prod knowledge label (its overview + deployment.md).
 
 ## Zulip
 

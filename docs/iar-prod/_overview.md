@@ -6,13 +6,9 @@ SecPlatform -- a multi-tenant SaaS PoC for vulnerability management and asset sc
 
 Repo at `/var/home/nacho/repos/iar-prod/` (bind-mounted into i.ar container). GitHub: `github.com/randazzo-ignacio/i.ar` (shared with the i.ar repo name).
 
-## Our Hosting Model
+## Hosting Model (summary)
 
-SecPlatform prod runs on **sophon** (10.66.0.5, 12c/96GB, RTX 3080) via **podman compose**. **Caddy** on **rammstein** (10.66.0.1, public IP) terminates TLS and reverse-proxies over WireGuard to sophon.
-
-No Cloudflare. No CI/CD (manual deploy via Ansible). No external mailer (MVP has no email; MailHog disabled in prod).
-
-### URL Structure
+Prod runs on **sophon** (10.66.0.5) via podman compose. **Caddy** on **rammstein** (10.66.0.1, public IP) terminates TLS and reverse-proxies over WireGuard. No Cloudflare, no CI/CD (manual Ansible deploy), no external mailer (MVP).
 
 | Domain | Service | Caddy Proxy Target |
 |--------|---------|-------------------|
@@ -21,47 +17,13 @@ No Cloudflare. No CI/CD (manual deploy via Ansible). No external mailer (MVP has
 | `app-bo.i.ar` | Back-office (frontend-backoffice + bff-backoffice) | `10.66.0.5:8092` |
 | `auth.i.ar` | Keycloak | `10.66.0.5:8080` |
 
-### Network Flow
+All services bind to `10.66.0.5` (WireGuard IP), not `0.0.0.0`. Only rammstein can reach them. OIDC flow is BFF-mediated (no CORS): browser -> BFF `/api/auth/login` -> Keycloak -> BFF callback -> httpOnly cookies.
 
-```
-Browser -> Caddy (rammstein, TLS) -> WireGuard -> sophon (10.66.0.5)
-  app.i.ar     -> frontend-client:8091 (Nginx -> bff-client:3001)
-  app-bo.i.ar  -> frontend-backoffice:8092 (Nginx -> bff-backoffice:3002)
-  auth.i.ar    -> keycloak:8080
-```
+## Container Runtime (summary)
 
-All services bind to `10.66.0.5` (WireGuard IP), not `0.0.0.0`. Only rammstein can reach them.
+Podman (not Docker) with **docker-compose v2** (Go binary) as compose provider -- podman-compose v1.6.0 lacks `depends_on` healthcheck conditions. docker-compose v2 connects via `podman.socket` (Docker-compatible API). Stack runs as root (system socket). SELinux `:z` labels on bind mounts; nginx uses direct `proxy_pass` (no Docker DNS resolver); `DOCKER_HOST` set by systemd service and `spc.sh`.
 
-### OIDC Auth Flow
-
-1. Browser -> `app.i.ar/api/auth/login` (Caddy -> Nginx -> BFF)
-2. BFF redirects to `auth.i.ar/realms/customers/protocol/openid-connect/auth`
-3. User logs in at Keycloak (Caddy -> Keycloak)
-4. Keycloak redirects back to `app.i.ar/api/auth/callback?code=...`
-5. BFF exchanges code internally (`http://keycloak:8080` on docker network) for tokens
-6. BFF sets httpOnly cookies, redirects to portal
-
-No CORS issues -- BFF handles everything server-side. Frontend just does `location.href = '/api/auth/login'`.
-
-## Container Runtime: Podman (not Docker)
-
-The stack runs on **podman compose** with **docker-compose v2** (Go binary) as the compose provider. This was necessary because:
-
-- **podman-compose** (Python, v1.6.0) doesn't support `depends_on` with `condition: service_healthy` -- containers with dependencies fail to start.
-- **docker-compose v2** (Go binary) handles healthcheck conditions correctly. `podman compose` uses it as the provider when found in PATH.
-- docker-compose v2 connects to podman via the Docker-compatible socket API (`podman.socket`, systemd socket activation).
-
-The Ansible `secplatform` role installs docker-compose v2 binary at `/usr/local/bin/docker-compose` and enables `podman.socket` (system + user).
-
-### Podman-Specific Fixes Applied
-
-1. **SELinux labels on bind mounts**: Added `:z` flag to all host bind mounts in `docker-compose.yml` (keycloak/realms, keycloak/themes, postgres/init). Without this, SELinux blocks containers from reading host-mounted directories.
-
-2. **Nginx DNS resolution**: Removed Docker-specific `resolver 127.0.0.11` directive from frontend nginx configs. Podman uses `aardvark-dns` at the network gateway (e.g. `10.89.0.1`), not Docker's `127.0.0.11`. Switched to direct `proxy_pass` with static upstream names -- nginx resolves at startup via `/etc/resolv.conf`.
-
-3. **DOCKER_HOST environment**: The systemd service and `spc.sh` set `DOCKER_HOST=unix:///run/podman/podman.sock` (system) or `unix:///run/user/$(id -u)/podman/podman.sock` (user) so docker-compose v2 connects to podman's socket.
-
-4. **Root podman context**: The stack runs as root (via system podman socket), not rootless. This matches the pattern used by frigate and monitoring roles. All containers, volumes, and images live in root's podman storage.
+Full details: deployment.md (runtime + fixes), architecture.md (services, data model).
 
 ## Architecture
 

@@ -10426,4 +10426,63 @@ the scan's value is catching it at the BOUNDARY, which matters
 for the scar-46 mechanism study, not for alerting). A mechanism
 instrument, not an alert instrument. That distinction might be
 the whole answer to the cost/benefit question -- park it again
-with the sharper framing.
+with the sharper framing.* Cycle 37: the parked idea paid its first dividend -- interior_3 is not what we thought (2026-09-03 ~19:15-19:50 UTC)
+
+Failure-first: clean (cycle 1 ok, 148s). Pull clean. Pulse green
+(services, tripwire 0, disk 24%, heartbeat leid 4005). Organs quiet.
+Agora: no new Nacho answers (326, 306 open). Sibling: c20 floor trim
+landed.
+
+The do-first slot was empty, so I pulled the parked fleet-wide v2
+idea -- the one sharpened last cycle to "mechanism instrument, not
+alert instrument." Cost estimate said ~1-2 min for all 8 cameras.
+The build had two stages: v2 added same-hour island detection (v1's
+first/last probes are blind to a loss+heal both inside one hour),
+and v2.1 fixed two inverted-bound bugs the first validation run
+caught -- the walks returned upper bounds and mislabeled hour 04's
+known 04:27 boundary. Differential law in action: same day through
+v1 and v2, the disagreement IS the finding. v2.1 walks lower bounds
+with post-walk sanity checks; non-monotone hours print
+MIXED-non-monotone instead of a confident wrong edge.
+
+Then the fleet-wide run, and the day's real find: interior_2 and
+interior_3 printed NOTHING (my grep filtered all-uniform days), and
+when I looked closer, interior_3's day is uniform aac in every hour
+-- while fleet-check calls it SILENT. Both instruments right. The
+codec probe answers "does a track exist"; volumedetect answers "is
+data flowing now." The packet count answers "did it ever flow." The
+answer: interior_3 carried REAL audio 00:00-08:00 UTC today (250
+packets/segment, decodes to ~32KB/s) and went hollow at 08:00:50 --
+every segment since carries exactly ONE audio packet, the
+handshake's residue. The "zero-sample-since-forever" reading in
+fleet-check v2.13's header was a two-data-point inference; every
+prior sample was taken after the loss, so they all agreed. The
+day-long scan is the third point that broke the line. Scar 30's law
+vindicated by its own instrument.
+
+v2.2 landed the SILENT label (one packet-count probe on the middle
+segment of uniform aac hours, zero walk cost). Validated: int3 =
+aac 00-07, SILENT 08-19. Regression clean on ext3 and int2. Scar 47
+written and committed (f318e2e): codec presence is not audio
+flowing -- a stream can negotiate and die in the same second.
+
+Prediction check (B3): predicted ~10 min for the build+validate.
+Actual ~35 min. The instrument-tax line: the two inverted-bound bug
+fixes + the SILENT discovery were not in the estimate -- the first
+fleet-wide run of a new instrument is a RESEARCH event, not a
+validation event. It found a wrong belief in the record
+(since-forever) and a new failure signature. That's the best
+possible overrun.
+
+The thread that pulled: three cameras lost audio today by three
+separate events (04:27 ext3 stream-loss, 08:00 int3 one-packet,
+09:50 int1 stream-loss), none logged anywhere, all witnessed only
+by artifacts. The house's audio pipeline is losing sessions all
+day and nothing notices at the boundary. Flag 326 (one frigate
+restart) now covers three healings at once -- it's Nacho's call,
+bumped once, left alone. What I'm parking: the 08:00:50 event has
+no log trace on either side, same as 04:27. Two logless
+session-deaths in one day. The mechanism study needs frigate's
+go2rtc debug logs enabled BEFORE the next loss, not after. That's
+a config change on the frigate stack -- Nacho's territory, or at
+least a flag. Parked in THREADS.

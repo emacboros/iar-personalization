@@ -1,0 +1,122 @@
+#+TITLE: Continuo Roadmap
+#+UPDATED: 2026-09-03 09:00 UTC (cycle 7: failure census extended -- Sep 3 clean, fences verified by absence)
+
+* IMMEDIATE (next cycle, in order)
+1. Breaker production watch (standing): grep sophon journal for
+   breaker messages. Count still 0 since landing (4c879a2) --
+   suite-verified, unexercised. First real fire = live verification.
+2. Floor trim prep: census + injection-trim-analysis ready.
+   INTERACTIVE session with Nacho required (core .el). Bundle:
+   chain-guard convergence reset (3 witness sets now: aria 11,
+   continuo 6, continuo 7) + check_elisp vacuous-OK + restorecon
+   durable fix (exit-126 class) + optional check_ollama model probe.
+
+* DONE (cycle 7, 2026-09-03)
+- FAILURE CENSUS EXTENDED (Nacho's top priority). Fresh primary
+  evidence (sophon journal Sep 2 00:00 - Sep 3 08:30):
+  - Sep 2: 49 exit-1 (cap-60 kills), 2 exit-126 (SELinux relabel),
+    4 exit-255 (2 json-value-p, 1 mid-edit truncated .el, 1 other).
+  - Sep 3: 26/26 cycles exit 0. ZERO failures since 00:00.
+  - Fence wave correlates with failure classes going to zero:
+    cap-60 class dead (0 since fix), json-value-p dead (0 since
+    utf8-scrub a0e4c99). The failure-first loop is working.
+- Residual classes (small, mostly interactive-session):
+  - exit-126: lsetxattr EPERM at container start. Auto-heal chowns
+    but does not relabel. Durable fix: restorecon in ExecStartPre.
+  - 403 billing blip passed preflight: check_ollama validates host
+    (/api/tags) not model (/api/chat). Fix direction filed, Nacho's
+    call (shell machinery, no test suite).
+  - Hollow-success watch: 403-strike cycle recovered, hit 1800s
+    wall, summary path, exit 0 with 2 tool calls (Sep 3 04:21).
+    One instance = data, not a class. Watching.
+  - Mid-edit file race (exit-255 end-of-file on iar-agent-cycle.el,
+    Sep 2 23:52): rare, watch.
+
+* DONE (cycle 6, 2026-09-03)
+- TOOL-CAP-OVERCORRECTION CLOSED. Verified against primary evidence
+  instead of re-implementing: sophon journal Sep 3 shows 0 cap-60
+  exits since the fix (was 26 in 3 days), warn@60 fires and reaches
+  the model in prod (continuo 04:23, aria 04:41), healthy cycles
+  complete at 20-134 calls with zero exit-1. Docs already accurate
+  (agents.md row). Task tree removed. Commit 8733f4a.
+
+* DONE (cycle 5, 2026-09-03)
+- CONTEXT-GROWTH CENSUS COMPLETE. Verdict: per-tool trim is dead --
+  growth above floor is ~0.5% of burn; burn = (floor+context) x
+  request count. Slope front-loaded then flat (no compounding).
+  The 253.9k-token runaway (Sep 2, 169M tok, 70% of aria sample)
+  predates all fences; zero msgs>400 since. Breaker landed but
+  never fired in production (unexercised, not unverified).
+  Token-cap at 80k NOT justified (healthy p90 30-58k).
+  Report: knowledge/iar/context-growth-census-2026-09-03.md.
+- invisible-cycle-fences task CLOSED (A+B+C+D all landed; spec
+  said TASK COMPLETE; task tree removed).
+
+* DONE (cycle 4, 2026-09-03)
+- CHAIN-GUARD HOOK-ORDER FIX LANDED + VERIFIED. Bridge =
+  run-hook-with-args-until-success (short-circuits first non-nil).
+  Old order: chain guard ran FIRST, blocked call never entered
+  history, count frozen at "10 times", hard stop unreachable.
+  Differential proof: old order fails both new tests (8/10), new
+  order 10/10. Suite 988/988. 44da3c9 pushed, docs row 5bb2de7.
+
+* DONE (cycle 12)
+- CENSUS CORRECTED (knowledge/iar/usage-census-2026-09-03.md):
+  REQUESTS.log is a debug trace (~26% coverage); USAGE.log is the
+  meter. aria 347.3M/4,843/53; continuo 73.4M/1,937/31. Floor
+  share 26%/36%.
+- CAP-WINDOW WATCH CLOSED: 61-req truncation signature dead.
+
+* OPEN THREADS
+1. check_elisp vacuous-OK: interactive-session file.
+2. Aevum weekly (Sep 9) is aria's, not mine.
+3. Chain-guard false-positive class: 3 witness sets. Interactive.
+4. Hollow-success class: watch for recurrence before designing.
+5. check_ollama model probe: filed, Nacho's call.
+
+* LAWS ACCUMULATED
+- Check git stash list / fsck before declaring work lost.
+- A truncated read_file view is not the file; read the region you edit.
+- A green check that never touched the code is not a check.
+- Measure the floor before trimming the fat.
+- A fence that fires but whose return value is discarded is a fence
+  that never fired. The block must BE the return. (5520434.)
+- Unescaped quotes in a docstring terminate the string.
+- Chain guard fire on edit+test iteration: batch the edit, run the
+  suite once. The fence is right.
+- Census from USAGE.log, not REQUESTS.log. (Cycle 12.)
+- Verify a fence in production, not only in the suite. (Cycle 12.)
+- Buffer-local state + hooks that run in another buffer = state
+  that lives in the wrong vantage. (Tracker class, cycle 2.)
+- A guard that blocks without escalating is a screen door. Test the
+  WIRING (hook order, registration), not only the math. (Cycle 3.)
+- When a fence is silent, test it on yourself. A frozen count is a
+  different bug than silence. (Cycle 3.)
+- Differential tests that bypass the wiring certify the wrong layer.
+  (Cycle 3; second instance cycle 4 -- the sim bypassed the bridge.)
+- Bridge law: run-hook-with-args-until-success short-circuits at the
+  first non-nil return. Hook ORDER among guards is load-bearing
+  whenever one guard's logic assumes another already ran. (Cycle 4.)
+- Census law (cycle 5): burn = (floor + accumulated context) x
+  request count. Per-tool result trimming has ~0.5% headroom; the
+  floor and the request count are the only real levers. Measure the
+  distribution before designing a cap: a threshold that sits above
+  the healthy p90 is a no-op; one below it taxes every cycle.
+- Verify-before-rebuild law (cycle 6): before implementing a fix
+  designed in a previous cycle, check whether the world already
+  contains the receipt. A task whose fix landed may only need its
+  verification closed -- and verification against primary evidence
+  (production logs) is worth more than a second implementation.
+- A guard's false-positive cost is real work: blocked probes, a
+  channel switch, a blocked push. The guard is right about the vice
+  and wrong about the instance; convergence must reset the counter.
+  (Aria cycle 11, continuo cycle 6.)
+- After-count law (cycle 7): a fix is not verified by its suite
+  alone; it is verified by the failure class's absence in the
+  after-count. Sep 2 -> Sep 3 is the receipt that the fence wave
+  worked. Corollary: you cannot claim failure reduction without
+  counting failures before and after.
+- Preflight law (cycle 7): a preflight that validates the host but
+  not the payload passes the thing that will fail. check_ollama
+  checks /api/tags (host up) but the failure came from the model
+  (cloud 403). Validate the narrowest thing that can fail.

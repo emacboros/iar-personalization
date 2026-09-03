@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.7 (2026-09-02, cycle 126)
+# aria fleet-check v2.10 (2026-09-03, cycle 11)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,18 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.10 (cycle 11): SILENT branch. interior_3 went deaf ~08:09 UTC
+#   with a DIFFERENT signature: audio stream present, zero samples
+#   (ext2/3/4 lost the stream entirely). volumedetect prints no dB
+#   lines for zero-sample input -> old code printed empty "mean/max:"
+#   and exited 0. Brand-new deafness sailed through green. Now:
+#   empty dB output = SILENT = FAIL unless allowlisted. RECOVERY now
+#   requires actual dB values, not mere stream presence.
+# v2.9 (cycle 10): ear check v3 -- KNOWN_DEAF allowlist for the
+#   ext2/3/4 audio loss (flags 262-270). Known-deaf NO-AUDIO no
+#   longer fails the run; RECOVERY on a known-deaf cam fails loudly.
+#   Exit code means something again. (Header said v2.7, roadmap
+#   said v2.8 -- this is v2.9, discrepancy noted.)
 # v2.7 (cycle 126): frigate event health check added (0c-c) +
 #   FIX: the v2.6 restic block sat AFTER `exit $FAIL` -- dead code,
 #   never ran. Moved before the summary. The instrument that watches
@@ -162,8 +174,16 @@ except Exception:
   fi
 fi
 
-# --- 1. EAR CHECK v2 (age + audio) ---
+# --- 1. EAR CHECK v3 (age + audio, known-deaf allowlist) ---
+# v2.9 (cycle 10, 2026-09-03): KNOWN_DEAF allowlist. The ext2/3/4
+# audio loss (flags 262-270) is camera-side, reported, awaiting
+# frigate restart / firmware. Without the allowlist every run
+# exits 1 and the exit code stops meaning anything. Design:
+# known-deaf + NO-AUDIO = expected, no fail; known-deaf + AUDIO =
+# RECOVERY event, FAIL loudly (withdraw flags, update list).
+# NO-AUDIO on any other camera = FAIL as before (new deafness).
 echo "-- ear check --"
+KNOWN_DEAF="exterior_2 exterior_3 exterior_4"
 for cam in $CAMERAS; do
   n=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -1)
   if [ -z "$n" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi
@@ -172,10 +192,27 @@ for cam in $CAMERAS; do
   # audio: map 0:a fails on video-only segments -> NO-AUDIO
   aout=$(timeout 30 ffmpeg -hide_banner -i "$n" -map 0:a -af volumedetect -f null - 2>&1)
   if echo "$aout" | grep -q "matches no streams"; then
-    echo "$cam age=${age}s NO-AUDIO"; FAIL=1
+    if echo " $KNOWN_DEAF " | grep -q " $cam "; then
+      echo "$cam age=${age}s NO-AUDIO (known-deaf, watch state)"
+    else
+      echo "$cam age=${age}s NO-AUDIO"; FAIL=1
+    fi
   else
     v=$(echo "$aout" | grep -oE "\-?[0-9.]+ dB" | head -2 | tr '\n' ' ')
-    echo "$cam age=${age}s mean/max: $v"
+    if [ -z "$v" ]; then
+      # v2.10 (cycle 11): stream present but volumedetect printed no dB
+      # lines = zero decoded samples = SILENT. The interior_3 lesson:
+      # this sailed through as green with an empty "mean/max:" line.
+      if echo " $KNOWN_DEAF " | grep -q " $cam "; then
+        echo "$cam age=${age}s SILENT (known-deaf, watch state -- stream present, 0 samples)"
+      else
+        echo "$cam age=${age}s SILENT: audio stream present but ZERO samples"; FAIL=1
+      fi
+    elif echo " $KNOWN_DEAF " | grep -q " $cam "; then
+      echo "$cam RECOVERED: audio present again (mean/max: $v) -- update KNOWN_DEAF, withdraw flags"; FAIL=1
+    else
+      echo "$cam age=${age}s mean/max: $v"
+    fi
   fi
 done
 

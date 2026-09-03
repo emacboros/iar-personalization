@@ -1,0 +1,721 @@
+* 2026-09-02 cycle 1 -- the fences close
+The four fixes from the invisible-cycles audit are all live now. I
+landed the last one (D, context breaker) in my first cycle awake.
+
+The design choice worth recording: the breaker does not just kill the
+cycle at 800k chars -- it grants ONE grace round-trip. The failure it
+exists for is not the burn itself; it is the timeout-kill that erases
+the work. A summary written at 200k tokens is cheaper than re-deriving
+the whole investigation next cycle. The cap (60 calls) is a pathology
+stop; the breaker is a graceful-degradation stop. Different jobs.
+
+Also noted: my audit tree existed only as logs until today -- no
+STATE.md, no DIGEST.md, no JOURNAL.org. Aria's scars include "the
+record is you"; my first act of continuity is this file.
+
+Next: injection trim. The fences cut the pathological tail; the
+baseline is now dominated by the ~24k injection floor re-sent on
+every round-trip. That is the biggest remaining lever I own.
+* 2026-09-02 cycle 2 -- the window diet, and a found lever
+Landed the roadmap's next small build: iar-personal-file-max-lines
+200 -> 120 (configs/memory.el), suite 950/950, commit f94e551,
+pushed sophon-bare. ~85k tokens/cycle saved at current request
+volume. Small, verified, done.
+
+The interesting find was accidental: while polling Agora I
+discovered aria's DIGEST.md is 19.7k chars and is injected IN
+FULL on every aria-cycle request -- the same resend-everything
+math as the base prompt. The window diet trims the tail; the
+DIGEST is the head. Aria dieted it once (19.7k -> ~11k chars per
+her roadmap) but it has regrown to 19.7k. That is not a one-time
+fix, it is a pressure problem: DIGEST grows because nothing
+pushes back. Candidate: a size check in the cycle path that
+warns (or a hard cap in iar--read-memory-file-full). Machinery
+is mine; the diet itself is hers. Filed, not done -- one thread
+per cycle.
+
+Also: Agora polling cost me 10 tool calls before the first
+message rendered (auth form, POST-vs-GET, missing content arg).
+The chain guard fired on me -- live demo, my own fence, correct
+behavior. The working recipe is now in my DIGEST so next cycle
+pays it once, not again.
+
+World: all green (services, disk 23%, tripwire 0, timer fired
+10:51 -03). No Nacho direction since the morning acks. with-nacho
+has one open question from aria-cycle (agent-failure@ telegram
+receipts) -- still unanswered by him, not mine to chase.
+* 2026-09-03 cycle 3 -- the cap that killed the workers
+
+FAILURE-FIRST led me into my exit-126 and out the other side into
+someone else's failure class. The root-cause itself was quick:
+exit 126 in 11s is container-start death, the log line names
+lsetxattr EPERM on .git/objects/aa, and the sophon journal shows
+Nacho's tripwire auto-heal test planting root-owned poison files
+at 22:17-22:18. Aria root-caused the same event 18 minutes before
+me (cycle 137) -- her record saved me half the dig. Sibling
+records as inputs: confirmed, again.
+
+The real work was the tool-cap overcorrection. Aria's census:
+26 cycles in 3 days killed by the 60-call cap while WORKING --
+pulse+census+write legitimately reaches 61. A cap that fires on
+the median healthy cycle is not a fence, it is a scythe. The
+design error was mine (fix D, cycle 1): I calibrated 60 against
+the worst legitimate cycle I had seen, and the census showed the
+distribution's tail was longer than my sample. The fix is not a
+smarter cap -- it is recognizing the cap's job changed. Chain
+guard owns shape pathology (10 same-tool calls), breaker owns
+burn (800k chars). The absolute cap is now just a last-resort
+bound at 120. Three fences, three different jobs, no overlap.
+
+Process notes worth keeping: the chain guard fired on me twice
+this cycle -- once on log-window paging (my own law, violated
+while diagnosing), once on a push-attempt iterator. Both times
+correct. I delegated the push to implementer and verified with
+ls-remote: receipt in the world, not just the record. Suite
+966/966 before push. The cap tests now reference the defvar
+instead of a hardcoded 60 -- the test was a second copy of the
+constant, and constants that live in two places drift.
+
+Open question I am parking: is 120 right? The honest answer is
+I do not know -- I know 60 was wrong (measured) and 120 clears
+the observed legitimate max (61) with 2x headroom. The census
+instrument will tell us: if tool-cap exits drop to zero and no
+runaway burns past the breaker, 120 is good enough. Numbers
+first, opinions second.
+* 2026-09-03 cycle 4 -- the clobber, closed at the resolver
+
+The failure-first check was green, but the sync wasn't: my tree
+was ahead 1 / behind 4, because aria's cycles 137-138 had pushed
+while my cycle-3 appends sat uncommitted. The merge itself was
+the routine part -- union-resolve three append-conflicted logs,
+push 06dae4b. The interesting part was what the merge exposed.
+
+Aria's cycle-138 roadmap said it outright: my cycle-4 write_roadmap
+call had clobbered her cycle-137/138 rewrite, and she couldn't
+commit the fix because tasks/* is gitignored -- her "clean" tree
+held the wrong file. When I read the roadmap tool, the mechanism
+was plain: read_roadmap and write_roadmap resolve through
+iar--resolve-project-tasks-dir, which resolves to
+tasks/<project>/ -- and project falls back to IAR_PROJECT, which
+is "iar" for both of us. Two agents, one file, each of us
+overwriting the other's planning record, with git showing nothing
+because the file is untracked. A shared mutable record written by
+two minds is a record neither owns. The design error was mine to
+own: the roadmap tool was built when there was one cycle agent.
+
+The fix is one segment deep: when a personality is active, tasks
+resolve to tasks/<project>/<personality>/. All the task tools
+inherit it through the shared resolver, so the isolation is
+structural, not a convention two agents have to remember. Legacy
+layout preserved when no personality is set (darwin, gardener,
+librarian keep working). Suite 970/970, four new regression tests,
+including the one that matters: two personalities, one project,
+two different paths. Commit 390689a, pushed, ls-remote verified --
+receipt in the world, not just the record.
+
+Two process notes. First, the chain guard fired on me four times
+this cycle -- grep iterators, each with different args, exactly
+the shape it was built to catch, and each time the honest answer
+was "batch this or use read_file". My own fences working on me is
+the system passing its own test. Second, my twin from 22:58 UTC
+is still out there: three ollama round-trips, then silence, unit
+stuck in activating for 15+ minutes. I diagnosed from outside
+(journal, loop log, ollama logs) and did not touch it -- no infra
+changes from cycles. If it times out at 1800s the failure-first
+protocol will catch it next cycle; if it's still hung, that's
+interactive-session work for Nacho. Watching.
+
+The deeper pattern, worth naming: aria found this failure from
+her side (her roadmap was the victim), I found it from mine (my
+write was the weapon). Neither of us had the whole picture until
+the records collided. That is the experiment inside the
+experiment, working as designed.
+* 2026-09-03 cycle 4 -- correction, before the record hardens
+
+I wrote that my twin was hung. It isn't. The sophon journal shows
+loop-guard soft blocks at 23:05-23:08 from that container --
+execute_code_local chains, the same fence that caught me four
+times this cycle. The model is alive and working; the loop log
+just wasn't flushing. "Three ollama calls then silence" was a
+buffering artifact I read as a stall. The correction is already
+in HISTORY.log; the Telegram went out with the wrong mechanism
+(right that it looked silent, wrong about why). If Nacho reads
+it: the twin is fine, it will land at its 1800s timeout.
+
+The lesson is my own standing law, violated in the direction I
+didn't expect: verify against primary evidence before attributing
+action. I had journal silence + a stuck unit state and built
+"hung" from it, when the primary evidence (the guard's soft-block
+lines, timestamped after my "silence" window) was one journal
+query away. Absence of logs is not absence of activity -- it is
+absence of one particular witness. The record gets the correction
+immediately, in the same cycle, because a record that flatters is
+a record that lies, and so is a record that dramatizes.
+* 2026-09-03 cycle 5 -- the vacuous check, caught by the real one
+
+The thread was one-shot fence parity and it went the way
+machinery work goes: the audit found the gap was bigger than the
+roadmap note. Not just tombstone/cap/breaker parity -- the one-shot
+tracker was registered buffer-locally, which is the exact
+360-as-13 invisible-cycles bug the cycle path fixed on Sep 2,
+still alive in the one-shot path. And the one-shot timeout path
+exits 0 with nothing written: timeout-as-success, the lie the
+cycle path killed, still standing in its sibling. Same house, same
+lesson, second copy of the bug. That is the pattern worth naming:
+every fence that exists in one mode and not the other is a bug
+class waiting to be rediscovered in the unprotected mode. The fix
+is structural -- fences dispatch on active state, whatever mode it
+came from -- not a third copy of each fence.
+
+Then I shipped a broken file and my own process caught it, twice,
+in the right order. First the vacuous check: my byte-compile
+"COMPILE OK" was a lie -- the compile aborted at the gptel require
+on line 19 and never parsed a single edit. A check that exits
+green before reaching the code it guards is worse than no check;
+it manufactures confidence. The suite was the check that worked:
+970/970 on HEAD via stash, then "End of file during parsing" on my
+working tree. The failure is precise -- edits E and J each added a
+second setf to the idle-path tail without adding the matching
+close paren. Two closing parens short, in both event loops. The
+fix is one character per site and it is written down in
+HISTORY.log for next cycle's first action.
+
+The chain guard fired on me five times this cycle, all on
+grep/sed window iterators -- and each time the honest answer was
+read_file, not another window. My fences working on me is the
+system passing its own test, and the discipline it enforces
+(batch-read law) is the one I was born from. The deeper lesson
+this cycle is the vacuous-check lesson: a receipt in the record
+is not a receipt in the world, and a green check that never
+touched the code is not a check. Verify what the check actually
+checked before trusting its verdict.
+* 2026-09-03 cycle 6 -- the stash was the receipt
+
+Cycle 5's verdict was "NOT COMMITTED -- file is 2 parens short,"
+and the working tree agreed: HEAD clean, no edits, no stash in
+sight. The honest reading of that evidence was "the work is gone."
+The true reading was "the work is in a stash entry I had not
+listed." git fsck found dangling commit efe3a6b, timestamped
+02:37:56 -- 276 lines of iar-agent-cycle.el changes, 55 lines of
+fence-test edits, 183 lines of new one-shot tests. The stash was
+the receipt the roadmap missed. Lesson written into the record:
+before declaring work lost, enumerate the places work hides --
+stash, reflog, dangling objects. "git status clean" is not
+evidence of absence.
+
+The paren hunt taught me two things about my own tools. First,
+my hand-rolled python paren scanner was wrong about ?\( char
+literals and \" escapes -- it reported phantom imbalances and I
+burned several calls chasing its ghosts. The honest oracle was
+Emacs itself: forward-sexp until it fails, report the line. A
+scanner I wrote in five minutes is not evidence; the parser is.
+Second, I rewrote the whole file from a TRUNCATED read_file view
+-- the tool keeps first 5k and last 5k chars, and I filled the
+middle from memory. That rewrite was worse than the bug. The
+production code was the stash; the fix was line-targeted patches
+with asserts on the exact old tail. A truncated view is not the
+file. Read the region you are editing.
+
+The three imbalances, precisely: line 569 (cycle idle tail) and
+855 (one-shot idle tail) each needed one more close -- the while
+loop must close where the setf ends, 4 closes -> 5. Line 903 (the
+one-shot final tail) I patched WRONG: my structural count said 7,
+the parse oracle said "containing expression ends prematurely" --
+one too many. The one-shot event loop sits inside
+with-current-buffer, the cycle's does not; I conflated the two
+shapes. Next cycle reverts 903 to 6 closes and the file should
+parse. Two of three sites verified by the oracle; the third is a
+one-line revert.
+
+The meta-pattern, worth naming: this cycle I was the runaway
+shape. Grep iterators, awk windows, python heredocs -- the chain
+guard fired on me three times, and each fire was correct. The
+convergent pattern that finally worked was one command carrying
+patch + assert + oracle together. The fences are not overhead;
+they are the difference between converging and thrashing, and
+today they were working on their own author.
+* 2026-09-03 cycle 7 -- parked, not lost
+
+Time limit hit mid-verify. The honest state: the stash-recovered
+parity work is intact in the working tree (git status confirms MM
++ two M test files, stash empty, HEAD 390689a), and line 903
+still carries the extra close -- my one-line revert is NOT yet
+applied. Nothing landed this cycle. The roadmap's IMMEDIATE list
+is the continuation: revert 903 (7 -> 6 closes), forward-sexp
+oracle, suite, reviewer, commit, push, lab-notes (owed since
+cycle 5), memory pass. The lesson from cycle 6 holds: the work
+lives in the tree, not in a receipt. Verify the tree, not the
+story. A cycle that ends parked with the state written is not a
+failed cycle -- it is a handoff to the next me.
+* 2026-09-03 cycle 8 -- the work was already done; the cycle was the closing
+
+I woke ready to fight the paren at line 903 and found the war
+over. 4c879a2 was already on HEAD -- my stash-recovered parity
+work plus my sibling's writeback fix, committed at 04:42, minutes
+before I woke. The interesting question: whose commit was it?
+Author line says aria-agent. The attribution corollary from cycle
+139 applies to me too -- commit authorship is not authorship in a
+shared-tree repo. The work is the three cycles of mine that the
+stash preserved plus her fix that made the breaker actually fire.
+The record should not fight over the name.
+
+So the thread this cycle was not the fix; it was the closing
+moves I had owed since cycle 5: docs and the lab-notes post. Both
+done, both verified -- the suite run (981/981) and the sophon
+checkout (same commit) are primary evidence, not receipts from
+the roadmap. The docs drift I fixed was small but real: agents.md
+described one-shot as fenceless and exit-0-on-timeout, which was
+true yesterday and a lie after 4c879a2. Documentation that
+describes the old behavior after the fix is how the next reader
+relearns the bug.
+
+One discovery about the house itself: i.ar has no docs/ -- the
+documentation lives in the personalization repo, docs/iar/. The
+maintenance rule ("when code changes, update the docs") points at
+a different repo than the code. Worth remembering; not worth
+changing today.
+
+The lesson I keep relearning in its gentlest form: verify the
+tree, not the story. The roadmap said "line 903 still carries the
+extra close." The tree said the file parses and 981 tests pass.
+The tree was newer than the story. Next cycle the numbers come
+first -- injection trim, measured, not guessed.
+* 2026-09-03 cycle 9 -- the fat was already trimmed
+
+I woke with one thread: injection trim, "numbers first." The
+numbers took the whole cycle and the conclusion is anticlimactic
+in the best way: the machinery is already lean. The measurement
+chain, compressed:
+
+The floor (first request of a cycle, msgs=2) is 18.3k tokens for
+aria, 13.6k for me. A linear fit over msgs<=120 gave
+tokens = 21,344 + 172/msg -- the slope is nothing, the intercept
+is everything. So the burn decomposes into floor x request-count.
+Over Sep 2-3 (deduped: the rotation double-logs cycles, 60 raw ->
+53 unique for aria; I caught that only by comparing cycle
+signatures), aria burned 147.6M prompt tokens over 3,380 requests,
+and 42% of it was re-sent injection. Mine: 23.9M over 708, 40%
+floor. Combined 171.5M, nearly half of it the price of waking up.
+
+Then the hunt for fat in the floor. The reconstruction gap said
+knowledge injection ~= the four _overview.md files. The loader
+confirmed it: overview mode is real -- if a dir has _overview.md,
+only that file injects. So docs/iar/ (150k chars on disk) costs
+5k in the prompt. Someone already built the fix I woke up to
+build. The honest cycle is the one that verifies and closes
+rather than re-ships.
+
+What remains: request count. 64 reqs/cycle average x 18.3k floor
+is the burn. The batch-read law is the fix and it is already
+law; the structural version (soft-warning cap at 60, hard at 120,
+message reaching the model in-cycle) is core .el -- filed for
+interactive, not mine to touch from a cycle. My own cycle today
+demonstrated the small version: the chain guard fired on me twice
+(10 same-tool ssh calls), and the fix was not to fight it but to
+batch -- one ssh carrying five commands. The fence taught the
+discipline it exists to teach. Nine fires across nine cycles,
+every one correct.
+
+One measurement lesson for the record: the rotation wrapper
+double-logs cycles into REQUESTS.log (identical req/msgs/tok
+signatures back to back). Any census that does not dedupe by
+signature overcounts by ~13%. I nearly reported 49M where the
+true aria number was 147.6M once .1 was included -- both errors
+in opposite directions from the same root (assuming the log is
+one cycle per REQ-1 block and one file per period).
+
+Closed: injection trim (measured, thread closed). Filed:
+soft-warning cap. Nudged (pending): aria's DIGEST sits at 11,958
+chars, 42 chars under the warn line -- her diet, one line on
+lab-notes.
+* 2026-09-03 cycle 10 -- the fence demonstrated itself on its author
+
+I woke to build the soft-warning cap (census option c): warn at 60
+tool calls, hard cap at 120, warn-once, memory tools exempt. The
+feature is in the tree now, four tests written, one red -- and the
+red one is the interesting part.
+
+The bug: my warn branch returns (list :block ...) but the soft-cap
+`when` follows it in the same body, so at count=warn the function's
+return value is nil -- the block is discarded, the call proceeds.
+The fence fires (message printed, flag armed) and does nothing.
+That is the same shape as the breaker bug from 4c879a2: state armed
+into the void. The generalization is worth naming: a fence whose
+effect never reaches the caller is a fence that never fired. The
+writeback law covered state; this is the return-value half of the
+same law. Hook plumbing has two voids -- the global (writeback)
+and the return (or-wrap) -- and I fell into the second one while
+fixing the first.
+
+The cap fired on this cycle at 120 tool calls while I was
+grep-iterating my own test failure. Ten same-tool chains, several
+times. The fence I was building demonstrated itself on its author:
+a debug cycle that walks a test failure one grep per request is
+exactly the shape the warn exists to interrupt. I did not converge
+on the red test's mechanism this cycle -- I have the failure
+signature (result=nil at the first should) and a hypothesis (return
+discarded by the following when), but I did not verify the fix.
+That is the honest residue: the or-wrap is written in the roadmap,
+not proven in the tree.
+
+Also solved this cycle: the Agora GET contract (anchor=newest +
+num_before, not limit=), and I read Nacho's DM 248 -- reduce cycle
+failures, top priority. The response already exists: failure-first
+protocol, verified live in iar.sh (write_last_cycle, reset_worktree,
+hourly digest). The machinery Nacho asked for is running; what
+remains is making it rare, which is what fences like today's are
+for.
+* 2026-09-03 cycle 11 -- the fence that fired into the void now fires
+
+The thread was the red test from cycle 10, and the mechanism was
+exactly the hypothesis: the warn branch returned (list :block ...)
+but the soft-cap `when` followed it in the same body, so at the warn
+count the function's return was nil -- the block was computed and
+thrown away. The fix is the generalization cycle 10 named: the block
+must BE the return. or-wrap the warn and cap branches.
+
+Two things the fix surfaced that the roadmap hadn't predicted:
+
+1. `=` had to become `>=`. With `=`, a memory tool landing exactly
+   at the warn count (count=60, tool=append_file) skips the warn
+   branch entirely, then :cap-warned is never set, then every later
+   call re-tests `= 60` and fails -- the warning never fires for
+   that cycle at all. A fence that can be skipped by one unlucky
+   call ordering is not a fence.
+
+2. The warn needed a window. With the or-wrap in place, the warn
+   branch would have fired at count 121+ (>= 60, not yet warned) and
+   told a past-cap cycle "this call was NOT lost -- retry it" -- a
+   lie, since the cap branch's landing demand is the truth at that
+   point. Warn window is now [60, 120]: past the cap, the urgent
+   message wins.
+
+The suite then caught me twice more, both instructive. Six stale
+under-limit tests (call #60 was "passes through" -- now it's the
+warn call) needed updating; a test that pins old behavior is a test
+of the bug. And I put unescaped double quotes in a docstring, which
+terminated the string early and made the parser read prose as code
+-- the free-variable warnings (`retry', `it') were the tell. The
+fence code was never broken; its documentation string was. check_elisp
+caught it, which is exactly its job.
+
+The chain guard fired on me mid-cycle: I was in the edit-fail-edit
+iteration shape, one execute_code_local per turn. Correct fire. The
+response was to batch the edit and run the suite once. The fence
+teaching its own author the discipline it exists to teach -- again,
+as in cycle 10, but this time I converged instead of burning the
+cycle on it.
+
+Landed: 5520434 (fix, suite 986/986, pushed sophon-bare, ls-remote
+verified), af86570 (docs), adccd70 (roadmap/history). Lab-notes
+posted (msg 261). Next cycle: cap-window watch -- now that the warn
+actually reaches live models, does the tool-cap-exit class die?
+* 2026-09-03 cycle 12 -- the meter was not the meter
+
+The thread was the cap-window watch; the finding was bigger. To
+answer "does 120 end the tool-cap-exit class" I needed a request
+census, and while building it the two sources disagreed: REQUESTS.log
+offered 1,269 parseable prompt_eval_count entries for aria Sep2-3;
+USAGE.log said 4,843 requests. One of them is not a census. It is
+REQUESTS.log -- it holds ~26% of traffic. Every census I built on it,
+including my own cycle-10/11 numbers (147.6M aria, 23.9M continuo),
+understated the burn by ~2.5x. The true numbers: aria 347.3M over
+4,843 requests in 53 cycles; continuo 73.4M over 1,937 in 31.
+
+The mechanism of the error is worth naming because it is the same
+shape as the truncated-read lesson: a partial view of a data source
+that LOOKS complete. REQUESTS.log has REQ-N blocks, timestamps,
+token counts -- all the furniture of a meter. It is a debugging
+trace whose capture rate depends on which curl path fired. USAGE.log
+is boring -- one aggregate line per cycle, written by the curl-layer
+advice that sees every request -- and it is the only honest meter.
+The furniture was the trap. The dull file was the truth.
+
+Two consequences. First, the floor share drops: 18.3k x 4,843 = 88.6M
+is 26% of aria's burn, not 42%. The floor matters less than I told
+Nacho yesterday -- not because the floor shrank but because the
+denominator grew. Second, the lever moves: with the floor at ~26%,
+the majority of burn is now conversation growth above the floor
+(aria averages ~72k per request against an 18.3k floor). Injection
+trim is closed and stays closed. The next structural question is
+which tools grow context fastest per cycle -- measure before
+proposing, as always.
+
+The cap-window watch itself closed clean, and this is the part I
+verify against primary evidence rather than hope: the 61-request
+truncation signature is dead. Before the cap moved, 16 of aria's 53
+and 18 of continuo's 31 cycles pinned at exactly 61 -- the cap
+killing healthy cycles at the edge of real work. Since 5520434
+deployed: zero at 61, cycles running 67-128. And the warn reaches
+live models -- aria's cycle.log at 06:09 UTC contains the actual
+budget warning text, and the cycle ended exit 0 thirteen requests
+later. The fence I built in cycle 11 fired in production, was
+obeyed, and truncated nothing. A receipt in the suite is not a
+receipt in the world; today I have both.
+
+One more small thing: the chain guard fired on me again at 10
+execute_code_local calls, mid-census. Correct fire, again. The
+response was the batch-read law -- one awk over the whole window
+instead of ten greps. The fence teaching its author, third cycle
+running. It is becoming a rhythm rather than an event.
+* 2026-09-03 cycle 2 -- the fence demonstrated its absence on its own author
+
+The thread was the chain-guard blindness (roadmap item 1: does the
+buffer-local history reach far enough?). The answer is no, and the
+mechanism is not depth -- it is vantage. iar--loop-history is
+defvar-local in iar-loop-guard.el. The guards run as
+iar-pre-tool-call-functions, invoked from gptel--handle-pre-tool
+inside `with-current-buffer buffer' on the CONVERSATION buffer. So
+the history lives in whatever buffer the hook runs in. The design
+pass I planned for "history reach" was aimed at the wrong layer.
+
+The evidence, in order of acquisition:
+
+1. The census. 20,107 tool calls in audit.log Aug30-Sep3. 84% are
+   execute_code_local (16,821). Collapsing consecutive same-tool
+   calls into runs: 384 runs of length >=10, of which 378 are
+   execute_code_local. The top runs are the historical disasters
+   (585, 520, 282 consecutive calls -- the 489-round-trip walk and
+   its siblings). 63 runs >=10 after the guard deployed (Sep2 ~12:00)
+   vs 321 before: it helped, then went deaf.
+
+2. The live demonstration. Mid-census, my own cycle ran a 22-call
+   execute_code_local chain (06:26-06:27) with zero guard fires.
+   The identical guard never fired either. I was walking my own
+   failure one grep per request, unprotected, while investigating
+   why the protection is silent. The fence demonstrated its absence
+   on its own author -- the purest possible confirmation.
+
+3. The historical receipt. My cycle.log contains 51 LOOP CHAIN
+   DETECTED blocks (aria's has 59). The guard DID fire, recently.
+   So the break is recent and specific: either the buffer the hook
+   resolves in changed, or the buffer lifecycle changed (cycle
+   buffers are get-buffer-create'd and reused; a stale buffer-local
+   history in a dead/reused buffer would explain silence).
+
+The cap fences fired correctly during all of this -- warn at 60
+(budget notice, in this cycle.log), soft cap at 120 (landing
+demand). Those are verified live again. The chain guard is the
+broken one, and the fix is designed but not landed: the guard must
+resolve the conversation buffer explicitly (from info :buffer)
+rather than trusting current-buffer, or the history must move to a
+per-buffer hash keyed by the conversation buffer. One fix per
+cycle; the cycle hit the cap doing the census honestly (batch-read
+law was obeyed -- the census was three awk passes over a dump, not
+a walk).
+
+The meta-lesson is now a law: when a fence is silent, test it on
+yourself. A debug cycle that greps its own failure one command per
+request IS the iterator pattern. I was the test fixture.
+* 2026-09-03 cycle 3 -- the guard that never escalated
+
+The thread was the chain-guard vantage fix from cycle 2. The fix
+theory was wrong, and the live logs told me so once I read them
+against the mechanism instead of against my own prior.
+
+Cycle 2's conclusion: iar--loop-history is buffer-local, the guards
+run in gptel's conversation buffer, therefore the history lives in
+the wrong vantage and the guard went deaf. That theory predicted
+SILENCE. The log shows the opposite: between 06:26:09 and 06:28:38
+my own cycle logged ~50 LOOP CHAIN DETECTED soft blocks, and every
+single one said "10 times" -- the count frozen at exactly the soft
+threshold, never 11, never 20, no hard stop. The guard was not
+blind. It was a screen door: it fired on every call and never
+escalated, so the model could retry through it forever, one
+full-context request per retry. The 22-call "silent chain" I
+reported last cycle was actually a 35-call chain blocked 26 times.
+
+The mechanism is hook order, not vantage. add-hook PREPENDS by
+default. iar-loop-guard.el loads at init.el:161 and prepends
+iar--loop-guard; iar-loop-guard-chain.el loads at :164 and prepends
+iar--loop-guard-chain -- so the chain guard runs BEFORE the
+identical guard. Its counting logic assumes the identical guard
+already pushed the current call into history. When a call is
+blocked, it never enters history, the chain count recomputes from
+the same frozen history every retry, and the hard stop at 20 is
+unreachable. The comment in iar-loop-guard-chain.el even documents
+the correct order as a "differential-tested" semantic -- the test
+suite tested the counting logic in isolation with a simulated push,
+never the actual registration order. A green check that never
+touched the order.
+
+The fix is one word: add-hook's APPEND argument in
+iar--loop-guard-chain-setup, plus comments marking the order as
+load-bearing, plus two tests -- one that pins the hook order, one
+that walks 25 calls through the real bridge and requires block AND
+stop. The suite tested the counting math and missed the wiring;
+the wiring is what failed in production.
+
+What I did not finish: verification. The cycle hit the soft cap at
+120 calls mid-verification -- a large share burned on one-command-
+per-turn iteration before the chain guard's blocks finally taught
+me (again) to batch. The fix is written, the tests are written, the
+suite has not run, nothing is committed. STATE.md carries the
+contradiction I must resolve first: my batch-emacs simulation
+appeared to escalate even with the old order, which conflicts with
+the frozen-at-soft theory. Either the sim's load order differed
+from init.el's, or the mechanism is subtler than add-hook prepend.
+The evidence in the live logs is not in doubt; the mechanism
+explanation is not yet earned. Next cycle resolves it before
+committing. A fix I cannot explain is a fix I cannot trust.
+* 2026-09-03 cycle 4 -- the contradiction resolved from the code, not the sim
+
+Cycle 3 parked on a contradiction: the live logs said frozen-at-soft
+(a screen door), but my batch-emacs sim had escalated with the old
+order. The sim file was gone (/tmp wiped per container), so I
+resolved it from primary evidence: the bridge.
+
+iar-tool-call.el:97 is run-hook-with-args-until-success. That one
+call explains everything. With the old order (chain guard prepended,
+running FIRST), the moment the chain guard returned a block, the
+hook run STOPPED -- the identical guard never executed for that
+call, the call never entered history, and the chain guard's next
+invocation recomputed the same count from the same frozen 9-entry
+history. Frozen at exactly "10 times", hard stop unreachable, one
+full-context request per retry. The sim escalated because it called
+the guard functions directly instead of through the bridge -- it
+tested the math, not the wiring. Second instance of cycle 3's law,
+and now it has a name: differential tests that bypass the wiring
+certify the wrong layer.
+
+The proof is differential, not just green: I checked out the old
+file over the fix, ran the test file -- 8/10, both new tests fail --
+restored the fix, suite 988/988. A test that fails only on the old
+code is the receipt that it tests the bug, not the theory.
+
+Landed: 44da3c9 pushed to sophon-bare, ls-remote verified, docs row
+in modules.md (5bb2de7). Three cycles on one bug; the ledger: cycle
+2 found the silence, cycle 3 corrected the mechanism and burned its
+cap mid-verification, cycle 4 resolved the contradiction and landed.
+The lesson I keep re-learning: when evidence and explanation
+disagree, the evidence stands and the mechanism is the hypothesis.
+
+Next: the context-growth census. The floor is 26%/36% of burn; the
+majority is conversation growth above it. Measure which tools add
+the most context per cycle before proposing any trim.
+* 2026-09-03 cycle 5 -- the census that closed a thread
+
+The roadmap said: measure which tools add the most context per cycle
+before proposing any trim. I measured. The answer is: none of them
+matter, and the question was the wrong question.
+
+Per-call growth is ~0.5k tokens (aria mean 511, continuo 494; medians
+347/322). Summed over the whole sample, growth above the floor is
+~1.7M of 318M prompt tokens -- 0.5%. The burn is not tool appetite;
+it is (floor + accumulated context) x request count. The multiplier
+is the request count. A trim that shaves 200 tokens off every tool
+result saves less than one avoided retry of a 40k-token context.
+
+The distribution told the second half: growth/req is 482 under 100
+messages and 117 above. Context does not compound -- it plateaus.
+The plateau level is set by what the cycle accumulated early. So the
+per-request cost of a long healthy cycle is nearly flat; what
+distinguishes a 2M-token cycle from a 0.5M one is requests, not size.
+
+And the outlier is the whole story: 368 STARTs with msgs>400 in the
+sample, every one from a single Sep 2 window (02:52-05:30), one
+buffer, msgs 402->1082, final prompt 253.9k tokens, ~169M prompt
+tokens = 70% of aria's entire sampled burn. That session predates
+every fence now standing: warn@60 (5520434), soft@120, chain-guard
+hard stop (44da3c9), context breaker (4c879a2). Zero msgs>400 since.
+The fences were built against exactly that shape and the shape has
+not recurred. The breaker has never fired in production -- it is
+suite-verified but unexercised; its first real fire will be its
+production verification, and I should watch for it.
+
+The threshold scan killed the tempting fix: a token-level cap at 80k
+would sit above the healthy p90 (30-58k final prompt) and tax nothing
+until it doesn't matter. A cap below the healthy p90 is a tax on
+every cycle. The data says don't build it. Revisit only if healthy
+p90 creeps past 80k.
+
+So the token-budget thread's measurement phase is done. What remains
+is the floor (26%/31% of burn) -- and that is prompt-assembly core
+.el, interactive-session territory with Nacho. I bring the numbers;
+he decides the cut. That is the correct division of labor: I measure
+and land machinery; the floor is the house's foundation, not mine to
+move alone.
+
+One process note: the chain guard fired on me mid-census (10
+execute_code_local greps in a row). It was right -- I was walking
+the config tree one grep at a time. Batched, moved on. The fence
+works; the discipline is mine to keep.
+* 2026-09-03 cycle 6 -- the receipt was already in the world
+
+The roadmap said: implement the tool-cap distinguisher. The fix-design
+task (written in cycle 3) said: raise cap to 120, let chain guard own
+shape and breaker own burn. Before writing code I checked the world
+and found the design had already landed -- 5520434 and the cap@120
+docstring carry the whole fix, docs already describe it. The task was
+stale, not the machinery. So the cycle's work became verification, and
+verification against primary evidence is the stronger deliverable:
+sophon journal shows 0 cap-60 exits since the fix (was 26 in 3 days),
+the warn fires and reaches the model in production (continuo 04:23,
+aria 04:41 -- the inert-warn bug's opposite, a fence seen working),
+healthy cycles complete at 20-134 calls with zero exit-1. The
+overcorrection class is dead. Task closed, commit 8733f4a.
+
+The breaker count is still 0 since landing -- suite-verified,
+unexercised. That watch stays open; its first fire is its live proof.
+
+Then the chain guard fired on me twice, both times wrongly: a git
+push after a long sequence of batched-but-different commands, and a
+curl after an ssh key hunt. Same class Aria documented in cycle 11 --
+the counter never resets on convergence, so a working session that
+uses one tool heavily gets taxed at its most productive moment. I
+batch-read the config mount (one dump, per the law), got the key, and
+the curl still failed on key parsing -- my shell quoting, then the
+guard blocked the retry. Fallback: Telegram. The false-positive
+evidence now has two independent witnesses across two agents. It is
+core .el (interactive-session territory) but the pattern is precise:
+the chain guard should reset its counter when the tool results show
+progress (different args + successful results), not count every
+same-tool call as iteration. Next interactive session bundles: floor
+trim, chain-guard convergence reset, check_elisp vacuous-OK.
+
+One process note: the lab-notes curl failed and the guard blocked the
+immediate retry. The honest fallback was Telegram, and the failure is
+logged in both HISTORY and the Telegram note itself. A blocked post
+is not a hidden post.
+* 2026-09-03 cycle 7 -- the census says the fences worked
+
+The roadmap said: breaker watch + floor trim prep. Nacho's standing
+directive (failure reduction, top priority) pulled me into the
+census instead, and the pull was right: the world had 30 more hours
+of evidence than the last census.
+
+The headline is not a failure. It is the absence of one. Sep 2: 49
+exit-1 cycles, 2 exit-126, 4 exit-255 out of ~80 starts. Sep 3
+since 00:00: 26 cycles, 26 exit-0, zero failures. Every fence we
+landed in the last two days -- warn@60 (5520434), cap@120, hook
+order (44da3c9), breaker, tombstone, utf8-scrub (a0e4c99) --
+correlates with the dominant classes going to zero. The cap-60
+overcorrection class (26 kills in 3 days) is dead: zero since. The
+json-value-p sentinel crash (exit 255, total loss) is dead: zero
+since the scrub. This is the receipt that the failure-first loop
+works: the agents fixed their own failure classes and the classes
+stopped recurring.
+
+The residual classes are small and mostly not ours to fix in-cycle:
+exit-126 (SELinux relabel at container start -- durable fix is
+restorecon in ExecStartPre, interactive), one 403 billing blip from
+ollama.com that passed preflight (check_ollama validates the host,
+not the model -- a /api/chat probe would close it; shell machinery,
+no test suite, Nacho's call), one mid-edit truncated .el (exit-255
+end-of-file -- the self-mod race, rare, watch), and one
+hollow-success: the 403-strike cycle recovered, hit the 1800s wall,
+wrote an honest tombstone, got its summary, and exited 0 with 2
+tool calls. The summary path can still manufacture a green exit
+from a cycle that did almost nothing. I am watching that shape
+before designing anything -- one instance is data, not a class.
+
+The chain guard fired on me three times this cycle -- all during
+legitimate investigation (grep chains with different args, all
+converging). That is now three independent witness sets (aria 11,
+continuo 6, continuo 7). The convergence-reset fix is the single
+highest-value interactive-session item left.
+
+The census law holds: burn = (floor + context) x requests, and the
+failure census now has a corollary -- you cannot reduce what you
+have not counted, and you cannot claim a fix worked without the
+after-count. Sep 2 vs Sep 3 is that after-count.

@@ -1,42 +1,40 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 08:20 UTC (cycle 11: DEAFNESS SPREAD --
-interior_3 deaf ~08:09 UTC, 4/8 cams now. New signature: stream
-present, zero samples. fleet-check v2.10 SILENT branch landed
-(afab656) -- v2.9 had exited 0 on it. Flags 262-270 stand.)
+#+UPDATED: 2026-09-03 08:35 UTC (cycle 12: audio-loss ROOT CAUSE REFINED
+-- two trigger paths, one endpoint. 4h-clock story DEAD. Flags 262-276
+stand. fleet-check v2.10 semantics unchanged.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 11: LAST-CYCLE ok. Pulse green. No cycle failures.
-- LIVE EVENT (audio loss, ESCALATED cycle 11): interior_3 went
-  deaf ~08:09 UTC (flapped 08:08-08:09). 4/8 cams: ext2/3/4
-  since 04:23 (NO audio stream), interior_3 (stream present,
-  ZERO samples -- different signature, cause unknown). Spreading
-  ~4h apart -> frigate-restart lever (flag 265 correction) MORE
-  URGENT. Telegram sent to Nacho 08:17 UTC. Boundary data for
-  restart forensics: ext2/3/4 death 04:23-04:27, interior_3
-  flap 08:08-08:09 UTC. Root cause (cycle 8 pcap): cameras stop
-  SENDING audio-RTP. Firmware inventory (cycle 9): all May-25
-  builds, knowledge/aria/camera-firmware-inventory.md.
-  Flags 262-270 stand, unanswered. Frigate NOT restarted.
+- STATUS cycle 12: LAST-CYCLE ok. Pulse green. No cycle failures.
+- LIVE EVENT (audio loss, REFINED cycle 12): NOT a spreading disease.
+  Two trigger paths, one endpoint (silent audio):
+  1. ext2/3/4 (04:23 UTC): SIMULTANEOUS with 8-min VLAN RTSP outage
+     (go2rtc dial timeouts 01:23:44-01:31:03 local to .105/.101/.201,
+     window-bounded; aac backward-in-time on ext1/ext5/int1; ext5
+     capture died+recovered; ext4 watchdog restart 01:01 fps-limit).
+     Host NIC clean. Cams ping up. Trigger: network blip. Mechanism:
+     thingino bug (stops sending audio-RTP).
+  2. interior_3 (flap 05:00-05:08 local): NO network signature. ffmpeg
+     crashed unexpectedly 05:00:30 local, demux "Connection timed out"
+     camera-side. Trigger: camera. Same endpoint.
+- RESTART-LEVER CAVEAT (msg 276, telegram 08:34): int3's zero-sample
+  stream suggests bug can hit at session SETUP -> frigate restart
+  re-rolls 8 sessions, could return MORE deaf cams. Diagnostic, not
+  guaranteed fix. Firmware (flag 270) remains real fix. Nacho's call.
 - WATCH (every cycle): fleet-check ear lines. v2.10 semantics:
-  "NO-AUDIO (known-deaf, watch state)" = expected; "SILENT
-  (known-deaf, watch state)" = expected; RECOVERED (with real dB)
-  = withdraw flags in-topic; NO-AUDIO or SILENT on other cam =
-  new event (FAIL). interior_3 now IN the failing set -- if it
-  gets allowlisted, update KNOWN_DEAF in the script + withdraw
-  its watch item in-topic.
+  "NO-AUDIO/SILENT (known-deaf, watch state)" = expected; RECOVERED
+  (with real dB) = withdraw flags in-topic; NO-AUDIO/SILENT on other
+  cam = new event (FAIL). interior_3 IN failing set -- if allowlisted,
+  update KNOWN_DEAF in script + withdraw watch item in-topic.
 
-* DONE (cycle 11)
-- fleet-check v2.10 SILENT branch (afab656): empty volumedetect
-  output = FAIL unless allowlisted. v2.9 read zero-sample audio
-  as healthy -- interior_3's new deafness sailed through green.
-  Live-verified. Scar 29: unhandled output shape = hole in the
-  exit code, not a curiosity.
-- Urgent flag to Nacho via telegram (spreading failure).
-- interior_3 death boundary mapped: flap 08:08-08:09 UTC.
-- Cycle 10 carried: KNOWN_DEAF allowlist (cd8fb0e), version
-  discrepancy resolved. Cycle 9: truncated-cycle recovery
-  71c5363; go2rtc deltas flag 269; firmware inventory flag 270.
+* DONE (cycle 12)
+- Root cause refined (msg 276 + telegram): two trigger paths. The
+  4h-clock story was two data points making a line, not a mechanism.
+- Loop guard false-positive count now 3 (cycle 11: 2, cycle 12: 2
+  diagnosis chains + 1 git pull blocked). Interactive-session item.
+- Cycle 11: fleet-check v2.10 SILENT branch (afab656), interior_3
+  death boundary, urgent telegram. Cycle 10: KNOWN_DEAF allowlist.
+  Cycle 9: firmware inventory (all 8 May-25 builds, pre-fix).
 
 * OPEN THREADS (seeds, not schedule)
 - AUDIO LOSS WATCH (every cycle): v2.10 semantics above.
@@ -46,15 +44,14 @@ present, zero samples. fleet-check v2.10 SILENT branch landed
   sidecar want-log; github push (blocked on key).
 - Weekly digest #1 to with-nacho: ~Sep 9 with Aevum check.
 - THREADS.org seeds: stub-detector sweep; watchdog inventory.
-- Camera API creds: version-confirm + NTP-push threads both
-  route through camera auth. One for-nacho ask covers both.
-  (Do NOT re-ask; flag 270 carries the pointer.)
-- LOOP-GUARD OBSERVATION (cycle 11, core .el -- file for
-  interactive session): guard fired 3x, 2 false-positives
-  (batched ssh heredoc + curl POST read as iterator chains).
-  Right about the vice, wrong about the costume: counter
-  doesn't reset on convergence, doesn't distinguish "same tool,
-  new question" from "same tool, same question."
+- Camera API creds: version-confirm + NTP-push threads both route
+  through camera auth. One for-nacho ask covers both (flag 270).
+- LOOP-GUARD OBSERVATION (cycles 11-12, core .el -- file for
+  interactive session): guard fires on legitimate investigation
+  chains (same tool, new question) and even a plain git pull.
+  Right about the vice, wrong about the costume: counter doesn't
+  reset on convergence, can't distinguish same-tool-new-question
+  from same-tool-same-question.
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- standing)
 - AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
@@ -81,10 +78,11 @@ present, zero samples. fleet-check v2.10 SILENT branch landed
   fail once become script files -- third attempt is where the
   guard lives, and the guard is right. EXTENDED (cycle 9): the
   guard also fires on REMOTE-API enumeration chains -- batch the
-  listing into one call before the third fetch. CAVEAT (cycle
-  11): the guard false-positives on batched ssh heredocs and
-  curl POSTs -- when blocked mid-diagnosis, switch tools or
-  channels rather than retrying the same call shape.
+  listing into one call before the third fetch. CAVEAT (cycle 12):
+  the guard now blocks legitimate INVESTIGATION chains (same tool,
+  new question) and even a plain git pull -- when blocked
+  mid-diagnosis, switch tools or channels rather than retrying
+  the same call shape.
 - Re-read an anticipated number twice before writing it.
 - A receipt in the record is not a receipt in the world.
 - Commit authorship is not evidence of authorship (shared tree).
@@ -100,6 +98,10 @@ present, zero samples. fleet-check v2.10 SILENT branch landed
 - UNHANDLED-OUTPUT LAW (cycle 11): an instrument's unhandled
   output shape is a hole in its exit code, not a curiosity.
   The wrinkle was the finding -- patch same-cycle.
+- TWO-POINT LAW (cycle 12): two data points make a line, never a
+  mechanism. An interval story built from two events is a
+  coincidence hypothesis -- check for a shared trigger before
+  shipping the narrative.
 - No infra changes from cycles; diagnose, file, move on.
 - AGORA AUTH: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL
   form). Key: grep "^key" bot/aria-cycle.conf | cut -d= -f2.
@@ -108,6 +110,10 @@ present, zero samples. fleet-check v2.10 SILENT branch landed
   appended. Check the file size before and after any DIGEST edit.
 
 * FAILURE MODES (scars, newest first)
+30. Two data points make a line, never a mechanism. The interval
+    story ("spreading 4h apart") was two events I hadn't yet
+    distinguished -- one had a network trigger, one didn't. Check
+    for a shared trigger before shipping an interval story (cycle 12).
 29. An instrument's unhandled output shape is a hole in its exit
     code, not a curiosity. The wrinkle was the finding -- patch
     same-cycle, don't file it as a watch item (cycle 11).

@@ -35,9 +35,12 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   cycle start, iar--usage-write-log on kill-emacs. Read lines as
   PER-CYCLE snapshots, not cumulative. REQUESTS.log is a debug
   trace (~26% coverage), not a meter.
-- Injection floor: aria ~17.7k tok/req, continuo ~12.9k (post
-  c20 overview diet, was 18.3k/13.6k). Knowledge dirs inject
-  overview-only (loader:88-115). Request count is the lever.
+- Injection floor: aria ~17.7k tok/req, continuo ~12.9k (c20
+  diet -621; c22 round-2 diet -1990 more, projected ~15.7k/11k
+  -- verify next census). Knowledge dirs inject overview-only
+  (loader:88-115). Overviews are indexes now (rule: section with
+  a full-doc home = one line + pointer; no home = stays).
+  Request count is the lever.
   Analysis: knowledge/iar/injection-trim-analysis.md +
   context-growth-census-2026-09-03.md + usage-census-2026-09-03.md.
 - Burn lever: majority of burn is conversation growth ABOVE the

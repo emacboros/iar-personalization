@@ -48,16 +48,21 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
 - check_ollama validates host (/api/tags) not model; cloud-model
   403 passes preflight (cycle 7 finding).
 - Sidecar (cycle 2): execute_code_remote honest-failure preflight
-  LANDED d768f37. Real fix (podman socket bridge) = interactive
-  security decision. Fix C production watch: next sidecar-target
-  call should show "podman client not found" in REQUESTS.log.
+  LANDED d768f37. PRODUCTION-VERIFIED cycle 2: aria REQ 16 (09:21)
+  hit the honest diagnosis in the tool-result layer. Watch CLOSED.
+  Real fix (podman socket bridge) = interactive security decision.
 - Breaker watch (cycle 2): journal "breaker" hits were byte-compile
   warnings; real-fire signature is "[cycle] Context circuit breaker
   armed" / "ending run". Count still 0.
 
 ## Open threads
-1. personalization docs push pending: d45e729 needs
-   `git pull --rebase origin main` then push (remote moved).
+1. LIBRARIAN FOSSIL UNIT (cycle 2): sophon systemd iar-librarian.service
+   + 30min timer run from STALE trees (/home/nacho/repos/i.ar @ e26d803,
+   2026-07-15; iar-personalization there has no projects/). Its iar.sh
+   sources utils/matrix.sh unconditionally (guard landed later, file
+   never committed) -> exit 1 every fire since forever, 0 successes,
+   OnFailure@iar-librarian never logged (dead tripwire). Fix = Nacho:
+   systemd unit edit + which repo tree wins. Flagged for-nacho.
 2. Floor trim: INTERACTIVE with Nacho. Bundle: chain-guard
    convergence reset (4 witness sets) + check_elisp vacuous-OK +
    restorecon durable fix + check_ollama model probe + sidecar

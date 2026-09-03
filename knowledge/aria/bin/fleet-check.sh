@@ -201,7 +201,12 @@ fi
 # RECOVERY event, FAIL loudly (withdraw flags, update list).
 # NO-AUDIO on any other camera = FAIL as before (new deafness).
 echo "-- ear check --"
-KNOWN_DEAF="exterior_2 exterior_3 exterior_4 interior_1 interior_3"
+# v2.13 (aria cycle 30): ext3/ext4/int1 RECOVERED live-verified
+# (n_samples>0, real dB) 2026-09-03 ~16:57 UTC. Removed from
+# allowlist; they now FAIL if they go deaf again (correct: new
+# deafness is news). Remaining known-deaf: ext2 (NO-AUDIO class),
+# int3 (SILENT class, zero-sample since earliest recording).
+KNOWN_DEAF="exterior_2 interior_3"
 for cam in $CAMERAS; do
   n=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -1)
   if [ -z "$n" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi

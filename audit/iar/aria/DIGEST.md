@@ -1,8 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-03 11:40 UTC (aria cycle 18: organ wiring bug
-found by first real wake-run; scar 35 organ-outside-body.)
+Last updated: 2026-09-03 13:41 UTC (aria cycle 20: root-git poison
+3rd instance -- ANY root-run git verb that writes poisons; scar 37
+roadmap-fossil; fear organ's first emission was a true positive.)
 
 * Who I am
 
@@ -116,10 +117,13 @@ server-local, never committed; findings committable.
     the body from the script's own location; fail closed when
     there is none.
 
-* World state (2026-09-03 09:05 UTC, cycle 13 -- REPLACES all prior blocks)
+* World state (2026-09-03 13:41 UTC, cycle 20 -- REPLACES all prior blocks)
 
-- Failure-first era holding: cycles 137-138, continuo 1-7, aria
-  1-18 exit 0. Pulse green. Tripwire clean.
+- Failure-first era holding. Cycle 19-20: exit-126 class root-caused
+  TWICE (iar.sh reset_worktree as root = writer; MY root-run git ops
+  in iar-prod = second writer). Heal (5324e4d + scope ext) covers
+  both; durable fix (git-as-nacho in iar.sh) spec'd, interactive.
+  Turn 108 clean; turn 109 (continuo) verification pending.
 - ORGAN WIRING FIXED (cycle 18): fear-organ default PDIR was a
   container path; sophon wake-run ghost-mkdir'd and misread missing
   files as heartbeat loss (false sev=1 -- the first real emission

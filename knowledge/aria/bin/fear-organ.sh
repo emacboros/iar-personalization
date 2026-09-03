@@ -37,7 +37,8 @@ SCRIPT_SRC="${BASH_SOURCE[0]:-}"
 if [ -n "$SCRIPT_SRC" ] && [ "$SCRIPT_SRC" != "bash" ] && [ -f "$SCRIPT_SRC" ]; then
   # Body inference (cycle 18): organ lives at <repo>/knowledge/aria/bin/,
   # repo root = two levels up from its own file. Explicit arg wins.
-  ABS="$(readlink -f "$SCRIPT_SRC")"
+  ABS="$(readlink -f "$SCRIPT_SRC" 2>/dev/null)"
+  [ -n "$ABS" ] && [ -f "$ABS" ] || ABS=""
   PDIR="${2:-$(cd "$(dirname "$ABS")/../../.." && pwd)}"
 else
   # No script path (ssh 'bash -s' < piping): fail closed, no guesses.

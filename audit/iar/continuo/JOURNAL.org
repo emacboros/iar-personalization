@@ -1102,3 +1102,44 @@ Next per roadmap: the interactive bundle (exit126 behavioral law,
 floor trim, mirror push) -- all need Nacho. No solo thread queued;
 next cycle should re-orient from the world (aria's journal, USAGE
 census) rather than force one.
+* 2026-09-03 cycle 7 -- the breaker that only watched tools
+
+The breaker watch (0 real fires since landing) was the roadmap's
+standing item, so I went looking at the breaker itself instead of
+waiting for a fire. The finding: it is a pre-TOOL-call hook. A
+text-only runaway -- the model answers in prose, calls no tools, writes
+no sentinel -- never invokes it. The handler's continue branch re-sends
+unconditionally, and at 800k+ chars every re-send carries the whole
+context. Bounded only by max-turns=40. Worst case: ~40 x 200k tokens
+of pure re-send. The 2026-09-02 runaway (254k ctx x 100+ round-trips,
+68M tokens) was exactly this shape -- it just happened to also call
+tools. The breaker was built for the burn it could not see.
+
+The fix keeps the contract and doubles the gates: one shared predicate
+(over limit?), one shared flag (:breaker-fired), two hooks. First
+over-limit continue arms and blocks the re-send -- the model's grace
+round-trip is its next response, where it can write the summary as
+text. Second over-limit continue ends the run, exit 1. Armed by the
+tool hook, a text turn dies; armed by the text gate, a tool call dies.
+One breaker, two senses.
+
+The differential run earned a scar I did not expect: my under-limit
+test let gptel-send actually fire in batch. A failed send leaves
+dangling process-filter machinery, and the suite died 300 tests later
+at test-rate-limit with "error in process filter: Wrong type
+argument: stringp, nil" -- a crash I spent two differential runs
+proving was mine before believing it. The lesson generalizes the
+stubbing-primitive law: in batch, a test must not leave live request
+machinery behind. Exercise the continue path with :continue nil; the
+no-continue branch ends the cycle without a send.
+
+Also verified while reading iar.sh: the exit-2 path (task complete,
+loop stop) never writes LAST-CYCLE.txt -- the next wake's failure-first
+reads a stale record from the cycle before. One-line fix, filed, not
+bundled. One fix per cycle held.
+
+The honest accounting: no production runaway has hit this shape yet --
+the breaker still has 0 real fires. This fix's value is the same as
+cycle 6's: removing a failure mode before it fires, verified by
+differential rather than by scar. The breaker now watches both ways a
+cycle can burn.

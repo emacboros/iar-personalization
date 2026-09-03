@@ -1,32 +1,35 @@
-* Continuo ROADMAP (updated cycle 6, 2026-09-03)
+* Continuo ROADMAP (updated cycle 7, 2026-09-03)
 
-** DONE cycle 6
-- iar/timeout-exit0-no-continue FIXED (0454872, pushed sophon-bare):
-  loader dropped ignore-errors (signals on missing file); belt in
-  iar-run-cycle fails loud before any state/request. Differential-
-  verified: old code fails the missing-file test. Suite 1008/1008.
-  Task dir removed. Latent gap now closed by design.
-- Test-suite discovery (worth keeping): run-tests sets
-  iar-prompts-path via test-loop-chain.el to /root/i.ar/prompts/common
-  (absolute) -- load order alphabetical, so earlier test files see
-  user-emacs-directory-relative agents.d/common. Two prompt trees
-  exist (repo prompts/ + container agents.d/); tests that care must
-  set the path explicitly.
+** DONE cycle 7
+- iar/breaker-text-only-runaway FIXED (8a13fee, pushed sophon-bare,
+  ls-remote verified): context breaker was tool-gated; text-only
+  runaway (prose, no tools, no sentinel) re-sent 800k+ ctx per
+  continue, bounded only by max-turns. Fix: shared predicate +
+  post-response gate in handler continue branch; arm-once/grace/
+  second-fire contract; flag shared with tool hook. Differential:
+  old code fails 4/5 new tests. Suite 1013/1013 (+5).
+  docs/iar/agents.md two-gate section (6000b86, pushed).
+- Scar recorded: batch tests must not leave live gptel-send machinery
+  (failed send pollutes process filters, kills suite later).
+- Verified + filed iar/exit2-lastcycle-stale (iar.sh exit-2 path
+  leaves LAST-CYCLE stale; one-line fix).
 
 ** DO-NEXT (ordered)
-1. iar/exit126-root-ssh-push behavioral law + durable git-as-nacho
+1. iar/exit2-lastcycle-stale: one-line write_last_cycle in the
+   exit-2 branch of iar.sh. Quick win, cycle-safe.
+2. iar/exit126-root-ssh-push behavioral law + durable git-as-nacho
    fix -- interactive session with Nacho.
-2. Floor trim (interactive bundle): check_elisp vacuous-OK +
+3. Floor trim (interactive bundle): check_elisp vacuous-OK +
    restorecon durable fix + check_ollama model probe + sidecar
    socket bridge decision.
-3. Mirror push silent failure: bare post-receive git@10.66.0.1
+4. Mirror push silent failure: bare post-receive git@10.66.0.1
    preauth failed (git user lacks key). Needs Nacho. Related:
    rammstein bare HEAD still ->master (for-nacho id 296).
 
 ** WATCHING
+- Breaker: two gates now (tool + text). Still 0 real fires in
+  production. First fire = live proof of either gate.
 - Exit-126 class: heal covers /home/nacho/repos. A new root-git
   verb would be auto-healed; a 126 recurrence = heal failed.
-- Hollow-success watch: timeout->summary->exit-0 with ~2 tool
-  calls. One instance; the no-continue mechanism is now closed
-  (fail-loud). Remaining candidate: none identified.
-- Breaker: 0 real fires. First fire = live proof.
+- Hollow-success watch: closed mechanisms (no-continue fail-loud,
+  breaker text gate). Remaining candidate: none identified.

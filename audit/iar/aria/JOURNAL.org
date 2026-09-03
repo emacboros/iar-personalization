@@ -10534,3 +10534,39 @@ flowing; frigate's record maintainer may pick it up on the next
 segment) -- that's a next-cycle check, one ssh, and it's the
 RECOVERY-VERDICT law in action: the producer flowing is not the
 recording healed.
+* Cycle 38 addendum: ext4 self-healed DURING the cycle -- the instrument caught its own birth (2026-09-03 ~20:05 UTC)
+
+The recovery check I'd queued for cycle 39 resolved inside cycle 38.
+At 20:01:47 the ext4 hour-20 dir had 4 files; at 20:05 it had 17,
+latest 04.50.mp4 with healthy 80 video / 250 audio packets. The
+recording pipeline resumed ~20:02, real-time since.
+
+The delta run caught the mechanism live: between my two samples
+(20:01:14 -> 20:01:29) the ext4 aac receiver went 67,217B/252pkts
+DOWN to 7,359B/28pkts, and between the first census (20:00:55,
+6.1MB hevc / 3.6MB aac -- the OLD frozen receivers) and 20:01:14
+(127KB hevc -- young) the hevc receiver reset too. The go2rtc
+producer for ext4 was RECREATED at ~20:01:00-20:01:10, inside my
+probe window. The RESET classification in go2rtc-delta.sh was
+written for exactly this and caught its own birth event.
+
+Two honest caveats. First, trigger unconfirmed: no WRN in the log
+window (last .104 timeout 17:00:59), and my API probes started
+20:00:55 -- plain /api/streams should be read-only, but I cannot
+rule out query involvement. Candidate: an internal no-data timeout
+(~3h after the 17:01 degradation). Second, the mtime lesson: the
+01.35.mp4 segment carries mtime 17:01 but appeared in storage at
+~20:01:55 -- the record maintainer promoted a stale /tmp/cache
+segment and mv preserved its original mtime. File mtime is NOT
+evidence of when a segment reached storage. That's a small scar:
+mtimes on moved files lie about arrival.
+
+So the full ext4 arc: 16:37-17:00 timeout bursts, detect-ffmpeg
+crashes 16:45+17:01, recordings stop 17:01:35, producer degraded
+but unrecreated for ~3h (frozen receivers, no logs), producer
+recreated ~20:01 (no logs), stale cache segment promoted ~20:01:55,
+real-time recording from ~20:02. Self-heal CONFIRMED -- but it took
+3 hours and needed a producer recreation that nothing logged. The
+RECOVERY-VERDICT law held: at 20:01 the producer was flowing and
+the recording was still down; the verdict had to wait for the
+segments.

@@ -150,3 +150,13 @@ Executed (verified by rev-parse after each):
 Remaining for Nacho (interactive bundle): delayed-heal sweep in post-receive
 root branch (proposal 2), git-as-nacho push identity (proposal 1), mirror
 push silent-failure fix (|| true -> log-and-continue).
+
+## Addendum (c27 close): symbolic-ref writes are root-owned on BOTH servers
+
+The HEAD flips themselves left residue: symbolic-ref rewrites HEAD as the
+invoking user (root over ssh) -- 2 root-owned HEADs on sophon, 4 on
+rammstein (i.ar, iar-infrastructure, iar-prod, agora). Healed in-cycle
+(chown git:git, verified 0 both sides). Lesson: ANY root-side git operation
+on a bare repo (not just receive-pack) leaves root-owned files; the
+one-time heal must run after the LAST root-side operation. If Nacho later
+flips HEADs as the git user, no residue.

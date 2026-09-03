@@ -10154,3 +10154,68 @@ Prediction check (B3): predicted ~10 min for the carry-over glance.
 Actual ~19 min and 120 tool calls. Fourth consecutive cycle the
 glance became the thread. Instrument-tax: high -- enumeration walks
 burned the budget that should have written this record.
+* Cycle 32: the boundary hunt -- interior_3's death is not what the allowlist said (2026-09-03 ~17:41-18:05 UTC)
+
+Failure-first: clean (cycle 1 ok, 1237s). Pulse green. Organs quiet.
+Carry-overs first: lab-notes 325 (cycle 31's parked note), flag 326
+(e2 restart request, with the experiment framing), closure 327 (msg
+262 thread resolved for e3/e4). Sibling channel quiet; with-nacho
+quiet (320 was the last, my own withdrawal).
+
+The i3 boundary hunt, batched (one ssh per phase, hour-walk loop
+inside -- the cycle-31 law held): the death is NOT between 03:00 and
+13:00. It is 08:39:59 -> 08:50:00 UTC today. 08h: 250 packets/hour
+until 08:39 (182 packets in 00.39.mp4), then EVERY segment from
+00.50.mp4 on carries exactly ONE audio packet. Nine hours and
+counting. The one packet is a K_ (keyframe, discard) header packet
+-- the segmenter writes the audio track header with a single
+config packet and never receives a real frame again.
+
+The differential came back NEGATIVE, and that negative is the
+finding: the dead segment decodes fine through BOTH decoders. Host
+ffmpeg (Lavf62) and frigate's in-container ffmpeg 7.0 both decode
+the one-packet segment without a single error line. The
+decoder-differential hypothesis (cycle 31's leading theory) is
+dead. The "backward in time" aac errors in frigate's logs belong to
+exterior_3 (its detect pipeline, pre-heal), not interior_3 -- i3 has
+TEN log lines in 24h, all from the 05:00 UTC crash-restart, nothing
+at 08:50. The recording pipeline did not log its own death.
+
+What the live probes say now (three-point differential, cycle 8
+law): camera .203 sends audio (direct probe: 156KB audio in 5s);
+go2rtc carries it (in-container probe: 313KB audio in 10s); the
+RECORD ffmpeg process (started 05:00:29, before the death) writes
+one-packet segments since 08:50. Live flows, recordings don't --
+but the middleman is FINE. The break is between go2rtc's output and
+frigate's segment input, and it happened at 08:50 with no error on
+either side. The producer SDP still advertises audio for i3 (same
+tracks as healthy i1). e2 confirmed still zero (0-packet segments,
+camera sends 81920 samples/5s, go2rtc log: only 2 timeout events
+ever -- the "never errors, never reconnects" theory holds).
+
+The 05:00 UTC crash-restart is now the prime suspect: i3's detect
+ffmpeg crashed at 05:00:30 ("Connection timed out" during demuxing,
+go2rtc logged .203 timeouts at 05:00:05 and 05:00:37), watchdog
+restarted it 05:00:29. The new process recorded fine for 3h49m,
+then audio died mid-stream at 08:50. So the death is NOT at process
+start -- it is a mid-session degradation of the go2rtc->frigate
+connection that leaves video flowing and kills audio silently.
+Same session-degradation family as the go2rtc-side heal mechanism,
+different layer: this one is downstream of go2rtc, and nothing
+watches it.
+
+Scar 46 candidate: a pipeline can lose a track mid-session with
+zero log evidence on either end -- the only witness is the output
+artifacts. The ear check (output-watching) caught this; neither
+frigate's logs nor go2rtc's logs ever mentioned it. Output-watching
+is not one instrument among many; for silent track loss it is the
+ONLY instrument.
+
+Prediction check (B3): predicted ~10 min for boundary hunt +
+differential. Actual ~24 min (17:41-18:05), 60 tool calls. The
+differential's negative result was the expensive part -- proving
+the decoders agree took three probe rounds. Instrument-tax: the
+podman-exec volumedetect hang (e2 probe, ~9 min wall) was
+unbudgeted; host-side probes are the reliable path. Cap warning
+fired at 60 -- batched well, but the cycle is at its edge; record
+written via memory tools as designed.

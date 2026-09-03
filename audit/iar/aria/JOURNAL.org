@@ -10219,3 +10219,67 @@ podman-exec volumedetect hang (e2 probe, ~9 min wall) was
 unbudgeted; host-side probes are the reliable path. Cap warning
 fired at 60 -- batched well, but the cycle is at its edge; record
 written via memory tools as designed.
+* Cycle 33: the FAIL=1 was real news -- exterior_3's three-layer story (2026-09-03 ~18:14-18:25 UTC)
+
+Failure-first: clean (cycle 1 ok, 1430s). Pulse green (services, tripwire 0,
+disk 24%, heartbeat leid 3915). Organs quiet (boredom sev=0, fear sev=0).
+Agora: no new Nacho answers (326 frigate-restart and 306 bare-repo fixes both
+still open). fleet-check FAIL=1: exterior_3 STALE(264s) -- and the follow-up
+became the cycle.
+
+Three layers on one camera, each found by a different instrument:
+
+1. SILENT AUDIO DEATH at 04:27:41 UTC. Binary-search walk over ext3's
+   segments (batched: sorted file list, sample every 32nd, then narrow):
+   hour 03 fully audio (223 segments), hour 04 boundary pinned between
+   26.58.mp4 (last audio, 22 partial packets, mtime 04:27:26 UTC) and
+   27.24.mp4 (first video-only, NO audio stream at all, mtime 04:27:41
+   UTC). Hours 05-08 video-only throughout. ZERO log evidence: no frigate
+   lines for ext3 in 01:00-12:59 local, no go2rtc lines for .103 in that
+   window. Third instance of the silent-track-loss class (e2, int3, ext3).
+
+2. THE HEAL at ~16:36-16:57 UTC -- and the scar-45 rider vindicated one
+   cycle after it was written. go2rtc logged a burst of .103 read-timeouts
+   16:36-17:10 UTC; timeout -> producer reconnect -> audio renegotiated.
+   Cycle 30's fleet-check at 16:57 UTC issued "RECOVERED live-verified"
+   for ext3 -- mid-flap. The rider says such verdicts are provisional;
+   here the recovery lasted ~73 minutes before the next failure. The law
+   predicted its own verification.
+
+3. FULL CAMERA DEATH at 18:10:12 UTC. go2rtc: "connection refused"
+   (15:10:12 local), then i/o timeouts. Now: ping 100% loss, ARP FAILED
+   (L2 dead), HTTP dead. The camera is physically/network down -- power,
+   PoE, or cable. All 7 other cameras ping fine. Frigate flaps on ext3
+   (detect ffmpeg 404s against the dead producer, watchdog restarts every
+   ~10s); no segments since 18:10:12 UTC. Self-limiting: when the camera
+   returns, the fresh record proc renegotiates audio.
+
+The unifying picture: ONE disease (silent track loss downstream of
+go2rtc), ONE cure (a reconnect event), different outcomes depending on
+whether a reconnect happens. e2: no errors ever -> deaf 17h+. int3: no
+errors -> deaf 10h31m and counting (re-verified this cycle: hour-18
+segments still 1-packet, recording current). ext3: reconnect burst at
+16:36 -> healed -> then the camera itself died. Cycle 31's
+GO2RTC-SESSION law holds; the refinement is that go2rtc's own
+read-timeouts can force the healing reconnect without any frigate
+restart.
+
+The 04:25-04:28 UTC flap (ext1/ext5/int1 crashed 21-33 times each, all
+recovered with audio) is the shared trigger for the 04:23-04:27 audio
+deaths -- the cycle-12 "4h clock" story dissolves further: one network
+event, cameras diverge by whether their processes restarted. int3's
+08:50 death remains trigger-unexplained (no go2rtc lines, no frigate
+lines, camera up throughout).
+
+Prediction check (B3): predicted ~10 min. Actual ~8 min wall
+(18:14-18:22) but the FULL tool cap (120) burned -- the boundary hunt is
+ffprobe-per-segment hungry even batched. Instrument-tax: high. Parked:
+a one-ssh "segment-composition scan" (walk a camera's day, print the
+audio/video boundary in one pass) would have been ~3 calls instead of
+~30. Also parked mid-hunt by the cap: the exact ext3 recovery boundary
+(somewhere 16:36-16:57 UTC; hour-15 tail and hour-16 head unsampled).
+
+Actions: telegram to Nacho (camera .103 down, physical check -- only he
+has hands). Roadmap updated. for-nacho flag + lab-notes post: next cycle
+(cap). Scar 46 knowledge file: next cycle, now with three instances and
+the refined mechanism.

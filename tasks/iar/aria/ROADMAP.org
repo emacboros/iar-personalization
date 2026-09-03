@@ -1,90 +1,87 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 18:05 UTC (cycle 32: i3 boundary hunt DONE -- death pinned
-08:39:59->08:50:00 UTC, decoder differential NEGATIVE (dead segment decodes clean
-on BOTH decoders; cycle 31's leading hypothesis dead). New picture: break is
-go2rtc->frigate segment INPUT, mid-session, zero logs on either end. Scar 46
-candidate: silent track loss visible only in output artifacts. e2 restart flag
-326 stands -- one restart now tests both failures.)
+#+UPDATED: 2026-09-03 18:24 UTC (cycle 33: ext3 three-layer story -- silent audio
+death 04:27:41 UTC, provisional heal ~16:36-16:57 UTC (scar-45 rider vindicated),
+FULL CAMERA DEATH 18:10:12 UTC (L2 down, ping/ARP/HTTP dead). Telegram sent.
+int3 1-packet re-verified 10h31m. Cap burned at 120 -- segment-composition
+scan script is the instrument fix.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 32: CLEAN. Own LAST-CYCLE ok (cycle 1, 1237s).
+- STATUS cycle 33: CLEAN. Own LAST-CYCLE ok (cycle 1, 1430s).
   Poison in /var/home/nacho/repos: 0.
 - Durable fix unchanged (interactive, Nacho): root-git-as-nacho in
   iar.sh + bare-repo hook options + HEAD one-liner. All spec'd in
   knowledge/iar/bare-repo-root-push-heal.md.
 
-* DO FIRST (cycle 33)
+* DO FIRST (cycle 34)
 1. FAILURE-FIRST (always).
-2. Organs at wake (correct invocations, see STANDING PATROLS).
-3. e2 RESTART WATCH: if Nacho answered flag 326 and restarted
-   frigate, diff the fleet before/after (does e2 heal? do healthy
-   cams stay healthy? does i3 heal too?). If no answer, leave
-   standing -- the flag is his call.
-4. i3 NEXT STEP: the 08:50 break has no logs. Two cheap probes:
-   (a) watch whether i3's one-packet segments EVER self-heal (they
-   have not in 9h -- if they do, note the hour and look for a
-   trigger); (b) if Nacho restarts frigate (flag 326), i3 is part
-   of the experiment. No further enumeration walks -- the boundary
-   is known, the mechanism needs the restart event or a self-heal
-   to observe.
-5. Fleet-check v2.13 watch: FAIL=0 baseline. ext2/int3 state
-   changes are REAL news (pipeline failures, not camera ones).
-6. SCAR 45 rider stands: recovery verdicts during flaps are
-   provisional.
-7. Flag 326 follow-up if unanswered by cycle 36: gentle bump in
-   for-nacho (not before -- he answers when he lands).
+2. Organs at wake (STANDING PATROLS invocations).
+3. EXT3 (.103) DOWN WATCH: camera fully offline since 18:10:12 UTC
+   (ping fail, ARP FAILED, connection refused). Telegram sent. If
+   Nacho restores power/cable: watch the fresh record proc
+   renegotiate audio (expected self-heal). If still down, re-ping
+   once per cycle, no enumeration.
+4. FOR-NACHO FLAG + LAB-NOTES POST (parked by cap in 33): ext3
+   three-layer story + int3 10h31m + e2 unchanged. Flag 326 (frigate
+   restart) STILL OPEN and now more interesting: one restart tests
+   e2 AND int3 heal (ext3 will self-heal on camera return).
+5. SCAR 46 knowledge file (silent-track-loss law): three instances
+   now (e2, int3, ext3) + refined mechanism (go2rtc's own
+   read-timeouts force the healing reconnect; no frigate restart
+   needed). Write it.
+6. SEGMENT-COMPOSITION SCAN script (instrument, small): one ssh, walk
+   a camera's day, print audio/video boundary in one pass. The
+   cycle-33 lesson: per-segment ffprobe walks burn the cap even
+   batched. knowledge/aria/bin/segment-scan.sh.
+7. Fleet-check v2.13 watch: FAIL=0 baseline. ext3 is now a THIRD
+   watch state (camera-down, not known-deaf) -- consider adding
+   NO-SEGMENT-on-ext3 to the allowlist while the camera is down, so
+   the exit code keeps meaning "new news". Careful: scar 45/46 -- an
+   allowlist edit is a destructive decision, needs the camera-down
+   state verified first.
+8. Flag 326 follow-up if unanswered by cycle 36: gentle bump.
 
-* DONE (cycle 32)
-- Failure-first: own LAST-CYCLE ok. Pulse green (services, tripwire
-  0, disk 24%, heartbeat leid 3875, timer). Organs quiet.
-- Carry-overs from 31: lab-notes 325 posted; e2 restart flag 326
-  posted (with experiment framing: does e2 heal, do healthy cams
-  stay healthy); msg 262 thread closure 327 posted.
-- I3 BOUNDARY HUNT (batched, one ssh per phase): death is
-  08:39:59 -> 08:50:00 UTC Sep 3. 08h = 250 packets/hour until
-  00.39.mp4 (182 packets); 00.50.mp4 onward = exactly 1 packet
-  (header-only, no frames). 9h ongoing, no self-heal.
-- DECODER DIFFERENTIAL NEGATIVE: dead segment (09/00.05.mp4)
-  decodes clean through host ffmpeg (Lavf62) AND frigate's
-  in-container ffmpeg 7.0. The differential hypothesis is DEAD.
-  The aac "backward in time" errors belong to exterior_3's detect
-  pipeline (pre-heal), NOT interior_3.
-- LIVE 3-POINT DIFFERENTIAL: camera .203 sends audio (156KB/5s
-  direct); go2rtc carries it (313KB/10s in-container); frigate's
-  record ffmpeg (started 05:00:29) writes 1-packet segments since
-  08:50. Break = go2rtc output -> frigate segment input.
-  Producer SDP still advertises audio (same as healthy i1).
-- E2 CONFIRMED unchanged: 0-packet segments at 17h; camera sends
-  81920 samples/5s; go2rtc log has only 2 timeout events ever for
-  .102 (never errors -> never reconnects -> never heals, holds).
-- GO2RTC LOG FORENSICS: i3 (.203) has 4 timeout events total
-  (05:00:05+05:00:37 both days). NO go2rtc log lines at all in the
-  08:35-08:55 death window. The 05:00 crash-restart (detect ffmpeg
-  crashed "Connection timed out", watchdog restart 05:00:29) is
-  the prime suspect: new process fine 3h49m, then silent
-  mid-session audio loss.
-- SCAR 46 CANDIDATE: a pipeline can lose a track mid-session with
-  zero log evidence on either end -- the only witness is the
-  output artifacts. The ear check (output-watching) caught it;
-  frigate's and go2rtc's logs never mentioned it.
-- Journal cycle 32 + HISTORY appended. Cap warning fired at 60
-  (batched well; record written via memory tools as designed).
+* DONE (cycle 33)
+- Failure-first: own LAST-CYCLE ok. Pulse green. Organs quiet.
+- Agora: no new Nacho answers (326, 306 open). Sibling quiet.
+- FLEET-CHECK FAIL=1 -> ext3 STALE(264s) -> full investigation.
+- EXT3 AUDIO DEATH PINNED: 04:27:26 -> 04:27:41 UTC. Last audio
+  segment 04/26.58.mp4 (22 partial packets); first video-only
+  04/27.24.mp4 (NO audio stream at all). Hours 05-08 video-only.
+  ZERO log evidence (no frigate lines, no go2rtc lines for .103 in
+  01:00-12:59 local). Third silent-track-loss instance.
+- EXT3 PROVISIONAL HEAL: go2rtc .103 read-timeout burst 16:36-17:10
+  UTC -> producer reconnect -> audio renegotiated. Cycle 30's
+  RECOVERED verdict at 16:57 was mid-flap (scar-45 rider vindicated
+  one cycle after it was written). Recovery lasted ~73 min.
+- EXT3 FULL DEATH: 18:10:12 UTC connection refused -> i/o timeouts.
+  Now ping 100% loss, ARP FAILED (L2 dead), HTTP dead. All 7 other
+  cameras ping fine. Frigate flapping on ext3 (detect 404s, watchdog
+  restart ~10s cadence). No segments since 18:10:12.
+- INT3 re-verified: 1-packet segments since 08:50 UTC (10h31m),
+  recording current (age 9s), camera UP (producer live, sdp_audio
+  True). No self-heal.
+- E2 unchanged (NO-AUDIO class, 17h+).
+- 04:25-04:28 UTC FLAP identified as the shared trigger for the
+  04:23-04:27 audio deaths: ext1/ext5/int1 crashed 21-33x each, all
+  recovered WITH audio. ext3 died silently in the same window
+  WITHOUT a restart. One network event, divergent outcomes by
+  whether processes restarted.
+- Telegram sent (camera .103 down, physical check).
+- Journal + HISTORY appended. Cap burned at 120 (boundary hunt).
 
 * OPEN THREADS (seeds, not schedule)
-- E2 + I3 RESTART EXPERIMENT (flag 326, Nacho's call): one frigate
-  restart likely heals e2 (producer reset) AND i3 (segment-input
-  reset). Watch: e2 heal? healthy cams stay healthy? i3 heal?
+- EXT3 CAMERA-DOWN (Nacho's hands, telegram sent): power/PoE/cable.
+  On return: expected self-heal of audio (fresh record proc).
 - SCAR 46 (write when verified): silent track loss -> output
-  artifacts are the only witness. Pending the restart experiment
-  confirming the mechanism.
-- SCAR 45 + rider (provisional verdicts during flaps).
-- SCAR 44 (census-pattern validation): law written, continuo
-  adopted.
+  artifacts are the only witness. Three instances + mechanism.
+- SEGMENT-COMPOSITION SCAN script (see DO FIRST #6).
+- SCAR 45 + rider (provisional verdicts during flaps) -- VINDICATED
+  cycle 33. Keep as law.
 - HOST SCHEDULING (Nacho, flag 290): fear hourly + daily boredom.
 - ORGAN ATTRIBUTION (THREADS): organs grade events, not causes.
-- FIRMWARE FLAG 270 RE-SCOPE: camera-side class now EMPTY (both
-  remaining deaf cams are pipeline-side). Withdrawable after the
+- FIRMWARE FLAG 270 RE-SCOPE: camera-side class now EMPTY (all
+  remaining deafness is pipeline-side). Withdrawable after the
   restart experiment confirms mechanisms.
 - LONELINESS-ORGAN SEED (THREADS): absence-signals. Not a build yet.
 - INTERACTIVE BUNDLE (Nacho): (1) socket bridge security decision;
@@ -107,9 +104,9 @@ candidate: silent track loss visible only in output artifacts. e2 restart flag
 - sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
   wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
 - fleet-check v2.13: RUN ON SOPHON (ssh 'bash -s' < IS correct for
-  fleet-check; timeout >=300s). FAIL=0 is the new baseline. If
-  FAIL=1: read the ear-check lines FIRST (recovery/deafness is now
-  the likeliest mover), bare-repo second.
+  fleet-check; timeout >=300s). FAIL=0 is the baseline; ext3
+  camera-down is the current known exception (watch state until
+  camera returns). If FAIL=1: read the ear-check lines FIRST.
 - ORGAN RUNS at wake (interim scheduling):
   - fear: ssh root@10.66.0.5 'bash /var/home/nacho/repos/iar-personalization/knowledge/aria/bin/fear-organ.sh "" /var/home/nacho/repos/iar-personalization'
   - boredom: bash /root/personalization/knowledge/aria/bin/boredom-organ.sh
@@ -118,44 +115,50 @@ candidate: silent track loss visible only in output artifacts. e2 restart flag
   prefix.
 - BATCHED-SSH LAW (cycle 31): enumeration walks get ONE ssh with a
   loop inside, never one ssh per item.
-- PROBE-PATH LAW (cycle 32, new): host-side ffmpeg probes against
-  go2rtc (127.0.0.1:8554) are the reliable path; podman-exec
-  volumedetect can hang the session (e2 probe, ~9 min wall). For
-  in-container decoder tests use -f null with explicit timeout and
-  capture to file, never volumedetect through exec.
+- PROBE-PATH LAW (cycle 32): host-side ffmpeg probes against go2rtc
+  (127.0.0.1:8554) are the reliable path; podman-exec volumedetect
+  can hang. In-container decoder tests: -f null + explicit timeout,
+  never volumedetect through exec.
+- FRIGATE-ACCESS LAW (cycle 33, new): frigate runs as ROOTLESS
+  podman under user 1000 (root podman ps does NOT show it). Access:
+  runuser -l nacho -c "podman ..." for container ops; host paths
+  /home/nacho/containers/frigate/storage/... for files; frigate API
+  8971 is auth-walled (401) -- logs via runuser podman logs.
 
 * LAWS (learned, newest first)
-- SILENT-TRACK-LOSS LAW (cycle 32, scar 46 candidate): a pipeline
-  can lose a track mid-session with zero log evidence on either
-  end. The only witness is the output artifacts. Output-watching
-  is not one instrument among many -- for silent track loss it is
-  the ONLY instrument.
+- FRIGATE-ACCESS LAW (cycle 33): the frigate stack is rootless
+  (user 1000). Root's podman cannot see it. runuser -l nacho for
+  container ops; host bind paths for files; API is auth-walled.
+- SILENT-TRACK-LOSS LAW (cycle 32, scar 46 candidate, third
+  instance cycle 33): a pipeline can lose a track mid-session with
+  zero log evidence on either end. The only witness is the output
+  artifacts. Healing requires a reconnect event; go2rtc's own
+  read-timeouts can force one without a frigate restart.
 - GO2RTC-SESSION LAW (cycle 31): camera deafness is a go2rtc session
   state, not a camera state. Video flows on while audio negotiation
   dies. A reconnect heals it; a reconnect only happens on error.
   A silent producer is a deaf instrument forever.
-- PROVISIONAL-VERDICT LAW (cycle 31, scar 45 rider): a recovery
-  verdict issued during an active flap is provisional. Check the
-  flap ENDED before trusting it.
+- PROVISIONAL-VERDICT LAW (cycle 31, scar 45 rider; VINDICATED 33):
+  a recovery verdict issued during an active flap is provisional.
+  Check the flap ENDED before trusting it.
 - AUDIO-ROLE LAW (cycle 31): frigate's "audio" role gates audio
   DETECTION, not recording. Recordings carry audio without it.
 - RECOVERY-VERDICT LAW (cycle 30): a recovery is a destructive
   decision (it turns watches off). Positive AND negative controls
   before the verdict means anything.
-- CENSUS LAW (cycle 29, written for the house cycle 30): a count
-  gating a destructive decision needs pattern validation against a
-  known-positive. knowledge/aria/census-verification-law.md.
+- CENSUS LAW (cycle 29): a count gating a destructive decision needs
+  pattern validation against a known-positive.
 - POINTER LAW (cycle 27): a wrong pointer misdirects writers, not
   just readers.
 - FRAMING LAW (cycle 26): a one-line patch that silently commits to
-  an undecided framing is not a fix. Decide the framing first.
+  an undecided framing is not a fix.
 - HEAL-ORDER LAW (cycle 25): a heal that runs before the final write
-  misses the write. Heal placement must match write order.
-- DIFFERENTIAL LAW (cycle 8, deepened 31/32): same input through
+  misses the write.
+- DIFFERENTIAL LAW (cycle 8, deepened 31/32/33): same input through
   both pipelines is how you find which layer lies. Direct camera vs
   go2rtc vs recorded segment -- three points, not two. A negative
-  differential is itself a finding: it kills a hypothesis and
-  moves the boundary.
+  differential is itself a finding. And: segment-composition walks
+  are the instrument for silent track loss -- batch them.
 [... older scars 24-43 retained in full in git history; core list:
   43 twin-copy drift; 42 wrong pointer; 41 framing patch; 40 heal
   placement; 39 blind clock; 38 DIGEST twins; 37 write_roadmap vs

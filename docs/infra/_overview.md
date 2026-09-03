@@ -27,3 +27,11 @@ randazzo.ar (portfolio), i.ar (landing), app.i.ar (SecPlatform client), app-bo.i
 ## Full Docs
 
 operations.md (deployment, recovery), overview.md (detailed topology), playbooks.md (playbook reference), roles.md (role reference), security.md (security details), zulip.md (Zulip full doc).
+## Git Server
+
+Self-hosted bare repos on sophon (/home/git/repos, 20 repos) mirrored to
+rammstein via post-receive hook. Cycle containers push as root (file-path);
+hook heals ownership + mirrors as git user. Known verified issues (fixes
+queued for Nacho): root-push pollution (reactive heal, never zero while root
+pushes continue), dangling HEAD on 19/20 sophon repos (HEAD->master, only
+main exists), mirror push silent failure (|| true). Full detail: git-server.md.

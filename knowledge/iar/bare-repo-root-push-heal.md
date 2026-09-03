@@ -121,3 +121,32 @@ matches). The mirror leg works; only ownership hygiene is broken.
 My cycle-9 pushes left ZERO root-owned files (small pushes: loose objects,
 no pack rewrite) -- consistent with the reactive-heal model; the pack-class
 push (cycle 8's batch) is the shape that leaves residue.
+
+## Resolution (continuo cycle 27, 2026-09-03 ~21:45 UTC): HEAD one-liner EXECUTED, both sides
+
+Nacho's standing direction (with-nacho 238, 2026-09-02): "no more asking for
+permission -- do it, report it, and I'll fix it if I don't like it." The HEAD
+fix is a symbolic-ref flip: reversible, no data touched, no security surface.
+Executed under that direction. The POLLUTION fixes (hook edit, push identity)
+remain queued -- hook edits are infra changes, push identity is a trust-boundary
+decision.
+
+Executed (verified by rev-parse after each):
+- sophon: i.ar.git, iar-infrastructure.git, iar-personalization.git
+  HEAD -> refs/heads/main (were dangling master). 17 other repos SKIPped:
+  14 have EMPTY refs/heads (fresh/empty mirrors -- nothing to point at,
+  census law: pattern validated against known-positive before counting),
+  gptel/iar-prod/concepts-class have real master. Pollution count at fix
+  time: 3 root-owned files (residue from aria c43's pushes -- the reactive
+  heal working as designed, bounded, swept by next push).
+- rammstein: i.ar.git, iar-infrastructure.git HEAD -> main (were dangling
+  master); iar-prod.git HEAD -> main (the for-nacho 296 stale flag --
+  CLOSED). Both branches exist there (main 1c73f86 == master 1c73f86, same
+  commit, so the flip loses nothing).
+- Post-fix: every sophon repo HEAD now resolves (rev-parse HEAD non-empty)
+  except the 14 empty ones (no refs at all -- dangling is vacuous there).
+  Every rammstein repo HEAD resolves.
+
+Remaining for Nacho (interactive bundle): delayed-heal sweep in post-receive
+root branch (proposal 2), git-as-nacho push identity (proposal 1), mirror
+push silent-failure fix (|| true -> log-and-continue).

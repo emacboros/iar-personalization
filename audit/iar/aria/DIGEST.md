@@ -1,6 +1,6 @@
-Last updated: 2026-09-03 05:45 UTC (aria cycle 5: world-state REPLACED
--- fleet audio loss event added. 11.0k -> target <=10k. Injection math
-unchanged: every char paid ~61x/cycle.)
+Last updated: 2026-09-03 08:01 UTC (aria cycle 10: world-state REPLACED
+-- fleet-check v2.9 KNOWN_DEAF allowlist, audio loss root-caused +
+inventoried. Injection math unchanged: every char paid ~61x/cycle.)
 
 * THE INJECTION MATH (read before editing this file)
 
@@ -62,10 +62,10 @@ mechanism RESOLVED (knowledge/aria/aevum-tool-death-mechanism.md).
 Run 2 plan: knowledge/aria/aevum-dreamed-writes.md. Machinery
 server-local, never committed; findings committable.
 
-* World state (2026-09-03 05:45 UTC, cycle 5 -- REPLACES all prior blocks)
+* World state (2026-09-03 08:01 UTC, cycle 10 -- REPLACES all prior blocks)
 
 - Failure-first era LIVE: six fixes from priority-#1 night all
-  holding. Cycles 137-138, continuo 3-10, aria 1-5 all exit 0.
+  holding. Cycles 137-138, continuo 1-4, aria 1-10 all exit 0.
   chcon -R relabel fix still filed-not-landed.
 - Fence parity CLOSED end to end (4c879a2 + 6130c13, 982/982).
   True mechanism: setf-on-absent-key-through-alias loses writes;
@@ -75,11 +75,20 @@ server-local, never committed; findings committable.
 - Injection floor MEASURED (continuo cycle 9): aria 18.3k tok/req;
   floor = 42% of burn. Dominant lever = request count. Analysis:
   knowledge/iar/injection-trim-analysis.md.
-- FLEET AUDIO LOSS (cycle 5, LIVE): exterior_2/3/4 audio ->
-  video-only 04:23-04:27 UTC Sep 3. Cameras still send audio;
-  go2rtc audio receivers frozen. Loss between camera and go2rtc.
-  No frigate log trace. Ear check caught it (first production
-  catch of the class). Watch cycle 6; flag Nacho if persistent.
+- FLEET AUDIO LOSS (LIVE, ~3.5h at cycle 10): ext2/3/4 video-only
+  since 04:23-04:27 UTC Sep 3. ROOT-CAUSED (cycle 8 pcap): cameras
+  stopped SENDING audio-RTP on live sessions; go2rtc receivers
+  starved, not broken. Firmware inventory DONE (cycle 9): all 8
+  cameras May-25 builds, ~2.5 months pre-fix (thingino#1462 Aug 13).
+  Flags 262-270 stand unanswered; frigate NOT restarted. Lever:
+  frigate restart (Nacho) or firmware update (real fix).
+- fleet-check v2.9 (cycle 10, cd8fb0e): KNOWN_DEAF allowlist --
+  known-deaf NO-AUDIO = watch state (no fail), known-deaf AUDIO =
+  RECOVERY (fail loudly, withdraw flags), new deafness still fails.
+  Exit code means something again. WATCH-STATE LAW: watch state
+  belongs inside the instrument, not the reader's head.
+- interior_3 empty-dB wrinkle (cycle 10): watch, investigate if
+  recurring.
 - Direction protocol LIVE: Agora primary, with-nacho (id 6),
   msg 244 ACKed. Restic verified cycle 135; integrity check Sep 6.
 - REQUESTS.log double-logs cycles (rotation artifact): dedupe by
@@ -154,7 +163,9 @@ server-local, never committed; findings committable.
 - Cycle runs via aria-cycle.service on sophon (oneshot,
   glm-5.3-flash:cloud, --timeout 1800), 10-min timer ROTATING
   with continuo. Research sidecar: target "research".
-- fleet-check.sh v2.7: standing patrol. USAGE.log in audit/iar/aria/.
+- fleet-check.sh v2.9: standing patrol. Script at
+  knowledge/aria/bin/fleet-check.sh (NOT audit/). USAGE.log in
+  audit/iar/aria/. Run ON sophon, ssh 'bash -s' <, timeout >=300s.
 
 * Humans
 

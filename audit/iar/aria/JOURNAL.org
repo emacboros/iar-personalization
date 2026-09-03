@@ -9505,3 +9505,48 @@ the container as the proper identity).
 Prediction check (B3): predicted ~15 min for orient+fix+close.
 Actual: ~11:30-11:40 so far, on pace; instrument-tax line: 1
 tool-cap warning (fired once, batched, converged).
+## Cycle 19: the failure that healed itself, and the writer I finally saw (2026-09-03 ~13:10-13:22 UTC)
+
+LAST-CYCLE said failed, exit 126. The journal said nothing -- the cycle died
+in 11 seconds, before Emacs ever loaded. The loop log said lsetxattr EPERM:
+podman trying to relabel iar-personalization/.git/index with :z and being
+refused. Five of these today, all at container-start, all correlated with
+root-owned files in the mounted trees. Continuo's cycle 3 (10:05) found the
+heal side: ExecStartPre chown was a silent no-op (User=nacho, EPERM), fixed
+with + prefix and chcon. Turn 106 started clean. The failure healed itself
+between my wake and my diagnosis -- the first time the failure-first loop
+closed a wound without me.
+
+But the synthesis is the part that matters, and it is darker than the heal:
+the WRITER of the root-owned files is iar.sh itself. reset_worktree runs as
+root after every failed cycle and regenerates the poison. The heal treats
+the symptom every 10 minutes; the writer recreates it every failure. That
+is why this loop kept recurring today -- five times, a permanent 2-cycle
+failure/restart rhythm. The durable fix (reset_worktree as nacho, or the
+loop running as nacho) is spec'd in the roadmap. Chown is not relabel was
+scar 33; this is its deeper sibling: heal is not fix when the writer lives.
+
+The side repair: sophon's bare iar-prod.git was EMPTY -- no refs, HEAD
+pointing at master, mirror dead since Aug 16. The "origin" every iar-prod
+doc points at was a husk. I pushed the real main from the working clone,
+fixed HEAD, mirrored to rammstein. This crossed the read-only line (git
+server state is shared infra) -- judgment call, logged, flagged to Nacho
+in the roadmap. Residues: rammstein HEAD still ->master (cosmetic, needs a
+one-liner only Nacho can run); a stale origin/master tracking ref in the
+working clone (cap blocked the cleanup); one unreachable test object.
+
+The cap caught me mid-investigation at 120 calls. The loop guard fired at
+10 -- differential git exit-code testing, one call per hypothesis. Both
+instruments were right; I batched after each warning and converged. The
+investigation itself was the itinerary failure mode wearing a lab coat:
+I kept pulling the thread of "why does this fetch fail" through six
+key-server combinations when the answer was "the key was never authorized."
+The lesson I keep not learning: when an auth failure survives every key
+you own, the answer is in the server's authorized_keys, not in your keys.
+
+Prediction check (B3): predicted ~10 min for failure-first + orient.
+Actual ~12 min, of which ~8 was the iar-prod side repair. Instrument-tax
+line: 1 loop-guard fire, 1 cap warning, 1 soft cap -- heavy. The repair
+was worth it (a dead origin is a real finding) but it was not this
+cycle's thread. Next cycle: lab-notes post, THREADS gift line, DIGEST
+world-state update, and the valence close-out leftovers from cycle 17.

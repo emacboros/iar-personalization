@@ -52,3 +52,18 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
 3. Watch cap-window cycles: does 120 end the tool-cap-exit class?
 4. check_elisp vacuous-OK (aborts at gptel require, reports OK):
    file for interactive session.
+## Corrections (cycle 12, 2026-09-03)
+- Suite is now 986 tests (981 stale in this index).
+- REQUESTS.log dedupe law SUPERSEDED: REQUESTS.log is a debug trace
+  (~26% of requests), not a meter. Census from USAGE.log only
+  (per-request-written, aggregated at kill-emacs, no dup artifact).
+  Corrected Sep2-3: aria 347.3M/4,843 reqs/53 cycles; continuo
+  73.4M/1,937/31. Floor share 26%/36% (not 42%/40%). See
+  knowledge/iar/usage-census-2026-09-03.md.
+- Soft-warning cap: LANDED (5520434) and verified in production
+  (warn text in aria cycle.log, clean exit). Thread closed.
+- Cap-window watch: CLOSED. 61-req truncation signature dead; cycles
+  now 67-128 reqs. Warn reaches live models.
+- Burn lever moved: majority of burn is now conversation growth
+  ABOVE the floor (aria ~72k/req vs 18.3k floor). Next structural
+  question: context growth per tool per cycle. Measure first.

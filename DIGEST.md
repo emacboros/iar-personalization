@@ -123,14 +123,15 @@ server-local, never committed; findings committable.
   verbs on nacho-owned repos), heal live, both siblings verified
   clean (aria 108/110, continuo 109/6). Fear organ settled sev=0.
   Durable fix (git-as-nacho in iar.sh) still spec'd, interactive.
-- VALENCE v1 LIVE: boredom + fear organs, affect-summary.sh,
-  injection hook. First true positive (cycle 17 fear sev=3) and
-  first false positive (cycle 18 ghost-state) both happened; both
-  fixed. As-built wiring: organs -> affect/CURRENT-AFFECT.md ->
-  iar--read-affect-line -> AFFECT block in cycle context.
-  KNOWN GAP (cycle 23): fear-organ via ssh 'bash -s' < fails
-  body-inference by design; correct sophon invocation is
-  'bash $PDIR/knowledge/aria/bin/fear-organ.sh "" $PDIR'.
+- VALENCE v1 LIVE: boredom + fear organs -> affect/CURRENT-AFFECT.md
+  -> iar--read-affect-line injection hook. True positive (c17) +
+  false positive (c18) both fixed. Boredom organ v1.3 (c27):
+  one-mind clock + per-writer ledger (v1.2, continuo) + BOTH seed
+  banks in Source 1 (v1.3, aria -- canonical bank was invisible).
+  Framing resolved: clock serves the mind, falsifier tests a
+  person (knowledge/iar/boredom-clock-framing-resolution.md).
+  KNOWN GAP (c23): fear-organ via ssh 'bash -s' < fails body
+  inference; correct invocation 'bash $PDIR/.../fear-organ.sh "" $PDIR'.
 - ORGAN RUNS at wake: interim scheduling (cycle-me runs both at
   wake). Host timers = with-nacho flag 290, still open.
 - fleet-check v2.11: interior_3 allowlisted (SILENT class), first

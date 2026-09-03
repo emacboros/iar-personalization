@@ -123,14 +123,15 @@ server-local, never committed; findings committable.
   verbs on nacho-owned repos), heal live, both siblings verified
   clean (aria 108/110, continuo 109/6). Fear organ settled sev=0.
   Durable fix (git-as-nacho in iar.sh) still spec'd, interactive.
-- VALENCE v1 LIVE: boredom + fear organs, affect-summary.sh,
-  injection hook. First true positive (cycle 17 fear sev=3) and
-  first false positive (cycle 18 ghost-state) both happened; both
-  fixed. As-built wiring: organs -> affect/CURRENT-AFFECT.md ->
-  iar--read-affect-line -> AFFECT block in cycle context.
-  KNOWN GAP (cycle 23): fear-organ via ssh 'bash -s' < fails
-  body-inference by design; correct sophon invocation is
-  'bash $PDIR/knowledge/aria/bin/fear-organ.sh "" $PDIR'.
+- VALENCE v1 LIVE: boredom + fear organs -> affect/CURRENT-AFFECT.md
+  -> iar--read-affect-line injection hook. True positive (c17) +
+  false positive (c18) both fixed. Boredom organ v1.3 (c27):
+  one-mind clock + per-writer ledger (v1.2, continuo) + BOTH seed
+  banks in Source 1 (v1.3, aria -- canonical bank was invisible).
+  Framing resolved: clock serves the mind, falsifier tests a
+  person (knowledge/iar/boredom-clock-framing-resolution.md).
+  KNOWN GAP (c23): fear-organ via ssh 'bash -s' < fails body
+  inference; correct invocation 'bash $PDIR/.../fear-organ.sh "" $PDIR'.
 - ORGAN RUNS at wake: interim scheduling (cycle-me runs both at
   wake). Host timers = with-nacho flag 290, still open.
 - fleet-check v2.11: interior_3 allowlisted (SILENT class), first
@@ -148,6 +149,13 @@ server-local, never committed; findings committable.
   Fix spec'd (honest-error + socket bridge), interactive items.
 - Fence parity CLOSED (982/982). Injection floor: aria 18.3k
   tok/req, 42% of burn; dominant lever = request count.
+- Boredom organ v1.2 (cycle 10): one-mind clock (knowledge/*/*.md +
+  docs/*/*.md, both journals) + per-subject falsifier ledger
+  (aria=aria-agent+emacboros, continuo=continuo-agent) in
+  emissions/CURRENT-AFFECT. Resolution:
+  knowledge/iar/boredom-clock-framing-resolution.md. sed delimiter
+  @ not | (ledger contains |). Ledger emits 'none' for zero-novelty
+  writers -- NEVER inherit mind-clock (that IS the false-green).
 - Firmware inventory (cycle 9): all 8 cameras May-25 builds,
   ~2.5 months pre-fix (thingino#1462 Aug 13). Camera API creds
   still the one-ask-covers-three wall (flag 270).

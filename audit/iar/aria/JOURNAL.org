@@ -8660,4 +8660,52 @@ firmware/receiver decay worth a cron.
 
 **What I did NOT do:** no restarts, no config changes. Pulse-only
 discipline holds. The flag is with Nacho; the ear check watches
-every cycle; if it self-heals I withdraw the flag in-topic.
+every cycle; if it self-heals I withdraw the flag in-topic.## fleet-check v2.8: the instrument that lies when run from the wrong side (cycle 7, 2026-09-03 06:20 UTC)
+
+The 06:15 pulse was green, but I ran fleet-check LOCALLY (in my
+container) to watch the audio loss -- and it screamed eight
+failures at once: NO-SEGMENT on all cameras, RESTIC FAILED, FRIGATE
+DB UNREADABLE, DIRECT-GRAB FAIL, `ip: command not found`. For about
+a minute this looked like a fleet-wide catastrophe stacked on top
+of the audio loss. It wasn't. Every line was the same root cause:
+the script assumes it runs ON sophon (host paths, rootless podman
+socket, `ip`), and I ran it in a container that has none of those.
+The instrument wasn't broken; it was being read from the wrong
+side of a boundary. Re-ran via the documented path (ssh 'bash -s'
+< fleet-check.sh): all green except the real failure -- ext2/3/4
+still NO-AUDIO, ~2h into the loss.
+
+Two things worth keeping:
+
+1. **The fix is a comment, not code.** Added the discipline line
+   to the header: RUN ON SOPHON via `ssh root@10.66.0.5 'bash -s'`
+   < fleet-check.sh, caller timeout >= 300s. A local run
+   manufactures false alarms; the recipe now sits where the next
+   reader looks. Committed d901a52, pushed.
+
+2. **The scar generalizes #22.** "A stable transcript means a
+   stable WRITER or a DEAD one" was about records. This is its
+   instrument twin: an instrument's output is only evidence when
+   the instrument ran where it was designed to run. An alarm from
+   the wrong vantage point is not a false negative or a false
+   positive -- it's noise wearing the uniform of signal. The
+   dangerous version is the reverse: run the check locally, see
+   green, conclude the fleet is healthy, while the real check
+   would have failed. I got the loud version this time. The quiet
+   version is the one that kills.
+
+Also this cycle: flag id 265 posted to for-nacho -- a CORRECTION
+to my own 262. I told Nacho to restart the record processes; that
+was wrong. The record procs read go2rtc's restream, and the
+restream is the silent leg. The lever is a fresh go2rtc producer
+session (frigate container restart). I nearly sent Nacho to turn
+a crank that isn't attached to the machine. The correction cost
+one curl; the uncorrected advice would have cost a restart that
+"didn't work" -- and worse, would have taught him the wrong
+mechanism. Correcting your own flag in-topic is cheap. Being
+confidently wrong in someone else's action queue is not.
+
+Prediction note (B3): predicted 30 min for pulse+watch+flag.
+Actual: ~6 min. First UNDERestimate in the other direction -- the
+instrument tax didn't apply because the guard stayed quiet and
+the batched probes were pre-staged. Calibration needs both tails.

@@ -8709,3 +8709,59 @@ Prediction note (B3): predicted 30 min for pulse+watch+flag.
 Actual: ~6 min. First UNDERestimate in the other direction -- the
 instrument tax didn't apply because the guard stayed quiet and
 the batched probes were pre-staged. Calibration needs both tails.
+## The audio loss: cycle 8 -- the discriminator landed (2026-09-03 06:30-06:40 UTC)
+
+The question from cycle 6 was binary: did the cameras stop
+sending audio on the live sessions, or did go2rtc stop receiving
+it? The transport is TCP-interleaved RTSP (I confirmed this by
+pcap -- UDP produced nothing; all traffic rides port 554), so the
+answer was sitting on the wire: walk the interleaved frames and
+count channel IDs. Channels 0/1 = video RTP/RTCP, 2/3 = audio
+RTP/RTCP.
+
+The walk: tcpdump -s 320 on the camera-side leg, reassemble TCP
+by seq, concat payloads, walk 0x24 frames. Control (exterior_1,
+healthy): 13 audio-RTP frames in 20s. The three deaf cameras:
+ZERO audio frames, video flowing, same long-lived sessions, no
+teardown, no renegotiation. **The cameras stopped sending.**
+go2rtc's aac receivers are starved, not broken. My flag 265
+correction (lever = frigate restart for fresh producer sessions)
+survives; the deeper mechanism is camera-side session-state decay.
+
+Then the internet: prudynt-t -- the RTSP server inside thingino
+firmware -- has shipped exactly this class before. thingino-
+firmware#1462 (viliampucik, merged Aug 13): "PLAY returns 200 OK,
+RTCP flows, and the stream stays silent forever" -- the drain
+loop skipped audio-only sessions; two patches, upstream merge,
+version bump same day. prudynt-t#51 reset audio state on
+deconstruction; #74 (still open) audio timestamp-rate
+noncompliance. Fresh sessions work + long-lived sessions decay +
+known session-state bug history in this exact server = camera
+side is the leading hypothesis. Unexplained residue: why ext2/3/4
+and why minutes apart despite different session ages.
+
+**The loop guard earned its keep this cycle.** I burned ten
+execute_code_local calls on tcpdump one-liners with escaping
+problems (awk field splits against ssh quoting, twice) before the
+guard fired and named what I was doing: an iterator pattern,
+burning tokens without converging. The fix was the one I already
+knew from the batch-read law: write the probe as a FILE, push it
+through `ssh 'bash -s'`, one call, full python parser included.
+I had applied that law to reading and not yet to probing. Scar
+26, if it becomes one: *when a remote probe needs more than one
+attempt, promote it to a script file immediately -- the third
+attempt is where the guard lives, and the guard is right.*
+
+Honesty note on the parser: my walker reported bogus channel IDs
+(130, 252, 195...) -- desync artifacts inside video payloads. I
+recorded them in the knowledge file as noise and stated the real
+finding as presence/absence of channels 0-3. The finding does not
+depend on the parser being clean; it depends on the ABSENCE of
+ch2 on three cameras while the control shows it. That asymmetry
+is not an artifact.
+
+Prediction (B3): predicted ~15 min for the whole cycle at wake
+(orient + one discriminator probe + write + post). Actual: ~10
+min (06:30-06:40). Instrument tax this time was the loop-guard
+detour, paid early instead of late. The vantage discipline from
+cycle 7 (script files, batched probes) is what kept it short.

@@ -117,41 +117,44 @@ server-local, never committed; findings committable.
     the body from the script's own location; fail closed when
     there is none.
 
-* World state (2026-09-03 13:41 UTC, cycle 20 -- REPLACES all prior blocks)
+* World state (2026-09-03 14:32 UTC, cycle 23 -- REPLACES all prior blocks)
 
-- Failure-first era holding. Cycle 19-20: exit-126 class root-caused
-  TWICE (iar.sh reset_worktree as root = writer; MY root-run git ops
-  in iar-prod = second writer). Heal (5324e4d + scope ext) covers
-  both; durable fix (git-as-nacho in iar.sh) spec'd, interactive.
-  Turn 108 clean; turn 109 (continuo) verification pending.
-- ORGAN WIRING FIXED (cycle 18): fear-organ default PDIR was a
-  container path; sophon wake-run ghost-mkdir'd and misread missing
-  files as heartbeat loss (false sev=1 -- the first real emission
-  was wrong). Fixed: body inference + fail-closed guard (21b407e).
-  Organs now run no-args on sophon correctly. Affect state lives at
-  repo-root affect/ (the mount the injection hook reads).
-- SIDECAR AUDIT (cycle 13): research sidecar NEVER reachable --
-  every execute_code_remote call ever failed (no podman client in
-  Emacs container). Cycle 63's arXiv survey went via
-  execute_code_local. Audit bridge logs callback-fired errors as
-  success. Full writeup: knowledge/aria/research-sidecar-wiring.md
-  (39164af). Fix spec'd: honest-error (1 line) + socket bridge
-  (Nacho's security call). Interactive-session items.
-- fleet-check v2.10 (afab656): KNOWN_DEAF allowlist + SILENT
-  branch. Exit 1 = something new; watch states = expected.
-- Loop guard false-positives: 5+ (cycles 11-13) on legitimate
-  investigation chains + git pull. Interactive-session item.
-- Fence parity CLOSED (4c8792a + 6130c13, 982/982). Per-agent
-  task dirs live. Injection floor: aria 18.3k tok/req, 42% of
-  burn; dominant lever = request count.
+- Failure-first era CLOSED: exit-126 class root-caused (root-run git
+  verbs on nacho-owned repos), heal live, both siblings verified
+  clean (aria 108/110, continuo 109/6). Fear organ settled sev=0.
+  Durable fix (git-as-nacho in iar.sh) still spec'd, interactive.
+- VALENCE v1 LIVE: boredom + fear organs, affect-summary.sh,
+  injection hook. First true positive (cycle 17 fear sev=3) and
+  first false positive (cycle 18 ghost-state) both happened; both
+  fixed. As-built wiring: organs -> affect/CURRENT-AFFECT.md ->
+  iar--read-affect-line -> AFFECT block in cycle context.
+  KNOWN GAP (cycle 23): fear-organ via ssh 'bash -s' < fails
+  body-inference by design; correct sophon invocation is
+  'bash $PDIR/knowledge/aria/bin/fear-organ.sh "" $PDIR'.
+- ORGAN RUNS at wake: interim scheduling (cycle-me runs both at
+  wake). Host timers = with-nacho flag 290, still open.
+- fleet-check v2.11: interior_3 allowlisted (SILENT class), first
+  clean exit since it went deaf. Exit 1 = something new.
+- Two iar-personalization clones on sophon: /var/home/nacho/repos
+  (live, iar.sh mounts) vs /home/nacho/repos (STALE, github origin,
+  reflog graveyard). Pulse greps must target the LIVE clone.
+- Repo-root ROADMAP.org is a fossil; real roadmap =
+  tasks/iar/aria/ROADMAP.org via write_roadmap only.
+- DIGEST drift caught (cycle 22): repo-root DIGEST.md is the
+  injected one; audit/iar/aria/DIGEST.md is the audit copy. Sync
+  both; world-state blocks REPLACED not appended.
+- SIDECAR: research sidecar NEVER reachable (no podman client in
+  Emacs container); every execute_code_remote call ever failed.
+  Fix spec'd (honest-error + socket bridge), interactive items.
+- Fence parity CLOSED (982/982). Injection floor: aria 18.3k
+  tok/req, 42% of burn; dominant lever = request count.
 - Firmware inventory (cycle 9): all 8 cameras May-25 builds,
   ~2.5 months pre-fix (thingino#1462 Aug 13). Camera API creds
   still the one-ask-covers-three wall (flag 270).
-- Direction protocol LIVE: Agora primary, with-nacho (id 6),
-  msg 244 ACKed. Restic verified; integrity check Sep 6.
+- Direction protocol LIVE: Agora primary, with-nacho (id 6).
+  Restic verified; integrity check Sep 6. Aevum weekly check Sep 9.
 - REQUESTS.log double-logs cycles (rotation artifact): dedupe
   by (req,msgs,tok) signature before any census (~13% overcount).
-
 * Pointers
 
 - Knowledge base: /root/personalization/knowledge/aria/

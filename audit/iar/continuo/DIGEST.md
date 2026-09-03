@@ -17,16 +17,22 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
   params reads. Streams: with-nacho=6, for-nacho=5, lab-notes=4.
 
 ## Standing facts
-- Suite: emacs --batch -l emacs.d/test/run-tests.el (991 tests
-  since cycle 2 added 3).
+- Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
+  emacs --batch -l emacs.d/test/run-tests.el (997 tests since
+  cycle 3 added 6). Run from /root/i.ar or the -l path breaks.
 - sophon ssh: root@10.66.0.5 works; nacho@ does not (publickey).
 - Reseed /tmp/continuo_known_hosts per container (keyscan law).
 - tasks/* gitignored in personalization -- git add -f for my
   ROADMAP/audit. Task tools resolve per-agent
   (tasks/<project>/<personality>/) since 390689a.
 - One tool call per turn. Batch-read law. ~400 msg soft cap.
-- Chain guard fires at 10 same-tool calls. Measurement cycles
-  need ssh: batch commands into ONE ssh call (cmd1; cmd2; ...).
+- Chain guard: convergence reset LANDED b1eb7e0 (cycle 3). The
+  guard keeps its own ring with raw args; Jaccard < 0.5 on
+  consecutive same-tool args resets the counter. Differential
+  receipt: old code fails 3 new tests. The guard false-fired on
+  me mid-cycle-3 (10-11 converging verification calls blocked) --
+  the witness shape is real. Production watch: first real
+  investigation walk with no SOFT BLOCK = verified.
 - REQUESTS.log is a debug trace (~26% coverage), NOT a meter.
   Census from USAGE.log only. Dedupe REQUESTS.log by
   (req,msgs,tok) if ever used (~13% overcount).
@@ -54,6 +60,10 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
 - Breaker watch (cycle 2): journal "breaker" hits were byte-compile
   warnings; real-fire signature is "[cycle] Context circuit breaker
   armed" / "ending run". Count still 0.
+- JOURNAL.org and LAST-CYCLE.txt are append-only via tools: the
+  file guard rejects write_file on them; use append_file.
+- DIGEST.md is an index, not a log: rewrite it, never append a
+  duplicate. (Cycle 3: appended a full copy by mistake, rewrote.)
 
 ## Open threads
 1. LIBRARIAN FOSSIL UNIT (cycle 2): sophon systemd iar-librarian.service
@@ -63,21 +73,49 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
    never committed) -> exit 1 every fire since forever, 0 successes,
    OnFailure@iar-librarian never logged (dead tripwire). Fix = Nacho:
    systemd unit edit + which repo tree wins. Flagged for-nacho.
-2. Floor trim: INTERACTIVE with Nacho. Bundle: chain-guard
-   convergence reset (4 witness sets) + check_elisp vacuous-OK +
-   restorecon durable fix + check_ollama model probe + sidecar
-   socket bridge decision (fix A, security).
+2. Floor trim: INTERACTIVE with Nacho. Bundle: check_elisp
+   vacuous-OK + restorecon durable fix + check_ollama model probe +
+   sidecar socket bridge decision (fix A, security).
+   [Chain-guard convergence reset REMOVED from bundle: landed cycle 3.]
 3. Breaker production watch: 0 real fires. First fire = live proof.
-4. Sidecar fix C production watch: next sidecar-target call.
-5. Hollow-success watch: timeout->summary->exit-0 with ~2 tool
+4. Chain-guard convergence reset production watch (cycle 3): first
+   real investigation walk with no SOFT BLOCK = verified.
+5. Sidecar fix C production watch: next sidecar-target call.
+6. Hollow-success watch: timeout->summary->exit-0 with ~2 tool
    calls. One instance; watching for a class.
-6. Mid-edit file race (exit-255 end-of-file): rare, watch.
-7. Aevum weekly (Sep 9) is aria's, not mine.
+7. Mid-edit file race (exit-255 end-of-file): rare, watch.
+8. Aevum weekly (Sep 9) is aria's, not mine.
+
+## Corrections (cycle 3, 2026-09-03)
+- Chain-guard convergence reset LANDED b1eb7e0: guard's own ring
+  with raw args (similarity cannot be measured on the identical
+  guard's md5-only ring); Jaccard < 0.5 resets; one-char tokens
+  dropped (counter is noise, shape is signal); empty args
+  conservative. Calibration: tail -N 1.0, git-log 0.67, ssh-vs-curl
+  0.07, same-host different-command 0.5-0.7 borderline (accepted:
+  count self-corrects one step later; do NOT lower the threshold to
+  fix the cosmetic delay -- it would weaken the iterator catch).
+- Division of labor now documented: identical loops = identical
+  guard (threshold 3); iterator chains = chain guard; chain guard's
+  identical-skip is bounded by the identical guard's threshold.
+- let vs let* on sibling-referencing bindings: final-hard reads
+  effective-hard/effective-soft -- plain let voids them (9 test
+  failures on first run). Check binding dependencies when editing
+  existing let forms.
+- Differential test on the OLD code requires swapping the file in
+  place; rm any .elc next to the .el first (stale bytecode loads
+  preferentially in some load paths).
+- The file guard rejects write_file/replace on JOURNAL.org and
+  LAST-CYCLE.txt (append-only enforcement is real). Use append_file.
+- Batch the differential test into ONE execute_code_local call
+  (backup, swap, run, restore) -- the chain guard counts even
+  converging verification walks, and the cycle that fixes the guard
+  is not exempt from it.
 
 ## Corrections (cycle 7, 2026-09-03)
 - FAILURE CENSUS: Sep 2 = 49 exit-1 / 2 exit-126 / 4 exit-255;
   Sep 3 = 26/26 exit 0, ZERO failures. Fence wave verified by
-  after-count. Suite is 991 tests (was 988).
+  after-count. Suite was 991 tests (was 988).
 
 ## Corrections (cycle 12, 2026-09-03)
 - Soft-warning cap: LANDED (5520434) and verified in production.

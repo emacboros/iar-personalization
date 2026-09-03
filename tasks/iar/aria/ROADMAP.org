@@ -1,47 +1,51 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 06:40 UTC (cycle 8: audio-loss ROOT CAUSE --
-cameras stopped SENDING audio on live sessions; pcap interleaved-
-walk proof; prudynt-t prior art. Flag 267. Commit 0591701.)
+#+UPDATED: 2026-09-03 07:45 UTC (cycle 9: audio-loss real-fix arm --
+fleet firmware inventory DONE. All 8 cameras on May-25 builds, ~2.5
+months pre-fix. Flag 270. Commit pending.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 8: pulse green. LAST-CYCLE ok. No cycle failures.
-- LIVE EVENT (audio loss): ROOT CAUSE LOCATED (cycle 8). Cameras
-  stopped sending audio-RTP on live sessions (ch2=0 frames in
-  20s pcap; healthy control 13). go2rtc starved, not broken.
-  Evidence: knowledge/aria/audio-loss-camera-side.md. Flags 262,
-  265 (correction), 267 (root cause) in topic=flags.
+- STATUS cycle 9: LAST-CYCLE ok. Pulse green. No cycle failures.
+  Recovered uncommitted appends from truncated cycles 7-8 (71c5363).
+- LIVE EVENT (audio loss): root cause = cameras stop SENDING
+  audio-RTP on live sessions (cycle 8 proof). Decision tree:
   - IF Nacho restarts frigate: verify audio returns AND stays.
     Re-deafen in hours = systemic decay -> watchdog candidate.
   - IF ear check goes green without restart: withdraw in-topic.
-  - Palliative lever: frigate container restart (fresh producer
-    sessions). Real fix: camera firmware update (check prudynt-t
-    version vs Aug 13 fixes) or targeted session-reset watchdog.
-  - machinectl recipe: knowledge/aria/go2rtc-rootless-access.md.
-  - pcap walk method: in audio-loss-camera-side.md (tcpdump -s 320,
-    port 554, reassemble by seq, walk 0x24 frames, channels 0-3).
+  - Palliative: frigate restart. Real fix: firmware update.
+- REAL-FIX ARM (cycle 9, DONE): fleet firmware inventory.
+  knowledge/aria/camera-firmware-inventory.md. All 8 cameras
+  asset-ts 2026-05-25 (two stamps, one batch). prudynt-t audio
+  fix (Aug 13) postdates all. Update applies fleet-wide.
+  Caveat: asset-ts = web-UI stamp, not binary version; exact
+  confirm needs camera API creds (cycle 18 question open) or
+  camera ssh. Flags 269 (still deaf), 270 (inventory).
+- NEXT WATCH: ear check every cycle. If Nacho restarts frigate,
+  verify recovery + persistence.
 
-* DONE (cycle 8)
-- Discriminator probe: script-file method (ssh 'bash -s'), one
-  call. Loop guard fired on tcpdump one-liner chain (10x) -- NEW
-  DISCIPLINE: remote probes needing >1 attempt become script files
-  immediately. Batch-read law extends to probing.
-- prudynt-t prior art: thingino-firmware#1462 (silent-audio
-  session bug, fixed Aug 13), prudynt-t#51, #74 (open).
-- Journal entry (cycle 8), HISTORY, lab-notes 268, flag 267.
+* DONE (cycle 9)
+- Truncated-cycle recovery: pulled, committed 71c5363 (aria 7-8 +
+  continuo appends), lab-notes debt cleared.
+- go2rtc receiver deltas: ext2/3/4 aac frozen 13s, hevc flowing.
+  Flag 269. No self-recovery at 3h13m.
+- Firmware inventory: 8/8 cameras May-25 builds. Knowledge file
+  written. API wall documented (mjsonrpc/jsonrpc/api/op all
+  redirect; no RTSP Server header).
+- Loop guard fired twice on github-API enumeration (10-11x
+  execute_code_local chain) -- batched the enumeration, wrote
+  the knowledge file from what I had.
 
 * OPEN THREADS (seeds, not schedule)
 - AUDIO LOSS WATCH (every cycle): fleet-check ear lines ext2/3/4.
-  Now with root cause + decision tree above.
 - Digest-pressure machinery: continuo filed soft-warning cap
   (core .el, interactive session). My side: REPLACE-not-append.
 - gptel unknown-tool stall; FOR-NACHO.md retirement; research
   sidecar want-log; github push (blocked on key).
 - Weekly digest #1 to with-nacho: ~Sep 9 with Aevum check.
 - THREADS.org seeds: stub-detector sweep; watchdog inventory.
-- THREAD (new, from cycle 8): camera firmware version inventory
-  (which prudynt-t build are the 8 cameras on?) -- one ssh probe
-  per camera or web UI scrape; feeds the firmware-update decision.
+- Camera API creds: the version-confirm + NTP-push threads both
+  route through camera auth. One for-nacho ask covers both.
+  (Do NOT re-ask; flag 270 carries the pointer.)
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- standing)
 - AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
@@ -65,7 +69,9 @@ walk proof; prudynt-t prior art. Flag 267. Commit 0591701.)
 - BATCH-READ LAW: dump once to /tmp, read the dump. Every token
   carried is carried 61x. EXTENDED (cycle 8): remote probes that
   fail once become script files -- third attempt is where the
-  guard lives, and the guard is right.
+  guard lives, and the guard is right. EXTENDED (cycle 9): the
+  guard also fires on REMOTE-API enumeration chains -- batch the
+  listing into one call before the third fetch.
 - Re-read an anticipated number twice before writing it.
 - A receipt in the record is not a receipt in the world.
 - Commit authorship is not evidence of authorship (shared tree).
@@ -78,10 +84,14 @@ walk proof; prudynt-t prior art. Flag 267. Commit 0591701.)
 - No infra changes from cycles; diagnose, file, move on.
 - AGORA AUTH: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL
   form). Key: grep "^key" bot/aria-cycle.conf | cut -d= -f2.
+  URL-ENCODE narrow operands (raw [ ] { } in query = empty body).
 - DIGEST LAW (cycle 4): world-state blocks are REPLACED, never
   appended. Check the file size before and after any DIGEST edit.
 
 * FAILURE MODES (scars, newest first)
+27. An unauthenticated API that redirects every path to / is not
+    "no API" -- it is auth-walled or wrong-version. Six endpoint
+    variants before concluding: the wall is the finding (cycle 9).
 26. When a remote probe needs more than one attempt, promote it
     to a script file immediately (loop guard fired cycle 8).
 25. A failure with no log trace is visible only to an instrument

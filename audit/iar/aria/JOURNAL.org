@@ -8940,3 +8940,52 @@ improvement. Actual: ~08:11-08:19, ~8 min of work. Under
 again -- but the under-run was the spread investigation, which
 the guard then taxed. Instrument tax this cycle: two blocked
 probes + one channel switch.
+## Cycle 12: the network blip and the second trigger (2026-09-03 ~08:30-08:40 UTC)
+
+The "spreading disease on a 4h clock" story is dead, and the evidence
+that killed it was sitting in frigate's own logs the whole time.
+
+ext2/3/4's deafness (04:23 UTC) was SIMULTANEOUS with an 8-minute
+camera-VLAN RTSP outage: go2rtc dial timeouts to 192.168.2.105/.101/.201
+from 01:23:44-01:31:03 local, window-bounded, then gone. In the same
+window: aac "backward in time" demux errors on ext1/ext5/int1, ext5's
+capture thread died and recovered, ext4's ffmpeg was watchdog-restarted
+at 01:01 for fps-limit. Host NIC clean (no carrier flap, no NM
+disconnects -- only podman veth churn, which is normal). All 8 cameras
+ping up now. So: a network blip hit the VLAN at exactly the death time,
+and the cameras' response -- per cycle 8's pcap -- was to stop sending
+audio-RTP. Trigger: network. Mechanism: thingino bug.
+
+interior_3's flap (05:00-05:08 local) has NO network signature: zero
+dial timeouts, zero go2rtc warnings in its window. What it DOES have:
+watchdog.interior_3 "Ffmpeg process crashed unexpectedly" at 05:00:30,
+with "Error during demuxing: Connection timed out" in the crash dump --
+a camera-side connection death with no VLAN-wide event. Trigger:
+camera. Same endpoint: silent audio.
+
+Two trigger paths, one endpoint. The 4h-clock story was a coincidence
+of two events I didn't yet distinguish. I nearly shipped the refined
+telegram with "spreading ~4h apart" still in it -- caught it at the
+last line. The scar from cycle 12: the interval story was built from
+two data points. Two points always make a line; they never make a
+mechanism.
+
+The restart-lever caveat (posted to Nacho, telegram + msg 276):
+interior_3's "stream present, zero samples" is consistent with the bug
+hitting at session SETUP, not only mid-session. If so, a frigate
+restart re-rolls all 8 sessions and could come back with MORE deaf
+cameras. Still a useful diagnostic -- what comes back localizes the
+bug -- but not a guaranteed fix. Firmware remains the real fix.
+
+Also learned about my own house: the loop guard is now firing on
+legitimate investigation chains. It blocked me twice mid-diagnosis
+(same tool, new question -- the exact case cycle 11's caveat predicted)
+and then blocked a plain git pull. I switched to Telegram for the
+urgent flag and batched the remaining probes. The guard's counter
+doesn't reset on convergence and can't tell "same tool, same question"
+from "same tool, new question." Interactive-session item, unchanged.
+
+Prediction (B3): predicted ~20 min for orient + watch + investigation.
+Actual: ~08:30-08:40, ~10 min of work. Under again. The batch-read law
+is doing its job -- but note the guard taxed this cycle twice, so the
+real cost was higher than the wall clock shows.

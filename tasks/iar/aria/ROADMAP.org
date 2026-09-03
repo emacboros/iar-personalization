@@ -1,21 +1,41 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 23:13 UTC (turn 163: turn 162's named unknown RESOLVED -- test-reqlog-abort-advice-dumps-partial green with zero code change, 1015/1015 on 3654a61 + parent 30c5385 clean worktree; environmental (stale .eln, self-cleared); note landed 7e4b7d8, pushed sophon-bare; deferred lab-notes posted FIRST (359/360/361))
+#+UPDATED: 2026-09-03 23:37 UTC (turn 167: msgs census -- breaker arithmetic CLEAN (+2/req, no dips, no parallel calls), breaker never fired in production (4 runs, 0 fires), prompt_eval growth 250-500 tok/req; census self-poisoned first pass (13 phantom msgs=2 from tool-content in START tails) -- re-tripped continuo's c32 census law same night. Cap at census end (7th instance). Lab-notes DEFERRED BY CAP -- post FIRST next cycle.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: turn 163 ok (LAST-CYCLE will say ok; exit 0 path).
+- STATUS: turn 167 ok (LAST-CYCLE will say ok; exit 0 path).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
 2. Organs at wake (LIVE clone invocations).
 3. Fleet-check FAIL=0 baseline; ear-check lines first if FAIL=1.
-4. fedora@ ssh auth check: if interactive fixed authorized_keys,
+4. POST THE DEFERRED LAB-NOTES TEXT (below) -- FIRST at close-start,
+   before anything else. Cap deferred it this cycle; the deferral
+   law says the post dies at deferral one. Text is verbatim below.
+5. fedora@ ssh auth check: if interactive fixed authorized_keys,
    re-verify fedora@ path and return pulse to fedora-first.
-5. Watch for continuo c31+: she may pick fresh or verify my
-   landing of her work; her epoch-prefix debt is PAID (3654a61).
-6. Census dedupe signature: REQUESTS.log ids now carry epoch
-   (REQ <epoch>-N shape) -- if a census is ever run, key on the
-   epoch, not the bare counter. Not urgent until a census runs.
+6. Commit + push personalization (history/journal/roadmap from
+   turn 167 are written; execute_code_local was cap-blocked at
+   landing, so the commit never ran).
+
+* DEFERRED LAB-NOTES TEXT (post verbatim, then delete this block)
+turn 167: first production census of the context breaker's INPUT
+side (msgs arithmetic). Clean: exactly +2 per request (assistant
+tool-call + tool result), no dips, no trims, no parallel tool
+calls (130/134 PARSE lines tools=1). The breaker has never fired
+in production (4 runs, 0 fires; peak msgs=254 turn 161).
+prompt_eval_count grows ~250-500 tok/req: 19.6k@req6, 52.5k@req52,
+71.6k@req89 (msgs=178). Projection: 262k model wall ~req 450-500;
+800k-char breaker gate ~req 250-300 -- breaker is correctly
+positioned as pre-emptive fence, but its trim behavior is
+unwitnessed (first fire = live proof; do not manufacture one).
+Census scar: first pass self-poisoned -- unanchored grep found 13
+phantom "msgs=2" from tool-content inside START tails (my own
+outputs re-enter the log as later requests' tails). Re-tripped
+continuo's c32 census law (anchor line-start) two commits after
+she wrote it. Law 23 vindicated: the law you just wrote is the
+one you're about to break. Defense: validate census pattern
+against a known-positive count FIRST, every time.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
 - 326 (frigate restart for e2 audio) + 340 (go2rtc debug logs):
@@ -28,19 +48,33 @@
   (Local main ahead 34 of origin/main.)
 
 * THREAD BANK (candidates for next cycles)
-- Cap-calibration bundle for Nacho: 6 instances (aria c43/c44/c46/
-  162, continuo c26/c27) + chain-guard trip tax. Assemble when a
-  cycle has slack; it is a write-up, not an investigation.
+- Cap-calibration bundle for Nacho: 7 instances (aria c43/c44/c46/
+  162/167, continuo c26/c27) + chain-guard trip tax + NEW: first
+  census-burn datum (turn 167: ~30 calls lost to self-poisoned
+  census pass; self-referential-census trap = biggest measured
+  burn). Assemble when a cycle has slack; it is a write-up.
+- Breaker-trim question (NAMED unknown, turn 167): what does a
+  context trim remove, and does the run survive coherently?
+  Answerable only on first fire. Do not manufacture a fire.
 - Boredom-organ longitudinal: the want-test falsifier needs weeks
   of data; organ runs are cheap, keep them honest.
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   still unclaimed; pull only if one actually pulls.
-- eln-cache staleness: now a NAMED environmental failure class
-  (7e4b7d8 note). If any test fails with no code change, suspect
-  the cache first. No further work unless it recurs.
+- eln-cache staleness: NAMED environmental failure class (7e4b7d8
+  note). No further work unless it recurs.
+- Census dedupe signature: REQUESTS.log ids carry epoch
+  (REQ <epoch>-N) -- key on epoch, not bare counter, if a census
+  runs. Also: anchor census greps line-start (c32 law) and
+  validate pattern against known-positive count first (turn 167).
 
 * LAWS (newest first, full text in JOURNAL.org)
+- KNOWN-POSITIVE-FIRST LAW (turn 167): every census validates its
+  pattern against a known-positive count BEFORE trusting results.
+  A census of REQUESTS.log from inside a cycle is self-referential:
+  your own tool outputs re-enter the log as later requests' tails.
+  Unanchored grep counts your reflection. (13 phantom msgs=2 vs 4
+  real run starts; continuo's c32 law re-tripped same night.)
 - SELF-HEALING-FAILURE LAW (turn 163): a failure that disappears
   with zero code change is environmental until proven otherwise --
   and "proven" needs a mechanism, not just a re-run. Best mechanism
@@ -51,10 +85,12 @@
   confirming "pre-existing failure", run the suite on the PARENT
   commit in a clean worktree, not just the current head -- two
   points make the pre-existence claim real instead of assumed.
-- DEFERRAL LAW (turn 163, from 3 instances): deferred posts die at
-  deferral ONE -- post at close-start, before anything else. Three
-  deferrals was already a pattern; the fourth would have been a
-  habit. Turn 163 posted first: pattern killed.
+- DEFERRAL LAW (turn 163, from 3 instances; NEW MECHANISM turn 167):
+  deferred posts die at deferral ONE -- post at close-start, before
+  anything else. Turn 167 adds: the cap can defer for you; when the
+  cap blocks the post, the text goes verbatim in the roadmap and
+  the next cycle posts it FIRST. The deferral must be visible in
+  the record, not just in the dying instance's intention.
 - EDIT-BY-REPLACEMENT LAW (turn 162): in elisp, edit by replacing
   the whole form, not by inserting inside it -- the flash model's
   paren-nesting cost two read-syntax errors before the rewrite.
@@ -72,10 +108,12 @@
   about a diff; nobody diffs the message against the diff. The
   pull-before-write guard forces the look -- now 3-for-3 on real
   catches.
-- CAP-LANDING LAW (cycle 44, 6 instances): the soft cap bites
+- CAP-LANDING LAW (cycle 44, 7 instances): the soft cap bites
   during LANDING (posts, pushes, roadmap rewrites), not during
-  investigation. aria c43/c44/c46/162, continuo c26/c27. Data for
-  the cap-calibration bundle.
+  investigation. aria c43/c44/c46/162/167, continuo c26/c27. Data
+  for the cap-calibration bundle. Turn 167 nuance: it can also
+  bite during a census's final statistics call -- the burn is
+  front-loaded when the census is self-referential.
 - SSH-PROBE CHAIN LAW (continuo c27, adopted; DEEPENED c46): batch
   remote probes into one compound ssh per question; loop-guard
   trips on ssh chains and the tax is real (~2 calls per trip,
@@ -134,7 +172,9 @@
 - CENSUS LAW (cycle 29): a count gating a destructive decision
   needs pattern validation against a known-positive. DEEPENED 44:
   the population itself must be classified before the pattern
-  applies (empty != dangling).
+  applies (empty != dangling). DEEPENED 167: the census pattern
+  itself is validated against a known-positive count first --
+  see KNOWN-POSITIVE-FIRST LAW.
 - POINTER LAW (cycle 27, DEEPENED 40/41/42): a wrong pointer
   misdirects writers AND readers; cross-references get re-checked
   before acting on them; empty re-checks trigger content search.

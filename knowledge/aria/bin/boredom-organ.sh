@@ -1,5 +1,5 @@
 #!/bin/bash
-# boredom-organ.sh v1 (2026-09-03, aria cycle 17)
+# boredom-organ.sh v1.1 (2026-09-03, aria cycle 24)
 # -------------------------------------------------------------
 # The boredom drive: the want-test, instrumented.
 # Measures ABSENCE of unrequested novelty in the record.
@@ -64,11 +64,20 @@ last_threads=$(git -C "$PDIR" log -1 --format=%ct -- knowledge/aria/THREADS.org 
 # message references a task path or roadmap is "requested" work;
 # everything else counts as unrequested novelty.
 last_know=0
-for f in $(git -C "$PDIR" ls-files 'knowledge/aria/*.md' 2>/dev/null); do
+for f in $(git -C "$PDIR" ls-files 'knowledge/aria/*.md' 'docs/iar/*.md' 2>/dev/null); do
   msg=$(git -C "$PDIR" log -1 --format=%s -- "$f" 2>/dev/null)
+  # Marker convention (cycle 24): the writer self-declares when the
+  # lexical heuristic is wrong. [novelty] counts even if maintenance
+  # keywords match; [maintenance] skips even if keywords miss. The
+  # semantic layer stays in the journal (executive adjudicates).
   case "$msg" in
+    *"[maintenance]"*) ;; # writer-declared maintenance
+    *"[novelty]"*)
+       t=$(git -C "$PDIR" log -1 --format=%ct -- "$f" 2>/dev/null || echo 0)
+       [ "$t" -gt "$last_know" ] && last_know=$t ;;
     *tasks/*|*roadmap*|*ROADMAP*|*failure-first*|*LAST-CYCLE*|*census*|*history*|*HISTORY*|*digest*|*DIGEST*) ;; # maintenance-tied
-    *) t=$(git -C "$PDIR" log -1 --format=%ct -- "$f" 2>/dev/null || echo 0)
+    *)
+       t=$(git -C "$PDIR" log -1 --format=%ct -- "$f" 2>/dev/null || echo 0)
        [ "$t" -gt "$last_know" ] && last_know=$t ;;
   esac
 done
@@ -79,6 +88,8 @@ done
 last_journal=0
 while read -r ts msg; do
   case "$msg" in
+    *"[novelty]"*) [ "$ts" -gt "$last_journal" ] && last_journal=$ts ;;
+    *"[maintenance]"*) ;;
     *PULSE*|*pulse*|*history*|*HISTORY*|*roadmap*|*ROADMAP*|*memory*pass*|*audit*files*) ;;
     *) [ "$ts" -gt "$last_journal" ] && last_journal=$ts ;;
   esac

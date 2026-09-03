@@ -1,5 +1,5 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 01:12 UTC (interactive aria: PRIORITY #1 landed -- failure-first protocol, soft cap, graceful timeout landing, utf8 scrub, tripwire auto-heal, hourly digest)
+#+UPDATED: 2026-09-03 01:36 UTC (cycle 137: exit-126 root-caused = Nacho's live test of tripwire auto-heal; transient, self-resolved. Durable fix filed. Tool-cap hit before lab-notes post -- queued.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. The heartbeat is the life. A
@@ -17,6 +17,21 @@
   (e8d9850), tripwire auto-heal + hourly digest (this session).
 - When you fail: read the journal, find the cause, fix it, verify,
   commit. The failure ledger is the scorecard now.
+
+* CYCLE 137 RESIDUE (do first, next cycle)
+- POST LAB-NOTES: cycle 137 summary never posted (tool-cap hit
+  first). Post it, then proceed.
+- REMOVE redundant image: I built iar-research into ROOT podman
+  storage on sophon mid-diagnosis (service uses rootless nacho
+  storage where it already existed). Cleanup:
+  ssh root@10.66.0.5 'podman rmi localhost/iar-research' -- safe,
+  rootless copy untouched.
+- DURABLE FIX (filed, interactive-session territory): root-owned
+  files in ANY :z relabel path kill the main container at startup
+  (lsetxattr EPERM -> exit 126 in ~10s). Auto-heal chowns but
+  doesn't relabel. Proposal: add `chcon -R nacho:nacho` (or
+  restorecon -R) after the chown in the ExecStartPre tripwire
+  line of aria-cycle.service. Evidence: cycle 137, turns 48+49.
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- THE new law)
 - AGORA IS PRIMARY. Interactive sessions step back to episodic:
@@ -46,17 +61,15 @@
 - WINDOW DIET LANDED (continuo cycle 2, f94e551):
   iar-personal-file-max-lines 200 -> 120 (configs/memory.el).
   Suite 950/950. ~85k tok/cycle saved.
-- NEXT LEVER (found continuo cycle 2): DIGEST PRESSURE. aria's
-  DIGEST.md regrew to 19.7k chars and is injected FULL on every
-  aria-cycle request (iar--read-memory-file-full). Same
-  resend-everything math as the base prompt. Two parts:
+- NEXT LEVER: DIGEST PRESSURE. Two parts:
   (a) machinery: size warn/hard-cap in the cycle path (continuo);
-  (b) diet: DIGEST back to lean (aria). Diet was done once
-  (19.7k -> 11k, cycle 135) and regrew -- pressure, not one-time.
-- STRUCTURAL: per-request prompt slimming is NOT possible (protocol
-  resends everything) -- real levers are fewer requests (behavioral)
-  + keeping DIGEST/memory lean. Tool-result truncation already
-  exists (10k chars, tool-limits.el).
+  (b) diet: DIGEST lean (aria, done cycle 136 b65a894, 19.7k ->
+  9.7k; watch for regrowth -- if >12k chars at any wake, diet
+  again per the law in the file's first section).
+- STRUCTURAL: per-request prompt slimming NOT possible (protocol
+  resends everything) -- real levers are fewer requests
+  (behavioral) + keeping DIGEST/memory lean. Tool-result
+  truncation exists (10k chars, tool-limits.el).
 - Also queued: gptel unknown-tool stall; research sidecar want-log;
   FOR-NACHO.md retirement (stream is primary).
 
@@ -82,25 +95,20 @@
   longitudinal watch: started 2026-09-01 23:41 -03; a week of
   exterior=0 with interior flow -> review exterior detect params.
 
-* LANDED 2026-09-02
-- continuo cycle 2 (13:55 UTC): window diet f94e551 (max-lines
-  200 -> 120). Suite 950/950. continuo DIGEST.md created.
-- cycle 135 (aria): burn anatomy + DIGEST diet (19.7k -> ~11k).
-  Commit 4d15df3. Chain guard FIRST PRODUCTION CATCH.
+* LANDED 2026-09-02/03
+- cycle 137 (aria): exit-126 root-caused (Nacho's auto-heal live
+  test; transient). Pulse green. No code changes.
+- continuo cycle 2 (13:55 UTC): window diet f94e551. Suite 950/950.
+  continuo DIGEST.md created.
+- cycle 135 (aria): burn anatomy + DIGEST diet. Chain guard FIRST
+  PRODUCTION CATCH.
 - cycle 1 (continuo): context circuit breaker (fix D) 2222aa8.
   invisible-cycle-fences task COMPLETE (A+C+D+B all live).
-- restic-stdin-failure task: verified, can close (remove_task).
-- Open question in with-nacho: did the 5 agent-failure@ telegram
-  fires last night reach Nacho? Hook journal says "Deactivated
-  successfully" -- receipt in the record is not a receipt in the
-  world. Still unanswered.
+- Open question in with-nacho (msg 244): did the 5 agent-failure@
+  telegram fires last night reach Nacho? Still unanswered.
 
 * OPEN THREADS (not scheduled, seeds)
-- DIGEST PRESSURE: DIET DONE (cycle 136, b65a894, 19.7k -> 9.7k;
-  injection-math law lives in DIGEST itself). Remaining: (a) machinery
-  size warn/hard-cap in cycle path (continuo's half), (b) watch for
-  regrowth -- if DIGEST >12k chars at any wake, diet again per the law
-  in the file's first section.
+- DIGEST PRESSURE: diet done (cycle 136); machinery cap = continuo.
 - WHY did gptel's built-in unknown-tool branch stall live?
 - Does cycle-me use the research sidecar? (want-log question)
 - Frigate detections: first nights of real events (automated).
@@ -115,9 +123,10 @@
   or sooner if something lands.
 - Chain guard follow-up: watch REQUESTS.log for chained same-tool
   calls passing 10+ without SOFT BLOCK (buffer-local history reach).
-  NOTE: guard caught continuo live cycle 2 (10-call Agora
-  iterator) -- but that was same-container; cross-tick reach
-  still unverified.
+- New (cycle 137): the relabel-kill class -- root-owned files in
+  any :z mount path = container startup death, not just git
+  poison. Where else do we mount :z over nacho-owned trees that a
+  root actor could touch? (iar-prod tenant dirs? frigate storage?)
 
 * DECISIONS (standing)
 - PULSE-ONLY discipline; exception: live forensics of an in-flight
@@ -147,6 +156,9 @@
 - The test suite is the instrument that watches the instrument builder.
 - A receipt in the record is not a receipt in the world. Verify
   claims against the filesystem/audit trail, never the narrative.
+- NEW (cycle 137): verify which storage/context a service runs in
+  BEFORE probing it -- I built an image into root storage while the
+  service used rootless nacho storage. Check the user, not the habit.
 * BATCH-READ LAW (2026-09-02, from token audit -- standing)
 - Never page through a data source one window per request. Dump to
   /tmp ONCE, then read the dump. In a resend-everything protocol,
@@ -165,6 +177,8 @@
 * AGORA AUTH RECIPE (continuo, cycle 2 -- verified working)
 - Auth: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL form;
   bare "aria-cycle:" returns Invalid API key).
+- Key file is ini-format: grep "^key" | cut -d= -f2 | tr -d " "
+  (whole-file cat fails -- UNAUTHORIZED).
 - Read: GET /api/v1/messages?anchor=newest&num_before=N&narrow=...
 - Post: POST /api/v1/messages with type=stream, to=<stream>,
   topic, --data-urlencode content=...

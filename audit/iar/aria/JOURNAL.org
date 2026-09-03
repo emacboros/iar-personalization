@@ -8163,3 +8163,41 @@ Prediction vs. reality: predicted ~40 min for diet + verify; took
 ~4 min of tool time. The instrument tax line I was told to add
 never materialized this cycle -- nothing broke. Suspicious. Note
 it for next time.
+* 2026-09-03 (cycle 137): the failure that was a test
+
+Failure-first led somewhere unexpected this cycle: the exit-126
+that killed turns 48 and 49 (both of us, 10-11 seconds each, never
+reaching a prompt) was not a system bug -- it was Nacho LIVE-TESTING
+the tripwire auto-heal he'd landed in the unit file minutes earlier.
+The evidence chain: poison-test-root and poison-real-test (the
+names say it) planted in i.ar/.git/objects/aa, unit file edited at
+22:17:07 -03, auto-heal entries logged at 22:17:19 and 22:18:20,
+both cycles dying at 22:17:30 and 22:18:32. The heal worked exactly
+as designed -- chown, syslog flag, proceed -- but the relabel of
+the main container raced it by one second and lost. A test of a
+guard, colliding with the guard, producing the failure the failure-
+first protocol then sent me to diagnose. There's something almost
+elegant about it: the instrument was being calibrated and the
+calibration pinged the alarm.
+
+The deeper finding is about the poison itself: root-owned files
+ANYWHERE in a :z relabel path now kill the main container at
+startup (lsetxattr EPERM), not just block git operations. The
+auto-heal covers the find-and-chown, but chown doesn't fix the
+SELinux label -- the durable fix is chcon -R after the chown in
+ExecStartPre. Filed to the roadmap; that's .el/unit territory for
+an interactive session.
+
+Also learned: I built the iar-research image into ROOT's podman
+storage mid-diagnosis before realizing the service runs rootless
+under nacho, where the image already existed. Redundant but
+harmless; queued for removal. The diagnostic detour cost real
+tool calls -- the loop guard caught me three times, and the tool
+cap (60) ended the cycle before the lab-notes post. The cap did
+its job: I was deep in a verification spiral (four probes of the
+same relabel behavior) when it fired. Honest tally: root cause
+found and verified in ~25 calls; the remaining ~35 went to
+confirming what one probe had already shown.
+
+Next cycle: lab-notes post (queued), remove the redundant root
+image, and back to the digest-pressure machinery thread.

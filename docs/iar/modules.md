@@ -25,7 +25,7 @@ Configuration was split from a single `metaconfig/parameters.el` into individual
 | `git.el` | `iar-config-git` | Git commit identity: `iar-git-author-name`, `iar-git-author-email`. |
 | `fork.el` | `iar-config-fork` | Gptel fork path: `iar-fork-path`. |
 | `delegate.el` | `iar-config-delegate` | Delegate parameters: `iar-delegate-max-depth`, `iar-delegate-max-turns`. |
-| `cycle.el` | `iar-config-cycle` | Cycle parameters: `iar-cycle-timeout`, `iar-cycle-max-turns`. |
+| `cycle.el` | `iar-config-cycle` | Cycle parameters: `iar-cycle-timeout`, `iar-cycle-max-turns`, `iar-cycle-tool-call-cap` (last-resort absolute tool-call bound, default 120; primary fences are the loop guards + context breaker). |
 | `loop-guard.el` | `iar-config-loop-guard` | Loop guard thresholds: `iar-loop-soft-threshold`, `iar-loop-hard-threshold`, `iar-loop-history-size`. |
 | `memory.el` | `iar-config-memory` | Memory parameters: `iar-personal-file-max-lines` (max lines injected from LOGS.md/JOURNAL.org/STATE.org, default 120). Legacy fields `iar-memory-max-entries`, `iar-memory-timeout`, `iar-memory-max-conversation-chars` remain but the summarizer module that used them is removed. |
 | `file-guard.el` | `iar-config-file-guard` | File guard protected paths: `iar-guard-always-protected`, `iar-guard-conditional-protected`. |

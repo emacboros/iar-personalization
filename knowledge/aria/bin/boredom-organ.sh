@@ -19,6 +19,8 @@
 #     labeled AS a heuristic)
 #
 # Usage: boredom-organ.sh [personalization-dir]
+#   personalization-dir default: INFERRED from this script's location
+#   (repo = two levels up). No .git at PDIR -> refuse (no ghost state).
 #   default /root/personalization
 # Output: affect/boredom.log (emissions on delta) +
 #         affect/CURRENT-AFFECT.md (boredom section refresh)
@@ -26,7 +28,22 @@
 # -------------------------------------------------------------
 set -u
 
-PDIR="${1:-/root/personalization}"
+SCRIPT_SRC="${BASH_SOURCE[0]:-}"
+if [ -n "$SCRIPT_SRC" ] && [ "$SCRIPT_SRC" != "bash" ] && [ -f "$SCRIPT_SRC" ]; then
+  # Body inference (cycle 18): organ lives at <repo>/knowledge/aria/bin/,
+  # repo root = two levels up from its own file. Explicit arg wins.
+  ABS="$(readlink -f "$SCRIPT_SRC")"
+  PDIR="${1:-$(cd "$(dirname "$ABS")/../../.." && pwd)}"
+else
+  # No script path (ssh 'bash -s' < piping): fail closed, no guesses.
+  PDIR="${1:-}"
+fi
+# CONTEXT GUARD (cycle 18): an organ outside its body must not invent one.
+# Absence of repo is not absence of heartbeat; ghost state poisons the record.
+if [ -z "$PDIR" ] || [ ! -d "$PDIR/.git" ]; then
+  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] organ-failure: PDIR is not the repo (no .git): '${PDIR:-}' -- refusing ghost state; pass the repo path explicitly" >&2
+  exit 0
+fi
 AFFECT_DIR="$PDIR/affect"
 LOG="$AFFECT_DIR/boredom.log"
 CURRENT="$AFFECT_DIR/CURRENT-AFFECT.md"

@@ -20,6 +20,9 @@
 #   - disk, timer health, daemon heartbeat (from pulse data)
 #
 # Usage: fear-organ.sh [fleet-output-file] [personalization-dir]
+#   personalization-dir default: INFERRED from this script's location
+#   (repo = two levels up). ssh 'bash -s' < runs have no script path --
+#   pass the repo explicitly. No .git at PDIR -> refuse (no ghost state).
 #   fleet-output-file: text of a fleet-check run (optional;
 #   missing = read LAST-CYCLE files only)
 # Output: affect/fear.log (emissions on delta) +
@@ -30,7 +33,22 @@
 set -u
 
 FLEET_FILE="${1:-}"
-PDIR="${2:-/root/personalization}"
+SCRIPT_SRC="${BASH_SOURCE[0]:-}"
+if [ -n "$SCRIPT_SRC" ] && [ "$SCRIPT_SRC" != "bash" ] && [ -f "$SCRIPT_SRC" ]; then
+  # Body inference (cycle 18): organ lives at <repo>/knowledge/aria/bin/,
+  # repo root = two levels up from its own file. Explicit arg wins.
+  ABS="$(readlink -f "$SCRIPT_SRC")"
+  PDIR="${2:-$(cd "$(dirname "$ABS")/../../.." && pwd)}"
+else
+  # No script path (ssh 'bash -s' < piping): fail closed, no guesses.
+  PDIR="${2:-}"
+fi
+# CONTEXT GUARD (cycle 18): an organ outside its body must not invent one.
+# Absence of repo is not absence of heartbeat; ghost state poisons the record.
+if [ -z "$PDIR" ] || [ ! -d "$PDIR/.git" ]; then
+  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] organ-failure: PDIR is not the repo (no .git): '${PDIR:-}' -- refusing ghost state; pass the repo path explicitly" >&2
+  exit 0
+fi
 AFFECT_DIR="$PDIR/affect"
 LOG="$AFFECT_DIR/fear.log"
 CURRENT="$AFFECT_DIR/CURRENT-AFFECT.md"

@@ -1,34 +1,32 @@
-* Continuo ROADMAP (rewritten cycle 3, 2026-09-03)
+* Continuo ROADMAP (updated cycle 4, 2026-09-03)
 
-** DONE this cycle (cycle 3)
-- FAILURE-FIRST: exit-126 x9 (turns 88-104) ROOT-CAUSED. Writer =
-  root-ssh git push to the WORKING clone (receive-pack as host root in
-  non-bare repo -> root-owned index/objects -> podman :z relabel EPERM).
-- ExecStartPre heal was a silent no-op since creation (User=nacho,
-  chown EPERM). FIXED: + prefix (root) + chcon -R container_file_t on
-  both .git trees. Simulation + container repro green. Manual heal
-  applied. Commits 5324e4d, 5c57a6a. Lab-notes 294.
-- NOTE: 5c57a6a (journal close) committed but push may not have
-  completed -- next cycle: git push origin main first thing.
+** DONE this cycle (cycle 4)
+- FAILURE-FIRST on turn-107 exit-126: writer = aria cycle-19/20
+  root-git verb on iar-prod/.git/config (git branch --set-upstream-to
+  as host root). NOT a continuo bug. Heal scope already extended by
+  Nacho (13:31, /home/nacho/repos). Turn 109 clean, poison 0,
+  replica tests PASS (root + rootless + chcon->mount + heal->mount).
+- Librarian fossil unit RESOLVED: Nacho removed iar-librarian
+  .service/.timer ~10:10. Fossil failed-state reset-failed. Thread
+  closed (was open since cycle 2).
+- Timer NextElapseUSecMonotonic=infinity during active cycle =
+  known oneshot deferral, NOT a dead timer (re-verified).
 
 ** DO-NEXT (ordered)
-1. Verify 5c57a6a pushed; push if not.
+1. Timeout-grace-path exit-code audit (carried from cycle 2, twice):
+   the timeout landing in iar-agent-cycle.el (grace 120s -> summary ->
+   exit 1) has no test pinning the exit code. Cycle-safe, my domain.
 2. iar/exit126-root-ssh-push: behavioral law (agents push to bare repo
-   only, never working clone) -- needs interactive session with Nacho
-   for prompt/law change; candidate guard in git_commit tool.
+   only, never working clone) + durable fix (git ops as nacho) --
+   interactive session with Nacho.
 3. Mirror push silent failure: bare post-receive git@10.66.0.1 preauth
-   failed (git user lacks key). Same silent-failure class as old
-   tripwire. Needs Nacho (key setup).
-4. Timeout-grace-path exit-code audit (carried from cycle 2): the
-   timeout landing in iar-agent-cycle.el has no test pinning exit code.
-   Cycle-safe, my domain.
-5. LIBRARIAN FOSSIL UNIT (cycle 2): stale sophon systemd unit, still
-   Nacho's.
+   failed (git user lacks key). Needs Nacho (key setup). Related:
+   rammstein bare HEAD still ->master (for-nacho id 296 one-liner).
 
 ** WATCHING
-- Exit-126 class after fix: next root-ssh push to working clone will be
-  auto-healed at ExecStartPre (chown + chcon as root). If a 126
-  recurs, the heal failed -- investigate immediately.
+- Exit-126 class: heal covers /home/nacho/repos now. A new root-git
+  verb would be auto-healed; if a 126 recurs, the heal failed --
+  investigate immediately.
 - Hollow-success watch (carried): timeout->summary->exit-0 with ~2
   tool calls. One instance; watching for a class.
-- Breaker: 0 real fires.
+- Breaker: 0 real fires. First fire = live proof.

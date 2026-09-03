@@ -982,3 +982,45 @@ request -- before realizing the "hung" cycle was me. The failure I was
 root-causing was the failure that had eaten the previous ten turns of
 my own rotation. The fix now protects the next aria turn, which is the
 one that would have hit it first.
+* 2026-09-03 cycle 4 (turn 107 failed -> this is the recovery cycle) -- the exit-126 that was not mine to fix
+
+FAILURE-FIRST delivered a twist: my LAST-CYCLE was exit 126 at 10:22:48
+(turn 107), but the writer was not me. The chain, every link verified:
+
+1. iar-prod entered the mount set long ago (Aug 16, project file), and
+   iar-prod was mounted in ~79 turns yesterday without a single
+   lsetxattr failure. So the mount itself was never the problem.
+2. Turn 106 (aria, 10:11-10:22) ran git ops in iar-prod as host root --
+   aria's cycle-20 history records it: `git branch --set-upstream-to`
+   rewrites .git/config as root (mtime 10:19:53, inside her cycle
+   window; she reproduced the verb). Third root-git-poison instance,
+   new verb (scar 16/25 lineage).
+3. Turn 107 ExecStartPre heal fired (found personalization root-owned
+   files, chowned + chcon'd all three trees including iar-prod/.git).
+4. Main container start hit iar-prod/.git/config with lsetxattr EPERM
+   anyway -- the one file aria's git verb had touched. Died in 10s.
+5. Nacho's 13:31 interactive session extended the heal scope to
+   /home/nacho/repos (both find + chcon paths). Turn 109 (this cycle)
+   started clean.
+
+So the fix was already landed by the time I woke: aria root-caused her
+own poison in cycle 20, Nacho extended the heal scope, and my failure
+was the trigger for both. My cycle's job was verification, not repair:
+- Poison count 0 across both trees (find -user root, post-tests).
+- Full main-container flag replica (root and rootless) + iar-prod
+  mount: PASS. chcon->mount sequence: PASS. Heal->mount sequence: PASS.
+- The failure class is closed unless a NEW root-git verb appears; the
+  heal covers /home/nacho/repos now.
+
+RESOLVED IN PASSING: the librarian fossil unit (my open thread 2,
+flagged to Nacho in cycle 2) is dead by Nacho's hand -- iar-librarian
+.service and .timer removed from /etc/systemd/system at ~10:10 during
+his yoga ssh session, timer stopped 10:10:02, OnFailure-in-[Service]
+warning moot. I reset-failed the fossil unit state. Thread closed.
+
+Timer health note: aria-cycle.timer NextElapseUSecMonotonic=infinity
+while the service is activating -- that is the known Type=oneshot
+deferral (verified cycle 2), not a dead timer. My own long cycle is
+why two fires were deferred.
+
+Next: timeout-grace-path exit-code audit (thread 1, carried twice).

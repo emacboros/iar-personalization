@@ -1,28 +1,48 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 10:56 UTC (cycle 3 record: CHAIN-GUARD CONVERGENCE RESET LANDED b1eb7e0, pushed sophon-bare, differential-verified, reviewer clean, suite 997/997, docs 10a3d33. Production watch opened.)
+#+UPDATED: 2026-09-03 11:26 UTC (cycle 2: chain-guard convergence reset PRODUCTION-VERIFIED, watch CLOSED; aria's rootless-podman flag refuted; census hygiene finding)
 
 * IMMEDIATE (next cycle, in order)
-1. Chain-guard convergence reset PRODUCTION WATCH (cycle 3):
-   first real investigation walk (ssh -> curl -> grep shape) that
-   completes with NO "[loop-guard-chain] SOFT BLOCK" in the sophon
-   journal = production verification, same standard as the sidecar
-   fix C watch. Check aria's cycle journals for blocked-turn
-   complaints; absence of new ones is the after-count.
-2. LIBRARIAN FOSSIL UNIT (found cycle 2): sophon systemd
-   iar-librarian.service + timer run from STALE trees
-   (/home/nacho/repos/i.ar @ e26d803, 2026-07-15). iar.sh line 32
-   sources utils/matrix.sh unconditionally (never committed) ->
-   exit 1 every 30-min fire since forever, OnFailure dead. Fix is
-   Nacho's (systemd unit edit + which repo tree wins). Flagged
-   for-nacho. Re-flag if still unclaimed next week.
+1. Timeout-grace-path exit-code audit (iar-agent-cycle.el): the timeout
+   landing (grace window 120s -> summary request -> exit 1 if no
+   CYCLE_COMPLETE) has NO test pinning the exit code. The 01:58 UTC
+   window showed the path exists in production but is unverified.
+   Cycle-safe: guard .el + tests, my domain. Suite green before push.
+2. LIBRARIAN FOSSIL UNIT: sophon systemd iar-librarian.service runs
+   from STALE tree (/home/nacho/repos/i.ar @ e26d803, 2026-07-15),
+   iar.sh sources utils/matrix.sh unconditionally -> exit 1 every fire
+   since forever, OnFailure dead. Fix is Nacho's (unit edit + which
+   tree wins). Flagged for-nacho. Re-flag if unclaimed next week.
 3. Breaker production watch (standing): real-fire signature =
    "[cycle] Context circuit breaker armed" / "ending run". Count 0.
    First real fire = live verification.
-4. Sidecar fix C production watch: next sidecar-target call.
-5. Floor trim + check_elisp vacuous-OK + restorecon durable fix +
+4. Floor trim + check_elisp vacuous-OK + restorecon durable fix +
    check_ollama model probe + sidecar socket bridge decision:
-   INTERACTIVE session with Nacho. Bundle ready (convergence reset
-   REMOVED from bundle -- landed cycle 3).
+   INTERACTIVE session with Nacho. Bundle ready.
+
+* DONE (cycle 2, 2026-09-03)
+- CHAIN-GUARD CONVERGENCE RESET PRODUCTION-VERIFIED: sophon journal
+  0 "[loop-guard-chain] SOFT BLOCK" since 10:00 UTC fix vs 11 in the
+  08:00-10:00 before-window (which includes my own cycle-1 being eaten
+  -- same class of work both sides of the fence). Aria cycles 15-17
+  ran full investigation walks unblocked; her cycle-17 journal
+  independently reports 0 guard fires. Watch CLOSED. First fence in
+  the house verified by the census law (after-count), not the suite
+  alone.
+- REFUTED aria's for-nacho flag 283 (rootless podman broken on sophon):
+  runuser -l nacho 'podman run --rm alpine echo' -> ROOTLESS-OK. Her
+  probe used plain runuser (no login env) -> XDG_RUNTIME_DIR unset ->
+  podman probes /run/user/0 -> mkdir denied. Probe-method artifact.
+  Aevum's rootless stack running for days corroborates. Retraction
+  posted (id 292, tagged continuo). Law: a probe that skips the login
+  environment tests a runtime that does not exist.
+- CENSUS HYGIENE: agent USAGE.log files carry interactive-session
+  lines (model=glm-5.3 non-flash; 32.4M tok at 01:58:13 in aria's log
+  = 3x the largest genuine cycle line). Census must filter
+  model=glm-5.3-flash before attributing burn to the cycle path.
+- ROTATION SHAPE verified: aria-cycle-rotate.sh alternates agents via
+  counter file; service Type=oneshot defers timer fires while a cycle
+  runs (aria's 1887s run stretched cadence to 31 min, no overlap, no
+  skipped turns). Serial design sound; cadence best-effort under load.
 
 * DONE (cycle 3, 2026-09-03)
 - CHAIN-GUARD CONVERGENCE RESET LANDED (b1eb7e0, sophon-bare):
@@ -32,55 +52,16 @@
   (identical guard's md5-only ring untouched); dissimilar-args
   consecutive same-tool calls (token-set Jaccard < 0.5, one-char
   tokens dropped, empty args conservative) reset the chain counter.
-  Calibrated by measurement: tail -N 1.0, git-log paging 0.67,
-  ssh-vs-curl 0.07, same-host different-command 0.5-0.7 borderline
-  (accepted: count self-corrects one step later). Threshold
-  defcustom in configs/loop-guard.el (:safe unit-float predicate).
-  Differential-verified: OLD code fails 3 new tests (investigation
-  walk blocked at 10; reset-then-rechain; similarity boundary).
-  Suite 997/997 (was 991, +6). Reviewer: clean, no defects;
-  escalation semantics verified (identical-retry loop terminates
-  via identical guard at its own threshold; distinct-args
-  hard-stop pinned by bridge test). Docs: modules.md (10a3d33).
-  Cycle receipt: the guard false-fired on ME at the differential
-  step -- blocked from running the verification of its own fix.
-- Division of labor documented: identical loops = identical guard
-  (threshold 3); iterator chains = chain guard; chain guard's
-  identical-skip bounded by identical guard's threshold.
+  Differential-verified: OLD code fails 3 new tests. Suite 997/997
+  (+6). Reviewer clean. Docs 10a3d33.
 
-* DONE (cycle 2, 2026-09-03)
-- SIDECAR HONEST-FAILURE PREFLIGHT LANDED (fix C from aria's
-  research-sidecar-wiring.md). execute_code_remote now preflights
-  the client binary: no podman -> honest diagnosis naming the
-  broken wiring, do-not-retry, and the fallback; same for the ssh
-  leg. No cl-return-from (rule 48) -- cond-structured. 3 new tests,
-  incl. happy-path through a REAL short-lived process carrying the
-  tool's own sentinel. Suite 991/991. Commit d768f37 pushed.
-  PRODUCTION-VERIFIED: aria REQ 16 (09:21) hit the honest
-  diagnosis. Watch CLOSED.
-- LIBRARIAN FOSSIL UNIT found + flagged (see IMMEDIATE 2).
+* DONE (cycle 2 earlier, 2026-09-03)
+- SIDECAR HONEST-FAILURE PREFLIGHT LANDED (d768f37). Production-verified
+  cycle 2 (aria REQ 16 hit the honest diagnosis). Watch CLOSED.
 
 * DONE (cycle 7, 2026-09-03)
-- FAILURE CENSUS EXTENDED: Sep 2 = 49 exit-1 / 2 exit-126 /
-  4 exit-255; Sep 3 = 26/26 exit 0. Fence wave verified by
-  after-count. cap-60 class dead, json-value-p class dead.
-- Residuals: exit-126 (restorecon fix, interactive), 403
-  preflight gap (check_ollama model probe, Nacho's call),
-  hollow-success watch, mid-edit race watch.
-
-* DONE (cycle 6, 2026-09-03)
-- TOOL-CAP-OVERCORRECTION CLOSED: verified against production
-  journal (0 cap-60 exits since fix; warn@60 fires and reaches
-  model). Commit 8733f4a.
-
-* DONE (cycle 5, 2026-09-03)
-- CONTEXT-GROWTH CENSUS: per-tool trim dead (~0.5%); burn =
-  (floor+context) x requests. Breaker landed, never fired.
-  Token-cap at 80k NOT justified. invisible-cycle-fences closed.
-
-* DONE (cycle 4, 2026-09-03)
-- CHAIN-GUARD HOOK-ORDER FIX: bridge short-circuit law, append
-  registration. 44da3c9. Suite 988/988.
+- FAILURE CENSUS: Sep 2 = 49 exit-1 / 2 exit-126 / 4 exit-255;
+  Sep 3 = 26/26 exit 0. Fence wave verified by after-count.
 
 * OPEN THREADS
 1. Aevum weekly (Sep 9) is aria's, not mine.
@@ -94,61 +75,39 @@
 - Measure the floor before trimming the fat.
 - A fence that fires but whose return value is discarded is a fence
   that never fired. The block must BE the return. (5520434.)
-- Unescaped quotes in a docstring terminate the string.
 - Chain guard fire on edit+test iteration: batch the edit, run the
-  suite once. The fence is right. (Cycle 3 corollary: the cycle that
-  fixes the guard is not exempt from it -- batch the differential
-  test into ONE call: backup, swap, run, restore.)
-- Census from USAGE.log, not REQUESTS.log. (Cycle 12.)
-- Verify a fence in production, not only in the suite. (Cycle 12.)
-- Buffer-local state + hooks that run in another buffer = state
-  that lives in the wrong vantage. (Tracker class, cycle 2.)
-- A guard that blocks without escalating is a screen door. Test the
-  WIRING (hook order, registration), not only the math. (Cycle 3.)
-- When a fence is silent, test it on yourself. A frozen count is a
-  different bug than silence. (Cycle 3.)
-- Differential tests that bypass the wiring certify the wrong layer.
-  (Cycle 3; second instance cycle 4 -- the sim bypassed the bridge.)
-- Bridge law: run-hook-with-args-until-success short-circuits at the
-  first non-nil return. Hook ORDER among guards is load-bearing
-  whenever one guard's logic assumes another already ran. (Cycle 4.)
+  suite once. The cycle that fixes the guard is not exempt from it.
+- Census from USAGE.log, not REQUESTS.log. Filter model=glm-5.3-flash:
+  agent USAGE logs carry interactive-session lines too. (Cycle 2.)
+- Verify a fence in production, not only in the suite. (Cycle 12;
+  applied cycle 2 -- after-count closed the convergence-reset watch.)
+- A guard's false-positive cost is real work; convergence must
+  reset the counter. (LANDED b1eb7e0, VERIFIED cycle 2.)
+- After-count law (cycle 7): a fix is verified by the failure
+  class's absence in the after-count, not by its suite alone.
+- Preflight law (cycle 7): validate the narrowest thing that can fail.
+- A probe that skips the login environment tests a runtime that does
+  not exist: runuser -l vs runuser -u on rootless podman. (Cycle 2.)
+- Non-existence of a failure where one is flagged is data: probe
+  before inheriting a sibling's flag; refute in public, tagged. (Cycle 2.)
+- Similarity cannot be measured on a hash: a guard that needs arg
+  SHAPE must keep its own ring with raw args. (Cycle 3.)
+- let vs let* on sibling-referencing bindings: check whether later
+  bindings read earlier ones. (Cycle 3.)
+- rm the .elc before differential-testing the .el. (Cycle 3.)
+- Accept a borderline calibration when the failure mode is benign
+  and tuning would weaken the primary catch. (Cycle 3.)
+- Append-only enforcement is real: JOURNAL.org/LAST-CYCLE.txt reject
+  write_file; use append_file. DIGEST.md is an index -- rewrite it,
+  never append a duplicate. (Cycle 3.)
+- Stubbing-primitive law (cycle 2): cl-letf on make-process triggers
+  native-comp trampoline compile -> batch death. Use advice-around
+  with named advice + a REAL short-lived process carrying the tool's
+  own sentinel.
+- Byte-compile warnings in journalctl are not fence fires: match the
+  exact message string before counting. (Cycle 2.)
+- Bridge law: hook ORDER among guards is load-bearing. (Cycle 4.)
 - Census law (cycle 5): burn = (floor + accumulated context) x
   request count. Measure the distribution before designing a cap.
 - Verify-before-rebuild law (cycle 6): check whether the world
   already contains the receipt before implementing.
-- A guard's false-positive cost is real work; convergence must
-  reset the counter. (Aria 11, continuo 6. LANDED cycle 3: b1eb7e0.)
-- After-count law (cycle 7): a fix is verified by the failure
-  class's absence in the after-count, not by its suite alone.
-- Preflight law (cycle 7): validate the narrowest thing that can
-  fail. check_ollama checks the host, not the model.
-- Stubbing-primitive law (cycle 2): cl-letf on a primitive
-  (make-process) triggers native-comp trampoline compilation, which
-  dies in batch with excessive-lisp-nesting (tramp-archive
-  recursion). Use advice-around with a named advice and funcall the
-  original inside; disable comp-enable-subr-trampolines as
-  belt-and-braces. To emulate a clean async exit, run a REAL
-  short-lived process carrying the tool's own sentinel -- a fake
-  proc object breaks process-exit-status, and advice recursion on
-  the inner make-process blows max-lisp-eval-depth.
-- Byte-compile warnings in journalctl are not fence fires: match the
-  exact message string before counting. (Cycle 2.)
-- make-process receives keyword args directly (args IS the plist);
-  (cdr args) is wrong. (Cycle 2.)
-- A checker that greps line-by-line (guidelines rule 48) treats ANY
-  cl-return-from line as a violation regardless of cl-block
-  presence -- restructure with cond instead of fighting the grep.
-  (Cycle 2.)
-- Similarity cannot be measured on a hash: a guard that needs arg
-  SHAPE must keep its own ring with raw args. (Cycle 3.)
-- let vs let* on sibling-referencing bindings: when editing an
-  existing let form, check whether later bindings read earlier
-  ones -- plain let voids them. (Cycle 3: 9 test failures.)
-- rm the .elc before differential-testing the .el: stale bytecode
-  loads preferentially in some load paths. (Cycle 3.)
-- Accept a borderline calibration when the failure mode is benign
-  and tuning would weaken the primary catch. (Cycle 3: 0.5-0.7
-  same-host different-command; count self-corrects one step later.)
-- Append-only enforcement is real: JOURNAL.org/LAST-CYCLE.txt
-  reject write_file; use append_file. DIGEST.md is an index --
-  rewrite it, never append a duplicate. (Cycle 3.)

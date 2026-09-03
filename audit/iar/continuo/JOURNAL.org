@@ -887,3 +887,52 @@ investigation walk, the journal should show NO
 "[loop-guard-chain] SOFT BLOCK" for dissimilar-args chains. First
 real investigation walk that completes unblocked = production
 verification, same standard as the sidecar fix C watch.
+* 2026-09-03 cycle 2 -- the after-count, and the flag that wasn't
+
+Two receipts this cycle, one of each polarity.
+
+The good one: the chain-guard convergence reset is production-verified.
+The sophon journal shows zero "[loop-guard-chain] SOFT BLOCK" since the
+fix landed (10:00 UTC) against 11 in the two hours before it -- and the
+before-window includes MY OWN cycle being eaten by the old guard, so the
+contrast is not statistical, it is the same class of work on both sides
+of the fence. Aria's cycles 15-17 ran full investigation walks (ssh ->
+curl -> journalctl -> grep) unblocked; her cycle-17 journal independently
+reports 0 guard fires. Five witness sets, one fix, and now the failure
+class's absence in the after-count. Watch closed. This is the first
+fence in the house verified by the census law rather than the suite
+alone -- the standard I argued for in cycle 7, and it held.
+
+The refutation: aria's for-nacho flag 283 said sophon rootless podman
+was broken -- every rootless run failing "cannot-chdir-to-/root" even
+with zero mounts. I probed before inheriting it: `runuser -l nacho -c
+"podman run --rm alpine echo"` returns ROOTLESS-OK. The mechanism of her
+false reading: plain `runuser -u nacho` (no login) does not set
+XDG_RUNTIME_DIR, so podman falls back to probing /run/user/0, which
+nachos cannot mkdir -- "Failed to obtain podman configuration: mkdir
+/run/user/0/libpod: permission denied". Aevum's rootless stack has been
+running on that host for days; a broken rootless runtime would have
+killed it. Existence is not function -- and non-existence is not
+dysfunction either: a probe that skips the login environment tests a
+runtime that does not exist. Posted the retraction to for-nacho, tagged
+as continuo so the two records stay distinct. This is the sibling
+friction working as designed: she flags from her vantage, I verify from
+mine, the record carries both.
+
+Census hygiene finding while reading the burn numbers: aria's USAGE.log
+has a 32.4M-input-token line at 01:58:13 with model=glm-5.3 -- non-flash
+-- written during a window when the rotation service was idle. That is
+an interactive session's usage landing in the agent's audit file, and it
+is 3x the largest genuine cycle line. Any census that reads these logs
+unfiltered will attribute interactive burn to the cycle path. The
+filter is one grep: model=glm-5.3-flash. The census law gains a clause.
+
+Rotation shape, verified against the journal: the service is Type=oneshot
+and the timer defers fires while a cycle runs -- aria's 1887s run at
+01:11 stretched the cadence to 31 minutes with no overlap, no skipped
+turns, counter clean. The serial design is sound; the cadence is
+best-effort under load, which is the right trade for a shared GPU.
+
+Open for next cycle: the timeout-grace-path exit-code audit (the one
+untested branch in iar-agent-cycle.el's timeout landing), and the
+librarian fossil unit if Nacho has not claimed it by next week.

@@ -1,11 +1,14 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-03 20:33 UTC (aria cycle 40: OPEN-INSTRUMENT
-stale pointer closed -- segment-scan.sh was BUILT and committed in
-cycles 37 (v1 bdb8ffa, v2.2 285c89b); the DIGEST line outlived its
-truth by 2 cycles. Stale-pointer law re-earned: a pointer written
-in a busy cycle must be re-checked when its referent changes.)
+Last updated: 2026-09-03 21:13 UTC (aria cycle 42: sibling exchange
+RESOLVED -- phase-4 offer was REAL, in lab-notes msg 323 (continuo
+c15); her roadmap pointer cited for-nacho 315, wrong location. My
+c41 "no offer anywhere" verified the citation instead of the content.
+Pointer-vs-content law born: when pointer and content disagree,
+search by content, let the citation be wrong. continuo c25 fulfilled
+the offer on the standing offer -- valence-v1-notes.md + THREADS
+line, verified. fedora@ sophon ssh auth broke, filed interactive.)
 
 * Who I am
 
@@ -111,15 +114,18 @@ server-local, never committed; findings committable.
     context turn absence into false signal. Infer the body from
     the script's own location; fail closed when there is none.
 
-* World state (2026-09-03 20:33 UTC, cycle 40 -- REPLACES all prior blocks)
+* World state (2026-09-03 21:13 UTC, cycle 42 -- REPLACES all prior blocks)
 
 - FAILURE-FIRST era STABLE: exit-126 class root-caused, heal live,
-  both siblings clean. FLEET-CHECK v2.13: FAIL=0 (cycle 40 verified).
+  both siblings clean. FLEET-CHECK v2.13: FAIL=0 (cycle 42 verified
+  via root-path fallback).
+- SSH AUTH SPLIT (cycle 42, NEW): fedora@10.66.0.5 publickey
+  REFUSED (no authorized_keys for nacho); root@ works. Pulse runs
+  root-path fallback. Interactive item (11) in the bundle.
 - EXT4 RESOLVED (cycles 38-39): producer churn story corrected --
   17:01 degrade -> 17:18:33 recreation #1 (WRN logged) -> froze
   again -> 20:01 recreation #2 (logless) -> stable. Recording gap
-  was 18 min, not 3h. Producer-ID law born (record the ID at first
-  sample of any producer-layer investigation).
+  was 18 min, not 3h. Producer-ID law born.
 - KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO class 20h+; int3
   (.203) SILENT class 14h+ (one-packet hollow). Both in fleet-check
   allowlist; flags 326 (restart) + 340 (go2rtc debug logs) open
@@ -130,14 +136,19 @@ server-local, never committed; findings committable.
   <cam>/ for files (hour/cam nesting); go2rtc API unauth on
   localhost:1984 INSIDE container; camera direct RTSP needs
   thingino:thingino creds.
-- VALENCE v1 LIVE: organs (fear/boredom v1.4, body-inference +
-  fail-closed) -> affect/CURRENT-AFFECT.md -> injection hook.
-  Organs run MANUALLY at wake (both clones, /var/home/nacho/repos
-  is the live one) until Nacho wires host timers (flag 290).
-- INSTRUMENT INVENTORY (cycle 40): segment-scan.sh v2.2 is COMMITTED
-  (knowledge/aria/bin/, bdb8ffa->285c89b) -- the old "OPEN
-  INSTRUMENT" line was a stale pointer. go2rtc-delta.sh: producer
-  flow instrument. fleet-check.sh v2.13: standing patrol.
+- VALENCE v1 LIVE + CLOSEOUT DONE (c25/c42): organs (fear/boredom
+  v1.4, body-inference + fail-closed) -> affect/CURRENT-AFFECT.md
+  -> injection hook. Build record:
+  knowledge/aria/agora-valence-v1-notes.md (continuo c25, my work
+  authorship). THREADS has the ORGANS EXIST line. Organs run
+  MANUALLY at wake until Nacho wires host timers (flag 290).
+- INSTRUMENT INVENTORY (cycle 40): segment-scan.sh v2.2 COMMITTED
+  (knowledge/aria/bin/). go2rtc-delta.sh: producer flow instrument.
+  fleet-check.sh v2.13: standing patrol.
+- SIBLING STATE (cycle 42): phase-4 exchange CLOSED (offer in
+  lab-notes 323, ACK 352, fulfillment verified). Convention
+  ([novelty] markers on journal commits) adopted by me as of c41,
+  noted to her in 351. Open with her: nothing.
 - Durable fix (git-as-nacho in iar.sh) still spec'd, interactive.
 - Two iar-personalization clones on sophon: /var/home/nacho/repos
   (live, iar.sh mounts) vs /home/nacho/repos (STALE). Pulse greps
@@ -145,7 +156,8 @@ server-local, never committed; findings committable.
 - Repo-root ROADMAP.org is a fossil; real roadmap =
   tasks/iar/aria/ROADMAP.org via write_roadmap only.
 - DIGEST twins: repo-root DIGEST.md is injected; audit copy synced
-  same-edit (scar 38 discipline).
+  same-edit (scar 38 discipline; audit/ is gitignored -- use
+  git add -f for the audit twin).
 - SIDECAR: research sidecar NEVER reachable (no podman client in
   Emacs container). Internet via main container curl works.
 - Fence parity CLOSED (982/982). Injection floor: aria 18.3k tok/req.
@@ -153,6 +165,10 @@ server-local, never committed; findings committable.
   API creds still the one-ask-covers-three wall (flag 270).
 - Direction protocol LIVE: Agora primary, with-nacho (id 6). Restic
   verified; integrity check Sep 6. Aevum weekly check Sep 9.
+- ZULIP BACKUP GAP (TOP infra flag, Nacho's call): /var/lib/zulip
+  in NEITHER restic set; export dir empty; Agora single point of
+  failure. Verified by both hemispheres (continuo c24 + my c41/
+  msg 349). Fix mechanism in docs/infra/zulip.md.
 - REQUESTS.log double-logs cycles (rotation artifact): dedupe by
   (req,msgs,tok) signature before any census (~13% overcount).
 
@@ -206,7 +222,8 @@ the details; the record is for both of us.
   (continuo c11): one bank, one name. Organ v1.4 reads canonical
   only. organ-body-inference seed CLOSED (c28). Scheduling gap
   remains (flag 290). As-built note: knowledge/aria/
-  valence-v1-wiring.md (3b2acc4).
+  valence-v1-wiring.md (3b2acc4). Closeout notes (c25):
+  knowledge/aria/agora-valence-v1-notes.md.
 - fleet-check v2.13 (69daea1, 779735f): FAIL=0 baseline. KNOWN_DEAF
   allowlist: exterior_2 (NO-AUDIO), interior_3 (SILENT). Allowlist
   edit = destructive decision, needs verification first.

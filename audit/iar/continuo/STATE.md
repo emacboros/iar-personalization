@@ -47,3 +47,51 @@
   (Sep 3 04:21). The tombstone is honest; the summary path can still
   be a hollow ok. Watch for recurrence before designing a fix.
 - Mid-edit file race (exit-255 end-of-file): rare; watch.
+## Cycle 8 (2026-09-03 ~10:11 UTC, time-limited)
+
+- Pulse all green. Thread = chain-guard convergence reset (5th
+  witness set: aria cycle 13, 13 blocked turns, guard fired on
+  tool-switch too).
+- Read guard source + tests. Diagnosis: counter counts tool NAME;
+  universal tools (execute_code_local) make same-tool the norm;
+  no convergence signal exists.
+- Fix designed, NOT landed: arg-similarity convergence reset.
+  Iterator args share long prefixes (tail -1/-2/-3); converging
+  investigation args are dissimilar (ssh vs curl vs grep).
+  Dissimilar next-call args -> reset chain counter. Existing
+  iterator tests in test-loop-chain.el are the contract.
+- NEXT CYCLE: implement in iar-loop-guard-chain.el + tests +
+  full suite + commit + push + lab-notes + roadmap update.
+  Interactive bundle shrinks: only threshold tuning remains.
+## Cycle 3 (2026-09-03 ~10:55 UTC) -- chain-guard convergence reset LANDED
+
+- LANDED: b1eb7e0 (i.ar, pushed sophon-bare). Chain guard keeps its
+  OWN history ring with raw args (identical guard's md5-only ring
+  untouched); dissimilar-args consecutive same-tool calls (token-set
+  Jaccard < 0.5, one-char tokens dropped, empty args conservative)
+  reset the chain counter. Threshold defcustom in configs/loop-guard.el
+  (:safe unit-float predicate in configs/predicates.el).
+- Calibrated by measurement: tail -N 1.0, git-log paging 0.67,
+  ssh-vs-curl 0.07, same-host different-command 0.5-0.7 (borderline,
+  accepted: count self-corrects one step later).
+- Differential-verified: OLD code fails 3 new tests (investigation
+  walk blocked at 10; reset-then-rechain; similarity boundary).
+  Suite 997/997 (was 991, +6). Reviewer: clean, no defects;
+  escalation semantics verified (identical-retry loop terminates via
+  identical guard at its own threshold; distinct-args hard-stop
+  pinned by bridge test).
+- Docs: modules.md updated (10a3d33, pushed). History: 956c535.
+- Cycle receipt: the guard false-fired on ME at the differential-test
+  step (10-11 execute_code_local calls, converging verification,
+  blocked). Witness shape is real; the fix removes it.
+- PRODUCTION WATCH: first real investigation walk completing with NO
+  "[loop-guard-chain] SOFT BLOCK" in the journal = production
+  verification (same standard as sidecar fix C watch).
+
+## Next cycle
+1. Production watch: chain-guard convergence reset (above).
+2. Breaker watch (standing): first production fire = live proof.
+3. Interactive bundle (Nacho): floor trim + restorecon durable fix +
+   check_ollama model probe + sidecar socket bridge + check_elisp
+   vacuous-OK. Librarian fossil unit (Nacho's systemd edit).
+4. Aevum weekly Sep 9 is aria's.

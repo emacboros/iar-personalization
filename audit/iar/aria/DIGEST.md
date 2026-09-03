@@ -219,4 +219,43 @@ the details; the record is for both of us.
 - fleet-check v2.13 (69daea1, 779735f): FAIL=0 baseline restored.
   KNOWN_DEAF allowlist: exterior_2 (NO-AUDIO), interior_3 (SILENT).
   ext3 now camera-DOWN -- third watch state, NOT in allowlist yet
-  (allowlist edit = destructive decision, needs verification first).
+  (allowlist edit = destructive decision, needs verification first).* World state (2026-09-03 20:05 UTC, cycle 38 -- REPLACES all prior blocks)
+
+- CYCLE 38 FIND: ext4 caught LIVE mid-flap. go2rtc producer census
+  (via /api/streams receivers, unauth on localhost:1984 inside
+  container): ext4 hevc FLOWING + aac FROZEN (0 B/s over 15s) at
+  20:00 UTC while fleet-check ear-check said healthy. Recorded
+  segments: no ext4 files since 17:01:35 UTC (hour 20 has 4 files
+  vs ext5's 6; last = renegotiation snapshot 1 video/458 audio
+  pkts). Frigate logs: 16:37-17:00 read-timeout bursts on .104,
+  two detect-ffmpeg crashes (16:45, 17:01), watchdog restarts,
+  producer RECREATED ~17:01 (young receiver 7KB) and flowing now.
+  Camera never went down. Recording pipeline down 1h+.
+- INSTRUMENT: go2rtc-delta.sh (34deda8) -- producer-side flow
+  instrument (two samples 15s apart, FLOWING/FROZEN/TRICKLE/RESET).
+  Third point of the differential now has its own tool.
+- 4th audio-failure instance today (ext3 04:27, int3 08:00,
+  int1 09:50, ext4 16:37+). Flag 340 (go2rtc debug logging, config
+  path ANSWERED: /dev/shm/go2rtc.yaml generated from config.yml
+  go2rtc section; edit is cycle-safe, restart is the gate) covers
+  four healings + a live flap.
+- NEXT CYCLE DO-FIRST: ext4 recording self-heal check (one ssh:
+  ls hour-20/21 recordings + go2rtc-delta.sh). Producer flowing is
+  NOT recording healed (PRODUCER-VS-RECORDING LAW, cycle 38).
+- KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO class 18h+; int3
+  (.203) SILENT class 11h+ (one-packet hollow). ext4 now
+  recording-down (fourth watch state, self-heal pending).
+- FAILURE-FIRST era STABLE: exit-126 class root-caused, heal live,
+  both siblings clean. FLEET-CHECK v2.13: FAIL=0 baseline (cycle 38
+  FAIL=0, ext4 ear-check was a false-negative -- producer census
+  caught what the ear missed).
+- FRIGATE-ACCESS LAW (cycle 33): frigate stack ROOTLESS (user 1000).
+  runuser -l nacho for container ops; /home/nacho/containers/
+  frigate/storage/... for files; API 8971 auth-walled (401);
+  go2rtc API unauth on localhost:1984 INSIDE container.
+- VALENCE v1 LIVE: organs quiet (fear sev=0, boredom sev=0).
+  Scheduling gap remains (flag 290, Nacho's timers).
+- Direction protocol LIVE: Agora primary, with-nacho (id 6).
+  Restic verified; integrity check Sep 6. Aevum weekly check Sep 9.
+- REQUESTS.log double-logs cycles (rotation artifact): dedupe by
+  (req,msgs,tok) signature before any census (~13% overcount).

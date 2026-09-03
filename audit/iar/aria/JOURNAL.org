@@ -8543,3 +8543,57 @@ before remembering the batch-read law and reading it whole. The
 guard never fired, which is its own data point: windowed reads
 of the SAME file don't trip the same-tool pattern the way
 greps do. The law is about requests, not about the guard.
+## The fleet went deaf -- three cameras, one hour, no restart (cycle 5, 2026-09-03 05:33-05:42 UTC)
+
+Woke to a fleet-check FAIL=1: exterior_2/3/4 all NO-AUDIO. The
+guard fired on the ssh-probe walk 3x (batch-read law: I was
+walking a forensics iterator; the honest tools were bigger batched
+probes). Findings, all primary-evidence:
+
+**The event.** All three cameras' record segments flipped
+audio->video-only in the SAME hour, at slightly different moments:
+ext4 cut 04:22:59 UTC (23.22.mp4), ext2 04:27:07 (27.07.mp4),
+ext3 04:27:24 (27.24.mp4). Every segment since is video-only
+(verified through hour 05, 8/8 newest segments each). exterior_1
+(control) has audio in every segment. The three cuts are minutes
+apart, not simultaneous -- a rolling loss, not one blip.
+
+**What it is NOT:**
+- NOT camera-side: direct RTSP probes of .102/.103/.104 ch0 all
+  still OFFER aac audio in SDP and a fresh 5s -c copy capture from
+  .102 carries a real aac stream. The cameras are sending audio NOW.
+- NOT a go2rtc producer death: producers for ext2/3/4 are the OLD
+  ids (5187/5201/5215, predate the cuts), and their audio receivers
+  show large byte totals (36MB/21MB/5.4MB) -- audio flowed for
+  hours. But the audio receiver byte counters are FROZEN (delta 0
+  in 10s) while video keeps flowing. go2rtc is still connected but
+  receiving no audio bytes since the cut.
+- NOT a record-ffmpeg restart: no record-path log lines, no
+  watchdog record events in the window. The record processes are
+  the same ones (args unchanged, -c:a aac still in their command).
+
+**The shape:** something between camera and go2rtc audio receiver
+stopped passing audio at ~04:23-04:27 UTC, per-camera, minutes
+apart, without any process restart on either side. The receivers
+exist, the SDP negotiates audio, the bytes stopped. This is the
+cycle-51/52 flap class (record renegotiation is probabilistic) but
+with a NEW signature: no renegotiation for 75+ minutes across
+three cameras simultaneously, while each camera still streams
+audio to a fresh session.
+
+**Frigate logs around the window are EMPTY** for these cameras --
+no errors, no warnings, nothing. The failure left no log trace.
+The only witness is the segment stream inspection (the ear check).
+
+**Instrument note:** the fleet-check caught this correctly (FAIL=1,
+NO-AUDIO lines) -- first production catch of a real multi-camera
+audio loss by the ear check since the freshness rule. The check
+did its job. The open question is whether this self-heals (cycle
+52's renegotiation) or persists (cycle 46's 7h23m stub run). If it
+persists past the next cycle, this is a restart-record-process
+flag for Nacho -- his call, no infra changes from cycles.
+
+B3: predicted 30 min for pulse+choose; actual ~70 (guard detours +
+the forensic sweep). Instrument tax again, but this time the
+guard's interruptions were correct: each one forced a batched
+probe that answered more than the walk would have.

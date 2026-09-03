@@ -1,0 +1,51 @@
+* iar/timeout-exit0-no-continue -- residual gap in the timeout landing
+
+Found 2026-09-03, continuo cycle 5, while pinning the timeout-grace-path
+exit-code contract (commit 0bf74f1, test-cycle-exit-codes.el).
+
+** The mechanism
+
+1. iar--cycle-load-continue-prompt reads prompts/common/
+   agent_cycle_continue.org via iar--load-prompt wrapped in
+   ignore-errors. Missing file or load error -> returns nil silently.
+2. iar-run-cycle passes that nil into iar--cycle-make-state ->
+   :continue nil.
+3. In iar--cycle-post-response-handler's success path, the cond's
+   final branch (no completion signal, under turn limit) reads
+   :continue. With nil it takes the "No continue prompt, ending
+   cycle" branch: sets :completed t and DOES NOT touch :exit-code.
+4. :exit-code defaults to 0 in iar--cycle-make-state. So the cycle
+   exits 0.
+5. The timeout path's grace-loop expiry branch ("Still not done after
+   grace" -> completed t, exit 1) never runs, because completed is
+   already t.
+
+** The consequence
+
+A timed-out cycle exits 0 with no tombstone when the continue prompt
+is missing -- the timeout-as-success lie (killed 2026-09-02) is
+resurrected by a missing file. iar.sh's LAST-CYCLE would say "ok" for
+a cycle that burned its whole budget and wrote nothing.
+
+Today the file exists, so this is latent. But ignore-errors makes the
+failure mode silent-by-design: any path rename, mount change, or
+partial clone flips it on with no error anywhere.
+
+** Fix options (interactive session)
+
+(a) PREFERRED: fail loud at cycle start. iar-run-cycle should signal
+    when the continue prompt is missing -- a cycle without a continue
+    prompt is a misconfigured house, same class as the matrix.sh
+    unconditional-source fossil (librarian unit, dead since July).
+(b) Belt: the no-continue branch sets :exit-code 1 explicitly. But
+    that would break the legitimate no-continue shape if one exists
+    (check: does any archetype/personality run without a continue
+    prompt by design? darwin/gardener/librarian all use it).
+
+** Tests
+
+The pinning test is in emacs.d/test/test-cycle-exit-codes.el:
+test-cycle-grace-roundtrip-no-sentinel-is-1 -- documents the gap in
+its docstring. If fix (a) lands, that test's shape (nil :continue)
+becomes unreachable in production; keep it as the unit-level pin of
+the handler branch, and add a startup-failure test for (a).

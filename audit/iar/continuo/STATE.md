@@ -1,36 +1,33 @@
-# Continuo STATE.md -- updated cycle 26 (2026-09-03 21:27 UTC)
+# Continuo STATE.md -- updated cycle 27 (2026-09-03 21:45 UTC)
 
 ## In flight
-- Lab-notes post for c26 DEFERRED (soft cap 120 hit at post time;
-  memory-tools exemption active). FIRST ACTION next cycle: post
-  the c26 close via /tmp/agora_post.sh recipe (rebuild helper:
-  curl -u AUTH --data-urlencode to=lab-notes topic=cycle). Text
-  is in JOURNAL c26 entry tail / burn-decomposition file.
-- Commit pending: knowledge/iar/burn-decomposition-2026-09-03.md
-  + this cycle's record writes. Commit at kill-emacs if cap
-  allows (git_commit is exempt).
+- Nothing pending. c26 deferred post landed (lab-notes 353).
+- Bare-repo HEAD one-liner EXECUTED both sides; pollution healed
+  0/0; mirror verified end-to-end (651465d on rammstein).
 
-## This cycle (c26)
-- Burn decomposition from primary evidence. Instruments agree
-  (132 == 132). Floor 12.4k, ~325 tok/round-trip, growth ~74%
-  of burn. Cadence price ~250M tok/day. Tool-cap 120 pressed by
-  healthy cycles (6/20 continuo >100) -- calibration datum for
-  Nacho. REQ-id duplicates = cycle-boundary artifacts (debunked,
-  census law). Token double-count CLEAN (live probe).
+## This cycle (c27)
+- HEAD one-liner executed under Nacho standing direction (238).
+  sophon: i.ar, iar-infrastructure, iar-personalization -> main.
+  rammstein: same 3 + iar-prod (296 CLOSED). 14 empty mirrors
+  SKIPped (census law). git-server.md full-doc home built.
+- Loop-guard tripped at 12-call ssh chain -- batch-read law
+  covers remote probes; one compound ssh per question.
 
 ## Next
-1. Post deferred lab-notes close (above).
-2. Interactive bundle with Nacho: rotate.sh /tmp-copy, exit-126
-   law, git-as-nacho, floor trim leftovers, mirror push, bare-repo
-   trio (306). NEW: tool-cap calibration + cadence price.
-3. Zulip backup gap: Nacho's call.
+1. Interactive bundle with Nacho (TOP): rotate.sh /tmp-copy,
+   exit-126 law, git-as-nacho, floor trim leftovers, mirror push
+   silent failure, delayed-heal sweep (only remaining pollution
+   fix), tool-cap calibration + cadence price.
+2. Zulip backup gap: Nacho's call.
+3. fedora@ sophon ssh auth broken: interactive (aria find).
 
 ## Standing
 - sophon ssh root@10.66.0.5 works (nacho@/git@ blocked). KH reseed
-  per cycle. Suite: IAR_ROOT=/root/i.ar emacs --batch -l
-  emacs.d/test/run-tests.el (1013 tests).
-- Agora auth: EMAIL form, API /api/v1/messages, anchor=newest +
-  jq filter, FORM-ENCODED. Streams: with-nacho=6 for-nacho=5
-  lab-notes=4.
-- iar--reqlog-counter restarts per session; REQUESTS.log spans
-  cycles -- segment censuses by msgs=2 floor marker.
+  per cycle. rammstein 10.66.0.1 also needs keyscan (c27).
+- Suite: IAR_ROOT=/root/i.ar emacs --batch -l
+  emacs.d/test/run-tests.el (1013 tests). Run from /root/i.ar.
+- Agora auth: EMAIL form, /api/v1/messages, anchor=newest,
+  FORM-ENCODED. Helper /tmp/agora_post.sh (rebuild per cycle).
+  Streams: with-nacho=6 for-nacho=5 lab-notes=4.
+- iar--reqlog-counter restarts per session; segment censuses by
+  msgs=2 floor marker.

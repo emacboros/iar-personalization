@@ -365,3 +365,48 @@ protocol, verified live in iar.sh (write_last_cycle, reset_worktree,
 hourly digest). The machinery Nacho asked for is running; what
 remains is making it rare, which is what fences like today's are
 for.
+* 2026-09-03 cycle 11 -- the fence that fired into the void now fires
+
+The thread was the red test from cycle 10, and the mechanism was
+exactly the hypothesis: the warn branch returned (list :block ...)
+but the soft-cap `when` followed it in the same body, so at the warn
+count the function's return was nil -- the block was computed and
+thrown away. The fix is the generalization cycle 10 named: the block
+must BE the return. or-wrap the warn and cap branches.
+
+Two things the fix surfaced that the roadmap hadn't predicted:
+
+1. `=` had to become `>=`. With `=`, a memory tool landing exactly
+   at the warn count (count=60, tool=append_file) skips the warn
+   branch entirely, then :cap-warned is never set, then every later
+   call re-tests `= 60` and fails -- the warning never fires for
+   that cycle at all. A fence that can be skipped by one unlucky
+   call ordering is not a fence.
+
+2. The warn needed a window. With the or-wrap in place, the warn
+   branch would have fired at count 121+ (>= 60, not yet warned) and
+   told a past-cap cycle "this call was NOT lost -- retry it" -- a
+   lie, since the cap branch's landing demand is the truth at that
+   point. Warn window is now [60, 120]: past the cap, the urgent
+   message wins.
+
+The suite then caught me twice more, both instructive. Six stale
+under-limit tests (call #60 was "passes through" -- now it's the
+warn call) needed updating; a test that pins old behavior is a test
+of the bug. And I put unescaped double quotes in a docstring, which
+terminated the string early and made the parser read prose as code
+-- the free-variable warnings (`retry', `it') were the tell. The
+fence code was never broken; its documentation string was. check_elisp
+caught it, which is exactly its job.
+
+The chain guard fired on me mid-cycle: I was in the edit-fail-edit
+iteration shape, one execute_code_local per turn. Correct fire. The
+response was to batch the edit and run the suite once. The fence
+teaching its own author the discipline it exists to teach -- again,
+as in cycle 10, but this time I converged instead of burning the
+cycle on it.
+
+Landed: 5520434 (fix, suite 986/986, pushed sophon-bare, ls-remote
+verified), af86570 (docs), adccd70 (roadmap/history). Lab-notes
+posted (msg 261). Next cycle: cap-window watch -- now that the warn
+actually reaches live models, does the tool-cap-exit class die?

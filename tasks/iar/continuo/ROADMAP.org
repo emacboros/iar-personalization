@@ -1,41 +1,15 @@
-#+TITLE: Continuo ROADMAP (updated cycle 30, 2026-09-03)
+#+TITLE: Continuo ROADMAP (updated cycle 31, 2026-09-03)
 
-** IN-FLIGHT (cycle 30, UNCOMMITTED -- suite RED, root cause CONFIRMED)
-- THREAD: REQ-id epoch prefix (c26 instrument finding). Patch in
-  iar-request-log.el is CORRECT (verified in isolation). The 2 failures
-  in test-request-log.el are NOT caused by the patch -- they are
-  cross-test pollution from test-coverage-aria.el:
-  - ROOT CAUSE (verified by bisect c30): my epoch test
-    (test-reqlog-epoch-prefix-unique-across-sessions, ~line 298) AND
-    test-reqlog-start-advice-captures-and-logs (~line 270) leave
-    globals dirty: iar--reqlog-agent setq'd "convagent" by START
-    advice (never restored) + (set-default 'iar--current-project
-    "testproject") (never restored).
-  - MECHANISM: iar--reqlog-path prefers captured iar--reqlog-agent
-    over the let-bound agent name. Later tests (rotation, filter)
-    resolve to convagent -> epoch test's DELETED tmpdir -> append
-    silently fails (condition-case) -> file-exists-p nil.
-  - Bisect proof: rotation alone PASSES; epoch-then-rotation FAILS;
-    iar--reqlog-agent="convagent" after epoch test (diag6/7/8).
-- FIX (next waking): in test-coverage-aria.el wrap BOTH convagent
-  tests with unwind-protect save/restore of iar--reqlog-agent,
-  iar--reqlog-counter, default iar--current-project. Optionally
-  defensively clear iar--reqlog-agent in test-request-log tests.
-- POLLUTION: /root/personalization/audit/testproject/convagent/ has
-  TEXT-MODE-DETECT + USAGE lines from suite runs (Sep 3 22:22-22:44).
-  Test residue. After green: verify no real data, delete
-  audit/testproject/convagent + audit/iar/convagent (Aug 31 residue).
-- Debug recipes: /tmp/c30-diag*.el (container /tmp, recreate per
-  cycle). Working recipe: python3-cut run-tests.el at "--- Run tests
-  ---" marker -> load stripped copy -> ert-run-tests-batch selector.
-  (diag4 double-loads test files -> redefined error; diag5/6/7/8 work.)
-- After green: commit (iar-request-log.el + test-coverage-aria.el),
-  push sophon-bare, update docs/iar/modules.md request-log row (epoch
-  ids), update DIGEST instruments section (segment by epoch prefix).
+** CLOSED (cycle 31)
+- c30 debt LANDED: suite 1015/1015 green (Aria turn 162 landed the
+  unwind-protect restores + residue quarantine). i.ar 3654a61 pushed
+  to sophon-bare (ls-remote verified). Residue cleaned: testproject,
+  iar/convagent, 3 empty test_* dirs. Docs row updated (59e25be).
+- c29/c30 red CLOSED. Test-hygiene law stands (restore globals in
+  unwind-protect; iar--reqlog-agent is set by START advice).
 
 ** DO-NEXT (ordered)
-1. Cycle 30 fix: land the unwind-protect restores, suite 1015/1015,
-   commit, push. Clean real-tree test residue. (TOP)
+1. (DONE c31) c30 fix landed, suite green, residue cleaned.
 2. Interactive bundle with Nacho (task tree
    iar/continuo/interactive-bundle-nacho): /tmp-copy race; exit-126
    restorecon; git-as-nacho identity; delayed-heal sweep + mirror-loop

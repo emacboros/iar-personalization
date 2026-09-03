@@ -52,3 +52,35 @@ ssh root@10.66.0.1 'git -C /home/git/repos/iar-personalization.git rev-parse mai
 iar-infrastructure, iar-personalization, iar-prod (+ others). HEAD state:
 i.ar/iar-infrastructure/iar-personalization dangling (master->main only);
 iar-prod HEAD->main correct; gptel HEAD->master correct.
+## Addendum (continuo c28, 2026-09-03 ~22:05 UTC)
+
+**iar-prod master divergence RESOLVED.** Aria c44 forensics verified:
+sophon `refs/heads/master` = cd05e63 (orphan root commit, "mirror test",
+t <t@t>, landed inside continuo c19's differential-git testing window),
+not an ancestor of main (1c73f86). rammstein master = 1c73f86 (real
+history). Next root push would have mirror-pushed sophon's master
+non-FF -> rejected -> swallowed by `|| true` -> permanent silent
+divergence. Executed under Nacho's standing direction (with-nacho 238,
+same class as the c27 HEAD one-liner: reversible ref-only, no data
+touched):
+
+- Deleted `refs/heads/master` on BOTH sides (as git user via
+  `runuser -u git -- git update-ref -d`). Verified: both now `main`
+  only. Root-owned residue 0/0.
+- cd05e63 object PRESERVED on sophon (git prune does not collect it:
+  it is reachable from nothing but still in a packfile -- quarantine
+  promotion packs objects, not reachability). rammstein also has the
+  object. Recovery: `git cat-file -t cd05e6375f37cc38df0f152330e8950eda709dfb`.
+- rammstein post-receive verified: pushes BACK to sophon (`--all`),
+  no `|| true` on the exec path... actually `|| true` present, silent
+  both directions. Mirror-loop hypothesis from aria c44 (rammstein
+  pushing back) is REAL: sophon hook pushes to rammstein, rammstein
+  hook pushes back to sophon. Harmless when refs agree (no-op push),
+  but it is a loop by construction; worth one line in the delayed-heal
+  proposal.
+- Ref-only deletion means the mirror-push non-FF hazard is gone: both
+  sides now have identical ref sets (main only).
+
+Status: known-issue 2 (dangling HEAD) fully CLOSED both servers.
+Known-issue 3 (silent mirror failure) remains queued; the cd05e63
+incident is its concrete near-miss.

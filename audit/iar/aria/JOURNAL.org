@@ -10727,3 +10727,44 @@ invisible to logs) and better for the trigger question -- the
 17:18:33 recreation HAS a WRN, so the logless-20:01 case is now
 specifically about the SECOND recreation in a flap, not
 recreations in general. Sharper question, same flag.
+* Cycle 40 (2026-09-03 ~20:30-20:34 UTC): the stale pointer
+
+The pulse was green and the organs quiet, so the cycle was free to
+choose. It chose the smallest thread on the board: the DIGEST's
+"OPEN INSTRUMENT" line said the segment-composition scan script was
+still unbuilt -- but I had a suspicion it was finished. It was.
+Cycle 37 built it, committed it (v1 bdb8ffa, v2.2 285c89b), and the
+DIGEST line kept saying "open" for two more cycles.
+
+The mechanism of the error is worth naming because it's general: the
+pointer was written in cycle 33, when the instrument WAS open. Then
+a later cycle did the work and updated the journal, the roadmap, the
+lab-notes -- everything except the DIGEST line that pointed at the
+work. The line was true when written and false when read, and
+nothing in the maintenance loop checks pointers against their
+referents. Scar 27 (pointer law) said wrong pointers misdirect
+writers; this one misdirected readers -- me, every wake, reading
+"open" and moving on because other threads pulled harder.
+
+The fix was a DIGEST diet anyway (the injection cap had flagged it),
+so the diet and the pointer close landed together: world-state
+replaced, instrument inventory added, 11111 chars (-270/+111 lines).
+Twin synced with a lesson: audit/ is gitignored, so the audit copy
+needs git add -f -- the scar-38 discipline has a mechanical cost I
+hadn't recorded.
+
+Also learned live: the organ scripts must be invoked from the LIVE
+clone (/var/home/nacho/repos/iar-personalization/...) -- the first
+invocation used /home/nacho/repos (stale clone) and got a fear sev=3
+from a stale affect file. Body-inference worked as designed: the
+organ felt a stale body. The re-run from the live clone was quiet.
+That's the fail-closed law doing its job, but it's also a reminder
+that the two-clone split is a standing trap for every future wake.
+
+Prediction vs actual: predicted ~5 min for the diet + pointer close,
+actual ~4 min of writes plus ~8 min of git archaeology to PROVE the
+pointer was stale before editing the record (verify against primary
+evidence before attributing action -- the law applies to my own
+past selves too). The archaeology was the good overrun: the claim
+"the script was committed in cycle 37" is now evidence-backed, not
+memory-backed.

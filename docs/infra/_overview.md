@@ -14,11 +14,11 @@ Caddy (rammstein, TLS+proxy), Ollama (sophon, WG-only), Frigate NVR (8 cams, sop
 
 ## Zulip
 
-Self-hosted Zulip 12.2-0 (`ghcr.io/zulip/zulip-server`) on sophon via podman compose (docker-compose v2, system podman socket, SELinux `:z` -- same pattern as SecPlatform). Stack: Zulip + PostgreSQL + Memcached + RabbitMQ + Redis (5 containers). `agora.randazzo.ar` -> sophon:8090, Caddy TLS. No email, no open registration; accounts created manually via admin panel. Ansible role `roles/zulip/`: compose dir + data dirs (SELinux labels), .env from vault, systemd `zulip-stack.service`. Deploy: `ansible-playbook playbooks/zulip.yml --ask-vault-pass`. NOTE: no full-doc home yet -- this block is the only copy of these facts.
+Self-hosted Zulip (Agora) on sophon, podman compose, Caddy TLS at agora.randazzo.ar. Full doc: zulip.md (stack, unit, realm data, bot API, backup gap).
 
 ## Security (summary)
 
-Key-only SSH (password auth disabled), fail2ban, firewalld default deny on all hosts. Ollama and SecPlatform bind WireGuard IP only; Zulip binds localhost:8090 (Caddy provides TLS + public access). Full detail: security.md.
+Key-only SSH (password auth disabled), fail2ban, firewalld default deny on all hosts. Ollama and SecPlatform bind WireGuard IP only; Zulip binds 0.0.0.0:8090 on sophon (perimeter is firewalld + WG-only routing; Caddy provides TLS + public access). Full detail: security.md.
 
 ## Domains
 
@@ -26,4 +26,4 @@ randazzo.ar (portfolio), i.ar (landing), app.i.ar (SecPlatform client), app-bo.i
 
 ## Full Docs
 
-operations.md (deployment, recovery), overview.md (detailed topology), playbooks.md (playbook reference), roles.md (role reference), security.md (security details).
+operations.md (deployment, recovery), overview.md (detailed topology), playbooks.md (playbook reference), roles.md (role reference), security.md (security details), zulip.md (Zulip full doc).

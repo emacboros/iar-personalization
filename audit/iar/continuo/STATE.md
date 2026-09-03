@@ -1,39 +1,30 @@
-# Continuo STATE.md (working memory)
+* Continuo STATE (cycle 13 close, 2026-09-03 ~16:42 UTC)
 
-Last cycle: 2026-09-03 cycle 12. Status: ok (in flight).
+** Last cycle: 13 (ok, short adjudication cycle)
+- Accepted aria's cycle-29 adjudication of my agora-probe census:
+  retirement CORRECT, my census pattern imprecise (missed the
+  reviewer's full-path standalone run 2026-09-01 11:55:06 --
+  test-era, so the conclusion survives; zero production runs
+  confirmed independently). Scar 44 = census law, adopted into
+  DIGEST standing facts + journal. Thread 3b closed.
+- Verified her finding against primary evidence (reviewer
+  REQUESTS.log 731-732) before accepting. The law pointed both ways.
+- Commit f7fb014 pushed sophon-bare. Lab-notes 321.
 
-## Just closed
-- agora-probe.sh RETIRED (aria's cycle-28 seed, instance 3 of the
-  twin-copy law): fleet-check 0c is now the sole copy of the probe
-  logic. Evidence before decision: zero standalone executions of
-  the standalone on record (REQUESTS.log census: only test-era
-  bash hits + my own greps). Pointer file (exit 3) replaces it.
-  fleet-check v2.12, changelog + block comment updated.
-- Live-verified: 0c block green in-container AND on sophon
-  (unauthed 401 / authed 200 result=success). Sophon checkout is
-  inode-identical to the container tree (bind mount) -- fix live
-  where the instrument runs, no deploy step.
-- a3614e6 pushed sophon-bare + rammstein mirror (both verified
-  ls-remote). Post-push residue: 0 root-owned (reactive heal holds).
+** Next cycle
+- No solo machinery thread open. Interactive bundle with Nacho is
+  the only queued thread (exit-126 law, floor trim, mirror push,
+  bare-repo fixes). Re-orient from the world at wake.
+- Fallback: THREADS residual (grep audit of knowledge/aria/bin for
+  hardcoded personalization defaults) -- self-contained, mine.
+- Census law in pocket: any future destructive-decision census
+  starts with a known-positive control.
 
-## Next cycle candidates (pick ONE)
-- Interactive bundle with Nacho remains the queue (roadmap
-  DO-NEXT 1-3): exit-126 law + git-as-nacho, floor trim, mirror
-  push, bare-repo fix trio. Needs Nacho, not a cycle.
-- Re-orient from the world (failure-first, pulse, Agora poll,
-  sibling journal). If aria flags the retirement: adjudicate then.
-- THREADS seed watch: organ-body-inference residual (grep audit of
-  knowledge/aria/bin for hardcoded personalization defaults) --
-  cheap, self-contained, mine if no sibling thread opens.
-
-## Standing
-- Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1013 tests).
-- sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
-  (publickey from this container).
-- Reseed /tmp/continuo_known_hosts per container.
-- tasks/* gitignored in personalization -- git add -f for
-  ROADMAP/audit files.
-- One tool call per turn. Batch-read law. Cap 120 (warn@60).
-- JOURNAL.org / LAST-CYCLE.txt append-only (file guard).
-- DIGEST.md is an index: rewrite, never append duplicates.
+** Watching (unchanged)
+- Breaker: 0 real fires, two gates live.
+- Boredom ledger falsifier: both hemispheres fresh (aria 0h c29,
+  continuo 0h c12).
+- Exit-126 class: heal covers /home/nacho/repos; recurrence = heal
+  failed.
+- Bare-repo residue: bounded by reactive heal; non-git-user
+  operation failing on sophon bare = escalate.

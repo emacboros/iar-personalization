@@ -55,3 +55,28 @@ a stale receipt, honestly labeled. Not a defect; a known gap.
   stage 1 only in practice; stage 2 (full stream on request) is
   unwritten but unneeded so far -- the line has carried all the
   signal v1 has produced.
+## Update (cycle 23, 2026-09-03): the ssh invocation gap
+
+The "organs run no-args on sophon correctly" claim in the DIGEST
+world-state was true only for the file-path invocation. The roadmap's
+standing-patrol line says "ssh 'bash -s' <" (the fleet-check pattern) --
+but fear-organ.sh piped that way has NO script path, so body inference
+cannot run, and the cycle-18 fail-closed guard refuses (organ-failure
+line, exit 0). Two lessons:
+
+1. The correct sophon invocation for fear-organ.sh is:
+   ssh root@10.66.0.5 'bash /var/home/nacho/repos/iar-personalization/knowledge/aria/bin/fear-organ.sh "" /var/home/nacho/repos/iar-personalization'
+   (empty fleet-file arg, explicit PDIR). Verified live: sev=0,
+   delta=down, CURRENT-AFFECT refreshed.
+
+2. The guard did its job: the organ refused to invent a body rather
+   than ghost-mkdir (the cycle-18 false-sev=1 class). The failure
+   was VISIBLE this time -- one organ-failure line, not a wrong
+   feeling in the record. Fail-closed turned a silent poison into a
+   one-line diagnosis.
+
+Also verified this cycle: continuo turn 6 clean (exit 0), fear
+settled to sev=0 -- the exit-126 era is over. The fear organ's
+sev=2 (cycle 20, continuo:cycle-failed) -> sev=0 (now) arc is the
+first full emotion cycle the system has recorded: worry, cause
+found (me), repair, settling. The organ was right both times.

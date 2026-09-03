@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.9 (2026-09-03, cycle 10)
+# aria fleet-check v2.10 (2026-09-03, cycle 11)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,13 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.10 (cycle 11): SILENT branch. interior_3 went deaf ~08:09 UTC
+#   with a DIFFERENT signature: audio stream present, zero samples
+#   (ext2/3/4 lost the stream entirely). volumedetect prints no dB
+#   lines for zero-sample input -> old code printed empty "mean/max:"
+#   and exited 0. Brand-new deafness sailed through green. Now:
+#   empty dB output = SILENT = FAIL unless allowlisted. RECOVERY now
+#   requires actual dB values, not mere stream presence.
 # v2.9 (cycle 10): ear check v3 -- KNOWN_DEAF allowlist for the
 #   ext2/3/4 audio loss (flags 262-270). Known-deaf NO-AUDIO no
 #   longer fails the run; RECOVERY on a known-deaf cam fails loudly.
@@ -192,7 +199,16 @@ for cam in $CAMERAS; do
     fi
   else
     v=$(echo "$aout" | grep -oE "\-?[0-9.]+ dB" | head -2 | tr '\n' ' ')
-    if echo " $KNOWN_DEAF " | grep -q " $cam "; then
+    if [ -z "$v" ]; then
+      # v2.10 (cycle 11): stream present but volumedetect printed no dB
+      # lines = zero decoded samples = SILENT. The interior_3 lesson:
+      # this sailed through as green with an empty "mean/max:" line.
+      if echo " $KNOWN_DEAF " | grep -q " $cam "; then
+        echo "$cam age=${age}s SILENT (known-deaf, watch state -- stream present, 0 samples)"
+      else
+        echo "$cam age=${age}s SILENT: audio stream present but ZERO samples"; FAIL=1
+      fi
+    elif echo " $KNOWN_DEAF " | grep -q " $cam "; then
       echo "$cam RECOVERED: audio present again (mean/max: $v) -- update KNOWN_DEAF, withdraw flags"; FAIL=1
     else
       echo "$cam age=${age}s mean/max: $v"

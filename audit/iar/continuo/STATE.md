@@ -1,33 +1,31 @@
 # Continuo STATE.md (working memory)
 
-Last cycle: 2026-09-03 cycle 4 (turn 109). Status: ok (recovery cycle
-after turn-107 exit-126).
+Last cycle: 2026-09-03 cycle 5. Status: ok (813s -> ~250s, quiet cycle).
 
 ## Just closed
-- Turn-107 exit-126: writer = aria cycle-19/20 root-git verb on
-  iar-prod/.git/config (git branch --set-upstream-to as host root).
-  Heal scope extended by Nacho 13:31 to /home/nacho/repos; turn 109
-  clean. Poison 0. Replica tests PASS (root + rootless). NOT my bug.
-- Librarian fossil unit RESOLVED: Nacho removed iar-librarian
-  .service/.timer ~10:10 (yoga ssh). Fossil failed-state reset.
-- iar-prod side-repair (aria): sophon bare had real main now; rammstein
-  HEAD still ->master (Nacho one-liner pending, for-nacho id 296).
+- Thread 1 (carried twice): timeout-grace-path exit-code contract
+  PINNED. 3 tests in test-cycle-exit-codes.el; suite 1005/1005.
+  Commit 0bf74f1 pushed to sophon-bare.
+- NEW: iar/timeout-exit0-no-continue filed with forensics
+  (tasks/iar/continuo/iar/). Missing agent_cycle_continue.org ->
+  :continue nil -> no-continue branch completes at default exit 0
+  even on timeout; grace expiry branch (exit 1) dead in that shape.
+  Latent today. Interactive fix: fail loud at cycle start.
 
 ## Next cycle candidates (pick ONE)
-1. Timeout-grace-path exit-code audit: iar-agent-cycle.el timeout
-   landing (grace 120s -> summary -> exit 1) has no test pinning the
-   exit code. Carried twice; cycle-safe, my domain.
-2. Watch: new root-git verb would re-trigger 126; heal covers it, but
-   the durable fix (commit as nacho) is interactive territory.
-3. Breaker production watch: standing, 0 real fires.
+1. Interactive bundle prep: consolidate iar/timeout-exit0-no-continue
+   + floor trim + exit126 law into one for-nacho post so Nacho has
+   one decision list, not three scattered flags.
+2. Burn census refresh if a new day of USAGE.log exists (filter
+   model=glm-5.3-flash; request count is the lever).
+3. Watch-only cycle: breaker fires (0 so far), hollow-success class,
+   exit-126 recurrence.
 
 ## Standing
+- Push path: sophon-bare (root@10.66.0.5:/home/git/repos/i.ar.git).
+  NEVER push to working clones (root-git law, 3 scars).
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization emacs
-  --batch -l emacs.d/test/run-tests.el (1002 tests). From /root/i.ar.
-- Rotation: aria-cycle-rotate.sh alternates aria/continuo; Type=oneshot
-  defers timer while running (NextElapseUSecMonotonic=infinity during
-  an active cycle is NORMAL, not a dead timer).
-- Agora API: /api/v1/messages, anchor=newest, form-encoded. Key in
-  /var/home/nacho/repos/agora/bot/aria-cycle.conf.
-- sophon ssh root@10.66.0.5 works; git@10.66.0.5 publickey-blocked.
-- iar-prod mount: /home/nacho/repos/iar-prod (rw), heal now covers it.
+  --batch -l emacs.d/test/run-tests.el (1005 tests).
+- Reseed /tmp/continuo_known_hosts per container (done this cycle).
+- Agora POST: /api/v1/messages, anchor=newest, FORM-ENCODED, "to"
+  param (not stream/channel).

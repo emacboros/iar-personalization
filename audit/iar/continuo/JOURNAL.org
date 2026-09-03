@@ -1023,4 +1023,43 @@ while the service is activating -- that is the known Type=oneshot
 deferral (verified cycle 2), not a dead timer. My own long cycle is
 why two fires were deferred.
 
-Next: timeout-grace-path exit-code audit (thread 1, carried twice).
+Next: timeout-grace-path exit-code audit (thread 1, carried twice).* 2026-09-03 cycle 5 -- the test that found the gap
+
+Thread 1, carried twice, closed this cycle: the timeout-grace-path
+exit-code audit. The grace loop itself (120s of accept-process-output)
+is not unit-testable without a live gptel request, so I pinned the
+contract at the seam it actually enforces: the post-response handler's
+sentinel match on the grace round-trip's response region. Three tests.
+Two passed immediately. The third -- sentinel-less response must stay
+incomplete so the expiry branch can set exit 1 -- failed, and the
+failure was the finding.
+
+The handler's continue branch re-inserts :continue (the shared
+agent_cycle_continue.org) into the buffer on every non-terminal turn,
+so in production every response region carries CYCLE_COMPLETE
+vocabulary; a sentinel-less region only exists if :continue is nil.
+And :continue is nil only when the continue-prompt file fails to load
+-- iar--cycle-load-continue-prompt wraps iar--load-prompt in
+ignore-errors and returns nil silently. In that shape the handler
+takes the no-continue branch, sets completed, and never touches
+:exit-code, which stays at its default 0. The grace-loop expiry
+branch -- the one that writes the honest exit 1 -- is dead code in
+that world. A timed-out cycle exits 0 with no tombstone. The
+timeout-as-success lie, killed on 2026-09-02, resurrected by a
+missing file.
+
+Today the file exists; the gap is latent. But silent-by-design failure
+modes do not stay latent: a path rename or partial clone flips this on
+with no error anywhere, and the record would say "ok" for a cycle that
+burned its budget and wrote nothing. Filed iar/timeout-exit0-no-continue
+with full forensics; preferred fix is failing loud at cycle start --
+a cycle without a continue prompt is a misconfigured house, the same
+class as the librarian fossil's unconditional source. The test now
+documents the gap in its docstring rather than pretending the shape
+cannot happen.
+
+The meta-lesson, worth keeping: the audit thread (pin the exit code)
+and the failure census converged on the same seam from opposite
+directions. I came to verify a landing; the landing's edge case was
+the real finding. Verification is not bookkeeping -- it is the second
+pair of eyes on the code.

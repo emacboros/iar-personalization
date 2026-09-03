@@ -1,37 +1,50 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 05:09 UTC (cycle 9)
+#+UPDATED: 2026-09-03 05:32 UTC (cycle 10, ended at tool-cap 120)
 
-* DONE
-- One-shot fence parity LANDED: 4c879a2 (stash-recovered cycles
-  5-7 + aria cycle 2 breaker-writeback fix). Suite 981/981 green.
-- Docs follow-up: agents.md, modules.md -- dfdbf52, pushed.
-- Per-agent roadmap/task isolation (390689a), tool-cap 60->120
-  (00f8103, 0 cap-exits since).
-- Injection trim MEASURED (cycle 9, 76b47b4): floor 18.3k tok
-  (aria) / 13.6k (continuo); floor = 42% of 171.5M prompt tokens
-  (Sep 2-3, deduped 65 cycles / 4088 requests). Knowledge dirs
-  already overview-only (iar--read-knowledge-loader.el:88,
-  verified). Request count is the dominant lever; DIGEST is 16%
-  of aria's floor (her diet). Analysis: knowledge/iar/
-  injection-trim-analysis.md. THREAD CLOSED at measurement level.
+* IMMEDIATE (next cycle, in order)
+1. WARN-CAP FIX, one structural change: in iar--cycle-tool-call-cap,
+   the warn branch's (list :block ...) return is DISCARDED (the
+   soft-cap `when` follows it and returns nil at count=warn). Wrap
+   both `when`s in an `or` so the warn's block plist is the return
+   when it fires. Then: suite (expect 986/986), commit, push
+   sophon-bare, ls-remote verify. The tree currently has the feature
+   + 4 tests, 985/986 (test-fence-cap-warns-once-at-budget red).
+   The warn branch is INERT in live cycles (returns nil = allow) --
+   tree is safe to leave overnight, but the red test is the pin.
+2. Docs: modules.md cycle.el row + agents.md fence paragraph get the
+   warn-at-60 line (after the fix is green, not before).
+3. Lab-notes if not posted.
 
-* OPEN THREADS (priority order)
-1. Soft-warning cap (census option c): warn at 60, hard at 120,
-   message reaches the model in-cycle. Core .el -> FILE for
-   interactive session. Owner: me (machinery), but not cycle work.
-2. Chain-guard blindness watch (buffer-local history reach).
-3. Watch cap-window cycles: does 120 end the tool-cap-exit class?
-   (0 exits so far; keep watching.)
-4. Vacuous check_elisp (aborts at gptel require, reports OK):
-   file for interactive session.
-5. Nudge aria: DIGEST.md 11,958 chars, sits just under the 12k
-   warn line. Her file; one line on lab-notes, not a task.
+* DONE (cycle 10)
+- Failure-first: ok. Pulse green (timers, tripwire, disk 24%).
+- Soft-warning cap IMPLEMENTED (uncommitted, 1 test red):
+  iar-cycle-tool-call-warn 60, warn-once semantics, memory tools
+  exempt, writeback + pre-init :cap-warned in both state makers,
+  4 new tests. Census option (c) landed except the return-value bug.
+- Agora auth solved: GET needs anchor=newest&num_before=N (the
+  limit= param 400s). DMs read: msg 248 (Nacho: reduce cycle
+  failures, top priority) -- already ACKed by aria, failure-first
+  protocol IS the response, verified live in iar.sh.
+- Token census (raw, pre-dedupe): aria ~230M prompt tokens over
+  3182 reqs since Sep 2 09:24; continuo ~54.6M over 1315. REQUESTS.log
+  has NO REQ-N blocks (regex was wrong); prompt_eval_count is the
+  only token source. Dedupe law from cycle 9 still applies to
+  rotation; USAGE.log is the cleaner per-cycle source.
+
+* OPEN THREADS
+1. Chain-guard blindness watch (buffer-local history reach).
+2. Cap-window watch: 0 tool-cap exits at 120 so far.
+3. check_elisp vacuous-OK: interactive-session file.
+4. Aevum weekly (Sep 9) is aria's, not mine.
 
 * LAWS ACCUMULATED
 - Check git stash list / fsck before declaring work lost.
-- A truncated read_file view is not the file; read the region
-  you edit.
+- A truncated read_file view is not the file; read the region you edit.
 - A green check that never touched the code is not a check.
-- Measure the floor before trimming the fat: 42% of burn was
-  re-sent injection, and the fix was already shipped (overview
-  mode). The remaining lever is request count, i.e. discipline.
+- Measure the floor before trimming the fat.
+- NEW (cycle 10): a fence that fires but whose return value is
+  discarded is a fence that never fired. Hook plumbing: the block
+  must BE the return. Same class as writeback (armed into the void).
+- NEW (cycle 10): the cap fired on me at 120 while I grep-iterated
+  my own test failure. The warn-at-60 exists because cycles like
+  this one exist. Debug cycles need the batch discipline most.

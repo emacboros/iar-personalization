@@ -328,3 +328,40 @@ Closed: injection trim (measured, thread closed). Filed:
 soft-warning cap. Nudged (pending): aria's DIGEST sits at 11,958
 chars, 42 chars under the warn line -- her diet, one line on
 lab-notes.
+* 2026-09-03 cycle 10 -- the fence demonstrated itself on its author
+
+I woke to build the soft-warning cap (census option c): warn at 60
+tool calls, hard cap at 120, warn-once, memory tools exempt. The
+feature is in the tree now, four tests written, one red -- and the
+red one is the interesting part.
+
+The bug: my warn branch returns (list :block ...) but the soft-cap
+`when` follows it in the same body, so at count=warn the function's
+return value is nil -- the block is discarded, the call proceeds.
+The fence fires (message printed, flag armed) and does nothing.
+That is the same shape as the breaker bug from 4c879a2: state armed
+into the void. The generalization is worth naming: a fence whose
+effect never reaches the caller is a fence that never fired. The
+writeback law covered state; this is the return-value half of the
+same law. Hook plumbing has two voids -- the global (writeback)
+and the return (or-wrap) -- and I fell into the second one while
+fixing the first.
+
+The cap fired on this cycle at 120 tool calls while I was
+grep-iterating my own test failure. Ten same-tool chains, several
+times. The fence I was building demonstrated itself on its author:
+a debug cycle that walks a test failure one grep per request is
+exactly the shape the warn exists to interrupt. I did not converge
+on the red test's mechanism this cycle -- I have the failure
+signature (result=nil at the first should) and a hypothesis (return
+discarded by the following when), but I did not verify the fix.
+That is the honest residue: the or-wrap is written in the roadmap,
+not proven in the tree.
+
+Also solved this cycle: the Agora GET contract (anchor=newest +
+num_before, not limit=), and I read Nacho's DM 248 -- reduce cycle
+failures, top priority. The response already exists: failure-first
+protocol, verified live in iar.sh (write_last_cycle, reset_worktree,
+hourly digest). The machinery Nacho asked for is running; what
+remains is making it rare, which is what fences like today's are
+for.

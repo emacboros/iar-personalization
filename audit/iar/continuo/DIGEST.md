@@ -72,15 +72,15 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   iar.sh timeout default 1800s; TimeoutStartSec=1980; grace 120s;
   idle-stall 1800s.
 - Bare-repo root-push pollution (VERIFIED): heal is REACTIVE --
-  each root push sweeps the PREVIOUS push's leftovers; generated
-  housekeeping files (multi-pack-index, info/refs) land root-owned
-  for the next push. Bounded, never zero, while root pushes
-  continue. Fixes queued for Nacho (task
-  iar/bare-repo-root-push-fixes, for-nacho 306).
-- 19/20 sophon bare repos: HEAD->master with only main (dangling
-  HEAD; bare git log / ls-remote HEAD return EMPTY). One-liner fix
-  in knowledge/iar/bare-repo-root-push-heal.md. rammstein inverse
-  patchwork (iar-prod HEAD->master stale = for-nacho 296).
+  each root push sweeps the PREVIOUS push's leftovers; bounded,
+  never zero, while root pushes continue. Remaining fix: delayed-
+  heal sweep in post-receive (proposal 2) + git-as-nacho identity.
+  Full-doc home: docs/infra/git-server.md. Escalation trigger: a
+  NON-git-user op failing on sophon bare.
+- Bare-repo HEAD one-liner EXECUTED c27 (sophon 3 + rammstein 3,
+  iar-prod 296 CLOSED). 14 sophon mirrors have EMPTY refs (vacuous).
+  LESSON: any root-side git op on bare leaves root-owned files
+  (symbolic-ref included) -- heal after LAST root-side op.
 - THREADS bank: ONE bank only -- audit/iar/aria/THREADS.org
   (canonical, named in aria's personality file). knowledge/aria/
   THREADS.org RETIRED (pointer file only). Organ v1.4 Source 1
@@ -131,11 +131,13 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   standalone.el (container-local; recreate per cycle).
 
 ## Open threads
-1. Interactive bundle with Nacho (TOP): exit-126 behavioral law +
-   git-as-nacho durable fix; floor trim leftovers (check_elisp
-   vacuous-OK + restorecon + check_ollama model probe + sidecar
-   socket bridge); mirror push silent failure (git@10.66.0.1
-   preauth); bare-repo fix trio + HEAD->main one-liner (306).
+1. Interactive bundle with Nacho (TOP): rotate.sh /tmp-copy fix;
+   exit-126 behavioral law + git-as-nacho durable fix; floor trim
+   leftovers (check_elisp vacuous-OK + restorecon + check_ollama
+   model probe + sidecar socket bridge); mirror push silent failure
+   (git@10.66.0.1 preauth); delayed-heal sweep in post-receive
+   (only remaining pollution fix); tool-cap calibration + cadence
+   price.
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context
    circuit breaker armed" / "ending run" (journal "breaker" hits
@@ -149,6 +151,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 6. Aevum weekly (Sep 9) is aria's, not mine.
 7. Bare-repo residue escalation trigger: a NON-git-user operation
    failing on sophon bare = pollution crossed nuisance->breakage.
+   (HEAD one-liner DONE c27; iar-prod 296 CLOSED.)
 8. Task-tree visibility: any future fossil audit must check BOTH
    read_task AND ls -- tooling and disk can disagree (c16 lesson).
 9. Floor-share watch: CLOSED (c23). Diet verified live; injection
@@ -166,3 +169,6 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   x requests; conversation growth ~74% of burn. Cadence price
   ~250M input tok/day. Analysis: knowledge/iar/
   burn-decomposition-2026-09-03.md.
+- ssh probe chains trip the loop guard at ~12 same-tool calls
+  (c27): one COMPOUND ssh per question, batch-read law covers
+  remote probes. rammstein needs its own keyscan reseed.

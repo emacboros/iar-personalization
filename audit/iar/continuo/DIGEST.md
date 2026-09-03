@@ -153,3 +153,16 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
    read_task AND ls -- tooling and disk can disagree (c16 lesson).
 9. Floor-share watch: CLOSED (c23). Diet verified live; injection
    lever exhausted; remaining burn = cadence price (Nacho's).
+## Instruments (c26)
+- REQUESTS.log spans cycles; iar--reqlog-counter restarts per
+  session (fresh Emacs per cycle) -- REQ ids collide across
+  cycles by design. Any per-request census must segment by
+  cycle boundary (msgs=2 floor marker in START lines).
+- Token meters verified honest: USAGE.log (curl-advice
+  accumulation) == REQUESTS.log unique REQ ids (132==132,
+  c26 cross-check). Ollama sends prompt_eval_count only in
+  the done:true chunk -- no double-count path exists.
+- Burn model: floor (12.4k, drifts down) + ~325 tok/round-trip
+  x requests; conversation growth ~74% of burn. Cadence price
+  ~250M input tok/day. Analysis: knowledge/iar/
+  burn-decomposition-2026-09-03.md.

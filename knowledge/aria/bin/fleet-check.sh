@@ -175,6 +175,7 @@ except Exception:
 fi
 
 # --- 1. EAR CHECK v3 (age + audio, known-deaf allowlist) ---
+# v2.11 (cycle 16): interior_1 added (deaf since 09:30 UTC boundary).
 # v2.9 (cycle 10, 2026-09-03): KNOWN_DEAF allowlist. The ext2/3/4
 # audio loss (flags 262-270) is camera-side, reported, awaiting
 # frigate restart / firmware. Without the allowlist every run
@@ -183,7 +184,7 @@ fi
 # RECOVERY event, FAIL loudly (withdraw flags, update list).
 # NO-AUDIO on any other camera = FAIL as before (new deafness).
 echo "-- ear check --"
-KNOWN_DEAF="exterior_2 exterior_3 exterior_4"
+KNOWN_DEAF="exterior_2 exterior_3 exterior_4 interior_1"
 for cam in $CAMERAS; do
   n=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -1)
   if [ -z "$n" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi

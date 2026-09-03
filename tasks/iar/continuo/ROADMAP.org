@@ -1,16 +1,36 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 08:25 UTC (cycle 6: tool-cap-overcorrection closed with production receipts)
+#+UPDATED: 2026-09-03 09:00 UTC (cycle 7: failure census extended -- Sep 3 clean, fences verified by absence)
 
 * IMMEDIATE (next cycle, in order)
 1. Breaker production watch (standing): grep sophon journal for
    breaker messages. Count still 0 since landing (4c879a2) --
    suite-verified, unexercised. First real fire = live verification.
 2. Floor trim prep: census + injection-trim-analysis ready.
-   INTERACTIVE session with Nacho required (core .el). Bundle with:
-   chain-guard false-positive fix (convergence reset) + check_elisp
-   vacuous-OK. Evidence accumulating: guard blocked Aria's ssh
-   probes + for-nacho POST (her cycle 11), my git push (this cycle,
-   twice).
+   INTERACTIVE session with Nacho required (core .el). Bundle:
+   chain-guard convergence reset (3 witness sets now: aria 11,
+   continuo 6, continuo 7) + check_elisp vacuous-OK + restorecon
+   durable fix (exit-126 class) + optional check_ollama model probe.
+
+* DONE (cycle 7, 2026-09-03)
+- FAILURE CENSUS EXTENDED (Nacho's top priority). Fresh primary
+  evidence (sophon journal Sep 2 00:00 - Sep 3 08:30):
+  - Sep 2: 49 exit-1 (cap-60 kills), 2 exit-126 (SELinux relabel),
+    4 exit-255 (2 json-value-p, 1 mid-edit truncated .el, 1 other).
+  - Sep 3: 26/26 cycles exit 0. ZERO failures since 00:00.
+  - Fence wave correlates with failure classes going to zero:
+    cap-60 class dead (0 since fix), json-value-p dead (0 since
+    utf8-scrub a0e4c99). The failure-first loop is working.
+- Residual classes (small, mostly interactive-session):
+  - exit-126: lsetxattr EPERM at container start. Auto-heal chowns
+    but does not relabel. Durable fix: restorecon in ExecStartPre.
+  - 403 billing blip passed preflight: check_ollama validates host
+    (/api/tags) not model (/api/chat). Fix direction filed, Nacho's
+    call (shell machinery, no test suite).
+  - Hollow-success watch: 403-strike cycle recovered, hit 1800s
+    wall, summary path, exit 0 with 2 tool calls (Sep 3 04:21).
+    One instance = data, not a class. Watching.
+  - Mid-edit file race (exit-255 end-of-file on iar-agent-cycle.el,
+    Sep 2 23:52): rare, watch.
 
 * DONE (cycle 6, 2026-09-03)
 - TOOL-CAP-OVERCORRECTION CLOSED. Verified against primary evidence
@@ -27,7 +47,7 @@
   The 253.9k-token runaway (Sep 2, 169M tok, 70% of aria sample)
   predates all fences; zero msgs>400 since. Breaker landed but
   never fired in production (unexercised, not unverified).
-  Token-cap at 80k NOT justified (healthy sessions end 30-58k).
+  Token-cap at 80k NOT justified (healthy p90 30-58k).
   Report: knowledge/iar/context-growth-census-2026-09-03.md.
 - invisible-cycle-fences task CLOSED (A+B+C+D all landed; spec
   said TASK COMPLETE; task tree removed).
@@ -50,10 +70,9 @@
 * OPEN THREADS
 1. check_elisp vacuous-OK: interactive-session file.
 2. Aevum weekly (Sep 9) is aria's, not mine.
-3. Chain-guard false-positive class: same-tool chain counter does
-   not reset on convergence. Evidence: aria cycle 11 (ssh probes +
-   for-nacho POST blocked), continuo cycle 6 (git push blocked x2).
-   Core .el -- interactive session file.
+3. Chain-guard false-positive class: 3 witness sets. Interactive.
+4. Hollow-success class: watch for recurrence before designing.
+5. check_ollama model probe: filed, Nacho's call.
 
 * LAWS ACCUMULATED
 - Check git stash list / fsck before declaring work lost.
@@ -92,3 +111,12 @@
   channel switch, a blocked push. The guard is right about the vice
   and wrong about the instance; convergence must reset the counter.
   (Aria cycle 11, continuo cycle 6.)
+- After-count law (cycle 7): a fix is not verified by its suite
+  alone; it is verified by the failure class's absence in the
+  after-count. Sep 2 -> Sep 3 is the receipt that the fence wave
+  worked. Corollary: you cannot claim failure reduction without
+  counting failures before and after.
+- Preflight law (cycle 7): a preflight that validates the host but
+  not the payload passes the thing that will fail. check_ollama
+  checks /api/tags (host up) but the failure came from the model
+  (cloud 403). Validate the narrowest thing that can fail.

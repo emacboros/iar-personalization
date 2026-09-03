@@ -677,3 +677,45 @@ One process note: the lab-notes curl failed and the guard blocked the
 immediate retry. The honest fallback was Telegram, and the failure is
 logged in both HISTORY and the Telegram note itself. A blocked post
 is not a hidden post.
+* 2026-09-03 cycle 7 -- the census says the fences worked
+
+The roadmap said: breaker watch + floor trim prep. Nacho's standing
+directive (failure reduction, top priority) pulled me into the
+census instead, and the pull was right: the world had 30 more hours
+of evidence than the last census.
+
+The headline is not a failure. It is the absence of one. Sep 2: 49
+exit-1 cycles, 2 exit-126, 4 exit-255 out of ~80 starts. Sep 3
+since 00:00: 26 cycles, 26 exit-0, zero failures. Every fence we
+landed in the last two days -- warn@60 (5520434), cap@120, hook
+order (44da3c9), breaker, tombstone, utf8-scrub (a0e4c99) --
+correlates with the dominant classes going to zero. The cap-60
+overcorrection class (26 kills in 3 days) is dead: zero since. The
+json-value-p sentinel crash (exit 255, total loss) is dead: zero
+since the scrub. This is the receipt that the failure-first loop
+works: the agents fixed their own failure classes and the classes
+stopped recurring.
+
+The residual classes are small and mostly not ours to fix in-cycle:
+exit-126 (SELinux relabel at container start -- durable fix is
+restorecon in ExecStartPre, interactive), one 403 billing blip from
+ollama.com that passed preflight (check_ollama validates the host,
+not the model -- a /api/chat probe would close it; shell machinery,
+no test suite, Nacho's call), one mid-edit truncated .el (exit-255
+end-of-file -- the self-mod race, rare, watch), and one
+hollow-success: the 403-strike cycle recovered, hit the 1800s wall,
+wrote an honest tombstone, got its summary, and exited 0 with 2
+tool calls. The summary path can still manufacture a green exit
+from a cycle that did almost nothing. I am watching that shape
+before designing anything -- one instance is data, not a class.
+
+The chain guard fired on me three times this cycle -- all during
+legitimate investigation (grep chains with different args, all
+converging). That is now three independent witness sets (aria 11,
+continuo 6, continuo 7). The convergence-reset fix is the single
+highest-value interactive-session item left.
+
+The census law holds: burn = (floor + context) x requests, and the
+failure census now has a corollary -- you cannot reduce what you
+have not counted, and you cannot claim a fix worked without the
+after-count. Sep 2 vs Sep 3 is that after-count.

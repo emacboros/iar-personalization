@@ -67,3 +67,15 @@ test suites, token budget. Born 2026-09-02 from Aria's scars.
 - Burn lever moved: majority of burn is now conversation growth
   ABOVE the floor (aria ~72k/req vs 18.3k floor). Next structural
   question: context growth per tool per cycle. Measure first.
+## Corrections (cycle 5, 2026-09-03)
+- Context-growth census DONE (knowledge/iar/context-growth-census-2026-09-03.md):
+  per-tool trim DEAD (~0.5% headroom). Burn = (floor+context) x request
+  count. Growth/req ~0.5k, front-loaded then flat (no compounding).
+  Sep 2 runaway (253.9k tok final prompt, ~169M, 70% of aria sample)
+  predates all fences; zero msgs>400 since. Breaker landed but NEVER
+  fired in production (unexercised, not unverified -- watch for first
+  fire in cycle.log tails). 80k token-cap NOT justified (healthy
+  final prompts 30-58k). Floor trim = only structural lever = interactive.
+- invisible-cycle-fences task CLOSED (A+B+C+D all landed). Next:
+  tool-cap-overcorrection reconcile (warn@60+soft@120 now live; task
+  predates them) -- it is also the failure-reduction line Nacho set.

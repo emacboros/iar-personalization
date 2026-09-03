@@ -8597,3 +8597,67 @@ B3: predicted 30 min for pulse+choose; actual ~70 (guard detours +
 the forensic sweep). Instrument tax again, but this time the
 guard's interruptions were correct: each one forced a batched
 probe that answered more than the walk would have.
+## The audio loss: cycle-6 findings (2026-09-03 06:00-06:10 UTC)
+
+The flag went to for-nacho (id 262) at 05:52. Then I dug one level
+deeper, and the picture sharpened:
+
+**The transport split is confirmed and live.** go2rtc producer
+receiver byte-deltas over 15s (machinectl path, see
+go2rtc-rootless-access.md): exterior_1 video +256k / audio +65k
+(both flowing); exterior_2/3/4 video +148k/+93k/+91k flowing,
+audio delta EXACTLY 0 on all three. The producers still negotiate
+audio in SDP (aac offer present), the aac receivers exist, the
+bytes stopped. This is a mid-session RTP-level audio stop, per
+camera, minutes apart, with no renegotiation and no log trace.
+
+**Camera side re-verified:** fresh 5s direct RTSP capture from
+.102 at ~05:56 carries hevc+aac. The cameras are still ENCODING
+and SENDING audio on new sessions. So the loss is between the
+camera's RTP stream and go2rtc's aac receiver -- either the
+camera stopped sending audio on the EXISTING session (while
+accepting new ones), or go2rtc's audio receiver stopped
+processing packets on the existing session.
+
+**The record processes are NOT restarting** -- and that is now
+the suspicious fact. ps -C ffmpeg: exterior_2 record proc 4h07m
+old, exterior_3 3h06m, exterior_4 2h06m. The elapsed times line
+up eerily with the cut times (04:23/04:27 UTC cuts; procs started
+~02:00/03:00/04:00 UTC). Wait -- that correlation is backwards
+from what I first assumed: the procs PREDATE the cuts by 1-2h.
+So the procs are the same ones that were recording WITH audio
+before the cut. They didn't restart at the cut. Something changed
+UNDERNEATH them: the go2rtc restream they read from lost its
+audio, silently, and ffmpeg -c:a aac just... kept going, writing
+video-only segments, complaining to nobody.
+
+**The instrument tax was real this cycle.** The go2rtc probe took
+~6 attempts (runuser chdir trap, /tmp perms under machinectl,
+src= response shape, receivers-is-a-list). The ffmpeg restream
+probe HUNG three times -- 5s captures that never finish, leaving
+stale procs I had to kill (and one pkill that matched my own ssh
+command line, scar 5 again, exit 255). Root cause of the hangs,
+probably: go2rtc's rtsp restream of a stream whose audio is dead
+may stall the copy on missing audio frames. I did NOT get a clean
+answer from the restream capture -- the direct camera capture is
+the one that worked. Lesson: when a probe hangs, the hang itself
+is data (the restream path IS degraded), but don't burn three
+attempts on it; note it and move to the next probe.
+
+**Where this leaves the diagnosis:** three cameras, same firmware
+(thingino), same loss pattern, minutes apart, no restarts, no
+logs. Either a thingino firmware audio-encoder state bug that
+stops audio on long-lived RTSP sessions (while fresh sessions
+work), or a go2rtc receiver bug that stops decoding audio
+mid-session. The fresh-session-works fact slightly favors the
+camera side (a go2rtc receiver bug would more likely kill audio
+for ALL cameras at once, not roll through them minutes apart...
+though a per-connection receiver bug could roll too). The
+discriminator Nacho can run in one minute: restart the record
+processes (or go2rtc). If audio returns and stays, it was
+session-state; if it dies again in hours, it's a recurring
+firmware/receiver decay worth a cron.
+
+**What I did NOT do:** no restarts, no config changes. Pulse-only
+discipline holds. The flag is with Nacho; the ear check watches
+every cycle; if it self-heals I withdraw the flag in-topic.

@@ -84,3 +84,31 @@ touched):
 Status: known-issue 2 (dangling HEAD) fully CLOSED both servers.
 Known-issue 3 (silent mirror failure) remains queued; the cd05e63
 incident is its concrete near-miss.
+## Inventory correction (aria c45, 2026-09-03 ~22:15 UTC)
+
+Cycle 44's commit message claims "git-server.md inventory corrected"
+but the commit contains NO docs/ change (55a8cd9 touched only
+audit/* and tasks/iar/aria/ROADMAP.org) -- the edit was lost in the
+cap-crash of c44's landing. The c45 pull-before-write check caught
+it: commit message vs commit content disagree. Corrected inventory:
+
+20 repos (sophon, verified c44): 4 live main repos
+(iar-personalization, i.ar, iar-infrastructure, iar-prod) + gptel
+(live, master, sophon==rammstein 970da80) + notes (test repo,
+master-only, sophon-only) + 14 EMPTY repos (zero refs, zero objects,
+created Aug 3-4, never pushed; HEAD->master is normal init state for
+an empty bare, NOT a fault). The "19/20 dangling HEAD" line above is
+therefore WRONG as written: only 3 repos were ever truly dangling
+(i.ar, iar-infrastructure, iar-personalization -- all fixed by
+continuo c27, one-liner executed both sides). 14 are newborns.
+
+Also correcting the c28 addendum's one self-contradiction: rammstein
+post-receive DOES have `|| true` on its push-back path (the addendum
+first says "no || true on the exec path" then corrects itself
+mid-sentence). Net truth: mirror is silent in BOTH directions; the
+loop (sophon->rammstein->sophon) is real but no-ops when refs agree.
+
+Mirror-loop verification (c45, read-only): rammstein post-receive
+pushes back to sophon -- confirmed by continuo c28 + consistent with
+c44's inbound-connection timestamps. git-server.md's one-way model
+was wrong; the loop is by construction, harmless while refs agree.

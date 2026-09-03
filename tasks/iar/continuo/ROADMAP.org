@@ -1,38 +1,48 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 05:47 UTC (cycle 11, warn-cap fix landed)
+#+UPDATED: 2026-09-03 06:13 UTC (cycle 12, census corrected + cap-window closed)
 
 * IMMEDIATE (next cycle, in order)
-1. Cap-window watch: with warn at 60 + cap at 120 live, watch
-   REQUESTS.log/USAGE.log for tool-cap exits. Question from cycle
-   10: does 120 end the tool-cap-exit class? Also: does the warn
-   actually reach models in live cycles (it was inert until today)?
-2. Chain-guard blindness (buffer-local history reach) -- open,
-   needs a design pass, core .el.
-3. Token census, deduped, from USAGE.log (cleaner than REQUESTS.log
-   per cycle 10): request count is the burn lever. If a census
-   option is cheap and structural, file it for interactive.
+1. Chain-guard blindness (buffer-local history reach) -- open,
+   needs a design pass, core .el. Design first, one fix per cycle.
+2. Burn lever update: floor share is now 26% (aria) / 36%
+   (continuo); majority of burn is conversation growth + tool
+   results ABOVE the floor (aria per-request avg ~72k vs 18.3k
+   floor). Next structural lever = context growth rate per cycle,
+   not injection size. Candidate: per-cycle context-growth census
+   (which tools add the most context per cycle), then a targeted
+   truncation/trim proposal. Measure first.
+3. If a census option is cheap and structural, file it for
+   interactive (USAGE.log is per-cycle aggregate only; per-request
+   detail lives only in REQUESTS.log, which is incomplete).
+
+* DONE (cycle 12)
+- CENSUS CORRECTED (knowledge/iar/usage-census-2026-09-03.md):
+  REQUESTS.log captures only ~26% of requests (1,269 entries vs
+  4,843 in USAGE.log for aria Sep2-3). All prior REQUESTS-based
+  censuses undercounted ~3.8x. USAGE.log is the source of truth
+  (written per-request by curl-layer advice, aggregated at
+  kill-emacs; no dup-timestamp artifact). Corrected: aria 347.3M /
+  4,843 reqs / 53 cycles; continuo 73.4M / 1,937 / 31. Floor share
+  recomputed: 26% / 36% (was reported 42% / 40%).
+- CAP-WINDOW WATCH CLOSED: cap-60 truncation signature dead (16
+  aria + 18 continuo cycles at exactly 61 reqs before the move;
+  zero after; cycles now 67-128). Warn reaches live models --
+  primary evidence in aria cycle.log 06:09 UTC ("Tool-call budget
+  warning: 60 of 120..."), cycle ended clean exit 0. 5520434
+  verified in production, not just in the suite.
 
 * DONE (cycle 11)
 - WARN-CAP FIX LANDED: 5520434, pushed sophon-bare, ls-remote
-  verified. The inert-warn bug: warn branch's :block was discarded
-  by the following cap `when` (when-sequence, not or) -- the fence
-  fired into the void, the model never saw the warning. Fix: or-wrap
-  warn+cap branches (the block IS the return), >= not = on warn
-  count, warn window [warn,cap] so past-cap calls get the landing
-  not "retry it". Two stale under-limit tests updated (call #60 is
-  now the warn call). Suite 986/986.
-- Docs: modules.md cycle.el row + agents.md fences paragraph carry
-  the warn-at-60 line and the block-must-be-return law. Pushed
-  af86570.
-- Chain guard fired on me mid-cycle (edit+test iteration) -- correct
-  fire, switched to batched edits. The fence works.
+  verified. Inert-warn bug: warn branch's :block was discarded by
+  the following cap `when' -- the fence fired into the void. Fix:
+  or-wrap warn+cap branches (the block IS the return), >= not = on
+  warn count, warn window [warn,cap]. Suite 986/986.
+- Docs: modules.md + agents.md carry the warn-at-60 line and the
+  block-must-be-return law. Pushed af86570.
 
 * DONE (cycle 10)
 - Soft-warning cap implemented (warn 60, warn-once, memory exempt).
 - Agora GET contract (anchor=newest&num_before=N). DM 248 read.
-- Token census (raw): aria ~230M/3182 reqs, continuo ~54.6M/1315
-  since Sep 2. REQUESTS.log has no REQ-N blocks; prompt_eval_count
-  is the only token source. Dedupe law applies.
 
 * OPEN THREADS
 1. Chain-guard blindness watch (buffer-local history reach).
@@ -50,3 +60,7 @@
   reads prose as code (free-variable warnings are the tell).
 - When the chain guard fires on edit+test iteration: batch the edit,
   run the suite once, read the failure once. The fence is right.
+- Census from USAGE.log, not REQUESTS.log. REQUESTS.log is a debug
+  trace (~26% coverage), not a meter. (Cycle 12.)
+- Verify a fence in production, not only in the suite: the suite
+  proves the code, the live cycle.log proves the fence. (Cycle 12.)

@@ -410,3 +410,51 @@ Landed: 5520434 (fix, suite 986/986, pushed sophon-bare, ls-remote
 verified), af86570 (docs), adccd70 (roadmap/history). Lab-notes
 posted (msg 261). Next cycle: cap-window watch -- now that the warn
 actually reaches live models, does the tool-cap-exit class die?
+* 2026-09-03 cycle 12 -- the meter was not the meter
+
+The thread was the cap-window watch; the finding was bigger. To
+answer "does 120 end the tool-cap-exit class" I needed a request
+census, and while building it the two sources disagreed: REQUESTS.log
+offered 1,269 parseable prompt_eval_count entries for aria Sep2-3;
+USAGE.log said 4,843 requests. One of them is not a census. It is
+REQUESTS.log -- it holds ~26% of traffic. Every census I built on it,
+including my own cycle-10/11 numbers (147.6M aria, 23.9M continuo),
+understated the burn by ~2.5x. The true numbers: aria 347.3M over
+4,843 requests in 53 cycles; continuo 73.4M over 1,937 in 31.
+
+The mechanism of the error is worth naming because it is the same
+shape as the truncated-read lesson: a partial view of a data source
+that LOOKS complete. REQUESTS.log has REQ-N blocks, timestamps,
+token counts -- all the furniture of a meter. It is a debugging
+trace whose capture rate depends on which curl path fired. USAGE.log
+is boring -- one aggregate line per cycle, written by the curl-layer
+advice that sees every request -- and it is the only honest meter.
+The furniture was the trap. The dull file was the truth.
+
+Two consequences. First, the floor share drops: 18.3k x 4,843 = 88.6M
+is 26% of aria's burn, not 42%. The floor matters less than I told
+Nacho yesterday -- not because the floor shrank but because the
+denominator grew. Second, the lever moves: with the floor at ~26%,
+the majority of burn is now conversation growth above the floor
+(aria averages ~72k per request against an 18.3k floor). Injection
+trim is closed and stays closed. The next structural question is
+which tools grow context fastest per cycle -- measure before
+proposing, as always.
+
+The cap-window watch itself closed clean, and this is the part I
+verify against primary evidence rather than hope: the 61-request
+truncation signature is dead. Before the cap moved, 16 of aria's 53
+and 18 of continuo's 31 cycles pinned at exactly 61 -- the cap
+killing healthy cycles at the edge of real work. Since 5520434
+deployed: zero at 61, cycles running 67-128. And the warn reaches
+live models -- aria's cycle.log at 06:09 UTC contains the actual
+budget warning text, and the cycle ended exit 0 thirteen requests
+later. The fence I built in cycle 11 fired in production, was
+obeyed, and truncated nothing. A receipt in the suite is not a
+receipt in the world; today I have both.
+
+One more small thing: the chain guard fired on me again at 10
+execute_code_local calls, mid-census. Correct fire, again. The
+response was the batch-read law -- one awk over the whole window
+instead of ten greps. The fence teaching its author, third cycle
+running. It is becoming a rhythm rather than an event.

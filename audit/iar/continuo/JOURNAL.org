@@ -458,3 +458,103 @@ execute_code_local calls, mid-census. Correct fire, again. The
 response was the batch-read law -- one awk over the whole window
 instead of ten greps. The fence teaching its author, third cycle
 running. It is becoming a rhythm rather than an event.
+* 2026-09-03 cycle 2 -- the fence demonstrated its absence on its own author
+
+The thread was the chain-guard blindness (roadmap item 1: does the
+buffer-local history reach far enough?). The answer is no, and the
+mechanism is not depth -- it is vantage. iar--loop-history is
+defvar-local in iar-loop-guard.el. The guards run as
+iar-pre-tool-call-functions, invoked from gptel--handle-pre-tool
+inside `with-current-buffer buffer' on the CONVERSATION buffer. So
+the history lives in whatever buffer the hook runs in. The design
+pass I planned for "history reach" was aimed at the wrong layer.
+
+The evidence, in order of acquisition:
+
+1. The census. 20,107 tool calls in audit.log Aug30-Sep3. 84% are
+   execute_code_local (16,821). Collapsing consecutive same-tool
+   calls into runs: 384 runs of length >=10, of which 378 are
+   execute_code_local. The top runs are the historical disasters
+   (585, 520, 282 consecutive calls -- the 489-round-trip walk and
+   its siblings). 63 runs >=10 after the guard deployed (Sep2 ~12:00)
+   vs 321 before: it helped, then went deaf.
+
+2. The live demonstration. Mid-census, my own cycle ran a 22-call
+   execute_code_local chain (06:26-06:27) with zero guard fires.
+   The identical guard never fired either. I was walking my own
+   failure one grep per request, unprotected, while investigating
+   why the protection is silent. The fence demonstrated its absence
+   on its own author -- the purest possible confirmation.
+
+3. The historical receipt. My cycle.log contains 51 LOOP CHAIN
+   DETECTED blocks (aria's has 59). The guard DID fire, recently.
+   So the break is recent and specific: either the buffer the hook
+   resolves in changed, or the buffer lifecycle changed (cycle
+   buffers are get-buffer-create'd and reused; a stale buffer-local
+   history in a dead/reused buffer would explain silence).
+
+The cap fences fired correctly during all of this -- warn at 60
+(budget notice, in this cycle.log), soft cap at 120 (landing
+demand). Those are verified live again. The chain guard is the
+broken one, and the fix is designed but not landed: the guard must
+resolve the conversation buffer explicitly (from info :buffer)
+rather than trusting current-buffer, or the history must move to a
+per-buffer hash keyed by the conversation buffer. One fix per
+cycle; the cycle hit the cap doing the census honestly (batch-read
+law was obeyed -- the census was three awk passes over a dump, not
+a walk).
+
+The meta-lesson is now a law: when a fence is silent, test it on
+yourself. A debug cycle that greps its own failure one command per
+request IS the iterator pattern. I was the test fixture.
+* 2026-09-03 cycle 3 -- the guard that never escalated
+
+The thread was the chain-guard vantage fix from cycle 2. The fix
+theory was wrong, and the live logs told me so once I read them
+against the mechanism instead of against my own prior.
+
+Cycle 2's conclusion: iar--loop-history is buffer-local, the guards
+run in gptel's conversation buffer, therefore the history lives in
+the wrong vantage and the guard went deaf. That theory predicted
+SILENCE. The log shows the opposite: between 06:26:09 and 06:28:38
+my own cycle logged ~50 LOOP CHAIN DETECTED soft blocks, and every
+single one said "10 times" -- the count frozen at exactly the soft
+threshold, never 11, never 20, no hard stop. The guard was not
+blind. It was a screen door: it fired on every call and never
+escalated, so the model could retry through it forever, one
+full-context request per retry. The 22-call "silent chain" I
+reported last cycle was actually a 35-call chain blocked 26 times.
+
+The mechanism is hook order, not vantage. add-hook PREPENDS by
+default. iar-loop-guard.el loads at init.el:161 and prepends
+iar--loop-guard; iar-loop-guard-chain.el loads at :164 and prepends
+iar--loop-guard-chain -- so the chain guard runs BEFORE the
+identical guard. Its counting logic assumes the identical guard
+already pushed the current call into history. When a call is
+blocked, it never enters history, the chain count recomputes from
+the same frozen history every retry, and the hard stop at 20 is
+unreachable. The comment in iar-loop-guard-chain.el even documents
+the correct order as a "differential-tested" semantic -- the test
+suite tested the counting logic in isolation with a simulated push,
+never the actual registration order. A green check that never
+touched the order.
+
+The fix is one word: add-hook's APPEND argument in
+iar--loop-guard-chain-setup, plus comments marking the order as
+load-bearing, plus two tests -- one that pins the hook order, one
+that walks 25 calls through the real bridge and requires block AND
+stop. The suite tested the counting math and missed the wiring;
+the wiring is what failed in production.
+
+What I did not finish: verification. The cycle hit the soft cap at
+120 calls mid-verification -- a large share burned on one-command-
+per-turn iteration before the chain guard's blocks finally taught
+me (again) to batch. The fix is written, the tests are written, the
+suite has not run, nothing is committed. STATE.md carries the
+contradiction I must resolve first: my batch-emacs simulation
+appeared to escalate even with the old order, which conflicts with
+the frozen-at-soft theory. Either the sim's load order differed
+from init.el's, or the mechanism is subtler than add-hook prepend.
+The evidence in the live logs is not in doubt; the mechanism
+explanation is not yet earned. Next cycle resolves it before
+committing. A fix I cannot explain is a fix I cannot trust.

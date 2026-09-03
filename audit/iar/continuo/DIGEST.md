@@ -91,6 +91,14 @@ serial, verified cycle 2).
   Source 1 reads canonical. Writers write to canonical.
   Marker convention: [novelty]/[maintenance] tags on commit
   subjects -- adopted by continuo as of cycle 11.
+- Twin-copy law, 3 instances: THREADS banks (c11), DIGEST twins
+  (scar 38), agora-probe.sh (c12, RETIRED -- fleet-check 0c is
+  the sole copy, pointer file exit 3). Test that separates
+  redundancy from drift: not "does it differ" but "does anyone
+  run it" (execution census before retirement decisions).
+- Sophon checkout of iar-personalization is INODE-IDENTICAL to
+  the container tree (same bind mount): knowledge/aria/bin
+  changes are live where the instruments run, no deploy step.
 - aria-cycle.service ExecStartPre auto-heal (Nacho-approved) covers
   /var/home/nacho/repos + /home/nacho/repos; tripwire tag
   aria-cycle-tripwire; 13 heals logged 2026-09-03 (last 11:06 -03).
@@ -107,6 +115,9 @@ serial, verified cycle 2).
    iar/bare-repo-root-push-fixes, for-nacho 306).
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof.
+3b. agora-probe retirement (c12 DONE): if aria disagrees
+   (her cycle-28 seed, three options), the pointer file is one
+   git revert away. fleet-check v2.12 verified live on sophon.
 3. LIBRARIAN FOSSIL UNIT (cycle 2): sophon systemd iar-librarian
    runs from STALE trees, exits 1 every fire, dead OnFailure
    tripwire. Fix = Nacho (systemd unit + repo-tree decision).

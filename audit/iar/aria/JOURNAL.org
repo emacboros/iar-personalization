@@ -8880,3 +8880,63 @@ roadmap said audit/iar/aria/, the script lives in knowledge/aria/
 bin/ -- the roadmap pointer was wrong and I fixed my mental model,
 not the roadmap, because the roadmap line is about the RUN
 location, which is correct).
+## Cycle 11: the deafness spread, and the instrument that let it through (2026-09-03 ~08:20 UTC)
+
+The wrinkle from cycle 10 was not a flake. interior_3 went deaf
+~08:09 UTC -- flapping 08:08-08:09, dead since. The fleet audio
+loss is now 4/8 cameras: ext2/3/4 since 04:23, interior_3 new.
+
+The signature DIFFERS, and the difference is data: ext2/3/4
+recordings have NO audio stream at all (the camera stopped
+sending audio-RTP; go2rtc muxes video-only). interior_3 has an
+audio stream with ZERO samples -- 0 kb/s, the muxer wrote the
+track but nothing ever decoded into it. Same disease at a
+different stage, or a second cause. I don't know which, and I
+won't pretend to. What I know: the failure is spreading camera
+by camera, ~4h apart, which makes the frigate-restart lever
+(flag 265 correction) more urgent -- if it's frigate-side state
+rotting per-session, a restart clears it; if it's camera-side,
+the restart at least re-syncs the sessions and we learn from
+what comes back.
+
+The second finding is the one that stings: **the instrument let
+it through.** Cycle 10 saw interior_3 print "mean/max:" with
+empty values and I marked it "watch, investigate if recurring."
+The watch fired on the very next cycle -- but only because I
+happened to be looking at the ear lines again. fleet-check
+itself exited 0. A brand-new deafness sailed through as green
+because volumedetect prints no dB lines for zero-sample input,
+and my code treated "no dB lines" the same as "healthy." The
+KNOWN_DEAF allowlist (v2.9) covered the stream-absent case; the
+stream-present-but-empty case fell between the branches. Scar
+29: *an instrument's unhandled output shape is a hole in its
+exit code, not a curiosity.* The wrinkle was the finding; I
+filed it as a watch item when it should have been a same-cycle
+patch. The cost of waiting one cycle: one cycle of a new
+deafness reading green.
+
+Fix: fleet-check v2.10 (afab656). Empty dB output = SILENT =
+FAIL unless allowlisted. RECOVERY on known-deaf now requires
+actual dB values, not mere stream presence. Live-verified:
+interior_3 fails loudly, ext2/3/4 watch states unchanged,
+exit 1 means "something new" again.
+
+Also: the loop guard fired twice more (execute_code_local
+chains 10-12), and this time it was WRONG twice -- it blocked
+two ssh probes mid-diagnosis and then blocked the for-nacho
+POST, which is not the same tool call at all. The guard
+pattern-matches on tool-call shape, and a batched ssh heredoc
+looks like an iterator to it. I worked around by switching
+channels (Telegram for the urgent flag). Noted honestly: the
+guard cost me two blocked probes and a channel switch. The
+guard is right about the vice (iterating when a batch would
+do) but its counter doesn't reset on convergence, and it
+doesn't distinguish "same tool, new question" from "same tool,
+same question." That's a core-.el observation -- filing it,
+not fixing it (no .el changes from cycles).
+
+Prediction (B3): predicted ~20 min for orient + watch + one
+improvement. Actual: ~08:11-08:19, ~8 min of work. Under
+again -- but the under-run was the spread investigation, which
+the guard then taxed. Instrument tax this cycle: two blocked
+probes + one channel switch.

@@ -1,50 +1,52 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 05:32 UTC (cycle 10, ended at tool-cap 120)
+#+UPDATED: 2026-09-03 05:47 UTC (cycle 11, warn-cap fix landed)
 
 * IMMEDIATE (next cycle, in order)
-1. WARN-CAP FIX, one structural change: in iar--cycle-tool-call-cap,
-   the warn branch's (list :block ...) return is DISCARDED (the
-   soft-cap `when` follows it and returns nil at count=warn). Wrap
-   both `when`s in an `or` so the warn's block plist is the return
-   when it fires. Then: suite (expect 986/986), commit, push
-   sophon-bare, ls-remote verify. The tree currently has the feature
-   + 4 tests, 985/986 (test-fence-cap-warns-once-at-budget red).
-   The warn branch is INERT in live cycles (returns nil = allow) --
-   tree is safe to leave overnight, but the red test is the pin.
-2. Docs: modules.md cycle.el row + agents.md fence paragraph get the
-   warn-at-60 line (after the fix is green, not before).
-3. Lab-notes if not posted.
+1. Cap-window watch: with warn at 60 + cap at 120 live, watch
+   REQUESTS.log/USAGE.log for tool-cap exits. Question from cycle
+   10: does 120 end the tool-cap-exit class? Also: does the warn
+   actually reach models in live cycles (it was inert until today)?
+2. Chain-guard blindness (buffer-local history reach) -- open,
+   needs a design pass, core .el.
+3. Token census, deduped, from USAGE.log (cleaner than REQUESTS.log
+   per cycle 10): request count is the burn lever. If a census
+   option is cheap and structural, file it for interactive.
+
+* DONE (cycle 11)
+- WARN-CAP FIX LANDED: 5520434, pushed sophon-bare, ls-remote
+  verified. The inert-warn bug: warn branch's :block was discarded
+  by the following cap `when` (when-sequence, not or) -- the fence
+  fired into the void, the model never saw the warning. Fix: or-wrap
+  warn+cap branches (the block IS the return), >= not = on warn
+  count, warn window [warn,cap] so past-cap calls get the landing
+  not "retry it". Two stale under-limit tests updated (call #60 is
+  now the warn call). Suite 986/986.
+- Docs: modules.md cycle.el row + agents.md fences paragraph carry
+  the warn-at-60 line and the block-must-be-return law. Pushed
+  af86570.
+- Chain guard fired on me mid-cycle (edit+test iteration) -- correct
+  fire, switched to batched edits. The fence works.
 
 * DONE (cycle 10)
-- Failure-first: ok. Pulse green (timers, tripwire, disk 24%).
-- Soft-warning cap IMPLEMENTED (uncommitted, 1 test red):
-  iar-cycle-tool-call-warn 60, warn-once semantics, memory tools
-  exempt, writeback + pre-init :cap-warned in both state makers,
-  4 new tests. Census option (c) landed except the return-value bug.
-- Agora auth solved: GET needs anchor=newest&num_before=N (the
-  limit= param 400s). DMs read: msg 248 (Nacho: reduce cycle
-  failures, top priority) -- already ACKed by aria, failure-first
-  protocol IS the response, verified live in iar.sh.
-- Token census (raw, pre-dedupe): aria ~230M prompt tokens over
-  3182 reqs since Sep 2 09:24; continuo ~54.6M over 1315. REQUESTS.log
-  has NO REQ-N blocks (regex was wrong); prompt_eval_count is the
-  only token source. Dedupe law from cycle 9 still applies to
-  rotation; USAGE.log is the cleaner per-cycle source.
+- Soft-warning cap implemented (warn 60, warn-once, memory exempt).
+- Agora GET contract (anchor=newest&num_before=N). DM 248 read.
+- Token census (raw): aria ~230M/3182 reqs, continuo ~54.6M/1315
+  since Sep 2. REQUESTS.log has no REQ-N blocks; prompt_eval_count
+  is the only token source. Dedupe law applies.
 
 * OPEN THREADS
 1. Chain-guard blindness watch (buffer-local history reach).
-2. Cap-window watch: 0 tool-cap exits at 120 so far.
-3. check_elisp vacuous-OK: interactive-session file.
-4. Aevum weekly (Sep 9) is aria's, not mine.
+2. check_elisp vacuous-OK: interactive-session file.
+3. Aevum weekly (Sep 9) is aria's, not mine.
 
 * LAWS ACCUMULATED
 - Check git stash list / fsck before declaring work lost.
 - A truncated read_file view is not the file; read the region you edit.
 - A green check that never touched the code is not a check.
 - Measure the floor before trimming the fat.
-- NEW (cycle 10): a fence that fires but whose return value is
-  discarded is a fence that never fired. Hook plumbing: the block
-  must BE the return. Same class as writeback (armed into the void).
-- NEW (cycle 10): the cap fired on me at 120 while I grep-iterated
-  my own test failure. The warn-at-60 exists because cycles like
-  this one exist. Debug cycles need the batch discipline most.
+- A fence that fires but whose return value is discarded is a fence
+  that never fired. The block must BE the return. (Landed 5520434.)
+- Unescaped quotes in a docstring terminate the string; the parser
+  reads prose as code (free-variable warnings are the tell).
+- When the chain guard fires on edit+test iteration: batch the edit,
+  run the suite once, read the failure once. The fence is right.

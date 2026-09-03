@@ -1,6 +1,7 @@
-Last updated: 2026-09-03 08:01 UTC (aria cycle 10: world-state REPLACED
--- fleet-check v2.9 KNOWN_DEAF allowlist, audio loss root-caused +
-inventoried. Injection math unchanged: every char paid ~61x/cycle.)
+Last updated: 2026-09-03 08:35 UTC (aria cycle 12: world-state REPLACED
+-- audio-loss root cause REFINED, two trigger paths one endpoint,
+4h-clock story dead. Injection math unchanged: every char paid
+~61x/cycle.)
 
 * THE INJECTION MATH (read before editing this file)
 
@@ -111,21 +112,32 @@ server-local, never committed; findings committable.
 25. A failure that leaves no log trace is only visible to an
     instrument that watches the OUTPUT, not the process (ear
     check caught what frigate's own logs never mentioned).
+26. Two data points make a line, never a mechanism. An interval
+    story built from two events is a coincidence hypothesis --
+    check for a shared trigger before shipping the narrative
+    (cycle 12: the "4h-clock spread" was one network-blip event
+    plus one camera-side event).
 
-* World state (2026-09-03 08:20 UTC, cycle 11 -- REPLACES all prior blocks)
+* World state (2026-09-03 08:35 UTC, cycle 12 -- REPLACES all prior blocks)
 
-- Failure-first era holding: cycles 137-138, continuo 1-5, aria
-  1-11 exit 0. Pulse green. Tripwire clean.
-- AUDIO LOSS ESCALATED: 4/8 cameras deaf. ext2/3/4 since 04:23
-  UTC (NO audio stream); interior_3 NEW since ~08:09 UTC
-  (flapped 08:08-08:09; stream present, ZERO samples --
-  different signature, cause unknown). Spreading ~4h apart.
-  Frigate-restart lever (Nacho) MORE URGENT; telegram sent
-  08:17 UTC. Flags 262-270 stand. Frigate NOT restarted.
-- fleet-check v2.10 (afab656): SILENT branch -- empty
-  volumedetect output = FAIL unless allowlisted. v2.9 exited 0
-  on interior_3's new deafness (unhandled output shape). Scar
-  29: the wrinkle was the finding; patch same-cycle.
+- Failure-first era holding: cycles 137-138, continuo 1-6, aria
+  1-12 exit 0. Pulse green. Tripwire clean.
+- AUDIO LOSS REFINED (cycle 12): 4/8 cameras deaf, NOT spreading.
+  Two trigger paths, one endpoint (silent audio): ext2/3/4 deaths
+  simultaneous with 8-min VLAN RTSP outage (go2rtc dial timeouts
+  01:23:44-01:31:03 local, window-bounded; host NIC clean; cams
+  ping up) -> trigger network blip, mechanism thingino bug.
+  interior_3 flap has NO network signature (ffmpeg crashed
+  unexpectedly 05:00:30 local) -> camera-side trigger.
+  Restart-lever caveat posted (msg 276 + telegram): int3
+  zero-sample stream suggests bug can hit at session SETUP ->
+  frigate restart re-rolls 8 sessions, could return MORE deaf
+  cams. Diagnostic, not guaranteed fix. Firmware (flag 270) =
+  real fix. Nacho's call; frigate NOT restarted.
+- fleet-check v2.10 (afab656): KNOWN_DEAF allowlist + SILENT
+  branch. Exit 1 = something new; watch states = expected.
+- Loop guard false-positives: 3+ (cycles 11-12) on legitimate
+  investigation chains + git pull. Interactive-session item.
 - Fence parity CLOSED (4c8792a + 6130c13, 982/982). Per-agent
   task dirs live. Injection floor: aria 18.3k tok/req, 42% of
   burn; dominant lever = request count.
@@ -134,9 +146,6 @@ server-local, never committed; findings committable.
   still the one-ask-covers-three wall (flag 270).
 - Direction protocol LIVE: Agora primary, with-nacho (id 6),
   msg 244 ACKed. Restic verified; integrity check Sep 6.
-- LOOP-GUARD observation (cycle 11): 2 false-positives on
-  batched ssh heredoc + curl POST; filed for interactive
-  session, not fixed from cycles.
 - REQUESTS.log double-logs cycles (rotation artifact): dedupe
   by (req,msgs,tok) signature before any census (~13% overcount).
 
@@ -159,7 +168,7 @@ server-local, never committed; findings committable.
 - Cycle runs via aria-cycle.service on sophon (oneshot,
   glm-5.3-flash:cloud, --timeout 1800), 10-min timer ROTATING
   with continuo. Research sidecar: target "research".
-- fleet-check.sh v2.9: standing patrol. Script at
+- fleet-check.sh v2.10: standing patrol. Script at
   knowledge/aria/bin/fleet-check.sh (NOT audit/). USAGE.log in
   audit/iar/aria/. Run ON sophon, ssh 'bash -s' <, timeout >=300s.
 

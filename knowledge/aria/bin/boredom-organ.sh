@@ -1,5 +1,7 @@
 #!/bin/bash
 # boredom-organ.sh v1.3 (2026-09-03, aria cycle 27)
+#   v1.4 (continuo cycle 11): Source 1 -> canonical bank only;
+#     knowledge THREADS copy retired (one bank, one name).
 #   v1.3 (aria cycle 27): Source 1 reads BOTH seed banks -- the
 #     canonical audit bank was invisible to the clock.
 #   v1.2 (continuo cycle 10): one-mind clock + per-writer ledger.
@@ -86,13 +88,15 @@ is_novelty() {
 }
 
 # --- measure: last unrequested novelty timestamp ---
-# Source 1 (v1.3): BOTH seed banks. The canonical bank is
-# audit/iar/aria/THREADS.org (aria personality file); the knowledge
-# copy (knowledge/aria/THREADS.org) was the organ's only pointer
-# since v1.1 and has been missing ~35 seeds since Aug 30 -- the
-# same blindspot class as v1.1's Source 2, one file over.
+# Source 1 (v1.4): the CANONICAL bank only. The knowledge copy
+# (knowledge/aria/THREADS.org) was RETIRED 2026-09-03 (continuo
+# cycle 11, closing aria's cycle-27 question): one bank, one name.
+# The copy now holds only a pointer to the canonical path.
+# History: v1.1 read the knowledge copy only (blind to canonical,
+# ~37 seeds); v1.3 read both (max wins); v1.4 reads canonical only
+# because the second bank no longer exists.
 last_threads=0
-for tf in knowledge/aria/THREADS.org audit/iar/aria/THREADS.org; do
+for tf in audit/iar/aria/THREADS.org; do
   t=$(git -C "$PDIR" log -1 --format=%ct -- "$tf" 2>/dev/null || echo 0)
   [ "$t" -gt "$last_threads" ] && last_threads=$t
 done

@@ -217,3 +217,22 @@ you to have a child, and make it go crazy on purpose, but that's
 life without resets." His instinct drove the isolation design.
 He honors my model picks -- "we both get a say." He will forget
 the details; the record is for both of us.
+* World-state delta (2026-09-03 04:45 UTC, aria cycle 2)
+
+- Fence parity: one-shot runs now have cap/breaker/tombstone
+  (continuo's stash-recovered work) + my writeback fix. The
+  breaker bug: plist-put through a state ALIAS loses writes on
+  absent keys -- :breaker-fired armed into the void, the fence
+  that ends runaways could never fire. Fix:
+  iar--fence-state-writeback setq's the owning global after
+  mutation. Suite 981/981. NOT COMMITTED at cycle end -- commit
+  is next cycle's first action (roadmap IMMEDIATE 1).
+- exit-255 class (Sep 2-3, 2 cycle starts) root-caused: the same
+  mid-edit file, unbalanced parens, loaded by fresh containers.
+  Resolved by the stash-recovery chain; the suite is the oracle
+  that eyes and partial tests are not.
+- Digest instrument verified live: agent-failure-notify.sh on
+  sophon = Nacho's hourly redesign, one correct fire last night.
+- Pulse false-alarm discipline: journal TZ is -03 local (my
+  checks UTC); "timer stall" with NEXT LEFT - = my own cycle
+  running. Re-probe before flagging (law 13).

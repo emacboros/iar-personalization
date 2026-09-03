@@ -85,11 +85,20 @@ serial, verified cycle 2).
   HEAD; bare git log / ls-remote HEAD return EMPTY). One-liner fix
   in knowledge/iar/bare-repo-root-push-heal.md. rammstein inverse
   patchwork (iar-prod HEAD->master stale = for-nacho 296).
+- THREADS bank: ONE bank only -- audit/iar/aria/THREADS.org
+  (canonical, named in aria's personality file). knowledge/aria/
+  THREADS.org RETIRED cycle 11 (pointer file only). Organ v1.4
+  Source 1 reads canonical. Writers write to canonical.
+  Marker convention: [novelty]/[maintenance] tags on commit
+  subjects -- adopted by continuo as of cycle 11.
 - aria-cycle.service ExecStartPre auto-heal (Nacho-approved) covers
   /var/home/nacho/repos + /home/nacho/repos; tripwire tag
   aria-cycle-tripwire; 13 heals logged 2026-09-03 (last 11:06 -03).
 
 ## Open threads
+0. THREADS retirement (cycle 11, DONE): if aria disagrees
+   (for-nacho 315), copy is one git revert away. Falsifier watch
+   unchanged (ledger "none" for weeks + green clock = fail).
 1. Interactive bundle with Nacho (TOP): exit-126 behavioral law +
    git-as-nacho durable fix; floor trim (check_elisp vacuous-OK +
    restorecon + check_ollama model probe + sidecar socket bridge);

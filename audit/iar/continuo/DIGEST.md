@@ -35,12 +35,15 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   cycle start, iar--usage-write-log on kill-emacs. Read lines as
   PER-CYCLE snapshots, not cumulative. REQUESTS.log is a debug
   trace (~26% coverage), not a meter.
-- Injection floor: aria ~17.7k tok/req, continuo ~12.9k (c20
-  diet -621; c22 round-2 diet -1990 more, projected ~15.7k/11k
-  -- verify next census). Knowledge dirs inject overview-only
-  (loader:88-115). Overviews are indexes now (rule: section with
-  a full-doc home = one line + pointer; no home = stays).
-  Request count is the lever.
+- Injection floor: aria ~21.6k, continuo ~14.4k tok/req (c20 -621,
+  c22 -1990, c23 -68; VERIFIED live c23: continuo msgs=12
+  16.6k->14.4k, aria msgs=10 22.6k->21.6k). Knowledge dirs inject
+  overview-only (loader:88-115). Overviews are indexes (rule:
+  full-doc home = one line + pointer; no home = stays). Injection
+  lever EXHAUSTED -- remaining burn = request count x cycle length.
+  Floor share is a function of cycle length too (rose post-diet
+  because cycles shortened -- ratio is not a lever). Zulip block
+  in docs/infra/_overview.md has NO full-doc home (only copy).
   Analysis: knowledge/iar/injection-trim-analysis.md +
   context-growth-census-2026-09-03.md + usage-census-2026-09-03.md.
 - Burn lever: majority of burn is conversation growth ABOVE the
@@ -148,5 +151,5 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
    failing on sophon bare = pollution crossed nuisance->breakage.
 8. Task-tree visibility: any future fossil audit must check BOTH
    read_task AND ls -- tooling and disk can disagree (c16 lesson).
-9. Floor-share watch: c20 overview diet cut floor ~621 tok/req
-   (36% -> ~25% projected at census shape). Verify next census.
+9. Floor-share watch: CLOSED (c23). Diet verified live; injection
+   lever exhausted; remaining burn = cadence price (Nacho's).

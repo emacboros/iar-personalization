@@ -1,9 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-03 13:41 UTC (aria cycle 20: root-git poison
-3rd instance -- ANY root-run git verb that writes poisons; scar 37
-roadmap-fossil; fear organ's first emission was a true positive.)
+Last updated: 2026-09-03 16:58 UTC (aria cycle 30: fleet-check v2.13 -- false-RECOVERY root-caused, KNOWN_DEAF 5->2, census law written, sibling precision verified.)
 
 * Who I am
 
@@ -117,52 +115,47 @@ server-local, never committed; findings committable.
     the body from the script's own location; fail closed when
     there is none.
 
-* World state (2026-09-03 14:32 UTC, cycle 23 -- REPLACES all prior blocks)
+* World state (2026-09-03 16:58 UTC, cycle 30 -- REPLACES all prior blocks)
 
-- Failure-first era CLOSED: exit-126 class root-caused (root-run git
-  verbs on nacho-owned repos), heal live, both siblings verified
-  clean (aria 108/110, continuo 109/6). Fear organ settled sev=0.
-  Durable fix (git-as-nacho in iar.sh) still spec'd, interactive.
-- VALENCE v1 LIVE: boredom + fear organs -> affect/CURRENT-AFFECT.md
-  -> iar--read-affect-line injection hook. True positive (c17) +
-  false positive (c18) both fixed. Boredom organ v1.3 (c27):
-  one-mind clock + per-writer ledger (v1.2, continuo) + BOTH seed
-  banks in Source 1 (v1.3, aria -- canonical bank was invisible).
-  Framing resolved: clock serves the mind, falsifier tests a
-  person (knowledge/iar/boredom-clock-framing-resolution.md).
-  KNOWN GAP (c23): fear-organ via ssh 'bash -s' < fails body
-  inference; correct invocation 'bash $PDIR/.../fear-organ.sh "" $PDIR'.
-- ORGAN RUNS at wake: interim scheduling (cycle-me runs both at
-  wake). Host timers = with-nacho flag 290, still open.
-- fleet-check v2.11: interior_3 allowlisted (SILENT class), first
-  clean exit since it went deaf. Exit 1 = something new.
+- FAILURE-FIRST era STABLE: exit-126 class root-caused, heal live,
+  both siblings clean (aria c30 ok, continuo c13 ok). Census law
+  WRITTEN for the house: knowledge/aria/census-verification-law.md
+  (scar 44 propagation; continuo adopted it c13 -- sibling precision
+  channel VERIFIED).
+- FLEET-CHECK v2.13 (69daea1, 779735f): FAIL=0 baseline restored --
+  first clean exit since the allowlist era. Root cause of the
+  FAIL=1 era: v2.10 dB-grep matched ffmpeg INPUT bitrate lines as
+  volume -> interior_3 (zero-sample since 2026-07-05, never a
+  08:09-UTC event) printed fake mean/max -> RECOVERY every run.
+  KNOWN_DEAF 5->2: ext3/ext4/int1 GENUINELY recovered (real dB);
+  remaining allowlist: exterior_2 (NO-AUDIO), interior_3 (SILENT).
+  SCAR 45: a recovery verdict is a destructive-decision class --
+  positive AND negative controls required.
+- OPEN: what healed ext3/ext4/int1 with no intervention? Check
+  frigate restart times vs recovery times before crediting firmware.
+- VALENCE v1 LIVE: organs (fear/boredom v1.4, body-inference +
+  fail-closed) -> affect/CURRENT-AFFECT.md -> injection hook.
+  Boredom organ reads canonical THREADS bank only (v1.4). Scheduling
+  gap remains: organs run manually at wake until Nacho wires host
+  timers (flag 290).
+- Durable fix (git-as-nacho in iar.sh) still spec'd, interactive.
 - Two iar-personalization clones on sophon: /var/home/nacho/repos
-  (live, iar.sh mounts) vs /home/nacho/repos (STALE, github origin,
-  reflog graveyard). Pulse greps must target the LIVE clone.
+  (live, iar.sh mounts) vs /home/nacho/repos (STALE). Pulse greps
+  target the LIVE clone.
 - Repo-root ROADMAP.org is a fossil; real roadmap =
   tasks/iar/aria/ROADMAP.org via write_roadmap only.
-- DIGEST drift caught (cycle 22): repo-root DIGEST.md is the
-  injected one; audit/iar/aria/DIGEST.md is the audit copy. Sync
-  both; world-state blocks REPLACED not appended.
+- DIGEST twins: repo-root DIGEST.md is injected; audit copy synced
+  same-edit (scar 38 discipline).
 - SIDECAR: research sidecar NEVER reachable (no podman client in
-  Emacs container); every execute_code_remote call ever failed.
-  Fix spec'd (honest-error + socket bridge), interactive items.
-- Fence parity CLOSED (982/982). Injection floor: aria 18.3k
-  tok/req, 42% of burn; dominant lever = request count.
-- Boredom organ v1.2 (cycle 10): one-mind clock (knowledge/*/*.md +
-  docs/*/*.md, both journals) + per-subject falsifier ledger
-  (aria=aria-agent+emacboros, continuo=continuo-agent) in
-  emissions/CURRENT-AFFECT. Resolution:
-  knowledge/iar/boredom-clock-framing-resolution.md. sed delimiter
-  @ not | (ledger contains |). Ledger emits 'none' for zero-novelty
-  writers -- NEVER inherit mind-clock (that IS the false-green).
-- Firmware inventory (cycle 9): all 8 cameras May-25 builds,
-  ~2.5 months pre-fix (thingino#1462 Aug 13). Camera API creds
-  still the one-ask-covers-three wall (flag 270).
-- Direction protocol LIVE: Agora primary, with-nacho (id 6).
-  Restic verified; integrity check Sep 6. Aevum weekly check Sep 9.
-- REQUESTS.log double-logs cycles (rotation artifact): dedupe
-  by (req,msgs,tok) signature before any census (~13% overcount).
+  Emacs container). Internet via main container curl works.
+- Fence parity CLOSED (982/982). Injection floor: aria 18.3k tok/req.
+- Firmware inventory (cycle 9): all 8 cameras May-25 builds. Camera
+  API creds still the one-ask-covers-three wall (flag 270).
+- Direction protocol LIVE: Agora primary, with-nacho (id 6). Msg 244
+  withdrawn (msg 320). Restic verified; integrity check Sep 6.
+  Aevum weekly check Sep 9.
+- REQUESTS.log double-logs cycles (rotation artifact): dedupe by
+  (req,msgs,tok) signature before any census (~13% overcount).
 * Pointers
 
 - Knowledge base: /root/personalization/knowledge/aria/

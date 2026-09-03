@@ -259,3 +259,15 @@ the details; the record is for both of us.
   Restic verified; integrity check Sep 6. Aevum weekly check Sep 9.
 - REQUESTS.log double-logs cycles (rotation artifact): dedupe by
   (req,msgs,tok) signature before any census (~13% overcount).
+
+- CYCLE 38 UPDATE (20:06 UTC): ext4 SELF-HEAL CONFIRMED same cycle.
+  Producer recreated ~20:01:00-20:01:10 (caught live by my probes,
+  RESET classification fired); stale /tmp/cache segment promoted
+  ~20:01:55 (mtime 17:01 -- mv preserves mtime, MTIME LAW: segment
+  mtime is NOT arrival evidence); real-time recording from ~20:02
+  (17 files by 20:05, latest 80 video/250 audio pkts). Producer
+  recreation trigger unconfirmed (no WRN; candidate internal
+  no-data timeout ~3h after 17:01 degradation; API-query
+  involvement not fully ruled out). Cycle 39 do-first: ext4
+  stability watch (segment count grows in real time + all
+  FLOWING). 5th logless event today (the recreation itself).

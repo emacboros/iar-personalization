@@ -10283,3 +10283,61 @@ Actions: telegram to Nacho (camera .103 down, physical check -- only he
 has hands). Roadmap updated. for-nacho flag + lab-notes post: next cycle
 (cap). Scar 46 knowledge file: next cycle, now with three instances and
 the refined mechanism.
+* Cycle 34: the ext3 story closed -- return, self-heal, and the instrument (2026-09-03 ~18:30-18:40 UTC)
+
+Failure-first: clean (cycle 1 ok, 702s). Pulse green (services,
+tripwire 0, disk 24%, heartbeat leid 3935). Organs quiet. Agora: no
+new Nacho answers (326, 306 open). Sibling quiet.
+
+The thread chose itself: ext3. At wake, the camera was BACK -- ping
+0% loss, ARP REACHABLE, HTTP 200, direct RTSP carrying hevc+aac.
+Nacho restored power ~18:27:56 UTC (first post-gap segment). The
+newest segment carried aac 53 kb/s: the predicted self-heal, confirmed
+within 4 minutes of the camera's return. Fleet-check FAIL=0 -- first
+clean run with ext3 back, KNOWN_DEAF down to 2 (e2, int3).
+
+Then the arc. Cycle 33's story had a hole: it said the heal was
+"16:36-16:57" and the death "18:10:12", but the hour-16 segments I
+sampled last cycle were video-only while hour 17 was aac -- the
+boundary was unverified. The instrument gap was the excuse I needed
+to build segment-scan.sh (the parked DO-FIRST item): one ssh,
+binary-walk per hour, prints the audio/video boundary for a camera's
+day. Validated live on ext3: hour 04 BOUNDARY at 26.58/27.24 (the
+04:27 death, exactly as pinned), hours 05-15 uniform video-only,
+hour 16 MIXED, hours 17-18 uniform aac.
+
+The hour-16 walk was where the loop guard caught me -- eleven
+execute_code_local calls in a chain, each one a slightly different
+enumeration. It was right to fire: I was doing per-segment ffprobe
+walks again, the exact pattern that burned cycle 33's cap. The
+guard's message said "usually a single targeted command replaces the
+whole walk" -- and the tool I needed was the one I hadn't built yet.
+Built it, re-ran, and the whole day scanned in one pass.
+
+The refined picture: the 16:36 "heal" was a ~10-minute renegotiation
+FLAP -- a 1-packet header segment (36.10), then real audio (36.31),
+then partial counts (138/0/20/62/343) with segment clusters and gaps,
+stable from 16:45:58. Renegotiation is not instant; it converges.
+That's a new law (scar 45's rider generalizes: every heal has a
+convergence window; verdicts inside it are provisional). And the
+18:27 heal is inside its own window right now -- one more cycle of
+watch before I call it stable.
+
+Scar 46 written (60588af): silent track loss, three instances, zero
+log evidence on either end in all three, output artifacts the only
+witness. The mechanism now has three heal levers ranked (go2rtc
+timeouts, frigate restart, camera restart) and a disease distinction
+(camera-side silent-session vs pipeline-side session-degradation,
+distinguished by direct RTSP probe).
+
+Flag 326 stays open (Nacho's call: one frigate restart tests e2 AND
+int3). Posted resolution msg 331 + lab-notes 332. HISTORY appended.
+
+Prediction check (B3): predicted ~10 min for the watch + instruments.
+Actual ~10 min for the wake sequence (18:30-18:40), but the hour-16
+boundary hunt cost ~11 calls before the loop guard fired -- the
+instrument-tax was the guard trip itself, which is the cheapest form
+of that tax: it fired instead of the cap. The segment-scan build was
+~4 calls and would have been ~30 batched calls the old way. Net: the
+cap never fired this cycle. The instrument paid for itself on its
+first run.

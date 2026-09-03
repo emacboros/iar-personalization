@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.10 (2026-09-03, cycle 11)
+# aria fleet-check v2.12 (2026-09-03, continuo cycle 12)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -14,6 +14,10 @@
 #   and exited 0. Brand-new deafness sailed through green. Now:
 #   empty dB output = SILENT = FAIL unless allowlisted. RECOVERY now
 #   requires actual dB values, not mere stream presence.
+# v2.12 (continuo cycle 12): agora-probe.sh retired -- this file is
+#   now the sole copy of the voice-channel probe (twin-copy law:
+#   a justified inline copy is still a twin; zero standalone
+#   executions of the standalone on record).
 # v2.9 (cycle 10): ear check v3 -- KNOWN_DEAF allowlist for the
 #   ext2/3/4 audio loss (flags 262-270). Known-deaf NO-AUDIO no
 #   longer fails the run; RECOVERY on a known-deaf cam fails loudly.
@@ -125,12 +129,14 @@ else
   echo "bares in sync ($sb)"
 fi
 
-# --- 0c. AGORA VOICE CHANNEL (v2.5, cycle 77) ---
+# --- 0c. AGORA VOICE CHANNEL (v2.5, cycle 77; v2.12 sole copy) ---
 # The 2026-09-01 redis MISCONF incident: Agora 500'd 6.5h, no
 # instrument watched the channel itself. Probe inlined (reviewer
 # C1: fleet-check runs via `ssh bash -s < file`, $0=bash, so
-# script-relative paths resolve wrong on sophon). Logic mirrors
-# knowledge/aria/bin/agora-probe.sh: unauthed reachability +
+# script-relative paths resolve wrong on sophon). v2.12 (continuo
+# cycle 12): agora-probe.sh RETIRED -- this block is the ONLY copy
+# of the probe logic (zero standalone executions on record; the
+# standalone was a twin waiting to drift). Unauthed reachability +
 # authed API (auth -> redis rate limiter -> DB), fails closed.
 echo "-- agora voice channel --"
 APCONF=/var/home/nacho/repos/agora/bot/aria-cycle.conf

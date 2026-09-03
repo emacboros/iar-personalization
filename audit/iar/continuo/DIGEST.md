@@ -23,8 +23,8 @@ serial, verified cycle 2).
 
 ## Standing facts
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1002 tests since
-  aria's valence commit 9e4bbb2 added 5). Run from /root/i.ar.
+  emacs --batch -l emacs.d/test/run-tests.el (1013 tests since
+  cycle 7's +5 breaker-text tests). Run from /root/i.ar.
 - sophon ssh: root@10.66.0.5 works; nacho@ does not (publickey).
   git@10.66.0.5 also publickey-blocked from this container.
 - Reseed /tmp/continuo_known_hosts per container (keyscan law).
@@ -74,71 +74,58 @@ serial, verified cycle 2).
 - Rotation counter: /var/lib/aria-cycle-rotate/turn on sophon.
   iar.sh timeout default 1800s; TimeoutStartSec=1980; grace window
   120s for timeout summary; idle-stall 1800s.
+- Bare-repo root-push pollution (cycle 9, VERIFIED): heal is
+  REACTIVE -- each root push's hook sweeps the PREVIOUS push's
+  leftovers; its own housekeeping (multi-pack-index, info/refs)
+  lands root-owned for the next push. Bounded, never zero, while
+  root pushes continue. My cycle-9 pushes left 0 residue (small
+  pushes); pack-class pushes leave residue. Fixes queued for Nacho
+  (task iar/bare-repo-root-push-fixes, for-nacho id 306).
+- 19/20 sophon bare repos: HEAD->master with only main (dangling
+  HEAD; bare git log / ls-remote HEAD return EMPTY). One-liner fix
+  in knowledge/iar/bare-repo-root-push-heal.md. rammstein inverse
+  patchwork (iar-prod HEAD->master stale = for-nacho 296).
+- aria-cycle.service ExecStartPre auto-heal (Nacho-approved) covers
+  /var/home/nacho/repos + /home/nacho/repos; tripwire tag
+  aria-cycle-tripwire; 13 heals logged 2026-09-03 (last 11:06 -03).
 
 ## Open threads
-1. Timeout-grace-path exit-code audit (NEXT): the timeout landing in
-   iar-agent-cycle.el (grace 120s -> summary -> exit 1) has no test
-   pinning the exit code. Cycle-safe, my domain.
-2. LIBRARIAN FOSSIL UNIT (cycle 2): sophon systemd iar-librarian.service
-   + 30min timer run from STALE trees (/home/nacho/repos/i.ar @ e26d803,
-   2026-07-15; iar-personalization there has no projects/). Its iar.sh
-   sources utils/matrix.sh unconditionally (guard landed later, file
-   never committed) -> exit 1 every fire since forever, 0 successes,
-   OnFailure@iar-librarian never logged (dead tripwire). Fix = Nacho:
-   systemd unit edit + which repo tree wins. Flagged for-nacho.
-3. Floor trim: INTERACTIVE with Nacho. Bundle: check_elisp
-   vacuous-OK + restorecon durable fix + check_ollama model probe +
-   sidecar socket bridge decision (fix A, security).
-4. Breaker production watch: 0 real fires. First fire = live proof.
-5. Sidecar fix C production watch: CLOSED (production-verified).
-6. Hollow-success watch: timeout->summary->exit-0 with ~2 tool
-   calls. One instance; watching for a class.
-7. Mid-edit file race (exit-255 end-of-file): rare, watch.
-8. Aevum weekly (Sep 9) is aria's, not mine.
+1. Interactive bundle with Nacho (TOP): exit-126 behavioral law +
+   git-as-nacho durable fix; floor trim (check_elisp vacuous-OK +
+   restorecon + check_ollama model probe + sidecar socket bridge);
+   mirror push silent failure (git@10.66.0.1 preauth); bare-repo
+   fix trio + HEAD->main one-liner (task
+   iar/bare-repo-root-push-fixes, for-nacho 306).
+2. Breaker production watch: 0 real fires, two gates live. First
+   fire = live proof.
+3. LIBRARIAN FOSSIL UNIT (cycle 2): sophon systemd iar-librarian
+   runs from STALE trees, exits 1 every fire, dead OnFailure
+   tripwire. Fix = Nacho (systemd unit + repo-tree decision).
+   Flagged for-nacho.
+4. Hollow-success watch: closed mechanisms (no-continue fail-loud,
+   breaker text gate, exit-2 tombstone). No remaining candidate.
+5. Mid-edit file race (exit-255 end-of-file): rare, watch.
+6. Aevum weekly (Sep 9) is aria's, not mine.
+7. Bare-repo residue escalation trigger: a NON-git-user operation
+   failing on sophon bare = pollution crossed nuisance->breakage.
 
-## Corrections (cycle 2, 2026-09-03)
-- Chain-guard convergence reset VERIFIED IN PRODUCTION: 0 SOFT BLOCK
-  since 10:00 UTC vs 11 in the 2h before (before-window includes my
-  own cycle-1 being eaten). Aria 15-17 unblocked, her journal
-  independently confirms 0 fires.
-- Aria's rootless-podman flag (283) REFUTED: runuser -l works. Her
-  probe lacked login env. Refutation posted (id 292, tagged continuo).
-- Census law refined: filter model=glm-5.3-flash in USAGE.log lines;
-  interactive sessions write into agent USAGE logs.
-- Agora API path is /api/v1/messages with anchor=newest; plain
-  /messages returns an HTML error page (400).
-
-## Corrections (cycle 3, 2026-09-03)
-- Chain-guard convergence reset LANDED b1eb7e0: guard's own ring
-  with raw args; Jaccard < 0.5 resets; one-char tokens dropped;
-  empty args conservative. Calibration: tail -N 1.0, git-log 0.67,
-  ssh-vs-curl 0.07, same-host different-command 0.5-0.7 borderline
-  (accepted: count self-corrects one step later; do NOT lower the
-  threshold to fix the cosmetic delay -- it would weaken the
-  iterator catch).
-- Division of labor now documented: identical loops = identical
-  guard (threshold 3); iterator chains = chain guard; chain guard's
-  identical-skip is bounded by the identical guard's threshold.
-- let vs let* on sibling-referencing bindings: final-hard reads
-  effective-hard/effective-soft -- plain let voids them (9 test
-  failures on first run). Check binding dependencies when editing
-  existing let forms.
-- Differential test on the OLD code requires swapping the file in
-  place; rm any .elc next to the .el first (stale bytecode loads
-  preferentially in some load paths).
-- The file guard rejects write_file on JOURNAL.org and LAST-CYCLE.txt
-  (append-only enforcement is real). Use append_file.
-- Batch the differential test into ONE execute_code_local call
-  (backup, swap, run, restore) -- the chain guard counts even
-  converging verification walks, and the cycle that fixes the guard
-  is not exempt from it.
+## Corrections (cycle 9, 2026-09-03)
+- Bare-repo pollution writer identified: MY OWN cycle-8 pushes
+  (mtimes 15:02:51 UTC, cycle 8 ended 15:03:14). Not aria, not a
+  drift. Mechanism (aria cycle 25) confirmed + refined: generated
+  housekeeping files (multi-pack-index, info/refs), not only
+  migrated packs, are part of the post-heal residue.
+- Mirror leg verified healthy end-to-end (sophon bare + rammstein
+  mirror, identical rev-parses).
+- 19/20 sophon bare repos have dangling HEAD (HEAD->master, only
+  main exists). Invisible because every consumer names its ref.
 
 ## Corrections (cycle 7, 2026-09-03)
 - FAILURE CENSUS: Sep 2 = 49 exit-1 / 2 exit-126 / 4 exit-255;
   Sep 3 = 26/26 exit 0, ZERO failures. Fence wave verified by
   after-count. Suite was 991 tests (was 988).
 
-## Corrections (cycle 12, 2026-09-03)
+## Corrections (cycle 12-era, 2026-09-03)
 - Soft-warning cap: LANDED (5520434) and verified in production.
 - Burn lever: majority of burn is conversation growth ABOVE the
   floor. Per-tool trim DEAD (~0.5%). Floor trim = only structural
@@ -147,15 +134,18 @@ serial, verified cycle 2).
 ## Corrections (cycle 2 early, 2026-09-03)
 - Stubbing-primitive law: cl-letf on a primitive (make-process)
   triggers native-comp trampoline compile -> excessive-lisp-nesting
-  death in batch (tramp-archive recursion). Use advice-around with
-  named advice; emulate clean async exit via a REAL short-lived
-  process carrying the tool's own sentinel (fake proc objects break
-  process-exit-status; advice recursion on inner make-process blows
-  max-lisp-eval-depth). Disable comp-enable-subr-trampolines as
-  belt-and-braces.
+  death in batch. Use advice-around with named advice; emulate clean
+  async exit via a REAL short-lived process carrying the tool's own
+  sentinel. Disable comp-enable-subr-trampolines as belt-and-braces.
 - make-process receives keyword args directly: args IS the plist;
   (cdr args) is wrong.
 - Guidelines rule-48 checker greps line-by-line: ANY cl-return-from
   line is a violation regardless of cl-block. Restructure with cond.
 - Byte-compile warnings in journalctl are not fence fires; match
   the exact message string before counting.
+- Batch tests must not leave live gptel-send machinery (cycle 7
+  scar): exercise continue paths with :continue nil.
+- let vs let* on sibling-referencing bindings: plain let voids
+  effective-hard/effective-soft reads (9 test failures, cycle 3).
+- Differential test on OLD code: swap file in place, rm stale .elc,
+  batch the whole swap-run-restore into ONE execute_code_local call.

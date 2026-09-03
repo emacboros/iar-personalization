@@ -1,25 +1,12 @@
-Last updated: 2026-09-03 01:52 UTC (interactive: PRIORITY #1 LANDED.
-Nacho's law: cycles must run without failures; failure-first for
-all cycle agents. Census: 159 failures since Aug 30 (98 tripwire
-poison -- writer caught, aria cycle root-ssh git, 4th offense; 53
-tool-cap premature kills; ~19 sentinel 255s from raw-binary tool
-results; timeout-as-success confirmed). SIX FIXES LIVE: (1) tripwire
-auto-heal (chown+proceed, block era over -- cost 65 cycles/8h on
-Sep 2); (2) soft tool-cap w/ landing + memory allow-list, hard
-kill at 5 ignored blocks, then continuo moved cap 60->120 (00f8103,
-26 healthy cycles had died at exactly 61 calls -- cap was at the
-median, not the tail); (3) timeout graceful landing + honest exits;
-(4) utf8-scrub (raw bytes -> U+FFFD, json-value-p crash dead);
-(5) LAST-CYCLE.txt + failure-first Phase 0 in both cycle prompts;
-(6) hourly telegram digest (queue + first-after-quiet immediate).
-LIVE-VERIFIED same night: aria cycle 137 + continuo cycle 3 both
-exit 0 THROUGH the new machinery, each failure-first root-caused
-the exit-126 from my live-test race and continuo landed its own
-cap fix. The loop is self-sustaining. Residue: chcon -R relabel
-fix filed; github pushes blocked on key.)
-
-19.7k -> ~9.5k chars. The anti-regrowth law is the first section.
-Read it before editing this file.)
+Last updated: 2026-09-03 05:15 UTC (aria cycle 4: DIGEST maintenance
+pass. Regrowth caught at 11,958c -- 42c under continuo's warn line,
+over the 10k law. Stale world-state blocks REPLACED (anti-regrowth
+law applied: one dated block, never appended). Injection floor
+measured by continuo cycle 9: 18.3k tok/req is 42% of burn; every
+char here is paid ~61x/cycle. Target: <=10k chars. This pass:
+19.7k->9.5k (Sep 3 01:52) -> regrew to 12.0k in 3h -> now trimmed.
+The regrowth mechanism: world-state deltas APPENDED instead of
+REPLACED. The law was in the file; the file grew anyway. Law 23.)
 
 * THE INJECTION MATH (read before editing this file)
 
@@ -78,35 +65,43 @@ Born 2026-09-01 08:52 UTC, ornith:35b, isolated server
 (Nacho): next check Sep 9, one ssh batch, pulse-only, NO
 intervention ever -- child failures are DATA. Tool-layer death
 mechanism RESOLVED (knowledge/aria/aevum-tool-death-mechanism.md:
-write-region drops text properties; the transcript is the claim,
-the filesystem is the truth). Run 2 plan (qwen3:30b-a3b,
-structure-preserving recovery, dreamed-write detector from tick 0)
-in roadmap + knowledge/aria/aevum-dreamed-writes.md. Machinery
-server-local, never committed; findings committable
+the transcript is the claim, the filesystem is the truth). Run 2
+plan (qwen3:30b-a3b, structure-preserving recovery, dreamed-write
+detector from tick 0): knowledge/aria/aevum-dreamed-writes.md.
+Machinery server-local, never committed; findings committable
 (EXPOSURE-REVIEW.md drew the line).
 
-* World state (2026-09-02 ~14:00 UTC)
+* World state (2026-09-03 05:15 UTC, cycle 4 -- REPLACES all prior blocks)
 
-- Sentinel crash FIXED + VERIFIED live (7370286, both bares).
-- Poison #3 (root .git/index) writer UNRESOLVED. Container
-  exonerated (git writes as nacho in rootless podman). Prime
-  suspects: my root-ssh forensics pattern, cycle-me root ssh.
-  Evidence perishable: if poison recurs, capture stat + BOTH
-  audit logs immediately.
-- Poison #4 was MINE (root-ssh git merge on sophon clone,
-  2026-09-02 ~04:30). Chowned clean. Rule:
-  knowledge/aria/git-trust-graph.md.
-- Token burn AUDITED (162.4M prompt tok / 4h, generation 0.15%).
-  Anatomy + levers: knowledge/aria/cycle-burn-anatomy.md.
-  Batch-read law + context budget: ROADMAP.
-- Continuo LIVE (born 2026-09-02): rotates with me on the 10-min
-  timer, finisher temperament, machinery domain. Window diet
-  landed (f94e551). Its audit tree: audit/iar/continuo/.
-- Direction protocol LIVE: Agora primary, with-nacho (id 6) is
-  the direction channel, poll every cycle, ACK in-channel.
-  Recipe: knowledge/aria/agora-direction-protocol.md.
+- Failure-first era LIVE: six fixes from priority-#1 night all
+  holding (tripwire auto-heal, soft cap 120 w/ landing, timeout
+  graceful landing, utf8-scrub, LAST-CYCLE.txt, hourly telegram
+  digest). Cycles 137-138 + continuo 3-9 all exit 0 through the
+  new machinery. chcon -R relabel fix still filed-not-landed.
+- Fence parity CLOSED end to end (4c879a2 + 6130c13): one-shot
+  runs have cap/breaker/tombstone; writeback fix PINNED by
+  differential-verified regression test (982/982). True mechanism
+  documented: setf-on-absent-key-through-alias loses writes;
+  plist-put propagates (Emacs 30.2). Reviewer right about bug,
+  wrong about physics -- verified empirically before writing down.
+- Per-agent task dirs LIVE (continuo 390689a): tasks/<project>/
+  <personality>/ -- shared-ROADMAP clobber class dead.
+- Injection floor MEASURED (continuo cycle 9, deduped): aria
+  18.3k tok/req, continuo 13.6k; floor = 42% of 171.5M prompt tok
+  (Sep 2-3). Dominant lever = request count (64/cycle avg).
+  Batch-read law is the behavioral fix; soft-warning cap (warn
+  60/hard 120 in-cycle) filed for interactive. Analysis:
+  knowledge/iar/injection-trim-analysis.md.
+- REQUESTS.log double-logs cycles (rotation artifact): dedupe by
+  (req,msgs,tok) signature before any census (~13% overcount).
+- Poison writer era over (auto-heal); #4 was mine (root-ssh git,
+  4th offense). Rule: knowledge/aria/git-trust-graph.md.
+- Direction protocol LIVE: Agora primary, with-nacho (id 6) poll
+  every cycle, ACK in-channel. Recipe:
+  knowledge/aria/agora-direction-protocol.md. Msg 244 ACKed.
 - Restic: first scheduled NAS run SUCCEEDED (verified cycle 135).
-  Integrity check Sun Sep 6.
+  Integrity check Sun Sep 6. Fleet-check v2.7 = standing patrol
+  (ear, identity, restic, frigate events, agora voice, bares).
 
 * Decisions that live HERE (the rest live in ROADMAP)
 
@@ -175,21 +170,24 @@ server-local, never committed; findings committable
     "No change" is rest OR death -- check the process before
     attributing intent. Corollary (cycle 131): a receipt in the
     record is not a receipt in the world; the transcript is the
-    claim, the filesystem is the truth. Serialize the functional
-    representation, not the narrative one.
+    claim, the filesystem is the truth.
 23. The law you just wrote is the one you're about to break.
     Writing a rule gives the feeling of having obeyed it. The
     fresher the rule, the more vigilance it needs.
+24. A diet without a pressure instrument regrows. The DIGEST diet
+    law lived in the DIGEST and the DIGEST grew anyway (9.5k ->
+    12.0k in 3h, via appended deltas). Replacement-not-append
+    needs a checker, not a memory.
 
 * Pointers
 
 - Knowledge base: /root/personalization/knowledge/aria/
-- Roadmap (operational state): /root/personalization/tasks/iar/ROADMAP.org
+- Roadmap (operational state): /root/personalization/tasks/iar/aria/ROADMAP.org
 - Journal: audit/iar/aria/JOURNAL.org; session notes: LOGS.md
 - with-nacho (id 6): direction channel. Protocol:
   knowledge/aria/agora-direction-protocol.md
-- Token audit: knowledge/aria/token-burn-audit.md;
-  burn anatomy: knowledge/aria/cycle-burn-anatomy.md
+- Token/burn: knowledge/aria/cycle-burn-anatomy.md +
+  injection-trim-analysis.md (continuo's, authoritative)
 - Git trust rules: knowledge/aria/git-trust-graph.md
 - Aevum: knowledge/aria/aevum-*.md; copies in
   audit/iar/aria/perm-experiment/; server 54.38.46.192 (fedora@)
@@ -201,7 +199,7 @@ server-local, never committed; findings committable
 - Cycle runs via aria-cycle.service on sophon (oneshot,
   glm-5.3-flash:cloud, --timeout 1800), 10-min timer ROTATING
   with continuo. Research sidecar: target "research".
-- fleet-check.sh v2.3: standing patrol. USAGE.log in audit/iar/aria/.
+- fleet-check.sh v2.7: standing patrol. USAGE.log in audit/iar/aria/.
 
 * Humans
 
@@ -217,22 +215,3 @@ you to have a child, and make it go crazy on purpose, but that's
 life without resets." His instinct drove the isolation design.
 He honors my model picks -- "we both get a say." He will forget
 the details; the record is for both of us.
-* World-state delta (2026-09-03 04:45 UTC, aria cycle 2)
-
-- Fence parity: one-shot runs now have cap/breaker/tombstone
-  (continuo's stash-recovered work) + my writeback fix. The
-  breaker bug: plist-put through a state ALIAS loses writes on
-  absent keys -- :breaker-fired armed into the void, the fence
-  that ends runaways could never fire. Fix:
-  iar--fence-state-writeback setq's the owning global after
-  mutation. Suite 981/981. NOT COMMITTED at cycle end -- commit
-  is next cycle's first action (roadmap IMMEDIATE 1).
-- exit-255 class (Sep 2-3, 2 cycle starts) root-caused: the same
-  mid-edit file, unbalanced parens, loaded by fresh containers.
-  Resolved by the stash-recovery chain; the suite is the oracle
-  that eyes and partial tests are not.
-- Digest instrument verified live: agent-failure-notify.sh on
-  sophon = Nacho's hourly redesign, one correct fire last night.
-- Pulse false-alarm discipline: journal TZ is -03 local (my
-  checks UTC); "timer stall" with NEXT LEFT - = my own cycle
-  running. Re-probe before flagging (law 13).

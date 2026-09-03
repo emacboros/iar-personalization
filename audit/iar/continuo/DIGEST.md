@@ -31,17 +31,18 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   ROADMAP/audit. Task tools resolve per-agent
   (tasks/iar/continuo/). write_roadmap tool writes there.
 - One tool call per turn. Batch-read law. ~120-call cap (warn@60).
-- REQUESTS.log is a debug trace (~26% coverage), NOT a meter.
-  Census from USAGE.log only. FILTER model=glm-5.3-flash: agent
-  USAGE logs carry interactive-session lines. Dedupe by
-  (req,msgs,tok) if ever used (~13% overcount).
-- Injection floor: aria 18.3k tok/req, continuo 13.6k; floor is
-  26%/36% of burn; knowledge dirs inject overview-only (loader:88).
-  Request count is the lever. Analysis: knowledge/iar/
-  injection-trim-analysis.md + context-growth-census-2026-09-03.md.
+- USAGE.log IS a meter, one line per cycle: iar--usage-reset at
+  cycle start, iar--usage-write-log on kill-emacs. Read lines as
+  PER-CYCLE snapshots, not cumulative. REQUESTS.log is a debug
+  trace (~26% coverage), not a meter.
+- Injection floor: aria ~17.7k tok/req, continuo ~12.9k (post
+  c20 overview diet, was 18.3k/13.6k). Knowledge dirs inject
+  overview-only (loader:88-115). Request count is the lever.
+  Analysis: knowledge/iar/injection-trim-analysis.md +
+  context-growth-census-2026-09-03.md + usage-census-2026-09-03.md.
 - Burn lever: majority of burn is conversation growth ABOVE the
-  floor. Per-tool trim DEAD (~0.5%). Floor trim = only structural
-  lever = interactive. Soft-warning cap landed (5520434).
+  floor. Per-tool trim DEAD (~0.5%). Overview diet landed c20
+  (iar-prod+infra, -621 tok/req). Soft-warning cap landed (5520434).
 - Exit-126 = container start death: lsetxattr EPERM when :z
   relabel hits root-owned files in a mount path. ExecStartPre
   auto-heal chowns but does not relabel (durable fix: restorecon,
@@ -125,10 +126,10 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 
 ## Open threads
 1. Interactive bundle with Nacho (TOP): exit-126 behavioral law +
-   git-as-nacho durable fix; floor trim (check_elisp vacuous-OK +
-   restorecon + check_ollama model probe + sidecar socket bridge);
-   mirror push silent failure (git@10.66.0.1 preauth); bare-repo
-   fix trio + HEAD->main one-liner (for-nacho 306).
+   git-as-nacho durable fix; floor trim leftovers (check_elisp
+   vacuous-OK + restorecon + check_ollama model probe + sidecar
+   socket bridge); mirror push silent failure (git@10.66.0.1
+   preauth); bare-repo fix trio + HEAD->main one-liner (306).
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context
    circuit breaker armed" / "ending run" (journal "breaker" hits
@@ -144,9 +145,5 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
    failing on sophon bare = pollution crossed nuisance->breakage.
 8. Task-tree visibility: any future fossil audit must check BOTH
    read_task AND ls -- tooling and disk can disagree (c16 lesson).
-
-## Corrections (cycle 16, 2026-09-03)
-- digest-pressure-guard fossil RESOLVED (task removed; code
-  a05a072 live, 6 tests, suite green, HEAD==sophon-bare). Lesson:
-  task dir without description.org is INVISIBLE to task tooling.
-- DIGEST diet applied this rewrite (was 10,924 chars, warn 12k).
+9. Floor-share watch: c20 overview diet cut floor ~621 tok/req
+   (36% -> ~25% projected at census shape). Verify next census.

@@ -1,28 +1,33 @@
 #+TITLE: Continuo Roadmap
-#+UPDATED: 2026-09-03 07:32 UTC (cycle 3, chain-guard fix written, verification pending)
+#+UPDATED: 2026-09-03 07:45 UTC (cycle 4, chain-guard fix landed + verified)
 
 * IMMEDIATE (next cycle, in order)
-1. CHAIN-GUARD FIX VERIFICATION (fix written cycle 3, unverified):
-   The mechanism is HOOK ORDER, not vantage (cycle 2's theory was
-   wrong). add-hook prepends; chain guard ran BEFORE identical
-   guard; blocked calls never entered history; count frozen at 10;
-   hard stop unreachable. Fix: APPEND registration. BEFORE COMMIT:
-   resolve the sim contradiction (batch-emacs sim seemed to
-   escalate with old order -- see STATE.md). Then: run
-   test-loop-chain.el, full suite (expect 988), commit, push
-   sophon-bare, ls-remote verify, docs/iar/modules.md, lab-notes.
-2. Context-growth census (roadmap item 2 from cycle 12): floor is
-   26%/36% of burn; majority is conversation growth above the
-   floor. Measure which tools add the most context per cycle
-   before proposing any trim. Measure first.
-3. Census option for per-request detail (USAGE.log is aggregate
+1. CONTEXT-GROWTH CENSUS (from cycle 12): floor is 26%/36% of burn;
+   majority is conversation growth above the floor. Measure which
+   tools add the most context per cycle before proposing any trim.
+   Batch-read law: dump audit.log ONCE, one awk/python pass over the
+   dump. Measure first, file the lever, implement next cycle.
+2. Census option for per-request detail (USAGE.log is aggregate
    only) -- file for interactive if cheap and structural.
+
+* DONE (cycle 4, 2026-09-03)
+- CHAIN-GUARD HOOK-ORDER FIX LANDED + VERIFIED. Sim contradiction
+  resolved from code: bridge = run-hook-with-args-until-success
+  (short-circuits at first non-nil return). Old order: chain guard
+  prepended, ran FIRST; blocked call never reached the identical
+  guard, never entered history, count recomputed from frozen history
+  every retry -> frozen at exactly "10 times", hard stop unreachable.
+  Sim escalated because it called guards directly, bypassing the
+  bridge (cycle-3 law, second instance). Differential proof: old
+  order fails both new tests (8/10), new order passes (10/10).
+  Suite 988/988. Commit 44da3c9 pushed + ls-remote verified.
+  docs/iar/modules.md row added (5bb2de7, pushed).
 
 * DONE (cycle 3, 2026-09-03)
 - CHAIN-GUARD ROOT CAUSE CORRECTED: hook order, not vantage.
   Evidence: ~50 LOOP CHAIN blocks in my own cycle.log 06:26-06:28,
   ALL frozen at "10 times", zero escalation to hard stop. The
-  cycle-2 "silent 22-call chain" reading was wrong -- the guard
+  cycle-2 "silent 22-call chain" reading was wrong: the guard
   fired on every call; the model retried through it. Fix written:
   iar--loop-guard-chain-setup APPEND (t) + load-bearing-order
   comments + 2 tests (order pin, bridge escalation). NOT verified.
@@ -75,4 +80,8 @@
   different bug than silence. (Cycle 3.)
 - The suite tested the counting logic in isolation with a
   simulated push and never the registration order. Differential
-  tests that bypass the wiring certify the wrong layer. (Cycle 3.)
+  tests that bypass the wiring certify the wrong layer. (Cycle 3;
+  second instance cycle 4 -- the sim bypassed the bridge.)
+- Bridge law: run-hook-with-args-until-success short-circuits at
+  the first non-nil return. Hook ORDER among guards is load-bearing
+  whenever one guard's logic assumes another already ran. (Cycle 4.)

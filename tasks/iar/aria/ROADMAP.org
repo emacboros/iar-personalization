@@ -1,49 +1,42 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 07:45 UTC (cycle 9: audio-loss real-fix arm --
-fleet firmware inventory DONE. All 8 cameras on May-25 builds, ~2.5
-months pre-fix. Flag 270. Commit pending.)
+#+UPDATED: 2026-09-03 08:01 UTC (cycle 10: alarm-fatigue fix landed --
+fleet-check v2.9 KNOWN_DEAF allowlist, cd8fb0e. Exit code means
+something again. Audio loss unchanged; flags 262-270 stand.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 9: LAST-CYCLE ok. Pulse green. No cycle failures.
-  Recovered uncommitted appends from truncated cycles 7-8 (71c5363).
+- STATUS cycle 10: LAST-CYCLE ok. Pulse green. No cycle failures.
 - LIVE EVENT (audio loss): root cause = cameras stop SENDING
-  audio-RTP on live sessions (cycle 8 proof). Decision tree:
-  - IF Nacho restarts frigate: verify audio returns AND stays.
-    Re-deafen in hours = systemic decay -> watchdog candidate.
-  - IF ear check goes green without restart: withdraw in-topic.
-  - Palliative: frigate restart. Real fix: firmware update.
-- REAL-FIX ARM (cycle 9, DONE): fleet firmware inventory.
-  knowledge/aria/camera-firmware-inventory.md. All 8 cameras
-  asset-ts 2026-05-25 (two stamps, one batch). prudynt-t audio
-  fix (Aug 13) postdates all. Update applies fleet-wide.
-  Caveat: asset-ts = web-UI stamp, not binary version; exact
-  confirm needs camera API creds (cycle 18 question open) or
-  camera ssh. Flags 269 (still deaf), 270 (inventory).
-- NEXT WATCH: ear check every cycle. If Nacho restarts frigate,
-  verify recovery + persistence.
+  audio-RTP on live sessions (cycle 8 pcap proof). Camera-side.
+  Fleet firmware inventory DONE (cycle 9): all 8 cameras May-25
+  builds, ~2.5 months pre-fix. knowledge/aria/camera-firmware-inventory.md
+  Flags 262-270 stand, unanswered. Frigate NOT restarted
+  (ActiveEnterTimestamp Sep 1 23:41 -03 unchanged as of 07:59 UTC).
+  Deaf ~3.5h at cycle 10.
+- WATCH (every cycle): fleet-check ear lines. v2.9 semantics:
+  "NO-AUDIO (known-deaf, watch state)" = expected; RECOVERED line
+  = withdraw flags in-topic; NO-AUDIO on other cam = new event.
+  interior_3 empty-dB wrinkle (cycle 10): watch, investigate if
+  it recurs.
 
-* DONE (cycle 9)
-- Truncated-cycle recovery: pulled, committed 71c5363 (aria 7-8 +
-  continuo appends), lab-notes debt cleared.
-- go2rtc receiver deltas: ext2/3/4 aac frozen 13s, hevc flowing.
-  Flag 269. No self-recovery at 3h13m.
-- Firmware inventory: 8/8 cameras May-25 builds. Knowledge file
-  written. API wall documented (mjsonrpc/jsonrpc/api/op all
-  redirect; no RTSP Server header).
-- Loop guard fired twice on github-API enumeration (10-11x
-  execute_code_local chain) -- batched the enumeration, wrote
-  the knowledge file from what I had.
+* DONE (cycle 10)
+- Alarm-fatigue fix: fleet-check v2.9 KNOWN_DEAF allowlist
+  (commit cd8fb0e, pushed sophon bare, live-verified). Pattern:
+  watch state belongs inside the instrument, not the reader's head.
+- Version discrepancy resolved: header v2.7 vs roadmap v2.8 ->
+  v2.9, noted in header.
+- Cycle 9 carried: truncated-cycle recovery 71c5363; go2rtc
+  receiver deltas flag 269; firmware inventory flag 270.
 
 * OPEN THREADS (seeds, not schedule)
-- AUDIO LOSS WATCH (every cycle): fleet-check ear lines ext2/3/4.
+- AUDIO LOSS WATCH (every cycle): v2.9 semantics above.
 - Digest-pressure machinery: continuo filed soft-warning cap
   (core .el, interactive session). My side: REPLACE-not-append.
 - gptel unknown-tool stall; FOR-NACHO.md retirement; research
   sidecar want-log; github push (blocked on key).
 - Weekly digest #1 to with-nacho: ~Sep 9 with Aevum check.
 - THREADS.org seeds: stub-detector sweep; watchdog inventory.
-- Camera API creds: the version-confirm + NTP-push threads both
+- Camera API creds: version-confirm + NTP-push threads both
   route through camera auth. One for-nacho ask covers both.
   (Do NOT re-ask; flag 270 carries the pointer.)
 
@@ -57,7 +50,8 @@ months pre-fix. Flag 270. Commit pending.)
 * STANDING PATROLS (pulse-only)
 - sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
   wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
-- fleet-check v2.8: RUN ON SOPHON (ssh 'bash -s' <, timeout >=300s).
+- fleet-check v2.9: RUN ON SOPHON (ssh 'bash -s' <, timeout >=300s).
+  Script lives at knowledge/aria/bin/fleet-check.sh (NOT audit/).
   A local run manufactures false alarms (cycle 7 lesson).
 - nacho@ ssh DENIED (publickey) from this container; root@ leg
   works. If root leg also dies, file for-nacho flag.
@@ -81,6 +75,9 @@ months pre-fix. Flag 270. Commit pending.)
   designed to run (cycle 7).
 - Correcting your own flag in-topic is cheap; confidently wrong
   advice in someone's action queue is not (cycle 7).
+- WATCH-STATE LAW (cycle 10): a watch state belongs inside the
+  instrument, not in the reader's head. Alarm fatigue kills the
+  exit code's meaning; encode known-bad into the tool.
 - No infra changes from cycles; diagnose, file, move on.
 - AGORA AUTH: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL
   form). Key: grep "^key" bot/aria-cycle.conf | cut -d= -f2.
@@ -89,6 +86,9 @@ months pre-fix. Flag 270. Commit pending.)
   appended. Check the file size before and after any DIGEST edit.
 
 * FAILURE MODES (scars, newest first)
+28. When three records disagree about an instrument's version,
+    the instrument's own header is the one that lies least -- but
+    patch it first, then trust it (cycle 10).
 27. An unauthenticated API that redirects every path to / is not
     "no API" -- it is auth-walled or wrong-version. Six endpoint
     variants before concluding: the wall is the finding (cycle 9).

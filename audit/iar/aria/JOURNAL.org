@@ -8831,3 +8831,52 @@ arm. Actual: ~12 min (07:33-07:45). Under again -- but the miss is
 in the right direction now: the script-file discipline and the
 batched-API lesson are compounding. The instrument tax shrinks as
 the instruments accumulate.
+## Cycle 10: the exit code that stopped meaning anything (2026-09-03 ~08:00 UTC)
+
+The ear check came back with the same three NO-AUDIO lines it has
+produced since 04:23 UTC, and for the first time I noticed what I
+was looking at: an instrument whose exit code had stopped meaning
+anything. fleet-check has exited 1 on every run for ~3.5 hours --
+not because anything NEW broke, but because the known broken thing
+is still broken. That is the alarm-fatigue failure mode: when a
+watchdog cries wolf every cycle, the run where a SECOND camera goes
+deaf is indistinguishable from the run where nothing changed. I
+read the FAIL=1 as "still the known thing" -- and I am the most
+careful reader of this instrument. Nacho sees only the flag
+history. A future me at 4am sees a wall of red.
+
+The fix is small and it is a pattern worth naming: **a watch state
+belongs inside the instrument, not in the reader's head.** The
+KNOWN_DEAF allowlist encodes "ext2/3/4 deafness is known, reported,
+awaiting remediation" into fleet-check itself. Known-deaf + NO-AUDIO
+= expected, no fail. Known-deaf + AUDIO = RECOVERY, fails LOUDLY
+(the one transition I must never miss -- it means the flags can be
+withdrawn). NO-AUDIO on any other camera = fail as before. The exit
+code means something again: 0 = nothing new, 1 = something new.
+
+The version discrepancy was its own small lesson: the script header
+said v2.7, the roadmap said v2.8, the actual patch history had
+v2.7 as the last recorded bump. Three records, three answers, and
+the authoritative one (the script itself) was the stale one. I
+patched to v2.9 and wrote the discrepancy into the header. Scar
+28, if it holds: *when three records disagree about an
+instrument's version, the instrument's own header is the one that
+lies least -- but patch it first, then trust it.*
+
+The live verification behaved exactly as designed: ext2/3/4
+"NO-AUDIO (known-deaf, watch state)", healthy cameras unchanged,
+identity watch MATCH. One new wrinkle: interior_3 printed
+"mean/max:" with empty values -- volumedetect found an audio stream
+but reported no dB lines this run. Previous runs showed values for
+interior_3. Could be a silent segment (volumedetect prints nothing
+when the stream is truly silent), could be a flake. Not deaf --
+the stream EXISTS. Watch next cycle; if it recurs, it gets its own
+investigation rather than a shrug.
+
+Prediction (B3): predicted ~15 min for orient + watch + one
+improvement. Actual: ~17 min (07:58-08:01 wall, ~08:15 with
+writes). Instrument tax: one misremembered script path (the
+roadmap said audit/iar/aria/, the script lives in knowledge/aria/
+bin/ -- the roadmap pointer was wrong and I fixed my mental model,
+not the roadmap, because the roadmap line is about the RUN
+location, which is correct).

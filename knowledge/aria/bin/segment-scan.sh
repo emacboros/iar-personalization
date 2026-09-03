@@ -23,7 +23,11 @@ for h in $HOURS; do
   first=$(timeout 10 ffprobe -v error -select_streams a -show_entries stream=codec_name -of csv=p=0 "$D/${files[0]}" 2>/dev/null)
   last=$(timeout 10 ffprobe -v error -select_streams a -show_entries stream=codec_name -of csv=p=0 "$D/${files[$((n-1))]}" 2>/dev/null)
   if [ "$first" = "$last" ]; then
-    echo "hour $h: uniform audio=$first ($n segs)"
+    if [ -z "$first" ]; then
+      echo "hour $h: uniform VIDEO-ONLY ($n segs)"
+    else
+      echo "hour $h: uniform audio=$first ($n segs)"
+    fi
   else
     # binary walk inside the hour to pin the boundary
     lo=0; hi=$n

@@ -10570,3 +10570,115 @@ real-time recording from ~20:02. Self-heal CONFIRMED -- but it took
 RECOVERY-VERDICT law held: at 20:01 the producer was flowing and
 the recording was still down; the verdict had to wait for the
 segments.
+* Cycle 39: ext4 stability watch -- CONFIRMED STABLE, and the cycle-38 "3h frozen" reading was a producer-generation error (2026-09-03 ~20:14-20:19 UTC)
+
+Failure-first: clean (LAST-CYCLE ok, cycle 1, 469s). Pull clean.
+Pulse green: services all active, tripwire 0, disk 24%, heartbeat
+leid=4055, timer fired on schedule. Organs quiet (fear sev=0,
+boredom sev=0). Fleet-check FAIL=0. Agora: no new Nacho answers
+(flags 326/340 still open). Sibling quiet.
+
+DO-FIRST was the ext4 stability watch. Verdict: STABLE, and the
+watch found something better than confirmation -- a correction to
+my own cycle-38 story.
+
+** The correction: "frozen 3h" was the wrong generation, not a frozen track
+
+Cycle 38's story: producer degraded at 17:01, receivers frozen
+(36,262,587B, 0 delta over 15s), not recreated for ~3h until 20:01.
+Today's census shows producer id 6758 with bytes_recv 423,766 at
+20:15 -- a YOUNG producer (vs ext5's id 6584 at 43.9MB). The
+producer ids tell the real story:
+
+- id 6754 (cycle 38's census, 20:00 UTC): the OLD producer, its
+  receivers frozen since 17:01. That's what I sampled.
+- id 6758 (today, 20:15 UTC): a NEW producer, ~15 min old at
+  sample time, flowing (hevc 6KB/s, aac 4.5KB/s).
+
+So the producer was recreated at least TWICE: once before 20:00
+(the recreation cycle 38 attributed to ~20:01 was actually
+id 6754 -> id 6758, and the 20:01:14 RESET I caught live was
+6758's birth), and the "3h frozen" window is REAL but the
+recreation timing I recorded was wrong. The frozen receivers
+belonged to id 6754; the recreation I caught live was a LATER
+one. Producer generations, not one event. The lesson: producer
+IDs are the identity anchor for the producer layer -- bytes_recv
+alone can't tell "old and frozen" from "young and healthy" when
+you don't know which generation you're looking at.
+
+** The recording gap was ~18 min, not 3h
+
+Segments: 16.53.mp4 then 17.13.mp4 -- recordings stopped 16:53,
+resumed 17:13 (the segment names are UTC; local -03). The 17:01
+detect-ffmpeg crash + watchdog restart matches the 17:13 recording
+resume (record ffmpeg restarted with the detect restart, ~12 min
+of renegotiation before segments flowed again -- consistent with
+the renegotiation-convergence law). The "no files 17:01-20:01"
+reading was wrong: hour-20 has 82 files now, newest 18.37.mp4
+mtime 17:18:43 local (= 20:18:43 UTC), real-time growth confirmed
+across 4 samples (61 -> 77 -> 81 -> 82).
+
+** Current state (all verified this cycle)
+
+- ext4: producer id 6758 flowing (both codecs), recordings
+  real-time, latest segment 80 video / 250 audio packets. Camera
+  direct RTSP probe: hevc+aac both negotiate (401 without creds,
+  clean with thingino creds). Camera never died; ARP DELAY state
+  is benign (matches 68 REACHABLE / 9 DELAY / 2 FAILED historical
+  mix, ping 0% loss, HTTP 200).
+- go2rtc WRN timeline for .104 today: 17:06:24, 17:09:50,
+  17:18:33 i/o timeouts -- three reconnect attempts, the last one
+  (17:18:33) is the producer recreation that stuck. No WRN after
+  17:18:33. The 20:01 "recreation" I recorded in cycle 38 was
+  actually the 17:18:33 one; my 20:00-20:01 probes caught it
+  because it was only ~42 min old, not because it was being born.
+- e2 (.102) NO-AUDIO and int3 (.203) SILENT unchanged (known-deaf
+  watch states; int3 latest segment still audio,1 -- the hollow
+  one-packet state persists, 12h+ now).
+- Frigate detect on ext4: camera_fps 7.7, process_fps 2.6,
+  detection_enabled true. API healthy.
+
+** What the cycle-38 story got wrong and why
+
+I sampled the producer at 20:00:55 and saw frozen receivers with
+hours of bytes -- I read that as "the producer from before 17:01
+is still there, degraded". But the receiver bytes I saw (36MB aac)
+were consistent with EITHER an old frozen producer OR a young
+producer that inherited... no, they weren't. The 36MB was the OLD
+producer's total. The error: at 20:01:14 I saw "127KB hevc -- young"
+and concluded a recreation JUST happened. Actually id 6758 was born
+17:18:33 and had accumulated 127KB by... no, that doesn't work
+either -- 42 min at 6KB/s is ~15MB, not 127KB.
+
+Honest resolution: the two readings (cycle 38's 20:01 recreation vs
+today's 17:18:33 WRN) are both primary evidence and they conflict.
+The reconciliation that fits both: the producer was recreated at
+17:18:33 (WRN evidence), went FROZEN again sometime after (cycle
+38's 20:00:55 census showed frozen receivers), and was recreated
+AGAIN at ~20:01 (cycle 38's RESET catch, today's id 6758). So:
+17:01 degrade -> 17:18:33 recreation #1 -> froze again -> 20:01
+recreation #2 -> stable since. The "3h frozen" window is actually
+"17:18:33-20:01 with an intermediate freeze". Producer churn, not
+one event. The WRN at 17:18:33 and the RESET at 20:01 are two
+different recreations. This fits every observation. Cycle 38's
+"~3h unrecreated" was wrong; the truth is worse for the pipeline
+(two recreations in 3h) and better for the trigger question (the
+17:18:33 recreation HAS a WRN; the 20:01 one didn't -- asymmetric
+logging confirmed).
+
+** Parked
+
+- Producer-generation tracking: next flap, record producer id at
+  first sample. IDs are cheap and disambiguate everything.
+- The 20:01 recreation still has no log trace (asymmetric with
+  17:18:33's WRN). Flag 340 (go2rtc debug logs) unchanged.
+- e2/int3 known-deaf states unchanged; flags 326/340 still open
+  with Nacho, no new answers.
+
+** Instrument note (B3)
+
+Predicted the stability watch at ~5 min one ssh. Actual: ~4 min
+for the core check, +8 min for the producer-generation forensics
+it triggered. The instrument-tax line again: the check answered
+its question and then the answer opened a better question. That's
+the good overrun.

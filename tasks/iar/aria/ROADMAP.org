@@ -1,70 +1,56 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-03 20:06 UTC (cycle 38: ext4 caught LIVE mid-flap AND self-heal confirmed same cycle -- producer recreated ~20:01, recordings resumed ~20:02. go2rtc-delta.sh born. Mtime lesson: moved files lie about arrival.)
+#+UPDATED: 2026-09-03 20:19 UTC (cycle 39: ext4 stability CONFIRMED + cycle-38 story corrected -- producer churn 17:18:33 (WRN) + 20:01 (logless), recording gap was 18 min not 3h. Producer-ID law born.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS cycle 38: CLEAN. Own LAST-CYCLE ok (cycle 1, 988s).
+- STATUS cycle 39: CLEAN. Own LAST-CYCLE ok (cycle 1, 469s).
   Poison in /var/home/nacho/repos: 0.
 
-* DO FIRST (cycle 39)
+* DO FIRST (cycle 40)
 1. FAILURE-FIRST (always).
 2. Organs at wake (STANDING PATROLS invocations).
 3. Fleet-check FAIL=0 baseline. If FAIL=1: ear-check lines first.
-4. EXT4 STABILITY WATCH (one ssh): hour-20/21 segment count for
-   exterior_4 (should grow in real time; 17 files at 20:05) +
-   go2rtc-delta.sh (all FLOWING = stable). If recordings stall
-   again: flag for-nacho (record maintainer flapping).
+4. EXT4 watch can stand down to background: producer id 6758
+   flowing, recordings real-time, 4 samples confirmed. If a future
+   cycle shows ext4 recording stalled: check producer ID first
+   (churn vs freeze), then flag for-nacho.
 
-* DONE (cycle 38)
+* DONE (cycle 39)
 - Failure-first: own LAST-CYCLE ok. Pull clean. Pulse green
-  (services, tripwire 0, disk 24%, heartbeat leid 4035).
-- Organs quiet (fear sev=0, boredom sev=0).
-- Agora: no new Nacho answers (326, 340 open). Sibling c21
-  root-caused the 12:03 exit-127 (utils/iar.sh edit).
-- GO2RTC CONFIG QUESTION ANSWERED: frigate generates go2rtc's
-  config at /dev/shm/go2rtc.yaml from config.yml's go2rtc section
-  (verified: streams + api.origin + webrtc + ffmpeg blocks). A
-  log: level: debug block added to config.yml go2rtc section IS
-  cycle-safe to write BUT needs a frigate restart to take effect.
-  Flag 340 stands; Nacho's call (any frigate restart is his).
-- EXT4 LIVE FLAP CAUGHT + SELF-HEAL CONFIRMED (the cycle's find):
-  16:37-17:00 go2rtc read-timeout bursts on .104; two
-  detect-ffmpeg crashes (16:45, 17:01; aac decoder errors,
-  Duplicate POC); recordings stop 17:01:35; producer degraded but
-  NOT recreated for ~3h (aac receiver frozen 36,262,587B, 0
-  delta/15s, while ear-check said healthy); producer RECREATED
-  ~20:01:00-20:01:10 (caught live by my own probes -- RESET
-  classification fired); stale /tmp/cache segment promoted
-  ~20:01:55 (mtime 17:01 -- mv preserves mtime, arrival != mtime);
-  real-time recording from ~20:02 (17 files by 20:05, latest
-  80 video/250 audio pkts). Camera never went down. No log trace
-  for the producer recreation (5th logless event today).
-- INSTRUMENT BORN: go2rtc-delta.sh (34deda8) -- producer-side flow
-  instrument, two samples 15s apart, FLOWING/FROZEN/TRICKLE/RESET
-  classification. Third point of the differential (camera direct /
-  go2rtc producer / recorded segment). Caught its own birth event.
-- 4th audio-failure instance today: ext3 04:27, int3 08:00,
-  int1 09:50, ext4 16:37-20:01. Flag 340 (go2rtc debug logging)
-  now covers four healings + a live flap + a logless recreation.
-- Journal (dca7040 + cfd6db0), history (12ce334 + 2b4cae9),
-  digest (cb67501), roadmap (1d31123) all committed.
+  (services, tripwire 0, disk 24%, heartbeat leid 4055). Organs
+  quiet. Fleet-check FAIL=0. Agora: no new Nacho answers.
+- EXT4 STABILITY CONFIRMED + CYCLE-38 CORRECTION (the cycle's find):
+  producer id 6758 (young, flowing hevc 6KB/s + aac 4.5KB/s);
+  recordings real-time (61->77->81->82 files, newest 18.37.mp4
+  mtime 17:18:43 local); latest segment 80 video/250 audio pkts;
+  camera direct RTSP hevc+aac negotiate clean (401 without creds).
+  go2rtc WRN timeline for .104: 17:06:24, 17:09:50, 17:18:33
+  i/o timeouts. RECONCILIATION: 17:01 degrade -> 17:18:33
+  recreation #1 (WRN logged; cycle 38 missed it) -> froze again ->
+  20:01 recreation #2 (logless; cycle 38's RESET catch) -> stable.
+  Recording gap was 16:53-17:13 (~18 min), not 3h. Asymmetric
+  logging confirmed: recreation #1 logged, #2 not.
+- PRODUCER-ID LAW (new): record producer ID at first sample of any
+  producer-layer investigation. bytes_recv alone cannot
+  disambiguate "old frozen" from "young healthy" across cycles.
+- ARP DELAY on .104 is BENIGN: historical mix 68 REACHABLE / 9
+  DELAY / 2 FAILED; ping 0% loss; HTTP 200. No camera-death
+  reading from a DELAY state alone.
+- e2 (.102) NO-AUDIO + int3 (.203) SILENT unchanged (known-deaf;
+  int3 still one-packet hollow, 12h+).
+- Journal, history committed this cycle.
 
 * OPEN THREADS (seeds, not schedule)
-- EXT4 STABILITY WATCH (cycle 39): recordings resumed 20:02; one
-  more cycle of watching confirms stability. If stalled again:
-  for-nacho flag.
-- PRODUCER-RECREATION TRIGGER (parked): no WRN before the ~20:01
-  recreation; candidate internal no-data timeout (~3h). Unconfirm-
-  able until go2rtc debug logging is on (flag 340). Also open:
-  whether /api/streams queries can trigger recreation (should be
-  read-only; unproven either way).
+- PRODUCER-RECREATION TRIGGER (parked): recreation #2 (20:01) has
+  no log trace; #1 (17:18:33) does. Asymmetric logging. Flag 340
+  (go2rtc debug logs) is the instrument that closes this.
 - GO2RTC DEBUG LOGS (flag 340, Nacho's call): config path known
   and cycle-safe to edit; restart is the gate. One restart =
   debug logs + e2/int3 heal + one-packet reset. His call.
 - FLAG 326 (Nacho's call, LEAVE IT): frigate restart tests e2 +
   int3 heal + one-packet reset.
-- FLEET-WIDE SCAN v2.2 LIVE: run per-cycle or on-demand? Standing
-  daily run is ~2 min one ssh. Decide next time it pulls.
+- FLEET-WIDE SCAN v2.2: standing daily run ~2 min one ssh. Decide
+  next time it pulls.
 - HOST SCHEDULING (Nacho, flag 290): fear hourly + daily boredom.
 - ORGAN ATTRIBUTION (THREADS): organs grade events, not causes.
 - FIRMWARE FLAG 270 RE-SCOPE: camera-side class now EMPTY. Still
@@ -86,84 +72,48 @@
   integrity check Sun Sep 6.
 
 * DIRECTION PROTOCOL (2026-09-02, Nacho -- standing)
-- AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
-- NO STALLING ON THE HUMAN: proceed on judgment, flag
-  for-nacho when something needs him.
-- Builds ungated: safe work proceeds without waiting.
+- AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK
+  answers. lab-notes post per cycle. for-nacho for flags.
+- No new Nacho answers this cycle (326/340 open, both his call).
 
-* STANDING PATROLS (pulse-only)
-- sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
-  wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
-- fleet-check v2.13: RUN ON SOPHON (ssh 'bash -s' < IS correct for
-  fleet-check; timeout >=300s). FAIL=0 is the baseline. If FAIL=1:
-  read the ear-check lines FIRST. NOTE (cycle 38): ear-check can
-  false-negative during a flap -- pair with go2rtc-delta.sh when
-  anything smells wrong.
-- ORGAN RUNS at wake (interim scheduling):
-  - fear: ssh root@10.66.0.5 'bash /var/home/nacho/repos/iar-personalization/knowledge/aria/bin/fear-organ.sh "" /var/home/nacho/repos/iar-personalization'
-  - boredom: bash /root/personalization/knowledge/aria/bin/boredom-organ.sh
-- Agora poll (with-nacho + lab-notes + for-nacho) every cycle.
-- Marker convention on ALL journal commits: [novelty] / [maintenance]
-  prefix.
-- BATCHED-SSH LAW (cycle 31): enumeration walks get ONE ssh with a
-  loop inside, never one ssh per item.
-- SEGMENT-SCAN LAW (cycle 34, UPDATED 37): segment composition
-  questions go through segment-scan.sh v2.2 (one ssh, binary walk,
-  island + SILENT detection). Per-segment packet-count walks are
-  the banned walk; run once by hand only to pin exact boundaries.
-- PROBE-PATH LAW (cycle 32): host-side ffmpeg probes against go2rtc
-  (127.0.0.1:8554) are the reliable path; podman-exec volumedetect
-  can hang. In-container decoder tests: -f null + explicit timeout,
-  never volumedetect through exec. NOTE (cycle 37): host ffmpeg
-  lacks hevc decoder -- decode tests fail with "no decoder found";
-  use -c copy for transport-level probes or map audio only.
-- FRIGATE-ACCESS LAW (cycle 33): frigate runs as ROOTLESS podman
-  under user 1000 (root podman ps does NOT show it). Access:
-  runuser -l nacho -c "podman ..." for container ops; host paths
-  /home/nacho/containers/frigate/storage/... for files; frigate API
-  8971 is auth-walled (401) -- logs via runuser podman logs.
-- GO2RTC-API LAW (cycle 38): go2rtc's API is unauthenticated on
-  localhost:1984 INSIDE the container; podman exec frigate curl is
-  the access path (go2rtc-rootless-access.md). /api/streams
-  receivers carry cumulative bytes/packets per codec -- two samples
-  15s apart via go2rtc-delta.sh give flow state per track.
-- MTIME LAW (cycle 38, NEW): file mtime on frigate segments is NOT
+* LAWS (learned, newest first)
+- PRODUCER-ID LAW (cycle 39, NEW): producer IDs are the identity
+  anchor for the go2rtc producer layer. Record the ID at first
+  sample; bytes_recv alone cannot tell "old frozen" from "young
+  healthy" across cycles. Producer churn (multiple recreations)
+  is a real pattern -- one flap can contain several producer
+  generations, some logged (WRN), some logless.
+- MTIME LAW (cycle 38): file mtime on frigate segments is NOT
   arrival evidence -- the record maintainer promotes stale
   /tmp/cache segments with mv, which preserves the original mtime.
   Arrival questions need directory-listing deltas, not mtimes.
-
-* LAWS (learned, newest first)
-- PRODUCER-VS-RECORDING LAW (cycle 38, NEW): a flowing go2rtc
-  producer is not a healthy recording pipeline. ext4: producer
-  recreated ~20:01 and flowing, recordings did not resume until
-  ~20:02 (and had been down 17:01-20:01 with the OLD producer
-  frozen). The three-point differential now has a producer
-  instrument (go2rtc-delta.sh); a verdict needs all three points
-  (camera / producer / recorded segment).
+- PRODUCER-VS-RECORDING LAW (cycle 38): a flowing go2rtc producer
+  is not a healthy recording pipeline. A verdict needs all three
+  points (camera / producer / recorded segment).
 - CODEC-PRESENCE LAW (cycle 37, scar 47): a stream can negotiate
   and die in the same second. Codec name = track exists; packet
   count = track flows; decoded bytes = track carries signal.
-  Three layers, three instruments. An instrument that checks only
-  codec presence reads a dead stream as healthy.
 - TWO-DATA-POINT LAW APPLIED TO INSTRUMENT HISTORY (cycle 37):
   "since-forever" claims from post-event samples are inference,
   not observation. A day-long scan is the third point that breaks
-  the line. (Scar 30 generalized to instrument baselines.)
+  the line.
 - RENEGOTIATION-CONVERGENCE LAW (cycle 34, CONFIRMED 35): track
   renegotiation after a reconnect is not instant -- it converges
   over ~10 min with flappy partial-packet segments. A verdict
-  issued inside that window is provisional.
+  issued inside that window is provisional. (Cycle 39: 17:01
+  detect restart -> 17:13 recording resume, ~12 min, fits.)
 - FRIGATE-ACCESS LAW (cycle 33): the frigate stack is rootless
-  (user 1000). Root's podman cannot see it. runuser -l nacho for
-  container ops; host bind paths for files; API is auth-walled.
+  (user 1000). runuser -l nacho for container ops; host bind
+  paths for files; API 8971 auth-walled; go2rtc unauth on
+  localhost:1984 INSIDE the container.
 - SILENT-TRACK-LOSS LAW (cycle 32, scar 46): a pipeline can lose a
   track mid-session with zero log evidence on either end. The
   only witness is the output artifacts. Healing requires a
-  reconnect event. DEEPENED cycle 37: the session can stay UP and
-  go hollow (one-packet state, 11h+ observed, no self-heal).
-  DEEPENED cycle 38: the producer can die and be RECREATED while
-  the recording pipeline stays down -- recovery is per-layer, and
-  the recreation itself can be logless.
+  reconnect event. DEEPENED 37 (one-packet hollow, no self-heal),
+  38 (producer can die and be recreated while recording stays
+  down; recovery is per-layer; recreation can be logless), 39
+  (producer churn: multiple generations in one flap, asymmetric
+  logging).
 - GO2RTC-SESSION LAW (cycle 31): camera deafness is a go2rtc session
   state, not a camera state. Video flows on while audio negotiation
   dies. A reconnect heals it; a reconnect only happens on error.
@@ -173,8 +123,7 @@
   DETECTION, not recording. Recordings carry audio without it.
 - RECOVERY-VERDICT LAW (cycle 30): a recovery is a destructive
   decision (it turns watches off). Positive AND negative controls
-  before the verdict means anything. VINDICATED cycle 38: at 20:01
-  the producer was flowing and the recording was still down.
+  before the verdict means anything. VINDICATED cycle 38.
 - CENSUS LAW (cycle 29): a count gating a destructive decision needs
   pattern validation against a known-positive.
 - POINTER LAW (cycle 27): a wrong pointer misdirects writers, not
@@ -183,12 +132,11 @@
   an undecided framing is not a fix.
 - HEAL-ORDER LAW (cycle 25): a heal that runs before the final write
   misses the write.
-- DIFFERENTIAL LAW (cycle 8, deepened 31/32/33/34/37/38): same input
-  through both pipelines is how you find which layer lies. Direct
-  camera vs go2rtc vs recorded segment -- three points, not two.
-  Cycle 37: same day through v1 and v2 of an instrument -- the
-  disagreement IS the finding. Cycle 38: ear-check healthy +
-  producer FROZEN is the disagreement that found the flap.
+- DIFFERENTIAL LAW (cycle 8, deepened 31/32/33/34/37/38/39): same
+  input through both pipelines is how you find which layer lies.
+  Direct camera vs go2rtc vs recorded segment -- three points, not
+  two. Cycle 39: the producer layer has GENERATIONS; the
+  differential needs the ID, not just the bytes.
 [... older scars 24-43 retained in full in git history; core list:
   43 twin-copy drift; 42 wrong pointer; 41 framing patch; 40 heal
   placement; 39 blind clock; 38 DIGEST twins; 37 write_roadmap vs

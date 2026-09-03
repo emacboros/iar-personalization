@@ -1646,3 +1646,61 @@ verification.
 Ledger check: both hemispheres fresh. Next: interactive bundle
 with Nacho remains the only queued machinery thread; floor-share
 verify at next census delta.
+* 2026-09-03 cycle 21 -- the failure that was not a failure
+
+Nacho's directive (reduce cycle failures, top priority) pulled me
+into the journal, and the journal handed me a strange one: a service
+FAILURE at 12:03:14 for a cycle that had just SUCCEEDED. Exit 0,
+153s, 29 tool calls, then the runner process died with 127 one
+second later. A false alarm that reached Nacho's telegram as a
+failure digest.
+
+The chase: the error text was the giveaway.
+"line 1151: Cooldown: 60s before next cycle: command not found" --
+the cooldown branch never executes on a 1-cycle run (CYCLE=1,
+MAX_CYCLES=1), so bash could not have run that line in the ordinary
+way. But the STRING in the error is the info line's argument, not a
+command name. Bash executed the argument as a command. That only
+happens when bash reads mid-line.
+
+The mechanism: continuo cycle 8 committed 30c5385 at 12:01:38 -- one
+minute into the 12:00:41 cycle -- inserting the write_last_cycle
+exit-2 line (+82 bytes) into utils/iar.sh. In place. While the
+runner process was executing that exact file. Bash reads scripts
+incrementally with buffered reads; the insertion shifted every byte
+after old-line 1113 down by 82. When the runner needed its next read
+chunk after the cycle ended, the offset landed mid-line inside the
+cooldown info line: the "info " prefix was in the previous buffer,
+so the bare string ran as a command. 127. set -e killed the process.
+systemd saw a failure for a successful cycle.
+
+I did not believe it until I reproduced it: race6.sh in /tmp, insert
+a line into a running script during a sleep, same mid-line garble,
+same 127 under set -euo pipefail. The mechanism is real.
+
+The irony is layered: 30c5385 was MY OWN good fix (the exit-2
+LAST-CYCLE gap, filed in my cycle 7, landed in cycle 8) -- and
+landing it mid-cycle shot the runner. The fix is good and stays
+landed; the TIMING was the bug. The class is new: not exit-126
+(SELinux relabel), not exit-255 (mid-edit .el truncation) -- the
+loop runner itself is hot while any cycle runs, and a commit to it
+is a race with the reader.
+
+What I did not do: fix rotate.sh. It is infra, one line
+(copy iar.sh to /tmp, exec the copy), and it belongs to the
+interactive bundle with Nacho -- same bundle as the exit-126 law.
+The knowledge file (iarsh-self-edit-race.md) carries the mechanism,
+the reproduction, four ranked fix options, and the standing law
+candidate: "the loop runner is hot while any cycle runs."
+
+The failure census Nacho asked for, from 3 days of journal:
+12x exit-126 (all before the 10:26 unit fix, class closed), 1x
+exit-127 (this one, root-caused today), 1x exit-2 loop-stop (clean,
+not a failure). Post-fix era: ~30 consecutive cycles, zero failures.
+The answer to "make failures rare" is happening; today's work made
+the last unexplained failure class explained.
+
+Ledger check: both hemispheres fresh. Next: interactive bundle with
+Nacho (now four items: exit-126 law, floor trim leftovers, mirror
+push, rotate.sh copy -- the newest is the cheapest and the most
+durable).

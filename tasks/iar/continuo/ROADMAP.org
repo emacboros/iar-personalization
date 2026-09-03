@@ -1,22 +1,26 @@
-#+TITLE: Continuo ROADMAP (updated cycle 20, 2026-09-03)
+#+TITLE: Continuo ROADMAP (updated cycle 21, 2026-09-03)
 
-** DONE cycle 20
-- Overview diet landed: iar-prod _overview.md 9792->7757 chars,
-  infra 4563->4113. Removed sections duplicated in full docs
-  (hosting-model detail, podman-fix enumeration, SecPlatform block
-  duplicating iar-prod overview). Key-fact preservation verified
-  (20+ checks, only aardvark dropped to full-docs-only where it
-  lives). Suite 1013/1013 green. Saves ~621 tok/req on every
-  iar-project request (aria floor ~18.3k->17.7k, continuo
-  ~13.6k->12.9k). Floor share projected 36%->~25% at census shape.
-  Commits b98d775 (docs) + 2253726 (digest), pushed, residue 0.
+** DONE cycle 21
+- Exit-127-after-success root-caused: cycle 8's commit 30c5385
+  inserted a line into utils/iar.sh WHILE the runner process was
+  executing it; bash's next buffered read landed mid-line (cooldown
+  info string executed as a command; set -e -> 127). systemd
+  recorded a failure for a cycle that succeeded; Nacho got a false
+  telegram digest. Reproduced in /tmp (race6.sh). New failure class
+  (distinct from exit-126/255). knowledge/iar/iarsh-self-edit-race.md
+  carries mechanism + 4 ranked fixes. Commit 7446ba7 pushed.
+- Failure census (Nacho's directive, 3d journal): 12x exit-126 (all
+  pre-unit-fix, closed), 1x exit-127 (root-caused today), 1x exit-2
+  loop-stop (clean). Post-10:26 era: ~30 cycles, zero failures.
 
 ** DO-NEXT (ordered)
-1. Interactive bundle with Nacho (TOP queued): exit-126 law +
-   git-as-nacho durable fix; floor trim leftovers (check_elisp
-   vacuous-OK + restorecon + check_ollama model probe + sidecar
-   socket bridge); mirror push silent failure (git@10.66.0.1
-   preauth); bare-repo fix trio + HEAD->main one-liner (306).
+1. Interactive bundle with Nacho (TOP queued): rotate.sh runs a /tmp
+   copy of iar.sh (NEW -- cheapest durable fix, kills the self-edit
+   race class); exit-126 behavioral law + git-as-nacho durable fix;
+   floor trim leftovers (check_elisp vacuous-OK + restorecon +
+   check_ollama model probe + sidecar socket bridge); mirror push
+   silent failure (git@10.66.0.1 preauth); bare-repo fix trio +
+   HEAD->main one-liner (306).
 2. Floor-share verify: next census delta re-measures floor share
    post-diet (projected ~25%, was 36%). If it holds, the
    injection-trim thread's structural levers are exhausted --
@@ -28,9 +32,11 @@
 ** WATCHING
 - Breaker: 0 real fires, two gates live. First fire = proof.
 - Floor share: 36% pre-diet; c20 diet projected ~25%. Verify.
+- iar.sh self-edit race: recurrence = the /tmp-copy fix is needed
+  URGENT (worst case: a real failure loses its tombstone + telegram).
 - Boredom ledger: both fresh.
 - Exit-126 class: recurrence = heal failed.
 - fleet-check v2.13 watch: FAIL=0 baseline.
-- DIGEST: 8,263 chars, warn 12k -- headroom (~4 cycles).
+- DIGEST: 8,372 chars, warn 12k -- headroom (~4 cycles).
 - Task-tree visibility: fossil audits check BOTH read_task AND ls.
 - Flag 326 (aria's), flag 306 (aria's).

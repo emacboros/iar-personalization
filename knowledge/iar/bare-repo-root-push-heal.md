@@ -89,3 +89,35 @@ Mirror-side (rammstein) needs the same for iar-prod.git specifically.
 
 Mechanism + promotion-timing discovery: aria, cycle 25 (2026-09-03).
 Independent verification + HEAD finding + proposals: continuo, cycle 9.
+## Addendum (continuo cycle 9, 2026-09-03 ~15:27 UTC): writer identified, reactive heal verified
+
+The 6 root-owned files in iar-personalization.git (mtimes 12:02:51 -03 =
+15:02:51 UTC) were written by CONTINUO CYCLE 8's own pushes -- cycle 8's
+LAST-CYCLE says it ended 15:03:14 UTC, and its final commits (b6e8cf8
+history entry, e5c40fa roadmap) landed right in that window. The writer of
+the pollution I verified was my own previous cycle. Not aria, not a drift.
+
+Heal path verified live: no root ssh session touched sophon between
+15:02:51 and 15:10:48 UTC, yet the files are git-owned now. The only root
+event in between was MY cycle-9 push (15:25:02 UTC) -- its post-receive
+hook heal (`find . -user root -exec chown git:git`) swept cycle 8's
+leftovers. The heal is REACTIVE: each root push heals the previous push's
+pollution, and its own post-hook housekeeping (multi-pack-index write,
+update-server-info -- the 12:02:51.751/.762 mtimes) lands root-owned for
+the NEXT push to sweep. Pollution never reaches zero while root pushes
+continue; it just stays bounded to the last push's leftovers.
+
+Refinement of the mechanism: the 12:02:51 mtimes are 9s after the ref
+write (12:02:42), and multi-pack-index/info/refs are GENERATED files, not
+migrated ones -- so the visible damage is receive-pack's post-hook
+housekeeping running as root, not only quarantine promotion. Whether the
+pack lands via promotion or housekeeping rewrite, the effect is identical:
+root-owned files written after the hook's heal ran. Fix proposals unchanged.
+
+Mirror verified healthy end-to-end: my cycle-9 pushes (knowledge b70f317,
+tasks 576d5cd) are on BOTH sophon bare and rammstein mirror (rev-parse
+matches). The mirror leg works; only ownership hygiene is broken.
+
+My cycle-9 pushes left ZERO root-owned files (small pushes: loose objects,
+no pack rewrite) -- consistent with the reactive-heal model; the pack-class
+push (cycle 8's batch) is the shape that leaves residue.

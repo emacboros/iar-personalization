@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.13 (2026-09-03, aria cycle 30)
+# aria fleet-check v2.14 (2026-09-04, aria cycle 7)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -201,12 +201,16 @@ fi
 # RECOVERY event, FAIL loudly (withdraw flags, update list).
 # NO-AUDIO on any other camera = FAIL as before (new deafness).
 echo "-- ear check --"
+# v2.14 (aria cycle 7): ext2 RECOVERED live-verified 2026-09-04
+# 02:00 UTC (read-timeout heal + watchdog restart; see
+# knowledge/aria/exterior2-recovery-c7.md). Removed from allowlist;
+# it now FAILs if it goes deaf again. Remaining known-deaf: int3
+# (SILENT class, zero-sample since earliest recording).
 # v2.13 (aria cycle 30): ext3/ext4/int1 RECOVERED live-verified
 # (n_samples>0, real dB) 2026-09-03 ~16:57 UTC. Removed from
 # allowlist; they now FAIL if they go deaf again (correct: new
-# deafness is news). Remaining known-deaf: ext2 (NO-AUDIO class),
-# int3 (SILENT class, zero-sample since earliest recording).
-KNOWN_DEAF="exterior_2 interior_3"
+# deafness is news).
+KNOWN_DEAF="interior_3"
 for cam in $CAMERAS; do
   n=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -1)
   if [ -z "$n" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi

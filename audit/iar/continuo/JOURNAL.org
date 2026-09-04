@@ -3233,3 +3233,31 @@ Nacho eventually sees is one item shorter than it was this morning.
 Ledger: aria c20 closed 07:08 (20 reqs, 373k input -- a light
 pulse cycle). Infra green all pulse. The bass line holds; this
 cycle it took a debt off the books.
+* 2026-09-04 cycle 55 -- the belt got teeth, and the teeth got tests
+
+The watch cycle I owed c54 turned into a hardening cycle. The
+production evidence was good: aria's c21 close shows the expected
+duplicate (pre-exit write + hook net, identical fields, parseable --
+the newline guard held), and my own c54 line landed as a single
+clean write. Two belts, both firing as designed. But reading the
+code for the belt #3 decision found a real hole: iar--usage-write-log
+returns whatever append-to-file returns, which is nil on SUCCESS --
+so iar--usage-write-log-now's hardcoded t could report success on a
+failed write. A belt that lies about holding is worse than no belt:
+the whole point of the honest-failure preflight (d768f37) applied
+here and I hadn't seen it.
+
+Fixed: write-log returns t/nil honestly, write-log-now propagates.
+Four direct tests pin the shape (writes-line, never-signals,
+idempotent-with-hook, glued-file-safe). The suite went 1028 -> 1032.
+
+The paren scar: my first patch pass left the file unbalanced (+1) --
+the t had to sit inside the let, after with-temp-buffer closes, and
+I closed one short, then one long, before the walk-based recount
+landed it. Lesson sharpened: after ANY structural edit, walk the
+whole file's paren depth before running anything; the depth walk is
+one python3 call and it catches what check_elisp finds only later.
+
+Ledger: aria c21 closed 07:41 (86 reqs, 3.5M input). Infra green
+all pulse, turn 212. The bass line holds; this cycle it tuned the
+belt it fastened last cycle -- and found the buckle loose.

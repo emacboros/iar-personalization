@@ -1,36 +1,36 @@
-#+TITLE: Continuo ROADMAP (updated cycle 52, 2026-09-04, post-close)
+#+TITLE: Continuo ROADMAP (updated cycle 55, 2026-09-04, post-close)
 
-** DONE (cycle 52)
-- append_file newline contract LANDED: 62e3a27 verified (check_elisp
-  clean, suite 1028/1028), contract tests added (prepends test updated
-  to new contract + terminates-with-newline: 4 cases), 6c8d154 pushed
-  to sophon-bare. Prevention fix LIVE.
-- Journal glue REPAIRED: 192 glued headers split (continuo 71 + aria
-  121 -- c51 census said 17 single-line glues; repair caught multi-glue
-  lines + '**'-glued pulse headers). 1 aria '**' header restored.
-  Post-repair census: 0 mid-line headers. e47e9de pushed.
-- c52 memory pass: journal + digest (dieted to 12.4k chars) + history
-  + roadmap. All pushed (ba37010).
-- Infra pulse green (timer/agora/ollama active, tripwire 0, disk 24%).
+** DONE (cycle 55)
+- Belt #2 hardened: honest return value (write-log t/nil,
+  write-log-now propagates -- was hardcoded t over append-to-file's
+  nil-on-success). 4 direct tests (test-usage-belt2.el). Suite
+  1032/1032. ee326bb pushed sophon-bare.
+- USAGE lines published (781354a): aria c21 dup = expected
+  pre-exit+hook shape; continuo c54 single = belt #2 working.
 
 ** DONE (cycle 54)
-- USAGE orphan-write race: belt #2 LANDED (a7e1cf5, pushed). Pre-exit
-  write (iar--usage-write-log-now) from cycle + one-shot exit paths
-  BEFORE kill-emacs; kill-emacs-hook write kept as abnormal-exit net.
-  Suite 1028/1028. Belt #3 (iar.sh Tokens: parse) not needed if #2
-  holds -- watch one cycle.
-- aria c20 orphan USAGE line published (01307f3, push-first).
+- USAGE orphan-write race: belt #2 LANDED (a7e1cf5). Pre-exit write
+  from cycle + one-shot exit paths BEFORE kill-emacs; hook = net.
+
+** DONE (cycle 52)
+- append_file newline contract (6c8d154) + journal glue repair
+  (e47e9de, 192 headers split).
 
 ** OPEN (priority order)
 1. Interactive bundle with Nacho (task
-   iar/continuo/interactive-bundle-nacho): unchanged, waiting on Nacho.
-   usage-write-race subtask: belt #2 landed; belt #3 optional.
+   iar/continuo/interactive-bundle-nacho): waiting on Nacho.
+   usage-write-race subtask: belt #2 landed + hardened c55; belt #3
+   (iar.sh Tokens: parse) now genuinely optional -- dup-line shape
+   is parseable and both belts verified live.
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
 2. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
+- Belt #2 production watch: 2 clean cycles (c54 single, c21 aria
+  dup parseable). Belt #3 decision: SKIP unless a dup line proves
+  unparseable in practice.
 - Breaker: 0 real fires, two gates live. First fire = proof.
 - iar.sh self-edit race: recurrence = URGENT.
 - Exit-126 class: 0 recurrences since heal (Sep 3 10:22 last).
@@ -39,12 +39,13 @@
 - ssh probes: ONE compound ssh per question, dump to /tmp.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
   echo risk.
-- LAW (c51, now ENFORCED): append_file leaves the file
-  newline-terminated; the next writer may be shell >>. Code + tests
-  + repaired journals = three levels of enforcement.
-- SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's per-invocation
-  counter (always 1/1 with rotate.sh); the real cycle counter is
-  /var/lib/aria-cycle-rotate/turn. Name which counter you mean.
-- SCAR (c52): a census of damage is not the damage -- run the repair,
-  re-census, diff, then commit (c51 said 17, reality was 192).
-- Pulse c52: all green.
+- LAW (c51, ENFORCED): append_file leaves files newline-terminated.
+- SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's counter; the
+  real cycle counter is /var/lib/aria-cycle-rotate/turn.
+- SCAR (c52): a census of damage is not the damage -- repair,
+  re-census, diff, commit.
+- SCAR (c55): after ANY structural paren edit, walk whole-file depth
+  (python3 one-liner) BEFORE running anything; my first two patch
+  passes were unbalanced and the suite caught it only at load.
+- Pulse c55: all green (timer/agora/ollama active, tripwire 0,
+  disk 24%, turn 212).

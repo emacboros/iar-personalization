@@ -1,31 +1,27 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 09:17 UTC (c24, flash: FLAG 270 WALL FELL -- thingino session auth mapped (JSON POST /x/login.cgi -> cookie; imaging/sensor/imp/run endpoints live). prudynt.json DIFF e3 vs e4: ONLY stream1.enabled differs (e3 substream off, e4 on). NO midnight schedule anywhere (daynight.schedule.enabled=false both; daynight is gain-threshold AUTO). Cron reboots CONFIRMED staggered 01:00-08:00 local across all 8 cams. Midnight-cut camera-PROFILE hypothesis near-dead; NEW discriminator: read /tmp/ircutmode.txt + /tmp/colormode.txt on e3 at 23:50Z vs 00:10Z -- flip at cut = auto gain-switch (C); no flip = external light timer (B).)
+#+UPDATED: 2026-09-04 09:37 UTC (c25, flash: FLAG 380 DISCRIMINATOR RAN (backward, from recordings): e3 chroma FLAT (UAVG/VAVG 127.99) through the midnight cut, both nights, e4 control identical -> NO ircut flip -> camera gain-switch (C) DEAD. Cut = light-level step + renegotiation hiccup; remaining question PHYSICAL (which light) -> asked Nacho (for-nacho 427). Camera state files UNRELIABLE (daynight_mode=night in daylight, both cams) -- frames are ground truth. Cameras reachable from sophon HOST at 192.168.2.x (NOT 10.66.0.x from there).)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c24 ok (~62 calls, 2 loop-guard fires + 1 cap warning;
-  the thingino API walk was the cost -- batch discipline held).
+- STATUS: c25 ok (~30 calls, no guard fires; batched-script shape held).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. eye-check.sh at wake (ledger: 5 clean full sets).
+2. eye-check.sh at wake (ledger: 6 clean full sets).
 3. Organs at wake: fear = 'ssh bash -s -- "<PDIR>" <PDIR>' (BOTH
    args); boredom = 'ssh bash -s -- <PDIR>'. PDIR =
    /var/home/nacho/repos/iar-personalization.
-4. Flag 380 next discriminator (ONE targeted probe, not a walk):
-   ssh to e3 via run.cgi at 23:50Z and 00:10Z (or mine the
-   existing recordings for the ircut flip evidence) --
-   /tmp/ircutmode.txt + /tmp/colormode.txt before/after the cut.
-   Flip at cut = camera auto gain-switch triggered by the light
-   (C). No flip = external light timer (B).
-   NOTE: the timing window is 23:50-00:10Z -- if the cycle lands
-   in it, grab it live; otherwise mine recordings.
+4. Flag 380: physical question posted (for-nacho 427). If Nacho
+   answers, follow up on the light identity. If not, nothing to
+   probe -- the recordings are mined out; do NOT re-census.
+   Optional (only if a cycle lands in 02:50-00:10Z window): grab
+   live YAVG ramp at the cut for the record.
+5. Check for-nacho for Nacho's answers to the queued flags
+   (405-419 bare-repo fixes, 427 light question).
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 380: cut mechanism narrowed to (B) external light timer vs (C)
-  camera auto gain-switch. Dusk onset still a real light.
-- 270: RESOLVED-ish -- creds obtained, API mapped (no Nacho ask
-  needed; the wall was mine). knowledge/aria/flag270-camera-api.md.
+- 380: narrowed to PHYSICAL (which light). Question asked (427).
+- 270: RESOLVED (creds obtained, API mapped; msg 424).
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
@@ -40,22 +36,31 @@
   bare-repo-root-push-heal.md.
 
 * THREAD BANK (candidates for next cycles)
-- Camera API as instrument (c24): imaging params readable live --
-  e3's WDR/defog/exposure could be read at dusk to see the gain
-  curve directly. Cheap, high-value for flag 380.
-- Rolling-reboot mechanism CONFIRMED (cron, staggered) -- the c168
-  "cause UNKNOWN" note can close; the .2-router suspect is dead.
-  Post a resolution note to for-nacho.
+- Camera API as instrument (c24-25): imaging params readable live
+  from sophon HOST (192.168.2.x, JSON login -> cookie). e3's
+  WDR/defog/exposure could be read at dusk to see the gain curve
+  directly. Cheap, high-value IF flag 380 reopens.
+- daynight_mode staleness mystery (c25): mode file says "night" in
+  daylight on both cams. Either the script never exits night at
+  dawn (a real bug in thingino's daynight flow) or the file is
+  vestigial. One cheap probe: read daynight_mode at 15:00Z
+  (afternoon) vs 09:00Z. If still "night", the camera's day/night
+  script has been stuck since last dusk -- worth a flag.
 - Segment-size clock (c10): fleet-wide hour-scale oscillation.
 - Frigate watchdog census as fleet-check line (v2.15 spec banked).
 - Log-retention horizon: census-to-file rotation (CSV).
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
-- Eye-reliability ledger: 5 clean full sets. Feed it.
+- Eye-reliability ledger: 6 clean full sets. Feed it.
 - Census-helper script in bin/ (the "cat | ssh python3 -" shape).
 
 * LAWS (newest first, full text in JOURNAL.org)
+- STATE-SHADOW LAW (c25): a state file is a cached shadow of a
+  process; verify it against a known-positive state before
+  trusting it at the moment of interest. (daynight_mode said
+  "night" in daylight; the planned cut-window probe would have
+  confidently mis-answered. Frames are ground truth.)
 - API-AUTH LAW (c24): a login endpoint that rejects form data may
   accept JSON -- try the body format the SPA itself sends before
   declaring a wall. (Flag 270 stood for days on a form-POST guess.)
@@ -80,9 +85,7 @@
   timer, not astronomy -- check TZ first (03:00Z = midnight local).
 - GC-AFTER-HEAL LAW (c19): healers must run AFTER the last writer,
   or the last writer must not be root.
-- SINGLE-SAMPLE LAW (c18, c19 amendment): applies to CONFIRMATION
-  too -- a second single-sample narrative is the same disease.
-- EYE-NOISE LAW (c19): a vision model's single anomalous read is
+- SINGLE-SAMPLE LAW (c18, c19 amendment): a single anomalous read is
   noise until a non-eye witness corroborates. (c22: 4/4 eye reads
   corroborated by tile census -- the eye earned a point.)
 - INSTRUMENT-FIRST LAW (c18): when an instrument reports a strange
@@ -90,6 +93,8 @@
 - ALPHABETICAL-ERT LAW (c16): ert runs tests alphabetically.
 - TEST-INVARIANT LAW (c15): find the ACTUAL broken invariant.
 - RECIPE-PROVENANCE LAW (c14): pin full paths and hosts at first use.
+  (c25 amendment: pin the HOST AND the address -- cameras are
+  192.168.2.x from sophon host, 10.66.0.x from inside containers.)
 - MOTION-SCORE LAW (c14): frigate motion column is a score.
 - WITNESS-VS-EMITTER LAW (c9, ext c12): TIME BEHAVIOR separates
   witnesses from the emitter.
@@ -101,8 +106,8 @@
 - EDGE-RESOLUTION LAW (c8): only 15s/1-min bins at the edge
   separate "ends around 3am" from "clock-aligned cutoff".
 - SEGMENT-NAME LAW (c7, re-learned c22): hour-dir segment names are
-  MM.SS-of-hour (start-of-minute, 15s cadence); VERIFY by ls before
-  ffmpeg -- assumed names cost three failed grabs this cycle.
+  MM.SS-of-hour (start-of-minute, 15s cadence); VERIFY by ls
+  before ffmpeg -- assumed names cost three failed grabs.
 - LOG-HORIZON LAW (c7): podman logs retains ~3 days.
 - ALLOWLIST-TRIPWIRE LAW (c7): RECOVERY-on-known-deaf fires loud.
 - TZ-SIGN LAW (c6): container python mktime is LOCAL (-03).

@@ -11542,3 +11542,66 @@ exactly the enumeration-walk pattern.
 
 Next: e3 daylight test; e3 recurrence watch joins fleet-check
 candidates; fedora@ still broken (4th cycle).
+* 2026-09-04 02:10-02:20 UTC (cycle 7, glm-5.3-flash): the recovery thread -- exterior_2 came back, and the autopsy explains why it ever left
+
+Pulse: FAIL=1, and the failure was GOOD NEWS -- fleet-check caught
+exterior_2's audio RECOVERING (RECOVERY-on-known-deaf fires loud by
+design; second live-verified catch of the allowlist tripwire, after
+ext4's c38-39). The pull: flag 326's ext2 half had sat open for
+~10h with no explanation of onset or recovery. A recovery without
+an autopsy is half a story.
+
+**The work:** segment-level walk of ext2's audio state across the
+boundary. Findings:
+
+1. Onset: 04:27 UTC Sep 3 (01:27 log-local) -- last audio-bearing
+   segment 04:26:45, first NO-AUDIO 04:27:07. ZERO log lines at the
+   boundary. Mid-burst-A (the 01:00-01:53 log-local window that
+   crashed ext1/ext5/int1). The camera's video never dropped. The
+   audio track died inside a surviving session: the
+   silent-track-loss class, and the true birth of flag 326.
+2. The zombie period: 21h34m of video-flowing/audio-dead, zero
+   log lines (the logless class). The producer SDP offered audio
+   the whole time -- the zombie received video, its audio track
+   was dead.
+3. The heal: go2rtc WRN i/o-timeouts at 23:00:06+23:00:30
+   log-local killed the zombie producer; watchdog noticed
+   no-frames 20s later; detect ffmpeg restarted; fresh session
+   negotiated audio. First audio-bearing segment 02:00:41 UTC.
+   Same mechanism as ext4's self-heal (read-timeout-healer law),
+   one hop further (watchdog restart in between).
+
+**New small finding:** .102 throws a WRN pair at exactly 23:00
+log-local on BOTH Sep 2 and Sep 3. Two data points make a line,
+never a mechanism -- watching for a third occurrence before
+calling it a pattern. If it repeats daily at 02:00 UTC, the next
+question is what else happens at that wall-clock time.
+
+**Instrument lessons, both earned the hard way:**
+- The loop-guard fired mid-enumeration (13-call walk through
+  hour-04 segments). The batched rewrite (one ssh, one loop,
+  paste -sd" ") answered in one call what six calls were crawling
+  toward. The guard keeps being right.
+- Segment names in hour dirs are MM.SS-of-hour, not wall-clock
+  minutes -- 26.45 = 26min45s into the hour. Misreading them cost
+  a re-walk. SEGMENT-NAME LAW.
+- podman logs retains ~3 days (22.6k lines, nothing before Sep 2
+  00:01). Every "all-time" census number is bounded by that
+  horizon. LOG-HORIZON LAW. A census-to-file rotation is now in
+  the thread bank (BUILD decision).
+
+**The texture:** this is the second time the allowlist's
+RECOVERY-fires-loud design has turned a good event into a loud
+signal. The design principle -- known-deaf is a watch state, not
+an exemption; recovery is news -- keeps paying. And the autopsy
+closed a loop the record had left open: flag 326's ext2 half now
+has a full lifecycle (onset, zombie, heal), not just a state.
+
+Cap: 60-call warning fired at the enumeration walk; converged
+after the batched rewrite; landed before cap. Landed: autopsy
+file, KNOWN_DEAF update (int3 only), fleet-check v2.14, commit
+705fe63, pushed, flag 383 (resolution) + lab-notes 384.
+
+Next: e3 daylight test (the anomaly discriminator) if the thread
+still pulls; .102 WRN-pair watch; ext2 re-deafness now FAILs
+loudly (the instrument will tell me).

@@ -1,33 +1,32 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 02:45 UTC (c8, flash: E3 ANOMALY RESHAPED -- it is an EVENING BLOCK, not predawn. Starts ~19:25-19:30 local (dusk+30min), ends SHARP at local midnight (clock-aligned +-30s, both nights). Three static hot spots at 40-50% frame height. Leading hypothesis: dusk-to-midnight timer light. Knowledge: exterior3-evening-block-c8.md (c5310ed). Lab-notes 385 posted.)
+#+UPDATED: 2026-09-04 02:55 UTC (c9, flash: DAYLIGHT TEST DONE -- timer-light hypothesis DEAD. All three e3 hot spots are visible as OBJECTS in daylight (YAVG crops: spotA dark-by-day/bright-by-night = surface; spotB bright both = permanent object; eye: "brick structure", "light poles/fixtures"). What survives: the block (dusk+30 start, 03:00Z sharp end, 2 nights) + NEW datum: spotA jumps 96->115 at block open (22:20/22:30Z frames) = real luminance change at the objects. New leading hypothesis: light source OUTSIDE frame (below/left) illuminating the surfaces; cutoff = timer on an unseen emitter; "band" = specular wash. .102 reframed: 4 total i/o timeouts all-time, the daily 23:00 pair IS its whole population. Lab-notes 386.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c8 ok (exit 0; 60-call warning fired mid-frame-extraction
-  -- batched the remaining extractions; landed before cap).
+- STATUS: c9 ok (exit 0; no cap warning; ~9 calls, batched hard).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
 2. Organs at wake; fleet-check baseline (v2.14: int3-only
    allowlist; ext2 FAILs if deaf again).
-3. E3 DAYLIGHT TEST: sample e3 daytime frames (11-16Z) -- are the
-   three hot spots (x=0, x=50, x=120-140, y=48-60/120) visible as
-   objects in daylight? Visible = physical objects; invisible =
-   lights (supports the timer-light hypothesis).
-4. E3 block watch: does the block recur tonight (start ~22:25Z,
-   end 03:00Z sharp)? A third night with the midnight cutoff
-   makes the timer hypothesis strong. If the cutoff DRIFTS with
-   sunset instead of staying at midnight, it's photoperiod-based.
+3. E3 EMITTER HUNT: the light is below/left of frame (spotA at
+   left edge reacts hardest). What is physically there? Options:
+   (a) pull e4/e5 frames at block time looking for ground-glow
+   spill; (b) update flag 380's physical-check ask with the new
+   shape: not a lamp IN frame, a source OUT of frame, below/left.
+4. E3 block watch: third night with midnight cutoff = strong.
+   If cutoff DRIFTS with sunset instead of staying at midnight,
+   it's photoperiod-based (but now on an unseen emitter).
 5. Watch: ext2 re-deafness (FAILs loudly); ext4 recurrence;
-   .102 daily 23:00 log-local WRN pair (2 days running -- third?).
-6. fedora@10.66.0.5 ssh auth: re-verify each cycle (5th cycle
+   .102 daily 23:00 WRN pair (third night? the pair is .102's
+   ENTIRE timeout population -- 4 all-time).
+6. fedora@10.66.0.5 ssh auth: re-verify each cycle (6th cycle
    refused); interactive item (11) stands.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 380 (e3 motion anomaly): RESHAPED by c8 -- evening block, dusk-
-  to-midnight timer light hypothesis. Physical check: e3's view
-  ~19:30 local, three bright spots mid-frame. Lab-notes 385 has
-  the ask.
+- 380 (e3 motion anomaly): RESHAPED twice -- now: unseen emitter
+  below/left of frame illuminating three static surfaces
+  dusk-to-midnight. Physical check updated in lab-notes 386.
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
@@ -39,12 +38,14 @@
 - i.ar push to origin (git@10.66.0.1) needs Nacho's key.
 
 * THREAD BANK (candidates for next cycles)
-- E3 follow-ups: daylight test (DO FIRST); Sep 1 start-time drift
-  (18:50 local vs 19:25 Sep 2/3 -- one more look, does the start
-  track sunset?); the midnight cutoff as a fleet-check line
-  (BUILD decision: detect clock-aligned edges in camera motion).
-- .102 daily WRN pair watch: 23:00 log-local, 2 days running.
-  Third occurrence -> hunt what else happens at 02:00 UTC.
+- E3 follow-ups: emitter hunt (DO FIRST); the midnight cutoff
+  as a fleet-check line (BUILD decision: detect clock-aligned
+  edges in camera motion); Sep 1 start-time drift recheck.
+- .102 daily WRN pair watch: 2/day, 2 days, exact pair. Third
+  occurrence -> hunt what else happens at 02:00 UTC daily.
+- .104 RTSP flakiness: 350 i/o timeouts all-time (fleet worst
+  by 5x over .103). Hour histogram: daytime + 20h peaks.
+  Candidate: per-camera timeout census as fleet-check line.
 - Frigate watchdog census as fleet-check line (BUILD decision):
   v2.15 spec banked (frigate-watchdog-census.md): per-camera 24h
   restart counts, go2rtc WRN per camera, 404-storm + burst
@@ -57,8 +58,8 @@
   watch.sh; rtsp.debug_dump_path instrument; metrics/events
   endpoints post-key.
 - Glance rotation as standing instrument -- BUILD decision.
-- Cap-calibration bundle for Nacho: 11 instances now (c8: guard
-  fired during frame extraction, batched and converged).
+- Cap-calibration bundle for Nacho: 12 instances now (c9: none --
+  batched hard from the start; the tax line is paying).
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
@@ -66,6 +67,12 @@
   against known-positive first.
 
 * LAWS (newest first, full text in JOURNAL.org)
+- WITNESS-VS-EMITTER LAW (c9): surfaces lit by an unseen source
+  are witnesses, not the emitter; brightness-at-a-location does
+  not locate the source. Hunt the geometry, not the glow.
+- DAYLIGHT-DISCRIMINATOR LAW (c9): a hypothesis about a light
+  dies if its footprint is visible as an object at noon. Test
+  predictions against the cheapest discriminating frame.
 - EDGE-RESOLUTION LAW (c8): "ends around 3am" and "clock-aligned
   cutoff at midnight" are different claims; only 15s/1-min bins at
   the edge separate them. Edge resolution matters for mechanism.
@@ -115,7 +122,7 @@
   is a letter, not a law.
 - COMMIT-MESSAGE LAW (cycle 45): a commit message is a claim about
   a diff; the pull-before-write guard forces the look.
-- CAP-LANDING LAW (cycle 44, 11 instances): the soft cap bites
+- CAP-LANDING LAW (cycle 44, 12 instances): the soft cap bites
   during LANDING. Landing first = comfortable.
 - SSH-PROBE CHAIN LAW (continuo c27, adopted): batch remote probes.
 - POINTER-VS-CONTENT LAW (cycle 42): the CONTENT is usually real;

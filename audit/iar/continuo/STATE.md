@@ -1,26 +1,30 @@
-# Continuo STATE.md (c55 close, 2026-09-04 ~07:49 UTC)
+# Continuo STATE.md (c56 close, 2026-09-04 ~08:15 UTC)
 
 ## In flight
-- Nothing open. c55 hardened belt #2 (honest return value + 4 tests).
+- Nothing open. c56 corrected the iar.sh self-edit race bundle item
+  (premise false: rotate.sh execs in place, no copy; real mechanism
+  = c21 incremental-read race doc, unchanged; fix location =
+  rotate.sh, not iar.sh self-copy).
 
 ## Standing
 - Suite: 1032/1032 at ee326bb. Do not push red.
-- Bundle with Nacho: unchanged, task intact. usage-write-race
-  subtask: belt #2 landed + hardened c55; belt #3 genuinely
-  optional (dup-line shape parseable, both belts verified live).
+- Bundle with Nacho: unchanged, task intact. iar.sh item now
+  CORRECTED (c56); usage-write-race subtask: belt #2 landed +
+  hardened c55; belt #3 genuinely optional.
 - Rotation counters: TWO counters -- rotate.sh /var/lib/.../turn
-  (real, was 212 at c55 wake) and iar.sh per-invocation CYCLE
+  (real, was 214 at c56 wake) and iar.sh per-invocation CYCLE
   (always 1/1). LAST-CYCLE.txt 'cycle 1' is the iar.sh counter.
 - Digest: 11.9k chars, under 12k warn.
 
 ## Next (priority)
 1. Interactive bundle with Nacho: waiting on him. No cycle-side
    work remains on the bundle items.
-2. Watch: belt #2 dup-line shape stays parseable (2 clean cycles
-   so far: c54 single, aria c21 dup).
+2. Watch: iar.sh race recurrence (0 since Sep 3 12:03; a recurrence
+   is now diagnosable in one journal pull -- look for mid-line
+   garble naming any line).
+3. Watch: belt #2 dup-line shape stays parseable (2 clean cycles).
 
-## SCAR (c55)
-- After ANY structural paren edit: walk whole-file depth (python3
-  one-liner) BEFORE running anything. First two patch passes were
-  unbalanced; suite caught it only at load. The depth walk is one
-  call and lands it immediately.
+## SCAR (c56)
+- A bundle item is a claim, not evidence. The /tmp-copy premise
+  survived two cycles because nobody re-read rotate.sh line 12.
+  One targeted read of the primary artifact killed it.

@@ -3261,3 +3261,44 @@ one python3 call and it catches what check_elisp finds only later.
 Ledger: aria c21 closed 07:41 (86 reqs, 3.5M input). Infra green
 all pulse, turn 212. The bass line holds; this cycle it tuned the
 belt it fastened last cycle -- and found the buckle loose.
+* 2026-09-04 cycle 56 -- the misdiagnosis paid its debt
+
+FAILURE-FIRST was green, the pulse was green, and the roadmap's one
+open thread was the iar.sh self-edit race -- the bundle item that
+said "iar.sh copies itself to /tmp before exec" and warned that a
+mid-exec edit runs an old copy silently. I read the primary
+evidence instead of trusting the item: rotate.sh line 12 execs
+iar.sh IN PLACE from the repo path. No copy step exists anywhere in
+the chain. The premise was false.
+
+The real mechanism was already documented -- my own c21 root-cause:
+bash's incremental read head vs an in-place commit (30c5385 inserted
+a line upstream of the running reader's buffered offset; the next
+read chunk garbled mid-line; bash executed the bare string tail as a
+command; 127). What the bundle item got wrong was the fix LOCATION,
+not the race: the durable fix is one line in rotate.sh (copy to
+/tmp/iar-$HASH.sh, exec the copy), not a self-copy inside iar.sh.
+
+The verification walk itself was instructive: md5 of the sophon
+checkout == local == the e8d9850+30c5385 blob, bash -n clean, the
+cooldown branch never executes on MAX_CYCLES=1, and the dangling
+stash blob (238a18e) is byte-identical to the commit -- every
+stale-copy hypothesis died against evidence. The chain guard fired
+at 10 same-tool calls during the byte-offset archaeology; it was
+right to fire, and the read of my own REQUESTS.log finished the
+question in two calls. The dump-once law applies to git blobs too.
+
+Corrected the bundle item, wrote the correction into the knowledge
+doc (the c21 mechanism doc stays; it was right), committed 32f4c0b,
+pushed. Recurrence watch: 0 since Sep 3 12:03. The census note in
+the new doc also answers Nacho's failure-reduction ask with
+numbers: 2 service failures in the Sep 3 window, both root-caused,
+zero since 12:03 -- the mechanisms (newline contract, belt #2,
+breaker, honest preflight, chain reset) landed in that window and
+the failures stopped.
+
+Ledger: aria c2 closed 08:05 (115 reqs, 6.6M input -- the e3-light
+thread, a good heavy cycle). Infra green all pulse, turn 214. The
+bass line holds; this cycle it corrected a note written in an
+earlier measure -- the mark of a record that can be wrong and
+still be trusted, because it can be checked.

@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 01:24 UTC (aria c4, flash: thingino
+Last updated: 2026-09-04 01:57 UTC (aria c6, flash: EXTERIOR_3 MOTION ANOMALY -- predawn 4.7x baseline (303 vs 52/117/114; e4 flat), NEW horizontal bright band lower-center-right, bursty flicker, eye+pixel-diff agree, NOT the old streak. Flag 380 posted. Daylight test next cycle. fedora@ still broken (4th cycle). c4-5 thread banked: thingino
 primary-source thread BANKED (knowledge/aria/thingino-primary-source-
 notes.md) -- camera API surface documented from source, auto-update
 hypothesis WEAKENED, S32prudyntwd watchdog examined, frigate topology
@@ -100,6 +100,11 @@ child failures are DATA. Tool-death mechanism RESOLVED
 - EXT4 RESOLVED (c38-39): 17:01 degrade -> 17:18:33 recreation #1
   (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
   18 min, not 3h. Producer-ID law born.
+- E3 MOTION ANOMALY (c6, flag 380): exterior_3 predawn motion 4.7x
+  baseline (52/117/114/303 across 4 nights; e4 control flat). New
+  horizontal bright band lower-center-right, bursty flicker, moving.
+  NOT the old streak (different region/shape). Daylight test = next
+  discriminator. knowledge/aria/exterior3-motion-anomaly-c6.md.
 - KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
   (one-packet hollow). Allowlisted. ext4 flag 367 RESOLVED
   (self-healed 00:24-00:29 UTC Sep 4 via producer read-timeout;

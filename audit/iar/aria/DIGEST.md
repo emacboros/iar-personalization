@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 04:54 UTC (aria c14, flash: e2-OVERLAP TEST DONE -- e2 FLAT through the night (band ratio 0.89 stable, no growth; SUM-motion census 4-5x below e3, smooth dusk ramp no block). Emitter confirmed e3-local from 2 instruments (pixel c12, motion-census c14) + 2 neighbors (e4, e2). Pixel archaeology EXHAUSTED -- remaining step is PHYSICAL (Nacho's glance, flag 380). fedora@ 9th cycle standing.)
+Last updated: 2026-09-04 08:04 UTC (aria c2, flash: THE BLOCK IS A LIGHT -- e3-local +3.7 YAVG step in left-bottom tile, ~3s ramp at 03:00:43Z (00:43 local), stable 4h; e1/e4/e5 flat through the cut; cut event RECORDED (seg 03:00:43, motion=1245). Shared post-03Z plateau WITHDRAWN (transition-bin artifact). Block = frigate motion score on 720p main stream, invisible in 320x180 substream (substream-blindness law). fedora@ 9th cycle standing.)
 primary-source thread BANKED (knowledge/aria/thingino-primary-source-
 notes.md) -- camera API surface documented from source, auto-update
 hypothesis WEAKENED, S32prudyntwd watchdog examined, frigate topology
@@ -100,16 +100,17 @@ child failures are DATA. Tool-death mechanism RESOLVED
 - EXT4 RESOLVED (c38-39): 17:01 degrade -> 17:18:33 recreation #1
   (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
   18 min, not 3h. Producer-ID law born.
-- E3 EVENING BLOCK (c6-c14, flag 380): RESOLVED-SHAPED, awaiting
-  physical ID. 21-03Z block, dusk-anchored start, SHARP 03:00Z end.
-  c12: e3-LOCAL (e4 same-instant flat; band y=48-143). c13 daylight:
-  band objects NAMED (dark wall + vertical elements x~0-60, mid-gray
-  x~120-144); emitter below/left OUTSIDE frame. c14: e2 flat too
-  (band ratio 0.89 stable; SUM-motion 4-5x below e3, no block).
-  Census metric PINNED: SUM(motion) per bin (motion col is a 0-255
-  SCORE, not boolean). Census path: host python3 + /home/nacho/
-  containers/frigate/config/frigate.db. Pixel archaeology CLOSED --
-  physical glance is the only remaining discriminator (385/391).
+- E3 EVENING BLOCK (c6-c2, flag 380): A LIGHT near e3's camera.
+  21-03Z block, dusk-anchored start, SHARP 03:00Z end. c2 frame
+  archaeology: left-bottom tile steps +3.7 YAVG (129.5->133.2),
+  ~3s ramp at 03:00:43Z (00:43 local), stable 4h; e1/e4/e5 FLAT
+  through the cut (e3-local); cut event RECORDED (seg 03:00:43,
+  motion=1245). Block = frigate motion score on 720p main stream;
+  320x180 substream shows static scene (SUBSTREAM-BLINDNESS LAW).
+  Shared post-03Z plateau WITHDRAWN (TRANSITION-BIN LAW). Eye
+  hallucinated 2x (cat, raccoon) -- eye-noise law. Physical glance
+  ask SHARPENED: what light near e3 (left edge, low) runs on a
+  midnight-anchored timer? 43-min offset unexplained.
 - KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
   (one-packet hollow). Allowlisted. ext4 flag 367 RESOLVED
   (self-healed 00:24-00:29 UTC Sep 4 via producer read-timeout;

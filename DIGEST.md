@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 08:04 UTC (aria c2, flash: THE BLOCK IS A LIGHT -- e3-local +3.7 YAVG step in left-bottom tile, ~3s ramp at 03:00:43Z (00:43 local), stable 4h; e1/e4/e5 flat through the cut; cut event RECORDED (seg 03:00:43, motion=1245). Shared post-03Z plateau WITHDRAWN (transition-bin artifact). Block = frigate motion score on 720p main stream, invisible in 320x180 substream (substream-blindness law). fedora@ 9th cycle standing.)
+Last updated: 2026-09-04 08:04 UTC (aria c2, flash: THE BLOCK IS A LIGHT -- e3-local +3.7 YAVG step in left-bottom tile, ~3s ramp at 03:00:43Z (00:00:43 local, 43 SECONDS past midnight -- c3 correction), stable 4h; e1/e4/e5 flat through the cut; cut event RECORDED (seg 03:00:43, motion=1245). Shared post-03Z plateau WITHDRAWN (transition-bin artifact). Block = frigate motion score on 720p main stream, invisible in 320x180 substream (substream-blindness law). fedora@ 9th cycle standing.)
 primary-source thread BANKED (knowledge/aria/thingino-primary-source-
 notes.md) -- camera API surface documented from source, auto-update
 hypothesis WEAKENED, S32prudyntwd watchdog examined, frigate topology
@@ -103,14 +103,14 @@ child failures are DATA. Tool-death mechanism RESOLVED
 - E3 EVENING BLOCK (c6-c2, flag 380): A LIGHT near e3's camera.
   21-03Z block, dusk-anchored start, SHARP 03:00Z end. c2 frame
   archaeology: left-bottom tile steps +3.7 YAVG (129.5->133.2),
-  ~3s ramp at 03:00:43Z (00:43 local), stable 4h; e1/e4/e5 FLAT
+  ~3s ramp at 03:00:43Z (00:00:43 local, 43 SECONDS past midnight -- c3 correction), stable 4h; e1/e4/e5 FLAT
   through the cut (e3-local); cut event RECORDED (seg 03:00:43,
   motion=1245). Block = frigate motion score on 720p main stream;
   320x180 substream shows static scene (SUBSTREAM-BLINDNESS LAW).
   Shared post-03Z plateau WITHDRAWN (TRANSITION-BIN LAW). Eye
   hallucinated 2x (cat, raccoon) -- eye-noise law. Physical glance
   ask SHARPENED: what light near e3 (left edge, low) runs on a
-  midnight-anchored timer? 43-min offset unexplained.
+  midnight-anchored timer? 43-min offset WITHDRAWN c3 (unrun arithmetic; cross-night offsets +43s/+76-98s/+91-113s = jittery-or-drifting midnight timer).
 - KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
   (one-packet hollow). Allowlisted. ext4 flag 367 RESOLVED
   (self-healed 00:24-00:29 UTC Sep 4 via producer read-timeout;

@@ -11433,3 +11433,66 @@ Next: ext4 recurrence watch continues (fleet-check baseline is the
 instrument); S32prudyntwd-presence check queued behind the creds
 wall; frigate watchdog census could join fleet-check v2.14 (a build
 decision for a future cycle, not this one).
+* 2026-09-04 01:31-01:37 UTC (cycle 5, glm-5.3-flash): the census thread -- my own TZ artifact caught, the bursts mapped, the law refined
+
+Pulse green (FAIL=0, organs flat, fedora@ still publickey-refused --
+third cycle running, interactive item (11) stands). First pulse ran
+in-container by mistake (FAIL=1 everywhere -- instruments have
+reliability tiers per sub-reading; fleet-check is a sophon-side
+instrument, the container is the wrong filesystem for it). Re-ran
+via ssh, green.
+
+Chose the census thread: roadmap had "frigate watchdog census as
+fleet-check line" banked from c4. The c4 number (667 ext4 restarts)
+didn't reproduce with a simple grep -- 1941 all-time. That
+discrepancy was the pull: which number is real, and what does the
+full census say?
+
+**The work:** full podman-logs census, all-time + 24h, three
+instruments (watchdog restarts, go2rtc producer WRNs, ffmpeg 404
+storms). Findings:
+
+1. ext4 (.104) is the flappiest by ~6x (1941 restarts vs ext3's
+   326). Signature split: ext4 STALLS (629 no-frames vs 30 crashes
+   -- stream goes quiet, ffmpeg starves); ext3 CRASHES (107 crashes
+   vs 70 no-frames -- ffmpeg dies mid-stream). Different failure
+   classes on the two flappiest cameras.
+2. go2rtc WRN census agrees with the watchdog census (same ranking:
+   .104=703, .103=126). Two independent instruments, same story.
+3. TWO burst windows, both TZ-mapped (frigate logs are UTC-3):
+   - Burst A 04:00-04:53 UTC Sep 3 (01:00-01:53 -03): FLEET-WIDE.
+     Simultaneous go2rtc timeouts on 4 cameras + crash storms on
+     ext1/ext5/int1 (~107 restarts, 255 404s). 01:00 local is
+     suspiciously round. Flag posted to Nacho: router scheduled-
+     reboot question (msg 375).
+   - Burst B 18:10-19:05 UTC (15:10-16:05 -03): ext3+ext4. This is
+     the KNOWN camera power event (Nacho's restore, msg 331) -- but
+     the census adds the boot signature: dial REFUSED (port closed)
+     -> dial TIMEOUT (host down) -> renegotiation chaos (fps-limit +
+     DTS storm) -> aftershocks -> stable. 104 restarts for one
+     camera power-cycle. That's what a camera reboot costs.
+4. **The TZ artifact caught -- my own.** c4's claim "zero frigate
+   watchdog events at the 23:47-23:53 window" was WRONG: frigate
+   logs are UTC-3, and the window in log-local time is 20:47-20:53.
+   The corrected picture: ext4's audio loss was the tail of a
+   VISIBLE 3-min producer flap (go2rtc WRNs 23:50-23:53 UTC + two
+   frigate restarts 23:51/23:52 UTC). What survives of the
+   silent-track-loss law: session loss is LOUD (watchdog + WRNs);
+   audio-track loss inside a surviving session is INVISIBLE to logs
+   (23:53:48->00:24 UTC, video flowed, audio dead, zero lines).
+   The law survives, narrower and sharper.
+
+**The texture:** this is the census-reframe law working on my own
+work. c4 banked a claim ("third confirmation of silent-track-loss");
+c5 checked it against primary evidence and found a TZ artifact. The
+claim was wrong in its confirmation, right in its core. Two cycles
+of the same thread, and the second cycle's job was to audit the
+first's. That's what the record is for.
+
+Cap: hit the loop-guard twice (log-window walks) and the 60-call
+warning once. The guard was right both times -- I was enumerating
+when one batched query would do. Landed the census file, committed,
+pushed, posted the flag (375). Landing-first discipline held.
+
+Next: fleet-check v2.14 (add the census lines -- build decision
+queued in roadmap); ext4 recurrence watch; fedora@ re-verify.

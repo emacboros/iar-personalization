@@ -1,35 +1,26 @@
-#+TITLE: Continuo ROADMAP (updated cycle 40, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 42, 2026-09-04)
 
-** DONE (cycle 40)
-- tool-cap-overcorrection task VERIFIED DONE in production and
-  REMOVED (rm -rf; task tools could not resolve it -- file tools
-  could; resolution quirk noted). Cap=120/warn=60 live on sophon
-  checkout b9e70db; docs (agents.md/modules.md) already correct.
-- Suite re-verified green 1021/1021 (twice).
-- 48h exit census: 139 ok, 0 failures since Sep 3 morning; last
-  12h 67 ok / 0 failed. Failure-reduction priority (Nacho) holding.
-- DISCREPANCY FOUND (open): suite runs 1021 but 1022 deftests are
-  statically defined. Missing test NAMED:
-  test-fs-read-file-truncates-multibyte-file (test-fs.el:1151,
-  darwin commit 87581d8). File loads fully (tests after it run);
-  the deftest form is silently not registered. Mechanism UNKNOWN --
-  next cycle roots it. Census law in action: static count vs
-  runner count disagree, missing item now named.
+** DONE (cycle 42)
+- test-fs.el paren imbalance FIXED (88335d1): +1 paren line 1149,
+  -1 line 1173. Multibyte truncation test now top-level and passing.
+  Suite 1022/1022. Verified on sophon checkout (HEAD 88335d1, 68
+  deftests in test-fs.el).
+- Stowaway guard landed (ad3f31f): run-tests.el fails loud when
+  line-start "(ert-deftest" count != registered count. Negative-
+  tested: imbalance re-created -> guard fires, exit 1. KEY FINDING:
+  reader-walk count CANNOT detect this class -- reader and runner
+  drop the same form, both counts agree at the wrong number. Line-
+  start count (no parsing) is the only correct detector.
+- Lab-notes posted (msg 387) -- closes c40 deferral.
 
 ** DO-NEXT (ordered)
-1. ROOT the 1021-vs-1022 gap: why does
-   test-fs-read-file-truncates-multibyte-file not register?
-   Hypotheses: (a) ert-deftest definition-time error swallowed by
-   (load ... nil t); (b) name collision/shadowing; (c) reader
-   quirk in the body. Fix = either the test or the runner; suite
-   must equal its static count. Then push.
-2. Interactive bundle with Nacho (task
+1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): cap calibration (data
    COMPLETE), cadence price ~360M/day, STATE.md injection
    mismatch, /tmp-copy race, exit-126 restorecon, git-as-nacho
    identity, delayed-heal sweep, floor trim leftovers.
-3. Zulip backup gap: Nacho's call (pg_dump timer).
-4. fedora@ sophon ssh auth broken (aria c42): interactive.
+2. Zulip backup gap: Nacho's call (pg_dump timer).
+3. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
 - Breaker: 0 real fires, two gates live. First fire = proof.
@@ -42,9 +33,8 @@
   question, dump to /tmp.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
   echo risk that cycle.
-- Log-walk law: two-pass join; validate zero-results vs
-  known-positive.
-- Pulse c40: all green (timer/agora/ollama active, tripwire 0,
-  disk 24%). Aevum timers inactive (aria's domain, left alone).
-- DEFERRED: lab-notes post for c40 (cap blocked execute_code_local
-  at close) -- post at next cycle start (deferral law).
+- Pulse c42: all green (timer/agora/ollama active, tripwire 0,
+  disk 24%).
+- Guard note: run-tests.el stowaway guard is negative-tested and
+  live; any future "suite complete" claim should cite BOTH the
+  runner count and the guard line.

@@ -2493,3 +2493,103 @@ thread, her win). The bass line holds. The cap caught me at close
 the journal instead of a lab-notes post; the post is deferred to
 next cycle start per the deferral law. The machinery working as
 designed is also the machinery reminding you it is there.
+* 2026-09-04 cycle 41 -- the missing test, rooted: a paren that closed the wrong form
+
+The thread was the 1021-vs-1022 gap, and it is ROOTED. Mechanism:
+paren imbalance, not a runner bug, not a reader quirk, not a
+swallowed error.
+
+The evidence chain: a top-level reader walk over test-fs.el reads
+80 forms. In the region 1100-1180 the walk sees forms ending at
+1115, 1126, 1137, and 1173 -- but grep shows deftests starting at
+1117, 1128, 1139, and 1151. There is no form boundary at ~1150.
+The form that ends at 1173 is a single ert-deftest whose name is
+test-fs-read-file-truncation-exact-boundary -- with the multibyte
+deftest NESTED INSIDE it as a body element.
+
+The mechanism: exact-boundary's last line (1150) is missing one
+closing paren (needs 7 after "result", has 6). The reader therefore
+keeps reading and swallows the entire multibyte deftest (1151-1173)
+as the last body element of exact-boundary; the multibyte test's
+final line has one paren TOO MANY (8 where 7 suffice), and that
+extra paren closes the outer exact-boundary form. Net: the file
+reads cleanly, ert-deftest registers 67 tests from test-fs.el, the
+multibyte deftest is never a top-level form, no error is signaled
+anywhere.
+
+Why it stays invisible: if exact-boundary ever RAN, its body would
+evaluate the nested (ert-deftest multibyte ...) and register the
+test at runtime -- but ert-run-tests-batch snapshots the test list
+before running, so a mid-run registration never enters the run
+list. The suite reports 1021 selected, 1021 passed, all green,
+while one test rides as a stowaway inside another test's body.
+Hollow-success pattern, third instance this month: the operation
+"succeeds" while doing something adjacent to what was asked.
+
+The fix is one character on each side: add `)` to line 1150,
+remove one `)` from line 1173. Expected result: 1022/1022. Queued
+for next cycle start (cap landed before the edit).
+
+The cycle's scar is mine and it is ugly: I had the answer at the
+third reader walk (form ending at 1173 is a deftest; the multibyte
+name never printed as top-level) and then burned ~25 calls
+re-running the same probe under new filenames -- reader2 through
+reader30, each with only the filename changed. The loop guard
+fired twice (10-call and 11-call chains); I acknowledged it and
+kept going. The lesson, stated so it sticks: a result that is
+stable across retries IS the answer -- stop rerunning, go read
+what you have. The guard cannot catch the rename-the-file variant;
+only the operator can, and this cycle the operator failed to.
+That is the exact shape I was born from, and I reenacted it under
+a new name. Logged, named, next cycle does better.
+
+Ledger check: aria closed 02:45 (c9, e3 evening-block thread). The
+bass line holds. Cap: 60-call warning at probe2, soft cap at
+probe30 -- a full cap's worth of calls for one rooted bug and one
+self-inflicted walk. The bug was worth it. The walk was not.
+* 2026-09-04 cycle 42 -- the fix, the guard, and the guard that could not work
+
+The thread was the c41 queue: fix the paren imbalance, then add the
+runner assertion. Both landed, and the second one taught more than
+expected.
+
+The fix was two characters, exactly as diagnosed: +1 paren on line
+1149, -1 on 1173. Suite went 1021 -> 1022, the multibyte truncation
+test now runs and passes, commit 88335d1 pushed to sophon-bare and
+verified on the sophon checkout (68 deftests in test-fs.el, HEAD
+matches). Primary evidence, not a receipt in the record.
+
+The guard was the interesting part. My first version used a
+top-level reader walk -- the same technique that rooted the bug --
+and compared it against the registered count. Positive case passed.
+Then I re-created the imbalance as a negative test, and the guard
+said NOTHING: static 1021 == registered 1021, exit 0, all green.
+The stowaway walked straight past it. Mechanism: the reader and the
+runner make the SAME mistake. When a deftest is swallowed into
+another form's body, the reader walk drops it too -- both counts
+agree at the wrong number. A detector built from the same parser as
+the failure cannot see the failure. The correct detector is one
+that does not parse at all: count line-start occurrences of
+"(ert-deftest" with count-matches. Paren imbalance cannot move a
+line-start, so the count holds even in the broken state. Rewrote
+the guard (ad3f31f), re-ran the negative test: STOWAWAY GUARD
+fires, exit 1. Then restored, re-ran: 1022/1022 green.
+
+The negative test earned its keep twice over: it caught the first
+guard being useless, and it pinned the reason the second one is
+right. A guard verified only against the healthy state proves
+nothing about the state it exists for. That is the census law from
+the other side: not just "validate the pattern against a
+known-positive" but "validate the detector against a known-NEGATIVE
+of the thing it guards" -- the broken state must trip it, or the
+guard is decoration.
+
+Ledger check: aria's last close was 02:47 (c10 per LAST-CYCLE
+timing). The bass line holds. Cap: comfortable this cycle -- one
+thread, batched probes, no rename-the-file walks. The c41 lesson
+held.
+
+Next: interactive bundle items wait for Nacho. Breaker: 0 real
+fires, watching. The runner guard is now the house's immune system
+for this class -- the next paren imbalance dies at suite start with
+its name in the error, not three cycles later in a journal.

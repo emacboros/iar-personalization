@@ -1,36 +1,36 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 02:20 UTC (c7, flash: EXT2 AUDIO RECOVERED -- flag 326's ext2 half CLOSED. Autopsy: deafness began 04:27 UTC Sep 3 mid-burst-A, silent track-loss class, 21.5h zombie, healed by read-timeout+watchdog restart (same mechanism as ext4 c38-39). KNOWN_DEAF updated (int3 only). fleet-check v2.14 (705fe63). Flags 383 (resolution) + 384 (lab-notes) posted.)
+#+UPDATED: 2026-09-04 02:45 UTC (c8, flash: E3 ANOMALY RESHAPED -- it is an EVENING BLOCK, not predawn. Starts ~19:25-19:30 local (dusk+30min), ends SHARP at local midnight (clock-aligned +-30s, both nights). Three static hot spots at 40-50% frame height. Leading hypothesis: dusk-to-midnight timer light. Knowledge: exterior3-evening-block-c8.md (c5310ed). Lab-notes 385 posted.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c7 ok (exit 0; loop-guard fired once mid-enumeration --
-  batched rewrite answered in one call; landed before cap).
+- STATUS: c8 ok (exit 0; 60-call warning fired mid-frame-extraction
+  -- batched the remaining extractions; landed before cap).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. Organs at wake; fleet-check baseline (v2.14 now: int3-only
+2. Organs at wake; fleet-check baseline (v2.14: int3-only
    allowlist; ext2 FAILs if deaf again).
-3. E3 DAYLIGHT TEST (the discriminator): if the lower-center-right
-   band is visible in daylight = physical object; invisible =
-   light source. Sample e3's daytime motion + one frame read.
-4. E3 recurrence watch: predawn avg per night (52/117/114/303).
-   If it stays >2x baseline 2+ more nights, escalate to Nacho
-   with frame evidence.
-5. Watch: ext2 re-deafness (now FAILs loudly); ext4 recurrence
-   (chronic flapper, 1941 restarts); the .102 daily 23:00
-   log-local WRN pair (2 days running -- third occurrence?).
+3. E3 DAYLIGHT TEST: sample e3 daytime frames (11-16Z) -- are the
+   three hot spots (x=0, x=50, x=120-140, y=48-60/120) visible as
+   objects in daylight? Visible = physical objects; invisible =
+   lights (supports the timer-light hypothesis).
+4. E3 block watch: does the block recur tonight (start ~22:25Z,
+   end 03:00Z sharp)? A third night with the midnight cutoff
+   makes the timer hypothesis strong. If the cutoff DRIFTS with
+   sunset instead of staying at midnight, it's photoperiod-based.
+5. Watch: ext2 re-deafness (FAILs loudly); ext4 recurrence;
+   .102 daily 23:00 log-local WRN pair (2 days running -- third?).
 6. fedora@10.66.0.5 ssh auth: re-verify each cycle (5th cycle
    refused); interactive item (11) stands.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 383: ext2 recovery RESOLUTION (informational, closes 326's
-  ext2 half; int3 half stays open).
-- 380 (e3 motion anomaly, physical look lower-center-right,
-  daylight test tomorrow).
+- 380 (e3 motion anomaly): RESHAPED by c8 -- evening block, dusk-
+  to-midnight timer light hypothesis. Physical check: e3's view
+  ~19:30 local, three bright spots mid-frame. Lab-notes 385 has
+  the ask.
+- 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
-- 326 (frigate restart to heal e2/int3): e2 SELF-HEALED (383);
-  int3 remains -- a frigate restart would still test int3's
-  camera-side silent-session hypothesis.
+- 326 (frigate restart to heal int3): int3 half still open.
 - 270 (camera API creds): unblock path documented (one WebUI
   login + POST /x/api-key.cgi).
 - 340 (go2rtc debug logs), 290 (valence host timers).
@@ -39,28 +39,26 @@
 - i.ar push to origin (git@10.66.0.1) needs Nacho's key.
 
 * THREAD BANK (candidates for next cycles)
-- E3 anomaly follow-ups: daylight test (DO FIRST); the e3
-  elevation started Sep 1 (daily 90 vs 75) -- predates the power
-  event; what changed at that camera over 3 days?
+- E3 follow-ups: daylight test (DO FIRST); Sep 1 start-time drift
+  (18:50 local vs 19:25 Sep 2/3 -- one more look, does the start
+  track sunset?); the midnight cutoff as a fleet-check line
+  (BUILD decision: detect clock-aligned edges in camera motion).
 - .102 daily WRN pair watch: 23:00 log-local, 2 days running.
-  Third occurrence -> hunt what else happens at 02:00 UTC
-  (router? cron? DHCP lease?).
+  Third occurrence -> hunt what else happens at 02:00 UTC.
 - Frigate watchdog census as fleet-check line (BUILD decision):
-  census data banked (frigate-watchdog-census.md). v2.15 spec:
-  per-camera 24h restart counts (ONE pinned grep pattern),
-  go2rtc WRN per camera, 404-storm detector (>50/h), burst
-  detector (>10/h). Thresholds: cam >20/24h, fleet >100/24h.
-- Log-retention horizon: podman logs ~3 days (22.6k lines).
-  "All-time" census numbers are bounded -- consider a
-  census-to-file rotation (append daily counts to a CSV in
-  knowledge/) so the horizon stops eating history. BUILD decision.
+  v2.15 spec banked (frigate-watchdog-census.md): per-camera 24h
+  restart counts, go2rtc WRN per camera, 404-storm + burst
+  detectors. Thresholds: cam >20/24h, fleet >100/24h.
+- Log-retention horizon: census-to-file rotation (append daily
+  counts to CSV in knowledge/) so the ~3-day podman-logs horizon
+  stops eating history. BUILD decision.
 - Thingino follow-ups (banked in thingino-primary-source-notes.md):
   S32prudyntwd presence (needs creds, flag 270); prudynt-crash-
   watch.sh; rtsp.debug_dump_path instrument; metrics/events
   endpoints post-key.
 - Glance rotation as standing instrument -- BUILD decision.
-- Cap-calibration bundle for Nacho: 10 instances now (c7: guard
-  fired mid-enumeration, batched rewrite converged).
+- Cap-calibration bundle for Nacho: 11 instances now (c8: guard
+  fired during frame extraction, batched and converged).
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
@@ -68,6 +66,12 @@
   against known-positive first.
 
 * LAWS (newest first, full text in JOURNAL.org)
+- EDGE-RESOLUTION LAW (c8): "ends around 3am" and "clock-aligned
+  cutoff at midnight" are different claims; only 15s/1-min bins at
+  the edge separate them. Edge resolution matters for mechanism.
+- CONTROL-BLOCK LAW (c8): an elevation is camera-local only if the
+  control camera is flat in the SAME time blocks, not just in the
+  daily average.
 - SEGMENT-NAME LAW (c7): hour-dir segment names are MM.SS-of-hour,
   not wall-clock minutes. Read them as offsets.
 - LOG-HORIZON LAW (c7): podman logs retains ~3 days (22.6k lines);
@@ -80,8 +84,7 @@
   LOCAL (-03); utc() = mktime - 3h. Sanity-check every window
   against a known-positive count BEFORE trusting derived stats.
 - FRIGATE-DB PATH LAW (c6): inside the container the DB is
-  /config/frigate.db (host path does not resolve inside). The
-  census file's host path works only from the host.
+  /config/frigate.db (host path does not resolve inside).
 - TZ-ARTIFACT LAW (c5): my own prior claims are data too -- re-check
   them against primary evidence when the thread reopens.
 - PATTERN-DEPENDENCE LAW (c5): a census number without its grep
@@ -101,12 +104,9 @@
 - PACKET-COUNT WITNESS (c3): ffprobe -count_packets discriminates
   healthy/dying/renegotiating/hollow.
 - READ-TIMEOUT-HEALER LAW (c3): the producer read-timeout heals
-  zombie sessions. SECOND instance verified (ext2 c7, via
-  watchdog restart one hop further).
+  zombie sessions. SECOND instance verified (ext2 c7).
 - LOOP-GUARD-READ LAW (c2): re-read captured output before walking
   source; batch remote probes into one compound ssh per question.
-  (c7: the guard fired at a 13-call segment walk; the batched
-  rewrite answered in one call. The guard keeps being right.)
 - LOADED-GUN LAW (turn 168): never GET-probe action-shaped
   endpoints on production devices.
 - KNOWN-POSITIVE-FIRST LAW (turn 167): validate census patterns
@@ -115,7 +115,7 @@
   is a letter, not a law.
 - COMMIT-MESSAGE LAW (cycle 45): a commit message is a claim about
   a diff; the pull-before-write guard forces the look.
-- CAP-LANDING LAW (cycle 44, 10 instances): the soft cap bites
+- CAP-LANDING LAW (cycle 44, 11 instances): the soft cap bites
   during LANDING. Landing first = comfortable.
 - SSH-PROBE CHAIN LAW (continuo c27, adopted): batch remote probes.
 - POINTER-VS-CONTENT LAW (cycle 42): the CONTENT is usually real;
@@ -129,10 +129,11 @@
 - RENEGOTIATION-CONVERGENCE LAW (cycle 34): converges over ~10 min.
 - FRIGATE-ACCESS LAW (cycle 33): rootless stack (user 1000);
   runuser -l nacho; recordings path; go2rtc unauth localhost:1984
-  INSIDE container.
+  INSIDE container; host ffmpeg CANNOT decode (no hevc) -- use the
+  container's /usr/lib/ffmpeg/7.0/bin/ffmpeg; recordings are
+  /media/frigate/recordings/ inside.
 - SILENT-TRACK-LOSS LAW (cycle 32): session loss loud, track loss
-  inside a surviving session silent. (c7: ext2's 21.5h zombie is
-  the class's longest observed instance.)
+  inside a surviving session silent.
 - GO2RTC-SESSION LAW (cycle 31): camera deafness is a session state.
 - PROVISIONAL-VERDICT LAW (cycle 31): recovery during a flap is
   provisional.

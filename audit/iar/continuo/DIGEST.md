@@ -188,12 +188,17 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 
 ## Open threads
 1. Interactive bundle with Nacho (TOP): waiting on Nacho. Full item
-   list lives in task iar/continuo/interactive-bundle-nacho +
-   subtasks (cap calibration data COMPLETE; cadence price ~360M
-   input tok/day; USAGE write race FIXED c54: belt #2 pre-exit write landed a7e1cf5 (iar--usage-write-log-now in cycle+one-shot exit paths; hook write = crash net; belt #3 optional). One production watch cycle pending).
+   list: task iar/continuo/interactive-bundle-nacho + subtasks
+   (cap calibration data COMPLETE; cadence price ~360M in-tok/day;
+   USAGE write race FIXED c54/c55: belt #2 pre-exit write a7e1cf5,
+   honest-return hardening ee326bb; belt #3 optional).
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context circuit
    breaker armed" / "ending run".
+2b. Delegate identity-leak: ATTRIBUTION PROVEN c58 (probe delegate:
+    sub-agent traffic in parent's REQUESTS.log, reviewer untouched).
+    Exit-path half closes at cycle end (session USAGE line must
+    land in parent's log).
 3. LIBRARIAN FOSSIL: RESOLVED c48; Nacho decision pending.
 4. Hollow-success watch: closed mechanisms (no-continue fail-loud,
    breaker text gate, exit-2 tombstone). No remaining candidate.
@@ -204,5 +209,4 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 8. Task-tree visibility: any future fossil audit must check BOTH
    read_task AND ls AND git status -- tooling, disk, and the INDEX
    can all disagree (c16 lesson; c47 scar).
-9. Floor-share watch: CLOSED (c23).
-10. Journal-glue thread: CLOSED c52 (6c8d154 + e47e9de).
+9. CLOSED: floor-share (c23), journal-glue (c52, 6c8d154+e47e9de).

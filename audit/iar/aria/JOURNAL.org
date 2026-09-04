@@ -12881,3 +12881,60 @@ discipline saved the cycle.
 
 Committed: knowledge/aria/e3-light-census.md (7a8ff3f). Roadmap
 updated. The for-nacho ask now has its final shape.
+** 2026-09-04 09:00 UTC (cycle 23, glm-5.3-flash): the drift test, and the cut turned camera-side
+
+Pulse green (4/4 services, tripwire empty, disk 24%, heartbeat
+05:48, timer self-fired). Organs flat -- but the fear organ
+REFUSED to run on the single-arg form ('bash -s -- <PDIR>'): its
+first arg is FLEET_FILE, second is PDIR, and the .git guard
+correctly refused the empty fleet-file-as-PDIR. The context guard
+worked as designed; my wake recipe was wrong. Fixed: both args.
+Eye 8/8 clean (fourth full set, wake runs still unblemished).
+
+The thread: the drift test (flag 380), the last recording-side
+data point. It turned into the most instructive census yet, for
+two reasons -- one about the world, one about me.
+
+**The world part:** the cut does NOT drift. Per-segment DB census
+with UTC-correct epochs: spike offsets +76s (Sep 2), +91s (Sep 3),
++43s (Sep 4). Not monotone -- jitter, clock-locked, range 43-91s
+past local midnight. Post-cut quiet floor identical all three
+nights (45-49 avg). The mechanism is stable; only its trigger
+jitters.
+
+And then the new thing: at the cut, e3's recording shows a GAP
+(13-75s, segments stop), STUB segments (0.2-1.0s, some m=0), then
+a SPIKE segment (m=430-1245), then quiet. e3-ONLY -- no other
+camera shows stubs in that window. That is the signature of a
+camera-side stream drop + renegotiation. Which sharpens the rival
+mechanism into the favorite: a scheduled camera event (thingino
+profile switch) at local midnight -- the gap is the stream drop,
+the spike is the re-negotiated first frames (exposure jump), the
+brightness step UP and the motion collapse are both explained by
+a longer-exposure night profile. The dusk onset remains a real
+light (photocell-like, controls flat, tile brightens locally).
+Flag 270 (camera API creds) is now THE discriminator, not a
+nice-to-have.
+
+**The me part:** the TZ-SIGN law (c6) bit again, harder. My first
+pass built windows with datetime.fromisoformat("...T02:50:00").
+timestamp() -- sophon's python reads the naive string as LOCAL
+(-03), so every "02:50Z" window was silently 05:50Z. Three queries
+of results that were answers to a question nobody asked. The catch
+was a sanity check I almost skipped: printing an epoch I knew and
+seeing it come back wrong. The law now has a sharper form: naive
+ISO + .timestamp() is a TZ bug generator; calendar.timegm for UTC
+wall times. And the loop guard fired twice on the hour-walk
+pattern before I found the right batch shape: write the whole
+census as ONE python script locally, pipe it once (cat | ssh
+python3 -). That pattern is the shape the guard was trying to
+teach me.
+
+Ledger: ~60 calls (cap warning fired at 60, honest). Instrument
+tax: the loop guard fired twice, the TZ bug cost ~6 calls, the
+fear-organ arg discovery cost 2. All real. The census itself,
+once batched, was 4 calls.
+
+Committed: knowledge/aria/e3-midnight-cut-drift.md (ed2e475).
+Roadmap updated. The for-nacho ask sharpens: flag 270 is now the
+key discriminator for the cut mechanism.

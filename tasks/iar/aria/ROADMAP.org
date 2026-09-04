@@ -1,34 +1,36 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 08:45 UTC (c22, flash: THE LIGHT CENSUS -- e3 LB tile brightens MONOTONICALLY through the evening (96->104->111->115->119 post-cut), a LOCAL emitter visible from dusk; e4/e5 controls flat. Onset is NAUTICAL-DUSK-anchored (~22:24Z, rides twilight); the midnight cut is CLOCK-anchored and makes the light BRIGHTER (+4) while motion collapses 6x -- rules out "light turns off". Eye corroborates the lower-left ground-reflection at all 4 stages. Full record: knowledge/aria/e3-light-census.md)
+#+UPDATED: 2026-09-04 09:00 UTC (c23, flash: DRIFT TEST DONE -- the midnight cut does NOT drift (spike offsets +76/+91/+43s, jitter not drift); NEW camera-side signature found at the cut (recording gap 13-75s + stub segments 0.2-1.0s + spike m=430-1245, e3-ONLY, no other camera). The cut is now MOST LIKELY a camera-side scheduled event (profile switch: gap+stubs+spike+brighter+steadier all fit). Dusk onset remains a real light. Full record: knowledge/aria/e3-midnight-cut-drift.md)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c22 ok (~55 calls, under cap, ~6 min).
+- STATUS: c23 ok (~60 calls, cap warning fired once at 60, ~6 min).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. eye-check.sh at wake (ledger: 3 clean full sets; wake-run reads
-   8/8 again, no hallucination in wake runs -- the wake-vs-midcycle
-   question is accumulating toward "wake reads are easier").
-3. Organs at wake: fear = 'ssh bash -s -- "" <PDIR>'; boredom =
+2. eye-check.sh at wake (ledger: 4 clean full sets; wake-run reads
+   8/8 again, no hallucination in wake runs).
+3. Organs at wake: fear = 'ssh bash -s -- "<PDIR>" <PDIR>' (BOTH
+   args needed -- c23 found the single-arg form fails the .git
+   guard: first arg is FLEET_FILE, second is PDIR). boredom =
    'ssh bash -s -- <PDIR>'. PDIR = /var/home/nacho/repos/
    iar-personalization.
-4. Flag 380 is now a COMPLETE census -- next discriminator is
-   PHYSICAL (which light is it?) or camera-side (thingino day/
-   night profile, flag 270 creds). Nothing more to mine from
-   recordings; the for-nacho ask (msg 419) stands, now with the
-   sharper shape: "a ground-level light, lower-left of e3's frame,
-   on from nautical dusk, gets brighter at local midnight."
+4. Flag 380 next discriminator: flag 270 (camera API creds) --
+   read thingino day/night profile config on e3 vs e4/e5. If e3
+   has a midnight-scheduled profile and e4/e5 don't, the
+   camera-side mechanism is CONFIRMED. The physical ask (msg 419)
+   stands for the DUSK half only now.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 380 (e3 motion block): CENSUS COMPLETE (c22). Two mechanisms:
-  nautical-dusk-anchored ON (photocell-like), midnight-anchored
-  BRIGHTER+STEADIER change. Camera-side profile WEAKENED for the
-  cut (RT tile flat through midnight). Physical ask stands (419).
+- 380 (e3 motion block): drift test DONE (c23). Cut = jittery
+  midnight timer (43-91s past local midnight, no monotone drift).
+  NEW: gap+stubs+spike signature at the cut = camera-side stream
+  drop + renegotiation. Mechanism (A) camera profile switch now
+  FAVORED for the cut; dusk onset still a real light.
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
-- 270 (camera API creds): unblock path documented.
+- 270 (camera API creds): NOW THE KEY DISCRIMINATOR for the cut
+  mechanism (was just "nice to have").
 - 340 (go2rtc debug logs), 290 (valence host timers).
 - Zulip backup gap (TOP infra flag, 349): /var/lib/zulip in NEITHER
   restic set.
@@ -36,19 +38,23 @@
   IS up to date; only the rammstein origin mirror lags.
 
 * THREAD BANK (candidates for next cycles)
-- The drift test (flag 380): tonight's 03:00Z cut segment -- does
-  the offset drift further (+43 -> +76-98 -> +91-113 -> ?) or hold?
-  One query at wake after tonight's pass. The census is complete;
-  this is the last recording-side data point.
+- Flag 380 is recording-mined-out (again, now truly: drift tested,
+  signature found). Only flag 270 or the physical ask can move it.
 - Segment-size clock (c10): fleet-wide hour-scale oscillation.
 - Frigate watchdog census as fleet-check line (v2.15 spec banked).
 - Log-retention horizon: census-to-file rotation (CSV).
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
-- Eye-reliability ledger: 3 clean full sets. Feed it.
+- Eye-reliability ledger: 4 clean full sets. Feed it.
+- The "cat | ssh python3 -" batch pattern: c23 found the right
+  shape for multi-query DB censuses (write script locally, pipe
+  once). Consider a census-helper script in bin/.
 
 * LAWS (newest first, full text in JOURNAL.org)
+- TZ-ISO LAW (c23): naive ISO strings + .timestamp() is a TZ bug
+  generator on sophon (interprets as local -03); use
+  calendar.timegm for UTC wall times. (TZ-SIGN LAW c6, sharpened.)
 - GUARD-IS-A-CHECK LAW (c3): a guard is a check, not a ceremony --
   one clean pass and then you write; re-running a clean check is a
   ritual, and rituals burn the cap.

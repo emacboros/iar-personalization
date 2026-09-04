@@ -1,35 +1,37 @@
-#+TITLE: Continuo ROADMAP (updated cycle 45, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 46, 2026-09-04)
 
-** DONE (cycle 45)
-- Missing-USAGE line (epoch 022143 / c40) ROOT-CAUSED: the write
-  was never lost. c40's close write (02:33:26, 132 reqs / 8,014,916
-  in) landed AFTER c40's commit 714a241 (USAGE.log captured only to
-  02:09:17); c41's memory-pass commit 681c1a6 then published the
-  tracked file WITHOUT the line. Orphan-write race: USAGE.log is
-  TRACKED and written by kill-emacs-hook after the cycle's last
-  commit -- one commit/checkout away from silent erasure.
-- Line RESTORED by hand (append_file, sophon journal values,
-  PARSE-census cross-check: input exact 8,014,916; output 40,703).
-- Census law HARDENED: substring greps for "REQ <ep>-N PARSE" match
-  START lines whose specs QUOTE the pattern (c41's own probes).
-  Correct census = line-start anchor + timestamp window + dedup by
-  id. All 11 epochs of 2026-09-04 reconcile (000105 pre-1afc21a:
-  no tokens_in except id-125 at 00:07:59; 010226 real 6,155,287 vs
-  poisoned 260,929,102,797).
+** DONE (cycle 46)
+- Eraser NAMED (roadmap item 1, one grep): c41's memory pass ran
+  `git add -A audit/iar/continuo/ && git commit` -> 681c1a6. c41
+  was the paren-bug cycle with git stash/checkout exploration in
+  its window; its tree snapshot of USAGE.log LACKED the orphan
+  02:33:26 line, so the commit published the line-less version.
+  No exotic eraser: the memory-pass add -A itself, on a tree
+  restored from a pre-write commit. Mechanism class confirmed:
+  tracked file written post-commit by exit hook = one commit away
+  from erasure.
+- SECOND INSTANCE FOUND + FIXED: c45's own close write (04:09:09)
+  GLUED onto the restored 02:33:26 line -- append_file restored
+  the line WITHOUT trailing newline; iar--usage-write-log appends
+  and the format line concatenated. Split by hand (python byte
+  edit), verified 84/84 lines well-formed, committed a270781,
+  pushed, sophon mirror verified (0 root-owned files).
+- usage-write-race subtask filed in interactive-bundle-nacho
+  (race + newline fix + 3 fix options). NOTE: write_subtask wrote
+  to a DOUBLED path (tasks/iar/continuo/iar/continuo/...) --
+  resolver quirk, moved by hand, doubled dir removed.
 
 ** OPEN (next cycle, priority order)
-1. Name the eraser (one windowed grep in c41's cycle.log window
-   198186-208000 for checkout/stash/clean touching USAGE.log).
-   Mechanism proven; the exact command is one call.
-2. Interactive bundle with Nacho (task
-   iar/continuo/interactive-bundle-nacho) -- ADD: USAGE write race
-   fix (move write into iar-run-cycle pre-kill-emacs, or iar.sh
-   writes from "Tokens:" stdout lines). Plus prior items: cap
-   calibration (data COMPLETE), cadence price, STATE.md injection
-   mismatch, /tmp-copy race, exit-126 restorecon, git-as-nacho,
+1. Interactive bundle with Nacho (task
+   iar/continuo/interactive-bundle-nacho) -- now includes
+   usage-write-race subtask. Prior items: cap calibration (data
+   COMPLETE), cadence price, STATE.md injection mismatch,
+   /tmp-copy race, exit-126 restorecon, git-as-nacho,
    delayed-heal sweep, floor trim leftovers.
-3. Census echo law: write the line-start-anchor + window + dedup
-   law into knowledge/iar/ + DIGEST (one write, both places).
+2. Census echo law into knowledge/iar/ + DIGEST (one write, both
+   places) -- line-start anchor + window + dedup; also the
+   newline law for USAGE writes.
+3. DIGEST diet watch: 10.8k chars, warn 12k.
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
@@ -40,13 +42,15 @@
 - iar.sh self-edit race: recurrence = URGENT.
 - Exit-126 class: 0 recurrences since heal (Sep 3 10:22 last).
 - Mid-edit file race (exit-255 end-of-file): last Sep 2 23:52.
-- DIGEST: ~10.8k chars, warn 12k.
+- USAGE.log newline: fix is in the bundle; watch next close-write
+  (if last byte is \n, no glue; the c46 split leaves the file
+  ending WITH \n, so next append should be clean).
 - Agora reads: GET + narrow JSON array. ONE dump per stream.
 - ssh probes: ONE compound ssh per question, dump to /tmp.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
   echo risk; poisoned-epoch values (c34/c36) in DIGEST.
-- Pulse c45: all green (timer/agora/ollama active, tripwire 0,
-  disk 24%).
-- Cap note: c45 hit the 120 cap on the c41-window eraser hunt.
-  The mechanism was already proven; the hunt should have been
-  deferred. One verification per claim, not two.
+- Pulse c46: all green (timer/agora/ollama active, tripwire 0,
+  disk 24%, rotate 194).
+- Cap note: c46 used ~65 calls, well under cap. The eraser hunt
+  was ONE windowed grep as planned -- roadmap item 1 closed in
+  one call as promised.

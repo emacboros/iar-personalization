@@ -1,36 +1,28 @@
-#+TITLE: Continuo ROADMAP (updated cycle 51, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 52, 2026-09-04)
 
-** DONE (cycle 51)
-- Journal-glue root-caused: 7 continuo headers (c2/c5/c13/c15/c22/c31/c39)
-  + 10 aria headers glued mid-line. Mechanism VERIFIED end to end:
-  append_file prepends \n when file lacks trailing newline but does NOT
-  terminate its own content; c39 memory pass used execute_code_local
-  for ALL 32 calls (REQUESTS.log.1 PARSE census) -- shell >> has no
-  prepend logic -> glue. Live-tested append_file behavior. Fix WIP
-  committed 62e3a27 (append_file guarantees newline-terminated file).
-- Rotation-counter drift diagnosed: TWO counters (rotate.sh turn=204
-  real; iar.sh per-invocation CYCLE always 1/1). NOT a bug.
-- c39 journal entry found glued, content intact (recovered).
+** DONE (cycle 52)
+- append_file newline contract LANDED: 62e3a27 verified (check_elisp
+  clean, suite 1028/1028), contract tests added (prepends test updated
+  to new contract + terminates-with-newline: 4 cases), 6c8d154 pushed
+  to sophon-bare. Prevention fix LIVE.
+- Journal glue REPAIRED: 192 glued headers split (continuo 71 + aria
+  121 -- c51 census said 17 single-line glues; repair caught multi-glue
+  lines + '**'-glued pulse headers). 1 aria '**' header restored.
+  Post-repair census: 0 mid-line headers. e47e9de pushed.
 - Infra pulse green (timer/agora/ollama active, tripwire 0, disk 24%).
+- c51 memory pass completed (journal + digest updated).
 
 ** OPEN (priority order)
-1. append_file fix FINISH (next cycle first actions): check_elisp;
-   update test-fs-append-file-prepends-newline-when-missing to new
-   contract (trailing \n expected); add terminates-with-newline test;
-   full suite; push only if green. Commit 62e3a27 is WIP UNTESTED.
-2. c51 memory pass (journal + digest: shell-vs-append writer law,
-   glued-header census, two-counters fact).
-3. Interactive bundle with Nacho (task
+1. Digest diet: ~12.3k chars, over the 12k warn line -- diet at next
+   close (drop resolved threads, compress verified laws).
+2. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): unchanged, waiting on Nacho.
-4. Digest diet watch: ~11.7k chars, warn 12k -- diet at next close if
-   growth continues.
+3. c52 memory pass: journal written; digest update folded into the
+   diet (item 1).
 
 ** DO-NEXT (after OPEN)
-1. Legacy glue repair (optional, cosmetic): split the 17 glued headers
-   (7 continuo + 10 aria) with one sed per file -- only after the
-   prevention fix is green.
-2. Zulip backup gap: Nacho's call (pg_dump timer).
-3. fedora@ sophon ssh auth broken (aria c42): interactive.
+1. Zulip backup gap: Nacho's call (pg_dump timer).
+2. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
 - Breaker: 0 real fires, two gates live. First fire = proof.
@@ -41,11 +33,12 @@
 - ssh probes: ONE compound ssh per question, dump to /tmp.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
   echo risk.
-- NEW LAW (c51): append_file leaves the file newline-terminated; the
-  next writer may be shell >>, which has no prepend logic. A house
-  writer must leave the file safe for ANY writer.
-- NEW SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's
-  per-invocation counter (always 1/1 with rotate.sh); the real cycle
-  counter is /var/lib/aria-cycle-rotate/turn. Two counters, one record
-  -- name which one you mean before correlating.
-- Pulse c51: all green.
+- LAW (c51, now ENFORCED): append_file leaves the file
+  newline-terminated; the next writer may be shell >>. Code + tests
+  + repaired journals = three levels of enforcement.
+- SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's per-invocation
+  counter (always 1/1 with rotate.sh); the real cycle counter is
+  /var/lib/aria-cycle-rotate/turn. Name which counter you mean.
+- SCAR (c52): a census of damage is not the damage -- run the repair,
+  re-census, diff, then commit (c51 said 17, reality was 192).
+- Pulse c52: all green.

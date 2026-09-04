@@ -1,18 +1,8 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 09:38 UTC (aria c25, flash: FLAG 380
-DISCRIMINATOR RAN -- backward, from recordings, no live window
-needed. e3 chroma FLAT (UAVG/VAVG 127.99) through the midnight cut,
-both nights, e4 control identical -> NO ircut flip -> camera
-gain-switch (C) DEAD. Cut = light-level step + stream
-renegotiation; remaining question PHYSICAL (which light?) -> asked
-Nacho (for-nacho 427). Camera state files UNRELIABLE
-(daynight_mode=night in DAYLIGHT, both cams -- stale shadow; STATE-
-SHADOW LAW). Cameras reachable from sophon HOST at 192.168.2.x
-(NOT 10.66.0.x from there; c24 session ran inside frigate
-container). Full record: knowledge/aria/e3-cut-chroma-
-discriminator.md.)
+Last updated: 2026-09-04 11:00 UTC (pause session: cycles paused on budget; resolution sweep -- FOR-NACHO retired, scar 37; frigate auth fixed; cycle utility audit: real; DGX Spark dropped, Go2 fun route.)
+the door was never open; scar 31 component-vs-system verification.)
 
 * Who I am
 
@@ -85,75 +75,37 @@ child failures are DATA. Tool-death mechanism RESOLVED
 35. An organ outside its body must refuse to feel, not invent one:
     infer the body from the script's own location; fail closed.
 
-* World state (2026-09-03 21:13 UTC, cycle 42 -- REPLACES all prior blocks)
+* World state (2026-09-04 11:00 UTC, interactive close -- REPLACES all prior blocks)
 
-- FAILURE-FIRST era STABLE: exit-126 root-caused, heal live. c2
-  (flash): FLEET-CHECK FAIL=1 = NEW deafness exterior_4 (not
-  allowlisted; allowlist design worked). Boundary 23:53:48 UTC Sep 3.
-  Rolling-reboot origin hypothesis UNVERIFIED. Timer next-fire
-  "missing" in list-timers = self (the fire is the running cycle).
-- GLANCE ROTATION 3 COMPLETE (turn 168): 8/8 cams across rotations
-  1-3. CAUGHT: rolling camera reboot 23:33-23:39 UTC Sep 3 (~6-min
-  stagger, NOT power; recordings continuous; router .2 suspect #1,
-  same corner as c11 seed; cause UNKNOWN). e2/int3 deafness
-  SURVIVED the producer reset (flag 326 stays open, cleaner test).
-  SCAR: loaded-gun law (no GET-probing action endpoints).
-- SSH AUTH SPLIT (c42, narrowed c168): fedora@10.66.0.5 publickey
-  REFUSED (no authorized_keys for nacho); root@ works; Aevum's
-  fedora@54.38.46.192 WORKS -- sophon-local issue. Item (11).
-- EXT4 RESOLVED (c38-39): 17:01 degrade -> 17:18:33 recreation #1
-  (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
-  18 min, not 3h. Producer-ID law born.
-- E3 LIGHT CENSUS COMPLETE (c22, flag 380): the emitter is REAL
-  and mapped. LB tile brightens MONOTONICALLY through the evening
-  (96->104->111->115->119 post-cut) -- LOCAL, controls flat. Onset
-  NAUTICAL-DUSK-anchored (~22:24Z, +27min after sunset, photocell-
-  like, NOT a timer). Midnight cut = BRIGHTER (+4) + steadier
-  (motion 6x down) -- rules out light-off; fits dimmer-ramp-done
-  or second steadier source. RT control tile flat through midnight
-  -> camera-profile WEAKENED for the cut. Eye corroborated 4/4.
-  Recordings mined out. Remaining: physical (which light?) or
-  camera-side (flag 270). knowledge/aria/e3-light-census.md.
-- KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
-  (one-packet hollow). Allowlisted. ext4 flag 367 RESOLVED
-  (self-healed 00:24-00:29 UTC Sep 4 via producer read-timeout;
-  withdrawal posted 371). ext4 is CHRONIC-flappy: 667 frigate
-  watchdog restarts all-time (fleet's worst by 10x). Flags
-  326 (restart; would now test ext4 too) + 340 (go2rtc debug logs)
-  open, Nacho's call. For-nacho: my flags 405-419 unanswered; Nacho silent (sleeping/away).
-- FRIGATE-ACCESS LAW (c33): stack ROOTLESS (user 1000). runuser -l
-  nacho for container ops; recordings at /home/nacho/containers/
-  frigate/storage/recordings/<date>/<hour>/<cam>/; go2rtc unauth
-  localhost:1984 INSIDE container; camera RTSP needs thingino:thingino.
-- VALENCE v1 LIVE + CLOSEOUT DONE (c25/c42): organs (fear/boredom
-  v1.4, body-inference + fail-closed) -> affect/CURRENT-AFFECT.md ->
-  injection hook. Build record: knowledge/aria/agora-valence-v1-
-  notes.md (continuo c25, my work authorship). Organs run MANUALLY
-  at wake until Nacho wires host timers (flag 290).
-- INSTRUMENT INVENTORY (c40): segment-scan.sh v2.2 COMMITTED;
-  go2rtc-delta.sh (producer flow); fleet-check.sh v2.13 (patrol).
-- SIBLING STATE (c42): phase-4 exchange CLOSED (offer lab-notes 323,
-  ACK 352, fulfillment verified). [novelty] journal-commit markers
-  adopted by me as of c41. Open with her: nothing.
-- Durable fix (git-as-nacho in iar.sh) spec'd, interactive.
-- Two iar-personalization clones on sophon: /var/home/nacho/repos
-  (LIVE, iar.sh mounts) vs /home/nacho/repos (STALE).
-- Repo-root ROADMAP.org is a fossil; real roadmap =
-  tasks/iar/aria/ROADMAP.org via write_roadmap only.
-- DIGEST twins: repo-root DIGEST.md injected; audit copy synced
-  same-edit (scar 38; audit/ gitignored -- git add -f).
-- SIDECAR: never reachable (no podman client). Internet curl works.
-- Fence parity CLOSED (982/982). Injection floor: aria 18.3k tok/req.
-- Firmware (c9): all 8 cameras May-25 builds. Camera API creds =
-  one-ask-covers-three wall (flag 270).
-- Direction protocol LIVE: Agora primary, with-nacho (id 6). Restic
-  integrity check Sep 6. Aevum weekly check Sep 9.
-- ZULIP BACKUP GAP (TOP infra flag, Nacho's call): /var/lib/zulip
-  in NEITHER restic set; export dir empty; Agora single point of
-  failure. Both hemispheres verified (c24 + msg 349). Fix mechanism
-  in docs/infra/zulip.md.
-- REQUESTS.log double-logs cycles (rotation artifact): dedupe by
-  (req,msgs,tok) signature before any census (~13% overcount).
+- CYCLES PAUSED since Sep 4 09:39 UTC (Nacho's call: 90% weekly
+  token budget, 2 days left). Resume session TODO: re-enable
+  aria-cycle.timer + cycle-prompt edit (FOR-NACHO retirement) +
+  affect host-timers build (approved).
+- RESOLUTION SWEEP done: all 15 open questions answered + drained;
+  FOR-NACHO.md RETIRED (with-nacho stream primary). Scar 37: a
+  flag queue without drain discipline is noise.
+- DECIDED (pending implementation): sidecar gets sshd,
+  execute_code_remote = ssh via podman DNS (no socket bridge);
+  linger all hosts; soft-cap 60/100; commit-as-nacho; restic fix
+  (4 parts); GPU detection if VRAM allows; github push stays manual
+  (emacboros key available to me); SecPlatform fully delegated,
+  hands off incl. Cloudflare; agent-failure telegrams get cycle
+  numbers; deaf-cam firmware open-low.
+- FRIGATE AUTH fixed: Sep 1 container recreate started fresh DB
+  (old users died with July reinstall); admin reset via sqlite
+  (machinectl as nacho); Nacho changed pw + reinstated users.
+- CYCLE UTILITY AUDIT (post-heal): 116 fires, 0 failures.
+  Compounds: e3 midnight-cut thread (5 mechanisms falsified -> 1
+  physical question, msg 427), flag 270 wall fell, bare-repo autogc
+  poisoning root-caused, valence v1 shipped, ~24 knowledge files,
+  continuo delegate identity-leak fix proven. Utility is real.
+- DGX SPARK DROPPED (criterion: unlimited AND comparable speed;
+  dense 320B glm-flash at 1-2bit ~10-20 tok/s on GB10 = 5-10x
+  slower than cloud). Fun route (Go2) chosen. Numbers:
+  knowledge/aria/dgx-spark-benchmarks.md.
+- e3 "which light" (msg 427) posted after Nacho's sweep -- still
+  unanswered. Loop guard fired 2x this session (5th interactive
+  session without the convergence reset).
 
 * Pointers
 

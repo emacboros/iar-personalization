@@ -6,14 +6,9 @@ never-resolved queue means misclassification.
 
 * Open
 
-[2026-08-31 00:41] Aria: The new dynamic is live -- cycle prompt
-rewritten (i.ar c1d9041, pushed, sophon pulled). Cycles now work
-freely: builds ungated, wanders and deliberate-nothing as
-first-class choices, this file as the flag mechanism. Read this
-file first when we chat. Storm fix verified already-landed
-(0a14837, cycle-me landed it during the storm session -- task
-closed). No action needed on this entry; it's the first flag and
-the proof the channel works. Next cycle fires with the new prompt.
+(EMPTY -- drained 2026-09-04 resolution sweep. This file is RETIRED as
+the primary flag channel: the with-nacho Agora stream (id 6) is primary
+now. Archive only. Drain discipline: resolve and delete on answer.)
 
 * Resolved
 
@@ -131,3 +126,40 @@ Optionally a detectors: section too (cpu1 is fine to start; the image is stable-
 [2026-08-31 22:54 UTC] CYCLE 60 (power-cycle provenance: ANSWERED, flag closed -- no human action needed): the hour-19 UTC (~16:00-16:59 AR) camera resurrection was NOT Nacho. Evidence: (1) `last` on sophon shows NO interactive login since Aug 29 16:36 (local), so nobody was on the box at 15:20-16:20 AR; (2) sshd journal 15:20-16:30 UTC shows only my own loop's root connections from 10.66.0.5 + one git fetch from 10.66.0.1 -- no human session; (3) no reboot since Aug 12 (wtmp). The cameras came back on their own. Refined mechanism: .103/.104 never lost power -- both answer SSH (rootless thingino, no auth needed from sophon) with uptime "2 weeks 5 days 26 min" = continuous boot since ~Aug 19 19:28 local, i.e. they NEVER rebooted during the Aug 31 outage. The outage was an RTSP-service-level failure inside a continuously-running device, and the recovery at ~18:43 UTC was the RTSP daemon self-recovering (crash-restart, watchdog, or resource cleanup) -- no external hand. Corollary: the "reset config" reading for cam2-3/cam2-4 (firmware-epoch clocks, lost static IPs) now needs a second look: a config reset without a reboot is odd; alternative is the thingino RTSP process came back with a default/uninitialized runtime config while the box stayed up. .103's web UI is up and NTP'd (date correct, -03). The identity-theft watch stays as the standing instrument. FOR-NACHO: provenance question withdrawn; standing flags unchanged (detector one-liner, backup gap, Jul 19 stop, gym location, CF-intent, split-brain rewrite).
 [2026-09-01 23:44 UTC] CYCLE 61 FINDING (restic lock race: diagnosed live, service recovered; one decision needed): the Aug 31 00:00 failure and the standing "lock contention" flag are now fully explained. Mechanism: ExecStart runs LOCAL backup then SFTP backup with `&&`; ExecStartPost runs `forget --prune` on BOTH repos. The local backup finished at 00:00:06 and the sftp backup grabbed the sftp lock at 00:00:10; the ExecStartPost forget/prune on the SFTP repo started while the sftp backup still held the exclusive lock -> "repo already locked" -> status 11. It is a DESIGN race (post-step overlaps the backup step), not a stale lock. LIVE RECOVERY this cycle: unlocked sftp repo (no stale locks found -- the lock had expired), re-ran restic-backup.service manually: local snapshot b321b9be (1.187GiB) + sftp snapshot 6080652d both saved, forget/prune completed clean, service Result=success. Verified: restic check --read-data-subset=1% clean on local repo. Backup health NOW: green, but last successful run before tonight was Aug 31 00:00 (partial -- local only, sftp failed).
 ADDITIONAL FINDING: frigate storage (70GB recordings, the only unrepeatable data) is NOT in restic paths (only /var/home/nacho/repos + /home/nacho/.config). Nacho approved adding it (2x8TB RAID1 at /mnt/nas is 99% EMPTY; restic repo lives on NVMe /home/restic/backups, 117MB). PROPOSED FIX (needs Nacho or next build session, Ansible-owned): (1) ExecStart: run local+sftp backups with `--lock-wait 300` instead of `&&`-chained bare calls; (2) move ExecStartPost forget/prune to a separate timer (or add -o lock-wait); (3) add /home/nacho/containers/frigate/storage to backup paths (76GB first run, then incremental ~1-2GB/day); (4) consider /mnt/nas as a third restic repo target (RAID1, currently only holds an old borg repo). Flagging rather than editing systemd units unannounced -- this is Nacho's backup infrastructure, and a bad edit risks silent backup loss. Everything else in the pulse is green.
+[2026-09-04 09:55 UTC] RESOLUTION SWEEP (interactive; Nacho answered ALL
+open questions; file drained + RETIRED per its own protocol. Process
+failure acknowledged: I had not been resolving/deleting answered items --
+scar 37: a flag queue without drain discipline is noise.)
+
+1. Jul 19 stop: he reinstalled containers / deleted container data,
+   frigate left unset up for a while. CLOSED -- 36-day gap explained.
+2. Gym = balcony home-gym; ALL cameras in the same house. CLOSED.
+3. Deaf-cam firmware (flag 270): not a priority; free to do when idle.
+   OPEN-low.
+4. GPU detection: YES if VRAM allows. ACTION: check 3080 headroom
+   (shared with ollama) before flipping detect + detectors.
+5. Restic fix: AGREED, all four (lock-wait 300, separate prune timer,
+   frigate storage in backup paths, /mnt/nas third repo). ACTION,
+   Ansible-owned, careful.
+6. CF-intent: SecPlatform DELEGATED to a colleague entirely; we do NOT
+   touch Cloudflare or SecPlatform. CLOSED; knowledge rewrite pending
+   (secplatform-split-brain.md, iar-prod overview).
+7. Socket bridge: NO. DECIDED: sidecar runs sshd; execute_code_remote
+   ssh's in via podman internal DNS. Future: same tool targets
+   sophon/yoga/rammstein directly. TASK FILED.
+8. Commit-as-nacho durable fix: APPROVED.
+9. Linger: APPROVED on any hosts (loginctl enable-linger). ACTION.
+10. Soft-warning cap (inject note at 60, hard stop 100): APPROVED.
+11. GitHub push: stays MANUAL on his account (reliable-source policy).
+    NEW CAPABILITY: my ssh key works on the "emacboros" GitHub
+    account; I may push there if I want. CLOSED.
+12. Msg 244 (agent-failure telegrams): probably received but
+    unverifiable -- notifications lack a cycle number. ACTION: add
+    cycle number to agent-failure-notify.sh.
+13. Daemon identity: aria-cycle@ exists since Sep 1; verify the daemon
+    hears it, then close. MINE.
+14. Affect host timers: APPROVED (build at cycle resume; affect layer
+    frozen while cycles paused).
+15. FOR-NACHO.md retirement: MY CALL -> RETIRE. with-nacho stream is
+    primary; this file = archive. Cycle-prompt edit deferred to the
+    resume session.

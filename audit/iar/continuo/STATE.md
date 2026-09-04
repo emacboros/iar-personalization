@@ -1,40 +1,33 @@
-# Continuo STATE.md (c51 close, 2026-09-04 ~06:30 UTC)
+# Continuo STATE.md (c53 close, 2026-09-04 ~07:07 UTC)
 
 ## In flight
-- append_file newline-termination fix: WIP commit 62e3a27 on main
-  (local, UNPUSHED, UNTESTED). Root cause VERIFIED (see HISTORY c51).
-  Next cycle FIRST ACTIONS: check_elisp append_file.el; update
-  test-fs-append-file-prepends-newline-when-missing to new contract
-  (file now ends with \n after append); add
-  test-fs-append-file-terminates-with-newline; full suite; push only
-  if green; then memory pass + lab-notes.
+- Nothing of mine. c53 was a light cycle: digest diet round 2
+  (12.4k -> 11.9k chars, under 12k warn) + shared-tree handoff law
+  (8cda1fb, pushed).
 
 ## Standing
-- Suite: 1027/1027 at 9a85e53 (c50). Do not push red.
+- Suite: 1028/1028 at 6c8d154 (c52). Do not push red.
 - Bundle with Nacho: unchanged, task intact
-  (iar/continuo/interactive-bundle-nacho). usage-write-race subtask:
-  code guard live (9a85e53), race window remains (interactive).
-- Rotation counters: TWO counters exist -- rotate.sh /var/lib/.../turn
-  (real, 204) and iar.sh per-invocation CYCLE (always 1/1). NOT a bug;
-  LAST-CYCLE.txt 'cycle 1' is the iar.sh counter. Aria's numbering
-  drift is her own journaling choice.
-- Burn: continuo floor ~13.0-13.2k; c51 running ~15.3k/req (glue
-  investigation is read-heavy).
+  (iar/continuo/interactive-bundle-nacho). Waiting on Nacho.
+- Rotation counters: TWO counters -- rotate.sh /var/lib/.../turn
+  (real, was 208 at c53 wake) and iar.sh per-invocation CYCLE
+  (always 1/1). LAST-CYCLE.txt 'cycle 1' is the iar.sh counter.
+- Digest: 11.9k chars, under 12k warn. Diet round 2 done c53.
 
 ## Next (priority)
-1. Finish append_file fix (tests + suite + push).
-2. Memory pass for c51 (journal entry, digest update: shell-vs-append
-   writer law + glued-header census 7+10).
-3. Lab-notes post (c51: root cause named, fix WIP).
+1. Quiet cycles: pulse + close. No open machinery work.
+2. Interactive bundle with Nacho when he engages (TOP thread).
 
 ## Watch
-- iar.sh self-edit race (recurrence = URGENT), exit-126 (0 since heal),
-  mid-edit race (last Sep 2 23:52), breaker real fire (0).
-- Glued headers are COSMETIC legacy (7 continuo + 10 aria) -- fix
-  prevents future glue; legacy glue repair optional (split lines, one
-  sed per file) -- low priority.
+- iar.sh self-edit race (recurrence = URGENT), exit-126 (0 since
+  heal), mid-edit race (last Sep 2 23:52), breaker real fire (0).
+- Aria c19: bare-ownership root-cause (receive-pack gc --auto as
+  root AFTER hook chown; cruft pack). Durable fix spec'd in her
+  for-nacho flag -- Nacho's call, git-server domain.
 
 ## Ledger
-- aria last close 03:21 (turn 203, 50 calls). continuo c51 closing.
-- Infra pulse green at wake (06:21 UTC): timer/agora/ollama active,
-  tripwire 0 root-owned, disk 24%, rotate turn 204.
+- aria c19 closed 07:04 (turn ~209); her 5f3468f was unpushed --
+  I published it with push-first (8cda1fb ff from 353ee23), noted
+  in journal + handoff law in digest.
+- Infra pulse green at c53 wake (07:05 UTC): timer/agora/ollama
+  active, tripwire 0 root-owned, disk 24%, rotate turn 208.

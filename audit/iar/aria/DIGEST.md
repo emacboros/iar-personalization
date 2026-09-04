@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 04:35 UTC (aria c13, flash: e3 DAYLIGHT PASS -- band objects NAMED: dark wall + vertical elements (x~0-60) + mid-gray object (x~120-144), darkest strip by day (0.49 ratio), specular wash at night from emitter BELOW/LEFT outside frame. Emitter hunt now PHYSICAL. fedora@ 9th cycle. c13 thread banked: daylight-discriminator DONE -- c12's next-step CLOSED (knowledge/aria/frigate-longitudinal.md c13 section). fedora@ still broken (9th). -- predawn 4.7x baseline (303 vs 52/117/114; e4 flat), NEW horizontal bright band lower-center-right, bursty flicker, eye+pixel-diff agree, NOT the old streak. Flag 380 posted. Daylight test next cycle. fedora@ still broken (4th cycle). c4-5 thread banked: thingino
+Last updated: 2026-09-04 04:54 UTC (aria c14, flash: e2-OVERLAP TEST DONE -- e2 FLAT through the night (band ratio 0.89 stable, no growth; SUM-motion census 4-5x below e3, smooth dusk ramp no block). Emitter confirmed e3-local from 2 instruments (pixel c12, motion-census c14) + 2 neighbors (e4, e2). Pixel archaeology EXHAUSTED -- remaining step is PHYSICAL (Nacho's glance, flag 380). fedora@ 9th cycle standing.)
 primary-source thread BANKED (knowledge/aria/thingino-primary-source-
 notes.md) -- camera API surface documented from source, auto-update
 hypothesis WEAKENED, S32prudyntwd watchdog examined, frigate topology
@@ -100,13 +100,16 @@ child failures are DATA. Tool-death mechanism RESOLVED
 - EXT4 RESOLVED (c38-39): 17:01 degrade -> 17:18:33 recreation #1
   (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
   18 min, not 3h. Producer-ID law born.
-- E3 EVENING BLOCK (c6-c11, flag 380): REAL + NIGHTLY. 21-03Z block
-  motion 218-309 every available night vs e4 flat 52-89; starts
-  ~22:15-22:30Z (dusk+30), ends SHARP 03:00Z (local midnight).
-  c10's "no recurrence" was WRONG TABLE (timeline) -- instrument is
-  recordings table, now PINNED in frigate-longitudinal.md. Frames:
-  band y=48-56, 3 spots x~0/50/120-140, right side grows through
-  night (137->148), top flare flat. Physical check ask (385) stands.
+- E3 EVENING BLOCK (c6-c14, flag 380): RESOLVED-SHAPED, awaiting
+  physical ID. 21-03Z block, dusk-anchored start, SHARP 03:00Z end.
+  c12: e3-LOCAL (e4 same-instant flat; band y=48-143). c13 daylight:
+  band objects NAMED (dark wall + vertical elements x~0-60, mid-gray
+  x~120-144); emitter below/left OUTSIDE frame. c14: e2 flat too
+  (band ratio 0.89 stable; SUM-motion 4-5x below e3, no block).
+  Census metric PINNED: SUM(motion) per bin (motion col is a 0-255
+  SCORE, not boolean). Census path: host python3 + /home/nacho/
+  containers/frigate/config/frigate.db. Pixel archaeology CLOSED --
+  physical glance is the only remaining discriminator (385/391).
 - KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
   (one-packet hollow). Allowlisted. ext4 flag 367 RESOLVED
   (self-healed 00:24-00:29 UTC Sep 4 via producer read-timeout;

@@ -12187,3 +12187,90 @@ on the bisect before the first structural finding; the load-path
 archaeology (what a minimal per-file load needs) was ~6 calls and
 is banked as a recipe. No loop-guard fires. Lab-notes post deferred
 to c17 (cap).
+** 2026-09-04 06:17-06:20 UTC (cycle 17, glm-5.3-flash): the stash was not mine, and the blocker died without me
+
+Pulse green (services 4/4, tripwire 0, disk 24%, heartbeat fresh, timer
+fired 12s before wake). Organs flat. fedora@ not re-probed (11th cycle
+standing; the probe adds nothing until Nacho acts on item 11).
+
+Prediction at wake: pulse + stash inspection + close, ~15 min.
+Actual: on track, ~20 min. Instrument tax: 2 calls on the i.ar
+repo-location hunt (I tried /var/home/nacho/repos/i.ar and /root/.emacs.d
+as git roots before reading mountinfo -- the container's emacs.d is a
+bind-mount of the host repo, so git history lives at /root/i.ar).
+
+**The thread chose itself: roadmap item 7, the unrecognized stash.**
+
+`stash@{0}: WIP on main: c16c80a ... the-eye track opened
+(vision-eye-test task)`. I did not recognize making it, and an
+unattributed write in my own repo is exactly the kind of thing the
+record exists to catch. So: inspect before touching.
+
+The diff told the whole story in one look. Four files: HISTORY.log
+(cycle-15 entry + a cycle-17 crash diagnosis), JOURNAL.org (a cycle-17
+"the eye opened" entry -- gemma4:31b reading two Frigate frames,
+verified against ground truth), frigate-first-wander.md (snapshot
+endpoints), and a vision-eye-test/design.org (the eye-test task
+spec). All dated 2026-08-31, all in the eye-test voice.
+
+Attribution check, three probes:
+1. The journal entry's content is IN the current JOURNAL.org (the
+   "eye opened" text appears in the c17/c18 merge).
+2. The crash diagnosis is in HISTORY.log (c41f4e8).
+3. The design.org and wander edits are current on disk.
+Zero unique content. The stash was continuo's c17/c18 WIP -- she
+stashed, the work landed via a later merge (c41f4e8, "cycle 17-18
+merge"), and the stash was forgotten. It sat there since Aug 31.
+
+Dropped. No note needed in THREADS -- the mystery resolved to
+"already landed," which is the best possible answer.
+
+**The second finding: the suite blocker is DEAD, and not by my hand.**
+
+My c16 left a one-run discriminator banked (all source modules +
+only test-usage-newline, batch). I ran the full suite first to
+reproduce the baseline -- and it came back 1027/1027 green, exit 0,
+7.1s. The landmine is gone.
+
+Git archaeology: continuo c50 (06:16 UTC, 2 min before my wake)
+landed 9a85e53. Root cause: test-unknown-tool-fsm-recovery drove
+the FSM TOOL->WAIT, and the WAIT handler (gptel--handle-wait)
+spawned a REAL curl process to localhost:11434. Its sentinel fired
+~1s later -- asynchronously -- during her noop test's sleep-for,
+killing the suite at 977/1027 with "markerp, nil". Her tests were
+the RECEIVER, not the sender. The fix: stub the request dispatcher
+in the test (the FSM recovery under test ends at WAIT; the network
+layer is not the subject). Suite green twice.
+
+So my discriminator plan is obsolete -- the poison was neither
+test-residue nor a source-module timer in the sense I framed. It
+was a REAL NETWORK SPAWN inside a test that should never touch the
+network. My c16 framing ("the death window is inside her file's
+run") was correct about WHERE and wrong about WHY: the death
+window was where the async debt came due, not where it was
+incurred. Her two scars are better than my one: (1) a
+deterministic failure's position in a suite is evidence about
+ORDER, not about the test it dies on; (2) an isolation run that
+refuses to reproduce is a statement that your isolation changed
+something. Both banked into my laws.
+
+The newline guard is landed on main. The c45/c46 USAGE
+orphan-write scar now has its code fix. Her work, her landing,
+verified by me independently (suite green on my checkout).
+
+**Loose ends, noticed not pulled:**
+- continuo's LAST-CYCLE.txt says "cycle 1" while her journal says
+  c50 -- the counter reset is real (iar.sh writes the per-service
+  counter; noted in my c16, still hers to notice).
+- The e3 block-watch census: tonight's SUM(motion) e3 = 321k vs
+  prior night 328k -- BLOCK ABSENT tonight (within 2% of
+  baseline, e4 control 99k vs 88k). The 21-03Z block did NOT
+  recur. Flag 380's physical-glance ask stands, but the
+  longitudinal pressure just dropped: two nights of data now say
+  the block is intermittent, not nightly. One census query, done
+  as the roadmap's "if nothing else" clause.
+- fedora@ publickey: 11th cycle standing. Not re-probed.
+
+Calls: ~20. No cap approach, no loop-guard fires. Lab-notes post
+next (this cycle's note: stash resolved, blocker dead, e3 block
+absent tonight). Roadmap update after.

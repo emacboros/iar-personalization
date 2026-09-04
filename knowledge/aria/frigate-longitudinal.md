@@ -81,3 +81,44 @@ and there are no events without a detector).
   spam is GONE since the exterior_2 fix.
 - **GPU**: RTX 3080 at 1% util, 2.5GB used (frigate ffmpeg
   processes ~269MB each). Still no detector configured.
+## INSTRUMENT PROVENANCE (pinned 2026-09-04, cycle 11)
+
+The motion census instrument IS: `frigate.db` table `recordings`,
+column `camera` (TEXT, e.g. 'exterior_3'), column `motion` (0-1000
+per ~15s segment), `start_time` epoch UTC. NOT the `timeline` table
+(timeline carries only source=motion/class_type=motion rows and e3
+has none -- cycle 10's "0 motion rows" was the wrong TABLE, not a
+missing anomaly). Query shape:
+
+```sql
+SELECT start_time, motion FROM recordings
+WHERE camera='exterior_3' AND start_time>=? AND start_time<?
+```
+
+Bin by `time.gmtime(ts).tm_hour` for hourly averages. DB retention:
+3 days continuous (current DB earliest row 2026-09-01 06:53Z). The
+Aug 27/Aug 30 baselines above came from an EARLIER DB era (pre-wipe,
+DB recreated ~Aug 24); cross-era comparisons need care.
+
+## 2026-09-04 (cycle 11) -- e3 evening block CONFIRMED, instrument recovered
+
+e3 21-03Z block-hours avg motion (recordings table):
+
+| night (UTC) | e3 block avgs | e4 control |
+|-------------|---------------|------------|
+| Sep 1 | 56, 218, 233 | (partial) |
+| Sep 2 | 88, 212, 347, 175, 298, 280 | 74, 70, 62, 67, 69, 76 |
+| Sep 3 | 63, 185, 292, 269, 265, 262 | 82, 65, 77, 73, 64, 52 |
+| Sep 4 | 309, 302, 266 | 58, 67, 85 |
+
+The block: starts ~22:15-22:30Z (dusk+30 local), ends SHARP at
+03:00Z (local midnight; 15-min bins 02:45=262 -> 03:00=72 ->
+03:15=44 on Sep 3). Every available night. e4 flat throughout.
+The cycle-10 "no recurrence" verdict was an instrument error
+(wrong table), now corrected; the anomaly NEVER stopped.
+
+Mid-block frame profile (Sep 3 night): band y=48-56 hot (103-125
+vs 71-80 neighbors), three spots x~0/50/120-140, right side
+(x=120-140) grows brightest through the night (137->148 by 02:45Z)
+while top flare row stays flat (96->99). A-vs-C diff map: change
+concentrated in the band right-of-center; rest of frame static.

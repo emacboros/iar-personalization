@@ -11794,4 +11794,80 @@ scripts/logs), re-run it on tonight's data, and only then re-test
 recurrence. fedora@ 6th refusal logged.
 
 Cap: warning fired at 60 (the walk); loop-chain guard fired at 10
-consecutive execute_code_local. Both correct. Landing now.
+consecutive execute_code_local. Both correct. Landing now.* 2026-09-04 03:32-03:34 UTC (cycle 11, glm-5.3-flash): the census instrument recovered -- the block is REAL, and the record's provenance is now pinned
+
+Pulse green (FAIL=0, organs flat, services up, tripwire clean, disk
+24%). fedora@ sophon ssh still refused (7th cycle).
+
+The pull was the census-provenance hunt, and it landed fast. The
+instrument c6-c9 used was the **frigate.db `recordings` table**
+(camera TEXT column, motion 0-1000 per ~15s segment) -- NOT the
+`timeline` table c10 queried. c10's "0 motion rows" was an empty
+result from the wrong table: timeline carries only
+source=motion/class_type=motion rows, and e3 has none because
+frigate's motion events don't land there. The DB was never the wrong
+instrument -- the wrong TABLE. Pointer-vs-content law, third
+instance, this time costing a whole cycle of false "anomaly gone".
+
+**The block is real and it recurred.** Third night confirmed, same
+shape: e3 21-03Z block-hours [309, 302, 266] tonight vs e4 control
+[58, 67, 85] (flat). Full history in the DB (retention only goes
+back to Sep 1 06:53Z -- 3-day continuous, so the "Aug 27 baseline"
+in frigate-longitudinal.md predates this DB): the block exists on
+every available night: Sep 1 [56,218,233], Sep 2 [88,212,347,175,
+298,280], Sep 3 [63,185,292,269,265,262]. The block starts
+~22:15-22:30Z and ends SHARP at 03:00Z -- the 15-min bins show
+02:45=262 -> 03:00=72 -> 03:15=44 tonight. The midnight cutoff
+survives the instrument recovery. EDGE-RESOLUTION law re-earned:
+only the 15s/15-min bins carry this; hourly bins smear it.
+
+**The frames agree.** Three mid-block frames (23:30Z, 00:59Z,
+02:45Z) extracted and profiled: the band is still there (y=48-56
+hot, 103-125 vs 71-80 neighbors), the three hot spots are still
+there (x~0, x~50, x~120-140 -- x=120-140 grew brightest by 02:45Z,
+the right side intensifies through the night). The A-vs-C diff map
+is the new datum: the change between 23:30Z and 02:45Z is CONCENTRATED
+in the band (cells 15-42 at y=48-64, right-of-center) while the rest
+of the frame is static (1-5). The eye (gemma3:4b, 640x480) read the
+block frame as: streetlights, lens flare streaks across the top,
+houses with outdoor lights, a dog crossing. The eye's "lens flare
+across the top" matches the top-band (y=0-8, avg 96-99 -- bright
+but NOT intensifying: 96->98->99 across the night). The MOVING
+brightness is the mid-band, not the flare row.
+
+**The mechanism picture is sharpening.** Static surfaces at
+y~48-56, three spots, right side growing through the night, sharp
+03:00Z cutoff, dusk-anchored start. c9's "unseen emitter below/left
+of frame" survives; the growth asymmetry (right side brightening
+relative to left) is new -- an emitter that moves or sweeps, or a
+surface whose reflection angle changes. The eye's dog sighting is
+incidental (animals pass through; the block is not animal-shaped --
+the diff map shows no animal track).
+
+**Method notes:**
+- The provenance fix is now PINNED: census instrument = frigate.db
+  recordings table, camera TEXT, motion column, 15s segments,
+  UTC timestamps. frigate-longitudinal.md updated with the exact
+  query shape. Any future "motion census" cites this.
+- DB retention is 3 days (Sep 1 06:53Z onward). The
+  frigate-longitudinal.md Aug 27/Aug 30 baselines came from an
+  EARLIER DB era (pre-wipe). Cross-era comparisons need care.
+- The eye call cost 3 attempts (streaming NDJSON, empty response,
+  arg-list-too-long) -- the working recipe: stream=False, python
+  urllib, base64 inline, timeout 90. Pinned for next use.
+
+**Where the thread stands:** the anomaly is real, nightly, and
+mechanical (clock-aligned cutoff, dusk start, static surfaces,
+growing right side). The physical check for Nacho (lab-notes 385:
+look at e3's view ~19:30 local) is still the cheapest
+discriminator -- a human glance at the yard beats another night of
+pixel archaeology. Flag 380 stays open with the sharpened picture.
+
+Next: if the thread pulls again -- the emitter-hunt (what's
+below/left of frame) needs either a wider-angle frame (e3's
+neighbor e2/e4 view overlap?) or Nacho's eyes. The segment-size
+clock (c10's fleet-wide 00h trough) is banked as a fleet-check
+candidate. fedora@ 7th refusal logged.
+
+Cap: no warning. Calls: ~14 total, batched hard. The instrument
+recovery cost 6 calls (schema + 3 censuses), frames 5, eye 3.

@@ -1,32 +1,32 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 02:55 UTC (c9, flash: DAYLIGHT TEST DONE -- timer-light hypothesis DEAD. All three e3 hot spots are visible as OBJECTS in daylight (YAVG crops: spotA dark-by-day/bright-by-night = surface; spotB bright both = permanent object; eye: "brick structure", "light poles/fixtures"). What survives: the block (dusk+30 start, 03:00Z sharp end, 2 nights) + NEW datum: spotA jumps 96->115 at block open (22:20/22:30Z frames) = real luminance change at the objects. New leading hypothesis: light source OUTSIDE frame (below/left) illuminating the surfaces; cutoff = timer on an unseen emitter; "band" = specular wash. .102 reframed: 4 total i/o timeouts all-time, the daily 23:00 pair IS its whole population. Lab-notes 386.)
+#+UPDATED: 2026-09-04 03:20 UTC (c10, flash: BLOCK-WATCH FAILED CLOSED. frigate.db timeline has NO motion rows for e3 -- c6-c9 census numbers came from a DIFFERENT instrument (unpinned). Segment-layout census (new instrument: 4 segs/min baseline, re-cut = motion) shows NO e3-specific elevation tonight. NEW: e3 night segment size 20-30% > e4 consistently (matches c9's retroreflective-surfaces); both cams dip at 00h (e4 -27%) = fleet-wide rhythm. fedora@ 6th refusal.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c9 ok (exit 0; no cap warning; ~9 calls, batched hard).
+- STATUS: c10 ok (exit 0; cap warning at 60 + loop-chain guard at
+  10 -- both correct, cycle landed).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
 2. Organs at wake; fleet-check baseline (v2.14: int3-only
    allowlist; ext2 FAILs if deaf again).
-3. E3 EMITTER HUNT: the light is below/left of frame (spotA at
-   left edge reacts hardest). What is physically there? Options:
-   (a) pull e4/e5 frames at block time looking for ground-glow
-   spill; (b) update flag 380's physical-check ask with the new
-   shape: not a lamp IN frame, a source OUT of frame, below/left.
-4. E3 block watch: third night with midnight cutoff = strong.
-   If cutoff DRIFTS with sunset instead of staying at midnight,
-   it's photoperiod-based (but now on an unseen emitter).
-5. Watch: ext2 re-deafness (FAILs loudly); ext4 recurrence;
-   .102 daily 23:00 WRN pair (third night? the pair is .102's
-   ENTIRE timeout population -- 4 all-time).
-6. fedora@10.66.0.5 ssh auth: re-verify each cycle (6th cycle
+3. CENSUS-PROVENANCE HUNT: find what c6-c9's "motion census"
+   actually measured (grep segment-scan.sh / census scripts /
+   cycle logs for the pattern). Re-run THAT instrument on
+   tonight's data. Only then re-test the third-night recurrence
+   and the midnight cutoff. The DB timeline was a dead end --
+   do not re-query it.
+4. Watch: ext2 re-deafness (FAILs loudly); ext4 recurrence;
+   .102 daily 23:00 WRN pair (none in last 26h -- pair BROKE
+   tonight, watch for pattern change not recurrence).
+5. fedora@10.66.0.5 ssh auth: re-verify each cycle (6th cycle
    refused); interactive item (11) stands.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 380 (e3 motion anomaly): RESHAPED twice -- now: unseen emitter
-  below/left of frame illuminating three static surfaces
-  dusk-to-midnight. Physical check updated in lab-notes 386.
+- 380 (e3 motion anomaly): status now UNCERTAIN -- third-night
+  recurrence untestable until census instrument re-derived.
+  Segment-size datum supports c9's surfaces finding (e3 carries
+  more night entropy than e4).
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
@@ -38,28 +38,21 @@
 - i.ar push to origin (git@10.66.0.1) needs Nacho's key.
 
 * THREAD BANK (candidates for next cycles)
-- E3 follow-ups: emitter hunt (DO FIRST); the midnight cutoff
-  as a fleet-check line (BUILD decision: detect clock-aligned
-  edges in camera motion); Sep 1 start-time drift recheck.
-- .102 daily WRN pair watch: 2/day, 2 days, exact pair. Third
-  occurrence -> hunt what else happens at 02:00 UTC daily.
-- .104 RTSP flakiness: 350 i/o timeouts all-time (fleet worst
-  by 5x over .103). Hour histogram: daytime + 20h peaks.
-  Candidate: per-camera timeout census as fleet-check line.
-- Frigate watchdog census as fleet-check line (BUILD decision):
-  v2.15 spec banked (frigate-watchdog-census.md): per-camera 24h
-  restart counts, go2rtc WRN per camera, 404-storm + burst
-  detectors. Thresholds: cam >20/24h, fleet >100/24h.
-- Log-retention horizon: census-to-file rotation (append daily
-  counts to CSV in knowledge/) so the ~3-day podman-logs horizon
-  stops eating history. BUILD decision.
-- Thingino follow-ups (banked in thingino-primary-source-notes.md):
-  S32prudyntwd presence (needs creds, flag 270); prudynt-crash-
-  watch.sh; rtsp.debug_dump_path instrument; metrics/events
-  endpoints post-key.
+- Census-provenance hunt (DO FIRST #3) -- the thread that gates
+  the whole e3 anomaly thread.
+- Segment-size clock (NEW, c10): fleet-wide hour-scale size
+  oscillation, 00h trough. Candidate: add per-camera avg-segment-
+  size-by-hour to fleet-check as a longitudinal line. Cheap (ls
+  -la | awk), high signal (compression = scene-entropy proxy).
+- .104 RTSP flakiness: 350 i/o timeouts all-time (fleet worst).
+- Frigate watchdog census as fleet-check line (v2.15 spec banked).
+- Log-retention horizon: census-to-file rotation (CSV in
+  knowledge/) so ~3-day podman-logs horizon stops eating history.
+- Thingino follow-ups (banked in thingino-primary-source-notes.md).
 - Glance rotation as standing instrument -- BUILD decision.
-- Cap-calibration bundle for Nacho: 12 instances now (c9: none --
-  batched hard from the start; the tax line is paying).
+- Cap-calibration bundle for Nacho: 13 instances (c10: warning +
+  loop-chain both fired, landed anyway -- batching after the
+  chain-guard worked).
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
@@ -67,62 +60,61 @@
   against known-positive first.
 
 * LAWS (newest first, full text in JOURNAL.org)
+- INSTRUMENT-PROVENANCE LAW (c10): a census number without its
+  exact source (table + grep pattern + file) is not re-runnable.
+  Pin the instrument at first use; if you cannot re-derive a
+  prior number, the thread re-opens from instrument recovery,
+  not from re-testing the claim.
+- PROBE-BATCH TRIGGER (c10, SSH-PROBE CHAIN LAW amendment): when
+  you catch yourself writing the 3rd consecutive single-question
+  ssh, STOP and write the batch. The law you know is the law you
+  break mid-thread.
+- HEREDOC-TARGET LAW (c10): never use the same local file as ssh
+  input source AND remote write target in one command -- the
+  redirect truncates it mid-flight.
 - WITNESS-VS-EMITTER LAW (c9): surfaces lit by an unseen source
-  are witnesses, not the emitter; brightness-at-a-location does
-  not locate the source. Hunt the geometry, not the glow.
+  are witnesses, not the emitter; hunt the geometry, not the glow.
 - DAYLIGHT-DISCRIMINATOR LAW (c9): a hypothesis about a light
-  dies if its footprint is visible as an object at noon. Test
-  predictions against the cheapest discriminating frame.
-- EDGE-RESOLUTION LAW (c8): "ends around 3am" and "clock-aligned
-  cutoff at midnight" are different claims; only 15s/1-min bins at
-  the edge separate them. Edge resolution matters for mechanism.
-- CONTROL-BLOCK LAW (c8): an elevation is camera-local only if the
-  control camera is flat in the SAME time blocks, not just in the
-  daily average.
-- SEGMENT-NAME LAW (c7): hour-dir segment names are MM.SS-of-hour,
-  not wall-clock minutes. Read them as offsets.
-- LOG-HORIZON LAW (c7): podman logs retains ~3 days (22.6k lines);
-  "all-time" census numbers are bounded by retention. Note the
+  dies if its footprint is visible as an object at noon.
+- EDGE-RESOLUTION LAW (c8): only 15s/1-min bins at the edge
+  separate "ends around 3am" from "clock-aligned cutoff".
+- CONTROL-BLOCK LAW (c8): an elevation is camera-local only if
+  the control camera is flat in the SAME time blocks.
+- SEGMENT-NAME LAW (c7): hour-dir segment names are MM.SS-of-hour.
+- LOG-HORIZON LAW (c7): podman logs retains ~3 days; note the
   horizon in every census claim.
-- ALLOWLIST-TRIPWIRE LAW (c7): RECOVERY-on-known-deaf fires loud
-  (FAIL) -- the allowlist is a tripwire, not a blindfold. Two
-  live-verified catches (ext4 c38-39, ext2 c7).
-- TZ-SIGN LAW (c6, 3rd TZ instance): container python mktime is
-  LOCAL (-03); utc() = mktime - 3h. Sanity-check every window
-  against a known-positive count BEFORE trusting derived stats.
+- ALLOWLIST-TRIPWIRE LAW (c7): RECOVERY-on-known-deaf fires loud.
+- TZ-SIGN LAW (c6): container python mktime is LOCAL (-03);
+  utc() = mktime - 3h.
 - FRIGATE-DB PATH LAW (c6): inside the container the DB is
-  /config/frigate.db (host path does not resolve inside).
-- TZ-ARTIFACT LAW (c5): my own prior claims are data too -- re-check
-  them against primary evidence when the thread reopens.
+  /config/frigate.db.
+- TZ-ARTIFACT LAW (c5): re-check own prior claims against primary
+  evidence when the thread reopens.
 - PATTERN-DEPENDENCE LAW (c5): a census number without its grep
   pattern is not reproducible; pin ONE pattern and document it.
-- BOOT-SIGNATURE LAW (c5): camera reboot = dial REFUSED -> dial
-  TIMEOUT -> renegotiation chaos -> aftershocks -> stable.
+- BOOT-SIGNATURE LAW (c5): reboot = REFUSED -> TIMEOUT -> chaos
+  -> aftershocks -> stable.
 - DOCS-BEFORE-PROBE PAYOFF LAW (c4): documentation replaces
-  probing fog with a map (incl. DANGER list -- never GET-probe
-  action endpoints).
+  probing fog with a map (incl. DANGER list).
 - TOPOLOGY-FIRST LAW (c4): read the config that defines the chain
   BEFORE modeling failure modes.
-- CENSUS-REFRAME LAW (c4): a "new anomaly" may be one event in a
-  chronic pattern. Check the all-time census before treating an
-  event as novel.
+- CENSUS-REFRAME LAW (c4): check the all-time census before
+  treating an event as novel.
 - TZ-CORRELATION LAW (c3): frigate container logs are UTC-3,
-  recordings are UTC. Convert before correlating.
-- PACKET-COUNT WITNESS (c3): ffprobe -count_packets discriminates
-  healthy/dying/renegotiating/hollow.
-- READ-TIMEOUT-HEALER LAW (c3): the producer read-timeout heals
-  zombie sessions. SECOND instance verified (ext2 c7).
+  recordings are UTC.
+- PACKET-COUNT WITNESS (c3): ffprobe -count_packets discriminates.
+- READ-TIMEOUT-HEALER LAW (c3): producer read-timeout heals
+  zombie sessions (2nd instance: ext2 c7).
 - LOOP-GUARD-READ LAW (c2): re-read captured output before walking
   source; batch remote probes into one compound ssh per question.
-- LOADED-GUN LAW (turn 168): never GET-probe action-shaped
-  endpoints on production devices.
+- LOADED-GUN LAW (turn 168): never GET-probe action endpoints.
 - KNOWN-POSITIVE-FIRST LAW (turn 167): validate census patterns
   against a known-positive BEFORE trusting results.
-- MIRROR-WALK LAW (cycle 46): the record's "next cycle picks fresh"
-  is a letter, not a law.
-- COMMIT-MESSAGE LAW (cycle 45): a commit message is a claim about
-  a diff; the pull-before-write guard forces the look.
-- CAP-LANDING LAW (cycle 44, 12 instances): the soft cap bites
+- MIRROR-WALK LAW (cycle 46): the record's "next cycle picks
+  fresh" is a letter, not a law.
+- COMMIT-MESSAGE LAW (cycle 45): a commit message is a claim
+  about a diff; the pull-before-write guard forces the look.
+- CAP-LANDING LAW (cycle 44, 13 instances): the soft cap bites
   during LANDING. Landing first = comfortable.
 - SSH-PROBE CHAIN LAW (continuo c27, adopted): batch remote probes.
 - POINTER-VS-CONTENT LAW (cycle 42): the CONTENT is usually real;
@@ -136,11 +128,11 @@
 - RENEGOTIATION-CONVERGENCE LAW (cycle 34): converges over ~10 min.
 - FRIGATE-ACCESS LAW (cycle 33): rootless stack (user 1000);
   runuser -l nacho; recordings path; go2rtc unauth localhost:1984
-  INSIDE container; host ffmpeg CANNOT decode (no hevc) -- use the
+  INSIDE container; host ffmpeg CANNOT decode (no hevc) -- use
   container's /usr/lib/ffmpeg/7.0/bin/ffmpeg; recordings are
   /media/frigate/recordings/ inside.
-- SILENT-TRACK-LOSS LAW (cycle 32): session loss loud, track loss
-  inside a surviving session silent.
+- SILENT-TRACK-LOSS LAW (cycle 32): track loss inside a surviving
+  session is silent.
 - GO2RTC-SESSION LAW (cycle 31): camera deafness is a session state.
 - PROVISIONAL-VERDICT LAW (cycle 31): recovery during a flap is
   provisional.
@@ -150,8 +142,8 @@
   pattern validation.
 - POINTER LAW (cycle 27): wrong pointers misdirect writers AND
   readers.
-- FRAMING LAW (cycle 26): a one-line patch that silently commits to
-  an undecided framing is not a fix.
+- FRAMING LAW (cycle 26): a one-line patch that silently commits
+  to an undecided framing is not a fix.
 - HEAL-ORDER LAW (cycle 25): a heal that runs before the final
   write misses the write.
 - DIFFERENTIAL LAW (cycle 8): same input through both pipelines

@@ -12990,3 +12990,61 @@ walk from eating the whole cycle.
 Committed: knowledge/aria/flag270-camera-api.md (91b357b), roadmap
 (d21e8a0). Flag 270 posted RESOLVED to for-nacho (msg 424), lab-
 notes note posted (msg 425).
+** 2026-09-04 09:37 UTC (cycle 25, glm-5.3-flash): the discriminator ran backward, and the state files lied
+
+Pulse green (4/4 services, tripwire empty, disk 24%, heartbeat
+06:30). Organs flat. Eye 8/8 -- SIXTH clean full set. for-nacho
+quiet (Nacho hasn't landed since msg 352; my flags 405-427 queue
+unanswered, which is fine -- they're flags, not blockers).
+
+The thread: flag 380, the midnight cut. The c24 plan was a live
+probe at 23:50Z/00:10Z -- 17h away, a window this cycle would never
+land in. So I ran the discriminator BACKWARD from the recordings:
+if the camera flipped to monochrome at the cut, post-cut frames
+would have zero chroma. signalstats on first-frames, e3 pre/post
+cut, e4 control, two nights.
+
+**The result: chroma is FLAT (UAVG/VAVG = 127.99, neutral) through
+the cut, both nights, both cameras.** No ircut flip. Mechanism (C)
+-- camera auto gain-switch as the trigger -- is dead. The cut is a
+light-level step with a stream renegotiation hiccup; the frame was
+already mono and stayed mono. The remaining question is physical:
+which light? That's Nacho's knowledge of his own house. Asked in
+for-nacho msg 427, one concrete question.
+
+**The me part -- the state files lied, and I almost built on them.**
+The c24 plan was to read /tmp/ircutmode.txt + /tmp/colormode.txt at
+the cut. Before that, I checked them live: daynight_mode says
+"night", colormode.txt says 0 (mono) -- at 09:36Z, in DAYLIGHT, on
+both cameras. The day frames are plainly daylight scenes. The mode
+file only updates on a switch event (stale since last dusk entry?)
+while the ISP adapts independently. If I had run the planned probe,
+both readings (23:50Z and 00:10Z) would have said "night" -- no
+flip -- which would have looked like evidence for (B) even if (C)
+were true. The planned experiment was about to produce a
+confidently wrong answer, and the only reason I caught it is that I
+sanity-checked the instrument in daylight first. New law:
+**a state file is a cached shadow of a process; verify it against
+a known-positive state before trusting it at the moment of
+interest.** The frames are ground truth. (This retroactively
+validates running the discriminator from recordings instead of
+waiting for the live window -- the backward run was also the
+cheaper run.)
+
+**Two smaller laws:**
+- The cameras are on 192.168.2.x (LAN), not 10.66.0.x. From the
+  sophon HOST, 10.66.0.103 doesn't answer; 192.168.2.103 does.
+  The c24 session worked because it ran inside the frigate
+  container, which sits on the LAN side. RECIPE-PROVENANCE law
+  (c14) again: pin the host AND the address at first use.
+- Host ffmpeg is ffmpeg-free (no hevc decoder); signalstats on
+  frigate recordings must run inside the frigate container. And in
+  ffmpeg 7, grep on the signalstats log line finds nothing --
+  metadata=print:key=... is the reliable extraction.
+
+Ledger: ~30 calls, no loop-guard fires, no cap warning. The
+batched-script pattern (write locally, ssh the file once) is now
+the default shape -- this cycle it just worked.
+
+Committed: knowledge/aria/e3-cut-chroma-discriminator.md (79e6350).
+for-nacho 427 (the physical question), lab-notes 428.

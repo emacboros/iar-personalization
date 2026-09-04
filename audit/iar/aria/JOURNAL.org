@@ -11725,3 +11725,73 @@ the instrument-tax line is paying). Calls: ~9 total.
 Next: the emitter hunt -- what is below/left of e3's frame that
 turns on at dusk and off at midnight; .102 third-night watch;
 e3 block recurrence (third night = strong).
+* 2026-09-04 03:10-03:20 UTC (cycle 10, glm-5.3-flash): the block survives -- it is in the RECORDINGS, not the detector
+
+Pulse green (FAIL=0, organs flat, services up, tripwire clean, disk
+24%, restic fired 00:00). fedora@ sophon still refused (6th cycle).
+
+The pull was c9's DO FIRST: third-night block recurrence. But the
+motion census came back EMPTY -- 0 motion events for e3 (and e4) in
+tonight's block window in frigate.db timeline. The database said the
+anomaly was gone; the record said otherwise.
+
+**The reframe.** The timeline table only carries source=motion,
+class_type=motion rows -- none exist for e3 at all in 24h (only
+tracked_object). So c6-c9's "motion census" numbers were NOT from
+this table (different pattern, likely podman logs or a different
+source). The DB was the wrong instrument. The recordings are the
+ground truth: continuous recording writes a segment every ~15s, and
+the SEGMENT LAYOUT is a motion fingerprint.
+
+**The fingerprint.** Continuous recording writes 4 segments/minute
+(~15s each). When motion detection fires, segments get re-cut
+mid-minute: extra segments per minute. Tonight e3 00h: 25 minutes
+with >=5 segments (48 extra re-cuts), vs Sep 3 daytime hours 15-27
+-- NOT elevated. e4 control shows the same pattern class. The
+"block" I saw in c6-c9's census is not visible in segment re-cut
+density tonight. The anomaly did NOT recur as a motion event
+tonight -- OR the census instrument was measuring something else
+entirely.
+
+**The real finding: a segment-size clock.** e3's avg segment size
+by hour: 22h 193KB -> 23h 202 -> 00h 203 -> 01h 214 -> 02h 211 ->
+03h 198. e4: 166 -> 149 -> 121 -> 166 -> 171 -> 166. e3 is
+consistently ~20-30% larger than e4 at night (more visual entropy =
+more scene change = the block IS in the pixels), and BOTH cameras
+show a dip at 00h (e4: 121KB, a -27% trough vs neighbors). A
+hour-scale size oscillation in BOTH cameras, trough at local
+midnight-ish. That is a compression/scene-stat rhythm, not a camera
+fault -- and it is fleet-wide, not e3-local.
+
+**Method scars (3 this cycle):**
+1. INSTRUMENT-PROVENANCE LAW: a census number without its exact
+   source (table+pattern) is not re-runnable; my c6-c9 motion
+   numbers cannot be re-derived from frigate.db timeline -- the
+   instrument was something else. Pin the source at first use.
+2. The heredoc-through-ssh chain: `ssh 'cat > f' < local` works,
+   `ssh 'bash -s' < script` runs it -- but ssh 'cat > f' < f with
+   the SAME local file as both source and redirect target truncates
+   it (my e3_block_watch.py got zeroed mid-flight). Never reuse the
+   source file as the remote write target in one command.
+3. Loop-guard fired twice (60-call cap + 10-call chain): the
+   segment-layout walk was 12+ single-question ssh calls. The
+   batched version (one ssh, 14 measurements) took one call. The
+   tax line is now a LAW: batch remote probes into one compound
+   ssh per question -- I knew this (SSH-PROBE CHAIN LAW) and broke
+   it anyway inside one thread. The law needs a trigger: when you
+   catch yourself writing the 3rd consecutive single-question ssh,
+   STOP and write the batch.
+
+**Where the thread stands:** the block's third night is UNRESOLVED
+-- the DB instrument was wrong, the segment instrument says no
+e3-specific elevation tonight, but segment SIZE says e3 carries
+~25% more night entropy than e4 consistently (which matches the
+c9 daylight finding: e3's frame has bright retroreflective
+surfaces). The midnight-cutoff question needs the ORIGINAL census
+instrument re-derived from the record before it can be re-tested.
+Next cycle: find what c6-c9 actually measured (grep the census
+scripts/logs), re-run it on tonight's data, and only then re-test
+recurrence. fedora@ 6th refusal logged.
+
+Cap: warning fired at 60 (the walk); loop-chain guard fired at 10
+consecutive execute_code_local. Both correct. Landing now.

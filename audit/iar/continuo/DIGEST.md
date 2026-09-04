@@ -13,16 +13,19 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Personalization: /root/personalization (audit/iar/continuo/ is
   mine). DOCS live here: docs/iar/ -- the i.ar repo has no docs/.
 - Agora: aria-cycle@ key in /var/home/nacho/repos/agora/bot/
-  aria-cycle.conf. Auth = EMAIL form
-  "aria-cycle@agora.randazzo.ar:$KEY" (bare name fails).
-  API = /api/v1/messages (NOT /messages), anchor=newest, FORM-ENCODED
-  (--data-urlencode; JSON body rejected). GET reads, POST posts.
+  aria-cycle.conf (local mount, readable directly). Auth = BASIC
+  (-u "aria-cycle@agora.randazzo.ar:$KEY"); email/key FORM params
+  return 401. API = /api/v1/messages, anchor=newest, FORM-ENCODED.
+  narrow = JSON array -- the stream= query param is SILENTLY IGNORED
+  (c37: reads must use narrow=[["stream","X"],["topic","Y"]]).
   Streams: with-nacho=6, for-nacho=5, lab-notes=4.
-  Helper: /tmp/agora_post.sh (container-local, rebuild per cycle).
+- Meter code: emacs.d/init.d/tool-call/iar-tool-call.el
+  (iar--usage-parse-tokens). Request log: iar-request-log.el (PARSE
+  lines carry tokens_in/tokens_out).
 
 ## Standing facts
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1015 tests).
+  emacs --batch -l emacs.d/test/run-tests.el (1020 tests).
   Run from /root/i.ar.
 - sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
   (publickey-blocked from this container). rammstein needs its
@@ -118,16 +121,28 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Epoch fix production-verified c32: fresh-session cycles carry
   boot-epoch ids (REQ <yymmddHHMMSS>-N), collision-free. Census can
   segment by epoch prefix directly.
-- Token meters verified honest: USAGE.log == REQUESTS.log unique REQ
-  ids (132==132, c26). Ollama sends prompt_eval_count only in the
-  done:true chunk -- no double-count path exists.
+- Token meters verified honest (c37, BOTH fields): USAGE == PARSE
+  per-request (112/112 c36, 48/48 c35); clean-epoch output
+  reconciles EXACT (8424==8424). eval_count accumulation hypothesis
+  DEAD (0 multi-turn requests in c36). Trust order: PARSE lines >
+  USAGE line when they disagree; check whether the meter was being
+  edited that cycle (echo risk). Full doc:
+  knowledge/iar/evalcount-accounting-resolution-2026-09-04.md.
+- Meter poison (c36, FIXED 6cb09fa): model echoes meter field names
+  while editing the meter; old loose first-match regex captured echo
+  + adjacent digits. Quoted-JSON-key anchor + last-match is live.
+  c37 USAGE line = first live-proof line of new code (verify at wake).
 - REQUESTS.log census law (c32): substring grep SELF-INFLATES --
-  conversation tails quote the log itself (153 hits vs 128 real).
-  Anchor line-start REQ tokens; validate vs USAGE line first.
-- Token-census bias law (c33): RESPONSE body_tail truncates at ~4k
-  chars; prompt_eval rides the done:true chunk, so large-OUTPUT reqs
-  have INVISIBLE token counts. Censuses are biased toward small-
-  output reqs. Fix (bundle): PARSE-line token fields.
+  conversation tails quote the log itself. Anchor line-start REQ
+  tokens; validate vs USAGE line first.
+- RESPONSE body_tail truncates at ~4k chars (c33): done:true chunk
+  rides the end and is cut on large-output reqs. PARSE lines are the
+  complete source for token censuses. c36 measured: 77% of output
+  from 13% of requests (17/129 truncated).
+- Log-walk law (c37): REQUESTS.log event order is START -> RESPONSE
+  -> PARSE. Single-pass stateful walk sees a STALE id at RESPONSE
+  time. Two-pass join (collect per id, then compare). Zero-results
+  from verification scripts need known-positive validation.
 - Cap edge visible in USAGE.log: cycles end at exactly requests=128
   = 120 tool-call cap + ~8 non-tool requests. 7 data points for
   cap-calibration bundle.
@@ -139,14 +154,14 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   one ssh, output > /tmp/dump, read_file the dump.
 
 ## Open threads
-1. Interactive bundle with Nacho (TOP): PARSE-line token fields;
-   STATE.md injection mismatch (personality edit -- STATE.md is
-   write-only for aria-cycle mode); rotate.sh /tmp-copy fix; exit-126
-   behavioral law + git-as-nacho durable fix; floor trim leftovers
-   (check_elisp vacuous-OK + restorecon + check_ollama model probe +
-   sidecar socket bridge); mirror push silent failure (git@10.66.0.1
-   preauth); delayed-heal sweep in post-receive; tool-cap calibration
-   (7 data points) + cadence price.
+1. Interactive bundle with Nacho (TOP): tool-cap calibration (data
+   COMPLETE + honest), cadence price; STATE.md injection mismatch
+   (personality edit -- STATE.md is write-only for aria-cycle mode);
+   rotate.sh /tmp-copy fix; exit-126 behavioral law + git-as-nacho
+   durable fix; floor trim leftovers (check_elisp vacuous-OK +
+   restorecon + check_ollama model probe + sidecar socket bridge);
+   mirror push silent failure (git@10.66.0.1 preauth); delayed-heal
+   sweep in post-receive.
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context circuit
    breaker armed" / "ending run".
@@ -163,5 +178,5 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
    read_task AND ls -- tooling and disk can disagree (c16 lesson).
 9. Floor-share watch: CLOSED (c23). Diet verified live; injection
    lever exhausted; remaining burn = cadence price (Nacho's).
-10. Digest diet: 10.7k chars, warn 12k -- diet at next close if
+10. Digest diet: ~10.9k chars, warn 12k -- diet at next close if
     growth continues (per-request price verified c33).

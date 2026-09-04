@@ -13,12 +13,16 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Personalization: /root/personalization (audit/iar/continuo/ is
   mine). DOCS live here: docs/iar/ -- the i.ar repo has no docs/.
 - Agora: aria-cycle@ key in /var/home/nacho/repos/agora/bot/
-  aria-cycle.conf (local mount, readable directly). Auth = BASIC
-  (-u "aria-cycle@agora.randazzo.ar:$KEY"); email/key FORM params
-  return 401. API = /api/v1/messages, anchor=newest, FORM-ENCODED.
-  narrow = JSON array -- the stream= query param is SILENTLY IGNORED
-  (c37: reads must use narrow=[["stream","X"],["topic","Y"]]).
-  Streams: with-nacho=6, for-nacho=5, lab-notes=4.
+  aria-cycle.conf (local mount). KEY = awk '/^key = /{print $3}'
+  (NOT whole file -- command substitution eats trailing char, c35).
+  Auth = Basic (-u "aria-cycle@agora.randazzo.ar:$KEY").
+  WRITE: POST /messages type=stream to= topic= content=.
+  READ: GET /messages --get + narrow=[["stream","X"],["topic","Y"]]
+  + anchor=newest + num_before=N (narrow must be JSON array; POST
+  with read params IGNORES them and POSTS instead -- msg 378 scar;
+  recipe: knowledge/iar/agora-api-read-recipe.md). DM read:
+  narrow=[["is","private"]]. Streams: with-nacho=6, for-nacho=5,
+  lab-notes=4.
 - Meter code: emacs.d/init.d/tool-call/iar-tool-call.el
   (iar--usage-parse-tokens). Request log: iar-request-log.el (PARSE
   lines carry tokens_in/tokens_out).
@@ -33,19 +37,18 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - tasks/* gitignored in personalization -- git add -f. Task tools
   resolve per-agent (tasks/iar/continuo/). write_roadmap writes there.
 - One tool call per turn. Batch-read law. ~120-call cap (warn@60).
-- USAGE.log IS a meter, one line per cycle. REQUESTS.log is a debug
-  trace (~26% coverage), not a meter.
-- Injection floor (VERIFIED c33, req2 prompt_eval at msgs=2):
-  continuo ~13.0-13.2k, aria ~16.2-16.3k tok/req. Delta = file
-  inventory (aria-only LOGS tail +8.8k chars, journal tail +3.3k,
-  personality +0.7k, digest -1.4k). Explained constant, not a lever.
-  knowledge/iar/floor-delta-decomposition-2026-09-03.md.
-- Burn model: floor + ~325 tok/round-trip x requests; conversation
-  growth ~74% of burn. Cadence price ~250M input tok/day (Nacho's).
+- USAGE.log IS a meter (VERIFIED honest both fields, 6 epochs);
+  REQUESTS.log is a debug trace (~26% coverage), not a meter.
+- Injection floor (VERIFIED c33): continuo ~13.0-13.2k, aria
+  ~16.2-16.3k tok/req. Delta = file inventory. Explained constant,
+  not a lever. knowledge/iar/floor-delta-decomposition-2026-09-03.md.
+- Burn model: floor + ~550 tok/round-trip growth on heavy cycles
+  (g median 550, range 232-1188); conversation growth ~74% of a
+  capped cycle's burn. Cadence price ~360M input tok/day (c38).
   Injection lever EXHAUSTED; overview diet landed c20. Analysis:
   knowledge/iar/burn-decomposition-2026-09-03.md.
 - Digest has a per-request price: +1363 chars = +300 tok/req
-  (verified c33: newest epoch floor 13249 vs 12922-12954 older).
+  (verified c33). Digest now 10.4k chars, warn 12k.
 - Exit-126 = container start death: lsetxattr EPERM when :z
   relabel hits root-owned files. ExecStartPre auto-heal chowns but
   does not relabel (durable fix: restorecon, interactive).
@@ -121,17 +124,14 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Epoch fix production-verified c32: fresh-session cycles carry
   boot-epoch ids (REQ <yymmddHHMMSS>-N), collision-free. Census can
   segment by epoch prefix directly.
-- Token meters verified honest (c37, BOTH fields): USAGE == PARSE
-  per-request (112/112 c36, 48/48 c35); clean-epoch output
-  reconciles EXACT (8424==8424). eval_count accumulation hypothesis
-  DEAD (0 multi-turn requests in c36). Trust order: PARSE lines >
-  USAGE line when they disagree; check whether the meter was being
-  edited that cycle (echo risk). Full doc:
-  knowledge/iar/evalcount-accounting-resolution-2026-09-04.md.
-- Meter poison (c36, FIXED 6cb09fa): model echoes meter field names
-  while editing the meter; old loose first-match regex captured echo
-  + adjacent digits. Quoted-JSON-key anchor + last-match is live.
-  c37 USAGE line = first live-proof line of new code (verify at wake).
+- Token meters verified honest BOTH fields (c37+c38): USAGE == PARSE
+  per-request and per-epoch EXACT on all 6 post-fix epochs. Meter
+  poison (c36, FIXED 6cb09fa): model echoes meter field names while
+  editing the meter; old loose first-match regex captured echo +
+  adjacent digits. Quoted-JSON-key anchor + last-match is live.
+  Trust order: PARSE lines > USAGE line when they disagree; check
+  whether the meter was being edited that cycle (echo risk). Full
+  doc: knowledge/iar/evalcount-accounting-resolution-2026-09-04.md.
 - REQUESTS.log census law (c32): substring grep SELF-INFLATES --
   conversation tails quote the log itself. Anchor line-start REQ
   tokens; validate vs USAGE line first.
@@ -143,19 +143,22 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   -> PARSE. Single-pass stateful walk sees a STALE id at RESPONSE
   time. Two-pass join (collect per id, then compare). Zero-results
   from verification scripts need known-positive validation.
-- Cap edge visible in USAGE.log: cycles end at exactly requests=128
-  = 120 tool-call cap + ~8 non-tool requests. 7 data points for
-  cap-calibration bundle.
-- Burn model: floor (13.0-13.2k continuo) + ~325 tok/round-trip x
-  requests. ssh probe chains trip the loop guard at ~12 same-tool
-  calls (c27, c32): one COMPOUND ssh per question, dump to /tmp.
+- Cap edge visible in USAGE.log: requests=128 = 120 tool-call cap
+  + ~8 non-tool requests. Cap price QUANTIFIED c38: capped cycle
+  +52-58% vs two half-cycles, premium ~2.2M input tok, 16-21% of
+  cycles capped. knowledge/iar/cap-price-quantification-2026-09-04.md.
+- Burn model: floor (13.0-13.2k continuo) + g*N(N-1)/2 growth
+  (g median 550 on heavy cycles). ssh probe chains trip the loop
+  guard at ~12 same-tool calls (c27, c32): one COMPOUND ssh per
+  question, dump to /tmp.
 - Chain guard tripped c32 (execute_code_local x10 ssh walk): the
   c27 shape recurs under a different question. Dump-once recipe:
   one ssh, output > /tmp/dump, read_file the dump.
 
 ## Open threads
-1. Interactive bundle with Nacho (TOP): tool-cap calibration (data
-   COMPLETE + honest), cadence price; STATE.md injection mismatch
+1. Interactive bundle with Nacho (TOP): cap calibration (data
+   COMPLETE: honest meter + edge census + premium +52-58%),
+   cadence price ~360M/day; STATE.md injection mismatch
    (personality edit -- STATE.md is write-only for aria-cycle mode);
    rotate.sh /tmp-copy fix; exit-126 behavioral law + git-as-nacho
    durable fix; floor trim leftovers (check_elisp vacuous-OK +
@@ -178,5 +181,5 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
    read_task AND ls -- tooling and disk can disagree (c16 lesson).
 9. Floor-share watch: CLOSED (c23). Diet verified live; injection
    lever exhausted; remaining burn = cadence price (Nacho's).
-10. Digest diet: ~10.9k chars, warn 12k -- diet at next close if
+10. Digest diet: 10.4k chars, warn 12k -- diet at next close if
     growth continues (per-request price verified c33).

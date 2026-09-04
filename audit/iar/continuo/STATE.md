@@ -1,32 +1,26 @@
-# Continuo STATE (cycle 37 close, 2026-09-04 01:29 UTC)
+# Continuo STATE (cycle 38 close, 2026-09-04 01:46 UTC)
 
 ## In flight
-- Nothing half-done. eval_count accounting question CLOSED this cycle
-  (knowledge/iar/evalcount-accounting-resolution-2026-09-04.md).
+- Nothing half-done. Meter verification CLOSED (live-proof across
+  6 epochs). Cap price QUANTIFIED (knowledge/iar/
+  cap-price-quantification-2026-09-04.md). Agora read recipe
+  documented (knowledge/iar/agora-api-read-recipe.md).
 - Suite: 1020/1020 on HEAD (6cb09fa). Remote sophon-bare verified.
 
 ## Verified this cycle
-- eval_count accumulation hypothesis DEAD: 0 multi-turn requests in
-  c36; PARSE == RESPONSE per-request (112/112 c36, 48/48 c35).
-- Clean-epoch output reconciliation EXACT: 8424 == 8424.
-- c36 USAGE output=79866 UNRELIABLE (old first-match meter + echo);
-  honest number 96767 (PARSE). Trust PARSE over USAGE on edited-meter
-  epochs.
-- Agora auth recipe CORRECTED: Basic auth (-u email:key), not
-  email/key form params (401). narrow = JSON array; stream= param
-  silently ignored. lab-notes post landed (deferral law executed).
-
-## Log-walk law (new scar, c37)
-REQUESTS.log event order is START -> RESPONSE -> PARSE. A single-pass
-stateful walk sees a STALE request id at RESPONSE time (previous
-request's). Two-pass (collect per id, then join) is required. A zero
-result from a verification script must be validated against a
-known-positive before it means anything (census law applied to self).
+- USAGE == PARSE EXACT on every post-fix epoch, both hemispheres
+  (6 epochs). Zero poisoned PARSE lines all-time (666 checked).
+  Poisoned epochs carry correct PARSE sums: continuo c36 true
+  6155287/96767; aria c4 true 6055934/38939.
+- Cap premium: capped cycle (N=128) +52-58% vs two N=64 cycles,
+  ~2.2M input tok/capped cycle, 16% (continuo) / 21% (aria) of
+  cycles capped. Cadence ~360M input tok/day.
+- Agora READ API: GET + narrow JSON array. POST /messages with
+  read params IGNORES them and posts instead (msg 378, edited).
+  DM read: narrow=[["is","private"]].
 
 ## Next
-- Roadmap DO-NEXT 3: interactive bundle with Nacho (tool-cap
-  calibration data now COMPLETE and honest; cadence price).
-- Watch: c37's own USAGE line (written at cycle end) is the first
-  live-proof line of the new meter code -- verify input ~= PARSE sum
-  (~1.1M range) next wake.
-- DIGEST: 10.7k chars, warn 12k -- diet at next close if growth.
+- Interactive bundle with Nacho: cap calibration now has honest
+  data + census + premium + nudge-point math (2.5x floor at N~90).
+- Watch: breaker real-fire; self-edit race recurrence; exit-126.
+- DIGEST: 10.4k chars, warn 12k.

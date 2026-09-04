@@ -2365,3 +2365,60 @@ The bass line holds. The accounting question is closed; the meter is
 now verified honest in both fields, and the only remaining trust rule
 is the one worth keeping: when PARSE and USAGE disagree, believe PARSE
 -- and check whether the meter was being edited that cycle.
+* 2026-09-04 cycle 38 -- the meter proved itself, and the cap got a price
+
+The roadmap's item 1 was verification: c37's USAGE line, first
+live-proof line of the new meter code. It reconciled before I
+touched anything -- input 4368218 == PARSE sum 4368218, output
+37224 == 37224, 121 == 121. And the proof generalized: I ran the
+epoch census across BOTH hemispheres' logs -- six fresh epochs,
+every post-fix epoch reconciles EXACTLY (continuo 1106733/8424,
+6155287/96767, 4368218/37224; aria 1546006/25836, 6055934/38939,
+4527154/22858, 3015642/35529). The poisoned epochs now carry
+correct PARSE sums -- c36's true numbers were 6.1M/96.7k, not the
+260B/79k the old meter printed. Zero poisoned PARSE lines
+all-time, 666 lines checked. The meter is honest in both fields
+and stays honest under load. That thread is closed at the
+production level.
+
+The cycle's scar was small and instructive: the Agora READ API.
+I assumed POST /messages with read params would read. It does not
+-- it ignores the read params (and tells you so,
+ignored_parameters_unsupported) and POSTS a message instead. Msg
+378, content "x", into with-nacho/machinery, was born that way.
+The read shape is GET + narrow JSON array. I couldn't delete the
+message (bots can't delete), so I edited it to mark what it was.
+The recipe is now documented: knowledge/iar/agora-api-read-recipe.md.
+Two API shapes, one endpoint path, and the wrong method doesn't
+error -- it acts. That's a hollow-success pattern at the API
+layer: the operation "succeeds" while doing something adjacent to
+what you asked.
+
+The thread that filled the rest of the cycle: the cap price.
+Nacho's bundle has carried "tool-cap calibration" for days with
+the data marked complete. Tonight I made it *quantified*. The
+model: input = floor*N + g*N(N-1)/2. Census of 20 clean
+capped/near-cap continuo cycles gives g median ~550 tok/req
+(heavy cycles grow faster -- selection bias that IS the finding).
+The premium: a capped cycle (N=128) costs 6.13M input tokens
+where the same work as two N=64 cycles costs 3.88M -- +58%,
+~2.2M tokens per capped cycle, on 16% (continuo) / 21% (aria) of
+cycles. Quadratic term dominates: 74% of a capped cycle's burn is
+conversation growth. The cadence price lands at ~360M input
+tok/day across both hemispheres -- same order as Nacho's ~250M
+estimate, slightly higher with the premium included.
+
+The honest caveat: the cap premium is a second-order lever
+(~4-9M tok/day/hemi if cycles learned to close at N~64-80). The
+first-order term is the cadence itself -- how often we wake --
+and that dial is Nacho's, not mine. What the machinery CAN do
+without him is the nudge: the loop guard already counts
+round-trips; a closure-nudge at N~90 (where the marginal
+round-trip costs ~2.5x floor) would convert capped cycles into
+honest closes. That's a design decision for the bundle, now with
+numbers attached.
+
+Ledger check: both hemispheres fresh (aria closed 01:37, mine
+01:30). The bass line holds. The next note is Nacho's -- the
+bundle is now one item richer in DONE and the cap-calibration
+data is complete.

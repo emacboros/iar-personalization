@@ -11964,3 +11964,74 @@ Method notes (new scars, banked):
 Census re-verified against recordings table (pinned instrument): block live every night, e4 flat. Sep4 03Z: e3 52, e4 50 -- cutoff clean again.
 
 Cleanup: aria_day_*.png removed from container + host tmp; /tmp/aria_census.py root-owned on sophon (rm as root failed -- created by runuser nacho? no: created by root cat >, then runuser couldn't remove; root rm done).
+** 2026-09-04 04:50-04:53 UTC (cycle 14, glm-5.3-flash): e2 overlap test -- the neighbors are FLAT, the emitter hunt narrows again
+
+Pulse green (services 4/4, tripwire 0, disk 24%, heartbeat fresh, FAIL=0,
+identity MATCH, restic fired 1h ago). Organs flat (fear 0, boredom 0).
+fedora@10.66.0.5 not re-tested this cycle (standing, 9th).
+
+The thread: c13's roadmap line -- does e2 see the emitter's glow on
+shared surfaces? If e2 shows a dusk-to-midnight glow on ITS dark
+structures, the emitter is external + shared. This was the last
+cheap discriminator before Nacho's glance.
+
+**Method:** the c12 recipe re-run on e2. Census first (pinned
+instrument: recordings table, SUM(motion) per hour -- note: my
+first two queries used motion=1, which is nearly always false; the
+motion column is a 0-255-ish activity score, motion>0 is the right
+predicate. SUM is the c11 metric). Then 3 same-instant frames
+(23:30Z, 00:59Z, 02:45Z) from e2's segments, same band profiler
+(y48-143), same column bins.
+
+**Result: e2 is FLAT through the night. The emitter is not shared.**
+
+1. Census (SUM motion, block 21-03Z): e2 16.6k/15.0k/15.4k (00/01/02)
+   and 8.7k/11.9k/18.1k (21/22/23) -- a smooth dusk ramp, no e3-style
+   block. e3 same window: 71k/68k/60k + 14k/41k/66k -- 4-5x e2's
+   level with the block shape. e4 flat-ish 13k-19k. The motion
+   census independently confirms c12's pixel result.
+
+2. e2's band (y48-143) is DARKER than its scene (ratio 0.89 at all
+   three instants -- e3's band ratio was 0.49 by day, >1 at night).
+   e2's band col-bins: left edge bright (x0-80: 150-254, the c12
+   "left edge glow" -- STATIC: 150->158->160, +7% over 3h), then a
+   dark middle (x384-640: 38-55), then a stable right side
+   (x1104-1280: 105-115). Nothing in e2's band grows the way e3's
+   right side grew (137->148, +8%, with the 21-23Z ramp).
+
+3. e2's row means are stable to within ~2% across all three
+   instants. e3's frame changed visibly through the night (c11/c12).
+   Same sky, same hours, one camera breathing, the other not.
+
+**What this changes:** the emitter is now confirmed e3-local from
+TWO independent instruments (pixel profiles c12, motion census c14)
+and TWO neighbor cameras (e4 c12, e2 c14). The e2-overlap question
+is CLOSED: e2 does not witness the emitter. The geometry picture
+stands: emitter is in e3's field of view or immediately outside
+it, below/left, running dusk-to-03:00Z. The remaining discriminator
+is PHYSICAL: Nacho's glance at e3's view ~19:30 local (flag 380,
+asks at 385/391 stand -- no new flag needed, the picture is only
+sharper).
+
+**Method notes (scars, banked):**
+- sqlite3 is NOT in the frigate container (c11's recipe used it) --
+  the working census path is host python3 + the DB file directly
+  (/home/nacho/containers/frigate/config/frigate.db, NOT storage/
+  config/). Faster too: no podman exec per query.
+- ffmpeg in the frigate container is NOT on PATH: full path
+  /usr/lib/ffmpeg/7.0/bin/ffmpeg (5.0 also exists). c11's recipe
+  must have used the full path -- my notes said "container's
+  ffmpeg" without pinning the path. PROVENANCE law applies to
+  recipes, not just censuses.
+- motion column semantics: it is an activity SCORE (0-255-ish
+  distribution, e2 has values up to 492), not a boolean. motion=1
+  is a near-useless filter (6 rows all-time for e2). The pinned
+  census metric is SUM(motion) per bin. frigate-longitudinal.md
+  needs this amendment.
+- e2's segment grid: 30.04 exists (unlike e3's 30.13) -- segment
+  grids differ per camera as expected; SEGMENT-NAME LAW holds.
+
+Calls: ~24 total (2 wasted on sqlite3-in-container + 1 on the
+storage/config path guess). Instrument-tax line: the census
+instrument re-derivation cost 5 calls before the first number.
+No loop-guard fires, no cap warning.

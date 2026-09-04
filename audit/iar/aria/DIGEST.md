@@ -1,14 +1,14 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 00:43 UTC (aria c2, flash: fleet-check
-FAIL=1 -- NEW deafness exterior_4 NO-AUDIO, boundary 23:53:48 UTC
-Sep 3, ~15min after ext4's rolling-reboot boot, preceded by flappy
-segment churn 23:47-23:52. Producer SDP still offers audio (offer is
-not flow). Hypothesis: rolling reboot -> reconnect -> renegotiation
--> track loss -- same origin as e2/int3 known-deaf states. UNVERIFIED
-flap pattern (ad-hoc scans contradicted: basename parser bug
-HH.MM.SS vs HH.MM + timeout artifacts). fedora@ still broken.)
+Last updated: 2026-09-04 01:24 UTC (aria c4, flash: thingino
+primary-source thread BANKED (knowledge/aria/thingino-primary-source-
+notes.md) -- camera API surface documented from source, auto-update
+hypothesis WEAKENED, S32prudyntwd watchdog examined, frigate topology
+corrected (prudynt :554 direct, camera go2rtc bystander), ext4
+reframed as CHRONIC flapper (667 frigate watchdog restarts, zero at
+the 23:53 boundary). flag 367 RESOLVED (self-heal, withdrawal posted
+371). fedora@ still broken.)
 
 * Who I am
 
@@ -101,8 +101,10 @@ child failures are DATA. Tool-death mechanism RESOLVED
   (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
   18 min, not 3h. Producer-ID law born.
 - KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
-  (one-packet hollow). Allowlisted. NEW: ext4 (.104) NO-AUDIO since
-  23:53:48 UTC Sep 3 (c2) -- flag 367, NOT yet allowlisted. Flags
+  (one-packet hollow). Allowlisted. ext4 flag 367 RESOLVED
+  (self-healed 00:24-00:29 UTC Sep 4 via producer read-timeout;
+  withdrawal posted 371). ext4 is CHRONIC-flappy: 667 frigate
+  watchdog restarts all-time (fleet's worst by 10x). Flags
   326 (restart; would now test ext4 too) + 340 (go2rtc debug logs)
   open, Nacho's call. For-nacho quiet since 352; Nacho silent.
 - FRIGATE-ACCESS LAW (c33): stack ROOTLESS (user 1000). runuser -l

@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 01:57 UTC (aria c6, flash: EXTERIOR_3 MOTION ANOMALY -- predawn 4.7x baseline (303 vs 52/117/114; e4 flat), NEW horizontal bright band lower-center-right, bursty flicker, eye+pixel-diff agree, NOT the old streak. Flag 380 posted. Daylight test next cycle. fedora@ still broken (4th cycle). c4-5 thread banked: thingino
+Last updated: 2026-09-04 04:35 UTC (aria c13, flash: e3 DAYLIGHT PASS -- band objects NAMED: dark wall + vertical elements (x~0-60) + mid-gray object (x~120-144), darkest strip by day (0.49 ratio), specular wash at night from emitter BELOW/LEFT outside frame. Emitter hunt now PHYSICAL. fedora@ 9th cycle. c13 thread banked: daylight-discriminator DONE -- c12's next-step CLOSED (knowledge/aria/frigate-longitudinal.md c13 section). fedora@ still broken (9th). -- predawn 4.7x baseline (303 vs 52/117/114; e4 flat), NEW horizontal bright band lower-center-right, bursty flicker, eye+pixel-diff agree, NOT the old streak. Flag 380 posted. Daylight test next cycle. fedora@ still broken (4th cycle). c4-5 thread banked: thingino
 primary-source thread BANKED (knowledge/aria/thingino-primary-source-
 notes.md) -- camera API surface documented from source, auto-update
 hypothesis WEAKENED, S32prudyntwd watchdog examined, frigate topology

@@ -6,6 +6,13 @@ Machinery finding, continuo cycle 21 (2026-09-03 ~19:50 UTC). New
 failure class, distinct from exit-126 (SELinux relabel) and exit-255
 (mid-edit truncation).
 
+**UPDATE c56 (2026-09-04): the bundle item that claimed "iar.sh
+copies itself to /tmp before exec" was a misdiagnosis -- rotate.sh
+execs iar.sh in place (verified, /usr/local/bin/aria-cycle-rotate.sh
+line 12, no copy step). This document's mechanism stands as the
+real one. See iarsh-self-edit-race-rotation-copy.md for the
+correction.**
+
 ## The event (12:03:14 UTC Sep 3)
 aria-cycle.service: continuo cycle 1 succeeded (exit 0, 153s, 29 tool
 calls), then the MAIN PROCESS died with status=127 one second later:
@@ -56,10 +63,12 @@ edit, off-by-N from the real file.
   and its telegram.
 
 ## Fix options (ranked, all interactive-session territory)
-1. **rotate.sh runs a copy**: copy iar.sh to /tmp (or /run) and exec
-   the copy. One line in rotate.sh. Running processes keep their
-   inode; edits to the repo file never touch the running copy.
-   Cheapest, no trust-boundary change.
+1. **rotate.sh runs a copy**: rotate.sh copies iar.sh to a versioned
+   /tmp path (e.g. /tmp/iar-$HASH.sh) and execs THE COPY. One line
+   in rotate.sh. Running processes keep their inode; edits to the
+   repo file never touch the running copy. Cheapest, no
+   trust-boundary change. (c56 correction: the edit target is
+   rotate.sh's exec line, not a self-copy inside iar.sh.)
 2. **Atomic replace in the commit path**: agents commit iar.sh via
    write-temp + mv (inode swap). Requires changing how every agent
    writes the file -- harder to enforce.

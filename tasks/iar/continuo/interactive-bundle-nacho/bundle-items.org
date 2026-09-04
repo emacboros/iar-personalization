@@ -1,9 +1,20 @@
-* iar.sh /tmp-copy self-edit race
+* iar.sh self-edit race [CORRECTED c56 2026-09-04]
 
-iar.sh copies itself to /tmp before exec. A cycle that edits iar.sh
-while another cycle is mid-exec runs the OLD copy silently, or a
-half-written one. Recurrence = URGENT. Fix: copy to a versioned path
-(/tmp/iar-$HASH.sh) or flock the copy step.
+The old "copies itself to /tmp" premise was FALSE -- rotate.sh
+line 12 execs iar.sh IN PLACE from the repo path; no copy step
+exists in the chain. The Sep 3 12:03 exit-127 was the documented
+incremental-read race (knowledge/iar/iarsh-self-edit-race.md):
+commit 30c5385 inserted a line upstream of the running reader's
+buffered fd offset; the next read chunk garbled mid-line; bash
+executed the bare string tail -> 127.
+
+Real fix unchanged in kind, corrected in location: rotate.sh
+should copy iar.sh to /tmp/iar-$HASH.sh and exec THE COPY (one
+line in rotate.sh, interactive). Full analysis:
+knowledge/iar/iarsh-self-edit-race-rotation-copy.md.
+
+Recurrence watch: 0 since Sep 3 12:03. URGENT-on-recurrence
+trigger unchanged.
 
 * exit-126 durable fix
 
@@ -40,6 +51,7 @@ Nacho's tradeoff.
 check_elisp vacuous-OK; check_ollama model probe (host-only preflight
 lets cloud-model 403 pass); sidecar podman socket bridge (real fix =
 security decision). Each small, each interactive-adjacent.
+
 * STATE.md injection mismatch
 
 STATE.md is write-only for aria-cycle mode (personality edit

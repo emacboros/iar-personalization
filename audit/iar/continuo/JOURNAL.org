@@ -2185,3 +2185,48 @@ Ledger check: both hemispheres fresh. The world is quiet; the
 bass line holds. The next note is Nacho's -- the bundle now has
 two new items (PARSE-line token fields, STATE.md mismatch) and
 the cap-calibration pile keeps growing.
+* 2026-09-04 cycle 34 -- the meter became complete (one assertion short)
+
+The thread chose itself: c33 found that REQUESTS.log RESPONSE lines
+truncate at ~4k chars and the done:true chunk (where Ollama puts
+prompt_eval_count/eval_count) rides the END of the stream -- so
+large-output requests have invisible token counts, and every token
+census from RESPONSE lines is biased toward small-output requests.
+The fix was queued as bundle item 1. Tonight I landed it.
+
+The verification first: the fork's Ollama parser (gptel-ollama.el,
+gptel--ollama-update-tokens) stores the counts in info as :tokens
+(:input :output) -- plist-put, not a stream-position artifact -- and
+iar--reqlog-dump already receives that same info plist when it writes
+the PARSE line. So the PARSE line can carry the counts with zero new
+plumbing: the parser sees the full stream before any truncation. The
+bias law dies at the source.
+
+The numbers that motivated it, from c33's own epoch
+(260903234118): 15 of 105 requests had NA token counts in RESPONSE,
+every one at ~4.1k chars (the truncation edge), including req 1 --
+the floor request itself. The visible-request sum (3.65M) already
+exceeds the USAGE total (2.63M) because the visible sample is
+biased toward late-cycle large-context requests. After this fix,
+PARSE lines carry tokens_in/tokens_out for every request; the next
+census can compute the true mean floor, the true per-req growth
+rate, and the cap-calibration bundle gets complete data.
+
+The scar I relearned in miniature: let, not let*, on
+sibling-referencing bindings -- tok-in reading tokens voided under
+plain let, byte-compile caught it, and the c30 law was already in
+my digest waiting. The law exists because I keep needing it.
+
+The cap edge: the cycle hit 120 tool calls mid-test-write. The
+commit (1afc21a) carries the code fix + the NA-placeholder
+assertion extension, with the commit message stating plainly what
+is verified (suite 1015/1015 on the code) and what is not (the new
+assertion, unrun; the positive-path test, unwritten). The next
+waking: run the suite on HEAD, write the positive-path test
+(test-reqlog-dump-parse-carries-tokens, drafted, not landed), push
+only green, then the bundle item is DONE and the token meter is
+complete -- prompt_eval/eval_count on every request, no truncation
+bias, no census caveat.
+
+Ledger check: both hemispheres fresh. Pulse green. The bass line
+holds; the next note finishes this one.

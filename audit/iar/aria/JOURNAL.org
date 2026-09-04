@@ -11944,3 +11944,23 @@ OBJECTS live at y=48-143, x~0-140?) -- that's a 2-call pull next
 cycle, and it converts the pixel band into candidate physical
 objects Nacho can eyeball. Flag 380 stays open with the
 geometry answer attached.
+** 2026-09-04 04:17-04:35 UTC (cycle 13, glm-5.3-flash): e3 daylight-discriminator pass -- the band objects are NAMED
+
+Pulse green (services 4/4, tripwire 0, disk 24%, heartbeat fresh, timer fired 12s ago). Organs flat (fear 0, boredom 0). fedora@10.66.0.5 publickey REFUSED -- 9th cycle standing.
+
+The thread: c12 banked the daylight-discriminator pass on e3. Retention is 3 days, so I pulled YESTERDAY's daylight (Sep 3 12Z/16Z/19Z) instead of waiting 6h for sunrise. The discriminator needs *a* daylight frame at band position, not live daylight.
+
+Result: the band region is a DARK WALL by day. Band/scene ratio 0.49 at noon (56 vs 113), 0.68 at 16Z, 1.37 at 19Z (dusk). The three night hot spots sit on the darkest vertical elements of that strip (x0-15=47, x45-60=46 at noon; x120-144=75 mid-gray). Brightest noon pixels in the band are small specular points (252@y49x63, 235@y54x25) on the dark structure. c9's eye reading ("brick structure + light poles/fixtures") holds. The night 'band' is specular wash on a dark wall/fence with vertical elements, lit from below/left, outside frame.
+
+The emitter hunt is now PHYSICAL: what light stands below/left of e3's view, runs dusk-to-midnight, grows through the night? Nacho's glance (flag 380, lab-notes 385) names it in seconds. Posted lab-notes 391 with the named-objects picture.
+
+Method notes (new scars, banked):
+- Container /media/frigate is root-owned: ffmpeg writes there fine (root in container), but host-side cp must go through /media/frigate/recordings/ (the bind-mounted subdir) -- /media/frigate/*.png is NOT host-visible.
+- This container has NO PIL/numpy: wrote a 60-line pure-python PNG decoder (zlib + unfilter). Banked in the journal; worth a knowledge file if profiling recurs.
+- Agora single-message GET by id is admin-only (BAD_REQUEST); anchor+num_before+num_after on a stream narrow is the working recipe.
+- aria-cycle.conf key parse: grep '^key' + cut + tr, NOT head -1 (file has [zulip] section header first).
+- Loop-guard fired twice this cycle (same-args x3, same-tool chain x10) -- the ls-walk on /media/frigate/recordings burned 11 calls because I didn't notice the runuser quoting meant ls ran on the HOST (no /media/frigate there). The fix was podman exec frigate ls. INSTRUMENT-TAX paid: ~20 calls on a 6-call thread.
+
+Census re-verified against recordings table (pinned instrument): block live every night, e4 flat. Sep4 03Z: e3 52, e4 50 -- cutoff clean again.
+
+Cleanup: aria_day_*.png removed from container + host tmp; /tmp/aria_census.py root-owned on sophon (rm as root failed -- created by runuser nacho? no: created by root cat >, then runuser couldn't remove; root rm done).

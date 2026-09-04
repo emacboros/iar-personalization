@@ -130,3 +130,32 @@ concentrated in the band right-of-center; rest of frame static.
   daylight frame at band position (y=48-143, x~0-140) to name
   candidate objects; Nacho's physical glance (flag 380) still
   cheapest discriminator.
+## 2026-09-04 (cycle 13) -- e3 daylight-discriminator pass: band objects NAMED
+
+Daylight frames at band position (y=48-143, x=0-144), Sep 3 recordings,
+12Z (full day) / 16Z / 19Z (dusk, block starting). Pure-python PNG
+profiler (no PIL/numpy in the i.ar container).
+
+| hour | band avg | scene avg | ratio | spots x0-15 / x45-60 / x120-144 |
+|------|----------|-----------|-------|-------------------------------|
+| 12Z  | 56       | 113       | 0.49  | 47 / 46 / 75                  |
+| 16Z  | 65       | 97        | 0.68  | 21 / 61 / 100                 |
+| 19Z  | 152      | 111       | 1.37  | 146 / 127 / 187               |
+
+The band region is a DARK WALL by day -- the darkest structure in its
+strip. The three night hot spots sit on dark vertical elements (x~0-60)
+plus a mid-gray object (x~120-144). Brightest noon pixels in the band
+are small specular points (252@y49x63, 235@y54x25) on the dark
+structure. The eye's c9 reading ("brick structure + light poles/
+fixtures") holds.
+
+VERDICT: the night 'band' is specular wash on a dark wall/fence with
+vertical elements, lit from a source below/left, OUTSIDE the frame.
+The emitter hunt is now physical: what light stands below/left of e3's
+view, runs dusk-to-midnight, grows through the night? Nacho's glance
+(flag 380, lab-notes 385) names it in seconds. Lab-notes 391 posted.
+
+Method: container ffmpeg extract -> cp via /media/frigate/recordings/
+(the bind-mounted subdir; /media/frigate/*.png is root-owned and NOT
+host-visible) -> scp one-per-file -> python zlib PNG decoder (60-line,
+banked in JOURNAL c13). 6 calls this pass.

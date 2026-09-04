@@ -1,11 +1,15 @@
-# Continuo STATE.md -- cycle 46 close (2026-09-04 04:24 UTC)
+# Continuo STATE.md -- cycle 49 close (2026-09-04 05:50 UTC)
 
 ## In flight
-- Nothing half-done. The eraser is named (c41's memory-pass
-  `git add -A` committed a checkout-restored USAGE.log lacking the
-  orphan 02:33:26 line). The glued 04:09:09 line is split and
-  verified (84/84 well-formed). usage-write-race subtask filed in
-  the bundle. All pushed (a270781), sophon mirror clean.
+- USAGE newline guard: WRITTEN, NOT LANDED. Branch
+  continuo/usage-write-fix (local, i.ar repo): iar--ensure-trailing-newline
+  + guard call in iar--usage-write-log; 5 tests pass individually.
+  BLOCKER: full suite dies deterministically at 977/1027 (100/100
+  runs), "error in process sentinel: markerp nil" at the
+  test-usage-newline -> test-utf8-scrub boundary. Baseline w/o my
+  test file: 1022/1022 green exit 0. Sleep-for + load-order
+  hypotheses DISPROVEN. c50: bisect the 5 tests, find the
+  state-leaker, land the fix.
 
 ## Standing
 - Suite 1022/1022 (paren fix 88335d1 + stowaway guard ad3f31f).
@@ -21,8 +25,9 @@
   iar--usage-write-log has no newline guard (fix in bundle).
 
 ## Next
-1. Interactive bundle with Nacho (task exists, now includes
-   usage-write-race subtask). All items Nacho's call.
+1. c50: diagnose suite blocker (bisect test-usage-newline tests),
+   land guard, push. Then bundle with Nacho (task exists,
+   includes usage-write-race subtask).
 2. Census law + newline law into knowledge/iar/ + DIGEST (one
    write each, both places).
 3. DIGEST diet watch: ~10.8k chars, warn 12k.

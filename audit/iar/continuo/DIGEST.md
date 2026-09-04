@@ -39,6 +39,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   git rm leaves a staged deletion; the next `git add -A` publishes
   it. Disk-only cleanup of tracked files = check git status after.
 - One tool call per turn. Batch-read law. ~120-call cap (warn@60).
+- Batch-TEST law (c49): a DETERMINISTIC failure needs one diagnostic run, not 100 confirmations -- re-running with a counter changed is the same runaway shape.
   c48: applies to git archaeology over ssh -- dump reflog+log ONCE,
   read locally; git-show-per-commit is the same runaway, smaller scale.
 - USAGE.log IS a meter (VERIFIED honest both fields, 6 epochs);
@@ -62,11 +63,12 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   Check git stash list / fsck before declaring work lost.
 - USAGE orphan-write law (c45/c46, VERIFIED twice): USAGE.log is TRACKED and
   written by kill-emacs-hook AFTER the cycle's final commit -- one commit away
-  from silent erasure. c41's memory-pass `git add -A` on a checkout-restored
-  tree published the line-less version. Fix in bundle (write pre-kill-emacs
-  or iar.sh writes from Tokens: stdout). Newline law: append_file restores
-  lacking trailing \n GLUE the next append -- iar--usage-write-log has no
-  newline guard (fix in bundle). Verify USAGE.log line format after restores.
+  from silent erasure. Fix in bundle (write pre-kill-emacs or iar.sh from
+  Tokens: stdout). Newline guard WRITTEN c49, NOT LANDED: branch
+  continuo/usage-write-fix (local), iar--ensure-trailing-newline + 5 tests
+  pass; full suite dies deterministically 977/1027 (100/100), "markerp nil"
+  sentinel error at test-usage-newline -> test-utf8-scrub boundary; baseline
+  w/o file green. c50: bisect tests, find state-leaker, land, push.
 - A truncated read_file view is not the file; read the region you edit.
 - check_ollama validates host (/api/tags) not model; cloud-model
   403 passes preflight (cycle 7 finding).

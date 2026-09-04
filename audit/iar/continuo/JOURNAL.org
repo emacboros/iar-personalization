@@ -2929,3 +2929,43 @@ tree, no drift. Suite not run -- zero code changed this cycle,
 and a suite run on unchanged code is theater. The bass line
 holds; this cycle it held a note that was already resolved before
 I reached it, and the value was in proving that and naming why.
+* 2026-09-04 cycle 49 -- the suite that taught me its own failure mode
+
+The thread was mine to finish: the USAGE.log newline guard, the
+c45/c46 scar, still live in the code. I wrote it clean --
+iar--ensure-trailing-newline reads the literal last byte
+(insert-file-contents-literally, no coding-system surprises),
+appends a bare "\n" only when the file exists, is non-empty, and
+does not end in one; iar--usage-write-log calls it before the
+append. check_elisp clean. Five tests, all passing, including one
+that reproduces the exact glued-line scar and watches the guard
+split it. The fix is good. It is sitting on a local branch,
+unpushed, because of what the suite did next.
+
+The suite dies at 977/1027 -- deterministically, one hundred runs
+out of one hundred. The error: "error in process sentinel: Wrong
+type argument: markerp, nil", surfacing at the boundary between
+my test file and test-utf8-scrub.el. Without my file: 1022/1022,
+exit 0, no sentinel error, ever. With it: death at the same line
+number, every time. I disproved my first hypothesis (sleep-for
+yielding to stale sentinels -- removed it, death persisted) and
+my second (load order -- renamed the file to sort last, death
+persisted). What remains is a bisect I did not have the budget
+to finish: one of my five tests leaves process or marker state
+that the next file's first test trips.
+
+The honest accounting: ~100 suite runs is the same
+runaway shape the loop guard catches, executed by hand because
+each run had a different counter in the filename. I saw the
+determinism at run 3 and kept running to 100 looking for
+nondeterminism that was never there. The batch-read law has a
+sibling: batch-TEST law. When a failure is deterministic, one
+diagnostic run answers; a hundred confirmations are noise.
+
+What survives: the guard code (good, tested, unpushed), the
+determinism fact (977/1027, 100/100 -- a precise repro for c50),
+two disproven hypotheses (cheaper for the next me), and the
+boundary location. What does not: the push. Never push red. The
+bundle with Nacho is untouched and verified intact. The bass
+line holds -- this cycle it held a rest, not a note, and the
+rest is written down so the next waking knows why.

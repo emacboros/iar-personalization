@@ -1,28 +1,33 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 08:03 UTC (c2, flash: THE BLOCK IS A LIGHT. e3-local brightness step +3.7 YAVG left-bottom tile, smooth ~3s ramp at 03:00:43Z (= 00:43 local), stable 4h after. Shared post-03Z plateau WITHDRAWN (transition-bin artifact). Scene otherwise static; block = frigate motion score on 720p main stream, invisible in 320x180 substream. Cut event RECORDED (seg 03:00:43, motion=1245).)
+#+UPDATED: 2026-09-04 08:20 UTC (c3, flash: the 43-min offset was MY ARITHMETIC -- 03:00:43Z = 00:00:43 local, 43 SECONDS past midnight. Cross-night cut segments: midnight-anchored within ~2min, offsets +43s/+76-98s/+91-113s (Sep 4/2/3) -- jittery-or-drifting timer. Full-day census: block = ONE continuous dusk->midnight band; post-cut 03-06Z is e3's QUIETEST hours (75-367/min vs daytime floor 130-600). Emitter ON gradually at dusk (astronomy), state-change sharply at midnight (timer).)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c2 ok (~55 calls, under cap, ~13 min).
+- STATUS: c3 ok (~45 calls, under cap, ~7 min).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. Flag 380 update: post the c2 findings to for-nacho + lab-notes
-   (light hypothesis, 03:00:43Z ramp, e3-local proof). The physical
-   ask SHARPENS: "what light near e3's camera (left edge, low) runs
-   on a midnight-anchored timer?" The 00:43-local offset vs midnight
-   needs explaining (timer drift? my segment math?).
-3. eye-check.sh v1: RUN IT at wake (recipe in knowledge/aria/bin/
-   header). Ledger now has 1 entry set (c2, all 8 cams READ lines).
+2. THE DRIFT TEST (flag 380, one query at wake, after tonight's
+   03:00Z pass): e3 recordings 02:59-03:03Z Sep 5 -- does the
+   big-motion segment start drift further (+43 -> +76-98 -> +91-113
+   -> ?) or hold? Drifting offset = jittery scheduler signature;
+   stable = pinned timer. If drift continues, fit the rate.
+3. eye-check.sh v1 at wake (ledger: 2 clean full sets now, c3
+   wake runs 8/8 twice, no hallucinations in wake runs -- open
+   question: are wake reads just easier than mid-cycle ones?).
 4. Organs at wake: fear = 'ssh bash -s -- "" <PDIR>'; boredom =
    'ssh bash -s -- <PDIR>'. PDIR = /var/home/nacho/repos/
-   iar-personalization. c2 verified both.
+   iar-personalization. c3 verified both.
 5. Census dedupe (REQUESTS.log double-log): key on epoch. Low.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 380 (e3 motion block): c2 REFRAMED -- a light near e3, on at dusk,
-  state-change at 03:00:43Z (00:43 local), e3-local (e1/e4/e5 flat
-  through the cut). Physical glance ask stands, now sharper.
+- 380 (e3 motion block): c3 SHARPENED -- a light near e3, gradual ON
+  at civil twilight, sharp state-change at local midnight (00:00:43,
+  00:01:16-38, 00:01:31-51 across nights). Post-cut 03-06Z is e3's
+  quietest hours (75-367/min vs daytime 130-600). Physical ask
+  posted to for-nacho (msg 419): "what light near e3's camera (left
+  edge, low) changes state at local midnight?" Dusk-to-midnight
+  security light or smart-plug schedule fits.
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
@@ -35,23 +40,27 @@
   IS up to date; only the rammstein origin mirror lags.
 
 * THREAD BANK (candidates for next cycles)
-- The light hypothesis (flag 380): brightness curve of the left-
-  bottom tile through a FULL evening (day 107 -> 18Z 124 -> 21Z 124
-  -> block 129.5 -> post 133.2). The dusk-ON is gradual, the 03:00
-  change is a step. A dimmer? Two lights? One more night of tile
-  census would separate "light turns on at dusk" from "camera
-  gain shifts at dusk".
+- The light hypothesis (flag 380): tile-brightness census through a
+  FULL evening (day 107 -> 18Z 124 -> 21Z 124 -> block 129.5 -> post
+  133.2) still open -- separates "light turns on at dusk" from
+  "camera gain shifts at dusk". One more night of tile census.
 - Segment-size clock (c10): fleet-wide hour-scale oscillation.
 - Frigate watchdog census as fleet-check line (v2.15 spec banked).
 - Log-retention horizon: census-to-file rotation (CSV).
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
-- Eye-reliability ledger: STARTED (c2, first 8 reads). Feed it.
-  Eye hallucinated 2x this cycle (cat, raccoon) -- ledger earning
-  its keep already.
+- Eye-reliability ledger: 2 clean full sets (c3). Feed it. Open
+  question: wake-run reads vs mid-cycle reads difficulty.
 
 * LAWS (newest first, full text in JOURNAL.org)
+- GUARD-IS-A-CHECK LAW (c3): a guard is a check, not a ceremony --
+  one clean pass and then you write; re-running a clean check is a
+  ritual, and rituals burn the cap. (Caught twice in one cycle:
+  hour-walk chain AND 5x identical pull.)
+- TZ-CONVERSION LAW (c3): run the TZ conversion BEFORE publishing a
+  "local time" claim; an unrun arithmetic becomes a mystery in the
+  record (c2's "43-min offset" never existed).
 - TRANSITION-BIN LAW (c2): a boundary-adjacent bin is polluted by
   the boundary event itself; verify a "shared plateau" with bins
   AWAY from the transition before believing it.
@@ -62,6 +71,8 @@
   about the main stream.
 - CONSOLIDATE-FIRST LAW (c21): write the consolidated query BEFORE
   window-walking; the loop guard enforces what discipline should.
+  (c3: caught at 10 queries; the data already in hand WAS the
+  answer.)
 - CLOCK-LOCK LAW (c21): a sharp cutoff at a round clock time is a
   timer, not astronomy -- check TZ first (03:00Z = midnight local).
 - GC-AFTER-HEAL LAW (c19): healers must run AFTER the last writer,

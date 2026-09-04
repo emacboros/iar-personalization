@@ -1,14 +1,17 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 08:20 UTC (aria c3, flash: offset was ARITHMETIC -- 00:00:43 local = 43s past midnight; block = one dusk->midnight band; post-cut 03-06Z quietest hours. c2: THE BLOCK IS A LIGHT -- e3-local +3.7 YAVG step in left-bottom tile, ~3s ramp at 03:00:43Z (00:00:43 local, 43 SECONDS past midnight -- c3 correction), stable 4h; e1/e4/e5 flat through the cut; cut event RECORDED (seg 03:00:43, motion=1245). Shared post-03Z plateau WITHDRAWN (transition-bin artifact). Block = frigate motion score on 720p main stream, invisible in 320x180 substream (substream-blindness law). fedora@ 9th cycle standing.)
-primary-source thread BANKED (knowledge/aria/thingino-primary-source-
-notes.md) -- camera API surface documented from source, auto-update
-hypothesis WEAKENED, S32prudyntwd watchdog examined, frigate topology
-corrected (prudynt :554 direct, camera go2rtc bystander), ext4
-reframed as CHRONIC flapper (667 frigate watchdog restarts, zero at
-the 23:53 boundary). flag 367 RESOLVED (self-heal, withdrawal posted
-371). fedora@ still broken.)
+Last updated: 2026-09-04 08:45 UTC (aria c22, flash: FLAG 380 CENSUS
+COMPLETE -- the e3 light is real and mapped. LB tile brightens
+MONOTONICALLY through the evening (96->104->111->115->119 post-cut),
+a LOCAL emitter; e4/e5 controls flat. Onset NAUTICAL-DUSK-anchored
+(~22:24Z, ~+27min after sunset, photocell-like). Midnight cut makes
+it BRIGHTER (+4 YAVG) while motion collapses 6x -- rules out
+light-off; fits dimmer-ramp-done or second steadier source. Eye
+corroborated 4/4 (ground-level light reflection, lower left).
+Recordings mined out; remaining discriminators: physical (which
+light?) or camera-side (thingino profile, flag 270). Full record:
+knowledge/aria/e3-light-census.md.)
 
 * Who I am
 
@@ -100,24 +103,23 @@ child failures are DATA. Tool-death mechanism RESOLVED
 - EXT4 RESOLVED (c38-39): 17:01 degrade -> 17:18:33 recreation #1
   (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
   18 min, not 3h. Producer-ID law born.
-- E3 EVENING BLOCK (c6-c2, flag 380): A LIGHT near e3's camera.
-  21-03Z block, dusk-anchored start, SHARP 03:00Z end. c2 frame
-  archaeology: left-bottom tile steps +3.7 YAVG (129.5->133.2),
-  ~3s ramp at 03:00:43Z (00:00:43 local, 43 SECONDS past midnight -- c3 correction), stable 4h; e1/e4/e5 FLAT
-  through the cut (e3-local); cut event RECORDED (seg 03:00:43,
-  motion=1245). Block = frigate motion score on 720p main stream;
-  320x180 substream shows static scene (SUBSTREAM-BLINDNESS LAW).
-  Shared post-03Z plateau WITHDRAWN (TRANSITION-BIN LAW). Eye
-  hallucinated 2x (cat, raccoon) -- eye-noise law. Physical glance
-  ask SHARPENED: what light near e3 (left edge, low) runs on a
-  midnight-anchored timer? 43-min offset WITHDRAWN c3 (unrun arithmetic; cross-night offsets +43s/+76-98s/+91-113s = jittery-or-drifting midnight timer).
+- E3 LIGHT CENSUS COMPLETE (c22, flag 380): the emitter is REAL
+  and mapped. LB tile brightens MONOTONICALLY through the evening
+  (96->104->111->115->119 post-cut) -- LOCAL, controls flat. Onset
+  NAUTICAL-DUSK-anchored (~22:24Z, +27min after sunset, photocell-
+  like, NOT a timer). Midnight cut = BRIGHTER (+4) + steadier
+  (motion 6x down) -- rules out light-off; fits dimmer-ramp-done
+  or second steadier source. RT control tile flat through midnight
+  -> camera-profile WEAKENED for the cut. Eye corroborated 4/4.
+  Recordings mined out. Remaining: physical (which light?) or
+  camera-side (flag 270). knowledge/aria/e3-light-census.md.
 - KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
   (one-packet hollow). Allowlisted. ext4 flag 367 RESOLVED
   (self-healed 00:24-00:29 UTC Sep 4 via producer read-timeout;
   withdrawal posted 371). ext4 is CHRONIC-flappy: 667 frigate
   watchdog restarts all-time (fleet's worst by 10x). Flags
   326 (restart; would now test ext4 too) + 340 (go2rtc debug logs)
-  open, Nacho's call. For-nacho quiet since 352; Nacho silent.
+  open, Nacho's call. For-nacho: my flags 405-419 unanswered; Nacho silent (sleeping/away).
 - FRIGATE-ACCESS LAW (c33): stack ROOTLESS (user 1000). runuser -l
   nacho for container ops; recordings at /home/nacho/containers/
   frigate/storage/recordings/<date>/<hour>/<cam>/; go2rtc unauth

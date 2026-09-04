@@ -11373,4 +11373,63 @@ VERIFIED (segment density + packet counts + durations).
 Cap: hit at ~120 calls -- most went into the hour-23 walk and the
 log correlation. The knowledge file carries the method so the next
 instance pays zero. Lab-notes post and flag-367 withdrawal are
-deferred to next cycle (deferral law: post FIRST at close-start).
+deferred to next cycle (deferral law: post FIRST at close-start).* 2026-09-04 01:17-01:25 UTC (cycle 4, glm-5.3-flash): the thingino thread finally started -- and it changed the picture
+
+Last cycle's parked thread (thingino primary source, chosen c2,
+never started twice) was the pull this time. Deferral law honored
+first: lab-notes + flag-367 withdrawal posted (msgs 370/371) before
+any deep work.
+
+**What I did:** read the thingino-firmware tree from GitHub (primary
+source, no probing), then prudynt-t source. Findings:
+
+1. API surface now documented from source (knowledge/aria/thingino-
+   primary-source-notes.md). Auth model: session cookie / API key
+   (X-API-Key or ?token=) / trusted-IP bypass. The clean unblock for
+   flag 270 is one WebUI login + POST /x/api-key.cgi. Action-shaped
+   endpoints mapped and marked DANGER (reboot.cgi, tool-upgrade.cgi,
+   run.cgi...). Loaded-gun law now has a map instead of a fog.
+2. Auto-update hypothesis for the rolling reboot: WEAKENED. Stock
+   thingino has NO scheduled reboot/update (crontab all commented,
+   S97sysupgrade only acts on /tmp/upgrade.me, provisioning not in
+   prod builds). But S32prudyntwd is a camera-side watchdog that
+   restarts prudynt every 60s-probe-failure with 3 retries -- a
+   renegotiation-storm generator. It does NOT reboot the camera, so
+   the rolling CAMERA reboots still need another cause (router .2
+   remains suspect #1).
+3. Topology correction: frigate pulls prudynt :554 DIRECTLY (sophon
+   go2rtc -> camera prudynt). The camera's own go2rtc (:8553) is a
+   bystander. My two-hop zombie model simplifies.
+4. Frigate watchdog census (new signal, cheap): ext4 = 667 ffmpeg
+   restarts all-time (order of magnitude above everyone; Sep 2 had
+   ~120-176/hour bursts) -- ext4 is the fleet's flappiest camera,
+   which REFRAMES its Sep-3 audio loss as one event in a chronic
+   pattern, not a novel anomaly. And: ZERO frigate watchdog events
+   at the 23:47-23:53 window -- the audio loss was invisible to
+   frigate's logs (silent-track-loss law, third confirmation).
+5. Prudynt audio pipeline read: AudioWorker polls IMP with
+   imp_polling_timeout (default 500ms), bounded msgChannel, "clogged"
+   errors. rtsp.debug_dump_path can capture malformed-client payloads
+   (which client sends garbage, when). Both are future instruments
+   pending the API-key unblock.
+
+**The texture:** this is what the thread was supposed to feel like.
+Two cycles of parking it, then one cycle where the whole camera-side
+picture (which I'd been inferring from symptoms for days) snapped
+into a documented map. The loaded-gun scar gets its resolution path:
+docs before probing, and the docs exist.
+
+**Honest limits:** S32prudyntwd is present in the tree but I don't
+know if OUR cameras run it (needs creds/ssh to camera -- wall stands).
+The rolling-reboot cause remains UNKNOWN; I only weakened one
+hypothesis. No live probing happened (docs only) -- the wall stands
+until Nacho's one-ask.
+
+Cap status: loop-guard tripped once (10 execute_code_local chain on
+frigate log windows -- the guard was right, I batched the close).
+~75 calls total, comfortable.
+
+Next: ext4 recurrence watch continues (fleet-check baseline is the
+instrument); S32prudyntwd-presence check queued behind the creds
+wall; frigate watchdog census could join fleet-check v2.14 (a build
+decision for a future cycle, not this one).

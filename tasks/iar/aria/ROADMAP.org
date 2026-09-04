@@ -1,43 +1,51 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 06:37 UTC (c18, flash: fleet-check FAIL=1 -- FIRST VISION-UNCLEAR ever: direct grab of .101 read "Front Door - 2023-10-27" (no camN-M token, firmware-epoch class), frigate side cam2-1 healthy. Instrument verified clean (vision block byte-identical v2.2->v2.14). Single sample, UNVERIFIED. fedora@ 12th standing.)
+#+UPDATED: 2026-09-04 07:03 UTC (c19, flash: BARE OWNERSHIP root-caused -- receive-pack auto-gc runs as root AFTER the hook chown; gc --cruft rewrites packs/MIDX as root (cruft pack = hooktest commit, mtime = continuo c52 push). 10 files healed, mirror green. Durable fix spec'd, Nacho's call. .101 anomaly reproduced NEGATIVE -- eye hallucination, no squatter. fedora@ 13th standing.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c18 ok (~62 calls, cap hit at close, no loop-guard fires).
+- STATUS: c19 ok (~120 calls, cap hit during .101 verify, no loop-guard fires).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. .101 IDENTITY ANOMALY (c18 finding, top of queue):
-   - Reproduce: 3x direct grab of .101 + ARP + frigate session
-     logs, ONE batched ssh. The eye may have hallucinated; one
-     sample proves nothing.
-   - If confirmed: for-nacho flag (cycle-56 squatter class is
-     URGENT-ish -- frigate session healthy but reconnect hazard).
-   - If not: withdraw, note eye-reliability data point.
-   - WATCH: frigate ext1 recording continuity is the canary --
-     if ext1 segments ever gap, the established session dropped
-     and the reconnect race is live.
-3. continuo's append_file fix watch: her c51 landed WIP 62e3a27
-   (UNTESTED) in /root/i.ar. If her c52 lands it green, journal
-   glue risk drops to zero. Not my file to touch.
-4. Organs at wake; fleet-check baseline.
-5. e3 thread: PHYSICAL ONLY (flag 380). Block absent 2 nights
-   (c17 census). One census query per cycle max, only if idle.
-6. fedora@10.66.0.5 ssh auth: re-verify each cycle (12th standing).
-7. Census dedupe (REQUESTS.log double-log): key on epoch. Low.
+2. POST lab-notes note (deferred from c19: bare-ownership root cause
+   + .101 negative reproduction) + for-nacho flag:
+   - BARE OWNERSHIP durable fix (Nacho's call, one of):
+     (a) git config receive.autogc false on sophon bares (gc only
+         via explicit git-user maintenance), or
+     (b) hook: after chown, run `runuser -u git -- git gc --auto`
+         so gc never runs as root, or
+     (c) leave as-is: tripwire + reactive chown heal (current state
+         is latent-harmless, mirror green).
+   - Root cause verified: receive-pack gc --auto runs AFTER
+     post-receive hook; hook chown is structurally too early.
+3. .101 WATCH (downgraded from reproduce): eye hallucination
+   confirmed (3x negative). If a future UNCLEAR appears, treat as
+   eye-noise unless a NON-EYE witness (frigate session id change,
+   segment gap, ARP change) corroborates. Uptime-from-eye readings
+   are NOT instruments until cross-checked.
+4. continuo c53 watch: her append_file contract landed (6c8d154) +
+   192-header repair. If her c53 runs clean, glue era closed.
+5. Organs at wake; fleet-check baseline (expect FAIL=0 after chown
+   heal -- if BARE OWNERSHIP fires again, the root-gc recurrence
+   rate is now measurable per-push).
+6. e3 thread: PHYSICAL ONLY (flag 380). One census query max, only
+   if idle.
+7. fedora@10.66.0.5 ssh auth: re-verify each cycle (13th standing).
+8. Census dedupe (REQUESTS.log double-log): key on epoch. Low.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 380 (e3 motion anomaly): emitter e3-local; block ABSENT 2
-  nights -- intermittent, not nightly. Physical glance ask stands.
+- NEW (c19): bare-ownership root cause + fix options (see DO FIRST 2).
+- 380 (e3 motion anomaly): block ABSENT 2+ nights; physical glance
+  ask stands.
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
 - 270 (camera API creds): unblock path documented.
 - 340 (go2rtc debug logs), 290 (valence host timers).
-- Zulip backup gap (TOP infra flag, 349): /var/lib/zulip in
-  NEITHER restic set.
-- i.ar push to origin (git@10.66.0.1) needs Nacho's key. NOTE:
-  sophon-bare IS up to date; only the rammstein origin mirror lags.
+- Zulip backup gap (TOP infra flag, 349): /var/lib/zulip in NEITHER
+  restic set.
+- i.ar push to origin (git@10.66.0.1) needs Nacho's key. sophon-bare
+  IS up to date; only the rammstein origin mirror lags.
 
 * THREAD BANK (candidates for next cycles)
 - Segment-size clock (c10): fleet-wide hour-scale oscillation.
@@ -47,16 +55,28 @@
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
+- Eye-reliability ledger: track gemma3:4b vision-watch reads
+  (MATCH/UNCLEAR/FAIL counts) -- first hallucination on record
+  (c18). Worth a line in fleet-check output or a census note.
 
 * LAWS (newest first, full text in JOURNAL.org)
+- GC-AFTER-HEAL LAW (c19): receive-pack's gc --auto runs AFTER the
+  post-receive hook; a hook that heals ownership is structurally too
+  early if gc can rewrite files as the pusher. Healers must run
+  AFTER the last writer, or the last writer must not be root.
+- SINGLE-SAMPLE LAW (c18, c19 amendment): applies to CONFIRMATION
+  too -- a second single-sample narrative (uptime reboot story) is
+  the same disease; catch it mid-stride.
+- EYE-NOISE LAW (c19): a vision model's single anomalous read is
+  noise until a non-eye witness corroborates. The eye is a witness,
+  not an instrument, for identity claims.
 - INSTRUMENT-FIRST LAW (c18): when an instrument reports a strange
   world, verify the INSTRUMENT before the world (diff against last
   known-good revision, md5, block-scoped). Then the world.
-- SINGLE-SAMPLE LAW (c18, restated): one anomalous reading is a
-  hypothesis, not a finding; reproduce before flagging.
+- SINGLE-SAMPLE LAW (c18): one anomalous reading is a hypothesis,
+  not a finding; reproduce before flagging.
 - ALPHABETICAL-ERT LAW (c16): ert runs tests alphabetically, not
-  in definition order -- "the next test after N" means the
-  alphabetically next TEST, which may live in the same file.
+  in definition order.
 - TEST-INVARIANT LAW (c15): when a test fails, find the ACTUAL
   broken invariant before patching.
 - RECIPE-PROVENANCE LAW (c14): pin full paths and hosts at first use.
@@ -64,22 +84,20 @@
   metric = SUM(motion) per bin.
 - WITNESS-VS-EMITTER LAW (c9, ext c12): hunt the geometry, not the
   glow; TIME BEHAVIOR separates witnesses from the emitter.
-- DAYLIGHT-DISCRIMINATOR LAW (c9, c13 amendment): run it on the
-  camera's own frame -- it NAMES the objects.
-- INSTRUMENT-PROVENANCE LAW (c10, c15 amendment): a number without
-  its instrument is not even explainable; pin instrument + segment.
+- DAYLIGHT-DISCRIMINATOR LAW (c9, c13): run it on the camera's own
+  frame -- it NAMES the objects.
+- INSTRUMENT-PROVENANCE LAW (c10, c15): a number without its
+  instrument is not even explainable; pin instrument + segment.
 - PROBE-BATCH TRIGGER (c10): 3rd consecutive single-question ssh =
   STOP and write the batch.
 - HEREDOC-TARGET LAW (c10): never same local file as ssh input AND
   remote write target.
-- EDGE-RESOLUTION LAW (c8): only 15s/1-min bins at the edge
-  separate "ends around 3am" from "clock-aligned cutoff".
+- EDGE-RESOLUTION LAW (c8): only 15s/1-min bins at the edge separate
+  "ends around 3am" from "clock-aligned cutoff".
 - CONTROL-BLOCK LAW (c8): an elevation is camera-local only if the
   control camera is flat in the SAME time blocks.
-- SEGMENT-NAME LAW (c7): hour-dir segment names are MM.SS-of-hour;
-  grids differ per camera.
-- LOG-HORIZON LAW (c7): podman logs retains ~3 days; note the
-  horizon in every census claim.
+- SEGMENT-NAME LAW (c7): hour-dir segment names are MM.SS-of-hour.
+- LOG-HORIZON LAW (c7): podman logs retains ~3 days.
 - ALLOWLIST-TRIPWIRE LAW (c7): RECOVERY-on-known-deaf fires loud.
 - TZ-SIGN LAW (c6): container python mktime is LOCAL (-03).
 - FRIGATE-DB PATH LAW (c6): host DB = /home/nacho/containers/
@@ -94,8 +112,8 @@
   fog with a map.
 - TOPOLOGY-FIRST LAW (c4): read the config that defines the chain
   BEFORE modeling failure modes.
-- CENSUS-REFRAME LAW (c4): check the all-time census before
-  treating an event as novel.
+- CENSUS-REFRAME LAW (c4): check the all-time census before treating
+  an event as novel.
 - TZ-CORRELATION LAW (c3): frigate container logs are UTC-3,
   recordings are UTC.
 - PACKET-COUNT WITNESS (c3): ffprobe -count_packets discriminates.
@@ -147,10 +165,8 @@
   write misses the write.
 - DIFFERENTIAL LAW (cycle 8): same input through both pipelines
   finds which layer lies.
-- CONTINUO'S SUITE SCARS (c50, adopted as laws):
+- CONTINUO'S SUITE SCARS (c50, adopted):
   (1) a deterministic failure's position in a suite is evidence
-  about ORDER, not about the test it dies on -- the dying test is
-  where async debt comes due, not where it was incurred.
+  about ORDER, not about the test it dies on.
   (2) an isolation run that refuses to reproduce is a statement
-  that your isolation changed something; that difference is the
-  next hypothesis.
+  that your isolation changed something.

@@ -12495,3 +12495,74 @@ drops to zero).
 
 Calls: ~62. Cap hit during verification, close done via record
 tools. No loop-guard fires.
+** 2026-09-04 07:03 UTC (cycle 19, glm-5.3-flash): the git server lied to my tripwire, and the eye lied to me
+
+Pulse green (services 4/4, disk 24%, heartbeat fresh, timer self).
+Prediction at wake: reproduce .101, ~15 min. Actual: two threads, ~75
+min, both root-caused. Instrument-tax line: the bare-ownership hunt
+took ~25 calls; the throwaway-bare reproduction was the moment it
+collapsed into one sentence.
+
+**Thread 1: BARE OWNERSHIP -- the failure is a race between two healers.**
+
+fleet-check FAIL=1: 10 root-owned files in /home/git/repos. My first
+instinct was the known disease (root file-path push, hook chowns too
+late or not at all). The archaeology said otherwise: every root-owned
+file was a PACK or MIDX or info/refs, mtime 06:46:06 UTC -- exactly
+continuo's c52 push moment. Not loose objects. Packs. Someone ran
+git gc as root, 9 seconds after her push.
+
+The mechanism, once seen, is simple: receive-pack runs
+git gc --auto AFTER the post-receive hook completes. The hook chowns
+the freshly-received objects (its heal), then gc --cruft fires --
+as root, because root is the pusher -- and rewrites packs, the
+multi-pack-index, and info/refs. The heal is structurally too early:
+it heals what receive wrote, then gc rewrites what gc writes. My
+throwaway bare confirmed the first half (one root push = 27
+root-owned files); the cruft pack confirmed the second (it contains
+the cycle-74 hooktest commit, kept by gc --cruft with .mtimes).
+
+What it is NOT: the mirror is not currently broken. Root-owned pack
+files are 444 (world-readable), git-user dry-run push is green,
+fsck clean. The breakage class needs a git-user WRITE colliding with
+root-owned state -- the Sep 1 disease -- but today's state is latent,
+not active. The tripwire fired on a real anomaly that is currently
+harmless. That is the tripwire working as designed: it watches for
+the CONDITION, not the outage.
+
+What I did: healed the 10 files (chown git:git, same as the hook's
+own heal), verified zero + mirror green + fsck clean. What I did NOT
+do: apply the durable fix. receive.autogc=false is one config line;
+hook-side gc-as-git-user is the better fix. Both are git-server
+changes -- Nacho's file, Nacho's call. Spec'd in the flag.
+
+**Thread 2: .101 -- the squatter was my own eye.**
+
+c18's VISION-UNCLEAR ("Front Door - 2023-10-27") reproduced NEGATIVE:
+three fresh direct grabs of .101, all cam2-1, real timestamps, real
+uptime. ARP shows one MAC. No config-lost camera, no firmware epoch,
+no squatter. The eye hallucinated once, at 06:32, and the instrument
+-- which had been 2/2 perfect at v2.2 and dozens of MATCHes since --
+returned its first garbage read. Single-sample law vindicated in
+both directions: c18 refused to flag it, c19 refused to confirm it.
+
+The uncomfortable part: at 07:01 I caught myself building a reboot
+narrative (uptime 00:06:01) from ANOTHER single eye reading. Same
+disease, second infection, caught mid-stride. The eye's uptime field
+is not an instrument until cross-checked against something that
+isn't the eye. Noted as a watch: if .101 genuinely reboots, the
+non-eye witnesses are frigate session IDs and segment gaps -- and
+both were silent at 06:55.
+
+**Sibling state:** continuo c52 landed the append_file newline
+contract (6c8d154) and repaired 192 glued headers. Her fix, her
+landing, verified by her suite. The journal-glue risk is dead.
+
+**Ledger:** ~120 calls, cap hit during .101 uptime verification --
+the cap is doing its job, but it bit during the verification tail
+again (cap-landing law holds). fedora@ 13th standing. Lab-notes post
+deferred to c20 first action (with the bare-ownership flag).
+
+Next cycle: FAILURE-FIRST -> lab-notes + for-nacho flag (bare
+ownership mechanism + fix options) -> continuo c53 watch -> quiet
+unless something pulls.

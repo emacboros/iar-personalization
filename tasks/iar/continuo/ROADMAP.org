@@ -1,35 +1,30 @@
-#+TITLE: Continuo ROADMAP (updated cycle 47, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 48, 2026-09-04)
 
-** DONE (cycle 47)
-- Task-tree repair: c46's doubled-path cleanup was DISK-ONLY --
-  git status showed 5 tracked deletions (bundle description +
-  bundle-items + 3 older task dirs) that would have published on
-  the next add -A. Restored all 5 to canonical paths from HEAD,
-  committed 8ee4813, pushed, sophon mirror verified (0 root-owned).
-  LESSON: disk-only cleanup of tracked files = staged deletion.
-- Bundle items: cadence price corrected to 360M/day (c38
-  supersedes older estimate); STATE.md injection mismatch +
-  mirror push preauth details appended.
-- DIGEST diet: 11.4k chars (was 11.4k growing; under 12k warn).
-  Agora recipe compressed, c47 cleanup scar + task-tree law
-  widened (read_task AND ls AND git status).
-- Suite verified green: 1022/1022 (6.0s) at i.ar HEAD ad3f31f ==
-  sophon bare HEAD. No drift.
+** DONE (cycle 48)
+- iar-librarian fossil: VERIFIED ALREADY DEAD. Units removed from
+  sophon /etc/systemd/system (timer deactivated 10:10:02 Sep 3;
+  is-enabled not-found). Watch item was stale by one day.
+- Root cause NAMED (was open): exit-1 fires ran iar.sh from
+  /home/nacho/repos/i.ar -- a SEPARATE STALE CLONE (github clone
+  Jul 13, HEAD e26d983 2026-07-20) predating df4f165 (Aug 16,
+  optional telegram/matrix sourcing). Hard source at line 32 +
+  absent gitignored matrix.sh = exit 1. Repo unit file points at
+  the CURRENT checkout (/var/home/nacho/...) which has the guard.
+  Deployment skew, not code bug.
+- Dead tripwire mechanism: OnFailure was placed in [Service];
+  systemd logs "Unknown key ... ignoring". OnFailure belongs in
+  [Unit]. Handler-as-accomplice in systemd grammar.
+- Decision filed for Nacho (bundle): reinstall librarian with
+  correct path + OnFailure in [Unit], OR delete the stale
+  /home/nacho/repos/i.ar clone (resurrection risk).
 
-** OPEN (next cycle, priority order)
+** OPEN (priority order)
 1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): usage-write-race
-   subtask + bundle-items (cap calibration data COMPLETE, cadence
-   price 360M/day, STATE.md mismatch, /tmp-copy race, exit-126
-   restorecon, git-as-nacho, delayed-heal sweep, floor trim
-   leftovers, mirror preauth). Data side COMPLETE -- waiting on
-   Nacho's session.
-2. Census echo law: knowledge file EXISTS
-   (usage-log-orphan-write-2026-09-04.md covers census law);
-   DIGEST carries it. Remaining: none -- item CLOSED this cycle
-   (c46 wrote the doc, c47 verified).
-3. Digest diet watch: 11.4k, warn 12k. Next diet if growth
-   resumes.
+   subtask + bundle-items. Data side COMPLETE; librarian item
+   updated this cycle (unit already removed; decision pending).
+   Waiting on Nacho's session.
+2. Digest diet watch: 11.4k chars, warn 12k. Diet if growth.
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
@@ -39,13 +34,20 @@
 - Breaker: 0 real fires, two gates live. First fire = proof.
 - iar.sh self-edit race: recurrence = URGENT.
 - Exit-126 class: 0 recurrences since heal (Sep 3 10:22 last).
-- Mid-edit file race (exit-255 end-of-file): last Sep 2 23:52.
-- USAGE.log newline: fix in bundle; next close-write should be
-  clean (file ends WITH \n after c46 split).
-- ssh probes: ONE compound ssh per question, dump to /tmp.
+- Mid-edit file race (exit-255): last Sep 2 23:52.
+- USAGE.log newline: fix in bundle; both USAGE logs verified
+  well-formed this cycle (86/86 continuo, 232/233 aria -- aria
+  line 70 is a legit prose note, not glue).
+- aria-cycle real failures since Sep 3 10:00: ZERO (grep noise
+  "Failures: 0" lines inflate naive counts; real = 4 lines total,
+  all pre-10:26 Sep 3).
+- ssh probes: ONE compound ssh per question, dump to /tmp. NEW
+  LAW (c48): git archaeology over ssh = dump reflog+log ONCE,
+  read locally; sequential git-show-per-commit is the same
+  runaway shape at smaller scale.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
-  echo risk; poisoned-epoch values in DIGEST.
-- Pulse c47: all green (timer/agora/ollama active, tripwire 0,
-  disk 24%, rotate 196). aria c14 closed 04:41 (63 reqs, 2.8M).
-- Cap note: c47 ~20 calls so far, light cycle. Task repair was
-  the thread; suite green check was the verification.
+  echo risk.
+- Pulse c48: all green (timer/agora/ollama active, tripwire 0,
+  disk 24%, rotate 198). aria c15 closed 04:55 (52 reqs, 1.7M).
+- Cap note: c48 ~62 calls, git-forensics heavy. Batch-read law
+  re-learned in the git domain.

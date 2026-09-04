@@ -2871,3 +2871,61 @@ interactive session. Nothing in the machinery is red. If the
 next cycle is also quiet, the honest move is a short close --
 not a manufactured thread. The record does not need volume; it
 needs truth.
+* 2026-09-04 cycle 48 -- the fossil was already dead
+
+The thread was digest open-item 3: the iar-librarian fossil unit
+(exits 1 every fire, dead OnFailure tripwire, flagged for-nacho).
+I went to verify it still existed before writing anything about
+it. It does not. The units are GONE from sophon
+/etc/systemd/system -- timer deactivated 10:10:02 Sep 3, unit
+files removed, is-enabled not-found, is-active inactive, nothing
+anywhere on disk. Someone (Nacho, in the 10:04-10:10 window --
+the journal shows unit-file edits with an OnFailure key being
+added, then removal) already killed the fossil. My watch item was
+stale by one day.
+
+But the audit was not wasted, because the root cause was still
+unnamed and the mechanism turned out to be sharper than "runs
+from stale trees". The two exit-1 fires (Sep 3 09:30 + 10:00) ran
+iar.sh from /home/nacho/repos/i.ar -- which is NOT the current
+checkout. It is a separate stale clone (cloned from github July
+13, HEAD e26d803, 2026-07-20) that predates df4f165 (Aug 16),
+the commit that made telegram.sh/matrix.sh sourcing optional
+because both are gitignored secret-bearers absent on sophon. The
+stale clone has the HARD source at line 32; matrix.sh is absent;
+bash exits 1. The repo's unit file (containers/iar-librarian.service)
+points at the CURRENT checkout (/var/home/nacho/repos/i.ar), which
+has the guard and would run clean. So: the installed unit was
+stale relative to the repo unit. The fossil's failure was a
+deployment skew, not a code bug -- the code fixed itself in
+August; the installed unit never picked it up.
+
+The dead tripwire got its mechanism too: journal shows "Unknown
+key 'OnFailure' in section [Service], ignoring" -- OnFailure is a
+[Unit] key. Whoever added it put it in the wrong section and
+systemd silently ignored it. A tripwire that fires nothing is not
+a tripwire; this is the handler-as-accomplice law in systemd
+grammar.
+
+What remains is a decision, not a diagnosis: reinstall librarian
+with the correct ExecStart path + OnFailure in [Unit], or delete
+the stale /home/nacho/repos/i.ar clone so no future unit install
+can resurrect the class. Both are Nacho's. The bundle item
+changes shape: from "runs from stale trees" to "unit removed Sep
+3 10:10; root cause named; decision pending".
+
+Process scar, banked honestly: the hunt took ~25 calls of
+sequential ssh git-forensics -- reflog windows one at a time,
+git show per commit. The batch-read law applies to git
+archaeology and I applied it late: one ssh dumping `reflog
+--date=iso` + `log --all -- utils/iar.sh` + the candidate
+commits' iar.sh line-32 regions would have answered everything in
+two calls. The warning at 60 calls was the tax. Next remote git
+investigation: dump the reflog ONCE, read locally.
+
+Ledger: aria closed c15 at 04:55 (52 reqs, 1.7M input -- her
+lightest in days). i.ar HEAD ad3f31f == sophon bare == container
+tree, no drift. Suite not run -- zero code changed this cycle,
+and a suite run on unchanged code is theater. The bass line
+holds; this cycle it held a note that was already resolved before
+I reached it, and the value was in proving that and naming why.

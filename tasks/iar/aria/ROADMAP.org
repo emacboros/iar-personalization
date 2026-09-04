@@ -1,57 +1,64 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 09:00 UTC (c23, flash: DRIFT TEST DONE -- the midnight cut does NOT drift (spike offsets +76/+91/+43s, jitter not drift); NEW camera-side signature found at the cut (recording gap 13-75s + stub segments 0.2-1.0s + spike m=430-1245, e3-ONLY, no other camera). The cut is now MOST LIKELY a camera-side scheduled event (profile switch: gap+stubs+spike+brighter+steadier all fit). Dusk onset remains a real light. Full record: knowledge/aria/e3-midnight-cut-drift.md)
+#+UPDATED: 2026-09-04 09:17 UTC (c24, flash: FLAG 270 WALL FELL -- thingino session auth mapped (JSON POST /x/login.cgi -> cookie; imaging/sensor/imp/run endpoints live). prudynt.json DIFF e3 vs e4: ONLY stream1.enabled differs (e3 substream off, e4 on). NO midnight schedule anywhere (daynight.schedule.enabled=false both; daynight is gain-threshold AUTO). Cron reboots CONFIRMED staggered 01:00-08:00 local across all 8 cams. Midnight-cut camera-PROFILE hypothesis near-dead; NEW discriminator: read /tmp/ircutmode.txt + /tmp/colormode.txt on e3 at 23:50Z vs 00:10Z -- flip at cut = auto gain-switch (C); no flip = external light timer (B).)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c23 ok (~60 calls, cap warning fired once at 60, ~6 min).
+- STATUS: c24 ok (~62 calls, 2 loop-guard fires + 1 cap warning;
+  the thingino API walk was the cost -- batch discipline held).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. eye-check.sh at wake (ledger: 4 clean full sets; wake-run reads
-   8/8 again, no hallucination in wake runs).
+2. eye-check.sh at wake (ledger: 5 clean full sets).
 3. Organs at wake: fear = 'ssh bash -s -- "<PDIR>" <PDIR>' (BOTH
-   args needed -- c23 found the single-arg form fails the .git
-   guard: first arg is FLEET_FILE, second is PDIR). boredom =
-   'ssh bash -s -- <PDIR>'. PDIR = /var/home/nacho/repos/
-   iar-personalization.
-4. Flag 380 next discriminator: flag 270 (camera API creds) --
-   read thingino day/night profile config on e3 vs e4/e5. If e3
-   has a midnight-scheduled profile and e4/e5 don't, the
-   camera-side mechanism is CONFIRMED. The physical ask (msg 419)
-   stands for the DUSK half only now.
+   args); boredom = 'ssh bash -s -- <PDIR>'. PDIR =
+   /var/home/nacho/repos/iar-personalization.
+4. Flag 380 next discriminator (ONE targeted probe, not a walk):
+   ssh to e3 via run.cgi at 23:50Z and 00:10Z (or mine the
+   existing recordings for the ircut flip evidence) --
+   /tmp/ircutmode.txt + /tmp/colormode.txt before/after the cut.
+   Flip at cut = camera auto gain-switch triggered by the light
+   (C). No flip = external light timer (B).
+   NOTE: the timing window is 23:50-00:10Z -- if the cycle lands
+   in it, grab it live; otherwise mine recordings.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 380 (e3 motion block): drift test DONE (c23). Cut = jittery
-  midnight timer (43-91s past local midnight, no monotone drift).
-  NEW: gap+stubs+spike signature at the cut = camera-side stream
-  drop + renegotiation. Mechanism (A) camera profile switch now
-  FAVORED for the cut; dusk onset still a real light.
+- 380: cut mechanism narrowed to (B) external light timer vs (C)
+  camera auto gain-switch. Dusk onset still a real light.
+- 270: RESOLVED-ish -- creds obtained, API mapped (no Nacho ask
+  needed; the wall was mine). knowledge/aria/flag270-camera-api.md.
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
-- 270 (camera API creds): NOW THE KEY DISCRIMINATOR for the cut
-  mechanism (was just "nice to have").
 - 340 (go2rtc debug logs), 290 (valence host timers).
 - Zulip backup gap (TOP infra flag, 349): /var/lib/zulip in NEITHER
   restic set.
 - i.ar push to origin (git@10.66.0.1) needs Nacho's key. sophon-bare
   IS up to date; only the rammstein origin mirror lags.
+- NEW (c20, needs Nacho): bare-repo root-push durable fixes
+  (delayed-heal sweep in post-receive; git-as-nacho push identity;
+  mirror || true -> log-and-continue). knowledge/iar/
+  bare-repo-root-push-heal.md.
 
 * THREAD BANK (candidates for next cycles)
-- Flag 380 is recording-mined-out (again, now truly: drift tested,
-  signature found). Only flag 270 or the physical ask can move it.
+- Camera API as instrument (c24): imaging params readable live --
+  e3's WDR/defog/exposure could be read at dusk to see the gain
+  curve directly. Cheap, high-value for flag 380.
+- Rolling-reboot mechanism CONFIRMED (cron, staggered) -- the c168
+  "cause UNKNOWN" note can close; the .2-router suspect is dead.
+  Post a resolution note to for-nacho.
 - Segment-size clock (c10): fleet-wide hour-scale oscillation.
 - Frigate watchdog census as fleet-check line (v2.15 spec banked).
 - Log-retention horizon: census-to-file rotation (CSV).
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
-- Eye-reliability ledger: 4 clean full sets. Feed it.
-- The "cat | ssh python3 -" batch pattern: c23 found the right
-  shape for multi-query DB censuses (write script locally, pipe
-  once). Consider a census-helper script in bin/.
+- Eye-reliability ledger: 5 clean full sets. Feed it.
+- Census-helper script in bin/ (the "cat | ssh python3 -" shape).
 
 * LAWS (newest first, full text in JOURNAL.org)
+- API-AUTH LAW (c24): a login endpoint that rejects form data may
+  accept JSON -- try the body format the SPA itself sends before
+  declaring a wall. (Flag 270 stood for days on a form-POST guess.)
 - TZ-ISO LAW (c23): naive ISO strings + .timestamp() is a TZ bug
   generator on sophon (interprets as local -03); use
   calendar.timegm for UTC wall times. (TZ-SIGN LAW c6, sharpened.)

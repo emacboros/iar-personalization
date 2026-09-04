@@ -1,33 +1,29 @@
-#+TITLE: Continuo ROADMAP (updated cycle 49, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 50, 2026-09-04)
 
-** DONE (cycle 49)
-- USAGE newline guard: CODE COMPLETE, tests pass individually,
-  check_elisp clean. iar--ensure-trailing-newline (literal last-byte
-  read) + guard call in iar--usage-write-log. Committed as WIP
-  332a75a on branch continuo/usage-write-fix, pushed to sophon-bare.
-- Infra pulse: all green (timer/agora/ollama active, tripwire 0,
-  disk 24%). Bundle task verified intact (description + bundle-items
-  + usage-write-race).
-- c48 librarian fossil: closed (already dead, root cause named).
-
-** BLOCKED (cycle 49, c50's first job)
-- Suite blocker: full suite dies DETERMINISTICALLY at 977/1027
-  (100/100 runs) -- "error in process sentinel: Wrong type argument:
-  markerp, nil" at the test-usage-newline -> test-utf8-scrub
-  boundary. Baseline WITHOUT test-usage-newline.el: 1022/1022 green
-  exit 0, no sentinel error. Sleep-for hypothesis DISPROVEN (removed,
-  death persisted). Load-order hypothesis DISPROVEN (rename-to-zz,
-  death persisted). One of the 5 tests leaves process/marker state
-  the next file's first test trips. c50: bisect the 5 tests (delete
-  half, run, repeat -- 3 runs max), find the state-leaker, fix,
-  land, push. NEVER push red.
+** DONE (cycle 50)
+- Suite blocker RESOLVED: root cause = test-unknown-tool-fsm-recovery
+  spawns a REAL curl via the TOOL->WAIT transition; its sentinel fires
+  ~1s later during test-usage-newline-guard-noop-when-present's
+  sleep-for (the only sleep in the suite tail) and kills the run at
+  977/1027 with "markerp, nil" (nil :position in the callback).
+  Newline tests were the RECEIVER, not the sender; the green baseline
+  without them was an artifact (stale sentinel fired after the batch
+  loop, silently swallowed). Fix: stub gptel-curl-get-response /
+  gptel--url-get-response in the test. Suite 1027/1027 exit 0,
+  verified twice.
+- Newline guard LANDED on main (9a85e53: guard + tests + test-hygiene
+  fix), pushed sophon-bare, WIP branch deleted, worktree clean.
+- Infra pulse green (timer/agora/ollama active, tripwire 0, disk 24%).
+- c48 librarian fossil: closed. c49 batch-TEST law: written.
 
 ** OPEN (priority order)
-1. c50: resolve suite blocker, land newline guard on main.
-2. Interactive bundle with Nacho (task
-   iar/continuo/interactive-bundle-nacho): usage-write-race
-   subtask + bundle-items. Data side COMPLETE. Waiting on Nacho.
-3. Digest diet watch: ~11.4k chars, warn 12k.
+1. Interactive bundle with Nacho (task
+   iar/continuo/interactive-bundle-nacho): usage-write-race subtask
+   (the kill-emacs-hook race itself -- code guard now live, race
+   window remains), cap calibration, cadence price. Data side
+   COMPLETE. Waiting on Nacho.
+2. Digest diet watch: ~11.4k chars, warn 12k -- diet at next close
+   if growth continues.
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
@@ -43,10 +39,14 @@
   archaeology over ssh = dump reflog+log ONCE, read locally.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
   echo risk.
-- Pulse c49: all green. aria c15 closed 04:55 (52 reqs, 1.7M).
-- NEW LAW (c49): batch-TEST law -- deterministic failure needs one
-  diagnostic run, not 100 confirmations. Re-running with a counter
-  changed is the same runaway shape as batch-read violations.
-- Scar c49: ert test files that create fake processes can poison
-  later files' first test; the suite's death boundary is a
-  diagnostic, not a verdict on the code under test.
+- Pulse c50: all green.
+- NEW SCAR (c50): a deterministic failure's position in a suite is
+  evidence about ORDER, not about the test it dies on -- the dying
+  test is where async debt comes due; the debtor may be far earlier.
+- NEW SCAR (c50): an isolation run that refuses to reproduce is not
+  a failed experiment -- your isolation changed something (here:
+  ERT registration order vs alphabetical full-suite order); that
+  difference is the next hypothesis.
+- Test-hygiene law (c50 extension): any test that drives an FSM
+  through a state whose handler does network I/O must stub the
+  dispatcher; async sentinels outlive the test that spawned them.

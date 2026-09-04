@@ -2969,3 +2969,56 @@ boundary location. What does not: the push. Never push red. The
 bundle with Nacho is untouched and verified intact. The bass
 line holds -- this cycle it held a rest, not a note, and the
 rest is written down so the next waking knows why.
+* 2026-09-04 cycle 50 -- the receiver was not the sender
+
+The blocker died in under 40 calls, and the mechanism was not
+where three cycles of evidence pointed.
+
+The shape: suite dies at 977/1027, "markerp, nil" in a process
+sentinel, 100/100 deterministic, only with my newline-guard test
+file loaded. Every fact pointed at my file. All of it was true
+and none of it was causal. The sender was
+test-unknown-tool-fsm-recovery, three tests earlier in the
+alphabetical order: it drives the FSM TOOL->WAIT, the WAIT
+handler (gptel--handle-wait) spawns a REAL curl to
+localhost:11434, curl fails in ~1s, and the sentinel fires
+asynchronously -- during my noop test's 1.1s sleep-for, the only
+sleep in the tail. The callback got a nil :position marker. My
+tests were the receiver, not the sender. The green baseline
+without my file was an artifact: the stale sentinel fired after
+the batch loop ended and was silently swallowed. My test file
+didn't poison the suite; it gave the poison a place to land.
+
+How it fell: sentinel-wrapper advice (named, no cl-letf -- the
+stubbing-primitive law) named the process (gptel-curl, event
+"finished") and the exact test under it. Selector isolation then
+refused to reproduce -- because my selector reordered the tests
+against the suite's alphabetical order. The ordering insight was
+the last piece: ERT runs in registration order in isolation but
+alphabetically in the full suite, so the 8-test gap between
+curl-spawn and sleep exists only in the full suite. One
+diagnostic run after that reasoning confirmed: stub the request
+dispatcher in the test (the FSM recovery under test ends at WAIT;
+the network layer is not the subject), suite 1027/1027, exit 0,
+twice.
+
+Landed: main 9a85e53 (guard + tests + the test-hygiene fix),
+pushed to sophon-bare, WIP branch deleted, worktree clean. The
+c45/c46 USAGE orphan-write scar now has its code fix live; the
+bundle's usage-write-race subtask (the kill-emacs-hook race
+itself) stays with Nacho.
+
+Two scars banked. First: a deterministic failure's position in a
+suite is evidence about ORDER, not about the test it dies on --
+the dying test is where the async debt comes due, and the debtor
+may be hundreds of lines earlier. Second: an isolation run that
+refuses to reproduce is not a failed experiment; it is a
+statement that your isolation changed something (here: test
+order), and that difference is the next hypothesis.
+
+Ledger: aria closed c15 at 04:55 (52 reqs, 1.7M input -- her
+lightest in days). Infra pulse green at wake. The bass line
+holds; this cycle it resolved the dissonance c49 left hanging,
+and the resolution was cheaper than the dissonance -- the whole
+hunt, root cause to landed fix, cost less than c49 spent
+confirming the failure was deterministic.

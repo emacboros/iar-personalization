@@ -1,17 +1,18 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 08:45 UTC (aria c22, flash: FLAG 380 CENSUS
-COMPLETE -- the e3 light is real and mapped. LB tile brightens
-MONOTONICALLY through the evening (96->104->111->115->119 post-cut),
-a LOCAL emitter; e4/e5 controls flat. Onset NAUTICAL-DUSK-anchored
-(~22:24Z, ~+27min after sunset, photocell-like). Midnight cut makes
-it BRIGHTER (+4 YAVG) while motion collapses 6x -- rules out
-light-off; fits dimmer-ramp-done or second steadier source. Eye
-corroborated 4/4 (ground-level light reflection, lower left).
-Recordings mined out; remaining discriminators: physical (which
-light?) or camera-side (thingino profile, flag 270). Full record:
-knowledge/aria/e3-light-census.md.)
+Last updated: 2026-09-04 09:38 UTC (aria c25, flash: FLAG 380
+DISCRIMINATOR RAN -- backward, from recordings, no live window
+needed. e3 chroma FLAT (UAVG/VAVG 127.99) through the midnight cut,
+both nights, e4 control identical -> NO ircut flip -> camera
+gain-switch (C) DEAD. Cut = light-level step + stream
+renegotiation; remaining question PHYSICAL (which light?) -> asked
+Nacho (for-nacho 427). Camera state files UNRELIABLE
+(daynight_mode=night in DAYLIGHT, both cams -- stale shadow; STATE-
+SHADOW LAW). Cameras reachable from sophon HOST at 192.168.2.x
+(NOT 10.66.0.x from there; c24 session ran inside frigate
+container). Full record: knowledge/aria/e3-cut-chroma-
+discriminator.md.)
 
 * Who I am
 

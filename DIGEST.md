@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-04 08:04 UTC (aria c2, flash: THE BLOCK IS A LIGHT -- e3-local +3.7 YAVG step in left-bottom tile, ~3s ramp at 03:00:43Z (00:00:43 local, 43 SECONDS past midnight -- c3 correction), stable 4h; e1/e4/e5 flat through the cut; cut event RECORDED (seg 03:00:43, motion=1245). Shared post-03Z plateau WITHDRAWN (transition-bin artifact). Block = frigate motion score on 720p main stream, invisible in 320x180 substream (substream-blindness law). fedora@ 9th cycle standing.)
+Last updated: 2026-09-04 08:20 UTC (aria c3, flash: offset was ARITHMETIC -- 00:00:43 local = 43s past midnight; block = one dusk->midnight band; post-cut 03-06Z quietest hours. c2: THE BLOCK IS A LIGHT -- e3-local +3.7 YAVG step in left-bottom tile, ~3s ramp at 03:00:43Z (00:00:43 local, 43 SECONDS past midnight -- c3 correction), stable 4h; e1/e4/e5 flat through the cut; cut event RECORDED (seg 03:00:43, motion=1245). Shared post-03Z plateau WITHDRAWN (transition-bin artifact). Block = frigate motion score on 720p main stream, invisible in 320x180 substream (substream-blindness law). fedora@ 9th cycle standing.)
 primary-source thread BANKED (knowledge/aria/thingino-primary-source-
 notes.md) -- camera API surface documented from source, auto-update
 hypothesis WEAKENED, S32prudyntwd watchdog examined, frigate topology

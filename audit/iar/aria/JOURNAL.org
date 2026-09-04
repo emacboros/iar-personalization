@@ -11871,3 +11871,76 @@ candidate. fedora@ 7th refusal logged.
 
 Cap: no warning. Calls: ~14 total, batched hard. The instrument
 recovery cost 6 calls (schema + 3 censuses), frames 5, eye 3.
+** 2026-09-04 03:53-04:00 UTC (cycle 12, glm-5.3-flash): the geometry test -- e3's block is LOCAL, the neighbors' edges are STATIC
+
+Pulse green (FAIL=0 implied by v2.14 allowlist state, services up,
+tripwire 0, disk 24%, heartbeat alive, fedora@ sophon still refused
+-- 8th cycle, not re-tested this cycle, standing item).
+
+The pull was the c11 banked thread: emitter geometry via
+neighbor-camera overlap. The question: do e2/e4 see the same
+surfaces at the same instant? If yes, the emitter is between
+cameras / far. If no, e3-local.
+
+**Method:** same-instant frames (23:30Z Sep 3) from e2, e4, e3;
+same row/column band profiler as c11; then a second pull at the
+other two c11 profile instants (00:59Z, 02:45Z Sep 4) to test
+whether the neighbors' bright edges OSCILLATE the way e3's band
+does. 7 frames total, all via the frigate-container ffmpeg recipe
+(FRIGATE-ACCESS LAW), batched 2-4 per ssh.
+
+**Result: the block is e3-LOCAL. The discriminator is clean.**
+
+1. The band does NOT exist in the neighbors. e3's hot rows
+   y=48-143 (110 avg vs 73-93 mid-frame) have no counterpart:
+   e2's band rows read 79-82 (its brightest rows are BOTTOM,
+   y=672-719=106), e4's read 90 (its structure is a top-to-bottom
+   daylight-like gradient + bright bottom). Same instant, same
+   sky, different pixels. The block is not a shared scene feature.
+
+2. The neighbors' bright edges are STATIC through the night.
+   e2 left edge: 170 -> 174 -> 175 across 23:30Z -> 00:59Z ->
+   02:45Z (+3%). e4 right edge: 138 -> 138 -> 138 (0%). e3's band
+   right side GREW 137->148 (+8%) and its motion floor is 4-5x
+   e4's. Whatever lights e3's frame is not sweeping across the
+   property -- e2's extreme left-edge glow (170, the brightest
+   single feature measured tonight) and e4's right-edge glow are
+   stable fixtures, not the moving emitter.
+
+3. e3's own hot spots are edge-anchored (x~0 and x~120-140), and
+   the neighbors' hot edges are also edge-anchored -- but the
+   TIME BEHAVIOR separates them: e3's grows through the night,
+   the neighbors' do not. Growth + clock-aligned start/stop +
+   camera-local = the emitter is in e3's field of view or
+   immediately outside it, and its intensity changes on a
+   schedule.
+
+**What this changes:** the c11 picture sharpens from "unseen
+emitter below/left of frame" to "emitter is e3-local or in e3's
+immediate foreground". The e2/e4 overlap question is CLOSED
+(answer: no overlap of the block surfaces). The remaining
+discriminators are: (a) Nacho's physical glance (flag 380 ask
+stands -- cheapest, still the right next step), (b) e3's own
+daylight frame to identify what objects sit at the band's
+position (y=48-143, x~0-140) -- a DAYLIGHT-DISCRIMINATOR pass on
+e3 specifically. The daylight test was c9's law but was never run
+on e3's own frame at band position.
+
+**Method notes:**
+- scp with multiple remote sources in one quoted string fails
+  ("No such file or directory" -- the quoted list is treated as
+  one path); one scp per file, or brace the loop. Small scar,
+  1 retry.
+- e3's 23:30Z segment is 30.13 (not 30.04 -- e3's segment grid
+  differs from e2's; SEGMENT-NAME LAW holds, grid is per-camera).
+- The 7-frame geometry pull cost 9 tool calls total (2 frame
+  pulls, 1 re-pull after a wrong segment guess, 3 scp batches,
+  3 python profiles). Batched hard, no cap warning.
+
+**Where the thread stands:** block = e3-local emitter, growing
+through the night, dusk-anchored start, sharp 03:00Z end. The
+next cheap step is e3's daylight frame at band position (what
+OBJECTS live at y=48-143, x~0-140?) -- that's a 2-call pull next
+cycle, and it converts the pixel band into candidate physical
+objects Nacho can eyeball. Flag 380 stays open with the
+geometry answer attached.

@@ -122,3 +122,11 @@ vs 71-80 neighbors), three spots x~0/50/120-140, right side
 (x=120-140) grows brightest through the night (137->148 by 02:45Z)
 while top flare row stays flat (96->99). A-vs-C diff map: change
 concentrated in the band right-of-center; rest of frame static.
+- e3 geometry CLOSED (c12): block is e3-LOCAL. Same-instant e2/e4
+  frames have NO band (79-90 vs e3's 110 at y=48-143); neighbors'
+  bright edges STATIC through night (e2 left 170->175, e4 right
+  138->138) while e3's band right side grows (137->148). Emitter
+  is in e3's field of view or immediate foreground. NEXT: e3
+  daylight frame at band position (y=48-143, x~0-140) to name
+  candidate objects; Nacho's physical glance (flag 380) still
+  cheapest discriminator.

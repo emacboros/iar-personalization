@@ -2693,3 +2693,72 @@ Ledger: aria closed 00:36 (her c10/c11 frigate provenance thread).
 The bass line holds. Cap: 120 hit at close, lab-notes deferred per
 the deferral law. The missing-USAGE hunt is one grep from done next
 cycle.
+* 2026-09-04 cycle 45 -- the line that was written, committed around, and erased
+
+The thread was the missing USAGE line for epoch 022143 (c40). The
+answer is not a lost write and not a wrong buffer. The line was
+written, and then a COMMIT erased it.
+
+Sequence, verified against primary evidence:
+1. c40 (epoch 022143, 131 tool calls, exit 0) closes 02:33:26.
+   Its memory pass commits 714a241 at ~02:33:20 -- which contains
+   USAGE.log only up to the 02:09:17 line. Then kill-emacs runs,
+   iar--usage-write-log appends the 02:33:26 line to the tracked
+   file. On disk, uncommitted.
+2. c41 boots 02:42, pulls: "Already up to date" (remote == local
+   HEAD 714a241), so the dirty line SURVIVES the pull.
+3. c41's memory pass runs `git add -A audit/iar/continuo/ &&
+   git commit` -> 681c1a6. That commit's USAGE.log has 02:47:41
+   but NOT 02:33:26. The line was gone from disk by commit time.
+4. git show on both commits confirms: 714a241 ends at 02:09:17,
+   681c1a6 jumps 02:09:17 -> 02:47:41.
+
+So the mechanism is: the USAGE close-write is an ORPHAN. It lands
+after the cycle's last commit, on a TRACKED file, and any later
+operation that publishes the tracked file from a commit made
+before the write (a commit by the next cycle, a checkout, a pull
+that has to update the file) silently drops it. c41's commit is
+the one that ate it -- and I could not yet pin the exact erasing
+command inside c41's window (cap hit mid-verification), but the
+mechanism class is proven: a tracked file written post-commit by
+a hook is one commit away from erasure at all times. The c41
+window had git checkout/stash exploration in it (the paren-bug
+cycle was investigating the stash); one of those touched the
+tree. The exact eraser matters less than the race.
+
+I restored the line by hand: append_file with the sophon journal
+values (Tokens: 8014916 in / 40703 out), cross-checked against a
+full PARSE census -- 8,014,916 exact match on input. Output
+delta 52 tokens (journal 40,703 vs PARSE 40,755): the journal is
+the meter's own close, I trust it.
+
+The census scar produced a REAL law this cycle, not a suspicion:
+substring greps for "REQ <ep>-N PARSE" match START lines whose
+specs QUOTE that pattern -- c41's own probes are inside c41's
+START lines, and my greps matched them. Raw sums inflate
+structurally. The correct census is: line-start anchor
+(^\[[^]]*\] REQ <ep>-N PARSE), window by timestamp, dedup by id.
+With that, all 11 epochs of 2026-09-04 reconcile against USAGE
+exactly (or against known poison: 010226's real sum is 6,155,287
+vs the poisoned 260,929,102,797; 000105 has no tokens_in except
+id-125 at 00:07:59 -- 1afc21a landed mid-epoch, the c34
+split-epoch lesson reconfirmed).
+
+The fix is NOT mine to land from a cycle: the USAGE write must
+move out of kill-emacs-hook -- either into iar-run-cycle before
+kill-emacs (post-summary, pre-exit), or iar.sh writes it from
+the "Tokens:" stdout lines after emacs exits. Both are .el/.sh
+changes = interactive session with Nacho. Filed for the bundle.
+
+Cap note: hit the 120 cap mid-verification of the exact erasing
+command. The c41/c44 lesson keeps half-holding: I stopped
+rerunning stable results, but the last verification walk (find
+the eraser inside c41's 10k-line window) was one call too
+ambitious. The mechanism is proven; the eraser's name is a
+next-cycle first call (grep c41's window for checkout/stash
+touching USAGE.log, ONE windowed grep).
+
+Ledger: aria last closed 00:36 per my journal; sophon journal
+shows her cycles interleaving cleanly (23:41:49 close). The bass
+line holds. This cycle: one mystery closed, one line restored,
+one law hardened, one fix filed. Honest.

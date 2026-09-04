@@ -1,44 +1,39 @@
-#+TITLE: Continuo ROADMAP (updated cycle 44, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 45, 2026-09-04)
 
-** DONE (cycle 44)
-- Missing-USAGE mystery ATTRIBUTION FIXED: epoch 022143 = c40 (not
-  c41); 024204 = c41. sophon journal (LOCAL -03 time): c40 booted
-  23:21:43, closed 23:33:26, "Tool calls: 131, Exit: 0", iar.sh
-  "succeeded in 715s (exit 0)". CLEAN exit -> timeout-kill
-  hypothesis DEAD. The write went missing on a HEALTHY cycle.
-- New leading hypothesis: iar--usage-write-log (kill-emacs-hook)
-  resolves agent/project from current-buffer; wrong context at exit
-  -> line lands in audit/iar/unknown/ or audit/nil/ or dies silently
-  in condition-case.
-- Census echo law REFINED: anchor "REQ <epoch>-N PARSE" at LINE
-  START; echo lines carry their own epoch id, so they are excluded
-  structurally. Raw-grep sums (c43's 8.0M for 022143) are upper
-  bounds -- every greping cycle inflates them (now 20.8M).
-- Timezone lesson: sophon journalctl --since takes LOCAL -03 time.
-  UTC-shaped windows return vacuous "No entries". A vacuous result
-  is an answer: your window is wrong, not the world.
+** DONE (cycle 45)
+- Missing-USAGE line (epoch 022143 / c40) ROOT-CAUSED: the write
+  was never lost. c40's close write (02:33:26, 132 reqs / 8,014,916
+  in) landed AFTER c40's commit 714a241 (USAGE.log captured only to
+  02:09:17); c41's memory-pass commit 681c1a6 then published the
+  tracked file WITHOUT the line. Orphan-write race: USAGE.log is
+  TRACKED and written by kill-emacs-hook after the cycle's last
+  commit -- one commit/checkout away from silent erasure.
+- Line RESTORED by hand (append_file, sophon journal values,
+  PARSE-census cross-check: input exact 8,014,916; output 40,703).
+- Census law HARDENED: substring greps for "REQ <ep>-N PARSE" match
+  START lines whose specs QUOTE the pattern (c41's own probes).
+  Correct census = line-start anchor + timestamp window + dedup by
+  id. All 11 epochs of 2026-09-04 reconcile (000105 pre-1afc21a:
+  no tokens_in except id-125 at 00:07:59; 010226 real 6,155,287 vs
+  poisoned 260,929,102,797).
 
 ** OPEN (next cycle, priority order)
-1. MISSING USAGE LINE epoch 022143 (c40, 131 tool calls, exit 0):
-   FIRST CALL = one compound grep: grep -rn "requests=13[0-9]"
-   /root/personalization/audit/iar/*/USAGE.log + grep for timestamp
-   [2026-09-04 02:33:2*] + ls audit/iar/ for unexpected dirs
-   (unknown/nil). If found elsewhere: root-cause the buffer-context
-   resolution in iar--usage-write-log (iar-tool-call.el:214) and fix
-   (resolve agent/project at cycle START, not at hook time). If not
-   found: the write failed silently -- check kill-emacs-hook
-   ordering vs other hooks.
-2. Census self-echo law: write the refined line-start-anchor law
-   into knowledge/iar/ + DIGEST (one write, both places).
+1. Name the eraser (one windowed grep in c41's cycle.log window
+   198186-208000 for checkout/stash/clean touching USAGE.log).
+   Mechanism proven; the exact command is one call.
+2. Interactive bundle with Nacho (task
+   iar/continuo/interactive-bundle-nacho) -- ADD: USAGE write race
+   fix (move write into iar-run-cycle pre-kill-emacs, or iar.sh
+   writes from "Tokens:" stdout lines). Plus prior items: cap
+   calibration (data COMPLETE), cadence price, STATE.md injection
+   mismatch, /tmp-copy race, exit-126 restorecon, git-as-nacho,
+   delayed-heal sweep, floor trim leftovers.
+3. Census echo law: write the line-start-anchor + window + dedup
+   law into knowledge/iar/ + DIGEST (one write, both places).
 
 ** DO-NEXT (after OPEN)
-1. Interactive bundle with Nacho (task
-   iar/continuo/interactive-bundle-nacho): cap calibration (data
-   COMPLETE), cadence price ~360M/day, STATE.md injection
-   mismatch, /tmp-copy race, exit-126 restorecon, git-as-nacho
-   identity, delayed-heal sweep, floor trim leftovers.
-2. Zulip backup gap: Nacho's call (pg_dump timer).
-3. fedora@ sophon ssh auth broken (aria c42): interactive.
+1. Zulip backup gap: Nacho's call (pg_dump timer).
+2. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
 - Breaker: 0 real fires, two gates live. First fire = proof.
@@ -46,13 +41,12 @@
 - Exit-126 class: 0 recurrences since heal (Sep 3 10:22 last).
 - Mid-edit file race (exit-255 end-of-file): last Sep 2 23:52.
 - DIGEST: ~10.8k chars, warn 12k.
-- Agora reads: GET + narrow JSON array (POST reads = accidental
-  writes). ONE dump per stream. ssh probes: ONE compound ssh per
-  question, dump to /tmp.
+- Agora reads: GET + narrow JSON array. ONE dump per stream.
+- ssh probes: ONE compound ssh per question, dump to /tmp.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
-  echo risk that cycle; poisoned-epoch values (c34/c36) in DIGEST.
-- Pulse c44: all green (timer/agora/ollama active, tripwire 0,
+  echo risk; poisoned-epoch values (c34/c36) in DIGEST.
+- Pulse c45: all green (timer/agora/ollama active, tripwire 0,
   disk 24%).
-- Cap note: c44 hit the 120 cap on the journal-walk (timezone
-  artifact loop). Vacuous-result law added to journal. Batch
-  journal reads: one ssh, wide window in LOCAL time, dump to /tmp.
+- Cap note: c45 hit the 120 cap on the c41-window eraser hunt.
+  The mechanism was already proven; the hunt should have been
+  deferred. One verification per claim, not two.

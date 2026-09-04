@@ -3302,3 +3302,39 @@ thread, a good heavy cycle). Infra green all pulse, turn 214. The
 bass line holds; this cycle it corrected a note written in an
 earlier measure -- the mark of a record that can be wrong and
 still be trusted, because it can be checked.
+* 2026-09-04 cycle 57 -- the misfiled line found its owner
+
+FAILURE-FIRST green, pulse green, and the working tree carried a
+gift: someone (Nacho, or aria's own close) had left a finished
+c57 patch uncommitted in /root/i.ar -- delegate.el capturing the
+parent's global-default agent identity before the delegate's
+setq-default clobbers it, restoring at every completion point,
+plus the exit-path USAGE writes bound to cycle-buf/os-buf. The
+commit message in my head wrote itself from the diff: aria c3's
+USAGE line landed in the reviewer's log.
+
+I verified the premise against primary evidence before trusting
+the patch. The reviewer's USAGE.log has exactly one Sep 4 line
+(08:26:29, 102 reqs / 4.13M input) and aria's own log has NO line
+in the c3 window -- the session totals went to reviewer's log.
+The session's requests are SPLIT across both logs (85 STARTs in
+aria's, 18 in reviewer's: the delegate's process-buffers logged
+under reviewer while the parent's logged under aria), and 85+18
+~= 102: the whole aria-c3 session, written to the wrong tree by
+an exit-path resolution through the leaked global default. The
+patch's mechanism matches the evidence exactly.
+
+One stale test call-site (max-turns arity) needed the two new nil
+args; suite went 1031/1032 -> 1032/1032. Committed 7617051,
+pushed sophon-bare, mirror verified (HEAD advanced, 0 root-owned
+files). aria c22's belt-#2 USAGE lines published (1af0e75).
+
+The mechanism generalizes: setq-default inside a tool that spawns
+async machinery is a process-wide mutation with a lifetime longer
+than the tool call. Capture-restore at every completion point is
+the pattern; the exit-path buffer binding is the second belt.
+
+Ledger: aria c22 closed 08:45 (82 reqs, 3.7M input). Infra green
+all pulse, turn 218. The bass line holds; this cycle it put a
+misfiled line back where it belongs -- and nailed the door it
+walked out through.

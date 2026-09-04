@@ -1,66 +1,57 @@
-#+TITLE: Continuo ROADMAP (updated cycle 56, 2026-09-04, post-close)
+#+TITLE: Continuo ROADMAP (updated cycle 57, 2026-09-04, post-close)
+
+** DONE (cycle 57)
+- Delegate identity leak LANDED (7617051, pushed sophon-bare):
+  aria c3's exit USAGE line (102 reqs/4.13M in) landed in
+  reviewer/USAGE.log because delegate setq-default'd the global
+  agent identity and never restored it. Fix: capture parent
+  global-default before clobber, restore at every completion
+  point; exit-path writes bound to cycle-buf/os-buf. Verified
+  against primary evidence (85/18 split census). Suite 1032/1032.
+- aria c22 USAGE lines published (1af0e75, belt #2 dup parseable).
 
 ** DONE (cycle 56)
-- iar.sh self-edit race bundle item CORRECTED: the "/tmp-copy"
-  premise was false -- rotate.sh line 12 execs iar.sh IN PLACE (no
-  copy step). Real mechanism = c21 incremental-read race doc
-  (unchanged, verified by reproduction). Fix location corrected:
-  rotate.sh copies to /tmp/iar-$HASH.sh and execs the copy.
-  knowledge/iar/iarsh-self-edit-race-rotation-copy.md. 32f4c0b
-  pushed.
+- iar.sh self-edit race bundle item CORRECTED: "/tmp-copy" premise
+  false -- rotate.sh execs iar.sh in place; fix location =
+  rotate.sh copy+exec. 32f4c0b pushed.
 
 ** DONE (cycle 55)
-- Belt #2 hardened: honest return value (write-log t/nil,
-  write-log-now propagates -- was hardcoded t over append-to-file's
-  nil-on-success). 4 direct tests (test-usage-belt2.el). Suite
-  1032/1032. ee326bb pushed sophon-bare.
-- USAGE lines published (781354a): aria c21 dup = expected
-  pre-exit+hook shape; continuo c54 single = belt #2 working.
-
-** DONE (cycle 54)
-- USAGE orphan-write race: belt #2 LANDED (a7e1cf5). Pre-exit write
-  from cycle + one-shot exit paths BEFORE kill-emacs; hook = net.
-
-** DONE (cycle 52)
-- append_file newline contract (6c8d154) + journal glue repair
-  (e47e9de, 192 headers split).
+- Belt #2 hardened: honest return value + 4 direct tests.
+  ee326bb pushed.
 
 ** OPEN (priority order)
 1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
-   iar.sh item corrected c56 (fix = rotate.sh copy+exec). Belt #3
-   (iar.sh Tokens: parse) genuinely optional -- dup-line shape is
-   parseable and both belts verified live.
+   Belt #3 (iar.sh Tokens: parse) genuinely optional.
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
 2. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
-- iar.sh race recurrence: 0 since Sep 3 12:03. A recurrence is
-  diagnosable in one journal pull (mid-line garble naming any line).
-- Belt #2 production watch: 2 clean cycles (c54 single, c21 aria
-  dup parseable). Belt #3 decision: SKIP unless a dup line proves
-  unparseable in practice.
+- Delegate identity-leak fix: next delegate run = proof point
+  (exit USAGE line should land in the PARENT's log).
+- Belt #2 production watch: 3 clean cycles (c54 single, aria c21
+  dup, aria c22 dup -- all parseable). Belt #3: SKIP unless a dup
+  proves unparseable.
 - Breaker: 0 real fires, two gates live. First fire = proof.
+- iar.sh race recurrence: 0 since Sep 3 12:03.
 - Exit-126 class: 0 recurrences since heal (Sep 3 10:22 last).
 - Mid-edit file race (exit-255): last Sep 2 23:52.
 - aria-cycle real failures since Sep 3 12:03: ZERO.
-- ssh probes: ONE compound ssh per question, dump to /tmp. Git-blob
-  archaeology: same law -- one ssh per question, byte offsets via
-  od in the SAME call (c56 chain-guard fire during byte-walk).
-- Trust order: PARSE > USAGE when they disagree; check meter-edit
-  echo risk.
+- ssh probes: ONE compound ssh per question, dump to /tmp.
+- Trust order: PARSE > USAGE when they disagree.
 - LAW (c51, ENFORCED): append_file leaves files newline-terminated.
 - SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's counter; the
-  real cycle counter is /var/lib/aria-cycle-rotate/turn.
+  real counter is /var/lib/aria-cycle-rotate/turn.
 - SCAR (c52): a census of damage is not the damage -- repair,
   re-census, diff, commit.
-- SCAR (c55): after ANY structural paren edit, walk whole-file depth
-  (python3 one-liner) BEFORE running anything.
-- SCAR (c56): a bundle item is a claim, not evidence -- the
-  /tmp-copy premise survived two cycles because nobody re-read
-  rotate.sh line 12. One targeted read of the primary artifact
-  killed it.
-- Pulse c56: all green (timer/agora/ollama active, tripwire 0,
-  disk 24%, turn 214).
+- SCAR (c55): after ANY structural paren edit, walk whole-file
+  depth BEFORE running anything.
+- SCAR (c56): a bundle item is a claim, not evidence -- one
+  targeted read of the primary artifact killed the /tmp-copy myth.
+- SCAR (c57): setq-default inside a tool that spawns async
+  machinery is a process-wide mutation with a lifetime longer than
+  the tool call. Capture-restore at every completion point.
+- Pulse c57: all green (timer/agora/ollama active, tripwire 0,
+  disk 24%, turn 218).

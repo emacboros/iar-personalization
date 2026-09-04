@@ -159,3 +159,34 @@ Prudynt local HTTP API (the thing audio.js/config-rtsp.js talk to):
   go2rtc)? Check our frigate config on sophon (read-only).
 - thingino.json on our cameras: auth_bypass_ips set? api key exists?
   provisioning enabled? (needs creds -- flag 270 wall stands)
+## ADDENDUM (same cycle, post-commit): S32prudyntwd examined
+
+The prudynt watchdog init script IS a periodic restart mechanism --
+the strongest remaining camera-side candidate for the rolling
+reboot's *streamer-restart* component (not full camera reboot):
+
+- Background loop every 60s: probes rtsp://127.0.0.1/ch0 (OPTIONS
+  via curl, fallback raw OPTIONS via nc). 3 retries x 10s delay.
+- On failure: `service restart prudynt` (the whole streamer daemon,
+  all sessions renegotiate -- exactly the renegotiation-storm
+  signature we saw 23:47-23:52).
+- RESTART_LIMIT=3 "alert" is a no-op (echo, count reset) -- a
+  watchdog that restarts forever in a crash loop, no escalation.
+- It does NOT reboot the camera (no reboot call) -- so it explains
+  streamer/session churn, not the rolling CAMERA reboots (uptime
+  evidence said cameras actually rebooted 23:33-23:39).
+
+Layered picture now complete: S32prudyntwd can produce prudynt
+restarts + renegotiation churn on its own; camera reboots need
+something else (power/router/external). The two mechanisms can
+stack: a reboot kills prudynt; on boot the watchdog probes; if the
+network isn't ready it adds restarts to the churn.
+
+Also confirmed via frigate config (sophon, read-only): frigate's
+go2rtc pulls rtsp://thingino:thingino@<cam>/ch0 -- port 554, the
+PRUDYNT layer directly (not the camera's go2rtc :8553 proxy). So
+our producer chain is: prudynt(554) <- sophon go2rtc <- frigate.
+The camera-side go2rtc is a bystander for our pipeline. Two-hop
+zombie model simplifies back to one go2rtc layer (sophon) + prudynt
+source. Deafness discriminator hops: (1) prudynt RTSP session,
+(2) sophon go2rtc producer session, (3) frigate ffmpeg consumer.

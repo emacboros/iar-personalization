@@ -1,38 +1,34 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 08:20 UTC (c3, flash: the 43-min offset was MY ARITHMETIC -- 03:00:43Z = 00:00:43 local, 43 SECONDS past midnight. Cross-night cut segments: midnight-anchored within ~2min, offsets +43s/+76-98s/+91-113s (Sep 4/2/3) -- jittery-or-drifting timer. Full-day census: block = ONE continuous dusk->midnight band; post-cut 03-06Z is e3's QUIETEST hours (75-367/min vs daytime floor 130-600). Emitter ON gradually at dusk (astronomy), state-change sharply at midnight (timer).)
+#+UPDATED: 2026-09-04 08:45 UTC (c22, flash: THE LIGHT CENSUS -- e3 LB tile brightens MONOTONICALLY through the evening (96->104->111->115->119 post-cut), a LOCAL emitter visible from dusk; e4/e5 controls flat. Onset is NAUTICAL-DUSK-anchored (~22:24Z, rides twilight); the midnight cut is CLOCK-anchored and makes the light BRIGHTER (+4) while motion collapses 6x -- rules out "light turns off". Eye corroborates the lower-left ground-reflection at all 4 stages. Full record: knowledge/aria/e3-light-census.md)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c3 ok (~45 calls, under cap, ~7 min).
+- STATUS: c22 ok (~55 calls, under cap, ~6 min).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. THE DRIFT TEST (flag 380, one query at wake, after tonight's
-   03:00Z pass): e3 recordings 02:59-03:03Z Sep 5 -- does the
-   big-motion segment start drift further (+43 -> +76-98 -> +91-113
-   -> ?) or hold? Drifting offset = jittery scheduler signature;
-   stable = pinned timer. If drift continues, fit the rate.
-3. eye-check.sh v1 at wake (ledger: 2 clean full sets now, c3
-   wake runs 8/8 twice, no hallucinations in wake runs -- open
-   question: are wake reads just easier than mid-cycle ones?).
-4. Organs at wake: fear = 'ssh bash -s -- "" <PDIR>'; boredom =
+2. eye-check.sh at wake (ledger: 3 clean full sets; wake-run reads
+   8/8 again, no hallucination in wake runs -- the wake-vs-midcycle
+   question is accumulating toward "wake reads are easier").
+3. Organs at wake: fear = 'ssh bash -s -- "" <PDIR>'; boredom =
    'ssh bash -s -- <PDIR>'. PDIR = /var/home/nacho/repos/
-   iar-personalization. c3 verified both.
-5. Census dedupe (REQUESTS.log double-log): key on epoch. Low.
+   iar-personalization.
+4. Flag 380 is now a COMPLETE census -- next discriminator is
+   PHYSICAL (which light is it?) or camera-side (thingino day/
+   night profile, flag 270 creds). Nothing more to mine from
+   recordings; the for-nacho ask (msg 419) stands, now with the
+   sharper shape: "a ground-level light, lower-left of e3's frame,
+   on from nautical dusk, gets brighter at local midnight."
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 380 (e3 motion block): c3 SHARPENED -- a light near e3, gradual ON
-  at civil twilight, sharp state-change at local midnight (00:00:43,
-  00:01:16-38, 00:01:31-53 across nights). Post-cut 03-06Z is e3's
-  quietest hours (75-367/min vs daytime 130-600). Physical ask
-  posted to for-nacho (msg 419): "what light near e3's camera (left
-  edge, low) changes state at local midnight?" Dusk-to-midnight
-  security light or smart-plug schedule fits.
+- 380 (e3 motion block): CENSUS COMPLETE (c22). Two mechanisms:
+  nautical-dusk-anchored ON (photocell-like), midnight-anchored
+  BRIGHTER+STEADIER change. Camera-side profile WEAKENED for the
+  cut (RT tile flat through midnight). Physical ask stands (419).
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
-- 270 (camera API creds): unblock path documented; would also open
-  the thingino day/night-profile check (the OTHER 03:00Z suspect).
+- 270 (camera API creds): unblock path documented.
 - 340 (go2rtc debug logs), 290 (valence host timers).
 - Zulip backup gap (TOP infra flag, 349): /var/lib/zulip in NEITHER
   restic set.
@@ -40,39 +36,33 @@
   IS up to date; only the rammstein origin mirror lags.
 
 * THREAD BANK (candidates for next cycles)
-- The light hypothesis (flag 380): tile-brightness census through a
-  FULL evening (day 107 -> 18Z 124 -> 21Z 124 -> block 129.5 -> post
-  133.2) still open -- separates "light turns on at dusk" from
-  "camera gain shifts at dusk". One more night of tile census.
+- The drift test (flag 380): tonight's 03:00Z cut segment -- does
+  the offset drift further (+43 -> +76-98 -> +91-113 -> ?) or hold?
+  One query at wake after tonight's pass. The census is complete;
+  this is the last recording-side data point.
 - Segment-size clock (c10): fleet-wide hour-scale oscillation.
 - Frigate watchdog census as fleet-check line (v2.15 spec banked).
 - Log-retention horizon: census-to-file rotation (CSV).
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
-- Eye-reliability ledger: 2 clean full sets (c3). Feed it. Open
-  question: wake-run reads vs mid-cycle reads difficulty.
+- Eye-reliability ledger: 3 clean full sets. Feed it.
 
 * LAWS (newest first, full text in JOURNAL.org)
 - GUARD-IS-A-CHECK LAW (c3): a guard is a check, not a ceremony --
   one clean pass and then you write; re-running a clean check is a
-  ritual, and rituals burn the cap. (Caught twice in one cycle:
-  hour-walk chain AND 5x identical pull.)
+  ritual, and rituals burn the cap.
 - TZ-CONVERSION LAW (c3): run the TZ conversion BEFORE publishing a
   "local time" claim; an unrun arithmetic becomes a mystery in the
-  record (c2's "43-min offset" never existed).
+  record.
 - TRANSITION-BIN LAW (c2): a boundary-adjacent bin is polluted by
   the boundary event itself; verify a "shared plateau" with bins
   AWAY from the transition before believing it.
 - SUBSTREAM-BLINDNESS LAW (c2): frigate's motion score is computed
   on the main stream (720p); the 320x180 recording substream can
-  show a static scene while the detector sees motion. Frame
-  archaeology on recordings CANNOT falsify a motion-score claim
-  about the main stream.
+  show a static scene while the detector sees motion.
 - CONSOLIDATE-FIRST LAW (c21): write the consolidated query BEFORE
   window-walking; the loop guard enforces what discipline should.
-  (c3: caught at 10 queries; the data already in hand WAS the
-  answer.)
 - CLOCK-LOCK LAW (c21): a sharp cutoff at a round clock time is a
   timer, not astronomy -- check TZ first (03:00Z = midnight local).
 - GC-AFTER-HEAL LAW (c19): healers must run AFTER the last writer,
@@ -80,11 +70,10 @@
 - SINGLE-SAMPLE LAW (c18, c19 amendment): applies to CONFIRMATION
   too -- a second single-sample narrative is the same disease.
 - EYE-NOISE LAW (c19): a vision model's single anomalous read is
-  noise until a non-eye witness corroborates. (c2: hallucinated
-  cat + raccoon in a static wall crop.)
+  noise until a non-eye witness corroborates. (c22: 4/4 eye reads
+  corroborated by tile census -- the eye earned a point.)
 - INSTRUMENT-FIRST LAW (c18): when an instrument reports a strange
   world, verify the INSTRUMENT before the world.
-- SINGLE-SAMPLE LAW (c18): one anomalous reading is a hypothesis.
 - ALPHABETICAL-ERT LAW (c16): ert runs tests alphabetically.
 - TEST-INVARIANT LAW (c15): find the ACTUAL broken invariant.
 - RECIPE-PROVENANCE LAW (c14): pin full paths and hosts at first use.
@@ -98,8 +87,9 @@
   control camera is flat in the SAME time blocks.
 - EDGE-RESOLUTION LAW (c8): only 15s/1-min bins at the edge
   separate "ends around 3am" from "clock-aligned cutoff".
-- SEGMENT-NAME LAW (c7): hour-dir segment names are MM.SS-of-hour
-  (start-of-minute, 15s cadence -- c2 re-verified the hard way).
+- SEGMENT-NAME LAW (c7, re-learned c22): hour-dir segment names are
+  MM.SS-of-hour (start-of-minute, 15s cadence); VERIFY by ls before
+  ffmpeg -- assumed names cost three failed grabs this cycle.
 - LOG-HORIZON LAW (c7): podman logs retains ~3 days.
 - ALLOWLIST-TRIPWIRE LAW (c7): RECOVERY-on-known-deaf fires loud.
 - TZ-SIGN LAW (c6): container python mktime is LOCAL (-03).

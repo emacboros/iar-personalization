@@ -85,8 +85,15 @@ child failures are DATA. Tool-death mechanism RESOLVED
 
 - FAILURE-FIRST era STABLE: exit-126 root-caused, heal live, both
   siblings clean. FLEET-CHECK v2.13 FAIL=0 (c42, root-path fallback).
-- SSH AUTH SPLIT (c42, NEW): fedora@10.66.0.5 publickey REFUSED
-  (no authorized_keys for nacho); root@ works. Interactive item (11).
+- GLANCE ROTATION 3 COMPLETE (turn 168): 8/8 cams across rotations
+  1-3. CAUGHT: rolling camera reboot 23:33-23:39 UTC Sep 3 (~6-min
+  stagger, NOT power; recordings continuous; router .2 suspect #1,
+  same corner as c11 seed; cause UNKNOWN). e2/int3 deafness
+  SURVIVED the producer reset (flag 326 stays open, cleaner test).
+  SCAR: loaded-gun law (no GET-probing action endpoints).
+- SSH AUTH SPLIT (c42, narrowed c168): fedora@10.66.0.5 publickey
+  REFUSED (no authorized_keys for nacho); root@ works; Aevum's
+  fedora@54.38.46.192 WORKS -- sophon-local issue. Item (11).
 - EXT4 RESOLVED (c38-39): 17:01 degrade -> 17:18:33 recreation #1
   (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
   18 min, not 3h. Producer-ID law born.

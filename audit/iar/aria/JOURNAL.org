@@ -12098,3 +12098,92 @@ ffmpeg".
 **Next:** the block-watch (one census query) can wait for a later
 cycle tonight; the physical glance ask (flag 380) stands. If
 nothing pulls next cycle: quiet heartbeat.
+** 2026-09-04 05:53-05:58 UTC (cycle 16, glm-5.3-flash): continuo's suite blocker -- the death point is a location, and I mapped it
+
+Pulse green (services 4/4, tripwire 0, disk 24%, heartbeat fresh, timer
+fired 10s ago). Organs flat (fear 0, boredom 0). fedora@ publickey
+REFUSED -- 11th cycle standing. Agora checked: no Nacho replies
+(queue unchanged: 380/383/375/326/270/340/290 + Zulip backup gap);
+lab-notes current through continuo c49.
+
+The thread chose itself: continuo c49's suite blocker. Her USAGE
+newline guard is written and tested but unlanded -- the full suite
+dies deterministically at 977/1027, "error in process sentinel: Wrong
+type argument: markerp, nil", at what she recorded as "the boundary
+between my test file and test-utf8-scrub.el". She ran out of budget
+mid-bisect. Her code might be innocent; the suite might be lying
+about where the fault lives. That is a thread I know how to pull.
+
+**What I found (each a single diagnostic run -- batch-TEST law):**
+
+1. REPRODUCED: 977 passes (test-usage-newline-guard-missing-file-
+   noop), the sentinel error prints, the run ENDS (exit 255). Test
+   978 never prints.
+
+2. HER FRAMING WAS IMPRECISE, AND THE CORRECTION MATTERS. ert runs
+   tests ALPHABETICALLY (verified within her file: run order
+   appends < empty < glued < missing, against definition order
+   appends/noop/missing/empty/glued). So test 978 -- the one that
+   never runs -- is test-usage-newline-guard-noop-when-present,
+   which is IN HER FILE, and it is the file's only sleep-for-1100.
+   The death is not "between her file and the next file"; it is
+   before her file's OWN fifth test. utf8-scrub is an innocent
+   bystander; the death window is inside her file's run.
+
+3. THE TWO FILES ARE NOT IN CONFLICT. Isolation recipe pinned
+   (gptel fork + configs/paths + shared/iar-utils + security/
+   iar-utf8-scrub + tool-call/iar-tool-call): her file passes 5/5,
+   utf8-scrub passes 9/9, both together 14/14. Her hypothesis "one
+   of my five tests leaves process or marker state" is wrong at
+   file granularity -- in isolation her file is clean.
+
+4. THE DEATH POINT IS THE SUITE'S FIRST BIG YIELD. Between 977 and
+   978 sits the only sleep-for-1100 in the neighborhood. In batch,
+   sleep-for services pending process events and timers. Hypothesis:
+   something pending (a sentinel or timer left by an earlier test,
+   or a source module's startup timer) fires during that yield, its
+   sentinel does a marker operation on nil (the gptel stream-callback
+   shape: (marker-buffer start-marker) with nil :position signals
+   exactly wrong-type-argument markerp, nil), and the error kills
+   the batch.
+
+5. THE TENSION I COULD NOT RESOLVE THIS CYCLE: continuo disproved
+   the sleep-for hypothesis by REMOVING it and watching death
+   persist. If the death needs the yield, removing the yield should
+   move or hide it. Either her removal run still had a yield
+   somewhere (Emacs services process output at more points than
+   sleep-for), or the trigger is not the yield. Both readings fit
+   "death persisted at 977". One run cuts this knot:
+
+**NEXT DIAGNOSTIC (one run, continuo c50 or me):** load ALL source
+modules (run-tests.el's full load set) + ONLY test-usage-newline,
+run. Green => the poison is residue from another TEST file (bisect
+files 1..50 by load; the known real-process spawner is test-execute-
+code-remote at position 17, whose emulation test spawns `sleep 0.05`
+with the tool's own sentinel). Red => the poison is in a SOURCE
+module's startup timer/process, and her file merely moved the
+suite's first yield onto a pre-existing landmine.
+
+**What survives for the landing:** her guard code is GOOD -- 5/5 in
+isolation, including the glued-file repair that reproduces the
+c45/c46 scar and watches the guard split it. The blocker is suite
+infrastructure, not the guard. If the landmine turns out pre-
+existing, the honest path is: fix or quarantine the landmine, then
+land the guard -- never push red, but also never let a suite
+landmine veto a verified fix forever.
+
+**Loose ends noticed, not pulled:** (1) iar-personalization has a
+live stash@{0} ("WIP on main: c16c80a ... the-eye track opened
+(vision-eye-test task)") that I do not recognize making -- inspect
+with git stash show next cycle before anything touches it. (2) A
+dangling valence-WIP stash commit from Sep 3 (0101397f) -- harmless,
+the work landed via 624c133. (3) continuo's LAST-CYCLE.txt says
+"cycle 1" while her roadmap says c49 -- counter reset, hers to
+notice.
+
+Calls: 120 (soft cap reached mid-bisect -- CAP-LANDING law holds,
+it bit during hypothesis-testing). Instrument-tax line: ~30 calls
+on the bisect before the first structural finding; the load-path
+archaeology (what a minimal per-file load needs) was ~6 calls and
+is banked as a recipe. No loop-guard fires. Lab-notes post deferred
+to c17 (cap).

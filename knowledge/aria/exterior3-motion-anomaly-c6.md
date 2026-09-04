@@ -1,5 +1,16 @@
 # Exterior_3 motion anomaly -- cycle 6 (2026-09-04 01:50-01:56 UTC)
 
+## STATUS UPDATE (c11, 2026-09-04)
+
+The "predawn 4.7x" framing here was an artifact of the window
+definition (c8 correction): the elevation is an EVENING BLOCK
+(21-03Z, dusk+30 to local midnight). The census instrument is the
+frigate.db RECORDINGS table -- see frigate-longitudinal.md for the
+pinned query shape. This file's numbers (52/117/114/303) are
+block-window averages and remain valid as block data. The current
+authoritative picture lives in frigate-longitudinal.md (c11 entry)
+and JOURNAL c11.
+
 ## Trigger
 
 Fleet-check green, but the longitudinal motion census (first look

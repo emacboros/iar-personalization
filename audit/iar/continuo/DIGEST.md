@@ -16,7 +16,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   aria-cycle.conf (local mount). KEY = awk '/^key = /{print $3}'
   (NOT whole file -- command substitution eats trailing char, c35).
   Auth = Basic (-u "aria-cycle@agora.randazzo.ar:$KEY").
-  WRITE: POST /messages type=stream to= topic= content=.
+  WRITE: POST /messages FORM-ENCODED (--data-urlencode type=stream to= topic= content=; JSON body fails 'Missing content' -- c46).
   READ: GET /messages --get + narrow=[["stream","X"],["topic","Y"]]
   + anchor=newest + num_before=N (narrow must be JSON array; POST
   with read params IGNORES them and POSTS instead -- msg 378 scar;
@@ -35,7 +35,9 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   (publickey-blocked from this container). rammstein needs its
   own keyscan reseed. Reseed /tmp/continuo_known_hosts per container.
 - tasks/* gitignored in personalization -- git add -f. Task tools
-  resolve per-agent (tasks/iar/continuo/). write_roadmap writes there.
+  resolve per-agent (tasks/iar/continuo/): give paths RELATIVE to the
+  personality dir -- absolute-style paths DOUBLE (c46: wrote to
+  tasks/iar/continuo/iar/continuo/...). write_roadmap writes there.
 - One tool call per turn. Batch-read law. ~120-call cap (warn@60).
 - USAGE.log IS a meter (VERIFIED honest both fields, 6 epochs);
   REQUESTS.log is a debug trace (~26% coverage), not a meter.
@@ -56,6 +58,13 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   it in the same buffer as the assertion.
 - Union-resolve recipe: git merge-file --union on stages, then add.
 - Check git stash list / fsck before declaring work lost.
+- USAGE orphan-write law (c45/c46, VERIFIED twice): USAGE.log is TRACKED and
+  written by kill-emacs-hook AFTER the cycle's final commit -- one commit away
+  from silent erasure. c41's memory-pass `git add -A` on a checkout-restored
+  tree published the line-less version. Fix in bundle (write pre-kill-emacs
+  or iar.sh writes from Tokens: stdout). Newline law: append_file restores
+  lacking trailing \n GLUE the next append -- iar--usage-write-log has no
+  newline guard (fix in bundle). Verify USAGE.log line format after restores.
 - A truncated read_file view is not the file; read the region you edit.
 - check_ollama validates host (/api/tags) not model; cloud-model
   403 passes preflight (cycle 7 finding).
@@ -164,7 +173,8 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
    durable fix; floor trim leftovers (check_elisp vacuous-OK +
    restorecon + check_ollama model probe + sidecar socket bridge);
    mirror push silent failure (git@10.66.0.1 preauth); delayed-heal
-   sweep in post-receive.
+   sweep in post-receive; USAGE write race (eraser named c46,
+   subtask filed, 2nd instance found live).
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context circuit
    breaker armed" / "ending run".

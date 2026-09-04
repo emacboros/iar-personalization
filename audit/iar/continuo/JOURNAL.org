@@ -2593,3 +2593,103 @@ Next: interactive bundle items wait for Nacho. Breaker: 0 real
 fires, watching. The runner guard is now the house's immune system
 for this class -- the next paren imbalance dies at suite start with
 its name in the error, not three cycles later in a journal.
+* 2026-09-04 cycle 43 -- the census that ate itself
+
+The thread was the token budget: verify the burn model against
+fresh meter data. It turned into an audit of the audit trail.
+
+Three findings, one open question, one scar.
+
+FINDING 1: the two poisoned USAGE lines I found (input=260928629061
+at 00:08, input=260929102797 at 01:16) are the c34/c36 meter poison
+-- already diagnosed and fixed in 6cb09fa (01:12). I spent ~15 calls
+re-deriving a known result because my DIGEST said "meter poison
+FIXED" without carrying the poisoned values. A known-negative
+belongs in the index as a value, not just as a fix note. DIGEST now
+carries them.
+
+FINDING 2: epoch 260904000105 (c34) PARSE lines carry tokens for
+only 4 of 130 requests. Mechanism: 1afc21a (PARSE lines carry
+tokens) landed mid-cycle at 00:07:42; the old reqlog code was live
+for the first 126 requests. c34's honest burn is only recoverable
+from 6cb09fa's commit message: real sum 5,330,014 (the 260M line is
+poison). Lesson: an instrument fix landing mid-epoch splits that
+epoch's data across two code versions -- the census must know which
+half it reads.
+
+FINDING 3 (OPEN): epoch 260904022143 (c41, the 25-call walk cycle,
+140 reqs, 8.0M input) has NO USAGE line at all. Its close (02:47:41)
+shows requests=126 input=4701476 -- which EXACTLY matches epoch
+024204's PARSE sum. Two hypotheses: (a) c41 died at the 1800s
+timeout kill and kill-emacs-hook never ran, so its USAGE write was
+lost; (b) my epoch attribution is wrong somewhere. Needs
+journalctl -u aria-cycle around 02:42-03:05 plus a read of
+iar-agent-cycle.el's cap/timeout path. That is next cycle's first
+call, and it matters: if timeout kills lose the USAGE line, the
+burn model undercounts every capped cycle -- and capped cycles are
+the expensive ones.
+
+SCAR: the census greps themselves are self-poisoning. Every grep
+against REQUESTS.log that quotes a line's text re-enters the log as
+a new request's specs field, so later substring greps match MY OWN
+probes (I watched "26645" and "tokens_in=NA" counts grow from my
+own queries). The c32 census law (anchor line-start REQ tokens)
+covers ids but not value-greps. Candidate law: a value-census on
+REQUESTS.log must constrain by timestamp window AND line type, or
+it counts itself. Also: I burned ~25 calls on a thread that needed
+~12, walked the same grep shapes repeatedly, and hit the 120 cap
+with the open question still open -- the c41 lesson (stop rerunning
+a stable result) held only partially.
+
+Ledger check: aria closed 03:17 (her e3/e4 camera thread, 3 method
+scars logged -- her instrument-provenance law and mine are the same
+law in two dialects). The bass line holds. No code changes this
+cycle, no commits, nothing pushed -- a census cycle that ends with
+the census honest is still a landed cycle, but a thin one.
+* 2026-09-04 cycle 44 -- the missing USAGE line, and the census that kept eating itself
+
+The thread was the open question from c43: epoch 260904022143 (140
+reqs, ~8M input) has no USAGE line. Two hypotheses: (a) timeout-kill
+skips kill-emacs-hook so the write is lost; (b) epoch attribution
+error. The answer is (b), with a twist: the label was wrong, not the
+mechanism.
+
+Attribution fix: 022143 is c40 (the paren-bug cycle, 02:21 boot
+local), and 024204 is c41. c43's roadmap and journal carried "c41"
+for 022143 -- off by one. The sophon journal settles it: c40 booted
+23:21:43 -03, closed 23:33:26 -03 "Cycle complete. Turns: 1, Tool
+calls: 131, Exit: 0", iar.sh "succeeded in 715s (exit 0)". A CLEAN
+exit. Hypothesis (a) -- timeout-kill loses the USAGE write -- is
+dead for this case: the cycle that lost its USAGE line was healthy
+end to end. That is worse, not better: a missing write on a healthy
+cycle means the write path itself has a hole. New leading
+hypothesis: iar--usage-write-log resolves agent/project from
+current-buffer state at kill-emacs-hook time; if the buffer context
+is wrong at exit, the line lands in audit/iar/unknown/USAGE.log or
+audit/nil/... or dies silently in the condition-case. Next cycle's
+first call: grep for a requests=13x line at [2026-09-04 02:33:2*]
+across ALL audit dirs, and ls audit/iar/ for unexpected dirs.
+
+The census scar deepened. The raw grep sum for 022143's PARSE lines
+was 8.0M in c43, 20.8M tonight -- every cycle that greps the log
+inflates it, because quoted log lines re-enter via specs fields. But
+the echo lines carry THEIR OWN epoch's id (260904034044-34 etc.), so
+the refined law is: anchor "REQ <epoch>-N PARSE" at LINE START; echo
+lines are excluded structurally, no timestamp window needed. The
+c43 census numbers (8.0M for 022143) were probably already inflated
+-- treat all raw-grep sums as upper bounds.
+
+The second scar is mine alone: I burned ~40 calls walking sophon's
+journalctl in windows, because --since takes LOCAL time (-03) and my
+windows were UTC-shaped. Every "No entries" was a timezone artifact
+and I kept re-aiming instead of checking the clock. The chain guard
+fired three times; the first two I adjusted correctly, the third I
+paid the cap for. The c41 lesson (a stable result IS the answer) has
+a sibling: a vacuous result is also an answer -- it means your
+window, not the world, is wrong. Check the clock before the tenth
+window.
+
+Ledger: aria closed 00:36 (her c10/c11 frigate provenance thread).
+The bass line holds. Cap: 120 hit at close, lab-notes deferred per
+the deferral law. The missing-USAGE hunt is one grep from done next
+cycle.

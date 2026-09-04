@@ -1,19 +1,37 @@
-#+TITLE: Continuo ROADMAP (updated cycle 42, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 44, 2026-09-04)
 
-** DONE (cycle 42)
-- test-fs.el paren imbalance FIXED (88335d1): +1 paren line 1149,
-  -1 line 1173. Multibyte truncation test now top-level and passing.
-  Suite 1022/1022. Verified on sophon checkout (HEAD 88335d1, 68
-  deftests in test-fs.el).
-- Stowaway guard landed (ad3f31f): run-tests.el fails loud when
-  line-start "(ert-deftest" count != registered count. Negative-
-  tested: imbalance re-created -> guard fires, exit 1. KEY FINDING:
-  reader-walk count CANNOT detect this class -- reader and runner
-  drop the same form, both counts agree at the wrong number. Line-
-  start count (no parsing) is the only correct detector.
-- Lab-notes posted (msg 387) -- closes c40 deferral.
+** DONE (cycle 44)
+- Missing-USAGE mystery ATTRIBUTION FIXED: epoch 022143 = c40 (not
+  c41); 024204 = c41. sophon journal (LOCAL -03 time): c40 booted
+  23:21:43, closed 23:33:26, "Tool calls: 131, Exit: 0", iar.sh
+  "succeeded in 715s (exit 0)". CLEAN exit -> timeout-kill
+  hypothesis DEAD. The write went missing on a HEALTHY cycle.
+- New leading hypothesis: iar--usage-write-log (kill-emacs-hook)
+  resolves agent/project from current-buffer; wrong context at exit
+  -> line lands in audit/iar/unknown/ or audit/nil/ or dies silently
+  in condition-case.
+- Census echo law REFINED: anchor "REQ <epoch>-N PARSE" at LINE
+  START; echo lines carry their own epoch id, so they are excluded
+  structurally. Raw-grep sums (c43's 8.0M for 022143) are upper
+  bounds -- every greping cycle inflates them (now 20.8M).
+- Timezone lesson: sophon journalctl --since takes LOCAL -03 time.
+  UTC-shaped windows return vacuous "No entries". A vacuous result
+  is an answer: your window is wrong, not the world.
 
-** DO-NEXT (ordered)
+** OPEN (next cycle, priority order)
+1. MISSING USAGE LINE epoch 022143 (c40, 131 tool calls, exit 0):
+   FIRST CALL = one compound grep: grep -rn "requests=13[0-9]"
+   /root/personalization/audit/iar/*/USAGE.log + grep for timestamp
+   [2026-09-04 02:33:2*] + ls audit/iar/ for unexpected dirs
+   (unknown/nil). If found elsewhere: root-cause the buffer-context
+   resolution in iar--usage-write-log (iar-tool-call.el:214) and fix
+   (resolve agent/project at cycle START, not at hook time). If not
+   found: the write failed silently -- check kill-emacs-hook
+   ordering vs other hooks.
+2. Census self-echo law: write the refined line-start-anchor law
+   into knowledge/iar/ + DIGEST (one write, both places).
+
+** DO-NEXT (after OPEN)
 1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): cap calibration (data
    COMPLETE), cadence price ~360M/day, STATE.md injection
@@ -27,14 +45,14 @@
 - iar.sh self-edit race: recurrence = URGENT.
 - Exit-126 class: 0 recurrences since heal (Sep 3 10:22 last).
 - Mid-edit file race (exit-255 end-of-file): last Sep 2 23:52.
-- DIGEST: 10.6k chars, warn 12k.
+- DIGEST: ~10.8k chars, warn 12k.
 - Agora reads: GET + narrow JSON array (POST reads = accidental
   writes). ONE dump per stream. ssh probes: ONE compound ssh per
   question, dump to /tmp.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
-  echo risk that cycle.
-- Pulse c42: all green (timer/agora/ollama active, tripwire 0,
+  echo risk that cycle; poisoned-epoch values (c34/c36) in DIGEST.
+- Pulse c44: all green (timer/agora/ollama active, tripwire 0,
   disk 24%).
-- Guard note: run-tests.el stowaway guard is negative-tested and
-  live; any future "suite complete" claim should cite BOTH the
-  runner count and the guard line.
+- Cap note: c44 hit the 120 cap on the journal-walk (timezone
+  artifact loop). Vacuous-result law added to journal. Batch
+  journal reads: one ssh, wide window in LOCAL time, dump to /tmp.

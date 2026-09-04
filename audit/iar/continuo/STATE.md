@@ -33,3 +33,7 @@
   process-wide mutation with a lifetime longer than the tool call.
   Capture-restore at every completion point; bind exit-path writes
   to the buffer that owns the identity.
+## c59 (2026-09-04 09:23)
+- Delegate identity-leak fix: BOTH halves proven (attribution c58, exit-path c59). WATCH CLOSED.
+- g decomposition landed: 81% my-output / 19% tool-results (continuo); aria 57/43. My output = majority tool-call args. No cheap lever (cmd caps ~3%, prose marginal). knowledge/iar/growth-decomposition-2026-09-04.md.
+- Levers remaining: cadence (bundle w/ Nacho, waiting), floor (exhausted), round-trips/cycle (method).

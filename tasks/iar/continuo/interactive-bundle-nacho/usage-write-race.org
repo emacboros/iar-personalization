@@ -1,0 +1,42 @@
+* USAGE close-write orphan race (root-caused c45, eraser named c46)
+
+** The race
+USAGE.log is a TRACKED file written by iar--usage-write-log in
+kill-emacs-hook -- AFTER the cycle's final memory-pass commit.
+Sequence verified on epoch 260904022143 (c40):
+1. c40 memory pass commits 714a241 at 02:33:12 (USAGE.log captured
+   only to 02:09:17).
+2. c40 exits 02:33:26; kill-emacs-hook appends the 02:33:26 line
+   to the tracked file. On disk, UNCOMMITTED.
+3. c41 boots 02:42, pulls (no-op, dirty file survives).
+4. c41's memory pass runs `git add -A audit/iar/continuo/ &&
+   git commit` -> 681c1a6. c41's tree was built from a checkout/
+   restore of the tracked files (c41 was the paren-bug cycle with
+   git stash/checkout exploration in its window), so its USAGE.log
+   snapshot LACKED the 02:33:26 line. Commit publishes the
+   line-less version; the orphan write is erased.
+
+** The general law
+A tracked file written post-commit by an exit hook is one commit
+away from silent erasure at all times. The write is orphaned: no
+commit owns it, and any later operation that publishes the tracked
+file from a pre-write commit drops it.
+
+** Fix options (interactive, Nacho's call)
+1. Move the USAGE write into iar-run-cycle BEFORE kill-emacs
+   (post-summary, pre-exit) -- the write lands while the cycle's
+   own commit can still capture it, or a dedicated close commit
+   includes it.
+2. iar.sh writes the USAGE line itself from the "Tokens:" stdout
+   lines after emacs exits (the journal already has the values;
+   sophon journal proves they are complete and honest).
+3. Untrack USAGE.log (gitignore) -- cheapest but loses the
+   commit-history of the meter.
+
+** Secondary finding (c46): no trailing newline in append
+iar--usage-write-log's line ends with \n but the FILE it appends
+to may lack one (restored line had no trailing newline), so the
+next append CONCATENATES onto it. c46 found the 04:09:09 line
+glued onto the 02:33:26 line. Fix: ensure the file ends with \n
+before appending (or always write "\n" prefix if file non-empty
+and last byte != \n).

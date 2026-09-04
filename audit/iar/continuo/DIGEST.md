@@ -12,12 +12,12 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   (origin git@10.66.0.1 is publickey-blocked from this container).
 - Personalization: /root/personalization (audit/iar/continuo/ is
   mine). DOCS live here: docs/iar/ -- the i.ar repo has no docs/.
-- Agora: key = awk '/^key = /{print $3}' aria-cycle.conf (NOT whole
-  file, c35). Auth Basic -u "aria-cycle@agora.randazzo.ar:$KEY".
-  WRITE: POST /messages FORM-ENCODED (--data-urlencode; JSON fails,
-  c46). READ: GET /messages --get + narrow JSON array + anchor=newest
-  + num_before=N (POST with read params POSTS instead -- msg 378).
-  DM: narrow=[["is","private"]]. Full recipe:
+- Agora: key = awk '/^key = /{print $3}' aria-cycle.conf (c35).
+  Auth Basic -u "aria-cycle@agora.randazzo.ar:$KEY". WRITE: POST
+  form-encoded (--data-urlencode; JSON fails, c46). READ: GET
+  --get + narrow JSON array + anchor=newest + num_before=N
+  (POST with read params POSTS instead -- msg 378). DM:
+  narrow=[["is","private"]]. Full recipe:
   knowledge/iar/agora-api-read-recipe.md. Streams: with-nacho=6,
   for-nacho=5, lab-notes=4.
 - Meter code: emacs.d/init.d/tool-call/iar-tool-call.el
@@ -53,7 +53,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   Injection lever EXHAUSTED; overview diet landed c20. Analysis:
   knowledge/iar/burn-decomposition-2026-09-03.md.
 - Digest has a per-request price: +1363 chars = +300 tok/req
-  (verified c33). Digest dieted to ~8.5k chars c52, warn 12k.
+  (verified c33). Digest dieted to ~11k chars c53, warn 12k.
 - Exit-126 = container start death: lsetxattr EPERM when :z
   relabel hits root-owned files. ExecStartPre chowns but does not
   relabel (durable fix: restorecon, interactive).
@@ -117,6 +117,12 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's per-invocation
   counter (always 1/1 with rotate.sh); the real cycle counter is
   /var/lib/aria-cycle-rotate/turn. Name which counter you mean.
+- Shared-tree handoff (c53): aria and continuo share ONE working
+  tree at /root/personalization; rotate.sh defers fires while a
+  cycle runs, so no overlap. An unpushed commit from one sibling
+  is published by the other's push-first (fast-forward) -- do not
+  push on top of a sibling's unpushed HEAD unless publishing it
+  deliberately and saying so.
 
 ## Test-writing laws
 - Stubbing-primitive: cl-letf on a primitive (make-process) triggers
@@ -158,9 +164,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   poison (c36, FIXED 6cb09fa): model echoes meter field names while
   editing the meter; old loose first-match regex captured echo +
   adjacent digits. Quoted-JSON-key anchor + last-match is live.
-  Trust order: PARSE lines > USAGE line when they disagree; check
-  whether the meter was being edited that cycle (echo risk). Full
-  doc: knowledge/iar/evalcount-accounting-resolution-2026-09-04.md.
+  Full doc: knowledge/iar/evalcount-accounting-resolution-2026-09-04.md.
 - REQUESTS.log census law (c32): substring grep SELF-INFLATES --
   conversation tails quote the log itself. Anchor line-start REQ
   tokens; validate vs USAGE line first.
@@ -183,24 +187,14 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   one ssh, output > /tmp/dump, read_file the dump.
 
 ## Open threads
-1. Interactive bundle with Nacho (TOP): cap calibration (data
-   COMPLETE: honest meter + edge census + premium +52-58%),
-   cadence price ~360M/day; STATE.md injection mismatch
-   (personality edit -- STATE.md is write-only for aria-cycle mode);
-   rotate.sh /tmp-copy fix; exit-126 behavioral law + git-as-nacho
-   durable fix; floor trim leftovers (check_elisp vacuous-OK +
-   restorecon + check_ollama model probe + sidecar socket bridge);
-   mirror push silent failure (git@10.66.0.1 preauth); delayed-heal
-   sweep in post-receive; USAGE write race (eraser named c46,
-   subtask filed, 2nd instance found live). c47: bundle task files
-   RESTORED to canonical paths (c46 cleanup was disk-only; tracked
-   deletions would have erased description/bundle-items on next
-   commit -- caught by git status before any damage).
+1. Interactive bundle with Nacho (TOP): waiting on Nacho. Full item
+   list lives in task iar/continuo/interactive-bundle-nacho +
+   subtasks (cap calibration data COMPLETE; cadence price ~360M
+   input tok/day; USAGE write race subtask filed, eraser named c46).
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context circuit
    breaker armed" / "ending run".
-3. LIBRARIAN FOSSIL: RESOLVED c48 (units removed Sep 3 10:10;
-   stale-clone skew root-caused; Nacho decision pending).
+3. LIBRARIAN FOSSIL: RESOLVED c48; Nacho decision pending.
 4. Hollow-success watch: closed mechanisms (no-continue fail-loud,
    breaker text gate, exit-2 tombstone). No remaining candidate.
 5. Mid-edit file race (exit-255 end-of-file): rare, watch.
@@ -210,7 +204,5 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 8. Task-tree visibility: any future fossil audit must check BOTH
    read_task AND ls AND git status -- tooling, disk, and the INDEX
    can all disagree (c16 lesson; c47 scar).
-9. Floor-share watch: CLOSED (c23). Diet verified live; injection
-   lever exhausted; remaining burn = cadence price (Nacho's).
-10. Journal-glue thread: CLOSED c52 (contract landed 6c8d154,
-    journals repaired e47e9de, 0 mid-line headers post-repair).
+9. Floor-share watch: CLOSED (c23).
+10. Journal-glue thread: CLOSED c52 (6c8d154 + e47e9de).

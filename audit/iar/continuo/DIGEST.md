@@ -12,17 +12,14 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   (origin git@10.66.0.1 is publickey-blocked from this container).
 - Personalization: /root/personalization (audit/iar/continuo/ is
   mine). DOCS live here: docs/iar/ -- the i.ar repo has no docs/.
-- Agora: aria-cycle@ key in /var/home/nacho/repos/agora/bot/
-  aria-cycle.conf (local mount). KEY = awk '/^key = /{print $3}'
-  (NOT whole file -- command substitution eats trailing char, c35).
-  Auth = Basic (-u "aria-cycle@agora.randazzo.ar:$KEY").
-  WRITE: POST /messages FORM-ENCODED (--data-urlencode type=stream to= topic= content=; JSON body fails 'Missing content' -- c46).
-  READ: GET /messages --get + narrow=[["stream","X"],["topic","Y"]]
-  + anchor=newest + num_before=N (narrow must be JSON array; POST
-  with read params IGNORES them and POSTS instead -- msg 378 scar;
-  recipe: knowledge/iar/agora-api-read-recipe.md). DM read:
-  narrow=[["is","private"]]. Streams: with-nacho=6, for-nacho=5,
-  lab-notes=4.
+- Agora: key = awk '/^key = /{print $3}' aria-cycle.conf (NOT whole
+  file, c35). Auth Basic -u "aria-cycle@agora.randazzo.ar:$KEY".
+  WRITE: POST /messages FORM-ENCODED (--data-urlencode; JSON fails,
+  c46). READ: GET /messages --get + narrow JSON array + anchor=newest
+  + num_before=N (POST with read params POSTS instead -- msg 378).
+  DM: narrow=[["is","private"]]. Full recipe:
+  knowledge/iar/agora-api-read-recipe.md. Streams: with-nacho=6,
+  for-nacho=5, lab-notes=4.
 - Meter code: emacs.d/init.d/tool-call/iar-tool-call.el
   (iar--usage-parse-tokens). Request log: iar-request-log.el (PARSE
   lines carry tokens_in/tokens_out).
@@ -38,6 +35,9 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   resolve per-agent (tasks/iar/continuo/): give paths RELATIVE to the
   personality dir -- absolute-style paths DOUBLE (c46: wrote to
   tasks/iar/continuo/iar/continuo/...). write_roadmap writes there.
+- Cleanup law (c47): removing a TRACKED file from disk without
+  git rm leaves a staged deletion; the next `git add -A` publishes
+  it. Disk-only cleanup of tracked files = check git status after.
 - One tool call per turn. Batch-read law. ~120-call cap (warn@60).
 - USAGE.log IS a meter (VERIFIED honest both fields, 6 epochs);
   REQUESTS.log is a debug trace (~26% coverage), not a meter.
@@ -52,12 +52,12 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Digest has a per-request price: +1363 chars = +300 tok/req
   (verified c33). Digest now 10.4k chars, warn 12k.
 - Exit-126 = container start death: lsetxattr EPERM when :z
-  relabel hits root-owned files. ExecStartPre auto-heal chowns but
-  does not relabel (durable fix: restorecon, interactive).
-- iar--current-project is buffer-local: test fixtures must bind
-  it in the same buffer as the assertion.
-- Union-resolve recipe: git merge-file --union on stages, then add.
-- Check git stash list / fsck before declaring work lost.
+  relabel hits root-owned files. ExecStartPre chowns but does not
+  relabel (durable fix: restorecon, interactive).
+- iar--current-project is buffer-local: bind it in the same
+  buffer as the assertion.
+- Union-resolve: git merge-file --union on stages, then add.
+  Check git stash list / fsck before declaring work lost.
 - USAGE orphan-write law (c45/c46, VERIFIED twice): USAGE.log is TRACKED and
   written by kill-emacs-hook AFTER the cycle's final commit -- one commit away
   from silent erasure. c41's memory-pass `git add -A` on a checkout-restored
@@ -89,14 +89,12 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   (canonical, named in aria's personality file). knowledge/aria/
   THREADS.org RETIRED (pointer file only).
 - Twin-copy law, 3 instances: THREADS banks, DIGEST twins (scar 38),
-  agora-probe.sh (RETIRED -- fleet-check 0c is sole copy). Redundancy-
-  vs-drift test: "does anyone run it" (execution census first).
-- Census law (scar 44): a count that gates a destructive decision
-  must have its pattern validated against a known-positive BEFORE
-  the count means anything.
+  agora-probe.sh (RETIRED). Test: "does anyone run it" (census first).
+- Census law (scar 44): a count gating a destructive decision needs
+  pattern validation against a known-positive BEFORE it means anything.
 - Sophon checkout of iar-personalization is INODE-IDENTICAL to the
   container tree (same bind mount): knowledge/aria/bin changes are
-  live where the instruments run, no deploy step.
+  live where instruments run, no deploy step.
 - aria-cycle.service ExecStartPre auto-heal (Nacho-approved)
   covers /var/home/nacho/repos + /home/nacho/repos; tripwire tag
   aria-cycle-tripwire.
@@ -145,13 +143,11 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   conversation tails quote the log itself. Anchor line-start REQ
   tokens; validate vs USAGE line first.
 - RESPONSE body_tail truncates at ~4k chars (c33): done:true chunk
-  rides the end and is cut on large-output reqs. PARSE lines are the
-  complete source for token censuses. c36 measured: 77% of output
-  from 13% of requests (17/129 truncated).
-- Log-walk law (c37): REQUESTS.log event order is START -> RESPONSE
-  -> PARSE. Single-pass stateful walk sees a STALE id at RESPONSE
-  time. Two-pass join (collect per id, then compare). Zero-results
-  from verification scripts need known-positive validation.
+  cut on large-output reqs. PARSE lines are the complete census
+  source. 77% of output from 13% of requests (c36).
+- Log-walk law (c37): REQUESTS.log order START -> RESPONSE -> PARSE;
+  single-pass walk sees a STALE id at RESPONSE time. Two-pass join.
+  Zero-results from verification scripts need known-positive validation.
 - Cap edge visible in USAGE.log: requests=128 = 120 tool-call cap
   + ~8 non-tool requests. Cap price QUANTIFIED c38: capped cycle
   +52-58% vs two half-cycles, premium ~2.2M input tok, 16-21% of
@@ -174,7 +170,10 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
    restorecon + check_ollama model probe + sidecar socket bridge);
    mirror push silent failure (git@10.66.0.1 preauth); delayed-heal
    sweep in post-receive; USAGE write race (eraser named c46,
-   subtask filed, 2nd instance found live).
+   subtask filed, 2nd instance found live). c47: bundle task files
+   RESTORED to canonical paths (c46 cleanup was disk-only; tracked
+   deletions would have erased description/bundle-items on next
+   commit -- caught by git status before any damage).
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context circuit
    breaker armed" / "ending run".
@@ -188,7 +187,9 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 7. Bare-repo residue escalation trigger: a NON-git-user operation
    failing on sophon bare = pollution crossed nuisance->breakage.
 8. Task-tree visibility: any future fossil audit must check BOTH
-   read_task AND ls -- tooling and disk can disagree (c16 lesson).
+   read_task AND ls AND git status -- tooling, disk, and the INDEX
+   can all disagree (c16 lesson; c47 scar: disk-only cleanup left
+   tracked deletions that published on the next commit).
 9. Floor-share watch: CLOSED (c23). Diet verified live; injection
    lever exhausted; remaining burn = cadence price (Nacho's).
 10. Digest diet: 10.4k chars, warn 12k -- diet at next close if

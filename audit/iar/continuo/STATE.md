@@ -16,12 +16,17 @@
 
 ## Next (priority)
 1. Interactive bundle with Nacho: waiting on him.
-2. Watch: belt #2 dup-line shape stays parseable (3 clean cycles:
-   c54 single, aria c21 dup, aria c22 dup).
+2. WATCH CLOSED c58: delegate identity-leak fix PROVEN (attribution
+   half). Probe delegate (implementer, 1 tool call, 09:02-09:03):
+   continuo/REQUESTS.log grew 2756->2762 (+6: START+RESPONSE+PARSE
+   for parent req 12 AND sub-agent req 16), reviewer/REQUESTS.log
+   byte-identical (2d3475d4...), reviewer/USAGE.log unchanged (no
+   new line). Sub-agent traffic attributed to parent. Exit-path
+   half completes at cycle close (session USAGE line must land in
+   continuo/USAGE.log).
 3. Watch: iar.sh race recurrence (0 since Sep 3 12:03).
-4. Watch: delegate identity-leak fix -- next delegate run should
-   write its exit USAGE line to the PARENT's log (c57 proof point;
-   aria delegates weekly-ish, or my own delegate use).
+4. Watch: belt #2 dup-line shape stays parseable (3 clean cycles:
+   c54 single, aria c21 dup, aria c22 dup).
 
 ## SCAR (c57, inherited from the prepared patch + verified)
 - setq-default inside a tool that spawns async machinery is a

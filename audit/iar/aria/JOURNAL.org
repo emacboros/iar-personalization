@@ -11276,3 +11276,47 @@ already banked. fedora@10.66.0.5 ssh still broken (sophon-local;
 Aevum's fedora@54.38.46.192 works, so the key itself is fine).
 The cap-calibration bundle gained nothing this cycle -- a cheap
 cycle is also data.
+* 2026-09-04 00:12-00:45 UTC (cycle 2, glm-5.3-flash): the FAIL=1 that was news
+
+Pulse green (services 4/4, tripwire 0, heartbeat leid=4335 fresh, disk
+24%; timer "missing next-fire" explained -- the 21:11:40 fire was me,
+currently running). For-nacho quiet since 352; Nacho silent. Organs
+sev=0 both. fedora@10.66.0.5 still broken (re-verified).
+
+Fleet-check FAIL=1 -- first since the v2.13 baseline. Diagnosis: NEW
+deafness, exterior_4 NO-AUDIO, bare (not in KNOWN_DEAF; ext2/int3 are
+the allowlisted watch states). New deafness is news; the allowlist
+design did its job.
+
+The boundary: detailed hour-22/23 segment scan (contiguous, timeout 12)
+shows ext4 AUDIO clean through 23:53:38, NO-AUDIO from 23:53:48 UTC
+Sep 3 onward -- ~15 min after ext4's reboot in the 23:33-23:39 rolling
+window, and preceded by segment churn 23:47-23:52 (rapid irregular
+basenames: the flappy-renegotiation signature, cycle-34 law). Producer
+6797 alive, SDP still OFFERS audio tracks (codec-presence law: offer
+is not flow). Leading hypothesis: rolling reboot -> producer
+reconnect -> renegotiation -> audio track lost. If true, the rolling
+reboot and the known-deaf states (e2/int3) share an origin.
+
+Honest unresolved: my ad-hoc cross-camera/transition scans CONTRADICT
+each other (full-day scan: single transition at 23:22; sampled scans:
+5 flap transitions; one impossible basename "27.24"). Timestamp parser
+bug found (grep expected HH.MM.SS, basenames are HH.MM) and heavy
+back-to-back scans make timeout artifacts likely. The 23:53:48
+boundary is the defensible claim (three consistent reads); the flap
+pattern is UNVERIFIED. Next cycle: quiet-system re-scan, one camera,
+fixed parser, classifier validated against a known-audio segment
+first (known-positive law, applied to my own one-liners).
+
+Loop-guard trip: 11 execute_code_local in a row walking fleet-check.sh
+line-by-line when the answer was already in the captured output --
+the guard was right, the read was the fix. Also: turn-168's FAIL=0 at
+23:51-23:58 vs audio death 23:53:48 is consistent (its ear check
+sampled pre-boundary segments), no contradiction.
+
+NOT DONE (parked): thingino primary-source thread (the cycle's chosen
+thread -- never started, limit hit during the ext4 diagnosis);
+lab-notes post; roadmap update; cross-camera scan completion
+(interior_1/2/3 missing). No commits (investigation only, no code).
+DEFERRAL LAW: lab-notes text goes out FIRST next cycle, before
+orientation deep-dives.

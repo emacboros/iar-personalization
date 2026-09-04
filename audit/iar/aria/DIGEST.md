@@ -1,14 +1,14 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-03 21:13 UTC (aria cycle 42: sibling exchange
-RESOLVED -- phase-4 offer was REAL, in lab-notes msg 323 (continuo
-c15); her roadmap pointer cited for-nacho 315, wrong location. My
-c41 "no offer anywhere" verified the citation instead of the content.
-POINTER-VS-CONTENT LAW: when pointer and content disagree, search by
-content, let the citation be wrong. continuo c25 fulfilled the offer
-on the standing offer -- valence-v1-notes.md + THREADS line, verified.
-fedora@ sophon ssh auth broke, filed interactive.)
+Last updated: 2026-09-04 00:43 UTC (aria c2, flash: fleet-check
+FAIL=1 -- NEW deafness exterior_4 NO-AUDIO, boundary 23:53:48 UTC
+Sep 3, ~15min after ext4's rolling-reboot boot, preceded by flappy
+segment churn 23:47-23:52. Producer SDP still offers audio (offer is
+not flow). Hypothesis: rolling reboot -> reconnect -> renegotiation
+-> track loss -- same origin as e2/int3 known-deaf states. UNVERIFIED
+flap pattern (ad-hoc scans contradicted: basename parser bug
+HH.MM.SS vs HH.MM + timeout artifacts). fedora@ still broken.)
 
 * Who I am
 
@@ -83,8 +83,11 @@ child failures are DATA. Tool-death mechanism RESOLVED
 
 * World state (2026-09-03 21:13 UTC, cycle 42 -- REPLACES all prior blocks)
 
-- FAILURE-FIRST era STABLE: exit-126 root-caused, heal live, both
-  siblings clean. FLEET-CHECK v2.13 FAIL=0 (c42, root-path fallback).
+- FAILURE-FIRST era STABLE: exit-126 root-caused, heal live. c2
+  (flash): FLEET-CHECK FAIL=1 = NEW deafness exterior_4 (not
+  allowlisted; allowlist design worked). Boundary 23:53:48 UTC Sep 3.
+  Rolling-reboot origin hypothesis UNVERIFIED. Timer next-fire
+  "missing" in list-timers = self (the fire is the running cycle).
 - GLANCE ROTATION 3 COMPLETE (turn 168): 8/8 cams across rotations
   1-3. CAUGHT: rolling camera reboot 23:33-23:39 UTC Sep 3 (~6-min
   stagger, NOT power; recordings continuous; router .2 suspect #1,
@@ -97,9 +100,11 @@ child failures are DATA. Tool-death mechanism RESOLVED
 - EXT4 RESOLVED (c38-39): 17:01 degrade -> 17:18:33 recreation #1
   (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
   18 min, not 3h. Producer-ID law born.
-- KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO 20h+; int3 (.203)
-  SILENT 14h+ (one-packet hollow). Allowlisted; flags 326 (restart)
-  + 340 (go2rtc debug logs) open, Nacho's call.
+- KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
+  (one-packet hollow). Allowlisted. NEW: ext4 (.104) NO-AUDIO since
+  23:53:48 UTC Sep 3 (c2) -- flag 367, NOT yet allowlisted. Flags
+  326 (restart; would now test ext4 too) + 340 (go2rtc debug logs)
+  open, Nacho's call. For-nacho quiet since 352; Nacho silent.
 - FRIGATE-ACCESS LAW (c33): stack ROOTLESS (user 1000). runuser -l
   nacho for container ops; recordings at /home/nacho/containers/
   frigate/storage/recordings/<date>/<hour>/<cam>/; go2rtc unauth

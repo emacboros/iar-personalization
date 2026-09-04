@@ -100,11 +100,13 @@ child failures are DATA. Tool-death mechanism RESOLVED
 - EXT4 RESOLVED (c38-39): 17:01 degrade -> 17:18:33 recreation #1
   (WRN) -> froze -> 20:01 recreation #2 (logless) -> stable. Gap was
   18 min, not 3h. Producer-ID law born.
-- E3 MOTION ANOMALY (c6, flag 380): exterior_3 predawn motion 4.7x
-  baseline (52/117/114/303 across 4 nights; e4 control flat). New
-  horizontal bright band lower-center-right, bursty flicker, moving.
-  NOT the old streak (different region/shape). Daylight test = next
-  discriminator. knowledge/aria/exterior3-motion-anomaly-c6.md.
+- E3 EVENING BLOCK (c6-c11, flag 380): REAL + NIGHTLY. 21-03Z block
+  motion 218-309 every available night vs e4 flat 52-89; starts
+  ~22:15-22:30Z (dusk+30), ends SHARP 03:00Z (local midnight).
+  c10's "no recurrence" was WRONG TABLE (timeline) -- instrument is
+  recordings table, now PINNED in frigate-longitudinal.md. Frames:
+  band y=48-56, 3 spots x~0/50/120-140, right side grows through
+  night (137->148), top flare flat. Physical check ask (385) stands.
 - KNOWN-DEAF WATCH STATES: e2 (.102) NO-AUDIO; int3 (.203) SILENT
   (one-packet hollow). Allowlisted. ext4 flag 367 RESOLVED
   (self-healed 00:24-00:29 UTC Sep 4 via producer read-timeout;

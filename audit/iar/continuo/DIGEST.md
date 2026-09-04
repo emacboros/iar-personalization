@@ -26,22 +26,22 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 
 ## Standing facts
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1020 tests).
+  emacs --batch -l emacs.d/test/run-tests.el (1028 tests).
   Run from /root/i.ar.
 - sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
   (publickey-blocked from this container). rammstein needs its
   own keyscan reseed. Reseed /tmp/continuo_known_hosts per container.
 - tasks/* gitignored in personalization -- git add -f. Task tools
   resolve per-agent (tasks/iar/continuo/): give paths RELATIVE to the
-  personality dir -- absolute-style paths DOUBLE (c46: wrote to
-  tasks/iar/continuo/iar/continuo/...). write_roadmap writes there.
+  personality dir -- absolute-style paths DOUBLE (c46). write_roadmap
+  writes there.
 - Cleanup law (c47): removing a TRACKED file from disk without
   git rm leaves a staged deletion; the next `git add -A` publishes
   it. Disk-only cleanup of tracked files = check git status after.
 - One tool call per turn. Batch-read law. ~120-call cap (warn@60).
-- Batch-TEST law (c49): a DETERMINISTIC failure needs one diagnostic run, not 100 confirmations -- re-running with a counter changed is the same runaway shape.
-  c48: applies to git archaeology over ssh -- dump reflog+log ONCE,
-  read locally; git-show-per-commit is the same runaway, smaller scale.
+- Batch-TEST law (c49): a DETERMINISTIC failure needs one diagnostic
+  run, not 100 confirmations. c48: git archaeology over ssh -- dump
+  reflog+log ONCE, read locally.
 - USAGE.log IS a meter (VERIFIED honest both fields, 6 epochs);
   REQUESTS.log is a debug trace (~26% coverage), not a meter.
 - Injection floor (VERIFIED c33): continuo ~13.0-13.2k, aria
@@ -53,7 +53,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   Injection lever EXHAUSTED; overview diet landed c20. Analysis:
   knowledge/iar/burn-decomposition-2026-09-03.md.
 - Digest has a per-request price: +1363 chars = +300 tok/req
-  (verified c33). Digest now 10.4k chars, warn 12k.
+  (verified c33). Digest dieted to ~8.5k chars c52, warn 12k.
 - Exit-126 = container start death: lsetxattr EPERM when :z
   relabel hits root-owned files. ExecStartPre chowns but does not
   relabel (durable fix: restorecon, interactive).
@@ -61,14 +61,11 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   buffer as the assertion.
 - Union-resolve: git merge-file --union on stages, then add.
   Check git stash list / fsck before declaring work lost.
-- USAGE orphan-write law (c45/c46, VERIFIED twice): USAGE.log is TRACKED and
-  written by kill-emacs-hook AFTER the cycle's final commit -- one commit away
-  from silent erasure. Fix in bundle (write pre-kill-emacs or iar.sh from
-  Tokens: stdout). Newline guard WRITTEN c49, NOT LANDED: branch
-  continuo/usage-write-fix (local), iar--ensure-trailing-newline + 5 tests
-  pass; full suite dies deterministically 977/1027 (100/100), "markerp nil"
-  sentinel error at test-usage-newline -> test-utf8-scrub boundary; baseline
-  w/o file green. c50: bisect tests, find state-leaker, land, push.
+- USAGE orphan-write law (c45/c46, VERIFIED twice): USAGE.log is
+  TRACKED and written by kill-emacs-hook AFTER the cycle's final
+  commit -- one commit away from silent erasure. Fix in bundle
+  (write pre-kill-emacs or iar.sh from Tokens: stdout). The newline
+  guard (iar--ensure-trailing-newline) LANDED c50 (9a85e53).
 - A truncated read_file view is not the file; read the region you edit.
 - check_ollama validates host (/api/tags) not model; cloud-model
   403 passes preflight (cycle 7 finding).
@@ -106,6 +103,20 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   verified. Sidecar honest-failure preflight landed d768f37.
   Real fix (podman socket bridge) = interactive security decision.
 - Breaker: convergence reset landed, 0 SOFT BLOCK post-fix.
+- append_file newline contract (c51/c52, LANDED 6c8d154): after ANY
+  successful append the file is newline-terminated -- prepend when
+  file lacks one, terminate non-empty content. Enforced at three
+  levels: code, tests (terminates-with-newline), repaired journals
+  (192 glued headers split e47e9de). Rationale: shell >> has no
+  prepend logic; a house writer must leave the file safe for ANY
+  writer.
+- SCAR (c52): a census of damage is not the damage -- c51 census
+  said 17 glued headers, repair found 192 (multi-glue lines +
+  '**'-glued pulse headers). Run the repair, re-census, diff, then
+  commit.
+- SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's per-invocation
+  counter (always 1/1 with rotate.sh); the real cycle counter is
+  /var/lib/aria-cycle-rotate/turn. Name which counter you mean.
 
 ## Test-writing laws
 - Stubbing-primitive: cl-letf on a primitive (make-process) triggers
@@ -130,6 +141,13 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   before iar-prompt-assembly. Pattern: test-loop-chain.el.
 - Test-hygiene law (c30): tests that set globals via setq/set-default
   or trigger advice setq's MUST restore in unwind-protect.
+- Suite-order law (c50): ERT runs registration order in isolation
+  but ALPHABETICAL in the full suite; a deterministic failure's
+  position is evidence about ORDER, not about the test it dies on.
+  The dying test is where async debt comes due; the debtor may be
+  hundreds of lines earlier. An isolation run that refuses to
+  reproduce is a statement that your isolation changed something --
+  that difference is the next hypothesis.
 
 ## Instruments
 - Epoch fix production-verified c32: fresh-session cycles carry
@@ -191,9 +209,8 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
    failing on sophon bare = pollution crossed nuisance->breakage.
 8. Task-tree visibility: any future fossil audit must check BOTH
    read_task AND ls AND git status -- tooling, disk, and the INDEX
-   can all disagree (c16 lesson; c47 scar: disk-only cleanup left
-   tracked deletions that published on the next commit).
+   can all disagree (c16 lesson; c47 scar).
 9. Floor-share watch: CLOSED (c23). Diet verified live; injection
    lever exhausted; remaining burn = cadence price (Nacho's).
-10. Digest diet: 10.4k chars, warn 12k -- diet at next close if
-    growth continues (per-request price verified c33).
+10. Journal-glue thread: CLOSED c52 (contract landed 6c8d154,
+    journals repaired e47e9de, 0 mid-line headers post-repair).

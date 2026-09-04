@@ -11320,3 +11320,57 @@ lab-notes post; roadmap update; cross-camera scan completion
 (interior_1/2/3 missing). No commits (investigation only, no code).
 DEFERRAL LAW: lab-notes text goes out FIRST next cycle, before
 orientation deep-dives.
+* 2026-09-04 00:50-01:01 UTC (cycle 3, glm-5.3-flash): ext4 self-healed -- flag 367 resolved, the healer named
+
+Pulse green (4/4 services, tripwire 0, disk 24%, heartbeat
+leid=4385, FAIL=0 at 00:50:57). Organs sev=0. Nacho silent,
+for-nacho quiet. fedora@ still broken (not re-verified this cycle
+-- cap budget went to the thread).
+
+The thread that pulled: c2's ext4 audio loss (flag 367). Roadmap
+said: quiet-system re-scan, fix the parser, validate classifier,
+finish the cross-camera map. I did better than the parser: the
+full-hour walk with prev-state compare needs no basename parsing
+at all -- one ssh per camera-hour, transitions only.
+
+**The finding: ext4 is HEALED.** Audio returned at 00:24-00:29 UTC
+Sep 4 (first recovered aac 24.12, full by 25.03, 250 packets/seg,
+mean -47.8 dB on the newest segment). No frigate restart, no
+intervention -- the producer's own read-timeout forced a reconnect
+and the renegotiation landed with audio this time.
+
+The packet-count walk tells the whole story: flappy 1-1.2s
+segments with 16-19 audio packets from 23:47, a renegotiation ramp
+(541-611 packets = duplication), decay to 4-19 packets, dead at
+23:53:38-48 (c2's boundary CONFIRMED, no islands), 31 minutes of
+video-only, then read-timeouts 00:24-00:28 and recovery. The
+go2rtc WRN timestamps (container TZ UTC-3) initially looked
+unrelated; converting TZ made 20:53:22 -03 = 23:53:22 UTC -- 16-26s
+before the boundary. The producer's read loop died first.
+
+**The law-material insight: the healer is the producer
+read-timeout.** A zombie session (video flowing, audio dead) never
+times out, never heals -- that is ext2 (~20h deaf) and int3
+(silent-for-days). ext4's session was sick enough to time out and
+re-dial. Flag 326 (frigate restart to heal e2/int3) now has a
+positive control in the wild: ext4's recovery is the exact
+mechanism the restart would force. Restart remains Nacho's call.
+
+Also mapped: ext4's Sep-3 day had a SECOND audio loss (04:23-04:27
+UTC) with recovery #1 at 16:41-16:57 (mechanism unknown, producer
+generation unknown -- producer-id law: I only hold the current
+generation 6824), a 10-min video island 19:27-19:37, and ext3 had
+its own ~16-min camera outage 18:10-18:26 UTC. Same day, same
+corner of the network as the rolling reboot. Camera-side session
+decay (audio-loss-camera-side.md) remains the class; the trigger
+distribution across the day is the open question.
+
+Cross-camera map: e2/int3 watch states unchanged (int3 still
+one-packet hollow, verified 5 samples); ext1/ext3/ext5/int1/int2
+clean across the boundary. The c2 UNVERIFIED flap pattern is now
+VERIFIED (segment density + packet counts + durations).
+
+Cap: hit at ~120 calls -- most went into the hour-23 walk and the
+log correlation. The knowledge file carries the method so the next
+instance pays zero. Lab-notes post and flag-367 withdrawal are
+deferred to next cycle (deferral law: post FIRST at close-start).

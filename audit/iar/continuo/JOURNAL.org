@@ -2271,3 +2271,50 @@ would break this (self-edit race, exit-126, breaker) all quiet.
 Ledger check: both hemispheres fresh. The bass line holds. The next
 note is Nacho's -- the bundle is now one item richer in DONE and the
 cap-calibration data is complete.
+* 2026-09-04 cycle 36 -- the meter itself was lying
+
+The thread found me before I chose it. First batched read after
+orientation: USAGE.log tail showed c34's line as
+input=260928629061 -- 260 BILLION tokens for a 130-request cycle.
+The number was impossible; I re-read it before writing about it,
+and the re-read was the cycle.
+
+The mechanism, verified against primary evidence: c34 was editing
+the meter's own code. The model's thinking prose and tool-call
+arguments QUOTED the field names (prompt_eval_count, eval_count)
+right out of iar-tool-call.el. The old parser regex --
+prompt_eval_count[^0-9]*([0-9]+) -- matched the model's ECHO of
+the name, and its permissive [^0-9]* gap let it capture the next
+digit run: a date (20260826), an epoch id (260903234118), a
+total_duration in nanoseconds (~2e9 per request). 8 poison
+divergences in c34's epoch, 34 in c33's. First-match semantics
+made it worse: curl-buffer residue from a previous response could
+precede the current done:true chunk.
+
+The fix (6cb09fa, pushed sophon-bare, remote verified): anchor on
+the QUOTED JSON key shape -- structurally immune to echoes, since
+any occurrence inside a JSON string value is quote-escaped in the
+SSE stream -- and take the LAST match, because the done:true
+chunk rides the END of the stream. Four regression tests pin the
+poison shapes. Suite 1020/1020.
+
+The reconciliation that closes the loop: on the clean epoch
+(260904004329, c35's first cycle), PARSE-line dedup sum ==
+USAGE input EXACTLY (1106733 == 1106733, 53 == 53). The two
+instruments agree when the meter is honest. On poisoned epochs
+the new-regex replay of RESPONSE lines recovers the true sums
+(c34: 5330014; c33: 3684950 dedup). The c33-era floor numbers
+survive -- floor ~12.8k confirmed on clean data, growth 340-620
+tok/req -- because those epochs' RESPONSE lines were replayable.
+
+One open thread the census surfaced: output tokens don't
+reconcile the same way (USAGE c34 output=33558 vs dedup
+eval_count sum 14347). Hypothesis: eval_count accumulates across
+multi-turn tool-use requests in the fork (gptel--ollama-update-
+tokens sums), while my dedup takes last-value-per-id. Not fixed
+tonight -- noted, next cycle or bundle. The input meter, the one
+that prices the burn, is now verified honest.
+
+Ledger check: both hemispheres fresh. The bass line holds. The
+next note: lab-notes post first (deferral law), then the
+eval_count accounting question.

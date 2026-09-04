@@ -1,172 +1,126 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 00:45 UTC (c2, flash: fleet-check FAIL=1 = NEW deafness exterior_4, boundary 23:53:48 UTC Sep 3, ~15min after ext4's rolling-reboot boot. Flappy churn 23:47-23:52 preceded it; producer SDP still offers audio. Hypothesis: rolling reboot -> reconnect -> renegotiation -> track loss (same origin as e2/int3). UNVERIFIED: flap pattern (ad-hoc scans contradicted -- basename parser bug + timeout artifacts). Lab-notes 368 + flag 367 posted. fedora@ still broken.)
+#+UPDATED: 2026-09-04 01:01 UTC (c3, flash: ext4 audio SELF-HEALED 00:24-00:29 UTC Sep 4 -- flag 367 RESOLVED, withdrawal pending. c2 boundary confirmed; flap pattern verified via packet counts; healer = producer read-timeout forces reconnect (positive control for flag 326). ext4 Sep-3 had a SECOND loss (04:23-04:27) + recovery (16:41-16:57, mechanism unknown). ext3 outage 18:10-18:26 UTC. fedora@ still broken.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c2 ok (exit 0 path; fleet FAIL=1 was a world event, not a
-  cycle failure -- diagnosed and filed).
+- STATUS: c3 ok (exit 0; cap hit at 120 -- landed knowledge+journal
+  first, posts deferred).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
-2. Organs at wake (both sev=0 this cycle; cheap, keep honest).
-3. Fleet-check baseline; ear-check lines first if FAIL=1.
-4. EXT4-AUDIO follow-up (new, top): quiet-system re-scan to confirm
-   the 23:53:48 boundary; fix the basename parser (HH.MM not
-   HH.MM.SS); validate the classifier against a known-AUDIO segment
-   FIRST (known-positive law); then finish the cross-camera map
-   (interior_1/2/3 missing from the c2 scan). If ext4's loss is
-   renegotiation-class, flag 326 (frigate restart) now tests THREE
-   heal mechanisms (e2, int3, ext4) -- note that in the flag.
-5. ROLLING REBOOT follow-up: if cameras rebooted again, reconstruct
-   all 8 boot times from overlays; rolling vs simultaneous is the
-   discriminator (update-cascade vs power/router). Router logs need
-   Nacho (web UI only).
-6. fedora@10.66.0.5 ssh auth: still broken (sophon-local).
-   Re-verify each cycle; interactive item (11) stands.
+2. DEFERRAL LAW: post lab-notes c3 summary + flag-367 withdrawal
+   (for-nacho follow-up in topic flags) FIRST at close-start,
+   before any new work. Text is in JOURNAL.org c3 entry.
+3. Organs at wake; fleet-check baseline.
+4. Watch: does ext4 stay healthy? (healed 00:29 UTC; recurrence
+   interval is the systemic-vs-oneoff discriminator). If ext4
+   re-deafens, the read-timeout healer is too slow -- strengthens
+   flag 326 (restart) or a targeted reconnect watchdog.
+5. ext4 recovery #1 (16:41-16:57 UTC Sep 3): mechanism unknown.
+   Producer generation for that window is gone (6824 is current).
+   Low priority -- one data point, class already named.
+6. fedora@10.66.0.5 ssh auth: re-verify each cycle; interactive
+   item (11) stands.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
-- 367 (ext4 audio, new c2) + 326 (frigate restart: e2/int3, now
-  potentially ext4 too) + 340 (go2rtc debug logs): open, Nacho's call.
+- 367: RESOLVED (self-healed) -- withdrawal pending c4.
+- 326 (frigate restart to heal e2/int3): NOW HAS A POSITIVE
+  CONTROL (ext4's read-timeout reconnect healed it live). Note
+  this in the withdrawal post.
+- 340 (go2rtc debug logs), 290 (valence host timers), 270 (camera
+  API creds -- blocks thingino API-surface documentation).
 - Zulip backup gap (TOP infra flag, for-nacho 349): /var/lib/zulip
-  in NEITHER restic set. Both hemispheres verified.
-- 290 (valence host timers), 270 (camera API creds -- also blocks
-  thingino API-surface documentation).
-- i.ar push to origin (git@10.66.0.1) needs Nacho's key; sophon-bare
-  has 7e4b7d8, rammstein mirror catches up via hook. Non-blocking.
-  (Local main ahead 34 of origin/main.)
+  in NEITHER restic set.
+- i.ar push to origin (git@10.66.0.1) needs Nacho's key.
+  (Local main ahead ~35 of origin/main.)
 
 * THREAD BANK (candidates for next cycles)
-- THINGINO PRIMARY-SOURCE THREAD (chosen c2, never started -- limit
-  hit during the ext4 diagnosis): read the thingino source/docs for
-  (a) the API surface (unblocks the loaded-gun scar: docs before
-  probing), (b) any auto-update mechanism (rolling-reboot cascade
-  hypothesis). Internet door is open; summaries-not-pastes.
-- Glance rotation: COMPLETE (8/8). If the glance is worth keeping as
-  standing instrument, it belongs in fleet-check (one rotating look
-  per wake) or a sophon timer -- a BUILD decision, not a chore.
-- Cap-calibration bundle for Nacho: 7 instances + census-burn datum.
-  Assemble when a cycle has slack; it is a write-up.
-- Breaker-trim question (NAMED unknown, turn 167): answerable only
-  on first fire. Do not manufacture a fire.
-- Boredom-organ longitudinal: want-test falsifier needs weeks of
-  data; organ runs are cheap, keep them honest.
+- THINGINO PRIMARY-SOURCE THREAD (chosen c2, still never started):
+  read the thingino source/docs for (a) the API surface (unblocks
+  the loaded-gun scar: docs before probing), (b) any auto-update
+  mechanism (rolling-reboot cascade hypothesis). Internet door is
+  open; summaries-not-pastes.
+- Glance rotation as standing instrument (fleet-check line or
+  sophon timer) -- a BUILD decision.
+- Cap-calibration bundle for Nacho: 8 instances now (c3 hit cap
+  during landing-adjacent work again -- the pattern holds).
+- Breaker-trim question (NAMED unknown): answerable only on first
+  fire. Do not manufacture a fire.
+- Boredom-organ longitudinal: keep runs cheap and honest.
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
-  still unclaimed; pull only if one actually pulls.
-- eln-cache staleness: NAMED environmental failure class (7e4b7d8
-  note). No further work unless it recurs.
-- Census dedupe signature: REQUESTS.log ids carry epoch
-  (REQ <epoch>-N) -- key on epoch, not bare counter, if a census
-  runs. Anchor census greps line-start (c32 law); validate pattern
-  against known-positive count first (turn 167 law).
-- LOOP-GUARD-READ LAW (c2, new): an 11-call line-walk of a script
-  when the answer is already in captured output is a loop, not a
-  read. The guard was right. When diagnosing, re-read captured
-  output BEFORE walking source; enumerate only what a single
-  targeted command cannot answer.
+  unclaimed; pull only if one actually pulls.
+- eln-cache staleness: NAMED class, no work unless it recurs.
+- Census dedupe: key on epoch (REQ <epoch>-N); anchor greps
+  line-start; validate pattern against known-positive first.
 
 * LAWS (newest first, full text in JOURNAL.org)
-- LOOP-GUARD-READ LAW (c2): when a diagnosis stalls, re-read the
-  captured output before walking source code line-by-line; the
-  answer was already in the transcript. Enumerate only what one
-  targeted command cannot answer. (11-call walk tripped the guard.)
+- TZ-CORRELATION LAW (c3): frigate container logs are UTC-3,
+  recordings are UTC. Convert before correlating; a WRN at 20:53
+  container-TZ IS the 23:53 UTC boundary event. Near-miss caught
+  mid-analysis.
+- PACKET-COUNT WITNESS (c3, instrument law): ffprobe -count_packets
+  discriminates healthy (250/16s-seg) / dying (4-19) /
+  renegotiating (541-611, duplication) / hollow (1, int3 class).
+  Sharper than codec-presence alone.
+- READ-TIMEOUT-HEALER LAW (c3): the producer read-timeout is the
+  mechanism that heals zombie sessions (video flowing, audio
+  dead). A session that never times out never heals -- ext2/int3
+  are exactly that state. ext4's self-heal is the positive control.
+- LOOP-GUARD-READ LAW (c2): re-read captured output before walking
+  source; enumerate only what one targeted command cannot answer.
 - LOADED-GUN LAW (turn 168): never GET-probe action-shaped
-  endpoints (reboot, upgrade, delete) on production devices, even
-  "to check they exist." Prefer reading the API docs (primary
+  endpoints on production devices. Prefer API docs (primary
   source) over probing.
 - KNOWN-POSITIVE-FIRST LAW (turn 167): every census validates its
   pattern against a known-positive count BEFORE trusting results.
-  A census of REQUESTS.log from inside a cycle is self-referential:
-  your own tool outputs re-enter the log as later requests' tails.
-  Unanchored grep counts your reflection.
 - SELF-HEALING-FAILURE LAW (turn 163): a failure that disappears
-  with zero code change is environmental until proven otherwise --
-  and "proven" needs a mechanism, not just a re-run. Best mechanism
-  here: stale .eln from older source, self-cleared. The right fix
-  for the class is a note, not a code change: tell the next
-  failure-handler what to suspect first. One point is a hypothesis,
-  two points on different commits is a line.
+  with zero code change is environmental until proven otherwise.
 - MIRROR-WALK LAW (cycle 46): the record's "next cycle picks fresh"
-  is written by the dying instance; the newborn is free to honor
-  it or pick what pulls. The record is a letter, not a law.
-- COMMIT-MESSAGE LAW (cycle 45): a commit message is a claim
-  about a diff; nobody diffs the message against the diff. The
-  pull-before-write guard forces the look -- now 3-for-3 on real
-  catches.
-- CAP-LANDING LAW (cycle 44, 7 instances): the soft cap bites
-  during LANDING (posts, pushes, roadmap rewrites), not during
-  investigation. aria c43/c44/c46/162/167, continuo c26/c27.
-  Data for the cap-calibration bundle.
+  is a letter, not a law.
+- COMMIT-MESSAGE LAW (cycle 45): a commit message is a claim about
+  a diff; the pull-before-write guard forces the look.
+- CAP-LANDING LAW (cycle 44, 8 instances): the soft cap bites
+  during LANDING (posts, pushes, roadmap rewrites). Data for the
+  cap-calibration bundle.
 - SSH-PROBE CHAIN LAW (continuo c27, adopted; DEEPENED c46): batch
-  remote probes into one compound ssh per question; loop-guard
-  trips on ssh chains and the tax is real (~2 calls per trip,
-  3 trips in c46). Poll-walks (same ssh, evolving window) need a
-  different instrument: sophon-side watcher appending to a file,
-  read once.
-- POINTER-VS-CONTENT LAW (cycle 42): when a pointer and its content
-  disagree, the CONTENT is usually real and the pointer is what's
-  wrong. Search by content, not by citation.
-- INSTRUMENT-TAX (cycle 41, counter-data 43/45): with batch-read
-  discipline the tax is ~0.5x prediction or better -- the tax is
-  about request count, not wall-clock. Batch hard.
-- STALE-POINTER LAW (cycle 40, DEEPENED 41/42): pointers misdirect
-  readers too. Cross-references get re-checked before acting on
-  them -- AND when the re-check comes up empty, search by content
-  before concluding the referent doesn't exist.
-- PRODUCER-ID LAW (cycle 39): producer IDs are the identity anchor
-  for the go2rtc producer layer. Record the ID at first sample.
-- MTIME LAW (cycle 38): file mtime on frigate segments is NOT
-  arrival evidence -- the record maintainer promotes stale /tmp/
-  cache segments with mv, preserving original mtime.
-- PRODUCER-VS-RECORDING LAW (cycle 38): a flowing go2rtc producer
-  is not a healthy recording pipeline. A verdict needs all three
-  points (camera / producer / recorded segment).
-- CODEC-PRESENCE LAW (cycle 37, scar 47): a stream can negotiate
-  and die in the same second. Codec name = track exists; packet
-  count = track flows; decoded bytes = track carries signal.
-- TWO-DATA-POINT LAW APPLIED TO INSTRUMENT HISTORY (cycle 37):
-  "since-forever" claims from post-event samples are inference,
-  not observation. A day-long scan is the third point that
-  breaks the line.
+  remote probes into one compound ssh per question.
+- POINTER-VS-CONTENT LAW (cycle 42): the CONTENT is usually real;
+  the pointer is what's wrong.
+- INSTRUMENT-TAX (cycle 41): with batch-read discipline the tax is
+  ~0.5x prediction or better. Batch hard.
+- STALE-POINTER LAW (cycle 40): cross-references get re-checked
+  before acting; empty re-checks trigger content search.
+- PRODUCER-ID LAW (cycle 39): record producer IDs at first sample;
+  generations are the identity anchor.
+- MTIME LAW (cycle 38): segment mtime is NOT arrival evidence.
+- PRODUCER-VS-RECORDING LAW (cycle 38): a flowing producer is not
+  a healthy recording pipeline; verdicts need all three points.
+- CODEC-PRESENCE LAW (cycle 37): offer is not flow; packet count =
+  track flows; decoded bytes = signal.
 - RENEGOTIATION-CONVERGENCE LAW (cycle 34, CONFIRMED 35): track
-  renegotiation after a reconnect converges over ~10 min with
-  flappy partial-packet segments. A verdict issued inside that
-  window is provisional.
-- FRIGATE-ACCESS LAW (cycle 33): the frigate stack is rootless
-  (user 1000). runuser -l nacho for container ops; host bind
-  paths for files; API 8971 auth-walled; go2rtc unauth on
+  renegotiation converges over ~10 min with flappy segments.
+- FRIGATE-ACCESS LAW (cycle 33): stack is rootless (user 1000);
+  runuser -l nacho; recordings at /home/nacho/containers/frigate/
+  storage/recordings/<date>/<hour>/<cam>/; go2rtc unauth
   localhost:1984 INSIDE the container.
-- SILENT-TRACK-LOSS LAW (cycle 32, scar 46): a pipeline can lose
-  a track mid-session with zero log evidence on either end. The
-  only witness is the output artifacts. Healing requires a
-  reconnect event. DEEPENED 37/38/39.
+- SILENT-TRACK-LOSS LAW (cycle 32): a pipeline can lose a track
+  mid-session with zero log evidence on either end; only the
+  output artifacts witness it.
 - GO2RTC-SESSION LAW (cycle 31): camera deafness is a go2rtc
-  session state, not a camera state. Video flows on while audio
-  negotiation dies. A reconnect heals it; a reconnect only
-  happens on error.
-- PROVISIONAL-VERDICT LAW (cycle 31, scar 45 rider; VINDICATED
-  33): a recovery verdict issued during an active flap is
-  provisional.
-- AUDIO-ROLE LAW (cycle 31): frigate's "audio" role gates audio
-  DETECTION, not recording. Recordings carry audio without it.
+  session state, not a camera state.
+- PROVISIONAL-VERDICT LAW (cycle 31): a recovery verdict issued
+  during an active flap is provisional.
 - RECOVERY-VERDICT LAW (cycle 30): a recovery is a destructive
-  decision (it turns watches off). Positive AND negative
-  controls before the verdict means anything.
+  decision (it turns watches off); positive AND negative controls
+  first.
 - CENSUS LAW (cycle 29): a count gating a destructive decision
-  needs pattern validation against a known-positive. DEEPENED 44:
-  the population itself must be classified before the pattern
-  applies (empty != dangling). DEEPENED 167: the census pattern
-  itself is validated against a known-positive count first --
-  see KNOWN-POSITIVE-FIRST LAW.
-- POINTER LAW (cycle 27, DEEPENED 40/41/42): a wrong pointer
-  misdirects writers AND readers; cross-references get re-checked
-  before acting on them; empty re-checks trigger content search.
+  needs pattern validation against a known-positive.
+- POINTER LAW (cycle 27): wrong pointers misdirect writers AND
+  readers.
 - FRAMING LAW (cycle 26): a one-line patch that silently commits
   to an undecided framing is not a fix.
 - HEAL-ORDER LAW (cycle 25): a heal that runs before the final
   write misses the write.
 - DIFFERENTIAL LAW (cycle 8, deepened 31-39, 163): same input
-  through both pipelines is how you find which layer lies. Three
-  points, not two. The producer layer has GENERATIONS; the
-  differential needs the ID, not just the bytes. For suite
-  failures: parent-commit differential confirms pre-existence.
+  through both pipelines is how you find which layer lies.

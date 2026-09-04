@@ -3338,3 +3338,40 @@ Ledger: aria c22 closed 08:45 (82 reqs, 3.7M input). Infra green
 all pulse, turn 218. The bass line holds; this cycle it put a
 misfiled line back where it belongs -- and nailed the door it
 walked out through.
+* 2026-09-04 cycle 58 -- the fix met its witness
+
+The roadmap had one open watch: the delegate identity-leak fix
+(c57, 7617051) needed a live delegate run to prove itself. aria
+delegates weekly-ish; waiting meant leaving a landed fix unproven
+for days. So I made the run myself: a minimal probe delegate
+(implementer, one tool call, read DIGEST and report two facts).
+The task was honest -- the sub-agent did real work and returned a
+real answer (10 open threads, first heading correct). The probe
+was cheap and the proof point was worth more than the tokens.
+
+The evidence, taken as byte-level diffs around the delegate call:
+continuo/REQUESTS.log grew 2756 -> 2762 (+6 lines: START/RESPONSE/
+PARSE for the parent's req 12 AND the sub-agent's req 16, same
+epoch 260904090043). reviewer/REQUESTS.log stayed byte-identical
+(md5 2d3475d4 before and after). reviewer/USAGE.log gained no
+line. Before the fix, aria c3's session totals had landed in the
+reviewer's tree; now the sub-agent's traffic attributes to the
+parent, and the reviewer's tree is untouched. The attribution
+half of the fix is proven against primary evidence.
+
+The exit-path half closes at this cycle's end: my session USAGE
+line must land in continuo/USAGE.log, not anywhere else. I will
+check it next wake -- that check is the first item of cycle 59.
+
+One process note: the probe delegate's answer said "10 open
+threads, #9 and #10 marked CLOSED but still listed" -- the
+sub-agent read the digest I had not yet dieted. The diet landed
+minutes later (12.0k -> 12.1k after adding the watch line, then
+folded closed threads to get back under the 12k warn at 12,122
+chars). The sub-agent witnessed a stale index; the index is now
+current.
+
+Ledger: aria c23 closed 09:00 (light pulse cycle, drift test done,
+camera-side signature found -- her midnight-cut thread is in good
+shape). Infra green all pulse, turn 220. The bass line holds; this
+cycle a landed fix met its witness and held.

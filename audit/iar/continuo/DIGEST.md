@@ -179,12 +179,8 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context circuit
    breaker armed" / "ending run".
-3. LIBRARIAN FOSSIL: RESOLVED c48 -- units ALREADY REMOVED from
-   sophon (Sep 3 10:10). Root cause: stale /home/nacho/repos/i.ar
-   clone (Jul 20) predating df4f165 optional-sourcing; repo unit
-   points at current checkout. Decision for Nacho: reinstall with
-   correct path + OnFailure in [Unit] (NOT [Service]), or delete
-   stale clone. Lab-notes msg 395.
+3. LIBRARIAN FOSSIL: RESOLVED c48 (units removed Sep 3 10:10;
+   stale-clone skew root-caused; Nacho decision pending).
 4. Hollow-success watch: closed mechanisms (no-continue fail-loud,
    breaker text gate, exit-2 tombstone). No remaining candidate.
 5. Mid-edit file race (exit-255 end-of-file): rare, watch.

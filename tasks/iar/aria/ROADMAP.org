@@ -1,35 +1,30 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 04:53 UTC (c14, flash: e2-OVERLAP TEST DONE -- e2 FLAT through the night (band ratio 0.89 stable, no growth; SUM-motion census 4-5x below e3, smooth dusk ramp no block). Emitter confirmed e3-local from 2 instruments + 2 neighbors. Physical hunt. fedora@ 9th cycle standing.)
+#+UPDATED: 2026-09-04 05:15 UTC (c15, flash: pngprof.py BANKED -- lost c13 decoder rebuilt as durable instrument, selftest + ffmpeg positive control (101.3 vs 103.1). c13 12Z band numbers NON-REPRODUCIBLE (segment-dependent or lost-decoder bug); provenance pinned. fedora@ 10th cycle standing.)
 
 * PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c14 ok (~24 calls, no loop-guard fires, no cap warning).
+- STATUS: c15 ok (~22 calls, no loop-guard fires, no cap warning).
 
 * DO FIRST (next cycle)
 1. FAILURE-FIRST (always).
 2. Organs at wake; fleet-check baseline (v2.14: int3-only allowlist).
-3. e3 thread: BOTH pixel (c12) and motion-census (c14) instruments
-   agree the emitter is e3-local. Pixel archaeology is EXHAUSTED --
-   every cheap discriminator is closed. The ONLY remaining step is
-   PHYSICAL: Nacho's glance (flag 380, asks at 385/391). Do NOT
-   re-pull e3 frames without a new question. If a cycle has nothing
-   else, do a light block-watch (one census query, is the block
-   still there tonight) and move on.
-4. Watch: ext2 re-deafness; ext4 recurrence; .102 daily 23:00 WRN
-   pair (broke last night -- pattern change?).
-5. fedora@10.66.0.5 ssh auth: re-verify each cycle (9th standing);
+3. e3 thread: PHYSICAL ONLY. Pixel archaeology CLOSED (c12-c14:
+   emitter e3-local, 2 instruments + 2 neighbors). Flag 380 ask
+   stands (385/391/396). Do NOT re-pull e3 frames without a new
+   question. If a cycle has nothing else: ONE census query
+   (is the block there tonight) and move on.
+4. Watch: ext2 re-deafness; ext4 recurrence; .104 RTSP flakiness
+   (350 i/o timeouts all-time); .102 daily 23:00 WRN pair.
+5. fedora@10.66.0.5 ssh auth: re-verify each cycle (10th standing);
    interactive item (11) stands.
-6. frigate-longitudinal.md: amend the census-metric section --
-   motion column is a SCORE (0-255+), not boolean; pinned metric
-   is SUM(motion) per bin; motion=1 is a near-useless filter.
-   Also pin: census path = host python3 + /home/nacho/containers/
-   frigate/config/frigate.db (no sqlite3 in container); ffmpeg =
-   /usr/lib/ffmpeg/7.0/bin/ffmpeg full path inside container.
+6. Census dedupe (REQUESTS.log double-log): key on epoch
+   (REQ <epoch>-N). Low priority, banked.
 
 * OPEN FLAGS (Nacho's call, all low urgency)
 - 380 (e3 motion anomaly): REAL + nightly + clock-aligned +
   e3-LOCAL + objects NAMED (c13) + neighbors FLAT (c12 e4, c14 e2).
-  Physical check ask stands (385, 391). Pixel archaeology closed.
+  Physical check ask stands (385, 391, 396). Pixel archaeology
+  closed. c15: pngprof.py banked for any future re-profiling.
 - 383: ext2 recovery RESOLUTION (informational).
 - 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
 - 326 (frigate restart to heal int3): int3 half still open.
@@ -40,12 +35,8 @@
 - i.ar push to origin (git@10.66.0.1) needs Nacho's key.
 
 * THREAD BANK (candidates for next cycles)
-- Pure-python PNG profiler -> knowledge file (60-line decoder,
-  reusable; /tmp/aria_profile.py this cycle -- bank it).
 - Segment-size clock (c10): fleet-wide hour-scale size oscillation,
   00h trough. Candidate fleet-check line.
-- Census dedupe: key on epoch (REQ <epoch>-N).
-- .104 RTSP flakiness: 350 i/o timeouts all-time.
 - Frigate watchdog census as fleet-check line (v2.15 spec banked).
 - Log-retention horizon: census-to-file rotation (CSV).
 - Thingino follow-ups (banked in thingino-primary-source-notes.md).
@@ -53,33 +44,39 @@
 - gptel unknown-tool stall question (unresolved).
 - THREADS.org seeds (gift, witness-friction, absence-signals):
   unclaimed; pull only if one actually pulls.
+- pngprof.py follow-ups: RGB->luma coefficients are BT.601; camera
+  is likely BT.601 too (fine); if a future camera differs, note it.
 
 * LAWS (newest first, full text in JOURNAL.org)
-- RECIPE-PROVENANCE LAW (c14, new): a working recipe recorded
-  without its exact invocation is a fossil; pin full paths and
-  hosts at first use (sqlite3-in-container was; ffmpeg path wasn't).
+- TEST-INVARIANT LAW (c15, new): when a test fails, find the ACTUAL
+  broken invariant before patching -- a "fix" for a phantom bug
+  (struct.pack('>I',13) was RIGHT) costs a call and leaves the real
+  bug (missing CRC chunks) in place.
+- RECIPE-PROVENANCE LAW (c14): a working recipe recorded without
+  its exact invocation is a fossil; pin full paths and hosts at
+  first use (sqlite3-in-container was; ffmpeg path wasn't).
 - MOTION-SCORE LAW (c14): frigate's motion column is an activity
   score (0-255+), not a boolean; census metric = SUM(motion) per
   bin; motion=1 is a near-useless filter.
 - WITNESS-VS-EMITTER LAW (c9, EXTENDED c12): surfaces lit by an
   unseen source are witnesses, not the emitter; hunt the geometry,
   not the glow. c12: TIME BEHAVIOR separates witnesses from the
-  emitter -- a shared far emitter moves every edge together; a
-  local emitter moves only its own frame. c13: the witnesses are
-  NAMED (dark wall + vertical elements); the emitter is below/left.
-  c14: TWO instruments + TWO neighbors agree -- e3-local confirmed.
-- DAYLIGHT-DISCRIMINATOR LAW (c9): a hypothesis about a light
-  dies if its footprint is visible as an object at noon. c13
-  AMENDMENT: the discriminator also NAMES the objects -- run it
-  on the camera's own frame, not just neighbors'.
+  emitter. c13: witnesses NAMED. c14: TWO instruments + TWO
+  neighbors agree -- e3-local confirmed.
+- DAYLIGHT-DISCRIMINATOR LAW (c9): a hypothesis about a light dies
+  if its footprint is visible as an object at noon. c13 AMENDMENT:
+  the discriminator also NAMES the objects -- run it on the
+  camera's own frame, not just neighbors'.
 - INSTRUMENT-PROVENANCE LAW (c10, RESOLVED c11): a census number
-  without its exact source is not re-runnable. Pin at first use.
-  AMENDMENT: provenance lookup precedes provenance declaration.
+  without its exact source is not re-runnable. c15 AMENDMENT: a
+  number without its INSTRUMENT is not even explainable -- c13's
+  12Z band ratio (0.49) doesn't reproduce (c15: 0.89) and the lost
+  decoder can't be interrogated. Pin instrument + segment at first
+  use.
 - PROBE-BATCH TRIGGER (c10): 3rd consecutive single-question ssh
-  = STOP and write the batch. c13 AMENDMENT: the same applies to
-  container-vs-host confusion -- if ls fails, check WHERE the
-  path lives before re-running (runuser quoting runs on HOST;
-  /media/frigate is INSIDE the frigate container).
+  = STOP and write the batch. c13 AMENDMENT: container-vs-host
+  confusion -- if ls fails, check WHERE the path lives before
+  re-running.
 - HEREDOC-TARGET LAW (c10): never use the same local file as ssh
   input source AND remote write target in one command.
 - EDGE-RESOLUTION LAW (c8): only 15s/1-min bins at the edge
@@ -126,7 +123,8 @@
   during LANDING. Landing first = comfortable.
 - SSH-PROBE CHAIN LAW (continuo c27, adopted): batch remote probes.
 - POINTER-VS-CONTENT LAW (cycle 42): the CONTENT is usually real;
-  the pointer is what's wrong.
+  the pointer is what's wrong. c15 SELF-INSTANCE: "banked in the
+  journal" pointed at /tmp, which dies per container.
 - INSTRUMENT-TAX (cycle 41): batch hard.
 - STALE-POINTER LAW (cycle 40): cross-references get re-checked.
 - PRODUCER-ID LAW (cycle 39): record producer IDs at first sample.

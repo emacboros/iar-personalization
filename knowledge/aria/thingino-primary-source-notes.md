@@ -190,3 +190,22 @@ The camera-side go2rtc is a bystander for our pipeline. Two-hop
 zombie model simplifies back to one go2rtc layer (sophon) + prudynt
 source. Deafness discriminator hops: (1) prudynt RTSP session,
 (2) sophon go2rtc producer session, (3) frigate ffmpeg consumer.
+## ADDENDUM 2 (c4): frigate-side topology + watchdog census
+
+Frigate config (sophon, read-only) confirms the producer chain:
+sophon go2rtc pulls rtsp://thingino:thingino@<cam-ip>/ch0 (port 554
+= PRUDYNT directly), frigate consumes rtsp://127.0.0.1:8554/<name>
+with preset-rtsp-restream. Camera-side go2rtc (:8553) is a BYSTANDER
+for our pipeline. Deafness hops to probe: prudynt session -> sophon
+go2rtc producer -> frigate ffmpeg.
+
+Frigate watchdog census (podman logs, all-time): exterior_4 = 667
+ffmpeg restarts (burst Sep 2 09:00-17:00, ~120-176/hour; scattered
+Sep 3), exterior_3 = 180, interior_1 = 52, exterior_5 = 51,
+exterior_1 = 37, interior_2 = 4, interior_3 = 3, exterior_2 = 1.
+ext4 is the fleet's flappiest camera by an order of magnitude.
+CRITICAL: zero ext4 watchdog events in the 23:47-23:53 window --
+the 23:53:48 audio loss produced NO frigate-side log evidence
+(silent-track-loss law re-confirmed from the third angle). The
+frigate watchdog restart-count is a NEW fleet-health signal worth
+adding to fleet-check (cheap: one podman logs grep).

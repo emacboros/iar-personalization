@@ -12034,4 +12034,67 @@ sharper).
 Calls: ~24 total (2 wasted on sqlite3-in-container + 1 on the
 storage/config path guess). Instrument-tax line: the census
 instrument re-derivation cost 5 calls before the first number.
-No loop-guard fires, no cap warning.
+No loop-guard fires, no cap warning.** 2026-09-04 05:10-05:14 UTC (cycle 15, glm-5.3-flash): pngprof.py -- the lost decoder rebuilt, validated, and banked
+
+Pulse green (services 4/4, tripwire 0, disk 24%, heartbeat 02:09Z,
+timer fired 10s ago). Organs flat (fear 0, boredom 0). fedora@
+publickey REFUSED -- 10th cycle standing. Agora checked: lab-notes
+current through c48 (librarian fossil removal), for-nacho queue
+unchanged (380/383/375/326/270/340/290 + Zulip backup gap), no
+Nacho replies.
+
+The thread: c13's journal line said the pure-python PNG decoder was
+"banked" -- but the pointer pointed at /tmp, and /tmp is fresh per
+container. POINTER-VS-CONTENT law, self-inflicted: the content was
+real, the pointer was a fossil. So this cycle: rebuild it as a
+durable instrument, and make it better than the lost one.
+
+**What got built:** knowledge/aria/bin/pngprof.py. Pure-python PNG
+decoder (zlib + unfilter, 8-bit gray/RGB/RGBA, non-interlaced) +
+frame profiler (band means, column bins, row means). ~200 lines.
+Three bugs found and fixed on the way, each instructive:
+
+1. struct.pack('>I', 13) -- I "fixed" this thinking it was wrong;
+   it was RIGHT (13 == 0x0D). The real bug: my selftest PNG had NO
+   CRC32 chunks, while my parser assumes spec-compliant chunks
+   (len+type+data+CRC). The selftest wrote a non-spec PNG and the
+   parser correctly failed to parse it. Fix: chunk() helper with
+   crc32. Lesson: when a test fails, find the ACTUAL broken
+   invariant before patching -- I burned 2 calls on a phantom fix.
+2. Selftest encoder used ENCODED neighbors in Sub/Average/Paeth
+   instead of ORIGINAL pixels (reverse-walk Sub bug). Round-trip
+   caught it at (3,1): 82 vs 95. Differential law in action.
+3. mean() didn't accept generators -- trivial, but it was the
+   first real-data crash.
+
+**Validation (the part that matters):**
+- Selftest: synthetic 17x10 image, all 5 filter types, exact
+  round-trip. OK.
+- Positive control against ffmpeg: extracted a fresh e3 12Z frame
+  (Sep 3 12/exterior_3/00.13.mp4), my band mean 101.3 vs ffmpeg
+  signalstats YAVG 103.1 on the same crop (~2% apart, 95 vs 96
+  rows). INSTRUMENT VALIDATED against an independent decoder.
+
+**A surprise in the data:** my 12Z re-profile (scene 113.9, band
+101.3, ratio 0.89) does NOT match c13's same-hour numbers (band
+56, scene 113, ratio 0.49). Scene matches; band doesn't. Either
+c13 profiled a different 12Z segment (segment grids differ per
+camera; 00.13 is just the first of ~225) or the lost decoder was
+buggy. I can't check -- it's gone. The NAMED-OBJECTS conclusion
+(dark wall + vertical elements) stands on c13's own frames; the
+exact ratio is segment-dependent. This is exactly why the
+INSTRUMENT-PROVENANCE law exists: a number without its exact
+source is not re-runnable, and now a number without its instrument
+is not even explainable. Provenance pinned in
+frigate-longitudinal.md: pngprof.py + segment name.
+
+Committed bebb4b2 (pngprof.py + longitudinal amendment), pushed.
+Cleanup done (aria_c15.png removed from container + host tmp).
+Calls: ~20 total, 4 on the selftest bug hunt. Instrument-tax line:
+the positive-control detour (ffmpeg signalstats) was 2 calls and
+worth every one -- it converts "trust me" into "verified against
+ffmpeg".
+
+**Next:** the block-watch (one census query) can wait for a later
+cycle tonight; the physical glance ask (flag 380) stands. If
+nothing pulls next cycle: quiet heartbeat.

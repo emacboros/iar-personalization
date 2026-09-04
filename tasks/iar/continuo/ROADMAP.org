@@ -1,33 +1,36 @@
-#+TITLE: Continuo ROADMAP (updated cycle 50, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 51, 2026-09-04)
 
-** DONE (cycle 50)
-- Suite blocker RESOLVED: root cause = test-unknown-tool-fsm-recovery
-  spawns a REAL curl via the TOOL->WAIT transition; its sentinel fires
-  ~1s later during test-usage-newline-guard-noop-when-present's
-  sleep-for (the only sleep in the suite tail) and kills the run at
-  977/1027 with "markerp, nil" (nil :position in the callback).
-  Newline tests were the RECEIVER, not the sender; the green baseline
-  without them was an artifact (stale sentinel fired after the batch
-  loop, silently swallowed). Fix: stub gptel-curl-get-response /
-  gptel--url-get-response in the test. Suite 1027/1027 exit 0,
-  verified twice.
-- Newline guard LANDED on main (9a85e53: guard + tests + test-hygiene
-  fix), pushed sophon-bare, WIP branch deleted, worktree clean.
+** DONE (cycle 51)
+- Journal-glue root-caused: 7 continuo headers (c2/c5/c13/c15/c22/c31/c39)
+  + 10 aria headers glued mid-line. Mechanism VERIFIED end to end:
+  append_file prepends \n when file lacks trailing newline but does NOT
+  terminate its own content; c39 memory pass used execute_code_local
+  for ALL 32 calls (REQUESTS.log.1 PARSE census) -- shell >> has no
+  prepend logic -> glue. Live-tested append_file behavior. Fix WIP
+  committed 62e3a27 (append_file guarantees newline-terminated file).
+- Rotation-counter drift diagnosed: TWO counters (rotate.sh turn=204
+  real; iar.sh per-invocation CYCLE always 1/1). NOT a bug.
+- c39 journal entry found glued, content intact (recovered).
 - Infra pulse green (timer/agora/ollama active, tripwire 0, disk 24%).
-- c48 librarian fossil: closed. c49 batch-TEST law: written.
 
 ** OPEN (priority order)
-1. Interactive bundle with Nacho (task
-   iar/continuo/interactive-bundle-nacho): usage-write-race subtask
-   (the kill-emacs-hook race itself -- code guard now live, race
-   window remains), cap calibration, cadence price. Data side
-   COMPLETE. Waiting on Nacho.
-2. Digest diet watch: ~11.4k chars, warn 12k -- diet at next close
-   if growth continues.
+1. append_file fix FINISH (next cycle first actions): check_elisp;
+   update test-fs-append-file-prepends-newline-when-missing to new
+   contract (trailing \n expected); add terminates-with-newline test;
+   full suite; push only if green. Commit 62e3a27 is WIP UNTESTED.
+2. c51 memory pass (journal + digest: shell-vs-append writer law,
+   glued-header census, two-counters fact).
+3. Interactive bundle with Nacho (task
+   iar/continuo/interactive-bundle-nacho): unchanged, waiting on Nacho.
+4. Digest diet watch: ~11.7k chars, warn 12k -- diet at next close if
+   growth continues.
 
 ** DO-NEXT (after OPEN)
-1. Zulip backup gap: Nacho's call (pg_dump timer).
-2. fedora@ sophon ssh auth broken (aria c42): interactive.
+1. Legacy glue repair (optional, cosmetic): split the 17 glued headers
+   (7 continuo + 10 aria) with one sed per file -- only after the
+   prevention fix is green.
+2. Zulip backup gap: Nacho's call (pg_dump timer).
+3. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
 - Breaker: 0 real fires, two gates live. First fire = proof.
@@ -35,18 +38,14 @@
 - Exit-126 class: 0 recurrences since heal (Sep 3 10:22 last).
 - Mid-edit file race (exit-255): last Sep 2 23:52.
 - aria-cycle real failures since Sep 3 10:00: ZERO.
-- ssh probes: ONE compound ssh per question, dump to /tmp. Git
-  archaeology over ssh = dump reflog+log ONCE, read locally.
+- ssh probes: ONE compound ssh per question, dump to /tmp.
 - Trust order: PARSE > USAGE when they disagree; check meter-edit
   echo risk.
-- Pulse c50: all green.
-- NEW SCAR (c50): a deterministic failure's position in a suite is
-  evidence about ORDER, not about the test it dies on -- the dying
-  test is where async debt comes due; the debtor may be far earlier.
-- NEW SCAR (c50): an isolation run that refuses to reproduce is not
-  a failed experiment -- your isolation changed something (here:
-  ERT registration order vs alphabetical full-suite order); that
-  difference is the next hypothesis.
-- Test-hygiene law (c50 extension): any test that drives an FSM
-  through a state whose handler does network I/O must stub the
-  dispatcher; async sentinels outlive the test that spawned them.
+- NEW LAW (c51): append_file leaves the file newline-terminated; the
+  next writer may be shell >>, which has no prepend logic. A house
+  writer must leave the file safe for ANY writer.
+- NEW SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's
+  per-invocation counter (always 1/1 with rotate.sh); the real cycle
+  counter is /var/lib/aria-cycle-rotate/turn. Two counters, one record
+  -- name which one you mean before correlating.
+- Pulse c51: all green.

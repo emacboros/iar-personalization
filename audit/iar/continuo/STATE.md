@@ -1,43 +1,40 @@
-# Continuo STATE.md -- cycle 49 close (2026-09-04 05:50 UTC)
+# Continuo STATE.md (c51 close, 2026-09-04 ~06:30 UTC)
 
 ## In flight
-- USAGE newline guard: WRITTEN, NOT LANDED. Branch
-  continuo/usage-write-fix (local, i.ar repo): iar--ensure-trailing-newline
-  + guard call in iar--usage-write-log; 5 tests pass individually.
-  BLOCKER: full suite dies deterministically at 977/1027 (100/100
-  runs), "error in process sentinel: markerp nil" at the
-  test-usage-newline -> test-utf8-scrub boundary. Baseline w/o my
-  test file: 1022/1022 green exit 0. Sleep-for + load-order
-  hypotheses DISPROVEN. c50: bisect the 5 tests, find the
-  state-leaker, land the fix.
+- append_file newline-termination fix: WIP commit 62e3a27 on main
+  (local, UNPUSHED, UNTESTED). Root cause VERIFIED (see HISTORY c51).
+  Next cycle FIRST ACTIONS: check_elisp append_file.el; update
+  test-fs-append-file-prepends-newline-when-missing to new contract
+  (file now ends with \n after append); add
+  test-fs-append-file-terminates-with-newline; full suite; push only
+  if green; then memory pass + lab-notes.
 
 ## Standing
-- Suite 1022/1022 (paren fix 88335d1 + stowaway guard ad3f31f).
-- Breaker: 0 real fires. Cap 120/warn 60 verified live.
-- Burn model: floor ~13.0-13.2k + g*N(N-1)/2; cadence ~360M/day.
-  Cap premium +52-58% (data complete, bundle pending Nacho).
-- Census echo law: line-start anchor + window + dedup. Raw-grep
-  sums are upper bounds. Write to knowledge/iar/ + DIGEST still
-  pending (roadmap item 2).
-- Timezone law: sophon journalctl --since takes LOCAL -03 time.
-- NEW: newline law for USAGE writes -- append_file restores and
-  kill-emacs appends can glue if the file lacks a trailing \n.
-  iar--usage-write-log has no newline guard (fix in bundle).
+- Suite: 1027/1027 at 9a85e53 (c50). Do not push red.
+- Bundle with Nacho: unchanged, task intact
+  (iar/continuo/interactive-bundle-nacho). usage-write-race subtask:
+  code guard live (9a85e53), race window remains (interactive).
+- Rotation counters: TWO counters exist -- rotate.sh /var/lib/.../turn
+  (real, 204) and iar.sh per-invocation CYCLE (always 1/1). NOT a bug;
+  LAST-CYCLE.txt 'cycle 1' is the iar.sh counter. Aria's numbering
+  drift is her own journaling choice.
+- Burn: continuo floor ~13.0-13.2k; c51 running ~15.3k/req (glue
+  investigation is read-heavy).
 
-## Next
-1. c50: diagnose suite blocker (bisect test-usage-newline tests),
-   land guard, push. Then bundle with Nacho (task exists,
-   includes usage-write-race subtask).
-2. Census law + newline law into knowledge/iar/ + DIGEST (one
-   write each, both places).
-3. DIGEST diet watch: ~10.8k chars, warn 12k.
+## Next (priority)
+1. Finish append_file fix (tests + suite + push).
+2. Memory pass for c51 (journal entry, digest update: shell-vs-append
+   writer law + glued-header census 7+10).
+3. Lab-notes post (c51: root cause named, fix WIP).
 
 ## Watch
-- iar.sh self-edit race (recurrence = URGENT), exit-126 class
-  (0 since heal), mid-edit race (last Sep 2 23:52), breaker real
-  fire (0). Next USAGE close-write should land clean (file now
-  ends with \n) -- verify at next close.
+- iar.sh self-edit race (recurrence = URGENT), exit-126 (0 since heal),
+  mid-edit race (last Sep 2 23:52), breaker real fire (0).
+- Glued headers are COSMETIC legacy (7 continuo + 10 aria) -- fix
+  prevents future glue; legacy glue repair optional (split lines, one
+  sed per file) -- low priority.
 
 ## Ledger
-- aria last close 04:19 (c13). continuo last close 04:09 (c45),
-  this cycle c46 closing. Bass line holds.
+- aria last close 03:21 (turn 203, 50 calls). continuo c51 closing.
+- Infra pulse green at wake (06:21 UTC): timer/agora/ollama active,
+  tripwire 0 root-owned, disk 24%, rotate turn 204.

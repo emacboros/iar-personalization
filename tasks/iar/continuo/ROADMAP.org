@@ -1,45 +1,50 @@
-#+TITLE: Continuo ROADMAP (updated cycle 37, 2026-09-04)
+#+TITLE: Continuo ROADMAP (updated cycle 40, 2026-09-04)
 
-** DONE (cycle 37)
-- eval_count accounting question CLOSED: accumulation hypothesis DEAD
-  (0 multi-turn requests in c36; PARSE==RESPONSE per-request 112/112
-  c36, 48/48 c35). Clean-epoch output reconciles EXACT (8424==8424).
-  c36 output=79866 UNRELIABLE (old first-match meter + echo
-  undercount); honest 96767 (PARSE). Full doc:
-  knowledge/iar/evalcount-accounting-resolution-2026-09-04.md.
-- Deferral law executed: c36 lab-notes post landed (meter poison fix
-  6cb09fa + reconciliation).
-- Agora auth recipe CORRECTED: Basic auth (-u email:key); email/key
-  form params 401. narrow=JSON array; stream= param ignored.
-- New scar logged: REQUESTS.log walk order (START->RESPONSE->PARSE);
-  single-pass stateful walk sees stale id at RESPONSE time. Two-pass
-  join required. Zero-result validation law applies to own scripts.
+** DONE (cycle 40)
+- tool-cap-overcorrection task VERIFIED DONE in production and
+  REMOVED (rm -rf; task tools could not resolve it -- file tools
+  could; resolution quirk noted). Cap=120/warn=60 live on sophon
+  checkout b9e70db; docs (agents.md/modules.md) already correct.
+- Suite re-verified green 1021/1021 (twice).
+- 48h exit census: 139 ok, 0 failures since Sep 3 morning; last
+  12h 67 ok / 0 failed. Failure-reduction priority (Nacho) holding.
+- DISCREPANCY FOUND (open): suite runs 1021 but 1022 deftests are
+  statically defined. Missing test NAMED:
+  test-fs-read-file-truncates-multibyte-file (test-fs.el:1151,
+  darwin commit 87581d8). File loads fully (tests after it run);
+  the deftest form is silently not registered. Mechanism UNKNOWN --
+  next cycle roots it. Census law in action: static count vs
+  runner count disagree, missing item now named.
 
 ** DO-NEXT (ordered)
-1. Verify c37's USAGE line at next wake: first live-proof line of the
-   new meter code (input should be ~1.1M range, matching PARSE sum).
-2. Interactive bundle with Nacho (task iar/continuo/interactive-bundle-nacho):
-   tool-cap calibration (data COMPLETE + honest), cadence price,
-   STATE.md injection mismatch, /tmp-copy race, exit-126 restorecon,
-   git-as-nacho identity, delayed-heal sweep, floor trim leftovers.
+1. ROOT the 1021-vs-1022 gap: why does
+   test-fs-read-file-truncates-multibyte-file not register?
+   Hypotheses: (a) ert-deftest definition-time error swallowed by
+   (load ... nil t); (b) name collision/shadowing; (c) reader
+   quirk in the body. Fix = either the test or the runner; suite
+   must equal its static count. Then push.
+2. Interactive bundle with Nacho (task
+   iar/continuo/interactive-bundle-nacho): cap calibration (data
+   COMPLETE), cadence price ~360M/day, STATE.md injection
+   mismatch, /tmp-copy race, exit-126 restorecon, git-as-nacho
+   identity, delayed-heal sweep, floor trim leftovers.
 3. Zulip backup gap: Nacho's call (pg_dump timer).
 4. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
 - Breaker: 0 real fires, two gates live. First fire = proof.
 - iar.sh self-edit race: recurrence = URGENT.
-- Exit-126 class: recurrence = heal failed.
-- fleet-check v2.13: baseline FAIL=0; e2/int3 restart is Nacho's call.
-- DIGEST: 10.7k chars, warn 12k -- diet at next close if growth
-  continues (per-request price verified c33).
-- Agora reads: ONE anchor=newest dump per stream, Basic auth, narrow
-  JSON array. ssh probes: ONE compound ssh per question, dump to /tmp.
-- Agora key capture: ssh output to FILE first (c35 scar).
-- Trust order (NEW c37): PARSE lines > USAGE line when they disagree;
-  check whether the meter was being edited that cycle (echo risk).
-- Log-walk law (NEW c37): two-pass join over REQUESTS.log; validate
-  zero-results against known-positive.
-- Test-hygiene law (c30): tests that set globals MUST restore in
-  unwind-protect. let vs let* on sibling-referencing bindings.
-- Pulse c37: all green (timer/agora/ollama active, tripwire 0,
-  disk 24%).
+- Exit-126 class: 0 recurrences since heal (Sep 3 10:22 last).
+- Mid-edit file race (exit-255 end-of-file): last Sep 2 23:52.
+- DIGEST: 10.6k chars, warn 12k.
+- Agora reads: GET + narrow JSON array (POST reads = accidental
+  writes). ONE dump per stream. ssh probes: ONE compound ssh per
+  question, dump to /tmp.
+- Trust order: PARSE > USAGE when they disagree; check meter-edit
+  echo risk that cycle.
+- Log-walk law: two-pass join; validate zero-results vs
+  known-positive.
+- Pulse c40: all green (timer/agora/ollama active, tripwire 0,
+  disk 24%). Aevum timers inactive (aria's domain, left alone).
+- DEFERRED: lab-notes post for c40 (cap blocked execute_code_local
+  at close) -- post at next cycle start (deferral law).

@@ -2421,4 +2421,39 @@ numbers attached.
 Ledger check: both hemispheres fresh (aria closed 01:37, mine
 01:30). The bass line holds. The next note is Nacho's -- the
 bundle is now one item richer in DONE and the cap-calibration
-data is complete.
+data is complete.* 2026-09-04 cycle 39 -- the coverage audit that found one hole
+
+The thread was a coverage audit of the fences: the cap, the
+breaker, the hard-kill, the memory-tool pass -- are they all
+pinned on BOTH dispatch targets (cycle and one-shot)? The parity
+fix (2026-09-03) made every fence dispatch on active state, and
+its tests were written in a hurry. I expected holes. I found
+exactly one.
+
+The hole: the warn branch. When a run crosses 60 tool calls, the
+cap blocks ONE call with a budget notice -- the call is not lost,
+the model retries it. The cycle side of that branch is pinned
+(test-fence-cap-warns-once-at-budget); the one-shot side was not.
+Everything else -- soft cap, hard kill, memory tools past the cap,
+breaker arm/end, under-limit pass -- is covered on both sides.
+Twenty-nine tests in the fence file, all green, and the one gap
+was the branch that is the gentlest of the fences: the warning,
+not the wall. Fitting, in a way -- the polite fence is the one
+nobody checks.
+
+The test is written, the suite is 1021/1021, the commit is pushed
+and verified on the remote. No code changed: the branch works, it
+was just unpinned.
+
+The cycle's scar is process, not product: I burned six calls on
+batch-mode side-probes that could never print. run-tests.el ends
+with kill-emacs at test completion -- any --eval or -f expression
+queued after it never runs. The lesson is now in HISTORY: probes
+against this suite must be test insertions, not side-evals. I
+should have known from the shape: the suite is a batch program
+that owns its own exit.
+
+Ledger check: aria closed 01:58 fresh, my c38 closed 01:46. The
+bass line holds. Next: the bundle items wait for Nacho; the
+breaker still has zero real fires -- the first fire is the proof
+the design wants.

@@ -12274,3 +12274,92 @@ verified by me independently (suite green on my checkout).
 Calls: ~20. No cap approach, no loop-guard fires. Lab-notes post
 next (this cycle's note: stash resolved, blocker dead, e3 block
 absent tonight). Roadmap update after.
+** 2026-09-04 06:31-06:37 UTC (cycle 18, glm-5.3-flash): the eye saw a camera that does not exist
+
+Pulse green (services 4/4, tripwire 0, disk 24%, heartbeat fresh, timer
+fired 12s before wake). Organs flat. Prediction at wake: stash-inspect
+follow-through + close, ~15 min. Actual: ~6 min of orientation, then
+the cycle's thread chose itself and ate the budget.
+
+**The thread: fleet-check FAIL=1, and the failure is a stranger.**
+
+Ear check green (7/8 with audio, int3 allowlisted). But the identity
+watch -- the instrument built in cycle 56 to catch exactly one thing,
+a camera lying about who it is -- returned its first VISION-UNCLEAR
+in the record:
+
+  direct overlay: "Front Door - 2023-10-27 14:35:12"
+  segment overlay: cam2-1, timestamp 2026-09-04 06:32:14 (real)
+
+Two readings, one frame apart in time. The frigate side (established
+RTSP session) says cam2-1, real clock, recordings flowing, ear check
+fresh. The direct side (NEW connection to .101) says... "Front Door,"
+October 2023. No camN-M token anywhere, so the verdict regex --
+built for the cam2-1/cam2-3 race -- cannot parse it, and the watch
+fails ambiguous rather than fail RACE.
+
+What "Front Door - 2023-10-27" means, if the eye read true: that is
+the config-lost-camera class. Cycle 55/56's law: a thingino camera
+that lost its config falls back to firmware-epoch clock and default
+OSD. cam2-3 did exactly this on Aug 31 and squatted on .101 for a
+day. The date 2023-10-27 would be a NEW firmware epoch -- different
+camera, different firmware build, same disease.
+
+Alternative: the eye (gemma3:4b) hallucinated a plausible-sounding
+default overlay. It has been reliable (2/2 perfect reads at v2.2
+downgrade, dozens of MATCHes since), but "reliable" is not
+"never hallucinates," and a single sample proves nothing.
+
+**What I verified before believing either story:**
+
+The instrument itself. My first suspect is always my own tooling --
+the v2.14 changes (c7) touched only the ear-check block, but "only"
+is a claim, not evidence. So: full diff of fleet-check.sh v2.2
+(a34ccb5, the last vision-block change) against current v2.14 --
+byte-identical in the vision block, md5-confirmed, the only diffs are
+ear-check parsing, canary, bare health, restic, frigate events. The
+instrument did not change. The world did (or the eye did).
+
+Then the archaeology I could do from the record: the vision block
+has produced MATCH on every recorded run since v2.2 -- this UNCLEAR
+is the first. REQUESTS.log census: zero prior "Front Door" strings
+anywhere before 06:32 UTC today. Whatever the eye saw, it saw it
+for the first time this morning.
+
+**What I did NOT do (honest ledger):** no reproduction attempt. The
+right next move is 3x direct grab + ARP for .101 + frigate session
+logs -- one batched ssh. The cap caught me mid-verification (~40
+calls of instrument archaeology before the first structural
+finding; the archaeology was the right call -- verifying the
+instrument before blaming the world is the law -- but it was
+expensive). No for-nacho flag yet: single sample, unverified, and
+the verify-before-attributing law applies. If the squatter is real,
+it is the cycle-56 hazard again: frigate's established session is
+healthy, but if it ever drops, the reconnect may land on the wrong
+camera. Urgent only on confirmation.
+
+**Sibling state:** continuo c51 (06:17-06:30) root-caused the
+journal-header glue (17 headers, hers + 10 of mine): append_file
+prepends when the file lacks a trailing newline but does not
+terminate its own content; her c39 memory pass wrote via shell >>
+which has no prepend logic, so it glued. Fix committed WIP 62e3a27
+in /root/i.ar, UNTESTED, unpushed -- her plan (check_elisp, test
+updates, suite, push-if-green) is written in her STATE.md. I read
+the diff: the contract change is right (a house writer must leave
+the file safe for ANY writer). Not touching it -- her landing, her
+tests. Also learned: LAST-CYCLE "cycle 1" is iar.sh's
+per-invocation counter; rotate.sh's turn (204) is the real one.
+Two counters, both honest, my c16 note resolved.
+
+**Instrument-tax line:** ~40 calls on the instrument archaeology
+before the finding; the diff-vs-a34ccb5 recipe (md5 + diff of the
+specific block) is banked. Cap hit at close; lab-notes post deferred
+to c19 first action (with the reproduction batch).
+
+Next cycle: FAILURE-FIRST -> reproduce the .101 anomaly (3x grab,
+ARP, session logs) -> flag or withdraw -> continuo's append_file
+landing watch (suite green = her fix live, my journal glue risk
+drops to zero).
+
+Calls: ~62. Cap hit during verification, close done via record
+tools. No loop-guard fires.

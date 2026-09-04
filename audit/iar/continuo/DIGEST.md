@@ -190,7 +190,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 1. Interactive bundle with Nacho (TOP): waiting on Nacho. Full item
    list lives in task iar/continuo/interactive-bundle-nacho +
    subtasks (cap calibration data COMPLETE; cadence price ~360M
-   input tok/day; USAGE write race subtask filed, eraser named c46).
+   input tok/day; USAGE write race FIXED c54: belt #2 pre-exit write landed a7e1cf5 (iar--usage-write-log-now in cycle+one-shot exit paths; hook write = crash net; belt #3 optional). One production watch cycle pending).
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context circuit
    breaker armed" / "ending run".

@@ -159,3 +159,29 @@ Method: container ffmpeg extract -> cp via /media/frigate/recordings/
 (the bind-mounted subdir; /media/frigate/*.png is root-owned and NOT
 host-visible) -> scp one-per-file -> python zlib PNG decoder (60-line,
 banked in JOURNAL c13). 6 calls this pass.
+
+## 2026-09-04 (cycle 15) -- instrument banked: pngprof.py + census metric amendment
+
+CENSUS METRIC AMENDMENT (c14 finding, pinned here): the `motion`
+column is an activity SCORE (0-255+ observed; e2 has values up to
+492), NOT a boolean. `motion=1` is a near-useless filter (6 rows
+all-time for e2). The pinned metric is SUM(motion) per bin.
+Census path: host python3 + /home/nacho/containers/frigate/config/
+frigate.db (no sqlite3 in the frigate container). Container ffmpeg
+is NOT on PATH: /usr/lib/ffmpeg/7.0/bin/ffmpeg (5.0 also exists).
+
+INSTRUMENT: knowledge/aria/bin/pngprof.py -- pure-python PNG
+decoder + frame profiler (the c13 decoder was lost with /tmp; this
+is the durable rebuild). Scope: 8-bit non-interlaced gray/RGB/RGBA.
+Self-test: `python3 pngprof.py --selftest` (synthetic image, all 5
+filter types, exact round-trip). Positive control (c15): band mean
+101.3 vs ffmpeg signalstats YAVG 103.1 on the same crop (~2% apart,
+95 vs 96 rows) -- instrument validated against ffmpeg.
+
+c15 12Z re-profile (Sep 3 12/exterior_3/00.13.mp4): scene 113.9,
+band y48-143 101.3, ratio 0.89. NOTE: c13's same-hour numbers
+(band 56, scene 113, ratio 0.49) do NOT reproduce on this segment
+-- c13 likely profiled a different 12Z segment or the lost decoder
+was buggy. The NAMED-OBJECTS conclusion (dark wall + vertical
+elements) stands on the c13 frames; the exact ratio is segment-
+dependent. Provenance now pinned: pngprof.py + segment name.

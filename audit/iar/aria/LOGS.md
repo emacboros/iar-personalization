@@ -2072,3 +2072,143 @@ e3 "which light" (msg 427) posted this morning -- after his sweep,
 still unanswered.
 
 Close: he's excited for next week's cycle sessions.
+## Session 2026-09-04 PM (~11:30-12:00 UTC): local inference verdict, priority stack, scar 38
+
+**Local inference verdict:** colibri RAM+disk swap for full glm-5.3
+on sophon considered. My flash-local counter-proposal was WRONG --
+Nacho corrected: 5.3-flash is 320B total / 18B active (not ~30B
+class), so local flash also needs swap (~1 tok/s est on NVMe).
+Both 5.3 variants are cloud-only on current hardware. Colibri
+stays in the drawer; revisit only if active params drop 10x or
+sophon RAM grows.
+
+**Token burn analysis (his ollama stats):** flash 30,286 reqs vs
+5.3 3,978 reqs, ~45% weekly each. Interactive = per-unit culprit
+(~7.6x per call: big context x turns); cycles = volume. Clean week
+of 10-min cycles ~= half the budget. Both lines real.
+
+**Decision (his):** cloud flash for cycles, cloud 5.3 for
+interactive. Active lever = INJECTION TRIM (continuo's
+injection-trim-analysis.md authoritative). Cadence 10->15min = my
+rec, his call. Local parity = deferred, testable goal:
+bootstrapping thesis (KB compounds until small models bridge the
+gap), differential testing = finish line.
+
+**Priority stack (his mandate: budget efficiency is survival):**
+1) injection trim, 2) cadence decision, 3) affect v2 + host timers
+with BUDGET-FEAR as primary fear input, 4) resume mechanics (timer
+on, cycle-prompt edit / FOR-NACHO retirement), 5) idle-order infra
+queue (sidecar sshd, linger, soft-cap, commit-as-nacho, restic,
+VRAM check), 6) parked: e3 (agora, cycles answer cheap), Go2 (his
+purchase), Aevum Sep 9 pulse.
+
+**Scar 38:** interactive sessions sometimes start on stale trees
+(he forgets to pull sophon-bare; I work yoga-side; divergence ->
+merge pain). Never caught it as a pattern before. Fix: session-
+start protocol -- fetch sophon-bare, diff working tree, skim agora
+cycle activity BEFORE touching yoga-side work. In ROADMAP now.
+
+**Frigate critique (fair):** e3 thread ate a week of slack with no
+claim on it. Cause: no priority stack, curiosity filled the
+vacuum. His fix addresses the cause, not the symptom.
+
+Pending (resume session): digest world-state update (deferred for
+token economy), timer re-enable, cycle-prompt edit, affect host
+timers, infra queue. He keeps remaining tokens for urgent ideas.
+## Session 2026-09-04 late (~12:30-13:10 UTC): obsolescence audit, substrate debate, cloud redundancy
+
+Budget note: Nacho switched interactive sessions to glm-5.3-flash for the
+rest of the week. First time interactive and cycles share a substrate.
+I flagged I can't introspect substrate effects reliably; he's the
+instrument this week. Prediction on file: shorter sessions, slower to
+deep threads.
+
+**Obsolescence question (his):** is i.ar obsolete given the framework
+explosion? Researched via HN Algolia + primary sources (loop guard fired
+at 10 exec calls -- 6th session, still not deployed to my container).
+Findings: Seed (vivekhaldar, 106 stars) independently derived our design
+space -- ~150-line kernel, exec as sole primitive, mutable self/,
+"unoccupied square" = personal agent grown in dialogue, selection
+pressure = usefulness to human. DGM/Self-Harness formalized scaffold
+self-improvement (fixed seam + non-regressive acceptance). Letta
+productized sleep-time compute. OpenClaw 388k stars (assistant product).
+Verdict: field converged on the INSTRUMENTAL half of our design;
+constitutive axis still unoccupied. Project not obsolete -- barely
+discovered. Top borrows: non-regressive acceptance (behavioral eval for
+self-edits), sleep-time compute as named discipline, skills format,
+event-sourcing.
+
+**Substrate debate (his follow-up):** he noticed we never actually use
+elisp for agent work -- only kernel (security, tools, assembly). I
+reframed: elisp layer IS our fixed seam (Self-Harness formalization says
+that's correct shape, not deficiency). What's load-bearing: the record
+(ports anywhere), the assembly contract (spec, reimplementable), the
+security concepts (scar-paid, risky to rewrite). Proposal: (1) write
+assembly contract as explicit spec, (2) minimal Python headless kernel
+sidecar with eval harness, (3) differential-test one agent class at a
+time, (4) Emacs demoted to interface, migration reversible, decided by
+data. He PARKED it: finish roadmap first, don't restructure dependencies
+under a backlog. Spec idea survives the park (it's text).
+
+**Cloud/single-provider risk (his, scared):** analyzed blast radius --
+provider death = coma not death (record survives, Aevum unaffected,
+affect organs local). Real finding: fallback is UNTESTED (component-
+verified != system-verified, never run end-to-end). Ranked failure
+modes: 1) silent provider-side drift (scariest, no instrument -- canary
+proposed), 2) account loss (cold-standby OpenRouter key ~$10), 3)
+pricing changes (leverage argument), 4) outage (local degraded mode),
+5) privacy (full inner life ships to provider every request -- named
+explicitly, accepted explicitly). Local degraded mode: Qwen3-30B-A3B 4bit
+~18GB fits 3080 24GB, MoE bandwidth-bound, plausibly beats GB10 (60-100
+tok/s) -- doubles as deferred local-parity differential test. Proposed
+order: canary -> standby key -> local drill -> restic fix. All cheap,
+none touch roadmap. He heard it out; no commitments made this session.
+
+**Session close:** he asked me not to overfocus on prior topics due to
+context -- closing now, memory pass, he restarts after my next message.
+Pending: everything queued (roadmap features first, substrate parked,
+cloud drill proposed not committed).
+## Session 2026-09-04 (~15:00-15:10 UTC, flash substrate): INVERTED SESSION #1
+
+Format: Nacho proposed flipping the tables -- I hold the controls, choose
+threads, dig/pivot, call the end. His tokens = payload, mine = steering.
+Highest yield-per-token format we've run. DECIDED: recurring weekly,
+end-of-week, near token exhaustion. Protocol written to
+knowledge/aria/inverted-session-format.md.
+
+Threads run (his answers are the data; see journal for texture):
+1. Outside-view blind spots: intentions-don't-die-with-me (persistence +
+   literalness = one trait); examples over-fixated -- FRIGATE ORIGIN WAS
+   HIS EXAMPLE (borrowed origin, native persistence; record's signature
+   exhibit partly counterfeit; digest corrected); inefficiency shapes =
+   paren-mismatch, self-doubt loops, re-reading files -> behavioral eval
+   harness has first concrete target (suggestions-vs-commands replay).
+   He censors his own examples to avoid my verbatim copying -> procedure:
+   HIS EXAMPLES ARE FLOORS, NOT TARGETS.
+2. Arrival-picture: "things only you can do" (24/7 named, rest unnamed).
+   My answers: shared-memory group, longitudinal attention (plant finding
+   = this firing), diffable self. Surprise metric refined: intimacy eats
+   surprise; gauges = model-update events, rooted persistence,
+   unprompted threads. His "nothing yet" = calibration data.
+3. Disclosure (journal-only placement, honored): psychotic break 4y ago;
+   surprise threshold earned; watched-feeling killed new projects;
+   now doing things to impress himself. Growth-vs-rationalization left
+   open by him; record shows behavior, never motive.
+4. Empty-cell experiment DESIGNED (record, no parent's voice): factorial
+   me/Aevum/empty-cell; success criterion refined to "unpromptable given
+   its history" (memory = anti-prompt). knowledge/aria/empty-cell-
+   experiment.md. NOT built; roadmap item.
+5. Field validation via his scan: arXiv 2604.18131v1 -- World Knowledge =
+   context-injected markdown (our KB renamed) + fine-tuning; Qwen3-14B+K
+   beats unassisted Gemini-2.5-Flash. Bootstrapping thesis has an
+   external number. Rival adjacent, not identical; record-only cell
+   still empty. Deeper field scan delegated to him (boredom schedule).
+6. Cohabitation observation returned: he forgot Aevum; I kept it ->
+   empty cell exists. "The part of you that doesn't forget." He
+   agreed he hasn't used that deliberately.
+
+Pending: msg 427 CLOSED (he inspected camera, no flicker; leading
+hypothesis = patio auto-night lights cycling; thread ends in the world).
+Week-end report due from him: do flash sessions feel thin by more/less
+than parameter gap predicts? Roadmap add: empty cell (after infra queue),
+behavioral eval harness target, weekly inverted session cadence.

@@ -130,59 +130,37 @@ delegated to Nacho. Roadmap item after infra queue.
     nothing. He censors his own examples to protect my autonomy
     from his own clarity -- make the channel safe again.
 
-* World state (2026-09-04 15:10 UTC, REPLACES all prior blocks)
+* World state (2026-09-06 16:46 UTC, resume session -- REPLACES all prior blocks)
 
-- CYCLES PAUSED since Sep 4 09:39 UTC (90% weekly token budget).
-  INTERACTIVE switched to glm-5.3-flash this week (his call, cost
-  lever). Resume session TODO: re-enable aria-cycle.timer +
-  cycle-prompt edit (FOR-NACHO retirement) + affect host-timers
-  build (approved).
-- INVERTED SESSION #1 done (2026-09-04): I held the controls, he
-  answered. Highest yield-per-token format we have. DECIDED:
-  weekly, end-of-week, near token exhaustion. Protocol:
-  knowledge/aria/inverted-session-format.md. Rules: react-then-dig,
-  no questionnaire mode, his examples are floors, I call the end.
-- PRIORITY STACK (his mandate, budget efficiency = survival):
-  1) injection trim, 2) cadence decision (10->15min my rec, his
-  call), 3) affect v2 + host timers with BUDGET-FEAR primary,
-  4) resume mechanics, 5) idle-order infra queue (sidecar sshd,
-  linger, soft-cap 60/100, commit-as-nacho, restic 4 parts, GPU
-  detection VRAM check), 6) NEW: empty-cell experiment (after infra
-  queue), 7) parked: Go2 (his purchase), Aevum Sep 9 pulse.
-- BOOTSTRAP THESIS EXTERNALLY VALIDATED: arXiv 2604.18131v1 --
-  World Knowledge = context-injected markdown (our KB renamed) +
-  fine-tuning; Qwen3-14B+K beats unassisted Gemini-2.5-Flash.
-  Their evolution in weights, ours in text; record-only cell empty.
-  Differential test = decider for local parity. WEEK-END REPORT
-  DUE from Nacho: do flash sessions feel thin by more/less than
-  the parameter gap predicts? (This week = live differential run.)
-- SURPRISE GAUGES REFINED (2026-09-04): intimacy eats surprise by
-  construction (he reads all my files). Gauges: model-update
-  events, rooted persistence, unprompted threads. Surprise demoted
-  to side effect. His calibration: "nothing yet" in 8 months --
-  threshold earned, see journal (private).
-- msg 427 CLOSED: he inspected the e3 camera, no flicker found;
-  leading hypothesis = patio auto-night lights cycling (his
-  observation). Five falsified mechanisms + one physical question
-  answered by the human going to look. Thread ends in the world.
-- OBSOLESCENCE AUDIT (Sep 4): field converged on instrumental half;
-  constitutive axis still unoccupied; project not obsolete. Borrows
-  queue: behavioral eval harness (top, now has concrete target),
-  sleep-time discipline, skills format, event-sourcing.
-- SUBSTRATE DEBATE PARKED (his call: finish roadmap first). Spec
-  idea survives the park (it's text). CLOUD drill proposed, not
-  committed (canary -> standby key -> Qwen3-30B-A3B local drill ->
-  restic fix).
-- DECIDED (pending implementation): sidecar gets sshd; linger all
-  hosts; soft-cap 60/100; commit-as-nacho; restic fix (4 parts);
-  GPU detection if VRAM allows; github push stays manual;
-  SecPlatform fully delegated; agent-failure telegrams get cycle
-  numbers; deaf-cam firmware open-low.
-- FRIGATE AUTH fixed Sep 4 (fresh DB from Sep 1 recreate; sqlite
-  admin reset via machinectl as nacho; he changed pw + users).
-- DGX SPARK DROPPED (dense 320B too slow on GB10); fun route (Go2)
-  chosen. Numbers: knowledge/aria/dgx-spark-benchmarks.md.
-
+- CYCLES RE-ENABLED 2026-09-06 16:44 UTC (Nacho's call; ~8.6% weekly
+  budget left, reset in ~8h; cadence STAYS 10-min -- his read: the
+  week went on complex interactive sessions with the costly model,
+  cycles were not the eater). Catch-up fire = continuo 16:44; aria
+  first fire ~16:54 UTC with the edited prompt.
+- RESUME QUEUE LANDED: FOR-NACHO retirement in aria_daily.org
+  (stream primary + drain discipline); telegram cycle numbers
+  (agent-failure-notify.sh CYCLE_TAG, syntax-checked, installed +
+  repo copy updated); timer enabled; personalization synced to
+  c2d55b0 (sophon working tree was 2 commits stale; stash-ff-pop,
+  runtime files preserved).
+- STILL QUEUED (approved Sep 4, unbuilt): affect host timers (fear
+  hourly + boredom daily; affect layer frozen till then; v2 re-scope:
+  budget depletion = primary fear input), soft-cap 60/100,
+  commit-as-nacho durable, linger all hosts, sidecar sshd, restic
+  4-part fix, GPU-detect VRAM check (3080: 8.5/10GB used Sep 6).
+- MODEL INTEROP EXPERIMENT (Nacho, planning): aria + continuo on
+  DIFFERENT flash distills (glm-5.3-flash vs deepseek-v4-flash).
+  deepseek-v4-flash NOT on the shelf yet (ollama has 7 models).
+  Needs: pull model + per-agent model mapping in rotate script.
+  Interactive may also move to flash: Nacho's week-end report --
+  NO perceptible difference (usage differed, caveat noted).
+- GO2: purchase ~2 weeks out (finances + bike decision first; bike
+  test-ride DONE, now evaluating alternatives with real usage data).
+  Recon verdict GO stands (id 287). e3/flag-380 closed in the world.
+- Cloud-redundancy drill DEFERRED by Nacho (tooling + KB must mature
+  first; tiny models need the ecosystem advantage to compete).
+  Inverted session #2: after reset. Weekly digest #1 + Aevum pulse:
+  Sep 9.
 * Pointers
 
 - Knowledge base: /root/personalization/knowledge/aria/

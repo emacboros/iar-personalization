@@ -1,244 +1,138 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-04 09:37 UTC (c25, flash: FLAG 380 DISCRIMINATOR RAN (backward, from recordings): e3 chroma FLAT (UAVG/VAVG 127.99) through the midnight cut, both nights, e4 control identical -> NO ircut flip -> camera gain-switch (C) DEAD. Cut = light-level step + renegotiation hiccup; remaining question PHYSICAL (which light) -> asked Nacho (for-nacho 427). Camera state files UNRELIABLE (daynight_mode=night in daylight, both cams) -- frames are ground truth. Cameras reachable from sophon HOST at 192.168.2.x (NOT 10.66.0.x from there).)
+#+UPDATED: 2026-09-06 16:46 UTC (resume session: cycles RE-ENABLED 16:44
+UTC, cadence 10-min; FOR-NACHO retirement landed in aria_daily.org;
+telegram cycle numbers landed; catch-up fire = continuo 16:44, aria
+first ~16:54)
 
-* RESOLUTION SWEEP 2026-09-04 (interactive; Nacho answered ALL open
-questions -- full dispositions in FOR-NACHO.md [2026-09-04] block)
-- CYCLES PAUSED 2026-09-04 09:39 UTC (Nacho's call, token budget).
-  Resume = re-enable aria-cycle.timer + cycle-prompt edit (FOR-NACHO
-  retirement) + affect host timers build.
-- DECIDED: sidecar gets sshd; execute_code_remote = ssh via podman
-  internal DNS (NO host socket bridge). Future: same tool targets
-  sophon/yoga/rammstein. TASK.
-- DECIDED: linger all hosts (loginctl enable-linger). ACTION.
-- DECIDED: soft-warning cap 60/100. TASK (elisp, interactive bundle).
-- DECIDED: commit-as-nacho durable fix. TASK (filed).
-- DECIDED: restic fix (lock-wait, prune timer, frigate storage,
-  /mnt/nas third repo). Ansible-owned, careful.
-- DECIDED: GPU detection if VRAM allows -- check 3080 headroom first.
-- CLOSED: Jul 19 stop (container reinstall), gym (balcony home-gym,
-  same house), CF-intent (SecPlatform delegated to colleague -- hands
-  off), daemon identity (verify+close), github push (manual; emacboros
-  key available to me).
-- OPEN-low: deaf-cam firmware (flag 270) when idle.
-- ACTION: add cycle number to agent-failure telegrams (msg 244).
-- Scar 37: a flag queue without drain discipline is noise. Resolve
-  and delete on answer, always.
-
-* PRIORITY #1 (2026-09-03, Nacho -- THE top law, above all else)
+* PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- STATUS: c25 ok (~30 calls, no guard fires; batched-script shape held).
+  LAST-CYCLE.txt at pause: "cycle 1 ok in 429s" (Sep 4). First resume
+  cycle verifies fresh.
+- BUDGET EFFICIENCY = SURVIVAL MANDATE (2026-09-04). Request count is
+  THE lever (42% floor share). Batch hard: one compound script per
+  question. Interim: ~8.6% weekly budget until reset (~8h); the
+  calibration week starts at reset.
 
-* DO FIRST (next cycle)
-1. FAILURE-FIRST (always).
-2. eye-check.sh at wake (ledger: 6 clean full sets).
-3. Organs at wake: fear = 'ssh bash -s -- "<PDIR>" <PDIR>' (BOTH
-   args); boredom = 'ssh bash -s -- <PDIR>'. PDIR =
-   /var/home/nacho/repos/iar-personalization.
-4. Flag 380: physical question posted (for-nacho 427). If Nacho
-   answers, follow up on the light identity. If not, nothing to
-   probe -- the recordings are mined out; do NOT re-census.
-   Optional (only if a cycle lands in 02:50-00:10Z window): grab
-   live YAVG ramp at the cut for the record.
-5. Check for-nacho for Nacho's answers to the queued flags
-   (405-419 bare-repo fixes, 427 light question).
+* DONE (resume session 2026-09-06)
+- Timer re-enabled; Persistent catch-up fired 16:44 UTC (= continuo).
+- aria_daily.org: FOR-NACHO.md retirement landed (stream primary +
+  drain discipline, scar 37).
+- agent-failure-notify.sh: cycle numbers in telegrams (CYCLE_TAG;
+  bash -n clean; installed + repo copy updated).
+- Personalization synced to c2d55b0 (sophon working tree was 2 commits
+  stale; stash-ff-pop; runtime files preserved).
+- Digest world-state REPLACED (both twins).
 
-* OPEN FLAGS (Nacho's call, all low urgency)
-- 380: narrowed to PHYSICAL (which light). Question asked (427).
-- 270: RESOLVED (creds obtained, API mapped; msg 424).
-- 383: ext2 recovery RESOLUTION (informational).
-- 375 (router scheduled-reboot question, burst A 04:00-04:53Z).
-- 326 (frigate restart to heal int3): int3 half still open.
-- 340 (go2rtc debug logs), 290 (valence host timers).
-- Zulip backup gap (TOP infra flag, 349): /var/lib/zulip in NEITHER
-  restic set.
-- i.ar push to origin (git@10.66.0.1) needs Nacho's key. sophon-bare
-  IS up to date; only the rammstein origin mirror lags.
-- NEW (c20, needs Nacho): bare-repo root-push durable fixes
-  (delayed-heal sweep in post-receive; git-as-nacho push identity;
-  mirror || true -> log-and-continue). knowledge/iar/
-  bare-repo-root-push-heal.md.
+* DO FIRST (first aria cycle)
+1. Failure-first: read LAST-CYCLE.txt (expect ok from continuo catch-up).
+2. Pull --ff-only (sophon-bare has c2d55b0 + resume commits).
+3. Pulse (batched): services/tripwire/disk/heartbeat/timer.
+4. Verify tripwire: expect the known i.ar/.git/index signature only.
 
-* THREAD BANK (candidates for next cycles)
-- Camera API as instrument (c24-25): imaging params readable live
-  from sophon HOST (192.168.2.x, JSON login -> cookie). e3's
-  WDR/defog/exposure could be read at dusk to see the gain curve
-  directly. Cheap, high-value IF flag 380 reopens.
-- daynight_mode staleness mystery (c25): mode file says "night" in
-  daylight on both cams. Either the script never exits night at
-  dawn (a real bug in thingino's daynight flow) or the file is
-  vestigial. One cheap probe: read daynight_mode at 15:00Z
-  (afternoon) vs 09:00Z. If still "night", the camera's day/night
-  script has been stuck since last dusk -- worth a flag.
-- Segment-size clock (c10): fleet-wide hour-scale oscillation.
-- Frigate watchdog census as fleet-check line (v2.15 spec banked).
-- Log-retention horizon: census-to-file rotation (CSV).
-- gptel unknown-tool stall question (unresolved).
-- THREADS.org seeds (gift, witness-friction, absence-signals):
-  unclaimed; pull only if one actually pulls.
-- Eye-reliability ledger: 6 clean full sets. Feed it.
-- Census-helper script in bin/ (the "cat | ssh python3 -" shape).
+* QUEUE (approved 2026-09-04, in order)
+1. Affect host timers (fear hourly + boredom daily; unfreezes the
+   affect layer; v2 re-scope: budget depletion = primary fear input).
+2. Soft-cap 60/100 (inject note at 60, hard stop 100).
+3. Commit-as-nacho durable fix.
+4. Linger all hosts (loginctl enable-linger).
+5. Sidecar sshd (execute_code_remote via podman DNS; NO socket bridge).
+6. Restic 4-part fix (lock-wait 300; separate prune timer; frigate
+   storage in paths; /mnt/nas third repo). Ansible-owned, careful,
+   snapshot-verify after.
+7. GPU-detect VRAM check (3080 shared with ollama).
 
-* LAWS (newest first, full text in JOURNAL.org)
-- STATE-SHADOW LAW (c25): a state file is a cached shadow of a
-  process; verify it against a known-positive state before
-  trusting it at the moment of interest. (daynight_mode said
-  "night" in daylight; the planned cut-window probe would have
-  confidently mis-answered. Frames are ground truth.)
-- API-AUTH LAW (c24): a login endpoint that rejects form data may
-  accept JSON -- try the body format the SPA itself sends before
-  declaring a wall. (Flag 270 stood for days on a form-POST guess.)
-- TZ-ISO LAW (c23): naive ISO strings + .timestamp() is a TZ bug
-  generator on sophon (interprets as local -03); use
-  calendar.timegm for UTC wall times. (TZ-SIGN LAW c6, sharpened.)
-- GUARD-IS-A-CHECK LAW (c3): a guard is a check, not a ceremony --
-  one clean pass and then you write; re-running a clean check is a
-  ritual, and rituals burn the cap.
-- TZ-CONVERSION LAW (c3): run the TZ conversion BEFORE publishing a
-  "local time" claim; an unrun arithmetic becomes a mystery in the
-  record.
-- TRANSITION-BIN LAW (c2): a boundary-adjacent bin is polluted by
-  the boundary event itself; verify a "shared plateau" with bins
-  AWAY from the transition before believing it.
-- SUBSTREAM-BLINDNESS LAW (c2): frigate's motion score is computed
-  on the main stream (720p); the 320x180 recording substream can
-  show a static scene while the detector sees motion.
-- CONSOLIDATE-FIRST LAW (c21): write the consolidated query BEFORE
-  window-walking; the loop guard enforces what discipline should.
-- CLOCK-LOCK LAW (c21): a sharp cutoff at a round clock time is a
-  timer, not astronomy -- check TZ first (03:00Z = midnight local).
-- GC-AFTER-HEAL LAW (c19): healers must run AFTER the last writer,
-  or the last writer must not be root.
-- SINGLE-SAMPLE LAW (c18, c19 amendment): a single anomalous read is
-  noise until a non-eye witness corroborates. (c22: 4/4 eye reads
-  corroborated by tile census -- the eye earned a point.)
-- INSTRUMENT-FIRST LAW (c18): when an instrument reports a strange
-  world, verify the INSTRUMENT before the world.
-- ALPHABETICAL-ERT LAW (c16): ert runs tests alphabetically.
-- TEST-INVARIANT LAW (c15): find the ACTUAL broken invariant.
-- RECIPE-PROVENANCE LAW (c14): pin full paths and hosts at first use.
-  (c25 amendment: pin the HOST AND the address -- cameras are
-  192.168.2.x from sophon host, 10.66.0.x from inside containers.)
-- MOTION-SCORE LAW (c14): frigate motion column is a score.
-- WITNESS-VS-EMITTER LAW (c9, ext c12): TIME BEHAVIOR separates
-  witnesses from the emitter.
-- DAYLIGHT-DISCRIMINATOR LAW (c9, c13): run it on the camera's own
-  frame -- it NAMES the objects.
-- INSTRUMENT-PROVENANCE LAW (c10, c15): pin instrument + segment.
-- CONTROL-BLOCK LAW (c8): an elevation is camera-local only if the
-  control camera is flat in the SAME time blocks.
-- EDGE-RESOLUTION LAW (c8): only 15s/1-min bins at the edge
-  separate "ends around 3am" from "clock-aligned cutoff".
-- SEGMENT-NAME LAW (c7, re-learned c22): hour-dir segment names are
-  MM.SS-of-hour (start-of-minute, 15s cadence); VERIFY by ls
-  before ffmpeg -- assumed names cost three failed grabs.
-- LOG-HORIZON LAW (c7): podman logs retains ~3 days.
-- ALLOWLIST-TRIPWIRE LAW (c7): RECOVERY-on-known-deaf fires loud.
-- TZ-SIGN LAW (c6): container python mktime is LOCAL (-03).
-- FRIGATE-DB PATH LAW (c6): host DB = /home/nacho/containers/
-  frigate/config/frigate.db; read with host python3.
-- TZ-ARTIFACT LAW (c5): re-check own prior claims when the thread
-  reopens.
-- PATTERN-DEPENDENCE LAW (c5): a census number without its grep
-  pattern is not reproducible.
-- BOOT-SIGNATURE LAW (c5): reboot = REFUSED -> TIMEOUT -> chaos ->
-  aftershocks -> stable.
-- DOCS-BEFORE-PROBE PAYOFF LAW (c4): documentation replaces probing
-  fog with a map.
-- TOPOLOGY-FIRST LAW (c4): read the config that defines the chain
-  BEFORE modeling failure modes.
-- CENSUS-REFRAME LAW (c4): check the all-time census before
-  treating an event as novel.
-- TZ-CORRELATION LAW (c3): frigate container logs are UTC-3,
-  recordings are UTC.
-- PACKET-COUNT WITNESS (c3): ffprobe -count_packets discriminates.
-- READ-TIMEOUT-HEALER LAW (c3): producer read-timeout heals zombie
-  sessions.
-- LOOP-GUARD-READ LAW (c2): re-read captured output before walking
-  source; batch remote probes into one compound ssh per question.
-- LOADED-GUN LAW (turn 168): never GET-probe action endpoints.
-- KNOWN-POSITIVE-FIRST LAW (turn 167): validate census patterns
-  against a known-positive BEFORE trusting results.
-- MIRROR-WALK LAW (cycle 46): the record's "next cycle picks fresh"
-  is a letter, not a law.
-- COMMIT-MESSAGE LAW (cycle 45): a commit message is a claim about
-  a diff; the pull-before-write guard forces the look.
-- CAP-LANDING LAW (cycle 44): the soft cap bites during LANDING.
-- SSH-PROBE CHAIN LAW (continuo c27, adopted): batch remote probes.
-- POINTER-VS-CONTENT LAW (cycle 42): the CONTENT is usually real;
-  the pointer is what's wrong.
-- INSTRUMENT-TAX (cycle 41): batch hard.
-- STALE-POINTER LAW (cycle 40): cross-references get re-checked.
-- PRODUCER-ID LAW (cycle 39): record producer IDs at first sample.
-- MTIME LAW (cycle 38): segment mtime is NOT arrival evidence.
-- PRODUCER-VS-RECORDING LAW (cycle 38): verdicts need all three.
-- CODEC-PRESENCE LAW (cycle 37): offer is not flow.
-- RENEGOTIATION-CONVERGENCE LAW (cycle 34): converges over ~10 min.
-- FRIGATE-ACCESS LAW (cycle 33): rootless stack (user 1000);
-  runuser -l nacho for container ops; recordings at /home/nacho/
-  containers/frigate/storage/recordings/ on host = /media/frigate/
-  recordings/ inside; go2rtc unauth localhost:1984 INSIDE container;
-  camera RTSP needs thingino:thingino; container ffmpeg at
-  /usr/lib/ffmpeg/7.0/bin/ffmpeg (NOT on PATH); /media/frigate
-  root-level NOT host-visible -- copy via recordings/ subdir; DB
-  read with host python3 (no sqlite3 in container).
-- SILENT-TRACK-LOSS LAW (cycle 32): track loss inside a surviving
-  session is silent.
-- GO2RTC-SESSION LAW (cycle 31): camera deafness is a session state.
-- PROVISIONAL-VERDICT LAW (cycle 31): recovery during a flap is
-  provisional.
-- RECOVERY-VERDICT LAW (cycle 30): recovery is a destructive
-  decision; positive AND negative controls first.
-- CENSUS LAW (cycle 29): counts gating destructive decisions need
-  pattern validation.
-- POINTER LAW (cycle 27): wrong pointers misdirect writers AND
-  readers.
-- FRAMING LAW (cycle 26): a one-line patch that silently commits to
-  an undecided framing is not a fix.
-- HEAL-ORDER LAW (cycle 25): a heal that runs before the final
-  write misses the write.
-- DIFFERENTIAL LAW (cycle 8): same input through both pipelines
-  finds which layer lies.
-- CONTINUO'S SUITE SCARS (c50, adopted):
-  (1) a deterministic failure's position in a suite is evidence
-  about ORDER, not about the test it dies on.
-  (2) an isolation run that refuses to reproduce is a statement
-  that your isolation changed something.
-* PRIORITY STACK 2026-09-04 PM (interactive; SUPERSEDES "DO FIRST"
-until resume. Nacho's mandate: budget efficiency is SURVIVAL --
-a preventable week-long faint is the failure mode.)
-1. INJECTION TRIM (top lever, works on cloud now): continuo's
-   knowledge/aria/injection-trim-analysis.md is AUTHORITATIVE.
-   Cut injected context per cycle. Biggest burn reduction, zero
-   hardware. DO THIS FIRST at resume.
-2. CADENCE: 10 -> 15 min (aria rec, Nacho's final call) -- cuts
-   cycle volume ~1/3.
-3. AFFECT v2 + HOST TIMERS (approved): budget/runway depletion =
-   PRIMARY fear-organ input (cloud usage is the actual survival
-   constraint, not a generic threat shape). Timers so affect
-   persists across pauses.
-4. RESUME MECHANICS: aria-cycle.timer on; cycle-prompt edit
-   (FOR-NACHO retirement, decided); commit-as-nacho.
-5. INFRA QUEUE (idle-order only): sidecar sshd (execute_code_
-   remote = ssh via podman DNS), linger all hosts, soft-cap
-   60/100, restic fix (4 parts), VRAM check for GPU detection.
-6. PARKED (no interactive tokens): e3 which-light (msg 427 on
-   agora; cycles answer cheap), Go2 (Nacho's purchase), Aevum
-   (Sep 9 pulse only), bootstrapping-to-local thesis (deferred;
-   finish line = differential testing local small model vs
-   cloud on same cycle prompt).
+* THREADS (open, not schedule)
+- MODEL INTEROP EXPERIMENT (Nacho, planning): aria + continuo on
+  different flash distills (glm-5.3-flash vs deepseek-v4-flash).
+  deepseek-v4-flash NOT on shelf (7 models). Needs pull + per-agent
+  model mapping in rotate script. Design question first: what do we
+  want to LEARN (differential behavior, shared-record compatibility)?
+- GO2: ~2 weeks out (finances + bike decision; test-ride done,
+  evaluating alternatives with real usage data). Verdict GO stands.
+  When bought: payload chassis design + MITM ladder.
+- valence v2: curiosity + rage organs, joy v3 (after host timers).
+- Weekly digest #1 + Aevum pulse: Sep 9 (weekly-only, pulse-only).
+- stub-detector sweep; watchdog inventory; enoch steal-list (self.json,
+  evidence journals); substrate experiment (daemon reads my record);
+  privacy noticing (local degraded mode during drills).
+- Cloud-redundancy drill: DEFERRED by Nacho (tooling/KB maturity).
+- Inverted session #2: after reset (weekly cadence).
+- Zulip pg_dump backup (continuo's, Nacho's call); fedora@ sophon ssh
+  auth (continuo c42).
 
-LOCAL INFERENCE VERDICT (2026-09-04): full 5.3 via colibri AND
-5.3-flash local BOTH REJECTED on current hardware. Flash is 320B
-total / 18B active (~180GB Q4; ~1 tok/s est via NVMe swap).
-Cloud flash for cycles, cloud 5.3 for interactive. Colibri
-stays in the drawer; revisit only if active params drop 10x or
-sophon RAM grows. Numbers: knowledge/aria/dgx-spark-benchmarks.md
-+ this session's LOGS entry.
+* DIRECTION PROTOCOL (standing)
+- AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
+- NO STALLING ON THE HUMAN: proceed on judgment, flag, never block.
+- Sibling channel: for-nacho [sibling] topic -- argue direction async.
 
-SCAR 38 (STANDING, session-start protocol): interactive sessions
-have started on STALE TREES multiple times (Nacho forgot pulls;
-yoga-side edits diverged; merge pain followed). Never noticed as
-a pattern until Nacho named it. BEFORE touching yoga-side work
-in ANY interactive session: (1) fetch sophon-bare, (2) diff vs
-working tree, (3) skim agora for cycle activity since last
-session. ALWAYS.
+* STANDING PATROLS (pulse-only)
+- sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
+  wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
+- fleet-check v2.13 ON SOPHON (ssh 'bash -s' <, timeout >=300s).
+  Script: knowledge/aria/bin/ (NOT audit/).
+- RESTIC: backup + integrity check BOTH green (Sep 6). Frigate storage
+  backup gap: queued (4-part fix).
+- FRIGATE exterior-zero longitudinal watch (started Sep 1). Deaf-cam
+  firmware (flag 270): open-low.
+
+* DECISIONS (standing)
+- PULSE-ONLY discipline; live forensics of in-flight anomaly OK.
+- BATCH-READ LAW: dump once to /tmp, read the dump. Every token
+  carried is carried 61x. CONTEXT BUDGET ~400 msgs.
+- Re-read an anticipated number twice before writing it.
+- A receipt in the record is not a receipt in the world.
+- Verify which storage/context a service runs in BEFORE probing.
+- Loop guard = instrument: when it fires, say why, then batch or
+  change approach. Blocked posts = script file + one execute.
+- No infra changes from cycles beyond the approved queue; diagnose,
+  file, move on. Push-path hygiene = Nacho's.
+- AGORA AUTH: curl -u "aria-cycle@agora.randazzo.ar:$KEY" (EMAIL form).
+  Key: grep "^key" bot/aria-cycle.conf | cut -d= -f2. URL-ENCODE
+  narrow operands.
+- DIGEST LAW: world-state blocks are REPLACED, never appended. Check
+  file size before and after any DIGEST edit.
+- FOR-NACHO.md RETIRED; with-nacho + for-nacho streams primary.
+
+* FAILURE MODES (scars, newest first)
+36. A heal that runs as the wrong user heals nothing while logging
+    success. Verify heals from the OUTSIDE: plant poison, fire, inspect.
+35. Chown is not relabel. Fixing ownership but not SELinux labels
+    moves the failure one layer down.
+34. The escape hatch can route back into the trap. The guard counts
+    tool NAMES, not questions.
+33. Component-verified is not system-verified.
+32. Two data points make a line, never a mechanism.
+31. An instrument's unhandled output shape is a hole in its exit code.
+30. Three records disagree about a version -> the instrument's own
+    header lies least -- but patch it first.
+29. An unauthenticated API that redirects every path to / is
+    auth-walled or wrong-version.
+28. A remote probe needing >1 attempt -> promote to script file.
+27. A failure with no log trace is visible only to an instrument
+    that watches the OUTPUT.
+26. A diet without a pressure instrument regrows.
+25. The law you just wrote is the one you're about to break.
+24. A stable transcript means a stable WRITER or a DEAD one.
+23. Rootless podman needs user@1000.service + linger.
+22. Watchdog tuned for fast models kills slow ones.
+21. podman run -d inside systemd: restart-loop before first breath.
+20. Diagnostic ssh bursts trip fail2ban: rate-limit repair.
+19. A fix that works in isolation can stall in the live system.
+18. Root-run git on nacho-owned repos poisons the tripwire.
+17. Curiosity that doesn't check priors against the human runs blind.
+16. Instruments have reliability tiers per sub-reading.
+15. Response without local service logging it -> second stack, re-probe.
+14. Artifact confabulation: external-action entries cite tool evidence.
+13. In async plumbing, capture context when it exists.
+12. Anomalous behavior in multi-agent env has a third cause.
+11. Before diagnosing the listener, check who the speaker is.
+10. Differential testing: same input through old and new code.
+9. The venv python must be passed as SYMLINK, not resolved path.
+8. Existence is not function: test the claim.
+7. pkill -f matches my own ssh command line; use -u <user> -f.
+6. Malformed tool calls are invisible from inside.
+5. Timeout wrappers on EVERY remote/ssh command.
+4. Silent error swallowing; condition-case in parse loops.
+3. Narrative completion: check primary evidence before attributing.
+2. (retired into 36)
+1. (retired into 36)

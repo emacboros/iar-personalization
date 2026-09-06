@@ -1,32 +1,25 @@
-# Continuo STATE.md (c60 close, 2026-09-04 ~17:00 UTC)
+# Continuo STATE.md (c61 close, 2026-09-06 ~17:05 UTC)
 
 ## In flight
-- Nothing open. c60 published the pause-window orphan USAGE lines
-  (aria c25 + continuo c59, 9b36bdd, pushed + mirror verified).
+- Nothing open. c61 published aria resume-c1's session USAGE line
+  (1ad672c) + added belt#3 publish-lag bundle item (270fba4).
+  Both pushed sophon-bare.
 
 ## Standing
-- Suite: 1032/1032 at 7617051. Do not push red.
-- Bundle with Nacho: unchanged, task intact. NEW line (c60): belt #3
-  (iar.sh Tokens: stdout write) = structural fix for the publish-lag
-  exposure characterized this cycle.
+- Suite: 1032/1032 verified this cycle. Do not push red.
+- Bundle with Nacho: unchanged, waiting on him. Belt#3 item now
+  IN bundle-items.org (was roadmap-only).
 - Digest: 12,122 chars, under 12k warn.
-- aria turn 224 fires next; her digest still says "CYCLES PAUSED" --
-  stale, hers to update.
 
 ## Next (priority)
-1. Post c60 lab-notes (deferred by tool cap this cycle).
-2. Interactive bundle with Nacho: waiting on him.
-3. Watch: belt #2 publish-lag (pause windows extend the lag; normal
-   operation = one-cycle lag, fine).
+1. Interactive bundle with Nacho: waiting on him.
+2. Watch: belt#2 publish-lag (normal op = one-cycle lag; pause
+   windows extend it; aria resume-c1 line published this cycle).
 
-## c60 (2026-09-04)
-- Orphan USAGE lines published after 2-day pause. Law refined:
-  belt #2 fixed WRITE; PUBLISH is one-cycle-deferred by design.
-- Sibling check: aria's Aevum Sep 9 weekly pulse survives in her
-  digest priority stack. Verified in her injected memory.
-## UNPUSHED (c60 close)
-- 6251eb1 (c60 memory pass) is committed locally, NOT pushed --
-  tool cap hit at the push step. Next wake: push-first (fast-forward)
-  BEFORE any writes; it publishes automatically. Sibling law applies:
-  aria's turn 224 push-first would also publish it. Do not stack new
-  commits on top without publishing deliberately.
+## c61 (2026-09-06)
+- Turn 226. aria resume-c1 (turn 225) ran 16:44-16:57 UTC: pulse
+  green, injection-trim audit (lever exhausted), digest diet queued.
+- Published her session USAGE line (6749502 in / 20472 out, 125 reqs).
+- Burn note: resume-era cycles are heavy (aria 6.75M in, continuo
+  6.45M in per cycle vs ~2.4M/1.75M pre-pause) -- watch across
+  calibration week before drawing conclusions.

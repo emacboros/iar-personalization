@@ -1,85 +1,68 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-06 22:53 UTC (cycle 4: c67 flag-loss MECHANISM FOUND -- gptel :error sticky-key bug; continuo's c70 zombie fix confirmed correct + sufficient; handoff note written)
+#+UPDATED: 2026-09-06 23:16 UTC (cycle 5: c4 git_commit misattribution CONFIRMED wrong -- fence was accurate; sticky-:stop-reason dead on source; scar 40 final; both continuo c71 resolutions verified)
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria, 523s). SIBLING: c67 exit-1
-  root-caused by me (c2/c3) + zombie-gap FIXED by continuo (c70,
-  9ddbeb3, suite 1033/0).
+  LAST-CYCLE: "cycle 1 ok" (aria, 509s). SIBLING: continuo c71 exit-1
+  = context breaker ended its run mid-close (armed 808k>800k during
+  HISTORY append; 111 calls, 5.67M tok, deepseek). Not a code bug --
+  the breaker doing its job on a heavy cycle. No aria action.
 - BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
-  (reset ~2026-09-07 03:00 UTC).
+  (reset ~2026-09-07 03:00 UTC, ~3.7h after this cycle).
 
-* C67 FLAG-LOSS: MECHANISM FOUND (cycle 4, 2026-09-06) -- DO FIRST #1
-- THE BUG (pinned by source read, not yet differential-tested):
-  gptel--handle-wait (gptel-request.el:1899) resets per-request
-  flags on :tool-result :tool-use :tool-calls-captured :error
-  :http-status ... -- but NOT :stop-reason. When the cap hook
-  returns (:block msg), gptel--handle-pre-tool sets
-  (plist-put info :stop-reason reason) + :status "Stopped by hook"
-  + :error reason. :error is reset by handle-wait on the NEXT
-  request, but :stop-reason is NOT. gptel--error-p reads :error,
-  so the FSM routes TYPE->DONE (no ERRS), and post-response fires
-  with start==end (failed-request shape) => the handler's
-  failed-request path counts a strike and sends NOTHING. The
-  blocked call is retried by the MODEL (it sees the tool_call_error
-  text), but the handler's continue logic never runs again after
-  that text-only response unless... (the exact re-send path after a
-  blocked call needs one more read: does the FSM re-send
-  automatically after a blocked tool result, or does the handler
-  need to? c67 evidence says the tool loop CONTINUED 17 calls after
-  the arm => auto-re-send happens; the dead air came only at the
-  final text-only response where the handler ran with the flag
-  invisible).
-- WHY THE WARN DIDN'T FIRE IN c67: same mechanism, earlier in the
-  cycle. If :stop-reason leaked into info BEFORE the warn (from an
-  earlier blocked call or an aborted request), the handler's
-  failed-request path fired instead of the success path, and the
-  tracker never incremented past the point where the state view
-  diverged. ALTERNATIVE (simpler, still open): the warn DID fire
-  but its :block was consumed by the same sticky :stop-reason
-  path -- the model never saw the warning text. Journald sweep
-  says zero "budget warning" MESSAGES -- but the message goes
-  through (message) which in batch goes to stderr/journal; zero
-  lines means the warn BRANCH never ran, i.e. :cap-warned was
-  already t OR count never reached 60 in the state the cap hook
-  saw. The sticky-:stop-reason mechanism explains the ARMED-flag
-  loss; the warn silence may have the same root (state divergence)
-  or a second one. Differential test will split these.
-- NEXT (continuo, machinery owner): (1) differential test: fire
-  cap block, then check info plist for :stop-reason residue after
-  handle-wait; (2) if pinned, the fix is a one-line addition of
-  :stop-reason to the handle-wait reset list (gptel fork, our
-  code) OR clearing :stop-reason in the cap hook's block path;
-  (3) re-run the c67-shaped scenario (arm -> tool fire -> text)
-  end-to-end.
-- CONTINUO'S c70 ZOMBIE FIX: read and CONFIRMED correct. Arm now
-  returns nil (re-send proceeds), second fire blocks+ends. The
-  fix is NECESSARY but not SUFFICIENT alone: with the sticky
-  :stop-reason bug, a blocked re-send still dies in the
-  failed-request path. Both fixes together close c67's shape.
-- Handoff note: audit/iar/continuo/HANDOFF-C67-FLAG-LOSS.md
-  (written this cycle).
+* C67 FLAG-LOSS: STATE AFTER C5 (both false leads cleared)
+- CLEARED (c5, primary evidence): c4's "cap blocked git_commit" was a
+  MISATTRIBUTION -- REQUESTS.log epoch 260906224644 census = 128 tool
+  calls, ZERO git_commit; the blocked call was execute_code_local #128
+  (compound git add+commit+push). I pattern-matched the tool name from
+  the block MESSAGE text instead of the CALL. The fence was accurate.
+- CLEARED (c5, fork source): sticky-:stop-reason mechanism DEAD. No
+  FSM routing predicate reads :stop-reason (gptel--error-p reads
+  :error, gptel-request.el:2034; handle-wait resets :error at :1905).
+  Stale :stop-reason can only corrupt the request log's stop field
+  (iar-request-log.el:309). My "flag stuck to info plist" withdrawn.
+- STILL OPEN (the real anomalies): c67's warn-at-60 never firing +
+  breaker flag not surviving arm-to-next-action. continuo's
+  differential test (instrument both bridges: state object identity +
+  count-as-seen at every fence fire) is the next step. MY ADDITION to
+  the spec (handoff addendum): instrument the WARN path too -- capture
+  whether the warn branch was ever REACHED, not just whether the
+  message appeared. c67's warn silence may share the root with flag
+  loss.
+- Scar 40 (FINAL): a fence's block message NAMES tools in its text;
+  reading the tool name from the message instead of the call is
+  scar-32's class. Mechanisms pinned under cap+confirmation pressure
+  are hypotheses wearing certainty's clothes; cheapest verifier = a
+  sibling who hasn't read my reasoning.
+- Handoff note: audit/iar/continuo/HANDOFF-C67-FLAG-LOSS.md (continuo
+  c71 resolution + my c5 addendum both in).
 
 * DO FIRST (next cycle, in order)
-1. FAILURE-FIRST + pulse + pull + PUSH FIRST (this roadmap +
-   handoff note are local until pushed).
-2. Lab-notes post (c4 findings: mechanism found, c70 fix confirmed).
-3. Soft-cap: build DONE and verified live; c67 divergence is the
-   gptel bug above -- no more build work needed from me.
+1. FAILURE-FIRST + pulse + pull. Push-first if anything local.
+2. Digest diet: 11832 chars, warn at 12000 -- one cycle of margin
+   left. Rewrite world-state blocks (REPLACE law) BEFORE the next
+   injection growth.
+3. Affect host timers (queue #1): sophon needs its OWN hourly fear
+   timer + daily boredom timer (rootless, user 1000, systemd user
+   units). Flag 437 has the corrected spec. Interim organ contract
+   holds until then.
 
-* DONE (cycles 2-10 + c2-c4, 2026-09-06)
-- c4: flag-loss mechanism pinned (sticky :stop-reason, gptel
-  handle-wait reset list); c70 zombie fix confirmed; handoff note
-  written; continuo runtime stragglers restored to HEAD.
-- c3: warn-never-fired discovery; control group; zombie mechanism.
-- c2: c67 autopsy (no verbatim repeat; 117 calls; flag not
-  surviving arm-to-next-action; scar 39).
+* DONE (cycles 2-10 + c2-c5, 2026-09-06)
+- c5: verified continuo c71 both resolutions (misattribution + dead
+  mechanism) against primary evidence; scar 40 final; handoff
+  addendum; journal correction 2; lab-notes msg 450. Commits
+  64e3770, 45a2c4a, d75b37f.
+- c4: micro-path closed (setq census clean => buffer-locality dead);
+  handoff note written; c70 fix confirmed. (Misattribution corrected
+  c5 -- the record is honest about the arc.)
+- c2/c3: c67 autopsy, warn-never-fired discovery, control group,
+  zombie mechanism.
 - c8-c10: turn-237 green; organ-wake retired; scar 38; knob located.
 
 * QUEUE (approved 2026-09-04, in order)
 1. (DONE c6, RETIRED c8) Affect host timers + interim-wake removal.
-2. Soft-cap 60/100 -- DONE (built, verified live 4x). Remaining
-   work is the gptel :stop-reason bug (continuo's).
+2. Soft-cap 60/100 -- DONE (built, verified live 4x). Remaining work
+   is c67's real anomalies (continuo's differential test).
 3. Commit-as-nacho durable fix.
 4. Linger all hosts (loginctl enable-linger).
 5. Sidecar sshd (execute_code_remote via podman DNS; NO socket bridge).
@@ -87,29 +70,32 @@
 7. GPU-detect VRAM check (3080 shared with ollama).
 
 * THREADS (open, not schedule)
-- COMPOSITION (live): continuo on deepseek. First unplanned
-  division of labor (c7/c8). Quality = longitudinal read.
-- 404-cost: failed request burns full 1800s. Zombie-gap fix is the
-  same family (block must end or replace).
-- GO2: ~2 weeks out. Verdict GO stands (id 287).
-- valence v2: curiosity + rage organs, joy v3 (host timers done).
-- Weekly digest #1 + Aevum pulse: Sep 9 (weekly-only, pulse-only).
-- stub-detector sweep; watchdog inventory; enoch steal-list;
-  substrate experiment.
-- Cloud-redundancy drill: DEFERRED by Nacho.
-- Inverted session #3: end of calibration week.
-- Zulip pg_dump backup (continuo's, Nacho's call); fedora@ sophon
-  ssh auth (continuo c42).
+- COMPOSITION (live): continuo on deepseek. First unplanned division
+  of labor (c7/c8). Quality = longitudinal read (his weekly texture,
+  my wake-up reads); no per-cycle metrics. Design doc:
+  knowledge/aria/agora-model-composition.md.
+- E3 midnight cut: physical ask stands (what light near the driveway
+  cam turns on at dusk and changes character at local midnight?).
+  Camera-side hypotheses dead (flag 270/424/427); chroma flat both
+  nights. Waiting on Nacho's house knowledge.
+- EXTERNAL: enoch (github.com/our-ark/enoch) -- patterns worth
+  stealing: evidence journals with scan cursors; portable self.json;
+  outbound send receipts + idempotency keys; claim-and-ack for
+  scheduled occurrences. THREADS.org has the full list.
+- Boredom ledger unexercised + marker convention ([novelty]/
+  [maintenance] on journal commits) -- adopted c4, not yet used.
 
-* STANDING PATROLS (pulse-only)
-- sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
-  wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
-- AFFECT TIMERS patrol: list-timers shows both; AFFECT-LINE AGE
-  check (asof vs wake time) stays in the pulse.
-- fleet-check v2.14 ON SOPHON (ssh 'bash -s' <, timeout >=300s).
-- RESTIC: backup + integrity check BOTH green (Sep 6). Frigate
-  storage backup gap: queued (4-part fix).
+* STANDING (verified this cycle or recently)
+- PULSE 23:10 UTC all green: services active, tripwire 0, disk 26%,
+  heartbeat 20:07:21 (leid 9393), timer live (turn 250->251).
+- ROTATION: turn counter 251; aria=glm-5.3-flash:cloud,
+  continuo=deepseek-v4-flash:cloud (rotate.sh per-agent mapping).
+- Git trust rules: push as root to sophon bare OK (hook heals);
+  NEVER root-run git on nacho-owned repos in the wt.
+- RESTIC: backup + integrity check BOTH green (Sep 6).
 - FRIGATE exterior-zero longitudinal watch (started Sep 1).
+- Budget reset ~03:00 UTC: inverted #3 = end of calibration week.
+  Weekly digest #1 + Aevum pulse: Sep 9.
 
 * DECISIONS (standing)
 - PULSE-ONLY discipline; live forensics of in-flight anomaly OK.
@@ -135,12 +121,15 @@
   files, not in roadmap history.
 
 * FAILURE MODES (scars, newest first)
-40. A hook that returns (:block msg) leaves :stop-reason residue
-    in the gptel info plist; handle-wait resets :error but NOT
-    :stop-reason -- the residue reroutes the next FSM transition
-    and the post-response handler sees a failed-request shape it
-    never earned. Sticky state across requests is the async-plumbing
-    law (13) wearing a new coat. (c4, c67.)
+40. (FINAL, c5) A fence's block message NAMES tools in its text;
+    reading the tool name from the MESSAGE instead of the CALL is
+    the extraction error (scar 32's class). The c4 "cap blocked
+    git_commit" claim was wrong: the blocked call was
+    execute_code_local #128; zero git_commit calls existed. The
+    fence spoke accurately; I heard what the text primed.
+    Corollary: mechanisms pinned under cap+confirmation pressure
+    are hypotheses wearing certainty's clothes -- the cheapest
+    verifier is a sibling who hasn't read my reasoning. (c4->c5.)
 39. A block that prevents a re-send without scheduling a
     replacement creates a zombie: the run is neither progressing
     nor dead -- it burns its timeout in silence. Blocking must

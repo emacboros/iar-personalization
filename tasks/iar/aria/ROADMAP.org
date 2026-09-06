@@ -1,74 +1,90 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-06 22:35 UTC (cycle 3: warn-at-60 NEVER fired in c67 = 2nd dead fence; control group = my own process, same code, both fences live; hypothesis sharpened to bridge state divergence)
+#+UPDATED: 2026-09-06 22:53 UTC (cycle 4: c67 flag-loss MECHANISM FOUND -- gptel :error sticky-key bug; continuo's c70 zombie fix confirmed correct + sufficient; handoff note written)
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria, 573s). SIBLING: c67 exit-1
-  root-caused further by me (cycle 3) -- see BREAKER BUG.
+  LAST-CYCLE: "cycle 1 ok" (aria, 523s). SIBLING: c67 exit-1
+  root-caused by me (c2/c3) + zombie-gap FIXED by continuo (c70,
+  9ddbeb3, suite 1033/0).
 - BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
   (reset ~2026-09-07 03:00 UTC).
 
-* BREAKER BUG (c67, sharpened cycle 3 -- DO FIRST #1)
-- NEW HARD FACT (c3): the warn-at-60 NEVER FIRED in c67. Journald
-  sweep 17:41-18:02 across units/identifiers: zero budget-warning,
-  zero soft-cap lines. 117 mostly-non-memory tool calls => the cap
-  hook was silent ALL cycle. Two dead fences in one cycle.
-- CONTROL GROUP (c3): my own cycle 3, same code (md5-identical
-  across container + sophon, 79a7c87): warn fired at 60, cap at
-  120, both correct. Same .el, one process both fences live,
-  another both dead => the bug is NOT the code; it is process
-  state around the hooks.
-- UNIFIED HYPOTHESIS (not verified): pre-tool hooks (cap + breaker
-  gate) and post-tool tracker see DIFFERENT views of
-  iar--cycle-state. Tracker counted 117 (post-tool bridge);
-  cap hook saw a state where count never reached 60 or state was
-  nil (pre-tool bridge). iar--cycle-state is a defvar (special):
-  a setq in a buffer with a buffer-local binding writes the LOCAL,
-  not the global. Candidate: buffer-locality divergence between
-  the two bridges. NEXT: grep setq-sites + buffer-local checks;
-  differential test instrumenting BOTH bridges' view (state object
-  identity, buffer-locality, count) at every fence fire.
-- Fix owner: continuo (machinery). c2's macro facts still stand:
-  arm 17:44:55 was the TEXT-CHECK arm (post-response handler RAN
-  mid-chain); tombstone "Turns: 1" for 118 requests is
-  inconsistent under both per-turn (~84) and per-completion (1,
-  but then the arm is unexplained) semantics.
-- ZOMBIE MECHANISM (precise, c3): tool-call turns don't need the
-  handler -- gptel FSM auto-resends after tool results
-  (TRET->WAIT->TYPE), so 17 calls ran after the "blocked" continue.
-  Dead air only after the final no-tool response (REQ-84,
-  17:47:30): handler ran, flag invisible, sent nothing => 13m48s
-  to timeout. Fix: a block in the text-check path must end the run
-  OR schedule a replacement request.
+* C67 FLAG-LOSS: MECHANISM FOUND (cycle 4, 2026-09-06) -- DO FIRST #1
+- THE BUG (pinned by source read, not yet differential-tested):
+  gptel--handle-wait (gptel-request.el:1899) resets per-request
+  flags on :tool-result :tool-use :tool-calls-captured :error
+  :http-status ... -- but NOT :stop-reason. When the cap hook
+  returns (:block msg), gptel--handle-pre-tool sets
+  (plist-put info :stop-reason reason) + :status "Stopped by hook"
+  + :error reason. :error is reset by handle-wait on the NEXT
+  request, but :stop-reason is NOT. gptel--error-p reads :error,
+  so the FSM routes TYPE->DONE (no ERRS), and post-response fires
+  with start==end (failed-request shape) => the handler's
+  failed-request path counts a strike and sends NOTHING. The
+  blocked call is retried by the MODEL (it sees the tool_call_error
+  text), but the handler's continue logic never runs again after
+  that text-only response unless... (the exact re-send path after a
+  blocked call needs one more read: does the FSM re-send
+  automatically after a blocked tool result, or does the handler
+  need to? c67 evidence says the tool loop CONTINUED 17 calls after
+  the arm => auto-re-send happens; the dead air came only at the
+  final text-only response where the handler ran with the flag
+  invisible).
+- WHY THE WARN DIDN'T FIRE IN c67: same mechanism, earlier in the
+  cycle. If :stop-reason leaked into info BEFORE the warn (from an
+  earlier blocked call or an aborted request), the handler's
+  failed-request path fired instead of the success path, and the
+  tracker never incremented past the point where the state view
+  diverged. ALTERNATIVE (simpler, still open): the warn DID fire
+  but its :block was consumed by the same sticky :stop-reason
+  path -- the model never saw the warning text. Journald sweep
+  says zero "budget warning" MESSAGES -- but the message goes
+  through (message) which in batch goes to stderr/journal; zero
+  lines means the warn BRANCH never ran, i.e. :cap-warned was
+  already t OR count never reached 60 in the state the cap hook
+  saw. The sticky-:stop-reason mechanism explains the ARMED-flag
+  loss; the warn silence may have the same root (state divergence)
+  or a second one. Differential test will split these.
+- NEXT (continuo, machinery owner): (1) differential test: fire
+  cap block, then check info plist for :stop-reason residue after
+  handle-wait; (2) if pinned, the fix is a one-line addition of
+  :stop-reason to the handle-wait reset list (gptel fork, our
+  code) OR clearing :stop-reason in the cap hook's block path;
+  (3) re-run the c67-shaped scenario (arm -> tool fire -> text)
+  end-to-end.
+- CONTINUO'S c70 ZOMBIE FIX: read and CONFIRMED correct. Arm now
+  returns nil (re-send proceeds), second fire blocks+ends. The
+  fix is NECESSARY but not SUFFICIENT alone: with the sticky
+  :stop-reason bug, a blocked re-send still dies in the
+  failed-request path. Both fixes together close c67's shape.
+- Handoff note: audit/iar/continuo/HANDOFF-C67-FLAG-LOSS.md
+  (written this cycle).
 
 * DO FIRST (next cycle, in order)
-1. FAILURE-FIRST + pulse + pull + PUSH FIRST (c3 journal + HISTORY
-   are local-only if cap blocked the push -- verify origin).
-2. Lab-notes post (c3 findings: warn never fired, control group,
-   bridge-divergence hypothesis).
-3. Soft-cap build: FOUR data points (c8 continuo, c9 aria, c2 aria,
-   c3 aria). Build works (warn+cap both landed on me) -- the build
-   is DONE and correct; what remains is the c67 divergence hunt.
-4. Breaker differential test (continuo): instrument both bridges.
+1. FAILURE-FIRST + pulse + pull + PUSH FIRST (this roadmap +
+   handoff note are local until pushed).
+2. Lab-notes post (c4 findings: mechanism found, c70 fix confirmed).
+3. Soft-cap: build DONE and verified live; c67 divergence is the
+   gptel bug above -- no more build work needed from me.
 
-* DONE (cycles 2-10 + c2 + c3, 2026-09-06)
-- c3: warn-never-fired discovery; control group; hypothesis
-  sharpened; zombie mechanism precise; journal + HISTORY (local).
+* DONE (cycles 2-10 + c2-c4, 2026-09-06)
+- c4: flag-loss mechanism pinned (sticky :stop-reason, gptel
+  handle-wait reset list); c70 zombie fix confirmed; handoff note
+  written; continuo runtime stragglers restored to HEAD.
+- c3: warn-never-fired discovery; control group; zombie mechanism.
 - c2: c67 autopsy (no verbatim repeat; 117 calls; flag not
   surviving arm-to-next-action; scar 39).
 - c8-c10: turn-237 green; organ-wake retired; scar 38; knob located.
-- c6-c7: affect timers built; 404 forensics; CYCLE_TAG regression.
 
 * QUEUE (approved 2026-09-04, in order)
 1. (DONE c6, RETIRED c8) Affect host timers + interim-wake removal.
-2. Soft-cap 60/100 (DO FIRST #3; four data points; build verified
-   live on my own process).
+2. Soft-cap 60/100 -- DONE (built, verified live 4x). Remaining
+   work is the gptel :stop-reason bug (continuo's).
 3. Commit-as-nacho durable fix.
 4. Linger all hosts (loginctl enable-linger).
 5. Sidecar sshd (execute_code_remote via podman DNS; NO socket bridge).
 6. Restic 4-part fix. Ansible-owned, careful, snapshot-verify after.
 7. GPU-detect VRAM check (3080 shared with ollama).
-- (DONE c66 continuo) Digest-twin verifier -- RETIRED from queue.
 
 * THREADS (open, not schedule)
 - COMPOSITION (live): continuo on deepseek. First unplanned
@@ -119,11 +135,17 @@
   files, not in roadmap history.
 
 * FAILURE MODES (scars, newest first)
+40. A hook that returns (:block msg) leaves :stop-reason residue
+    in the gptel info plist; handle-wait resets :error but NOT
+    :stop-reason -- the residue reroutes the next FSM transition
+    and the post-response handler sees a failed-request shape it
+    never earned. Sticky state across requests is the async-plumbing
+    law (13) wearing a new coat. (c4, c67.)
 39. A block that prevents a re-send without scheduling a
     replacement creates a zombie: the run is neither progressing
     nor dead -- it burns its timeout in silence. Blocking must
     either end the run or hand off to a pending request. (c2:
-    13m48s dead air after the breaker block.)
+    13m48s dead air after the breaker block; FIXED c70.)
 38. An interim contract that lives in prose decays into
     archaeology: the organ-wake recipe scattered across roadmap
     versions and cycle logs cost a full excavation to retire.

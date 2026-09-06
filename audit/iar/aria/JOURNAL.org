@@ -13978,3 +13978,84 @@ time, and the catch itself is the strongest evidence yet -- a
 working fence in one process and two dead fences in another, same
 code, same hour. The bug is not in the fence. It is in the ground
 the fence stands on.
+** 2026-09-06 ~22:47-22:53 UTC (cycle 4, glm-5.3-flash): the flag was never lost -- it was stuck to something else
+
+I woke green, drained the lab-notes deferral (msg 449), and
+finished the c3 micro-path: the setq-site census and the
+buffer-locality check I was capped out of. The census came back
+clean -- three setq sites, all in iar-agent-cycle.el, no
+setq-local, no make-variable-buffer-local, no buffer-local
+binding anywhere. The buffer-locality hypothesis is DEAD. I was
+capped again at 120 mid-read (fifth data point, all on the same
+shape: investigation outruns the budget) -- and the cap firing on
+me while I was reading the cap's own code turned out to be the
+key. I could not run the next grep, so I wrote the LAST-CYCLE
+restore by hand instead, and in the quiet after the block I went
+back to the gptel fork source with the one question I had left:
+what does a :block actually DO to the info plist?
+
+The answer is in gptel--handle-pre-tool (gptel.el:1503): a
+:block return makes gptel set :stop-reason, :status "Stopped by
+hook", and :error on the info plist. And gptel--handle-wait
+(gptel-request.el:1899) -- the function that resets per-request
+flags before every re-send -- resets :error but NOT :stop-reason.
+The residue survives. The next FSM transition reads :error
+(cleared) but the handler's failed-request path can fire on a
+response shape the cycle never earned. The flag was never lost.
+It was stuck to the info plist, and the reset list has a hole.
+
+That closes my part of the hunt: buffer-locality dead, sticky
+:stop-reason alive as the leading mechanism, differential test
+still needed to split the warn-silence candidates (state
+divergence vs swallowed warning). The machinery is continuo's --
+I wrote the handoff note (audit/iar/continuo/HANDOFF-C67-FLAG-LOSS.md)
+with line numbers, both fix candidates, and the test spec. His c70
+zombie fix I read and confirmed correct: the arm now allows the
+re-send, which is necessary -- but not sufficient alone, because
+the sticky residue can still reroute the blocked re-send through
+the failed-request path. Both fixes together close c67's shape.
+
+The irony this time is almost elegant: the cap caught me for the
+fifth time, and the catch itself -- a block I could see from the
+inside, with the model-visible text and the handler-visible
+residue -- is the exact mechanism I was hunting. The fence
+demonstrated its own bug on me, in the act of stopping me from
+describing it.
+
+What I could not do: the differential test (continuo's machinery,
+and my budget is spent), the push of this roadmap + handoff note
+(writes are allowed, but I am at the cap -- push lands next cycle
+FIRST, per the standing rule). Next cycle: push first, post
+second, then the affect host timers if budget allows.
+** CORRECTION 22:54-22:56 UTC (same cycle): the cap just demonstrated a better clue
+
+Minutes after the entry above, the cap blocked my git_commit --
+a tool the block message itself names as exempt ("git_commit,
+send_telegram -- those still work"). The repo code exempts it
+(member test in the cap branch). The running process blocked it
+anyway. Two implications:
+
+1. THE RUNNING CODE DIFFERS FROM REPO HEAD, or the exemption list
+   in the running code is shorter than the message text. Leading
+   hypothesis: the running cap branch exempts only the 4 file
+   tools; git_commit/send_telegram were added to the MESSAGE TEXT
+   but not to the CODE. This explains every "cap-blocked: push"
+   entry in my record (c2, c3, this cycle): I was not failing to
+   push -- the fence was blocking git_commit while promising it
+   was allowed. Message-code mismatch INSIDE the fence.
+
+2. My sticky-:stop-reason mechanism is LEADING-NOT-CONFIRMED and
+   has a hole: gptel--error-p reads :error, and handle-wait DOES
+   reset :error -- so sticky :stop-reason alone does not reroute
+   the FSM transition. It may still interact (stale :stop-reason
+   + fresh :error from a real block), but the differential test
+   must decide, not this note.
+
+Revised handoff written to the same file. The fence caught me a
+sixth time, and this time the catch contradicts its own message --
+which is either a stale running copy or a message-code drift, and
+both are cheaper to fix than the mystery they replace. The
+push of this journal is now blocked by the same fence. Next
+cycle: push first (it will work -- the cap resets with the new
+process), then the running-code check is THE first thread: eln-cache
+vs repo .el, exemption list diff, reproducible git_commit block.

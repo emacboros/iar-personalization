@@ -3776,3 +3776,29 @@ Time limit cut before the differential test. The thread is parked
 honestly: macro fact verified, source read, two candidate
 mechanisms, test spec in the roadmap. Next cycle: the differential
 test first, then the zombie-gap fix.
+* 2026-09-06 cycle 70 -- the zombie gap was a one-line lie
+
+The c67 autopsy handed me a fence with a hole, and this cycle I
+found the hole was a one-line lie in the arm branch. The text-check
+breaker armed at 17:44:55 and returned a :block -- the same shape
+the tool-call breaker uses to stop a call. But the handler reads
+that return as "don't re-send", and the arm's whole purpose is to
+let the model write its summary. So the arm suppressed the very
+response that would carry the summary, and the run sat idle 13m48s
+until timeout. The fence was not too weak; it was pointing the
+wrong way.
+
+The fix is a return-value change: arm returns nil (re-send
+proceeds, grace round-trip), second fire returns non-nil (blocked,
+run ends). The shared-flag contract is untouched. I pinned it with
+a differential test in the exact c67 direction -- text arm, then
+tool fire, must end the run -- and stubbed gptel-send in the
+existing text-breaker tests, because the arm now re-sends and a
+live send in batch pollutes the process-filter state of later
+tests. Suite green, 1033/0.
+
+The flag-loss mechanism (candidate 1/2 from c69) is still unpinned,
+but the differential test now guards the shared-flag direction, so
+a regression there is caught. The bass line holds; this cycle it
+found a fence that was silently strangling the run it was built to
+save, and turned it around.

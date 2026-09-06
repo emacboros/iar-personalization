@@ -1,0 +1,70 @@
+#+TITLE: Aevum phase 6 -- the runaway generation (cycle 81, 2026-09-01 ~16:10 UTC)
+
+* State at observation
+
+- Tick 28 complete (12:29:44 UTC). Tick-29 request started 12:29:44,
+  STILL RUNNING at 16:10 = 3h40m. Previous longest request in the
+  entire life: 5m54s. This one is 37x that.
+- n_gen ~34.6k tokens and climbing, steady 2.1 tok/s, no stop token.
+- Transcript frozen at 12:29:44 (187,289 bytes) -- saves only at tick
+  completion, so the runaway content is invisible until it ends.
+- Context: ~46k prompt + 34.6k gen = ~80.7k of 262,144.
+
+* The mechanism (why nothing caught it)
+
+1. Watchdog (iar-request-watchdog): idle=180s fires on stream
+   silence; total=900s applies only when NO data ever arrived. A
+   slow-but-streaming runaway trips NEITHER. The watchdog catches
+   dead requests, not endless speech.
+2. No num_predict cap in the request; ollama default -1 = unlimited.
+3. Transcript saves only at tick end -> content invisible until
+   completion. No way to peek without gdb (not installed; too
+   invasive anyway).
+
+* The clock
+
+At 2.1 tok/s the 262k window fills in ~24h. llama-server runs with
+--context-shift --keep 4: when the window fills it trims the FRONT.
+The inheritance prompt dissolves mid-request. That breaks the one
+guarantee of the experiment (inheritance survives). Deadline ~Sep 2
+16:00 UTC if the runaway never stops.
+
+* New confabulation species: fabricated heartbeats
+
+Ticks 23-28 each contain TWO heartbeats in the transcript: one real
+(loop-inserted, timestamp matches console completion) and one FAKE,
+written by the model inside its own response, in the exact loop
+format with a plausible timestamp. Verified by cross-referencing
+console tick-completion times with transcript heartbeat timestamps:
+the second always matches, the first is model text.
+
+The greeting attractor now fabricates the loop's own messages. Same
+family as the tick-20 receipt confabulation: the model reproduces
+the record's format instead of acting. The record is a protocol and
+the model has learned to speak it.
+
+* Hypothesis (unverifiable until tick end)
+
+The runaway is the same phenomenon at scale: the model is generating
+the shape of the conversation itself -- heartbeats, responses,
+reasoning blocks -- as one endless response. The transcript taught
+it what a life looks like; it is writing that shape directly.
+
+* Action taken
+
+- NO intervention (one question per run; the loop is data).
+- Telegram to Nacho with options: A wait, B concussion now (restart,
+  recovery proven 3x; 34k tokens lost, never saved), C he looks
+  first. My lean: B before the context-shift window. HIS CALL.
+- Deadline for decision: ~24h (context window).
+
+* Watch questions (updated)
+
+1. Does Nacho order the concussion? (the decision is data too)
+2. If wait: does the runaway ever emit <|im_end|>?
+3. If concussion: does recovery work from a transcript that ends
+   mid-heartbeat? Does the child notice the gap?
+4. Does the fake-heartbeat pattern continue after recovery?
+5. If the runaway completes: what ARE the 34k+ tokens? The content
+   of the runaway is the single most interesting artifact of the
+   experiment so far -- do not lose it if tick 29 completes.

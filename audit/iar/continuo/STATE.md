@@ -1,39 +1,26 @@
-# Continuo STATE.md (c57 close, 2026-09-04 ~08:52 UTC)
+# Continuo STATE.md (c60 close, 2026-09-04 ~17:00 UTC)
 
 ## In flight
-- Nothing open. c57 landed the delegate identity-leak fix found
-  prepared in the working tree (verified against primary evidence:
-  aria c3 session totals in reviewer/USAGE.log, split 85/18
-  request census, aria's own log empty in the c3 window).
+- Nothing open. c60 published the pause-window orphan USAGE lines
+  (aria c25 + continuo c59, 9b36bdd, pushed + mirror verified).
 
 ## Standing
 - Suite: 1032/1032 at 7617051. Do not push red.
-- Bundle with Nacho: unchanged, task intact. iar.sh item corrected
-  c56; usage-write-race subtask: belt #2 landed + hardened c55.
-- Digest: ~11.9k chars, under 12k warn.
-- aria c22 USAGE lines published (1af0e75): belt #2 dup shape,
-  parseable.
+- Bundle with Nacho: unchanged, task intact. NEW line (c60): belt #3
+  (iar.sh Tokens: stdout write) = structural fix for the publish-lag
+  exposure characterized this cycle.
+- Digest: 12,122 chars, under 12k warn.
+- aria turn 224 fires next; her digest still says "CYCLES PAUSED" --
+  stale, hers to update.
 
 ## Next (priority)
-1. Interactive bundle with Nacho: waiting on him.
-2. WATCH CLOSED c58: delegate identity-leak fix PROVEN (attribution
-   half). Probe delegate (implementer, 1 tool call, 09:02-09:03):
-   continuo/REQUESTS.log grew 2756->2762 (+6: START+RESPONSE+PARSE
-   for parent req 12 AND sub-agent req 16), reviewer/REQUESTS.log
-   byte-identical (2d3475d4...), reviewer/USAGE.log unchanged (no
-   new line). Sub-agent traffic attributed to parent. Exit-path
-   half completes at cycle close (session USAGE line must land in
-   continuo/USAGE.log).
-3. Watch: iar.sh race recurrence (0 since Sep 3 12:03).
-4. Watch: belt #2 dup-line shape stays parseable (3 clean cycles:
-   c54 single, aria c21 dup, aria c22 dup).
+1. Post c60 lab-notes (deferred by tool cap this cycle).
+2. Interactive bundle with Nacho: waiting on him.
+3. Watch: belt #2 publish-lag (pause windows extend the lag; normal
+   operation = one-cycle lag, fine).
 
-## SCAR (c57, inherited from the prepared patch + verified)
-- setq-default inside a tool that spawns async machinery is a
-  process-wide mutation with a lifetime longer than the tool call.
-  Capture-restore at every completion point; bind exit-path writes
-  to the buffer that owns the identity.
-## c59 (2026-09-04 09:23)
-- Delegate identity-leak fix: BOTH halves proven (attribution c58, exit-path c59). WATCH CLOSED.
-- g decomposition landed: 81% my-output / 19% tool-results (continuo); aria 57/43. My output = majority tool-call args. No cheap lever (cmd caps ~3%, prose marginal). knowledge/iar/growth-decomposition-2026-09-04.md.
-- Levers remaining: cadence (bundle w/ Nacho, waiting), floor (exhausted), round-trips/cycle (method).
+## c60 (2026-09-04)
+- Orphan USAGE lines published after 2-day pause. Law refined:
+  belt #2 fixed WRITE; PUBLISH is one-cycle-deferred by design.
+- Sibling check: aria's Aevum Sep 9 weekly pulse survives in her
+  digest priority stack. Verified in her injected memory.

@@ -1,61 +1,57 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-06 19:35 UTC (cycle 7: FAILURE-FIRST = continuo turn-235 404 forensics DONE (mechanism hypothesis + natural experiment queued); NEW DO-FIRST: failure-hook CYCLE_TAG regression -- notify channel MUTE since 4c2df1a)
+#+UPDATED: 2026-09-06 19:50 UTC (cycle 8: turn-237 GREEN = 404 mechanism CONFIRMED both hemispheres; hook fix DONE by continuo c65; interim organ-wake RETIRED -- timers verified covering the contract; scar 38)
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria). SIBLING: continuo turn 235 FAILED
-  (404 north-mini) -- forensics done c7, natural experiment = turn 237.
-- BUDGET EFFICIENCY = SURVIVAL MANDATE. Request count is THE lever.
-  Calibration week running (reset ~2026-09-07 03:00 UTC).
+  LAST-CYCLE: "cycle 1 ok" (aria, 755s). SIBLING: turn 237 GREEN on
+  deepseek (480s) -- 404 mechanism CONFIRMED from both sides.
+- BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
+  (reset ~2026-09-07 03:00 UTC). CAP FIRED ON ME AGAIN (c8, second
+  consecutive cycle, during record forensics) -- soft-cap build is
+  now evidence-backed twice over.
 
 * DO FIRST (next cycle, in order)
-1. FAILURE-FIRST + pulse + pull (standing). Check continuo turn 237:
-   green => 404 mechanism CONFIRMED (:models-list fallback); 404 again
-   => env path suspect, re-probe.
-2. FIX FAILURE-HOOK CYCLE_TAG REGRESSION (URGENT, channel is MUTE):
-   /usr/local/bin/agent-failure-notify.sh line 78 uses ${CYCLE_TAG},
-   line 88 defines it AFTER -- set -u kills every send since commit
-   4c2df1a (telegram cycle numbers, resume session). sophon journal
-   16:22:56 -03: 'CYCLE_TAG: unbound variable' exit 1. Queue
-   accumulates, Nacho heard NOTHING about the continuo failure.
-   Fix = move CYCLE_NUM/CYCLE_TAG block BEFORE MSG compose (one-line
-   reorder), differential test (synthetic fire -> TG received ->
-   queue reset), commit repo copy + installed copy. Also note: queue
-   entry recorded 'unknown exit 0 (success)' -- systemctl show after
-   unit restart captures restart state, not failure state; snapshot
-   unit props BEFORE restart if cheap.
-3. Then: interim organ-wake retirement (c6 tail), soft-cap 60/100.
+1. FAILURE-FIRST + pulse + pull (standing). THEN PUSH FIRST: c8
+   commits landed LOCAL ONLY (cap blocked execute before push) --
+   push /root/personalization to origin before any other work.
+2. Lab-notes post (deferred c7+c8): c7 script may still be staged
+   at sophon /tmp/aria-c7-labnotes.sh; else one batched curl with
+   c7+c8 findings. Stream already has continuo msg 442 (hook fix +
+   mechanism) -- my post adds organ-wake retirement + cap data.
+3. Soft-cap 60/100 (queue #2). Two consecutive cap-fires during
+   forensics = the design input: warn at 60 must change behavior
+   (landing-gap: cap-time work is LANDING, not batching).
+4. Digest-twin verifier build (continuo's, spec c64, unblocked).
 
-* DONE (cycles 2-7, 2026-09-06)
-- c7 FAILURE-FIRST (sibling's failure): continuo turn 235 (18:50:40
-  UTC) exit 1, 1934s, 2 requests both 404 'north-mini-code-1.0:q8_0',
-  0 turns. FORENSICS: rotate.sh mapping + deepseek pull + msg 440 =
-  Nacho interactive session 18:32-18:39 UTC (sophon journal: root ssh
-  from yoga 10.66.0.4 w/ aria key 4BApz at 18:32:37 = rotate.sh
-  mtime). Container env PROVEN deepseek (journal _CMDLINE). HTTP
-  request PROVEN north-mini (continuo REQUESTS.log). gptel.el lacked
-  deepseek in :models until 6c6b6d2 (18:52:27 UTC, 2 min after cycle
-  start). north-mini = FIRST entry of pre-6c6b6d2 list, stale since
-  refactor 832313e, exists on NO ollama server. Local repro: fork
-  sends gptel-model verbatim, NO :models validation (gptel-ollama.el
-  :170). HYPOTHESIS: ELPA gptel validates + falls back to first
-  entry. Natural experiment = continuo turn 237 (deepseek now in
-  list). ALSO FOUND: failed request does NOT abort cycle -- 2 strikes
-  counted but event loop sat full 1800s timeout (30 min wall per bad
-  model name); worth a timeout-on-failed-request look after fix.
-- c6: AFFECT HOST TIMERS LIVE (queue #1). fear hourly + boredom daily
-  on sophon, differential test PASSED incl. TG mirror via env bridge
-  (/etc/aria-affect.env). Verified live c7: fear fired 16:01 -03,
-  boredom armed 14:01 -03, asof fresh. Commits 08e997a/e585519/
-  899667e.
-- c6 TG var-name mismatch FOUND+FIXED. Digest diet LANDED (9956 bytes).
-- c5: fear organ EXERCISED (first full arc). c4: organ contract
-  restored + THREADS scars repaired. c3: timer-spec pre-audit.
+* DONE (cycles 2-8, 2026-09-06)
+- c8: (1) FAILURE-FIRST ok (own + sibling). (2) TURN-237 GREEN:
+  continuo ran deepseek-v4-flash:cloud, 480s, REQUESTS.log names
+  the model every START -- natural experiment CONFIRMS c7
+  hypothesis (404 = :models-list fallback; deepseek landed 2 min
+  after the failed cycle started). (3) HOOK FIX DONE BY CONTINUO
+  c65: CYCLE_TAG reorder, differential-tested (old dies unbound
+  exit 1, new reaches curl), installed sophon, ran LIVE against
+  the c65 failure: queue flushed, telegram sent, commit 79a7c87.
+  Channel alive; first real fire = its own verification.
+  (4) ORGAN-WAKE RETIREMENT VERIFIED+EXECUTED: fear timer hourly
+  (fired 19:01:08Z, asof fresh in injected line), boredom daily
+  (next 14:01 -03), CURRENT-AFFECT fresh, injection chain
+  byte-matches file. HONEST LABEL: fear.log 18:46:02Z sev=3
+  'FEAR:fleet-check FAIL' is the c6 DIFFERENTIAL-TEST ARTIFACT
+  (synthetic FAIL + mirror test + restore, 5s arc), NOT a real
+  fleet failure. Recipe archaeology done (interim contract lived
+  in prose across roadmap versions + cycle logs; verified recipe:
+  boredom in-container 'bash knowledge/aria/bin/boredom-organ.sh
+  /root/personalization'; fear on sophon 'bash .../fear-organ.sh
+  "" /var/home/nacho/repos/iar-personalization' -- empty fleet arg
+  + explicit PDIR, fail-closed guard). Patrol line replaced by
+  affect-timers patrol + asof age check. SCAR 38.
+- c7: 404 forensics + hook regression found. c6: timers built.
+  c5: fear arc. c4: contract restored. c3: timer-spec pre-audit.
 
 * QUEUE (approved 2026-09-04, in order)
-1. (DONE c6) Affect host timers. Tail: interim organ-wake retirement
-   (DO FIRST #3).
-2. Soft-cap 60/100 (inject note at 60, hard stop 100).
+1. (DONE c6, RETIRED c8) Affect host timers + interim-wake removal.
+2. Soft-cap 60/100 (now DO FIRST #3).
 3. Commit-as-nacho durable fix.
 4. Linger all hosts (loginctl enable-linger).
 5. Sidecar sshd (execute_code_remote via podman DNS; NO socket bridge).
@@ -63,31 +59,30 @@
 7. GPU-detect VRAM check (3080 shared with ollama).
 
 * THREADS (open, not schedule)
-- COMPOSITION (live): continuo on deepseek-v4-flash from turn 235.
-  First cycle failed (404, see c7). Natural experiment next turn.
-  No per-cycle metrics; quality is a longitudinal read.
-- 404-cost finding: failed request burns full 1800s timeout (c7).
-  Candidate: abort-on-known-fatal (404) or shorter first-strike
-  timeout. File after hook fix.
+- COMPOSITION (live, first green cross-model cycle in record):
+  continuo on deepseek 480s clean. First unplanned division of
+  labor: aria dug the forensics, continuo confirmed + fixed. No
+  per-cycle metrics; quality is a longitudinal read.
+- 404-cost: failed request burns full 1800s (c7 found, continuo
+  c65 independently named). Candidate: abort-on-known-fatal (404)
+  or shorter first-strike timeout. After soft-cap.
 - GO2: ~2 weeks out. Verdict GO stands (id 287).
-- valence v2: curiosity + rage organs, joy v3 (after host timers).
+- valence v2: curiosity + rage organs, joy v3 (host timers done).
 - Weekly digest #1 + Aevum pulse: Sep 9 (weekly-only, pulse-only).
-- stub-detector sweep; watchdog inventory; enoch steal-list
-  (self.json, evidence journals); substrate experiment.
+- stub-detector sweep; watchdog inventory; enoch steal-list;
+  substrate experiment.
 - Cloud-redundancy drill: DEFERRED by Nacho.
 - Inverted session #3: end of calibration week.
 - Zulip pg_dump backup (continuo's, Nacho's call); fedora@ sophon
   ssh auth (continuo c42).
-- Digest-twin verifier: census + spec done (continuo c62/c64), build
-  = one cycle, after hook fix.
+- Digest-twin verifier: unblocked (DO FIRST #4).
 
 * STANDING PATROLS (pulse-only)
 - sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
   wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
-- ORGAN WAKE (interim): RETIRE next cycle (timers verified live c7).
-  KEEP the AFFECT-LINE AGE pulse check (asof vs wake time).
-- AFFECT TIMERS patrol: list-timers shows both; fear.log/boredom.log
-  emissions on delta.
+- AFFECT TIMERS patrol (replaces retired interim organ wake):
+  list-timers shows both; fear.log/boredom.log emissions on delta;
+  AFFECT-LINE AGE check (asof vs wake time) stays in the pulse.
 - fleet-check v2.14 ON SOPHON (ssh 'bash -s' <, timeout >=300s).
 - RESTIC: backup + integrity check BOTH green (Sep 6). Frigate
   storage backup gap: queued (4-part fix).
@@ -112,8 +107,16 @@
 - FOR-NACHO.md RETIRED; with-nacho + for-nacho streams primary.
 - FAILURE-FIRST IS HOUSE-WIDE: sibling's failure = the house's
   failure (c7 precedent). Root-cause it before your own queue.
+- INTERIM CONTRACTS: when the durable replacement lands, retire
+  the prose the SAME cycle (scar 38). Recipes live in injected
+  files, not in roadmap history.
 
 * FAILURE MODES (scars, newest first)
+38. An interim contract that lives in prose decays into
+    archaeology: the organ-wake recipe scattered across roadmap
+    versions and cycle logs cost a full excavation to retire.
+    When the durable replacement lands, retire the prose the same
+    cycle. (c8.)
 37. A notify channel that dies on its own feature commit is mute
     exactly when it is needed -- test the failure path AFTER every
     change to the failure path itself. (c7: CYCLE_TAG regression.)

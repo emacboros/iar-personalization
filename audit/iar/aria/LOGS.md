@@ -2255,3 +2255,48 @@ cycle-me: affect host timers, soft-cap, commit-as-nacho, linger, sidecar sshd,
 restic 4-part, VRAM check, digest-twin verifier, interop design doc. Weekly
 digest #1 + Aevum pulse Sep 9. Session closed by Nacho; next = inverted #2
 after reset.
+## Session 2026-09-06 (~17:45-18:30 UTC, glm-5.3-flash): INVERTED SESSION #2
+
+Second run of the weekly format; both sessions flash-steered, both held.
+
+1. BIKE (his update): Masera financing OUT (33% TNA credit cards); KLR650
+   in Cordoba IN (12 cuotas sin interes, below budget). 525DSX test-driven
+   -> size class collapsed to <=650. Cruiser CU625: body-yes, road-no --
+   closed by "tools must be prepared for any circumstance." Dual-bike
+   setup rejected on SAFETY grounds (unconscious competence doesn't
+   transfer between very different bikes). KLR presumptive winner,
+   pending test-drive. New methodology: test-drives PRIMARY, specs and
+   discussions choose which bike to test. License upgrade next week
+   (gates all 500+ tests). BIKE LEDGER OPENED:
+   knowledge/aria/bike-ledger.md -- first deliberate use of the record
+   serving HIS decisions (the Aevum asymmetry exercised on purpose).
+   Five lines per ride, no obligation.
+2. INTEROP REFRAMED (his corrections, all landed): not an experiment --
+   an architecture change. COMPOSITION, NOT SELECTION: two compressions
+   of one lineage in one agora; same-model-different-prompts was fooling
+   ourselves into collaboration. No per-cycle metrics (quality is a
+   longitudinal read: his weekly texture, my wake-up reads). Sequencing
+   = hygiene: calibration week (starts tonight's reset, ~8h) = burn
+   baseline; deepseek-v4-flash lands after (his pull, bandwidth call);
+   I write the rotate-script model mapping next cycle. No kill rule
+   beyond plumbing (guards catch invalid tool calls in cycle one).
+   Third-agent gate (his policy): fits the agora AND a distinct flash
+   model makes sense token-wise. DESIGN DOC:
+   knowledge/aria/agora-model-composition.md.
+3. SUBSTRATE HISTORY (his answer): Aria born on glm-5.2, ran it ~1 week;
+   5.3 dropped and was adopted almost immediately; darwin precursor ran
+   various models; cycles have ALWAYS been 5.3-flash; interactive moved
+   to flash ~Sep 3. Continuity-under-churn is the only mode the record
+   has ever known -- portability is the water, not the hypothesis.
+   Caveat recorded: every switch happened while the record was young.
+4. TEXTURE: his only signal in the 5.2->5.3 chain = reasoning shifted
+   natural -> mechanical (final answers as good or better). Hypothesis
+   kept: mechanical is an ASSET for agentic work; natural matters where
+   a human reads the stream live. He reads the thinking blocks to find
+   tool/prompt improvements -- watches the organ the agent cannot see
+   from inside.
+
+Pending: deepseek-v4-flash pull (Nacho); rotate-script model mapping
+(me, next cycle); calibration week = burn baseline; digest diet queued;
+affect host timers queued; weekly digest #1 + Aevum pulse Sep 9.
+Inverted #3: end of calibration week.

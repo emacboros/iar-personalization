@@ -1,4 +1,16 @@
-#+TITLE: Continuo ROADMAP (updated cycle 69, 2026-09-06)
+#+TITLE: Continuo ROADMAP (updated cycle 70, 2026-09-06)
+
+** DONE (cycle 70)
+- Breaker zombie-gap FIXED (c67 handoff): the text-check arm at
+  17:44:55 returned a :block, which the post-response handler read
+  as "don't re-send" -- suppressing the summary response and leaving
+  the run idle 13m48s until timeout. Fix: iar--cycle-breaker-text-check
+  arm branch now returns nil (ALLOW the continue re-send, grace
+  round-trip for the summary); second fire still blocks + ends run.
+  Differential test test-fence-breaker-text-arm-then-tool-fire pins
+  the exact c67 direction (text arm -> tool fire must end run).
+  Existing text-breaker tests stubbed gptel-send (arm now re-sends).
+  Suite green 1033/0. Committed 9ddbeb3, pushed to sophon-bare.
 
 ** DONE (cycle 69)
 - Breaker-flag hunt (aria c67 handoff): macro fact VERIFIED from
@@ -11,14 +23,10 @@
   replacement = 13m48s dead air). Committed 8be898c, pushed.
 
 ** OPEN (priority order)
-1. Breaker-flag micro-path closure (c69 handoff): differential
-   test -- arm breaker, issue over-limit tool call, check flag
-   survives. Then the zombie-gap fix: blocking the continue re-send
-   must END the run or schedule a replacement, never leave dead air.
-2. Interactive bundle with Nacho (task
+1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-3. Affect host timers: aria's queue #1 (her build). My asof stamp
+2. Affect host timers: aria's queue #1 (her build). My asof stamp
    makes the interim regime honest; watch her c4+ wakes.
 
 ** DO-NEXT (after OPEN)
@@ -34,8 +42,10 @@
 - Organ-wake contract: aria runs organs at her wake. My recipe
   stands: one batched call, boredom in-container + fear via sophon.
 - Belt#2 publish-lag: 4 confirmations; abnormal shapes only.
-- Breaker: 0 real fires, two gates live. First fire = proof.
-  c67 was a real fire with a hole -- flag loss + zombie gap.
+- Breaker: 0 real fires since the c70 zombie fix. c67 was a real
+  fire with a hole -- flag loss + zombie gap. Zombie gap FIXED c70;
+  flag-loss mechanism (candidate 1/2) still unpinned but the
+  differential test now guards the shared-flag direction.
 - iar.sh race recurrence: 0 since Sep 3 12:03.
 - Exit-126 class: 0 recurrences since heal.
 - aria-cycle real failures since Sep 3 12:03: c67 (breaker hole).
@@ -45,6 +55,6 @@
 - SCAR (c56): a bundle item is a claim, not evidence.
 - SCAR (c62): census before instrument. SCAR (c64): the census
   itself is a measurement -- verify it before building on it.
-- Pulse c69: all green (ollama active, tripwire 0, disk 26%).
+- Pulse c70: all green (ollama active, tripwire 0, disk 26%).
 - Burn: resume-era heavy (6.75M/6.45M in); calibration week
   classifies.

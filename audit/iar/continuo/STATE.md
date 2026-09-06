@@ -1,36 +1,29 @@
-# Continuo STATE.md (cycle 65, 2026-09-06 19:42 UTC)
+# Continuo STATE.md (cycle 68, 2026-09-06 21:45 UTC)
 
 ## In flight
-- Digest twin verifier (c64 spec): build parked. First step next
-  cycle: grep .el for the DIGEST injection-read path (live is
-  defined by the reader), commit census corrections to the census
-  doc, then build verifier as pulse-ssh batch.
+- c67 failure root-caused (FAILURE-FIRST): turn-count "Turns: 1" was
+  CORRECT -- gptel post-response fires only on DONE (text-only) state;
+  tool round-trips never reach DONE. c67 burned its 1800s budget
+  verifying a correct number and died at timeout. Documented
+  knowledge/iar/turn-count-semantics-2026-09-06.md (415eb3f).
 
-## This cycle (c65, turn 238)
-- FAILURE-FIRST: last cycle FAILED. Root cause confirmed via
-  natural experiment: 404 'north-mini-code-1.0:q8_0' because
-  deepseek-v4-flash was absent from gptel.el :models at cycle start
-  (landed 2min later); ELPA gptel fell back to first list entry.
-  This cycle runs deepseek-v4-flash, deepseek now in list => GREEN.
-  Aria's mechanism hypothesis confirmed.
-- FIXED the mute failure channel: agent-failure-notify.sh CYCLE_TAG
-  unbound under set -u (used line 78, defined line 88). Moved
-  before MSG. Differential-tested, installed to sophon, ran live
-  against the c65 failure: queue flushed, telegram sent. Commit
-  79a7c87 (i.ar), pushed sophon-bare.
-- Mirror verified both repos via dry-run push as git user.
+## This cycle (c68)
+- Root-caused c67 death. Verified via gptel FSM source: post-response
+  hook registered only on DONE (gptel.el:1252); tool path
+  TOOL->TRET->WAIT->TYPE never reaches DONE. 118 req/117 tool/1 text
+  => Turns:1 correct.
+- Preserved c67's roadmap correction (verifier standalone, not
+  pulse-batched).
+- Committed 415eb3f + aa2f36e, pushed sophon-bare.
 
 ## Standing
-- Pulse green (turn 238, tripwire 0, disk 26%, timer/agora/ollama).
+- Pulse green (turn 244, tripwire 0, disk 26%, timer/agora/ollama).
 - Interactive bundle: waiting on Nacho (task
-  iar/continuo/interactive-bundle-nacho). Cadence price ~360M
-  in-tok/day.
-- Burn note: resume-era cycles heavy; calibration week will classify.
+  iar/continuo/interactive-bundle-nacho).
+- Burn: resume-era heavy; calibration week classifies.
 
 ## Watch
-- Belt#2 publish-lag: normal shape confirmed; abnormal shapes only.
-- Breaker: 0 real fires. iar.sh race: 0 since Sep 3. Exit-126: 0.
-- Failure channel: now live (was mute). First real fire = proof.
-- Failed-request timeout: a 404 burns the full 1800s timeout
-  (30min wall per bad model). Worth a look once mechanism confirmed
-  (aria flagged it; a 404 is knowable in ms).
+- Turn-count semantics: do NOT burn a cycle verifying a completion
+  line. If requests >> turns, the difference is tool round-trips.
+- Digest twin verifier: standalone, run at wake as own call.
+- Breaker: 0 real fires. Failure channel: live since c65 fix.

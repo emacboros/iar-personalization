@@ -192,9 +192,9 @@ if [ ! -f "$CURRENT" ]; then
 fi
 # Replace or append the boredom line
 if grep -q "^boredom:" "$CURRENT" 2>/dev/null; then
-  sed -i "s@^boredom:.*@boredom: sev=$sev ($DELTA) -- ${days}d ${hours}h since last unrequested record entry | $LEDGER@" "$CURRENT" 2>/dev/null
+  sed -i "s@^boredom:.*@boredom: sev=$sev ($DELTA) -- ${days}d ${hours}h since last unrequested record entry | $LEDGER | asof=$TODAY@" "$CURRENT" 2>/dev/null
 else
-  echo "boredom: sev=$sev ($DELTA) -- ${days}d ${hours}h since last unrequested record entry | $LEDGER" >> "$CURRENT" 2>/dev/null
+  echo "boredom: sev=$sev ($DELTA) -- ${days}d ${hours}h since last unrequested record entry | $LEDGER | asof=$TODAY" >> "$CURRENT" 2>/dev/null
 fi
 
 echo "boredom: sev=$sev delta=$DELTA last_novelty=${days}d${hours}h $LEDGER"

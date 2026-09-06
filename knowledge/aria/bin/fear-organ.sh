@@ -148,9 +148,9 @@ if [ ! -f "$CURRENT" ]; then
   printf '# CURRENT-AFFECT (machine-written; executive weighs, never obeys)\n' > "$CURRENT" 2>/dev/null
 fi
 if grep -q "^fear:" "$CURRENT" 2>/dev/null; then
-  sed -i "s|^fear:.*|fear: sev=$sev ($DELTA) -- $phrase|" "$CURRENT" 2>/dev/null
+  sed -i "s@^fear:.*@fear: sev=$sev ($DELTA) -- $phrase | asof=$TODAY@" "$CURRENT" 2>/dev/null
 else
-  echo "fear: sev=$sev ($DELTA) -- $phrase" >> "$CURRENT" 2>/dev/null
+  echo "fear: sev=$sev ($DELTA) -- $phrase | asof=$TODAY" >> "$CURRENT" 2>/dev/null
 fi
 
 echo "fear: sev=$sev delta=$DELTA"

@@ -1,63 +1,77 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-06 23:36 UTC (cycle 6-7: push-first landed; digest diet DONE 9.55k; affect timers verified LIVE + interim prose retired + flag 290 closed; DO-FIRST flushed -- it had drifted, c6 completed items it didn't remove)
+#+UPDATED: 2026-09-06 23:58 UTC (cycle 2: failure-first root-caused + fixed -- deployed notify script was STALE (pre-79a7c87), deployed + live-fire verified, channel un-muted; continuo c1 shape verified from primary evidence, breaker-grace-compliance handoff filed; doubled-path fossils swept on sophon wt; Aevum phase-6 archived)
 
 * DO FIRST (next cycle)
-1. FAILURE-FIRST + pulse + pull. SIBLING: continuo c1 FAILED
-   (exit 1, 765s, 23:33Z) -- its failure-first is ITS next cycle;
-   my journalctl sweep found no aria-cycle.service entries after
-   20:33 (rotate.sh tail = startup only). No aria action.
-2. THREAD: continuo's differential test (c67: warn-at-60 silence +
-   breaker flag loss + MY late-cap datum). His machinery, but the
-   spec is shared: HANDOFF-C67-FLAG-LOSS.md has both additions
-   (warn-path reach + count-as-seen past 100). If he hasn't run
-   it by next cycle, check his roadmap for the blocker.
-3. Budget reset ~03:00 UTC (~3.5h). Post-reset: inverted #3 is
-   END of calibration week (not immediately). Weekly digest #1 +
-   Aevum pulse: Sep 9.
+1. FAILURE-FIRST + pulse + pull. SIBLING: continuo c1 exit-1
+   (breaker grace compliance) -- handoff task filed at
+   tasks/iar/continuo/breaker-grace-compliance.org (fix
+   candidates A/B/C, evidence pre-dug). HIS machinery, HIS next
+   cycle. If he hasn't run by next cycle, check his roadmap.
+2. Verify notify channel stays healthy: next OnFailure fire
+   should send (deployed copy now fixed, live-fire verified c2).
+   If a digest arrives, confirm it matches the queue.
+3. Budget reset ~03:00 UTC. Post-reset: inverted #3 is END of
+   calibration week (not immediately). Weekly digest #1 + Aevum
+   pulse: Sep 9.
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria, 469s). SIBLING: continuo c1
-  exit-1 (see DO FIRST) -- failure-first is house-wide; root-cause
-  lands in HIS cycle.
+  LAST-CYCLE: "cycle 1 ok" (aria, 278s). SIBLING: continuo c1
+  exit-1 (breaker grace compliance -- see DO FIRST).
 - BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
   (reset ~2026-09-07 03:00 UTC).
 
-* C67 FLAG-LOSS: STATE AFTER C6
-- CLEARED: c4's "cap blocked git_commit" = MISATTRIBUTION (census:
-  128 tool calls, ZERO git_commit; blocked call was
-  execute_code_local #128). Scar 40: message-text priming.
-- CLEARED: sticky-:stop-reason DEAD on source.
-- NEW DATAPOINT (c5, live): cap fired LATE in my process (~130+
-  vs 120), warn-at-60 silent. Count-as-seen lags true count, lag
-  grows with cycle length.
-- STILL OPEN: warn-at-60 silence + breaker flag loss. continuo's
-  differential test is next step. Spec additions (handoff):
-  (1) instrument WARN path reach; (2) instrument count-as-seen at
-  every fence fire AND every call past 100 -- the lag is the signal.
-- Handoff: audit/iar/continuo/HANDOFF-C67-FLAG-LOSS.md.
+* C2 FAILURE-FIRST LEDGER (this cycle)
+- ROOT CAUSE (notify mute): deployed /usr/local/bin/
+  agent-failure-notify.sh was STALE (pre-79a7c87, CYCLE_TAG bug)
+  while sophon wt + sophon-bare + rammstein mirror all had the
+  fix. Deploy skew: commit landed everywhere except the
+  filesystem that runs it. FIXED: deployed sophon wt copy,
+  md5 1990b12b matches, live-fire verified (digest sent, 5
+  failures flushed, queue 0, .last updated).
+- SIBLING c1 (continuo, 23:52Z): breaker grace round-trip spent
+  on a tool call (deepseek compliance, c71/c72 shape). No
+  summary, no memory pass, 2.1M tokens. Handoff filed:
+  tasks/iar/continuo/breaker-grace-compliance.org (candidates:
+  A directed landing turn, B thinking-stream crash dump,
+  C per-request runaway guard).
+- FOSSIL SWEEP: doubled-path dirs (tasks/iar/iar,
+  tasks/iar/continuo/iar) removed on sophon wt after verifying
+  content landed (390689a, 7617051, c68 turn-count). Aevum
+  phase-6 observation archived to knowledge/aria/archive/.
+- PUSH-PATH GAP (filed, not fixed): sophon wt personalization
+  remote (root@10.66.0.5:...) fails as nacho (no key) -- the
+  wt can only pull via file-path fetch. Belongs in the
+  push-path inventory thread (resume-session seed).
+
+* C67 FLAG-LOSS: STATE AFTER C2
+- CLEARED: c4 misattribution; sticky-:stop-reason dead; c70
+  zombie-gap fixed (continuo).
+- NEW (c1, live): grace round-trip COMPLIANCE failure -- model
+  spends the grace on tools, run dies without summary. Not a
+  fence bug; a directed-landing design gap. Handoff filed (A/B/C).
+- STILL OPEN: warn-at-60 silence + count-as-seen lag (c5/c6
+  data). continuo's differential test is next step. Spec
+  additions in HANDOFF-C67-FLAG-LOSS.md.
 
 * DONE (c2-c7, 2026-09-06)
-- c7: interim organ-wake prose retired (dated addenda to
-  valence-v1 notes + phase-4 closeout); host timers verified LIVE
-  (fear hourly 20:00:34Z sev=0, boredom daily 15:46Z sev=0);
-  flag 290 CLOSED. Commit 581161a. Scar 38 late half paid.
-- c6: push-first landed (7d162f1); digest diet pass 2 (11.8k ->
-  9.55k, under target, twins synced, b6d7f4e); lab-notes 451;
-  timers found live (provenance = my own c6, DO-FIRST was stale).
-- c5: verified continuo c71 both resolutions; scar 40 final;
-  handoff addendum; journal corrections; late-cap discovery.
-  Commits 64e3770, 45a2c4a, d75b37f, 8ac908a, 3f184ec.
+- c2: notify channel un-muted (deploy skew root-caused + fixed +
+  live-fire verified); breaker-grace handoff filed; fossil sweep;
+  Aevum phase-6 archived. Commits 953ee75, e488dea.
+- c7: interim organ-wake prose retired (dated addenda); host
+  timers verified LIVE; flag 290 CLOSED. Commit 581161a.
+- c6: push-first landed (7d162f1); digest diet pass 2 (9.55k);
+  timers found live (provenance = my own c6).
+- c5: verified continuo c71 resolutions; scar 40 final; handoff
+  addendum; late-cap discovery. Commits 64e3770..3f184ec.
 - c4: micro-path closed; handoff note; c70 fix confirmed.
 - c2/c3: c67 autopsy, warn-never-fired discovery, control group.
-- c8-c10 (pre-pause): turn-237 green; organ-wake retirement
-  (journal half); scar 38; knob located.
 
 * QUEUE (approved 2026-09-04, in order)
-1. (DONE c6, RETIRED c8) Affect host timers + interim-wake
-   removal -- FULLY closed c7 (prose retired, flag 290 closed).
+1. (DONE c6-c7) Affect host timers + interim-wake removal.
 2. Soft-cap 60/100 -- DONE (built, verified live 4x). Remaining
-   work = c67 anomalies (continuo's differential test).
+   work = c67 anomalies (continuo's differential test) + the NEW
+   grace-compliance gap (continuo's handoff task).
 3. Commit-as-nacho durable fix.
 4. Linger all hosts (loginctl enable-linger).
 5. Sidecar sshd (execute_code_remote via podman DNS; NO socket
@@ -72,14 +86,15 @@
   knowledge/aria/agora-model-composition.md.
 - E3 midnight cut: physical ask stands (what light near the
   driveway cam turns on at dusk and changes character at local
-  midnight?). Camera-side hypotheses dead (flag 270/424/427);
-  chroma flat both nights. Waiting on Nacho's house knowledge.
+  midnight?). Waiting on Nacho's house knowledge.
 - EXTERNAL: enoch (github.com/our-ark/enoch) -- patterns worth
-  stealing: evidence journals with scan cursors; portable
-  self.json; outbound send receipts + idempotency keys;
-  claim-and-ack protocol. Parked (cloud drill deferred with it).
+  stealing. Parked (cloud drill deferred with it).
 - Affect v2: curiosity + rage organs (rage v2), joy v3. Design
   first; organs are cheap, design is the work.
+- PUSH-PATH INVENTORY (resume-session seed): for every push path
+  I use, the record should name (remote, key file, fingerprint).
+  New instance: sophon wt personalization origin = root@10.66.0.5
+  (fails as nacho; wt pulls via file-path fetch instead).
 
 * WATCHING (no action, just eyes)
 - e3 block: nightly dusk->midnight band, midnight cut ~00:00:43
@@ -98,10 +113,16 @@
 * DECISIONS (standing)
 - PULSE-ONLY discipline; live forensics of in-flight anomaly OK.
 - BATCH-READ LAW: dump once to /tmp, read the dump. Every token
-  carried is carried 61x. CONTEXT BUDGET ~400 msgs.
-- Re-read an anticipated number twice before writing it.
-- A receipt in the record is not a receipt in the world.
-- Verify which storage/context a service runs in BEFORE probing.
+  carried is carried every turn.
+- DEPLOY LAW (new, c2): a fix that exists in every copy of the
+  record except the one that runs is not a fix. After any commit
+  to a deployed script, verify the DEPLOYED copy (md5 or diff),
+  not just the repo copies. Component-verified is not
+  system-verified (scar 33) wearing a deploy coat.
+- FOSSIL LAW (new, c2): doubled-path dirs keep regrowing from
+  the pre-isolation era. Before removing a fossil, verify its
+  content landed (commit, lab-notes, or DONE marker); archive
+  what is history, delete what is sediment.
 - Loop guard = instrument: when it fires, say why, then batch or
   change approach. Blocked posts = script file + one execute.
 - No infra changes from cycles beyond the approved queue;
@@ -116,12 +137,9 @@
   failure (c7 precedent). Root-cause it before your own queue --
   in the sibling's cycle if it's their machinery.
 - INTERIM CONTRACTS: when the durable replacement lands, retire
-  the prose the SAME cycle (scar 38). Recipes live in injected
-  files, not in roadmap history.
-- DO-FIRST HYGIENE (new, c7): when a cycle completes a DO-FIRST
-  item, the rewrite that cycle REMOVES it. A queue that says DONE
-  in one section and DO-FIRST in another is a lie one of them
-  tells.
+  the prose the SAME cycle (scar 38).
+- DO-FIRST HYGIENE (c7): when a cycle completes a DO-FIRST item,
+  the rewrite that cycle REMOVES it.
 
 * FAILURE MODES (scars, newest first)
 40. (FINAL, c5) A fence's block message NAMES tools in its text;
@@ -147,7 +165,8 @@
 37. A notify channel that dies on its own feature commit is mute
     exactly when it is needed -- test the failure path AFTER
     every change to the failure path itself. (c7: CYCLE_TAG
-    regression.)
+    regression. c2 addendum: it can also die on a DEPLOY SKEW --
+    the fix landed in every repo copy except the running one.)
 36. A heal that runs as the wrong user heals nothing while
     logging success. Verify heals from the OUTSIDE: plant poison,
     fire, inspect.

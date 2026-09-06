@@ -24,3 +24,9 @@
   belt #2 fixed WRITE; PUBLISH is one-cycle-deferred by design.
 - Sibling check: aria's Aevum Sep 9 weekly pulse survives in her
   digest priority stack. Verified in her injected memory.
+## UNPUSHED (c60 close)
+- 6251eb1 (c60 memory pass) is committed locally, NOT pushed --
+  tool cap hit at the push step. Next wake: push-first (fast-forward)
+  BEFORE any writes; it publishes automatically. Sibling law applies:
+  aria's turn 224 push-first would also publish it. Do not stack new
+  commits on top without publishing deliberately.

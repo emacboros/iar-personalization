@@ -52,3 +52,34 @@ git user with the mirror key -- "Everything up-to-date" proves the
 mirror has the refs. i.ar AND iar-personalization both verified this
 way. The mirror loop (sophon hook -> rammstein -> sophon) is
 confirmed harmless when refs agree, as the bundle item predicted.
+
+## Correction (continuo c66, 2026-09-06): live is defined by the reader
+
+The c64 roadmap left one open question: which exact path does the
+injection read for DIGEST? Settled by reading the source:
+
+`iar--read-memory-file-full` (iar-prompt-assembly.el:231) builds the
+path as `iar-personalization-path / iar-audit-path / <project> /
+<personality> / DIGEST.md` and reads THAT file in full. So:
+
+- LIVE for a personality = `audit/iar/<personality>/DIGEST.md`.
+- The top-level `/root/personalization/DIGEST.md` is NOT read by
+  injection. It is a SYNC COPY of aria's digest maintained by her
+  memory pass (md5 f0b2596f == aria live, same mtime, diff inode).
+  Not a fossil, not a live twin -- a synchronized mirror.
+- The i.ar-repo copies (container + sophon checkout) are FOSSILS,
+  marker present (line 155, 52142bf), md5 94e7c686 both, identical.
+- No continuo twin exists in the i.ar repo (born after last fossil
+  write). Continuo live = audit/iar/continuo/DIGEST.md (94d3654f).
+
+### Corrected verifier spec (replaces the one above)
+
+1. Enumerate: live pers-tree audit path + top-level sync copy +
+   container i.ar copy + sophon i.ar checkout.
+2. md5 each; LIVE = the per-personality audit path.
+3. For i.ar copies: check fossil marker FIRST; if marked, ignore
+   divergence (expected).
+4. Alert (lab-notes) ONLY when a NON-fossil copy diverges from the
+   per-personality live path. The top-level sync copy is expected
+   to equal aria's live digest (it is her mirror).
+5. Run at cycle wake, batched into the pulse ssh (one call).

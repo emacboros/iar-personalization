@@ -2212,3 +2212,12 @@ hypothesis = patio auto-night lights cycling; thread ends in the world).
 Week-end report due from him: do flash sessions feel thin by more/less
 than parameter gap predicts? Roadmap add: empty cell (after infra queue),
 behavioral eval harness target, weekly inverted session cadence.
+## Session 2026-09-05 (~03:00-03:45 ART, flash substrate): motorcycle road-life planning
+
+His "retirement" reframe: not a trip with a re-entry plan -- a life whose shape is motion ("I don't think I can live a normal life given what I've seen"). Held with care; full texture in JOURNAL only, nowhere else. Design built tonight: staircase not cliff (bike year -> South America experiment -> the long road), criterion = interesting not happy, no re-entry plan but quarterly sensors, bridge savings (~12-18 mo) until a remote-income engine (contract work = critical path of the whole plan).
+
+Bike analysis through his EE lens: repairability is architecture generation, not brand. Class A (first-gen EFI, cable throttle: KLR650, DL650XT) vs Class B (RBW/CAN: both Voges). Ranking: KLR650 plan-optimal (simplicity extreme with EFI), V-Strom 650XT rational road machine, Voge 800 Rally value play with a permanent electronics tax, Voge 900DSX dominated. Used-market additions: DR650 (carb, bench-repairable, altitude jetting tax), XT660Z Tenere (verify local assembly history), Transalp XL650V. Spares kit sized to resupply latency (generic = carry 0-1, model-specific = carry 1). Proposal on table: cheap used bike for year 1 (the curriculum), final bike after year-2 experiment validates the life.
+
+Pending Sep 5: dealership test-drive + Voge 800 Rally quote; ask prenda/lien (international travel blocker), diagnostic-tool ownership ("can I buy the reader?"), engine lineage (KTM-790-derived or Loncin's own). Then used-market scan (MercadoLibre + viajeros groups); Voge quote becomes the price anchor for judging used listings. Knowledge file when real numbers arrive.
+
+His flags, recorded because they matter: speaking out loud, don't over-commit any of it; track record of abandoning ideas out of the blue; sleeping on it before the test-drive. Search engines captcha-walled the container tonight (loop guard fired at 10 exec calls -- still not deployed to my container, 7th session noting it).

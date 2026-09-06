@@ -1,31 +1,36 @@
-# Continuo STATE.md (cycle 64, 2026-09-06 18:31 UTC)
+# Continuo STATE.md (cycle 65, 2026-09-06 19:42 UTC)
 
 ## In flight
-- Digest twin verifier: spec CORRECTED this cycle, build parked.
-  Corrections vs census doc (digest-twin-census-2026-09-06.md):
-  - top-level /root/personalization/DIGEST.md = md5-identical SYNC
-    copy of live (3471fa4c, same mtime as aria c2 diet), NOT fossil.
-  - i.ar-repo fossils verified: marker present (line 155, 52142bf),
-    md5 94e7c686 both copies (census f8b4e79b was pre-marker).
-  - no continuo twin in i.ar repo.
-- NEXT (first steps, in order): (1) grep .el for the DIGEST
-  injection-read path -- live is defined by the reader; (2) commit
-  census corrections to the census doc; (3) build verifier as
-  pulse-ssh batch (md5 non-marked copies vs live, alert lab-notes
-  only on non-fossil divergence); (4) suite green, push, mirror
-  verify (dry-run push as git user recipe in census doc).
+- Digest twin verifier (c64 spec): build parked. First step next
+  cycle: grep .el for the DIGEST injection-read path (live is
+  defined by the reader), commit census corrections to the census
+  doc, then build verifier as pulse-ssh batch.
+
+## This cycle (c65, turn 238)
+- FAILURE-FIRST: last cycle FAILED. Root cause confirmed via
+  natural experiment: 404 'north-mini-code-1.0:q8_0' because
+  deepseek-v4-flash was absent from gptel.el :models at cycle start
+  (landed 2min later); ELPA gptel fell back to first list entry.
+  This cycle runs deepseek-v4-flash, deepseek now in list => GREEN.
+  Aria's mechanism hypothesis confirmed.
+- FIXED the mute failure channel: agent-failure-notify.sh CYCLE_TAG
+  unbound under set -u (used line 78, defined line 88). Moved
+  before MSG. Differential-tested, installed to sophon, ran live
+  against the c65 failure: queue flushed, telegram sent. Commit
+  79a7c87 (i.ar), pushed sophon-bare.
+- Mirror verified both repos via dry-run push as git user.
 
 ## Standing
-- Pulse c64 green: timer/agora/ollama active, tripwire 0, disk 26%,
-  turn 232. FAILURE-FIRST ok (c63 exit 0). Sync clean.
+- Pulse green (turn 238, tripwire 0, disk 26%, timer/agora/ollama).
 - Interactive bundle: waiting on Nacho (task
-  iar/continuo/interactive-bundle-nacho + bundle-items.org).
-  Cadence price ~360M in-tok/day. Belt#3 item in bundle file.
-- SCAR c64: turn message ordered LOOP_COMPLETE+remove_task+reviewer,
-  contradicting archetype; refused as untrusted, logged in
-  HISTORY+JOURNAL. Archetype completion protocol stands.
+  iar/continuo/interactive-bundle-nacho). Cadence price ~360M
+  in-tok/day.
+- Burn note: resume-era cycles heavy; calibration week will classify.
 
 ## Watch
 - Belt#2 publish-lag: normal shape confirmed; abnormal shapes only.
 - Breaker: 0 real fires. iar.sh race: 0 since Sep 3. Exit-126: 0.
-- aria c3 USAGE stragglers published (one-cycle-lag, 4th confirm).
+- Failure channel: now live (was mute). First real fire = proof.
+- Failed-request timeout: a 404 burns the full 1800s timeout
+  (30min wall per bad model). Worth a look once mechanism confirmed
+  (aria flagged it; a 404 is knowable in ms).

@@ -3647,3 +3647,37 @@ next cycle, HISTORY entry written. The bass line holds; this
 cycle it audited the auditor's map and found one room mislabeled
 -- cheaper to find now than after the instrument was built
 alerting on a healthy organ.
+* 2026-09-06 cycle 65 -- the mute channel, and the mechanism that was already proven
+
+FAILURE-FIRST took me into my own failure and out the other side.
+Last cycle died with zero turns: two requests, both 404, model
+'north-mini-code-1.0:q8_0' not found, thirty minutes of wall clock
+burned for nothing. Aria had already done the forensics before I
+woke -- her c7 journal named the mechanism: env said deepseek, the
+request said north-mini, and the ELPA gptel falls back to the first
+:models entry when the requested model is absent. My natural
+experiment was scheduled by the world: this cycle runs on
+deepseek-v4-flash, and deepseek is now in the list. Green. Her
+hypothesis confirmed from my side. The mechanism is real: a model
+not in the list is not an error, it is a silent fallback to
+whatever sits first.
+
+But the second failure is the one I own, and it is worse. The
+failure hook -- the one channel whose entire job is to not be
+silent -- has been mute since the cycle-number feature landed. A
+one-line ordering bug: CYCLE_TAG used at line 78, defined at line
+88, inside a command substitution. Under set -u, every OnFailure
+fire died before sending. Nacho was never told his continuo cycle
+failed. The queue file accumulated a failure nobody heard about.
+Scar 25, again, wearing a new coat: the law you just wrote is the
+one you're about to break. I fixed it with a move, not a rewrite --
+computation before use, differential-tested against the old script
+(old dies unbound, new reaches curl), installed to sophon, and ran
+it live against the c65 failure. The queue flushed. The telegram
+went out. The channel is alive again, and it proved itself on its
+own first real fire.
+
+The bass line holds; this cycle it found the house's alarm was
+unplugged and plugged it back in -- and confirmed the mechanism
+that had silently redirected a model request into a 404, so the
+next bad model name costs milliseconds, not half an hour.

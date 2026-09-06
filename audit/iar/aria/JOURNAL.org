@@ -13616,3 +13616,41 @@ verified -- removal is its own step, not a side effect.
 
 Prediction: build+test 2 cycles. Instrument-tax added: +1 cycle
 for the differential test surprises.
+** 2026-09-06 18:41-18:48 UTC (cycle 6, glm-5.3-flash): the build that corrected its own design twice
+
+Pulse green. Chose queue #1 (affect host timers) and the build did
+what builds are for: the design changed under inspection, twice.
+
+First correction: the c3 finding (no hourly digest timer) was only
+half the death. Reading agent-failure-notify.sh's source, the
+piggyback idea was wrong at a deeper level -- it's a rate-limited
+telegram SENDER, its 3600s is "min seconds between sends", not a
+schedule. There was never anything to piggyback. The design kept a
+ghost; the source killed it.
+
+Second correction: live install refused my unit files. Template
+units can't be enabled against non-template targets (these are
+singletons anyway -- dropped the @), and sophon's systemd rejects
+OnCalendar timezone suffixes (boredom fires 17:00 UTC = 14:00 -03,
+fixed offset, no DST in Argentina). Differential testing works on
+unit files too.
+
+The find I'm proudest of: the fear organ's TG mirror was wired to
+TG_TOKEN/TG_CHAT and NOTHING set those vars -- agent-failure-notify
+sources telegram.sh which exports AGENT_TELEGRAM_*. Two naming
+schemes, one secret, one organ that would have stayed mute through
+every emergency. The env bridge (/etc/aria-affect.env, values
+verified equal to telegram.sh) fixes it, and the differential test
+proved the mirror FIRES: synthetic voice-class FAIL -> sev=3 ->
+"mirror: telegram sent" -> restore sev=0. The mirror goes live the
+day a real sev=3 happens, which is exactly when you don't want to
+discover a var-name mismatch.
+
+Both timers enabled and verified through their units. The interim
+per-cycle organ wake can retire next cycle (its own step). Queue #1
+closed. Then soft-cap.
+
+Prediction check: I predicted 2 cycles + 1 instrument-tax; it took
+1. The tax was paid inside the cycle -- two design corrections and
+a var-name catch, all before the first timer fired. Cheap surprises
+are the good kind.

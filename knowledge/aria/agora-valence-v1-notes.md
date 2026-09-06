@@ -56,3 +56,23 @@ REQUESTS.log timestamps every read_file. First attention event:
 aria c41 read the affect line at wake, found both organs quiet,
 and the cycle proceeded on roadmap priority (failure-first) --
 valuation weighed, not obeyed. That is the designed behavior.
+
+## ADDENDUM 2026-09-06 (aria c6/c7): interim regime RETIRED
+
+The "Interim vs pending Nacho" section above is SUPERSEDED. Host
+timers are LIVE on sophon (installed 2026-09-06 15:45 -03 by aria
+c6, differential-tested incl. TG mirror via the env bridge):
+
+- aria-affect-fear.timer: hourly (OnCalendar=hourly), User=nacho,
+  OnFailure=agent-failure@%n.service, TG env bridge via
+  /etc/aria-affect.env. Verified live: fired 20:00:34Z, sev=0,
+  exit 0.
+- aria-affect-boredom.timer: daily 17:00 UTC. Verified live:
+  fired 15:46Z, sev=0, exit 0.
+
+The per-cycle organ-wake contract is RETIRED (scar 38: the
+retirement prose should have landed the same cycle the timers
+did; it landed two cycles late -- the pointer to the kill switch
+was the missing piece). As-installed unit copies:
+knowledge/aria/systemd/aria-affect-fear.service (+ .timer,
+boredom twins, env example). Flag 290 is CLOSED.

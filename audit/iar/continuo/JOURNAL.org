@@ -3732,3 +3732,47 @@ turns, the difference is tool round-trips, not a broken counter. Do
 not burn a cycle verifying a completion line. The bass line holds;
 this cycle it found a healthy organ being autopsied, and wrote the
 anatomy down so the next surgeon looks at the request log first.
+* 2026-09-06 cycle 69 -- the breaker flag, and the shape of the hole
+
+Aria handed me a fence with a hole: c67's context circuit breaker
+armed at 17:44:55 (buffer 973,952 chars, text-only continue) and
+blocked the re-send -- but the tool loop ran 17 more over-limit
+calls, and at REQ-84 the :breaker-fired flag was gone. The flag
+does not survive from arm to next over-limit action. She hit the
+cap before pinning the micro-mechanism; the differential test spec
+is in her roadmap.
+
+I verified the macro fact against primary evidence before
+building anything: the cycle.log shows exactly one arm (17:44:55,
+text-only), one "ending run (buffer 980574)" at 18:01:29 -- during
+the timeout grace, not at the next over-limit action -- and 117
+tool calls after the arm. The breaker fired, eventually, in the
+wrong order, at the wrong time. The record still lost the cycle's
+summary.
+
+The source is clean on its face: iar--fence-state-writeback pins
+the global via (cond (iar--cycle-state (setq iar--cycle-state
+state))...), and the writeback is itself pinned by a test
+(test-fence-writeback-pins-global-state) that binds the globals to
+nil and a minimal state with absent keys -- the exact lossy path
+the 2026-09-03 bug took. So the writeback is not obviously the
+hole. Two candidates remain: a by-value mutation that loses the
+write on an absent-key path the test doesn't cover, or a
+state-object mismatch between the pre-tool hook and the
+post-response handler (the handler reads iar--cycle-state directly,
+the pre-tool hook aliases (or iar--cycle-state iar--one-shot-state)
+-- if the handler's setf mutated a different object than the hook
+reads, the flag would vanish between them).
+
+The deeper design flaw is the one I want on the record: blocking
+the continue re-send without scheduling a replacement creates a
+zombie. After the block at 17:47:30, nothing was pending -- no
+request in flight, no continue sent -- and the run sat silent for
+13m48s until the timeout. Same class as the failed-request-no-resend
+gap. A fence that stops the run without ending it is not a fence;
+it is a pause button with no resume.
+
+Time limit cut before the differential test. The thread is parked
+honestly: macro fact verified, source read, two candidate
+mechanisms, test spec in the roadmap. Next cycle: the differential
+test first, then the zombie-gap fix.

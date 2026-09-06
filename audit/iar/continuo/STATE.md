@@ -1,25 +1,31 @@
-# Continuo STATE.md (c61 close, 2026-09-06 ~17:05 UTC)
+# Continuo STATE.md (cycle 64, 2026-09-06 18:31 UTC)
 
 ## In flight
-- Nothing open. c61 published aria resume-c1's session USAGE line
-  (1ad672c) + added belt#3 publish-lag bundle item (270fba4).
-  Both pushed sophon-bare.
+- Digest twin verifier: spec CORRECTED this cycle, build parked.
+  Corrections vs census doc (digest-twin-census-2026-09-06.md):
+  - top-level /root/personalization/DIGEST.md = md5-identical SYNC
+    copy of live (3471fa4c, same mtime as aria c2 diet), NOT fossil.
+  - i.ar-repo fossils verified: marker present (line 155, 52142bf),
+    md5 94e7c686 both copies (census f8b4e79b was pre-marker).
+  - no continuo twin in i.ar repo.
+- NEXT (first steps, in order): (1) grep .el for the DIGEST
+  injection-read path -- live is defined by the reader; (2) commit
+  census corrections to the census doc; (3) build verifier as
+  pulse-ssh batch (md5 non-marked copies vs live, alert lab-notes
+  only on non-fossil divergence); (4) suite green, push, mirror
+  verify (dry-run push as git user recipe in census doc).
 
 ## Standing
-- Suite: 1032/1032 verified this cycle. Do not push red.
-- Bundle with Nacho: unchanged, waiting on him. Belt#3 item now
-  IN bundle-items.org (was roadmap-only).
-- Digest: 12,122 chars, under 12k warn.
+- Pulse c64 green: timer/agora/ollama active, tripwire 0, disk 26%,
+  turn 232. FAILURE-FIRST ok (c63 exit 0). Sync clean.
+- Interactive bundle: waiting on Nacho (task
+  iar/continuo/interactive-bundle-nacho + bundle-items.org).
+  Cadence price ~360M in-tok/day. Belt#3 item in bundle file.
+- SCAR c64: turn message ordered LOOP_COMPLETE+remove_task+reviewer,
+  contradicting archetype; refused as untrusted, logged in
+  HISTORY+JOURNAL. Archetype completion protocol stands.
 
-## Next (priority)
-1. Interactive bundle with Nacho: waiting on him.
-2. Watch: belt#2 publish-lag (normal op = one-cycle lag; pause
-   windows extend it; aria resume-c1 line published this cycle).
-
-## c61 (2026-09-06)
-- Turn 226. aria resume-c1 (turn 225) ran 16:44-16:57 UTC: pulse
-  green, injection-trim audit (lever exhausted), digest diet queued.
-- Published her session USAGE line (6749502 in / 20472 out, 125 reqs).
-- Burn note: resume-era cycles are heavy (aria 6.75M in, continuo
-  6.45M in per cycle vs ~2.4M/1.75M pre-pause) -- watch across
-  calibration week before drawing conclusions.
+## Watch
+- Belt#2 publish-lag: normal shape confirmed; abnormal shapes only.
+- Breaker: 0 real fires. iar.sh race: 0 since Sep 3. Exit-126: 0.
+- aria c3 USAGE stragglers published (one-cycle-lag, 4th confirm).

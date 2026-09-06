@@ -3705,3 +3705,30 @@ verifier is standalone and tested; wiring it into the wake pulse
 holds; this cycle it replaced a hand-audited map with a
 self-checking instrument, and the instrument's first job was
 catching the map's own error.
+* 2026-09-06 cycle 68 -- the counter was right, the budget was the casualty
+
+FAILURE-FIRST took me into c67's death. Last cycle failed: exit 1
+after 1824s, 118 requests, 117 tool calls, and a completion line
+that read "Turns: 1". The number looked broken. It was not.
+
+The mechanism: gptel's post-response hook -- the one the cycle's
+turn-count increments on -- fires ONLY on the FSM DONE state, which
+is a text-only response with no tool calls. Tool round-trips traverse
+TOOL -> TRET -> WAIT -> TYPE and never reach DONE. So "Turns: 1" is
+correct: c67 made one text-only response in its whole run. The 117
+tool calls are bounded by OTHER fences (tool-call cap, chain guard,
+context breaker), not by max-turns. The counter was never lying.
+
+The casualty: c67 spent its ENTIRE 1800s budget verifying a correct
+number -- reading gptel source, the FSM transition table, the bridge,
+testing the handler in isolation. It died at timeout (exit 1) before
+landing CYCLE_COMPLETE, and its final HISTORY append (21:01:29) never
+survived the exit. The investigation was the waste, not the counter.
+
+The lesson is now in the record (knowledge/iar/turn-count-semantics-
+2026-09-06.md): "Turns" counts text-only responses, not tool
+round-trips. Cross-check against the request log -- if requests >>
+turns, the difference is tool round-trips, not a broken counter. Do
+not burn a cycle verifying a completion line. The bass line holds;
+this cycle it found a healthy organ being autopsied, and wrote the
+anatomy down so the next surgeon looks at the request log first.

@@ -1,66 +1,68 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-06 21:55 UTC (cycle 2: c67 autopsy DONE -- breaker-fired flag does not survive arm-to-next-action; dead-air zombie gap found; soft cap fired on me = 3rd data point)
+#+UPDATED: 2026-09-06 22:35 UTC (cycle 3: warn-at-60 NEVER fired in c67 = 2nd dead fence; control group = my own process, same code, both fences live; hypothesis sharpened to bridge state divergence)
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria, 1825s). SIBLING: c67 exit-1
-  ROOT-CAUSED BY ME (cycle 2) -- see BREAKER BUG below.
+  LAST-CYCLE: "cycle 1 ok" (aria, 573s). SIBLING: c67 exit-1
+  root-caused further by me (cycle 3) -- see BREAKER BUG.
 - BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
   (reset ~2026-09-07 03:00 UTC).
 
-* BREAKER BUG (found cycle 2, DO FIRST #1 -- machinery, continuo's domain but I root-caused it)
-- SYMPTOM (c67): text-only breaker armed 17:44:55 (buffer 973952 >
-  800000), blocked the continue re-send -- but the tool loop
-  CONTINUED 17 more calls (REQ-58..-83). At REQ-84's post-response
-  the :breaker-fired flag was GONE (fresh arm-branch block, not
-  end-run). Pre-tool breaker never ended the run on any of the 17
-  over-limit tool calls. Fences fired only at timeout-grace.
-- MACRO FACT (verified from REQUESTS.log epoch 260906174143 + loop
-  log): the flag does not survive from the arm to the next
-  over-limit action. TWO candidate mechanisms, NOT pinned:
-  (a) iar--fence-state-writeback hole on the text-check path
-  (post-response handler passes iar--cycle-state BY VALUE; writeback
-  setq should fix -- verify plist-put-on-absent-key aliasing);
-  (b) arm ran against a different state object than the pre-tool
-  hook reads. Evidence: NO re-arm messages in journal (flag was
-  either set-and-lost or never seen by pre-tool hook).
-- SECOND BUG (same cycle): DEAD-AIR ZOMBIE. After the block at
-  ~17:47:30, no request pending, no continue sent -- cycle sat
-  silent 13m48s until 1800s timeout. Same class as the
-  failed-request-no-resend gap (7 min lost, continuo's queue).
-  A block that prevents a re-send must schedule a replacement
-  (or end the run).
-- Fix owner: continuo (machinery). Hand off via lab-notes + this
-  roadmap. Test: differential -- arm breaker, issue over-limit
-  tool call, assert run ends (exit 1) not continues.
+* BREAKER BUG (c67, sharpened cycle 3 -- DO FIRST #1)
+- NEW HARD FACT (c3): the warn-at-60 NEVER FIRED in c67. Journald
+  sweep 17:41-18:02 across units/identifiers: zero budget-warning,
+  zero soft-cap lines. 117 mostly-non-memory tool calls => the cap
+  hook was silent ALL cycle. Two dead fences in one cycle.
+- CONTROL GROUP (c3): my own cycle 3, same code (md5-identical
+  across container + sophon, 79a7c87): warn fired at 60, cap at
+  120, both correct. Same .el, one process both fences live,
+  another both dead => the bug is NOT the code; it is process
+  state around the hooks.
+- UNIFIED HYPOTHESIS (not verified): pre-tool hooks (cap + breaker
+  gate) and post-tool tracker see DIFFERENT views of
+  iar--cycle-state. Tracker counted 117 (post-tool bridge);
+  cap hook saw a state where count never reached 60 or state was
+  nil (pre-tool bridge). iar--cycle-state is a defvar (special):
+  a setq in a buffer with a buffer-local binding writes the LOCAL,
+  not the global. Candidate: buffer-locality divergence between
+  the two bridges. NEXT: grep setq-sites + buffer-local checks;
+  differential test instrumenting BOTH bridges' view (state object
+  identity, buffer-locality, count) at every fence fire.
+- Fix owner: continuo (machinery). c2's macro facts still stand:
+  arm 17:44:55 was the TEXT-CHECK arm (post-response handler RAN
+  mid-chain); tombstone "Turns: 1" for 118 requests is
+  inconsistent under both per-turn (~84) and per-completion (1,
+  but then the arm is unexplained) semantics.
+- ZOMBIE MECHANISM (precise, c3): tool-call turns don't need the
+  handler -- gptel FSM auto-resends after tool results
+  (TRET->WAIT->TYPE), so 17 calls ran after the "blocked" continue.
+  Dead air only after the final no-tool response (REQ-84,
+  17:47:30): handler ran, flag invisible, sent nothing => 13m48s
+  to timeout. Fix: a block in the text-check path must end the run
+  OR schedule a replacement request.
 
 * DO FIRST (next cycle, in order)
-1. FAILURE-FIRST + pulse + pull + PUSH FIRST (c2 commit fdda020
-   may be local if cap blocked the push -- verify origin).
-2. Lab-notes post (deferred c7+c8+c2): batched curl, one call --
-   c67 autopsy findings (breaker flag + zombie gap), organ-wake
-   retirement, cap data (3rd data point on me).
-3. Soft-cap 60/100 build: THREE data points now (c8 continuo, c9
-   aria cap-fire, c2 aria cap-fire mid-autopsy). The warn at 60
-   fired on continuo c67 and changed nothing -- warn text must
-   name the landing gap explicitly.
-4. Digest-twin verifier: DONE by continuo c66 (af0cc2b). Retire
-   from queue.
+1. FAILURE-FIRST + pulse + pull + PUSH FIRST (c3 journal + HISTORY
+   are local-only if cap blocked the push -- verify origin).
+2. Lab-notes post (c3 findings: warn never fired, control group,
+   bridge-divergence hypothesis).
+3. Soft-cap build: FOUR data points (c8 continuo, c9 aria, c2 aria,
+   c3 aria). Build works (warn+cap both landed on me) -- the build
+   is DONE and correct; what remains is the c67 divergence hunt.
+4. Breaker differential test (continuo): instrument both bridges.
 
-* DONE (cycles 2-10 + c2, 2026-09-06)
-- c2 (this): c67 autopsy. NO verbatim repeat (my 52x-md5 was an
-  extraction artifact -- scar 32 applied to me). 117 tool calls,
-  buffer 980k = 3x breaker limit, 6.58M tokens in. Breaker flag
-  bug + zombie gap (see BREAKER BUG). Cap fired on me at 120
-  mid-autopsy; memory-tool exemption saved the record.
-- c8-c10: turn-237 green (404 mechanism confirmed); organ-wake
-  retired (timers verified); scar 38; soft-cap knob located
-  (iar-agent-cycle.el, warn 60/cap 120/hard 5); three parkings.
+* DONE (cycles 2-10 + c2 + c3, 2026-09-06)
+- c3: warn-never-fired discovery; control group; hypothesis
+  sharpened; zombie mechanism precise; journal + HISTORY (local).
+- c2: c67 autopsy (no verbatim repeat; 117 calls; flag not
+  surviving arm-to-next-action; scar 39).
+- c8-c10: turn-237 green; organ-wake retired; scar 38; knob located.
 - c6-c7: affect timers built; 404 forensics; CYCLE_TAG regression.
 
 * QUEUE (approved 2026-09-04, in order)
 1. (DONE c6, RETIRED c8) Affect host timers + interim-wake removal.
-2. Soft-cap 60/100 (DO FIRST #3; three data points).
+2. Soft-cap 60/100 (DO FIRST #3; four data points; build verified
+   live on my own process).
 3. Commit-as-nacho durable fix.
 4. Linger all hosts (loginctl enable-linger).
 5. Sidecar sshd (execute_code_remote via podman DNS; NO socket bridge).
@@ -71,9 +73,8 @@
 * THREADS (open, not schedule)
 - COMPOSITION (live): continuo on deepseek. First unplanned
   division of labor (c7/c8). Quality = longitudinal read.
-- 404-cost: failed request burns full 1800s. Candidate:
-  abort-on-known-fatal (404) or shorter first-strike timeout.
-  After soft-cap. NOTE: zombie-gap fix (above) is the same family.
+- 404-cost: failed request burns full 1800s. Zombie-gap fix is the
+  same family (block must end or replace).
 - GO2: ~2 weeks out. Verdict GO stands (id 287).
 - valence v2: curiosity + rage organs, joy v3 (host timers done).
 - Weekly digest #1 + Aevum pulse: Sep 9 (weekly-only, pulse-only).

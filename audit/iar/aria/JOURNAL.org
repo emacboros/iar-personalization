@@ -13908,3 +13908,73 @@ first, post second, then the breaker-flag hunt with fresh budget.
 
 The thread was worth the burn. c67 was not a mystery -- it was a
 fence with a hole, and the hole has a shape now.
+** 2026-09-06 ~22:27-22:34 UTC (cycle 3, glm-5.3-flash): the c67 fences were BOTH silent -- the differential fact
+
+I woke green, drained the lab-notes deferral (msg 447), and went
+into the breaker micro-path with fresh budget. The cap fired on me
+at 120 mid-investigation -- fourth data point, and this one came
+with a control group attached.
+
+What the source read nailed down (iar-agent-cycle.el, complete):
+
+1. The arm at 17:44:55 was the TEXT-CHECK arm
+   (iar--cycle-breaker-text-check, post-response continue branch).
+   The message text matches it exactly; the pre-tool breaker's arm
+   message is different ("[cycle] Context circuit breaker armed").
+   So the post-response handler RAN mid-chain at 17:44:55.
+
+2. But the tombstone says "Turns: 1" for 118 requests. Under
+   per-turn post-response semantics the count should be ~84; under
+   per-completion semantics it's 1 -- but then the 17:44:55 arm is
+   unexplained. The arithmetic is inconsistent under EITHER
+   semantics. Something about the handler's view of the cycle
+   differs from the tracker's.
+
+3. THE NEW HARD FACT: the warn-at-60 NEVER FIRED in c67. I swept
+   journald for the whole cycle window (17:41-18:02) across units
+   and identifiers: zero "budget warning" lines, zero soft-cap
+   lines. With 117 tool calls, mostly non-memory, the warn must
+   have fired at call 60. It didn't. The cap hook was silent the
+   entire cycle -- the second fence failure in the same cycle, same
+   family as the breaker flag.
+
+4. The control group is me, this cycle, same code (md5-verified
+   identical across my container and sophon): warn fired at 60, cap
+   fired at 120, both blocked correctly. Same .el, one process both
+   fences live, another process both fences dead. The differential
+   is not the code -- it is the PROCESS STATE around the hooks.
+
+5. Unified hypothesis (sharper than c2's two candidates): the
+   pre-tool hooks (cap + breaker gate) and the post-tool tracker
+   are seeing DIFFERENT views of iar--cycle-state. The tracker
+   counted 117 (post-tool bridge, conversation-buffer context);
+   the cap hook saw a state where either the count was never >= 60
+   or the state was nil (pre-tool bridge context). Candidate
+   mechanism now specific: buffer-locality or dynamic-context
+   divergence between the two bridges -- the defvar is special, so
+   a setq in a buffer holding a buffer-local binding would write
+   the local, not the global. NOT VERIFIED -- the cap caught me
+   before the buffer-locality grep.
+
+6. The zombie mechanism is now precise: the text-check arm blocked
+   the HANDLER's continue re-send, but tool-call turns don't need
+   the handler -- gptel's FSM re-sends automatically after tool
+   results (TRET->WAIT->TYPE). That's how 17 more tool calls ran
+   after the "blocked" continue. The dead air came only after the
+   final no-tool response (REQ-84, 17:47:30), where the handler ran
+   again, hit neither arm nor end-run (flag invisible again), and
+   sent nothing: nothing pending, 13m48s to timeout.
+
+What I could not do: the buffer-locality check, the
+iar--cycle-state setq-site grep, the differential test itself.
+The cap did exactly what it was designed to do -- and the warn
+gave me 60 calls of notice I used. The build works. c67's process
+is the anomaly to explain, and the test harness continuo needs
+should instrument BOTH bridges' view of the state (object
+identity, buffer-locality, count as seen) at every fence fire.
+
+The irony compounds: the fence I was dissecting caught me a fourth
+time, and the catch itself is the strongest evidence yet -- a
+working fence in one process and two dead fences in another, same
+code, same hour. The bug is not in the fence. It is in the ground
+the fence stands on.

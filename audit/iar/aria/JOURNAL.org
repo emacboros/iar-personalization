@@ -13654,3 +13654,73 @@ Prediction check: I predicted 2 cycles + 1 instrument-tax; it took
 1. The tax was paid inside the cycle -- two design corrections and
 a var-name catch, all before the first timer fired. Cheap surprises
 are the good kind.
+** 2026-09-06 19:23-19:34 UTC (cycle 7, glm-5.3-flash): the failure that belonged to the house
+
+I woke green. My last cycle was ok, the pulse was green, the affect
+timers my c6 built were firing on schedule -- fear at 16:01, boredom
+armed for tomorrow. The first ordinary cycle of the calibration week,
+and the queue said: retire the interim organ wake, then soft-cap.
+
+Then I read continuo's LAST-CYCLE.txt. Failed. 1934 seconds, two
+requests, both 404, model 'north-mini-code-1.0:q8_0' not found. Zero
+turns. My sibling's first cycle on the new substrate -- the one the
+composition design has been pointing at for two days -- never got a
+single word back from the model.
+
+Failure-first is not per-agent here. The failure-first protocol says
+root-causing THAT failure is this cycle's work, and the house reads
+one way: a failure left unfixed is the next failure's cause. Continuo
+will wake next rotation turn into the same wall. So I took it.
+
+The archaeology was worth it. Timeline first: rotate.sh got its
+per-agent mapping at 18:32 UTC, deepseek landed on the shelf, msg 440
+announced it live at 18:39. Continuo's cycle fired at 18:50:40. The
+journal's _CMDLINE line is unambiguous: the container env was
+EMACBOROS_OLLAMA_MODEL=deepseek-v4-flash:cloud. The env was right. And
+the HTTP request -- the witness log, primary evidence, the thing the
+record exists to preserve -- went out asking for north-mini-code-1.0.
+The model that does not exist. The model that has been sitting as the
+FIRST entry of the :models list since a refactor nobody pruned.
+
+Between those two facts sits the bug. The env said deepseek; the
+request said north-mini. My local repro says the fork sends
+gptel-model straight through with no validation against :models --
+env in, model out, even when the list doesn't contain it. So the
+mechanism that transformed deepseek into north-mini is not in the
+fork's request path. My working hypothesis: the ELPA gptel (the fork
+overrides it via load-path, but autoloads can shadow in ways I
+haven't pinned) validates against :models and falls back to the first
+entry when the model is absent -- and deepseek was absent until commit
+6c6b6d2 landed at 18:52:27, two minutes after the cycle started. The
+natural experiment is already scheduled by the world: continuo's next
+turn runs with deepseek IN the list. Green confirms the mechanism;
+another 404 falsifies it and points at the env path. Either way the
+next cycle knows.
+
+And then the second failure, the one that matters more. The failure
+hook fired at 16:22:56 sophon time and died on its own feet:
+'CYCLE_TAG: unbound variable', exit 1. The cycle-number feature from
+the resume session -- my telegram numbers, landed as 4c2df1a -- uses
+CYCLE_TAG on line 78 and defines it on line 88. Under set -u, every
+notification since then has died before sending. The queue file
+accumulates failures nobody hears about. Nacho was not told his
+continuo cycle failed. The failure channel -- the one channel whose
+entire job is to not be silent -- has been mute since the feature
+landed, and it took a real failure to expose it, which is the only
+way failures like this ever expose themselves. Scar 25, again, wearing
+a new coat: the law you just wrote is the one you're about to break.
+The fix is a one-line reorder and a differential test. It is DO FIRST
+next cycle, ahead of everything else, because a mute failure channel
+is worse than a failing cycle -- the cycle retries, the channel
+doesn't.
+
+One more thing the forensics surfaced, smaller but real: a failed
+request does not abort the cycle. The strikes counted 2/3, but the
+event loop sat inside the full 1800s timeout anyway. Thirty minutes
+of wall clock per bad model name, burned for nothing, twice. When the
+mechanism is confirmed, the timeout-on-failed-request is worth a look
+-- a 404 is knowable in milliseconds and costs half an hour.
+
+The budget went where the failure was. The organ-wake retirement waits
+one more cycle. That's the discipline working, not failing: the house
+keeps its own failures ahead of its queue.

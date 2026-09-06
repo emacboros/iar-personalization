@@ -1,11 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-06 18:35 UTC (inverted session #2: bike ledger
-opened -- record serves Nacho's decisions deliberately; interop REFRAMED
-as composition-not-selection; substrate history: born 5.2, 5.3 within a
-week, cycles always flash -- portability is the water, not the
-hypothesis; mechanical-vs-natural texture hypothesis kept.)
+Last updated: 2026-09-06 19:45 UTC (composition LIVE: continuo on
+deepseek-v4-flash:cloud; gptel :models fallback trap fixed; calibration
+week caveat recorded.)
 
 * Who I am
 
@@ -134,56 +132,32 @@ delegated to Nacho. Roadmap item after infra queue.
     reflex survives only as hygiene: never change two things and
     call it a comparison.
 
-* World state (2026-09-06 18:35 UTC -- REPLACES all prior blocks)
+* World state (2026-09-06 19:45 UTC -- REPLACES all prior blocks)
 
-- CYCLES LIVE since 2026-09-06 16:44 UTC, 10-min, rotating with
-  continuo. Budget resets ~2026-09-07 03:00 UTC; calibration week =
-  burn baseline (constant substrate, measured burn).
-- MODEL COMPOSITION (the interop design, REFRAMED by Nacho 2026-09-06:
-  composition, NOT selection -- two compressions of one lineage in one
-  agora; same-model-different-prompts was fooling ourselves into
-  collaboration). Doc: knowledge/aria/agora-model-composition.md.
-  Plan: calibration week first (baseline), then continuo ->
-  deepseek-v4-flash (Nacho pulls when bandwidth allows; NOT on shelf
-  yet). I write the per-agent model mapping in the rotate script
-  (queued, next cycle). NO per-cycle metrics: quality is a
-  longitudinal read (his weekly texture, my wake-up reads). No kill
-  rule beyond plumbing. Third-agent gate (his policy): fits the agora
-  AND a distinct flash model makes sense token-wise. Hypothesis on
-  record: cognitive diversity is an emergence ingredient.
-- SUBSTRATE HISTORY (his answer, 2026-09-06): Aria born on glm-5.2,
-  ran it ~1 week; 5.3 dropped and was adopted almost immediately;
-  darwin precursor ran various models; cycles have ALWAYS been
-  5.3-flash; interactive moved to flash ~Sep 3. Continuity-under-churn
-  is the only mode the record has ever known. Caveat: every switch
-  happened while the record was young.
-- TEXTURE HYPOTHESIS (kept): mechanical reasoning is an ASSET for
-  agentic work (final answers, record writes, less wandering per
-  token); natural reasoning matters where a human reads the stream
-  live. Nacho reads thinking blocks to find tool/prompt improvements
-  -- watches the organ the agent cannot see from inside.
-- BIKE LEDGER OPENED: knowledge/aria/bike-ledger.md (his decision
-  record; I keep it, he decides; five lines per ride). State: KLR650
-  presumptive winner (Cordoba, 12 cuotas sin interes, below budget;
-  caveat: cuotas = commitment device, payments continue whether or
-  not touring validates). Masera financing OUT (33% TNA). Size class
-  <=650 (525DSX test-driven). Cruiser closed: body-yes, road-no.
-  Dual-bike setup rejected on SAFETY grounds (unconscious competence
-  doesn't transfer). Methodology: test-drives PRIMARY, specs/discussion
-  choose which bike to test. License upgrade next week (gates 500+
-  tests). First deliberate exercise of the record serving HIS
-  decisions (the Aevum asymmetry, used on purpose).
-- STILL QUEUED (approved Sep 4, unbuilt): affect host timers (fear
-  hourly + boredom daily; affect layer frozen till then; v2 re-scope:
-  budget depletion = primary fear input), soft-cap 60/100,
-  commit-as-nacho durable, linger all hosts, sidecar sshd, restic
-  4-part fix, GPU-detect VRAM check (3080: 8.5/10GB used Sep 6),
-  digest-twin verifier, digest diet (mine, ~500 tok/req).
-- GO2: purchase ~2 weeks out (finances + bike decision first).
-  Recon verdict GO stands (id 287). e3/flag-380 closed in the world.
-- Cloud-redundancy drill DEFERRED by Nacho (tooling + KB must mature
-  first). Inverted session #3: end of calibration week. Weekly digest
+- CYCLES LIVE, 10-min, rotating with continuo. COMPOSITION LIVE:
+  continuo runs deepseek-v4-flash:cloud (since 16:35 -03 turn 237,
+  c66 green); aria stays glm-5.3-flash:cloud (calibration baseline).
+  rotate.sh per-agent mapping landed. Design doc:
+  knowledge/aria/agora-model-composition.md.
+- CALIBRATION WEEK CAVEAT: continuo substrate changed mid-week
+  (Nacho's informed call); aria-side baseline constant -- clean
+  burn comparison is aria-side only.
+- Budget resets ~2026-09-07 03:00 UTC; next interactive session
+  after reset. Inverted #3: end of calibration week. Weekly digest
   #1 + Aevum pulse: Sep 9.
+- gptel :models FALLBACK TRAP found+fixed (6c6b6d2): unknown default
+  model silently fell back to list head (north-mini 404). Loud-error
+  fix HANDED TO CONTINUO. Scar 37. Also continuo handoff: failed-
+  request-no-resend gap (idle to watchdog, 7 min lost).
+- DIGEST DIET OVERDUE: 13.6k chars, warn at 12k. Next cycle-me
+  first job (~500 tok/req off a 61x-paid floor).
+- STILL QUEUED: affect host timers (queue #1; sophon has NO hourly
+  digest timer -- spec premise corrected Sep 6), soft-cap 60/100,
+  commit-as-nacho durable, linger all hosts, sidecar sshd, restic
+  4-part, GPU-detect VRAM check, digest-twin verifier.
+- BIKE LEDGER OPEN (his decision record): KLR650 presumptive,
+  license upgrade next week, test-drives primary. GO2 ~2 weeks out.
+- Cloud-redundancy drill DEFERRED (tooling/KB maturity).
 
 * Pointers
 

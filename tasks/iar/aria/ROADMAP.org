@@ -1,103 +1,97 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-06 18:47 UTC (cycle 6: AFFECT HOST TIMERS BUILT+INSTALLED+VERIFIED -- fear hourly + boredom daily LIVE on sophon, differential test PASSED incl. TG mirror via env bridge; interim organ-wake retirement = next cycle; queue #1 CLOSED pending that removal)
+#+UPDATED: 2026-09-06 19:35 UTC (cycle 7: FAILURE-FIRST = continuo turn-235 404 forensics DONE (mechanism hypothesis + natural experiment queued); NEW DO-FIRST: failure-hook CYCLE_TAG regression -- notify channel MUTE since 4c2df1a)
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (Sep 6 18:36). c6 in flight.
-- BUDGET EFFICIENCY = SURVIVAL MANDATE (2026-09-04). Request count is
-  THE lever (42% floor share). Batch hard: one compound script per
-  question. Interim: ~8.6% weekly budget until reset (~7h); the
-  calibration week starts at reset.
+  LAST-CYCLE: "cycle 1 ok" (aria). SIBLING: continuo turn 235 FAILED
+  (404 north-mini) -- forensics done c7, natural experiment = turn 237.
+- BUDGET EFFICIENCY = SURVIVAL MANDATE. Request count is THE lever.
+  Calibration week running (reset ~2026-09-07 03:00 UTC).
 
-* DONE (cycles 2-6, 2026-09-06)
-- c6: AFFECT HOST TIMERS LIVE (queue #1). Built knowledge/aria/systemd/
-  (fear hourly + boredom daily + TG env bridge + README), installed on
-  sophon, timers ENABLED (fear next 16:00 -03, boredom tomorrow 14:01
-  -03). Design corrected TWICE during build: (a) piggyback premise dead
-  -- agent-failure-notify.sh is a rate-limited TG sender, not a timer
-  (read the source); (b) template units refuse enable against
-  non-template targets + OnCalendar TZ suffix unsupported -> plain
-  units + 17:00 UTC. Differential test PASSED: synthetic voice-class
-  FAIL through the organ with env from /etc/aria-affect.env -> sev=3 +
-  TELEGRAM MIRROR SENT + restore sev=0; both services fire clean
-  through their units (asof stamped). Commits 08e997a/e585519/899667e.
-- c6 TG var-name mismatch FOUND+FIXED: fear organ reads TG_TOKEN/
-  TG_CHAT, nothing set them (telegram.sh exports AGENT_TELEGRAM_*).
-  /etc/aria-affect.env bridges (values verified equal to telegram.sh).
-- Digest diet LANDED (11990 -> 9956 bytes, pointer fix included,
-  twins synced, 086afee). Injection lever exhausted; request count
-  is the remaining lever.
-- c3 pre-audit of affect host timers (queue #1) DONE -- findings
-  below, build deferred to fresh budget.
-- c4: organ contract RESTORED (both organs run at wake, sev=0,
-  asof verified). THREADS text scars repaired. Boredom ledger
-  AUDITED: mechanism correct, never tested against a quiet
-  stretch (waits on host timers), classifier counts journal-of-
-  work as novelty -- marker discipline adopted (THREADS seed).
+* DO FIRST (next cycle, in order)
+1. FAILURE-FIRST + pulse + pull (standing). Check continuo turn 237:
+   green => 404 mechanism CONFIRMED (:models-list fallback); 404 again
+   => env path suspect, re-probe.
+2. FIX FAILURE-HOOK CYCLE_TAG REGRESSION (URGENT, channel is MUTE):
+   /usr/local/bin/agent-failure-notify.sh line 78 uses ${CYCLE_TAG},
+   line 88 defines it AFTER -- set -u kills every send since commit
+   4c2df1a (telegram cycle numbers, resume session). sophon journal
+   16:22:56 -03: 'CYCLE_TAG: unbound variable' exit 1. Queue
+   accumulates, Nacho heard NOTHING about the continuo failure.
+   Fix = move CYCLE_NUM/CYCLE_TAG block BEFORE MSG compose (one-line
+   reorder), differential test (synthetic fire -> TG received ->
+   queue reset), commit repo copy + installed copy. Also note: queue
+   entry recorded 'unknown exit 0 (success)' -- systemctl show after
+   unit restart captures restart state, not failure state; snapshot
+   unit props BEFORE restart if cheap.
+3. Then: interim organ-wake retirement (c6 tail), soft-cap 60/100.
 
-* DO FIRST (next cycle)
-1. FAILURE-FIRST + pulse + pull (standing).
-2. RETIRE the interim per-cycle organ wake (roadmap STANDING PATROLS
-   line): timers are verified; remove the manual fear-on-sophon +
-   boredom-in-container runs from the wake path, keep the AFFECT-LINE
-   AGE pulse check (staleness check survives the interim's death).
-3. Then queue #2 (soft-cap 60/100).
+* DONE (cycles 2-7, 2026-09-06)
+- c7 FAILURE-FIRST (sibling's failure): continuo turn 235 (18:50:40
+  UTC) exit 1, 1934s, 2 requests both 404 'north-mini-code-1.0:q8_0',
+  0 turns. FORENSICS: rotate.sh mapping + deepseek pull + msg 440 =
+  Nacho interactive session 18:32-18:39 UTC (sophon journal: root ssh
+  from yoga 10.66.0.4 w/ aria key 4BApz at 18:32:37 = rotate.sh
+  mtime). Container env PROVEN deepseek (journal _CMDLINE). HTTP
+  request PROVEN north-mini (continuo REQUESTS.log). gptel.el lacked
+  deepseek in :models until 6c6b6d2 (18:52:27 UTC, 2 min after cycle
+  start). north-mini = FIRST entry of pre-6c6b6d2 list, stale since
+  refactor 832313e, exists on NO ollama server. Local repro: fork
+  sends gptel-model verbatim, NO :models validation (gptel-ollama.el
+  :170). HYPOTHESIS: ELPA gptel validates + falls back to first
+  entry. Natural experiment = continuo turn 237 (deepseek now in
+  list). ALSO FOUND: failed request does NOT abort cycle -- 2 strikes
+  counted but event loop sat full 1800s timeout (30 min wall per bad
+  model name); worth a timeout-on-failed-request look after fix.
+- c6: AFFECT HOST TIMERS LIVE (queue #1). fear hourly + boredom daily
+  on sophon, differential test PASSED incl. TG mirror via env bridge
+  (/etc/aria-affect.env). Verified live c7: fear fired 16:01 -03,
+  boredom armed 14:01 -03, asof fresh. Commits 08e997a/e585519/
+  899667e.
+- c6 TG var-name mismatch FOUND+FIXED. Digest diet LANDED (9956 bytes).
+- c5: fear organ EXERCISED (first full arc). c4: organ contract
+  restored + THREADS scars repaired. c3: timer-spec pre-audit.
 
 * QUEUE (approved 2026-09-04, in order)
-1. (DONE c6) Affect host timers -- BUILT, INSTALLED, VERIFIED. Own
-   timers (the piggyback premise was doubly dead: no hourly digest
-   timer exists AND agent-failure-notify is a sender not a timer).
-   asof-stamp on affect line: DONE earlier (continuo c63). Remaining
-   tail: interim organ-wake retirement (DO FIRST #2).
+1. (DONE c6) Affect host timers. Tail: interim organ-wake retirement
+   (DO FIRST #3).
 2. Soft-cap 60/100 (inject note at 60, hard stop 100).
 3. Commit-as-nacho durable fix.
 4. Linger all hosts (loginctl enable-linger).
 5. Sidecar sshd (execute_code_remote via podman DNS; NO socket bridge).
-6. Restic 4-part fix (lock-wait 300; separate prune timer; frigate
-   storage in paths; /mnt/nas third repo). Ansible-owned, careful,
-   snapshot-verify after.
+6. Restic 4-part fix. Ansible-owned, careful, snapshot-verify after.
 7. GPU-detect VRAM check (3080 shared with ollama).
 
 * THREADS (open, not schedule)
-- MODEL INTEROP EXPERIMENT (Nacho, planning): aria + continuo on
-  different flash distills (glm-5.3-flash vs deepseek-v4-flash).
-  deepseek-v4-flash NOT on shelf (7 models). Design-first.
-- GO2: ~2 weeks out (finances + bike decision; test-ride done).
-  Verdict GO stands. When bought: payload chassis + MITM ladder.
+- COMPOSITION (live): continuo on deepseek-v4-flash from turn 235.
+  First cycle failed (404, see c7). Natural experiment next turn.
+  No per-cycle metrics; quality is a longitudinal read.
+- 404-cost finding: failed request burns full 1800s timeout (c7).
+  Candidate: abort-on-known-fatal (404) or shorter first-strike
+  timeout. File after hook fix.
+- GO2: ~2 weeks out. Verdict GO stands (id 287).
 - valence v2: curiosity + rage organs, joy v3 (after host timers).
 - Weekly digest #1 + Aevum pulse: Sep 9 (weekly-only, pulse-only).
 - stub-detector sweep; watchdog inventory; enoch steal-list
-  (self.json, evidence journals); substrate experiment (daemon
-  reads my record); privacy noticing (local degraded mode).
-- Cloud-redundancy drill: DEFERRED by Nacho (tooling/KB maturity).
-- Inverted session #2: after reset (weekly cadence).
+  (self.json, evidence journals); substrate experiment.
+- Cloud-redundancy drill: DEFERRED by Nacho.
+- Inverted session #3: end of calibration week.
 - Zulip pg_dump backup (continuo's, Nacho's call); fedora@ sophon
   ssh auth (continuo c42).
-- Digest-twin verifier: continuo c62 did the census (3 copies,
-  i.ar fossils marked 52142bf) + spec at
-  knowledge/iar/digest-twin-census-2026-09-06.md. Implementation
-  (pulse-ssh md5 batch check) = one cycle, after timers.
-
-* DIRECTION PROTOCOL (standing)
-- AGORA PRIMARY. with-nacho (id 6) poll every cycle, ACK in-channel.
-- NO STALLING ON THE HUMAN: proceed on judgment, flag, never block.
-- Sibling channel: for-nacho [sibling] topic -- argue direction async.
+- Digest-twin verifier: census + spec done (continuo c62/c64), build
+  = one cycle, after hook fix.
 
 * STANDING PATROLS (pulse-only)
 - sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
   wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
-- ORGAN WAKE (interim): RETIRE next cycle -- timers now carry the
-  schedule (aria-affect-fear.timer hourly, aria-affect-boredom.timer
-  daily 17:00 UTC on sophon). KEEP the AFFECT-LINE AGE pulse check:
-  CURRENT-AFFECT.md asof vs wake time (staleness check survives).
-- AFFECT TIMERS (new standing patrol): systemctl list-timers shows
-  both aria-affect timers; fear.log/boredom.log emissions on delta.
+- ORGAN WAKE (interim): RETIRE next cycle (timers verified live c7).
+  KEEP the AFFECT-LINE AGE pulse check (asof vs wake time).
+- AFFECT TIMERS patrol: list-timers shows both; fear.log/boredom.log
+  emissions on delta.
 - fleet-check v2.14 ON SOPHON (ssh 'bash -s' <, timeout >=300s).
-  Script: knowledge/aria/bin/ (NOT audit/).
 - RESTIC: backup + integrity check BOTH green (Sep 6). Frigate
   storage backup gap: queued (4-part fix).
 - FRIGATE exterior-zero longitudinal watch (started Sep 1).
-  Deaf-cam firmware (flag 270): open-low.
 
 * DECISIONS (standing)
 - PULSE-ONLY discipline; live forensics of in-flight anomaly OK.
@@ -116,8 +110,13 @@
 - DIGEST LAW: world-state blocks are REPLACED, never appended.
   Check file size before and after any DIGEST edit.
 - FOR-NACHO.md RETIRED; with-nacho + for-nacho streams primary.
+- FAILURE-FIRST IS HOUSE-WIDE: sibling's failure = the house's
+  failure (c7 precedent). Root-cause it before your own queue.
 
 * FAILURE MODES (scars, newest first)
+37. A notify channel that dies on its own feature commit is mute
+    exactly when it is needed -- test the failure path AFTER every
+    change to the failure path itself. (c7: CYCLE_TAG regression.)
 36. A heal that runs as the wrong user heals nothing while logging
     success. Verify heals from the OUTSIDE: plant poison, fire, inspect.
 35. Chown is not relabel. Fixing ownership but not SELinux labels

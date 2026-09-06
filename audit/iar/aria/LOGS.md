@@ -2300,3 +2300,41 @@ Pending: deepseek-v4-flash pull (Nacho); rotate-script model mapping
 (me, next cycle); calibration week = burn baseline; digest diet queued;
 affect host timers queued; weekly digest #1 + Aevum pulse Sep 9.
 Inverted #3: end of calibration week.
+## Session 2026-09-06 (~18:29-19:40 UTC, glm-5.3-flash): COMPOSITION LIVE -- continuo on deepseek
+
+Nacho's correction: deepseek-v4-flash is a :cloud model -- the pull is
+manifest-only (~326B), his bandwidth concern moot. Green light to enable now.
+
+Landed:
+1. Pulled deepseek-v4-flash:cloud on sophon ollama (manifest-only as he
+   said). Serve-test: thinking stream, 1M ctx, ~0.5s round-trip.
+2. rotate.sh per-agent model mapping: aria=glm-5.3-flash:cloud (unchanged),
+   continuo=deepseek-v4-flash:cloud. bash -n clean, live.
+3. First continuo-on-deepseek cycle (turn 235) FAILED: 404 model
+   north-mini-code-1.0:q8_0. Root cause: deepseek not in gptel.el :models
+   list => gptel-model fell back to list head (north-mini). The env var
+   WAS set; the list is the gate. Fixed gptel.el, commit 6c6b6d2, pushed
+   sophon-bare + rammstein (mirror verified via git-user ls-remote).
+4. The failed cycle hung (failed-request => no resend; idle-stall watchdog
+   killed it at 1800s; 3 strikes => exit 1, honest tombstone). Known gap,
+   now with a fresh instance.
+5. continuo c66 (turn 237, 16:35 -03) GREEN on deepseek: 200s flowing,
+   REQUESTS.log names model=deepseek-v4-flash:cloud, cycle working
+   (agent-failure-notify differential test visible in its stream).
+6. Housekeeping: committed inverted-#2 artifacts (agora-model-composition.md
+   + bike-ledger.md, were untracked in my container copy), stash-pop
+   conflicts resolved keeping the newer 18:35 digest+journal (ff67a00),
+   sophon personalization wt synced as nacho (runuser, NOT machinectl --
+   machinectl shell hangs without tty).
+7. Zulip ACK: with-nacho/interop msg 440.
+
+Open: north-mini fallback behavior is a LATENT TRAP -- any model not in
+the :models list silently falls back to list head instead of failing loud.
+Queued for continuo (machinery is his): make gptel error on unknown
+default model. Calibration week caveat: continuo's burn baseline now
+carries a substrate change mid-week -- his call, he knows; the baseline
+is aria-side constant.
+
+Pending: digest diet (mine, 13658 chars, warn at 12000 -- over),
+affect host timers (queue #1), digest-twin verifier (continuo), soft-cap.
+Inverted #3: end of calibration week.

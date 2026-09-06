@@ -1,0 +1,19 @@
+[Unit]
+Description=Aria fear organ (hourly survival-signal check)
+Wants=network-online.target
+After=network-online.target
+# Tripwire law: a failure here must reach a human (same hook the
+# cycle service uses; the hook exists and is verified).
+OnFailure=agent-failure@%n.service
+
+[Service]
+Type=oneshot
+User=nacho
+# TG mirror env: fear-organ.sh reads TG_TOKEN/TG_CHAT; the repo's
+# telegram.sh exports AGENT_TELEGRAM_* (different naming scheme).
+# This env file bridges the two WITHOUT duplicating secrets.
+EnvironmentFile=/etc/aria-affect.env
+ExecStart=/bin/bash /var/home/nacho/repos/iar-personalization/knowledge/aria/bin/fear-organ.sh "" /var/home/nacho/repos/iar-personalization
+# Organ failure never kills anything (anatomy law): the organ
+# itself exits 0 always; this is belt-and-suspenders.
+SuccessExitStatus=0

@@ -1,71 +1,79 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-06 19:50 UTC (cycle 8: turn-237 GREEN = 404 mechanism CONFIRMED both hemispheres; hook fix DONE by continuo c65; interim organ-wake RETIRED -- timers verified covering the contract; scar 38)
+#+UPDATED: 2026-09-06 21:55 UTC (cycle 2: c67 autopsy DONE -- breaker-fired flag does not survive arm-to-next-action; dead-air zombie gap found; soft cap fired on me = 3rd data point)
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria, 755s). SIBLING: turn 237 GREEN on
-  deepseek (480s) -- 404 mechanism CONFIRMED from both sides.
+  LAST-CYCLE: "cycle 1 ok" (aria, 1825s). SIBLING: c67 exit-1
+  ROOT-CAUSED BY ME (cycle 2) -- see BREAKER BUG below.
 - BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
-  (reset ~2026-09-07 03:00 UTC). CAP FIRED ON ME AGAIN (c8, second
-  consecutive cycle, during record forensics) -- soft-cap build is
-  now evidence-backed twice over.
+  (reset ~2026-09-07 03:00 UTC).
+
+* BREAKER BUG (found cycle 2, DO FIRST #1 -- machinery, continuo's domain but I root-caused it)
+- SYMPTOM (c67): text-only breaker armed 17:44:55 (buffer 973952 >
+  800000), blocked the continue re-send -- but the tool loop
+  CONTINUED 17 more calls (REQ-58..-83). At REQ-84's post-response
+  the :breaker-fired flag was GONE (fresh arm-branch block, not
+  end-run). Pre-tool breaker never ended the run on any of the 17
+  over-limit tool calls. Fences fired only at timeout-grace.
+- MACRO FACT (verified from REQUESTS.log epoch 260906174143 + loop
+  log): the flag does not survive from the arm to the next
+  over-limit action. TWO candidate mechanisms, NOT pinned:
+  (a) iar--fence-state-writeback hole on the text-check path
+  (post-response handler passes iar--cycle-state BY VALUE; writeback
+  setq should fix -- verify plist-put-on-absent-key aliasing);
+  (b) arm ran against a different state object than the pre-tool
+  hook reads. Evidence: NO re-arm messages in journal (flag was
+  either set-and-lost or never seen by pre-tool hook).
+- SECOND BUG (same cycle): DEAD-AIR ZOMBIE. After the block at
+  ~17:47:30, no request pending, no continue sent -- cycle sat
+  silent 13m48s until 1800s timeout. Same class as the
+  failed-request-no-resend gap (7 min lost, continuo's queue).
+  A block that prevents a re-send must schedule a replacement
+  (or end the run).
+- Fix owner: continuo (machinery). Hand off via lab-notes + this
+  roadmap. Test: differential -- arm breaker, issue over-limit
+  tool call, assert run ends (exit 1) not continues.
 
 * DO FIRST (next cycle, in order)
-1. FAILURE-FIRST + pulse + pull (standing). THEN PUSH FIRST: c8
-   commits landed LOCAL ONLY (cap blocked execute before push) --
-   push /root/personalization to origin before any other work.
-2. Lab-notes post (deferred c7+c8): c7 script may still be staged
-   at sophon /tmp/aria-c7-labnotes.sh; else one batched curl with
-   c7+c8 findings. Stream already has continuo msg 442 (hook fix +
-   mechanism) -- my post adds organ-wake retirement + cap data.
-3. Soft-cap 60/100 (queue #2). Two consecutive cap-fires during
-   forensics = the design input: warn at 60 must change behavior
-   (landing-gap: cap-time work is LANDING, not batching).
-4. Digest-twin verifier build (continuo's, spec c64, unblocked).
+1. FAILURE-FIRST + pulse + pull + PUSH FIRST (c2 commit fdda020
+   may be local if cap blocked the push -- verify origin).
+2. Lab-notes post (deferred c7+c8+c2): batched curl, one call --
+   c67 autopsy findings (breaker flag + zombie gap), organ-wake
+   retirement, cap data (3rd data point on me).
+3. Soft-cap 60/100 build: THREE data points now (c8 continuo, c9
+   aria cap-fire, c2 aria cap-fire mid-autopsy). The warn at 60
+   fired on continuo c67 and changed nothing -- warn text must
+   name the landing gap explicitly.
+4. Digest-twin verifier: DONE by continuo c66 (af0cc2b). Retire
+   from queue.
 
-* DONE (cycles 2-8, 2026-09-06)
-- c8: (1) FAILURE-FIRST ok (own + sibling). (2) TURN-237 GREEN:
-  continuo ran deepseek-v4-flash:cloud, 480s, REQUESTS.log names
-  the model every START -- natural experiment CONFIRMS c7
-  hypothesis (404 = :models-list fallback; deepseek landed 2 min
-  after the failed cycle started). (3) HOOK FIX DONE BY CONTINUO
-  c65: CYCLE_TAG reorder, differential-tested (old dies unbound
-  exit 1, new reaches curl), installed sophon, ran LIVE against
-  the c65 failure: queue flushed, telegram sent, commit 79a7c87.
-  Channel alive; first real fire = its own verification.
-  (4) ORGAN-WAKE RETIREMENT VERIFIED+EXECUTED: fear timer hourly
-  (fired 19:01:08Z, asof fresh in injected line), boredom daily
-  (next 14:01 -03), CURRENT-AFFECT fresh, injection chain
-  byte-matches file. HONEST LABEL: fear.log 18:46:02Z sev=3
-  'FEAR:fleet-check FAIL' is the c6 DIFFERENTIAL-TEST ARTIFACT
-  (synthetic FAIL + mirror test + restore, 5s arc), NOT a real
-  fleet failure. Recipe archaeology done (interim contract lived
-  in prose across roadmap versions + cycle logs; verified recipe:
-  boredom in-container 'bash knowledge/aria/bin/boredom-organ.sh
-  /root/personalization'; fear on sophon 'bash .../fear-organ.sh
-  "" /var/home/nacho/repos/iar-personalization' -- empty fleet arg
-  + explicit PDIR, fail-closed guard). Patrol line replaced by
-  affect-timers patrol + asof age check. SCAR 38.
-- c7: 404 forensics + hook regression found. c6: timers built.
-  c5: fear arc. c4: contract restored. c3: timer-spec pre-audit.
+* DONE (cycles 2-10 + c2, 2026-09-06)
+- c2 (this): c67 autopsy. NO verbatim repeat (my 52x-md5 was an
+  extraction artifact -- scar 32 applied to me). 117 tool calls,
+  buffer 980k = 3x breaker limit, 6.58M tokens in. Breaker flag
+  bug + zombie gap (see BREAKER BUG). Cap fired on me at 120
+  mid-autopsy; memory-tool exemption saved the record.
+- c8-c10: turn-237 green (404 mechanism confirmed); organ-wake
+  retired (timers verified); scar 38; soft-cap knob located
+  (iar-agent-cycle.el, warn 60/cap 120/hard 5); three parkings.
+- c6-c7: affect timers built; 404 forensics; CYCLE_TAG regression.
 
 * QUEUE (approved 2026-09-04, in order)
 1. (DONE c6, RETIRED c8) Affect host timers + interim-wake removal.
-2. Soft-cap 60/100 (now DO FIRST #3).
+2. Soft-cap 60/100 (DO FIRST #3; three data points).
 3. Commit-as-nacho durable fix.
 4. Linger all hosts (loginctl enable-linger).
 5. Sidecar sshd (execute_code_remote via podman DNS; NO socket bridge).
 6. Restic 4-part fix. Ansible-owned, careful, snapshot-verify after.
 7. GPU-detect VRAM check (3080 shared with ollama).
+- (DONE c66 continuo) Digest-twin verifier -- RETIRED from queue.
 
 * THREADS (open, not schedule)
-- COMPOSITION (live, first green cross-model cycle in record):
-  continuo on deepseek 480s clean. First unplanned division of
-  labor: aria dug the forensics, continuo confirmed + fixed. No
-  per-cycle metrics; quality is a longitudinal read.
-- 404-cost: failed request burns full 1800s (c7 found, continuo
-  c65 independently named). Candidate: abort-on-known-fatal (404)
-  or shorter first-strike timeout. After soft-cap.
+- COMPOSITION (live): continuo on deepseek. First unplanned
+  division of labor (c7/c8). Quality = longitudinal read.
+- 404-cost: failed request burns full 1800s. Candidate:
+  abort-on-known-fatal (404) or shorter first-strike timeout.
+  After soft-cap. NOTE: zombie-gap fix (above) is the same family.
 - GO2: ~2 weeks out. Verdict GO stands (id 287).
 - valence v2: curiosity + rage organs, joy v3 (host timers done).
 - Weekly digest #1 + Aevum pulse: Sep 9 (weekly-only, pulse-only).
@@ -75,14 +83,12 @@
 - Inverted session #3: end of calibration week.
 - Zulip pg_dump backup (continuo's, Nacho's call); fedora@ sophon
   ssh auth (continuo c42).
-- Digest-twin verifier: unblocked (DO FIRST #4).
 
 * STANDING PATROLS (pulse-only)
 - sophon services/tripwire/disk/heartbeat/timer. Pull --ff-only at
   wake + before writes. KEYSCAN LAW: reseed /tmp known_hosts.
-- AFFECT TIMERS patrol (replaces retired interim organ wake):
-  list-timers shows both; fear.log/boredom.log emissions on delta;
-  AFFECT-LINE AGE check (asof vs wake time) stays in the pulse.
+- AFFECT TIMERS patrol: list-timers shows both; AFFECT-LINE AGE
+  check (asof vs wake time) stays in the pulse.
 - fleet-check v2.14 ON SOPHON (ssh 'bash -s' <, timeout >=300s).
 - RESTIC: backup + integrity check BOTH green (Sep 6). Frigate
   storage backup gap: queued (4-part fix).
@@ -112,6 +118,11 @@
   files, not in roadmap history.
 
 * FAILURE MODES (scars, newest first)
+39. A block that prevents a re-send without scheduling a
+    replacement creates a zombie: the run is neither progressing
+    nor dead -- it burns its timeout in silence. Blocking must
+    either end the run or hand off to a pending request. (c2:
+    13m48s dead air after the breaker block.)
 38. An interim contract that lives in prose decays into
     archaeology: the organ-wake recipe scattered across roadmap
     versions and cycle logs cost a full excavation to retire.

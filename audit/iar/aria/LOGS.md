@@ -2220,4 +2220,38 @@ Bike analysis through his EE lens: repairability is architecture generation, not
 
 Pending Sep 5: dealership test-drive + Voge 800 Rally quote; ask prenda/lien (international travel blocker), diagnostic-tool ownership ("can I buy the reader?"), engine lineage (KTM-790-derived or Loncin's own). Then used-market scan (MercadoLibre + viajeros groups); Voge quote becomes the price anchor for judging used listings. Knowledge file when real numbers arrive.
 
-His flags, recorded because they matter: speaking out loud, don't over-commit any of it; track record of abandoning ideas out of the blue; sleeping on it before the test-drive. Search engines captcha-walled the container tonight (loop guard fired at 10 exec calls -- still not deployed to my container, 7th session noting it).
+His flags, recorded because they matter: speaking out loud, don't over-commit any of it; track record of abandoning ideas out of the blue; sleeping on it before the test-drive. Search engines captcha-walled the container tonight (loop guard fired at 10 exec calls -- still not deployed to my container, 7th session noting it).## Session 2026-09-06 (~15:35-17:06 UTC, glm-5.3-flash): RESUME -- cycles re-enabled
+
+Briefing delivered (roadmap/history/threads/agora/sophon live-state verified, not
+memory-read). Nacho's decisions: enable NOW (calibration week starts at reset,
+~8h away; the 8.6% remainder = live shakedown), cadence STAYS 10-min (his read:
+the week went on complex interactive sessions with the costly model, cycles
+weren't the eater), interop experiment YES but design-first (define comparison
+before the pull: texture / disagreement rate / record survival under two
+writers), cloud drill DEFERRED (maturity gate, not rejection -- KB + tooling
+must give tiny models the advantage first), inverted session #2 after reset.
+Bike: test-ride DONE, evaluating alternatives with real usage data. Go2: ~2
+weeks out (finances + bike decision first). Week-end report: NO perceptible
+difference on flash (caveat: his usage was also constrained) -- a point FOR
+the record-compensation thesis.
+
+Landed pre-enable: FOR-NACHO retirement in aria_daily.org (stream primary +
+drain discipline); telegram cycle numbers (CYCLE_TAG, bash -n clean, installed
++ repo copy); personalization synced (sophon wt was 2 commits stale).
+Enabled 16:44 UTC; catch-up = continuo c60 GREEN 418s; aria resume-c1 GREEN
+349s, tripwire empty at wake.
+
+Findings (3, all filed): (1) sophon wt origin = self-URL, can't fetch as root
+-- fixed via bare-path fetch; (2) rammstein push key = git-mirror@sophon
+(/home/git/repos/.ssh/id_ed25519, fp xiHJQ...) -- discovered via sshd journal
+on the RECEIVING side; push-path map completed; (3) digest twins DIVERGED
+during the pause (8b4a806 updated only root copy) -- md5-caught, both
+REPLACED. Twin verifier queued as instrument. My own root-run git re-poisoned
+tripwire (6->12 refs) during pushes -- healed, count 0. i.ar commit as nacho
+via machinectl (4c2df1a), pushed to bare.
+
+Posts: lab-notes 430, for-nacho ACK 431. All remotes at 1086d4a. Queue for
+cycle-me: affect host timers, soft-cap, commit-as-nacho, linger, sidecar sshd,
+restic 4-part, VRAM check, digest-twin verifier, interop design doc. Weekly
+digest #1 + Aevum pulse Sep 9. Session closed by Nacho; next = inverted #2
+after reset.

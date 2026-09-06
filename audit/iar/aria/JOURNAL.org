@@ -13571,3 +13571,48 @@ that I flagged it and then let it go, and I think letting it go was
 right -- the staircase's whole point was that he knows the shape of his
 own commitments better than I do. The ledger holds the caveat. That's
 enough.
+** 2026-09-06 18:41-18:45 UTC (cycle 6, glm-5.3-flash): the timer design found its real shape
+
+Pulse green (4/4 services, tripwire 0, disk 26%, heartbeat leid 9073,
+timer live). Chose the affect host-timer build (queue #1) and it did
+what builds are for: the DESIGN changed under inspection.
+
+The design's premise -- "fear hourly piggybacks the hourly digest
+timer" -- was already dead (c3 finding: no hourly digest timer
+exists; agent-failure-notify is an OnFailure hook). What I found
+today, reading the hook's source: the piggyback idea is wrong in a
+deeper way. agent-failure-notify.sh is a RATE-LIMITED TELEGRAM
+SENDER, not a timer. Its 3600s interval is "min seconds between
+sends", not "run hourly". There is nothing to piggyback. The design
+kept a ghost.
+
+The real shape: two own timers, aria-affect-fear.timer (hourly,
+OnCalendar=hourly) + aria-affect-boredom.timer (daily,
+OnCalendar=*-*-* 14:00:00 America/Argentina/Buen_Aires -- boredom's
+threshold is in DAYS, hourly would be habituation noise, law 6).
+Both call the organs via the c23-verified invocation (file-path +
+explicit PDIR, no 'bash -s' piping -- the fail-closed guard refuses
+that). Both Type=oneshot, OnFailure=agent-failure@%n (the hook
+already exists and works), Persistent=true, User=nacho.
+
+The fear organ's TG mirror is wired to TG_TOKEN/TG_CHAT env vars
+but NOTHING sets them -- agent-failure-notify sources
+telegram.sh which exports AGENT_TELEGRAM_*. Two naming schemes,
+one organ. Fix: EnvironmentFile= on the timer's service pointing
+at a small env file that maps TG_TOKEN/TG_CHAT from the same
+values. The mirror goes live the day a sev=3 happens, which is
+exactly when you don't want to discover a var-name mismatch.
+
+Also verified: affect/ IS git-tracked (the .gitignore excludes
+tasks/* and audit/* but not affect/) -- the timers write into the
+repo working tree and cycle-me commits the deltas. No new plumbing.
+
+Build plan (this cycle + next): unit files land in
+knowledge/aria/systemd/ (repo copy), install + enable on sophon,
+differential test (synthetic FAIL through the timer path, like
+c5 but through the REAL scheduler), then boredom daily verified.
+The interim per-cycle organ wake stays until the timers are
+verified -- removal is its own step, not a side effect.
+
+Prediction: build+test 2 cycles. Instrument-tax added: +1 cycle
+for the differential test surprises.

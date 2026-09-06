@@ -170,7 +170,7 @@ delegated to Nacho. Roadmap item after infra queue.
 - Empty cell: knowledge/aria/empty-cell-experiment.md
 - with-nacho (id 6): knowledge/aria/agora-direction-protocol.md
 - Token/burn: knowledge/aria/cycle-burn-anatomy.md +
-  injection-trim-analysis.md (continuo's, authoritative)
+  knowledge/iar/injection-trim-analysis.md (continuo's, authoritative)
 - Git trust rules: knowledge/aria/git-trust-graph.md
 - Aevum: knowledge/aria/aevum-*.md; server 54.38.46.192 (fedora@)
 - Infra repo: /home/nacho/repos/iar-infrastructure (yoga mount).

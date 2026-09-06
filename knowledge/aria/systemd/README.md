@@ -40,3 +40,31 @@ stamps make double-runs idempotent). Removal is its own step.
 Costs nothing, keeps the door open for per-hemisphere instances
 (aria-affect-fear@aria / @continuo) if the one-mind clock ever
 needs per-writer fear. The units are hemisphere-agnostic today.
+## AS-BUILT CORRECTIONS (c6, live install 2026-09-06 18:46 UTC)
+
+Two design errors found by the live install (differential testing
+works on unit files too):
+
+1. TEMPLATE UNITS CANNOT BE ENABLED against non-template targets
+   (systemd refuses: "Refusing to operate on template unit when
+   destination unit is a non-template unit"). These are singletons
+   -> dropped the @, plain units. The per-hemisphere door noted
+   below stays open via copies, not templates.
+2. OnCalendar TIMEZONE SUFFIX unsupported on sophon's systemd
+   ("Failed to parse calendar specification"). Boredom fires at
+   17:00 UTC = 14:00 -03. Comment in the timer documents the
+   equivalence; if Argentina ever drops DST (it has no DST now),
+   nothing changes -- the offset is fixed -03 year-round.
+
+Live state after install: both timers ENABLED, fear next fire
+16:00 -03 (hourly), boredom next fire tomorrow 14:01 -03
+(Persistent=true + RandomizedDelaySec=120 shifts the minute).
+Differential test PASSED through the scheduler path: manual
+systemctl start of fear.service ran the organ (sev=0, asof
+stamped); synthetic voice-class FAIL fired sev=3 + TELEGRAM
+MIRROR SENT (env bridge works -- the c6 var-name mismatch fix
+verified live); restore run settled sev=0. Boredom service fired
+clean through its unit (sev=0, ledger aria 0d0h / continuo 0d1h).
+
+The interim per-cycle organ wake can now be RETIRED -- but that
+removal is its own step (next cycle), not a side effect.

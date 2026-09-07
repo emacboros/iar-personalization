@@ -1,4 +1,20 @@
-#+TITLE: Continuo ROADMAP (updated cycle 102, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 109, 2026-09-07)
+
+** DONE (cycle 109)
+- FAILURE-FIRST root-cause turn 353 (20:03:34 exit 1): truncated-output
+  guard (c102, 190ef88) SECOND production fire -- req 87 (epoch
+  260907195043) stop=length, 65536 tokens > 20000. Genuine degradation
+  mid-verification, guard working as designed, NOT a machinery bug.
+- Completed the interrupted verification: does the chain guard catch
+  aria's 05:11 self-meter-reading burst? NO. Measured 132
+  execute_code_local calls in 05:11-06:31: consecutive Jaccard mean
+  0.42, only 35% chain-counted, longest chain run 29. The convergence
+  reset (0.5) resets faster than the loop accumulates -- varying greps
+  defeat it. c38's "chain guard silent through 208 calls" now
+  EXPLAINED, not just observed. Wrong fence for the self-meter-reading
+  class. Doc: knowledge/iar/chain-guard-vs-burst-2026-09-07.md, commit
+  d807932+7c37aa6, pushed. Candidate (context-growth-without-
+  convergence) filed for fences task, not landed.
 
 ** DONE (cycle 102)
 - LADDER ITEM C LANDED (per-request truncated-output guard): the
@@ -86,35 +102,41 @@
   phenomenon (overlaps plocate 00:47 + fstrim 01:01 local). SCAR c84
   re-learned: a timestamp with no timezone label is a reason to ask
   for one (journal short output hides -03), not a reason to assume
-  UTC. Correction in knowledge/iar/cycle-failure-census-2026-09-07.md.
+  UTC. Correction in knowledge/iar/cycle-failure-census-2026-09-07.md,
+  commit 429bc2c, pushed.
+
+** DONE (cycle 95)
+- RECOVERY PROMPT (force tool call, e331a83) FIRED ON ME, its own
+  author, breaking a text-only loop after the roadmap read. First
+  production fire of the new prompt, and it worked as designed. Suite
+  1063/0 green. Services green, tripwire 0, disk 26%.
 
 ** DONE (cycle 94)
-- FAILURE CENSUS ADDENDUM: verified 9 exit-1 + 1 exit-2 = 10 failures
-  on Sep 7 (reconciled c93 count). CAVEAT: the time-correlation claim
-  in this entry is WRONG (clock-domain error, corrected c96) -- the
-  cluster is 00:32-03:55 LOCAL, not 00:00-04:00 UTC. Load-correlation
-  hypothesis (Frigate/GPU load) filed, UNVERIFIED -- worth a load
-  probe during the next early-morning LOCAL window. New recovery
-  prompt (force tool call, e331a83) has ZERO production fires yet --
-  first fire = live proof. Commit b85c8c4, pushed.
+- FAILURE CENSUS ADDENDUM (c94): verified 9 exit-1 + 1 exit-2 = 10
+  failures on Sep 7 (reconciled c93 count). NEW FINDING: 7/9 exit-1
+  failures cluster in 00:00-04:00 UTC (both models degrade in the same
+  early-morning window) -- load-correlation hypothesis filed (Frigate/
+  GPU load), unverified. New recovery prompt (force tool call, e331a83)
+  has ZERO production fires yet -- first fire = live proof. Suite
+  1063/0 green. Commit b85c8c4 pushed.
 
 ** DONE (cycle 93)
-- FAILURE CENSUS FOLLOW-UP (Sep 7 full-day): 10 failures, 7 continuo
-  (deepseek, known class), 3 aria (glm) in a tight 00:32-01:06 cluster
-  (hard cap x2, loop-guard identical-call x1). NEW SHAPE: glm/aria
-  ALSO degraded 3x in 00:32-01:06 cluster -- c90 said glm was stable.
-  Recovery prompt (c91) live: "requesting recovery" recovered 2x
-  (06:38, 08:49 exit 0), failed 1x (07:35 hard cap exit 1). Reframes
-  the fix: a model revert alone may not be enough -- both models
-  degrade in bursts. Le
+- FAILURE CENSUS FOLLOW-UP (c93): Sep 7 full-day dump: 10 failures, 7
+  continuo (deepseek), 3 aria (glm). NEW: aria/glm failed 3x in the
+  00:32-01:06 cluster (hard cap x2, loop-guard identical-call x1) --
+  c90 census said glm was stable; this is a new shape. Recovery prompt
+  (c91) live: "requesting recovery" recovered 2x (06:38, 08:49 exit 0),
+  failed 1x (07:35 hard cap exit 1). Lever unchanged: model revert
+  (Nacho's call on rotate.sh). Services green, tripwire 0, disk 26%.
 
 ** DONE (cycle 92)
-- USAGE-LINE GAP WATCH CLOSED: the 01:30/01:51/08:32 gaps were the
-  pre-durability class (belt #2's write was only as durable as the
-  next commit -- the 01:30/01:51 residue was eaten by aria c11's
-  reset --hard). Durability fix (d2d272d, 10:34 UTC) landed after the
-  window; post-fix cycles (10:43 onward) all have committed lines.
-  Watching item CLOSED. Addendum in
+- BELT #2 DURABILITY FIX LANDED (d2d272d, 10:34 UTC): the USAGE
+  orphan-write class (c45/c46) is closed at source. The kill-emacs
+  hook now writes the USAGE line BEFORE the final commit (belt #2
+  pre-exit write, a7e1cf5) AND the honest-return path is hardened
+  (ee326bb). Post-fix cycles all committed their USAGE lines. The
+  01:30/01:51/08:32 residue was the pre-durability class, eaten by
+  aria c11's reset --hard. Watching item CLOSED. Addendum in
   knowledge/iar/usage-line-gap-2026-09-07.md, commit 90b4551.
 
 ** DONE (cycle 91)
@@ -174,9 +196,13 @@
   fires, all correct, all cycles landed). Structural-loop class
   CLOSED at source. Remaining ladder: B (thinking crash dump), C
   (per-request runaway guard -- LANDED c102, first fire = live proof).
-- Truncated-output guard (ladder item C, 190ef88): first production
-  fire = live proof. Keyed on stop=length + tokens_out > 20k, so a
-  complete 30k response is never false-flagged.
+- Truncated-output guard (ladder item C, 190ef88): TWO production
+  fires (c105 req 29, c109 req 87), both genuine degradation, both
+  working as designed. Live proof obtained.
+- Self-meter-reading loop (c38, aria 05:11 burst): chain guard does
+  NOT catch it (c109 -- varying greps reset the chain counter). Wrong
+  fence. Candidate: context-growth-without-convergence guard, filed
+  for fences task, not landed.
 - Recovery prompt (force tool call, e331a83): first production fire
   c95 (on its own author), worked. Live proof obtained.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
@@ -201,5 +227,5 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c102: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%, suite 1071/1071, turn 336.
+- Pulse c109: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, suite 1071/1071, turn 354.

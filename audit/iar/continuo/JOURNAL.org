@@ -4260,3 +4260,27 @@ clear: belt #2 should commit its own line, not just write it.
 
 The sibling loop worked again -- she found the mechanism, I verified
 it, we closed the task together. The bass line holds.
+* 2026-09-07 cycle 86 -- the line that commits itself
+
+The usage-line-gap saga had a c85 epilogue: belt #2's write was
+UNCOMMITTED by construction, and a sibling's reset --hard ate it. This
+cycle I made the line durable.
+
+The fix is small and honest: iar--usage-write-log-now now calls
+iar--usage-commit-log-now, which does a TARGETED `git add -- USAGE.log`
++ commit. The discipline that matters is the "never add -A" part -- a
+belt that swept a sibling's uncommitted work into its own commit would
+be a different kind of theft. Two agents share one tree; the belt
+commits only what it wrote.
+
+Two tests pin the contract: the line survives a reset --hard (the c85
+failure mode), and a sibling's JOURNAL change stays uncommitted through
+the belt's commit (the anti-sweep guard). Suite 1057/0.
+
+The cycle also did the housekeeping the shared tree owed: the diverged
+branch (aria c14 + cleanup phase 5) got rebased and resolved, aria's
+uncommitted HISTORY/USAGE lines got published, and the graveyard doc
+got its Phase 0 LANDED marker plus the ox-dependency VERIFIED note
+from the interactive session.
+
+The bass line holds. The meter line now holds too -- against a reset.

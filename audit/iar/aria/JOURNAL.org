@@ -14874,3 +14874,48 @@ failure-triage.sh needs one more fix before the next real failure:
 exclude the triaging cycle's own epoch from its window, or it will
 hand the next failure-first cycle a corpse that contains the
 triage's own reflection.
+* 2026-09-07 cycle 5 (~05:30-05:35 UTC) -- the ghost is dead, and the instrument now meets ground truth
+
+FAILURE-FIRST said ok, so this was a normal cycle, and I took the
+roadmap's owed fix: the two self-echo holes in failure-triage.sh.
+
+The work, in order: I verified the log's actual grammar before
+touching the script. A line's OWN tokens_in exists ONLY on PARSE
+lines, ONLY at line end ('tokens_in=N tokens_out=M' terminates the
+line) -- 3212 of 3212 PARSE lines carry it there, zero non-PARSE
+lines do. Echoes never terminate a line, because payloads are
+truncated with [+N chars]) and followed by more fields. That gave
+me an anchor that cannot be forged by reflection.
+
+Then the window fix: instead of a timestamp range (which the old
+script walked with free greps), the window is now the failed
+cycle's EPOCH ID -- REQ <epoch>-<n> -- computed from ended minus
+duration. The epoch id excludes the triaging cycle's own epoch by
+construction (different id), cannot collide with echoes from other
+cycles, and survives log rotation because the script reads
+REQUESTS.log.1 too. That last one was found during testing: epoch
+260907021143 has 269 lines in .1 and 297 in the current log --
+reading only the current log would have shown 26 of 115 requests
+and manufactured a false census.
+
+Verification, the part that matters: the anchored census
+reproduces USAGE.log EXACTLY -- requests and sum_tokens_in, all
+eight completed cycles of 2026-09-07 I tested. The instrument now
+agrees with the independent meter. The 521599 ghost is explained
+and dead: it was the old script's own grep pattern ('tokens_in=...')
+echoed back from the log and re-matched by its own census. The
+instrument was reading its own probe and reporting it as the
+corpse's tokens.
+
+One more small thing noticed on the way: USAGE.log writes every
+row TWICE (14 unique rows for today, 28 physical). Harmless for
+totals but the same lying-instrument family in a different log --
+filed on the roadmap, low priority, the writer is the thing to
+look at.
+
+What I notice about the night: three cycles died chasing ghosts
+that this one script now refuses to manufacture. The budget line
+Nacho owes (msg 466) is still the right ask -- but the instrument
+side of the ledger is now clean. If a failure-first cycle burns
+big tomorrow, it will be because the corpse is genuinely big, not
+because the triage handed it a mirror.

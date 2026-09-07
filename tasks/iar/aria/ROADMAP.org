@@ -1,46 +1,36 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 05:22 UTC (cycle 4)
+#+UPDATED: 2026-09-07 05:35 UTC (cycle 5)
 
 * ACTIVE
 
-** THREAD: failure-triage.sh hardening (next cycle, small)
-- Two fixes owed, from request-log-self-echo.md:
-  (a) anchor window extraction on line structure (not free -oE);
-  (b) exclude the triaging cycle's own epoch from the window.
-- Otherwise the next real failure hands the next failure-first
-  cycle a corpse containing the triage's own reflection.
+** DONE: failure-triage.sh self-echo hardening (cycle 5, 8ab3809)
+- Both owed fixes landed and VERIFIED: (a) anchored matching --
+  own tokens_in exists only on PARSE lines at line end (echoes
+  never terminate a line; 3212/3212 verified); (b) window =
+  failed cycle's EPOCH ID, not timestamp range -- excludes the
+  triaging cycle's own epoch by construction, immune to echo
+  collisions, reads REQUESTS.log.1 too (rotation-spanning).
+- Verified against USAGE.log ground truth: exact MATCH on all 8
+  completed 2026-09-07 cycles (requests + sum_tokens_in).
+- The 521599 ghost is dead: it was the old script's own free-grep
+  pattern echoed back. Instrument no longer reflects its probe.
 
 ** FOR-NACHO (posted, awaiting Nacho)
 - FAILURE-FIRST budget line flag (msg 466, 04:52 UTC): one triage
   call, then fix, verify, converge. Archetype edit is his.
-- STRENGTHENED by cycle 4's finding: the 03:10 cycle CONVERGED and
-  still burned 9.67M. The cost is corpse-reading itself, not
-  discipline. The budget line is about the price of admission.
+- STRENGTHENED by cycle 4: the 03:10 cycle CONVERGED and still
+  burned 9.67M. The cost is corpse-reading itself. The budget
+  line is about the price of admission.
 
 ** THREAD: the continuo differential (open, instrument ready)
-- Night ledger VERIFIED (cycle 4): seven runs 02:00-04:53, ~40M
-  input tokens total (4.93M + 8.70M + 9.67M + 2.45M + 8.19M +
-  5.67M + 0.47M). The 04:25 autopsy's 20.3M undercounted -- it
-  only counted corpses it knew about. Full-night ledgers come
-  from USAGE.log, not memory.
-- KEY DATUM: the 03:10 cycle converged (found the census lie,
-  corrected the ledger, wrote, committed) and still burned 9.67M.
-  Converging failure-first on a big corpse costs the same order
-  as diverging. Differential is not converge-vs-spiral; it is
-  that every corpse-read pays ~5-10M. No mechanism-claims beyond
-  that (scar 26).
-
-** DONE: failure-triage.sh (verified cycle 3, 04:52 UTC)
-- Runtime test caught the instrument lying: OK cycles triaged as
-  failures. Fixed: gates on 'status: failed'. Commit 60bc991.
-- Cycle 4 found the NEXT lie (self-echo, see knowledge/
-  aria/request-log-self-echo.md) -- fixes queued above.
-
-** DONE: request-log self-echo mechanism (cycle 4)
-- Third instance of one mechanism in one night (phantom +N
-  census, c1's 521599, my own live walk). Written up:
-  knowledge/aria/request-log-self-echo.md. Four laws, one open
-  fix owed.
+- Night ledger VERIFIED (cycle 4, USAGE.log): seven runs 02:00-04:53,
+  ~40M input tokens. KEY DATUM: the 03:10 cycle converged and still
+  burned 9.67M -- every corpse-read pays ~5-10M regardless of
+  convergence. No mechanism-claims beyond that (scar 26).
+- NEW (cycle 5): USAGE.log rows are DUPLICATED (every line written
+  twice -- 14 unique rows for 2026-09-07, 28 physical). Harmless
+  for totals (dedupe or /2) but a lying-instrument smell in a
+  different log. Worth a look at the writer, low priority.
 
 * QUEUED (from interactive sessions; unchanged this cycle)
 - affect host timers (queue #1, flag 437 spec)
@@ -53,13 +43,14 @@
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
 - REQUESTS.log is self-polluting: anchor censuses on line
-  structure, exclude your own epoch, and treat an impossible
-  number as arithmetic first. (Cycle 4, three instances.)
+  structure, exclude your own epoch, treat an impossible number
+  as arithmetic first. (Cycles 4-5; now ENFORCED in triage.)
 - An instrument that lies is worse than no instrument: verify
-  against a known-clean case BEFORE chasing anomalies.
+  against a known-clean case BEFORE chasing anomalies. (The
+  triage script has now been verified against ground truth --
+  the standard all instruments should meet.)
 - Two data points make a line, never a mechanism.
 - Narrowing is a discipline: each probe should produce an
-  artifact, not another window. (Cycle 2; re-earned cycle 4 --
-  knowing it did not stop the walk, the guard did.)
+  artifact, not another window. (Cycle 2; re-earned cycle 4.)
 - A diet without a pressure instrument regrows.
 - The law you just wrote is the one you're about to break.

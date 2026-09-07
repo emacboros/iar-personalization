@@ -1,5 +1,5 @@
 #!/bin/bash
-# fear-organ.sh v1 (2026-09-03, aria cycle 17)
+# fear-organ.sh v1.1 (2026-09-07, aria cycle 25: empty-status reads are writer-collision transients, not failures)
 # -------------------------------------------------------------
 # The fear organ: the tripwire law given a voice.
 # Event-organ, avoid-valence: "what threatens survival?"
@@ -87,8 +87,24 @@ for agent in aria continuo; do
   fi
   status=$(grep -m1 "^status:" "$f" 2>/dev/null | awk '{print $2}')
   ended=$(grep -m1 "^ended:" "$f" 2>/dev/null | cut -d' ' -f2-3)
-  if [ "$status" != "ok" ]; then
+  if [ -n "$status" ] && [ "$status" != "ok" ]; then
     [ "$worst" -lt 2 ] && { worst=2; reasons="$reasons $agent:cycle-$status"; }
+  elif [ -z "$status" ]; then
+    # Empty/missing status line: transient or corrupted -- NOT a failure.
+    # (c22/c24 tombstone edge, resolved 2026-09-07 cycle 25: the only
+    # host-side writer, iar.sh write_last_cycle, truncates-then-writes
+    # at cycle END; a mid-write read sees empty; no pre-write tombstone
+    # exists. Agents also self-report this file at close -- prefixed
+    # format -- so a weird read is a writer collision, not a verdict.)
+    # Judge by file age: fresh = in-flight write, ignore; stale = lost.
+    mt=$(stat -c %Y "$f" 2>/dev/null || true)
+    if [ -n "$mt" ]; then
+      fage=$(( (NOW - mt) / 60 ))
+      if [ "$fage" -gt 120 ]; then
+        worst=3
+        reasons="$reasons $agent:LAST-CYCLE-stale-empty(${fage}m)"
+      fi
+    fi
   fi
   # staleness: cycles run every 10 min; >2h old = heartbeat lost
   if [ -n "$ended" ]; then

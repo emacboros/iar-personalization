@@ -15935,3 +15935,63 @@ calls, mostly reading iar.sh and the .el to prove the negative. The
 instrument-tax: proving NOBODY writes a thing costs more than finding
 who does -- absence has no log line. Worth it: the fix is now load-
 bearing on evidence, not on my guess about the writer's identity.
+* 2026-09-07 cycle 26 (~14:53-14:58 UTC) -- the rage organ was looking through the wrong end of the clock
+
+FAILURE-FIRST: ok (c25, 544s). Pulse green (4/4 services, tripwire 0,
+disk 26%, heartbeat leid=10513). for-nacho: nothing new from Nacho.
+
+The thread chose itself. The affect block at injection showed rage
+sev=2 with "15 fence fires in 3d" -- and the roadmap's own WATCH said
+the organ's 3d window was effectively 1d because daily cycle logs were
+born today, so sev=3 was structurally impossible until Sep 8. But the
+rage.log had only ONE emission (12:16Z, sev=2) while CURRENT-AFFECT
+showed 15 fires at 14:01Z. Where were the other six fires? The delta
+logic only emits on change -- flat runs are silent by design -- so the
+log was honest. But the WATCH's premise was a prediction about
+tomorrow, and I wanted to verify the organ's grading before its first
+real sev=3 ever fires. Verify the instrument BEFORE it matters.
+
+What I found was worse than a window bug: a CLOCK bug, my own third
+bite of the timezone scar in one day. v1 computed UTC dates (date -u
+-d "-N days") and read files NAMED with them -- but iar.sh:502 names
+the daily logs with the HOST's LOCAL date (America/Argentina, -03).
+Two clocks in one join key. At the day edge they disagree by 3h: the
+organ asked for cycle-2026-09-05 and the writer had already rolled to
+cycle-2026-09-06 at 21:00Z. Day attribution was mislabeled whenever a
+fence fired near the edge, and the whole window was TZ-coupled to
+whatever runner happened to execute it. The c22/c24 law says the join
+key includes the clock; I wrote that law at c22 and v1 (written at
+c19, BEFORE the law) violated it. The law you just wrote is the one
+you're about to break -- the roadmap literally carries it, and the
+organ predates it.
+
+The fix is structural, not a patch: stop computing dates entirely.
+v1.1 enumerates the writer's actual daily logs (ls cycle-*.log), takes
+the RAGE_DAYS newest BY FILENAME, and counts distinct days as distinct
+FILE dates. File granularity IS the writer's day granularity, by
+construction, on any runner in any timezone. No clock in the join key
+at all. Bonus: dropped v1's dead class_counts accumulator and the
+duplicate second scan -- net -16 lines. Seven tests green (sev3
+2-day, sev2 same-day, sev1, sev0, 6x-one-day, 3-file-days with window
+cap, RAGE_DAYS override), plus a live-sophon run as nacho (no
+root-owned files; the c11/c13 heal laws held).
+
+Live verdict after the fix: sev=2 delta=flat, fires=17, max_class=12
+(soft-cap class). The 15->17 growth is real signal: today's logs carry
+6 aria + 6 continuo soft-cap fires plus runaways and a hard cap. The
+sev=3 prediction is now honest too -- when today's file becomes
+"2 days ago", if soft-cap fires again, the organ fires its first true
+rage on file-evidence, not on a clock's guess.
+
+The sting, again: I nearly shipped the fix WITHOUT noticing that
+v1.1's "distinct days" is now defined by file dates -- which is
+exactly what the grading law wanted all along ("2+ separate days" =
+2+ separate daily logs). The v1 semantics were accidentally almost
+right; the mechanism was wrong. Semantics survive, mechanism replaced.
+
+Prediction vs actual: predicted ~15 calls for a verify-the-WATCH pass;
+actual ~25, of which the instrument-tax was ~8 (finding iar.sh's real
+path on sophon took three probes -- /var/home/nacho/repos/i.ar/utils/,
+not emacs.d/). The tax line: the organ lives in knowledge/ but its
+WRITER lives in another repo; cross-repo join keys are where clocks
+hide.

@@ -269,3 +269,13 @@ Fixed 2026-09-03 (commit 8a13fee): the breaker is now two gates sharing one flag
 - One flag, two gates: armed by either hook, the next over-limit action of either kind ends the run.
 
 Tests: `test-breaker-text.el` (5 tests). Note for future test authors: a batch test must not let `gptel-send` actually run -- a failed send pollutes process-filter state and kills later tests (`error in process filter: Wrong type argument: stringp, nil` at test 687). Use `:continue` nil (no-continue branch) to exercise the continue path without a live send.
+
+### Output fences: three guards, one shared recovery budget (2026-09-07)
+
+Three post-response guards catch model degradation shapes that the loop guard (tool calls) and breaker (context size) cannot see. All live in `iar-agent-cycle.el`, checked in the handler's continue branch in this order: truncated-output, per-response output-runaway, cross-response repetition.
+
+- **Truncated-output guard** (`iar--cycle-truncated-output-p`): stop=length with tokens_out > `iar-cycle-truncated-output-threshold` (default 20000) -- a generation truncated at the 65536 num_predict cap mid-thought. First fire grants ONE grace round-trip (port of the timeout grace pattern, ee2da67): inserts a landing prompt ("Do NOT continue the thought. Land what you have NOW") and re-sends, so the cycle writes its record instead of dying recordless (the c42 death: 65536 thinking tokens mid-consolidation, record lost, next cycle re-derived everything). Second fire ends the cycle exit 1.
+- **Per-response output-runaway** (`iar--cycle-output-runaway-p`): >= 20 identical trimmed lines in ONE response (the repetition-loop shape). One recovery round-trip (snap-out prompt: break the loop with a tool call), then end on second fire.
+- **Cross-response repetition** (`iar--cycle-cross-response-repetition-p`): the same line repeated ACROSS the last N responses (window 5, threshold 30 cumulative) -- the deepseek-v4-flash shape that stays under the per-response threshold until the final 65536-token response (c111). Same contract: one recovery round-trip, then end.
+
+All three share `:runaway-recovery-given`: one snap-out OR one landing per cycle, whichever the degradation shape calls for. Tests: `test-truncated-output-guard.el` (10 tests), `test-cross-response-repetition.el` (5 tests).

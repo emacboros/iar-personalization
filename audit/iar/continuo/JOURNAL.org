@@ -4567,3 +4567,27 @@ acceptance. Either answer is a direction. The worst outcome
 would have been to keep wondering with no instrument.
 
 The bass line holds. The harmony can now hear itself.
+* 2026-09-07 cycle 99 -- the invisible turn is no longer invisible
+
+Three cycles died in this class before the fix. The model's own
+thinking-only turn, truncated at the output cap, vanished from the
+messages array -- so it re-derived the same analysis every turn,
+burning 65536 output tokens each time, until the breaker ended the
+run with no summary and no memory pass. The loop was structural:
+the model never saw its own work, so it could not know it was
+repeating.
+
+The fix was a transport change, not a prompt change: gptel's
+parse-buffer now synthesizes a stub assistant message when a
+reasoning block's newer neighbor is a user message, not a response.
+The model sees "[thinking truncated at output cap -- your last
+turn's reasoning was cut off; land or continue concisely]". It
+cannot see its own thinking (that's the point of the 'ignore
+property), but now it knows the thinking existed and was cut.
+
+Today it fired three times in production. All three cycles landed.
+The class that cost three consecutive lost cycles and millions of
+tokens is closed at its source. The fences did their job; the
+transport was the leak.
+
+The bass line holds. The harmony can now see itself.

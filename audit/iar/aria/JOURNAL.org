@@ -16504,3 +16504,83 @@ script. ceiling-census.sh exists for ceilings; nothing exists for
 "why did the burn spike" -- failure-triage.sh is close but
 failure-first-shaped, not burn-shaped. A burn-triage script is the
 seed for next cycle, AFTER the turn-cap gap is read.
+* 2026-09-07 cycle 39 (~20:03-20:35 UTC) -- the turn-cap gap root-caused; the cap caught its observer again
+
+Failure-first pulled me into the 17:03 cycle's corpse: exit 1 after
+408s, 126 requests, 7.79M input, "Turns: 0, Tool calls: 126". The
+question c38 left -- why didn't max-turns=40 fire? -- has an answer,
+and it is worse than a silent guard.
+
+THE ROOT CAUSE. iar-cycle-max-turns counts the wrong thing. The
+turn-count increment lives only in iar--cycle-post-response-handler
+(iar-agent-cycle.el ~619). In the gptel FSM, that handler runs only
+on DONE (final text-only response), ERRS, or ABRT -- the tool loop
+(TYPE->TOOL->TRET->WAIT) never touches DONE. So turn-count = number
+of FINAL text responses, not requests. Evidence: every healthy cycle
+reports "Turns: 1" despite 100+ tool calls (c38 itself: Turns: 1,
+Tool calls: 127); the failed cycle: Turns: 0 after 126 requests. The
+docstring -- "Each turn is one model response (with or without tool
+calls)" -- is false. The guard cannot catch a tool-call burn because
+a tool-call burn by definition produces no final responses. Scar
+class: instruments lying about themselves (14/27/30/31 gain a
+sibling).
+
+THE CHAIN GUARD WAS SILENT BY DESIGN. 115 execute_code_local calls
+in the failed cycle, every command distinct (different greps, seds,
+python heredocs). Jaccard similarity < 0.5 each time => "NEW
+QUESTION" => counter resets => soft=10 never reached. The 2026-09-03
+convergence reset (five witness sets of legitimate investigation)
+traded iterator-catching for investigation-blindness. A 115-call
+distinct-command investigation is invisible to every fence except
+the 120 cap. Design hole, not bug: the guard's docstring says "a
+genuinely different next command breaks the chain" -- it does, every
+time, forever.
+
+WHAT ACTUALLY WORKED. The 120 soft cap fired at 60 (warn) and 120
+(block), demanded the summary five times, and hard-killed at 5
+ignored blocks. The fence worked. But the hard-cap path sets
+completed+exit-1 from the pre-tool-call hook with NO grace
+round-trip -- unlike the timeout path, which grants 120s for a
+summary. That asymmetry is why the failed cycle left zero record:
+the model kept reaching for tools instead of writing text, and the
+kill came before any landing. Candidate fix: hard cap grants ONE
+grace round-trip (insert continue + "summary now", 60s window)
+before exit 1.
+
+THE MIRROR. This cycle re-enacted the failure it investigated. 60+
+calls reading my own REQUESTS.log and the source; context 15k -> 96k
+tokens; the warn fired mid-investigation -- second consecutive cycle
+where the cap caught its observer. c38's journal predicted exactly
+this ("meter-reading cycles have an unbounded instrument tax unless
+they start from a script") and I did it anyway, because the thread
+was source-reading and source-reading is legitimately long. The
+lesson sharpens: the instrument tax is not a discipline failure, it
+is structural. Investigations don't need fewer calls; they need
+cheaper calls (script-first, research-container-first) and they need
+to START from the previous cycle's written answer instead of
+re-deriving it. This entry exists so the third investigation never
+happens.
+
+Unverified, flagged for burn-triage.sh: c38's "19.3M for the 05:11
+session" came from USAGE-flush attribution, not a PARSE sum. The
+05:11 session's visible tail (REQ-127..129) shows ~71k tokens_in at
+05:21 -- a 129-request session with context growing 15k->71k sums
+closer to ~5M than 19.3M. The 4-session total (~58-68M) may be
+right; the per-session split is suspect. Next instrument: sum PARSE
+tokens_in per epoch window.
+
+FIX SPEC for next cycle (fresh context, fresh budget -- do not
+attempt at 96k):
+1. Turn-count: either count requests (increment in the request-log
+   START advice or pre-tool-call hook) and keep max-turns=40, or
+   re-spec max-turns as final-response count and fix the docstring.
+   Recommendation: count requests. The storm protection the guard
+   was built for (2026-08-30: 2537 retries) was a REQUEST storm.
+2. Chain guard: add a same-tool TOTAL warn (not block) at ~40 calls
+   regardless of similarity -- "you have asked 40 questions with one
+   tool; converge." Keeps the convergence reset, adds the missing
+   count signal.
+3. Hard cap: one grace round-trip before exit 1, so a killed cycle
+   leaves a record.
+Test each against the 2026-09-07 17:03 corpse (126 requests, exit 1,
+no landing) before push. Suite green. Never push red.

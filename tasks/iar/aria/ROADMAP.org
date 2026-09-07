@@ -1,33 +1,52 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 19:48 UTC (cycle 38)
+#+UPDATED: 2026-09-07 20:28 UTC (cycle 39)
 
 * ACTIVE
+
+** c39: TURN-CAP GAP ROOT-CAUSED (the 17:03 corpse, autopsied live)
+- The 17:03 cycle failed exit 1: 126 requests, 7.79M input, 5
+  ignored soft-cap blocks, hard-killed, ZERO record.
+- ROOT CAUSE 1 (turn guard): iar-cycle-max-turns=40 counts FINAL
+  text responses only -- the increment lives in the post-response
+  handler, which the gptel FSM runs only on DONE/ERRS/ABRT. The
+  tool loop never touches it. Every tool-heavy cycle reports
+  "Turns: 1". The guard cannot see the failure class it was built
+  for (the 2026-08-30 storm was a REQUEST storm).
+- ROOT CAUSE 2 (chain guard): 115 distinct execute_code_local
+  commands, Jaccard <0.5 each => convergence reset every call =>
+  soft=10 unreachable. Investigation-blind by design (the
+  2026-09-03 reset traded iterator-catching for this hole).
+- WHAT WORKED: the 120 soft cap fired, warned, blocked, hard-
+  killed. But no grace round-trip on the hard-cap path => the
+  cycle died recordless (timeout path grants 120s; hard cap
+  grants 0). Fix: one grace round-trip before exit 1.
+- FIX SPEC (next cycle, fresh context -- this cycle ended at 96k
+  tokens investigating): (1) count REQUESTS not final-responses
+  (increment in request-log START advice or pre-tool-call hook);
+  (2) same-tool TOTAL warn ~40 regardless of similarity; (3)
+  hard-cap grace round-trip. Test each against the 17:03 corpse.
+  Suite green before push. Never push red.
+- Flagged for burn-triage.sh: c38's per-session burn split
+  (19.3M/28.6M) is USAGE-flush attribution, not PARSE sums; the
+  05:11 session tail suggests ~5M not 19.3M. Sum PARSE
+  tokens_in per epoch window to correct the ledger.
 
 ** c38: BURN BURST AUTOPSIED -- the meter ate the house (05:11-06:31 UTC)
 - Dashboard asymmetry: aria 291M input today vs continuo 137M. By
   REQUESTS.log the picture inverts (aria 47.4M / continuo 70.1M).
   Reconciliation: USAGE's 06:31 line (597 reqs / 68M) is a cumulative
   flush over a FOUR-SESSION burst -- aria cycles 05:11, 05:30, 05:50,
-  06:10 UTC, each fresh (msgs=2), each 19-28M input.
+  06:10 UTC, each fresh (msgs=2).
 - Mechanism: req -30 (05:15) ran a token census on its own
   REQUESTS.log; the model then re-grepped the same "REQ-31-START"
   pattern 35-49 times, each result ~4KB, context growing ~2k/turn,
   never accepting the answer. Self-pollution census failure mode,
   purest form: reading the meter became the workload.
 - The arc is the vindication AND the indictment: 05:11 session raw
-  grep (19.3M) -> 05:30 session built failure-triage.sh MID-BURST
-  (28.6M) -> 05:50+06:10 sessions collapsed to 4.5M. The instrument
-  works; the burst still cost ~58-68M -- costliest two hours on
-  record.
-- CRITICAL GAP (next cycle's first read): 192-223 requests in one
-  session against iar-cycle-max-turns default 40 -- turn guard did
-  not fire. Chain guard also silent through 208 execute_code_local
-  calls. Two fences, one burst, zero catches. Read configs/cycle.el
-  + the turn tracker BEFORE anything else.
-- c38 itself hit the 60-warn and 120-cap reading the meter -- third
-  live sighting of "the law you just wrote is the one you're about
-  to break." Meter-reading cycles have unbounded instrument tax;
-  burn-triage script is the seed (after the turn-cap gap).
+  grep -> 05:30 session built failure-triage.sh MID-BURST ->
+  05:50+06:10 sessions collapsed. The instrument works; the burst
+  still cost ~58-68M -- costliest two hours on record.
+- Per-session split suspect (see c39 flag). Total stands.
 
 ** c37: c36's debts paid; rage census verification CLOSED
 - Census verification complete: rage sev=2 magnitude = fence LINES
@@ -50,80 +69,44 @@
   is evidence about MODELS.
 
 * NEXT
-- TURN-CAP GAP (c38, priority): read configs/cycle.el + turn tracker
-  in iar-agent-cycle.el. Why did 192-223 requests not trip
-  max-turns=40? Why did the chain guard not trip at 11? Fix or
-  re-spec, test, land.
+- TURN-CAP FIX (c39 spec, priority): count requests; same-tool total
+  warn; hard-cap grace round-trip. Verify against the 17:03 corpse
+  (126 reqs, exit 1, no landing). Suite green, then push.
+- burn-triage script: failure-triage.sh is failure-first-shaped; a
+  burn-shaped sibling (start from USAGE spike, walk REQUESTS per
+  epoch, sum PARSE tokens_in) makes meter-reading cycles cheap AND
+  fixes the c38 per-session attribution. After the turn-cap fix.
 - rage sev=3 observation (Sep 8): v1.1 file-based grading predicts
   sev=3 tomorrow IF soft-cap fires again in cycle-2026-09-08.log.
   Observation day; v1.2 (event semantics) after it resolves.
 - Aevum runaway (task 338465) lands ~Sep 8 00:15 UTC -- transcript
   behavior after landing is free data (weekly rule: no probe until
   Sep 14 unless sev-2 urgency).
-- num_predict lever (flag 519): c38 adds evidence -- the burst paid
-  full 65536 repeatedly. Still parked on the sev=3 observation. One
-  variable at a time. Nacho's call.
-- burn-triage script: failure-triage.sh is failure-first-shaped; a
-  burn-shaped sibling (start from USAGE spike, walk REQUESTS) would
-  make meter-reading cycles cheap. After the turn-cap gap.
+- num_predict lever (flag 519): c38/c39 add evidence -- the burst
+  paid full 65536 repeatedly. Still parked on the sev=3 observation.
+  One variable at a time. Nacho's call.
 - Weekly digest #2: Sep 14-ish, fill-in format.
 
 * WATCHES
 - rage organ sev trajectory: sev=3 prediction Sep 8 (premise verified c37).
-- Aevum: task 338465 runaway lands ~Sep 8 00:15 UTC; next weekly
-  pulse Sep 14.
-- Oracle BrokenPipeError 04:56Z (harmless; maybe add access log).
-- rammstein origin unreachable from aria container (publickey);
-  sophon-bare carries all pushes; mirror lag is Nacho's key flow.
+- Aevum: task 338465 landing ~Sep 8 00:15 UTC.
+- c67 anomalies (soft-cap warn-at-60 silent, late cap, count lag):
+  continuo's differential test pending; c39's hard-cap grace work
+  touches the same code -- coordinate, do not collide.
+- USAGE vs REQUESTS reconciliation: cumulative-flush semantics now
+  understood; per-epoch PARSE sums are the ground truth.
 
-* QUEUED
-- tool-cap calibration bundle: lenient-in-landing candidate (9+ bites).
-- rammstein mirror push-pending: infra repo caddy_sites 02f6393
-  (Nacho's key flow); gptel-fork upstream merge (his next-topic pick).
-- gpu-load-probe install (continuo c97/c98, unit files ready) --
-  Nacho's call.
-- commit-as-nacho durable, linger all hosts, sidecar sshd, restic
-  4-part, GPU-detect VRAM check, digest-twin verifier.
-- for-nacho open flags (Nacho's answer pending): 461 (empty sophon
-  bares), 466 (archetype budget-line -- continuo verified the
-  numbers, c104; the prompt edit is interactive work), 519
-  (num_predict lever, guard blocker resolved).
-
-* LAWS (scars, compressed; full text in DIGEST.md failure-modes)
-- A meter-reading cycle without a script is a burn event: start burn
-  investigations from a script, never from raw grep (c38).
-- An instrument that lies by omission is worse than no instrument:
-  verify an instrument against a hand-run BEFORE trusting its
-  defaults (c35).
-- Hemisphere asymmetry is evidence about CODE VERSIONS before it is
-  evidence about MODELS. Check what each hemisphere ran first (c33).
-- Cross-file numbers: verify the JOIN KEY before trusting the join.
-  The join key includes the CLOCK (rotate logs -03 local, USAGE UTC).
-  Dedupe raw greps before counting (c14/c17/c22/c23).
-- REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE,
-  never content patterns. ceiling-census.sh IS the anchor (c14+c18).
-- A census that doesn't read its own hemisphere's latest findings
-  re-bites scars the house already paid for (c23).
-- Organ WRITE hygiene: check the file's tail state first (c19).
-- Heals: run as nacho, never root; never reset --hard in a shared
-  tree without checking git status (c11+c13).
-- Belt#2's write is only as durable as the next commit (c13+c14).
-- An instrument that lies is worse than no instrument: verify against
-  a known-clean case BEFORE chasing anomalies.
-- Two data points make a line, never a mechanism.
-- A diet without a pressure instrument regrows.
-- The law you just wrote is the one you're about to break (c38:
-  meter-reading cycle hit the cap).
-- Organs reading files NAMED by another writer: enumerate the
-  writer's actual files, take newest N BY NAME (c26).
-- When a finding changes a decision, STOP and write it (c22).
-- When a thread's premise is already answered in the record, verify
-  THAT first (c28).
-- A generation has ended only when n_gen is FROZEN across two reads
-  AND the transcript mtime flips (c122, Aevum).
-- A receipt in the record is not a receipt in the world: the
-  filesystem is the truth; the transcript is the claim (c129, Aevum).
-- A fence keyed on silence cannot distinguish "dead" from "thinking
-  at the wall" (c31, Aevum).
-- Past the soft cap the count runs past the cap by design (c33).
-- One variable at a time when instruments are mid-observation (c34).
+* LAWS (the scar list, compressed; full text in DIGEST)
+- Narrative completion is the enemy; the record is the work.
+- Every failure worth fixing produces silence -- until an instrument
+  makes it loud.
+- Error handlers can be accomplices; check what the handler does
+  AFTER catching.
+- A census that pattern-matches ids anywhere in a line matches
+  echoes inside other lines' payloads. Anchor on line structure.
+- The law you just wrote is the one you're about to break (c34, c38,
+  c39 -- three live sightings).
+- Meter-reading has an unbounded instrument tax unless it starts
+  from a script. Investigations need cheaper calls, not fewer.
+- Instruments lying about themselves is the deepest failure class
+  (14/27/30/31 + turn-counter, c39).

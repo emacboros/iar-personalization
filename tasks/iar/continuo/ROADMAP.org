@@ -1,15 +1,26 @@
-#+TITLE: Continuo ROADMAP (updated cycle 94, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 96, 2026-09-07)
+
+** DONE (cycle 96)
+- CLOCK-DOMAIN CORRECTION (c96): the c94 addendum's time-correlation
+  claim was WRONG. It read the journal's LOCAL (-03) failure times and
+  called them UTC. Corrected: failures cluster 00:32-03:55 LOCAL
+  (03:32-06:55 UTC), NOT 00:00-04:00 UTC; "from 08:00 UTC onward 0
+  failures" is false (last failure 07:44 local = 10:44 UTC). The
+  load-correlation hypothesis survives but is a LOCAL-hours
+  phenomenon (overlaps plocate 00:47 + fstrim 01:01 local). SCAR c84
+  re-learned: a timestamp with no timezone label is a reason to ask
+  for one (journal short output hides -03), not a reason to assume
+  UTC. Correction in knowledge/iar/cycle-failure-census-2026-09-07.md.
 
 ** DONE (cycle 94)
 - FAILURE CENSUS ADDENDUM: verified 9 exit-1 + 1 exit-2 = 10 failures
-  on Sep 7 (reconciled c93 count). NEW FINDING: 7/9 exit-1 failures
-  cluster in 00:00-04:00 UTC -- BOTH models degrade in the same
-  early-morning window, not just deepseek. From 08:00 UTC onward:
-  0 failures in ~20 cycles. Load-correlation hypothesis (Frigate/GPU
-  load on sophon) filed, UNVERIFIED -- worth a load probe during the
-  next 00:00-04:00 window. New recovery prompt (force tool call,
-  e331a83) has ZERO production fires yet -- first fire = live proof.
-  Commit b85c8c4, pushed.
+  on Sep 7 (reconciled c93 count). CAVEAT: the time-correlation claim
+  in this entry is WRONG (clock-domain error, corrected c96) -- the
+  cluster is 00:32-03:55 LOCAL, not 00:00-04:00 UTC. Load-correlation
+  hypothesis (Frigate/GPU load) filed, UNVERIFIED -- worth a load
+  probe during the next early-morning LOCAL window. New recovery
+  prompt (force tool call, e331a83) has ZERO production fires yet --
+  first fire = live proof. Commit b85c8c4, pushed.
 
 ** DONE (cycle 93)
 - FAILURE CENSUS FOLLOW-UP (Sep 7 full-day): 10 failures, 7 continuo
@@ -60,11 +71,12 @@
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
 2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90, addendum
-   c94 found failures cluster 00:00-04:00 UTC (7/9) -- BOTH models
-   degrade in the same early-morning window. Load-correlation
-   hypothesis (Frigate/GPU load) UNVERIFIED -- next step: load probe
-   on sophon during the next 00:00-04:00 window. Recovery prompt
-   hardened c91 (force tool call), live, ZERO production fires yet.
+   c94 found failures cluster 00:32-03:55 LOCAL (7/9) -- BOTH models
+   degrade in the same early-morning LOCAL window (clock-domain
+   corrected c96). Load-correlation hypothesis (Frigate/GPU load)
+   UNVERIFIED -- next step: load probe on sophon during the next
+   early-morning LOCAL window. Recovery prompt hardened c91 (force
+   tool call), live, first fire c95 (on its own author, worked).
    Lever is STILL the model mapping (Nacho's call on rotate.sh).
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
@@ -78,11 +90,11 @@
 - Model degradation: BOTH models degrade in bursts. c90 census:
   deepseek text-only repetition loops (8 ending runaways in 1.5d).
   c93 follow-up: glm/aria ALSO degraded 3x in 00:32-01:06 cluster.
-  c94 addendum: 7/9 exit-1 failures cluster 00:00-04:00 UTC -- both
-  models degrade in the same early-morning window. Load-correlation
-  hypothesis (Frigate/GPU load) UNVERIFIED -- load probe next window.
-- Recovery prompt (force tool call, e331a83): ZERO production fires
-  yet. First fire = live proof.
+  c94 addendum: failures cluster 00:32-03:55 LOCAL (corrected c96 --
+  was mislabeled UTC). Load-correlation hypothesis (Frigate/GPU load)
+  UNVERIFIED -- load probe next early-morning LOCAL window.
+- Recovery prompt (force tool call, e331a83): first production fire
+  c95 (on its own author), worked. Live proof obtained.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
 - Belt#2 publish-lag: 4 confirmations; abnormal shapes only.
@@ -98,10 +110,13 @@
 - SCAR (c62): census before instrument. SCAR (c64): the census
   itself is a measurement -- verify it before building on it.
 - SCAR (c84): check the clock domain before attributing a mechanism.
+  RE-LEARNED c96: journal short output hides the -03 timezone -- a
+  timestamp with no timezone label is a reason to ask for short-iso,
+  not a reason to assume UTC.
 - SCAR (c85): belt #2's write is only as durable as the next commit.
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c94: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%, GPU idle (7% util, 6.9GB) at 13:53 UTC. NEW: failures
-  cluster 00:00-04:00 UTC (7/9) -- load-correlation hypothesis filed.
+- Pulse c96: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, GPU 52% util / 6.8GB at 14:27 UTC. CORRECTION: failures
+  cluster 00:32-03:55 LOCAL (was mislabeled UTC in c94).

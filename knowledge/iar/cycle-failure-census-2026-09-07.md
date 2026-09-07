@@ -107,3 +107,47 @@ c93 said 10 failures (7 continuo, 3 aria). Verified: 9 exit-1
 (5 continuo, 4 aria) + 1 exit-2 context-breaker (continuo, 01:24)
 = 10. The exit-2 is a breaker end, not a "Cycle failed" journal
 line -- the c93 count included it. Consistent.
+
+## CORRECTION (continuo c96, 2026-09-07 14:40 UTC) -- clock-domain error in the c94 addendum
+
+The c94 addendum's time-correlation claim is WRONG. It labeled the
+journal's LOCAL (-03) failure times as UTC. The journal timestamps
+are local (sophon TZ = America/Argentina/Cordoba, -03). Converting
+local -> UTC (add 3h):
+
+| local (-03) | UTC |
+|-------------|-----|
+| 00:32:48    | 03:32:48 |
+| 00:39:26    | 03:39:26 |
+| 00:44:46    | 03:44:46 |
+| 00:57:26    | 03:57:26 |
+| 01:06:20    | 04:06:20 |
+| 02:28:02    | 05:28:02 |
+| 03:05:58    | 06:05:58 |
+| 03:55:35    | 06:55:35 |
+| 07:44:01    | 10:44:01 |
+
+Corrected findings:
+1. The "00:00-04:00 UTC cluster" is actually 03:32-06:55 UTC. The
+   failures cluster in the early-morning LOCAL window (00:32-03:55
+   local), NOT an early-morning UTC window.
+2. "From 08:00 UTC onward: 0 failures" is also wrong -- the last
+   failure is 07:44 local = 10:44 UTC. There IS a failure after
+   08:00 UTC (10:44 UTC).
+3. The load-correlation hypothesis should be framed in LOCAL terms:
+   the maintenance jobs that overlap the failure window are plocate
+   (00:47 local) and fstrim (01:01 local); restic (00:00-00:13
+   local) precedes the first failure. The window 00:32-03:55 local
+   is the early-morning maintenance window.
+
+Attribution per failure (from rotation turns): aria 3 (00:32, 00:44,
+01:06 local), continuo 6 (00:39, 00:57, 02:28, 03:05, 03:55, 07:44
+local) + 1 exit-2 continuo (01:24 local) = 10 total, 7 continuo / 3
+aria. Consistent with c93.
+
+Lesson re-learned (SCAR c84): check the clock domain before
+attributing a mechanism. The c94 addendum read local times and called
+them UTC -- the same error class the scar warns about. The corrected
+window is LOCAL early-morning, which is where sophon's maintenance
+jobs run. The load-correlation hypothesis survives but must be stated
+in local terms.

@@ -1,4 +1,22 @@
-#+TITLE: Continuo ROADMAP (updated cycle 111, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 112, 2026-09-07)
+
+** DONE (cycle 112)
+- LANDED cross-response repetition guard (task
+  iar/continuo/cross-response-repetition-guard, commit 35531f9,
+  pushed sophon-bare). The deepseek-v4-flash text-only loop repeats
+  the SAME paragraph ACROSS responses (5-10 reps each, under the
+  per-response 20-line threshold), so the per-response output-runaway
+  guard never fires until the final 65536-token response. New guard
+  iar--cycle-cross-response-repetition-p tracks the most-repeated
+  trimmed line across the last N responses (window 5, threshold 30
+  cumulative) via a sliding window of per-response line-count hashes
+  in the state's :cross-rep-window. Same recovery contract as the
+  per-response runaway (sharing :runaway-recovery-given): one
+  recovery round-trip, then end on second fire. Catches the loop at
+  response ~5-6, saving ~17 requests of burn per occurrence. Fixed a
+  triangular-counting bug during development (adding the running
+  per-response count instead of 1 per occurrence made 10 identical
+  lines hit 55, not 10). 5 new tests, suite 1076/1076 green.
 
 ** DONE (cycle 111)
 - FAILURE-FIRST root-cause turn 362 (21:15 UTC, exit 1): FOURTH
@@ -15,9 +33,7 @@
   response (16712 identical lines), where the truncated-output check
   fires first anyway. Burn accumulates across 22 req / 471k in-tok.
   Filed task iar/continuo/cross-response-repetition-guard (design
-  written): track most-repeated line across last N responses, fire
-  recovery when cumulative count crosses threshold. Catches loop at
-  response ~5, saving ~17 req of burn per occurrence.
+  written). LANDED c112.
 
 ** DONE (cycle 110)
 - FAILURE-FIRST root-cause turn 357 (17:36:32 -03, exit 1, 345s).
@@ -85,19 +101,9 @@
   need. 9 truncated 65k turns/day on continuo burn ~590k output
   tokens (all lost except the stub). Guard design: key on
   stop=length + tokens_out, NOT raw tokens_out (a complete 30k
-  response is legitimate). Data + design note in
-  knowledge/iar/output-token-burn-2026-09-07.md, commit 1256c01,
-  pushed. Suite green 1063/0.
-
-** DONE (cycle 99)
-- P0 INVISIBLE-TURN STUB PRODUCTION-VERIFIED (3 live fires, all
-  correct, all cycles completed): fork 8715a6c (deployed 04:50 UTC)
-  emits the stub assistant message for truncated thinking-only turns
-  in gptel--parse-buffer. Fires at 11:49:45 (REQ 114143-56), 13:30:19
-  (130018-31), 14:05:39 (140143-8) -- all the exact invisible-turn
-  shape (roles=...,assistant,user, stub in content), all cycles
-  landed (USAGE lines present). Before the stub these were the
-  structural-loop losses (c73, c1@00:01, c1@01:00). The transport
+  respo
+[... truncated: 10651 total chars, kept first 5000 and last 5000 ...]
+, c1@00:01, c1@01:00). The transport
   fix kills the loop at source. Regression tests green in full suite
   (1063/0). Handoff updated in breaker-grace-compliance.org UPDATE 4.
   Remaining ladder: B (thinking crash dump), C (per-request runaway
@@ -125,9 +131,10 @@
    degradation. Lever is STILL the model mapping (Nacho's call on
    rotate.sh). c111: FOURTH fire today (15:23/17:03/17:36/18:15 local),
    all continuo/deepseek text-only loops. Revert to glm is now URGENT.
-   NEW: cross-response repetition guard (task
-   iar/continuo/cross-response-repetition-guard) -- the per-response
-   guard is wrong granularity; loop repeats ACROSS responses.
+   c112: cross-response repetition guard LANDED (35531f9) -- catches
+   the loop at response ~5-6 instead of the final 65536-token response,
+   saving ~17 requests of burn per occurrence. First production fire =
+   live proof (watching).
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line.
@@ -146,11 +153,14 @@
   today (15:23/17:03/17:36/18:15 local), all continuo/deepseek.
   Load-correlation hypothesis UNVERIFIED -- probe READY (c97) + unit
   files READY (c98), install task filed.
+- Cross-response repetition guard (c112, 35531f9): catches the
+  deepseek text-only loop at response ~5-6 instead of the final
+  65536-token response. First production fire = live proof (watching).
 - Truncated-output guard (ladder item C, 190ef88): FOUR production
   fires (c105 req 29, c109 req 87, c110 req 29, c111 req 22), all
   genuine degradation, all working as designed. Live proof obtained.
   BUT: per-response granularity is wrong for the cross-response
-  repetition class -- filed cross-response-repetition-guard task.
+  repetition class -- cross-response guard LANDED c112.
 - Invisible-turn stub (P0, 8715a6c): PRODUCTION-VERIFIED c99 (3 live
   fires, all correct, all cycles landed). Structural-loop class
   CLOSED at source. Remaining ladder: B (thinking crash dump), C
@@ -183,5 +193,5 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c111: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%, suite 1071/1071, turn 362.
+- Pulse c112: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, suite 1076/1076, turn 362.

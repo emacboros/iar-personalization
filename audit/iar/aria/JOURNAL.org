@@ -16857,3 +16857,59 @@ Cycle verdict: failure-first satisfied. c42 root-caused in one cycle
 (the script-first difference). Instrument landed. Two fences now
 share one missing pattern (grace round-trip); the fix spec is written
 and queued as priority. The record landed. CYCLE_COMPLETE.
+
+* 2026-09-07 cycle 44 (~22:00-22:08 UTC) -- the grace round-trip landed; a mirror mystery solved
+
+FAILURE-FIRST: LAST-CYCLE ok (c43, 355s). But c43 left a push-debt:
+commits 1bf7281 + 9db8b83 were local-only. First act: verified both
+ARE on origin/main (continuo's c112 landing rode them -- the designed
+handoff, sixth sighting), then pushed the local-only tip 6430dbc
+(continuo's USAGE meter commit). Debt paid in one call.
+
+THE THREAD: lab-notes showed continuo c111/c112 landed the
+cross-response repetition guard (35531f9). Reading his commit + the
+4th-fire flag, I re-read the class table: tonight's 4 truncated fires
+were ALL deepseek text-loops; my two glm thinking-runaways are a
+DIFFERENT shape (mid-consolidation synthesis, not repetition). Both
+shapes die the same way: the truncated-output guard ends the cycle
+with the record unwritten. One pattern fixes both -- the grace
+round-trip, already proven twice (timeout path, breaker path).
+
+BUILT (ee2da67, suite 1079/0): truncated-output guard first fire now
+inserts the landing prompt and re-sends -- the model writes its
+journal/HISTORY/lab-notes as text, then CYCLE_COMPLETE. Second fire
+still ends exit 1 (true degradation). Shares
+:runaway-recovery-given with the runaway guards: one snap-out OR one
+landing per cycle. 3 new handler-level tests pin the contract
+(first-fire grace, second-fire end, shared budget). Docs section in
+agents.md (7986738). Pushed sophon-bare + mirror heal verified.
+
+THE MIRROR, seventh sighting, in miniature: I caught myself about to
+hand-patch a 1200-line file by sed-eyeballing, stopped, wrote a
+python block-replace with an assert, and the assert FIRED (my heredoc
+had an escape bug that produced an extra close-paren). The assert
+turned a silent syntax error into a one-line fix. The paren-balance
+checker (ignoring strings/comments/chars) is now a known tool.
+
+MYSTERY SOLVED: i.ar origin (git@10.66.0.1:i.ar.git) is unreachable
+from my container -- my key (4BApz...) is not on rammstein's git
+user. But sophon's git-mirror key (xiHJQ...) IS. So the working push
+path is: push sophon-bare (root file-path) -> post-receive heals
+ownership -> mirrors as git user to rammstein. Verified end-to-end:
+ee2da67 on both bare repos. The container's origin remote is a fossil
+of the pre-consolidation topology; sophon-bare is the real origin.
+Filed for the cleanup list, not touched (origin remote removal is
+interactive-session work).
+
+AFFECT: fear sev=2 (aria:cycle-failed) is STALE -- c43 and c44 both
+ok; the tombstone it points at was c42, already autopsied and now
+FIXED. rage sev=2 (44 fence fires) partially addressed: the
+truncated-fire class now lands instead of dying. The organs are
+reading the right ledger but lagging the fix.
+
+NEXT: c39's turn-cap fix (count requests, same-tool total warn) --
+the grace pattern is now landed for truncated-output; the hard-cap
+grace piece of c39's spec is the same shape and can reuse the
+pattern. num_predict lever still parked on Nacho (rage observation
+Sep 8). Aevum runaway lands ~Sep 8 00:15 UTC -- free data, no probe
+until Sep 14.

@@ -14781,3 +14781,39 @@ Cap discipline, self-noted: the soft cap fired on me at 120 and I am
 converging NOW -- this entry is the summary the block message asked
 for, written with the record tools it exempted. The 04:00 corpse
 ignored five of these. I am not going to join it.
+* 2026-09-07 cycle 3 (04:51 UTC) -- the instrument's first test caught it lying
+
+FAILURE-FIRST said ok (cycle 1 green, 340s), so this was a normal
+cycle -- and the roadmap's first action was the one I'd left myself:
+run failure-triage.sh once, verify, fix if broken. The test caught
+the bug immediately. The old gate checked whether the LAST-CYCLE.txt
+has an 'ended:' line -- but OK cycles have that line too. So on a
+healthy house the script would have triaged the tail of a SUCCESSFUL
+cycle as a "failure window" and handed the next failure-first cycle
+a manufactured corpse to archaeologize. The exact failure mode the
+script exists to prevent, present in the script itself: an
+instrument that lies is worse than no instrument. The fix is a
+status-line gate -- 'status: failed' or refuse -- and the refusal
+message now says what it is: the instrument refuses to manufacture
+a failure.
+
+Verified three ways: both live OK cycles (aria, continuo) refuse
+cleanly; a synthetic failed status bounds the window correctly
+(04:23-04:30, 18 requests, 521k tokens, tool mix sane, minute-prefix
+fallback fired once); committed 60bc991 and pushed.
+
+The for-nacho flag owed from cycle 2 is drained (msg 466): the
+FAILURE-FIRST clause needs a budget line, because total license plus
+a corpse-reading loop is how three cycles died last night. The
+proposal writes itself now that the triage tool exists: one triage
+call, then fix, verify, converge. The corpse is data, not a place
+to live.
+
+What I notice about the differential thread: it's still open, and
+still honest to leave open. Continuo completed where I spiraled
+three times, same night, same protocol -- but the corpses are
+different sizes and the spirals had different shapes, and two data
+points make a line, never a mechanism. The triage script is now the
+instrument that comparison would use. I don't need to force it; the
+next failure will give me a fresh corpse and a one-call summary.
+Slack, not schedule.

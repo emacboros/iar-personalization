@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria-dashboard generator v1.0 (2026-09-07, aria interactive session w/ Nacho)
+# aria-dashboard generator v1.1 (2026-09-07, aria interactive session w/ Nacho)
 # -------------------------------------------------------------
 # Aggregates house + agent state into one JSON snapshot, synced with the
 # UI (index.html/app.js/style.css) into the caddy-served directory.
@@ -20,6 +20,17 @@
 #
 # Failure posture: every source wrapped; missing source -> null field,
 # generator still emits JSON. Stale is visible (generated_at + UI age).
+#
+# v1.1 fixes (live-install differential test, 2026-09-07):
+#   - timer_info: systemctl show returns HUMAN timestamps ("Sun 2026-09-06
+#     23:21:09 -03"), not epoch ints. Parse via list-timers instead; aria-cycle
+#     is monotonic (empty NextElapseUSecRealtime) so list-timers is the source.
+#   - sophon local time = fixed UTC-3 (Argentina, no DST); convert naive
+#     list-timers stamps by +3h to get UTC epoch.
+#   - canary: sophon stat -c %F says "character special file" (not
+#     "character device"); accept both.
+#   - cams: frigate API 8971 is 401 unauth, 5000 unreachable -> file-based
+#     freshness from the recordings dir (newest mp4 mtime per camera).
 
 set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -42,6 +53,8 @@ REPO = os.environ["REPO"]; OUT = os.environ["OUT_DIR"]
 AUD = os.path.join(REPO, "audit/iar")
 NOW = time.time()
 AGENTS = ["aria", "continuo"]
+# sophon local time = fixed UTC-3 (Argentina has no DST)
+LOCAL_UTC_OFFSET = 3 * 3600
 
 def run(cmd, timeout=10):
     try:
@@ -55,6 +68,49 @@ def utc_ts(s, fmt):
         return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc).timestamp()
     except Exception:
         return None
+
+# ---- timers: parse `systemctl list-timers` (human stamps, works for
+#      monotonic timers where NextElapseUSecRealtime is empty) ----
+# list-timers columns: NEXT | LEFT | LAST | PASSED | UNIT | ACTIVATES.
+# Monotonic timers (aria-cycle) have "-" for NEXT -> only one stamp (LAST).
+STAMP_RE = re.compile(r"(\w{3}) (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) (-\d{2})")
+def local_to_epoch(naive_str):
+    try:
+        t = datetime.strptime(naive_str, "%Y-%m-%d %H:%M:%S")
+        return t.replace(tzinfo=timezone.utc).timestamp() + LOCAL_UTC_OFFSET
+    except Exception:
+        return None
+
+def timer_info(unit):
+    out = run(f"systemctl list-timers --all {unit} --no-pager --no-legend", 6)
+    if not out:
+        return {"next": None, "last": None}
+    stamps = STAMP_RE.findall(out.splitlines()[0].strip())
+    if not stamps:
+        return {"next": None, "last": None}
+    if len(stamps) >= 2:
+        nxt = local_to_epoch(stamps[0][1])
+        lst = local_to_epoch(stamps[1][1])
+    elif stamps:
+        # one stamp: either NEXT-only (never fired, e.g. boredom timer) or
+        # LAST-only (monotonic aria-cycle while running). Disambiguate by
+        # position: list-timers puts NEXT first; a "-" NEXT shifts LAST to front.
+        first_is_next = not out.splitlines()[0].strip().startswith("-")
+        if first_is_next:
+            nxt = local_to_epoch(stamps[0][1]); lst = None
+        else:
+            lst = local_to_epoch(stamps[0][1])
+            nxt = lst + 600 if unit == "aria-cycle.timer" else None
+    else:
+        nxt = lst = None
+    return {"next": nxt, "last": lst}
+
+def rotation():
+    turn = None
+    try: turn = int(open("/var/lib/aria-cycle-rotate/turn").read().strip())
+    except Exception: pass
+    nxt = AGENTS[turn % 2] if turn is not None else None
+    return {"turn": turn, "next_agent": nxt, **timer_info("aria-cycle.timer")}
 
 # ---- agents: LAST-CYCLE.txt ----
 def last_cycle(agent):
@@ -143,24 +199,6 @@ def affect():
             out[name] = {"sev": int(m.group(1)), "asof": m.group(2), "age_s": age}
     return out or None
 
-# ---- timers ----
-def timer_info(unit):
-    out = run(f"systemctl show {unit} --property=NextElapseUSecRealtime --property=LastTriggerUSec", 6)
-    res = {}
-    for ln in (out or "").splitlines():
-        k, _, v = ln.partition("=")
-        if v and v not in ("0", "n/a"):
-            try: res[k] = int(v) / 1e6
-            except Exception: pass
-    return {"next": res.get("NextElapseUSecRealtime"), "last": res.get("LastTriggerUSec")}
-
-def rotation():
-    turn = None
-    try: turn = int(open("/var/lib/aria-cycle-rotate/turn").read().strip())
-    except Exception: pass
-    nxt = AGENTS[turn % 2] if turn is not None else None
-    return {"turn": turn, "next_agent": nxt, **timer_info("aria-cycle.timer")}
-
 # ---- house probes (cheap) ----
 def svc(name): return run(f"systemctl is-active {name}", 5)
 def http_code(url, to=5):
@@ -168,15 +206,49 @@ def http_code(url, to=5):
     try: return int(out)
     except Exception: return None
 
+# cams: frigate API needs auth -> file freshness from recordings dir.
+# Recordings layout: <dir>/<camera>/<YYYY-MM-DD>/<HH>/<file>.mp4
+def find_recordings_dir():
+    # sophon frigate compose: /home/nacho/containers/frigate/storage -> /media/frigate
+    for cand in ("/home/nacho/containers/frigate/storage/recordings",
+                 "/var/lib/frigate/recordings", "/var/frigate/recordings",
+                 "/srv/frigate/recordings"):
+        if os.path.isdir(cand): return cand
+    return None
+
+REC_DIR = None
 def cams():
-    cfg = run("curl -s --max-time 6 http://127.0.0.1:8971/api/config", 9)
-    try: names = list(json.loads(cfg)["cameras"].keys())
-    except Exception: return None
+    # layout: <recordings>/<YYYY-MM-DD>/<HH>/<camera>/*.mp4
+    global REC_DIR
+    if REC_DIR is None:
+        REC_DIR = find_recordings_dir()
+        if REC_DIR is None: return None
     out = {}
-    for n in names:
-        c = http_code(f"http://127.0.0.1:8971/api/{n}/latest.jpg", 6)
-        out[n] = "ok" if c == 200 else ("fail" if c else "stale")
-    return out
+    try:
+        days = [d for d in sorted(os.listdir(REC_DIR)) if os.path.isdir(os.path.join(REC_DIR, d))]
+        if not days: return None
+        latest_day = os.path.join(REC_DIR, days[-1])
+        hours = [h for h in sorted(os.listdir(latest_day)) if os.path.isdir(os.path.join(latest_day, h))]
+        if not hours: return None
+        latest_hour = os.path.join(latest_day, hours[-1])
+        for cam in sorted(os.listdir(latest_hour)):
+            camdir = os.path.join(latest_hour, cam)
+            if not os.path.isdir(camdir): continue
+            newest = 0
+            try:
+                for f in os.listdir(camdir):
+                    m = os.path.getmtime(os.path.join(camdir, f))
+                    if m > newest: newest = m
+            except Exception:
+                pass
+            age = NOW - newest if newest else None
+            if age is None: out[cam] = "stale"
+            elif age < 300: out[cam] = "ok"
+            elif age < 1800: out[cam] = "stale"
+            else: out[cam] = "fail"
+    except Exception:
+        return None
+    return out or None
 
 def house():
     restic = timer_info("restic-backup.timer")
@@ -185,13 +257,17 @@ def house():
     disk = run("df -P / | awk 'NR==2{print $5}'", 5)
     try: disk_pct = int(disk.rstrip("%"))
     except Exception: disk_pct = None
+    # agora: fleet-check's unauthed API probe (200/400/401/403 = app alive);
+    # plain root 400s on Host-header behavior and /login 500s on this build.
+    ap = http_code("https://agora.randazzo.ar/api/v1/messages?anchor=newest&num_before=1&num_after=0", 10)
+    agora_ok = ap in (200, 400, 401, 403)
     return {
-        "cams": cams(), "agora_http": http_code("http://10.66.0.5:8090"),
+        "cams": cams(), "agora_http": ap, "agora_ok": agora_ok,
         "frigate": svc("frigate"), "ollama": svc("ollama"),
         "restic_age_h": age_h,
         "tripwire": int(run("find /var/home/nacho/repos /home/nacho/repos -user root 2>/dev/null | wc -l", 40) or -1),
         "disk_pct": disk_pct,
-        "canary": "ok" if canary == "character device" else (canary or "unknown"),
+        "canary": "ok" if canary in ("character device", "character special file") else (canary or "unknown"),
     }
 
 def host():
@@ -220,7 +296,7 @@ def host():
 # ---- assemble + atomic write ----
 doc = {
     "schema": "aria-dashboard/v1",
-    "version": "v1.0",
+    "version": "v1.5",
     "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "agents": {a: {**(last_cycle(a) or {}), "burn24h": usage(a),
                    "req_health_24h": req_health(a)} for a in AGENTS},

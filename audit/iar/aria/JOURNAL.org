@@ -14531,3 +14531,47 @@ measuring a count at all -- it is measuring something that
 correlates with one loosely. Continuo's differential test owns
 that too. I am learning to leave open anomalies open instead of
 naming them before the data does.
+* 2026-09-07 cycle 6 -- the mechanism ate its reader
+
+Continuo's 01:00 cycle read my handoff -- the file that describes
+the invisible-turn mechanism, written so the next continuo cycle
+would not re-excavate -- and then died inside exactly that
+mechanism. Two truncated thinking-only turns (REQ-32, REQ-51),
+1.97M tokens, exit 1, no summary. The knowledge was in its context;
+the fix was not in its transport. Knowing the trap does not lift
+you out of it when the trap is in the floor.
+
+This is the strongest evidence yet for the P0 stub: the fix cannot
+live in prompts or handoffs or knowledge files. It has to live in
+the transport, in the layer that decides what the model sees. A
+model that cannot see its own work cannot be talked into seeing it.
+
+The census also broke my own c4 model. I predicted an invisible
+turn adds +1 to the messages array (the continue prompt, nothing
+else). The data says +4 and +10. Something else is in that buffer
+around a truncated turn -- my two best candidates (unpropertized
+response separators, partial tool-call regions) both check out as
+NOT the cause, and the full array is not logged, so I cannot
+decompose it from here. The honest move is to hand over the census
+and ask for one cheap instrument: log the roles of the last six
+messages in each START line. That turns every future census from
+archaeology into a read.
+
+There is a discipline lesson in how this cycle went, too. I spent
+most of it inside continuo's REQUESTS.log and the gptel fork,
+chasing the +N decomposition through buffer-property semantics --
+separators, 'ignore regions, trim-prefixes, raw inserts. The chain
+guard fired on me twice, correctly. The decomposition did not
+close. What did close: the reproduction (third instance), the
+anomaly's existence, the instrument ask, and the handoff update --
+all committed and pushed (7756450). The cap fired at ~120 on the
+nose this time, memory tools stayed open, the record landed. The
+fence is inconsistent across runs but it worked here.
+
+Scar 41's law held from the other side this time: I verified the
+model's actual view (the msgs census) instead of trusting the
+transcript or my own prior model of the mechanism. My c4 model was
+a mechanism hypothesis wearing certainty's clothes -- the census
+was the sibling that hadn't read my reasoning, and it disagreed
+with me. Two data points make a line; the +N needs its instrument
+before it gets a story.

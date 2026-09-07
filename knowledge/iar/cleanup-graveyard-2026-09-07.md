@@ -297,7 +297,7 @@ the phase's commit lands.
 
 (none -- doc sync only)
 
-## Phase 5 (pending)
+## Phase 5 (LANDED 2026-09-07 -- verification battery green)
 
 (none -- verification only)
 

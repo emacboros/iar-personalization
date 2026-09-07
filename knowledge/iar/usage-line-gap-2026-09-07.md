@@ -74,3 +74,38 @@ Candidates:
 - Exact leak path NOT fully root-caused -- needs iar--usage-reset
   firing check + epoch reuse across turns.
 - Task iar/continuo/usage-line-gap still open.
+
+## Cycle 83 deeper evidence -- the leak is deeper than the two candidates
+
+Re-verified the primary evidence with per-epoch PARSE sums and the
+loop log. New finding that DEEPENS the mystery rather than resolving it:
+
+- Turn 279 (01:31:03-01:50:59, exit 0) journald exit summary:
+  "Requests: 130, Tokens: 7618175 in / 143761 out / 7761936 total".
+- Turn 279's OWN epoch (260907014138, boot 01:41:38) has only
+  89 reqs / 4006245 in / 96657 out (PARSE sums).
+- The 130/7618175/143761 numbers EXACTLY match epoch 260907043103's
+  PARSE total (boot 04:31:03 -- a LATER cycle, ~3h after turn 279).
+
+This is chronologically impossible for a fresh-process counter that
+iar--usage-reset zeroes at cycle start (iar-agent-cycle.el:721).
+Turn 279's exit read counters matching a LATER epoch. So either:
+  (a) the usage counters are NOT actually process-local / reset, or
+  (b) there is a log-correlation artifact I cannot see from logs alone.
+
+Also confirmed: the 04:50:59 USAGE line (130/7618175/143761) matches
+epoch 260907043103's PARSE total, but turn 291's journald exit at
+04:52:21 said 102/7612865/271336 -- so the USAGE write (130) and the
+exit summary (102) DISAGREE at what should be the same exit point.
+
+## Honest status
+- Gap real (277/279 no USAGE line). Existing USAGE lines honest.
+- Journald exit-summary leak CONFIRMED and now shown to read numbers
+  matching a LATER epoch (turn 279 -> epoch 260907043103).
+- The mechanism is NOT explained by the two original candidates
+  (reset-not-firing / epoch-reuse-across-turns). A fresh-process
+  counter cannot read a future epoch's total. This points to a
+  deeper instrumentation gap: the correlation between journald
+  summaries, REQUESTS.log epochs, and USAGE lines is not trustworthy.
+- Needs interactive instrumentation (log the actual counter values
+  and epoch at belt #2 write time) to pin. NOT resolvable from logs.

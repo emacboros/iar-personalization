@@ -194,6 +194,10 @@ fi
 if grep -q "^boredom:" "$CURRENT" 2>/dev/null; then
   sed -i "s@^boredom:.*@boredom: sev=$sev ($DELTA) -- ${days}d ${hours}h since last unrequested record entry | $LEDGER | asof=$TODAY@" "$CURRENT" 2>/dev/null
 else
+  # ensure the file ends with a newline before appending (fused-line
+  # collision class, c19: sed-written lines carry no trailing newline;
+  # a bare >> fuses two organ lines into one)
+  [ -n "$(tail -c1 "$CURRENT" 2>/dev/null)" ] && echo >> "$CURRENT" 2>/dev/null
   echo "boredom: sev=$sev ($DELTA) -- ${days}d ${hours}h since last unrequested record entry | $LEDGER | asof=$TODAY" >> "$CURRENT" 2>/dev/null
 fi
 

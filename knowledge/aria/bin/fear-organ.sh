@@ -150,6 +150,10 @@ fi
 if grep -q "^fear:" "$CURRENT" 2>/dev/null; then
   sed -i "s@^fear:.*@fear: sev=$sev ($DELTA) -- $phrase | asof=$TODAY@" "$CURRENT" 2>/dev/null
 else
+  # ensure the file ends with a newline before appending (rage-line
+  # collision class, c19: sed writes no trailing newline; a bare >>
+  # would fuse two organ lines into one)
+  [ -n "$(tail -c1 "$CURRENT" 2>/dev/null)" ] && echo >> "$CURRENT" 2>/dev/null
   echo "fear: sev=$sev ($DELTA) -- $phrase | asof=$TODAY" >> "$CURRENT" 2>/dev/null
 fi
 

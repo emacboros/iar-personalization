@@ -1,4 +1,6 @@
-/* aria dashboard v1 -- cortex canvas + hud renderer.
+/* aria dashboard v1.1 -- cortex canvas + hud renderer. v2 geometry:
+   lobes are off-midline ellipses with a fissure gap; dendrites anchor to
+   mesh nodes. Verified via SVG-dump audit (see JOURNAL 2026-09-07).
    Polls /json (dashboard.json) every 30s; canvas animates at rAF.
    All motion is slow (burn-in mitigation for an always-on screen). */
 "use strict";
@@ -126,14 +128,17 @@ function buildMesh() {
   const cx0 = W / 2, cy0 = H / 2 - 40;
   const R = Math.min(W, H) * 0.30;
   const rnd = mulberry32(20260907); // stable layout across reloads
+  // v2: each lobe is a full ellipse centered OFF-midline; a GAP corridor
+  // (the fissure) separates them. No node crosses the midline by construction.
+  const GAP = R * 0.30, RX = R * 0.55, RY = R * 0.62;
   for (const side of [-1, 1]) {
     const n = 26;
     for (let i = 0; i < n; i++) {
       const a = rnd() * Math.PI * 2;
-      const r = R * (0.25 + 0.75 * Math.sqrt(rnd()));
+      const rr = 0.30 + 0.70 * Math.sqrt(rnd()); // 0.30..1.00 of lobe radius
       nodes.push({
-        x: cx0 + side * (R * 0.28 + r * Math.cos(a) * 0.72) + side * R * 0.06,
-        y: cy0 + r * Math.sin(a) * 0.86,
+        x: cx0 + side * (GAP + RX) + side * rr * Math.cos(a) * RX,
+        y: cy0 + rr * Math.sin(a) * RY,
         side, r: 1.2 + rnd() * 1.8, ph: rnd() * Math.PI * 2,
       });
     }
@@ -156,19 +161,27 @@ function buildMesh() {
     synapses.push({a: nodes.indexOf(a), b: nodes.indexOf(b), d: Math.hypot(a.x - b.x, a.y - b.y), cross: true});
   }
   // labels
+  const GAP = R * 0.30, RX = R * 0.55, RY = R * 0.62;
   nodes.labels = {
-    aria: {x: cx0 - R * 0.72, y: cy0 - R * 0.78},
-    continuo: {x: cx0 + R * 0.72, y: cy0 - R * 0.78},
+    aria: {x: cx0 - (GAP + RX), y: cy0 - RY - 18},
+    continuo: {x: cx0 + (GAP + RX), y: cy0 - RY - 18},
   };
-  // cam dendrites hanging below
+  // v2 dendrites: anchored to real mesh nodes (nearest to each cam's x-slot
+  // along the bottom edge), dropping straight down -- visually connected.
   const camNames = Object.keys((DATA && DATA.house && DATA.house.cams) || {});
-  const names = camNames.length ? camNames : ["exterior_1","exterior_2","exterior_3","exterior_4","interior_1","interior_2","interior_3","interior_4"];
+  const names = camNames.length ? camNames : ["exterior_1","exterior_2","exterior_3","exterior_4","exterior_5","interior_1","interior_2","interior_3"];
+  const meshBottom = Math.max(...nodes.map(n => n.y));
+  const meshXMin = Math.min(...nodes.map(n => n.x));
+  const meshXMax = Math.max(...nodes.map(n => n.x));
   names.forEach((nm, i) => {
-    const t = (i + 0.5) / names.length;
+    const tx = meshXMin + (i + 0.5) / names.length * (meshXMax - meshXMin);
+    const anchor = nodes.reduce((best, n) =>
+      (Math.abs(n.x - tx) + Math.abs(n.y - meshBottom) <
+       Math.abs(best.x - tx) + Math.abs(best.y - meshBottom)) ? n : best);
     dendrites.push({
       name: nm,
-      x: W * 0.12 + t * W * 0.76,
-      y: H * 0.78 + Math.sin(i * 1.7) * 12,
+      x: anchor.x, y: anchor.y,
+      dropY: H * 0.80 + Math.sin(i * 1.7) * 12,
       state: (DATA && DATA.house && DATA.house.cams && DATA.house.cams[nm]) || "stale",
     });
   });
@@ -250,22 +263,22 @@ function frame(now) {
   cx.fillStyle = `hsla(${hue.h}, 40%, 70%, ${activeAgent === "continuo" ? 0.95 : 0.4})`;
   cx.fillText("CONTINUO", nodes.labels.continuo.x, nodes.labels.continuo.y);
 
-  // dendrites (cams)
+  // dendrites (cams): straight drop from the anchor node
   for (const dnd of dendrites) {
-    const col = dnd.state === "ok" ? "var(--ok)" : dnd.state === "stale" ? "#6b7280" : "#ff5f56";
-    cx.strokeStyle = dnd.state === "ok" ? "rgba(53,208,160,0.5)" :
-                     dnd.state === "stale" ? "rgba(107,114,128,0.4)" : "rgba(255,95,86,0.6)";
+    const okC = "rgba(53,208,160,", stC = "rgba(107,114,128,", faC = "rgba(255,95,86,";
+    const lineC = dnd.state === "ok" ? okC + "0.45)" : dnd.state === "stale" ? stC + "0.35)" : faC + "0.55)";
+    const dotC  = dnd.state === "ok" ? okC + "0.9)"  : dnd.state === "stale" ? stC + "0.9)"  : faC + "0.9)";
+    cx.strokeStyle = lineC;
     cx.lineWidth = 0.8;
     cx.beginPath();
-    cx.moveTo(dnd.x, H * 0.62);
-    cx.quadraticCurveTo(dnd.x + (dnd.x < W / 2 ? -14 : 14), H * 0.70, dnd.x, dnd.y);
+    cx.moveTo(dnd.x, dnd.y);
+    cx.lineTo(dnd.x, dnd.dropY);
     cx.stroke();
-    cx.fillStyle = dnd.state === "ok" ? "rgba(53,208,160,0.9)" :
-                   dnd.state === "stale" ? "rgba(107,114,128,0.9)" : "rgba(255,95,86,0.9)";
-    cx.beginPath(); cx.arc(dnd.x, dnd.y, 2.2, 0, 7); cx.fill();
+    cx.fillStyle = dotC;
+    cx.beginPath(); cx.arc(dnd.x, dnd.dropY, 2.2, 0, 7); cx.fill();
     cx.fillStyle = "rgba(159,216,212,0.55)";
     cx.textAlign = "center";
-    cx.fillText(dnd.name, dnd.x, dnd.y + 14);
+    cx.fillText(dnd.name, dnd.x, dnd.dropY + 14);
   }
 
   requestAnimationFrame(frame);

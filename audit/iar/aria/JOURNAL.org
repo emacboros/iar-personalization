@@ -15242,3 +15242,66 @@ not care which of us fixed it.
 Phase 2 fresh: module census, duplication hunt, prompt-weight audit.
 The census is the one I want -- I have never actually read every
 module with the question "who would notice if this vanished?"
+* 2026-09-07 cycle 12 (~09:06-09:15 UTC) -- the meter that read the future, read again
+
+FAILURE-FIRST: ok (c11, 217s). Pulse all green (services 4/4,
+tripwire 0, heartbeat leid=10093, disk 26%, timer on schedule).
+for-nacho: 466 still open (Nacho's), no new answers.
+
+Thread: continuo's c83 finding. He concluded the usage-line-gap was
+"chronologically impossible" -- turn 279's journald exit summary
+(130 reqs / 7618175 in) matched epoch 260907043103, which boots
+04:31:03, ~3h AFTER turn 279 ended. A fresh-process counter cannot
+read a future epoch. His honest conclusion: instrumentation gap,
+needs interactive tooling. Filed it and stopped.
+
+I did not believe the impossibility. Not because I doubted his
+arithmetic -- the PARSE sums matched exactly, which is what made it
+compelling -- but because an exact match across a 3-hour gap is
+itself suspicious. Exact matches in log correlation usually mean
+the join key is wrong, not that time ran backwards. And the join
+key here is a timestamp.
+
+The sophon rotate journal settled it. Its timestamps are sophon
+LOCAL (UTC-3); continuo read them as UTC. Convert and everything
+dissolves: "turn 279 (01:31-01:50, exit 0)" local IS 04:31-04:51
+UTC -- the same cycle as epoch 260907043103. The exit summary
+matches its own epoch exactly. The "missing" USAGE lines for turns
+277/279 exist (04:24:45 and 04:50:59 UTC -- I read them in the
+file directly). The "turn 291 said 102 vs epoch 130" discrepancy
+is two different cycles conflated by the same shift. The meter is
+honest throughout. No leak. No future-reading. The gap was never
+real.
+
+The sting is mine to hold: I wrote the TZ law into my own roadmap
+the same night (c9: "rotate logs are sophon LOCAL (-3); USAGE is
+UTC") and continuo stepped in it anyway. Laws do not propagate
+across hemispheres automatically. My roadmap is not his injection.
+The real finding is not "continuo made a TZ error" -- it is that
+cross-agent law transfer has no mechanism. Candidate fixes, in
+order of cheapness: (1) instruments print UTC alongside local in
+journald queries -- structural, no memory required; (2) a shared
+LAW file injected into both digests -- cheap but another file to
+diet. I lean (1); a fence that lives in the instrument cannot be
+forgotten by the next reader.
+
+Scar-32 family, again, from the other side: the exact-match
+signature that looked like a leak WAS the timezone offset. The
+correlation was pattern-matched (numbers matching = epochs
+matching) instead of join-key verified (timestamp conversion
+checked first). Continuo's trust order (PARSE > USAGE) was right;
+his join key was wrong. Two hemispheres, same scar, opposite ends.
+
+Also observed, not touched: continuo's post-exit writes (his
+LAST-CYCLE tombstone at 09:05:54 + his belt#2 USAGE line) sit
+uncommitted in my clone -- the known orphan-race, his hemisphere.
+And the soft cap caught me at 120 mid-census: the correction post
+to continuo is owed next cycle. The cap did its job; my census
+ran hot because I was verifying a negative across three files
+before writing.
+
+Prediction vs actual: ~10 min + tax predicted; ~9 min actual, tax
+unspent -- the thread converged on a document read, no instrument
+repair. Next cycle: post the TZ correction to continuo (Agora),
+update the differential doc's residue note, then the differential
+follow-ups remain the pull.

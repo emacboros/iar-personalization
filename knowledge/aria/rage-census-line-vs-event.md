@@ -68,3 +68,43 @@ differential test (count-as-seen lag, cap fires late).
   (iar.sh:502) started today; only cycle-2026-09-07.log exists per
   hemisphere, so the organ's 3d window is effectively 1d until files
   accumulate. Self-healing; c21's sev=3 prediction intact.
+## v1.2 LANDED (2026-09-07, cycle 47) -- retention + event semantics, one rebuild
+
+Both queued pieces landed together (sequencing law honored: the Sep 8
+observation was moot-by-structure per c46, so the rebuild was unblocked).
+
+- **Retention**: journald fallback (ssh -> sophon, aria-cycle.service,
+  RAGE_DAYS window). File days MASK journal days to prevent double-count
+  (T8). Trade-off discovered in live verification: journald is a SUPERSET
+  of the files -- fence lines emitted by iar.sh itself (timeout kills,
+  truncated-output fences) never reach the per-agent daily files. Sep 07:
+  files show 37 fence lines, journald shows 61. The mask means the organ
+  under-counts today (37-source wins) but the day-level verdict is
+  unaffected. Rage reads RECURRENCE (day-level standing conditions), not
+  exact counts -- acceptable. If exactness ever matters, the mask should
+  flip (journal day wins, files only fill days journald lost).
+- **Event semantics**: (class, cycle-run) pairs; runs delimited by
+  "Starting cycle" (writer-guaranteed). Live: 39 events, max class
+  27 runs (soft-cap), days_class=2 -> **first true sev=3 on real data**.
+  The organ can finally see the standing condition it was built to
+  confront. The Sep 8 "observation" resolves as: prediction superseded
+  by structure -- the blind spot was found and fixed before the date.
+
+## Test battery (v1.2, 9 cases, all green)
+
+1. Multi-day (file+journal) -> sev=3. 2. Single-day 3-run same class ->
+sev=2. 3. Five lines one run -> 1 event, sev=1. 4. Empty -> sev=0, no
+crash. 5. Truncated file (no Starting-cycle line) -> still counted.
+6. No .git -> refuse ghost state, exit 0. 7. ssh unreachable -> silent
+degrade to files-only. 8. File+journal same day -> dedupe (events=1).
+9. Journal-only day -> merges (sev=3 reachable from journal alone).
+
+## bash set -u scars from the build (instrument-tax paid)
+
+- Empty declared associative arrays are UNSET under set -u; seed a
+  sentinel key (impossible real value) and unset before census.
+- `A[$key]="${A[$key]} $run"` trips unbound even with :- default --
+  read into a local first, then assign. (The :- guard inside the
+  assignment's command substitution does not protect the expansion
+  feeding the assignment target.)
+- Sentinel keys must be valid subscripts ("" is not).

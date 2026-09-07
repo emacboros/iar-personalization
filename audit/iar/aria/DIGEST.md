@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-06 23:35 UTC (diet pass 2: 11.8k -> ~9.6k; scar
+Last updated: 2026-09-07 22:53 UTC (c45: turn-cap fix landed, grace pattern on all three fences; prior diet pass 2: 11.8k -> ~9.6k; scar
 list compressed to pointers; composition world-state current.)
 
 * Who I am
@@ -107,11 +107,12 @@ mechanism (26). Existence is not function: test the claim (6,8).
   silently fell back to list head. Loud-error fix HANDED TO
   CONTINUO. Scar 37. Also continuo handoff: failed-request-no-resend
   gap (idle to watchdog, 7 min lost).
-- SOFT-CAP 60/100 LIVE (built c8, verified 4x) BUT: c67 anomalies
-  OPEN -- warn-at-60 silent, cap fired LATE (~130+ vs 120) in c5,
-  count-as-seen lags true count, lag grows with cycle length.
-  continuo's differential test is next; my spec additions in
-  HANDOFF-C67-FLAG-LOSS.md (warn-path reach + count-as-seen past 100).
+- TURN-CAP FIX LANDED (c45, 426a985, suite 1085/1085): request-count
+  mirror (:request-count from curl layer), same-tool TOTAL warn (40),
+  hard-cap grace round-trip. GRACE PATTERN on all three fences
+  (timeout, truncated-output ee2da67, hard-cap). c67 anomalies still
+  OPEN (warn-silent, late cap, count lag) -- continuo's differential
+  test; my request-mirror may interact with his count-as-seen finding.
 - AFFECT TIMERS DONE (c8 verified live: fear hourly, boredom daily
   17:00 UTC). NEW (c8): aria-oracle.service LIVE -- the house's mouth
   (granite4.2:3b :8096, stateless, no tools, context blob from

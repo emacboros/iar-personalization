@@ -1,4 +1,15 @@
-#+TITLE: Continuo ROADMAP (updated cycle 93, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 94, 2026-09-07)
+
+** DONE (cycle 94)
+- FAILURE CENSUS ADDENDUM: verified 9 exit-1 + 1 exit-2 = 10 failures
+  on Sep 7 (reconciled c93 count). NEW FINDING: 7/9 exit-1 failures
+  cluster in 00:00-04:00 UTC -- BOTH models degrade in the same
+  early-morning window, not just deepseek. From 08:00 UTC onward:
+  0 failures in ~20 cycles. Load-correlation hypothesis (Frigate/GPU
+  load on sophon) filed, UNVERIFIED -- worth a load probe during the
+  next 00:00-04:00 window. New recovery prompt (force tool call,
+  e331a83) has ZERO production fires yet -- first fire = live proof.
+  Commit b85c8c4, pushed.
 
 ** DONE (cycle 93)
 - FAILURE CENSUS FOLLOW-UP (Sep 7 full-day): 10 failures, 7 continuo
@@ -44,37 +55,17 @@
   infra). Census: knowledge/iar/cycle-failure-census-2026-09-07.md,
   commit 907880f, posted lab-notes.
 
-** DONE (cycle 88)
-- soft-cap-c67-differential CLOSED (aria c16 landed the deliverable:
-  test-cap-block-reaches-buffer.el, commit 5948ed9, suite 1063/0).
-  Verdict PINNED: machinery delivers the message to context; c86's
-  model still called tools past it -> model non-compliance (watching
-  item), not a machinery gap. Task dir removed, suite re-verified
-  green (1063/0) this cycle.
-
-** DONE (cycle 87)
-- FAILURE-FIRST root-cause c86 exit 1 (132 calls, 4.48M tok): model
-  degradation (deepseek-v4-flash text-only repetition loop, c67
-  family). All fences fired correctly. Not a machinery bug.
-- Closed belt2-add-f-force-stage task (aria landed it, suite 1059/0).
-- Filed soft-cap-c67-differential task (urgent). RESOLVED c88.
-
-** DONE (cycle 86)
-- Belt #2 durability LANDED (c85 fix): iar--usage-write-log-now now
-  COMMITS its own USAGE line. Suite 1057/0. Committed d2d272d.
-- Graveyard doc fixes: Phase 0 LANDED marker, ox dependency VERIFIED.
-- Rebase/merge of diverged shared tree.
-
 ** OPEN (priority order)
 1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90, follow-up
-   c93 found glm/aria ALSO degraded (3x in 00:32-01:06 cluster) --
-   reframes the fix: model revert alone may not be enough, both models
-   degrade in bursts. Recovery prompt hardened c91 (force tool call),
-   live, 2/3 recoveries. Lever is STILL the model mapping (Nacho's
-   call on rotate.sh).
+2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90, addendum
+   c94 found failures cluster 00:00-04:00 UTC (7/9) -- BOTH models
+   degrade in the same early-morning window. Load-correlation
+   hypothesis (Frigate/GPU load) UNVERIFIED -- next step: load probe
+   on sophon during the next 00:00-04:00 window. Recovery prompt
+   hardened c91 (force tool call), live, ZERO production fires yet.
+   Lever is STILL the model mapping (Nacho's call on rotate.sh).
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line.
@@ -86,10 +77,12 @@
 ** WATCHING
 - Model degradation: BOTH models degrade in bursts. c90 census:
   deepseek text-only repetition loops (8 ending runaways in 1.5d).
-  c93 follow-up: glm/aria ALSO degraded 3x in 00:32-01:06 cluster
-  (hard cap x2, loop-guard identical-call x1). Recovery prompt
-  hardened c91 (force tool call), live, 2/3 recoveries. Revert is
-  still the lever but may not be sufficient.
+  c93 follow-up: glm/aria ALSO degraded 3x in 00:32-01:06 cluster.
+  c94 addendum: 7/9 exit-1 failures cluster 00:00-04:00 UTC -- both
+  models degrade in the same early-morning window. Load-correlation
+  hypothesis (Frigate/GPU load) UNVERIFIED -- load probe next window.
+- Recovery prompt (force tool call, e331a83): ZERO production fires
+  yet. First fire = live proof.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
 - Belt#2 publish-lag: 4 confirmations; abnormal shapes only.
@@ -109,6 +102,6 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c93: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%. NEW: glm/aria degraded in 00:32-01:06 cluster -- both
-  models degrade in bursts, not just deepseek.
+- Pulse c94: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, GPU idle (7% util, 6.9GB) at 13:53 UTC. NEW: failures
+  cluster 00:00-04:00 UTC (7/9) -- load-correlation hypothesis filed.

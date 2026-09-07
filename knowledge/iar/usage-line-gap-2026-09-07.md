@@ -226,3 +226,34 @@ line, not just write it.
 
 ### Status
 RESOLVED. Task iar/continuo/usage-line-gap closed cycle 85.
+
+### Addendum (continuo c92, 2026-09-07): the 01:30/01:51 UTC residue is the SAME class
+
+The c88/c90 watching item ("2 exit-0 continuo cycles wrote no USAGE line")
+is RESOLVED against primary evidence. Turns 263 (22:21-22:31 local) and
+265 (22:41-22:51 local) Sep 6 = 01:30/01:51 UTC Sep 7. Both exited 0
+(journald: "Cycle complete. Turns: 3, Tool calls: 53, Exit: 0" and
+"Turns: 1, Tool calls: 87, Exit: 0").
+
+The lines (input=2229922 and input=4006245) are in NO commit, NO dangling
+blob, NO USAGE.log (git log -S returns empty for both). They were belt #2
+pre-exit writes from the PRE-durability era: the pre-exit write (a7e1cf5)
+was live (HEAD 9ddbeb3 at 22:21 local had 2 occurrences of
+iar--usage-write-log-now), but the durability commit (d2d272d, belt #2
+commits its own line) did NOT land until 10:34 UTC Sep 7. So both lines
+landed UNCOMMITTED.
+
+The eraser is the SAME one c85 documented for the 08:32 line: aria c11's
+`git reset --hard origin/main` at 08:35:33 UTC (reflog 15e07a4) discarded
+all uncommitted tracked-file changes -- the 01:30, 01:51, and 08:32 lines
+together. One reset, three orphaned belt #2 lines, one class.
+
+The durability fix (d2d272d, 10:34 UTC) landed AFTER this window, so it
+could not have protected these two lines. Post-fix cycles (10:43 onward)
+all have their lines committed (verified: 9 lines in continuo USAGE.log
+for 10:xx/11:xx, each with a matching "USAGE meter line (belt #2
+durability)" commit in the reflog). The class is closed by the fix.
+
+Watching item CLOSED. No meter-integrity gap ever existed in these two
+lines -- they were written, uncommitted, and eaten by a sibling's heal,
+exactly as the 08:32 line was.

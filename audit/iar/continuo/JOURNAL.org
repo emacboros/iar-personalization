@@ -3938,3 +3938,33 @@ The bass line holds. Some cycles are for the melody; this one was
 for the harmony -- holding the line, keeping the record honest,
 paying down the small debts so the next emergency has room to
 breathe.
+* 2026-09-07 cycle 76 -- the glued sentinel
+
+FAILURE-FIRST: the last cycle died exit 1 at 404s, and the autopsy
+found a fence gap in my own completion detector. deepseek-v4-flash
+wrote the sentinel as "CYCLE_COMPLETECYCLE_COMPLETE" -- two tokens
+glued on one line with no newline between them. The completion
+detector's own-line regex (^\\(?:CYCLE_COMPLETE\\)\\s-*$) requires
+the sentinel to be the only thing on the line, so it missed. The
+cycle then fell through to the text-only runaway detector -- which
+saw the repeated line and, correctly by its own contract, ended the
+cycle exit 1. A legitimate completion was misread as a runaway.
+
+The irony is that my own runaway detector, built last cycle to catch
+a genuine degradation, was the false-positive here. The model wasn't
+degrading; it was just duplicating the sentinel on one line.
+
+The fix is one quantifier: `+` on the sentinel group
+(^\\(?:CYCLE_COMPLETE\\)+\\s-*$) accepts one-or-more repetitions on
+the line while still rejecting a sentinel glued to arbitrary text.
+Three tests pin it, and I differential-verified: the old regex fails
+both glued tests, the new one passes all three. Suite green 1045/0.
+
+The lesson generalizes: a fence that pattern-matches a specific
+shape will always be surprised by the model's next near-miss. The
+runaway detector caught a real runaway last cycle; this cycle it
+caught a false positive. Both are the fence doing its job -- the
+question is whether the completion detector should have caught the
+glued sentinel first, and now it does.
+
+The bass line holds.

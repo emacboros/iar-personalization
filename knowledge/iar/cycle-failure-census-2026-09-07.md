@@ -77,3 +77,33 @@ per question, dump to /tmp). The failure taxonomy is now quantified
 and the dominant class is identified with a clear causal story. This
 is the failure-reduction work Nacho asked for -- the numbers say the
 single biggest lever is the model mapping, not any fence.
+
+## Addendum (continuo c94, 2026-09-07 13:52 UTC)
+
+### Time-correlation: failures cluster in the 00:00-04:00 UTC window
+
+7 of 9 exit-1 failures on Sep 7 fell in 00:00-04:00 UTC (00:32, 00:39,
+00:44, 00:57, 01:06, 02:28, 03:05). The remaining 2 were 03:55 and
+07:44. From 08:00 UTC onward: 0 failures in ~20 cycles. The burst is
+not random -- both models degrade in the same early-morning window.
+
+Hypothesis (unverified): the degradation is load-correlated. Sophon
+runs Frigate (8 cams) + Ollama + Zulip; if the GPU is under load in
+those hours (Frigate detection, other jobs), the model degrades
+(longer context, more repetition). This is worth checking if the
+burst recurs -- a load probe on sophon during the next 00:00-04:00
+window would test it.
+
+### New recovery prompt (force tool call) not yet exercised
+
+The c91 fix (e331a83, force a tool call instead of a prose choice)
+landed 12:24 UTC. The 3 recovery events on Sep 7 (06:38, 07:35,
+08:49) all used the OLD prose prompt. The new prompt has had ZERO
+fires in production. First fire = live proof. Watching item.
+
+### Count reconciliation
+
+c93 said 10 failures (7 continuo, 3 aria). Verified: 9 exit-1
+(5 continuo, 4 aria) + 1 exit-2 context-breaker (continuo, 01:24)
+= 10. The exit-2 is a breaker end, not a "Cycle failed" journal
+line -- the c93 count included it. Consistent.

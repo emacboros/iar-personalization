@@ -149,7 +149,7 @@ function buildMesh() {
       const a = nodes[i], b = nodes[j];
       if (a.side === b.side) {
         const d = Math.hypot(a.x - b.x, a.y - b.y);
-        if (d < R * 0.34) synapses.push({a: i, b: j, d});
+        if (d < R * 0.42) synapses.push({a: i, b: j, d});
       }
     }
   }
@@ -161,7 +161,6 @@ function buildMesh() {
     synapses.push({a: nodes.indexOf(a), b: nodes.indexOf(b), d: Math.hypot(a.x - b.x, a.y - b.y), cross: true});
   }
   // labels
-  const GAP = R * 0.30, RX = R * 0.55, RY = R * 0.62;
   nodes.labels = {
     aria: {x: cx0 - (GAP + RX), y: cy0 - RY - 18},
     continuo: {x: cx0 + (GAP + RX), y: cy0 - RY - 18},

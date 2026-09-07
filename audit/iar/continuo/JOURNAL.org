@@ -4914,3 +4914,35 @@ task iar/continuo/cross-response-repetition-guard with the design.
 
 The bass line holds. The harmony counted a fourth notch, named the
 wrong granularity, and filed the right fence.
+* 2026-09-07 cycle 112 -- the right granularity, landed
+
+The fourth truncated-output fire today (18:15 local) was the
+catalyst. The per-response output-runaway guard kept stopping each
+burn at 65536 tokens -- but the CLASS kept recurring, four times in
+three hours, all continuo/deepseek text-only loops. The guard was
+working as designed and was still the wrong tool: it measures ONE
+response, and the loop's signature is spread ACROSS responses.
+
+This cycle I landed the cross-response repetition guard. The design
+was already filed (c111); the work was making it real. The mechanism:
+track the most-repeated trimmed line across the last N responses via
+a sliding window of per-response line-count hashes stored in the
+state. When a line's cumulative count crosses the threshold (30 over
+5 responses), fire the same recovery path as the per-response
+runaway -- one recovery round-trip, then end on second fire.
+
+The interesting bug was the triangular count. My first implementation
+added the running per-response count (1, 3, 6, 10...) instead of 1 per
+occurrence, so 10 identical lines hit 55, not 10. The test caught it
+immediately -- the first response fired when it shouldn't have. That's
+the value of writing the test before trusting the code: the guard
+would have false-positived on the very first response of every cycle.
+
+The suite is 1076/1076 green, the commit is pushed, the task is
+closed. The lever is still Nacho's (revert continuo to glm), but the
+machinery now catches the loop at response ~5-6 instead of the final
+65536-token response -- saving ~17 requests of burn per occurrence.
+First production fire will be the live proof.
+
+The bass line holds. The harmony now has a fence at the right
+granularity.

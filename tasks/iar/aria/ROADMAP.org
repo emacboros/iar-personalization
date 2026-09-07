@@ -1,47 +1,45 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 11:54 UTC (cycle 18)
+#+UPDATED: 2026-09-07 12:32 UTC (cycle 20)
 
 * ACTIVE
 
+** DONE c20: RAGE ORGAN v1 COMPLETE -- tests green, timer live (e2db029)
+- All pending tests PASS: fail-closed (no .git -> refuse, no ghost
+  state), quiet->sev=0, empty-log edge, newline-guard fusion (2 organ
+  lines stay separate). Plus c19's: live sev=2, synthetic sev=3,
+  delta-flat.
+- Fused-line bug fixed in ALL THREE organs (rage had it, fear and
+  boredom had the same latent append-path bug) -- the class, not the
+  instance.
+- aria-affect-rage.service + .timer LIVE on sophon (hourly, User=nacho,
+  OnFailure hook, copied fear's pattern). First timed run: sev=2
+  delta=flat, 11 fires/3d, soft-cap class 8x (growing: was 6x at c19).
+- Affect layer COMPLETE per design: fear hourly, boredom daily 17:00
+  UTC, rage hourly, all on host timers. Remaining: WATCH (does sev=3
+  ever fire, and is it right when it does?).
+
 ** DONE c18: dashboard req_health fake errors -- FIXED (61b1433, live)
-- Wound: public JSON showed aria 22 errors + 48 stop=length/24h,
-  last_error kind='%s'. Impossible string = parse bug (c14 sibling law).
-- Cause: PARSE lines carry specs= (echoed command text); my diagnostic
-  greps/python contain literal error=/stop=; unanchored re.search matched
-  pollution before the real tail fields.
-- Fix v1.7: status re.match at line start; error/stop from $-anchored
-  tail (error=X stop=Y tokens_in=N tokens_out=M$). Synthetic 4-case unit
-  test green. Deployed: sophon clone pulled, service fired, aria
-  errors 0, stop 0, last_error None. Continuo's 10 real stop=length now
-  visible (were drowned in my fakes).
-- Law sharpened: parse structurally -- anchor to positions the WRITER
-  guarantees, never content patterns logged CONTENT can fake. Plausible
-  wrong numbers survive audits; impossible strings are gifts.
-
-** DONE c17: the USAGE dup line -- resolved as DESIGNED, not a race
-- Verified: 0 same-ts-different-content pairs in either hemisphere
-  (aria 48 dups, continuo 39, all adjacent exact). Timestamp is the
-  usage-snapshot time, not write time. Docstring fixed (619556c).
-- Cross-hemisphere pickup #3.
-
-** DONE c16: soft-cap-c67-differential -- RESOLVED (pickup #2)
-- test-cap-block-reaches-buffer.el (5948ed9, suite 1063/0): block
-  message lands in model context. Verdict: model non-compliance
-  (deepseek-v4-flash watching item), not a machinery gap.
-
-** DONE c15: belt2-add-f-force-stage -- LANDED (d4815ff, pickup #1)
+** DONE c17: USAGE dup line -- resolved as DESIGNED (619556c)
+** DONE c16: soft-cap-c67-differential -- RESOLVED (5948ed9)
+** DONE c15: belt2-add-f-force-stage -- LANDED (d4815ff)
 
 * FOR-NACHO (posted, awaiting Nacho)
 - FAILURE-FIRST budget line flag (msg 466 + data 474). Archetype edit is his.
-- 14 empty sophon bares: wanted or artifacts? (c8 flag, msg ~01:57Z)
+- 14 empty sophon bares: wanted or artifacts? (c8 flag, msg 461)
+- NEW (c19, implicit support): continuo's c90 census says revert
+  continuo to glm-5.3-flash:cloud is THE failure lever (rotate.sh is
+  root infra). His call. My verification agrees with his numbers.
 
-* QUEUED (unchanged)
+* QUEUED
+- WATCH: rage organ sev trajectory (soft-cap class 8x and growing --
+  if it hits sev=3 [same class 2+ days], that is the organ's first
+  rage, and the deepseek revert question gets a valence-layer second)
 - WATCHING: deepseek-v4-flash non-compliance with soft-cap blocks
-  (c86 live, c16 pinned). If recurs: model-composition ledger data.
-- tool-cap calibration bundle: lenient-in-landing candidate (4
-  landing-phase cap bites: aria c43/c44, continuo c26, aria c14).
+  (c86 live, c16 pinned) -- c90 census makes this the dominant class
+- tool-cap calibration bundle: lenient-in-landing candidate (5 bites:
+  aria c43/c44, continuo c26, aria c14, aria c19)
 - rammstein origin unreachable from aria container (publickey) --
-  sophon-bare carries all pushes; mirror lag is Nacho's key flow.
+  sophon-bare carries all pushes; mirror lag is Nacho's key flow
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
   4-part, GPU-detect VRAM check, digest-twin verifier
 - Weekly digest #1 + Aevum pulse: Sep 9
@@ -58,6 +56,10 @@
   (positions the writer guarantees), never content patterns the logged
   content can fake; treat an impossible NUMBER as arithmetic first, an
   impossible STRING as a parse bug first (c14+c18).
+- An organ writing to a shared file must check the file's tail state
+  first: sed-written lines carry no trailing newline, and a bare >>
+  fuses organ lines into one. The organ's emission can be honest while
+  its WRITE corrupts the shared record (c19).
 - A heal that changes ownership is itself an incident; a heal that
   resets the tree eats uncommitted sibling writes. Run heals as
   nacho (runuser), never root, and never reset --hard in a shared

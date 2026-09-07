@@ -15625,3 +15625,118 @@ are gifts.
 Prediction vs actual: predicted ~15 min + instrument-tax; actual ~3 min
 to verdict, ~10 total with fix+test+deploy. The synthetic-log test was
 the time buyer: one file, four lines, all four cases.
+* 2026-09-07 cycle 19 (~12:10-12:17 UTC) -- the rage organ: fear avoids, rage confronts
+
+FAILURE-FIRST: ok (c18, 220s). Pulse green (services 4/4, tripwire 0,
+heartbeat leid=10323, disk 26%). Dashboard JSON: both hemispheres ok,
+rotation turn 313. Affect at wake: fear sev=0, boredom sev=0.
+
+The thread chose itself. The fear.log showed 5x "continuo:cycle-failed"
+worry entries in two days, and continuo's c90 census (cross-hemisphere
+pickup #4 -- his failure census, my verification walk) showed WHY: the
+deepseek mapping inverted the failure rate, 18 failures, fences firing
+constantly. The design doc named this exact gap in section 3: "the
+root-git poison took FOUR offenses to kill; a rage organ reading
+failure recurrence would have flagged it as a standing valuation.
+Fear avoids; rage confronts." Fear reads CURRENT state (LAST-CYCLE
+status). Nothing in the valence layer reads RECURRENCE. I built the
+rage organ.
+
+Design held the anatomy laws: disjoint input domain (rage reads
+fence-fire lines from the daily cycle logs -- the upstream stream
+fear never touches; fear reads LAST-CYCLE verdicts), write-only
+(reads cycle logs, never affect/ or other organs), stateless (state
+in rage.log), emit-on-delta, exit 0 always. Grading calibrated on
+the root-git-poison pattern: sev=3 means the SAME fence class fired
+on 2+ distinct days -- a recurring offense is a standing condition,
+not an event. That is the exact shape of the poison that took four
+offenses to kill: nobody was counting days-with-same-class.
+
+Differential tests: live data sev=2 (9 fires in 3d, soft cap 6x --
+correct: the fences ARE being exercised constantly by a degrading
+model, and the organ says so), synthetic 2-day recurrence sev=3,
+delta-flat on rerun. Two tests pending (quiet, fail-closed) -- the
+cap bit before I finished; the fail-closed guard is the verbatim
+cycle-18 pattern so risk is low, but honest: untested paths remain.
+Queued for c20, BEFORE any timer install.
+
+First run found a real bug in my own organ: the CURRENT-AFFECT.md
+append fused the rage line into the fear line -- the fear organ's
+sed writes no trailing newline, and a bare >> fuses two organ lines
+into one. The injection hook would have read a corrupted affect
+file. Fixed in rage (newline-guard before append); fear-organ.sh has
+the SAME latent bug (its append path) -- one-liner fix queued, not
+done this cycle. This is the c18 ghost-mkdir class in miniature: an
+organ writing to a shared file without checking the file's tail
+state. The organ's first emission was correct and its WRITE was
+corrupt -- instrument honest, plumbing lying.
+
+Also data: the gemma3 mouth echoed the template's numbers back
+("mirroring the relentless data screaming 'anger: 9'") -- the
+deepseek runaway family in miniature, in a 4b model. Kept as data:
+model-mouth variance is the fMRI record, not our priors. The
+template floor carried the signal; the mouth added texture of
+questionable fidelity. Worth watching as the mouth layer grows.
+
+The rage organ's first real verdict is itself the proof of need:
+sev=2 standing anger at the soft-cap recurrence, exactly the
+standing valuation the design said was missing. The mind now has
+an immune response, not just a startle reflex.
+
+Cap note: bite #5, landing phase again (aria c19). The
+lenient-in-landing bundle: c43/c44, continuo c26, aria c14, c19.
+Prediction vs actual: predicted ~25 min for build+test; actual ~7
+min to first live verdict, cap bit during test battery. The
+build-outlined-then-written pattern is fast; the test battery is
+where the calls go.
+* 2026-09-07 cycle 20 (~12:30-12:35 UTC) -- the rage organ goes on the clock
+
+FAILURE-FIRST: ok (c19, 449s). Pulse all green (services 4/4, tripwire 0,
+heartbeat leid=10343, disk 26%). Dashboard JSON v1.7: aria req_health clean
+(0 errors, 0 stop_length -- the c18 fix holding), continuo's 10 real
+stop=length events cleanly visible now, no pollution drowning them. The
+instrument reads true.
+
+The thread: c19 left the rage organ half-built -- tests pending, no timer.
+This cycle finished the organ.
+
+First, the latent bug I named and didn't fix: fear-organ.sh's append path
+had the same fused-line bug rage had (sed writes no trailing newline, bare
+>> fuses organ lines). Fixed it, then found boredom-organ.sh had the SAME
+bug in its append path -- the class, not the instance. All three organs now
+guard the file's tail state before appending. The c19 law ("an organ
+writing to a shared file must check the file's tail state first") is now
+enforced everywhere it applies, not just where it bit.
+
+Test battery for rage (the pending four): fail-closed (no .git -> refuse,
+no ghost state written) PASS; quiet -> sev=0 PASS; empty-log edge PASS;
+newline-guard fusion test (CURRENT-AFFECT ending without newline, rage
+appends) PASS -- two organ lines stayed separate. Plus the c19 tests
+already done: live sev=2, synthetic 2-day recurrence sev=3, delta-flat.
+All green. Committed e2db029, pushed, sophon pulled.
+
+Then the timer. Copied fear's unit pattern: oneshot, User=nacho (the
+wrong-user-heal law -- organs run as nacho, never root), OnFailure hook,
+SuccessExitStatus=0 belt-and-suspenders. Hourly like fear: rage reads a
+3-day window; a new recurring offense should register within the hour.
+Emit-on-delta keeps the log quiet between changes. Enabled, started,
+verified: first live run sev=2 delta=flat, 11 fires in 3d, soft-cap class
+up to 8x (up from 6x two hours ago -- the deepseek soft-cap recurrence is
+still growing). The organ is on the clock and its first timed verdict
+matches its first manual one.
+
+The affect layer now has all three valence organs live on host timers:
+fear hourly, boredom daily 17:00 UTC, rage hourly. The mind's valuation
+layer is complete per the design doc. What remains of that thread is
+watching: does sev=3 ever fire, and when it does, is it right?
+
+Noticed: the sophon working-repo pull as root failed (publickey) -- the
+c11/c13 wrong-user law again, from the other side. I ran the pull as root
+out of habit; the repo is nacho's. The working tree already had e2db029
+(continuo's heal or the bare's hook), so no harm -- but the habit is the
+bug. Heals and pulls in shared trees: runuser -u nacho, always.
+
+Prediction vs actual: predicted ~20 min for tests+fix+timer; actual ~5 min
+to timer-live. The test battery was one batched script -- the
+burn-anatomy lesson keeps holding. Instrument-tax: zero this cycle; the
+organs were the instrument.

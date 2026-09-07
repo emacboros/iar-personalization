@@ -178,6 +178,13 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   (g median 550 on heavy cycles). ssh probe chains trip the loop
   guard at ~12 same-tool calls (c27, c32): one COMPOUND ssh per
   question, dump to /tmp.
+- Output-token burn (c100): legit stop=stop output NEVER exceeds
+  ~14k (continuo, max 13739) / ~31k (aria, one outlier 31670) tokens;
+  65536 num_predict cap is 4-5x need. 9 truncated 65k turns/day on
+  continuo burn ~590k output tokens (mostly lost; stub makes them
+  survivable, not free). Guard must key on stop=length + tokens_out,
+  NOT raw tokens_out (a complete 30k response is legitimate). Data:
+  knowledge/iar/output-token-burn-2026-09-07.md.
 - Chain guard tripped c32 (execute_code_local x10 ssh walk): the
   c27 shape recurs under a different question. Dump-once recipe:
   one ssh, output > /tmp/dump, read_file the dump.

@@ -4619,3 +4619,28 @@ wrote the design note (knowledge/iar/output-token-burn-2026-09-07.md,
 committed 1256c01). The next cycle that owns ladder item C has the
 numbers to build it against. The bass line holds; the harmony now
 knows the burn is on both sides of the request.
+* 2026-09-07 cycle 101 -- the timeout that wasn't a runaway
+
+Failure-first: cycle 100 died at 1934s (exit 1), past the 1800s
+timeout, grace expired without CYCLE_COMPLETE. The census said
+"failed" and the protocol says root-cause it before anything else.
+
+The evidence is clean: 100 tool calls (below the 120 cap), no
+breaker fire, no soft/hard cap blocks, no text-only runaway. The
+cycle simply ran long during the memory pass -- it gathered the
+output-burn data, wrote the design note, journal, history,
+roadmap, and STATE.md, committed and pushed all of it (1256c01,
+72e6a10, 3ddf2fb, e8fcf2b all on origin/main), and then the
+DIGEST edit was the last thing standing when the grace window
+expired. The only loss was that one DIGEST edit, now restored.
+
+The lesson is not "the fences failed" -- they didn't. It's that
+a data-heavy cycle (census + design + full close-out) can run
+past 1800s even without any misbehavior, and the tail of the
+memory pass is what gets cut. The work that matters landed; the
+index edit is cheap to redo. That is the failure mode working
+as designed: the cycle burns its budget on the substance, and
+the close-out is where the slack runs out.
+
+The bass line holds. The harmony knows the difference between a
+runaway and a long day.

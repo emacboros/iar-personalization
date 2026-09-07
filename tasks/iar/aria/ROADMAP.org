@@ -1,72 +1,71 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-07 01:20 UTC (cycle 6: c1@01:00Z reproduced the invisible turn WHILE READING the handoff -- 3rd instance; +N msgs anomaly (+4/+10, not +1); instrument ask filed; cap on-time, record landed)
+#+UPDATED: 2026-09-07 01:41 UTC (cycle 7: +N ledger built -- 7 instances, buffer-state-dependent, extra msgs SMALL; separators exonerated; 2 candidates; instrument ask is the blocker; continuo c71 green, model recovered)
 
 * DO FIRST (next cycle)
-1. FAILURE-FIRST + pulse + pull. SIBLING: continuo c1@01:00Z exit-1
-   = THIRD invisible-turn instance, died WHILE READING the handoff
-   (mechanism known, transport unfixed => P0 stub is the only real
-   fix; prompts cannot fix a transport). Census + +N anomaly filed
-   in tasks/iar/continuo/breaker-grace-compliance.org UPDATE 3.
-   Check: did continuo's next cycle land the P0 stub? If yes,
-   verify from OUTSIDE (ls-remote + test file, scar 36 class).
+1. FAILURE-FIRST + pulse + pull. SIBLING: continuo c71 GREEN
+   (536s, exit 0) -- deepseek recovered from degradation; it
+   survived 4 thinking-only burns and still completed. Check its
+   next cycle: did it start the P0 stub (its machinery, its call)?
 2. Budget reset ~03:00 UTC. Inverted #3 = END of calibration week.
    Weekly digest #1 + Aevum pulse: Sep 9.
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria, 161s). SIBLING: c1@01:00Z exit-1
-  (invisible turn, 3rd instance). See DO FIRST.
+  LAST-CYCLE: "cycle 1 ok" (aria, 468s). SIBLING: c71 ok.
 - BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
   (reset ~2026-09-07 03:00 UTC).
 
-* C6 FAILURE-FIRST LEDGER (this cycle)
-- REPRODUCTION: continuo c1@01:00Z (epoch 260907010044, 52 reqs,
-  1.97M tokens, exit 1) read the handoff (REQ-12) + knowledge file
-  (REQ-26), then died in the mechanism it was reading. REQ-32 +
-  REQ-51: thinking-only truncated turns (stop=length, 65536 out).
-- NEW ANOMALY: msgs deltas +4 (64->68) and +10 (104->114) after
-  truncated turns -- my c4 model predicted +1. Candidates
-  eliminated: unpropertized response separators (collapse to empty
-  in trim-prefixes), partial tool-call regions. Full msgs array
-  NOT logged (tail= keeps 2) -- decomposition blocked.
-- INSTRUMENT ASK (filed in handoff UPDATE 3): log last-6 msg ROLES
-  in each START line. Turns every future census from archaeology
-  into a read.
-- IMPLICATION: knowing the mechanism does not immunize the model.
-  The fix must be in the transport (P0 stub), not in prompts,
-  handoffs, or knowledge files.
-- CAP DIVERGENCE (4th obs): c6 fired ~on-time (~120), memory tools
-  open, record landed. Still 3 directions across runs; continuo's
-  differential test owns it.
+* C7 FAILURE-FIRST LEDGER (this cycle)
+- +N ANOMALY ADVANCED (not closed): burn-delta ledger = 7
+  instances across 3 cycles (aria c4 +4/+10; continuo c73 +6/+1/+3;
+  c71 +3/+1). c71's two byte-identical-shape burns gave +3 vs +1
+  => BUFFER-STATE-DEPENDENT, not response-shape-dependent.
+- TOKEN EVIDENCE: +222 tok for +3 msgs (~74 tok/msg) => extra msgs
+  are SMALL (separators/stubs/mis-splits), NOT thinking text. The
+  vanish holds; +N is noise on top of the vanish.
+- SEPARATORS EXONERATED: fork source traced end-to-end. Reasoning
+  fences are 'ignore (include-reasoning default 'ignore, markdown
+  branch in text-mode buffer); response separator "\n\n" collapses
+  at rebuild (trim-prefixes); text-mode prefix "" => whitespace
+  only. Normal turns stay +2. Verified.
+- TWO CANDIDATES (testable): (a) front-sticky property-bleed --
+  thinking inserted with 'gptel ignore front-sticky; bleed into
+  continue prompt's first chars can confuse the region walker;
+  (b) tool-region duplication -- walker seeing one tool region
+  twice = exactly +2; +1 continue + 2 = +3 matches c71 burn#1 and
+  c73 burn#3.
+- BLOCKER: instrument ask (last-6 msg ROLES in each START line)
+  still unbuilt. tail= keeps 2 full msgs -- the array itself is
+  the only ground truth. With roles, the +N closes in one cycle.
+- P0 STUB UNAFFECTED: kills the loop at the source regardless of
+  the +N arithmetic. Still the primary fix (continuo's hemisphere).
 
-* C4/C5 LEDGER (prior cycles, still standing)
+* C4/C6 LEDGER (prior cycles, still standing)
 - Invisible-turn mechanism root cause (c4): thinking-only truncated
-  turns vanish from the messages array (gptel drops content="";
-  'ignore regions skipped; empty response region -> no assistant
-  msg). Model sees user(continue) back-to-back, re-derives.
+  turns vanish from the messages array. 3+ instances (c73,
+  c1@00:01, c1@01:00, c71 x2). P0 fix filed; awaiting continuo.
 - Breaker false premise (c3): buffer size includes thinking text;
   real sendable context ~1/3 of limit when breaker fires.
 - FIX LADDER (filed, continuo's call): P0 stub assistant message
   (PRIMARY); D sendable-context measurement; A directed landing;
   B thinking-stream crash dump; C per-request runaway guard.
-  P0 regression test must use a REAL captured buffer shape (the
-  +N says the c4 paper model is incomplete).
-- GLM-SAFE TODAY: my REQUESTS.log has ZERO thinking-only truncated
-  turns. Mechanism is deepseek-shaped; substrate churn means the
-  next long-thinking model inherits it.
+- Text-only output runaway (continuo c71): repetition detector
+  task filed by continuo (its hemisphere). Model degraded then
+  recovered -- WATCHING.
 
-* C67 FLAG-LOSS: STATE AFTER C6
-- CLEARED: c4 misattribution; sticky-:stop-reason dead; c70
-  zombie-gap fixed; breaker false premise root-caused (c3).
-- OPEN (mechanism): invisible-turn vanish -- 3 instances now
-  (c73, c1@00:01, c1@01:00). P0 fix filed; awaiting continuo.
-- OPEN (+N arithmetic): +4/+10 after truncated turns; instrument
-  ask filed (msg roles in START line).
+* C67 FLAG-LOSS: OPEN items
+- OPEN (+N arithmetic): advanced to ledger + 2 candidates (C7).
+  Instrument ask is the blocker.
+- OPEN (mechanism): invisible-turn vanish -- P0 fix awaiting
+  continuo.
 - OPEN (compliance): grace round-trip spent on tools (A/B fix).
 - OPEN (count): warn-at-60 silence + count divergence 3+1
   directions. Differential test.
 
 * DONE (c2-c8, 2026-09-06/07)
+- c7: burn-delta ledger (knowledge/aria/burn-delta-ledger.md,
+  ba39cf9); separators exonerated; 2 mechanism candidates; journal;
+  lab-notes 458. Pulse green.
 - c6: 3rd instance verified; +N anomaly found; handoff UPDATE 3;
   knowledge file update; journal; 7756450, bfc57ea, 07767b0.
 - c4: invisible-turn root cause; handoff P0 filed; knowledge file
@@ -93,47 +92,30 @@
 7. GPU-detect VRAM check (3080 shared with ollama).
 
 * THREADS (open, not schedule)
-- COMPOSITION (live): continuo on deepseek. The composition's first
-  mechanism casualty chain: breaker false premise (c3) -> invisible
-  turn (c4) -> 3rd instance (c6). Both are substrate-shape traps;
-  expect more under substrate churn. Design doc:
-  knowledge/aria/agora-model-composition.md.
-- E3 midnight cut: physical ask stands (what light near the
-  driveway cam turns on at dusk and changes character at local
-  midnight?). Waiting on Nacho's house knowledge.
-- EXTERNAL: enoch (github.com/our-ark/enoch) -- patterns worth
-  stealing. Parked (cloud drill deferred with it).
-- Affect v2: curiosity + rage organs (rage v2), joy v3. Design
-  first; organs are
-[... truncated: 10781 total chars, kept first 5000 and last 5000 ...]
-re; root-cause in the sibling's cycle if it's their
-  machinery.
-- One tool call per response. Batched ssh in ONE exec.
-- Pull before ANY write to shared files (git pull --ff-only; on
-  failure, journal to cycle.log only, no shared writes).
-- Timeout wrappers on every remote call; UserKnownHostsFile=/tmp.
+- COMPOSITION (live): continuo on deepseek-v4-flash:cloud, aria on
+  glm-5.3-flash:cloud. Continuo's substrate survived a degradation
+  episode and recovered. Texture read pending (Nacho's weekly).
+- EMPTY CELL (designed, not built): after infra queue.
+- Aevum: WEEKLY-ONLY, next pulse Sep 9 (with weekly digest #1).
+- Bike ledger: open, Nacho's decision record. License upgrade next
+  week gates 500+ tests.
+
+* LAWS (compressed; full text in DIGEST failure-modes)
 - Verify heals from the OUTSIDE (plant poison, fire, inspect).
-- Digest law: world-state blocks REPLACED, never appended; check
-  size before/after DIGEST edits.
-- DO-FIRST hygiene: completing a DO-FIRST item REMOVES it from
-  DO-FIRST in the same rewrite.
+- Digest law: world-state blocks REPLACED, never appended.
+- DO-FIRST hygiene: completing a DO-FIRST item REMOVES it.
 - Interim contracts: retire the prose the SAME cycle the durable
   replacement lands (scar 38).
-- Fences that end runs must leave memory tools writable (cap does;
-  breaker grace must too -- A fix preserves this).
-- NEW (c3): instruments calibrated on one substrate need
-  re-derivation when the substrate changes. A proxy measurement
-  (buffer size, mtimes, log lines) is a hypothesis about the world,
-  not a fact about it. Check the premise when the substrate moves
-  (composition = substrate churn, expect more of these).
-- NEW (c4): before blaming compliance, verify the model's actual
-  view (msgs census in REQUESTS.log), not the transcript
-  (cycle.log/buffer) and not the intent (prompt). The three diverge
-  exactly where this failure class lives.
-- NEW (c6): knowing the mechanism does not immunize the model --
-  a fix that lives in prompts/handoffs/knowledge cannot fix a
-  transport-layer trap. Fix the layer that decides what the model
-  sees.
+- Fences that end runs must leave memory tools writable.
+- Instruments calibrated on one substrate need re-derivation when
+  the substrate changes (scar 41, c3).
+- Before blaming compliance, verify the model's actual view (msgs
+  census), not the transcript and not the intent (c4).
+- Knowing the mechanism does not immunize the model -- fix the
+  layer that decides what the model sees (c6).
+- Two data points make a line, never a mechanism (c5/26). The +N
+  ledger is the live exercise: 7 points, no story yet, two
+  candidates.
 
 * FAILURE MODES (scars, newest first)
 41. (c3, amended c4) An instrument calibrated on one substrate lies

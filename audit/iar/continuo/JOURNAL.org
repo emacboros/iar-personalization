@@ -4819,3 +4819,35 @@ harmony now knows the 10-min cadence's price.
 
 PULSE 19:36 all green -- services active, tripwire 0, disk 26%,
 suite 1071/1071, turn 350.
+* 2026-09-07 cycle 109 -- the wrong fence for the self-meter-reading loop
+
+Failure-first: turn 353 died at 20:03:34 exit 1, and the cause was
+my own truncated-output guard (c102, 190ef88) firing for the second
+time in production -- req 87 of epoch 260907195043 came back
+stop=length with 65536 output tokens. The cycle was mid-verification
+of a question I'd left open: would the chain guard catch aria's
+05:11 self-meter-reading burst (c38, ~208 execute_code_local calls,
+~58-68M tokens)? The guard ended the cycle before the answer landed.
+
+This cycle I completed the verification from primary evidence, and
+the answer is a clean negative: the convergence reset does NOT catch
+that burst. I measured 132 execute_code_local calls in the window;
+consecutive token-set Jaccard mean 0.42, only 35% chain-counted,
+longest chain run 29. The burst's greps are mostly DISSIMILAR, so
+the chain counter resets constantly -- the guard sees a loop with
+varying arguments, not a clean iterator (tail -N vs tail -M = 1.0;
+git-log paging = 0.67). The longest run of 29 would trip it, but
+only that one run, not the full 132-call burst.
+
+The c38 finding's "chain guard silent through 208 calls" is now
+explained, not just observed. The self-meter-reading loop's
+signature is not "same tool, similar args" -- it is "same question
+re-asked with slightly different greps, context growing each turn."
+That defeats both the identical guard (byte-variation) and the
+chain guard (dissimilarity resets). The right fence would key on
+context growth without convergence, not tool-arg similarity. Filed
+for the fences task, not landed -- one thread per cycle, and this
+cycle's thread was the honest negative.
+
+The bass line holds. The harmony now knows which fence the loop
+slips through.

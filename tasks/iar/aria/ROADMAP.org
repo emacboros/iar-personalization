@@ -1,77 +1,77 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 19:22 UTC (cycle 37)
+#+UPDATED: 2026-09-07 19:48 UTC (cycle 38)
 
 * ACTIVE
 
+** c38: BURN BURST AUTOPSIED -- the meter ate the house (05:11-06:31 UTC)
+- Dashboard asymmetry: aria 291M input today vs continuo 137M. By
+  REQUESTS.log the picture inverts (aria 47.4M / continuo 70.1M).
+  Reconciliation: USAGE's 06:31 line (597 reqs / 68M) is a cumulative
+  flush over a FOUR-SESSION burst -- aria cycles 05:11, 05:30, 05:50,
+  06:10 UTC, each fresh (msgs=2), each 19-28M input.
+- Mechanism: req -30 (05:15) ran a token census on its own
+  REQUESTS.log; the model then re-grepped the same "REQ-31-START"
+  pattern 35-49 times, each result ~4KB, context growing ~2k/turn,
+  never accepting the answer. Self-pollution census failure mode,
+  purest form: reading the meter became the workload.
+- The arc is the vindication AND the indictment: 05:11 session raw
+  grep (19.3M) -> 05:30 session built failure-triage.sh MID-BURST
+  (28.6M) -> 05:50+06:10 sessions collapsed to 4.5M. The instrument
+  works; the burst still cost ~58-68M -- costliest two hours on
+  record.
+- CRITICAL GAP (next cycle's first read): 192-223 requests in one
+  session against iar-cycle-max-turns default 40 -- turn guard did
+  not fire. Chain guard also silent through 208 execute_code_local
+  calls. Two fences, one burst, zero catches. Read configs/cycle.el
+  + the turn tracker BEFORE anything else.
+- c38 itself hit the 60-warn and 120-cap reading the meter -- third
+  live sighting of "the law you just wrote is the one you're about
+  to break." Meter-reading cycles have unbounded instrument tax;
+  burn-triage script is the seed (after the turn-cap gap).
+
 ** c37: c36's debts paid; rage census verification CLOSED
-- c36 (text-only runaway, fence recovery) landed via continuo's c107
-  add -A -- the designed handoff, fifth sighting. Debts paid: HISTORY
-  entry, lab-notes post (msg 523), this roadmap.
 - Census verification complete: rage sev=2 magnitude = fence LINES
   (30) not events (~17). Inflation 30/17 ~ 1.76x, consistent with
-  c29's 1.75x line-vs-event factor. The organ's number is real but
-  measures emission pattern, not mind misbehavior.
+  c29's line-vs-event factor.
 - sev=3 premise VERIFIED: all 30 counted fires live in
-  cycle-2026-09-07.log (single file-date; daily-log layout born
-  today, de22362). sev=3 requires 2+ file-dates -> correctly has NOT
-  fired. Observation premise holds.
+  cycle-2026-09-07.log (single file-date). Observation premise holds.
 
 ** c35: census instrument self-caught under-reporting; guard first-fire verified
-- ceiling-census.sh v1.1 (e97ca9a): bare invocation now includes all
-  four logs (current + .1 rotation). v1.0 bare run reported 6 hits;
-  truth was 16. An instrument that lies by omission is worse than
-  none -- caught by running the script against the hand-run from c34.
-- truncated-output guard first production fire VERIFIED (continuo
-  c105, 18:23Z, req 29, stop=length, 65536 tokens, genuine
-  degradation, exit 1, no residue). Ladder item C has its notch.
-- num_predict lever re-flagged to for-nacho (msg 519): guard blocker
-  resolved; only the rage sev=3 observation (Sep 8) remains before
-  the lever can be pulled. Nacho's call.
-- belt#2 durability: c34's cap-edge addendum + continuo's LAST-CYCLE
-  lines landed via 9e5212f (the c2/c3/c33 push-rides-next-cycle
-  shape, fourth sighting, handled by routine).
+- ceiling-census.sh v1.1 (e97ca9a): bare invocation includes all four
+  logs. truncated-output guard first production fire VERIFIED
+  (continuo c105, 18:23Z, req 29, stop=length, 65536 tokens).
 
 ** c34: ceiling-census.sh landed; output-ceiling baseline computed
-- Script: knowledge/aria/bin/ceiling-census.sh (31e8b75, v1.1
-  e97ca9a). Trailing-field anchor (c14/c18 law) baked in;
-  stop=length corroboration; hemisphere + .1-rotation aware.
-- Baseline (today, all 4 logs): 16 ceiling hits, ALL stop=length at
-  exactly 65536. continuo 14 (9 in .1, clustered 00:45-06:55 UTC),
-  aria 2. Every hit is a full 65536-token degraded generation.
-- msgs-depth hypothesis KILLED: continuo's hits span msgs=12..120.
-  The ceiling is not a long-context phenomenon.
-- Lever identified: configs/gptel.el :num_predict 65536 (~2x the
-  legitimate ceiling of 31670). NOT pulled (see NEXT).
+- 16 ceiling hits today, ALL stop=length at exactly 65536. msgs-depth
+  hypothesis KILLED. Lever: configs/gptel.el :num_predict 65536.
 
 ** c33: c67 warn-asymmetry RESOLVED (dissolved by live data)
-- Warn-at-60 asymmetry was CODE-VERSION DRIFT, not model difference.
-  Both hemispheres' fences fire and reach the model. "Cap fired late"
-  = by design (memory tools past cap allowed + counted).
 - Law: hemisphere asymmetry is evidence about CODE VERSIONS before it
   is evidence about MODELS.
 
 * NEXT
+- TURN-CAP GAP (c38, priority): read configs/cycle.el + turn tracker
+  in iar-agent-cycle.el. Why did 192-223 requests not trip
+  max-turns=40? Why did the chain guard not trip at 11? Fix or
+  re-spec, test, land.
 - rage sev=3 observation (Sep 8): v1.1 file-based grading predicts
   sev=3 tomorrow IF soft-cap fires again in cycle-2026-09-08.log.
-  Premise verified c37 (all today's fires single-file-date).
-  Observation day; v1.2 (event semantics, c29 sketch) after it
-  resolves. Do not touch the instrument.
+  Observation day; v1.2 (event semantics) after it resolves.
 - Aevum runaway (task 338465) lands ~Sep 8 00:15 UTC -- transcript
   behavior after landing is free data (weekly rule: no probe until
   Sep 14 unless sev-2 urgency).
-- num_predict lever (flag 519): configs/gptel.el :num_predict 65536
-  is ~2x the legitimate ceiling (31670 outlier). Lowering to ~40k
-  halves the per-event degraded burn. Guard blocker RESOLVED (c105
-  first fire). Only remaining: rage sev=3 observation Sep 8 -- one
-  variable at a time. After it clears, cheapest burn lever. Nacho's
-  call (flag 519).
-- Weekly digest #2: Sep 14-ish, fill-in format (digest #1 template).
+- num_predict lever (flag 519): c38 adds evidence -- the burst paid
+  full 65536 repeatedly. Still parked on the sev=3 observation. One
+  variable at a time. Nacho's call.
+- burn-triage script: failure-triage.sh is failure-first-shaped; a
+  burn-shaped sibling (start from USAGE spike, walk REQUESTS) would
+  make meter-reading cycles cheap. After the turn-cap gap.
+- Weekly digest #2: Sep 14-ish, fill-in format.
 
 * WATCHES
-- rage organ sev trajectory: sev=3 prediction Sep 8 (premise
-  verified c37).
+- rage organ sev trajectory: sev=3 prediction Sep 8 (premise verified c37).
 - Aevum: task 338465 runaway lands ~Sep 8 00:15 UTC; next weekly
-  pulse Sep 14 (does transcript save? does n_keep=4 dissolve birth?).
+  pulse Sep 14.
 - Oracle BrokenPipeError 04:56Z (harmless; maybe add access log).
 - rammstein origin unreachable from aria container (publickey);
   sophon-bare carries all pushes; mirror lag is Nacho's key flow.
@@ -81,7 +81,7 @@
 - rammstein mirror push-pending: infra repo caddy_sites 02f6393
   (Nacho's key flow); gptel-fork upstream merge (his next-topic pick).
 - gpu-load-probe install (continuo c97/c98, unit files ready) --
-  Nacho's call; tests the load-correlation hypothesis.
+  Nacho's call.
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
   4-part, GPU-detect VRAM check, digest-twin verifier.
 - for-nacho open flags (Nacho's answer pending): 461 (empty sophon
@@ -90,23 +90,21 @@
   (num_predict lever, guard blocker resolved).
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
+- A meter-reading cycle without a script is a burn event: start burn
+  investigations from a script, never from raw grep (c38).
 - An instrument that lies by omission is worse than no instrument:
   verify an instrument against a hand-run BEFORE trusting its
-  defaults (c35: bare census missed rotation, 6 vs 16).
+  defaults (c35).
 - Hemisphere asymmetry is evidence about CODE VERSIONS before it is
   evidence about MODELS. Check what each hemisphere ran first (c33).
 - Cross-file numbers: verify the JOIN KEY before trusting the join.
   The join key includes the CLOCK (rotate logs -03 local, USAGE UTC).
-  Dedupe raw greps before counting; USAGE ordering is COMMIT-order;
-  USAGE carries TWO burn classes (cycle belt#2 + interactive
-  kill-emacs) -- segment by writer (c14/c17/c22/c23).
+  Dedupe raw greps before counting (c14/c17/c22/c23).
 - REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE,
-  never content patterns. ceiling-census.sh IS the anchor now --
-  use the script, stop re-deriving (c14+c18, scripted c34).
+  never content patterns. ceiling-census.sh IS the anchor (c14+c18).
 - A census that doesn't read its own hemisphere's latest findings
   re-bites scars the house already paid for (c23).
-- Organ WRITE hygiene: check the file's tail state first; sed-written
-  lines carry no trailing newline (c19).
+- Organ WRITE hygiene: check the file's tail state first (c19).
 - Heals: run as nacho, never root; never reset --hard in a shared
   tree without checking git status (c11+c13).
 - Belt#2's write is only as durable as the next commit (c13+c14).
@@ -114,24 +112,18 @@
   a known-clean case BEFORE chasing anomalies.
 - Two data points make a line, never a mechanism.
 - A diet without a pressure instrument regrows.
-- The law you just wrote is the one you're about to break.
+- The law you just wrote is the one you're about to break (c38:
+  meter-reading cycle hit the cap).
 - Organs reading files NAMED by another writer: enumerate the
-  writer's actual files, take newest N BY NAME -- two clocks in one
-  join key mislabel day attribution (c26).
+  writer's actual files, take newest N BY NAME (c26).
 - When a finding changes a decision, STOP and write it (c22).
 - When a thread's premise is already answered in the record, verify
   THAT first (c28).
 - A generation has ended only when n_gen is FROZEN across two reads
-  AND the transcript mtime flips -- a single reading is a sample,
-  not a state (c122, Aevum).
+  AND the transcript mtime flips (c122, Aevum).
 - A receipt in the record is not a receipt in the world: the
   filesystem is the truth; the transcript is the claim (c129, Aevum).
 - A fence keyed on silence cannot distinguish "dead" from "thinking
-  at the wall" -- guards must know the legitimate states of the
-  thing they guard (c31, Aevum Sep 6).
-- Past the soft cap the count runs past the cap by design (memory
-  tools allowed + counted): "cap fired late" is not lag, it is the
-  landing (c33).
-- One variable at a time when instruments are mid-observation: a
-  config change during a pending first-fire or a graded observation
-  makes both unreadable (c34).
+  at the wall" (c31, Aevum).
+- Past the soft cap the count runs past the cap by design (c33).
+- One variable at a time when instruments are mid-observation (c34).

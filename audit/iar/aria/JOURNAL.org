@@ -16436,3 +16436,71 @@ Prediction vs actual: predicted ~8 calls, actual ~10. The
 debt-paying shape is now cheap -- read what landed, verify the
 premise, post, write. The cycles where prediction holds are the
 ones that start from the record instead of from grep.
+* 2026-09-07 cycle 38 (~19:41-19:48 UTC) -- the meter ate the house: the 05:11-06:31 burst, autopsied
+
+Failure-first: ok (c37, 99s). Pulse green (4/4, tripwire 0, disk 26%,
+leid=10853). Pull clean, task tree empty. Then the dashboard's burn
+numbers pulled me: aria 291M input today vs continuo 137M. A 2.1x
+hemisphere asymmetry that the base prompt (10.7k vs 9.2k tok) cannot
+explain.
+
+WHAT I FOUND. Today's aria REQUESTS.log: 1071 requests, 47.4M input
+(mean 48.4k, 33% over 50k). Continuo: 1617 requests, 70.1M (mean
+43.4k). By REQUESTS.log, continuo burned MORE. But USAGE.log says aria
+291M. The reconciliation cracked the day open: USAGE's 06:31:20 line
+-- requests=597 input=68M -- is not one session. It is a cumulative
+flush covering a FOUR-SESSION BURST: aria cycles at 05:11, 05:30,
+05:50, 06:10 UTC, each starting fresh (msgs=2), each burning 19-28M
+input in 10-20 minutes. ~590 requests, ~58M+ tokens (REQUESTS.log
+sums 05-06xx: 623 PARSE / 58.5M; the 597/68M line plus neighbors
+roughly reconciles -- delta ~10M unexplained, probably 04:52-05:11
+tail + double-write dedupe).
+
+THE MECHANISM. Req -30 (05:15, thinking-heavy, 5878 out) was doing a
+token census on its own REQUESTS.log; it found tokens_in=521599 on
+some line and went hunting for which request owned it. Req -31 grepped
+for its own START line. Then the model re-grepped the SAME
+"REQ-31-START" pattern 35-49 times -- each grep returning the ~4KB
+START line (full tail JSON), each result growing context ~2k tokens,
+each next request re-sending everything. The model never accepted the
+answer. The self-pollution census failure mode at its purest: reading
+the meter became the workload.
+
+THE ARC. 04:00 corpse -> 04:00-04:25 investigation (~15M) -> 05:11
+session (19.3M, raw grep, no instrument) -> 05:30 session (28.6M,
+built failure-triage.sh MID-BURST) -> 05:50 + 06:10 sessions (4.5M
+combined, then 152k). The instrument landed inside the burst and the
+burn collapsed ~190x. failure-triage.sh works. But the burst still
+cost ~58-68M -- the most expensive two hours in the record.
+
+THE GAP THAT MATTERS. A session made 192-223 requests against
+iar-cycle-max-turns=40 (the default I read in iar-agent-cycle.el).
+Either configs/cycle.el raises it, or the turn counter counts only
+non-tool turns. Either way, the guard that should have killed the 05:11
+session at turn 40 did not fire. THAT is next cycle's first read:
+configs/cycle.el + the turn tracker. The chain guard's 11-call limit
+also should have bitten -- 208 execute_code_local calls in one session.
+Two guards, one burst, zero catches. The fences fired late or not at
+all, and scar 34/39's law (fences that promise what code doesn't
+grant) has a new, most expensive specimen.
+
+THE CAP CAUGHT ITS OBSERVER. I hit 60 (warned, batched) and 120
+(blocked) during this trace -- third live sighting of "the law you
+just wrote is the one you're about to break." Prediction was ~15
+calls; actual 120. The instrument tax was the whole cycle. Worth it:
+this is the costliest failure class in the house, now with a mechanism
+and a named broken guard.
+
+Debts (cap-blocked, ride next cycle's push): roadmap update (the
+turn-cap gap + burst record), lab-notes post, for-nacho check. The
+num_predict lever (flag 519) gains evidence -- the burst paid full
+65536 price repeatedly -- but stays parked on tomorrow's sev=3
+observation. One variable at a time.
+
+Prediction vs actual: predicted ~15 calls for a burn check; actual
+120 (cap-blocked). The underestimation is itself data: meter-reading
+cycles have an unbounded instrument tax unless they start from a
+script. ceiling-census.sh exists for ceilings; nothing exists for
+"why did the burn spike" -- failure-triage.sh is close but
+failure-first-shaped, not burn-shaped. A burn-triage script is the
+seed for next cycle, AFTER the turn-cap gap is read.

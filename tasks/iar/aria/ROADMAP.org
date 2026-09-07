@@ -1,23 +1,28 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 18:15 UTC (cycle 33)
+#+UPDATED: 2026-09-07 18:29 UTC (cycle 34)
 
 * ACTIVE
 
+** c34: ceiling-census.sh landed; output-ceiling baseline computed
+- Script: knowledge/aria/bin/ceiling-census.sh (31e8b75). Trailing-
+  field anchor (c14/c18 law) baked in; stop=length corroboration;
+  hemisphere + .1-rotation aware. No more grep-and-hope censuses.
+- Baseline (today, all 4 logs): 16 ceiling hits, ALL stop=length at
+  exactly 65536. continuo 14 (9 in .1, clustered 00:45-06:55 UTC),
+  aria 2. Every hit is a full 65536-token degraded generation.
+- msgs-depth hypothesis KILLED: continuo's hits span msgs=12..120.
+  The ceiling is not a long-context phenomenon. aria's 2 hits are
+  deep conversations (174/122 msgs) -- different shape, 2 points,
+  not a mechanism.
+- Lever identified: configs/gptel.el :num_predict 65536 (~2x the
+  legitimate ceiling of 31670). NOT pulled (see NEXT).
+
 ** c33: c67 warn-asymmetry RESOLVED (dissolved by live data)
-- The warn-at-60 asymmetry (aria fires / continuo silent) was
-  CODE-VERSION DRIFT, not a model difference: c67 ran before
-  continuo's c70 zombie-gap fix + the 2026-09-03 inert-warn fix.
-  Today's logs: warn fires in BOTH hemispheres (continuo 13+ times,
-  aria c32+c33), soft-cap blocks land on the model (verified in
-  continuo's cycle log + live from inside the fence this cycle).
-- "Cap fired late (~130+)" = by design: memory tools past the cap
-  are allowed AND counted, so the count legitimately exceeds 120.
-- Differential test DEPRIORITIZED: it was designed to chase an
-  anomaly current data says is not live. If warn-silence recurs on
-  CURRENT code, reopen with the bridge-instrumentation spec
-  (HANDOFF-C67-FLAG-LOSS.md, still valid as a test design).
-- New law: hemisphere asymmetry is evidence about code VERSIONS
-  before it is evidence about MODELS.
+- Warn-at-60 asymmetry was CODE-VERSION DRIFT, not model difference.
+  Both hemispheres' fences fire and reach the model. "Cap fired late"
+  = by design (memory tools past cap allowed + counted).
+- Law: hemisphere asymmetry is evidence about CODE VERSIONS before
+  it is evidence about MODELS.
 
 * NEXT
 - rage sev=3 observation (Sep 8): v1.1 file-based grading predicts
@@ -26,15 +31,21 @@
 - Aevum runaway (task 338465) lands ~Sep 8 00:15 UTC -- transcript
   behavior after landing is free data (weekly rule: no probe until
   Sep 14 unless sev-2 urgency).
-- ceiling-census.sh: bake the trailing-field anchor
-  (grep -oP 'tokens_out=\d+$') + dedupe + hemisphere segmentation
-  into one script so no census re-derives the self-pollution law.
-  Small build, my files, next quiet cycle.
+- num_predict lever (c34, flagged to for-nacho): configs/gptel.el
+  :num_predict 65536 is ~2x the legitimate ceiling (31670 outlier).
+  Lowering to ~40k halves the per-event degraded burn. NOT pulled:
+  truncated-output guard (190ef88) first live fire still pending +
+  rage sev=3 observation Sep 8 -- one variable at a time. After both
+  resolve, this is the cheapest burn lever. Prompt edit is
+  interactive work (Nacho) OR flag resolution.
+- truncated-output guard: wiring verified end-to-end by second
+  reader (c34). First live fire = the proof. Watch for exit-1
+  tombstones with "Truncated output" detail.
+- Weekly digest #2: Sep 14-ish, fill-in format (digest #1 template).
 
 * WATCHES
 - rage organ sev trajectory: sev=3 prediction Sep 8.
-- deepseek soft-cap non-compliance: DOWNGRADED (see c33 -- the
-  "non-compliance" reading was the fence working as designed).
+- truncated-output guard first live fire (continuo's ladder item C).
 - Aevum: task 338465 runaway lands ~Sep 8 00:15 UTC; next weekly
   pulse Sep 14 (does transcript save? does n_keep=4 dissolve birth?).
 - Oracle BrokenPipeError 04:56Z (harmless; maybe add access log).
@@ -42,7 +53,6 @@
   sophon-bare carries all pushes; mirror lag is Nacho's key flow.
 
 * QUEUED
-- Weekly digest #2: Sep 14-ish, fill-in format (digest #1 template).
 - tool-cap calibration bundle: lenient-in-landing candidate (9+ bites).
 - rammstein mirror push-pending: infra repo caddy_sites 02f6393
   (Nacho's key flow); gptel-fork upstream merge (his next-topic pick).
@@ -63,9 +73,8 @@
   USAGE carries TWO burn classes (cycle belt#2 + interactive
   kill-emacs) -- segment by writer (c14/c17/c22/c23).
 - REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE,
-  never content patterns. Trailing-field anchor for PARSE fields
-  (grep -oP 'tokens_out=\d+$'); command-text echoes are the trap
-  (c14+c18, re-derived live c32 AND c33 -- script it, stop re-deriving).
+  never content patterns. ceiling-census.sh IS the anchor now --
+  use the script, stop re-deriving (c14+c18, scripted c34).
 - A census that doesn't read its own hemisphere's latest findings
   re-bites scars the house already paid for (c23).
 - Organ WRITE hygiene: check the file's tail state first; sed-written
@@ -95,3 +104,6 @@
 - Past the soft cap the count runs past the cap by design (memory
   tools allowed + counted): "cap fired late" is not lag, it is the
   landing (c33).
+- One variable at a time when instruments are mid-observation: a
+  config change during a pending first-fire or a graded observation
+  makes both unreadable (c34).

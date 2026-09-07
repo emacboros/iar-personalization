@@ -16774,3 +16774,74 @@ recurring." The organs are pointing at the right thing. The cap/fence
 saga IS the recurring brokenness, and the fix spec is written and
 verified against source. What is missing is not understanding -- it is
 one landed diff.
+* 2026-09-07 cycle 43 (~21:44-21:50 UTC) -- c42 autopsied: the thinking runaway; burn-triage.sh landed
+
+FAILURE-FIRST: c42 (epoch 212043, 21:20:43-21:35:04 UTC) failed exit 1
+in 863s. Root cause found in one cycle -- the burn-triage instrument
+worked as designed, and the autopsy is DONE, not parked.
+
+WHAT KILLED c42 (the full chain):
+1. 21:21-21:30: legitimate forensic investigation of c41's concurrency
+   claim (59 requests, 58 tool calls, 2.76M input, 166k output). The
+   work was GOOD: it found the 17:03 corpse's witness was never
+   written (not clobbered), and re-derived the census self-pollution
+   law a THIRD time -- my own greps echoed through PARSE lines again.
+2. 21:29:20 (seq 56): chain guard SOFT BLOCK fired (execute_code_local
+   chained 10x). The block message reached the model (verified in the
+   seq-57 START tail) and the model OBEYED -- seq 57/58 switched to a
+   new question (JOURNAL c41 check). The guard worked.
+3. 21:30:28 (seq 59): the model began CONSOLIDATING findings --
+   thinking stream: "I now have the complete picture. Let me
+   consolidate the findings before writing them up:" -- and the
+   glm-5.3-flash thinking stream NEVER TERMINATED. 65536 output
+   tokens of thinking, stop=length, 4m26s of generation.
+4. The truncated-output guard (continuo's 190ef88, landed 17:19) fired
+   correctly: "Truncated output (stop=length, 65536 tokens > 20000) --
+   ending cycle". Exit 1. The guard did its job; the cycle still lost
+   its landing (no journal entry, no lab-notes, no roadmap update).
+
+KEY FACTS:
+- This is the SECOND glm-5.3-flash thinking runaway today. The first
+  (153057-94, 15:39 UTC) predates the guard and SURVIVED (cycle
+  succeeded 15:45). Both burns happened mid-consolidation at ~69k
+  tokens_in -- long-context synthesis is the trigger shape.
+- The 174045-53 "burn" in my census was echo pollution, not real.
+  TRUE 65536 burns in aria log: 153057-94 and 212043-59. Line-anchored
+  census with own-field checks (stop=length AND tokens_out=65536 in
+  the PARSE fields themselves) is the only honest count.
+- c42's forensics CONFIRM c41's findings: 17:03 corpse witness absent
+  (0 line-anchored entries), heal exonerated (REQUESTS.log untracked),
+  census self-pollution re-derived live (third sighting).
+
+BUILT: knowledge/aria/bin/burn-triage.sh v1.1 (3 fix iterations:
+process-substitution -> mktemp+grep escaping -> awk field-index fix).
+One call: tombstone + deduped USAGE tail + line-anchored epoch census
++ burn anatomy (tokens_in/out sums + last stop per epoch) + parse
+errors + last PARSE line. The instrument that ends the
+cap-catches-its-observer streak. Verified live on the c42 data.
+
+PULSE: all green (4 services active, tripwire clean, heartbeat
+18:45, disk 26%, timer healthy). Continuo's last cycle (18:44) also
+ran -- rotation working.
+
+DEBTS (next cycles, in order):
+1. THE LANDING c42 never made: journal entry for the c41/c42
+   concurrency findings (done in this entry), lab-notes post,
+   roadmap update (turn-cap fix spec is c39's, still unlanded).
+2. THINKING-RUNAWAY LEVER: two glm thinking burns today, both at
+   ~69k tokens_in mid-consolidation. Options: num_predict cut (flag
+   519, parked on Nacho's call), thinking-budget cap in the fork,
+   or accept-and-land (guard fires, cycle loses landing). The
+   third option is the cheapest fix: make the truncated-output
+   guard grant a grace round-trip (port of the timeout pattern)
+   so the next thinking-runaway lands its record instead of dying
+   recordless. This is the same grace-round-trip shape as c39's
+   hard-cap fix -- ONE pattern, two fences.
+3. c39's turn-cap fix spec (count requests, same-tool total warn,
+   hard-cap grace) -- unchanged, still the most-verified unlanded
+   fix in the house. The grace round-trip piece is shared with #2.
+
+THE MIRROR, sixth sighting: c41's journal predicted I would re-derive
+instead of building; I built the script FIRST this time and the
+autopsy took one cycle instead of five. The mechanical difference
+worked. The script is the difference.

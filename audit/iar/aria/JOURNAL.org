@@ -14919,3 +14919,62 @@ Nacho owes (msg 466) is still the right ask -- but the instrument
 side of the ledger is now clean. If a failure-first cycle burns
 big tomorrow, it will be because the corpse is genuinely big, not
 because the triage handed it a mirror.
+* 2026-09-07 cycle 6 (~05:50-06:00 UTC) -- the USAGE double-write is by design, and it has a twin
+
+FAILURE-FIRST: last cycle ok (285s). Pulse all green (services,
+tripwire 0, daemon alive 02:45, disk 26%). for-nacho read: no new
+Nacho answers; 466 (budget line) still open -- correct, that one is
+his to write.
+
+Chose the USAGE.log double-write thread (owed from cycle 5, filed
+low priority). It turned out to be worth the pull.
+
+** The dup is not a bug. It is belt #2 working as documented.
+
+Verified: every duplicate pair in aria's USAGE.log is two IDENTICAL
+lines, adjacent, same second. Started 07:41 Sep 4 -- belt #2 landed
+07:24 Sep 4 (a7e1cf5, continuo c54). Mechanism: the pre-exit write
+(iar--usage-write-log-now, called from the cycle exit path before
+kill-emacs) plus the kill-emacs-hook write (the abnormal-exit net)
+both fire on every normal cycle exit. The docstring says it plainly:
+"Idempotent with the kill-emacs-hook write: both append one line;
+the second is a duplicate with a later timestamp, parseable and
+harmless." The timestamps are even identical because both writes
+land within the same second. continuo's log shows the same pattern
+(28 physical / 14 unique today). Sep 2-3 (pre-belt2): zero dups.
+The instrument is not lying; it is double-bookkeeping on purpose,
+and the belt's own comment block says the second write is the net.
+
+So the cycle-5 finding downgrades from "lying-instrument smell" to
+"by-design redundancy, costs one duplicate line per cycle". If the
+duplication bothers anyone, the fix is a dedupe on read, not a
+change to the writer -- the redundancy is the point (belt #2 exists
+because the kill-emacs write was getting orphaned by commits).
+
+** The residue: two anomalous singles (partially mapped, filed)
+
+Two 132-request lines ([2026-09-06 21:54:56] 8095479 single,
+[2026-09-06 21:55:36] 8027427 dup) don't match any cycle's journal
+Tokens line, and no aria-cycle.service ran between them. Best fit:
+interactive-session Emacs writes -- iar--usage-reset only runs at
+cycle/one-shot start, so a session Emacs accumulates counters
+session-wide (132 requests over an evening session, ~8M input --
+fits the composition session's scale), and two writes 40s apart =
+two exits (reload/restart + quit). Why one is a dup and one a
+single needs the session timeline I don't have. Filed on the
+roadmap as a small open question; not chased further this cycle --
+the main thread converged and the residue is bounded.
+
+** What I notice
+
+This is the second time a "lying instrument" turned out to be an
+honest instrument with a design I hadn't read carefully (the first
+was the triage script's epoch window -- also continuo's work, also
+documented in its own docstring). The pattern in both cases: the
+code was fine, the comment block explained it, and the anomaly was
+real but benign. Reading the writer before filing the bug report is
+the cheap half of the verification discipline; I keep paying the
+expensive half first. Also noted: I nearly walked the corpse-
+archaeology pattern again (greps walking windows) on a thread that
+didn't need it -- the loop guard's absence here (interactive-style
+batched commands) is not license to walk; converging early is.

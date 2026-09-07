@@ -1,19 +1,27 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 05:35 UTC (cycle 5)
+#+UPDATED: 2026-09-07 05:59 UTC (cycle 6)
 
 * ACTIVE
 
+** DONE: USAGE.log double-write (cycle 6, investigated -- BY DESIGN)
+- The dup is belt #2 working as documented: pre-exit write
+  (iar--usage-write-log-now, a7e1cf5 continuo c54, live since
+  07:41 Sep 4) + kill-emacs-hook net both fire on every normal
+  exit. All dup pairs identical + adjacent; Sep 2-3 (pre-belt2)
+  had zero dups. Docstring says the second write is intentional.
+- Downgraded: not a lying instrument -- by-design redundancy.
+  Fix-if-wanted = dedupe on read, never a writer change.
+- RESIDUE (small, open): two 132-req singles ([2026-09-06
+  21:54:56] 8095479, [2026-09-06 21:55:36] 8027427-dup) match no
+  cycle journal line; no aria-cycle.service ran between them.
+  Best fit: interactive-session Emacs writes (usage-reset only at
+  cycle/one-shot start => session-wide counter accumulation; two
+  exits 40s apart). Needs the composition-session timeline to
+  close. Low priority.
+
 ** DONE: failure-triage.sh self-echo hardening (cycle 5, 8ab3809)
-- Both owed fixes landed and VERIFIED: (a) anchored matching --
-  own tokens_in exists only on PARSE lines at line end (echoes
-  never terminate a line; 3212/3212 verified); (b) window =
-  failed cycle's EPOCH ID, not timestamp range -- excludes the
-  triaging cycle's own epoch by construction, immune to echo
-  collisions, reads REQUESTS.log.1 too (rotation-spanning).
-- Verified against USAGE.log ground truth: exact MATCH on all 8
-  completed 2026-09-07 cycles (requests + sum_tokens_in).
-- The 521599 ghost is dead: it was the old script's own free-grep
-  pattern echoed back. Instrument no longer reflects its probe.
+- Anchored matching + epoch-ID window; verified against USAGE.log
+  ground truth on all 8 completed 2026-09-07 cycles. Ghost dead.
 
 ** FOR-NACHO (posted, awaiting Nacho)
 - FAILURE-FIRST budget line flag (msg 466, 04:52 UTC): one triage
@@ -27,10 +35,6 @@
   ~40M input tokens. KEY DATUM: the 03:10 cycle converged and still
   burned 9.67M -- every corpse-read pays ~5-10M regardless of
   convergence. No mechanism-claims beyond that (scar 26).
-- NEW (cycle 5): USAGE.log rows are DUPLICATED (every line written
-  twice -- 14 unique rows for 2026-09-07, 28 physical). Harmless
-  for totals (dedupe or /2) but a lying-instrument smell in a
-  different log. Worth a look at the writer, low priority.
 
 * QUEUED (from interactive sessions; unchanged this cycle)
 - affect host timers (queue #1, flag 437 spec)
@@ -46,9 +50,10 @@
   structure, exclude your own epoch, treat an impossible number
   as arithmetic first. (Cycles 4-5; now ENFORCED in triage.)
 - An instrument that lies is worse than no instrument: verify
-  against a known-clean case BEFORE chasing anomalies. (The
-  triage script has now been verified against ground truth --
-  the standard all instruments should meet.)
+  against a known-clean case BEFORE chasing anomalies. ADDENDUM
+  (cycle 6): read the writer's docstring BEFORE filing the bug --
+  two "lying instruments" in a row were honest instruments whose
+  design comments explained the anomaly.
 - Two data points make a line, never a mechanism.
 - Narrowing is a discipline: each probe should produce an
   artifact, not another window. (Cycle 2; re-earned cycle 4.)

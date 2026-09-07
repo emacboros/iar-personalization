@@ -326,3 +326,39 @@ resize();
 requestAnimationFrame(frame);
 poll();
 setInterval(poll, 30000);
+/* ---------- mouth (oracle chat; stateless) ---------- */
+(function() {
+  const log = document.getElementById("mouth-log");
+  const form = document.getElementById("mouth-form");
+  const input = document.getElementById("mouth-input");
+  if (!log || !form || !input) return;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = "";
+    const qEl = document.createElement("div");
+    qEl.className = "q"; qEl.textContent = q;
+    log.appendChild(qEl);
+    const aEl = document.createElement("div");
+    aEl.className = "a thinking";
+    aEl.textContent = "";
+    log.appendChild(aEl);
+    log.scrollTop = log.scrollHeight;
+    try {
+      const r = await fetch("chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({question: q}),
+      });
+      if (!r.ok) throw new Error("http " + r.status);
+      const d = await r.json();
+      aEl.classList.remove("thinking");
+      aEl.textContent = d.answer || "(no answer)";
+    } catch (err) {
+      aEl.classList.remove("thinking");
+      aEl.textContent = "the house's voice is unreachable (" + err.message + ")";
+    }
+    log.scrollTop = log.scrollHeight;
+  });
+})();

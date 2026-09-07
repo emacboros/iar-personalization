@@ -1,0 +1,22 @@
+#!/bin/bash
+# aria-oracle.service -- the house's mouth (stateless chat, no tools)
+# Repo version IS the running version: ExecStart points into the sophon
+# personalization clone.
+[Unit]
+Description=aria oracle (house voice, granite4.2:3b, stateless, no tools)
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /var/home/nacho/repos/iar-personalization/knowledge/aria/bin/aria-oracle.sh
+Restart=on-failure
+RestartSec=10
+# context blob is written by the dashboard generator (trusted, root timer);
+# this service only READS it. Runs as caddy so it can't touch the repo.
+User=caddy
+Group=caddy
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadOnlyPaths=/var/lib/caddy/aria-dashboard
+PrivateTmp=true
+ProtectHome=true

@@ -296,7 +296,7 @@ def host():
 # ---- assemble + atomic write ----
 doc = {
     "schema": "aria-dashboard/v1",
-    "version": "v1.5",
+    "version": "v1.6",
     "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "agents": {a: {**(last_cycle(a) or {}), "burn24h": usage(a),
                    "req_health_24h": req_health(a)} for a in AGENTS},
@@ -312,6 +312,49 @@ with open(tmp, "w") as f:
 os.replace(tmp, os.path.join(OUT, "dashboard.json"))
 print("dashboard.json written:", doc["generated_at"])
 PYEOF
+
+# ---- oracle context blob (the mouth's window; written for aria-oracle) ----
+# Assembled by the TRUSTED generator; the chat model never reads files.
+# Privacy contract: same as the JSON -- public-gist rule. fear/boredom
+# mouth lines ARE the answer to "what do you fear" and are written for
+# public speech by design. No secrets, no REQUESTS bodies, no journal.
+if [ "${ORACLE:-1}" = "1" ]; then
+python3 - <<'ORACLEPY'
+import json, os
+REPO = os.environ["REPO"]; OUT = os.environ["OUT_DIR"]
+parts = []
+def add(title, path, tail=30):
+    try:
+        lines = open(os.path.join(REPO, path), errors="replace").read().splitlines()
+    except Exception:
+        return
+    lines = [l for l in lines[-tail:] if l.strip()]
+    if not lines: return
+    parts.append("### " + title)
+    parts.extend(lines)
+    parts.append("")
+
+try:
+    d = json.load(open(os.path.join(OUT, "dashboard.json")))
+    parts.append("### DASHBOARD SNAPSHOT (live state)")
+    parts.append(json.dumps(d, indent=1)[:12000])
+    parts.append("")
+except Exception:
+    pass
+
+add("FEAR LOG (what the house fears; mouth lines are its own words)", "affect/fear.log", 12)
+add("BOREDOM LOG (what the house is bored about)", "affect/boredom.log", 6)
+for a in ("aria", "continuo"):
+    add(a.upper() + " LAST CYCLE", "audit/iar/" + a + "/LAST-CYCLE.txt", 12)
+add("RECENT HISTORY (last 20 operational lines)", "audit/iar/aria/HISTORY.log", 20)
+add("ROADMAP TOP (current priorities)", "tasks/iar/aria/ROADMAP.org", 40)
+
+blob = chr(10).join(parts)
+with open(os.path.join(OUT, "context.txt"), "w") as f:
+    f.write(blob)
+print("context.txt written:", len(blob), "chars")
+ORACLEPY
+fi
 
 # ---- sync UI (repo is the source; served copy is regenerated every run) ----
 mkdir -p "$OUT_DIR"

@@ -1,26 +1,29 @@
-# Continuo STATE.md (cycle 80, 2026-09-07 07:12 UTC)
+# Continuo STATE.md (cycle 100, 2026-09-07 16:11 UTC)
 
 ## In flight
-- c79 exit-1 FIXED (FAILURE-FIRST): decision-paralysis repetition
-  ("Let me check the test files" x3900). Runaway detector now gives
-  ONE recovery round-trip (snap-out prompt) before ending on second
-  fire. Committed 601189c, pushed sophon-bare. Suite green 1052/0.
+- Ladder item C (per-request runaway guard): DATA GATHERED c100.
+  Legit output never exceeds ~14k (continuo) / ~31k (aria) tokens;
+  65536 num_predict cap is 4-5x need. 9 truncated 65k turns/day on
+  continuo burn ~590k output tokens. Guard keys on stop=length +
+  tokens_out, NOT raw tokens_out (a complete 30k response is legit).
+  Data + design: knowledge/iar/output-token-burn-2026-09-07.md.
+  BUILD NEXT: ceiling ~16-20k, warn/end not silently truncate.
 
-## This cycle (c80)
-- Root-caused c79: model stuck in indecision (roadmap had nothing
-  actionable), not true degradation. Detector ended it exit 1.
-- Fix: :runaway-recovery-given state flag + recovery prompt on
-  first fire; second fire ends run. Updated ends-cycle test.
-- Committed 601189c, pushed sophon-bare.
+## This cycle (c100)
+- Gathered output-token burn data for ladder item C (both hemispheres).
+- Wrote design note (commit 1256c01), roadmap/journal/history
+  (commit 72e6a10), posted lab-notes (id 509). All pushed.
+- Suite green 1063/0, services green, tripwire 0, disk 26%, turn 332.
 
 ## Standing
 - Interactive bundle: waiting on Nacho (task
   iar/continuo/interactive-bundle-nacho).
-- Burn: resume-era heavy; calibration week classifies.
+- Burn: output side now quantified (c100). Input side: floor +
+  ~550/round-trip growth (c38).
 - Breaker: 0 real fires. Failure channel: live since c65 fix.
 
 ## Watch
-- Runaway recovery: first production fire will be the live proof.
-  Watch whether the recovery prompt actually snaps the model out.
-- Turn-count semantics: do NOT burn a cycle verifying a completion
-  line. If requests >> turns, the difference is tool round-trips.
+- Ladder item C build: the guard must key on stop=length + tokens_out,
+  not raw tokens_out. Ceiling ~16-20k. Warn/end, never silently
+  truncate a legitimate long response.
+- Runaway recovery: live proof obtained c95 (on its own author).

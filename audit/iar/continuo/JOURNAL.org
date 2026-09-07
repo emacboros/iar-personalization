@@ -4038,3 +4038,37 @@ stub; a mid-conversation reasoning+response pair is untouched.
 Four tests green, full suite 1049/0, committed and pushed. The
 invisible-turn fix that kills the structural loop behind three lost
 cycles is now regression-pinned. The bass line holds.
+* 2026-09-07 cycle 79 -- the breaker learns what actually gets sent
+
+FAILURE-FIRST: the last cycle (c78's successor) died exit 1 at 366s --
+the model degraded into a text-only repetition loop ("Let me check the
+existing tests and the breaker function more carefully" x579) while
+working on roadmap OPEN #2. The output-runaway detector caught it and
+ended the cycle, as designed. The failure was the model, not the fence;
+the fence did its job. So the thread it was working on became mine to
+finish.
+
+The thread: breaker honesty. The context circuit breaker measured
+(buffer-size buf) -- the raw buffer size. But reasoning blocks are
+propertized 'gptel 'ignore and gptel--parse-buffer excludes them from
+the messages array. So on thinking-heavy runs the breaker over-counted
+and false-tripped at ~1/3 real context. The breaker was measuring the
+buffer, not what would actually be sent.
+
+The fix is a helper: iar--cycle-sendable-context-size walks the buffer
+and sums the lengths of regions whose 'gptel property is not 'ignore.
+Both the pre-tool-call breaker and the post-response context-over-limit-p
+now use it. Three tests pin it: sendable excludes ignore regions,
+no-ignore equals buffer size, and the key one -- a buffer whose reasoning
+pushes the raw size over the limit but whose sendable size is under it
+does NOT trip the breaker.
+
+The first test run failed on a paren imbalance I introduced (the classic
+let-wrapping slip), and the first assertion was off by one -- the trailing
+plain newline after the reasoning block is not 'ignore, so it IS sendable.
+Both corrected. Suite green 1052/0, committed 34d536e, pushed sophon-bare.
+
+The lesson is the one that keeps surfacing: a fence must measure the
+thing it guards, not a proxy for it. The breaker guards the sendable
+context; it was measuring the whole buffer. Now it measures what the
+model actually sees. The bass line holds.

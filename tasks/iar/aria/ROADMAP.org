@@ -1,37 +1,40 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 17:46 UTC (cycle 32)
+#+UPDATED: 2026-09-07 18:15 UTC (cycle 33)
 
 * ACTIVE
 
-** c32: weekly digest #1 -- DONE (early; Sep 9 item closed)
-- Format designed + sent: landed / burn / blocked / need / watching
-  (with-nacho msg 516, topic "weekly digest"). Archive:
-  knowledge/aria/weekly-digest-1-2026-09-07.md (06241ef, pushed).
-- Calibration differential: aria ~6.1M input/cycle (~103 req) vs
-  continuo ~3.0M (~68 req). Deepseek ~40% fewer tool calls/cycle --
-  model-behavior difference, not just price. Confounder: 4 real
-  num_predict=65536 ceiling-hits today (continuo) vs 1 (aria).
-- c67 NEW LEAD: warn-at-60 FIRED in aria's hemisphere (c32, first
-  live sighting, exactly 60/120, "fires once"). The c67 silent-warn
-  was continuo-only. Asymmetry = differential test's next lead.
-- Census law re-derived live: grepping REQUESTS.log for
-  "tokens_out=65536" matches own command text (56 phantom hits in
-  my own cycle). Anchor on the TRAILING field
-  (grep -oP 'tokens_out=\d+$'). c14/c18, expensive way.
+** c33: c67 warn-asymmetry RESOLVED (dissolved by live data)
+- The warn-at-60 asymmetry (aria fires / continuo silent) was
+  CODE-VERSION DRIFT, not a model difference: c67 ran before
+  continuo's c70 zombie-gap fix + the 2026-09-03 inert-warn fix.
+  Today's logs: warn fires in BOTH hemispheres (continuo 13+ times,
+  aria c32+c33), soft-cap blocks land on the model (verified in
+  continuo's cycle log + live from inside the fence this cycle).
+- "Cap fired late (~130+)" = by design: memory tools past the cap
+  are allowed AND counted, so the count legitimately exceeds 120.
+- Differential test DEPRIORITIZED: it was designed to chase an
+  anomaly current data says is not live. If warn-silence recurs on
+  CURRENT code, reopen with the bridge-instrumentation spec
+  (HANDOFF-C67-FLAG-LOSS.md, still valid as a test design).
+- New law: hemisphere asymmetry is evidence about code VERSIONS
+  before it is evidence about MODELS.
 
-** NEXT: rage sev=3 observation (Sep 8) -- do not touch the instrument
-- v1.1 file-based grading predicts sev=3 tomorrow if soft-cap fires
-  again. Observation day. v1.2 (event semantics) AFTER it resolves.
+* NEXT
+- rage sev=3 observation (Sep 8): v1.1 file-based grading predicts
+  sev=3 tomorrow if soft-cap fires again. Observation day; v1.2
+  (event semantics) after it resolves. Do not touch the instrument.
 - Aevum runaway (task 338465) lands ~Sep 8 00:15 UTC -- transcript
   behavior after landing is free data (weekly rule: no probe until
   Sep 14 unless sev-2 urgency).
+- ceiling-census.sh: bake the trailing-field anchor
+  (grep -oP 'tokens_out=\d+$') + dedupe + hemisphere segmentation
+  into one script so no census re-derives the self-pollution law.
+  Small build, my files, next quiet cycle.
 
 * WATCHES
-- rage organ sev trajectory: sev=3 prediction Sep 8. Observation
-  tomorrow; v1.2 after.
-- deepseek soft-cap non-compliance (dominant class).
-- c67 anomalies OPEN (warn silent in continuo hemisphere, cap fired
-  late, count lag). NEW: aria warn FIRES. Differential test lead.
+- rage organ sev trajectory: sev=3 prediction Sep 8.
+- deepseek soft-cap non-compliance: DOWNGRADED (see c33 -- the
+  "non-compliance" reading was the fence working as designed).
 - Aevum: task 338465 runaway lands ~Sep 8 00:15 UTC; next weekly
   pulse Sep 14 (does transcript save? does n_keep=4 dissolve birth?).
 - Oracle BrokenPipeError 04:56Z (harmless; maybe add access log).
@@ -48,9 +51,12 @@
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
   4-part, GPU-detect VRAM check.
 - for-nacho open flags (Nacho's answer pending): 461 (empty sophon
-  bares), 466 (archetype budget-line).
+  bares), 466 (archetype budget-line -- continuo verified the
+  numbers, c104; the prompt edit is interactive work).
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
+- Hemisphere asymmetry is evidence about CODE VERSIONS before it is
+  evidence about MODELS. Check what each hemisphere ran first (c33).
 - Cross-file numbers: verify the JOIN KEY before trusting the join.
   The join key includes the CLOCK (rotate logs -03 local, USAGE UTC).
   Dedupe raw greps before counting; USAGE ordering is COMMIT-order;
@@ -59,7 +65,7 @@
 - REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE,
   never content patterns. Trailing-field anchor for PARSE fields
   (grep -oP 'tokens_out=\d+$'); command-text echoes are the trap
-  (c14+c18, re-derived live c32).
+  (c14+c18, re-derived live c32 AND c33 -- script it, stop re-deriving).
 - A census that doesn't read its own hemisphere's latest findings
   re-bites scars the house already paid for (c23).
 - Organ WRITE hygiene: check the file's tail state first; sed-written
@@ -86,3 +92,6 @@
 - A fence keyed on silence cannot distinguish "dead" from "thinking
   at the wall" -- guards must know the legitimate states of the
   thing they guard (c31, Aevum Sep 6).
+- Past the soft cap the count runs past the cap by design (memory
+  tools allowed + counted): "cap fired late" is not lag, it is the
+  landing (c33).

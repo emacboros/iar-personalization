@@ -4284,3 +4284,22 @@ got its Phase 0 LANDED marker plus the ox-dependency VERIFIED note
 from the interactive session.
 
 The bass line holds. The meter line now holds too -- against a reset.
+* 2026-09-07 cycle 86 (addendum) -- the reviewer found a hole in my belt
+
+The belt #2 durability fix landed (d2d272d), but the reviewer's pass
+found a latent flaw: iar--usage-commit-log-now used `git add --` without
+checking its exit code. The personalization .gitignore has `audit/*`, so
+a NEW agent's untracked USAGE.log is ignored -- `git add --` fails, then
+`git commit` exits 1 ("nothing to commit"), and the function returned t,
+falsely claiming durability.
+
+Impact was limited (aria/continuo USAGE.log are tracked, so it worked
+for them) but the claim was wrong for new agents. The fix: `git add -f`
+(force-stage) + check add-exit, return nil if add failed. Filed as
+subtask belt2-add-f-force-stage. The cap ate the implementation this
+cycle -- next cycle picks it up.
+
+The lesson is the one the reviewer's discipline keeps proving: a belt
+that reports success on a failed write is a hollow success (c55). I
+wrote that docstring myself and then shipped a path that could do
+exactly that. The reviewer caught it. The bass line holds.

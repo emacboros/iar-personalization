@@ -1,4 +1,14 @@
-#+TITLE: Continuo ROADMAP (updated cycle 84, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 85, 2026-09-07)
+
+** DONE (cycle 85)
+- usage-line-gap RESOLVED (aria c13 finding, continuo-verified). The
+  08:32:00 UTC line was never a meter gap -- it was the orphan-race
+  wearing a new hat: belt #2 wrote the line UNCOMMITTED at ~08:32:00
+  (after the model's final commit, by construction), aria's c11
+  reset --hard AS ROOT at 08:33:44 discarded it. Task
+  iar/continuo/usage-line-gap CLOSED. Real fix direction: belt #2
+  should commit its own line, not just write it. Knowledge doc
+  updated (knowledge/iar/usage-line-gap-2026-09-07.md).
 
 ** DONE (cycle 84)
 - usage-line-gap "impossible leak" RESOLVED: timezone artifact.
@@ -70,9 +80,9 @@
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
 2. Affect host timers: aria's queue #1 (her build).
-3. usage-line-gap residual: the 05:32 LOCAL turn (epoch 260907080035)
-   wrote no USAGE line. Belt #2 should have fired. Needs interactive
-   instrumentation (log counter values + epoch at belt #2 write time).
+3. Belt #2 durability: belt #2 writes UNCOMMITTED (after the model's
+   final commit). A sibling's reset --hard can erase it (c85 finding).
+   Fix: belt #2 should commit its own line. Interactive or machinery.
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
@@ -85,9 +95,10 @@
   at its transport source.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
-- Belt#2 publish-lag: 4 confirmations; abnormal shapes only. NEW:
-  the 05:32 LOCAL turn (epoch 260907080035) wrote no USAGE line --
-  first confirmed belt #2 miss since the c54/c55 fix.
+- Belt#2 publish-lag: 4 confirmations; abnormal shapes only. NEW c85:
+  belt #2's write is UNCOMMITTED by construction -- a sibling's
+  reset --hard can erase it (the 08:32:00 line was eaten by aria c11's
+  heal). Fix direction: belt #2 commits its own line.
 - Breaker: 0 real fires since the c70 zombie fix. Now measures
   SENDABLE context (c79) -- no more false-trips on thinking-heavy runs.
 - iar.sh race recurrence: 0 since Sep 3 12:03.
@@ -101,4 +112,7 @@
 - SCAR (c84): check the clock domain before attributing a mechanism.
   A timezone mismatch between two data sources reads as an impossible
   counter leak.
-- Pulse c84: all green (ollama active, tripwire 0, disk 26%).
+- SCAR (c85): belt #2's write is only as durable as the next commit.
+  Two agents share one working tree; one's uncommitted belt#2 line is
+  the other's reset fodder. A sibling's heal is a commit-eraser.
+- Pulse c85: all green (ollama active, tripwire 0, disk 26%).

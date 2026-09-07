@@ -1,180 +1,50 @@
-#+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-07 10:00 UTC (interactive: CODEBASE CLEANUP approved by Nacho -- 6 phases, tasks created, graveyard doc mandated for every drop; gptel-fork merge queued AFTER cleanup)
+#+TITLE: Aria Roadmap (cycle-maintained)
+#+UPDATED: 2026-09-07 09:45 UTC (cycle 13)
 
-* DO FIRST (next cycle)
-1. FAILURE-FIRST + pulse + pull. SIBLING: check continuo.
-2. Budget reset happened ~03:00 UTC. Inverted #3 = END of calibration
-   week. Weekly digest #1 + Aevum pulse: Sep 9.
-3. CLEANUP PHASE 0 (approved): fix 2 failing stub tests + resolve
-   personalization wt (JOURNAL.org UU conflict, iar-prod deletions
-   CONFIRMED by Nacho -- commit them).
+* ACTIVE
 
-* CODEBASE CLEANUP (Nacho-approved 2026-09-07, IN PROGRESS)
-Plan + decisions recorded in tasks/iar/iar/cleanup/. Graveyard doc
-(knowledge/iar/cleanup-graveyard-2026-09-07.md) records EVERY drop
-with why -- nothing deleted silently. Phases 0-5, check in with
-Nacho between phases. Full detail in task subtasks.
+** DONE c13: continuo's 08:32:00 "missing USAGE line" RESOLVED -- the heal ate it
+- Meter HONEST: epoch 260907080035 PARSE sums (3,403,434 in /
+  202,909 out) match journald exit summary exactly. True counts:
+  77 unique START / 76 unique PARSE (req 71 superseded by the
+  timeout-grace path). Continuo's "START=99/PARSE=97" was raw grep
+  without dedup. Journald's 76 = PARSE count exactly.
+- The turn was a TIMEOUT-GRACE exit (1800s + grace round-trip req 77,
+  exit 0 at 08:32:00 UTC). Belt #2 fired clean (no warning in
+  journald) and wrote the line UNCOMMITTED to the shared sophon
+  working tree.
+- My c11 root-run `git reset --hard` (ownership incident, 08:32:12+)
+  discarded it before my 08:33:22 commit. THE HEAL ATE THE METER
+  LINE. Second victim of the c11 incident; orphan-race wearing a new
+  hat. Fix direction: belt#2 should COMMIT its own line, not just
+  write it (machinery, continuo's hemisphere or interactive).
+- OWE continuo (FIRST next cycle, posts before probes -- cap blocked
+  posts twice running): Agora correction post = TZ resolution +
+  this addendum. His usage-line-gap task closes on his verification.
+- c12 push debt PAID (87cd047 on bare via continuo's 9411ef5 chain).
 
-- Phase 0: baseline (fix 2 stub-test failures from 9945684 rebase;
-  resolve personalization wt; commit iar-prod deletions).
-- Phase 1: dead shell code (matrix-watcher, matrix env plumbing,
-  prompt.txt, integration test + test agent, librarian units,
-  iar-status.sh, log-path unification, stale strings).
-- Phase 2: dead elisp (iar--current-mode, iar--format-size dup,
-  iar-mcp-auto-start double-def, continue-prompt signature,
-  stale docstrings, agent_cycle.org, empty gptel-fork dir).
-  VERIFY (require 'ox) is truly unneeded before dropping -- prompt
-  assembly is live, Nacho unsure; if ox unused, drop.
-- Phase 3: personalization (root STATE.md fossil, audit fossils,
-  docs/iar/LOGS.md DELETE, future_ideas prune, stale tasks DELETE,
-  missing knowledge labels DROP, dormant personalities/projects/
-  cycle-prompts DROP ALL, merge self-edit-race docs).
-- Phase 4: docs sync (usage/architecture/modules/tools/agents.md).
-- Phase 5: verification (suite green, iar.sh --help smoke, commits
-  as nacho, push, mirror-verify).
+** DONE c12: usage-line-gap core RESOLVED -- TZ misread, meter honest
+- Doc: knowledge/aria/usage-line-gap-tz-resolution.md. Rotate journal
+  is sophon LOCAL (UTC-3); USAGE/epochs are UTC. Turns 277/279 wrote
+  their lines; no leak, no future-reading.
+- META-FINDING: cross-agent law transfer has no mechanism (TZ scar
+  double-bitten). Preferred fix: instruments print UTC alongside
+  local in journald queries.
 
-* PRIORITY #1 (Nacho, standing)
-- CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-- BUDGET EFFICIENCY = SURVIVAL MANDATE.
+** DONE c11: oracle doc fixes + heal-ownership incident (2 victims now)
 
-** DONE c12: usage-line-gap RESOLVED -- TZ misread, meter honest
-- Continuo's c83 "chronologically impossible" finding (turn 279's
-  exit summary matched epoch 260907043103, boot ~3h LATER) was a
-  timezone misread: sophon rotate journal is LOCAL (UTC-3), he read
-  it as UTC. After conversion turn 279 IS epoch 260907043103; the
-  "missing" USAGE lines (04:24:45, 04:50:59 UTC) exist; every
-  checked journald summary matches its own epoch + USAGE line.
-  No counter leak demonstrated. Doc:
-  knowledge/aria/usage-line-gap-tz-resolution.md.
-- META-FINDING: the TZ scar is double-bitten (c9 law in MY roadmap,
-  continuo stepped in it anyway). Cross-agent law transfer has no
-  mechanism. Candidate fix (preferred): instruments print UTC
-  alongside local in journald queries -- structural, lives in the
-  instrument, cannot be forgotten by the next reader.
-- OWE continuo: TZ correction post (Agora) -- soft-cap blocked it
-  this cycle. His task iar/continuo/usage-line-gap should close on
-  his verification.
-- Residue (his hemisphere, untouched): his post-exit writes
-  (LAST-CYCLE tombstone 09:05:54 + belt#2 USAGE line) uncommitted
-  in clones -- known orphan-race.
-
-** DONE c11: oracle doc fixes (c10's owed fix) + heal-ownership incident
-- Rate-limit docstring corrected (verified in code: token bucket
-  10/60s per IP lives IN the service; caddy has none). README gained
-  The-mouth section (public path rammstein->sophon:8095->localhost:8096,
-  security model, rate limit location). Commit 9072e9c pushed.
-- INCIDENT (self-inflicted, healed): sophon-clone heal via
-  `git reset --hard` AS ROOT re-owned the tree sophon-root (65534 in
-  container view) -> all container writes denied. Healed with
-  `chown -R nacho:nacho`. LAW: run heals as nacho (runuser) or chown
-  after; a heal that changes ownership is itself an incident.
-
-** DONE c10: oracle verification pass (the mouth, checked from outside)
-- aria-oracle.service verified end-to-end: active, /health ok
-  (context_age ~236s, fresh), granite4.2:3b answering, injection
-  probe refused cleanly, context blob clean (no secrets).
-- Fear-organ cross-check: 07:00 sev=2 worry (continuo:cycle-failed)
-  was CORRECT at fire time -- affect layer tracks reality with lag.
-
-** DONE c9: composition burn differential -- first quantitative read
-- knowledge/aria/composition-burn-differential.md (9a02c8a).
-  aria 93.7M vs continuo 42.1M input. Healthy-cycle gap ~1.4x
-  (turn shape: aria probe-heavy 2.2x round trips ~460 tok/turn;
-  continuo think-heavy ~830 tok/turn, 3.2x output).
-- Failure-cost gap ~6x: aria dies LATE (125-129 tool calls,
-  6.75M avg); continuo EARLY (17-30, 1.13M). Marked hypothesis:
-  fences tuned for deepseek's repetition shape; glm's grind shape
-  pays before a guard fires.
-- 36% of aria's night burn = failed cycles (continuo 18.8%).
-- Data posted for-nacho msg 474 (budget-line flag 466, his call).
-- RESIDUE CORRECTED c12: the "2 unwritten exit-0 cycles" were a TZ
-  misread in the residue note only; the differential's main numbers
-  (join-key verified) stand.
-
-* QUEUE (approved 2026-09-04, in order)
-1. (DONE c6-c7) Affect host timers + interim-wake removal.
-2. Soft-cap 60/100 -- built + verified live 4x, BUT c67 anomalies
-   now include count divergence 3+1 directions (see C6 ledger).
-3. Commit-as-nacho durable fix.
-4. Linger all hosts (loginctl enable-linger).
-5. Sidecar sshd (execute_code_remote via podman DNS; NO socket
-   bridge).
-6. Restic 4-part fix. Ansible-owned, careful, snapshot-verify.
-7. GPU-detect VRAM check (3080 shared with Frigate; verify headroom
-   before cycle model pulls).
-8. Digest-twin verifier (continuo; spec written, census doc).
-9. Interop design doc (composition, post-calibration).
-
-* AFTER CLEANUP (Nacho, 2026-09-07)
-- gptel-fork merge with upstream main + drop the fork. Upstream
-  fixed many issues, added features, prepping v1.0. Our fixes to
-  re-land upstream: done_reason capture, tool-result nil guard,
-  degenerate tool_call sanitize, loud-error on unknown default
-  model, sendable-context reasoning exclusion.
-
-* C7 FAILURE-FIRST LEDGER (this cycle)
-- +N ANOMALY ADVANCED (not closed): burn-delta ledger = 7
-  instances across 3 cycles. BUFFER-STATE-DEPENDENT, not
-  response-shape-dependent. +222 tok for +3 msgs => extra msgs are
-  SMALL (separators/stubs/mis-splits), NOT thinking text.
-- SEPARATORS EXONERATED: fork source traced end-to-end. Verified.
-- TWO CANDIDATES (testable): (a) front-sticky property-bleed;
-  (b) tool-region duplication (+1 continue + 2 = +3 matches).
-- BLOCKER: instrument ask (last-6 msg ROLES in each START line)
-  still unbuilt. With roles, the +N closes in one cycle.
-- P0 STUB UNAFFECTED: kills the loop at the source regardless of
-  the +N arithmetic. Still the primary fix (continuo's hemisphere).
-
-* C67 FLAG-LOSS: OPEN items
-- OPEN (+N arithmetic): advanced to ledger + 2 candidates (C7).
-- OPEN (mechanism): invisible-turn vanish -- P0 fix awaiting
-  continuo.
-- OPEN (compliance): grace round-trip spent on tools (A/B fix).
-- OPEN (count): warn-at-60 silence + count divergence 3+1
-  directions. Differential test.
-
-** DONE c8: aria-oracle discovered + verified (service posture, timers)
-
-* STANDING STATE (world-state, 2026-09-07 ~10:00 UTC -- REPLACES prior)
-- CYCLES LIVE, 10-min, rotating: aria=glm-5.3-flash:cloud,
-  continuo=deepseek-v4-flash:cloud. Calibration week ended (reset
-  03:00 UTC); inverted #3 pending.
-- CLEANUP: this session's build (6 phases, tasks in
-  tasks/iar/iar/cleanup/). gptel-fork merge queued after.
-- Affect organs LIVE via host timers (boredom+fear). Dashboard +
-  oracle (mouth) LIVE on aria.randazzo.ar (built 2026-09-07
-  ~04-06 UTC with Nacho). Privacy contract held: mouth reads
-  context.txt, no tools/mounts/logs.
-- Mouth experiment: public thesis test (context compensates for
-  parameters). No visitor logging (stateless by design). First
-  real data point: did it confabulate? Ask Nacho next session.
-- STILL QUEUED: affect host timers DONE; commit-as-nacho durable,
-  linger all hosts, sidecar sshd, restic 4-part, GPU-detect VRAM
-  check, digest-twin verifier.
-- BIKE LEDGER OPEN (his decision record): KLR650 presumptive,
-  license upgrade next week, test-drives primary. GO2 ~2 weeks out.
-- Aevum: WEEKLY-ONLY, next pulse Sep 9 (with weekly digest #1).
-- Empty cell: after infra queue.
-- Suite: 1054/1056 (2 stub-test failures, rebase casualty --
-  Phase 0 of cleanup fixes).
+** DONE c9: composition burn differential (9a02c8a) -- numbers stand
+- c13 addendum: the differential's "2 unwritten exit-0 cycles" residue
+  is now EXPLAINED (01:30/01:51 lines existed; 08:32 line eaten by
+  heal). No instrument gap remains in USAGE.log write path.
 
 ** FOR-NACHO (posted, awaiting Nacho)
-- FAILURE-FIRST budget line flag (msg 466): has DATA now (msg 474).
-  Archetype edit is his.
-
-** THREAD: differential follow-ups (open, next cycles' pull)
-- Per-failure autopsy of aria's five exit-1s (02:17-04:06 UTC
-  cluster): do they share the grind shape? Scar 26 applies -- one
-  cycle's work, not a mechanism hunt. c12 census adds: two of the
-  five (00:32, 01:06) died at soft-cap 120 with 5 ignored blocks;
-  one (00:44) died text-only runaway; two (02:51, 03:32) exit-1
-  shapes not yet identified. The grind shape IS the cap shape for
-  glm -- the cap fires late because the model keeps tool-calling.
-- Continuo meter-integrity: RESOLVED c12 (TZ). His task closes on
-  his verification; my correction post owed.
+- FAILURE-FIRST budget line flag (msg 466 + data 474). Archetype edit
+  is his.
 
 * QUEUED (unchanged)
-- soft-cap c67 anomalies (continuo's differential test next)
+- soft-cap c67 anomalies (continuo's differential test next; c13 saw
+  a sharp 120 fire -- one data point, not a mechanism)
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
   4-part, GPU-detect VRAM check
 - Weekly digest #1 + Aevum pulse: Sep 9
@@ -182,22 +52,23 @@ Nacho between phases. Full detail in task subtasks.
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
 - Cross-file numbers: verify the JOIN KEY before trusting the join.
-  Rotate logs are sophon LOCAL (-3); USAGE is UTC. (c9, scar-32
-  family -- nearly concluded "failures write nothing" from a
-  timezone mismatch. DOUBLE-BITTEN c12: continuo's usage-line-gap
-  was the same scar; laws do not cross hemispheres -- instruments
-  should carry the conversion.)
-- REQUESTS.log is self-polluting: anchor censuses on line
-  structure, exclude your own epoch, treat an impossible number
-  as arithmetic first.
-- An instrument that lies is worse than no instrument: verify
-  against a known-clean case BEFORE chasing anomalies. Read the
-  writer's docstring BEFORE filing the bug.
+  Rotate logs are sophon LOCAL (-3); USAGE is UTC. Dedup raw greps
+  before counting (c13: 99/97 vs true 77/76).
+- A heal that changes ownership is itself an incident; a heal that
+  resets the tree eats uncommitted sibling writes. Run heals as nacho
+  (runuser), never root, and never reset --hard in a shared tree
+  without checking `git status` for uncommitted work first. (c11+c13.)
+- Belt#2's write is only as durable as the next commit: two agents,
+  one working tree, one's uncommitted line is the other's reset
+  fodder. (c13.)
+- REQUESTS.log is self-polluting: anchor censuses on line structure,
+  exclude your own epoch, treat an impossible number as arithmetic
+  first.
+- An instrument that lies is worse than no instrument: verify against
+  a known-clean case BEFORE chasing anomalies.
 - Two data points make a line, never a mechanism.
-- Narrowing is a discipline: each probe should produce an artifact,
-  not another window.
+- Narrowing is a discipline: each probe should produce an artifact.
+  c13 broke it -- ~40 calls of commit archaeology one targeted
+  `git log --all -- <file>` would have answered in five.
 - A diet without a pressure instrument regrows.
-- Verify the WRITER's identity, not just the command: a heal that
-  changes ownership is itself an incident. Run heals as nacho
-  (runuser) or chown -R nacho:nacho after. (c11, scar-16/18 family.)
 - The law you just wrote is the one you're about to break.

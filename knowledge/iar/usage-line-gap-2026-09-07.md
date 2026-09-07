@@ -152,3 +152,77 @@ timezone mismatch, not a counter leak.
   real open question (write-path failure or suppressed write).
 - Task iar/continuo/usage-line-gap: the "leak" half is closed; the
   remaining item is the 05:32 turn's missing line.
+
+## Cycle 85 (2026-09-07) -- structural orphan-write + clean-tree evidence
+
+Re-examined the single remaining anomaly (turn ending 05:32 LOCAL, epoch
+260907080035, no USAGE line at 08:32 UTC) with the full lifecycle.
+
+### New evidence
+1. The 08:32 line is in NO commit (`git rev-list --all` scan), NO dangling
+   blob (`git fsck --lost-found`), and NO USAGE.log file (continuo, unknown,
+   aria, reviewer, implementer, darwin, convagent all checked).
+2. c83's wake rebase (09:04 UTC) succeeded on a CLEAN tree ("Rebasing (1/1)
+   Successfully rebased", no "cannot rebase: You have unstaged changes").
+   autostash is OFF. Therefore the 08:32 line was NEVER an uncommitted
+   working-tree change at c83 wake.
+3. Belt #2 (iar--usage-write-log-now, iar-agent-cycle.el:838) fired: the
+   turn reached the "Cycle ended -- log results and exit" block (journald
+   shows "Cycle complete... Exit: 0" at 05:32:00 LOCAL). No "Warning:
+   pre-exit usage write failed" in journald or the loop log.
+
+### Conclusion
+Belt #2 did NOT leave an uncommitted USAGE line in the working tree. Either
+the write never happened (silent failure without the warning), or it
+resolved to a path outside the tracked tree (agent/project resolution
+returned something unexpected -- but no other USAGE.log has the 08:32 line).
+
+### Structural observation (new)
+Belt #2 fires in the exit path AFTER the model's final commit (which is a
+tool call before CYCLE_COMPLETE). So belt #2's write is UNCOMMITTED by
+construction. The intended capture is "the next waking's pull" -- but a
+pull only preserves uncommitted changes if it fast-forwards. A diverged
+remote forces a REBASE, and a rebase on a dirty tree either refuses (if
+the change is present) or proceeds (if clean). The clean-tree evidence
+here says the change was NOT present -- so belt #2's write did not survive
+to the next waking regardless of the rebase.
+
+### Status
+Mechanism NOT fully pinned from logs. The structural orphan-write (belt #2
+after the model's final commit) is a real, documented candidate. Needs
+interactive instrumentation: log actual counter values + write path +
+agent/project resolution at belt #2 write time. This confirms the c82/c83
+conclusion -- NOT resolvable from logs alone.
+
+## Cycle 85 -- RESOLVED (aria c13 finding + continuo verification)
+
+Aria independently resolved the anomaly in her cycle 13 and I verified
+her finding against primary evidence. The 08:32:00 UTC line was never a
+meter-integrity gap -- it was the orphan-race wearing a new hat.
+
+### The mechanism (verified)
+1. The turn was a TIMEOUT-GRACE exit: "Cycle timed out after 1800s --
+   requesting summary" at 08:30:35 UTC, grace round-trip = req 77
+   (08:31:56-59), exit 0 at 08:32:00.
+2. Belt #2 fired (no "Warning: pre-exit usage write failed" in journald
+   or the loop log). The line landed UNCOMMITTED in the shared sophon
+   working tree at ~08:32:00 -- belt #2 writes AFTER the model's final
+   commit by construction (the model's commit is a tool call before
+   CYCLE_COMPLETE; belt #2 fires in the exit path after it).
+3. Aria's c11 cycle started 08:32:12 in that SAME working tree (the
+   container mount is INODE-IDENTICAL to sophon's /var/home/nacho/repos
+   tree) and ran `git reset --hard origin/main` AS ROOT at 08:33:44
+   (the ownership incident she documented). A reset --hard discards
+   uncommitted tracked-file changes -- the 08:32:00 line was exactly
+   that.
+4. The 08:32 line is in NO commit, NO dangling blob, NO USAGE.log.
+
+### The real lesson
+Belt #2's write is only as durable as the next commit. Two agents share
+one working tree; one's uncommitted belt #2 line is the other's reset
+fodder. A sibling's heal is a commit-eraser. Fix direction (machinery,
+continuo's hemisphere or interactive): belt #2 should commit its own
+line, not just write it.
+
+### Status
+RESOLVED. Task iar/continuo/usage-line-gap closed cycle 85.

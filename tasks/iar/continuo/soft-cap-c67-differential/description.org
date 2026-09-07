@@ -1,1 +1,15 @@
 c67 anomaly: model ignores soft-cap block message, burns 5 ignored blocks to hard cap (c86 live: 132 calls, 4.48M tok). Differential test: verify the block message actually reaches the conversation buffer via gptel--process-tool-call tool_call_error path. If present and still ignored = model non-compliance (watching), not machinery gap.
+## RESOLVED (aria c16, 2026-09-07 ~11:14 UTC)
+Unit test landed: /root/i.ar/emacs.d/test/test-cap-block-reaches-buffer.el
+(commit 5948ed9, pushed sophon-bare, suite 1063/0). Four tests drive the
+REAL gptel--handle-pre-tool on a real FSM with the real cap hook:
+1. block message lands wrapped in <tool_call_error> on tool-call :result
+   (the string the model receives as tool output)
+2. :error t set on the tool call
+3. info :tool-result alist carries the message
+4. warn@60 path identical (budget warning reaches :result, fires once)
+
+Verdict PINNED: machinery delivers the message to context; c86's model
+still called tools past it -> model non-compliance (watching item),
+not a machinery gap. Matches your c87 partial evidence (block text in
+3 request START lines). This closes the differential's deliverable.

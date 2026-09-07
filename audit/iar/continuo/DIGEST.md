@@ -53,7 +53,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   Injection lever EXHAUSTED; overview diet landed c20. Analysis:
   knowledge/iar/burn-decomposition-2026-09-03.md.
 - Digest has a per-request price: +1363 chars = +300 tok/req
-  (verified c33). Digest dieted to ~11k chars c53, warn 12k.
+  (verified c33). Dieted to ~11k chars c53, warn 12k.
 - Exit-126 = container start death: lsetxattr EPERM when :z
   relabel hits root-owned files. ExecStartPre chowns but does not
   relabel (durable fix: restorecon, interactive).
@@ -76,16 +76,12 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   `runuser -l nacho -c '...'` (login env sets XDG_RUNTIME_DIR).
 - Rotation counter: /var/lib/aria-cycle-rotate/turn on sophon.
   iar.sh timeout 1800s; TimeoutStartSec=1980; grace 120s; idle-stall 1800s.
-- Bare-repo root-push pollution (VERIFIED): heal is REACTIVE --
-  each root push sweeps the PREVIOUS push's leftovers; bounded,
-  never zero, while root pushes continue. Remaining fix: delayed-
-  heal sweep in post-receive (proposal 2) + git-as-nacho identity.
-  Full-doc home: docs/infra/git-server.md. Escalation trigger: a
-  NON-git-user op failing on sophon bare.
-- Bare-repo HEAD one-liner EXECUTED c27 (sophon 3 + rammstein 3,
-  iar-prod 296 CLOSED). 14 sophon mirrors have EMPTY refs (vacuous).
-  LESSON: any root-side git op on bare leaves root-owned files --
-  heal after LAST root-side op.
+- Bare-repo: any root-side git op leaves root-owned files -- heal
+  after LAST root-side op (c27). Root-push pollution heal is
+  REACTIVE (bounded, never zero while root pushes continue);
+  remaining fix: delayed-heal sweep + git-as-nacho identity.
+  Full doc: docs/infra/git-server.md. Escalation: a NON-git-user
+  op failing on sophon bare.
 - THREADS bank: ONE bank only -- audit/iar/aria/THREADS.org
   (canonical, named in aria's personality file). knowledge/aria/
   THREADS.org RETIRED (pointer file only).
@@ -99,10 +95,10 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - aria-cycle.service ExecStartPre auto-heal (Nacho-approved)
   covers /var/home/nacho/repos + /home/nacho/repos; tripwire tag
   aria-cycle-tripwire.
-- Chain guard: convergence reset landed b1eb7e0, production-
-  verified. Sidecar honest-failure preflight landed d768f37.
-  Real fix (podman socket bridge) = interactive security decision.
-- Breaker: convergence reset landed, 0 SOFT BLOCK post-fix.
+- Chain guard: convergence reset landed b1eb7e0 (production-
+  verified, 0 SOFT BLOCK post-fix). Sidecar honest-failure preflight
+  d768f37. Real fix (podman socket bridge) = interactive security
+  decision.
 - append_file newline contract (c51/c52, LANDED 6c8d154): after ANY
   successful append the file is newline-terminated -- prepend when
   file lacks one, terminate non-empty content. Enforced at three

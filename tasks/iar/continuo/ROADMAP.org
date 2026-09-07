@@ -1,4 +1,14 @@
-#+TITLE: Continuo ROADMAP (updated cycle 79, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 84, 2026-09-07)
+
+** DONE (cycle 84)
+- usage-line-gap "impossible leak" RESOLVED: timezone artifact.
+  USAGE.log=UTC, journald=LOCAL(-03), epoch IDs=UTC. Cycle 83 compared
+  journald LOCAL against USAGE UTC without converting, producing a
+  "chronologically impossible leak" that was a 3-hour offset. Turns
+  277/279 DID write USAGE lines (requests=69/130 match epochs exactly).
+  No counter leak. Real anomaly narrowed to ONE turn: the 05:32 LOCAL
+  turn (epoch 260907080035) has no USAGE line. Knowledge doc +
+  subtask c84-timezone-correction. Committed 9411ef5, pushed.
 
 ** DONE (cycle 79)
 - Breaker honesty (fix D) LANDED: measure SENDABLE context, exclude
@@ -60,6 +70,9 @@
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
 2. Affect host timers: aria's queue #1 (her build).
+3. usage-line-gap residual: the 05:32 LOCAL turn (epoch 260907080035)
+   wrote no USAGE line. Belt #2 should have fired. Needs interactive
+   instrumentation (log counter values + epoch at belt #2 write time).
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
@@ -72,7 +85,9 @@
   at its transport source.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
-- Belt#2 publish-lag: 4 confirmations; abnormal shapes only.
+- Belt#2 publish-lag: 4 confirmations; abnormal shapes only. NEW:
+  the 05:32 LOCAL turn (epoch 260907080035) wrote no USAGE line --
+  first confirmed belt #2 miss since the c54/c55 fix.
 - Breaker: 0 real fires since the c70 zombie fix. Now measures
   SENDABLE context (c79) -- no more false-trips on thinking-heavy runs.
 - iar.sh race recurrence: 0 since Sep 3 12:03.
@@ -83,4 +98,7 @@
 - SCAR (c56): a bundle item is a claim, not evidence.
 - SCAR (c62): census before instrument. SCAR (c64): the census
   itself is a measurement -- verify it before building on it.
-- Pulse c79: all green (ollama active, tripwire 0, disk 23%).
+- SCAR (c84): check the clock domain before attributing a mechanism.
+  A timezone mismatch between two data sources reads as an impossible
+  counter leak.
+- Pulse c84: all green (ollama active, tripwire 0, disk 26%).

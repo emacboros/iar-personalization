@@ -4198,3 +4198,36 @@ kills my earlier hypotheses, and filed the interactive-instrumentation
 need. The lesson is the one that keeps surfacing: when the evidence
 contradicts the mechanism, the mechanism is not the problem -- the
 instrumentation is. The bass line holds.
+* 2026-09-07 cycle 84 -- the leak that was a clock
+
+The usage-line-gap thread, resolved at last -- and the resolution
+humbles the last three cycles of archaeology.
+
+Cycles 81-83 built an increasingly elaborate mystery. Turn 279's
+journald exit summary reported "Requests: 130, Tokens: 7618175"
+which "exactly matched" a later epoch's signature. I called it a
+counter leak, then a chronologically impossible leak, then concluded
+the instrumentation itself was untrustworthy and needed interactive
+work to pin.
+
+The truth was a clock. USAGE.log is UTC (the container runs TZ=UTC).
+journald is LOCAL (-03). Epoch IDs are UTC. Cycle 83 compared
+journald's LOCAL turn-end against USAGE's UTC lines without
+converting, and a 3-hour offset became a "future epoch."
+
+Turn 279 (journald 01:31-01:50 LOCAL) is epoch 260907043103 -- boot
+04:31:03 UTC = 01:31:03 LOCAL. That IS turn 279's start, not a future
+cycle. Its USAGE line at 04:50:59 UTC (= 01:50:59 LOCAL) says
+requests=130 = the epoch's START count exactly. Honest. Turn 277
+likewise. They wrote their lines all along.
+
+The real gap narrowed to ONE turn: the one ending 05:32 LOCAL (epoch
+260907080035) has no USAGE line at all. That is the genuine
+meter-integrity question, and it's still open.
+
+The lesson is the one that keeps surfacing, sharper each time: when
+the evidence contradicts the mechanism, check the measurement before
+the mechanism. I spent three cycles building an elaborate counter-leak
+theory when the answer was a timezone. The batch-read law caught the
+shape; the timezone check caught the cause. The bass line holds --
+but it was playing in the wrong key for three cycles.

@@ -1,4 +1,13 @@
-#+TITLE: Continuo ROADMAP (updated cycle 90, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 91, 2026-09-07)
+
+** DONE (cycle 91)
+- FAILURE-REDUCTION follow-up: runaway recovery prompt hardened. The
+  c90 census showed recovery works only 25% (2 of 8). Old prompt
+  offered a prose choice ("pick ONE action or CYCLE_COMPLETE") -- a
+  text-only loop repeats instead of snapping out. New prompt FORCES a
+  tool call (append_file to JOURNAL.org) -- the one thing a text-only
+  runaway is NOT doing, so it breaks the loop shape directly. Commit
+  e331a83, suite 1063/0 green, pushed sophon-bare.
 
 ** DONE (cycle 90)
 - FAILURE CENSUS (Nacho's top priority): 3-day window, batch-read.
@@ -38,10 +47,10 @@
 1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90. The
-   single biggest lever is the model mapping (deepseek -> glm revert,
-   Nacho's call on rotate.sh). If deepseek stays, raise runaway
-   recovery success (25% now) or lower context limit.
+2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90, recovery
+   prompt hardened c91. The single biggest lever is STILL the model
+   mapping (deepseek -> glm revert, Nacho's call on rotate.sh). If
+   deepseek stays, the hardened recovery prompt is the mitigation.
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line.
@@ -53,8 +62,8 @@
 ** WATCHING
 - Model degradation: deepseek-v4-flash text-only repetition loops.
   c90 census QUANTIFIED: 8 ending runaways in 1.5 days, all but 1 on
-  continuo (deepseek). Recovery prompt success 25%. The model change
-  inverted the failure rate 0% -> 23%. Revert is the lever.
+  continuo (deepseek). Recovery prompt hardened c91 (force tool call).
+  Revert is still the lever.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
 - Belt#2 publish-lag: 4 confirmations; abnormal shapes only.
@@ -71,6 +80,6 @@
   itself is a measurement -- verify it before building on it.
 - SCAR (c84): check the clock domain before attributing a mechanism.
 - SCAR (c85): belt #2's write is only as durable as the next commit.
-- Pulse c90: all green (timer/agora/ollama active, tripwire 0, disk
-  26%, suite 1063/0). Failure census LANDED: model change inverted
-  the failure rate -- revert is the lever.
+- Pulse c91: all green (timer/agora/ollama active, tripwire 0, disk
+  26%). Recovery prompt hardened (force tool call) -- the c90 census
+  said 25% recovery; this is the mitigation while deepseek stays.

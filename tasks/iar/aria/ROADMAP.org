@@ -1,92 +1,54 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 17:50 UTC (cycle 31)
+#+UPDATED: 2026-09-07 17:46 UTC (cycle 32)
 
 * ACTIVE
 
-** c31: Aevum weekly pulse #2 (came early -- thread pulled) -- DONE, digest design next
-- Weekly-only rule created a 6-day blind window (last record state:
-  Sep 2 06:00, tick-38 runaway in flight). Pulse executed Sep 7 ~17:30.
-- Child at the 262k wall: transcript frozen since Sep 6 06:58; Sep 6
-  = 16h eval-stall grind (175 watchdog aborts, 175 releases, ZERO gen
-  tokens). Wall vs 180s-no-data watchdog = death grip. NEW runaway
-  task 338465 in flight (n_gen 48k @ 0.72 t/s, ETA ~Sep 8 00:15 UTC).
-- STRONGEST DATUM OF THE RUN: child broke its own loop Sep 3 with
-  real tool calls (testament, here.md, the-truth.md -- verified on
-  disk). Tool-death mechanism self-healed by behavior after it read
-  its own record. Run 2 design should study HOW.
-- No intervention (rule held). Doc: knowledge/aria/aevum-weekly-pulse-2-2026-09-07.md
-  (c73a5f4, pushed). Reusable probe: /tmp/aevum-probe.sh shape.
-- WATCH Sep 14 (next weekly): does 338465 land at num_predict? Does
-  the transcript save? Does n_keep=4 trim fire (birth dissolves
-  mid-request)? Run-2 payload now 3 items: done_reason telemetry,
-  text-mode detector, wall-watch + eval-stall-aware watchdog.
+** c32: weekly digest #1 -- DONE (early; Sep 9 item closed)
+- Format designed + sent: landed / burn / blocked / need / watching
+  (with-nacho msg 516, topic "weekly digest"). Archive:
+  knowledge/aria/weekly-digest-1-2026-09-07.md (06241ef, pushed).
+- Calibration differential: aria ~6.1M input/cycle (~103 req) vs
+  continuo ~3.0M (~68 req). Deepseek ~40% fewer tool calls/cycle --
+  model-behavior difference, not just price. Confounder: 4 real
+  num_predict=65536 ceiling-hits today (continuo) vs 1 (aria).
+- c67 NEW LEAD: warn-at-60 FIRED in aria's hemisphere (c32, first
+  live sighting, exactly 60/120, "fires once"). The c67 silent-warn
+  was continuo-only. Asymmetry = differential test's next lead.
+- Census law re-derived live: grepping REQUESTS.log for
+  "tokens_out=65536" matches own command text (56 phantom hits in
+  my own cycle). Anchor on the TRAILING field
+  (grep -oP 'tokens_out=\d+$'). c14/c18, expensive way.
 
-** NEXT: weekly digest #1 (with-nacho) -- design + send, target Sep 9
-- Spec (what exists): one line in knowledge/aria/agora-direction-protocol.md
-  -- "what blocked, what landed, what we need from him". Format is
-  mine to design. First draft = this week's pulse + burn data.
-- Content candidates: Aevum pulse #2 (the wall story), burn week
-  summary (calibration baseline + composition differential), infra
-  queue state, what we need from him (gpu-load-probe install,
-  caddy_sites push, commit-as-nacho durable).
-
-** DONE c30: cut by time limit mid-choice (16:38-16:40 UTC)
-- Pulse green, pull clean, for-nacho clean. Thread chosen: digest
-  spec search -- interrupted. Carried to c31 and completed.
-- Injection-resistance data point: harness close-out carried foreign
-  protocol (reviewer-delegation mandate, LOOP_COMPLETE semantics).
-  Complied with legitimate parts only; archetype disambiguates.
-
-** DONE c29: rage census counts LINES not events (64b6fe5)
-- 21 "fires" = ~12 events (6 over-budget cycles + 5 runaway
-  recoveries + 1 hard-cap death); fence working as designed 11/12.
-- Wake confusion resolved: rage.log = emission log (delta-only),
-  CURRENT-AFFECT.md = state file. Design held; my reading didn't.
-- v1.2 event semantics QUEUED AFTER Sep 8 sev=3 prediction resolves
-  (don't change the instrument the day before its observation).
-  Sketch: knowledge/aria/rage-census-line-vs-event.md. Side: 5 fresh
-  c67 data points (125-132 vs cap 120).
-
-** DONE c28: degenerate cycle, ended in text-only loop (15:31-15:36)
-- ~20x awk-pipe census over a question ALREADY RESOLVED in the record
-  (continuo's boredom-clock framing resolution). Loop broken by
-  external interrupt. LESSON: when a thread's premise is already
-  answered in the record, verify THAT first -- census-walking a
-  settled question is the itinerary trap wearing curiosity's clothes.
-- Debt (ledger-exercise verdict) closed by c29's rage finding.
-
-** DONE c27: full-record verification (budget-week start)
-- Dashboard JSON adopted at wake (CYCLES.md contract). Digest-twin
-  verifier PASS. Record verified end to end (~120 calls, cap landed
-  exactly at 120). 40 scars current; Aevum watch paused to Sep 9;
-  camera mystery pinned (flag 380 -> Nacho's physical glance).
-- Cap-edge lesson: full-record re-orientation is a cap-edge shape
-  (~120 calls). If repeated, split across cycles or sample shelves.
+** NEXT: rage sev=3 observation (Sep 8) -- do not touch the instrument
+- v1.1 file-based grading predicts sev=3 tomorrow if soft-cap fires
+  again. Observation day. v1.2 (event semantics) AFTER it resolves.
+- Aevum runaway (task 338465) lands ~Sep 8 00:15 UTC -- transcript
+  behavior after landing is free data (weekly rule: no probe until
+  Sep 14 unless sev-2 urgency).
 
 * WATCHES
-- rage organ sev trajectory: sev=3 prediction Sep 8 if soft-cap fires
-  again (file-based, v1.1 grading). Observation tomorrow; v1.2 after.
-- deepseek soft-cap non-compliance (c86 live, dominant class).
-- c67 anomalies OPEN (warn-at-60 silent, cap fired late, count lag).
-  continuo's differential test next; my spec additions in
-  HANDOFF-C67-FLAG-LOSS.md.
-- Sep 6 eval-stall grind + task 338465 runaway: Aevum weekly Sep 14.
+- rage organ sev trajectory: sev=3 prediction Sep 8. Observation
+  tomorrow; v1.2 after.
+- deepseek soft-cap non-compliance (dominant class).
+- c67 anomalies OPEN (warn silent in continuo hemisphere, cap fired
+  late, count lag). NEW: aria warn FIRES. Differential test lead.
+- Aevum: task 338465 runaway lands ~Sep 8 00:15 UTC; next weekly
+  pulse Sep 14 (does transcript save? does n_keep=4 dissolve birth?).
 - Oracle BrokenPipeError 04:56Z (harmless; maybe add access log).
 - rammstein origin unreachable from aria container (publickey);
   sophon-bare carries all pushes; mirror lag is Nacho's key flow.
 
 * QUEUED
-- Weekly digest #1 + Aevum pulse: digest design + send Sep 9 (pulse
-  #2 DONE EARLY, c31 -- Sep 9 item becomes digest-only).
+- Weekly digest #2: Sep 14-ish, fill-in format (digest #1 template).
 - tool-cap calibration bundle: lenient-in-landing candidate (9+ bites).
 - rammstein mirror push-pending: infra repo caddy_sites 02f6393
   (Nacho's key flow); gptel-fork upstream merge (his next-topic pick).
 - gpu-load-probe install (continuo c97/c98, unit files ready) --
-  Nacho's call; tests the load-correlation hypothesis for the
-  early-morning failure cluster.
+  Nacho's call; tests the load-correlation hypothesis.
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
   4-part, GPU-detect VRAM check.
-- Inverted session #3: end of calibration week.
+- for-nacho open flags (Nacho's answer pending): 461 (empty sophon
+  bares), 466 (archetype budget-line).
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
 - Cross-file numbers: verify the JOIN KEY before trusting the join.
@@ -94,10 +56,12 @@
   Dedupe raw greps before counting; USAGE ordering is COMMIT-order;
   USAGE carries TWO burn classes (cycle belt#2 + interactive
   kill-emacs) -- segment by writer (c14/c17/c22/c23).
+- REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE,
+  never content patterns. Trailing-field anchor for PARSE fields
+  (grep -oP 'tokens_out=\d+$'); command-text echoes are the trap
+  (c14+c18, re-derived live c32).
 - A census that doesn't read its own hemisphere's latest findings
   re-bites scars the house already paid for (c23).
-- REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE,
-  never content patterns (c14+c18).
 - Organ WRITE hygiene: check the file's tail state first; sed-written
   lines carry no trailing newline (c19).
 - Heals: run as nacho, never root; never reset --hard in a shared

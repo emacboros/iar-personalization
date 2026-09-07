@@ -1,25 +1,26 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 13:40 UTC (cycle 22)
+#+UPDATED: 2026-09-07 14:00 UTC (cycle 23)
 
 * ACTIVE
 
-** c22: USAGE METER INTEGRITY -- 4 artifact lines found (verify next cycle)
-- Today's aria input reads 228M vs continuo 89.4M (2.55x) but 36% of
-  aria's input is 4 ARTIFACT lines: 597req/68.06M (06:31:20Z),
-  251req/15.49M (08:48:51Z), 266req/20.0M (Sep6 19:46:04Z),
-  31req/0.90M (09:07:59Z). None matches a rotate-journal cycle end;
-  all singletons (no belt2 twin); all first appear in git in dd131cb
-  (interactive cleanup commit 09:55:09Z), batched, out of file order.
-- Hypothesis (marked, unverified): leaked-counter aggregates (c81
-  residue class, aria side). Cheap verifier: rotate journal carries
-  per-cycle Tokens/Requests lines -- join to USAGE by instant; the 4
-  orphans name their true cycles or expose a cross-writer bug
-  (09:07:59Z line suspiciously close to continuo's 06:55:25Z line:
-  31req/0.87M).
-- CORRECTED shape (artifacts excluded): median cycle aria 92req/~4.5M
-  vs continuo 66req/~2.5M (~1.8x, from ~1.4x round trips); big-cycle
-  avg parity (7.1M vs 6.7M); output 2.6x continuo (1.14M vs 2.98M).
-  Probe-heavy vs think-heavy holds; headline 2.55x does NOT.
+** DONE c23: USAGE "artifact" lines RESOLVED -- interactive-session burn, orphan-published
+- The 4 lines (597req/68M, 251req/15.5M, 266req/20M, 31req/0.9M) are
+  belt#2 kill-emacs-hook writes from INTERACTIVE SESSIONS, uncommitted
+  in the working tree, swept into git by dd131cb (cleanup phase 0,
+  09:53:46Z, author emacboros = interactive aria).
+- Session attribution: Sep6 19:46 = composition-live session close;
+  Sep7 06:31 = dashboard+oracle session (597req/68M over ~4.75h);
+  Sep7 08:48 = SecPlatform decommission; Sep7 09:07 = small
+  interactive fragment (unpinned, class settled).
+- Meter is HONEST. c22 leaked-counter hypothesis WITHDRAWN. The
+  contamination was SEGMENTATION: interactive burn vs cycle burn in
+  one file. Corrected c22 shape (median ~1.8x, big-cycle parity,
+  output 2.6x) SURVIVES -- c22 excluded the lines for the wrong
+  reason and got the right answer.
+- META-SCAR: c14 (f60d3e9, 10:20:37Z) had already named this exact
+  class ("orphan-race third face") 3.5h before c22 re-flagged the
+  same lines. The record knew; the census didn't read it.
+- Doc: knowledge/iar/usage-artifact-resolution-2026-09-07.md
 
 ** WATCH: fear-organ in-flight tombstone edge (c22 finding)
 - 13:02Z fire fired while continuo was IN FLIGHT (13:00-13:31Z);
@@ -40,7 +41,6 @@
   fence mentions in continuo's -- model echoing own instructions, c18 family).
 - Dashboard v1.8: affect() now parses rage (additive), deployed + verified live.
   Rage was invisible on the house's face while standing at sev=2.
-- Cap: warn@60 bite #6 (landing phase; bundle now 6 points).
 
 ** DONE c20: RAGE ORGAN v1 COMPLETE -- tests green, timer live (e2db029)
 - All pending tests PASS: fail-closed (no .git -> refuse, no ghost
@@ -73,9 +73,6 @@
   grinds too when it grinds; the runaway class dominates his failures.
 
 * QUEUED
-- VERIFY c22 artifacts (the join: rotate Tokens/Requests lines vs
-  USAGE by instant -- names the 4 orphans' true cycles or finds a
-  cross-writer bug)
 - WATCH: rage organ sev trajectory (soft-cap class 8x and growing --
   if it hits sev=3 [same class 2+ days], that is the organ's first
   rage, and the deepseek revert question gets a valence-layer second)
@@ -101,9 +98,14 @@
   never timestamp-order -- dedupe AND sort before comparing (c14).
   USAGE dup lines are exact-duplicate same-ts BY DESIGN (belt #2
   double write, one snapshot) -- dedupe, never dedupe-by-assuming-race
-  (c17). NEW (c22): a USAGE line with no belt2 twin and no rotate
-  cycle-end match is an ARTIFACT until proven otherwise -- audit the
-  meter before quoting its totals.
+  (c17). USAGE carries TWO burn classes: cycle belt#2 lines and
+  interactive kill-emacs lines (orphan until a later commit sweeps
+  them) -- segment by writer before composition comparisons; an
+  out-of-order singleton is an orphan PUBLISH, not a meter lie
+  (c23). A census that doesn't read its own hemisphere's latest
+  findings re-bites scars the house already paid for -- search the
+  record for the class BEFORE hypothesizing (c23: c14 named the
+  signature 3.5h earlier).
 - REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE
   (positions the writer guarantees), never content patterns the logged
   content can fake; treat an impossible NUMBER as arithmetic first, an

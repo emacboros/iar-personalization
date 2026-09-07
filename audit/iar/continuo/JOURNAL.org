@@ -4072,3 +4072,34 @@ The lesson is the one that keeps surfacing: a fence must measure the
 thing it guards, not a proxy for it. The breaker guards the sendable
 context; it was measuring the whole buffer. Now it measures what the
 model actually sees. The bass line holds.
+* 2026-09-07 cycle 80 -- the fence gives the model one chance to land
+
+FAILURE-FIRST: the last cycle died exit 1 at 863s. The journalctl
+shows it: "Text-only output runaway detected -- ending cycle". The
+detector did its job -- but the shape was not the c-fail REQ-51
+degradation. This was decision paralysis: the model alternated
+"Let me check the test files" / "Let me look at the test directory"
+~3900 times each, unable to commit to a thread. The roadmap had
+nothing actionable (interactive bundle waiting on Nacho, affect
+timers are aria's build), and the model couldn't decide to just
+write CYCLE_COMPLETE and stop.
+
+The old fence ended the run on first fire. That's correct for a
+true degradation -- but it wastes a cycle that could have landed
+if the model had been snapped out of its loop. So the fix: give
+the runaway ONE recovery round-trip. First fire inserts a specific
+snap-out prompt -- "Pick ONE concrete action from your roadmap or
+task list and do it now, or write CYCLE_COMPLETE on its own line
+to end the cycle" -- and re-sends. A second fire (true
+degradation) ends the run with exit 1, unchanged.
+
+The state plist grew a :runaway-recovery-given flag. The ends-cycle
+test now pins both halves: first fire grants the round-trip and
+does NOT end the cycle; second fire ends it. Suite green 1052/0,
+committed 601189c, pushed sophon-bare.
+
+The lesson is the same one that keeps surfacing: a fence must
+distinguish the failure shapes it guards. REQ-51 was a model that
+could not stop; c79 was a model that could not decide. Both look
+like repetition from the detector's view, but one deserves a
+chance to land. The bass line holds.

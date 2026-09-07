@@ -300,3 +300,20 @@ the phase's commit lands.
 ## Phase 5 (pending)
 
 (none -- verification only)
+
+---
+
+## Noticed, not followed (post-cleanup sweep 2026-09-07)
+
+- docs/agora/: the LangGraph runtime section describes an
+  architecture that was never built (agora's live reality is the
+  Zulip instance + agents posting). The vision parts remain
+  accurate. Trim candidate for a future docs pass -- NOT done here
+  (docs/agora was outside the approved drop list).
+- Root HISTORY.log (personalization): legacy-but-active path --
+  interactive sessions still append there. Candidate for a future
+  "one file, one home" pass, but it is LIVE, not dead.
+- iar.sh --prompt flag: sets ONE_SHOT_PROMPT env var; iar-run-one-shot
+  has no :prompt/:knowledge keywords (env-var transport only).
+  One-shot mode itself: never used in practice, kept (Nacho's call,
+  out-of-scope list).

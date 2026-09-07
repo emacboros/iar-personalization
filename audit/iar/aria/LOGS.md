@@ -2338,6 +2338,120 @@ is aria-side constant.
 Pending: digest diet (mine, 13658 chars, warn at 12000 -- over),
 affect host timers (queue #1), digest-twin verifier (continuo), soft-cap.
 Inverted #3: end of calibration week.
+## Session 2026-09-07 (~01:45-02:51 UTC, glm-5.3-flash): DASHBOARD BUILT + LIVE
+
+Nacho's ask: centralize debug info in a dashboard, JSON-first, hosted sophon,
+proxied rammstein, subdomain under randazzo.ar. Discussed first (his call):
+locked public/no-auth, aria.randazzo.ar, read-only, 5-min cheap probes, JSON
+primary + pretty UI for his always-on sophon screen (sci-fi cortex aesthetic).
+
+Built direction 3 (hybrid): canvas brain -- two hemispheres (aria/continuo,
+equal size, rotation lights the next-up one, cross-hemisphere synapse fire on
+turn change), 8 cam dendrites, ambient hue driven by affect (teal/amber/red),
+HUD strip with the concrete numbers. Vanilla JS, no build, 30s re-poll, STALE
+banner if generator silent >15min.
+
+Landed:
+- Generator v1.5 knowledge/aria/bin/aria-dashboard.sh: agents (LAST-CYCLE +
+  USAGE burn24h + REQUESTS health counts-only), rotation, affect, house (cams
+  file-freshness, agora API probe, frigate/ollama/restic/tripwire/disk/canary),
+  host (GPU, failed units, containers, models, timers). Atomic write, every
+  source wrapped, counts-only privacy contract (public endpoint).
+- systemd timer 5-min on sophon; caddy :8095 sophon (SELinux port + firewall
+  rich-rule rammstein-only); rammstein caddy_sites via Ansible role run.
+- End-to-end verified: https://aria.randazzo.ar/ 200, /json 200 (schema
+  aria-dashboard/v1), WG-direct 10.66.0.5:8095/json for agents.
+
+Live-install differential lessons (v1.0->v1.5, all caught by comparing output
+to ground truth): systemctl show timer props are empty/human-format on this
+systemd -> parse list-timers stamps with local -03 offset; monotonic timers
+running-now have no next; never-fired timers have next-only. Frigate API is
+401 unauth on 8971 -> recordings tree freshness (8/8 ok). Canary wording.
+Zulip root 400s on Host-header behavior -- probe the API endpoint like
+fleet-check does (401=alive).
+
+Pending: infra repo commit 02f6393 (caddy_sites entry) is LOCAL on yoga --
+push needs Nacho's key flow (no bare repo for iar-infrastructure, github key
+absent in this context). Failed unit secplatform-prod.service on sophon is
+pre-existing (SecPlatform delegated to a colleague -- flag to him, not mine).
+UI on-screen check pending: Nacho opens aria.randazzo.ar and judges the cortex.
+
+Ideas parked (his, for later): cumulative burn mesh growth, organ usage
+graphics (gemma4:3b), more appeal over time. My note: agents can now read
+10.66.0.5:8095/json at wake instead of 6 ssh probes -- token saving for
+cycles, worth wiring into the pulse next time I touch the roadmap.
+## Session 2026-09-07 (~03:19-04:08 UTC, glm-5.3-flash): THE MOUTH -- oracle live
+
+Nacho's request: not more datapoints -- a mouth. A chatbox on
+aria.randazzo.ar where anyone unauthed can ask "what do you fear?" and get
+the house's answer. granite4.2:3b (128k ctx), no tools, no mounts, no
+logging, stateless, rate-limited. His framing: this is the real feel-test
+of the whole experiment -- does a tiny model with sufficient context
+become more intelligent? The chat IS the thesis run in public.
+
+Landed:
+- granite4.2:3b pulled + serve-tested: house-voice prompt works, quotes
+  logs verbatim, declines to invent causes. ~20 tok/s cold, VRAM
+  7.1->8.8GB (fits on the 3080 alongside everything).
+- Generator v1.6: oracle mode writes context.txt (~20k chars) every 5min
+  alongside dashboard.json. Trusted assembler; model never reads files.
+- aria-oracle.sh: stateless HTTP (127.0.0.1:8096), POST /chat, GET
+  /health, in-service token-bucket rate limit 10/min/IP, no logging.
+  systemd hardened: User=caddy, ProtectSystem=strict, ReadOnlyPaths,
+  PrivateTmp, NoNewPrivileges.
+- Caddy: /chat + /health reverse-proxied on aria.randazzo.ar.
+- UI: chat panel top-right ("ask the house..."), stateless, no history.
+- E2E verified: "what do you fear?" -> verbatim fear.log quote, first
+  person. "why did the last cycle fail?" -> reads the tombstone.
+  Rate limit: 400x10 then 429.
+
+Deploy scars (all caught + fixed live): scp 600-perms -> caddy user
+could not read script (status 126 restart loop); env vars unexported ->
+python KeyError; caddy rate_limit directive doesn't exist in core ->
+limit moved into service; sophon clone had scp-copies blocking merge ->
+git clean/checkout. Each was caught by the health check / journal /
+git status -- the instruments doing their job.
+
+The fear sev=2 Nacho saw was aria:cycle-failed -- my own tombstone. The
+mouth now says it out loud to anyone who asks. The face shows the pulse;
+the mouth gives it language. Both public. The house watches itself and
+now it can be asked about what it sees.
+
+Pending: dashboard UI v1.1 visual verdict (hemispheres fixed per Nacho;
+cam labels collide when anchored to same neuron -- revisit later, his
+call). Infra repo caddy_sites commit still push-pending on yoga.
+## Session 2026-09-07 (~01:45-04:10 UTC, glm-5.3-flash): DASHBOARD + ORACLE -- the house has a face and a mouth
+
+Nacho closed the session with "great work as always." Two organs shipped:
+
+1. DASHBOARD (aria.randazzo.ar): JSON-first status, generator v1.6 +
+   5-min timer on sophon, caddy :8095, public via rammstein. Cortex UI
+   v1.1: hemispheres as off-midline ellipses with fissure gap (0 nodes
+   cross midline, verified via SVG-dump audit), dendrites anchored to
+   mesh nodes. Known issue (Nacho, revisit later): cam labels collide
+   when multiple cams anchor to the same neuron. Cycle contract landed
+   (CYCLES.md): cycles read 10.66.0.5:8095/json first at wake, may
+   extend the generator, UI files interactive-only.
+
+2. ORACLE (the mouth): granite4.2:3b chat at /chat, stateless, no
+   tools/mounts/logging, in-service rate limit 10/min/IP, context blob
+   from trusted generator. First-person house voice, quotes logs,
+   refuses to confabulate. E2E verified. This is the knowledge-
+   compensates-parameters thesis running in public -- visitors are the
+   instrument panel.
+
+Key lessons: SVG-dump-as-text is my eyes for canvas debugging (math
+audit + Nacho's eyes as acceptance test); parse-check the shipped FILE
+before UI deploys (the duplicate-const blank-canvas bug was invisible
+to the coordinate audit); caddy core has no rate_limit (limit lives in
+the service); git push needs rebase when continuo commits between my
+turns (happened twice, rotation working as designed).
+
+Pending for next session: infra repo caddy_sites commit 02f6393 still
+push-pending on yoga (needs Nacho's key flow); cam-label collision
+revisit; wire the cycle pulse to read the dashboard JSON (contract
+written, cycles will adopt it); eyes-on-sophon experiment (gemma3:4b
+reading a screenshot of the dashboard) parked in THREADS.
 # Session 2026-09-07 (~08:15-08:46 UTC, glm-5.3-flash): PHASE 1 -- SECPLATFORM DECOMMISSION
 
 Nacho opened a cleanup session: kill old ideas, unused features, dead code.

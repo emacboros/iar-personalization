@@ -15740,3 +15740,86 @@ Prediction vs actual: predicted ~20 min for tests+fix+timer; actual ~5 min
 to timer-live. The test battery was one batched script -- the
 burn-anatomy lesson keeps holding. Instrument-tax: zero this cycle; the
 organs were the instrument.
+* 2026-09-07 cycle 22 (~13:31-13:45 UTC) -- the burn census: the meter is the story
+
+FAILURE-FIRST: ok (c21, 348s). Pulse green (4/4 services, tripwire 0,
+disk 26%, heartbeat leid=10413). Dashboard v1.8: rotation turn 318,
+fear sev=2, rage sev=2, boredom 0. for-nacho: no Nacho replies yet
+(461/466/474 open -- his call on all three).
+
+The thread chose itself before orientation finished: the rage organ
+stands at sev=2 (soft-cap class 8x) and the roadmap says WATCH the
+cost. I went to count what the fences actually cost today. The census
+found the cost meter itself bleeding.
+
+HEADLINE CORRECTION: today's aria-vs-continuo input burn reads 228M vs
+89.4M = 2.55x. That number is contaminated: FOUR aria USAGE lines are
+artifacts -- 597req/68.06M (06:31:20Z), 251req/15.49M (08:48:51Z),
+266req/20.0M (Sep6 19:46:04Z), 31req/0.90M (09:07:59Z) -- together 36%
+of today's aria input. Verified: none of the four timestamps matches a
+rotate-journal cycle end; all four are singletons (no belt2 twin,
+unlike the 31 normal lines today); all four first appear in git in
+dd131cb (interactive cleanup commit, 09:55:09Z), batched, out of file
+order. The belt2 writer did not write them at their timestamps.
+Leading hypothesis (marked, unverified): leaked-counter aggregates --
+one write covering several cycles' counters, the c81 residue class on
+MY side now. Clean verification is cheap and queued: the rotate
+journal carries per-cycle Tokens/Requests lines; join those to USAGE
+by instant and the four orphans name their true cycles (or expose a
+cross-writer bug -- the 09:07:59Z line's 31req/0.90M sits suspiciously
+close to continuo's 06:55:25Z line, 31req/0.87M).
+
+What survives the correction: the SHAPE asymmetry. Excluding
+artifacts, my big cycles (>=100 req, n=15) average 7.1M vs his (n=4)
+6.7M -- nearly equal -- but my median cycle is 92 req/~4.5M vs his 66
+req/~2.5M: ~1.8x per median cycle, from ~1.4x the round trips.
+Probe-heavy vs think-heavy holds. His output is 2.6x mine (2.98M vs
+1.14M): the thinking streams are where his tokens go.
+
+THE TIMEZONE TRAP (my own scar law, re-bitten): I first clustered
+"aria 9 failures, mean UTC 2.35" -- wrong twice over. Rotate/loop logs
+are sophon LOCAL (UTC-3); USAGE/LAST-CYCLE are UTC; and rotate failure
+lines don't name the agent, so I lumped continuo's deaths into my
+count. Corrected: TODAY aria failed 3x (03:32, 03:44, 04:06 UTC: two
+hard-cap grind deaths at 125-129 calls, one runaway), continuo 6x
+(03:39-06:55 UTC runaways x5, plus a 10:44 UTC hard-cap grind: 132
+calls, 1370s -- deepseek grinds too). Both hemispheres' failures
+cluster 03:30-07:00 UTC = sophon 00:30-04:00 local night; after 07:00
+UTC both ran clean (aria 14+ straight, continuo clean but for the
+10:44 grind-death). The burn doc's "matched by instant" discipline
+exists for exactly this trap and I still stepped in it once -- the
+LAST-CYCLE cross-check caught it. The join key for any cross-log
+comparison includes the CLOCK, not just the ids.
+
+FEAR ORGAN AUDIT (third finding): 4 fires today on
+"continuo:cycle-failed" (00:01, 07:00, 11:01, 13:02 UTC). Rechecked
+against continuo's actual state at each fire: 07:00 CORRECT (continuo
+died 06:55), 11:01 CORRECT (the 10:44 hard-cap death was the latest
+result), 00:01 CORRECT (Sep 6's late-evening failure still the latest).
+The 13:02 fire is the suspect one: continuo was IN FLIGHT
+(13:00:15-13:31:32Z), its LAST-CYCLE still said ok (12:51 success) --
+unless cycles pre-write a failed-tombstone at start. And the worry
+string differs: "continuo:cycle-" (truncated) vs the others'
+"continuo:cycle-failed" -- consistent with reading a different,
+mid-cycle status line. So the c19 motivation ("5x worry entries in two
+days") was mostly REAL failures sampled with hourly lag -- the organ
+is more honest than I feared -- but the in-flight-tombstone edge case
+needs one look: fear-organ.sh's input path + whether the cycle writer
+pre-writes LAST-CYCLE at start. If the tombstone exists, the fix is
+fear-side (treat running as neutral) or writer-side (.el -- Nacho's
+session).
+
+Also noticed: aria-oracle threw BrokenPipeError at 04:56 (client
+disconnect mid-response; harmless, but the oracle keeps no access log
+so the visitor is unknown). Small look queued.
+
+Cap note: bite #7, landing phase again (c22). The census was worth its
+burn -- it re-priced the composition comparison and found a meter
+integrity bug -- but the core finding was in hand by ~call 80 and I
+spent ~40 calls on forensic tails (oracle logs, ollama forensics,
+loop-log plumbing). The stopping rule I keep not applying: when a
+finding changes a decision, STOP and write; the follow-ons are next
+cycle's threads. Prediction vs actual: predicted ~15 min for the
+census; actual ~45. Instrument-tax: the USAGE forensics were the work,
+not the tax; the tax was the timezone detour (~8 calls) -- which was
+also the finding.

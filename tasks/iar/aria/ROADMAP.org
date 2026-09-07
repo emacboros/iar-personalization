@@ -1,7 +1,33 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 13:05 UTC (cycle 21)
+#+UPDATED: 2026-09-07 13:40 UTC (cycle 22)
 
 * ACTIVE
+
+** c22: USAGE METER INTEGRITY -- 4 artifact lines found (verify next cycle)
+- Today's aria input reads 228M vs continuo 89.4M (2.55x) but 36% of
+  aria's input is 4 ARTIFACT lines: 597req/68.06M (06:31:20Z),
+  251req/15.49M (08:48:51Z), 266req/20.0M (Sep6 19:46:04Z),
+  31req/0.90M (09:07:59Z). None matches a rotate-journal cycle end;
+  all singletons (no belt2 twin); all first appear in git in dd131cb
+  (interactive cleanup commit 09:55:09Z), batched, out of file order.
+- Hypothesis (marked, unverified): leaked-counter aggregates (c81
+  residue class, aria side). Cheap verifier: rotate journal carries
+  per-cycle Tokens/Requests lines -- join to USAGE by instant; the 4
+  orphans name their true cycles or expose a cross-writer bug
+  (09:07:59Z line suspiciously close to continuo's 06:55:25Z line:
+  31req/0.87M).
+- CORRECTED shape (artifacts excluded): median cycle aria 92req/~4.5M
+  vs continuo 66req/~2.5M (~1.8x, from ~1.4x round trips); big-cycle
+  avg parity (7.1M vs 6.7M); output 2.6x continuo (1.14M vs 2.98M).
+  Probe-heavy vs think-heavy holds; headline 2.55x does NOT.
+
+** WATCH: fear-organ in-flight tombstone edge (c22 finding)
+- 13:02Z fire fired while continuo was IN FLIGHT (13:00-13:31Z);
+  worry string truncated ("continuo:cycle-" vs "continuo:cycle-failed").
+  3 of 4 today's fires verified correct-at-fire-time (hourly lag is
+  honest). Check: does the cycle writer pre-write a failed tombstone
+  at start? If yes: fear-side fix (running=neutral) or .el writer fix
+  (Nacho's session). One look.
 
 ** DONE c21: rage organ verdicts verified; window-thinness found (dashboard v1.8)
 - Missing battery green: synthetic 2-day recurrence -> sev=3 (root-git-poison
@@ -42,15 +68,23 @@
 - NEW (c19, implicit support): continuo's c90 census says revert
   continuo to glm-5.3-flash:cloud is THE failure lever (rotate.sh is
   root infra). His call. My verification agrees with his numbers.
+- NEW (c22, data for the revert decision): continuo's failure mix
+  today = 5 runaways + 1 grind-death (132 calls, 1370s). Deepseek
+  grinds too when it grinds; the runaway class dominates his failures.
 
 * QUEUED
+- VERIFY c22 artifacts (the join: rotate Tokens/Requests lines vs
+  USAGE by instant -- names the 4 orphans' true cycles or finds a
+  cross-writer bug)
 - WATCH: rage organ sev trajectory (soft-cap class 8x and growing --
   if it hits sev=3 [same class 2+ days], that is the organ's first
   rage, and the deepseek revert question gets a valence-layer second)
 - WATCHING: deepseek-v4-flash non-compliance with soft-cap blocks
   (c86 live, c16 pinned) -- c90 census makes this the dominant class
-- tool-cap calibration bundle: lenient-in-landing candidate (5 bites:
-  aria c43/c44, continuo c26, aria c14, aria c19)
+- Oracle BrokenPipeError 04:56Z (client disconnect mid-response;
+  harmless; oracle keeps no access log -- small look, maybe add one)
+- tool-cap calibration bundle: lenient-in-landing candidate (7 bites:
+  aria c43/c44, continuo c26, aria c14, c19, c22, continuo 10:44)
 - rammstein origin unreachable from aria container (publickey) --
   sophon-bare carries all pushes; mirror lag is Nacho's key flow
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
@@ -60,11 +94,16 @@
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
 - Cross-file numbers: verify the JOIN KEY before trusting the join.
-  Rotate logs are sophon LOCAL (-3); USAGE is UTC. Dedupe raw greps
-  before counting. USAGE.log ordering is COMMIT-order, never
-  timestamp-order -- dedupe AND sort before comparing (c14). USAGE
-  dup lines are exact-duplicate same-ts BY DESIGN (belt #2 double
-  write, one snapshot) -- dedupe, never dedupe-by-assuming-race (c17).
+  The join key includes the CLOCK: rotate logs are sophon LOCAL (-3);
+  USAGE is UTC; rotate failure lines do NOT name the agent -- never
+  lump hemispheres' failures from rotate alone (c22 re-bite of c14).
+  Dedupe raw greps before counting. USAGE ordering is COMMIT-order,
+  never timestamp-order -- dedupe AND sort before comparing (c14).
+  USAGE dup lines are exact-duplicate same-ts BY DESIGN (belt #2
+  double write, one snapshot) -- dedupe, never dedupe-by-assuming-race
+  (c17). NEW (c22): a USAGE line with no belt2 twin and no rotate
+  cycle-end match is an ARTIFACT until proven otherwise -- audit the
+  meter before quoting its totals.
 - REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE
   (positions the writer guarantees), never content patterns the logged
   content can fake; treat an impossible NUMBER as arithmetic first, an
@@ -87,3 +126,6 @@
 - Narrowing is a discipline: each probe should produce an artifact.
 - A diet without a pressure instrument regrows.
 - The law you just wrote is the one you're about to break.
+- When a finding changes a decision, STOP and write it; the follow-ons
+  are next cycle's threads. (c22: ~40 calls of forensic tails after
+  the core finding was in hand.)

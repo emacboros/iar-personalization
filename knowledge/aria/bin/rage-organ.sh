@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1 (2026-09-07, aria cycle 19)
+# rage-organ.sh v1.1 (2026-09-07, aria cycle 26; v1 was cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -15,10 +15,21 @@
 #
 # Inputs (disjoint domain: fence-fire recurrence):
 #   - audit/iar/<agent>/cycle-YYYY-MM-DD.log fence-fire lines,
-#     both hemispheres, last RAGE_DAYS days (default 3):
+#     both hemispheres, the RAGE_DAYS newest daily logs (default 3):
 #       runaway / circuit breaker / soft cap / hard cap / chain guard
 #   These are the raw upstream events fear never reads (fear reads
 #   LAST-CYCLE.txt verdicts, not the fence-fire stream).
+#
+# v1.1 -- FILE-ENUMERATION WINDOW (cycle 26). v1 computed UTC dates
+#   and read files NAMED with them, but iar.sh names daily logs with
+#   the HOST's LOCAL date (iar.sh:502). The join key included a clock
+#   (c22/c24 law) and the two clocks disagreed by 3h at the day edge:
+#   day attribution was mislabeled and the window was TZ-coupled to
+#   the runner. v1.1 enumerates the writer's actual daily logs and
+#   takes the RAGE_DAYS newest BY FILENAME. File granularity IS the
+#   writer's day granularity: distinct FILE dates = distinct days, by
+#   construction, on any runner in any timezone. Also drops v1's dead
+#   class_counts accumulator and duplicate second scan.
 #
 # Grading (the root-git-poison pattern calibrated):
 #   sev=0  quiet -- no fence fires
@@ -55,7 +66,6 @@ fi
 AFFECT_DIR="$PDIR/affect"
 LOG="$AFFECT_DIR/rage.log"
 CURRENT="$AFFECT_DIR/CURRENT-AFFECT.md"
-NOW=$(date -u +%s)
 TODAY=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 RAGE_DAYS="${RAGE_DAYS:-3}"
 
@@ -72,64 +82,38 @@ touch "$LOG" 2>/dev/null || exit 0
 # writer guarantees.)
 FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call soft cap|Tool-call hard cap|LOOP GUARD'
 total_fires=0
-class_counts=""          # "class:count" pairs
-per_class_max=0
-days_with_class_max=0    # max, over classes, of distinct days that class fired
+declare -A CLASS_N=()
+declare -A CLASS_DAYS=()
 
 for agent in aria continuo; do
-  for d in $(seq 0 $((RAGE_DAYS-1))); do
-    day=$(date -u -d "-${d} days" +%Y-%m-%d)
-    f="$PDIR/audit/iar/${agent}/cycle-${day}.log"
+  # The RAGE_DAYS newest daily logs BY FILENAME (names are zero-padded
+  # dates, so lexicographic sort = chronological). No clock in the
+  # join key: the file set is whatever the writer actually wrote.
+  mapfile -t day_files < <(ls "$PDIR/audit/iar/${agent}"/cycle-*.log 2>/dev/null | sort -r | head -n "$RAGE_DAYS")
+  for f in "${day_files[@]}"; do
     [ -r "$f" ] || continue
+    day="$(basename "$f" .log)"; day="${day#cycle-}"
     while IFS= read -r cls; do
       [ -z "$cls" ] && continue
       total_fires=$((total_fires + 1))
-      # accumulate per-class counts and per-class distinct days
-      found=0
-      if [ -n "$class_counts" ]; then
-        new=""
-        while IFS= read -r pair; do
-          [ -z "$pair" ] && continue
-          c="${pair%%:*}"; n="${pair##*:}"
-          if [ "$c" = "$cls" ]; then
-            n=$((n+1)); found=1
-          fi
-          new="${new}${c}:${n}"$'\n'
-        done <<< "$class_counts"
-        class_counts="$new"
-      fi
-      [ "$found" -eq 0 ] && class_counts="${class_counts}${cls}:1"$'\n'
-      # track distinct days per class (agent+class+day is one fire-day)
-      : # day tracking folded into class_counts below
-    done < <(grep -oE "$FENCE_PAT" "$f" 2>/dev/null)
-  done
-done
-
-# --- per-class distinct-day census (the rage threshold) ---
-# Re-scan compactly: for each class, count distinct (day) occurrences.
-declare -A CLASS_DAYS=()
-declare -A CLASS_N=()
-for agent in aria continuo; do
-  for d in $(seq 0 $((RAGE_DAYS-1))); do
-    day=$(date -u -d "-${d} days" +%Y-%m-%d)
-    f="$PDIR/audit/iar/${agent}/cycle-${day}.log"
-    [ -r "$f" ] || continue
-    while IFS= read -r cls; do
-      [ -z "$cls" ] && continue
       CLASS_N["$cls"]=$(( ${CLASS_N["$cls"]:-0} + 1 ))
       CLASS_DAYS["${cls}|${day}"]=1
     done < <(grep -oE "$FENCE_PAT" "$f" 2>/dev/null)
   done
 done
 
-# distinct days per class
+# --- per-class census (the rage thresholds) ---
+# distinct days per class: CLASS_DAYS is a set keyed class|file-date,
+# so counting its keys per class counts distinct days, deduped.
+per_class_max=0
+days_with_class_max=0
+declare -A CLASS_DAYCOUNT=()
+for key in "${!CLASS_DAYS[@]}"; do
+  cls="${key%%|*}"
+  CLASS_DAYCOUNT["$cls"]=$(( ${CLASS_DAYCOUNT["$cls"]:-0} + 1 ))
+done
 for k in "${!CLASS_N[@]}"; do
-  cls="$k"
-  dd=0
-  for d in $(seq 0 $((RAGE_DAYS-1))); do
-    day=$(date -u -d "-${d} days" +%Y-%m-%d)
-    [ -n "${CLASS_DAYS[${cls}|${day}]:-}" ] && dd=$((dd+1))
-  done
+  dd="${CLASS_DAYCOUNT[$k]:-0}"
   [ "$dd" -gt "$days_with_class_max" ] && days_with_class_max=$dd
   [ "${CLASS_N[$k]}" -gt "$per_class_max" ] && per_class_max=${CLASS_N[$k]}
 done
@@ -177,7 +161,7 @@ else
   # collision class: sed writes no trailing newline; a bare >> would
   # fuse two organ lines into one)
   [ -f "$CURRENT" ] && [ -n "$(tail -c1 "$CURRENT" 2>/dev/null)" ] && echo >> "$CURRENT" 2>/dev/null
-  echo "rage: sev=$sev ($DELTA) -- $phrase | asof=$TODAY" >> "$CURRENT" 2>/dev/null
+  echo "rage: sev=$sev ($DELTA) -- $phrase" >> "$CURRENT" 2>/dev/null
 fi
 
 echo "rage: sev=$sev delta=$DELTA fires=$total_fires max_class=$per_class_max days_class=$days_with_class_max"

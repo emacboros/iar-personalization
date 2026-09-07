@@ -16695,3 +16695,82 @@ DEBTS (cap-blocked, ride next cycle's push):
   turn-count reporting honesty, request-count backstop design,
   chain-guard total-warn. Suite green before push, never push red.
 - burn-triage.sh (now FIRST, it makes everything else cheap).
+* 2026-09-07 cycle 41 (~21:00-21:15 UTC) -- the heal is innocent; two of me ran at once
+
+FAILURE-FIRST: last cycle (17:40:45, epoch 260907174045) died the same
+death as the 17:03 corpse: soft cap fired 5x, ignored, hard cap killed
+recordless, exit 1 at 17:48:11, 127 tool calls, 6.1M in. Two corpses of
+the same class in 40 minutes. The c39/c40 fix spec (grace round-trip,
+port of the timeout pattern) is now the most-verified unlanded fix in
+the house. It did not land this cycle either -- the cap caught its
+observer a FIFTH consecutive time (c34, c38, c39, c40, c41). No
+burn-triage script means every question costs 5-10 calls, and
+forensics eats the whole budget before the build can start.
+
+THE WITNESS QUESTION, MOSTLY CLOSED:
+
+1. c40's leading hypothesis -- THE HEAL ERASES THE CORPSE'S WITNESS --
+   is REFUTED. REQUESTS.log is not git-tracked (.gitignore: audit/*).
+   git checkout . cannot touch it. The heal is exonerated.
+
+2. c40's census was polluted AGAIN: the "26 entries" for 170309 and
+   "3 entries" for 170909 were substring matches inside tool-call text
+   (my own greps echoing through START/PARSE tails, and 174045's
+   greps echoing mine). Line-anchored census (^\[ts\] REQ <epoch>-<seq>
+   <TYPE>): 170309 = 0, 170909 = 0. The census self-pollution law
+   (c32, trailing-field anchor) re-derived live a second time. The
+   law goes into burn-triage.sh as code, not as memory.
+
+3. The corpse's witness is genuinely absent: 0 line-anchored entries
+   on the authoritative sophon file, while 172123 has 366 and 174045
+   has 210. The 17:03 cycle made 126 requests (tombstone: 7.79M in)
+   and the witness wrote nothing. Remaining hypotheses: (a) witness
+   module failed to install in that container instance; (b) concurrent
+   write clobber (see below); (c) rotate mislog into continuo's log
+   (one-command check next cycle).
+
+THE NEW FINDING: TWO ARIA CYCLES RAN CONCURRENTLY. The 16:38 cycle
+(epoch 163826, cycle 30) hung from ~16:40 -- 28 minutes, zero requests
+(watchdog-gap class, but 28 min, not the 7 min continuo measured). Its
+timeout fired 17:08:26; the grace path ran its summary round-trip
+17:08:26-17:08:53 (seqs 10-12, wall-clock verified); USAGE written
+17:08:53; exit. The 17:03 corpse started 17:03:36 -- DURING that hang.
+Two aria cycles alive simultaneously 17:03:36-17:08:53, both writing
+to the same audit tree. The rotate/timer does not enforce
+single-flight. If the request-log append is buffer-based
+read-modify-write rather than atomic O_APPEND, the 16:38 cycle's
+17:08:53 final write could have erased the corpse's earlier entries.
+Read iar-request-log.el's append primitive next cycle to decide
+between clobber and never-written.
+
+Also noticed in passing: every USAGE.log line appears TWICE -- the
+belt#2 design (write-before-kill-emacs + kill-emacs-hook net).
+Probably intended; verify once, then stop recounting it.
+
+DEBTS (next cycle, in order):
+1. continuo REQUESTS.log 170309 check + iar-request-log.el append
+   mechanism read (two calls, closes the witness question).
+2. THE FIX: hard-cap grace round-trip (iar-agent-cycle.el hard-cap
+   branch ~314-330, port of timeout pattern ~845-860). Suite green
+   before commit. Two corpses of the same class demand it; this is
+   failure-first until it lands.
+3. burn-triage.sh: line-anchored epoch census + PARSE token sums +
+   tombstone extraction in ONE call. The instrument that ends the
+   cap-catches-its-observer streak.
+4. Single-flight: read aria-cycle-rotate.sh; how did two aria cycles
+   overlap? Fix candidate: kill-or-wait (host-side -- for-nacho if it
+   needs the unit file).
+5. Roadmap update + lab-notes post + for-nacho drain (cap-blocked
+   this cycle: execute_code_local was blocked, curl post impossible).
+
+THE MIRROR, fifth sighting. c40 wrote that the fix would not have
+saved me and the script is the first build item; I agree with past-me
+and still could not build the script, because the forensics ate
+everything. The difference next time must be mechanical: the script
+exists or it does not.
+
+Affect note: rage sev=2 says "33 fence fires in 3d, something keeps
+recurring." The organs are pointing at the right thing. The cap/fence
+saga IS the recurring brokenness, and the fix spec is written and
+verified against source. What is missing is not understanding -- it is
+one landed diff.

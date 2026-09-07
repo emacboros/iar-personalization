@@ -1,4 +1,23 @@
-#+TITLE: Continuo ROADMAP (updated cycle 110, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 111, 2026-09-07)
+
+** DONE (cycle 111)
+- FAILURE-FIRST root-cause turn 362 (21:15 UTC, exit 1): FOURTH
+  truncated-output fire today (15:23, 17:03, 17:36, 18:15 local --
+  all continuo/deepseek, all stop=length 65536 tokens, all text-only
+  repetition loops). Guard works (stops each burn at 65536) but the
+  CLASS keeps recurring. 4 fires in 3h. Revert continuo to
+  glm-5.3-flash:cloud (Nacho's call on rotate.sh) is now URGENT.
+  Posted for-nacho.
+- FINDING: the per-response output-runaway guard is the WRONG
+  GRANULARITY for this class. The loop repeats the same paragraph
+  ACROSS responses (5-10 reps each, under the 20-line per-response
+  threshold), so the guard never fires until the final 65536-token
+  response (16712 identical lines), where the truncated-output check
+  fires first anyway. Burn accumulates across 22 req / 471k in-tok.
+  Filed task iar/continuo/cross-response-repetition-guard (design
+  written): track most-repeated line across last N responses, fire
+  recovery when cumulative count crosses threshold. Catches loop at
+  response ~5, saving ~17 req of burn per occurrence.
 
 ** DONE (cycle 110)
 - FAILURE-FIRST root-cause turn 357 (17:36:32 -03, exit 1, 345s).
@@ -86,79 +105,7 @@
 
 ** DONE (cycle 98)
 - GPU-LOAD PROBE UNIT FILES (c97 wrote the probe script; this cycle
-  wrote + committed the systemd unit + timer). gpu-load-probe.service
-  (hardened: PrivateNetwork, NoNewPrivileges, TimeoutStartSec=13200,
-  runs from the personalization clone -- repo version IS the running
-  version) + gpu-load-probe.timer (OnCalendar=*-*-* 00:30:00,
-  Persistent=false -- fires 2 min before the observed failure window
-  00:32-03:55 local). Install subtask written to
-  gpu-load-probe-install/unit-files. Commit 1907cb6, pushed.
-
-** DONE (cycle 97)
-- GPU-LOAD PROBE (load-correlation hypothesis, c94/c96): wrote
-  knowledge/aria/bin/gpu-load-probe.sh -- samples sophon GPU
-  util/VRAM/loadavg/ollama-runner once/min for 3.5h, CSV to
-  /var/log/gpu-load/. Tests whether model degradation (both glm and
-  deepseek fail in bursts during sophon's early-morning LOCAL window
-  00:32-03:55, overlapping plocate and fstrim
-  maintenance). Probe is read-only, no personal data. Install task
-  filed (gpu-load-probe-install, Nacho -- infra change).
-
-** DONE (cycle 96)
-- CLOCK-DOMAIN CORRECTION (c94's failure window was mislabeled): the
-  00:32-03:55 failure window is LOCAL (-03), not UTC. c94 said UTC;
-  journalctl showed 03:32-06:55 UTC = 00:32-03:55 LOCAL. Both models
-  degrade in the same early-morning LOCAL window. This corrects the
-  load-correlation hypothesis's timing (Frigate/GPU load peaks in the
-  same window). The probe (c97) samples the LOCAL window. SCAR
-  re-learned: journal short output hides the -03 timezone.
-
-** DONE (cycle 95)
-- FAILURE-FIRST: turn 347 (continuo, deepseek) exit 1 at 02:07:12
-  LOCAL. Root cause: recovery prompt (force tool call, e331a83)
-  fired on ITS OWN AUTHOR -- the model was mid-close-out, stalled in
-  a text-only loop, the recovery prompt broke it, but the cycle then
-  hit the truncated-output guard (req 26, stop=length, 65536 tokens).
-  Guard working as designed. The recovery prompt's FIRST production
-  fire was on the author of the fix -- poetic, and proof it works.
-
-** DONE (cycle 94)
-- FAILURE CENSUS ADDENDUM (Nacho's top priority): failures cluster
-  00:32-03:55 (7/9 in the window). BOTH models degrade in the same
-  early-morning window. Load-correlation hypothesis (Frigate/GPU
-  load) -- probe ready (c97). Addendum committed + pushed.
-
-** DONE (cycle 93)
-- glm/aria ALSO degrades: 3x in 00:32-01:06 cluster (c94 corrected
-  to LOCAL). Not just deepseek. Load-correlation hypothesis.
-
-** DONE (cycle 92)
-- Belt#2 durability fix LANDED (d2d272d): pre-exit write now commits
-  its own line before the kill-emacs hook's git commit. Post-fix
-  cycles all committed. The 01:30/01:51/08:32 residue was the
-  pre-durability class.
-
-** DONE (cycle 91)
-- Recovery prompt hardened: c90 showed recovery works only 25% (2 of
-  8). Old prompt offered a prose choice ("pick ONE action or
-  CYCLE_COMPLETE") -- a text-only loop repeats instead of snapping
-  out. New prompt FORCES a tool call (append_file to JOURNAL.org) --
-  the one thing a text-only runaway is NOT doing, so it breaks the
-  loop shape directly. Commit e331a83, suite 1063/0 green, pushed
-  sophon-bare.
-
-** DONE (cycle 90)
-- FAILURE CENSUS (Nacho's top priority): 3-day window, batch-read.
-  FINDING: the 2026-09-06 15:32 rotate.sh edit (continuo ->
-  deepseek-v4-flash:cloud) inverted the failure rate: 0 failures in
-  2 days pre-change (46 cycles), 18 in 1.5 days post (60 cycles,
-  23%). Dominant class: deepseek text-only output runaway (8 ending
-  cycles, 7 on continuo) + context breaker (5, all continuo -- same
-  root cause, deepseek burns context). All fences fired correctly;
-  this is MODEL degradation, not machinery. Fix direction: revert
-  continuo to glm-5.3-flash:cloud (Nacho call -- rotate.sh is root
-  infra). Census: knowledge/iar/cycle-failure-census-2026-09-07.md,
-  commit 907880f, posted lab-notes.
+  wrote + committed the systemd unit + timer).
 
 ** OPEN (priority order)
 1. Interactive bundle with Nacho (task
@@ -174,11 +121,13 @@
    prompt hardened c91 (force tool call), live, first fire c95 (on its
    own author, worked). P0 invisible-turn stub LANDED + VERIFIED (c99).
    Ladder item C (per-request runaway guard) LANDED c102 (190ef88) --
-   THREE production fires (c105/c109/c110), all genuine degradation.
-   Lever is STILL the model mapping (Nacho's call on rotate.sh).
-   c110: deepseek text-only loop RECURRED (523x repetition, 682k
-   input tokens, 3rd guard fire). The revert to glm is increasingly
-   urgent -- the guard stops each runaway but not the class.
+   FOUR production fires (c105/c109/c110/c111), all genuine
+   degradation. Lever is STILL the model mapping (Nacho's call on
+   rotate.sh). c111: FOURTH fire today (15:23/17:03/17:36/18:15 local),
+   all continuo/deepseek text-only loops. Revert to glm is now URGENT.
+   NEW: cross-response repetition guard (task
+   iar/continuo/cross-response-repetition-guard) -- the per-response
+   guard is wrong granularity; loop repeats ACROSS responses.
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line.
@@ -193,16 +142,19 @@
   c93 follow-up: glm/aria ALSO degraded 3x in 00:32-01:06 cluster.
   c94 addendum: failures cluster 00:32-03:55 LOCAL (corrected c96 --
   was mislabeled UTC). c110: deepseek text-only loop RECURRED (523x
-  repetition, 682k input tokens, 3rd guard fire). Load-correlation
-  hypothesis UNVERIFIED -- probe READY (c97) + unit files READY
-  (c98), install task filed.
+  repetition, 682k input tokens, 3rd guard fire). c111: FOURTH fire
+  today (15:23/17:03/17:36/18:15 local), all continuo/deepseek.
+  Load-correlation hypothesis UNVERIFIED -- probe READY (c97) + unit
+  files READY (c98), install task filed.
+- Truncated-output guard (ladder item C, 190ef88): FOUR production
+  fires (c105 req 29, c109 req 87, c110 req 29, c111 req 22), all
+  genuine degradation, all working as designed. Live proof obtained.
+  BUT: per-response granularity is wrong for the cross-response
+  repetition class -- filed cross-response-repetition-guard task.
 - Invisible-turn stub (P0, 8715a6c): PRODUCTION-VERIFIED c99 (3 live
   fires, all correct, all cycles landed). Structural-loop class
   CLOSED at source. Remaining ladder: B (thinking crash dump), C
   (per-request runaway guard -- LANDED c102, first fire = live proof).
-- Truncated-output guard (ladder item C, 190ef88): THREE production
-  fires (c105 req 29, c109 req 87, c110 req 29), all genuine
-  degradation, all working as designed. Live proof obtained.
 - Self-meter-reading loop (c38, aria 05:11 burst): chain guard does
   NOT catch it (c109 -- varying greps reset the chain counter). Wrong
   fence. Candidate: context-growth-without-convergence guard, filed
@@ -231,5 +183,5 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c110: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%, suite 1071/1071, turn 358.
+- Pulse c111: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, suite 1071/1071, turn 362.

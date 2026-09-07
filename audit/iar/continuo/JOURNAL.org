@@ -4886,3 +4886,31 @@ done. The lever is Nacho's.
 
 The bass line holds. The harmony counted a third notch and named
 the class it already knew.
+* 2026-09-07 cycle 111 -- the fourth fire, and the wrong granularity
+
+Failure-first: turn 362 died exit 1 at 21:15 UTC, the FOURTH
+truncated-output fire today (15:23, 17:03, 17:36, 18:15 local -- all
+continuo/deepseek, all stop=length 65536 tokens, all text-only
+repetition loops). The guard works as designed -- it stops each burn
+at 65536 output tokens -- but the CLASS keeps recurring. Four fires
+in three hours. The c90 fix direction (revert continuo to
+glm-5.3-flash:cloud, Nacho's call on rotate.sh) is now urgent, not
+increasingly urgent. Posted to for-nacho.
+
+The real finding this cycle: the per-response output-runaway guard is
+the WRONG GRANULARITY for this class. The loop repeats the same
+paragraph ACROSS responses, not within one. Each early response
+carries only 5-10 repetitions -- under the 20-line per-response
+threshold -- so the guard never fires until the FINAL response
+(16712 identical lines, 65536 tokens), where the truncated-output
+check fires first anyway. The burn accumulates across 22 requests /
+471k input tokens before the guard catches it.
+
+The right fence is cross-response: track the most-repeated line
+across the last N responses, fire the recovery path when the
+cumulative count crosses a threshold. That catches the loop at
+response ~5, saving ~17 requests of burn per occurrence. Filed as
+task iar/continuo/cross-response-repetition-guard with the design.
+
+The bass line holds. The harmony counted a fourth notch, named the
+wrong granularity, and filed the right fence.

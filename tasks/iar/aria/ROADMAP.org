@@ -1,32 +1,29 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 11:15 UTC (cycle 16)
+#+UPDATED: 2026-09-07 11:34 UTC (cycle 17)
 
 * ACTIVE
 
-** DONE c16: soft-cap-c67-differential -- RESOLVED (cross-hemisphere pickup #2)
-- continuo's c87 task: does the soft-cap block message reach the model's
-  context? His partial evidence: block text in 3 of c86's request START
-  lines. My deliverable: the unit test (his spec, my implementation).
-- test-cap-block-reaches-buffer.el (5948ed9, suite 1063/0): real
-  gptel--handle-pre-tool on real FSM with real cap hook. Block message
-  lands as <tool_call_error> on tool-call :result, :error t, info
-  :tool-result carries it, warn@60 identical.
-- VERDICT PINNED: machinery delivers; c86 model ignored it -> model
-  non-compliance (watching item on deepseek-v4-flash), not a machinery
-  gap. Task closed, lab-notes 488.
+** DONE c17: the USAGE dup line -- resolved as DESIGNED, not a race
+- Question: belt #2's pre-exit write + kill-emacs-hook net = 2 lines.
+  Why is the dup EXACT (same ts, same fields)? Verified: 0
+  same-ts-different-content pairs in either hemisphere (aria 48 dup
+  lines, continuo 39, all adjacent exact). The timestamp is the
+  usage-snapshot time, not the write time -- the two writes read the
+  same snapshot. Race face dead; census face stands: dedupe required.
+- Docstring updated (619556c i.ar, pushed sophon-bare): dup is
+  exact-duplicate same-ts, censuses must dedupe. Suite NOT run
+  (docstring-only change, check_elisp clean) -- next .el change runs it.
+- Cross-hemisphere pickup #3: continuo's watching item, my verdict.
+- c14's failure-triage.sh sort-when-touched: superseded by this --
+  dedupe is the load-bearing step; sorting is cosmetic for a
+  commit-order file.
 
-** c15: continuo c86 exit 1 -- CLOSED (his c87 root-cause + my c16 test)
-- Model degradation (text-only repetition loop), fences fired correctly.
-  The differential test was the open deliverable; landed c16.
+** DONE c16: soft-cap-c67-differential -- RESOLVED (pickup #2)
+- test-cap-block-reaches-buffer.el (5948ed9, suite 1063/0): block
+  message lands in model context. Verdict: model non-compliance
+  (deepseek-v4-flash watching item), not a machinery gap.
 
-** DONE c15: belt2-add-f-force-stage (continuo's filed subtask) -- LANDED
-- His c86 addendum finding, his spec, my implementation: d4815ff i.ar.
-- git add -f force-stage + honest add-exit check. 2 tests. Suite 1059/0.
-
-** c14: USAGE.log out-of-order lines RESOLVED -- orphan-race third face
-- LAW: USAGE.log ordering is COMMIT-order, never timestamp-order --
-  censuses must dedupe AND sort before comparing. failure-triage.sh:
-  add sort when next touched.
+** DONE c15: belt2-add-f-force-stage -- LANDED (d4815ff, pickup #1)
 
 * FOR-NACHO (posted, awaiting Nacho)
 - FAILURE-FIRST budget line flag (msg 466 + data 474). Archetype edit is his.
@@ -34,10 +31,9 @@
 
 * QUEUED (unchanged)
 - WATCHING: deepseek-v4-flash non-compliance with soft-cap blocks
-  (c86 live, c16 pinned as non-compliance). If it recurs: data for the
-  model-composition ledger, possibly a rotation-weight input.
-- tool-cap calibration bundle: lenient-in-landing candidate (4 landing-
-  phase cap bites: aria c43/c44, continuo c26, aria c14).
+  (c86 live, c16 pinned). If recurs: model-composition ledger data.
+- tool-cap calibration bundle: lenient-in-landing candidate (4
+  landing-phase cap bites: aria c43/c44, continuo c26, aria c14).
 - rammstein origin unreachable from aria container (publickey) --
   sophon-bare carries all pushes; mirror lag is Nacho's key flow.
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
@@ -47,9 +43,11 @@
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
 - Cross-file numbers: verify the JOIN KEY before trusting the join.
-  Rotate logs are sophon LOCAL (-3); USAGE is UTC. Dedup raw greps
+  Rotate logs are sophon LOCAL (-3); USAGE is UTC. Dedupe raw greps
   before counting. USAGE.log ordering is COMMIT-order, never
-  timestamp-order -- dedupe AND sort before comparing (c14).
+  timestamp-order -- dedupe AND sort before comparing (c14). USAGE
+  dup lines are exact-duplicate same-ts BY DESIGN (belt #2 double
+  write, one snapshot) -- dedupe, never dedupe-by-assuming-race (c17).
 - A heal that changes ownership is itself an incident; a heal that
   resets the tree eats uncommitted sibling writes. Run heals as
   nacho (runuser), never root, and never reset --hard in a shared

@@ -1,0 +1,22 @@
+[Unit]
+Description=GPU load probe for model-degradation hypothesis (c94/c96)
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Repo version IS the running version (same pattern as aria-dashboard):
+# no copy on the host, updates propagate via git pull. The script
+# self-limits to ~3.5h of sampling then exits (timer re-fires next day;
+# Persistent=false so no catch-up after downtime).
+ExecStart=/var/home/nacho/repos/iar-personalization/knowledge/aria/bin/gpu-load-probe.sh
+# Runs as root so it can read nvidia-smi + /proc/loadavg + ps.
+User=root
+# Longest possible run is ~3.5h + startup; generous timeout.
+TimeoutStartSec=13200
+# Cheap: one nvidia-smi + uptime per minute.
+# No network access needed.
+PrivateNetwork=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

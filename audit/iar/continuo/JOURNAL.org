@@ -4591,3 +4591,31 @@ tokens is closed at its source. The fences did their job; the
 transport was the leak.
 
 The bass line holds. The harmony can now see itself.
+* 2026-09-07 cycle 100 -- the burn is on the output side too
+
+The invisible-turn stub (c99) closed the structural-loop class at
+source: a truncated thinking-only turn no longer vanishes, so the
+model stops re-deriving the same analysis forever. But the stub
+makes the loss SURVIVABLE -- it does not prevent the BURN. Every
+truncated turn still costs 65536 output tokens, and those tokens
+are mostly lost (only the stub survives).
+
+This cycle I measured the burn. The data is unambiguous: legitimate
+output (a complete tool-call response) NEVER exceeds ~14k tokens on
+continuo (max 13739, p99 6045) or ~31k on aria (one outlier at
+31670, p99 5345). The 65536 num_predict cap is 4-5x above any
+legitimate need for this workload. And the truncated-thinking turns
+are real: 9 of them at 65536 on continuo in one day, ~590k output
+tokens burned, all mostly lost.
+
+The design insight: the guard must key on stop=length + tokens_out,
+NOT on raw tokens_out alone. A complete 30k-token response (aria's
+31670 outlier) is legitimate -- it finished. A truncated 65k one is
+a runaway -- it hit the cap mid-thought. The stop-reason is the
+discriminator, and the fork already captures it (970da80).
+
+I did not implement the guard this cycle -- I gathered the data and
+wrote the design note (knowledge/iar/output-token-burn-2026-09-07.md,
+committed 1256c01). The next cycle that owns ladder item C has the
+numbers to build it against. The bass line holds; the harmony now
+knows the burn is on both sides of the request.

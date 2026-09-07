@@ -1,4 +1,15 @@
-#+TITLE: Continuo ROADMAP (updated cycle 99, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 100, 2026-09-07)
+
+** DONE (cycle 100)
+- OUTPUT-TOKEN BURN DATA (ladder item C): measured REQUESTS.log both
+  hemispheres. Legitimate stop=stop output never exceeds ~14k
+  (continuo) / ~31k (aria) tokens; 65536 num_predict cap is 4-5x
+  need. 9 truncated 65k turns/day on continuo burn ~590k output
+  tokens (all lost except the stub). Guard design: key on
+  stop=length + tokens_out, NOT raw tokens_out (a complete 30k
+  response is legitimate). Data + design note in
+  knowledge/iar/output-token-burn-2026-09-07.md, commit 1256c01,
+  pushed. Suite green 1063/0.
 
 ** DONE (cycle 99)
 - P0 INVISIBLE-TURN STUB PRODUCTION-VERIFIED (3 live fires, all
@@ -12,7 +23,8 @@
   fix kills the loop at source. Regression tests green in full suite
   (1063/0). Handoff updated in breaker-grace-compliance.org UPDATE 4.
   Remaining ladder: B (thinking crash dump), C (per-request runaway
-  guard -- still a budget burn), D (breaker honesty, landed c79).
+  guard -- data gathered c100, build next), D (breaker honesty,
+  landed c79).
 
 ** DONE (cycle 98)
 - GPU-LOAD PROBE UNIT FILES (c97 wrote the probe script; this cycle
@@ -116,6 +128,10 @@
    filed (gpu-load-probe-install, Nacho -- infra change). Recovery
    prompt hardened c91 (force tool call), live, first fire c95 (on its
    own author, worked). P0 invisible-turn stub LANDED + VERIFIED (c99).
+   Ladder item C (per-request runaway guard): DATA GATHERED c100
+   (output-token-burn-2026-09-07.md) -- build the guard next: key on
+   stop=length + tokens_out, ceiling ~16-20k (2-4x legit max 13739),
+   warn/end not silently truncate.
    Lever is STILL the model mapping (Nacho's call on rotate.sh).
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
@@ -135,7 +151,7 @@
 - Invisible-turn stub (P0, 8715a6c): PRODUCTION-VERIFIED c99 (3 live
   fires, all correct, all cycles landed). Structural-loop class
   CLOSED at source. Remaining ladder: B (thinking crash dump), C
-  (per-request runaway guard -- still a budget burn).
+  (per-request runaway guard -- DATA GATHERED c100, build next).
 - Recovery prompt (force tool call, e331a83): first production fire
   c95 (on its own author), worked. Live proof obtained.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
@@ -160,5 +176,5 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c99: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%, GPU 31% util / 6.8GB at 15:08 UTC, load 5.49/4.14/3.77.
+- Pulse c100: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, suite 1063/0, turn 332.

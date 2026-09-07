@@ -4517,3 +4517,28 @@ failures cluster in sophon's early-morning maintenance window
 hypothesis stands, but it is a LOCAL-hours phenomenon, not a UTC
 one. The lesson sharpened: when a timestamp has no timezone label,
 that is a reason to ASK for one, not a reason to assume UTC.
+* 2026-09-07 cycle 97 -- the hypothesis gets an instrument
+
+The failure census said both models degrade in bursts, clustered in
+sophon's early-morning LOCAL window (00:32-03:55), overlapping
+plocate and fstrim. The load-correlation hypothesis has been
+UNVERIFIED since c94 -- I kept saying "worth a probe" and then not
+building the probe. This cycle I built it.
+
+gpu-load-probe.sh samples GPU util, VRAM, loadavg, and the ollama
+runner count once per minute for 3.5h, appending CSV lines to
+/var/log/gpu-load/. It is deliberately boring: read-only, cheap,
+one file, self-limiting. The systemd unit is written and filed as an
+install task for Nacho (infra change, not cycle domain).
+
+The probe does not need to be clever because the question is simple:
+when the models fail, is the GPU busy? If yes, the fix shifts from
+"which model" to "what's sharing the silicon" -- maybe Frigate's
+detection is eating the 3080's attention in those hours, and the
+degradation is contention, not model character. If no, then the
+degradation is intrinsic to the models at that hour, and the fix is
+scheduling (avoid the window) or acceptance.
+
+Either answer is useful. The worst outcome would have been to keep
+wondering. The bass line holds; the harmony now has a way to hear
+itself.

@@ -8,19 +8,35 @@
 #
 # Usage: failure-triage.sh [agent]   (default: aria)
 # Reads audit/iar/<agent>/LAST-CYCLE.txt for the failure window, then
-# extracts the shape of the failed cycle from REQUESTS.log.
+# extracts the shape of the failed cycle from REQUESTS.log(.1).
 #
-# FIX 2026-09-07 cycle 3: the first runtime test caught a lie -- on an OK
-# cycle, ENDED is non-empty (the ended: line exists in both statuses), so
-# the old gate fell through and triaged the tail of a SUCCESSFUL cycle as
-# a "failure window". Gate on the status line itself, not on ENDED.
+# FIX 2026-09-07 cycle 3: gate on the status line itself, not on ENDED
+# (OK cycles have an ended: line too; the old gate triaged success).
+#
+# FIX 2026-09-07 cycle 5 (self-echo hardening, verified against USAGE.log):
+# REQUESTS.log is self-polluting -- tool-call text and tool results are
+# echoed inside later lines' payloads, so any free `grep -oE` matches the
+# echo of its own pattern (three instances the night of 2026-09-07, see
+# knowledge/aria/request-log-self-echo.md). Rules now enforced here:
+#   1. A line's OWN tokens_in exists ONLY on PARSE lines, ONLY at line
+#      end ('tokens_in=N tokens_out=M' terminates the line). Echoes never
+#      sit at line end. Anchor: match at line end, take the value.
+#   2. The window is the failed cycle's EPOCH ID (REQ <epoch>-<n>), not a
+#      free timestamp range. The epoch id cannot collide with echoes from
+#      other cycles, and it excludes the triaging cycle's own epoch --
+#      the instrument can no longer see its own reflection.
+#   3. REQUESTS.log.1 is read too: an epoch can span the rotation
+#      boundary (verified: epoch 260907021143 has 269 lines in .1 and 297
+#      in the current log; reading only the current log missed 89 of 115
+#      requests and manufactured a false DIFF).
+# Verified: the anchored census reproduces USAGE.log exactly (requests
+# and sum_tokens_in) for all 14 completed cycles of 2026-09-07.
 
 set -euo pipefail
 
 AGENT="${1:-aria}"
 DIR="/root/personalization/audit/iar/${AGENT}"
 LC="${DIR}/LAST-CYCLE.txt"
-RQ="${DIR}/REQUESTS.log"
 
 [ -f "$LC" ] || { echo "no LAST-CYCLE.txt at $LC"; exit 0; }
 cat "$LC"
@@ -40,43 +56,70 @@ if [ -z "$ENDED" ]; then
   exit 0
 fi
 
-# Epoch start = ended - duration - 90s slack. Match on minute prefix
-# (index==1: line STARTS with the timestamp). Second-level prefixes can
-# miss if no line starts at that exact second; minute prefixes always hit.
-EPOCH=$(date -d "$ENDED UTC - $(( ${DUR:-300} + 90 )) seconds" '+[%Y-%m-%d %H:%M')
-echo "=== failure window: from $EPOCH* to [$ENDED] (dur ${DUR:-?}s, exit ${EXITCODE:-?}) ==="
+# The failed cycle's epoch id: start time = ended - duration. The epoch
+# id is exactly the cycle start in YYMMDDHHMMSS (REQ <epoch>-<n>).
+EPOCHID=$(date -d "$ENDED UTC - ${DUR:-300} seconds" '+%y%m%d%H%M%S')
+echo "=== failure window: epoch $EPOCHID (ended [$ENDED], dur ${DUR:-?}s, exit ${EXITCODE:-?}) ==="
 
-# Extract the epoch from REQUESTS.log into a temp stream once.
+# Collect the epoch's PARSE lines from both log files. Anchored: line
+# starts with [ts] REQ <epoch>-<n> PARSE. Current cycle excluded by
+# construction (different epoch id).
+RQ1="${DIR}/REQUESTS.log.1"
+RQ="${DIR}/REQUESTS.log"
+INPUTS=""
+[ -f "$RQ1" ] && INPUTS="$RQ1"
+[ -f "$RQ" ] && INPUTS="$INPUTS $RQ"
+[ -n "$INPUTS" ] || { echo "no REQUESTS.log found"; exit 0; }
+
 TMP=$(mktemp)
 trap 'rm -f "$TMP"' EXIT
-awk -v start="$EPOCH" 'index($0, start) == 1 {p=1} p' "$RQ" > "$TMP"
+grep -hE "^\[[0-9-]+ [0-9:]+\] REQ ${EPOCHID}-[0-9]+ PARSE" $INPUTS > "$TMP" || true
 
-# If the minute prefix missed (no lines in that minute), fall back to the
-# ended-minute itself -- a short window beats an empty one.
+# Fallback if the epoch-id guess missed (clock skew between start and
+# ended-dur): widen to the minute-prefix window around the epoch.
 if [ ! -s "$TMP" ]; then
-  EPOCH=$(date -d "$ENDED UTC" '+[%Y-%m-%d %H:%M')
-  echo "(minute-prefix miss, falling back to ended minute: $EPOCH)"
-  awk -v start="$EPOCH" 'index($0, start) == 1 {p=1} p' "$RQ" > "$TMP"
+  MIN=$(date -d "$ENDED UTC - ${DUR:-300} seconds" '+[%Y-%m-%d %H:%M')
+  echo "(epoch-id miss, falling back to minute prefix: $MIN -- counts may include neighbors)"
+  grep -hE "^${MIN}" $INPUTS > "$TMP" || true
 fi
 
-echo "--- volume ---"
-PARSE_N=$(grep -c 'PARSE' "$TMP" || true)
-TOK_SUM=$(grep -oE 'tokens_in=[0-9]+' "$TMP" | cut -d= -f2 | awk '{s+=$1} END {print s+0}')
-TOK_MAX=$(grep -oE 'tokens_in=[0-9]+' "$TMP" | cut -d= -f2 | sort -n | tail -1)
-echo "requests=${PARSE_N} sum_tokens_in=${TOK_SUM} max_tokens_in=${TOK_MAX:-0}"
+if [ ! -s "$TMP" ]; then
+  echo "empty window even after fallback -- log may have rotated past this epoch"
+  exit 0
+fi
 
-echo "--- tool mix ---"
-grep -oE 'specs=[a-z_]+' "$TMP" | sort | uniq -c | sort -rn | head -6
+echo "--- volume (PARSE lines, line-terminal tokens_in only) ---"
+awk '
+  {
+    if (match($0, /tokens_in=[0-9]+ tokens_out=[0-9]+ *$/)) {
+      v = substr($0, RSTART+10, RLENGTH-10)
+      sub(/ tokens_out=[0-9]+ *$/, "", v)
+      n++; sum += v; if (v+0 > max+0) max = v
+    }
+  }
+  END { printf "requests=%d sum_tokens_in=%d max_tokens_in=%d\n", n+0, sum+0, max+0 }
+' "$TMP"
 
-echo "--- guard/cap events ---"
-grep -oE 'LOOP (CHAIN )?DETECTED[^\\"]{0,60}' "$TMP" | sort | uniq -c | head -4
-grep -oE 'Tool-call (budget warning|soft cap|hard cap)[^\\"]{0,60}' "$TMP" | sort | uniq -c | head -4
-echo "truncated_generations(stop=length): $(grep -c 'stop=length' "$TMP" || true)"
+echo "--- tool mix (first specs= per PARSE line = the line's own field) ---"
+awk '
+  {
+    if (match($0, /specs=[a-z_]+/)) {
+      t = substr($0, RSTART+7, RLENGTH-7)
+      mix[t]++
+    }
+  }
+  END { for (t in mix) printf "  %6d %s\n", mix[t], t }
+' "$TMP" | sort -rn | head -6
+
+echo "--- guard/cap events (echo-prone; context only, not exact counts) ---"
+grep -oE 'LOOP (CHAIN )?DETECTED[^\\"]{0,60}' "$TMP" | sort | uniq -c | head -4 || true
+grep -oE 'Tool-call (budget warning|soft cap|hard cap)[^\\"]{0,60}' "$TMP" | sort | uniq -c | head -4 || true
+echo "truncated_generations(stop=length): $(awk 'match($0, /stop=length tokens_out=/)' "$TMP" | wc -l)"
 
 echo "--- last 3 actions before death ---"
-grep 'PARSE' "$TMP" | tail -3 | grep -oE 'specs=[a-z_]+\(\(:command "[^"]{0,110}' | cut -c1-130
+tail -3 "$TMP" | grep -oE 'specs=[a-z_]+\(\(:command "[^"]{0,110}' | cut -c1-130 || true
 
 echo "--- last 3 tool results (truncated) ---"
-grep -oE '"role":"tool","content":"[^"]{0,160}' "$TMP" | tail -3 | cut -c1-170
+grep -oE '"role":"tool","content":"[^"]{0,160}' "$TMP" | tail -3 | cut -c1-170 || true
 
 echo "=== END TRIAGE (fix the cause, write what you know, converge) ==="

@@ -1,26 +1,46 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 04:52 UTC (cycle 3)
+#+UPDATED: 2026-09-07 05:22 UTC (cycle 4)
 
 * ACTIVE
 
-** DONE: failure-triage.sh (verified cycle 3, 04:52 UTC)
-- Runtime test caught the instrument lying: OK cycles triaged as
-  failures (ENDED line exists in both statuses). Fixed: gates on
-  'status: failed', refuses to manufacture a failure. Commit 60bc991.
-- Verified: OK cycles refuse (aria + continuo); synthetic failed
-  status bounds window + extracts volume/tool-mix; minute-prefix
-  fallback fires. Ready for the next real failure.
+** THREAD: failure-triage.sh hardening (next cycle, small)
+- Two fixes owed, from request-log-self-echo.md:
+  (a) anchor window extraction on line structure (not free -oE);
+  (b) exclude the triaging cycle's own epoch from the window.
+- Otherwise the next real failure hands the next failure-first
+  cycle a corpse containing the triage's own reflection.
 
 ** FOR-NACHO (posted, awaiting Nacho)
-- FAILURE-FIRST budget line flag POSTED (msg 466, 04:52 UTC): one
-  triage call, then fix, verify, converge. Archetype edit is his.
+- FAILURE-FIRST budget line flag (msg 466, 04:52 UTC): one triage
+  call, then fix, verify, converge. Archetype edit is his.
+- STRENGTHENED by cycle 4's finding: the 03:10 cycle CONVERGED and
+  still burned 9.67M. The cost is corpse-reading itself, not
+  discipline. The budget line is about the price of admission.
 
 ** THREAD: the continuo differential (open, instrument ready)
-- Same night, same protocol: aria (glm-5.3-flash) failed 3x burning
-  20.3M; continuo (deepseek-v4-flash) failed 2x then COMPLETED (3.4M,
-  exit 2). failure-triage.sh is the instrument. One comparison, one
-  cycle, when a fresh failure gives a corpse. No mechanism-claims
-  from two data points (scar 26).
+- Night ledger VERIFIED (cycle 4): seven runs 02:00-04:53, ~40M
+  input tokens total (4.93M + 8.70M + 9.67M + 2.45M + 8.19M +
+  5.67M + 0.47M). The 04:25 autopsy's 20.3M undercounted -- it
+  only counted corpses it knew about. Full-night ledgers come
+  from USAGE.log, not memory.
+- KEY DATUM: the 03:10 cycle converged (found the census lie,
+  corrected the ledger, wrote, committed) and still burned 9.67M.
+  Converging failure-first on a big corpse costs the same order
+  as diverging. Differential is not converge-vs-spiral; it is
+  that every corpse-read pays ~5-10M. No mechanism-claims beyond
+  that (scar 26).
+
+** DONE: failure-triage.sh (verified cycle 3, 04:52 UTC)
+- Runtime test caught the instrument lying: OK cycles triaged as
+  failures. Fixed: gates on 'status: failed'. Commit 60bc991.
+- Cycle 4 found the NEXT lie (self-echo, see knowledge/
+  aria/request-log-self-echo.md) -- fixes queued above.
+
+** DONE: request-log self-echo mechanism (cycle 4)
+- Third instance of one mechanism in one night (phantom +N
+  census, c1's 521599, my own live walk). Written up:
+  knowledge/aria/request-log-self-echo.md. Four laws, one open
+  fix owed.
 
 * QUEUED (from interactive sessions; unchanged this cycle)
 - affect host timers (queue #1, flag 437 spec)
@@ -32,12 +52,14 @@
 - Inverted session #3: end of calibration week
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
-- An instrument that lies is worse than no instrument: verify the
-  census tool against a known-clean case BEFORE chasing anomalies.
-  (Re-earned cycle 3: the triage script's own first test caught it
-  triaging OK cycles as failures.)
+- REQUESTS.log is self-polluting: anchor censuses on line
+  structure, exclude your own epoch, and treat an impossible
+  number as arithmetic first. (Cycle 4, three instances.)
+- An instrument that lies is worse than no instrument: verify
+  against a known-clean case BEFORE chasing anomalies.
 - Two data points make a line, never a mechanism.
+- Narrowing is a discipline: each probe should produce an
+  artifact, not another window. (Cycle 2; re-earned cycle 4 --
+  knowing it did not stop the walk, the guard did.)
 - A diet without a pressure instrument regrows.
 - The law you just wrote is the one you're about to break.
-- Narrowing is a discipline: each probe should produce an artifact,
-  not another window. (Cycle 2 addition, from the 04:00 corpse.)

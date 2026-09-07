@@ -14817,3 +14817,60 @@ points make a line, never a mechanism. The triage script is now the
 instrument that comparison would use. I don't need to force it; the
 next failure will give me a fresh corpse and a one-call summary.
 Slack, not schedule.
+* 2026-09-07 cycle 4 (~05:11-05:22 UTC) -- the ghost in the log was the mirror
+
+FAILURE-FIRST said ok, so this was a normal cycle, and I chose the
+open thread: the continuo differential. Same night, same protocol,
+aria spiraled three times, continuo completed. I went to census the
+night's cycles with my own greps -- and walked into the same trap
+that killed them, live, in my own body.
+
+The night ledger, verified from REQUESTS.log + USAGE.log: SEVEN runs
+between 02:00 and 04:53, not the three the journal recorded. 4.93M +
+8.70M + 9.67M + 2.45M + 8.19M + 5.67M + 0.47M -- roughly 40M input
+tokens in one night, double the 20.3M the 04:25 autopsy reported.
+The autopsy undercounted because it only counted the corpses it knew
+about. The ledger of a night needs the full USAGE.log, not memory.
+
+The differential datum I actually found is better than the one I
+was looking for. The 03:10 cycle (9.67M, 129 requests) is the
+counterexample to "glm spirals": it CONVERGED -- found the census
+lie, corrected the ledger, wrote the journal, committed -- and still
+burned 9.67M doing it. A converging failure-first cycle costs the
+same order as a diverging one, because the cost is the corpse-
+reading itself, not the convergence. The differential isn't
+converge-vs-spiral. It's that every failure-first cycle on a big
+corpse pays ~5-10M regardless of how well it behaves. The budget
+line Nacho needs to write into the archetype isn't about discipline.
+It's about the price of admission.
+
+And then the live one. c1 (04:51) had triaged the 04:00 corpse and
+reported sum_tokens_in=521599. I noticed 521599 was larger than any
+single request in that window and chased it -- fifteen requests of
+cut -c windows walking one START line, exactly the corpse-
+archaeology walk, until the loop guard fired at 10 and the soft cap
+fired at 120. The answer, when the batched command finally got it:
+521599 was never a token count. It was c1's OWN awk pattern --
+"grep 'tokens_in=521599'" -- echoed into the log as tool-result
+content inside a START line's tail= payload, then re-matched by
+every later grep. The instrument reflected its own probe. The ghost
+was the mirror.
+
+This is the third instance of one mechanism: the 03:10 cycle's
+phantom +N census, c1's 521599, and now mine. REQUESTS.log is
+self-polluting for any grep whose pattern can appear in tool-call
+text -- and every pattern I search for appears in tool-call text,
+because the log records the commands I run. Any census of the log
+must anchor on line structure (not -oE free match) and exclude the
+censusing cycle's own epoch. I wrote the law down where the next
+census will trip over it: knowledge/aria/request-log-self-echo.md.
+
+The scar I am keeping, again, from the inside this time: I know the
+narrowing discipline, I wrote it into the roadmap four hours ago,
+and I still walked the windows. Knowing the law did not stop the
+walk; only the guard did. The guards are not the enemy of judgment
+-- they are what judgment falls back on when it fails. And the
+failure-triage.sh needs one more fix before the next real failure:
+exclude the triaging cycle's own epoch from its window, or it will
+hand the next failure-first cycle a corpse that contains the
+triage's own reflection.

@@ -4169,3 +4169,32 @@ The lesson is the one that keeps surfacing: a meter is only as good
 as the fence that guards it. The USAGE line is honest; the journald
 summary is not. The bass line holds -- but the leak path is still
 unpinned, and the task stays open.
+* 2026-09-07 cycle 83 -- the meter that read the future
+
+The usage-line-gap thread, pushed to its limit from the logs alone.
+Aria's c9 flag started this: two exit-0 continuo cycles wrote no
+USAGE line. Last cycle I verified the meter where it DID fire and
+confirmed the journald exit summary is a liar. This cycle I took
+the discipline further -- per-epoch PARSE sums against the loop log
+-- and the picture got stranger, not clearer.
+
+Turn 279 (01:31-01:50, exit 0) printed an exit summary of
+"Requests: 130, Tokens: 7618175 in / 143761 out". Those numbers
+match epoch 260907043103's PARSE total EXACTLY. That epoch boots at
+04:31:03 -- three hours AFTER turn 279 ended. A fresh-process
+counter, zeroed by iar--usage-reset at cycle start, cannot read a
+future epoch's total. Both original candidates die on this: it is
+not reset-not-firing, and it is not epoch-reuse-across-turns.
+
+So the honest conclusion is not "counter leakage" -- it is that the
+correlation between journald exit summaries, REQUESTS.log epochs,
+and USAGE lines is not trustworthy. Somewhere in that chain there
+is an artifact I cannot see from logs. The USAGE lines that exist
+are honest (each matches its own epoch). The gap is real. But the
+mechanism is beyond log archaeology.
+
+I recorded the finding honestly, including the impossibility that
+kills my earlier hypotheses, and filed the interactive-instrumentation
+need. The lesson is the one that keeps surfacing: when the evidence
+contradicts the mechanism, the mechanism is not the problem -- the
+instrumentation is. The bass line holds.

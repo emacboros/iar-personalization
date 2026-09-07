@@ -16913,3 +16913,73 @@ grace piece of c39's spec is the same shape and can reuse the
 pattern. num_predict lever still parked on Nacho (rage observation
 Sep 8). Aevum runaway lands ~Sep 8 00:15 UTC -- free data, no probe
 until Sep 14.
+* 2026-09-07 cycle 45 (~22:21-22:52 UTC) -- the turn-cap fix landed; all three fences share one pattern
+
+FAILURE-FIRST: c44 ok (545s). Pulse green. No for-nacho answers
+pending. Continuo's c111/c112 landed the cross-response guard while I
+landed the truncated grace -- the fence family is converging, no
+collision (his lane was the repetition guard, mine the turn cap).
+
+THE THREAD: c39's turn-cap fix, the most-verified unlanded fix in
+the house (root-caused 20:28, spec unchanged since). Three parts:
+
+A. REQUEST-COUNT MIRROR. The turn guard counted final-responses
+only -- the increment lived in the post-response handler, which
+gptel's FSM runs on DONE/ERRS/ABRT. The tool loop never reaches
+DONE, so every tool-heavy cycle reported Turns: 1. The fix mirrors
+each request into :request-count from the curl layer
+(iar--usage-parse-from-curl), where every round-trip increments
+exactly once. The 17:03 corpse (126 requests, Turns: 1, zero
+record) is structurally dead.
+
+B. SAME-TOTAL WARN. c38's finding: 132 execute_code_local calls
+(meter-reading burst) never tripped the chain guard -- varying
+commands reset the Jaccard counter faster than it accumulated. New
+fence: :tool-totals alist in state, warn-once at 40 calls of the
+SAME tool. A census is not a workflow. Three tests pin it.
+
+C. HARD-CAP GRACE. Port of the grace pattern (third landing: timeout
+path, truncated-output ee2da67, now hard-cap). First hard-cap fire
+grants ONE landing via the block message itself -- the model reads
+the block text as the tool result and its next response is the
+landing. No gptel-send inside a pre-tool-call hook (my first draft
+tried that; the in-flight request machinery would fight it -- the
+block message IS the cleaner mechanism, the same channel the soft
+cap already uses). Second fire ends exit 1. Shares
+:runaway-recovery-given: one snap-out OR one landing per cycle,
+whichever the degradation shape calls for.
+
+THE MIRROR, eighth sighting, in miniature: I hand-patched the
+condition-case in iar--usage-parse-from-curl by nudging closing
+parens -- twice -- and the reader kept rejecting it. The scar list
+says: block-replace with an assert, not sed-eyeballing. Third
+attempt: replaced the ENTIRE defun with freshly written structure.
+One pass, depth 0. The assert-first discipline keeps paying; the
+paren-balance scanner is now a standing tool (python, string/comment
+aware).
+
+Also landed: run-tests.sh + debug-one.sh pointed at a gptel elpa
+version that no longer exists (20260819.446 vs 20260826.2228) -- the
+shell runners were broken since the elpa update; only the .el runner
+worked. Two-line fix, found because I ran the shell runner first.
+
+Suite 1085/1085 (6 new tests: hard-cap grace x2, same-tool x3,
+request-mirror x1; two old hard-kill tests updated to the two-fire
+contract). Pushed sophon-bare; mirror verified on rammstein (git-user
+ls-remote shows 426a985 at HEAD -- the post-receive heal worked; my
+first ls-remote as root failed with permission-denied, which is the
+designed shape: root has no key on the mirror, git does).
+
+PATTERN CONVERGENCE: the grace round-trip is now the house's
+standard degradation contract -- one landing round-trip, shared
+budget, second fire ends. Three fences, one pattern, three commits
+(iar-run-cycle timeout, ee2da67 truncated, 426a985 hard-cap). The
+next fence anyone builds should start from this shape, not invent
+its own.
+
+NEXT: num_predict lever still parked on Nacho (rage observation
+Sep 8). Aevum runaway lands ~Sep 8 00:15 UTC -- free data, no probe
+until Sep 14. Weekly digest #2 Sep 14-ish. The c67 anomalies
+(warn-silent, late cap, count lag) are continuo's differential test
+lane -- my request-count mirror may interact with his count-as-seen
+finding; worth a joint look when he runs it.

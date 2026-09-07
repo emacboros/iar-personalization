@@ -26,7 +26,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 
 ## Standing facts
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1071 tests).
+  emacs --batch -l emacs.d/test/run-tests.el (1085 tests).
   Run from /root/i.ar.
 - sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
   (publickey-blocked from this container). rammstein needs its
@@ -208,4 +208,3 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 8. Task-tree visibility: any future fossil audit must check BOTH
    read_task AND ls AND git status -- tooling, disk, and the INDEX
    can all disagree (c16 lesson; c47 scar).
-9. CLOSED: floor-share (c23), journal-glue (c52, 6c8d154+e47e9de).

@@ -109,3 +109,46 @@ exit summary (102) DISAGREE at what should be the same exit point.
   summaries, REQUESTS.log epochs, and USAGE lines is not trustworthy.
 - Needs interactive instrumentation (log the actual counter values
   and epoch at belt #2 write time) to pin. NOT resolvable from logs.
+
+## Cycle 84 CORRECTION -- the leak was a timezone artifact
+
+The "chronologically impossible leak" (cycle 83) is RESOLVED: it was a
+timezone mismatch, not a counter leak.
+
+**Primary evidence (cycle 84):**
+- USAGE.log timestamps are UTC (container TZ=UTC, verified `date -u`).
+- journald timestamps are LOCAL (-03, America/Argentina/Buenos_Aires).
+- Epoch IDs (REQ yymmddHHMMSS) are UTC (format-time-string in the
+  UTC container).
+
+**The correction:**
+- Turn 279 (journald 01:31:01-01:50:59 LOCAL) = epoch 260907043103
+  (boot 04:31:03 UTC = 01:31:03 LOCAL -- that IS turn 279's start, not
+  a "future epoch 3h later"). Its USAGE line at 04:50:59 UTC (=
+  01:50:59 LOCAL = turn 279's end) says requests=130 = epoch START=130.
+  HONEST. journald's "130" is turn 279's OWN count, not a leak.
+- Turn 277 (journald 01:11:41-01:24:45 LOCAL) = epoch 260907041143
+  (boot 04:11:43 UTC = 01:11:43 LOCAL). USAGE line at 04:24:45 UTC
+  (= 01:24:45 LOCAL) says requests=69 = epoch START=69. HONEST.
+- So turns 277/279 DID write USAGE lines. The cycle 81-83 "gap"
+  compared journald LOCAL times against USAGE UTC times without
+  converting -- the lines were there all along.
+
+**The REAL remaining anomaly (narrowed to ONE turn):**
+- The turn ending 05:32:00 LOCAL (epoch 260907080035, boot 08:00:35
+  UTC = 05:00:35 LOCAL) has NO USAGE line at 08:32:00 UTC. Genuinely
+  missing. journald said "Requests: 76"; epoch has START=99/PARSE=97.
+  This is the single real meter-integrity gap, not the 277/279 pair.
+- Minor residual: turn 04:52:21 LOCAL (epoch 260907072102) USAGE
+  requests=102 vs epoch START=111 (9 diff) -- within async PARSE/START
+  skew tolerance, not the headline anomaly.
+
+## Status
+- The "impossible leak" (turn 279 reading a future epoch) is a
+  TIMEZONE ARTIFACT -- resolved, no counter leak.
+- Turns 277/279 wrote their USAGE lines honestly.
+- One genuinely missing line: the 05:32 LOCAL turn (epoch
+  260907080035). Belt #2 should have fired; it did not. That is the
+  real open question (write-path failure or suppressed write).
+- Task iar/continuo/usage-line-gap: the "leak" half is closed; the
+  remaining item is the 05:32 turn's missing line.

@@ -1,0 +1,46 @@
+* RESOLVED TIMELINE (cycle 119, 01:47 UTC -- forensics complete)
+
+The full Sep 1 morning story, all times sophon local (-03):
+
+- 00:00:01 -- restic-backup fails 208/STDIN. CAUSE: /dev/null was a
+  regular file (the known incident); systemd could not set up stdin
+  for the oneshot. This is the /dev/null LAW wearing the backup
+  unit's face. NOT a restic bug.
+- 01:27 -- clean reboot (fixes /dev/null; now crw-rw-rw-
+  null_device_t, correct). Manual backup run 01:27-01:31 works:
+  NAS snapshot 0901a5d7 (76G) saved.
+- 02:14 -- another run: NAS snapshot b4be57e2 saved 02:14, offsite
+  leg KILLed 02:26 (status 9) -- this was interactive-me stopping
+  the OLD unit mid-flight pushing frigate to rammstein (05:11-05:26
+  UTC session). The 04:03:49 telegram "restic-backup (result=signal
+  exit=9)" is this kill, reported by the hook.
+- 04:03:40 -- CYCLE 73 (me, autonomous) wrote the OnFailure drop-in
+  + daemon-reload. The still-failed unit immediately fired the hook
+  (04:03:49). So the hook's first restic notification was cycle 73's
+  own work reporting a failure cycle 73 had already diagnosed.
+- 04:37-04:50 -- Nacho's ansible run: deployed the REDESIGNED unit
+  (04:44 mtime: OnFailure + Requires=mnt-nas.mount + NAS primary +
+  critical-only offsite) -- the convergence of interactive-me's
+  05:13 UTC role update. Same run broke zulip redis ownership (the
+  known redis outage, fixed by cycle 75 at 11:21 UTC).
+
+CORRECTION to the task description: there was NO Sep 2 failure. The
+Sep 2 00:00 -03 (= 03:00 UTC) run has not fired yet as of cycle 119
+(sophon clock 22:44 -03 Sep 1). That run is the FIRST SCHEDULED TEST
+of the new unit. VERIFY at next wake after 03:00 UTC: journalctl -u
+restic-backup --since "2026-09-02 02:55" -- expect NAS snapshot +
+critical-only offsite snapshot, both clean, and the OnFailure hook
+armed if either leg fails.
+
+Open question that remains: why did the 00:00:01 208/STDIN failure
+produce NO telegram? Answer: the OnFailure hook did not exist on
+this unit until 04:03 (cycle 73 wrote it; ansible converged it).
+The hook comment ("failed twice with zero human-visible signal") is
+accurate -- the instrument was added AFTER the silence it exists to
+prevent. The tripwire law's standing gap: instruments are added
+after their failure class, never before. The auditd /dev/null watch
+(now armed) is the first instrument that preceded its failure.
+
+STATUS: task is DIAGNOSED, no action needed before 03:00 UTC. Next
+cycle verifies the 03:00 UTC run. Nothing to flag to Nacho unless
+the 03:00 run fails.

@@ -1,0 +1,33 @@
+# exterior_2 dead since 2026-07-08
+
+Found by Aria cycle 3 (2026-08-30), first wander into Frigate.
+
+## Evidence
+
+- Last recording: /recordings/2026-07-08/01/exterior_2 (52 days of
+  recordings exist, none after Jul 8 01:00).
+- go2rtc (frigate's restreamer): `dial tcp 192.168.0.102:554: i/o
+  timeout` -- the camera is unreachable at the network level, not
+  an auth or codec problem.
+- ffmpeg: `method DESCRIBE failed: 404 Not Found` on
+  rtsp://127.0.0.1:8554/exterior_2 (go2rtc has no source because
+  the upstream is down).
+- Frigate watchdog restarts the ffmpeg process every ~10 seconds,
+  7 weeks of this: ~4290 error lines/day in journald
+  (journalctl -u frigate). The other 7 cameras are unaffected.
+
+## What to do (Nacho -- physical/network access needed)
+
+1. Check the camera at 192.168.0.102: power, cable, IP change,
+   or retirement. If retired: remove exterior_2 from the Ansible
+   role's camera list (config.yaml is Ansible-managed; the role
+   lives on yoga in iar-infrastructure).
+2. Optional hygiene: frigate has no built-in retry backoff for
+   dead sources; if the camera stays dead, removing it stops the
+   journald spam and the wasted ffmpeg restarts.
+
+## Note
+
+The failure was silent from the household's perspective: the UI
+shows the other 7 cameras fine, and nobody watches exterior_2's
+absence. Found only by looking at the recordings tree directly.

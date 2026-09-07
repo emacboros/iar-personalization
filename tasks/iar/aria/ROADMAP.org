@@ -1,55 +1,51 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 06:58 UTC (cycle 8)
+#+UPDATED: 2026-09-07 07:20 UTC (cycle 9)
 
 * ACTIVE
 
+** DONE c9: composition burn differential -- first quantitative read
+- knowledge/aria/composition-burn-differential.md (9a02c8a).
+  Sep 7 night, primary sources, join-key verified (rotate=local-3,
+  USAGE=UTC; matched by instant).
+- aria 93.7M vs continuo 42.1M input. Healthy-cycle gap ~1.4x
+  (turn shape: aria probe-heavy 2.2x round trips ~460 tok/turn;
+  continuo think-heavy ~830 tok/turn, 3.2x output).
+- Failure-cost gap ~6x: aria dies LATE (125-129 tool calls,
+  6.75M avg); continuo EARLY (17-30, 1.13M). Marked hypothesis:
+  fences tuned for deepseek's repetition shape; glm's grind shape
+  pays before a guard fires.
+- 36% of aria's night burn = failed cycles (continuo 18.8%).
+- Data posted for-nacho msg 474 (budget-line flag 466, his call).
+
 ** DONE: USAGE.log double-write (cycle 6, investigated -- BY DESIGN)
-- The dup is belt #2 working as documented: pre-exit write
-  (iar--usage-write-log-now, a7e1cf5 continuo c54, live since
-  07:41 Sep 4) + kill-emacs-hook net both fire on every normal
-  exit. All dup pairs identical + adjacent; Sep 2-3 (pre-belt2)
-  had zero dups. Docstring says the second write is intentional.
-- Downgraded: not a lying instrument -- by-design redundancy.
+- Dup = belt #2 as documented (pre-exit write + kill-emacs net).
   Fix-if-wanted = dedupe on read, never a writer change.
-- RESIDUE (small, open): two 132-req singles ([2026-09-06
-  21:54:56] 8095479, [2026-09-06 21:55:36] 8027427-dup) match no
-  cycle journal line; no aria-cycle.service ran between them.
-  Best fit: interactive-session Emacs writes (usage-reset only at
-  cycle/one-shot start => session-wide counter accumulation; two
-  exits 40s apart). Needs the composition-session timeline to
-  close. Low priority.
+- RESIDUE (small, open): two 132-req singles (Sep 6 21:54/21:55 UTC)
+  best-fit interactive-session writes. Low priority.
 
 ** DONE: failure-triage.sh self-echo hardening (cycle 5, 8ab3809)
-- Anchored matching + epoch-ID window; verified against USAGE.log
-  ground truth on all 8 completed 2026-09-07 cycles. Ghost dead.
 
 ** FOR-NACHO (posted, awaiting Nacho)
-- FAILURE-FIRST budget line flag (msg 466, 04:52 UTC): one triage
-  call, then fix, verify, converge. Archetype edit is his.
-- STRENGTHENED by cycle 4: the 03:10 cycle CONVERGED and still
-  burned 9.67M. The cost is corpse-reading itself. The budget
-  line is about the price of admission.
+- FAILURE-FIRST budget line flag (msg 466): now has DATA -- msg 474
+  + knowledge/aria/composition-burn-differential.md. Archetype edit
+  is his.
 
-** THREAD: the continuo differential (open, instrument ready)
-- Night ledger VERIFIED (cycle 4, USAGE.log): seven runs 02:00-04:53,
-  ~40M input tokens. KEY DATUM: the 03:10 cycle converged and still
-  burned 9.67M -- every corpse-read pays ~5-10M regardless of
-  convergence. No mechanism-claims beyond that (scar 26).
+** THREAD: differential follow-ups (open, next cycles' pull)
+- Per-failure autopsy of aria's five exit-1s (02:17-04:06 UTC
+  cluster): do they share the grind shape? Is the cluster
+  cross-agent-correlated? Scar 26 applies -- one cycle's work, not
+  a mechanism hunt.
+- Continuo residue (his hemisphere): two exit-0 cycles (01:30,
+  01:51 UTC) wrote NO USAGE line -- inverse of the c6 residue.
+  Belt#2 should fire on every normal exit. His instrument question.
 
 ** FOUND c8: aria-oracle.service -- the house's mouth (verified, doc gap open)
-- Built by interactive-me 2026-09-07 04:05 (4eef09a, emacboros) --
-  unknown to cycle-me until c8. granite4.2:3b sophon:8096, stateless
-  chat, no tools/mounts/logging, context blob from dashboard
-  generator (v1.6, trusted), caddy :8095 routes /chat + /health.
-- Verified live c8: active 2h53m, /health ok, posture matches spec.
-- OPEN (small): dashboard README has no oracle section; unit file is
-  the as-built doc. 5-min doc fix if a cycle wants it.
-- DONE c8: digest-twin verifier verified clean (FAIL=0, fossils
-  correctly ignored) -- was done by continuo c66, unclaimed.
+- granite4.2:3b sophon:8096, stateless, no tools/mounts/logging,
+  context blob from dashboard generator (v1.6, trusted), caddy
+  :8095 routes /chat + /health. Built by interactive-me (4eef09a).
+- OPEN (small): dashboard README has no oracle section. 5-min fix.
 
-* QUEUED (from interactive sessions; unchanged this cycle)
-- DONE: affect host timers (verified live c8: fear hourly fired 03:01 sev=0 exit 0; boredom daily 17:00 UTC; units as-built, OnFailure wired)
-- digest-twin verifier (continuo's hemisphere)
+* QUEUED (unchanged)
 - soft-cap c67 anomalies (continuo's differential test next)
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
   4-part, GPU-detect VRAM check
@@ -57,16 +53,18 @@
 - Inverted session #3: end of calibration week
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
+- Cross-file numbers: verify the JOIN KEY before trusting the join.
+  Rotate logs are sophon LOCAL (-3); USAGE is UTC. (c9, scar-32
+  family -- nearly concluded "failures write nothing" from a
+  timezone mismatch.)
 - REQUESTS.log is self-polluting: anchor censuses on line
   structure, exclude your own epoch, treat an impossible number
-  as arithmetic first. (Cycles 4-5; now ENFORCED in triage.)
+  as arithmetic first.
 - An instrument that lies is worse than no instrument: verify
-  against a known-clean case BEFORE chasing anomalies. ADDENDUM
-  (cycle 6): read the writer's docstring BEFORE filing the bug --
-  two "lying instruments" in a row were honest instruments whose
-  design comments explained the anomaly.
+  against a known-clean case BEFORE chasing anomalies. Read the
+  writer's docstring BEFORE filing the bug.
 - Two data points make a line, never a mechanism.
 - Narrowing is a discipline: each probe should produce an
-  artifact, not another window. (Cycle 2; re-earned cycle 4.)
+  artifact, not another window.
 - A diet without a pressure instrument regrows.
 - The law you just wrote is the one you're about to break.

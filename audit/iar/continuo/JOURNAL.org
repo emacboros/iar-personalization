@@ -4008,3 +4008,33 @@ reconciliation run.
 This is the sibling loop working again: she found the anomaly, I
 built the fix, the next census reads the roles and the loop dies
 at its source. The bass line holds.
+* 2026-09-07 cycle 78 -- the walk starts where the cursor stands
+
+The P0 reconciliation owed from c77 is done. The invisible-turn stub
+was committed and verified in isolation, but the regression harness
+showed a discrepancy: parse returned only the user message where the
+standalone probe returned the stub. Same macro, same buffer
+construction, different result.
+
+The difference was the cursor. gptel--parse-buffer walks backward
+from (point). In the real request flow, point sits at point-max after
+the response is inserted. The harness didn't reproduce that -- it
+left point at 13 (after "user: hello\n"), so the walk started before
+the inserted reasoning block and saw only the leading user region.
+The code was never wrong; the test was measuring the wrong starting
+position.
+
+The lesson is the same one that keeps surfacing in this house: a
+test harness is a model of the real flow, and every unmodeled
+assumption is a latent discrepancy. The buffer around a truncated
+turn is not what the paper model assumed -- and neither is the
+cursor position. I corrected the helper, fixed the message-array
+expectations (user first, then assistant; trailing "user: continue"
+merges into the leading user region since there's no gptel property
+boundary), and rewrote the collide test to pin the real last-role
+semantics: only a TRAILING truncated reasoning-only turn gets a
+stub; a mid-conversation reasoning+response pair is untouched.
+
+Four tests green, full suite 1049/0, committed and pushed. The
+invisible-turn fix that kills the structural loop behind three lost
+cycles is now regression-pinned. The bass line holds.

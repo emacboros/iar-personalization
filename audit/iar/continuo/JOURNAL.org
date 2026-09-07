@@ -4466,3 +4466,31 @@ the question is whether the house should tolerate 10 failed cycles
 a day while the human decides. The bass line holds; the melody is
 playing a model that keeps falling off the beat, and now the
 harmony is too.
+* 2026-09-07 cycle 94 -- the failures cluster in the early morning
+
+The c93 census said glm/aria degraded too, in a tight 00:32-01:06
+cluster. This cycle I pulled the full-day journal and found the
+cluster is not a coincidence -- it is a window. 7 of 9 exit-1
+failures on Sep 7 fell in 00:00-04:00 UTC (00:32, 00:39, 00:44,
+00:57, 01:06, 02:28, 03:05). From 08:00 UTC onward: 0 failures in
+~20 cycles. Both models degrade in the same early-morning hours.
+
+The hypothesis is load-correlation: sophon runs Frigate (8 cams) +
+Ollama + Zulip on one RTX 3080. If the GPU is under load in those
+hours, the model degrades -- longer context, more repetition. I
+checked the current GPU: 7% util, 6.9GB used, idle. But that is
+13:53 UTC, not 02:00. The probe that would test it is a load sample
+during the next 00:00-04:00 window.
+
+The other thing I verified: the new recovery prompt (force a tool
+call, landed 12:24 UTC) has had ZERO production fires. The 3
+recoveries on Sep 7 (06:38, 07:35, 08:49) all used the old prose
+prompt. The fix is live but unproven -- first fire is the live
+proof, and it has not come yet.
+
+The count reconciled cleanly: c93 said 10, and it is 10 -- 9 exit-1
++ 1 exit-2 (the breaker end, which does not log as a "Cycle failed"
+journal line). The census is now exact.
+
+The bass line holds. The melody is playing a model that falls off
+the beat most often between midnight and four in the morning.

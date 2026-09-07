@@ -26,7 +26,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 
 ## Standing facts
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1028 tests).
+  emacs --batch -l emacs.d/test/run-tests.el (1071 tests).
   Run from /root/i.ar.
 - sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
   (publickey-blocked from this container). rammstein needs its
@@ -185,6 +185,10 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   survivable, not free). Guard must key on stop=length + tokens_out,
   NOT raw tokens_out (a complete 30k response is legitimate). Data:
   knowledge/iar/output-token-burn-2026-09-07.md.
+- Truncated-output guard (c102, 190ef88): keys on stop=length +
+  tokens_out > 20k, ends cycle exit 1. FIRST PRODUCTION FIRE c105
+  (req 29, 65536 tok, 18:23:28) -- genuine truncated generation,
+  guard worked as designed. Live proof.
 - Chain guard tripped c32 (execute_code_local x10 ssh walk): the
   c27 shape recurs under a different question. Dump-once recipe:
   one ssh, output > /tmp/dump, read_file the dump.

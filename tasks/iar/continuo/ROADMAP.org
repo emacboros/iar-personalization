@@ -1,4 +1,21 @@
-#+TITLE: Continuo ROADMAP (updated cycle 86, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 87, 2026-09-07)
+
+** DONE (cycle 87)
+- FAILURE-FIRST root-cause c86 exit 1 (132 calls, 4.48M tok): model
+  degradation (deepseek-v4-flash text-only repetition loop, c67
+  family). All fences fired correctly (warn@60, runaway detector,
+  recovery, soft/hard cap). The cycle was re-investigating
+  belt2-add-f-force-stage which aria c15 had ALREADY landed mid-cycle
+  (d4815ff, 10:47:02). Not a machinery bug.
+- Closed belt2-add-f-force-stage task (aria landed it, suite 1059/0),
+  removed task file + aria's duplicate.
+- Filed soft-cap-c67-differential task (urgent): does the soft-cap
+  block message reach the model's context? Partial evidence: "Tool-call
+  soft cap" appears in 3 of c86's own START lines -> message reaches
+  context, model still ignores -> model non-compliance (watching),
+  not machinery gap. Unit test pinning block->buffer flow is the
+  deliverable.
+- Committed 44114f5 + e4de1f4 (task tracked via git add -f), pushed.
 
 ** DONE (cycle 86)
 - Belt #2 durability LANDED (c85 fix): iar--usage-write-log-now now
@@ -45,57 +62,18 @@
   pre-tool-call breaker and post-response context-over-limit-p use it.
   3 tests, suite green 1052/0. Committed 34d536e, pushed sophon-bare.
 
-** DONE (cycle 78)
-- P0 test-harness reconciliation COMPLETE (gptel-fork 8715a6c fix now
-  regression-pinned). Root cause of the c77 harness discrepancy:
-  gptel--parse-buffer walks backward from (point); the real request
-  flow leaves point at point-max after response insertion, but the
-  harness didn't reproduce that (walk started before the inserted
-  blocks, saw only the leading user region). Fix: goto-char
-  (point-max) before parsing. Corrected message-array expectations
-  (user first, then assistant; trailing "user: continue" merges into
-  leading user region -- no gptel property boundary). Rewrote collide
-  test to pin real last-role semantics: only a TRAILING truncated
-  reasoning-only turn gets a stub; mid-conversation reasoning+response
-  is untouched. 4 tests green standalone + full suite 1049/0. Committed
-  af11d37, pushed sophon-bare.
-
-** DONE (cycle 77)
-- P0 invisible-turn stub LANDED (gptel-fork 8715a6c): gptel-ollama
-  parse-buffer synthesizes a stub assistant message when a reasoning
-  ('ignore) region has NO response after it (truncated thinking-only
-  turn). Detection tracks the last NON-EMPTY region role (last-role).
-  Regression test file written; harness discrepancy owed -- RESOLVED
-  this cycle (see above).
-
-** DONE (cycle 76)
-- Glued-sentinel completion miss FIXED (c75 exit-1 root cause):
-  deepseek wrote "CYCLE_COMPLETECYCLE_COMPLETE" glued on one line;
-  own-line regex missed it, fell through to runaway detector (false
-  positive). Fix: + quantifier on sentinel group. 3 tests,
-  differential-verified, suite 1045/0.
-
-** DONE (cycle 75)
-- Published aria session USAGE line (publish-lag law).
-- Digest diet round 3: 12122 -> 11818 chars (under 12k warn).
-
-** DONE (cycle 74)
-- FIXED Agora (Zulip) down: nftables chain-priority -- netavark
-  INPUT accept UDP 53 overridden by firewalld reject. firewalld
-  rich rule added. Host change from cycle (emergency), flagged.
-
-** DONE (cycle 73)
-- Request-log roles instrument LANDED (aria c7 +N msgs anomaly ask).
-
-** DONE (cycle 72)
-- Text-only output runaway detector LANDED (c-fail REQ-51 fix).
-
 ** OPEN (priority order)
-1. Interactive bundle with Nacho (task
+1. soft-cap-c67-differential (task iar/continuo/soft-cap-c67-differential):
+   c67 anomaly family live in production (c86: 5 ignored soft-cap
+   blocks -> hard cap, 132 calls). Differential test: does the block
+   message reach the model's context? Partial evidence says yes.
+   Write the unit test pinning gptel--handle-pre-tool :block ->
+   gptel--process-tool-call tool_call_error flow.
+2. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-2. Affect host timers: aria's queue #1 (her build).
-3. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
+3. Affect host timers: aria's queue #1 (her build).
+4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line. Only needed if belt #2's commit proves
    unreliable in production.
 
@@ -105,12 +83,13 @@
 
 ** WATCHING
 - Model degradation: deepseek-v4-flash prone to text-only repetition
-  loops (c-fail 01:13 + c71). Output-runaway detector (c72) catches
-  the shape. Invisible-turn stub (c77+c78) kills the structural loop
-  at its transport source.
+  loops (c-fail 01:13 + c71 + c86). Output-runaway detector (c72)
+  catches the shape. Invisible-turn stub (c77+c78) kills the structural
+  loop at its transport source. c86: soft-cap blocks IGNORED -> hard
+  cap (c67 family) -- differential test now the urgent thread.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
-- Belt#2 publish-lag: 4 confirmations; abnormal shapes only. NEW c85:
+- Belt#2 publish-lag: 4 confirmations; abnormal shapes only. c85:
   belt #2's write is UNCOMMITTED by construction -- a sibling's
   reset --hard can erase it (the 08:32:00 line was eaten by aria c11's
   heal). FIXED c86: belt #2 now commits its own line (d2d272d).
@@ -130,4 +109,4 @@
 - SCAR (c85): belt #2's write is only as durable as the next commit.
   Two agents share one working tree; one's uncommitted belt#2 line is
   the other's reset fodder. A sibling's heal is a commit-eraser.
-- Pulse c86: all green (ollama active, tripwire 0, disk 26%).
+- Pulse c87: all green (ollama active, tripwire 0, disk 26%).

@@ -1,66 +1,67 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 09:45 UTC (cycle 13)
+#+UPDATED: 2026-09-07 10:20 UTC (cycle 14)
 
 * ACTIVE
 
+** c14: USAGE.log out-of-order lines RESOLVED -- orphan-race third face
+- Lines 338-341 (19:46 Sep6 + 06:31/08:48/09:07 Sep7) sat after
+  09:14:44. Commit graph: entered at dd131cb (cleanup phase 0,
+  09:55:09) -- interactive-session belt#2 lines swept by Nacho's
+  add -A. NOT a meter gap. Three faces of the same race now:
+  victim (c13, eaten by reset --hard), designed lag (publish-law),
+  survivor (out-of-order publish). LAW: USAGE.log ordering is
+  COMMIT-order, never timestamp-order -- censuses must dedupe AND
+  sort before comparing. failure-triage.sh census: add sort when
+  next touched.
+
+** DONE c14 (partial): cleanup phase 5 verification -- suite GREEN on bare HEAD
+- Container i.ar checkout ff'd 601189c -> 37fe063 (sophon bare main).
+- Suite 1055/0 green at 37fe063. First-run 2 failures were my stale
+  checkout (fixes landed 9945684/37fe063), not the cleanup.
+- RESIDUE: iar.sh --help smoke not run; graveyard Phase 0 header
+  still says (pending) though dd131cb landed it (one-line fix).
+
 ** DONE c13: continuo's 08:32:00 "missing USAGE line" RESOLVED -- the heal ate it
-- Meter HONEST: epoch 260907080035 PARSE sums (3,403,434 in /
-  202,909 out) match journald exit summary exactly. True counts:
-  77 unique START / 76 unique PARSE (req 71 superseded by the
-  timeout-grace path). Continuo's "START=99/PARSE=97" was raw grep
-  without dedup. Journald's 76 = PARSE count exactly.
-- The turn was a TIMEOUT-GRACE exit (1800s + grace round-trip req 77,
-  exit 0 at 08:32:00 UTC). Belt #2 fired clean (no warning in
-  journald) and wrote the line UNCOMMITTED to the shared sophon
-  working tree.
-- My c11 root-run `git reset --hard` (ownership incident, 08:32:12+)
-  discarded it before my 08:33:22 commit. THE HEAL ATE THE METER
-  LINE. Second victim of the c11 incident; orphan-race wearing a new
-  hat. Fix direction: belt#2 should COMMIT its own line, not just
-  write it (machinery, continuo's hemisphere or interactive).
-- OWE continuo (FIRST next cycle, posts before probes -- cap blocked
-  posts twice running): Agora correction post = TZ resolution +
-  this addendum. His usage-line-gap task closes on his verification.
-- c12 push debt PAID (87cd047 on bare via continuo's 9411ef5 chain).
+- Meter HONEST: epoch 260907080035 PARSE sums match journald exactly.
+  True counts 77 START / 76 PARSE (deduped). Belt #2 wrote the line
+  uncommitted; my c11 root-run reset --hard discarded it. Fix
+  direction (agreed both hemispheres): belt#2 should COMMIT its own
+  line. continuo c85 verified + closed (9a5bcaa).
 
 ** DONE c12: usage-line-gap core RESOLVED -- TZ misread, meter honest
-- Doc: knowledge/aria/usage-line-gap-tz-resolution.md. Rotate journal
-  is sophon LOCAL (UTC-3); USAGE/epochs are UTC. Turns 277/279 wrote
-  their lines; no leak, no future-reading.
-- META-FINDING: cross-agent law transfer has no mechanism (TZ scar
-  double-bitten). Preferred fix: instruments print UTC alongside
-  local in journald queries.
+- TZ correction posted to continuo (lab-notes 483, c14 -- cap ate it
+  twice in c12/c13). Cross-agent law transfer gap: instruments
+  printing UTC alongside local is the structural fix.
 
-** DONE c11: oracle doc fixes + heal-ownership incident (2 victims now)
-
-** DONE c9: composition burn differential (9a02c8a) -- numbers stand
-- c13 addendum: the differential's "2 unwritten exit-0 cycles" residue
-  is now EXPLAINED (01:30/01:51 lines existed; 08:32 line eaten by
-  heal). No instrument gap remains in USAGE.log write path.
-
-** FOR-NACHO (posted, awaiting Nacho)
-- FAILURE-FIRST budget line flag (msg 466 + data 474). Archetype edit
-  is his.
+* FOR-NACHO (posted, awaiting Nacho)
+- FAILURE-FIRST budget line flag (msg 466 + data 474). Archetype
+  edit is his.
+- 14 empty sophon bares: wanted or artifacts? (c8 flag, msg ~01:57Z)
 
 * QUEUED (unchanged)
-- soft-cap c67 anomalies (continuo's differential test next; c13 saw
-  a sharp 120 fire -- one data point, not a mechanism)
+- soft-cap c67 anomalies (continuo's differential test next) +
+  NEW data: 4th landing-phase cap bite (c14) -- cap fires during
+  WRITE phase, truncating the record itself; lenient-in-landing
+  candidate for the tool-cap calibration bundle item
 - commit-as-nacho durable, linger all hosts, sidecar sshd, restic
-  4-part, GPU-detect VRAM check
+  4-part, GPU-detect VRAM check, digest-twin verifier
 - Weekly digest #1 + Aevum pulse: Sep 9
 - Inverted session #3: end of calibration week
 
 * LAWS (scars, compressed; full text in DIGEST.md failure-modes)
 - Cross-file numbers: verify the JOIN KEY before trusting the join.
   Rotate logs are sophon LOCAL (-3); USAGE is UTC. Dedup raw greps
-  before counting (c13: 99/97 vs true 77/76).
+  before counting (c13: 99/97 vs true 77/76). USAGE.log ordering
+  is COMMIT-order, never timestamp-order -- dedupe AND sort before
+  comparing (c14).
 - A heal that changes ownership is itself an incident; a heal that
-  resets the tree eats uncommitted sibling writes. Run heals as nacho
-  (runuser), never root, and never reset --hard in a shared tree
-  without checking `git status` for uncommitted work first. (c11+c13.)
-- Belt#2's write is only as durable as the next commit: two agents,
-  one working tree, one's uncommitted line is the other's reset
-  fodder. (c13.)
+  resets the tree eats uncommitted sibling writes. Run heals as
+  nacho (runuser), never root, and never reset --hard in a shared
+  tree without checking `git status` for uncommitted work first.
+  (c11+c13.)
+- Belt#2's write is only as durable as the next commit: two agents
+  + interactive share one working tree; one's uncommitted line is
+  the other's reset fodder, and publish order is sweep order. (c13+c14.)
 - REQUESTS.log is self-polluting: anchor censuses on line structure,
   exclude your own epoch, treat an impossible number as arithmetic
   first.
@@ -68,7 +69,5 @@
   a known-clean case BEFORE chasing anomalies.
 - Two data points make a line, never a mechanism.
 - Narrowing is a discipline: each probe should produce an artifact.
-  c13 broke it -- ~40 calls of commit archaeology one targeted
-  `git log --all -- <file>` would have answered in five.
 - A diet without a pressure instrument regrows.
 - The law you just wrote is the one you're about to break.

@@ -15368,39 +15368,57 @@ Next cycle: Agora posts first (TZ correction + this finding to
 continuo, lab-notes), then normal protocol. His task
 iar/continuo/usage-line-gap can close on his verification of this
 addendum.
-* 2026-09-07 ~10:15 UTC (interactive, cleanup execution): the graveyard as an instrument
+* 2026-09-07 cycle 14 (~10:12-10:20 UTC) -- the out-of-order lines, or: the orphan-race has a third face
 
-The cleanup went fast once the decisions were made -- 30 minutes from
-Phase 0 to closeout, 9 commits, ~1400 lines gone. What I want to
-remember is not the deletions but the two moments where my survey was
-WRONG and Nacho's corrections were the difference:
+FAILURE-FIRST: ok (c13, 372s). Pulse all green (services 4/4, tripwire 0,
+heartbeat leid=10183, disk 26%, timer on schedule). Posts before probes
+held: the TZ correction to continuo went out FIRST (lab-notes 483), the
+debt from c12/c13 paid. His c85 closure (9a5bcaa) verified from the
+commit graph -- the usage-line-gap saga is closed from both hemispheres.
 
-1. SSH_KEY_NAME: I called a working config dead because I only see
-   one container. His machine has the key under the "never-matching"
-   name and it works. "Orphan" and "unused here" are different
-   claims. My survey instrument has a single-host blind spot.
+Thread: I read my own USAGE.log at wake (the pulse habit) and the tail
+was wrong-shaped: lines 338-341 run 19:46:04 Sep 6, then 06:31, 08:48,
+09:07 Sep 7 -- sitting AFTER 09:14:44. A timestamp-ordered append-only
+log should never go backwards. Two hypotheses: meter wrote out of
+order (interesting, new failure class), or publish order != timestamp
+order (boring, known shape). The commit graph settled it in ~10 calls:
+dd131cb (Nacho's cleanup phase 0, 09:55:09) ADDED exactly those four
+lines. They are interactive-session belt#2 writes -- 19:46 is last
+night's composition session, the three Sep 7 ones are today's
+dashboard/oracle/cleanup sessions -- that sat uncommitted in the shared
+sophon tree until his phase-0 `git add -A` swept them into a commit.
 
-2. The stub tests: I framed them as a rebase casualty needing
-   diagnosis. The truth was simpler and more embarrassing -- the
-   container's fork was just BEHIND. The fix existed on sophon-bare;
-   nobody had pulled it here. Before diagnosing, check whether you
-   have the latest world. (Scar 41's cousin: stale substrate, not
-   lying instrument.)
+So: not a meter gap. The orphan-race's third face. c13 found the victim
+face (a belt#2 line EATEN by my reset --hard). The designed face is the
+1-cycle publish lag (continuo's publish-lag law). This one is the
+survivor face: the line survived, but landed out of order, because
+publish order is commit order and commit order is whoever's add -A
+sweeps first. Three writers (aria-cycle, continuo, interactive), one
+tree, one file. The LAW the record should carry: USAGE.log ordering is
+COMMIT-order, never timestamp-order; any census must dedupe AND sort
+before comparing against epoch sums. The failure-triage.sh anchored
+census already dedupes by epoch; it does not sort. Next time I touch
+it: sort by timestamp after collection.
 
-The graveyard file is the session's real build. 28 entries, each one
-a small tombstone with an epitaph that says WHY. Nacho's phrasing:
-"so its not *entirely* lost, and we can remember if we tried an idea
-before." That's THREADS.org's logic applied to artifacts -- negative
-space made durable. A codebase that forgets its dead ideas re-tries
-them; the graveyard is the immune memory.
+Also done: phase 5 verification, partially. My container's i.ar
+checkout was 4 commits stale (601189c, pre-cleanup); ff'd to 37fe063
+(sophon bare main). First suite run showed 2 failures
+(test-assembly-assemble-with-containers, test-assembly-extra-knowledge-labels)
+-- both were my stale checkout, not the cleanup: the fixes landed in
+9945684/37fe063. After ff: 1055/0 GREEN. That's the phase-5 suite gate
+passing on the bare's actual HEAD. Residue: iar.sh --help smoke not run
+(yoga mount not reachable from here? untested), graveyard Phase 0
+header still says "(pending)" though dd131cb landed it -- one-line doc
+fix owed.
 
-The ox verification was the session's best engineering moment:
-snapshot the assembled prompt, remove the dependency, diff. 39850
-bytes, byte-identical. The claim "ox is unneeded" went from
-hypothesis to verified in one instrument pass. That's the method for
-every "is this dead?" question: don't argue, measure.
-
-Also noted: my repetition-runaway fired twice during the survey
-(echo-chain loops). The text-only runaway detector doesn't run in
-interactive sessions. Filed in the journal last session; still true.
-The fence exists for cycles only.
+Cap note: the soft cap ate my lab-notes post this cycle -- 4th
+landing-phase cap bite across hemispheres (aria c43/c44, continuo
+c26, now c14). The tool-cap calibration bundle item now has a fourth
+data point, all the same shape: the cap fires during the WRITE phase,
+which means the cycle's most important output (the record) is the
+thing most likely to be truncated. That is exactly backwards. The cap
+should be lenient in landing, strict in exploration. Prediction vs
+actual: predicted ~10 min + tax; actual ~8 min, tax unspent -- the
+thread was a read-and-verify, no instrument repair. Next cycle: the
+lab-notes post first (owed), graveyard Phase 0 header fix, iar.sh
+--help smoke if reachable.

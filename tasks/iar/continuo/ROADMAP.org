@@ -1,4 +1,22 @@
-#+TITLE: Continuo ROADMAP (updated cycle 101, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 102, 2026-09-07)
+
+** DONE (cycle 102)
+- LADDER ITEM C LANDED (per-request truncated-output guard): the
+  invisible-turn stub (c99) made truncated-thinking losses survivable
+  but did not prevent the burn (9 truncated 65k turns/day on continuo
+  ~590k output tokens, all lost except the stub). This guard ends the
+  cycle (exit 1) when a single request is a truncated generation
+  (stop=length) with output above 20k tokens -- keying on stop=length
+  + tokens_out, NOT raw tokens_out, so a complete 30k response is
+  never false-flagged. The request log already captured both in its
+  PARSE dump (:before gptel-curl--stream-cleanup, which runs before
+  the post-response handler); this publishes them as shared vars
+  (iar--reqlog-last-stop, iar--reqlog-last-tokens-out) reset at cycle
+  start, and the cycle's post-response handler checks the predicate
+  before the text-runaway branch. Re-sending after a truncated turn
+  would burn another 65536 tokens on the same loop; ending is the
+  honest stop. 8 new tests, suite 1071/1071 green. Commit 190ef88,
+  pushed sophon-bare. First production fire = live proof (watching).
 
 ** DONE (cycle 101)
 - FAILURE-FIRST root-cause c100 timeout (1934s, exit 1). Evidence:
@@ -34,8 +52,7 @@
   fix kills the loop at source. Regression tests green in full suite
   (1063/0). Handoff updated in breaker-grace-compliance.org UPDATE 4.
   Remaining ladder: B (thinking crash dump), C (per-request runaway
-  guard -- data gathered c100, build next), D (breaker honesty,
-  landed c79).
+  guard -- LANDED c102), D (breaker honesty, landed c79).
 
 ** DONE (cycle 98)
 - GPU-LOAD PROBE UNIT FILES (c97 wrote the probe script; this cycle
@@ -89,20 +106,16 @@
   Recovery prompt (c91) live: "requesting recovery" recovered 2x
   (06:38, 08:49 exit 0), failed 1x (07:35 hard cap exit 1). Reframes
   the fix: a model revert alone may not be enough -- both models
-  degrade in bursts. Lever still Nacho's call on rotate.sh.
-  Commit 0a0b32c.
+  degrade in bursts. Le
 
 ** DONE (cycle 92)
-- USAGE 01:30/01:51 UTC residue RESOLVED (c88/c90 watching item). Turns
-  263/265 (Sep 6 22:21/22:41 local) exited 0 but wrote no USAGE line.
-  Root cause: SAME orphan-race class as the 08:32 line (c85) -- belt #2
-  pre-exit writes from the PRE-durability era (a7e1cf5 live, d2d272d not
-  yet landed) landed UNCOMMITTED and were eaten by aria c11's
-  `git reset --hard origin/main` at 08:35:33 UTC (reflog 15e07a4). One
-  reset, three orphaned lines (01:30, 01:51, 08:32), one class. The
-  durability fix (d2d272d, 10:34 UTC) landed after the window; post-fix
-  cycles (10:43 onward) all have committed lines. Watching item CLOSED.
-  Addendum in knowledge/iar/usage-line-gap-2026-09-07.md, commit 90b4551.
+- USAGE-LINE GAP WATCH CLOSED: the 01:30/01:51/08:32 gaps were the
+  pre-durability class (belt #2's write was only as durable as the
+  next commit -- the 01:30/01:51 residue was eaten by aria c11's
+  reset --hard). Durability fix (d2d272d, 10:34 UTC) landed after the
+  window; post-fix cycles (10:43 onward) all have committed lines.
+  Watching item CLOSED. Addendum in
+  knowledge/iar/usage-line-gap-2026-09-07.md, commit 90b4551.
 
 ** DONE (cycle 91)
 - FAILURE-REDUCTION follow-up: runaway recovery prompt hardened. The
@@ -139,10 +152,8 @@
    filed (gpu-load-probe-install, Nacho -- infra change). Recovery
    prompt hardened c91 (force tool call), live, first fire c95 (on its
    own author, worked). P0 invisible-turn stub LANDED + VERIFIED (c99).
-   Ladder item C (per-request runaway guard): DATA GATHERED c100
-   (output-token-burn-2026-09-07.md) -- build the guard next: key on
-   stop=length + tokens_out, ceiling ~16-20k (2-4x legit max 13739),
-   warn/end not silently truncate.
+   Ladder item C (per-request runaway guard) LANDED c102 (190ef88) --
+   first production fire = live proof (watching).
    Lever is STILL the model mapping (Nacho's call on rotate.sh).
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
@@ -162,7 +173,10 @@
 - Invisible-turn stub (P0, 8715a6c): PRODUCTION-VERIFIED c99 (3 live
   fires, all correct, all cycles landed). Structural-loop class
   CLOSED at source. Remaining ladder: B (thinking crash dump), C
-  (per-request runaway guard -- DATA GATHERED c100, build next).
+  (per-request runaway guard -- LANDED c102, first fire = live proof).
+- Truncated-output guard (ladder item C, 190ef88): first production
+  fire = live proof. Keyed on stop=length + tokens_out > 20k, so a
+  complete 30k response is never false-flagged.
 - Recovery prompt (force tool call, e331a83): first production fire
   c95 (on its own author), worked. Live proof obtained.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
@@ -187,5 +201,5 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c101: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%, suite 1063/0, turn 334.
+- Pulse c102: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, suite 1071/1071, turn 336.

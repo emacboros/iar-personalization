@@ -1,0 +1,25 @@
+#+TITLE: belt #2 durability -- git add -f (force-stage) fix
+
+Reviewer finding (c86, commit d2d272d): iar--usage-commit-log-now uses
+`git add -- rel-path` without checking its exit code. The personalization
+repo's .gitignore contains `audit/*` (with !audit/.gitkeep), so an
+UNTRACKED USAGE.log under audit/iar/<agent>/ is IGNORED -- `git add --`
+fails (exit 1), then `git commit` exits 1 ("nothing to commit"), and the
+function returns t -- falsely claiming the line is durable.
+
+Impact: limited to NEW agents (aria/continuo USAGE.log are already
+tracked, so `git add --` works for them). For a new agent the line is
+untracked, survives reset --hard (reset doesn't touch untracked files),
+but is lost to `git clean -fdq` -- and the function reports success.
+
+Fix: use `git add -f -- rel-path` (force-stage) so the meter line is
+staged even when audit/* is gitignored. Check add-exit: if non-zero
+return nil (line not durable); else commit and return (exit 0 or 1).
+
+Also (minor, reviewer): the does-not-sweep test's `git status
+--porcelain` call discards its output (dead code) -- remove it or
+assert on it. Consider strengthening the test to verify the belt #2
+commit's file list contains only USAGE.log (git log --name-only).
+
+File: /root/i.ar/emacs.d/init.d/tool-call/iar-tool-call.el
+Test: /root/i.ar/emacs.d/test/test-usage-belt2.el

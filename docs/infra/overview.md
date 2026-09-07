@@ -14,10 +14,9 @@ Consolidated 2026-08-04: daftpunk + greenday killed. rammstein is sole VPS.
                          │                                                 │
     ┌────────────────────┤                    │                            │
     │  randazzo.ar       │                    │  i.ar (landing)            │
-    │  randazzo.com.ar   │                    │  app.i.ar (SecPlatform)    │
-    │  caldav.randazzo.ar│                    │  app-bo.i.ar (SecPlatform) │
-    │  (→redirect)       │                    │  auth.i.ar (Keycloak)      │
-    │                    │                    │  camaras.randazzo.ar       │
+    │  randazzo.com.ar   │                    │  camaras.randazzo.ar       │
+    │  caldav.randazzo.ar│                    │  (new owner's CF proxies   │
+    │  (→redirect)       │                    │   i.ar landing to us)      │
     │                    │                    │  wiki.randazzo.ar          │
     │                    │                    │  agora.randazzo.ar (Zulip) │
     ▼                    ▼                    ▼                            │
@@ -26,9 +25,6 @@ Consolidated 2026-08-04: daftpunk + greenday killed. rammstein is sole VPS.
 │  VPS 2c/4GB -- Fedora 44                                            │  │
 │  Caddy + TLS (all domains)                                           │  │
 │  Static pages: randazzo.ar + i.ar                                    │  │
-│  Caddy proxy: app.i.ar -> sophon:8091 (SecPlatform client)          │  │
-│  Caddy proxy: app-bo.i.ar -> sophon:8092 (SecPlatform BO)           │  │
-│  Caddy proxy: auth.i.ar -> sophon:8080 (Keycloak)                   │  │
 │  Caddy proxy: camaras.randazzo.ar -> sophon:8971 (Frigate)           │  │
 │  Caddy proxy: caldav.randazzo.ar -> localhost:5232 (Radicale)        │  │
 │  Caddy static: wiki.randazzo.ar -> /var/lib/wiki/build               │  │
@@ -48,8 +44,8 @@ Consolidated 2026-08-04: daftpunk + greenday killed. rammstein is sole VPS.
 │  Intel Ultra │                              │ 12c/96GB, RTX 3080      │ │
 │  Fedora WS   │                              │ Ollama GPU              │ │
 │  WG:10.66.0.4│                              │ Frigate NVR             │ │
-│  pass client │                              │ SecPlatform (podman)    │ │
-│  restic      │                              │ Zulip chat (podman)     │ │
+│  pass client │                              │ Zulip chat (podman)     │ │
+│  restic      │                              │ i.ar agents             │ │
 │  backup      │                              │ i.ar agents             │ │
 │              │                              │ Git bare repos          │ │
 │              │                              │ Restic local target     │ │
@@ -65,23 +61,19 @@ Consolidated 2026-08-04: daftpunk + greenday killed. rammstein is sole VPS.
 |------|----------|-------|------|----------|
 | rammstein | randazzo-ar | 10.66.0.1 | Proxy hub, Caddy, WG hub, git bare repos, Radicale, wiki, restic remote | VPS 2c/4GB |
 | yoga | laptop | 10.66.0.4 | Daily driver, backup client, pass client | Intel Ultra, Fedora Workstation |
-| sophon | server-pc | 10.66.0.5 | GPU Ollama, Frigate NVR, SecPlatform, Zulip, i.ar agents, git mirror, restic local | 12c/96GB, RTX 3080 |
 
 Only rammstein has public web ports (80/443). All else WireGuard-only.
 
 ## Ansible Structure
 
-- Inventory: `inventory/hosts.yml` with functional groups (cloud, local, proxy, ollama_hosts, secplatform_hosts, etc.)
 - Variables layered: role defaults -> group_vars/all -> group_vars/<group> -> host_vars -> vault
 - Vault: `inventory/group_vars/all/vault.yml` (encrypted)
-- Playbooks: site.yml (full), base.yml, wireguard.yml, ollama.yml, secplatform.yml, zulip.yml, etc.
 
 ## Key Services
 
 - Caddy: automatic TLS, reverse proxy for all web services
 - Ollama: sophon (GPU). WireGuard-only, never public.
 - Frigate NVR: 8 cameras on sophon, proxied via rammstein
-- SecPlatform: multi-tenant SaaS on sophon (podman compose + docker-compose v2), proxied via rammstein
 - Zulip: self-hosted chat on sophon (podman compose), proxied via rammstein as agora.randazzo.ar
 - i.ar debug containers: on sophon + rammstein, SSH over WireGuard, host root at /host (read-only)
 
@@ -92,9 +84,6 @@ Only rammstein has public web ports (80/443). All else WireGuard-only.
 | randazzo.ar | Portfolio (static) | rammstein local |
 | randazzo.com.ar | Redirect to randazzo.ar | rammstein |
 | i.ar | Landing page (static) | rammstein local |
-| app.i.ar | SecPlatform customer portal | sophon:8091 |
-| app-bo.i.ar | SecPlatform back-office | sophon:8092 |
-| auth.i.ar | Keycloak (OIDC) | sophon:8080 |
 | camaras.randazzo.ar | Frigate NVR | sophon:8971 |
 | wiki.randazzo.ar | Wiki (static) | rammstein local |
 | caldav.randazzo.ar | Radicale CalDAV | rammstein localhost:5232 |
@@ -105,7 +94,6 @@ Only rammstein has public web ports (80/443). All else WireGuard-only.
 - Key-only SSH, password auth disabled, fail2ban
 - Firewalld default deny on all hosts
 - Ollama binds to WireGuard IP only
-- SecPlatform services bind to WireGuard IP only (10.66.0.5)
 - Zulip binds to localhost:8090, Caddy provides TLS + public access
 
 ## Full Docs

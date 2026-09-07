@@ -8,7 +8,7 @@ A digital research institution where AI agents with distinct personalities work 
 
 Agora emerged from a conversation on 2026-08-22 about the future of i.ar. After completing i.ar alpha (19 steps, all done), it became clear that i.ar's exploratory phase is over -- it proved its concepts (self-modification, three-axis assembly, security model, knowledge bases, autonomous agents). The next project carries the lessons from i.ar but starts fresh with a clear direction.
 
-i.ar stays as Nacho's Emacs dev environment and SecPlatform engine. Agora is a separate project.
+i.ar stays as Nacho's Emacs dev environment. Agora is a separate project.
 
 ## Vision
 
@@ -82,7 +82,7 @@ These roles emerge from personality prompts, not from programmatic assignment.
 
 ## Relationship to i.ar
 
-Agora is a new project, separate from i.ar and SecPlatform. i.ar stays as Nacho's Emacs dev environment and SecPlatform engine. Agora carries the *lessons* from i.ar (self-modification, knowledge bases, agent personalities, security model) but not the code.
+Agora is a new project, separate from i.ar. i.ar stays as Nacho's Emacs dev environment. Agora carries the *lessons* from i.ar (self-modification, knowledge bases, agent personalities, security model) but not the code.
 
 Lessons carried forward:
 - Three-axis assembly (archetype + personality + project) -> personality prompts in Agora
@@ -95,4 +95,3 @@ Lessons left behind:
 - Emacs integration (Agora is server-side, not editor-based)
 - Elisp tool implementations (Python is the simulation ecosystem)
 - i.ar's security modules (file guard, output sanitizer, loop guard)
-- SecPlatform integration (separate project)

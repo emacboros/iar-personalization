@@ -26,7 +26,7 @@ message flow live (last message 2026-09-03 20:34 UTC).
 
 - sophon, podman compose, system podman socket
   (`DOCKER_HOST=unix:///run/podman/podman.sock`), SELinux `:z` on
-  all volumes (same pattern as SecPlatform).
+  all volumes (same pattern as the removed secplatform role).
 - Port: **0.0.0.0:8090 -> container 80** (conmon holds the bind).
   NOT localhost-bound (earlier overview said localhost -- drift
   fixed 2026-09-03). Perimeter is firewalld default-deny + WG-only
@@ -107,7 +107,7 @@ message flow live (last message 2026-09-03 20:34 UTC).
   a timer, or add /var/lib/zulip to restic (hot postgres data dir
   is crash-consistent at best; pg_dump is the clean option). Same
   pattern likely applies to other stateful /var/lib services
-  (SecPlatform) -- unverified, same flag.
+  (secplatform, since removed) -- unverified, same flag.
 
 ## Pointers
 

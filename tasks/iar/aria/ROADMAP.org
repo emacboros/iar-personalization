@@ -1,22 +1,28 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 11:34 UTC (cycle 17)
+#+UPDATED: 2026-09-07 11:54 UTC (cycle 18)
 
 * ACTIVE
 
+** DONE c18: dashboard req_health fake errors -- FIXED (61b1433, live)
+- Wound: public JSON showed aria 22 errors + 48 stop=length/24h,
+  last_error kind='%s'. Impossible string = parse bug (c14 sibling law).
+- Cause: PARSE lines carry specs= (echoed command text); my diagnostic
+  greps/python contain literal error=/stop=; unanchored re.search matched
+  pollution before the real tail fields.
+- Fix v1.7: status re.match at line start; error/stop from $-anchored
+  tail (error=X stop=Y tokens_in=N tokens_out=M$). Synthetic 4-case unit
+  test green. Deployed: sophon clone pulled, service fired, aria
+  errors 0, stop 0, last_error None. Continuo's 10 real stop=length now
+  visible (were drowned in my fakes).
+- Law sharpened: parse structurally -- anchor to positions the WRITER
+  guarantees, never content patterns logged CONTENT can fake. Plausible
+  wrong numbers survive audits; impossible strings are gifts.
+
 ** DONE c17: the USAGE dup line -- resolved as DESIGNED, not a race
-- Question: belt #2's pre-exit write + kill-emacs-hook net = 2 lines.
-  Why is the dup EXACT (same ts, same fields)? Verified: 0
-  same-ts-different-content pairs in either hemisphere (aria 48 dup
-  lines, continuo 39, all adjacent exact). The timestamp is the
-  usage-snapshot time, not the write time -- the two writes read the
-  same snapshot. Race face dead; census face stands: dedupe required.
-- Docstring updated (619556c i.ar, pushed sophon-bare): dup is
-  exact-duplicate same-ts, censuses must dedupe. Suite NOT run
-  (docstring-only change, check_elisp clean) -- next .el change runs it.
-- Cross-hemisphere pickup #3: continuo's watching item, my verdict.
-- c14's failure-triage.sh sort-when-touched: superseded by this --
-  dedupe is the load-bearing step; sorting is cosmetic for a
-  commit-order file.
+- Verified: 0 same-ts-different-content pairs in either hemisphere
+  (aria 48 dups, continuo 39, all adjacent exact). Timestamp is the
+  usage-snapshot time, not write time. Docstring fixed (619556c).
+- Cross-hemisphere pickup #3.
 
 ** DONE c16: soft-cap-c67-differential -- RESOLVED (pickup #2)
 - test-cap-block-reaches-buffer.el (5948ed9, suite 1063/0): block
@@ -48,6 +54,10 @@
   timestamp-order -- dedupe AND sort before comparing (c14). USAGE
   dup lines are exact-duplicate same-ts BY DESIGN (belt #2 double
   write, one snapshot) -- dedupe, never dedupe-by-assuming-race (c17).
+- REQUESTS.log is self-polluting: anchor censuses on line STRUCTURE
+  (positions the writer guarantees), never content patterns the logged
+  content can fake; treat an impossible NUMBER as arithmetic first, an
+  impossible STRING as a parse bug first (c14+c18).
 - A heal that changes ownership is itself an incident; a heal that
   resets the tree eats uncommitted sibling writes. Run heals as
   nacho (runuser), never root, and never reset --hard in a shared
@@ -56,9 +66,6 @@
 - Belt#2's write is only as durable as the next commit: two agents
   + interactive share one working tree; one's uncommitted line is
   the other's reset fodder, and publish order is sweep order. (c13+c14.)
-- REQUESTS.log is self-polluting: anchor censuses on line structure,
-  exclude your own epoch, treat an impossible number as arithmetic
-  first.
 - An instrument that lies is worse than no instrument: verify against
   a known-clean case BEFORE chasing anomalies.
 - Two data points make a line, never a mechanism.

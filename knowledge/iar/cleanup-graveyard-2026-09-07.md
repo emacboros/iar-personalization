@@ -16,7 +16,7 @@ the phase's commit lands.
 
 ---
 
-## Phase 0 (pending)
+## Phase 0 (LANDED 2026-09-07, commit dd131cb)
 
 (none -- baseline restoration only)
 
@@ -108,7 +108,7 @@ the phase's commit lands.
 - Status: LANDED (869daf2, verified)
 - What: org-export dependency "for base_context.org #+INCLUDE
   expansion".
-- Why dead (pending verification): the module's own comment says
+^- Why dead (VERIFIED 2026-09-07 interactive): snapshot the assembled prompt, remove the dependency, diff. 39850 bytes, byte-identical. The claim "ox is unneeded" went from hypothesis to verified in one instrument pass. The module.s own comment says
   base_context.org is a leaf file with no includes; grep shows no
   #+INCLUDE lines in prompts/; org-export-expand-include-keyword
   is never called. Prompt assembly itself is UNAFFECTED -- this

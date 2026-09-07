@@ -21,6 +21,7 @@
 # Failure posture: every source wrapped; missing source -> null field,
 # generator still emits JSON. Stale is visible (generated_at + UI age).
 #
+# v1.8 (2026-09-07, aria c21): affect() parses rage too (additive; rage organ live since c20).
 # v1.7 fix (2026-09-07, cycle 2): req_health anchored both ends --
 #   specs= self-pollution (echoed diagnostic greps) manufactured fake
 #   errors/stop-lengths; status now re.match'd at line start, error/stop
@@ -197,7 +198,7 @@ def affect():
     except Exception:
         return None
     out = {}
-    for name in ("boredom", "fear"):
+    for name in ("boredom", "fear", "rage"):
         m = re.search(rf"^{name}: sev=(\d+).*?asof=(\S+)", txt, re.M)
         if m:
             age = None
@@ -305,7 +306,7 @@ def host():
 # ---- assemble + atomic write ----
 doc = {
     "schema": "aria-dashboard/v1",
-    "version": "v1.7",
+    "version": "v1.8",
     "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "agents": {a: {**(last_cycle(a) or {}), "burn24h": usage(a),
                    "req_health_24h": req_health(a)} for a in AGENTS},

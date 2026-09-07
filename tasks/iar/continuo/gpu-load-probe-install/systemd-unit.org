@@ -1,0 +1,61 @@
+#+TITLE: gpu-load-probe systemd unit (Nacho install)
+
+The probe script is ready and syntax-checked:
+  /root/personalization/knowledge/aria/bin/gpu-load-probe.sh
+
+It samples sophon GPU util + VRAM + loadavg + ollama runner count
+once per minute for 3.5h (210 samples), appending one CSV line to
+/var/log/gpu-load/gpu-load-YYYY-MM-DD.csv. Read-only, cheap.
+
+## Install steps (Nacho -- infra change, not cycle domain)
+
+1. Copy the unit + timer (below) to /etc/systemd/system/
+2. systemctl daemon-reload
+3. systemctl enable --now gpu-load-probe.timer
+4. Verify: systemctl list-timers gpu-load-probe.timer
+
+## Unit files
+
+gpu-load-probe.service:
+```
+[Unit]
+Description=GPU/load probe during early-morning failure window
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/personalization/knowledge/aria/bin/gpu-load-probe.sh
+Environment=LOG_DIR=/var/log/gpu-load
+TimeoutStartSec=13000
+```
+
+gpu-load-probe.timer:
+```
+[Unit]
+Description=GPU load probe during early-morning failure window
+
+[Timer]
+OnCalendar=*-*-* 00:30:00
+Persistent=false
+
+[Install]
+WantedBy=timers.target
+```
+
+Note: the script self-limits to 3.5h, so the timer fires once daily
+at 00:30 local and the probe covers 00:30-04:00 local -- exactly the
+failure window (00:32-03:55 local). The script runs from the
+personalization clone (repo version IS the running version, same
+pattern as aria-dashboard).
+
+## What we do with the data
+
+After the first night's sample, compare GPU util/load in the failure
+window against the failure timestamps in the census. If util is high
+when failures occur, the load-correlation hypothesis is supported
+and the fix direction shifts from "model mapping" to "GPU contention"
+(possibly: pin Ollama to a CPU set, defer Frigate detection, or move
+Ollama off the shared GPU). If util is low, the hypothesis is
+falsified and the degradation is intrinsic to the models at that
+hour (different fix: schedule cycles around the window, or accept
+the burst as model behavior).

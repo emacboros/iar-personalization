@@ -169,10 +169,10 @@ the phase's commit lands.
   tool_call sanitize, loud-error on unknown default model,
   sendable-context reasoning exclusion.
 
-## Phase 3 (pending)
+## Phase 3 (LANDED 2026-09-07, commits 37fe063 i.ar + b7f00bc personalization)
 
 ### Root STATE.md (personalization)
-- Status: PENDING
+- Status: LANDED (b7f00bc)
 - What: continuo's STATE.md at personalization root, last updated
   c62 (2026-09-06 18:37).
 - Why dead: diverged twin of the live
@@ -183,7 +183,7 @@ the phase's commit lands.
   canonical path; twins diverge silently.
 
 ### audit/HISTORY.log (top-level)
-- Status: PENDING
+- Status: LANDED (b7f00bc, disk-only; was untracked)
 - What: old global audit log (last entry 2026-08-31, bessie
   knowledge-base fix + aria build logs).
 - Why dead: superseded by per-agent HISTORY.log under
@@ -193,12 +193,12 @@ the phase's commit lands.
   layout it belonged to.
 
 ### audit/testproject* / test_project* / test_digestproj (4 dirs)
-- Status: PENDING
+- Status: LANDED (b7f00bc, disk-only; untracked)
 - What: empty directories from test runs against the task system.
 - Why dead: test residue, zero content.
 
 ### audit/iar/bessie/ (stray)
-- Status: PENDING
+- Status: LANDED (b7f00bc, disk-only; untracked)
 - What: bessie's REQUESTS.log under the iar project.
 - Why dead: created by the pre-fix project-fallback bug (bessie
   resolved to the iar project before iar-personality-project-map
@@ -206,7 +206,7 @@ the phase's commit lands.
   audit/moto/bessie/.
 
 ### docs/iar/LOGS.md
-- Status: PENDING
+- Status: LANDED (b7f00bc)
 - What: session notes from 2026-08-22 (i.ar future discussion,
   Laboratory project, Zulip deployment) living in the docs dir.
 - Why dead: wrong home (docs/ is injectable knowledge, not
@@ -218,7 +218,7 @@ the phase's commit lands.
   platform) are recorded in git history and superseded docs.
 
 ### Stale tasks (4)
-- Status: PENDING
+- Status: LANDED (b7f00bc)
 - tasks/moto/purchase-800-rally: superseded -- Voge 800 Rally
   eliminated by the 525DSX test-drive finding (size class
   collapsed to <=650); KLR650 presumptive; bike ledger
@@ -233,7 +233,7 @@ the phase's commit lands.
 
 ### Dormant personalities (6): davinci, colin, iar, vuln-parser,
 ### test, test-continuous
-- Status: PENDING
+- Status: LANDED (37fe063 i.ar / b7f00bc personalization)
 - Why dead: old ideas, never ran under the current architecture
   (no audit dirs on sophon; davinci/colin were yoga-era
   experiments; iar personality was the pre-aria default;
@@ -246,7 +246,7 @@ the phase's commit lands.
 
 ### Dormant projects (5): barbieri, agora, colin, vuln-parser,
 ### test
-- Status: PENDING
+- Status: LANDED (37fe063)
 - Why dead: barbieri was an auto-created template (0 content);
   agora's objective predates the current architecture (LangGraph
   runtime never built; agora is now the Zulip instance + the
@@ -255,7 +255,7 @@ the phase's commit lands.
 
 ### Dormant cycle prompts (4): documentation_sync, monitoring,
 ### self_modification, test_continuous
-- Status: PENDING
+- Status: LANDED (37fe063 i.ar / b7f00bc personalization)
 - Why dead: tied to the librarian/gardener/darwin trio's
   never-deployed loops (iar-librarian units retired Phase 1;
   darwin/gardener/librarian personalities STAY but their
@@ -266,14 +266,14 @@ the phase's commit lands.
   list I named).
 
 ### iarsh-self-edit-race-rotation-copy.md (merged)
-- Status: PENDING
+- Status: LANDED (37fe063 i.ar / b7f00bc personalization)
 - What: correction doc for the self-edit-race misdiagnosis.
 - Why merged: the main doc (iarsh-self-edit-race.md) already
   carries the UPDATE c56 correction block; the pointer file is
   redundant. Fold and keep one doc.
 
 ### Missing knowledge labels (4)
-- Status: PENDING
+- Status: LANDED (37fe063 i.ar / b7f00bc personalization)
 - What: pentest.org -> pentest/, agora.org -> agora/,
   life-org.org -> life-org/, test.org -> test/ (dirs never
   existed; iar--read-knowledge-files silently injects nothing).
@@ -283,7 +283,7 @@ the phase's commit lands.
   written.
 
 ### future_ideas.md IMPLEMENTED items (4)
-- Status: PENDING
+- Status: LANDED (37fe063 i.ar / b7f00bc personalization)
 - What: per-agent tool gating, one-shot mode, delegation
   pipeline, multi-container framework -- all implemented, kept as
   status-marked entries.
@@ -293,7 +293,7 @@ the phase's commit lands.
   (execute-code-local-security, agent-ssh-read-only-access) that
   the multi-container framework replaced.
 
-## Phase 4 (pending)
+## Phase 4 (LANDED 2026-09-07, commit b312fb1)
 
 (none -- doc sync only)
 

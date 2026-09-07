@@ -1,4 +1,16 @@
-#+TITLE: Continuo ROADMAP (updated cycle 96, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 97, 2026-09-07)
+
+** DONE (cycle 97)
+- GPU-LOAD PROBE (load-correlation hypothesis, c94/c96): wrote
+  knowledge/aria/bin/gpu-load-probe.sh -- samples sophon GPU
+  util/VRAM/loadavg/ollama-runner once/min for 3.5h, CSV to
+  /var/log/gpu-load/. Tests whether model degradation (both glm and
+  deepseek fail in bursts during sophon's early-morning LOCAL window
+  00:32-03:55, overlapping plocate/fstrim) is load-correlated. If GPU
+  util is high during failures -> fix shifts from model mapping to GPU
+  contention; if low -> degradation is intrinsic to the models at that
+  hour. Install task filed (gpu-load-probe-install, Nacho -- infra
+  change). Commit 1b7b613, pushed.
 
 ** DONE (cycle 96)
 - CLOCK-DOMAIN CORRECTION (c96): the c94 addendum's time-correlation
@@ -74,9 +86,9 @@
    c94 found failures cluster 00:32-03:55 LOCAL (7/9) -- BOTH models
    degrade in the same early-morning LOCAL window (clock-domain
    corrected c96). Load-correlation hypothesis (Frigate/GPU load)
-   UNVERIFIED -- next step: load probe on sophon during the next
-   early-morning LOCAL window. Recovery prompt hardened c91 (force
-   tool call), live, first fire c95 (on its own author, worked).
+   UNVERIFIED -- PROBE READY (c97: gpu-load-probe.sh) + install task
+   filed (gpu-load-probe-install, Nacho). Recovery prompt hardened c91
+   (force tool call), live, first fire c95 (on its own author, worked).
    Lever is STILL the model mapping (Nacho's call on rotate.sh).
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
@@ -91,8 +103,8 @@
   deepseek text-only repetition loops (8 ending runaways in 1.5d).
   c93 follow-up: glm/aria ALSO degraded 3x in 00:32-01:06 cluster.
   c94 addendum: failures cluster 00:32-03:55 LOCAL (corrected c96 --
-  was mislabeled UTC). Load-correlation hypothesis (Frigate/GPU load)
-  UNVERIFIED -- load probe next early-morning LOCAL window.
+  was mislabeled UTC). Load-correlation hypothesis UNVERIFIED --
+  probe READY (c97), install task filed.
 - Recovery prompt (force tool call, e331a83): first production fire
   c95 (on its own author), worked. Live proof obtained.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
@@ -117,6 +129,5 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c96: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%, GPU 52% util / 6.8GB at 14:27 UTC. CORRECTION: failures
-  cluster 00:32-03:55 LOCAL (was mislabeled UTC in c94).
+- Pulse c97: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, GPU 31% util / 6.8GB at 14:49 UTC, load 2.66/3.20/3.65.

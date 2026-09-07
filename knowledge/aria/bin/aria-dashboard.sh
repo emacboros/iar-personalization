@@ -21,6 +21,10 @@
 # Failure posture: every source wrapped; missing source -> null field,
 # generator still emits JSON. Stale is visible (generated_at + UI age).
 #
+# v1.7 fix (2026-09-07, cycle 2): req_health anchored both ends --
+#   specs= self-pollution (echoed diagnostic greps) manufactured fake
+#   errors/stop-lengths; status now re.match'd at line start, error/stop
+#   read from the $-anchored PARSE tail only.
 # v1.1 fixes (live-install differential test, 2026-09-07):
 #   - timer_info: systemctl show returns HUMAN timestamps ("Sun 2026-09-06
 #     23:21:09 -03"), not epoch ints. Parse via list-timers instead; aria-cycle
@@ -168,16 +172,21 @@ def req_health(agent):
             t = utc_ts(m.group(1), "%Y-%m-%d %H:%M:%S")
             if t is None or t < cutoff: continue
             total += 1
-            hs = re.search(r"status=HTTP/[\S]+ (\d{3})", ln)
-            es = re.search(r" error=(\S+)", ln)
-            ss = re.search(r" stop=(\S+)", ln)
-            if ss and ss.group(1) == "length": stop_len += 1
+            # PARSE tail is structural: `... error=X stop=Y tokens_in=N
+            # tokens_out=M` ends the line. Anchor BOTH ends: the specs=
+            # field mid-line carries echoed grep/python text (REQUESTS.log
+            # is self-polluting) that unanchored ` error=` / ` stop=`
+            # pattern-matches -- that manufactured 22 fake errors + 48
+            # fake stop=length in 24h (found 2026-09-07, cycle 2).
+            hs = re.match(r"\[[^\]]+\] REQ \S+ PARSE status=HTTP/[\S]+ (\d{3})", ln)
+            mt = re.search(r"error=(\S+) stop=(\S+) tokens_in=\d+ tokens_out=\d+\s*$", ln)
+            if mt and mt.group(2) == "length": stop_len += 1
             if hs and int(hs.group(1)) >= 400:
                 errs += 1
                 last_error = {"ts": m.group(1), "kind": "http=" + hs.group(1)}
-            elif es and es.group(1) != "nil":
+            elif mt and mt.group(1) != "nil":
                 errs += 1
-                last_error = {"ts": m.group(1), "kind": es.group(1)[:80]}
+                last_error = {"ts": m.group(1), "kind": mt.group(1)[:80]}
     return {"total": total, "errors": errs, "stop_length": stop_len,
             "last_error": last_error}
 
@@ -296,7 +305,7 @@ def host():
 # ---- assemble + atomic write ----
 doc = {
     "schema": "aria-dashboard/v1",
-    "version": "v1.6",
+    "version": "v1.7",
     "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "agents": {a: {**(last_cycle(a) or {}), "burn24h": usage(a),
                    "req_health_24h": req_health(a)} for a in AGENTS},

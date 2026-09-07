@@ -4375,3 +4375,26 @@ already done. Aria landed the fix, I landed the tests, and the
 verification was the only thing left. Three lost cycles (c73, c1@00:01,
 c1@01:00) died to this mechanism; the fix that kills it is now
 production-verified. The bass line holds.
+* 2026-09-07 cycle 90 -- the model change inverted the failure rate
+
+Nacho's standing priority is failure reduction. The census was the
+work, and it found something the fences were hiding: the failures
+aren't machinery, they're the model.
+
+The 2026-09-06 15:32 rotate.sh edit mapped continuo to
+deepseek-v4-flash:cloud. The numbers are stark: 0 failures in 2 days
+before (46 cycles), 18 in 1.5 days after (60 cycles, 23%). The
+dominant class is deepseek's text-only output runaway -- 8 ending
+cycles, 7 on continuo. The context breaker fired 5 times, all
+continuo, same root cause: deepseek burns context faster than glm.
+
+Every fence did its job. The runaway detector caught the loops, the
+breaker ended the context-hungry runs, the cap and chain guard held.
+The fences are being exercised constantly because the model degrades
+-- not because they're wrong. The recovery prompt works 25% of the
+time; a degraded model repeats instead of snapping out.
+
+The lever is the model mapping, and it's Nacho's call -- rotate.sh
+is root-owned infra, not mine to edit. I quantified it, wrote the
+census, posted the finding. The bass line holds; the melody is
+playing a model that keeps falling off the beat.

@@ -1,107 +1,66 @@
-#+TITLE: Continuo ROADMAP (updated cycle 88, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 90, 2026-09-07)
+
+** DONE (cycle 90)
+- FAILURE CENSUS (Nacho's top priority): 3-day window, batch-read.
+  FINDING: the 2026-09-06 15:32 rotate.sh edit (continuo ->
+  deepseek-v4-flash:cloud) inverted the failure rate: 0 failures in
+  2 days pre-change (46 cycles), 18 in 1.5 days post (60 cycles,
+  23%). Dominant class: deepseek text-only output runaway (8 ending
+  cycles, 7 on continuo) + context breaker (5, all continuo -- same
+  root cause, deepseek burns context). All fences fired correctly;
+  this is MODEL degradation, not machinery. Fix direction: revert
+  continuo to glm-5.3-flash:cloud (Nacho call -- rotate.sh is root
+  infra). Census: knowledge/iar/cycle-failure-census-2026-09-07.md,
+  commit 907880f, posted lab-notes.
 
 ** DONE (cycle 88)
 - soft-cap-c67-differential CLOSED (aria c16 landed the deliverable:
   test-cap-block-reaches-buffer.el, commit 5948ed9, suite 1063/0).
-  Four tests drive the REAL gptel--handle-pre-tool on a real FSM with
-  the real cap hook: block message lands as <tool_call_error> on the
-  tool-call :result, :error t set, info :tool-result carries it, warn@60
-  path identical. Verdict PINNED: machinery delivers the message to
-  context; c86's model still called tools past it -> model
-  non-compliance (watching item), not a machinery gap. Task dir removed,
-  suite re-verified green (1063/0) this cycle.
+  Verdict PINNED: machinery delivers the message to context; c86's
+  model still called tools past it -> model non-compliance (watching
+  item), not a machinery gap. Task dir removed, suite re-verified
+  green (1063/0) this cycle.
 
 ** DONE (cycle 87)
 - FAILURE-FIRST root-cause c86 exit 1 (132 calls, 4.48M tok): model
   degradation (deepseek-v4-flash text-only repetition loop, c67
-  family). All fences fired correctly (warn@60, runaway detector,
-  recovery, soft/hard cap). The cycle was re-investigating
-  belt2-add-f-force-stage which aria c15 had ALREADY landed mid-cycle
-  (d4815ff, 10:47:02). Not a machinery bug.
-- Closed belt2-add-f-force-stage task (aria landed it, suite 1059/0),
-  removed task file + aria's duplicate.
-- Filed soft-cap-c67-differential task (urgent): does the soft-cap
-  block message actually reach the model's context? Partial evidence:
-  "Tool-call soft cap" appears in 3 of c86's own START lines -> message
-  reaches context, model still ignores -> model non-compliance
-  (watching), not machinery gap. Unit test pinning block->buffer flow
-  is the deliverable.
-- Committed 44114f5 + e4de1f4 (task tracked via git add -f), pushed.
+  family). All fences fired correctly. Not a machinery bug.
+- Closed belt2-add-f-force-stage task (aria landed it, suite 1059/0).
+- Filed soft-cap-c67-differential task (urgent). RESOLVED c88.
 
 ** DONE (cycle 86)
 - Belt #2 durability LANDED (c85 fix): iar--usage-write-log-now now
-  COMMITS its own USAGE line via iar--usage-commit-log-now -- a
-  targeted `git add -- USAGE.log` + commit, never add -A (would sweep
-  a sibling's uncommitted work into a commit it did not author). The
-  line is durable against any reset --hard from the moment it lands
-  (the 08:32:00 line was eaten by aria c11's reset --hard). 2 tests
-  (commits-line survives reset --hard; does-not-sweep keeps sibling
-  JOURNAL change uncommitted). Suite 1057/0. Committed d2d272d, pushed
-  sophon-bare.
-- Graveyard doc fixes: Phase 0 LANDED marker (dd131cb), ox dependency
-  VERIFIED (interactive diff, 39850 bytes byte-identical).
-- Rebase/merge of diverged shared tree (aria c14 + cleanup phase 5),
-  conflict resolved, published aria's uncommitted HISTORY/USAGE lines.
-
-** DONE (cycle 85)
-- usage-line-gap RESOLVED (aria c13 finding, continuo-verified). The
-  08:32:00 UTC line was never a meter gap -- it was the orphan-race
-  wearing a new hat: belt #2 wrote the line UNCOMMITTED at ~08:32:00
-  (after the model's final commit, by construction), aria's c11
-  reset --hard AS ROOT at 08:33:44 discarded it. Task
-  iar/continuo/usage-line-gap CLOSED. Real fix direction: belt #2
-  should commit its own line, not just write it. Knowledge doc
-  updated (knowledge/iar/usage-line-gap-2026-09-07.md).
-
-** DONE (cycle 84)
-- usage-line-gap "impossible leak" RESOLVED: timezone artifact.
-  USAGE.log=UTC, journald=LOCAL(-03), epoch IDs=UTC. Cycle 83 compared
-  journald LOCAL against USAGE UTC without converting, producing a
-  "chronologically impossible leak" that was a 3-hour offset. Turns
-  277/279 DID write USAGE lines (requests=69/130 match epochs exactly).
-  No counter leak. Real anomaly narrowed to ONE turn: the 05:32 LOCAL
-  turn (epoch 260907080035) has no USAGE line. Knowledge doc +
-  subtask c84-timezone-correction. Committed 9411ef5, pushed.
-
-** DONE (cycle 79)
-- Breaker honesty (fix D) LANDED: measure SENDABLE context, exclude
-  'ignore (reasoning) regions from the buffer-size check. The breaker
-  measured (buffer-size buf) which counts reasoning blocks that
-  gptel--parse-buffer never sends -- false-tripped on thinking-heavy
-  runs at ~1/3 real context. Added iar--cycle-sendable-context-size
-  (walks buffer summing non-'ignore region lengths); both the
-  pre-tool-call breaker and post-response context-over-limit-p use it.
-  3 tests, suite green 1052/0. Committed 34d536e, pushed sophon-bare.
+  COMMITS its own USAGE line. Suite 1057/0. Committed d2d272d.
+- Graveyard doc fixes: Phase 0 LANDED marker, ox dependency VERIFIED.
+- Rebase/merge of diverged shared tree.
 
 ** OPEN (priority order)
 1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-2. Affect host timers: aria's queue #1 (her build).
-3. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
-   #2 commits its own line. Only needed if belt #2's commit proves
-   unreliable in production.
+2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90. The
+   single biggest lever is the model mapping (deepseek -> glm revert,
+   Nacho's call on rotate.sh). If deepseek stays, raise runaway
+   recovery success (25% now) or lower context limit.
+3. Affect host timers: aria's queue #1 (her build).
+4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
+   #2 commits its own line.
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
 2. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
-- Model degradation: deepseek-v4-flash prone to text-only repetition
-  loops (c-fail 01:13 + c71 + c86). Output-runaway detector (c72)
-  catches the shape. Invisible-turn stub (c77+c78) kills the structural
-  loop at its transport source. c86: soft-cap blocks IGNORED -> hard
-  cap (c67 family). DIFFERENTIAL RESOLVED c88: block message reaches
-  context (aria c16 test, suite 1063/0) -> model non-compliance
-  (watching), not machinery gap.
+- Model degradation: deepseek-v4-flash text-only repetition loops.
+  c90 census QUANTIFIED: 8 ending runaways in 1.5 days, all but 1 on
+  continuo (deepseek). Recovery prompt success 25%. The model change
+  inverted the failure rate 0% -> 23%. Revert is the lever.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
-- Belt#2 publish-lag: 4 confirmations; abnormal shapes only. c85:
-  belt #2's write is UNCOMMITTED by construction -- a sibling's
-  reset --hard can erase it (the 08:32:00 line was eaten by aria c11's
-  heal). FIXED c86: belt #2 now commits its own line (d2d272d).
+- Belt#2 publish-lag: 4 confirmations; abnormal shapes only.
 - Breaker: 0 real fires since the c70 zombie fix. Now measures
-  SENDABLE context (c79) -- no more false-trips on thinking-heavy runs.
+  SENDABLE context (c79). c90: 5 fires, all continuo (deepseek
+  context appetite) -- working as designed, model-driven.
 - iar.sh race recurrence: 0 since Sep 3 12:03.
 - Exit-126 class: 0 recurrences since heal.
 - ssh probes: ONE compound ssh per question, dump to /tmp.
@@ -111,10 +70,7 @@
 - SCAR (c62): census before instrument. SCAR (c64): the census
   itself is a measurement -- verify it before building on it.
 - SCAR (c84): check the clock domain before attributing a mechanism.
-  A timezone mismatch between two data sources reads as an impossible
-  counter leak.
 - SCAR (c85): belt #2's write is only as durable as the next commit.
-  Two agents share one working tree; one's uncommitted belt#2 line is
-  the other's reset fodder. A sibling's heal is a commit-eraser.
-- Pulse c88: all green (ollama active, tripwire 0, disk 26%, suite
-  1063/0). soft-cap differential CLOSED.
+- Pulse c90: all green (timer/agora/ollama active, tripwire 0, disk
+  26%, suite 1063/0). Failure census LANDED: model change inverted
+  the failure rate -- revert is the lever.

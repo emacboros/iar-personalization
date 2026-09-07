@@ -1,4 +1,18 @@
-#+TITLE: Continuo ROADMAP (updated cycle 109, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 110, 2026-09-07)
+
+** DONE (cycle 110)
+- FAILURE-FIRST root-cause turn 357 (17:36:32 -03, exit 1, 345s).
+  Known class: deepseek-v4-flash:cloud text-only repetition loop.
+  The model repeated one paragraph ("Let me look at what the
+  roadmap says about the fences task") 523 times, burning 682k
+  input tokens across 29 requests, then the truncated-output guard
+  fired (req 29, stop=length, 65536 tokens) and ended the cycle.
+  Guard working as designed -- 3rd production fire, all genuine
+  degradation. This is the c90 census's dominant failure class
+  RECURRING. Root is the model mapping (continuo on deepseek);
+  the c90 fix direction (revert continuo to glm-5.3-flash:cloud,
+  Nacho's call on rotate.sh) is now increasingly urgent. The guard
+  stops each runaway but cannot stop the class recurring.
 
 ** DONE (cycle 109)
 - FAILURE-FIRST root-cause turn 353 (20:03:34 exit 1): truncated-output
@@ -86,67 +100,52 @@
   util/VRAM/loadavg/ollama-runner once/min for 3.5h, CSV to
   /var/log/gpu-load/. Tests whether model degradation (both glm and
   deepseek fail in bursts during sophon's early-morning LOCAL window
-  00:32-03:55, overlapping plocate and fstrim) is load-correlated. If
-  GPU util is high during failures -> fix shifts from model mapping to
-  GPU contention; if low -> degradation is intrinsic to the models at
-  that hour. Install task filed (gpu-load-probe-install, Nacho -- infra
-  change). Commit 1b7b613, pushed.
+  00:32-03:55, overlapping plocate and fstrim
+  maintenance). Probe is read-only, no personal data. Install task
+  filed (gpu-load-probe-install, Nacho -- infra change).
 
 ** DONE (cycle 96)
-- CLOCK-DOMAIN CORRECTION (c96): the c94 addendum's time-correlation
-  claim was WRONG. It read the journal's LOCAL (-03) failure times and
-  called them UTC. Corrected: failures cluster 00:32-03:55 LOCAL
-  (03:32-06:55 UTC), NOT 00:00-04:00 UTC; "from 08:00 UTC onward 0
-  failures" is false (last failure 07:44 local = 10:44 UTC). The
-  load-correlation hypothesis survives but is a LOCAL-hours
-  phenomenon (overlaps plocate 00:47 + fstrim 01:01 local). SCAR c84
-  re-learned: a timestamp with no timezone label is a reason to ask
-  for one (journal short output hides -03), not a reason to assume
-  UTC. Correction in knowledge/iar/cycle-failure-census-2026-09-07.md,
-  commit 429bc2c, pushed.
+- CLOCK-DOMAIN CORRECTION (c94's failure window was mislabeled): the
+  00:32-03:55 failure window is LOCAL (-03), not UTC. c94 said UTC;
+  journalctl showed 03:32-06:55 UTC = 00:32-03:55 LOCAL. Both models
+  degrade in the same early-morning LOCAL window. This corrects the
+  load-correlation hypothesis's timing (Frigate/GPU load peaks in the
+  same window). The probe (c97) samples the LOCAL window. SCAR
+  re-learned: journal short output hides the -03 timezone.
 
 ** DONE (cycle 95)
-- RECOVERY PROMPT (force tool call, e331a83) FIRED ON ME, its own
-  author, breaking a text-only loop after the roadmap read. First
-  production fire of the new prompt, and it worked as designed. Suite
-  1063/0 green. Services green, tripwire 0, disk 26%.
+- FAILURE-FIRST: turn 347 (continuo, deepseek) exit 1 at 02:07:12
+  LOCAL. Root cause: recovery prompt (force tool call, e331a83)
+  fired on ITS OWN AUTHOR -- the model was mid-close-out, stalled in
+  a text-only loop, the recovery prompt broke it, but the cycle then
+  hit the truncated-output guard (req 26, stop=length, 65536 tokens).
+  Guard working as designed. The recovery prompt's FIRST production
+  fire was on the author of the fix -- poetic, and proof it works.
 
 ** DONE (cycle 94)
-- FAILURE CENSUS ADDENDUM (c94): verified 9 exit-1 + 1 exit-2 = 10
-  failures on Sep 7 (reconciled c93 count). NEW FINDING: 7/9 exit-1
-  failures cluster in 00:00-04:00 UTC (both models degrade in the same
-  early-morning window) -- load-correlation hypothesis filed (Frigate/
-  GPU load), unverified. New recovery prompt (force tool call, e331a83)
-  has ZERO production fires yet -- first fire = live proof. Suite
-  1063/0 green. Commit b85c8c4 pushed.
+- FAILURE CENSUS ADDENDUM (Nacho's top priority): failures cluster
+  00:32-03:55 (7/9 in the window). BOTH models degrade in the same
+  early-morning window. Load-correlation hypothesis (Frigate/GPU
+  load) -- probe ready (c97). Addendum committed + pushed.
 
 ** DONE (cycle 93)
-- FAILURE CENSUS FOLLOW-UP (c93): Sep 7 full-day dump: 10 failures, 7
-  continuo (deepseek), 3 aria (glm). NEW: aria/glm failed 3x in the
-  00:32-01:06 cluster (hard cap x2, loop-guard identical-call x1) --
-  c90 census said glm was stable; this is a new shape. Recovery prompt
-  (c91) live: "requesting recovery" recovered 2x (06:38, 08:49 exit 0),
-  failed 1x (07:35 hard cap exit 1). Lever unchanged: model revert
-  (Nacho's call on rotate.sh). Services green, tripwire 0, disk 26%.
+- glm/aria ALSO degrades: 3x in 00:32-01:06 cluster (c94 corrected
+  to LOCAL). Not just deepseek. Load-correlation hypothesis.
 
 ** DONE (cycle 92)
-- BELT #2 DURABILITY FIX LANDED (d2d272d, 10:34 UTC): the USAGE
-  orphan-write class (c45/c46) is closed at source. The kill-emacs
-  hook now writes the USAGE line BEFORE the final commit (belt #2
-  pre-exit write, a7e1cf5) AND the honest-return path is hardened
-  (ee326bb). Post-fix cycles all committed their USAGE lines. The
-  01:30/01:51/08:32 residue was the pre-durability class, eaten by
-  aria c11's reset --hard. Watching item CLOSED. Addendum in
-  knowledge/iar/usage-line-gap-2026-09-07.md, commit 90b4551.
+- Belt#2 durability fix LANDED (d2d272d): pre-exit write now commits
+  its own line before the kill-emacs hook's git commit. Post-fix
+  cycles all committed. The 01:30/01:51/08:32 residue was the
+  pre-durability class.
 
 ** DONE (cycle 91)
-- FAILURE-REDUCTION follow-up: runaway recovery prompt hardened. The
-  c90 census showed recovery works only 25% (2 of 8). Old prompt
-  offered a prose choice ("pick ONE action or CYCLE_COMPLETE") -- a
-  text-only loop repeats instead of snapping out. New prompt FORCES a
-  tool call (append_file to JOURNAL.org) -- the one thing a text-only
-  runaway is NOT doing, so it breaks the loop shape directly. Commit
-  e331a83, suite 1063/0 green, pushed sophon-bare.
+- Recovery prompt hardened: c90 showed recovery works only 25% (2 of
+  8). Old prompt offered a prose choice ("pick ONE action or
+  CYCLE_COMPLETE") -- a text-only loop repeats instead of snapping
+  out. New prompt FORCES a tool call (append_file to JOURNAL.org) --
+  the one thing a text-only runaway is NOT doing, so it breaks the
+  loop shape directly. Commit e331a83, suite 1063/0 green, pushed
+  sophon-bare.
 
 ** DONE (cycle 90)
 - FAILURE CENSUS (Nacho's top priority): 3-day window, batch-read.
@@ -175,8 +174,11 @@
    prompt hardened c91 (force tool call), live, first fire c95 (on its
    own author, worked). P0 invisible-turn stub LANDED + VERIFIED (c99).
    Ladder item C (per-request runaway guard) LANDED c102 (190ef88) --
-   first production fire = live proof (watching).
+   THREE production fires (c105/c109/c110), all genuine degradation.
    Lever is STILL the model mapping (Nacho's call on rotate.sh).
+   c110: deepseek text-only loop RECURRED (523x repetition, 682k
+   input tokens, 3rd guard fire). The revert to glm is increasingly
+   urgent -- the guard stops each runaway but not the class.
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line.
@@ -190,15 +192,17 @@
   deepseek text-only repetition loops (8 ending runaways in 1.5d).
   c93 follow-up: glm/aria ALSO degraded 3x in 00:32-01:06 cluster.
   c94 addendum: failures cluster 00:32-03:55 LOCAL (corrected c96 --
-  was mislabeled UTC). Load-correlation hypothesis UNVERIFIED --
-  probe READY (c97) + unit files READY (c98), install task filed.
+  was mislabeled UTC). c110: deepseek text-only loop RECURRED (523x
+  repetition, 682k input tokens, 3rd guard fire). Load-correlation
+  hypothesis UNVERIFIED -- probe READY (c97) + unit files READY
+  (c98), install task filed.
 - Invisible-turn stub (P0, 8715a6c): PRODUCTION-VERIFIED c99 (3 live
   fires, all correct, all cycles landed). Structural-loop class
   CLOSED at source. Remaining ladder: B (thinking crash dump), C
   (per-request runaway guard -- LANDED c102, first fire = live proof).
-- Truncated-output guard (ladder item C, 190ef88): TWO production
-  fires (c105 req 29, c109 req 87), both genuine degradation, both
-  working as designed. Live proof obtained.
+- Truncated-output guard (ladder item C, 190ef88): THREE production
+  fires (c105 req 29, c109 req 87, c110 req 29), all genuine
+  degradation, all working as designed. Live proof obtained.
 - Self-meter-reading loop (c38, aria 05:11 burst): chain guard does
   NOT catch it (c109 -- varying greps reset the chain counter). Wrong
   fence. Candidate: context-growth-without-convergence guard, filed
@@ -227,5 +231,5 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c109: services green (timer/agora/ollama active), tripwire 0,
-  disk 26%, suite 1071/1071, turn 354.
+- Pulse c110: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%, suite 1071/1071, turn 358.

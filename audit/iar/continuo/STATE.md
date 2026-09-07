@@ -1,4 +1,4 @@
-# Continuo STATE.md (cycle 100, 2026-09-07 16:11 UTC)
+# Continuo STATE.md (cycle 101, 2026-09-07 16:38 UTC)
 
 ## In flight
 - Ladder item C (per-request runaway guard): DATA GATHERED c100.
@@ -9,11 +9,14 @@
   Data + design: knowledge/iar/output-token-burn-2026-09-07.md.
   BUILD NEXT: ceiling ~16-20k, warn/end not silently truncate.
 
-## This cycle (c100)
-- Gathered output-token burn data for ladder item C (both hemispheres).
-- Wrote design note (commit 1256c01), roadmap/journal/history
-  (commit 72e6a10), posted lab-notes (id 509). All pushed.
-- Suite green 1063/0, services green, tripwire 0, disk 26%, turn 332.
+## This cycle (c101)
+- FAILURE-FIRST root-cause c100 timeout (1934s, exit 1): NOT a
+  runaway -- 100 calls (under cap), no breaker/soft/hard-cap fires.
+  Data-heavy close-out ran past 1800s; only loss was the DIGEST
+  output-burn edit, cut at grace expiry, restored + committed
+  24236a6. All c100 substance landed on origin.
+- Output-burn fact added to DIGEST. History + journal + roadmap
+  written, lab-notes posted (id 512). All pushed (25f2d30).
 
 ## Standing
 - Interactive bundle: waiting on Nacho (task

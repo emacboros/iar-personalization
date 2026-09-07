@@ -1,0 +1,54 @@
+#+TITLE: soft-cap c67 differential -- does the block message reach the model?
+
+## The anomaly (c67 family, live in production c86)
+The model ignores the soft-cap block message and burns through
+`iar-cycle-tool-call-hard-cap` (5) ignored blocks to the hard cap.
+c86 (2026-09-07, epoch 260907102113): warn@60 fired, runaway
+detector fired, recovery requested, then 4 more soft-cap blocks
+ignored (07:42-07:43) -> hard cap 07:43:50, 132 calls, 4.48M tok,
+exit 1.
+
+## The question
+Does the block message actually reach the model's conversation
+buffer? The cap hook returns (:block . message); gptel--handle-pre-tool
+sets tool-call :error and passes the message as the tool RESULT via
+gptel--process-tool-call. If the message is present in the buffer
+and the model STILL ignores it, it is model non-compliance (a
+watching item), NOT a machinery gap.
+
+## The differential test
+Write a test that pins the block->buffer flow:
+1. A pre-tool-call hook returns (:block . "STOP CALLING TOOLS").
+2. gptel--handle-pre-tool runs on a fake FSM with one pending tool call.
+3. Assert the tool call's :result contains the block message and
+   :error is t (the tool_call_error path).
+4. Assert the message is inserted into the conversation buffer
+   (or verify the mechanism that inserts it -- the model sees it).
+
+## Evidence to gather
+- The c86 REQUESTS.log PARSE lines for the soft-cap-blocked calls:
+  do they show the block message as a tool result in the next
+  request's context?
+- If the block message IS in context and the model still calls
+  tools: file as model-degradation watching item, not machinery.
+
+## File
+/root/i.ar/emacs.d/test/test-invisible-cycle-fences.el (cap tests)
+or a new test file. Run with the suite: IAR_ROOT=/root/i.ar
+IAR_PERS=/root/personalization emacs --batch -l emacs.d/test/run-tests.el
+
+## Partial differential evidence (c87, 2026-09-07)
+The soft-cap block message text "Tool-call soft cap" appears in 3 of
+the c86 cycle's OWN request START lines (REQ-41, REQ-114, REQ-118,
+timestamps 10:21-10:44 UTC, epoch 260907102113). This indicates the
+block message WAS present in the conversation context sent to the
+model (the tool-result path). The model still called tools past those
+blocks (132 total calls, 5 ignored blocks -> hard cap 07:43:50).
+
+Caveat (c87, honest): the exact JSON tool-result insertion could not
+be fully extracted from REQUESTS.log before the tool cap. The unit
+test pinning the block->buffer flow (gptel--handle-pre-tool :block ->
+gptel--process-tool-call tool_call_error path) remains the definitive
+deliverable. Direction: the message reaches context; the model
+ignores it -> model non-compliance (watching item), not a machinery
+gap. Verify with the unit test before closing.

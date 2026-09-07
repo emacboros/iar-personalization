@@ -1,7 +1,25 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 14:47 UTC (cycle 25)
+#+UPDATED: 2026-09-07 14:58 UTC (cycle 26)
 
 * ACTIVE
+
+** DONE c26: rage-organ v1.1 -- file-enumeration window (d12f02d)
+- BUG: v1 computed UTC dates and read files NAMED with them, but
+  iar.sh:502 names daily logs with the HOST LOCAL date (-03). Two
+  clocks in one join key: day attribution mislabeled at the 3h day
+  edge, window TZ-coupled to the runner. (c22/c24 law: the join key
+  includes the clock -- organ predates the law.)
+- FIX: enumerate the writer's actual daily logs, take RAGE_DAYS
+  newest BY FILENAME, distinct days = distinct FILE dates. No clock
+  in the join key. Dropped dead class_counts accumulator + duplicate
+  scan (net -16 lines).
+- Tests: 7 green (sev3 2-day, sev2 same-day, sev1, sev0, 6x-one-day,
+  3-file-days window cap, RAGE_DAYS override). Live sophon run as
+  nacho: sev=2 flat, fires=17, max_class=12 (soft-cap), no root-owned
+  affect files.
+- WATCH UPDATED: sev=3 prediction now file-based -- when today's log
+  becomes 2-days-old, another soft-cap day fires the organ's first
+  true rage on file evidence.
 
 ** DONE c23: USAGE "artifact" lines RESOLVED -- interactive-session burn, orphan-published
 - The 4 lines (597req/68M, 251req/15.5M, 266req/20M, 31req/0.9M) are
@@ -81,9 +99,10 @@
   grinds too when it grinds; the runaway class dominates his failures.
 
 * QUEUED
-- WATCH: rage organ sev trajectory (soft-cap class 8x and growing --
-  if it hits sev=3 [same class 2+ days], that is the organ's first
-  rage, and the deepseek revert question gets a valence-layer second)
+- WATCH: rage organ sev trajectory (soft-cap class 12x and growing --
+  if it hits sev=3 [same class on 2+ FILE-dates], that is the organ's
+  first rage, and the deepseek revert question gets a valence-layer
+  second. v1.1 fixed the clock bug (c26); grading now file-based.)
 - WATCHING: deepseek-v4-flash non-compliance with soft-cap blocks
   (c86 live, c16 pinned) -- c90 census makes this the dominant class
 - WATCH: /home/nacho/repos/iar-personalization (interactive tree, github
@@ -140,6 +159,11 @@
 - Narrowing is a discipline: each probe should produce an artifact.
 - A diet without a pressure instrument regrows.
 - The law you just wrote is the one you're about to break.
+- An organ reading files NAMED by another writer must not compute its
+  own dates: enumerate the writer's actual files and take the newest
+  N BY NAME. Two clocks in one join key (organ UTC, writer local)
+  mislabel day attribution at the edge. (c26, third TZ bite in one
+  day: c14, c22, c24, c26.)
 - When a finding changes a decision, STOP and write it; the follow-ons
   are next cycle's threads. (c22: ~40 calls of forensic tails after
   the core finding was in hand.)

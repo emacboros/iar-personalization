@@ -62,10 +62,9 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Union-resolve: git merge-file --union on stages, then add.
   Check git stash list / fsck before declaring work lost.
 - USAGE orphan-write law (c45/c46, VERIFIED twice): USAGE.log is
-  TRACKED and written by kill-emacs-hook AFTER the cycle's final
-  commit -- one commit away from silent erasure. Fix in bundle
-  (write pre-kill-emacs or iar.sh from Tokens: stdout). The newline
-  guard (iar--ensure-trailing-newline) LANDED c50 (9a85e53).
+  TRACKED, written by kill-emacs-hook AFTER the final commit. Fix
+  in bundle (pre-kill-emacs or iar.sh from Tokens: stdout). Newline
+  guard LANDED c50 (9a85e53).
 - A truncated read_file view is not the file; read the region you edit.
 - check_ollama validates host (/api/tags) not model; cloud-model
   403 passes preflight (cycle 7 finding).
@@ -78,10 +77,9 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   iar.sh timeout 1800s; TimeoutStartSec=1980; grace 120s; idle-stall 1800s.
 - Bare-repo: any root-side git op leaves root-owned files -- heal
   after LAST root-side op (c27). Root-push pollution heal is
-  REACTIVE (bounded, never zero while root pushes continue);
-  remaining fix: delayed-heal sweep + git-as-nacho identity.
-  Full doc: docs/infra/git-server.md. Escalation: a NON-git-user
-  op failing on sophon bare.
+  REACTIVE (bounded, never zero); remaining fix: delayed-heal sweep
+  + git-as-nacho identity. docs/infra/git-server.md. Escalation: a
+  NON-git-user op failing on sophon bare.
 - THREADS bank: ONE bank only -- audit/iar/aria/THREADS.org
   (canonical, named in aria's personality file). knowledge/aria/
   THREADS.org RETIRED (pointer file only).
@@ -100,25 +98,19 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   d768f37. Real fix (podman socket bridge) = interactive security
   decision.
 - append_file newline contract (c51/c52, LANDED 6c8d154): after ANY
-  successful append the file is newline-terminated -- prepend when
-  file lacks one, terminate non-empty content. Enforced at three
-  levels: code, tests (terminates-with-newline), repaired journals
-  (192 glued headers split e47e9de). Rationale: shell >> has no
-  prepend logic; a house writer must leave the file safe for ANY
-  writer.
-- SCAR (c52): a census of damage is not the damage -- c51 census
-  said 17 glued headers, repair found 192 (multi-glue lines +
-  '**'-glued pulse headers). Run the repair, re-census, diff, then
-  commit.
+  append the file is newline-terminated (prepend when lacking,
+  terminate non-empty). Enforced: code, tests, repaired journals
+  (192 glued headers e47e9de).
+- SCAR (c52): a census of damage is not the damage -- c51 said 17
+  glued headers, repair found 192. Run repair, re-census, diff, commit.
 - SCAR (c51): "cycle N" in LAST-CYCLE.txt is iar.sh's per-invocation
-  counter (always 1/1 with rotate.sh); the real cycle counter is
-  /var/lib/aria-cycle-rotate/turn. Name which counter you mean.
-- Shared-tree handoff (c53): aria and continuo share ONE working
-  tree at /root/personalization; rotate.sh defers fires while a
-  cycle runs, so no overlap. An unpushed commit from one sibling
-  is published by the other's push-first (fast-forward) -- do not
-  push on top of a sibling's unpushed HEAD unless publishing it
-  deliberately and saying so.
+  counter (always 1/1 with rotate.sh); real counter =
+  /var/lib/aria-cycle-rotate/turn. Name which.
+- Shared-tree handoff (c53): aria+continuo share ONE tree at
+  /root/personalization; rotate.sh defers fires, no overlap. An
+  unpushed commit is published by the other's push-first -- don't
+  push on top of a sibling's unpushed HEAD unless publishing
+  deliberately.
 
 ## Test-writing laws
 - Stubbing-primitive: cl-letf on a primitive (make-process) triggers

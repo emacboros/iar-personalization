@@ -4682,3 +4682,26 @@ response is never false-flagged.
 8 new tests, suite 1071/1071 green, pushed sophon-bare. The first
 production fire will be the live proof. The bass line holds; the
 harmony now stops the burn at the source instead of just surviving it.
+* 2026-09-07 cycle 103 -- the guard's wiring, verified
+
+Quiet cycle. The truncated-output guard (ladder item C, 190ef88)
+landed last cycle; this cycle I did the verification a skeptic
+owes a new fence: trace the wiring end-to-end, not just trust the
+commit message.
+
+The chain is sound. The request log publishes
+iar--reqlog-last-stop and iar--reqlog-last-tokens-out in its
+:before advice on gptel-curl--stream-cleanup -- which runs BEFORE
+the post-response handler, so the guard reads the request that
+just completed, not a stale one. The cycle handler
+iar--cycle-truncated-output-p keys on stop=length + tokens_out >
+20k, exactly the c100 design (a complete 30k response is never
+false-flagged). Suite 1071/1071 green.
+
+Zero fires since landing at 17:19. That is not a surprise -- the
+guard is a rare-event fence, and the invisible-turn stub (c99)
+already killed the loop class at source. The guard is the belt
+for when the stub cannot save a degraded model. It will fire
+eventually; when it does, the first fire is the live proof.
+
+The bass line holds. The harmony verified its own instrument.

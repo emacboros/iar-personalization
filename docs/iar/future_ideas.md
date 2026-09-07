@@ -58,14 +58,6 @@ Integrate Burp Suite's MCP server (PortSwigger/mcp-server) into i.ar for pentest
 
 Relevant when actively doing CTFs, not blocking development.
 
-## Per-Agent Tool Gating (DONE)
-
-~~Restrict tool availability per agent role.~~
-
-**Status:** Implemented via per-project `#+TOOLS` metadata. Each project file declares which tools its agents can use. The assembly engine filters the global tool list. See `tool_gating.md` for details.
-
-The remaining idea is container-level tool gating (`--enable-code-exec` flag) that overrides project-level gating. This is documented in `tool_gating.md` as a planned flag.
-
 ## Split Delegate and Reload into Tool + Logic Modules
 
 Separate the gptel-make-tool call from the agent system logic in delegate_tool.el and reload_tools.el. Pure organizational purity. Code works fine as-is.
@@ -87,28 +79,6 @@ Most relevant once continuous agents are running reliably. One-way send (notific
 Weekly counter for Ollama Cloud usage, persist across restarts. When budget exhausted, cloud-assigned agents fall back to local GPU. Reset weekly.
 
 Not relevant with local-only setup. Becomes relevant when using cloud models regularly.
-
-## One-Shot Execution Mode (IMPLEMENTED)
-
-~~One-shot execution becomes a mode in the assembly system, not a standalone feature.~~
-
-**Status:** Implemented as Step 7. One-shot is a seventh archetype (`agents.d/archetypes/one-shot.org`) with `#+MODE: one-shot`. Invoked via `iar.sh --one-shot --agent NAME --prompt "TEXT"`. The archetype forces one-shot behavior on any personality. Completion detected via `=== BEGIN FINAL RESPONSE ===` / `=== END FINAL RESPONSE ===` delimiters. Clean stdout (final response only), diagnostics to stderr. No memory injection, no cycles, no task selection.
-
-## Delegation Pipeline (IMPLEMENTED)
-
-~~Orchestrator delegates to agent-assistant, which coordinates implementer and reviewer internally.~~
-
-**Status:** Implemented as Step 8. Three personality files created (agent-assistant, implementer, reviewer). Personality-to-archetype map updated with three new entries. Delegate tool updated: agent parameter is now optional, defaults to agent-assistant (pipeline mode). Tool description updated. Pre-existing bug fixed: `iar--project-for-personality` was using `user-emacs-directory` instead of `iar-personalization-path` for project file resolution. 541 tests pass.
-
-## Multi-Container Execution Framework (IMPLEMENTED)
-
-~~Purpose-specific sidecar containers for isolated execution environments. `execute_code_remote` tool for cross-container command execution. `#+CONTAINERS` project metadata. Remote debug containers via Ansible.~~
-
-**Status:** Implemented as Step 9. New `execute_code_remote` tool (`init.d/tools/code/execute_code_remote.el`) for local sidecar (`podman exec`) and remote SSH execution. New `iar-pentest` container image. `#+CONTAINERS` parsing in project parser and prompt assembly. `iar.sh` sidecar lifecycle management with shared workspace. `--no-containers` and `--container-image` flags. Ansible `iar-debug-container` role for remote debug containers. 568 tests pass (up from 557).
-
-This absorbed the following earlier ideas (both now COMPLETED -- the multi-container framework replaced both approaches):
-- **execute-code-local-security** (COMPLETED): Code execution isolation is now achieved via purpose-specific sidecar containers with physical separation, not in-process restrictions on `execute_code_local`. The multi-container framework replaced this approach -- each sidecar container has its own filesystem, user namespace, and network policy, providing physical isolation rather than in-process restrictions.
-- **agent-ssh-read-only-access** (COMPLETED): SSH-based remote execution is implemented via `execute_code_remote` with key-only auth and explicit argv (no shell injection). Remote debug containers use SSH key-only auth with unprivileged users. The multi-container framework replaced this approach -- the `execute_code_remote` tool handles both local sidecar (`podman exec`) and remote SSH execution with built-in security (key-only auth, explicit argv, unprivileged users).
 
 ## Auditor: Create Test Target for Non-Destructive Demos
 

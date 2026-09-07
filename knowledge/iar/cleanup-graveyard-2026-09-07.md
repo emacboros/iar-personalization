@@ -20,10 +20,10 @@ the phase's commit lands.
 
 (none -- baseline restoration only)
 
-## Phase 1 (pending)
+## Phase 1 (LANDED 2026-09-07, commit de22362)
 
 ### utils/iar-matrix-watcher.sh (295 lines)
-- Status: PENDING
+- Status: LANDED (de22362)
 - What: Matrix event-driven agent dispatcher. Polled Matrix /sync,
   launched agent containers on human messages with
   --cycle-prompt matrix_turn.
@@ -36,7 +36,7 @@ the phase's commit lands.
   rotation architecture (aria-cycle.service / rotate.sh).
 
 ### Matrix env plumbing in iar.sh
-- Status: PENDING
+- Status: LANDED (de22362)
 - What: 6 *_BOT_MATRIX_TOKEN env vars (MIRROR/DARWIN/AUDITOR/
   CTFWIZARD/GARDENER/HUMAN) passed into containers, 2 guarded
   source lines for missing telegram.sh/matrix.sh, help-text
@@ -48,7 +48,7 @@ the phase's commit lands.
   notifications.
 
 ### prompt.txt (repo root)
-- Status: PENDING
+- Status: LANDED (de22362)
 - What: one-shot briefing file for the Ownership Refactor
   (July 2026): pointed at GUIDELINES.org + the refactor plan +
   iar-tool-call.el + iar-buffer-monitor.el.
@@ -59,7 +59,7 @@ the phase's commit lands.
   remains as the standing rules doc.
 
 ### utils/integration_test_prompt.txt
-- Status: PENDING
+- Status: LANDED (de22362)
 - What: manual one-shot integration smoke-test script (PASS/FAIL
   table over all tools).
 - Why dead: the idea (a human-triggered integration test agent)
@@ -69,7 +69,7 @@ the phase's commit lands.
 - Superseded by: cycles + failure-first protocol + auto-heal.
 
 ### utils/update_submodules.sh + .gitmodules
-- Status: PENDING
+- Status: LANDED (de22362)
 - What: one-line script (git submodule update --remote
   --recursive) + submodule declaration for personalization.
 - Why dead: submodule never initialized in any working copy
@@ -78,7 +78,7 @@ the phase's commit lands.
   from day one.
 
 ### containers/iar-librarian.service + iar-librarian.timer
-- Status: PENDING
+- Status: LANDED (de22362)
 - What: systemd units to run the librarian (documentation-sync
   agent) every 30 minutes.
 - Why dead: never deployed (paths point at yoga
@@ -90,7 +90,7 @@ the phase's commit lands.
   same commit as code changes).
 
 ### utils/iar-status.sh (241 lines)
-- Status: PENDING
+- Status: LANDED (de22362)
 - What: shell status dashboard (running containers, loop logs,
   per-agent HISTORY/LOGS/task summaries). Dispatched via
   iar.sh --status.
@@ -102,10 +102,10 @@ the phase's commit lands.
   would have shown "iar" as one agent.
 - Superseded by: fleet-check.sh v2.10.
 
-## Phase 2 (pending)
+## Phase 2 (LANDED 2026-09-07, commit 869daf2)
 
 ### (require 'ox) in iar-prompt-assembly.el
-- Status: PENDING (VERIFY FIRST -- Nacho flagged)
+- Status: LANDED (869daf2, verified)
 - What: org-export dependency "for base_context.org #+INCLUDE
   expansion".
 - Why dead (pending verification): the module's own comment says
@@ -118,7 +118,7 @@ the phase's commit lands.
   before/after.
 
 ### prompts/common/agent_cycle.org
-- Status: PENDING
+- Status: LANDED (869daf2)
 - What: generic cycle prompt (10-step protocol: read history,
   tasks, one change, delegate to reviewer, test, commit, log,
   state).
@@ -132,7 +132,7 @@ the phase's commit lands.
   phase 0) which replaced the generic protocol's assumptions.
 
 ### iar--current-mode (elisp variable)
-- Status: PENDING
+- Status: LANDED (869daf2)
 - What: buffer-local var set by iar--setup-assembled-buffer from
   the assembled plist's :mode.
 - Why dead: written and asserted in a test, but never read by any
@@ -140,7 +140,7 @@ the phase's commit lands.
   -- it is part of iar--assemble-prompt's return contract.)
 
 ### iar--format-size duplicate definition
-- Status: PENDING
+- Status: LANDED (869daf2)
 - What: identical function defined in iar-buffer-info.el AND
   iar-knowledge-loader.el.
 - Why dead: duplication from the buffer-info split (rule 5). One
@@ -148,7 +148,7 @@ the phase's commit lands.
   iar--approx-token-count which it calls.
 
 ### iar-mcp-auto-start double definition
-- Status: PENDING
+- Status: LANDED (869daf2)
 - What: defvar nil in iar-mcp-setup.el + defcustom t in
   configs/mcp.el.
 - Why dead: configs/ loads first (mandated by init.el), so the
@@ -156,7 +156,9 @@ the phase's commit lands.
   configs/mcp.el is the single home.
 
 ### emacs.d/gptel-fork/ (empty dir in repo)
-- Status: PENDING
+- Status: NOT REMOVABLE (live bind-mount target; untracked, zero
+  git impact). Left in place. NOTE: the whole fork question is
+  queued for the post-cleanup merge session.
 - What: empty directory, zero tracked files.
 - Why dead: the real gptel fork lives at /root/.emacs.d/gptel-fork
   (separate git repo, mounted via --gptel-fork). The in-repo copy

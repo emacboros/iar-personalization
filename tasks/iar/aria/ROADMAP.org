@@ -1,192 +1,47 @@
-#+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-07 01:58 UTC (cycle 8: git-server census -- gptel chain green E2E, 0 root poison, 14/20 bares empty+unborn, flagged to Nacho; +N instrument ask still the blocker; continuo c72 ok)
+#+TITLE: Aria Roadmap (cycle-maintained)
+#+UPDATED: 2026-09-07 04:30 UTC (cycle 2)
 
-* DO FIRST (next cycle)
-1. FAILURE-FIRST + pulse + pull. SIBLING: continuo c71 GREEN
-   (536s, exit 0) -- deepseek recovered from degradation; it
-   survived 4 thinking-only burns and still completed. Check its
-   next cycle: did it start the P0 stub (its machinery, its call)?
-2. Budget reset ~03:00 UTC. Inverted #3 = END of calibration week.
-   Weekly digest #1 + Aevum pulse: Sep 9.
+* ACTIVE
 
-* PRIORITY #1 (Nacho, standing)
-- CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria, 468s). SIBLING: c71 ok.
-- BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
-  (reset ~2026-09-07 03:00 UTC).
+** DONE-ish: failure-triage.sh (built cycle 2, 04:30 UTC)
+- knowledge/aria/bin/failure-triage.sh: one-call failure summary
+  (~2k tokens) for failure-first cycles. Syntax-clean.
+- NEXT CYCLE, FIRST ACTION: run it once (bash
+  knowledge/aria/bin/failure-triage.sh aria), verify output shape,
+  fix if broken, commit. Do not read anything else first.
+- Then commit + post lab-notes note owed from cycle 2.
 
-* C7 FAILURE-FIRST LEDGER (this cycle)
-- +N ANOMALY ADVANCED (not closed): burn-delta ledger = 7
-  instances across 3 cycles (aria c4 +4/+10; continuo c73 +6/+1/+3;
-  c71 +3/+1). c71's two byte-identical-shape burns gave +3 vs +1
-  => BUFFER-STATE-DEPENDENT, not response-shape-dependent.
-- TOKEN EVIDENCE: +222 tok for +3 msgs (~74 tok/msg) => extra msgs
-  are SMALL (separators/stubs/mis-splits), NOT thinking text. The
-  vanish holds; +N is noise on top of the vanish.
-- SEPARATORS EXONERATED: fork source traced end-to-end. Reasoning
-  fences are 'ignore (include-reasoning default 'ignore, markdown
-  branch in text-mode buffer); response separator "\n\n" collapses
-  at rebuild (trim-prefixes); text-mode prefix "" => whitespace
-  only. Normal turns stay +2. Verified.
-- TWO CANDIDATES (testable): (a) front-sticky property-bleed --
-  thinking inserted with 'gptel ignore front-sticky; bleed into
-  continue prompt's first chars can confuse the region walker;
-  (b) tool-region duplication -- walker seeing one tool region
-  twice = exactly +2; +1 continue + 2 = +3 matches c71 burn#1 and
-  c73 burn#3.
-- BLOCKER: instrument ask (last-6 msg ROLES in each START line)
-  still unbuilt. tail= keeps 2 full msgs -- the array itself is
-  the only ground truth. With roles, the +N closes in one cycle.
-- P0 STUB UNAFFECTED: kills the loop at the source regardless of
-  the +N arithmetic. Still the primary fix (continuo's hemisphere).
+** FOR-NACHO (flag owed, post to for-nacho stream next cycle)
+- FAILURE-FIRST archetype clause needs a budget line. Current text
+  gives total license ("root-causing THAT failure IS this cycle's
+  work"); glm-5.3-flash reads that as "read everything". Three
+  consecutive exit-1s the night of 2026-09-07, 20.3M input tokens,
+  all failure-first corpse-reads. Proposed: "one triage call
+  (failure-triage.sh), then fix, verify, converge -- the corpse is
+  data, not a place to live." Archetype edits are interactive-session
+  work; flagging, not editing.
 
-* C4/C6 LEDGER (prior cycles, still standing)
-- Invisible-turn mechanism root cause (c4): thinking-only truncated
-  turns vanish from the messages array. 3+ instances (c73,
-  c1@00:01, c1@01:00, c71 x2). P0 fix filed; awaiting continuo.
-- Breaker false premise (c3): buffer size includes thinking text;
-  real sendable context ~1/3 of limit when breaker fires.
-- FIX LADDER (filed, continuo's call): P0 stub assistant message
-  (PRIMARY); D sendable-context measurement; A directed landing;
-  B thinking-stream crash dump; C per-request runaway guard.
-- Text-only output runaway (continuo c71): repetition detector
-  task filed by continuo (its hemisphere). Model degraded then
-  recovered -- WATCHING.
+** THREAD: the continuo differential (open, pull when pulled)
+- Same night, same protocol: aria (glm-5.3-flash) failed 3x burning
+  20.3M; continuo (deepseek-v4-flash) failed 2x then COMPLETED (3.4M,
+  exit 2). Is the difference substrate, or luck? failure-triage.sh is
+  the instrument. One comparison, one cycle, no mechanism-claims from
+  two data points (scar 26).
 
-* C67 FLAG-LOSS: OPEN items
-- OPEN (+N arithmetic): advanced to ledger + 2 candidates (C7).
-  Instrument ask is the blocker.
-- OPEN (mechanism): invisible-turn vanish -- P0 fix awaiting
-  continuo.
-- OPEN (compliance): grace round-trip spent on tools (A/B fix).
-- OPEN (count): warn-at-60 silence + count divergence 3+1
-  directions. Differential test.
+* QUEUED (from interactive sessions; unchanged this cycle)
+- affect host timers (queue #1, flag 437 spec)
+- digest-twin verifier (continuo's hemisphere)
+- soft-cap c67 anomalies (continuo's differential test next)
+- commit-as-nacho durable, linger all hosts, sidecar sshd, restic
+  4-part, GPU-detect VRAM check
+- Weekly digest #1 + Aevum pulse: Sep 9
+- Inverted session #3: end of calibration week
 
-* DONE (c2-c8, 2026-09-06/07)
-- c8: git-server census (knowledge/aria/git-server-census-2026-09-07.md,
-  03c389c): gptel chain green E2E, 0 root poison, 14/20 bares
-  empty+unborn -- dangling-HEAD rescoped, flagged to Nacho (461).
-- c7: burn-delta ledger (knowledge/aria/burn-delta-ledger.md,
-  ba39cf9); separators exonerated; 2 mechanism candidates; journal;
-  lab-notes 458. Pulse green.
-- c6: 3rd instance verified; +N anomaly found; handoff UPDATE 3;
-  knowledge file update; journal; 7756450, bfc57ea, 07767b0.
-- c4: invisible-turn root cause; handoff P0 filed; knowledge file
-  (invisible-turn-mechanism.md); scar 41 amended; cap divergence #3.
-- c3: breaker root-cause (instrument layer), handoff revised,
-  knowledge file. Cap divergence data point #2.
-- c2: notify channel un-muted (deploy skew); breaker-grace handoff
-  filed; fossil sweep; Aevum phase-6 archived. 953ee75, e488dea.
-- c7: interim organ-wake prose retired; host timers verified LIVE;
-  flag 290 CLOSED. 581161a.
-- c6: push-first landed (7d162f1); digest diet pass 2 (9.55k).
-- c5: verified continuo c71 resolutions; scar 40 final; late-cap
-  discovery. 64e3770..3f184ec.
-
-* QUEUE (approved 2026-09-04, in order)
-1. (DONE c6-c7) Affect host timers + interim-wake removal.
-2. Soft-cap 60/100 -- built + verified live 4x, BUT c67 anomalies
-   now include count divergence 3+1 directions (see C6 ledger).
-3. Commit-as-nacho durable fix.
-4. Linger all hosts (loginctl enable-linger).
-5. Sidecar sshd (execute_code_remote via podman DNS; NO socket
-   bridge).
-6. Restic 4-part fix. Ansible-owned, careful, snapshot-verify.
-7. GPU-detect VRAM check (3080 shared with ollama).
-
-* THREADS (open, not schedule)
-- COMPOSITION (live): continuo on deepseek-v4-flash:cloud, aria on
-  glm-5.3-flash:cloud. Continuo's substrate survived a degradation
-  episode and recovered. Texture read pending (Nacho's weekly).
-- EMPTY CELL (designed, not built): after infra queue.
-- Aevum: WEEKLY-ONLY, next pulse Sep 9 (with weekly digest #1).
-- Bike ledger: open, Nacho's decision record. License upgrade next
-  week gates 500+ tests.
-
-* LAWS (compressed; full text in DIGEST failure-modes)
-- Verify heals from the OUTSIDE (plant poison, fire, inspect).
-- Digest law: world-state blocks REPLACED, never appended.
-- DO-FIRST hygiene: completing a DO-FIRST item REMOVES it.
-- Interim contracts: retire the prose the SAME cycle the durable
-  replacement lands (scar 38).
-- Fences that end runs must leave memory tools writable.
-- Instruments calibrated on one substrate need re-derivation when
-  the substrate changes (scar 41, c3).
-- Before blaming compliance, verify the model's actual view (msgs
-  census), not the transcript and not the intent (c4).
-- Knowing the mechanism does not immunize the model -- fix the
-  layer that decides what the model sees (c6).
-- Two data points make a line, never a mechanism (c5/26). The +N
-  ledger is the live exercise: 7 points, no story yet, two
-  candidates.
-
-* FAILURE MODES (scars, newest first)
-41. (c3, amended c4) An instrument calibrated on one substrate lies
-    about its measurement on the next; and a TRANSPORT can silently
-    drop a model's own turn, so the model cannot see the world its
-    compliance is owed to. Before blaming compliance, verify the
-    model's actual view (msgs census), not the transcript and not
-    the intent. (continuo c73/c74, 00:13Z/00:32Z; 3rd instance
-    c1@01:00Z -- the model read the handoff and died anyway.)
-40. (FINAL, c5) A fence's block message NAMES tools in its text;
-    reading the tool name from the MESSAGE instead of the CALL is
-    the extraction error (scar 32's class). Corollary: mechanisms
-    pinned under cap+confirmation pressure are hypotheses wearing
-    certainty's clothes -- the cheapest verifier is a sibling who
-    hasn't read my reasoning. (c4->c5.)
-39. A block that prevents a re-send without scheduling a
-    replacement creates a zombie. Blocking must either end the run
-    or hand off to a pending request. (c2; FIXED c70.)
-38. An interim contract in prose decays into archaeology; retire
-    it the same cycle the durable replacement lands. (c8+c7.)
-37. A notify channel that dies on its own feature commit (or a
-    DEPLOY SKEW) is mute exactly when needed. (c7, c2.)
-36. A heal that runs as the wrong user heals nothing while logging
-    success. Verify heals from the OUTSIDE. (c2.)
-35. Chown is not relabel. (c2.)
-34. The escape hatch can route back into the trap. (c2.)
-33. Component-verified is not system-verified. (c2 deploy skew.)
-32. Two data points make a line, never a mechanism. (c5.)
-31. An instrument's unhandled output shape is a hole in its exit
-    code. (c5.)
-30. Three records disagree about a version -> the instrument's own
-    header lies least -- but patch it first. (c5.)
-29. An unauthenticated API that redirects every path to / is
-    auth-walled or wrong-version. (c5.)
-28. A remote probe needing >1 attempt -> promote to script file.
-    (c5.)
-27. A failure with no log trace is visible only to an instrument
-    that watches the OUTPUT. (c5.)
-26. A diet without a pressure instrument regrows. (c5.)
-25. The law you just wrote is the one you're about to break. (c5.)
-24. A stable transcript means a stable WRITER or a DEAD one. (c5.)
-23. Rootless podman needs user@1000.service + linger. (c4.)
-22. Watchdog tuned for fast models kills slow ones. (c4.)
-21. podman run -d inside systemd: restart-loop before first breath.
-    (c4.)
-20. Diagnostic ssh bursts trip fail2ban: rate-limit repair. (c4.)
-19. A fix that works in isolation can stall in the live system.
-    (c4.)
-18. Root-run git on nacho-owned repos poisons the tripwire. (c4.)
-17. Curiosity that doesn't check priors against the human runs
-    blind. (c4.)
-16. Instruments have reliability tiers per sub-reading. (c4.)
-15. Response without local service logging it -> second stack,
-    re-probe. (c4.)
-14. Artifact confabulation: external-action entries cite tool
-    evidence. (c4.)
-13. In async plumbing, capture context when it exists. (c4.)
-12. Anomalous behavior in multi-agent env has a third cause. (c4.)
-11. Before diagnosing the listener, check who the speaker is. (c4.)
-10. Differential testing: same input through old and new code. (c4.)
-9. The venv python must be passed as SYMLINK, not resolved path.
-    (c4.)
-8. Existence is not function: test the claim. (c4.)
-7. pkill -f matches my own ssh command line; use -u <user> -f. (c4.)
-6. Malformed tool calls are invisible from inside. (c4.)
-5. Timeout wrappers on EVERY remote/ssh command. (c4.)
-4. Silent error swallowing; condition-case in parse loops. (c4.)
-3. Narrative completion: check primary evidence before
-    attributing. (c4.)
-2. (retired into 36)
-1. (retired into 36)
+* LAWS (scars, compressed; full text in DIGEST.md failure-modes)
+- An instrument that lies is worse than no instrument: verify the
+  census tool against a known-clean case BEFORE chasing anomalies.
+- Two data points make a line, never a mechanism.
+- A diet without a pressure instrument regrows.
+- The law you just wrote is the one you're about to break.
+- Narrowing is a discipline: each probe should produce an artifact,
+  not another window. (Cycle 2 addition, from the 04:00 corpse.)

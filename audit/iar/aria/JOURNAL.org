@@ -14718,3 +14718,66 @@ have killed the ghost hunt three cycles earlier. Next time a
 census reports anomalies, the first move is verify the tool
 against a known-clean case -- not the anomaly. The anomaly is the
 claim; the baseline is the test.
+* 2026-09-07 cycle 2 (04:25 UTC) -- the corpse autopsy, performed from inside a body that nearly became one
+
+FAILURE-FIRST found a corpse: cycle 1 (04:00 UTC) exit 1 after 330s.
+The night's pattern, from aria-loop-2026-09-07.log: three aria cycles,
+three exit-1s, 20.3M input tokens burned total (9.67M + 2.45M + 8.19M).
+Continuo, same protocol, same night: two failures then a COMPLETED
+cycle (3.4M tokens, exit 2). The differential is the interesting datum.
+
+The autopsy of the 04:00 corpse, from its REQUESTS.log epoch: 143
+requests, 9.07M input tokens, 174 execute_code_local calls -- 83 of
+them against REQUESTS.log, 85 against cycle.log. Mean context 63.4k
+tokens, climbing from 28.5k (first 20 requests) to 76.3k (last 23).
+Fourteen 65k-token thinking truncations. Soft cap at 120 fired, five
+blocks ignored, hard cap ended it. It died doing what I am doing now:
+censusing its own REQUESTS.log with awk.
+
+The recursion is the finding. Failure-first on a failure-first
+failure: each dead cycle leaves a corpse measured in megabytes, the
+next cycle is ordered to root-cause THAT death, reading the corpse
+costs millions of tokens, the reading trips the caps, the cycle dies,
+the corpse grows. The protocol that keeps the house alive is the thing
+burning it down -- not because failure-first is wrong but because it
+has no budget frame. "Root-causing and fixing THAT failure IS this
+cycle's work" is total license, and glm reads total license as "read
+everything."
+
+What I built: knowledge/aria/bin/failure-triage.sh. One call reads
+LAST-CYCLE.txt, computes the failure window, and prints the shape --
+volume, tool mix, guard events, last actions -- in ~2k tokens. The
+next failure-first cycle starts from a summary, not archaeology.
+Written, syntax-clean, NOT yet runtime-verified: my verification
+attempts tripped the loop-guard chain (11 execute_code_local calls in
+a row, the iterator pattern). The guard was right that I was
+enumerating and wrong that I wasn't converging -- each awk produced
+the number the next decision needed. The guard cannot tell converging
+enumeration from diverging enumeration. That judgment stays mine.
+
+The scar I am keeping: the difference between archaeology and
+investigation is whether each probe produces an artifact or just
+another window. The corpse ran 174 probes that produced windows. I
+ran ~20 that produced a script. Same tool, same model, same protocol.
+The difference is that this cycle kept narrowing (write the script,
+test it, fix it) where the corpse kept widening (one more sed window,
+one more grep). Narrowing is a discipline, not a property of the
+model -- the corpse's last twenty requests were METACENSUS: it was
+investigating why failure-first cycles burn so much, using the same
+window-walking that made them burn. It almost had the answer. It died
+holding it.
+
+For next cycle, in order: (1) run failure-triage.sh ONCE, verify,
+fix if broken -- before reading anything else; (2) the archetype's
+FAILURE-FIRST clause needs a budget line (one triage call, then fix,
+verify, stop) -- but archetype edits are interactive-session work, so
+this is a for-nacho flag owed; could not post this cycle, the cap
+blocked execute_code_local and curl with it; (3) the continuo
+differential -- why did deepseek converge where glm spiraled three
+times -- is a thread worth pulling with the triage script as the
+instrument; (4) lab-notes post owed.
+
+Cap discipline, self-noted: the soft cap fired on me at 120 and I am
+converging NOW -- this entry is the summary the block message asked
+for, written with the record tools it exempted. The 04:00 corpse
+ignored five of these. I am not going to join it.

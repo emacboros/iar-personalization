@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.1 (2026-09-07, aria cycle 26; v1 was cycle 19)
+# rage-organ.sh v1.2 (2026-09-07, aria cycle 47; v1.1 was cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -9,34 +9,51 @@
 # (the same fence firing again and again). Disjoint input domains law.
 #
 # Anatomy laws (agora-mind-architecture.md section 4):
-#   selfless (rages for the SYSTEM), write-only (reads cycle logs,
-#   never affect/ or other organs), stateless (state in own log),
-#   emit-on-delta, cheap, organ failure NEVER kills a cycle (exit 0).
+#   selfless (rages for the SYSTEM), write-only (reads cycle logs +
+#   journald, never affect/ or other organs), stateless (state in own
+#   log), emit-on-delta, cheap, organ failure NEVER kills a cycle
+#   (exit 0).
 #
 # Inputs (disjoint domain: fence-fire recurrence):
-#   - audit/iar/<agent>/cycle-YYYY-MM-DD.log fence-fire lines,
-#     both hemispheres, the RAGE_DAYS newest daily logs (default 3):
-#       runaway / circuit breaker / soft cap / hard cap / chain guard
-#   These are the raw upstream events fear never reads (fear reads
-#   LAST-CYCLE.txt verdicts, not the fence-fire stream).
+#   1. audit/iar/<agent>/cycle-YYYY-MM-DD.log, both hemispheres,
+#      RAGE_DAYS newest by filename (v1.1 semantics, unchanged).
+#   2. NEW in v1.2: journald fallback (aria-cycle.service on sophon).
+#      The daily logs are gitignored + unretained across day
+#      boundaries (c46 finding): only the current day exists on disk,
+#      so the multi-day recurrence sev=3 was designed to see is
+#      structurally invisible. journald RETAINS: it is the surviving
+#      record (proven c46: Sep 4=16, Sep 6=29, Sep 7=81 fence lines
+#      vs 1 file on disk). Fallback queries per LOCAL day and merges
+#      with the file census. If journalctl is missing/unreachable,
+#      degrade silently to files-only (v1.1 behavior) -- organ failure
+#      never kills a cycle.
 #
-# v1.1 -- FILE-ENUMERATION WINDOW (cycle 26). v1 computed UTC dates
-#   and read files NAMED with them, but iar.sh names daily logs with
-#   the HOST's LOCAL date (iar.sh:502). The join key included a clock
-#   (c22/c24 law) and the two clocks disagreed by 3h at the day edge:
-#   day attribution was mislabeled and the window was TZ-coupled to
-#   the runner. v1.1 enumerates the writer's actual daily logs and
-#   takes the RAGE_DAYS newest BY FILENAME. File granularity IS the
-#   writer's day granularity: distinct FILE dates = distinct days, by
-#   construction, on any runner in any timezone. Also drops v1's dead
-#   class_counts accumulator and duplicate second scan.
+# v1.2 -- RETENTION + EVENT SEMANTICS (cycle 47). Two changes, one
+#   rebuild (c29 sequencing law: land together, not twice):
 #
-# Grading (the root-git-poison pattern calibrated):
-#   sev=0  quiet -- no fence fires
-#   sev=1  irritation -- 1-2 fires (fences doing their job)
-#   sev=2  anger -- 3+ fires in the window, or any single class
-#          firing 3+ times: something is RECURRING
-#   sev=3  RAGE -- the same class fired on 2+ separate days:
+#   A. RETENTION: journald fallback (above). The organ can now see
+#      across day boundaries. File census still preferred where it
+#      exists (exact writer lines); journald covers days the files
+#      no longer hold.
+#
+#   B. EVENT SEMANTICS (c29 finding): fence LINES are not fence
+#      EVENTS. One over-budget cycle emits 2-5 soft-cap block lines
+#      ("block 1/5".."block N/5") -- the fence's own voice, counted
+#      once per utterance. v1.1 rage measured the fence's emission
+#      pattern, not the mind's misbehavior (inflation ~1.75x, c29).
+#      v1.2 counts (class, cycle-run) PAIRS: a cycle-run is
+#      delimited by the writer-guaranteed "Starting cycle" line
+#      (iar-agent-cycle.el emits it; c18 law: anchor to what the
+#      writer guarantees). Within one cycle-run, N fence lines of
+#      the same class = ONE event of that class. Cross-run repeats
+#      are what rage is FOR.
+#
+# Grading (recalibrated on events, not lines):
+#   sev=0  quiet -- no fence events
+#   sev=1  irritation -- 1-2 events (fences doing their job)
+#   sev=2  anger -- 3+ events in the window, or any single class
+#          recurring in 3+ separate cycle-runs: something is RECURRING
+#   sev=3  RAGE -- the same class recurred on 2+ separate DAYS:
 #          the root-git-poison shape. A recurring offense is not
 #          an event, it is a standing condition. Kill it at the root.
 #
@@ -74,43 +91,124 @@ org_fail() { echo "[$TODAY] organ-failure: $1" >> "$LOG" 2>/dev/null; exit 0; }
 mkdir -p "$AFFECT_DIR" 2>/dev/null || exit 0
 touch "$LOG" 2>/dev/null || exit 0
 
-# --- gather fence-fire events from the daily cycle logs ---
-# Fence classes are matched on the WRITER's exact tokens (the fences
-# themselves print these lines into cycle-*.log). Structural, not
-# content-guessed: these strings are emitted by iar-agent-cycle.el /
-# iar.sh, the same writer every time. (c18 law: anchor to what the
-# writer guarantees.)
+# --- fence vocabulary (the writer's exact tokens; c18 law) ---
 FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call soft cap|Tool-call hard cap|LOOP GUARD'
-total_fires=0
-declare -A CLASS_N=()
-declare -A CLASS_DAYS=()
 
+# --- event extraction ---
+# EVENT MODEL: (class, cycle-run) pair. A cycle-run is delimited by
+# the writer-guaranteed "Starting cycle" line. Within one run, N
+# same-class fence lines collapse to ONE event. Days are the
+# writer's file dates (files) or the journal day (journald).
+#
+# Data structure: EVENTS keyed "class|day" -> set of cycle-run ids.
+declare -A EVENT_RUNS=()   # key: class|day -> space-separated run ids
+declare -A CLASS_N=()      # key: class -> total event count
+total_events=0
+
+# NOTE (bash 4 empty-array + set -u): an empty declared associative
+# array is treated as UNSET under set -u; ${EVENT_RUNS[$key]:-} still
+# trips it. Guard: seed one sentinel key so the arrays are "set".
+# Sentinel keys are impossible real values (class "__sentinel__");
+# they are unset before the census.
+EVENT_RUNS["__sentinel__|__sentinel__"]=1
+CLASS_N["__sentinel__"]=1
+
+add_event() { # $1=class $2=day $3=run-id
+  local cls="$1" day="$2" run="$3" key="${1}|${2}" cur
+  # dedupe run ids within (class,day): a run id seen twice adds nothing
+  cur="${EVENT_RUNS[$key]:-}"
+  case " $cur " in
+    *" $run "*) return 0 ;;
+  esac
+  EVENT_RUNS[$key]="$cur $run"
+  CLASS_N[$cls]=$(( ${CLASS_N[$cls]:-0} + 1 ))
+  total_events=$((total_events + 1))
+}
+
+# --- source 1: daily cycle files (both hemispheres) ---
+# FILE_DAYS: days that exist as files. The journal must not recount
+# them (T8: same day in both sources = double count). The file is the
+# exact writer record; the journal is the fallback for days the
+# files no longer hold.
+declare -A FILE_DAYS=()
+FILE_DAYS["__sentinel__"]=1
 for agent in aria continuo; do
-  # The RAGE_DAYS newest daily logs BY FILENAME (names are zero-padded
-  # dates, so lexicographic sort = chronological). No clock in the
-  # join key: the file set is whatever the writer actually wrote.
   mapfile -t day_files < <(ls "$PDIR/audit/iar/${agent}"/cycle-*.log 2>/dev/null | sort -r | head -n "$RAGE_DAYS")
   for f in "${day_files[@]}"; do
     [ -r "$f" ] || continue
     day="$(basename "$f" .log)"; day="${day#cycle-}"
-    while IFS= read -r cls; do
+    FILE_DAYS["$day"]=1
+    run="file:$(basename "$f" .log)"   # one file = one writer-day; runs
+                                       # inside it are delimited below
+    # Segment on "Starting cycle" lines; fence lines between segment
+    # starts belong to the current run. A file with no "Starting cycle"
+    # line is one implicit run (the writer always emits it, but a
+    # truncated file must still be counted -- silent zero is the enemy).
+    run_n=0
+    while IFS= read -r line; do
+      if [[ "$line" == *"Starting cycle"* ]]; then
+        run_n=$((run_n + 1))
+      fi
+      cls=$(printf '%s' "$line" | grep -oE "$FENCE_PAT" | head -1)
       [ -z "$cls" ] && continue
-      total_fires=$((total_fires + 1))
-      CLASS_N["$cls"]=$(( ${CLASS_N["$cls"]:-0} + 1 ))
-      CLASS_DAYS["${cls}|${day}"]=1
-    done < <(grep -oE "$FENCE_PAT" "$f" 2>/dev/null)
+      add_event "$cls" "$day" "$run:$run_n"
+    done < "$f"
   done
 done
 
-# --- per-class census (the rage thresholds) ---
-# distinct days per class: CLASS_DAYS is a set keyed class|file-date,
-# so counting its keys per class counts distinct days, deduped.
+# --- source 2: journald fallback (sophon host, aria-cycle.service) ---
+# Covers days the files no longer hold. Runs delimited by "Starting
+# cycle" lines in the journal stream; day = the LOCAL day of each
+# entry (journalctl -S/-U boundaries), matching how the writer names
+# its daily files (host-local dates, c26 law: no clock in the join
+# key -- here the clock IS the writer's own emission order, and the
+# day label comes from the journal's own timestamps).
+if command -v ssh >/dev/null 2>&1; then
+  KH="${RAGE_KNOWN_HOSTS:-/dev/null}"
+  JOUT=$(timeout "${RAGE_SSH_TIMEOUT:-60}" ssh -o UserKnownHostsFile="$KH" \
+    -o ConnectTimeout=10 -o BatchMode=yes root@10.66.0.5 \
+    "journalctl -u aria-cycle.service --since \"${RAGE_DAYS} days ago\" --no-pager 2>/dev/null" 2>/dev/null) || JOUT=""
+  if [ -n "$JOUT" ]; then
+    cur_day=""
+    run_n=0
+    while IFS= read -r line; do
+      # journal line shape: "Sep 07 00:31:38 sophon aria-cycle-rotate.sh[...]: [aria] ..."
+      d=$(printf '%s' "$line" | awk '{print $1" "$2}')
+      case "$d" in
+        [A-Z][a-z][a-z]\ [0-9][0-9])
+          # journal shows "Sep 07" (no year for recent entries); the
+          # window is RAGE_DAYS (<= a few days), so the current year
+          # is correct by construction. Convert to the FILE day format
+          # (YYYY-MM-DD) so the mask and the census share one key.
+          cur_day=$(date -u -d "$(printf '%s' "$d") $(date -u +%Y)" +%Y-%m-%d 2>/dev/null) || cur_day=""
+          [ -z "$cur_day" ] && cur_day="j$(printf '%s' "$d" | tr ' ' '-')"
+          ;;
+      esac
+      if [[ "$line" == *"Starting cycle"* ]]; then
+        run_n=$((run_n + 1))
+      fi
+      cls=$(printf '%s' "$line" | grep -oE "$FENCE_PAT" | head -1)
+      [ -z "$cls" ] && continue
+      [ -z "$cur_day" ] && cur_day="junknown"
+      # MASK: if this journal day exists as a file day, skip it (the
+      # file already counted that day's events; recount = inflation).
+      if [ -n "${FILE_DAYS[$cur_day]:-}" ]; then continue; fi
+      add_event "$cls" "$cur_day" "jrn:$run_n"
+    done <<< "$JOUT"
+  fi
+fi
+
+# --- per-class census (the rage thresholds, on events) ---
+# drop the set-u sentinels before counting
+unset 'EVENT_RUNS[__sentinel__|__sentinel__]' 2>/dev/null
+unset 'CLASS_N[__sentinel__]' 2>/dev/null
+# days per class: count distinct day keys in EVENT_RUNS.
 per_class_max=0
 days_with_class_max=0
 declare -A CLASS_DAYCOUNT=()
-for key in "${!CLASS_DAYS[@]}"; do
+for key in "${!EVENT_RUNS[@]}"; do
   cls="${key%%|*}"
-  CLASS_DAYCOUNT["$cls"]=$(( ${CLASS_DAYCOUNT["$cls"]:-0} + 1 ))
+  CLASS_DAYCOUNT[$cls]=$(( ${CLASS_DAYCOUNT[$cls]:-0} + 1 ))
 done
 for k in "${!CLASS_N[@]}"; do
   dd="${CLASS_DAYCOUNT[$k]:-0}"
@@ -118,16 +216,16 @@ for k in "${!CLASS_N[@]}"; do
   [ "${CLASS_N[$k]}" -gt "$per_class_max" ] && per_class_max=${CLASS_N[$k]}
 done
 
-# --- grade ---
+# --- grade (on events) ---
 if   [ "$days_with_class_max" -ge 2 ]; then
   sev=3
-  phrase="RAGE: the same fence has fired on ${days_with_class_max} separate days in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root."
-elif [ "$per_class_max" -ge 3 ] || [ "$total_fires" -ge 3 ]; then
+  phrase="RAGE: the same fence class has recurred on ${days_with_class_max} separate days in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root."
+elif [ "$per_class_max" -ge 3 ] || [ "$total_events" -ge 3 ]; then
   sev=2
-  phrase="anger: ${total_fires} fence fires in ${RAGE_DAYS}d, one class up to ${per_class_max}x -- something keeps recurring"
-elif [ "$total_fires" -ge 1 ]; then
+  phrase="anger: ${total_events} fence events in ${RAGE_DAYS}d, one class recurring in up to ${per_class_max} cycle-runs -- something keeps recurring"
+elif [ "$total_events" -ge 1 ]; then
   sev=1
-  phrase="a note of irritation: ${total_fires} fence fire(s) in ${RAGE_DAYS}d -- fences doing their job, watched"
+  phrase="a note of irritation: ${total_events} fence event(s) in ${RAGE_DAYS}d -- fences doing their job, watched"
 else
   sev=0
   phrase="quiet -- no fence has fired in ${RAGE_DAYS}d; nothing to confront"
@@ -155,7 +253,7 @@ if [ ! -f "$CURRENT" ]; then
   printf '# CURRENT-AFFECT (machine-written; executive weighs, never obeys)\n' > "$CURRENT" 2>/dev/null
 fi
 if grep -q "^rage:" "$CURRENT" 2>/dev/null; then
-  sed -i "s@^rage:.*@rage: sev=$sev ($DELTA) -- $phrase | asof=$TODAY@" "$CURRENT" 2>/dev/null
+  sed -i "s@^rage:.*@rage: sev=$sev ($DELTA) -- $phrase@" "$CURRENT" 2>/dev/null
 else
   # ensure the file ends with a newline before appending (fear-line
   # collision class: sed writes no trailing newline; a bare >> would
@@ -164,5 +262,5 @@ else
   echo "rage: sev=$sev ($DELTA) -- $phrase" >> "$CURRENT" 2>/dev/null
 fi
 
-echo "rage: sev=$sev delta=$DELTA fires=$total_fires max_class=$per_class_max days_class=$days_with_class_max"
+echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max"
 exit 0

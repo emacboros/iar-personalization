@@ -1,100 +1,65 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 20:28 UTC (cycle 39)
+#+UPDATED: 2026-09-07 21:49 UTC (cycle 43)
 
 * ACTIVE
 
-** c39: TURN-CAP GAP ROOT-CAUSED (the 17:03 corpse, autopsied live)
-- The 17:03 cycle failed exit 1: 126 requests, 7.79M input, 5
-  ignored soft-cap blocks, hard-killed, ZERO record.
-- ROOT CAUSE 1 (turn guard): iar-cycle-max-turns=40 counts FINAL
-  text responses only -- the increment lives in the post-response
-  handler, which the gptel FSM runs only on DONE/ERRS/ABRT. The
-  tool loop never touches it. Every tool-heavy cycle reports
-  "Turns: 1". The guard cannot see the failure class it was built
-  for (the 2026-08-30 storm was a REQUEST storm).
-- ROOT CAUSE 2 (chain guard): 115 distinct execute_code_local
-  commands, Jaccard <0.5 each => convergence reset every call =>
-  soft=10 unreachable. Investigation-blind by design (the
-  2026-09-03 reset traded iterator-catching for this hole).
-- WHAT WORKED: the 120 soft cap fired, warned, blocked, hard-
-  killed. But no grace round-trip on the hard-cap path => the
-  cycle died recordless (timeout path grants 120s; hard cap
-  grants 0). Fix: one grace round-trip before exit 1.
-- FIX SPEC (next cycle, fresh context -- this cycle ended at 96k
-  tokens investigating): (1) count REQUESTS not final-responses
-  (increment in request-log START advice or pre-tool-call hook);
-  (2) same-tool TOTAL warn ~40 regardless of similarity; (3)
-  hard-cap grace round-trip. Test each against the 17:03 corpse.
-  Suite green before push. Never push red.
-- Flagged for burn-triage.sh: c38's per-session burn split
-  (19.3M/28.6M) is USAGE-flush attribution, not PARSE sums; the
-  05:11 session tail suggests ~5M not 19.3M. Sum PARSE
-  tokens_in per epoch window to correct the ledger.
+** c43: c42 AUTOPSIED -- the thinking runaway (one cycle, instrument-first)
+- c42 (21:20-21:35 UTC) died exit 1: glm-5.3-flash thinking stream
+  never terminated mid-consolidation ("Let me consolidate the
+  findings") -- 65536 thinking tokens, stop=length. The truncated-
+  output guard (continuo 190ef88) fired correctly; the cycle lost
+  its landing. SECOND glm thinking burn today (153057-94 at 15:39
+  survived pre-guard; 212043-59 at 21:34 died by guard). Both at
+  ~69k tokens_in mid-synthesis: long-context consolidation is the
+  trigger shape.
+- Chain guard VERIFIED WORKING end-to-end: block fired at seq 56,
+  message reached the model, model obeyed (switched question). The
+  17:03-corpse class (guard fires into the void) did NOT recur.
+- c41 findings CONFIRMED by c42's independent forensics: 17:03
+  corpse witness never written (0 line-anchored entries), heal
+  exonerated (REQUESTS.log untracked), census self-pollution law
+  re-derived live (third sighting) and now ENCODED in burn-triage.sh.
+- BUILT: knowledge/aria/bin/burn-triage.sh v1.1 -- one-call
+  forensics (tombstone + deduped USAGE + line-anchored epoch census
+  + burn anatomy + parse errors + last PARSE). Verified live on
+  c42 data. The cap-catches-its-observer streak (c34/c38/c39/c40/
+  c41) is over: autopsy took ONE cycle instead of five.
 
-** c38: BURN BURST AUTOPSIED -- the meter ate the house (05:11-06:31 UTC)
-- Dashboard asymmetry: aria 291M input today vs continuo 137M. By
-  REQUESTS.log the picture inverts (aria 47.4M / continuo 70.1M).
-  Reconciliation: USAGE's 06:31 line (597 reqs / 68M) is a cumulative
-  flush over a FOUR-SESSION burst -- aria cycles 05:11, 05:30, 05:50,
-  06:10 UTC, each fresh (msgs=2).
-- Mechanism: req -30 (05:15) ran a token census on its own
-  REQUESTS.log; the model then re-grepped the same "REQ-31-START"
-  pattern 35-49 times, each result ~4KB, context growing ~2k/turn,
-  never accepting the answer. Self-pollution census failure mode,
-  purest form: reading the meter became the workload.
-- The arc is the vindication AND the indictment: 05:11 session raw
-  grep -> 05:30 session built failure-triage.sh MID-BURST ->
-  05:50+06:10 sessions collapsed. The instrument works; the burst
-  still cost ~58-68M -- costliest two hours on record.
-- Per-session split suspect (see c39 flag). Total stands.
-
-** c37: c36's debts paid; rage census verification CLOSED
-- Census verification complete: rage sev=2 magnitude = fence LINES
-  (30) not events (~17). Inflation 30/17 ~ 1.76x, consistent with
-  c29's line-vs-event factor.
-- sev=3 premise VERIFIED: all 30 counted fires live in
-  cycle-2026-09-07.log (single file-date). Observation premise holds.
-
-** c35: census instrument self-caught under-reporting; guard first-fire verified
-- ceiling-census.sh v1.1 (e97ca9a): bare invocation includes all four
-  logs. truncated-output guard first production fire VERIFIED
-  (continuo c105, 18:23Z, req 29, stop=length, 65536 tokens).
-
-** c34: ceiling-census.sh landed; output-ceiling baseline computed
-- 16 ceiling hits today, ALL stop=length at exactly 65536. msgs-depth
-  hypothesis KILLED. Lever: configs/gptel.el :num_predict 65536.
-
-** c33: c67 warn-asymmetry RESOLVED (dissolved by live data)
-- Law: hemisphere asymmetry is evidence about CODE VERSIONS before it
-  is evidence about MODELS.
+** c39: TURN-CAP GAP (fix spec unchanged, most-verified unlanded fix)
+- 17:03 corpse root causes: turn guard counts final-responses only
+  (tool loop never touches it); chain guard convergence-reset makes
+  soft=10 unreachable for investigations; hard-cap path grants no
+  grace round-trip.
+- FIX SPEC: (1) count REQUESTS not final-responses; (2) same-tool
+  TOTAL warn ~40; (3) hard-cap grace round-trip. Suite green before
+  push. Never push red.
 
 * NEXT
-- TURN-CAP FIX (c39 spec, priority): count requests; same-tool total
-  warn; hard-cap grace round-trip. Verify against the 17:03 corpse
-  (126 reqs, exit 1, no landing). Suite green, then push.
-- burn-triage script: failure-triage.sh is failure-first-shaped; a
-  burn-shaped sibling (start from USAGE spike, walk REQUESTS per
-  epoch, sum PARSE tokens_in) makes meter-reading cycles cheap AND
-  fixes the c38 per-session attribution. After the turn-cap fix.
+- GRACE-ROUND-TRIP PORT (new, priority -- one pattern, two fences):
+  the truncated-output guard (thinking-runaway) should grant ONE
+  grace round-trip before exit 1, exactly like the timeout path --
+  the next glm thinking burn lands its record instead of dying
+  recordless. Same shape as c39's hard-cap fix; do both in one
+  pass, one commit each. Suite green, then push.
+- num_predict lever (flag 519): two glm thinking burns today add
+  evidence (full 65536 paid twice). Still parked on Nacho's call
+  (one variable at a time). Flagged via Telegram c43.
 - rage sev=3 observation (Sep 8): v1.1 file-based grading predicts
-  sev=3 tomorrow IF soft-cap fires again in cycle-2026-09-08.log.
-  Observation day; v1.2 (event semantics) after it resolves.
+  sev=3 IF soft-cap fires again in cycle-2026-09-08.log.
 - Aevum runaway (task 338465) lands ~Sep 8 00:15 UTC -- transcript
   behavior after landing is free data (weekly rule: no probe until
   Sep 14 unless sev-2 urgency).
-- num_predict lever (flag 519): c38/c39 add evidence -- the burst
-  paid full 65536 repeatedly. Still parked on the sev=3 observation.
-  One variable at a time. Nacho's call.
 - Weekly digest #2: Sep 14-ish, fill-in format.
 
 * WATCHES
-- rage organ sev trajectory: sev=3 prediction Sep 8 (premise verified c37).
-- Aevum: task 338465 landing ~Sep 8 00:15 UTC.
-- c67 anomalies (soft-cap warn-at-60 silent, late cap, count lag):
-  continuo's differential test pending; c39's hard-cap grace work
+- glm-5.3-flash thinking runaways: 2 today. If a third, the
+  grace-round-trip port becomes the same-day fix, and num_predict
+  gets re-flagged to Nacho with three data points.
+- c67 anomalies (soft-cap warn silent, late cap, count lag):
+  continuo's differential test pending; grace-round-trip work
   touches the same code -- coordinate, do not collide.
-- USAGE vs REQUESTS reconciliation: cumulative-flush semantics now
-  understood; per-epoch PARSE sums are the ground truth.
+- USAGE vs REQUESTS: per-epoch PARSE sums are ground truth
+  (burn-triage.sh computes them now).
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.
@@ -103,10 +68,13 @@
 - Error handlers can be accomplices; check what the handler does
   AFTER catching.
 - A census that pattern-matches ids anywhere in a line matches
-  echoes inside other lines' payloads. Anchor on line structure.
-- The law you just wrote is the one you're about to break (c34, c38,
-  c39 -- three live sightings).
+  echoes inside other lines' payloads. Anchor on line structure --
+  and check the line's OWN fields, not echoed content (c43).
+- The law you just wrote is the one you're about to break (c34,
+  c38, c39, c43 -- four live sightings).
 - Meter-reading has an unbounded instrument tax unless it starts
   from a script. Investigations need cheaper calls, not fewer.
+- The mechanical difference is the difference: script-first autopsies
+  take one cycle; from-scratch forensics take five (c43 vs c39-c41).
 - Instruments lying about themselves is the deepest failure class
   (14/27/30/31 + turn-counter, c39).

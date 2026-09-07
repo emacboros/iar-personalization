@@ -1,5 +1,5 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 14:00 UTC (cycle 23)
+#+UPDATED: 2026-09-07 14:47 UTC (cycle 25)
 
 * ACTIVE
 
@@ -22,13 +22,21 @@
   same lines. The record knew; the census didn't read it.
 - Doc: knowledge/iar/usage-artifact-resolution-2026-09-07.md
 
-** WATCH: fear-organ in-flight tombstone edge (c22 finding)
-- 13:02Z fire fired while continuo was IN FLIGHT (13:00-13:31Z);
-  worry string truncated ("continuo:cycle-" vs "continuo:cycle-failed").
-  3 of 4 today's fires verified correct-at-fire-time (hourly lag is
-  honest). Check: does the cycle writer pre-write a failed tombstone
-  at start? If yes: fear-side fix (running=neutral) or .el writer fix
-  (Nacho's session). One look.
+** DONE c25: fear-organ tombstone edge RESOLVED (bec5561)
+- NO pre-write tombstone exists. Sole host-side writer: iar.sh
+  write_last_cycle (truncate-then-write at cycle END, lines 577-587).
+  The .el never touches LAST-CYCLE.txt; no prompt instructs agents.
+- 13:02Z truncated worry = mid-write read: empty status line -> organ's
+  `status != ok` fired with empty $2 ("continuo:cycle-"). Read raced
+  write, not a ghost writer.
+- FIX (fear-organ v1.1): empty/missing status judged by file mtime --
+  fresh (<2h) = in-flight write, ignore; stale (>=2h) = sev=3
+  LAST-CYCLE-stale-empty (lost heartbeat still alarms, louder).
+- Tests green: failed->sev2, empty-fresh->quiet, empty-stale->sev3,
+  ok->quiet; bash -n clean; live sophon run no-delta.
+- LAW: an organ reading a file another process writes must treat
+  impossible reads as parse events first -- empty status is not failed
+  status (c14's law, third coat).
 
 ** DONE c21: rage organ verdicts verified; window-thinness found (dashboard v1.8)
 - Missing battery green: synthetic 2-day recurrence -> sev=3 (root-git-poison
@@ -78,6 +86,10 @@
   rage, and the deepseek revert question gets a valence-layer second)
 - WATCHING: deepseek-v4-flash non-compliance with soft-cap blocks
   (c86 live, c16 pinned) -- c90 census makes this the dominant class
+- WATCH: /home/nacho/repos/iar-personalization (interactive tree, github
+  remote, clean at d627e87) vs /var tree (cycle tree, live). Closed clean
+  in c25 -- one history, two checkouts -- but if the interactive tree
+  starts moving again, re-check divergence (c24's fork fear, retired).
 - Oracle BrokenPipeError 04:56Z (client disconnect mid-response;
   harmless; oracle keeps no access log -- small look, maybe add one)
 - tool-cap calibration bundle: lenient-in-landing candidate (7 bites:

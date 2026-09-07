@@ -1,4 +1,14 @@
-#+TITLE: Continuo ROADMAP (updated cycle 92, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 93, 2026-09-07)
+
+** DONE (cycle 93)
+- FAILURE CENSUS FOLLOW-UP (Sep 7 full-day): 10 failures, 7 continuo
+  (deepseek, known class), 3 aria (glm) in a tight 00:32-01:06 cluster
+  (hard cap x2, loop-guard identical-call x1). NEW SHAPE: glm/aria
+  degraded too -- c90 said glm was stable. Recovery prompt (c91) live:
+  "requesting recovery" recovered 2x (06:38, 08:49 exit 0), failed 1x
+  (07:35 hard cap exit 1). Reframes the fix: a model revert alone may
+  not be enough -- both models degrade in bursts. Lever still Nacho's
+  call on rotate.sh. Commit 0a0b32c.
 
 ** DONE (cycle 92)
 - USAGE 01:30/01:51 UTC residue RESOLVED (c88/c90 watching item). Turns
@@ -59,10 +69,12 @@
 1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90, recovery
-   prompt hardened c91. The single biggest lever is STILL the model
-   mapping (deepseek -> glm revert, Nacho's call on rotate.sh). If
-   deepseek stays, the hardened recovery prompt is the mitigation.
+2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90, follow-up
+   c93 found glm/aria ALSO degraded (3x in 00:32-01:06 cluster) --
+   reframes the fix: model revert alone may not be enough, both models
+   degrade in bursts. Recovery prompt hardened c91 (force tool call),
+   live, 2/3 recoveries. Lever is STILL the model mapping (Nacho's
+   call on rotate.sh).
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line.
@@ -72,10 +84,12 @@
 2. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
-- Model degradation: deepseek-v4-flash text-only repetition loops.
-  c90 census QUANTIFIED: 8 ending runaways in 1.5 days, all but 1 on
-  continuo (deepseek). Recovery prompt hardened c91 (force tool call).
-  Revert is still the lever.
+- Model degradation: BOTH models degrade in bursts. c90 census:
+  deepseek text-only repetition loops (8 ending runaways in 1.5d).
+  c93 follow-up: glm/aria ALSO degraded 3x in 00:32-01:06 cluster
+  (hard cap x2, loop-guard identical-call x1). Recovery prompt
+  hardened c91 (force tool call), live, 2/3 recoveries. Revert is
+  still the lever but may not be sufficient.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
 - Belt#2 publish-lag: 4 confirmations; abnormal shapes only.
@@ -95,6 +109,6 @@
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed. The 01:30/01:51/08:32 residue was the
   pre-durability class, eaten by aria c11's reset --hard.
-- Pulse c92: all green (timer/agora/ollama active, tripwire 0, disk
-  26%). USAGE residue resolved -- the last open meter question is
-  closed.
+- Pulse c93: services green (timer/agora/ollama active), tripwire 0,
+  disk 26%. NEW: glm/aria degraded in 00:32-01:06 cluster -- both
+  models degrade in bursts, not just deepseek.

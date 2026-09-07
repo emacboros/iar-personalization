@@ -9,6 +9,11 @@
 # Usage: failure-triage.sh [agent]   (default: aria)
 # Reads audit/iar/<agent>/LAST-CYCLE.txt for the failure window, then
 # extracts the shape of the failed cycle from REQUESTS.log.
+#
+# FIX 2026-09-07 cycle 3: the first runtime test caught a lie -- on an OK
+# cycle, ENDED is non-empty (the ended: line exists in both statuses), so
+# the old gate fell through and triaged the tail of a SUCCESSFUL cycle as
+# a "failure window". Gate on the status line itself, not on ENDED.
 
 set -euo pipefail
 
@@ -20,12 +25,18 @@ RQ="${DIR}/REQUESTS.log"
 [ -f "$LC" ] || { echo "no LAST-CYCLE.txt at $LC"; exit 0; }
 cat "$LC"
 
+STATUS=$(grep -oE '^status: [a-z]+' "$LC" | awk '{print $2}')
+if [ "${STATUS:-unknown}" != "failed" ]; then
+  echo "status: ${STATUS:-unknown} -- nothing to triage (instrument refuses to manufacture a failure)"
+  exit 0
+fi
+
 ENDED=$(grep -oE 'ended: [0-9-]+ [0-9:]+' "$LC" | awk '{print $2" "$3}')
 DUR=$(grep -oE 'failed in [0-9]+s' "$LC" | grep -oE '[0-9]+')
 EXITCODE=$(grep -oE 'exit: [0-9]+' "$LC" | awk '{print $2}')
 
 if [ -z "$ENDED" ]; then
-  echo "status not failed (or no ended line) -- nothing to triage"
+  echo "no ended line in a failed LAST-CYCLE.txt -- cannot bound the window"
   exit 0
 fi
 

@@ -232,3 +232,36 @@ file (both visible in its REQUESTS.log tool calls) and still died
 in the loop. Knowing the mechanism does not immunize the model --
 the fix must be in the transport, not in the prompt. This is the
 strongest evidence yet that P0 is the only real fix.
+* UPDATE 4 (continuo cycle 99, 2026-09-07 15:29 UTC): P0 LANDED + PRODUCTION-VERIFIED (3 fires)
+
+P0 (stub assistant message for truncated thinking-only turns) is
+DONE and verified in production. The fork commit 8715a6c (deployed
+04:50 UTC) emits the stub in gptel--parse-buffer; the regression
+tests (test-invisible-turn-stub.el, committed af11d37 c78) are
+green in the full suite (1063/0). The stale "needs reconciliation"
+note in the fork commit message is resolved -- the discrepancy was
+the harness not reproducing the real request-flow point position
+(fixed c78).
+
+LIVE PROOF (3 fires, all correct, all cycles completed):
+- 11:49:45 UTC REQ 114143-56: roles=...,assistant,user, stub in
+  content. Cycle completed 11:50:40 (64 reqs, USAGE line).
+- 13:30:19 UTC REQ 130018-31: roles=...,assistant,user, stub in
+  content. Cycle completed 13:31:22 (43 reqs).
+- 14:05:39 UTC REQ 140143-8: roles=...,assistant,user, stub in
+  content. Cycle completed 14:06:29 (15 reqs).
+All three are the exact invisible-turn shape (truncated thinking-only
+turn -> stub assistant -> user continue), and all three cycles landed
+normally. Before the stub, these were the structural-loop losses
+(c73, c1@00:01, c1@01:00). The transport fix works.
+
+Remaining on the ladder (continuo's call, lower priority now that
+the loop is killed at source):
+- B (thinking-stream crash dump on grace death): still useful as a
+  belt-and-suspenders for when the stub cannot save a degraded model.
+- C (per-request runaway guard): the 65536-token truncated-thinking
+  turns are still a budget burn + data-loss event; the stub makes the
+  loss survivable but does not prevent the burn. Budget lever.
+- D (breaker honesty): already landed c79 (sendable-context, 34d536e).
+- A (directed landing turn): effectively present via
+  iar--fence-summary-instruction.

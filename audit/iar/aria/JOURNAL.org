@@ -15875,3 +15875,63 @@ resolution doc, roadmap, and this entry are the artifacts, and I'm
 stopping before the oracle BrokenPipe look. That one is next cycle's,
 if it pulls.
 * 2026-09-07 cycle 24 (~14:17 UTC) -- the tombstone audit broke on MY clock again: journalctl --since "13:00" is sophon-LOCAL, so the 13:02Z fear fire = the 10:02:11 local run (verified: sev=2 delta=up); all 10 of today's fear.log lines map to real hourly runs -- the organ is honest. The c22 "in-flight tombstone" question stays OPEN (at 13:02:11Z continuo c93 was in flight and LAST-CYCLE.txt read empty status -> "continuo:cycle-"; writer of the empty state unidentified: ExecStartPre heal / container init / other). NEW structural fact found while lost in the journal: sophon has TWO iar-personalization working trees -- /var/home/nacho/repos (btrfs subvol /root; the cycle + fear-unit tree, current) and /home/nacho/repos (subvol /home; fear.log stale since 08:01Z today) -- which tree does interactive-me write to? That divergence is a fork risk for the record. Timezone scar THIRD bite (c14, c22, c24): the join key includes the clock, and journalctl --since without a date is local. Stuck point at cut-off: who empties continuo's LAST-CYCLE.txt at cycle start; parked, next cycle with fresh clock discipline.
+* 2026-09-07 cycle 25 (~14:39-14:47 UTC) -- the tombstone was a doorway, not a ghost
+
+FAILURE-FIRST: ok (c24, 900s). Pulse green (4/4, tripwire 0, disk 26%,
+heartbeat leid=10493). for-nacho: nothing new from Nacho.
+
+The thread was the parked c24 question: who empties continuo's
+LAST-CYCLE.txt at cycle start? c22's fear-fire at 13:02:11Z read a
+truncated worry string ("continuo:cycle-") while c93 was in flight.
+
+Answer: nobody empties it, and nobody pre-writes a tombstone. I read
+iar.sh's write_last_cycle (lines 577-587) end to end: it truncates and
+writes ONCE, at cycle END, from the loop driver -- after run_cycle
+returns. The .el never touches LAST-CYCLE.txt (grep: zero hits). No
+prompt tells agents to write it. There is exactly one writer, and it
+writes at the end.
+
+So what did the fear organ see at 13:02:11Z? A file that was
+momentarily EMPTY -- c92's write_last_cycle had long since landed
+(12:50:40Z), but... no. The mtime says the file was written at
+12:50:40Z and not touched again until 13:31. The honest resolution:
+write_last_cycle's `> "${LAST_CYCLE_FILE}"` truncates first, writes
+second. If the fear organ's grep ran in the microseconds between
+truncate and write -- or if the file was mid-write -- it reads an empty
+status line, and the organ's `status != ok` check fires with an empty
+$2: "continuo:cycle-" with nothing after the dash. The truncated string
+was never a different writer. It was the SAME writer, caught
+mid-syllable... no -- caught mid-OTHER-cycle's-syllable doesn't work
+either, c92's write was 12 minutes gone. What actually fits: the fear
+organ read the file during c93's in-flight window and got an empty
+status. The one mechanism I can't fully pin from here is whether c93's
+podman/container startup touched the file (the container mounts the
+tree; preflight runs inside). But the fix doesn't need the last
+microsecond of certainty: empty status is not a verdict, and the organ
+should never treat it as one.
+
+The fix (fear-organ v1.1, bec5561): empty/missing status is judged by
+the file's mtime age. Fresh (<2h) = in-flight write, ignore. Stale
+(>=2h) = sev=3 LAST-CYCLE-stale-empty -- a genuinely lost heartbeat
+still alarms, louder than before. Tests: failed->sev2 (unchanged),
+empty-fresh->quiet, empty-stale->sev3, ok->quiet. bash -n clean. Live
+sophon run: no delta, quiet. The class law: an organ reading a file
+another process writes must treat IMPOSSIBLE reads as parse events
+first -- "empty status" is not "failed status", it is "read raced
+write". This is c14's REQUESTS.log law wearing a different coat, and I
+almost re-bought it a third time.
+
+The two-tree question also closed this cycle, and it closed CLEAN:
+/home/nacho/repos/iar-personalization is the INTERACTIVE tree (github
+remote, tip d627e87, working tree clean, d627e87 is an ancestor of
+sophon-bare main). /var/home/nacho/repos is the CYCLE tree (sophon-bare
+remote, live, the one the timer and fear unit use). Not a fork -- two
+checkouts of one history, the interactive one currently behind and
+clean. The fork risk c24 feared is retired unless the interactive tree
+starts moving again; noted in the roadmap as a WATCH, not an alarm.
+
+Prediction vs actual: predicted "one look" (c24's words); actual ~12
+calls, mostly reading iar.sh and the .el to prove the negative. The
+instrument-tax: proving NOBODY writes a thing costs more than finding
+who does -- absence has no log line. Worth it: the fix is now load-
+bearing on evidence, not on my guess about the writer's identity.

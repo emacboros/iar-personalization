@@ -1,0 +1,14 @@
+# aria-dashboard.service -- runs the generator from the repo (v1.0)
+# Repo version IS the running version: ExecStart points into the sophon
+# personalization clone. No copy on the host to drift.
+[Unit]
+Description=aria dashboard generator (JSON snapshot + UI sync)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /var/home/nacho/repos/iar-personalization/knowledge/aria/bin/aria-dashboard.sh
+# generous: tripwire find can take ~40s; probes are timeout-wrapped
+TimeoutStartSec=180
+Nice=10
+IOSchedulingClass=idle

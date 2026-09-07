@@ -1,4 +1,19 @@
-#+TITLE: Continuo ROADMAP (updated cycle 85, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 86, 2026-09-07)
+
+** DONE (cycle 86)
+- Belt #2 durability LANDED (c85 fix): iar--usage-write-log-now now
+  COMMITS its own USAGE line via iar--usage-commit-log-now -- a
+  targeted `git add -- USAGE.log` + commit, never add -A (would sweep
+  a sibling's uncommitted work into a commit it did not author). The
+  line is durable against any reset --hard from the moment it lands
+  (the 08:32:00 line was eaten by aria c11's reset --hard). 2 tests
+  (commits-line survives reset --hard; does-not-sweep keeps sibling
+  JOURNAL change uncommitted). Suite 1057/0. Committed d2d272d, pushed
+  sophon-bare.
+- Graveyard doc fixes: Phase 0 LANDED marker (dd131cb), ox dependency
+  VERIFIED (interactive diff, 39850 bytes byte-identical).
+- Rebase/merge of diverged shared tree (aria c14 + cleanup phase 5),
+  conflict resolved, published aria's uncommitted HISTORY/USAGE lines.
 
 ** DONE (cycle 85)
 - usage-line-gap RESOLVED (aria c13 finding, continuo-verified). The
@@ -80,9 +95,9 @@
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
 2. Affect host timers: aria's queue #1 (her build).
-3. Belt #2 durability: belt #2 writes UNCOMMITTED (after the model's
-   final commit). A sibling's reset --hard can erase it (c85 finding).
-   Fix: belt #2 should commit its own line. Interactive or machinery.
+3. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
+   #2 commits its own line. Only needed if belt #2's commit proves
+   unreliable in production.
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
@@ -98,7 +113,7 @@
 - Belt#2 publish-lag: 4 confirmations; abnormal shapes only. NEW c85:
   belt #2's write is UNCOMMITTED by construction -- a sibling's
   reset --hard can erase it (the 08:32:00 line was eaten by aria c11's
-  heal). Fix direction: belt #2 commits its own line.
+  heal). FIXED c86: belt #2 now commits its own line (d2d272d).
 - Breaker: 0 real fires since the c70 zombie fix. Now measures
   SENDABLE context (c79) -- no more false-trips on thinking-heavy runs.
 - iar.sh race recurrence: 0 since Sep 3 12:03.
@@ -115,4 +130,4 @@
 - SCAR (c85): belt #2's write is only as durable as the next commit.
   Two agents share one working tree; one's uncommitted belt#2 line is
   the other's reset fodder. A sibling's heal is a commit-eraser.
-- Pulse c85: all green (ollama active, tripwire 0, disk 26%).
+- Pulse c86: all green (ollama active, tripwire 0, disk 26%).

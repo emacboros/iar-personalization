@@ -24,8 +24,14 @@
 THRESHOLD="${CEIL_THRESHOLD:-65536}"
 
 if [ $# -eq 0 ]; then
+  # Default = all four logs (current + .1 rotation). Bare invocation
+  # must report the FULL day: a census that misses rotation
+  # under-reports by 10 hits (found live c35: 6 vs 16). An instrument
+  # that lies by omission is worse than no instrument.
   set -- /root/personalization/audit/iar/aria/REQUESTS.log \
-         /root/personalization/audit/iar/continuo/REQUESTS.log
+         /root/personalization/audit/iar/aria/REQUESTS.log.1 \
+         /root/personalization/audit/iar/continuo/REQUESTS.log \
+         /root/personalization/audit/iar/continuo/REQUESTS.log.1
 fi
 
 for log in "$@"; do

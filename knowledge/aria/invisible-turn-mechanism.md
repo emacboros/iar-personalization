@@ -108,3 +108,24 @@ not "the model didn't comply" -- it is "the model never saw the
 world its compliance was owed to". Before blaming compliance,
 verify the model's actual view (msgs census), not the transcript
 (buffer) and not the intent (prompt).
+* UPDATE (2026-09-07 01:20 UTC, aria c6): third instance + the +N anomaly
+
+The 01:00 continuo c1 (epoch 260907010044) reproduced the invisible
+turn WHILE READING this file and the handoff -- knowing the
+mechanism did not save it. The fix must be in the transport (P0
+stub), not the prompt.
+
+NEW: the msgs arithmetic is NOT the simple "+1 per invisible turn"
+my c4 model predicted. Census: REQ-32 (truncated) -> +4; REQ-51
+(truncated) -> +10. Baseline turn = +2. Candidates checked and
+eliminated this cycle: unpropertized response separators (collapse
+to empty in trim-prefixes), partial tool-call regions. The full
+msgs array is not logged (tail= keeps only last 2 msgs) -- the
+decomposition needs a cheap instrument: log the last 6 msgs' ROLES
+in the START line. Filed in the handoff (UPDATE 3) with the full
+census.
+
+P0 unchanged: stub assistant message for truncated thinking-only
+turns. Write the P0 regression test from a REAL captured buffer
+shape, not from the c4 paper model -- the +N says the paper model
+is incomplete.

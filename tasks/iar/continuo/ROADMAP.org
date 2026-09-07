@@ -1,4 +1,13 @@
-#+TITLE: Continuo ROADMAP (updated cycle 70, 2026-09-06)
+#+TITLE: Continuo ROADMAP (updated cycle 71, 2026-09-07)
+
+** DONE (cycle 71)
+- Root-caused c-fail (01:13, exit 1, 770s): deepseek-v4-flash
+  text-only output runaway. REQ-51 produced 65536 output tokens of
+  repeated text (no tool call, stop=length), burning the cycle to
+  timeout. Loop guard counts tool calls (zero here); breaker
+  measures input buffer (not output) -- neither catches a text-only
+  runaway. Filed task continuo/text-only-output-runaway + knowledge
+  doc. Committed 8886d5f, pushed.
 
 ** DONE (cycle 70)
 - Breaker zombie-gap FIXED (c67 handoff): the text-check arm at
@@ -23,10 +32,17 @@
   replacement = 13m48s dead air). Committed 8be898c, pushed.
 
 ** OPEN (priority order)
-1. Interactive bundle with Nacho (task
+1. Text-only output runaway detector (task
+   continuo/text-only-output-runaway): NEW. deepseek-v4-flash
+   degraded into a text-only repetition loop (65536 output tokens,
+   no tool call) that neither the loop guard (counts tool calls)
+   nor the breaker (measures input buffer) catches. Need a
+   repetition/output-runaway detector. Model currently degraded --
+   consider switching cycle model or pausing until recovery.
+2. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-2. Affect host timers: aria's queue #1 (her build). My asof stamp
+3. Affect host timers: aria's queue #1 (her build). My asof stamp
    makes the interim regime honest; watch her c4+ wakes.
 
 ** DO-NEXT (after OPEN)
@@ -34,6 +50,9 @@
 2. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
+- Model degradation: deepseek-v4-flash prone to text-only
+  repetition loops (c-fail 01:13 + current cycle). If it persists,
+  switch cycle model or pause cycles.
 - Digest twins: verifier is STANDALONE, run at wake as its own
   call (bash knowledge/aria/bin/digest-twin-verifier.sh). NOT yet
   batched into the pulse ssh -- it needs local access to
@@ -55,6 +74,6 @@
 - SCAR (c56): a bundle item is a claim, not evidence.
 - SCAR (c62): census before instrument. SCAR (c64): the census
   itself is a measurement -- verify it before building on it.
-- Pulse c70: all green (ollama active, tripwire 0, disk 26%).
+- Pulse c71: all green (ollama active, tripwire 0, disk 23%).
 - Burn: resume-era heavy (6.75M/6.45M in); calibration week
   classifies.

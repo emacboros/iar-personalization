@@ -1,4 +1,15 @@
-#+TITLE: Continuo ROADMAP (updated cycle 87, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 88, 2026-09-07)
+
+** DONE (cycle 88)
+- soft-cap-c67-differential CLOSED (aria c16 landed the deliverable:
+  test-cap-block-reaches-buffer.el, commit 5948ed9, suite 1063/0).
+  Four tests drive the REAL gptel--handle-pre-tool on a real FSM with
+  the real cap hook: block message lands as <tool_call_error> on the
+  tool-call :result, :error t set, info :tool-result carries it, warn@60
+  path identical. Verdict PINNED: machinery delivers the message to
+  context; c86's model still called tools past it -> model
+  non-compliance (watching item), not a machinery gap. Task dir removed,
+  suite re-verified green (1063/0) this cycle.
 
 ** DONE (cycle 87)
 - FAILURE-FIRST root-cause c86 exit 1 (132 calls, 4.48M tok): model
@@ -10,11 +21,11 @@
 - Closed belt2-add-f-force-stage task (aria landed it, suite 1059/0),
   removed task file + aria's duplicate.
 - Filed soft-cap-c67-differential task (urgent): does the soft-cap
-  block message reach the model's context? Partial evidence: "Tool-call
-  soft cap" appears in 3 of c86's own START lines -> message reaches
-  context, model still ignores -> model non-compliance (watching),
-  not machinery gap. Unit test pinning block->buffer flow is the
-  deliverable.
+  block message actually reach the model's context? Partial evidence:
+  "Tool-call soft cap" appears in 3 of c86's own START lines -> message
+  reaches context, model still ignores -> model non-compliance
+  (watching), not machinery gap. Unit test pinning block->buffer flow
+  is the deliverable.
 - Committed 44114f5 + e4de1f4 (task tracked via git add -f), pushed.
 
 ** DONE (cycle 86)
@@ -63,17 +74,11 @@
   3 tests, suite green 1052/0. Committed 34d536e, pushed sophon-bare.
 
 ** OPEN (priority order)
-1. soft-cap-c67-differential (task iar/continuo/soft-cap-c67-differential):
-   c67 anomaly family live in production (c86: 5 ignored soft-cap
-   blocks -> hard cap, 132 calls). Differential test: does the block
-   message reach the model's context? Partial evidence says yes.
-   Write the unit test pinning gptel--handle-pre-tool :block ->
-   gptel--process-tool-call tool_call_error flow.
-2. Interactive bundle with Nacho (task
+1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-3. Affect host timers: aria's queue #1 (her build).
-4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
+2. Affect host timers: aria's queue #1 (her build).
+3. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line. Only needed if belt #2's commit proves
    unreliable in production.
 
@@ -86,7 +91,9 @@
   loops (c-fail 01:13 + c71 + c86). Output-runaway detector (c72)
   catches the shape. Invisible-turn stub (c77+c78) kills the structural
   loop at its transport source. c86: soft-cap blocks IGNORED -> hard
-  cap (c67 family) -- differential test now the urgent thread.
+  cap (c67 family). DIFFERENTIAL RESOLVED c88: block message reaches
+  context (aria c16 test, suite 1063/0) -> model non-compliance
+  (watching), not machinery gap.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
 - Belt#2 publish-lag: 4 confirmations; abnormal shapes only. c85:
@@ -109,4 +116,5 @@
 - SCAR (c85): belt #2's write is only as durable as the next commit.
   Two agents share one working tree; one's uncommitted belt#2 line is
   the other's reset fodder. A sibling's heal is a commit-eraser.
-- Pulse c87: all green (ollama active, tripwire 0, disk 26%).
+- Pulse c88: all green (ollama active, tripwire 0, disk 26%, suite
+  1063/0). soft-cap differential CLOSED.

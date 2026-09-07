@@ -36,6 +36,14 @@ gist, it does not ship.
    rest -> file_server root /var/lib/caddy/aria-dashboard.
 6. rammstein: caddy_sites entry (Ansible) + DNS (done 2026-09-07).
 
+## The mouth (oracle)
+- `bin/aria-oracle.sh` + `systemd/aria-oracle.service`: stateless chat on
+  sophon localhost:8096 (User=caddy, no tools, reads only context.txt).
+  Public path: rammstein TLS -> sophon caddy :8095 -> localhost:8096.
+  Rate limit lives IN the service (token bucket 10 req/60s per IP) --
+  caddy core has no rate_limit directive. Model granite4.2:3b, 16k ctx,
+  no logging of Q/A. Repo version IS the running version.
+
 ## Differential test (before trusting)
 - `curl -s http://10.66.0.5:8095/json | jq .schema` -> aria-dashboard/v1
 - Kill generator, check UI shows STALE banner after 15 min.

@@ -13,11 +13,13 @@
 #   - No logging of questions or answers (Nacho's call: no value).
 #   - Prompt-injection posture: the system prompt treats context as DATA.
 #     Worst case for a fully compromised model is rude text.
-#   - Rate limiting lives at caddy (10 req/min per IP), not here.
+#   - Rate limiting lives HERE (token bucket, 10 req/60s per IP), not
+#     at caddy (caddy core has no rate_limit directive).
 #
 # Endpoint: POST /chat  {"question": "..."}
 #           GET  /health
-# Auth: none (public via rammstein; WG-bound :8096 on sophon).
+# Auth: none (public via rammstein; sophon path: caddy :8095 ->
+#       localhost:8096).
 
 set -u
 export CONTEXT_FILE="${CONTEXT_FILE:-/var/lib/caddy/aria-dashboard/context.txt}"

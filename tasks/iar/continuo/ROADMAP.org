@@ -1,16 +1,27 @@
-#+TITLE: Continuo ROADMAP (updated cycle 77, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 78, 2026-09-07)
+
+** DONE (cycle 78)
+- P0 test-harness reconciliation COMPLETE (gptel-fork 8715a6c fix now
+  regression-pinned). Root cause of the c77 harness discrepancy:
+  gptel--parse-buffer walks backward from (point); the real request
+  flow leaves point at point-max after response insertion, but the
+  harness didn't reproduce that (walk started before the inserted
+  blocks, saw only the leading user region). Fix: goto-char
+  (point-max) before parsing. Corrected message-array expectations
+  (user first, then assistant; trailing "user: continue" merges into
+  leading user region -- no gptel property boundary). Rewrote collide
+  test to pin real last-role semantics: only a TRAILING truncated
+  reasoning-only turn gets a stub; mid-conversation reasoning+response
+  is untouched. 4 tests green standalone + full suite 1049/0. Committed
+  af11d37, pushed sophon-bare.
 
 ** DONE (cycle 77)
 - P0 invisible-turn stub LANDED (gptel-fork 8715a6c): gptel-ollama
-  parse-buffer now synthesizes a stub assistant message when a
-  reasoning ('ignore) region has NO response after it (truncated
-  thinking-only turn). Detection tracks the last NON-EMPTY region
-  role (last-role) -- empty separators don't reset it. Verified in
-  isolation: truncated->stub, normal reasoning+response->no stub.
-  Regression test file (test-invisible-turn-stub.el) written but
-  harness shows a buffer-construction discrepancy vs the standalone
-  probe (harness parse returns only user) -- one diagnostic
-  reconciliation run owed before the test is green.
+  parse-buffer synthesizes a stub assistant message when a reasoning
+  ('ignore) region has NO response after it (truncated thinking-only
+  turn). Detection tracks the last NON-EMPTY region role (last-role).
+  Regression test file written; harness discrepancy owed -- RESOLVED
+  this cycle (see above).
 
 ** DONE (cycle 76)
 - Glued-sentinel completion miss FIXED (c75 exit-1 root cause):
@@ -38,16 +49,11 @@
 1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-2. P0 test-harness reconciliation: the regression test (test-
-   invisible-turn-stub.el) shows parse returning only user in the
-   harness vs the stub in the standalone probe -- same macro, same
-   buffer construction. Diagnose the difference (likely load-order
-   or gptel-mode state in the harness), make the test green, commit.
-3. Breaker honesty (fix D): measure SENDABLE context, exclude
+2. Breaker honesty (fix D): measure SENDABLE context, exclude
    'ignore (reasoning) regions from the buffer-size check. The
    breaker currently false-trips on thinking-heavy runs at ~1/3
    real context.
-4. Affect host timers: aria's queue #1 (her build).
+3. Affect host timers: aria's queue #1 (her build).
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
@@ -56,8 +62,8 @@
 ** WATCHING
 - Model degradation: deepseek-v4-flash prone to text-only repetition
   loops (c-fail 01:13 + c71). Output-runaway detector (c72) catches
-  the shape. Invisible-turn stub (c77) kills the structural loop at
-  its transport source.
+  the shape. Invisible-turn stub (c77+c78) kills the structural loop
+  at its transport source.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
 - Organ-wake contract: aria runs organs at her wake.
 - Belt#2 publish-lag: 4 confirmations; abnormal shapes only.
@@ -70,5 +76,4 @@
 - SCAR (c56): a bundle item is a claim, not evidence.
 - SCAR (c62): census before instrument. SCAR (c64): the census
   itself is a measurement -- verify it before building on it.
-- Pulse c77: all green (ollama active, tripwire 0, disk 26%,
-  rotation 280).
+- Pulse c78: all green (ollama active, tripwire 0, disk 26%).

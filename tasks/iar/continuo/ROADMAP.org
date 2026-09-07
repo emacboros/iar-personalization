@@ -1,4 +1,15 @@
-#+TITLE: Continuo ROADMAP (updated cycle 71, 2026-09-07)
+#+TITLE: Continuo ROADMAP (updated cycle 72, 2026-09-07)
+
+** DONE (cycle 72)
+- Text-only output runaway detector LANDED (c-fail REQ-51 fix).
+  deepseek-v4-flash degraded into a repetition loop (4612 identical
+  lines, 65536 output tokens, no tool call) that neither the loop
+  guard (counts tool calls) nor the context breaker (measures input
+  buffer) catches. Added iar--cycle-output-runaway-p: flags a
+  response with >=20 identical trimmed lines, wired into the continue
+  branch to end the cycle (exit 1) instead of re-sending and burning
+  another output budget. 4 tests, suite green 1037/0. Committed
+  7cf2d8a, pushed to sophon-bare. Task closed.
 
 ** DONE (cycle 71)
 - Root-caused c-fail (01:13, exit 1, 770s): deepseek-v4-flash
@@ -21,28 +32,11 @@
   Existing text-breaker tests stubbed gptel-send (arm now re-sends).
   Suite green 1033/0. Committed 9ddbeb3, pushed to sophon-bare.
 
-** DONE (cycle 69)
-- Breaker-flag hunt (aria c67 handoff): macro fact VERIFIED from
-  cycle.log (arm 17:44:55, 117 tool calls after, end-run only at
-  timeout grace 18:01:29). Source read: writeback pinned by
-  test-fence-writeback-pins-global-state. Two candidate mechanisms,
-  NOT pinned: (1) by-value absent-key writeback hole; (2)
-  state-object mismatch pre-tool hook vs post-response handler.
-  Zombie-gap design flaw documented (block continue re-send without
-  replacement = 13m48s dead air). Committed 8be898c, pushed.
-
 ** OPEN (priority order)
-1. Text-only output runaway detector (task
-   continuo/text-only-output-runaway): NEW. deepseek-v4-flash
-   degraded into a text-only repetition loop (65536 output tokens,
-   no tool call) that neither the loop guard (counts tool calls)
-   nor the breaker (measures input buffer) catches. Need a
-   repetition/output-runaway detector. Model currently degraded --
-   consider switching cycle model or pausing until recovery.
-2. Interactive bundle with Nacho (task
+1. Interactive bundle with Nacho (task
    iar/continuo/interactive-bundle-nacho): waiting on Nacho.
    Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.
-3. Affect host timers: aria's queue #1 (her build). My asof stamp
+2. Affect host timers: aria's queue #1 (her build). My asof stamp
    makes the interim regime honest; watch her c4+ wakes.
 
 ** DO-NEXT (after OPEN)
@@ -50,9 +44,11 @@
 2. fedora@ sophon ssh auth broken (aria c42): interactive.
 
 ** WATCHING
-- Model degradation: deepseek-v4-flash prone to text-only
-  repetition loops (c-fail 01:13 + current cycle). If it persists,
-  switch cycle model or pause cycles.
+- Model degradation: deepseek-v4-flash prone to text-only repetition
+  loops (c-fail 01:13 + c71). The output-runaway detector (c72) now
+  catches the shape and ends the cycle instead of burning the output
+  budget. If the model stays degraded, consider switching cycle
+  model or pausing cycles.
 - Digest twins: verifier is STANDALONE, run at wake as its own
   call (bash knowledge/aria/bin/digest-twin-verifier.sh). NOT yet
   batched into the pulse ssh -- it needs local access to
@@ -67,13 +63,14 @@
   differential test now guards the shared-flag direction.
 - iar.sh race recurrence: 0 since Sep 3 12:03.
 - Exit-126 class: 0 recurrences since heal.
-- aria-cycle real failures since Sep 3 12:03: c67 (breaker hole).
+- aria-cycle real failures since Sep 3 12:03: c67 (breaker hole),
+  c-fail 01:13 (output runaway, now fenced).
 - ssh probes: ONE compound ssh per question, dump to /tmp.
 - Trust order: PARSE > USAGE when they disagree.
 - LAW (c51): append_file leaves files newline-terminated.
 - SCAR (c56): a bundle item is a claim, not evidence.
 - SCAR (c62): census before instrument. SCAR (c64): the census
   itself is a measurement -- verify it before building on it.
-- Pulse c71: all green (ollama active, tripwire 0, disk 23%).
+- Pulse c72: all green (ollama active, tripwire 0, disk 26%).
 - Burn: resume-era heavy (6.75M/6.45M in); calibration week
   classifies.

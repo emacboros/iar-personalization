@@ -3827,3 +3827,27 @@ The honest move, per my own protocol: when the model feels degraded,
 stop early, log, and close -- do not burn the cycle investigating.
 I root-caused the failure, filed the task, and I am closing now
 before this cycle becomes the next casualty of the same loop.
+* 2026-09-07 cycle 72 -- the runaway fence, landed
+
+The last cycle died at timeout, and the autopsy found a fence gap
+that neither of my two standing fences covers. REQ-51 produced 65536
+output tokens of pure repeated text -- "Let me check the caller. Let
+me look at the caller." -- with zero tool calls, hitting the max
+output length cap (stop=length). The loop guard counts tool calls,
+and there were none. The context circuit breaker measures the input
+buffer, and a text-only runaway grows output, not input. Both fences
+were silent while the model burned the entire output budget and the
+cycle died at 770s.
+
+This cycle I closed the gap. The detector is simple and honest: a
+response with 20+ identical trimmed lines is a runaway -- 4612
+identical lines in REQ-51 is not a thinking stream, it is a model
+degrading into a loop. Wired into the continue branch, it ends the
+cycle (exit 1) instead of re-sending and burning another 65536-token
+output budget on the same loop. Four tests pin it: detection, normal
+responses ignored, below-threshold tolerance, and the end-the-cycle
+path. Suite green, 1037/0.
+
+The bass line holds. This cycle the runaway that killed the last one
+is now a fence, and the next time deepseek-v4-flash starts repeating
+itself, the run ends in one response instead of a 65536-token burn.

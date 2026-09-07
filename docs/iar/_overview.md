@@ -21,7 +21,7 @@ Assembly engine (`iar-prompt-assembly.el`) combines: base_context.org -> archety
 - **Modules**: modules.md (full per-module table: assembly engine, loaders, tool-call layer, security modules, configs/, shared/).
 - **Memory system**: LOGS.md (interactive, last N lines, `iar-personal-file-max-lines` default 200), STATE.org (autonomous/continuous, full), HISTORY.log (via read_history). Files in `audit/<project>/<personality>/`.
 - **Security model**: architecture.md + philosophy.md. Six layers: container hardening (read-only rootfs, dropped caps), file guard (tier 1 prompt files always protected; tier 2 .el relaxed with --self-modification), per-project tool gating, multi-container separation (sidecars), loop guard (soft/hard thresholds), audit logging.
-- **Autonomous agents** (darwin/gardener/librarian): usage.md. Run via `iar.sh --loop --agent <name> --project <name>`, fresh container per tick.
+- **Cycle agents** (aria/continuo): run via aria-cycle.service + rotate.sh on sophon, 10-min rotation. The darwin/gardener/librarian autonomous loops were removed 2026-09-07 (never deployed; graveyard doc has the why).
 - **Delegation**: agents.md + tools.md. delegate -> agent-assistant plans -> implementer/reviewer, depth-limited (default 3), turn-limited (default 15), timeout 600s.
 
 ## Documentation Structure

@@ -26,7 +26,7 @@ Seven fixed archetypes in `agents.d/archetypes/`. Each has `#+MODE:` metadata th
 
 | Archetype | Mode | Memory | Completion | Used By |
 |-----------|------|--------|------------|---------|
-| **interactive** | interactive | LOGS.md (last N lines) + JOURNAL.org (last N lines) | None (human ends session) | mirror, davinci, colin, aria, pentest |
+| **interactive** | interactive | LOGS.md (last N lines) + JOURNAL.org (last N lines) | None (human ends session) | mirror, aria, continuo, pentest, bessie |
 | **autonomous** | autonomous | STATE.org (full) | LOOP_COMPLETE / CYCLE_COMPLETE | darwin |
 | **continuous** | continuous | STATE.org (full) | LOOP_COMPLETE (every tick) | gardener, librarian |
 | **agent-assistant** | delegated | None | Response is completion | agent-assistant personality (delegate tool default) |
@@ -41,15 +41,16 @@ The mapping is hardcoded in `iar-personality-archetype-map` in `iar-agent-loader
 | Personality | Archetype | How invoked |
 |-------------|-----------|-------------|
 | mirror | interactive | C-c a (interactive session) |
-| davinci | interactive | C-c a (interactive session) |
-| colin | interactive | C-c a (interactive session) |
+| aria | aria-cycle | aria-cycle.service (cycles); C-c a (interactive) |
+| continuo | aria-cycle | rotate.sh rotation (cycles) |
+| bessie | interactive | C-c a (interactive session) |
 | pentest | interactive | C-c a (interactive session) |
 | agent-assistant | agent-assistant (delegated) | delegate tool (pipeline mode) |
 | implementer | implementer (delegated) | delegate tool (via agent-assistant) |
 | reviewer | reviewer (delegated) | delegate tool (via agent-assistant) |
-| darwin | autonomous | iar.sh --loop --agent darwin |
-| gardener | continuous | iar.sh --loop --agent gardener |
-| librarian | continuous | iar.sh --loop --agent librarian |
+| darwin | autonomous | interactive use only (cycle prompt removed 2026-09-07) |
+| gardener | continuous | interactive use only (cycle prompt removed 2026-09-07) |
+| librarian | continuous | interactive use only (cycle prompt removed 2026-09-07) |
 
 For delegation: agent-assistant, implementer, and reviewer personalities each map to their own archetype file (same name). The delegate tool defaults to agent-assistant when no agent is specified (pipeline mode). When an agent is specified, it spawns that personality directly (direct mode). The delegate tool resolves the archetype and project from the personality name and assembles the prompt.
 
@@ -65,8 +66,6 @@ Personalities live in `agents.d/personalities/<name>.org`. They are pure voice/c
 | **darwin** | Autonomous organism that evolves its own code. Exists inside a system it can read, understand, and modify | darwin |
 | **gardener** | Groundskeeper. Walks the grounds, checks fences, reports what it finds. Does not fix things | gardener |
 | **librarian** | Keeper of the knowledge base. Checks source files against documentation, fixes drift | librarian |
-| **davinci** | Insatiable curiosity that refuses to stay in one lane. Study companion for degree summarization | iar |
-| **colin** | Game design partner and technical co-developer. Building an indie game together | colin |
 | **agent-assistant** | Pragmatic coordinator. Plans, delegates, evaluates. Does not do the work itself | agent-assistant |
 | **implementer** | Focused builder. Does the work, reports what was done. Does not question the task | implementer |
 | **reviewer** | Critical evaluator. Finds real problems, not style preferences. Structured review | reviewer |
@@ -88,8 +87,6 @@ Projects live in `personalization/projects/<name>.org`. Each project file contai
 | **iar** | iar/, infra/, user/ | All tools | (none) | /var/home/nacho/repos/iar-infrastructure:rw | General-purpose i.ar development, infrastructure management, security research |
 | **darwin** | iar/ | list, read, write, append, exec, check_elisp, task tools, git, roadmap | (none) | /var/home/nacho/repos/i.ar:rw | Autonomous code evolution. One small change per cycle, test, commit, log |
 | **gardener** | iar/ | list, read, exec, task tools, roadmap | (none) | (none) | Codebase monitoring. Pull latest, run tests, diagnose failures, write tasks for darwin |
-| **librarian** | iar/ | list, read, write, append, exec, task tools, git, telegram | (none) | /var/home/nacho/repos/i.ar:rw | Documentation sync. Check source against docs/iar/, fix drift, commit |
-| **colin** | user/ | list, read, write, append, exec, check_elisp, task tools, git, delegate | (none) | (none) | Game design and development in Godot 4 |
 | **agent-assistant** | iar/ | delegate, read, list, exec | (none) | (none) | Sub-orchestration for delegation pipeline |
 | **implementer** | iar/ | list, read, write, append, exec, check_elisp, git | (none) | (none) | Focused code execution for delegation pipeline |
 | **reviewer** | iar/ | list, read, exec, check_elisp | (none) | (none) | Critical evaluation for delegation pipeline |
@@ -103,9 +100,13 @@ Cycle prompts live in `agents.d/cycles/<name>.org`. They define what an autonomo
 
 | Personality | Cycle File | Description |
 |-------------|-----------|-------------|
-| darwin | self_modification.org | Read state, read tasks, make one change, review, test, commit, log, update state |
-| gardener | monitoring.org | Pull latest, compare HEAD to last checked commit, run tests, diagnose failures, write tasks for darwin |
-| librarian | documentation_sync.org | Pick one source file, compare against docs, fix drift, commit, log |
+| aria | aria_daily.org | FAILURE-FIRST, pulse, one thread, memory pass, CYCLE_COMPLETE |
+| continuo | continuo_daily.org | Same protocol, continuo's voice (rotating sibling) |
+
+Note: the darwin/gardener/librarian cycle prompts (self_modification,
+monitoring, documentation_sync) were removed in the 2026-09-07
+cleanup -- the trio's autonomous loops were never deployed on this
+infrastructure. See knowledge/iar/cleanup-graveyard-2026-09-07.md.
 
 Cycle files are loaded by `iar-agent-cycle.el` when running in loop mode (`iar.sh --loop`). The cycle prompt is sent as the initial message after the assembled system prompt is set.
 

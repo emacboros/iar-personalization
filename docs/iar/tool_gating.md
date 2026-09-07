@@ -11,7 +11,7 @@ Example from `personalization/projects/darwin.org`:
 #+TOOLS: list_directory read_file write_file append_file execute_code_local check_elisp read_task create_task write_subtask remove_task read_history git_commit read_roadmap write_roadmap
 ```
 
-This gives darwin filesystem, code execution, task management, git, and roadmap tools -- but no delegate, no telegram, no reload, no knowledge, no matrix tools.
+This gives darwin filesystem, code execution, task management, git, and roadmap tools -- but no delegate, no telegram, no reload, no knowledge.
 
 If `#+TOOLS` is absent from a project file, all registered tools are available (backward compat).
 

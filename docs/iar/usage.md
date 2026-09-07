@@ -54,29 +54,24 @@ cd i.ar
 ./utils/iar.sh --personalization ~/repos/iar-personalization --project iar --model granite4.1:8b-q8_0 --ctx 131072
 ```
 
-### Run (Loop Mode -- Autonomous Agents)
+### Run (Loop Mode -- Cycle Agents)
 
 ```bash
-# Run a single darwin cycle (needs --self-modification for code edits):
+# Run a single aria cycle (the live cycle agents: aria, continuo;
+# normally driven by aria-cycle.service + rotate.sh on sophon):
 ./utils/iar.sh --loop --personalization ~/repos/iar-personalization \
-  --agent darwin --project darwin --self-modification
-
-# Run a long darwin loop (50 cycles with cooldown):
-./utils/iar.sh --loop --personalization ~/repos/iar-personalization \
-  --agent darwin --project darwin --self-modification --max-cycles 50
-
-# Run gardener (no self-modification needed):
-./utils/iar.sh --loop --personalization ~/repos/iar-personalization \
-  --agent gardener --project gardener --max-cycles 1
-
-# Run librarian (documentation sync):
-./utils/iar.sh --loop --personalization ~/repos/iar-personalization \
-  --agent librarian --project librarian --max-cycles 1
+  --agent aria --project iar --max-cycles 1
 
 # With specific knowledge bases:
 ./utils/iar.sh --loop --personalization ~/repos/iar-personalization \
-  --agent darwin --project darwin --knowledge infra/ --knowledge iar/
+  --agent aria --project iar --knowledge infra/ --knowledge iar/
 ```
+
+Note: the darwin/gardener/librarian autonomous loops (self_modification,
+monitoring, documentation_sync cycle prompts) were removed in the
+2026-09-07 cleanup -- never deployed on this infrastructure. The
+personalities remain for interactive use. See
+knowledge/iar/cleanup-graveyard-2026-09-07.md.
 ### Run (One-Shot Mode -- Single Instruction)
 
 ```bash
@@ -128,14 +123,6 @@ execute_code_remote(target="pentest", command="nmap -sV 10.66.0.3")
 
 Local targets (sidecar containers on the same host) are resolved from `IAR_CONTAINER_<target>` env vars and executed via `podman exec`. Remote targets (debug containers on other hosts) are resolved from `iar-remote-targets` or `IAR_REMOTE_TARGETS` and executed via SSH over WireGuard.
 
-### Status Dashboard
-
-```bash
-./utils/iar.sh --status
-# or directly:
-./utils/iar-status.sh
-```
-
 ### Flags
 
 | Flag | Required | Description |
@@ -148,7 +135,7 @@ Local targets (sidecar containers on the same host) are resolved from `IAR_CONTA
 | `--self-modification` | No | Enables tier 2 file guard relaxation for .el file edits |
 | `--ollama-host HOST:PORT` | No | Override Ollama backend (default: from env or WireGuard IP) |
 | `--local` | No | Shortcut for `--ollama-host localhost:11434` with host networking |
-| `--model NAME` | No | Ollama model name (default: glm-5.2:cloud) |
+| `--model NAME` | No | Ollama model name (default: glm-5.3:cloud) |
 | `--ctx N` | No | Max context window in tokens (default: 1048576 = 1M) |
 | `--mount PATH` | No | Mount additional writable directory into container |
 | `--mount-ro PATH` | No | Mount additional read-only directory into container |
@@ -157,10 +144,9 @@ Local targets (sidecar containers on the same host) are resolved from `IAR_CONTA
 | `--ssh-key NAME` | No | SSH key name (default: emacboros_ed25519). Skipped if key doesn't exist. |
 | `--memory LIMIT` | No | Podman memory limit (default: 8g). Caps container memory. |
 | `--knowledge LABEL` | No | Documentation directory label to load (default: from project #+KNOWLEDGE). Can be specified multiple times. |
-| `--cycle-prompt NAME` | No | Override cycle prompt file (e.g. matrix_turn). |
-| `--status` | No | Show status dashboard (dispatches to iar-status.sh) |
+| `--cycle-prompt NAME` | No | Override cycle prompt file (e.g. aria_daily). |
 | `--help, -h` | No | Show usage and exit |
-| `--agent NAME` | Yes (loop, one-shot) | Personality name (e.g., darwin, gardener, librarian) |
+| `--agent NAME` | Yes (loop, one-shot) | Personality name (e.g., aria, continuo) |
 | `--max-cycles N` | No (loop) | Maximum number of cycles (default: 1) |
 | `--cooldown SECONDS` | No (loop) | Seconds to wait between cycles (default: 60) |
 | `--max-failures N` | No (loop) | Max consecutive failures before stopping (default: 5) |
@@ -199,7 +185,7 @@ All keybindings are defcustoms in `configs/keybindings.el` and can be changed wi
 
 1. Start the container with `iar.sh --personalization ... --project iar`
 2. Emacs opens with gptel-mode active
-3. Load a personality: `C-c a mirror` (or darwin, gardener, librarian, davinci, colin, pentest, bessie)
+3. Load a personality: `C-c a mirror` (or aria, continuo, darwin, gardener, librarian, pentest, bessie)
 4. The assembly engine assembles the prompt from: interactive archetype + selected personality + iar project (which auto-loads iar/, infra/, user/ knowledge)
 5. Check prompt size: `C-c i` (monitor context window usage)
 6. Optionally load additional knowledge: `C-c k linux/` (concept knowledge bases)
@@ -227,20 +213,7 @@ Any personality with an autonomous or continuous archetype can run autonomously 
 ./utils/iar.sh --loop --personalization ~/repos/iar-personalization \
   --agent darwin --project darwin --self-modification --max-cycles 50
 
-# Run gardener (no self-modification needed):
-./utils/iar.sh --loop --personalization ~/repos/iar-personalization \
-  --agent gardener --project gardener --max-cycles 1
-
-# Run librarian (documentation sync):
-./utils/iar.sh --loop --personalization ~/repos/iar-personalization \
-  --agent librarian --project librarian --max-cycles 1
 ```
-
-Darwin reads its STATE.org (injected in system prompt), reads tasks via read_task, picks one thing to improve, makes the change, delegates to reviewer for code review, runs tests, commits, logs, and sleeps. One mutation per cycle.
-
-The gardener runs as a continuous agent: pull latest code, run tests, diagnose failures, write tasks for darwin. It does not need self-modification mode (read-only to codebase).
-
-The librarian runs as a continuous agent: pick one source file, compare against docs/iar/, fix drift, commit. It does not need self-modification mode (read-write to docs, read-only to code).
 
 Telegram notifications require `AGENT_TELEGRAM_BOT_TOKEN` and `AGENT_TELEGRAM_CHAT_ID` environment variables.
 

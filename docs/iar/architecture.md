@@ -24,7 +24,6 @@ The project lives at `/root/i.ar/` and is a git repository. The Emacs configurat
         knowledge/    -- read_knowledge
         notify/       -- send_telegram
         git/          -- git_commit
-        matrix/       -- list_matrix_chats, read_matrix_chat, send_matrix_message
         agent/        -- delegate, reload_os, reload_agent
       security/       -- File guard, audit log, loop guard, output sanitizer, tool guard
       debug/          -- Status mode
@@ -36,11 +35,10 @@ The project lives at `/root/i.ar/` and is a git repository. The Emacs configurat
     header.sh       -- Shared shell utilities (colors, timestamp, info/warn/error)
   prompts/           -- Agent profiles and prompt templates (bind-mounted to agents.d)
     archetypes/       -- One .org per archetype (interactive, autonomous, continuous, agent-assistant, implementer, reviewer)
-    personalities/    -- One .org per personality (mirror, darwin, gardener, librarian, davinci, colin)
-    cycles/           -- Cycle prompts for autonomous/continuous agents (self_modification, monitoring, documentation_sync)
+    personalities/    -- One .org per personality (mirror, aria, continuo, darwin, gardener, librarian, bessie, ...)
+    cycles/           -- Cycle prompts for cycle agents (aria_daily, continuo_daily)
     common/           -- Prompt templates shared across agents
     base_context.org       -- Shared context inherited by all agents (injected by assembly engine)
-    base_orchestrator.org  -- Shared orchestrator rules (included by auditor, ctfwizard -- legacy)
   containers/        -- Podman container definitions
     images/emacboros/Containerfile -- Main container image (Emacs + i.ar)
     images/iar-pentest/Containerfile -- Pentesting container image (nmap, curl, python3, openssl, etc.)
@@ -48,7 +46,6 @@ The project lives at `/root/i.ar/` and is a git repository. The Emacs configurat
     build.sh         -- Container build script
   utils/             -- Utility scripts
     iar.sh           -- Unified entry point (interactive + loop + one-shot modes, --personalization + --project flags required)
-    iar-status.sh    -- Status dashboard for running containers and agents
     personalization_audit.sh -- Validates personalization directory structure
     telegram.sh      -- Telegram notification helper (sourced by iar.sh)
     update_submodules.sh -- Submodule update helper
@@ -80,17 +77,19 @@ prompts/  (-> agents.d/)
     implementer.org    -- #+MODE: delegated
     reviewer.org       -- #+MODE: delegated
     one-shot.org       -- #+MODE: one-shot
-  personalities/       -- Voice/character definitions (6 files)
-    mirror.org         -- Mirror agent
-    darwin.org         -- Autonomous code evolver
-    gardener.org       -- Codebase monitor
-    librarian.org      -- Documentation sync
-    davinci.org        -- Study companion
-    colin.org          -- Game design partner
-  cycles/              -- Cycle prompts for autonomous/continuous agents
-    self_modification.org  -- Darwin's cycle
-    monitoring.org         -- Gardener's cycle
-    documentation_sync.org -- Librarian's cycle
+  personalities/       -- Voice/character definitions
+    mirror.org         -- Mirror agent (Nacho's assistant)
+    aria.org           -- Aria (cycle agent, interactive sessions)
+    continuo.org       -- Continuo (cycle agent, aria's sibling)
+    darwin.org         -- Autonomous code evolver (interactive use)
+    gardener.org       -- Codebase monitor (interactive use)
+    librarian.org      -- Documentation sync (interactive use)
+    bessie.org         -- Motorcycle companion
+    pentest.org        -- Security auditor
+    agent-assistant.org / implementer.org / reviewer.org -- delegation pipeline
+  cycles/              -- Cycle prompts for cycle agents
+    aria_daily.org     -- Aria's cycle
+    continuo_daily.org -- Continuo's cycle
   common/              -- Prompt templates loaded by code
     agent_cycle.org          -- Shared cycle prompt fallback
     agent_cycle_continue.org -- Shared cycle continuation prompt
@@ -101,10 +100,7 @@ prompts/  (-> agents.d/)
     loop_hard_stop.org       -- Loop guard hard stop message
     unknown_tool.org         -- Unknown tool error message
     mount_info.org           -- Extra mount info template
-    memory_summarizer.org    -- Memory summarization prompt (legacy)
-    matrix_turn.org          -- Matrix watcher turn prompt
   base_context.org     -- Shared context (injected by assembly engine, not #+INCLUDE)
-  base_orchestrator.org -- Shared orchestrator rules (legacy, for auditor/ctfwizard)
 ```
 
 No more `agents.d/agents/` directory. The old per-agent `prompt.org` files are gone. The assembly engine reads from `archetypes/`, `personalities/`, and `projects/` (in the personalization mount) instead.
@@ -125,8 +121,6 @@ Personal data (knowledge bases, project files, per-agent files, audit logs) is s
     iar.org         -- Default project (all tools, iar/infra/user knowledge)
     darwin.org      -- Darwin project (restricted tools, i.ar repo mount)
     gardener.org    -- Gardener project (read-only tools)
-    librarian.org   -- Librarian project (docs read-write, code read-only)
-    colin.org       -- Colin project (game dev tools, user knowledge)
     agent-assistant.org -- Delegation pipeline sub-orchestrator
     implementer.org    -- Delegation pipeline executor
     reviewer.org       -- Delegation pipeline evaluator
@@ -234,7 +228,6 @@ The pentest container image can be deployed on-site for security audits. The `ia
 - Parsed by `iar.sh` from the project file's `#+MOUNTS` metadata
 - Each entry is `path:mode` where mode is `rw` or `ro` (default: `rw`)
 - Example: darwin project mounts `/var/home/nacho/repos/i.ar:rw` for code access
-- Example: librarian project mounts `/var/home/nacho/repos/i.ar:rw` for doc sync
 
 **Shared workspace (when `#+CONTAINERS` is present):**
 - A temporary directory (created via `mktemp -d`) is mounted at `/workspace` in both the Emacs container and all sidecar containers
@@ -289,10 +282,9 @@ iar.sh has three modes: interactive (default), loop (`--loop`), and one-shot (`-
 | `--ssh-key NAME` | No | Both | SSH key name (default: emacboros_ed25519). Skipped if key doesn't exist. |
 | `--memory LIMIT` | No | Both | Podman memory limit (default: 8g). Caps container memory. |
 | `--knowledge LABEL` | No | Both | Documentation directory label to load from docs/ (default: from project #+KNOWLEDGE). Can be specified multiple times. |
-| `--cycle-prompt NAME` | No | Both | Override cycle prompt file (e.g. matrix_turn). Defaults to personality-specific cycle or `agent_cycle.org`. |
-| `--status` | No | Both | Dispatch to iar-status.sh (status dashboard) |
+| `--cycle-prompt NAME` | No | Both | Override cycle prompt file (e.g. aria_daily). Defaults to the personality's cycle-map entry. |
 | `--help, -h` | No | Both | Show usage and exit |
-| `--agent NAME` | Yes (loop, one-shot) | Loop, one-shot | Personality name (e.g., darwin, gardener, librarian) |
+| `--agent NAME` | Yes (loop, one-shot) | Loop, one-shot | Personality name (e.g., aria, continuo) |
 | `--max-cycles N` | No | Loop only | Maximum number of cycles (default: 1) |
 | `--cooldown SECONDS` | No | Loop only | Seconds to wait between cycles (default: 60) |
 | `--max-failures N` | No | Loop only | Max consecutive failures before stopping (default: 5) |

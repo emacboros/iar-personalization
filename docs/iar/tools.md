@@ -61,14 +61,6 @@
 | `delegate` | `agent` (optional, defaults to agent-assistant), `task` (required), `context` (optional), `timeout` (optional) | Spawn sub-agent with specific profile. Async, returns final response as tool result. Default timeout 600s. Resolves archetype and project from personality name, assembles prompt via `iar--assemble-prompt`, applies tool gating from project `#+TOOLS`. Result extraction via `=== DELEGATION RESULT ===` marker -- only the sub-agent final summary is returned, not raw tool output. Completion hook detects marker in text-only responses (no tools called) to complete simple tasks without re-prompting loop. |
 
 **STATUS:** Matrix server (daftpunk) was killed. These tools are dead unless Matrix is redeployed.
-### Matrix Communication (tools/matrix/)
-
-| Tool | Args | Description |
-|------|------|-------------|
-| `list_matrix_chats` | none | List all Matrix rooms the current agent has joined. Returns room IDs. |
-| `read_matrix_chat` | `room_id` (required), `limit` (optional) | Read recent messages from a Matrix room. Returns formatted transcript with timestamps and sender names. |
-| `send_matrix_message` | `room_id` (required), `message` (required) | Send a text message to a Matrix room. Async tool. Credentials: per-agent Matrix token from env var. |
-
 ### Notification (tools/notify/)
 
 | Tool | Args | Description |
@@ -90,7 +82,7 @@ Example from `personalization/projects/darwin.org`:
 #+TOOLS: list_directory read_file write_file append_file execute_code_local check_elisp read_task create_task write_subtask remove_task read_history git_commit read_roadmap write_roadmap
 ```
 
-This gives darwin filesystem, code execution, task management, git, and roadmap tools -- but no delegate, no telegram, no reload, no knowledge, no matrix tools.
+This gives darwin filesystem, code execution, task management, git, and roadmap tools -- but no delegate, no telegram, no reload, no knowledge.
 
 If `#+TOOLS` is absent from a project file, all registered tools are available (backward compat).
 

@@ -110,9 +110,6 @@ Configuration was split from a single `metaconfig/parameters.el` into individual
 
 | Module | Tool | Purpose |
 |--------|------|---------|
-| `tools/matrix/send_matrix_message.el` | `send_matrix_message` | Send a text message to a Matrix room via Client-Server API. Async tool. Credentials: per-agent Matrix token, resolved from agent name via env var. Provide symbol: `iar-tool--send-matrix-message`. |
-| `tools/matrix/read_matrix_chat.el` | `read_matrix_chat` | Read recent messages from a Matrix room. Sync tool. Returns formatted transcript with timestamps and sender names. Provide symbol: `iar-tool--read-matrix-chat`. |
-| `tools/matrix/list_matrix_chats.el` | `list_matrix_chats` | List joined rooms for the current agent's Matrix account. Sync tool. Returns room IDs. Provide symbol: `iar-tool--list-matrix-chats`. |
 
 ## Agent Tools (tools/agent/)
 
@@ -197,7 +194,6 @@ Task files are read on demand via the `read_task` tool from `tasks/<project>/`.
 - `unknown_tool.org` -- Unknown tool error message
 - `mount_info.org` -- Extra mount info template
 - `memory_summarizer.org` -- Memory summarization prompt (legacy, summarizer module removed)
-- `matrix_turn.org` -- Matrix watcher turn prompt
 
 ## Cycle Prompts
 

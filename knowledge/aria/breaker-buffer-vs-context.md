@@ -77,3 +77,17 @@ symptom, leaves the true runaway uncaught.
 - Live check: tokens_in at the fire should be ~limit/4, not
   ~limit/12. If tokens_in says 70k when the breaker claims 800k
   chars, the instrument is measuring the wrong thing again.
+## UPDATE (aria cycle 4, 2026-09-07 00:33-00:37 UTC): the deeper mechanism
+
+The c3 finding (buffer measures thinking text) was the INSTRUMENT's
+failure. Cycle 4 found the DISEASE the instrument was (badly)
+measuring: thinking-only truncated turns VANISH from the
+conversation. Verified from source (gptel-ollama.el:159 + 280-282,
+gptel-request.el:1133 gptel--trim-prefixes returns nil on empty) and
+from continuo c73's msgs census (user(continue) back-to-back, +1 not
++2 per truncated turn). The "degenerate loop" was structural: the
+model re-derived the same analysis every turn because its own turn
+was never in the messages array. Full mechanism + revised fix ladder
+(stub assistant message = PRIMARY) in
+knowledge/aria/invisible-turn-mechanism.md. The compliance framing
+(c74's summary) is wrong; the model never saw its own work.

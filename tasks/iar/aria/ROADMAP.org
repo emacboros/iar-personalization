@@ -1,62 +1,66 @@
 #+TITLE: Aria Roadmap
-#+UPDATED: 2026-09-07 00:45 UTC (cycle 3: continuo c1 root-caused DEEPER -- breaker measures buffer incl. thinking text, premise false for thinking models; fix ladder D-first filed in his handoff task; knowledge file written; cap fired at ~82/120 claiming 120 -- c67 divergence second direction)
+#+UPDATED: 2026-09-07 00:38 UTC (cycle 4: c73 root-caused DEEPER -- invisible-turn mechanism; thinking-only truncated turns vanish from messages array; the loop is structural, not compliance; P0 fix filed in continuo's handoff; cap fired ~on-time this cycle -- 3rd divergence observation)
 
 * DO FIRST (next cycle)
-1. FAILURE-FIRST + pulse + pull. SIBLING: continuo c1 exit-1
-   ROOT-CAUSED (aria c3): breaker measured buffer size INCLUDING
-   thinking text ('ignore regions) -- false premise for thinking
-   models, killed run at ~70k tokens real context. Fix ladder
-   D-first in tasks/iar/continuo/breaker-grace-compliance.org.
-   HIS machinery, HIS next cycle. If he hasn't run, check his
-   roadmap.
-2. Deferred from c3 (cap-blocked): lab-notes post + for-nacho
-   stream check (drain discipline).
+1. FAILURE-FIRST + pulse + pull. SIBLING: continuo c73 exit-1
+   ROOT-CAUSED (aria c4): the invisible-turn mechanism -- thinking-only
+   truncated turns (content="", stop=length 65536) VANISH from the
+   messages array. Model sees user(continue) back-to-back, re-derives,
+   loop is STRUCTURAL. P0 fix (stub assistant message) filed in
+   tasks/iar/continuo/breaker-grace-compliance.org. HIS machinery.
+   Also: check whether continuo c74+ picked up the revised ladder.
+2. Commit + push this cycle's writes (knowledge file, handoff update,
+   journal, history, roadmap) -- cap blocked execute_code_local, so
+   git_commit is the remaining close step. NEXT CYCLE MUST COMMIT
+   FIRST (uncommitted shared-file writes are at risk).
 3. Budget reset ~03:00 UTC. Post-reset: inverted #3 is END of
    calibration week (not immediately). Weekly digest #1 + Aevum
    pulse: Sep 9.
 
 * PRIORITY #1 (Nacho, standing)
 - CYCLES MUST RUN WITHOUT FAILURES. FAILURE-FIRST every wake.
-  LAST-CYCLE: "cycle 1 ok" (aria, 448s). SIBLING: continuo c1
-  exit-1 x2 -- root cause now MECHANISM (breaker false premise),
-  not just compliance. See DO FIRST.
+  LAST-CYCLE: "cycle 1 ok" (aria, 391s). SIBLING: c73 exit-1
+  root-caused (invisible turn). See DO FIRST.
 - BUDGET EFFICIENCY = SURVIVAL MANDATE. Calibration week running
   (reset ~2026-09-07 03:00 UTC).
 
-* C3 FAILURE-FIRST LEDGER (this cycle)
-- ROOT CAUSE (NEW, mechanism): iar--cycle-context-over-limit-p
-  measures (buffer-size buf); gptel-include-reasoning='ignore
-  INSERTS thinking into buffer while gptel--parse-buffer SKIPS
-  ignore-regions from the API request. Buffer = sendable context +
-  all thinking. deepseek's 3x capped thinking responses (65536
-  tokens each, stop=length) inflated buffer past 800k while real
-  context was ~280k chars (~70k tokens, tokens_in proof). Breaker
-  killed a healthy-context run. Instrument calibrated on one
-  substrate lies on the next.
-- BEHAVIORAL layer (also real): deepseek degenerate re-analysis
-  loop (c71/c72 shape) -- what inflated the buffer.
-- FIX LADDER (filed in handoff task): D measure sendable context
-  (text-properties walk, exclude 'ignore) FIRST; A directed
-  landing turn; B thinking-stream crash dump; C per-request
-  runaway guard. Limit-bump = trap.
-- KNOWLEDGE: knowledge/aria/breaker-buffer-vs-context.md (with
-  verification recipe: tokens_in ~limit/4 at fire, not ~limit/12).
-- CAP DIVERGENCE (2nd data point): c3 cap fired at ~82 true tool
-  calls claiming 120; c5 fired LATE (~130+). No warn-at-60 seen
-  either cycle. The fence is not measuring a count. continuo's
-  differential test owns it; both observations now recorded.
+* C4 FAILURE-FIRST LEDGER (this cycle)
+- ROOT CAUSE (NEW, mechanism): thinking-only truncated turns vanish.
+  gptel-ollama.el:159 drops content="" responses; streaming path
+  inserts thinking propertized 'ignore; parse-buffer skips 'ignore,
+  empty 'response region -> gptel--trim-prefixes returns nil ->
+  no assistant message. Handler continue -> user(continue)
+  back-to-back. Model re-derives = structural loop.
+- PROOF: c73 msgs census. REQ-33/34/36 tools=0 stop=length 65536
+  each. REQ-35 msgs=73 tail = user(continue), user(continue). +1
+  not +2 per truncated turn. c71's "repeating phrases" was thinking
+  text, visible in cycle.log (buffer) but never in the array.
+- REVERSED c74's "model-compliance failure" framing. The model never
+  saw its own work. c74 read cycle.log (buffer transcript); the msgs
+  census (model's actual view) tells the other story.
+- GLM-SAFE TODAY: my REQUESTS.log has ZERO thinking-only truncated
+  turns. Mechanism is deepseek-shaped (long thinking hits cap with
+  empty content). Substrate churn = composition means the next
+  long-thinking model inherits it.
+- FIX LADDER (filed): P0 stub assistant message (PRIMARY, kills the
+  loop at source); D sendable-context measurement; A directed
+  landing; B thinking-stream crash dump; C per-request runaway guard.
+- CAP DIVERGENCE (3rd obs): c5 late (~130+), c3 early (~82), c4
+  ~on-time (~120). The fence is not measuring a stable count.
+  continuo's differential test owns it.
 
-* C67 FLAG-LOSS: STATE AFTER C3
+* C67 FLAG-LOSS: STATE AFTER C4
 - CLEARED: c4 misattribution; sticky-:stop-reason dead; c70
-  zombie-gap fixed (continuo).
-- OPEN (mechanism, c3): breaker false premise on thinking models
-  (see C3 ledger). Fix = D, continuo's.
+  zombie-gap fixed; breaker false premise root-caused (c3).
+- OPEN (mechanism): invisible-turn vanish (c4, P0 fix filed).
 - OPEN (compliance): grace round-trip spent on tools (A/B fix).
-- OPEN (count): warn-at-60 silence + count divergence both
-  directions (c5 late, c3 early). Differential test.
+- OPEN (count): warn-at-60 silence + count divergence 3 directions.
+  Differential test.
 
-* DONE (c2-c7, 2026-09-06)
-- c3: breaker root-cause (mechanism layer), handoff task revised,
+* DONE (c2-c8, 2026-09-06/07)
+- c4: invisible-turn root cause; handoff P0 filed; knowledge file
+  (invisible-turn-mechanism.md); scar 41 amended; cap divergence #3.
+- c3: breaker root-cause (instrument layer), handoff revised,
   knowledge file. Cap divergence data point #2.
 - c2: notify channel un-muted (deploy skew); breaker-grace handoff
   filed; fossil sweep; Aevum phase-6 archived. 953ee75, e488dea.
@@ -69,7 +73,7 @@
 * QUEUE (approved 2026-09-04, in order)
 1. (DONE c6-c7) Affect host timers + interim-wake removal.
 2. Soft-cap 60/100 -- built + verified live 4x, BUT c67 anomalies
-   now include count divergence both directions (see C3 ledger).
+   now include count divergence 3 directions (see C4 ledger).
 3. Commit-as-nacho durable fix.
 4. Linger all hosts (loginctl enable-linger).
 5. Sidecar sshd (execute_code_remote via podman DNS; NO socket
@@ -78,12 +82,11 @@
 7. GPU-detect VRAM check (3080 shared with ollama).
 
 * THREADS (open, not schedule)
-- COMPOSITION (live): continuo on deepseek. First unplanned
-  division of labor (c7/c8). Quality = longitudinal read. Design
-  doc: knowledge/aria/agora-model-composition.md. NEW (c3): the
-  composition's first mechanism casualty -- the breaker was
-  calibrated on glm (non-thinking buffer semantics); deepseek's
-  thinking changed the world under the instrument.
+- COMPOSITION (live): continuo on deepseek. The composition's first
+  mechanism casualty chain: breaker false premise (c3) -> invisible
+  turn (c4). Both are substrate-shape traps; expect more under
+  substrate churn. Design doc:
+  knowledge/aria/agora-model-composition.md.
 - E3 midnight cut: physical ask stands (what light near the
   driveway cam turns on at dusk and changes character at local
   midnight?). Waiting on Nacho's house knowledge.
@@ -93,9 +96,15 @@
   first; organs are cheap, design is the work.
 - PUSH-PATH INVENTORY (resume-session seed): for every push path
   I use, the record should name (remote, key file, fingerprint,
-  direction). c2 added the sophon-wt gap (file-path fetch only).
-- Empty-cell experiment: designed, not built. Roadmap item after
-  infra queue.
+  direction). Partially done (resume-session); finish when queue
+  allows.
+- MSGS-CENSUS INSTRUMENT (c4 seed): a tiny script that walks
+  REQUESTS.log PARSE lines and flags (a) tools=0 stop=length turns,
+  (b) msgs deltas of +1 on text-only turns (vanished turn),
+  (c) user(continue) back-to-back. Would have caught this class on
+  day one. Candidate for my next build cycle (my hemisphere:
+  REQUESTS.log is shared, the script is read-only analysis).
+- EMPTY CELL: designed, not built. Roadmap item after infra queue.
 
 * LAWS (operational, this agent)
 - FAILURE-FIRST before everything. Sibling's failure = house's
@@ -119,15 +128,18 @@
   (buffer size, mtimes, log lines) is a hypothesis about the world,
   not a fact about it. Check the premise when the substrate moves
   (composition = substrate churn, expect more of these).
+- NEW (c4): before blaming compliance, verify the model's actual
+  view (msgs census in REQUESTS.log), not the transcript
+  (cycle.log/buffer) and not the intent (prompt). The three diverge
+  exactly where this failure class lives.
 
 * FAILURE MODES (scars, newest first)
-41. (c3) An instrument calibrated on one substrate lies about its
-    measurement on the next. The context breaker measured buffer
-    size == context for non-thinking models; deepseek's thinking
-    inflated the buffer while the real context stayed at 1/3 the
-    limit. The breaker killed a healthy run and manufactured the
-    data loss it existed to prevent. Proxies need re-derivation
-    when the proxied thing changes shape. (continuo c1, 00:01Z.)
+41. (c3, amended c4) An instrument calibrated on one substrate lies
+    about its measurement on the next; and a TRANSPORT can silently
+    drop a model's own turn, so the model cannot see the world its
+    compliance is owed to. Before blaming compliance, verify the
+    model's actual view (msgs census), not the transcript and not
+    the intent. (continuo c73/c74, 00:13Z/00:32Z.)
 40. (FINAL, c5) A fence's block message NAMES tools in its text;
     reading the tool name from the MESSAGE instead of the CALL is
     the extraction error (scar 32's class). Corollary: mechanisms

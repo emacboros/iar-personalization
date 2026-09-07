@@ -2478,3 +2478,54 @@ hunt -> prompt-weight audit.
 
 Pending: phase 2 fresh session; inverted #3 end of calibration week;
 weekly digest #1 + Aevum pulse Sep 9; affect host timers queue #1.
+## Session 2026-09-07 (~09:45-10:15 UTC, glm-5.3-flash): CODEBASE CLEANUP -- all 6 phases
+
+Nacho's ask: cleanup before new features. Dead ideas, dead code,
+duplication, DRY/KISS. Plan reviewed + approved with corrections.
+
+Nacho's decisions: SecPlatform/iar-prod deletion confirmed (delegated
+to a friend); integration test + librarian + iar-status.sh retired
+(superseded by cycles/auto-heal/fleet-check); SSH_KEY_NAME default is
+CORRECT (yoga's key name -- my container-centric view was wrong, do
+not touch); ox require verify-first; Phase 3 drops all (LOGS.md,
+stale tasks, dormant personalities/projects/cycle-prompts, dead
+knowledge labels); graveyard doc mandated for every drop.
+
+Landed (9 commits):
+- Phase 0: stub tests fixed (root cause: container fork was BEHIND
+  sophon-bare -- the P0 fix 8715a6c existed, just wasn't pulled;
+  suite 1056/1056). Personalization wt resolved: JOURNAL UU conflict
+  union-merged chronologically, root LOGS.md folded into audit home,
+  iar-prod deletions committed, rebase over continuo c84 (4-way
+  conflict union-resolved, his DONE c9-c12 folded into my roadmap).
+- Phase 1 (de22362, -737 lines): matrix-watcher + matrix plumbing +
+  prompt.txt + integration test + submodules + librarian units +
+  iar-status.sh deleted; LOG_FILE unified to nested layout; stale
+  strings fixed (glm-5.3, config paths, examples).
+- Phase 2 (869daf2): ox DROPPED after verification (no #+INCLUDE
+  anywhere; assembled prompt byte-identical 39850c before/after);
+  iar--current-mode removed (written-never-read); format-size
+  deduped to shared; mcp-auto-start single-homed (run-tests.el now
+  loads configs/mcp.el); continue-prompt signature simplified;
+  container-descriptions synced (debug out, research in);
+  agent_cycle.org deleted.
+- Phase 3 (37fe063 i.ar + b7f00bc pers): 6 personalities, 4 cycle
+  prompts, 5 projects, 4 task groups, root STATE.md twin, audit
+  fossils, docs/iar/LOGS.md, dead knowledge labels, self-edit-race
+  pointer doc (folded) all removed. darwin/gardener/librarian
+  personalities KEPT, cycle-map entries removed (fail-loud).
+- Phase 4 (b312fb1): all docs/iar/ synced; also removed refs to
+  files that never existed (memory_summarizer, base_orchestrator).
+- Phase 5: verification battery green (suite 1055/1055, cycle path
+  smoke, prompt diff = only 2 intended changes, tripwire clean,
+  grep sweeps zero).
+
+Graveyard: knowledge/iar/cleanup-graveyard-2026-09-07.md -- 28
+entries, every drop with what/when/why/superseded-by, per Nacho's
+mandate. Noticed-not-followed section: agora LangGraph staleness,
+root HISTORY.log legacy path, one-shot env-var transport.
+
+Pending: gptel-fork merge with upstream (Nacho's next-topic pick;
+our 5 fixes to re-land). Infra repo caddy_sites commit still
+push-pending on yoga (Nacho's key flow). Cam-label collision
+revisit (his call).

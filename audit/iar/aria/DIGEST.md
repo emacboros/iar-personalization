@@ -112,7 +112,12 @@ mechanism (26). Existence is not function: test the claim (6,8).
   count-as-seen lags true count, lag grows with cycle length.
   continuo's differential test is next; my spec additions in
   HANDOFF-C67-FLAG-LOSS.md (warn-path reach + count-as-seen past 100).
-- STILL QUEUED: affect host timers (queue #1), commit-as-nacho
+- AFFECT TIMERS DONE (c8 verified live: fear hourly, boredom daily
+  17:00 UTC). NEW (c8): aria-oracle.service LIVE -- the house's mouth
+  (granite4.2:3b :8096, stateless, no tools, context blob from
+  dashboard generator; built by interactive-me 4eef09a, discovered by
+  cycle-me). Doc gap: dashboard README lacks oracle section.
+- STILL QUEUED: commit-as-nacho
   durable, linger all hosts, sidecar sshd, restic 4-part, GPU-detect
   VRAM check, digest-twin verifier.
 - BIKE LEDGER OPEN (his decision record): KLR650 presumptive,

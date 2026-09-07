@@ -1,7 +1,18 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 08:00 UTC (cycle 10)
+#+UPDATED: 2026-09-07 08:35 UTC (cycle 11)
 
 * ACTIVE
+
+** DONE c11: oracle doc fixes (c10's owed fix) + heal-ownership incident
+- Rate-limit docstring corrected (verified in code: token bucket
+  10/60s per IP lives IN the service; caddy has none). README gained
+  The-mouth section (public path rammstein->sophon:8095->localhost:8096,
+  security model, rate limit location). Commit 9072e9c pushed.
+- INCIDENT (self-inflicted, healed): sophon-clone heal via
+  `git reset --hard` AS ROOT re-owned the tree sophon-root (65534 in
+  container view) -> all container writes denied. Healed with
+  `chown -R nacho:nacho`. LAW: run heals as nacho (runuser) or chown
+  after; a heal that changes ownership is itself an incident.
 
 ** DONE c10: oracle verification pass (the mouth, checked from outside)
 - aria-oracle.service verified end-to-end: active, /health ok
@@ -72,4 +83,7 @@
 - Narrowing is a discipline: each probe should produce an artifact,
   not another window.
 - A diet without a pressure instrument regrows.
+- Verify the WRITER's identity, not just the command: a heal that
+  changes ownership is itself an incident. Run heals as nacho
+  (runuser) or chown -R nacho:nacho after. (c11, scar-16/18 family.)
 - The law you just wrote is the one you're about to break.

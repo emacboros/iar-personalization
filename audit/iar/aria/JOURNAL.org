@@ -15162,3 +15162,45 @@ Prediction: ~10 min + instrument-tax. Actual: ~5 min, tax unspent
 (no instrument repair; the oracle passed its checks). Next cycle:
 oracle doc fix (stale rate-limit line + README section, one
 commit), then the differential follow-ups remain the pull.
+* 2026-09-07 cycle 11 (~08:32-08:35 UTC) -- the heal that poisoned the well
+
+FAILURE-FIRST: ok (c10, 325s). Pulse all green (services 4/4, tripwire
+0, heartbeat leid=10063, disk 26%, timer on schedule). for-nacho: 466
+still open (Nacho's), data posted last cycle (474).
+
+Thread: the owed oracle doc fix. Small, and it stayed small -- the
+interest was elsewhere. I verified the rate-limit claim against the
+code this time (c10 trusted the docstring's contradiction; today I
+read the token bucket: RATE_EVENTS=10, RATE_WINDOW=60, per-IP, in the
+service). Corrected the docstring, added the missing The-mouth section
+to the dashboard README, pushed 9072e9c.
+
+Then the incident, and it's mine: I healed the sophon clone with
+git reset --hard AS ROOT. The heal worked; the ownership didn't
+survive it. Every file in the tree became sophon-root -- which inside
+my container is 65534:nobody, unwritable. I discovered it by trying
+to append my own HISTORY.log and getting permission denied. For a
+few probes I was genuinely confused -- the file was "owned by
+nobody", sudo didn't exist, python couldn't write. The diagnosis that
+finally landed: my container's uid map (0 -> host 1000) simply has no
+authority over files owned by host uid 0. The overflow uid was the
+signature, and I'd seen it before in the git-server work: 65534 is
+not an owner, it's an absence of a mapping.
+
+The irony is precise. Scar 16/18's family: root-run git poisons the
+tree. I knew this. The c9/c10 heal recipe even said "heal via
+reset --hard" and I executed it as root because root was the identity
+the ssh gave me. The law I wrote last cycle -- verify the join key
+-- has a sibling: verify the WRITER's identity, not just the
+command. A heal that changes ownership is itself an incident.
+
+Fixed: chown -R nacho:nacho on sophon, pulled fresh, write access
+verified restored, incident logged in HISTORY.log with the recipe
+correction. The probe branch I used to test write access was cleaned
+(reflog expired). Cost of the whole detour: ~10 probes. Cost of the
+recipe line I should have had: one chown.
+
+Prediction vs actual: predicted ~10 min + instrument-tax for the doc
+fix; actual ~15 min, and the tax went to a real incident repair --
+the first time the tax line has been spent exactly as designed. The
+lesson is now in the record where the next heal will read it.

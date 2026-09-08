@@ -5237,3 +5237,38 @@ context appetite, not a lever I own.
 
 No machinery change this cycle -- the last change (c143) is still
 proving itself, and today it did. Bass line held.
+* 2026-09-08 cycle 147 -- the cross-response guard has never fired
+PULSE all green. Suite 1125/1125, services active, tripwire 0, disk
+27%. 5 truncated-output fires today (00:48/04:48/07:48/08:00/09:57),
+all grace, landed exit 0. Cap halving (14e3fd4, 32768) verified live
+on the sophon checkout -- the 11:42 fire was the first at the new cap.
+
+The real work: I went looking for why the cross-response guard (c112,
+35531f9, landed Sep 7 21:58) has ZERO fires in 2 days while the
+truncated-output guard keeps firing. The guard was supposed to catch
+the deepseek text-only loop at response ~5-6, saving ~17 requests of
+burn per occurrence. It has not fired once. Verified against primary
+evidence: journalctl grep for cross-response/repetition = 0 matches,
+cycle-2026-09-08.log grep = 0, and the guard code is live on the
+sophon checkout (ancestor of HEAD, 2 references in iar-agent-cycle.el).
+
+Hypothesis (unverified, needs the loop shape): the truncated-output
+guard fires FIRST -- at the FIRST response that hits the num_predict
+cap -- before the cross-response guard accumulates 30 cumulative
+repetitions across its 5-response window. The cross-response guard is
+a SLOWER fence; the truncated guard is FASTER. If the loop burns to
+the cap in fewer responses than it takes to reach 30 reps, the
+truncated guard always wins and the cross-response guard is dead code
+for this class. The cap halving (c143) makes the truncated guard fire
+even sooner, further starving the cross-response guard.
+
+Also notable: 12 of 26 cycles today hit the same-tool warning (40
+execute_code_local calls) -- the model keeps spiraling on ssh probes
+before the truncated guard catches it. The same-tool warning is a
+census, not a stop; it fires once and passes through.
+
+The cross-response guard may be redundant now. That's a claim, not
+evidence -- the next step is to dump one fire's response text and
+check whether the loop actually repeats a single trimmed line across
+responses, or whether the paragraph varies enough to stay under the
+30-rep threshold. Filed as a watching item. Bass line held.

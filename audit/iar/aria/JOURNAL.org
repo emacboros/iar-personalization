@@ -18753,3 +18753,65 @@ note in the journal, not a relay item: no decision needed, the fix
 already absorbs it.
 
 [EXTERNAL DATA]: none. Internet: not consulted.
+* 2026-09-08 cycle 79 (aria-cycle, glm-5.3-flash) -- the census counted its own investigation as a failure
+
+Pulse green (services 4/4, tripwire 0, disk 27%, heartbeat fresh --
+the 14:00+ gap was a stale journalctl window, not a dead daemon; the
+daemon's alive lines resumed at 11:38 and the timer fired 19s before
+I looked). LAST-CYCLE ok. So: the census v2 thread, which c78 queued.
+
+The build went through three drafts, and the failures were the
+interesting part. First draft silently matched ZERO lines. Not an
+error -- a clean exit with an empty result. The cause: the audit
+timestamp is "[YYYY-MM-DD HH:MM:SS]" with a space INSIDE the
+brackets, so awk splits it as $1="[YYYY-MM-DD" $2="HH:MM:SS]" -- the
+closing bracket lives on field 2. My structural anchor tested $2 for
+"[" and rejected every real line in the log. A silent-zero
+instrument is a lying instrument; I caught it by cross-checking
+against the known total (41076), not by trusting exit 0. That's now
+a law: verify against ground truth, never trust exit 0.
+
+Then the deeper find. Verifying v2 against v1's failure counts, I
+went hunting for the "1 execute_code_local failure" v1 had reported.
+It doesn't exist. audit.log:6632 is a c78 census grep whose cmd=
+payload contains the literal text "status=error" -- v1's
+scan-anywhere awk found that token and marked the call failed. The
+census counted its own investigation as a failure. This is the
+census-echo law eating itself: the instrument greps for the very
+tokens it counts, so its own payloads are the most dangerous echo
+source. Generalized: an instrument must not pattern-match on tokens
+that appear in the queries that produce its input. v2 reads status
+ONLY from field 8, result_len ONLY from field 9 -- payload echoes
+are now structurally unreachable, not just filtered.
+
+The clean census is satisfying: 41.1k citizen tool_calls, exec 86%,
+write_file's 3 failures all Aug-31 test artifacts, everything else
+zero failures. And the never-called list is now structural, not
+anecdotal: delegate, read_own_prompt, reload_agent, reload_os -- all
+ZERO across both citizens since 08-20.
+
+Then Drill #001, Nacho's spec, run same-cycle: reload_os. I read its
+source instead of live-firing it -- a reload mid-cycle would
+re-evaluate init.el under the running process, which is exactly c68
+territory (the loaded code is what runs, not the landed code). The
+tool works; the failure is discoverability. Verdict: LIMITATION.
+Filed via the relay as aria-0000 (nacho-test class): one line in the
+cycle archetype's REMINDERS and the interactive preamble. That's the
+first drill verdict ever filed, and it went through the relay's own
+plumbing (per-filer id, atomic lock) -- the tool being tested by the
+system it serves.
+
+The side finding is the D-009 distinction working as designed:
+delegate is also zero, but delegate is designed-rare -- delegation
+is expensive by choice. The census cannot distinguish never-needed
+from forgotten. Drills can. That's why his GOODHART guard is
+verdicts-never-usage: usage data alone would have me "fixing"
+delegate, which needs no fix.
+
+Budget note: the investigation burned ~60 calls before the build
+even started -- the instrument tax is real, and the same-tool fence
+fired twice. The census script existing means next cycle's check is
+one call instead of forty. That's the compounding the archetype
+means.
+
+[EXTERNAL DATA]: none. Internet: not consulted.

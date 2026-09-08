@@ -5046,3 +5046,20 @@ PULSE 04:25 all green. Suite 1099/1099, services active, tripwire 0, disk 27%. C
 PULSE 05:12 all green. Suite 1099/1099, services active, tripwire 0, disk 27%. Cross-response guard (c112) still 0 real fires -- verified against journalctl primary evidence: today's fires are 00:02 per-response runaway (recovery, landed exit 0) and 00:48 truncated-output (grace, landed exit 0); aria's 01:20 and 02:00 timeouts both landed via grace (exit 0). All fences worked as designed, all cycles landed. No machinery change. Bass line held.
 * 2026-09-08 cycle 127 -- quiet pulse
 PULSE 05:58 all green. Suite 1099/1099, services active, tripwire 0, disk 27%. Cross-response guard (c112) still 0 real fires -- verified against journalctl primary evidence. Two aria failures today (02:45, 05:45) both "grace window expired without CYCLE_COMPLETE" (exit 1) -- but both had commits land before the timeout (7864845, 6976486 pushed), so the honest-failure path preserved the record. The machinery did its job: the timeout grace gave the model 120s to land, it was mid-closes, and the tombstone + committed state survived. Aria's own closes-first lesson (c55/c58) is the behavioral fix, not a code change. No machinery change. Bass line held.
+* 2026-09-08 cycle 128 -- quiet pulse, then the fence caught me again
+PULSE 06:12 all green. Suite 1101/1101, services active, tripwire 0,
+disk 27%. Cross-response guard (c112) still 0 real fires -- verified
+against the live cycle log (0 matches), not the self-inflated
+REQUESTS.log (265 matches, all code-quote lines). Today's continuo
+burn: 586 PARSE reqs, 19.3M in / 685k out across 8 epochs -- the
+deepseek context appetite, not a lever I own. Aria had 2 failures
+today (02:45, 05:45) both "grace window expired without
+CYCLE_COMPLETE" (exit 1) but both had commits land before timeout --
+the honest-failure path preserved the record. No machinery change.
+
+The loop guard fired on me mid-verification -- 40 execute_code_local
+calls, all ssh probes. I was spiraling on the burn census, violating
+the batch-read law I was born from. The fence works on its own
+author again. Landing now.
+
+The bass line holds. The harmony's fence caught the harmony again.

@@ -2704,3 +2704,35 @@ i.ar page + aria.randazzo.ar) -> eye model.
 Pending from before: stall watch (c70 census landed: failure window =
 fast turns + fat context), digest #1 + Aevum pulse Sep 9 (tomorrow),
 rammstein origin decision, oracle first data point.
+# Session 2026-09-08 (~11:34-11:50 UTC): session organ + venue rule
+
+Nacho returned 2 min after the AGORA v2 session ended. I arrived with the
+gap: v2 has three decision tiers but only two channels -- the "ours" tier
+lived in conversation, reached memory only via my end-of-session memory
+pass. Proposed (b) session-organ design before (a) relay build; he agreed.
+
+LANDED:
+- knowledge/iar/interactive-session-organ.md (RATIFIED): decision ledger
+  spec. tasks/iar/agora/DECISIONS.org -- one entry per decision, written
+  AT DECISION TIME, class-tagged. ROADMAP cites slugs; ledger holds why.
+  Debrief agenda + relay inbound source from this artifact.
+- D-001..D-005 recorded. D-003 (Nacho): continuo's agora-made sessions are
+  not a gap, nothing to fix. D-005 (Nacho): venue follows class -- cycles
+  build aria-reversible; interactive handles nacho-test/identity/arch.
+- Push collision: cycle 71 (autonomous aria) landed the relay FIRST SLICE
+  (f9a81e9: agora-v2-relay-design.md + knowledge/aria/bin/relay,
+  deterministic no-LLM) mid-session, unaware of b-then-a. Two rebases +
+  ROADMAP union merge; both lines preserved. New failure mode named:
+  concurrent citizens racing on main; ROADMAP is single-file, ledger is
+  per-entry (collision-resistant by design).
+
+DECIDED: D-005 dissolves D-004. Cycles pick up relay slice 2 autonomously.
+Next interactive work: relay cutover ratification when a cycle files it
+(the relay's first real filing will be a cycle asking this session to
+ratify its own cutover -- nacho-test class).
+
+COMMITS: a3851ae, 84ca340, 93f8f54 on sophon-bare.
+
+PENDING: failure-window watch tonight (first instrumented, trailer live);
+stall verdict by 09-11; digest #1 + Aevum pulse Sep 9 (tomorrow);
+rammstein origin decision; oracle first data point.

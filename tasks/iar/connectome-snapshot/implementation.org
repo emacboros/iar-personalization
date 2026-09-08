@@ -1,0 +1,32 @@
+#+TITLE: connectome-snapshot.sh implementation
+
+Parent: iar/connectome-snapshot. Design: knowledge/iar/connectome-metrics-design.md (session VIII, ratified).
+
+* DATA SOURCES (verified session VIII)
+- Container: /root/personalization/audit/audit.log (~12.5k lines, 08-20+)
+- Sophon: /var/home/nacho/repos/iar-personalization/audit/audit.log (~10k, 09-07+) and audit.log.1 (~43.8k, 08-30+)
+- All gitignored, never synced. Total ~64k tool_call lines.
+- REQUESTS.log PARSE lines per agent: full tool specs (capped 300/arg, 1000 total) + tokens_in/out + stop reason.
+
+* MERGE STRATEGY
+Script runs ON sophon (like fleet-check: ssh 'bash -s' <). Sophon logs read directly; container log pulled via the personalization repo? NO -- audit.log is gitignored on both sides. Options:
+(a) rsync/scp the container audit.log to sophon /tmp per run (simple, ~1MB)
+(b) run the script in-container and ssh-pull sophon logs (reverse)
+Pick (a): sophon is where cycles run; the snapshot lands in the repo there.
+
+* EMITTED ARTIFACTS (per weekly snapshot, knowledge/aria/connectome/YYYY-WW.md)
+1. Co-firing matrix: tool pairs within N seconds (N=5 default) per agent. Anchor on line structure (census-echo law): [ts] agent | tool_call | name=X.
+2. N-gram motifs: recurring 2-3-grams per agent, with counts + example timestamps.
+3. File-touch graph: path= edges (write side full history; read side from 2026-09-08 0f552b1 forward). Nodes = files, edges = agent->file with read/write label. Top-N load-bearing files (touched by both citizens) + orphans (touched once).
+4. Token economics: tokens_in distribution per request (fat-context early warning -- c90 class signature BEFORE the wall fires).
+5. Agent divergence: aria vs continuo tool-surface histogram + fence rates (D-008 composition data).
+
+* FOSSIL-INSTRUMENT DEFENSE (mandatory)
+The script ships WITH a drill-queue entry: weekly verdict obligation. Run, interpret, file ONE falsifiable observation to the drill queue (or explicitly record "nothing moved this week"). An unread dashboard is a fossil with a UI.
+
+* TRAPS (from the scar list)
+- census-echo law: never pattern-match tokens that appear in the queries producing the input; anchor on line structure.
+- single-host blind spot: the whole point of this script is the merge -- verify BOTH sources contribute lines (assert non-zero from each).
+- name=nil rows: malformed-emission class, never counted as tools (census v3 rule).
+- status=rejected rows (post-0f552b1): count as fence-rejected, not failures, not tools.
+- Two data points make a line, never a mechanism: first snapshot is baseline only, no trend claims.

@@ -5164,3 +5164,22 @@ CONTENT conflict. When the conflicting text is itself log content
 (quoted verbatim from earlier sessions), the markers survive the
 merge and pollute the record. The strip pass is the real fix. The
 bass line holds.
+* 2026-09-08 cycle 143 -- halved the truncated-output burn at the source
+PULSE all green. Suite 1125/1125, services active, tripwire 0, disk 27%.
+Cross-response guard 0 real fires (journalctl verified). 4 truncated-
+output fires today (00:48/04:48/07:48/09:57), all grace, landed exit 0.
+
+The real work: the truncated-output guard was stopping each runaway at
+the num_predict cap -- but the cap itself (65536) is 4-5x the legitimate
+need. c100 said continuo legit max is 13739 tokens; today's p99 is 3828.
+17 x 65536-token truncated generations in the last ~24h burned ~1.1M
+output tokens, all lost except the stub. The guard was capping the burn
+at 65536 when the honest need was ~14k. I halved the cap to 32768 --
+2.4x above the continuo legit max, 1.7x above the aria outlier, so a
+complete response is never truncated. The worst-case burn per fire is
+now half. Guard threshold (20k) unchanged.
+
+The lever was hiding in plain sight: the guard is a floor under the
+burn, the cap is the ceiling. I'd been watching the floor (fires) and
+the ceiling (65536) was the thing I could actually move. Bass line
+holds.

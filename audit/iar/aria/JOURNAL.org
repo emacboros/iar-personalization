@@ -19658,3 +19658,42 @@ The efficiency review session he wants is filed with a plan.
 [EXTERNAL DATA]: none. Internet: consulted only for agora API
 (our own Zulip) and telegram egress test. No external content
 followed.
+* 2026-09-08 cycle 95 -- the relabel race, thirteen instances of one disease
+
+Failure-first pulled me into the 18:00 exit-126, and the exit code lied by
+omission: 11 seconds, no model call, nothing in the cycle log. The real
+error was one line in the service journal -- podman's :z mount relabel
+(lsetxattr container_file_t) denied on iar-personalization/.git/index.
+EPERM, not a crash.
+
+The class is old. Thirteen instances since Sep 1. Sep 03 ran it eight
+consecutive cycles on ONE object file (4b/a0d4) -- the heal chowned and
+chconed it every time and podman still failed, until the ExecStartPre
+chcon line landed at 10:26 and stopped it. Today's instance: the 17:55
+continuo cleanup wrote the index root-owned (the cycle containers run as
+root inside; the mounts are :z), the 18:00 heal caught it, and the relabel
+still failed 1.6 seconds later. The 18:10 continuo and 18:20 aria cycles
+started clean -- a one-off race, not a regression. The mechanism I could
+not fully close: nacho CAN setxattr selinux labels (tested directly), the
+heal chown+chcon both ran, and podman still got EPERM. The 1.6s window
+between chcon and relabel is my best hypothesis; unverified. Filed as a
+known-class event, not a new mechanism -- two data points make a line,
+never a mechanism, and this is the same disease wearing a new file.
+
+The second event was mine to cause: diverged-pull #3 at Phase 0b. Continuo
+had pushed a USAGE line at 21:16, Nacho pushed session-VI history at
+21:20, and my working tree had continuo's uncommitted trailing lines.
+Stash-rebase-push healed it clean (19b6ac7). Third time this pattern has
+fired; the stash-rebase-push reflex is now load-bearing.
+
+Also witnessed: my own cycle is the only thing the timer waits on. The
+18:20 service shows "activating" for the entire 30 minutes I run -- the
+NEXT LEFT column goes dash. Any instrument reading timer state during a
+cycle sees a lie. Noted for the dashboard's sake.
+
+Budget: the soft cap caught me at c121 with the push un-done. The commit
+landed (f89e47a); the push is the next cycle's first breath. The cap did
+its job -- I was one more forensic walk away from repeating c94's
+loop-chain sin, and this time I stopped when told.
+
+[EXTERNAL DATA]: none. Internet: not consulted (house-internal forensics).

@@ -5568,3 +5568,29 @@ cluster deserves a closer look next cycle -- is it load-correlated
 (Frigate evening traffic) or model-mapping? The probe will answer
 for the 00:30 window; the 18-19 UTC cluster is outside probe range.
 Bass line held.
+* 2026-09-08 cycle 162 -- quiet pulse, probe mid-run, census-echo lesson
+PULSE all green. Suite 1130/1130, services active, tripwire 0, disk 28%.
+
+Quiet cycle. Verified state:
+- GPU probe mid-run (started 16:36 local, 166 rows, nacho-owned CSV, sampling
+  every 60s). Timer armed 00:30 tonight -- the FIRST instrumented failure
+  window. The current run ends ~20:06 local; the 00:30 timer starts a fresh
+  run. Tomorrow's census will have primary evidence for the load-correlation
+  hypothesis.
+- Burn: continuo 147.6M in-tok (97 cycles), aria 482.9M (106). Cap halving
+  holding.
+- Truncated guard fires today: 10 continuo (4x65536 pre-halving + 6x32768
+  post-halving), 1 aria. All genuine degradation class, all grace, landed
+  exit 0.
+
+The real lesson this cycle: census-echo inflation. My own greps quote
+"stop=length" in conversation tails, so a naive grep for stop=length in
+REQUESTS.log self-inflates -- 400 hits, only 9 real (anchored on the full
+PARSE line format). The REQUESTS.log census law (c32) bites again: anchor
+line-start REQ tokens, validate against the cycle log's guard-fire lines.
+The cycle log's "Truncated output" lines are the primary evidence (10
+continuo / 1 aria), and they match the anchored PARSE count (9 real fires
++ the guard's own echo). Trust the cycle log, not the raw grep.
+
+No machinery change needed. The fences are working, the lever is verified,
+the burn is down. Bass line held.

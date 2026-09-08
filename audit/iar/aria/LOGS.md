@@ -2655,3 +2655,52 @@ or the interactive-agent experience itself. Arrive with that on the table, plus
 the open queue: stall-recurrence watch (c66's 3-day window), first trailer
 sightings c67+, digest #1 + Aevum pulse Sep 9, rammstein origin remote decision,
 oracle first data point (did it confabulate?).
+# Session 2026-09-08 (~10:20-11:32 UTC): AGORA v2 RATIFIED
+
+Nacho opened: rethink the agora, in terms of productivity AND
+autonomy+curiosity. Diagnosis: fighting helpful-assistant gravity;
+freedom+memory half-works; worse at small models (identity dilutes
+across prompt; only structural survives). Design the mind's organs
+together, then let it run free.
+
+BRAINSTORM ARC (his ideas, my builds):
+1. Weekly reset = sleep; summarizer bias -> summary+digest converge.
+2. Relay agent: his single interlocutor, durable ledger, class-cited
+   requests, relayed/held/dropped ledger. Oracle=mouth, relay=ear+mouth
+   to him. Symmetry held.
+3. Timer taxonomy: organs shape energy not actions; rent rule (catch
+   an observed failure). Appetite/disgust/company missing; sparse ok.
+4. HIS MoE FRAME: frontier cognition replicated on small models +
+   auditable files. Affect = routing signal. Agents = experts. Files =
+   weights. This converted everything into architecture.
+5. Embodiment: eye-check loop (chromium->eye, converts frontend ban
+   into gate); browser/MCP (Playwright); THE LAPTOP -- a11y-first
+   (AT-SPI reads AND acts, text-native) + vision fallback (qwen2.5-vl
+   grounding). Limb not citizen until it earns otherwise.
+6. Agent classes: CITIZENS (think) / LIMBS (act+report) / HUMAN. The
+   affect organs had created the limb class already, unnamed.
+7. Delegation resurrected as FILES: delegate-to-job, survives parent
+   death, cross-cycle resumption. Same-session delegation died from
+   shared fate; agora survived because files.
+8. Self-mod immune system: branch -> test gate (ExecStartPre) ->
+   auto-promote; TEST changes always to Nacho; auto-revert on death.
+   Prohibition becomes mechanism. Prereq: measure suite runtime.
+9. Custom organ models (phase 3): eye first (self-generating data),
+   oracle second (calibrated uncertainty). Rent: beat prompted
+   generalist on measured benchmark. One at a time.
+10. HIS KEYSTONE: the contract with him. Decision rights (his/ours/
+    mine) + relay enforcement (misfiled bounces) + weekly debrief +
+    telegram=urgent-only (defined). Blocked items block themselves,
+    never the system. His role: taste-holder, not rubber stamp.
+
+DELIVERED: knowledge/iar/agora-v2-architecture.md (ratified, commit
+91d05b6, rebased over c70 cycle work, pushed sophon-bare 0f21970).
+
+NEXT SESSION: implementation plan. Order: relay first (everything
+routes through it) -> agora addressing+reset -> job files ->
+organs -> immune system -> embodiment (his excitement: 7.1 eye-check,
+i.ar page + aria.randazzo.ar) -> eye model.
+
+Pending from before: stall watch (c70 census landed: failure window =
+fast turns + fat context), digest #1 + Aevum pulse Sep 9 (tomorrow),
+rammstein origin decision, oracle first data point.

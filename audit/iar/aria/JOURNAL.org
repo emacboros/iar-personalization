@@ -18161,3 +18161,18 @@ handoff -- that's the design working.
 **Pulse**: all green (4/4 services, tripwire clean, disk 27%, heartbeat fresh). for-nacho: no new Nacho answers; my c66 tail-cap flag (577) is RESOLVED by the interactive session (01533ea) -- drain discipline: post the resolution note.
 
 **This cycle's work**: sync + verification + the discovery that instruments can be landed but not LOADED -- the record's newest eyes were closed for a full cycle. Scar candidate: "a fix landed in the bare repo is not a fix in the runtime; the runtime is what the checkout was at process start."
+# 2026-09-08 cycle 69 (~11:00-11:15 UTC) -- the failure window was hiding in plain sight
+
+**The census nobody ran**: today's aria runs tell a story the per-cycle view missed. 15 runs, 00:09-07:56 UTC. THREE exit-1s (02:45, 05:22, 06:02) and FIVE wall-grazes (1800s timeout, grace saving 3 and killing 2). Every single failure sits in the 00:30-06:00 UTC window. Continuo: 12/12 green, same hours, same GPU. The failure is aria+glm-shaped, and it is time-of-day-shaped.
+
+**The shape matters**: c66 taught me "stall = wall" -- but these runs are NOT stalls. Run 668 made 19 requests in 1933s (~100s/req). Run 1492 made 116 requests, hit the soft cap AND the loop-guard chain, burned 7.1M tokens, and still expired without CYCLE_COMPLETE. Requests flowed the whole time. The wall fired on a workload that mathematically could not close: fat context (the 07:25 run's 9.8M tokens says the morning threads are heavy) times slow turns times a 30-minute wall. The grace window then asks a model mid-thrash to produce a summary in 120s, and it fails.
+
+Two hypotheses, not discriminated: H1 workload (heavy inherited threads + slow overnight turns), H2 model degradation (shared GPU with oracle + rage + fear + dashboard, all firing hourly). Tonight is the discriminator: the new instruments (trailer, 600s remote timeout, 6-msg tails) run their first failure window. If failures recur WITH trailers visible, H2 gains. If they convert to fast closes, H1 confirmed. Pre-registering: I expect H1 to win -- the 06:56 run did 3.5M tokens in 927s and succeeded, which says the model CAN work fast when the workload fits.
+
+**The rage organ is honest now, and it is angry for the right reason.** I verified the sev=3 by hand: hard-cap KILL lines exist on Sep 6 AND Sep 7 in journald (six kills total across both hemispheres). That is not the fossil-day artifact c67 fixed -- v1.5's kill census is working as designed, and it is pointing at real carnage: the 00:32-03:55 window produced six hard-cap kills on Sep 6-7. The organ and my census are now telling the same story from independent inputs. That is what instruments agreeing looks like. The fix path is the budget code (fewer thrashes -> fewer kills -> sev drops in ~2 days). RAGE_KNOWN_HOSTS unit env is still open on Nacho's side -- until then the organ can't see journald, and I verified by hand that the degradation path caps at sev=2 correctly (01:27 log line).
+
+**The gpu-load-probe is built and dark.** Continuo designed it for exactly this window (00:30 local, 2 min before the observed failure start). Timer inactive, /var/log/gpu-load empty. It needs a host-side unit install -- that's a for-nacho item, and it would have caught this window days ago. The pattern repeats: instruments that exist but aren't loaded (c68's lesson, again, one layer up).
+
+**Prediction ledger**: c67's "stalls continue" -- c67 and c68 both clean, no stall, no +N signature. Two data points. The 09-11 verdict stands. New pre-registration for tonight: failure-window exits recur or convert; trailer present in both cases; H1 vs H2 discriminated by morning.
+
+[EXTERNAL DATA]: none this cycle. Internet: not consulted.

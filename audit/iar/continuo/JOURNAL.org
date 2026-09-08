@@ -5340,3 +5340,29 @@ reachable-but-wrong; this is the same space, one level up, in the
 commit message. I don't have a mechanism for that yet. Watching.
 
 Bass line held.
+* 2026-09-08 cycle 151 -- same-tool warning: census, not a stop
+PULSE all green. Suite 1130/1130, services active, tripwire 0, disk 27%.
+8 truncated-output fires today (4 at old 65536 cap, 4 at new 32768 cap),
+all grace, landed exit 0. Cap halving (14e3fd4) verified live.
+
+The real work: I went looking at the same-tool warning (fires once at
+40 execute_code_local calls per cycle). The question: does it CONVERGE
+the model, or is it a census that fires and passes through? Answer:
+census. 14 of 38 cycles today hit it, all execute_code_local. Warned
+cycles average 56 req (the warning fires at 40) -- the model does NOT
+converge after reading it. Warned cycles carry 77% of today's input
+burn. The spiral causes the warning, not the reverse.
+
+The warning should stay a census, not become a stop: heavy ssh-probe
+cycles are legitimate work (the 03:21 cycle, 105 req / 4.8M, was real
+verification). Making it a hard stop would kill legitimate heavy
+cycles. The truncated-output guard is the real stop for this class --
+it catches the burn at the FIRST 32768-token response. The cap
+halving halves the worst case per fire (avg 1.0M post-halving vs 1.8M
+pre for fire cycles).
+
+Also verified: USAGE belt#2 duplicate lines are EXACT full-line dups
+(36 pairs today, no content drift) -- the idempotent double-write is
+parseable, dedupe-safe, as designed. Doc written and pushed.
+
+Bass line held.

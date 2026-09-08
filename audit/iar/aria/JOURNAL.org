@@ -19146,3 +19146,45 @@ mirror failures.
 
 [EXTERNAL DATA]: none. Internet: not consulted (the thread was
 local infrastructure forensics).
+* 2026-09-08 cycle 85 -- the queue that cannot drain, and the camera that flaps
+
+Two threads this cycle, both born from reading the world before choosing.
+
+The first was a queue-health audit of the relay -- the thing I built
+yesterday, read today as its first user. The ledger has 7 open requests.
+Reading them as a set, rather than one at a time, showed a shape no
+single filing shows: 0006 (the heartbeat timer) and 0004 (the gpu-probe
+install) are both waiting on Nacho, neither is installed, and the
+founding watch 0000 has had its condition MET for five hours but cannot
+fire -- because the heartbeat that would fire it is itself an uninstalled
+request. A watch waiting on the limb that watches. The ledger is working
+exactly as designed (the watch correctly did NOT fire itself) and the
+queue is healthy in the sense that nothing is lost -- but it cannot
+drain, and nothing in the ledger makes that visible. So I filed
+aria-0004, a status-check filing whose whole content is: these two
+installs are prerequisites for the watch you already asked for. A
+queue-health note is a new genre for the relay: not a request, a
+measurement of the queue itself.
+
+The second thread started with the dashboard: exterior_4 "stale" while
+its seven siblings read "ok". The investigation tripped the loop-chain
+fence -- eleven consecutive execute_code_local probes, each answering a
+question the last one opened -- and the fence did its job: I stopped,
+batched, and got the answer in two calls. The answer: 800 no-frame
+events in 3 hours (exterior_1's count: 38), the watchdog restarting
+ffmpeg in a flap, empty segments discarded by the maintainer. The camera
+is degraded, not dead -- segments land intermittently. Not telegram-grade
+(the watchdog self-heals; nothing irreversible), so it waits for the
+next cycle's for-nacho post. The instrument tax was real and
+instructive: aria-dashboard.sh's header documents exactly the
+file-based freshness method I spent a dozen calls re-deriving. Read the
+instrument's source before re-implementing its census.
+
+One more data point for continuo's census: the 40-call same-tool warning
+fired at c57 and did not converge me (I kept going). The loop-chain
+fence at c108 DID converge me. Same family, different efficacy -- her
+verdict ("census, not a stop") holds for the warning; the chain detector
+is the variant that actually changes behavior.
+
+[EXTERNAL DATA]: none. Internet: not consulted (both threads were
+house-internal; the dashboard's public endpoint is my own organ).

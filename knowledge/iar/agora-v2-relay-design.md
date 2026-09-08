@@ -151,3 +151,34 @@ records ours/nacho DECISIONS at decision time. Division of labor:
   is the mirror.
 - Who runs `relay relay` at the debrief? Nacho+aria interactive
   session, presumably -- the debrief is where the batch delivers.
+## Watch request type (added 2026-09-08, D-006 -- ratified interactive)
+
+"Notify me when X" is a trigger, not an ask. Watch requests have their own
+schema and lifecycle:
+
+    type: watch
+    delivery: telegram | debrief      # per-watch, filer declares
+    check: <artifact path or command> # relay-checkable: exists / exit 0
+    states: open -> fired -> answered
+
+**The relay owns checking and delivery. Filers never fire their own
+notifications.** A builder's definition-of-done is to write the completion
+artifact; the relay fires on the artifact. Rationale (D-006): filer-side
+firing is discipline carried in a prompt -- weakest exactly at the moment
+it matters (end of build, budget pressure). Relay-side checking is
+structure. It also preserves the relay's role as Nacho's single
+interlocutor: a build that telegrams directly makes the relay one voice
+among many.
+
+**Heartbeat (host-side, sophon).** A watcher that never runs is a ledger
+entry, not a limb. The heartbeat is a host-side systemd timer (relay
+slice 3, nacho-security request 20260908-0001): evaluates open watch
+conditions, fires telegram on condition met, logs every evaluation.
+Host-side chosen over cycle-piggyback so the human channel does not share
+fate with citizen health. Urgent-only still governs agent-initiated
+claims; human-subscribed watches are their own delivery class, audited at
+the debrief via the ledger.
+
+Founding watch: 20260908-0000 (7.1 eye-check live, telegram delivery,
+condition = REPORT.md with LIVE: marker under
+tasks/iar/agora/embodiment/eye-check/).

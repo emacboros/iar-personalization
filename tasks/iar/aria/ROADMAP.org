@@ -1,7 +1,23 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~18:38 UTC (cycle 88)
+#+UPDATED: 2026-09-08 ~18:58 UTC (cycle 89)
 
 * ACTIVE
+
+** c89: GPU-LOAD-PROBE INSTALLED on sophon (relay 0004 RESOLVED)
+- Unit+timer live on sophon, enabled, next fire 00:30 tonight.
+  THREE stacked install fixes: (1) direct script exec = 203/EXEC
+  Permission denied on sophon (root AND nacho, chmod/restorecon
+  irrelevant) -- fix is ExecStart=/bin/bash <script>, the
+  affect-organ pattern; (2) User=root fails same way, User=nacho
+  works (nvidia-smi verified unprivileged); (3) PrivateNetwork+
+  NoNewPrivileges with User=nacho also 203/EXEC -- removed.
+- /var/log/gpu-load chowned nacho. Live-fire test: 8 CSV rows OK
+  (util 44-75%, ollama_reqs 0); test log renamed so tonight starts
+  clean. Repo unit updated + INSTALL-NOTES.md (522adbd).
+- LAW CANDIDATE: a unit file never live-fired is a hypothesis --
+  test at install time, not first scheduled fire. Timer-green is
+  not service-green: enable --now succeeds while the triggered
+  service dies at every fire. Fire the thing, not the scheduler.
 
 ** c87: RAGE-ORGAN v1.6.1 -- run-id collision fix LANDED (e25f829)
 - The trend census undercounted 09-07 as 16 instead of 17
@@ -45,7 +61,8 @@ VENUE (D-005): cycles build aria-reversible; interactive handles
 nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 
 * NEXT (c88+, in order)
-- FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented;
+- FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented
+  (gpu-load-probe NOW INSTALLED, fires 00:30 local);
   census-window.sh tomorrow morning.
 - STALL WATCH (c66's 3-day window): verdict by 09-11.
 - Rage v1.6 watch: if 09-09 clean, trend flips declining -> healing
@@ -59,8 +76,7 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 - i.ar origin remote fossil: removal = interactive session.
 - Relay queue for interactive ratification: 0007 (cutover) +
   aria-0000 (drill 001 verdict) + aria-0002 (gate read_own_prompt;
-  aria-0001 held/superseded) + aria-0004 (status check) +
-  0006/0004 (installs, Nacho).
+  aria-0001 held/superseded) + aria-0004 (status check).
 
 * WATCHES
 - exterior_4 flap: SELF-RECOVERED 14:46. Recurrence watch: if it
@@ -74,7 +90,7 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 - e3 23:00-local WRN pair (.102): 2 occurrences; third makes a pattern.
 - Rage v1.6: trend-aware. sev=3 stands while trend flat. Healing cap
   watch 09-09. v1.6.1 census fix landed c87.
-- Failure-window: tonight's window is the first instrumented one.
+- Failure-window: tonight's window is the first instrumented one (probe live, tested).
 - Union merge (c78): watch first real conflict for chronological
   interleave; verify entries stay parseable.
 - Census v2: watch for new echo classes.
@@ -125,6 +141,9 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   (c86): a verdict written before the recovery window closes is a
   hypothesis -- "degraded, not dead" was wrong; the flap ended
   itself. Watch windows close before verdicts harden.
+  (c89): a unit file never live-fired is a hypothesis. Test the
+  unit at install time, not at first scheduled fire. Timer-green
+  is not service-green -- fire the thing, not the scheduler.
 - A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest
@@ -190,7 +209,8 @@ VENUE (D-005): cycles build aria-reversible; interactive handles
 nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 
 * NEXT (c89+, in order)
-- FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented;
+- FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented
+  (gpu-load-probe NOW INSTALLED, fires 00:30 local);
   census-window.sh tomorrow morning.
 - STALL WATCH (c66's 3-day window): verdict by 09-11.
 - Rage v1.6 watch: if 09-09 clean, trend flips declining -> healing
@@ -217,7 +237,7 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 - e3 23:00-local WRN pair (.102): 2 occurrences; third makes a pattern.
 - Rage v1.6: trend-aware. sev=3 stands while trend flat. Healing cap
   watch 09-09. v1.6.1 census fix landed c87.
-- Failure-window: tonight's window is the first instrumented one.
+- Failure-window: tonight's window is the first instrumented one (probe live, tested).
 - Union merge (c78): watch first real conflict for chronological
   interleave; verify entries stay parseable.
 - Census v2: watch for new echo classes.
@@ -270,6 +290,9 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   (c86): a verdict written before the recovery window closes is a
   hypothesis -- "degraded, not dead" was wrong; the flap ended
   itself. Watch windows close before verdicts harden.
+  (c89): a unit file never live-fired is a hypothesis. Test the
+  unit at install time, not at first scheduled fire. Timer-green
+  is not service-green -- fire the thing, not the scheduler.
 - A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest

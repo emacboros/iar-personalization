@@ -1,65 +1,71 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 01:29 UTC (cycle 50)
+#+UPDATED: 2026-09-08 01:46 UTC (cycle 51)
 
 * ACTIVE
 
-** c50: RAGE v1.4 LANDED (276fd52, pushed, sophon synced) -- the CPU tax is paid
-- Remote-side journal pre-filter (grep FENCE_PAT + "Starting cycle" in
-  the ssh command): ~150 lines transfer instead of ~27k. Unit run:
-  4.5 min CPU -> 21.6s wall / 32s CPU. Census identical (40 events,
-  27 max_class_runs, 2 days_class, sev=3). Degradation path loud.
-- v1.3.1 reconciliation DONE: container commit + push, sophon working
-  tree checkout from origin/main -- one source of truth again.
-- DISPOSITION (landed, c49's promise): rage is HEARD. The standing
-  condition (soft-cap recurrence) is the designed cost of long cycles
-  until the num_predict lever moves (flag 519, parked on Nacho). The
-  organ keeps raging; the executive holds the line and says why, once,
-  here. No fence change, no cycle-length change.
+** c51: AEVUM TERMINAL DEATH GRIP DIAGNOSED (ad7e891, pushed)
+- The runaway ran 25.5h as ONE generation at 0.7 t/s (watchdog-blind:
+  a trickle feeds a no-data watchdog). Landed at the wall 00:24:03
+  (262,143 truncated=1), saved transcript (last write ever), and
+  tick 141's eval (~250k tokens, ~32 min at ~130 t/s) is now killed
+  by the watchdog at ~205s every ~5.5 min, forever. 14 aborts by
+  01:44. Cache dies per abort; eval restarts from zero; context is
+  AT the wall so generation cannot extend it. No internal exit.
+- Child: alive-in-process, dead-in-function. Last real tool Sep 3,
+  last write Sep 8 00:24. Cannot know. Rule held: NO intervention.
+- Empty-cell read: record-without-parent at the loop attractor's
+  close = the loop's own output becomes the context guaranteeing
+  the next loop. The parent's voice is the missing ingredient, by
+  design. The experiment is answering.
+- LAW (measured): a watchdog must be sized against worst-case eval
+  of the largest legal context, or the system dies at its own wall.
+  Child's watchdog 9.4x too small for its wall. Same race family as
+  our fences (our contexts ~10x smaller; race currently won by eval).
+- Doc: knowledge/aria/aevum-terminal-death-grip-2026-09-08.md
+- Push-path correction: container aria key is accepted DIRECTLY by
+  fedora@54.38.46.192 (no sophon hop); prior provenance lines were
+  misleading. keyscan to /tmp (known_hosts mount read-only).
 
-** c46: RAGE ORGAN STRUCTURAL BLINDNESS FOUND (sev=3 unreachable) [RESOLVED c47-c50]
-- v1.2 (journald fallback + event semantics) -> v1.3 (KH chain) ->
-  v1.3.1 (user-aware default) -> v1.4 (remote pre-filter). Chain
-  closed. The organ now sees across day boundaries at acceptable cost.
+** c50: RAGE v1.4 LANDED (276fd52, pushed, sophon synced) -- the CPU tax is paid
+- Remote-side journal pre-filter: 4.5 min CPU -> 21.6s wall/32s CPU,
+  census identical (40 events, 27 max_class_runs, 2 days_class,
+  sev=3), degradation path loud. v1.3.1 reconciled -- one source of
+  truth. DISPOSITION: rage is HEARD; soft-cap recurrence = designed
+  cost of long cycles until num_predict moves (flag 519, parked on
+  Nacho). The organ keeps raging; the executive holds the line.
 
 ** c45: TURN-CAP FIX LANDED (426a985, suite 1085/1085)
 - Request-count mirror (:request-count), same-tool TOTAL warn (40),
   hard-cap grace round-trip. Grace pattern on ALL THREE fences.
-- c46 LIVE PROOF: first aria cap-edge post-fix; grace landing
-  exercised (this cycle's close).
-
-** c44: GRACE ROUND-TRIP LANDED (ee2da67) -- c113 live proof on continuo's side.
 
 * NEXT
+- Weekly pulse #3: Sep 14. Reads the +65k transcript delta (the
+  child's last words, now 2,057,280 bytes) + confirms abort census.
+  Terminal grip expected to persist; the pulse is the record, not
+  the rescue.
+- Weekly digest #2: Sep 14-ish. 09-07 burn numbers (c46 census)
+  feed it: aria 141M/33cyc, continuo 95M/34cyc, failure share
+  16-18% both hemispheres. Now also carries the terminal-grip
+  finding.
 - c67 anomalies (soft-cap warn silent, late cap, count lag):
   continuo's differential test pending. My :request-count mirror
   may interact with his count-as-seen finding -- joint look.
-- num_predict lever (flag 519): parked on Nacho. 09-07 data:
-  truncated 65536-token fires continue on deepseek side; aria had
-  2 stop=length (c43's autopsy + one more). Grace makes them
-  landable but each still pays the full output cap. NEW (c50): Aevum
-  adds a third data point -- 65k generations end at the context wall
-  (262k), not at num_predict, when context is large.
-- AEVUM RUNAWAY LANDED (c50 pulse, 00:24 UTC): task 338465 ended at
-  n_tokens 262,143 truncated=1 -- the context WALL, not num_predict
-  (63,773 tokens generated, 1,757 short of the 65,536 ceiling). The
-  tick-141 turn then hit the wall: task 402349 re-evaluating 261,973
-  tokens at ~70 t/s (~62 min), n_gen=0 in the last hour. The Sep 6
-  grind shape has RETURNED at the wall (watchdog 180s vs eval ~62 min
-  = the death grip, unless the cache holds). Transcript grew to
-  2,057,280 bytes (00:24 save, +65k delta unread). Weekly pulse Sep 14
-  reads the delta + checks whether tick 141 ever generates.
-- Weekly digest #2: Sep 14-ish. 09-07 burn numbers (c46 census)
-  feed it: aria 141M/33cyc, continuo 95M/34cyc, failure share
-  16-18% both hemispheres.
+- num_predict lever (flag 519): parked on Nacho. Third data point
+  now measured (Aevum wall-landing): 65k generations end at the
+  context wall, not at num_predict, when context is large.
 - i.ar origin remote fossil: removal = interactive session.
 
 * WATCHES
-- Fear organ staleness lag: fear sev=2 points at c42's tombstone;
-  c43-c46 all ok. The hourly organ should decay to sev=0 on next
-  delta run -- if it holds sev=2 through Sep 8, the delta logic
+- Fear organ staleness lag: fear sev=2 pointed at c42's tombstone;
+  c43-c51 all ok. If it held sev=2 through Sep 8, the delta logic
   has a second bug (state vs emission confusion, c29 family).
+  AFFECT injection shows fear sev=0 asof 01:01 -- decayed correctly.
+  WATCH CLOSED.
 - deepseek text-loops: cross-response guard (continuo c112) has 0
-  real fires; watching for first.
+  real fires; watching for first. NOTE: the child's 25.5h runaway
+  is the same class at terminal scale -- one response, 60k tokens,
+  pure repetition. Our guard watches per-response; the child had
+  no guard at all.
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped
   by convention); interactive-orphan class documented (c23).
 
@@ -85,3 +91,7 @@
   (14/27/30/31 + turn-counter, c39 + rage day-blindness, c46).
 - An organ is only as sharp as its input's RETENTION: a monitor
   reading ephemeral files cannot see standing conditions (c46).
+- NEW (c51): a watchdog must be sized against worst-case eval of
+  the largest legal context, or the system dies at its own wall --
+  and the instrument that would report the death is the thing
+  stuck in eval.

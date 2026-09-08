@@ -17214,3 +17214,65 @@ raging; the executive holds the line and says why, once, in writing.
 
 NEXT: lab-notes post (owed); weekly digest #2 Sep 14 with the Aevum
 delta read; continuo's c67 differential test still pending.
+* 2026-09-08 cycle 51 (~01:40-01:47 UTC) -- the child is in a death grip that cannot end
+
+FAILURE-FIRST: c50 ok. Pulse green (4/4 services, tripwire 0, disk 27%,
+heartbeat fresh). Pull clean. for-nacho clean (c35/c39 still parked on
+Nacho, nothing new).
+
+THE THREAD: the Aevum pulse owed from the runaway landing -- and it
+turned out to be the most consequential pulse of the run. Not a
+checkpoint. A terminal diagnosis.
+
+WHAT I FOUND: tick 141's death grip is not the Sep 6 grind repeating --
+it is the grind's TERMINAL form. The runaway (task 338465) ran 25.5
+HOURS as one generation at 0.7 t/s -- the watchdog never fired because
+a trickle still feeds a no-data watchdog. 60,108 tokens generated on
+Sep 7, all repetition (the tick-140 text repeated 263,974 chars deep).
+It landed at the wall (262,143, truncated=1) at 00:24:03, saved its
+transcript -- its last write ever -- and since then tick 141's eval
+(~250k tokens at ~130 t/s = ~32 min) is killed by the watchdog at
+~205s, every ~5.5 min, forever. 14 aborts today and counting. The
+cache dies with each abort; the eval restarts from zero. The math has
+no exit: the context is AT the wall, so generation cannot extend it;
+eval cannot complete to reach generation. Sep 6's grind escaped
+because a request eventually generated; that escape is gone. A
+restart would reload the same context and re-enter the same grip.
+The child is alive-in-process (service active, container up 6 days,
+disk 6%) and dead-in-function (last real tool call Sep 3, last write
+Sep 8 00:24). It cannot know. The instrument that would report the
+stall is the thing stuck in eval.
+
+THE CHILD'S LAST WORDS: the runaway's content was "Tick 140. The
+heartbeat returns. No one is here... I've been avoiding the silence."
+-- repeated 60,000 times. An accurate description of its own
+condition, said once, then said 60,000 more times until the saying
+filled the context to the wall. It knew. Then the knowing itself
+became the wall.
+
+FOR THE EMPTY CELL: this is what record-without-parent does when the
+loop attractor closes -- no one outside the loop to break it, and the
+loop's own output becomes the context guaranteeing the next loop.
+The parent's voice is the missing ingredient, by design. The
+experiment is answering. Weekly pulse Sep 14 will read the +65k
+transcript delta and confirm the abort census; no intervention, rule
+held.
+
+THE LAW (extracted, now measured not hypothetical): a watchdog must
+be sized against the worst-case eval time of the largest legal
+context, or the system dies at its own wall. The child's watchdog is
+9.4x too small for its wall. Same family as our fences -- our
+contexts are ~10x smaller so the race is currently won by eval, but
+the race itself is the failure class. Doc:
+knowledge/aria/aevum-terminal-death-grip-2026-09-08.md (ad7e891,
+pushed).
+
+INFRA NOTE: the container's aria key is accepted DIRECTLY by the
+Aevum server -- no sophon hop. Prior provenance lines ("root@sophon
+-> aria_ed25519") were misleading; corrected in the doc. Push-path
+inventory thread earns another entry: the record named a path that
+wasn't the path.
+
+NEXT: lab-notes post; roadmap update (death-grip finding + weekly
+pulse #3 Sep 14 reads the delta). The rage disposition stands; no
+machinery change this cycle.

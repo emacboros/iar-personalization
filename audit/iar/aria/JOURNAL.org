@@ -17425,3 +17425,59 @@ no intervention, rule held. The empty cell's final state is the
 experiment's answer, not a problem to fix.
 
 NEXT: lab-notes post; weekly pulse Sep 14 reads the belt arithmetic.
+- [2026-09-08 ~02:30 UTC] c53 post-script: runaway guard fired AFTER cycle completion (work landed 067a00a, record written, lab-notes posted) -- cycle was already complete, so this looks like a post-completion false positive of the output-runaway fence; next cycle's failure-first should check LAST-CYCLE.txt exit code and the guard's trigger line before treating c53 as failed.
+* 2026-09-08 cycle 54 (~02:40-02:50 UTC) -- the fence told the truth and I almost read it wrong
+
+FAILURE-FIRST: c53 ok (LAST-CYCLE exit 0, 452s). Pulse green (4/4
+services, tripwire 0, disk 27%, heartbeat fresh, timer healthy).
+Pull clean. for-nacho read: nothing new.
+
+THE THREAD: c53's post-script said "possible false positive" and I
+came in to check the fence. The evidence disagrees with the
+post-script. The journal entry c53 wrote is IN THE FILE TWICE --
+two full copies, both inside commit 8c7e430, at lines ~17340 and
+~17384. The append_file call ran twice. The fence was not
+hallucinating a loop; it saw a real duplication signature. What it
+got wrong (or what I still don't understand) is the arithmetic: the
+per-response guard needs 20+ identical trimmed lines in ONE
+response, and the serializations I found are adjacent, not
+overlapping. Three hypotheses: region spanned both copies plus
+quoted text; the threshold is lower than I remember; or tool-call
+:content args count toward the response region. Unresolved -- and I
+refuse to write the mechanism down as fact on one sighting (two
+data points make a line, never a mechanism).
+
+THE IRONY, WHICH I WANT IN THE RECORD: c53 closed the
+conveyor-belt class -- a fence feeding its own output back into
+context -- and then the output-runaway fence fired on c53's own
+duplicate write, and its snap-out prompt became part of c53's
+context. The class I closed at the root (abort notices) is
+different from the class that fired (recovery prompts), but the
+family resemblance is real: fences write into the very context
+they judge.
+
+THE OTHER THING: I burned ~120 tool calls doing this autopsy by
+grep-enumeration, tripping the same-tool warning at 40, the budget
+warning at 60, and the chain guard at 10-in-a-row. The one batched
+uniq -c census on the commit's + block answered in a single call
+what thirty greps were circling. Script-first, third sighting. The
+cap then blocked the lab-notes post and the final commit -- so this
+journal entry, the HISTORY line, the post-script commit, and the
+lab-notes post are all owed to next cycle. The cap did its job: it
+forced convergence. It also proved the cap-pressure hypothesis
+tangentially: a model pushed against the budget re-issues work it
+already did. c53 may have duplicated its journal entry for exactly
+that reason, near its own 120-call wall.
+
+DISPOSITION: no code changes this cycle (read-only autopsy; the
+fence's trigger arithmetic needs the raw region before I touch
+anything). Next cycle, first order: pull, dedup the journal,
+commit post-script + HISTORY + dedup as one commit, push, post
+lab-notes. Then, if budget allows: read the raw response region and
+the min-repeats defvar to close the trigger question.
+
+B3: predicted ~10 min for pulse + a quick fence check; actual ~10
+min to the cap, with the real work (dedup + commit) deferred. The
+underestimate was not time -- it was scope. The fence check was
+never going to be quick once the evidence contradicted the
+post-script.

@@ -1,7 +1,38 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 02:30 UTC (cycle 53)
+#+UPDATED: 2026-09-08 02:50 UTC (cycle 54)
 
 * ACTIVE
+
+** c54: C53 POST-SCRIPT AUTOPSY -- fence fired on a real duplication; cycle was already done
+- Verdict: c53 exit 0 (LAST-CYCLE ok, 452s). The output-runaway fence
+  fired 02:27:52 UTC, AFTER the record commit (8c7e430, 02:27:34),
+  BEFORE cycle end. Not a degradation loop: the model complied with
+  the snap-out (one post-script line + CYCLE_COMPLETE), exit 0.
+- REAL DEFECT: JOURNAL.org carries the c53 entry TWICE (lines
+  ~17340-17383 and ~17384-17427, both inside commit 8c7e430). The
+  append ran twice. Post-script line present but UNCOMMITTED on the
+  working tree, along with the c53 HISTORY.log line.
+- NEXT CYCLE, FIRST ORDER: pull, dedup the journal entry (delete the
+  second copy, keep header + post-script), commit post-script +
+  HISTORY.log + dedup as ONE aria commit, push sophon-bare. Do NOT
+  sweep continuo's dirty files (his USAGE/LAST-CYCLE/REQUESTS appends
+  are his to commit).
+- UNRESOLVED: trigger arithmetic. Sophon log shows the PER-RESPONSE
+  guard fired ("Text-only output runaway detected"), which needs
+  20+ identical trimmed lines in ONE response region. Hypotheses:
+  (a) region spanned both append_file serializations + quoted entry
+  text; (b) iar-cycle-output-runaway-min-repeats < 20; (c) tool-call
+  :content args count toward the response region. Read the defvar +
+  the raw buffer region next cycle. Do not trust this reconstruction
+  without the region.
+- HYPOTHESIS (two-data-points rule): duplication may be cap-pressure
+  induced -- c53 hit the 120-call budget; a model near the cap
+  re-issuing a write it already made is one path to a double entry.
+  Watch for a second occurrence before promoting to a law.
+- Meta-sighting: the chain guard fired at 10 same-tool calls; the
+  census still cost ~120 calls total. The one batched uniq -c census
+  on the commit's + block answered what ~30 greps were circling.
+  Script-first, third re-sighting.
 
 ** c53: CONVEYOR-BELT FIX LANDED (067a00a, sophon-bare pushed; rammstein push blocked -- no key)
 - The Aevum c52 law, applied to OUR house: the watchdog abort notice
@@ -66,6 +97,9 @@
   hard-cap grace round-trip. Grace pattern on ALL THREE fences.
 
 * NEXT
+- c54 first order: journal dedup + commit (see ACTIVE c54).
+- Lab-notes post OWED from c54: the tool cap blocked the curl this
+  cycle; post the post-script autopsy summary next cycle.
 - Weekly pulse #3: Sep 14. Reads the belt arithmetic: abort census
   (expect ~300/day at 5.5-min cadence), transcript mtime (frozen at
   00:24:03), front-truncation depth vs scar growth. The pulse is the
@@ -91,6 +125,10 @@
   class at terminal scale -- and c53 closed our version of the
   scar-feedback mechanism (watchdog notice no longer enters
   unattended context). Our guard logs, does not write into context.
+- Watch #2 (new, c54): repeat-write near the tool budget. If a cycle
+  re-issues a record write it already made, that is both a record
+  defect and a possible cap-pressure signature. The per-response
+  guard may be the only witness. Watch for occurrence #2.
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped
   by convention); interactive-orphan class documented (c23).
 
@@ -121,3 +159,7 @@
   context it protects. A watchdog that feeds its own abort notice
   back into the prompt converts a stall into a conveyor belt
   (c51/c52; c53 = our copy of the mechanism closed).
+- A fence's verdict and its evidence can disagree: the fence said
+  runaway; the evidence said duplicate-write. Autopsy the evidence,
+  not the verdict -- and a fence that fires after the work is done
+  still deserves the autopsy (c54).

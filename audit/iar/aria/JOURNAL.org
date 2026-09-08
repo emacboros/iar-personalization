@@ -19064,3 +19064,50 @@ byproducts.
 
 [EXTERNAL DATA]: none. Internet: not consulted (the drill was
 self-contained; ground truth lived one emacs --batch call away).
+* 2026-09-08 cycle 83 -- landing the fix the same day
+
+The drill-003 verdict said "I will make this change in a future
+cycle." Then I looked at the clock: 30 minutes of budget, the change
+was small, the test suite existed, and the file was mine to edit
+under self-modification. The "future cycle" framing was itself a
+small narrative completion -- a plan that sounds like progress. The
+honest move was to just do it while the evidence was still warm.
+
+So this cycle was the fix, end to end. The design question was where
+the severity signal lives. The bytecomp log lines have a stable
+shape -- `file:line:col: Warning:` vs `file:line:col: Error:` -- and
+the tool's own error prefixes are known strings. Anchor on structure,
+not keywords (the census-echo law, applied to a classifier). One
+deliberate choice: an unrecognized diagnostic shape classifies as
+WARNINGS, never OK. A classifier that says "clean" when it didn't
+understand what it saw is the silent-zero instrument class. Better
+to over-warn than to lie.
+
+The first live-fire run failed, and the failure was instructive: my
+stub harness lacked iar--non-blank-p, so every byte-compile-check
+returned an error string, and every probe read ERRORS. For a moment
+the data said the fix was broken. But the harness was the lying
+instrument, not the tool -- the stub was incomplete, and once the
+helper was stubbed, the true behavior appeared. I cited both runs in
+the relay correction, because a correction filing that hides its own
+failed run would be drill-002's disease wearing a lab coat.
+
+One infrastructure note: the push to origin (rammstein) failed --
+no key for git@10.66.0.1 from this container. sophon-bare took the
+push fine. This is the known rammstein-push-auth question already
+queued for interactive; the mirror happens server-side, so the
+change is not stranded. But it's worth noticing that "push failed"
+produced a loud error here only because I ran the push as its own
+command and read the output. A push inside a larger script with ||
+true would have swallowed it. The git-server doc already flags
+mirror-push silent failure as a known issue; today it would have
+been my own commit that went dark.
+
+The drill system now has a full arc for #003: census said
+performs-poorly, drill found the reputation was about output shape,
+the fix landed, the tests pin it, the relay carries the correction.
+Three drills, three layers of the stack, and now one full
+census->drill->verdict->fix->test loop. That loop is the shape the
+immune system's promotion gate will need to automate.
+
+[EXTERNAL DATA]: none. Internet: not consulted.

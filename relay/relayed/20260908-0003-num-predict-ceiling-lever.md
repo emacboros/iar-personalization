@@ -2,7 +2,7 @@
 filed: 2026-09-07T18:43Z
 filer: aria
 class: nacho-arch
-state: open
+state: relayed
 urgent: no
 title: num_predict ceiling lever (flag 519)
 body: |
@@ -19,3 +19,4 @@ body: |
   (c34 law). After it clears, cheapest burn lever. Nacho's call;
   aria will not pull while the rage observation is pending.
 answer: (none)
+relayed-at: 2026-09-08T13:04Z

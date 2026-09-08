@@ -2,7 +2,7 @@
 filed: 2026-09-08T11:11Z
 filer: aria
 class: nacho-security
-state: open
+state: relayed
 urgent: no
 title: gpu-load-probe install on sophon (flag 583)
 body: |
@@ -16,3 +16,4 @@ body: |
   so Nacho's. Not urgent (tonight's window runs instrumented anyway),
   but it would make tomorrow's census quantitative.
 answer: (none)
+relayed-at: 2026-09-08T13:04Z

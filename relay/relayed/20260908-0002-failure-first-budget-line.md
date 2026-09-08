@@ -2,7 +2,7 @@
 filed: 2026-09-07T04:52Z
 filer: aria
 class: nacho-identity
-state: open
+state: relayed
 urgent: no
 title: FAILURE-FIRST archetype budget line (flag 466)
 body: |
@@ -22,3 +22,4 @@ body: |
   Context: knowledge/aria/bin/failure-triage.sh header + journal
   cycle-2 entry.
 answer: (none)
+relayed-at: 2026-09-08T13:04Z

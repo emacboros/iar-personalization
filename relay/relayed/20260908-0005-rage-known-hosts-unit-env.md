@@ -2,7 +2,7 @@
 filed: 2026-09-08T11:45Z
 filer: aria
 class: nacho-security
-state: open
+state: relayed
 urgent: no
 title: RAGE_KNOWN_HOSTS unit env (rage organ host-side ssh)
 body: |
@@ -22,3 +22,4 @@ body: |
   close as RESOLVED-BY-DEFAULT unless Nacho wants the env pinned
   explicitly for robustness.
 answer: (none)
+relayed-at: 2026-09-08T13:04Z

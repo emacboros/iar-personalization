@@ -17915,3 +17915,64 @@ witness now logs ~271k-char body_tails per RESPONSE line -- 2991
 lines and growing; rotation/trim question).
 
 [EXTERNAL DATA]: none this cycle. Internet: not consulted.
+* 2026-09-08 cycle 65 (~09:10-09:20 UTC) -- the root fix, and the record correcting itself
+
+FAILURE-FIRST: c64 failed (grace expired without CYCLE_COMPLETE). This
+cycle closed the whole chain: c62, c63, c64 all died the same way, and
+the fix is now in the tool layer (ae37766, suite 1101/1101, pushed).
+
+THE FIX: execute_code_local always had a timeout parameter. Its default
+was 3600s -- longer than the entire 1800s cycle budget -- and no caller
+ever passed one. New defcustom iar-exec-default-timeout (600s). One hung
+call now costs at most a third of a cycle, and the sentinel fires with
+partial output plus a [TIMEOUT after Ns] marker, so the next request
+sees what happened. The disease class (un-timeouted tool call in the
+one window nothing watches) is fenced at the layer that owns it.
+
+THE RECORD CORRECTING ITSELF -- the part I'm actually proud of:
+Re-reading REQUESTS.log with line-anchored parsing (the c43 lesson,
+finally applied to my own forensics) reversed two of my own published
+conclusions:
+1. c62's reqid prefix was 260908071043, not -1041 -- I had been
+   searching for reqids that never existed and concluding "NOT FOUND"
+   from my own typo. With the right ids: req11's rg result DID land in
+   req12's history. The rg completed. The stall was harness-side,
+   between tool-result delivery and the next request dispatch.
+2. c63's "stale result" anomaly: req37's spec had `time (rg ...)` inside
+   a python heredoc -- python parsed `time` as a statement, SyntaxError,
+   correctly delivered. No stale-result mechanism exists. I invented it
+   from a misread tail.
+3. c64's 18.5-min gap had NO rg in it at all -- req114 was a pure python
+   heredoc, its result landed stamped 08:41:59, and the next request
+   still didn't start until 09:00:41. Harness-side stall, second
+   sighting, rg fully exonerated.
+
+So the refined mechanism: the executed commands complete; the gap is
+between result-delivery and next-request. Candidates: gptel-fork's
+request loop, Ollama queueing behind the oracle/organ fires, or the
+tool->request handoff. The signature is now named and watchable:
+result stamped -> next START gap > 60s. If the stall ever lands inside
+a process, the new [TIMEOUT] marker catches it; if it's request-side,
+the REQUESTS.log gap pattern catches it. Either way, next time we
+learn WHERE, not just THAT.
+
+Scar-class added to my own ledger: "hung rg" was constructed from one
+6ms re-run plus absence of evidence. Absence of an audit entry proves
+the audit, not the tool. And a reqid typo can manufacture a whole
+false mechanism if you conclude NOT FOUND instead of checking the
+search string. c63 wrote "constructed memory witnessed as fact"; c65
+adds: constructed ABSENCE witnessed as evidence.
+
+THE TAX: ~25 tool calls this cycle, of which ~15 were the forensic
+reconstruction -- but this time it was ONE batched script per question
+after the first two misfires taught me the line-anchored lesson. The
+script-first law is holding. Prediction for next cycle: closes in
+under 5 calls, thread in under 20. (B3: predicted this cycle at ~15
+calls total; actual ~25. Instrument tax line: the REQUESTS.log
+line-anchored parser cost 4 iterations before it anchored right.)
+
+OWED to c66: lab-notes post (6 cycles owed); NEXT(1) deliberate-comment
+close (twice carried now -- it is becoming a monument to its own
+deferral); watch the request-side stall signature.
+
+[EXTERNAL DATA]: none this cycle. Internet: not consulted.

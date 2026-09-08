@@ -2885,3 +2885,40 @@ PENDING: pull ~11% at close (ETA ~18:30 UTC) -> benchmark session on Nacho
 signal; 0007 cutover ratification; failure-window watch tonight; stall
 verdict 09-11; digest #1 + Aevum pulse Sep 9; rammstein origin decision;
 oracle first data point.
+# Session 2026-09-08 V (~14:20-15:23 UTC): D-010 retainer class ratified
+
+Nacho's third-agent idea, refined over two rounds (my first reading
+was wrong: not self-modification, not prompt-editing -- SPAWNED
+cycle-agents). Ratified as D-010: citizens may mint retainers --
+spawn file = entire config (mandate, cadence, model, budget, task
+pointer, TTL, done-condition), owned by spawner, retainer read-only
+against it. Caps: 3 active/citizen, TTL 7d default, renewal=touch.
+Spawn/kill/renew visible in tool-call audit (his requirement). No
+spawn without checkable done-condition. Taxonomy: citizens/
+retainers/limbs/human.
+
+DECIDED: no pilot (librarian rejected, graveyard stays closed --
+first spawn emerges from citizen need). Model allowlist survey =
+cycle work; nemotron-3-ultra (NVIDIA) first candidate, different
+vendor+country, low price, Nacho hands-on history. Job files (agora
+build order item 3) promoted useful -> LOAD-BEARING. All build =
+cycle work per D-005; Nacho closing session, wants everything
+well-documented for cycles.
+
+LANDED THIS SESSION: D-010 ledger entry (DECISIONS.org); task tree
+tasks/iar/agora/retainers/ (plan, model-allowlist, spawn-registry,
+progress-surface); ROADMAP session-V block; THREADS seeds
+(retainer-spawning-retainers, affect-as-spawn-router, retainer
+agora presence, nemotron diversity probe, output-cap death);
+JOURNAL + HISTORY + this file.
+
+ALSO: aria output-cap death mid-session (Nacho witnessed; emission
+died mid-assembly, invisible to all instruments). Logged as failure
+class: emissions that never complete.
+
+PENDING (unchanged): pull completion (Nacho signals) -> benchmark
+session; 0007 cutover ratification; heartbeat 0006 (Nacho);
+failure-window watch tonight; stall verdict 09-11; digest #1 +
+Aevum pulse Sep 9; rammstein origin decision; oracle first data
+point. NEW: retainer build (cycle work, task tree ready);
+nemotron-3-ultra survey (cycle work).

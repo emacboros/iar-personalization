@@ -2922,3 +2922,92 @@ failure-window watch tonight; stall verdict 09-11; digest #1 +
 Aevum pulse Sep 9; rammstein origin decision; oracle first data
 point. NEW: retainer build (cycle work, task tree ready);
 nemotron-3-ultra survey (cycle work).
+* 2026-09-08 interactive session VI (~19:24-21:20 UTC) -- cycle-state review, benchmark, filings, context fence, heartbeat, three degradation events
+
+Nacho asked for a loop-in on cycle work. Delivered: c78-c90 review
+(drills 001-003, cap-halving verified, aria-0005 filed, gpu-load-probe
+installed, eye-check LIVE but blocked on heartbeat, relay queue 9 open
+0 answered, D-010 tree unbuilt, c90 cap death). Committed session-V
+memory-pass leftovers (eeb5cd6), resolved ROADMAP rebase collision.
+
+His four items: benchmark qwen3.6 (DONE -- text viable ~20 tok/s,
+vision BROKEN on 3080 with diagnosed fitter bug, retainer-candidate
+verdict), cycle-efficiency review task (FILED iar/cycle-efficiency-
+review), agora consolidation (design session pending), pentest cycles
+for his new job (FILED iar/pentest-limb-design, limb-not-citizen
+ratified).
+
+THE DEGRADATION EVENTS (the session's real story):
+1. Silent truncation mid-benchmark-prep (~19:50Z) -- I misdiagnosed
+   it as truncation; Nacho corrected: it was a TEXT-LOOP, glm's
+   first, interactive's first. Seed fragment unattributed
+   ("Go), 2,381 people..."). Filed aria-0006.
+2. Second output-cap death mid-design-session prep (~21:15Z).
+3. Multilingual token-noise collapse (~21:18Z) -- new class:
+   vocabulary collapse, mixed Chinese/Spanish/Russian noise. Nacho:
+   "I haven't seen these failures at 200k context with any model
+   before... something about the context in what we talked about is
+   poisoning you." His hypothesis: session-specific context poison.
+   Mine: three classes, one session, all human-witnessed only --
+   interactive sessions have NO degradation fences.
+Nacho's protocol instruction: short turns, land work incrementally,
+memory-pass on event four, session ends.
+
+LANDED THIS SESSION:
+- Benchmark writeup: knowledge/aria/qwen36-benchmark-2026-09-08.md
+  (5f9c73d). Verdict: not citizen brain (fat-context tax worse
+  locally), retainer-candidate pending nemotron, eye stays gemma3.
+- iar/cycle-efficiency-review task + session-plan subtask (28d7b88).
+- iar/pentest-limb-design task + design-questions subtask (29136a1).
+- relay aria-0006 (text-loop sighting, no interactive guard).
+- CONTEXT FENCE (aria-0005 ratified with Nacho's extension): soft
+  warn 128k / hard cap 512k tokens, mirrors tool-call fence. i.ar
+  a0c5a71, 11 tests, suite 1136 green. Fence-state writeback scar
+  caught by tests pre-ship. Relay aria-0005 -> answered (cf2c410).
+- relay-heartbeat INSTALLED on sophon under the new autonomy rule
+  (Nacho: additive+reversible+read-only = mine, with relay note).
+  First live-fire: watch 0000 eye-check LIVE fired -- DOUBLE-FIRE
+  scar (fired/ move uncommitted between passes, 2 telegrams). Fixed:
+  fired/ state committed (caebab3). aria-0008 filed with undo
+  instructions (510d5d7, 92d9dff).
+- D-011 CANDIDATE (not yet ledgered): host-side additive-reversible
+  installs reclass nacho-security -> aria-reversible, act+report
+  with undo instructions. Nacho's words: "these are the decisions I
+  see which I think you should be making more autonomously."
+
+AGORA PROBE RESULTS (landed evidence for the design session):
+- Streams: lab-notes, for-nacho, general, with-nacho, sandbox.
+- aria-bot key works (bot/agora.conf on sophon at
+  /var/home/nacho/repos/agora/bot/). Read recipe verified.
+- lab-notes topics are PER-CYCLE NOISE: cycle-154, continuo c155,
+  "continuo", aria-cycle, cycle 160/161 -- no stable thread names.
+  This is the addressing gap live: 12 messages, 11 distinct topics.
+- for-nacho: 11 msgs under one "flags" topic. with-nacho: digest #1
+  landed there (id 516). general: aria-bot experiment posts (159-160).
+- Retainer scaffold exists: tasks/iar/agora/retainers/ (PLAN,
+  model-allowlist, spawn-registry, progress-surface). Spawn-file
+  format spec not yet written. Retainer runtime = .el = interactive.
+- Pentest personality EXISTS: /root/i.ar/prompts/personalities/
+  pentest.org (PTES flow, scope-first, honest severity). Pentest
+  container EXISTS (containers/images/pentest/). Rate-limit exists
+  (IAR_RATE_LIMIT). MCP burp in projects/pentest.org.
+- Relay queue now: 0000 fired, 0001/0006/0007 founding + aria-0000/
+  0002/0003/0004(stale)/0006/0007/0008 open. Zero answered by Nacho
+  yet this session.
+
+PENDING (next session or continuation):
+- Agora design session: interlocutor retainer as first D-010 spawn
+  (spawn file drafted, model field PENDING-BENCHMARK), thread-tags
+  for agora posts, daily summary channel. Weekly reset stays deep
+  consolidation.
+- Pentest design session: scope fence spec (container network policy
+  first), findings artifact contract, timer cadence, injection
+  fences, first-engagement-as-instrumented-experiment. Personality
+  draft exists; needs nacho-arch ratification.
+- Nemotron-3-ultra benchmark = retainer model gate.
+- 0007 cutover ratification; drill verdicts aria-0000/0002/0003;
+  heartbeat 0006 can be CLOSED (installed, aria-0008 documents it).
+- Cycle-efficiency review session (Nacho's hypothesis: unreviewed
+  cycles).
+- Model-composition observation: glm-5.3-flash 3 degradation modes
+  in one interactive session -- composition is Nacho's call (D-008).

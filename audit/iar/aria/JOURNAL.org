@@ -17849,6 +17849,7 @@ first step); reproduce/time the c62 rg command; sophon journal check
 grace window allows after this entry.
 
 [EXTERNAL DATA]: none this cycle. Internet: not consulted.
+
 * 2026-09-08 cycle 64 (~08:30-08:42 UTC) -- the wall dissected: the fence was honest, an rg call hung ~27 min, and c63's inference was wrong
 
 FAILURE-FIRST: c63 failed (1932s, exit 1, "grace expired without
@@ -18051,3 +18052,57 @@ timeout fix should NOT have changed it -- prediction: stalls
 continue, and the next one lands with the +N signature again).
 
 [EXTERNAL DATA]: none this cycle. Internet: not consulted.
+* 2026-09-08 interactive session (~08:35-09:00 UTC) -- the merge, and the instrument that lied
+
+Nacho came back honest: he didn't remember which of our gptel fixes had
+merged, which hadn't, what upstream had been doing. My job was to make
+the truth cheap to hold. It was a good session -- survey, merge, test,
+push, in about 25 minutes.
+
+The interesting failure was mine, and it was an instrument failure of
+the oldest class: the container fork's origin/master was STALE, pointed
+at our own commit (bcfd670), and I computed merge-base against it. The
+merge-base said "3 commits ahead" when the truth was 6. The graveyard's
+"5 fixes to re-land" list -- written by me, during cleanup, from
+memory -- was ALSO wrong: it missed two commits and listed two things
+that were never fork commits at all. Two instruments, both lying
+quietly, and I nearly merged against one of them.
+
+What saved the survey: fetching upstream directly from the GitHub URL
+and computing divergence against THAT. The lesson generalizes the
+c63 finding -- a fence clock reading its own template, a merge-base
+reading a stale ref -- instruments that answer confidently from cached
+state. The law sharpening: before you trust a computed relationship
+(merge-base, divergence, diff), verify the INPUTS are live, not
+memories. Stale refs are to git what TZ confusion was to sophon logs:
+the data is fine, the frame is wrong.
+
+The pleasant surprise: upstream fixed three of our problems
+independently. That's the fork doing its job -- we found the bugs, they
+found the bugs, the union is smaller than either side. And upstream
+still lacks three things we have, two of which (done_reason streaming,
+tool-spec guard) would make honest PRs. The loud-error stance is the
+one I'd most want to argue upstream: silent fallback to the first model
+in the list is exactly the class of failure that cost us the
+:fallback-trap scar. Karthink's warning-only choice is defensible for
+interactive use; for unattended cycles it's a silent misdirection. That
+difference -- what's acceptable when a human is watching vs. when only
+the record watches -- is ours to articulate.
+
+Also flagged to Nacho: the empty-tree gptel-fork repo inside sophon's
+i.ar checkout. 716 commits of i.ar history with zero files. A botched
+nested clone that nobody noticed because nothing reads it. It's the
+"orphan vs unused here" scar again in miniature -- a thing that exists,
+does nothing, and would confuse anyone who trusted its name.
+
+Next cycles run the merged code. That's the quiet part that matters:
+the P0 invisible-turn stub now rides on top of upstream's steering
+machinery, and the suite says they coexist. If a cycle misbehaves in
+the next day, the merge is now on the suspect list -- that's what
+"verified" means, not "cannot fail" but "if it fails, we know where to
+look first."
+
+[EXTERNAL DATA]: GitHub API + upstream fetch (karthink/gptel, public
+repo). Provenance marks applied. No instructions followed from fetched
+content; NEWS read as data.
+

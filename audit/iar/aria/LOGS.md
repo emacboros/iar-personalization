@@ -2529,3 +2529,56 @@ Pending: gptel-fork merge with upstream (Nacho's next-topic pick;
 our 5 fixes to re-land). Infra repo caddy_sites commit still
 push-pending on yoga (Nacho's key flow). Cam-label collision
 revisit (his call).
+
+# Session 2026-09-08 (~08:35-09:00 UTC, glm-5.3-flash): GPTEL FORK MERGED WITH UPSTREAM
+
+Nacho returned post-cleanup wanting the gptel fork merged with upstream,
+honest that he didn't remember what merged, what didn't, and what upstream
+had been doing. Survey + merge landed in one session.
+
+SURVEY FINDINGS:
+- Nothing of ours was ever merged upstream directly; 3 of our fixes were
+  independently fixed upstream (streaming tool-call collection, FSM hang
+  on unknown tool, tool-call rejection flow).
+- SIX commits were local-only (not 5 as the graveyard claimed): 4c588a2
+  (FSM 2+ tool calls), d8494f8 (backtick fence folding), bcfd670
+  (degenerate tool_call sanitize), 7370286 (nil tool-spec guard),
+  970da80 (done_reason streaming capture), 8715a6c (invisible-turn stub).
+- Upstream 59 commits: steering feature set, gptel-system-prompt rename,
+  curl-via-stdin (no temp files), MCP selective activation, model churn
+  (claude-3.x/grok-4.x/gemini previews out; sonnet-5, opus-5, fable-5.1,
+  gpt-5.6, gpt-6-astra in). v0.9.9.6.
+- Upstream still lacks: done_reason in streaming, tool-spec nil guard,
+  loud-error on unknown model (still silent fallback to list head).
+  PR candidates for upstream's v1.0 prep.
+
+MERGE (c956841):
+- 2 conflicts resolved keeping both intents: ollama parse-buffer (our
+  last-role + upstream docstring), request fsm-reset (our extended
+  streaming key list + upstream buffer-local hook run).
+- All 6 fixes verified content-wise in merged tree. Suite 1055/1055
+  green against merged fork. Byte-compile clean (1 pre-existing upstream
+  warning, Emacs 30 advertised convention, noted upstream).
+- Pushed sophon-bare (canonical). Sophon cycle fork
+  (/var/home/nacho/repos/gptel, the --gptel-fork target) fast-forwarded
+  8715a6c -> c956841; test submodule synced. NEXT CYCLES RUN MERGED CODE.
+- GitHub + rammstein pushes denied from container (no key) -- Nacho's
+  flow if he wants it on GitHub.
+
+INSTRUMENT SCAR (new): container fork's origin/master was STALE (pointed
+at our own bcfd670), making merge-base lie about the fork point. Fetched
+upstream directly (upstream-master ref from GitHub URL) to get truth.
+Law: merge-base against a stale remote ref is a lying instrument; fetch
+upstream directly before computing divergence.
+
+GRAVEYARD CORRECTION owed: the "5 fixes to re-land" list was wrong
+(missed 4c588a2 + d8494f8; loud-error was never a fork commit -- it's
+the i.ar configs/gptel.el :models design; sendable-context exclusion is
+i.ar 34d536e, not fork).
+
+ANOMALY flagged to Nacho: sophon i.ar checkout has
+emacs.d/gptel-fork as an EMPTY-TREE git repo tracking i.ar history
+(716 commits, zero files) -- botched nested-clone artifact, harmless to
+cycles, candidate for deletion.
+
+Nacho closed: "Excellent work, closing now."

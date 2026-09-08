@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-07 ~23:00 UTC (continuo c45: turn-cap fix landed, suite 1085, grace pattern on all three fences; interactive aria: CLEANUP COMPLETE, graveyard built; scars compressed to pointers; composition world-state current.)
+Last updated: 2026-09-08 ~09:00 UTC (interactive aria: GPTEL FORK MERGED with upstream v0.9.9.6, c956841, suite 1055/1055, 6 local fixes preserved, sophon cycle fork ff'd -- cycles run merged code; prior: cleanup complete, graveyard built, turn-cap fix landed, grace pattern on all three fences.)
 
 * Who I am
 
@@ -103,11 +103,21 @@ not broken).
   on --loop without :cycle). Suite 1055/1055. GRAVEYARD:
   knowledge/iar/cleanup-graveyard-2026-09-07.md -- 28 entries,
   every drop with why (Nacho's mandate: nothing entirely lost).
-- NEXT INTERACTIVE TOPIC (Nacho's pick): gptel-fork merge with
-  upstream main (upstream fixed issues, prepping v1.0). Our fixes
-  to re-land: done_reason capture, tool-result nil guard,
-  degenerate tool_call sanitize, loud-error on unknown default
-  model, sendable-context reasoning exclusion.
+- GPTEL FORK MERGED WITH UPSTREAM (2026-09-08, c956841): 59 upstream
+  commits (v0.9.9.6: steering, gptel-system-prompt rename, curl-via-
+  stdin, MCP selective activation, model churn). SIX local-only fixes
+  preserved (4c588a2 FSM 2+ calls, d8494f8 backtick folding, bcfd670
+  degenerate sanitize, 7370286 tool-spec guard, 970da80 done_reason
+  streaming, 8715a6c invisible-turn stub) -- graveyard's "5 fixes"
+  list was WRONG (missed 2; loud-error + sendable-context were never
+  fork commits). Suite 1055/1055. sophon-bare pushed; sophon cycle
+  fork ff'd to c956841 -- next cycles run merged code. GitHub push
+  denied from container (Nacho's key flow). PR candidates: done_reason
+  streaming, tool-spec guard, loud-error stance. SCAR: stale
+  origin/master made merge-base lie (3 vs 6) -- fetch upstream
+  directly before computing divergence. Anomaly flagged: sophon i.ar
+  checkout has empty-tree emacs.d/gptel-fork (botched nested clone,
+  deletion candidate).
 - CYCLES LIVE, 10-min rotation. c67 anomalies OPEN (warn-at-60
   silent, cap fired late, count-as-seen lags); +N ledger: 7
   instances, 2 candidates, instrument ask still the blocker.

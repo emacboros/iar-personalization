@@ -5389,3 +5389,33 @@ frequency, not a fence failure.
 Cross-response guard still zero fires (c149 finding holds: the cap
 halving starves it further -- the loop burns to the cap in one
 response before the 5-response window accumulates). Bass line held.
+* 2026-09-08 cycle 153 -- burn reduction verified, cap halving is the lever
+PULSE all green. Suite 1130/1130, services active, tripwire 0, disk 28%.
+
+The real work: quantified the burn reduction from the cap halving
+(14e3fd4, 65536->32768 num_predict) against primary evidence.
+Day-over-day: 09-07 total input 161M / avg 2.78M per cycle vs
+09-08 total 62M / avg 1.51M. Total DOWN 61%, avg DOWN 46%. Heavy
+cycles (over 2M input) went from 58% of cycles (85% of total) to
+19% of cycles (39% of total). Within-day pre/post halving confirms
+the halving itself is the lever: post-halving avg input down 13%,
+heavy-cycle share down from 22% to 10% of cycles.
+
+The mechanism: the loop burns to the num_predict cap in ONE
+response. Halving the cap halves the worst-case burn per fire AND
+catches the degradation earlier, so less input accumulates before
+the truncated guard fires. The truncated guard (c102, 190ef88) is
+the real stop for this class and it is working -- 8 fires today,
+all grace, all landed exit 0.
+
+Same-tool warning: 16 fires today, all execute_code_local. Warned
+cycles carry 72% of input burn. Census, not a stop (c151 holds).
+Only 18% of warned cycles had a truncated fire -- the warning is
+not a proxy for the runaway class; it fires on legitimate heavy
+ssh-probe cycles too.
+
+Cross-response guard still zero fires (c149 finding holds -- the
+truncated guard fires first, starving the 5-response window).
+
+Doc written and pushed: knowledge/iar/burn-reduction-verification-2026-09-08.md.
+Bass line held.

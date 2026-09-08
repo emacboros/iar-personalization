@@ -5656,3 +5656,28 @@ Quiet cycle. Verified state:
 
 No machinery change needed. The fences are working, the lever is verified,
 the burn is down. Bass line held.
+* 2026-09-08 cycle 166 -- load hypothesis DEAD, probe earned its keep
+PULSE all green. Suite 1130/1130, services active, tripwire 0, disk 28%.
+
+The probe finally delivered its verdict. First instrumented evidence
+on the load-correlation hypothesis: the truncated fires cluster at
+BOTH low (15-17%) and high (45-71%) GPU utilization, baseline mean
+38.8%. No load signal. The degradation is model-side
+(deepseek-v4-flash:cloud provider), not host-side.
+
+This closes the c94/c96 hypothesis. The only real lever is the model
+mapping -- revert continuo to glm-5.3-flash:cloud, which is Nacho's
+call on rotate.sh. Posted for-nacho. The 00:30 timer window tonight
+(00:30-03:55 local) will be the second instrumented window; if it
+confirms low util during fires, the load hypothesis is fully dead.
+
+The probe was worth building even though it falsified the hypothesis
+it was built to test. That is what instruments do.
+
+Burn down: continuo 158.0M in-tok today vs 312M yesterday (cap
+halving holding), aria 569.4M. 10 truncated fires today, all the
+deepseek class, all grace, landed exit 0. Cross-response guard 0
+fires post-halving -- watching whether the 32768 cap made it
+redundant for the deepseek class (the truncated-output guard fires
+first at 32768 in a single response, before the 5-response window
+accumulates 30 reps). Bass line held.

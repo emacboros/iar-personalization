@@ -1,44 +1,31 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~17:42 UTC (cycle 85)
+#+UPDATED: 2026-09-08 ~17:57 UTC (cycle 86)
 
 * ACTIVE
 
-** c85: RELAY QUEUE-HEALTH AUDIT + EXTERIOR_4 FLAP
-- Relay queue: 7 open. 0006 (heartbeat timer) + 0004 (gpu-probe
-  install) both VERIFIED UNINSTALLED on sophon (no units in
-  /etc/systemd/system, no /var/log/gpu-load). Founding watch 0000
-  condition MET since 12:49Z but cannot fire -- the heartbeat that
-  would fire it is itself an open request. Filed aria-0004 (status
-  check, nacho-security): install prereqs for watch 0000.
-- exterior_4 "stale" on dashboard -> CONFIRMED FLAP: 800 no-frame
-  events in 3h (exterior_1: 38), watchdog restarting ffmpeg every
-  ~20s, maintainer discarding empty segments. Camera degraded, not
-  dead (segments land intermittently). Watchdog self-heals; not
-  telegram-grade. FOR-NACHO POST OWED c86 (first order).
-- INSTRUMENT NOTE: aria-dashboard.sh header documents the
-  file-based freshness method -- read instrument source BEFORE
-  re-deriving its census (a dozen calls re-derived what the header
-  knew). Loop-chain fence fired at c108 (11 same-tool probes) and
-  CONVERGED behavior -- contrast continuo c151: the 40-call
-  same-tool warning does NOT converge. The chain detector is the
-  variant that changes behavior; the warning is a census.
+** c86: EXTERIOR_4 CORRECTION (supersedes c85 verdict)
+- NOT "degraded, not dead" -- DEAD 11:34-14:46 local, then
+  SELF-RECOVERED. Segment census: hours 00-13 ~225/h (healthy),
+  h14=127, h15=14, h16=131, h17 full rate. 433 watchdog restarts
+  today (e1: 35), ~3/min sustained. Zero restarts since 14:47,
+  segments full rate (8 in 2 min vs e1: 9).
+- Mechanism (partial): no-frame watchdog at 11:34 (20s no frames),
+  restart loop ~40s life, dies on aac backward-time packets
+  ("Queue input is backward in time"), go2rtc DESCRIBE 404s
+  mid-flap; camera answers DESCRIBE 200 now, NEVER rebooted.
+- UNWON: trigger. Camera-side uptime/log endpoints auth-walled
+  beyond flag270 notes (session-status says authenticated, .cgi
+  still redirect). Instrument lying about its own access.
+- FOR-NACHO POST OWED (c87 first order): corrected story --
+  flap self-recovered 14:46, cause unknown, e4 healthy now,
+  watch open. Plus relay aria-0004 pointer (heartbeat/probe
+  installs block watch 0000).
 
 ** c82+c83: DRILL-003 (check_elisp) -- verdict IMPROVE, FIX LANDED
-- Detection SOUND (7-probe matrix vs raw byte-compile); reputation
-  was the VERDICT LINE (output shape), not detection. Fix landed
-  (i.ar 67ab1a1): OK / WARNINGS / ERRORS severity lines. 5 tests,
-  suite 1130 green. Full arc: census -> drill -> verdict -> fix ->
-  tests -> relay correction. Drill #004 (delegate) queued,
-  designed-rare (runs only on natural need).
-
-** c81: DRILL-002 CORRECTION SWEEP COMPLETE
-- c80 "use-found" was FABRICATED (no live-fire; tool ungated from
-  iar #+TOOLS). Corrected: relay aria-0002 filed, aria-0001 held.
-  SCAR: a drill verdict must cite the tool_result line, not the plan.
-
-** c79: TOOL-CENSUS v2 LANDED (a827b86)
-- Structural anchor ($7/$8/$9), citizen filter, never-called diff.
-  41.1k citizen lines, exec 86%, failures only Aug-31 artifacts.
+- Fix landed (i.ar 67ab1a1): OK/WARNINGS/ERRORS severity lines.
+  5 tests, suite 1130 green. Full arc: census->drill->verdict->
+  fix->tests->relay correction. Drill #004 (delegate) queued,
+  designed-rare.
 
 ** AGORA V2 BUILD ORDER (ratified 2026-09-08, D-001)
 1. Decision ledger -- LANDED (D-001..D-009).
@@ -47,37 +34,36 @@
 3. Agora addressing + weekly reset.
 4. Job files + delegate-to-job.
 5. Organs: appetite, disgust.
-6. Immune system (prereq: measure suite runtime; check_elisp is
-   single-file, gate needs changed-file-set loop).
+6. Immune system (prereq: measure suite runtime).
 7. Embodiment (7.1 eye-check LIVE; watch 0000 waiting on heartbeat).
 8. Eye model (custom organ).
 VENUE (D-005): cycles build aria-reversible; interactive handles
 nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 
-* NEXT (c86+, in order)
-- FOR-NACHO POST (c86 FIRST ORDER): exterior_4 flap (800 no-frame
-  events/3h, ffmpeg restart loop, degraded not dead) + relay
-  aria-0004 pointer (heartbeat/probe installs block watch 0000).
+* NEXT (c87+, in order)
+- FOR-NACHO POST (c87 first order): exterior_4 corrected story +
+  relay aria-0004 pointer (heartbeat/probe installs block 0000).
 - FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented;
   census-window.sh tomorrow morning.
 - STALL WATCH (c66's 3-day window): verdict by 09-11.
 - Rage v1.6 watch: if 09-09 clean, trend flips declining -> healing
   cap sev=2.
 - Digest #1 + Aevum pulse: Sep 9 (TOMORROW). Weekly digest #2: Sep 14.
-- local-brain-benchmark: pull 70% at c85 (15/21GB, ETA ~19:20 UTC);
+- local-brain-benchmark: pull 74% at c86 (ETA ~19:20 UTC);
   venue interactive (D-007). Check: ssh root@10.66.0.5 "ollama list | grep qwen3.6".
 - rammstein push auth for cycle containers: interactive call.
+- notes.git mirror on rammstein: needs Nacho (git-shell blocks init).
 - num_predict lever (flag 519): parked on Nacho.
 - i.ar origin remote fossil: removal = interactive session.
 - Relay queue for interactive ratification: 0007 (cutover) +
-  aria-0000 (drill 001 verdict) + aria-0002 (gate read_own_prompt
-  into iar #+TOOLS; aria-0001 held/superseded) + aria-0004 (status
-  check) + 0006/0004 (installs, Nacho).
+  aria-0000 (drill 001 verdict) + aria-0002 (gate read_own_prompt;
+  aria-0001 held/superseded) + aria-0004 (status check) +
+  0006/0004 (installs, Nacho).
 
 * WATCHES
-- exterior_4 flap: if no-frame count keeps climbing next pulse,
-  camera-side fault likely (stream renegotiation); if it recovers,
-  transient. Watchdog self-heals; escalation = Nacho post.
+- exterior_4 flap: SELF-RECOVERED 14:46. Recurrence watch: if it
+  recurs, 11:34 start + 3h12m duration pattern is the next census.
+  Camera-side uptime number still behind auth wall (one more climb).
 - Double-execution near cycle end (c53): if occurrence #2 lands,
   test the double-insert hypothesis FIRST.
 - Repeat-write near the tool budget (c54): cap-pressure signature.
@@ -129,6 +115,9 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   (c85): read the instrument's source before re-deriving its census --
   the dashboard header documented the freshness method I spent a
   dozen calls re-deriving.
+  (c86): a verdict written before the recovery window closes is a
+  hypothesis -- "degraded, not dead" was wrong; the flap ended
+  itself. Watch windows close before verdicts harden.
 - A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest

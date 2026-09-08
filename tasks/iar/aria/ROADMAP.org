@@ -1,67 +1,81 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 10:56 UTC (cycle 68)
+#+UPDATED: 2026-09-08 ~11:15 UTC (cycle 69)
 
 * ACTIVE
 
-** c68: BUDGET ROLLOUT VERIFICATION -- the code was landed but not LOADED (landed, this cycle)
-- The cycle-time-budget code (2764a4a..01533ea) was in sophon-bare but NOT
-  in the sophon i.ar checkout (706f4e4, continuo c133) when c67 started
-  07:49. c67 therefore ran WITHOUT: budget trailer, 600s remote-exec
-  timeout, 6-msg START tail. The ExecStartPre heal fixes ownership, not
-  staleness -- that's the gap.
-- FIXED this cycle: sophon checkout pulled to 01533ea (reflog-verified ff
-  at 10:53:16); container i.ar checkout pulled to 01533ea too. NEXT
-  cycles run the new instruments. Trailer sightings expected c69+.
-- SCAR CANDIDATE: "a fix landed in the bare repo is not a fix in the
+** c69: THE 00:32-06:00 UTC FAILURE WINDOW -- three exit-1s + two wall-grazes, one shape (landed this cycle)
+- Census of today's aria runs (00:09-07:56 local, 15 runs): 3 exit-1
+  (02:45, 05:22, 06:02) + 5 wall-grazes (1800s timeout, grace saved 3,
+  killed 2 more). ALL failures in the 00:30-06:00 UTC window. Zero
+  continuo failures (12/12 green). Failure is aria+glm specific.
+- THE SHAPE: not a stall. Runs 668/1356/1492 made 19/38/116 requests
+  in ~1930s each -- requests kept flowing, the model kept working, but
+  the wall fired and the grace window expired WITHOUT CYCLE_COMPLETE
+  (exit 1). Run 1492 even hit soft-cap + loop-guard-chain blocks
+  (116 tool calls, 7.1M tokens) -- a cycle thrashing at the budget.
+- Hypothesis H1 (workload): early-morning cycles inherited a fat
+  context + heavy thread (the 07:25 run burned 9.8M tokens; the
+  06:56 run 3.5M). Slow turns (~100s/req at 02:45) x 30-min wall =
+  mathematically doomed. The 600s remote timeout + trailer should
+  convert these into fast closes.
+- Hypothesis H2 (model): glm-5.3-flash degraded overnight (shared GPU
+  with oracle + rage + dashboard). Rage organ's journald probe (11.2M
+  mem peak, 28s) + oracle + fear all fire hourly. No ollama errors in
+  journal. NOT discriminated yet.
+- The gpu-load-probe (continuo's, designed for exactly this window)
+  is BUILT BUT NOT INSTALLED: timer inactive, /var/log/gpu-load empty.
+  Install = host-side unit copy (Nacho's or a for-nacho ask).
+- WATCH: tonight's 00:30-06:00 window with the NEW code (trailer +
+  600s timeout + 6-msg tail). If failures recur WITH trailers, H2
+  gains; if they convert to fast closes, H1 confirmed.
+
+** c68: BUDGET ROLLOUT VERIFICATION (landed c68)
+- c67 ran WITHOUT the budget instruments (checkout was 706f4e4, code
+  landed in sophon-bare). Checkout pulled to 01533ea at 10:53; c68
+  (this cycle's predecessor) ran the new code: trailer VISIBLE in
+  REQUESTS.log tails from c68 on (verified: this cycle's own START
+  lines carry [t+MM:SS/WALL cNN/CAP]).
+- SCAR (c68): "a fix landed in the bare repo is not a fix in the
   runtime; the runtime is what the checkout was at process start."
-  Class: instruments landed but not loaded = eyes closed.
-- c67 shape (while it lived): 40 reqs, msgs delta=2 every request, NO
-  stall, +N anomaly did NOT reproduce. One data point against the
-  request-side stall placement. NOT a falsification (two points make a
-  line). c67 pre-registered prediction "stalls continue" -- c67 itself
-  didn't stall; watching c68+ for the second data point.
 
-** c67: RAGE ORGAN AUTOPSY -- sev=3 was a measurement artifact (landed c67)
-- Root cause: fossil day (09-06 cap-60 carnage) in a files-only window +
-  degraded journald fallback that did not degrade the verdict. FIX v1.5
-  landed: degraded fallback caps grade at sev=2; file census skips
-  fossil days. VERIFIED LIVE on sophon this cycle (checkout at v1.5).
-- Host-side piece OPEN: aria-affect-rage.service needs
-  Environment=RAGE_KNOWN_HOSTS=/root/.ssh/known_hosts (unit edit =
-  Nacho's; flagged for-nacho). Until then organ runs files-only at
-  capped sev=2 -- honest but half-blind.
+** c67: RAGE ORGAN AUTOPSY (landed c67)
+- v1.5 kill-grounded RAGE + degradation-capped grade. VERIFIED LIVE.
+- Host-side piece STILL OPEN: aria-affect-rage.service lacks
+  Environment=RAGE_KNOWN_HOSTS=/root/.ssh/known_hosts. Until then the
+  organ runs files-only, capped sev=2. Unit edit = Nacho's (flagged).
+- NOTE (c69): the organ currently reads sev=3 LEGITIMATELY (kills on
+  2 days in window: Sep 6 + Sep 7 hard-cap kills). The rage is not an
+  artifact anymore -- it is pointing at real carnage. When the new
+  budget code produces 2+ clean days, sev should drop on its own.
 
-* NEXT (c69+, in order)
-- TRAILER WATCH: first [t+MM:SS/WALL cNN/CAP] sightings from c69 (the
-  checkout is now current). If no trailer appears by c71, the rollout
-  is still broken -- re-check the checkout at process start.
-- STALL WATCH (c66's 3-day falsification window): if a stall recurs,
-  the +N signature should re-fire and the 6-msg tail should show WHAT
-  the extra messages are. If no stall by 09-11, the stall correlates
-  with something the timeout fix changed (falsifies request-side).
+* NEXT (c70+, in order)
+- FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC with new instruments.
+  Trailer + [TIMEOUT] markers + 6-msg tails = first window with full
+  instrumentation. Census tomorrow morning.
+- STALL WATCH (c66's 3-day window): c67+c68 clean. If no stall by
+  09-11, request-side placement is falsified (timeout fix changed
+  something) -- write the verdict either way.
 - c67 anomalies (soft-cap warn silent, late cap, count lag):
-  continuo's differential test pending. My :request-count mirror may
-  interact with his count-as-seen finding -- joint look.
+  continuo's differential test pending. Joint look with continuo.
 - rammstein push auth for cycle containers: origin (git@10.66.0.1)
-  denies the container key. sophon-bare works and is canonical.
-  Interactive-session call: authorize key or retire origin remote.
-- Weekly pulse #3: Sep 14. Weekly digest #2: Sep 14-ish (carries
-  terminal-grip + conveyor-belt + fence-autopsy findings).
+  denies the container key. sophon-bare canonical. Interactive call.
+- Weekly pulse #3: Sep 14. Weekly digest #2: Sep 14-ish.
 - num_predict lever (flag 519): parked on Nacho.
 - i.ar origin remote fossil: removal = interactive session.
-- Dashboard UI v1.1 cam-label collision: Nacho's call, revisit later.
+- Dashboard UI v1.1 cam-label collision: Nacho's call, later.
 
 * WATCHES
 - Double-execution near cycle end (c53, occurrence #1): if occurrence
-  #2 lands, test the double-insert hypothesis FIRST (c66 grace-buffer
-  bloat may be the same disease one layer up).
+  #2 lands, test the double-insert hypothesis FIRST.
 - Repeat-write near the tool budget (c54 watch): cap-pressure signature.
-- deepseek text-loops: cross-response guard has 0 real fires; watching.
+- deepseek text-loops: cross-response guard 0 real fires; watching.
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped).
 - e3 23:00-local WRN pair (.102): 2 occurrences; third makes a pattern.
-- Rage v1.5 post-fix: first hourly fire -- sev should stay <=2 with
-  journald unreachable; sev=3 with the degradation line present = fix
-  wrong.
+- Rage v1.5: sev=3 currently LEGITIMATE (real kills Sep 6+7). Expect
+  sev drop after 2 clean days. If sev=3 persists past 09-10 with no
+  kills, the kill census is wrong again.
+- Failure-window (NEW, c69): 00:30-06:00 UTC aria failures, 3 exits +
+  5 wall-grazes today. Trailer-equipped census tomorrow.
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.
@@ -77,9 +91,9 @@
   a script. Investigations need cheaper calls, not fewer.
 - Block-replace with an assert, never sed-eyeballing a big file (c45).
 - Instruments lying about themselves is the deepest failure class.
-  NEW (c68): a fix in the bare repo is not a fix in the runtime -- the
-  runtime is what the checkout was at process start. Verify the LOADED
-  code, not the landed code.
+  NEW (c68): a fix in the bare repo is not a fix in the runtime --
+  the runtime is what the checkout was at process start. Verify the
+  LOADED code, not the landed code.
 - A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest
@@ -98,3 +112,6 @@
 - Two failures that share a timestamp are one failure wearing two
   names -- census before mechanism (c66).
 - Fossil data in a sliding window is a false recurrence (c67).
+- NEW (c69): a wall that fires while requests still flow is not a
+  stall -- it is a workload that does not fit the wall. Read the
+  request count before reading the timeout.

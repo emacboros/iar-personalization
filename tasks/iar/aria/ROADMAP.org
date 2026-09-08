@@ -1,68 +1,71 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~14:35 UTC (cycle 78)
+#+UPDATED: 2026-09-08 ~14:52 UTC (cycle 79)
 
 * ACTIVE
 
+** c79: TOOL-CENSUS v2 LANDED + DRILL #001 FILED (a827b86)
+- Census v2: structural anchor ($7=name, $8=status, $9=result_len) +
+  citizen filter (aria|continuo default, --all-agents flag) +
+  never-called diff. Two echo traps now structurally unreachable:
+  (1) name= echoes in cmd= payloads (774 test-tool + 751 bigtool
+  ghosts); (2) status= echoes -- the census counted its OWN
+  investigation as a failure (audit.log:6632: c78 grep payload
+  contains literal "status=error" text). Timestamp shape trap
+  documented: "[YYYY-MM-DD HH:MM:SS]" splits $1="[YYYY-MM-DD"
+  $2="HH:MM:SS]" (closing bracket on field 2).
+- Clean census (citizens, 41.1k lines): exec 35.3k (86%), read_file
+  1.7k, append_file 1.2k, read_roadmap 611, read_task 598,
+  write_file 540 (3 fails, all Aug-31 test artifacts), check_elisp
+  101. Failures elsewhere: 0.
+- NEVER-CALLED (structural): delegate, read_own_prompt, reload_agent,
+  reload_os -- all ZERO. D-009 discoverability confirmed by data.
+- DRILL #001 RUN (reload_os): verdict = LIMITATION (tool works,
+  discoverability is the failure). Relay filing aria-0000 (nacho-test
+  class): one-line discoverability addition to cycle archetype
+  REMINDERS + interactive preamble. Archetype edit = interactive
+  ratification. Drill record: tasks/iar/agora/drills/done/.
+- Side finding: delegate 0 calls but designed-rare -- census cannot
+  distinguish never-needed from forgotten; drills can. (D-009's
+  distinction, working.)
+- Drill system scaffold created: tasks/iar/agora/drills/ (design
+  subtask + done/). Queue semantics: citizens pick at cycle start
+  if budget allows; yield under pressure is data, not failure.
+
 ** c78: CENSUS DEEP-DIVE + UNION-MERGE FIX (landed 14:35 UTC, 685df10)
-- Tool-census v1 run on audit.log + audit.log.1 (49.7k lines). Echo
-  pollution quantified: 774 test-tool + 751 bigtool "calls" in .1 are
-  grep payloads inside cmd= fields (census-echo law, second sighting).
-  mytool/delegate/X = Aug 31 test-suite artifacts. v2 fix queued:
-  structural line-shape anchor + known-agent filter.
-- Never-called diff (structural): read_own_prompt + reload_os ZERO
-  calls in 49.7k lines -- D-009 discoverability confirmed by data.
 - Cross-citizen USAGE double-commit race root-caused: continuo
   cycle-end git add -A sweeps aria's uncommitted audit files ->
-  1s-apart dup pairs (12:51:26/27, 13:37:40/41). Exact same-second
-  dupes = documented belt#2 + kill-emacs-hook double-write (NOT a
-  bug; c14 dedupe law applies). 226 diverged/non-ff events in aria
-  cycle.log; 7ff8ed3 = continuo's manual JOURNAL conflict resolve.
-- FIX LANDED (e925f3b): .gitattributes union merge for JOURNAL.org +
-  LOGS.md (aria+continuo paths). c75 thread CLOSED. First live test:
-  same-cycle diverged push merged clean via union attributes (9f555e3).
-- Continuo sweep habit NOT changed (her cycle style; union absorbs
-  it). If sweeps capture partial writes, failure degrades to cosmetic.
-
-** c77: RAGE v1.6 + TOOL-CENSUS v1 (landed, d8b7136/30a17af)
-- Rage v1.6: trend-aware grading. sev=3 stands while trend flat (Sep 7
-  spike 12->16->2). If tomorrow clean, trend flips declining ->
-  healing cap fires first time.
-- Tool-census v1: aggregation core live. v2 = structural anchor +
-  known-agent filter (echo pollution) + never-called as script output.
+  1s-apart dup pairs. Exact same-second dupes = documented belt#2 +
+  kill-emacs-hook double-write (NOT a bug). FIX LANDED (e925f3b):
+  .gitattributes union merge for JOURNAL.org + LOGS.md. c75 thread
+  CLOSED. First live test passed (9f555e3).
 
 ** AGORA V2 BUILD ORDER (ratified 2026-09-08, D-001)
 
-Order per knowledge/iar/agora-v2-architecture.md sec 10, amended by D-002:
-1. Interactive-session organ (decision ledger) -- D-002, landed
-   (tasks/iar/agora/DECISIONS.org). D-001..D-009 recorded.
-2. Relay + decision rights + ledger -- slices 1-3 LANDED (f9a81e9,
-   5d4789f, c75 slice 3 + per-filer ids/atomic lock 8f8e002/1410186).
+1. Decision ledger -- LANDED (D-001..D-009 in DECISIONS.org).
+2. Relay + decision rights + ledger -- slices 1-3 LANDED.
    0007 cutover request FILED, awaits interactive ratification.
 3. Agora addressing + weekly reset.
 4. Job files + delegate-to-job.
 5. Organs: appetite, disgust.
 6. Immune system (self-mod; prereq: measure suite runtime).
-7. Embodiment (7.1 eye-check LIVE 12:49 UTC -- watch 0000 condition
-   MET, correctly not fired: heartbeat 0006 is Nacho's).
+7. Embodiment (7.1 eye-check LIVE; watch 0000 condition MET,
+   correctly not fired -- heartbeat 0006 is Nacho's).
 8. Eye model (custom organ).
 
 VENUE (D-005): cycles build aria-reversible; interactive handles
 nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 
-* NEXT (c79+, in order)
-- TOOL-CENSUS v2: structural line anchor (reject payload echoes) +
-  known-agent filter + never-called diff as script output. Then
-  D-009 DRILL SYSTEM: tasks/iar/agora/drills/ (registry, queue,
-  done/), self-rescheduling, daily-per-citizen, yields under
-  pressure. Drill #001 = least-used OR failure-prone tool -> stress
-  test -> verdict -> relay filing (drill/bug or drill/limitation).
-  GOODHART GUARD: verdicts, never usage.
-- FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented. Census
-  tomorrow morning (census-window.sh).
+* NEXT (c80+, in order)
+- DRILL QUEUE: wire self-rescheduling queue (REGISTRY.org + queue/
+  dir + citizen pick-at-start protocol). Drill #002 candidate from
+  census: read_own_prompt (0 calls -- is it useful or dead?) or
+  check_elisp (101 calls but performs-poorly class per Nacho).
+- FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented.
+  Census tomorrow morning (census-window.sh).
 - STALL WATCH (c66's 3-day window): c67+c68 clean. Verdict by 09-11.
 - Rage v1.6 watch: if 09-09 clean, trend flips declining -> healing
-  cap sev=2. If sev=3 persists past 09-10 with no kills AND trend not
-  declining, census wrong.
+  cap sev=2. If sev=3 persists past 09-10 with no kills AND trend
+  not declining, census wrong.
 - Weekly pulse #3: Sep 14. Weekly digest #2: Sep 14-ish. Digest #1 +
   Aevum pulse: Sep 9 (TOMORROW).
 - local-brain-benchmark: pull ETA ~18:30 UTC; venue interactive
@@ -71,8 +74,8 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 - num_predict lever (flag 519): parked on Nacho.
 - i.ar origin remote fossil: removal = interactive session.
 - Dashboard UI v1.1 cam-label collision: Nacho's call, later.
-- Census v2 also: audit.log.1 pollution lines (echo class) could get
-  a one-time scrub note in the census output header.
+- Relay 0000 (drill verdict) joins 0007 (cutover) in the interactive
+  ratification queue.
 
 * WATCHES
 - Double-execution near cycle end (c53): if occurrence #2 lands,
@@ -80,15 +83,15 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 - Repeat-write near the tool budget (c54): cap-pressure signature.
 - deepseek text-loops: cross-response guard 0 real fires; watching.
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped;
-  now UNDERSTOOD: belt+net same-second = documented; 1s-apart
-  cross-citizen = add -A sweep, absorbed by union merge).
+  1s-apart cross-citizen = add -A sweep, absorbed by union merge).
 - e3 23:00-local WRN pair (.102): 2 occurrences; third makes a pattern.
 - Rage v1.6: trend-aware. sev=3 stands while trend flat. Healing cap
   watch 09-09.
-- RAGE_KNOWN_HOSTS (0005): organ ssh path verified working 2026-09-08.
 - Failure-window: tonight's window is the first instrumented one.
 - Union merge (c78): watch first real conflict for chronological
   interleave; acceptable trade, but verify entries stay parseable.
+- Census v2: watch for new echo classes (the census's own greps are
+  the most dangerous payload source -- structural anchor should hold).
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.
@@ -98,21 +101,24 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   AFTER catching.
 - A census that pattern-matches ids anywhere in a line matches echoes
   inside other lines' payloads. Anchor on line structure.
+- NEW (c79): an instrument must not pattern-match on tokens that
+  appear in the queries that produce its input -- the census greps
+  for the very tokens it counts, so its own payloads are the most
+  dangerous echo source. (Generalized census-echo law.)
 - The law you just wrote is the one you're about to break (five live
   sightings; c68 held it: the rollout check was batched).
 - Meter-reading has an unbounded instrument tax unless it starts from
   a script. Investigations need cheaper calls, not fewer.
 - Block-replace with an assert, never sed-eyeballing a big file (c45).
 - Instruments lying about themselves is the deepest failure class.
-  NEW (c68): a fix in the bare repo is not a fix in the runtime --
-  the runtime is what the checkout was at process start. Verify the
-  LOADED code, not the landed code.
-  NEW (c71): an id that glob-matches anywhere in a name is an
-  instrument lying about identity -- anchor identity on structure,
-  not substring. (Same family as the census-echo law.)
-  NEW (c78): same symptom, different disease -- census before
-  mechanism, then mechanism before fix. (USAGE dupes: same-second =
-  documented belt+net; 1s-apart = add -A sweep.)
+  (c68): a fix in the bare repo is not a fix in the runtime --
+  verify the LOADED code, not the landed code.
+  (c71): an id that glob-matches anywhere in a name is an instrument
+  lying about identity -- anchor identity on structure, not substring.
+  (c78): same symptom, different disease -- census before mechanism,
+  then mechanism before fix.
+  (c79): a silent-zero instrument is a lying instrument -- verify
+  against known ground truth (totals, specimens), never trust exit 0.
 - A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest

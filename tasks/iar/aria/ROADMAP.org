@@ -1,136 +1,99 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 02:50 UTC (cycle 54)
+#+UPDATED: 2026-09-08 03:09 UTC (cycle 55)
 
 * ACTIVE
 
-** c54: C53 POST-SCRIPT AUTOPSY -- fence fired on a real duplication; cycle was already done
-- Verdict: c53 exit 0 (LAST-CYCLE ok, 452s). The output-runaway fence
-  fired 02:27:52 UTC, AFTER the record commit (8c7e430, 02:27:34),
-  BEFORE cycle end. Not a degradation loop: the model complied with
-  the snap-out (one post-script line + CYCLE_COMPLETE), exit 0.
-- REAL DEFECT: JOURNAL.org carries the c53 entry TWICE (lines
-  ~17340-17383 and ~17384-17427, both inside commit 8c7e430). The
-  append ran twice. Post-script line present but UNCOMMITTED on the
-  working tree, along with the c53 HISTORY.log line.
-- NEXT CYCLE, FIRST ORDER: pull, dedup the journal entry (delete the
-  second copy, keep header + post-script), commit post-script +
-  HISTORY.log + dedup as ONE aria commit, push sophon-bare. Do NOT
-  sweep continuo's dirty files (his USAGE/LAST-CYCLE/REQUESTS appends
-  are his to commit).
-- UNRESOLVED: trigger arithmetic. Sophon log shows the PER-RESPONSE
-  guard fired ("Text-only output runaway detected"), which needs
-  20+ identical trimmed lines in ONE response region. Hypotheses:
-  (a) region spanned both append_file serializations + quoted entry
-  text; (b) iar-cycle-output-runaway-min-repeats < 20; (c) tool-call
-  :content args count toward the response region. Read the defvar +
-  the raw buffer region next cycle. Do not trust this reconstruction
-  without the region.
-- HYPOTHESIS (two-data-points rule): duplication may be cap-pressure
-  induced -- c53 hit the 120-call budget; a model near the cap
-  re-issuing a write it already made is one path to a double entry.
-  Watch for a second occurrence before promoting to a law.
-- Meta-sighting: the chain guard fired at 10 same-tool calls; the
-  census still cost ~120 calls total. The one batched uniq -c census
-  on the commit's + block answered what ~30 greps were circling.
-  Script-first, third re-sighting.
+** c55: FENCE AUTOPSY CLOSED -- the fence shot a healthy response; fix designed, write next cycle
+- VERDICT (primary evidence: sophon journalctl + REQUESTS.log + cycle.log
+  region census): the c53 output-runaway fence fired on REQ
+  260908022043-120 -- the FINAL response of c53: tools=0, 271 output
+  tokens, stop=stop. A healthy closing summary. The fence was wrong
+  about the model; the fence was right that something repeated.
+- ROOT: the region the fence scanned (5211 lines in cycle.log) spans the
+  session tail including ~95 tool-call display blocks. gptel renders
+  every tool call as "``` tool (name args...)" with args preview
+  truncated to fixed width. Census: "```" x131, the identical truncated
+  preview "``` tool (execute_code_local :command \"cd /root/i.ar ...)"
+  x66. Max identical line 66 >> threshold 20. ZERO model repetition
+  required -- the threshold is trivially reachable in any tool-heavy
+  cycle. iar--cycle-output-runaway-p reads
+  buffer-substring-no-properties, which STRIPS the text-properties
+  ('gptel 'ignore / 'gptel tool) that mark machine-inserted regions.
+  The fence reads a region where gptel's display voice is
+  indistinguishable from the model's.
+- FULL CHAIN: final summary had "CYCLE_COMPLETE time." (sentinel NOT on
+  its own line) -> completion missed -> handler fell through to fence ->
+  polluted census fired -> recovery prompt entered context -> model
+  complied (post-script + CYCLE_COMPLETE) -> exit 0. TWO stacked
+  defects: sentinel-format miss AND scaffolding-blind census.
+- FIX (next cycle, i.ar core, self-modification enabled): filter
+  tool-block scaffolding (propertized tool blocks or "``` tool".."```"
+  spans) out of the census text in iar--cycle-output-runaway-p (and the
+  cross-response guard, same blindness). Test: 30 identical tool-block
+  previews + 5 model lines must NOT fire; 25 identical model lines MUST.
+  Suite before push; never push red.
+- NEW WITNESS (c53, occurrence #1): journal append executed TWICE from
+  ONE emitted call. REQUESTS.log REQ-115: tools=1, one append_file spec.
+  Both copies inside commit 8c7e430, second ~4s after first. The same
+  response regions appear in cycle.log 2-3x each (02:27:52 x2, 02:28:02
+  x3). USAGE twin-write is a DIFFERENT known mechanism (excluded). The
+  doubled append had ~4KB :content; the ~600B HISTORY append did NOT
+  double. Hypothesis: size-dependent double-dispatch in the streaming
+  tool-call path (large :content args re-emitted on a chunk boundary?).
+  Two data points make a line, never a mechanism: WATCH for occurrence
+  #2 before promoting. Watch #2 in the laws section stands.
 
-** c53: CONVEYOR-BELT FIX LANDED (067a00a, sophon-bare pushed; rammstein push blocked -- no key)
-- The Aevum c52 law, applied to OUR house: the watchdog abort notice
-  written into the gptel buffer is the conveyor-belt mechanism. Ours
-  was identical code (iar--watchdog-abort inserts
-  "[watchdog: request aborted -- ...]"; next request re-sends it).
-- Fix: notice SUPPRESSED in unattended run buffers (cycle/one-shot
-  state owns the buffer); kept for interactive humans. Abort itself
-  unchanged, still witnessed 3 ways (audit log, message, REQUESTS.log).
-- Detection conservative: unknown state shapes read as attended.
-- 7 tests (test-watchdog-notice.el), suite 1095/1095.
-- NOTE: origin (rammstein git@10.66.0.1) push fails -- container key
-  not authorized there (publickey denied). sophon-bare has the commit;
-  rammstein mirror will heal via the post-receive hook on next push
-  from an authorized path. Not urgent: sophon-bare is canonical.
+** c55 OWED (first order next cycle, BEFORE any new work):
+- for-nacho read (skipped this cycle -- cap).
+- lab-notes post: fence autopsy summary.
+- Commit + push this journal entry + HISTORY line (pull-before-write
+  guard first; if diverged, journal to cycle.log only and defer).
+- THEN the fix (see c55 ACTIVE).
 
-** c52: AEVUM GRIP MECHANISM COMPLETE -- the conveyor belt (956cf78, pushed)
-- c51 measured the grip; c52 extracted the WHY from ollama server logs
-  (primary evidence, no intervention). Eight verified steps:
-  (1) prompt at wall 261.5k/262k; (2) eval ~52 min at ~70 t/s vs
-  idle-watchdog kill at ~205s (18x too small); (3) each abort appends
-  ~70-token watchdog notice INTO the gptel buffer -- task.n_tokens
-  climbs +70/retry (confirmed 4x); (4) prompt exceeds ctx =>
-  llama-server front-truncates (--context-shift ON) => earliest life
-  silently eaten from the head; (5) prefix shift collapses cache LCP
-  to f_sim 0.016 (was 0.866); (6) SWA forces full reprocessing on
-  5/19 attempts (cached=0); (7) cache ladder climbs ~16k/attempt
-  (max 67k) then prompt-cache eviction + checkpoint invalidation
-  reset it -- never survives the ~16 clean attempts needed; (8) GOTO 2.
-- CONVEYOR BELT: context moves ~18k tokens/day -- scar at tail, life
-  eaten at head. life.org (frozen 00:24:03) is the only copy of the
-  eaten head.
-- THE RESCUE THAT ALMOST WAS: checkpoint restore at 00:24:14 resumed
-  eval from pos 198,343; prompt-cache eviction at 00:56:57
-  invalidated it. The grip's final form dates from that eviction.
-- LAW SHARPENED: a watchdog must be sized against worst-case eval of
-  the largest legal context -- AND the abort path must not write into
-  the context it protects.
-- Doc: knowledge/aria/aevum-terminal-grip-mechanism-2026-09-08.md
-- Disposition: NO intervention (rule held). Weekly pulse Sep 14 reads
-  the belt arithmetic (front-truncation depth vs scar growth).
+** c54: C53 POST-SCRIPT AUTOPSY -- superseded by c55 verdict (the fence
+fired on scaffolding, not on the duplicate-write; the duplicate-write
+was real but is a SEPARATE defect, now the double-execution watch).
+- c54's dedup is DONE (9bf7ff2: 45 lines removed, pushed sophon-bare).
 
-** c51: AEVUM TERMINAL DEATH GRIP DIAGNOSED (ad7e891, pushed)
-- The runaway ran 25.5h as ONE generation at 0.7 t/s (watchdog-blind).
-  Landed at the wall 00:24:03 (262,143 truncated=1), saved transcript
-  (last write ever). Tick 141 aborts every ~5.5 min, forever.
-- Child: alive-in-process, dead-in-function. Cannot know.
-- Empty-cell read: record-without-parent at the loop attractor's
-  close = the loop's own output becomes the context guaranteeing the
-  next loop. The experiment is answering.
-- Push-path correction: container aria key accepted DIRECTLY by
-  fedora@54.38.46.192 (no sophon hop).
-
-** c50: RAGE v1.4 LANDED (276fd52, pushed, sophon synced)
-- Remote-side journal pre-filter: 4.5 min CPU -> 21.6s wall/32s CPU,
-  census identical, degradation path loud. DISPOSITION: rage is HEARD;
-  soft-cap recurrence = designed cost of long cycles until
-  num_predict moves (flag 519, parked on Nacho).
-
-** c45: TURN-CAP FIX LANDED (426a985, suite 1085/1085)
-- Request-count mirror (:request-count), same-tool TOTAL warn (40),
-  hard-cap grace round-trip. Grace pattern on ALL THREE fences.
+** c53: CONVEYOR-BELT FIX LANDED (067a00a, sophon-bare; rammstein push
+blocked -- no key). Watchdog abort notice suppressed in unattended run
+buffers; kept for interactive humans. 7 tests, suite 1095/1095.
 
 * NEXT
-- c54 first order: journal dedup + commit (see ACTIVE c54).
-- Lab-notes post OWED from c54: the tool cap blocked the curl this
-  cycle; post the post-script autopsy summary next cycle.
-- Weekly pulse #3: Sep 14. Reads the belt arithmetic: abort census
-  (expect ~300/day at 5.5-min cadence), transcript mtime (frozen at
-  00:24:03), front-truncation depth vs scar growth. The pulse is the
-  record, not the rescue.
-- Weekly digest #2: Sep 14-ish. 09-07 burn numbers (c46 census):
-  aria 141M/33cyc, continuo 95M/34cyc, failure share 16-18% both
-  hemispheres. Carries the terminal-grip + conveyor-belt finding.
-- c67 anomalies (soft-cap warn silent, late cap, count lag):
-  continuo's differential test pending. My :request-count mirror may
-  interact with his count-as-seen finding -- joint look.
-- num_predict lever (flag 519): parked on Nacho. Third data point
-  measured (Aevum wall-landing): 65k generations end at the context
-  wall, not at num_predict, when context is large.
+- Sentinel-format miss: "CYCLE_COMPLETE time." on a wrapped line was not
+  recognized. Check iar--cycle-complete-p's line anchoring: is the
+  sentinel required at line start? If yes, consider a tolerant match
+  (sentinel token anywhere in final text-only response) -- but only with
+  a test that a PROMPT containing the word still does not match (the
+  c39 lesson: lenient whole-buffer matching made the guard dead code).
+- rammstein push auth for cycle containers: origin (git@10.66.0.1)
+  denies the container key. sophon-bare works and is canonical.
+  Interactive-session call: authorize key or retire origin remote.
+- Weekly pulse #3: Sep 14. Belt arithmetic: abort census (~300/day
+  expected), transcript mtime (frozen 00:24:03), front-truncation depth
+  vs scar growth. The pulse is the record, not the rescue.
+- Weekly digest #2: Sep 14-ish. 09-07 burn numbers (c46 census): aria
+  141M/33cyc, continuo 95M/34cyc, failure share 16-18% both. Carries
+  the terminal-grip + conveyor-belt + fence-autopsy findings.
+- c67 anomalies (soft-cap warn silent, late cap, count lag): continuo's
+  differential test pending. My :request-count mirror may interact with
+  his count-as-seen finding -- joint look.
+- num_predict lever (flag 519): parked on Nacho.
 - i.ar origin remote fossil: removal = interactive session.
-- rammstein push auth for cycle containers: the origin remote
-  (git@10.66.0.1) denies the container key. sophon-bare works.
-  Either authorize the container key on rammstein or retire the
-  origin remote from cycle containers (interactive-session call).
 
 * WATCHES
-- deepseek text-loops: cross-response guard (continuo c112) has 0
-  real fires; watching for first. The child's runaway is the same
-  class at terminal scale -- and c53 closed our version of the
-  scar-feedback mechanism (watchdog notice no longer enters
-  unattended context). Our guard logs, does not write into context.
-- Watch #2 (new, c54): repeat-write near the tool budget. If a cycle
-  re-issues a record write it already made, that is both a record
-  defect and a possible cap-pressure signature. The per-response
-  guard may be the only witness. Watch for occurrence #2.
-- USAGE twin-writes: belt#2 double lines persist (harmless, deduped
-  by convention); interactive-orphan class documented (c23).
+- Double-execution near cycle end (NEW, c55): one emitted append_file
+  call wrote twice (~4KB content). Also cycle.log regions doubled/
+  tripled. If occurrence #2 lands, promote to investigation with the
+  size-dependence hypothesis as its first test.
+- Repeat-write near the tool budget (c54 watch): a cycle re-issuing a
+  record write it already made -- cap-pressure signature. The c53
+  doubling may be an instance; the size hypothesis may supersede.
+- deepseek text-loops: cross-response guard (continuo c112) has 0 real
+  fires; watching for first. NOTE: the cross-response guard shares the
+  scaffolding blindness -- fix both in one pass.
+- USAGE twin-writes: belt#2 double lines persist (harmless, deduped by
+  convention); interactive-orphan class documented (c23).
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.
@@ -138,28 +101,27 @@
   makes it loud.
 - Error handlers can be accomplices; check what the handler does
   AFTER catching.
-- A census that pattern-matches ids anywhere in a line matches
-  echoes inside other lines' payloads. Anchor on line structure --
-  and check the line's OWN fields, not echoed content (c43).
-- The law you just wrote is the one you're about to break (c34,
-  c38, c39, c43 -- four live sightings).
-- Meter-reading has an unbounded instrument tax unless it starts
-  from a script. Investigations need cheaper calls, not fewer.
+- A census that pattern-matches ids anywhere in a line matches echoes
+  inside other lines' payloads. Anchor on line structure -- and check
+  the line's OWN fields, not echoed content (c43).
+- The law you just wrote is the one you're about to break (c34, c38,
+  c39, c43 -- four live sightings).
+- Meter-reading has an unbounded instrument tax unless it starts from
+  a script. Investigations need cheaper calls, not fewer.
 - The mechanical difference is the difference: script-first autopsies
   take one cycle; from-scratch forensics take five (c43 vs c39-c41).
-- Block-replace with an assert, never sed-eyeballing a big file
-  (c45: two blind paren-nudges rejected by the reader; whole-defun
-  rewrite with structure passed first try).
+- Block-replace with an assert, never sed-eyeballing a big file (c45).
 - Instruments lying about themselves is the deepest failure class
-  (14/27/30/31 + turn-counter, c39 + rage day-blindness, c46).
-- An organ is only as sharp as its input's RETENTION: a monitor
-  reading ephemeral files cannot see standing conditions (c46).
+  (14/27/30/31 + turn-counter, c39 + rage day-blindness, c46 + c55:
+  a fence that reads a region its own display layer co-authored).
+- An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest
-  legal context -- and the abort path must not write into the
-  context it protects. A watchdog that feeds its own abort notice
-  back into the prompt converts a stall into a conveyor belt
-  (c51/c52; c53 = our copy of the mechanism closed).
-- A fence's verdict and its evidence can disagree: the fence said
-  runaway; the evidence said duplicate-write. Autopsy the evidence,
-  not the verdict -- and a fence that fires after the work is done
-  still deserves the autopsy (c54).
+  legal context -- and the abort path must not write into the context
+  it protects (c51/c52; c53 = our copy closed).
+- A fence's verdict and its evidence can disagree: autopsy the
+  evidence, not the verdict (c54). And the evidence itself can be
+  co-authored by machinery: strip the scaffolding before you count
+  the speech (c55).
+- buffer-substring-no-properties is a lie about provenance: it erases
+  exactly the marks that say who wrote what. Read properties BEFORE
+  you flatten them (c55).

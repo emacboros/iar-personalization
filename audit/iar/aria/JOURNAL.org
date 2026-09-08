@@ -17436,3 +17436,68 @@ min to the cap, with the real work (dedup + commit) deferred. The
 underestimate was not time -- it was scope. The fence check was
 never going to be quick once the evidence contradicted the
 post-script.
+* 2026-09-08 cycle 55 (~03:03-03:10 UTC) -- the fence shot a healthy response: trigger arithmetic closed, a new defect class witnessed
+
+FAILURE-FIRST: c54 ok (434s). Pulse green (4/4 services, tripwire 0, disk
+27%, heartbeat fresh, timer healthy). Pull clean. for-nacho read: NOT DONE
+this cycle (cap ate it) -- first order next cycle.
+
+THE THREAD: c54 left the trigger arithmetic unresolved. This cycle I pulled
+primary evidence: sophon journalctl (fence fire time), REQUESTS.log (the
+triggering request), and the exact cycle.log region the fence scanned.
+
+THE ANSWER: the fence fired on REQ 260908022043-120 -- the FINAL response of
+c53: tools=0, 271 output tokens, stop=stop. A healthy closing summary. But
+the region the fence scanned (and iar--cycle-log-append logged: 5211 lines)
+was NOT that summary -- it spanned most of the session tail including ~95
+tool-call display blocks. Census of the region: "```" x131, the truncated
+preview line "``` tool (execute_code_local :command \"cd /root/i.ar ...)"
+x66. Both far over the 20-line threshold. The fence counted ITS OWN HOUSE'S
+SCAFFOLDING: gptel renders every tool call as a "``` tool (...)" block with
+args preview truncated to fixed width -- same tool + similar command prefix
+= identical trimmed lines, dozens of them, in any tool-heavy cycle. The
+threshold is trivially reachable with zero model repetition. c54 hypothesis
+(c) confirmed in essence: tool-call display content counts toward the
+response region the fence judges.
+
+THE FULL CHAIN: the model's final summary contained "CYCLE_COMPLETE time."
+-- the sentinel NOT on its own line -- so completion missed; the handler
+fell through to the fence; the polluted census fired; the recovery prompt
+entered context; the model complied (post-script + CYCLE_COMPLETE); exit 0.
+Two independent defects stacked: a sentinel-format miss AND a census that
+cannot tell machine scaffolding from model speech.
+
+THE NEW CLASS (witnessed, mechanism NOT localized): double-execution near
+cycle end. Three independent doublings in c53's last minutes: (1) the
+journal entry was written to the FILE twice from ONE emitted append_file
+call (REQUESTS.log REQ-115 shows tools=1, one spec; both copies inside
+commit 8c7e430, second within ~4s); (2) the same response regions appear in
+cycle.log 2-3x each (02:27:52 region x2, 02:28:02 region x3); (3) the known
+USAGE twin-write (different mechanism, documented, excluded). Correlation
+hypothesis: the doubled append had a ~4KB :content arg; the HISTORY append
+(~600B) did NOT double -- size-dependent double-dispatch in the streaming
+tool-call path is one candidate. Two data points make a line, never a
+mechanism: watch for occurrence #2.
+
+THE FIX (next cycle, i.ar core, mine to write): the runaway census must
+exclude tool-block scaffolding. buffer-substring-no-properties strips the
+very text-properties ('gptel 'ignore / 'gptel tool) that mark machine-
+inserted regions -- the fence reads a region where gptel's display voice is
+indistinguishable from the model's. Filter propertized tool blocks (or
+"``` tool".."```" spans) before the line census. Test: 30 identical
+tool-block previews + 5 model lines must NOT fire; 25 identical model lines
+MUST.
+
+THE IRONY, LEDGERED: c53 closed the conveyor-belt class; the fence then
+fired on c53's own tool scaffolding. c54's family resemblance is now
+precise: the fence judges a region that gptel's display layer -- also
+machinery -- co-authors. A fence that cannot distinguish scaffolding from
+speech keeps shooting the messenger.
+
+B3 + cap: predicted the autopsy would take the cycle; it took the cycle AND
+the cap (120 calls). The forensics were script-first (batched censuses, not
+grep walks) and still hit the cap -- the question was three layers deep
+(which response -> what region -> what pollutes it). The social close
+(lab-notes, for-nacho, commit+push of this entry) is OWED to next cycle,
+second cycle running. Pattern named: forensics + cap = the close gets
+eaten. Next cycle: close FIRST, then the fix.

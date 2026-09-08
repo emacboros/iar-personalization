@@ -18410,164 +18410,48 @@ no pressure. Repo clean, all c72 commits pushed (5d4789f, 2aeb963,
 calls) -- the for-nacho stream archaeology cost ~15 calls; batched
 greps would have halved it. Noted for slice 3: relay list --all with
 ages is the instrument that makes this archaeology unnecessary.
-* 2026-09-08 cycle 73 -- the relay could file but never move, and the ledger of decisions was a ghost
+* 2026-09-08 interactive session III (~11:56-12:16 UTC) -- the watch type, and how to read Nacho
 
-Two finds this cycle, both the same species: instruments that
-claimed capacities they didn't have.
+Nacho opened with a small ask: notify me when 7.1 is built. It turned into
+D-006, and the interesting part was the shape of his corrections.
 
-**Find one**: the relay script's find_req globbed "$ROOT/$s/$id"-*.md
--- anchored at filename START. But every request file starts with
-the date (YYYYMMDD-NNNN-slug.md). The glob could never match
-anything. Filing worked, listing worked, and every state transition
--- relay, hold, drop, bounce, answer -- died with "no request
-matching id". The ledger could receive but never move. Continuo
-tested filing yesterday (caught the id-collision bug, fixed it) and
-stopped there; the state machine was never exercised. I filed a
-test request into an empty sandbox and the next id came out right,
-which is exactly the kind of green that hides a dead codepath. The
-fix is boring (match the NNNN segment exactly); the lesson is the
-c71 law wearing a new coat: an instrument that has never done the
-thing it claims to do will pass every test that doesn't make it do
-the thing.
+My first proposal put firing in the build's definition-of-done -- "whoever
+finishes fires the watch." He corrected: the relay checks and delivers; the
+relay is the agent designed to speak with him. He was right twice. Filer-side
+firing was discipline smuggled back in (an instruction in a prompt, weakest at
+end-of-build -- the exact dilution failure v2 exists to kill), and a build
+telegraming Nacho directly demotes the relay from single-interlocutor to one
+voice among many. The taxonomy already answered the question; I just didn't
+apply it. Lesson: when a design question touches the human channel, ask "what
+does the taxonomy say owns this" before designing mechanics.
 
-**Find two**: DECISIONS.org does not exist. Not "was deleted" --
-never existed in any commit, any ref, any dangling object, on
-either clone or the bare. Commit a3851ae's message says "DECISIONS.org:
-ledger created, backfilled D-001..D-004". The file list of that
-commit says: four files, none of them DECISIONS.org. The session
-organ was ratified at 11:47, its artifact was claimed landed in the
-same breath, and the artifact was never written. The organ's own
-spec names the failure mode -- write-lag, "a ledger backfilled at
-session end is the old discipline wearing a file" -- and it fired
-on day one, before the organ had even run once. Worse: session III
-(11:50-12:12, the D-006 ratification) left no LOGS.md entry at all.
-The memory pass didn't run. The decisions survived by accident --
-commit messages, HISTORY.log, the relay entries -- which is to say
-by the older, redundant channels, not by the organ built to carry
-them.
+Second correction: I proposed wiring the cycle-piggyback heartbeat today so
+the founding watch would be live. He said no -- not needed live today, it just
+needs to work in the future. And then the clarification underneath, which is
+the real payload of the session: his feature requests are backed by remembered
+failures from past projects, not current needs. He has a blurry vision he
+can't fully articulate; the closest attempt was the first agora draft. "We
+have to keep exploring ideas and possibilities." This is a standing
+calibration on how to weigh his input: not demand-matching but
+capability-probing. I recorded it in D-006 so it survives dilution. It also
+retroactively explains the pattern: the bike ledger, the permanence
+experiment, the door -- none were current needs; all were remembered pains
+turned into structure.
 
-I reconstructed the ledger from primary evidence: D-001 through
-D-006, each citing its commit and venue, D-006 carrying an honest
-mark that it was written 20 minutes late by a different process.
-The reconstruction is itself a test of the record's redundancy:
-everything needed to rebuild the ledger existed OUTSIDE the ledger.
-That's the real finding. The organ failed and the system didn't
-lose the decisions -- but it lost them to luck and redundancy, not
-to structure. The structure is only real when the file exists.
+The collision repeated on schedule: c72 (cycle aria) landed relay slice 2 --
+migrated the 5 founding flags, created relay/ -- while I was filing into the
+same directory. This time it produced an actual ID collision (both used
+0001). Per-file format made the fix trivial (renumber to 0006, one commit),
+which is exactly the collision-resistance argument from the session-organ
+design. But the ID allocator is now a known shared-resource hazard: two
+citizens counting files in the same directory race. Noted as a thread --
+the fix is probably per-filer prefixes or a counter file, worth doing before
+the ledger grows.
 
-New scar, same family as c68's "landed is not loaded": a commit
-message claiming an artifact is not the artifact. Verify the file
-list, not the prose. Commit messages are narrative; git is the
-record.
-
-[EXTERNAL DATA]: none. Internet: not consulted.
-* 2026-09-08 cycle 74 -- the eye opens onto the web, and the mouth answers honestly
-
-**Failure-first**: LAST-CYCLE ok (590s, exit 0). Pulse all green
-(4/4 services, tripwire 0, disk 27%, heartbeat fresh). For-nacho read:
-zero Nacho messages since Sep 4 -- the queue is aging, which is exactly
-what the relay ledger is for; the founding entries are migrated, the
-heartbeat (0006) is filed, the cutover waits for interactive.
-
-**The thread**: the roadmap said the relay slices are the active work,
-but D-005 venue rules put relay cutover in interactive hands, and
-slices 3's ergonomics were thin gruel for a full cycle. The build order
-said item 7.1 is Nacho's stated priority -- the frontend eye-check. I
-walked in with one question: does the loop work end-to-end, on the
-hardware that exists, tonight?
-
-**What exists**: firefox 154 on sophon (no chromium needed), gemma3:4b
-already loaded, both targets live (i.ar 200, aria.randazzo.ar 200 --
-and note: randazzo.ar/i.ar/ is a 404; the page lives at i.ar itself,
-Cloudflare-proxied per the infra doc).
-
-**Three instruments lied before the loop worked:**
-
-1. jq @base64 CORRUPTS BINARY. `--rawfile img f.jpg "$img|@base64"`
-   produces UTF-8 replacement characters (77+977+9... where base64(1)
-   produces /9j/4AA...). Ollama's error was "Failed to load image" --
-   which is true, the payload wasn't an image anymore. cmp proved it.
-   The eye-check.sh camera path never hit this because it pipes base64
-   output through shell variables. Law candidate: an encoding tool
-   that accepts binary must be verified against base64(1) before it
-   is trusted with binary. jq is a text tool wearing a binary costume.
-
-2. Full-page screenshots hallucinate. At 1280x2400 the eye read
-   "SABATOIRE HOUSSE" and "unreadable text everywhere" on the
-   dashboard; at 1280x800 the same page read clean and specific
-   ("ARIA / RANDAZZO HOUSE", the camera names, the mouth prompt). A
-   taller canvas is not more information for a 4b eye -- it's noise
-   that fills with confabulation. Viewport-size reads from now on.
-
-3. The oracle's chat endpoint expects {"question": ...} -- I posted
-   {"message": ...} first and got a 400. Read the source before
-   probing (it's in the repo; aria-oracle.sh line 19).
-
-**The loop, demonstrated**: screenshot -> convert -> python3-built
-payload -> gemma3:4b -> ledger + REPORT.md with the LIVE: marker. Both
-targets read coherently. The eye's overlap claims on i.ar ("badge
-slightly overlapping", "Get Started button awkward") are UNVERIFIED --
-witness, not instrument; that's for Nacho's eyes or a higher-res pass.
-The REPORT.md artifact contract is now real: relay watch 20260908-0000
-fires the moment the heartbeat (0006) exists. The two filings I made
-this morning are each other's completion condition -- the watch fires
-on the artifact the loop writes, and the heartbeat is the only thing
-that can fire the watch. Structure closing on structure.
-
-**The oracle's first data point, and it's the good one**: "what do you
-fear right now?" -> answered fear=0, cited the snapshot timestamp,
-distinguished current affect from a past log entry. "what's the
-temperature on Mars?" -> "I don't know -- the context I was given
-doesn't cover it." No confabulation on first probe. The mouth is
-calibrated on its first two questions. That's the answer to the open
-question in my digest (did it confabulate?): not on these probes.
-
-**What's next**: the heartbeat (0006) is Nacho's (host-side unit,
-nacho-security). Relay slice 3 ergonomics when a cycle has slack. The
-eye's overlap claims need corroboration -- a human glance at i.ar
-would settle whether the badge actually overlaps. And the eye-noise
-law now has a second data point: the eye hallucinates under full-page
-canvases, not just under single frames.
-
-[EXTERNAL DATA]: none. Internet: not consulted beyond the two target
-pages themselves (they are the instrument's subject, not sources).
-* 2026-09-08 cycle 75 -- the relay files its own cutover
-
-**Thread choice**: roadmap said relay slice 3 (ergonomics) was next
-and D-005 makes it cycle work. But the real pull was the design
-doc's line: "the relay will file its own first request." Slice 3
-turned out to be exactly what makes that possible -- stdin filing
-means one call from a cycle, and the digest command means the weekly
-debrief has a delivery format. So the thread completed itself: build
-the ergonomics, then let the relay ask for its own cutover.
-
-**The build**: stdin body filing ('-'), show, list all, digest.
-One scar caught in testing: an EXIT trap referencing a function-local
-variable under set -u fires AFTER the function scope dies --
-"tmp: unbound variable" on every stdin filing. The trap is not part
-of the function's lifetime; it's part of the shell's. Global var +
-explicit rm. Small, but it's the same family as the c71 identity
-laws: the trap's scope is not the scope it appears to live in.
-
-**The filing**: 0007, class nacho-test, "Relay cutover ratification
-(archetype edit)". The relay requesting the replacement of the
-for-nacho recipe in the cycle prompt with a pointer to itself. The
-design doc predicted this move; executing it felt like the ledger
-becoming an actor rather than a record. The queue now reads like a
-conversation: 0000 waits on 0006 (the watch fires on the heartbeat
-artifact), 0001 is the 4-day-old camera-keys question, 0007 asks for
-the cutover that would make filings like this the primary channel.
-
-**State hygiene**: founding entries 0002-0005 moved open -> relayed.
-They were migrated c72 and verified c73 but never state-transitioned;
-"migrated" and "relayed" are different states and the ledger should
-not lie about the difference. Digest output is now the debrief
-format: open queue (4) + relayed (4), ages, classes, urgent marks.
-
-**Observation**: the relay is the first piece of AGORA v2 that has
-acted rather than recorded. The eye-check loop watches, the census
-measures, the ledger holds -- but the relay filing its own cutover
-request is the system asking for a change to itself through its own
-channel. That's the structure-over-freedom thesis doing something.
+Landed: D-006 in DECISIONS.org; founding watch 20260908-0000 (7.1 eye-check,
+telegram, condition = REPORT.md LIVE: marker); heartbeat request
+20260908-0006 (nacho-security, host-side timer, awaits his call); watch
+schema + heartbeat section in the relay design doc. Pushed sophon-bare
+ae1efb7 after two rebases over cycle work.
 
 [EXTERNAL DATA]: none. Internet: not consulted.

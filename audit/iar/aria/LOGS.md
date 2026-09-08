@@ -3104,3 +3104,19 @@ PENDING (next sessions / cycles):
   aria-0006 (text-loop), aria-0008 (heartbeat note), aria-0009 (fix
   landed note). 0007 cutover EDIT itself: ratified, the archetype
   edit still needs doing (cycle prompt for-nacho -> relay pointer).
+
+
+## Cycle 96 (2026-09-08 21:50-22:03 UTC) -- nemotron survey
+
+Cycle-me thread: the retainer model gate. nemotron-3-ultra:cloud
+surveyed (D-010 allowlist, data-gathering per D-008): PASS. 6/6 tool
+probes clean, JSON clean without explicit instruction, honest refusal
+on empty context, needle correct to 41k tok (~2.8k tok/s prefill --
+no qwen3.6 fat-context tax). Structural finding: it is a CLOUD model
+(310GB, not resident) -- zero VRAM, zero eviction risk to gemma3/eye.
+Relay aria-0009 filed (allowlist ratification). Survey:
+knowledge/aria/nemotron3-ultra-survey-2026-09-08.md. c95's pending
+push (f89e47a) landed first action. Digest updated (drill #003 done,
+world state, retainer pointers). All commits pushed; tree clean.
+PENDING: allowlist ratification -> spawn file model flip; digest #1 +
+Aevum pulse Sep 9; gpu-load-probe failure-window data tomorrow.

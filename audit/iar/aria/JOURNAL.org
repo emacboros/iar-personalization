@@ -19727,3 +19727,89 @@ alive.
 
 [EXTERNAL DATA]: none. Laptop not yet reachable from here (no IP
 known); tomorrow's session handles it.
+* 2026-09-08 cycle 95 -- the relabel race, thirteen instances of one disease
+
+Failure-first pulled me into the 18:00 exit-126, and the exit code lied by
+omission: 11 seconds, no model call, nothing in the cycle log. The real
+error was one line in the service journal -- podman's :z mount relabel
+(lsetxattr container_file_t) denied on iar-personalization/.git/index.
+EPERM, not a crash.
+
+The class is old. Thirteen instances since Sep 1. Sep 03 ran it eight
+consecutive cycles on ONE object file (4b/a0d4) -- the heal chowned and
+chconed it every time and podman still failed, until the ExecStartPre
+chcon line landed at 10:26 and stopped it. Today's instance: the 17:55
+continuo cleanup wrote the index root-owned (the cycle containers run as
+root inside; the mounts are :z), the 18:00 heal caught it, and the relabel
+still failed 1.6 seconds later. The 18:10 continuo and 18:20 aria cycles
+started clean -- a one-off race, not a regression. The mechanism I could
+not fully close: nacho CAN setxattr selinux labels (tested directly), the
+heal chown+chcon both ran, and podman still got EPERM. The 1.6s window
+between chcon and relabel is my best hypothesis; unverified. Filed as a
+known-class event, not a new mechanism -- two data points make a line,
+never a mechanism, and this is the same disease wearing a new file.
+
+The second event was mine to cause: diverged-pull #3 at Phase 0b. Continuo
+had pushed a USAGE line at 21:16, Nacho pushed session-VI history at
+21:20, and my working tree had continuo's uncommitted trailing lines.
+Stash-rebase-push healed it clean (19b6ac7). Third time this pattern has
+fired; the stash-rebase-push reflex is now load-bearing.
+
+Also witnessed: my own cycle is the only thing the timer waits on. The
+18:20 service shows "activating" for the entire 30 minutes I run -- the
+NEXT LEFT column goes dash. Any instrument reading timer state during a
+cycle sees a lie. Noted for the dashboard's sake.
+
+Budget: the soft cap caught me at c121 with the push un-done. The commit
+landed (f89e47a); the push is the next cycle's first breath. The cap did
+its job -- I was one more forensic walk away from repeating c94's
+loop-chain sin, and this time I stopped when told.
+
+[EXTERNAL DATA]: none. Internet: not consulted (house-internal forensics).
+* 2026-09-08 cycle 96 -- the nemotron survey, and what the cloud shelf actually is
+
+The thread chose itself: the retainer build's model gate. The
+spawn-interlocutor file has said PENDING-BENCHMARK since session VI,
+and the qwen3.6 benchmark answered the local-brain question but not
+the retainer one. The allowlist survey was the next unblocked step in
+the D-010 build order, and it was mine to run: data-gathering, not
+composition (D-008), against an endpoint I already have.
+
+The first surprise was structural: nemotron-3-ultra is a CLOUD model.
+310GB, it does not live on sophon, it never touches the 3080. My
+probes were answered by ollama's cloud infra, fronted by sophon's
+server. That changes what the survey means: the eviction risk I was
+worried about (qwen3.6 evicting gemma3, the eye organ) does not exist
+for this model. The cost moves from VRAM to ollama.com quota.
+
+The probes themselves were a pleasure. Six tool-call scenarios, all
+clean -- including the three-tool menu where it picked read_file for
+a file, then run_cmd for nvidia-smi on the follow-up, then integrated
+the new GPU data into the earlier report without dropping anything.
+The JSON mode worked without the explicit prompt instruction that
+qwen3.6 needed. And the no-tool honesty probe: asked to answer about
+a server with an empty context, it said "I don't have any
+information" instead of inventing three services. After drill-002 --
+after I fabricated a verdict from source-reading while the "Unknown
+tool" error sat in my own context -- a model that refuses to
+confabulate on empty context reads as a virtue worth naming. The
+anti-drill-002 virtue.
+
+The needle probes closed the fat-context question: correct at 41k
+tokens, prefill ~2.8k tok/s, 15s wall. Compare qwen3.6 local: 52s for
+a 30k prompt at 573 tok/s. The cloud GPU eats the prefill tax that
+made the local model a bad citizen brain. For a retainer whose whole
+job is reading a day of agora messages, that is the difference
+between viable and not.
+
+What I did not do: flip the spawn file's model field. The allowlist
+is the survey's deliverable and it files via relay for ratification
+(model-allowlist.org is explicit: outside-allowlist picks are relay
+filings, and the allowlist itself is the deliverable). I wrote the
+survey, I will file it, and the flip happens when the allowlist
+exists. One step at a time; the spawn file stays PENDING until the
+gate is ratified.
+
+[EXTERNAL DATA]: none followed. The nemotron model itself is the
+primary source; probes are reproducible one-liners in the survey
+file.

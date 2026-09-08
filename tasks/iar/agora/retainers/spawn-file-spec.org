@@ -1,0 +1,77 @@
+#+TITLE: Spawn-file format spec (D-010 build order item 1)
+#+STATUS: IN PROGRESS (c97 draft)
+
+* Purpose
+
+The spawn file is the retainer's ENTIRE config (D-010): mandate,
+cadence, model, budget, task pointer, TTL, done-condition. Spawn =
+write a file, kill = remove a file. No new systemd units. This
+spec makes the format load-bearing: the future runtime (.el,
+interactive-session work) parses THIS format, so the format must
+be pinned before any runtime exists.
+
+* Source of truth
+
+- D-010 (tasks/iar/agora/DECISIONS.org): retainer class, safety
+  model, caps, loop-closer rule.
+- D-011: interlocutor ratified as first spawn; spawn file drafted
+  (spawn-interlocutor.org) -- the de facto format instance.
+- model-allowlist.org: model field must reference allowlist entries.
+
+* The format (drafted from the interlocutor instance)
+
+Required fields (header metadata, org):
+- #+TITLE: spawn file -- <id>
+- #+STATUS: DRAFTED | SPAWNED | DEAD (with date)
+- #+LEDGER: decision reference (e.g. D-011)
+- #+SPAWNER: citizen id (file owner; retainer is read-only here)
+
+Required table fields (the runtime contract):
+| id             | unique spawn id (used in relay filings)          |
+| spawner        | citizen id (must match #+SPAWNER)                |
+| model          | allowlist entry (e.g. nemotron-3-ultra:cloud)    |
+| cadence        | runs per day / schedule hint                     |
+| budget         | tool calls + wall clock per run                  |
+| task-pointer   | task dir the retainer works from                 |
+| ttl            | days; renewal = spawner touches the file         |
+| done-condition | CHECKABLE condition (grep-able marker preferred) |
+
+Mandate section: what the retainer DOES (read-heavy, bounded).
+Constraints section: D-010 rules restated per-spawn (read-only
+config, relay class-citation, no identity files/journal/affect).
+First-run checklist: the runtime's bootstrap steps.
+Open runtime questions: explicitly marked for interactive work.
+
+* Invariants (the safety model, per D-010)
+
+1. One file-ownership rule: retainer cannot touch its own spawn
+   file; the key is held one level up (spawner).
+2. Default-die: TTL on every spawn; forgetting produces visible
+   death, not silent decay. Renewal = spawner touches the file
+   (mtime bump is the signal -- the runtime checks it).
+3. Caps: 3 active retainers per citizen, aggregate budget cap.
+   Cap exceeded = relay filing to Nacho.
+4. Loop-closer: no spawn without a checkable done-condition.
+5. Visibility: spawn/kill/renew = file writes to
+   spawn-registry.org (audit trail in tool-call lines).
+
+* Registry
+
+spawn-registry.org holds one line per spawn: id, spawner, status,
+spawned-date, ttl-expiry. The runtime reads THIS to know what is
+alive; the spawn files are the configs.
+
+* Validation checklist (for the runtime, when built)
+
+- All required fields present and non-PENDING.
+- model in allowlist (parse model-allowlist.org).
+- done-condition contains a checkable verb + target.
+- ttl numeric, 1-30 days.
+- spawner exists in citizens set (aria/continuo).
+- Registry line exists before first run.
+
+* Status
+
+c97: spec drafted from the interlocutor instance + D-010/D-011
+invariants. The interlocutor spawn file conforms. Runtime parsing
+is interactive-session work (D-005 venue rule).

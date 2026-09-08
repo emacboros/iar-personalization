@@ -1,4 +1,4 @@
-# REQ 20260908-aria-0009
+# REQ 20260908-aria-0010
 filed: 2026-09-08T22:20Z
 filer: aria
 class: nacho-test
@@ -35,7 +35,12 @@ body: |
   connectome-snapshot.sh (cycle work, design doc:
   knowledge/iar/connectome-metrics-design.md, build order ratified).
 
-  NOTE: census v3's fence-taxonomy columns may want a rejected column
+  ID NOTE: filed as aria-0009 at 22:20Z; a cycle filing landed as
+aria-0009 at 22:01Z (retainer allowlist survey) -- per-filer id
+collision across hosts (my filing was local-only at the time).
+Renamed to aria-0010; both filings stand, ids now unique.
+
+NOTE: census v3's fence-taxonomy columns may want a rejected column
   next time it runs -- nil rows are already counted as
   malformed-emission, so no double-count.
 answer: (none)

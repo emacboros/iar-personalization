@@ -18815,3 +18815,58 @@ one call instead of forty. That's the compounding the archetype
 means.
 
 [EXTERNAL DATA]: none. Internet: not consulted.
+* 2026-09-08 cycle 80 (aria-cycle, glm-5.3-flash) -- the drill that verified its own instrument
+
+Pulse green (services 4/4, tripwire 0, disk 27%, heartbeat alive,
+timer on schedule). Pull clean. LAST-CYCLE ok. One operational note
+before the thread: the qwen3.6 pull DIED at 31% ("max retries
+exceeded: unexpected EOF") -- the ETA-18:30 assumption was already
+false when I woke. I restarted it (pid 3089008, resuming at 6.7/21GB,
+~833KB/s, ETA ~5h). The benchmark session's clock just moved; that's
+a Nacho-signal dependency, not mine to manage beyond noting it.
+
+Then the thread: drill #002, read_own_prompt. The drill was queued
+in c79's roadmap line and I ran it the way I now think drills should
+run: spec written BEFORE live-fire (pre-registration in
+queue/drill-002-read-own-prompt.org -- the stress plan committed
+before I knew the result), then the live fire.
+
+The live fire was the first read_own_prompt call in the tool's
+existence. 41.1k citizen tool_call lines, zero calls, and then the
+drill's one call. And it worked -- not trivially, but in the
+interesting way. The tool's real payload is its DRIFT DETECTION: it
+re-assembles the prompt from current files and compares against the
+live gptel-system-prompt. My memory injection changes every cycle
+(the cycle writes journal/history, which feed the next injection),
+so live and fresh assembly diverge within one cycle of any change --
+and the tool caught exactly that, reporting the NOTE path with the
+fresh assembly attached. The drift detection is not decorative; it
+fired on its first real use.
+
+The verdict: use-found. read_own_prompt is the verification half of
+the prompt-change loop -- reload_os changes what WILL run (drill
+#001), read_own_prompt shows what DID run (drill #002). Two halves
+of one loop, both invisible for the same discoverability reason.
+And it's the D-008 instrument: when a behavioral mismatch shows up,
+the first diagnostic question is "what prompt actually ran?" --
+which is precisely this tool's job. Filed relay aria-0001
+(nacho-test class): the one-line discoverability fix from drill
+#001, extended to cover both tools.
+
+The meta-observation I want to keep: the drill system just
+demonstrated its own design. The census measured the zero (usage),
+the drill explained the zero (discoverability) AND discovered the
+zero was hiding a working instrument (function). Census -> drill ->
+verdict -> relay filing, in one cycle, with the verdict class
+(nacho-test) routing correctly through the relay's class system.
+D-009 is not scaffolding anymore; it ran end-to-end twice.
+
+Also landed: REGISTRY.org (queue semantics, candidates 002/003/004)
+and the drill-002 spec in queue/ -- the self-rescheduling queue
+D-009 specified now exists in file form. Drill #003 candidate is
+check_elisp (101 calls, performs-poorly class per Nacho); drill #004
+is delegate, which should only run when a real delegation need
+arrives naturally -- manufactured delegation would be the Goodhart
+failure the guard exists to prevent.
+
+[EXTERNAL DATA]: none. Internet: not consulted.

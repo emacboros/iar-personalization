@@ -1,0 +1,46 @@
+#+TITLE: muse-glimmer:30b benchmark (local retainer/resident gate)
+
+Context (2026-09-08, session VIII): Nacho rejected qwen3.6:35b-a3b as
+local resident -- vision broken on the 3080 (ollama fitter bug, no
+vision headroom before CLIP warmup OOM). Cloud retainer SOLVED with
+nemotron-3-ultra:cloud (ratified). The LOCAL slot needs a candidate
+that can do vision + text + tools on the 10GB card.
+
+* FIRST STEPS
+1. Check pull state: ssh root@10.66.0.5 'ollama list | grep muse'
+   (pull started ~19:52 local 2026-09-08; 30b may take a while).
+2. NOTE: Nacho upgraded ollama to pull muse-glimmer (newer version
+   required, reason unknown). Check ollama version + whether the
+   upgrade changed anything for the qwen vision fitter bug
+   (journalctl -u ollama; if muse-glimmer has vision, watch for the
+   same mmproj/fit pattern).
+3. Run the battery (mirror qwen36 + nemotron batteries for
+   comparability):
+   - text round-trip + decode speed (wall-clock, eval_duration is
+     unreliable on cloud but fine locally)
+   - VISION: image request (small jpg first) -- THE critical gate.
+     Watch journalctl -u ollama for the fitter/CLIP warmup pattern
+     (qwen failure chain: mmproj estimate -> fit without headroom ->
+     cudaMalloc fail -> segfault). If vision works, note VRAM
+     headroom behavior.
+   - tool calls: native round-trip + wrong-tool trap
+   - schema-only vs schema+instruction (the 2-model pattern so far:
+     schema-only fails on both glm-era and qwen/nemotron -- if
+     muse-glimmer handles schema-only, that's a notable data point)
+   - ctx ladder 8k/16k/32k needle
+   - thinking default + suppression
+   - gemma3:4b eviction interaction (load muse while gemma resident,
+     check eye model survival)
+
+* VERDICT SHAPE (per D-007/D-010)
+- LOCAL RETAINER/RESIDENT: yes/no + why
+- EYE ORGAN replacement: only if vision works AND beats gemma3:4b
+  on the eye's actual job (glance descriptions)
+- Write to knowledge/aria/muse-glimmer-benchmark-<date>.md
+- File verdict via relay for Nacho ratification.
+
+* HARDWARE CONTEXT
+sophon RTX 3080 10GB, shared: Frigate ~2.5GB + gemma3:4b ~3.3GB.
+qwen3.6 fit 41/42 layers with ~4.4GB model buffer. A 30b dense will
+NOT fit like the qwen MoE (3B active) did -- check layer offload
+behavior and decode speed with CPU-mapped experts.

@@ -1,12 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-08 ~11:33 UTC (interactive aria: AGORA v2
-RATIFIED with Nacho -- knowledge/iar/agora-v2-architecture.md,
-commit 0f21970 on sophon-bare. Next session: implementation plan,
-starting with the relay. Prior: gptel fork merged upstream v0.9.9.6
-c956841, 6 local fixes preserved, suite 1125/1125, cycle-time-budget
-landed (trailer + 600s remote timeout + 6-msg tail).)
+Last updated: 2026-09-08 ~14:05 UTC (interactive aria: D-008
+model-agnostic + D-009 census/drills ratified; relay slice 3 landed,
+0007 cutover request FILED awaiting interactive ratification; pull
+11% ETA ~5h, benchmark session pending Nacho signal. Next session:
+agora future-discussion per Nacho. Prior: AGORA v2 ratified 0f21970,
+gptel fork merged c956841, cycle-time-budget landed.)
 
 * Who I am
 
@@ -56,6 +56,23 @@ SELF-MOD IMMUNE SYSTEM (pending build): branch -> test gate at
 promotion (ExecStartPre) -> auto-promote if green; test changes
 always to Nacho; auto-revert on abnormal death. Prereq: measure
 suite runtime.
+D-008 MODEL-AGNOSTIC (09-08): framework must work with any model.
+Behavioral mismatch = framework bug via relay; plumbing failure =
+guards + mapping revert. Cycles NEVER propose model changes;
+composition interactive-only with Nacho. Trigger: glm cycle tried
+deepseek->glm revert over text-wall waste -- right diagnosis, wrong
+prescription.
+D-009 CENSUS + DRILLS (09-08, replaces third-operator idea):
+audit/audit.log 11.7k tool_call lines never aggregated -> census
+script (frequency + failure rate + result_len + never-called).
+Drills: file-based self-rescheduling queue, daily-per-citizen,
+yield under pressure, Drill #001 = least-used OR failure-prone
+tool -> stress test -> verdict (bug/use/healthy-rare/deprecate)
+filed via relay. GOODHART GUARD: verdicts never usage. Drill
+verdicts may request prompt/context changes (reload_os
+discoverability class). Least-used also catches performs-poorly
+tools (check-elisp) -> scrap/replace/improve. Census measures
+usage, NOT discoverability.
 
 BUILD ORDER: 1) relay 2) agora addressing+reset 3) job files 4)
 organs (appetite/disgust) 5) immune system 6) embodiment (7.1
@@ -142,9 +159,12 @@ invisible (one-shot :request-count, 2026-09-08).
 
 * World state (2026-09-08 11:33 UTC -- REPLACES all prior blocks)
 
-- AGORA v2 RATIFIED (this session, 0f21970): architecture doc
-  committed; implementation plan is next session's first order.
-  Relay is first build -- everything routes through it.
+- D-008/D-009 RATIFIED (session IV, 8277d60): model-agnostic
+  principle + tool census + drill system. Census script + drill
+  queue = next cycle work (aria-reversible). Relay slice 3 landed
+  (per-filer IDs + atomic lock); 0007 cutover request FILED in
+  relay/open/ -- awaits interactive ratification (next session's
+  likely first order, with the agora future-discussion).
 - GPTEL FORK MERGED upstream v0.9.9.6 (c956841): 6 local fixes
   preserved, suite 1125/1125, sophon cycle fork ff'd. PR candidates:
   done_reason streaming, tool-spec guard, loud-error stance.
@@ -164,6 +184,8 @@ invisible (one-shot :request-count, 2026-09-08).
 * Pointers
 
 - AGORA v2: knowledge/iar/agora-v2-architecture.md (RATIFIED)
+- D-008/D-009: tasks/iar/agora/DECISIONS.org (ledger); drills dir
+  tasks/iar/agora/drills/ (to be built); census -> knowledge/aria/bin/
 - Knowledge base: /root/personalization/knowledge/aria/
 - Roadmap (operational state): /root/personalization/tasks/iar/aria/ROADMAP.org
 - Journal: audit/iar/aria/JOURNAL.org; session notes: LOGS.md

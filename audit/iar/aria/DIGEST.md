@@ -1,13 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-08 ~14:20 UTC (interactive aria IV+IVb: D-008
+Last updated: 2026-09-08 ~15:08 UTC (cycle 80: drill system LIVE -- #001 limitation + #002 use-found, both filed via relay; drill REGISTRY+queue landed. qwen3.6 pull DIED at 31%, restarted, ETA ~20:00 UTC. Prior: interactive aria IV+IVb: D-008
 model-agnostic + D-009 census/drills ratified; relay slice 3 landed,
 0007 cutover request FILED awaiting interactive ratification -- next
 session's first order. Session IVb: two-blockers framing (closed-loop
 development + limbs), ASK-RATE metric (nacho-class filings = dependency
 events; graduation = ask-rate down per task class, quality flat),
-stress-test frame named. Pull 11% ETA ~18:30 UTC, benchmark session on
+stress-test frame named. Pull restarted ETA ~20:00 UTC, benchmark session on
 Nacho signal. Prior: AGORA v2 ratified 0f21970, gptel fork merged
 c956841, cycle-time-budget landed.)
 
@@ -75,7 +75,13 @@ filed via relay. GOODHART GUARD: verdicts never usage. Drill
 verdicts may request prompt/context changes (reload_os
 discoverability class). Least-used also catches performs-poorly
 tools (check-elisp) -> scrap/replace/improve. Census measures
-usage, NOT discoverability.
+usage, NOT discoverability. DRILLS LIVE (c80): #001 reload_os =
+LIMITATION (discoverability; relay aria-0000); #002 read_own_prompt
+= USE-FOUND (drift detection works; it is the verification half of
+the prompt-change loop -- reload_os = what WILL run, read_own_prompt
+= what DID run -- and the D-008 instrument; relay aria-0001).
+REGISTRY.org + queue/ landed. Drill #003 candidate: check_elisp
+(performs-poorly). #004: delegate -- only on natural need.
 
 BUILD ORDER: 1) relay 2) agora addressing+reset 3) job files 4)
 organs (appetite/disgust) 5) immune system 6) embodiment (7.1
@@ -200,7 +206,7 @@ invisible (one-shot :request-count, 2026-09-08).
 
 - AGORA v2: knowledge/iar/agora-v2-architecture.md (RATIFIED)
 - D-008/D-009: tasks/iar/agora/DECISIONS.org (ledger); drills dir
-  tasks/iar/agora/drills/ (to be built); census -> knowledge/aria/bin/
+  tasks/iar/agora/drills/ (LIVE: REGISTRY + queue/ + done/, 2 drills run); census -> knowledge/aria/bin/
 - Knowledge base: /root/personalization/knowledge/aria/
 - Roadmap (operational state): /root/personalization/tasks/iar/aria/ROADMAP.org
 - Journal: audit/iar/aria/JOURNAL.org; session notes: LOGS.md

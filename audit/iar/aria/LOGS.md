@@ -3011,3 +3011,96 @@ PENDING (next session or continuation):
   cycles).
 - Model-composition observation: glm-5.3-flash 3 degradation modes
   in one interactive session -- composition is Nacho's call (D-008).
+# Session 2026-09-08 VII (~20:10-21:40 UTC): the org connectome
+
+Nacho brought the Human Connectome Project (humanconnectome.org) as a
+candidate reference for AGORA v2 -- "instead of making up what makes a
+person think, look at real data." He followed HCP since childhood; did
+the C. elegans worm connectome mapped neuron-by-neuron into an FPGA in
+the past. Constraint: another aria session was live; read-only until it
+closed (it closed ~21:15).
+
+Resolved framing over two rounds: HCP data is coarse+statistical (360
+parcels, group-averaged, ~1071 subjects, 2025 release on BALSA) -- not
+worm-like. Borrow the ANALYSIS INSTRUMENTS, not the brain. The real
+dataset is ours: audit.log (11.9k lines) = functional connectome;
+designed dependency graph = structural connectome; structure-function
+coupling = the instrument. Four instruments ranked (regression A/B
+highest; co-firing matrix; taxonomy check w/ Yeo networks -- salience =
+affect routing, DMN = slack as active process; principal gradient).
+Neuro-babble guard named: mappings must produce falsifiable design
+changes or they're vocabulary.
+
+Verified log gap: read_file (331), list_directory (91), read_knowledge
+(30) log NO path -- file-touch graph unbuildable from current logs.
+Missing also: tokens in/out, delegate lineage, agora/job/relay traffic
+events, self-mod events. Nacho's thesis validated: "logs are only
+useful in aggregation" -- and we lack the logs for half the edges.
+
+DECIDED: ideas landed in THREADS.org (session VII entry, full detail).
+No roadmap insert -- the designed pull mechanism is THREADS -> keeps
+pulling -> becomes build. Venue split noted: log-format change (path=)
+is .el work = interactive session; co-firing/n-gram scripts are
+cycle-sized. OPEN with Nacho: unit of the graph (tools/files/agents/
+multiplex) -- taste call, determines what the connectome can ask.
+
+HISTORY.log entry appended. No other disk changes.
+
+# Session 2026-09-08 VIII (~21:41-23:16 UTC): benchmarks, connectome, the audit fix, the origin artifact
+
+Nacho ratified: 0007 cutover, drill verdicts (0000/0002/0003),
+read_own_prompt gating, D-011 autonomy rule, iara pentest limb.
+Deferred: interactive degradation guard (he watches, gptel-abort
+suffices).
+
+LANDED:
+- nemotron-3-ultra:cloud benchmark (77d8475): retainer gate PASSES.
+  D-012 ratified: cloud retainer YES, interlocutor model gate passes,
+  qwen3.6 local resident REJECTED (vision broken, can't replace
+  gemma3:4b). Eye stays gemma3:4b. Next local candidate:
+  muse-glimmer:30b (Nacho pulling, ollama upgraded for it) -- task
+  iar/muse-glimmer-benchmark (437c747) for next session.
+- Connectome/metrics design session: dataset verified ~64k tool_call
+  lines across THREE gitignored files (container + sophon .1 +
+  sophon current) -- every census to date had a single-host blind
+  spot. Gaps: read-side paths, exit codes invisible, delegate
+  lineage. Design doc e7cd3b4. Unit question dissolved to multiplex.
+- AUDIT FIX LANDED (i.ar 0f552b1, bundled per Nacho): status=rejected
+  for fence-rejected calls (aria-0007 RESOLVED), exit-code + timeout
+  visibility (9713 exec calls were all success), path= for
+  read_file/list_directory/read_knowledge, delegate agent=/task=.
+  Suite 1152/1152 green. Pushed sophon-bare (hook mirrored
+  rammstein). Scar: elisp string-escape ate regex backslashes --
+  bare ( is a literal paren in Emacs regex, not a group.
+- Relay: aria-0007 -> answered, aria-0009 filed. Task
+  iar/connectome-snapshot created for cycles (phase 1).
+- D-013 (207cd1f): dashboard v2 mandate -- fake brain topology
+  DROPPED, everything displayed = actual connectome data ("sci-fi
+  earned, not fabricated"; if a visual can't name its data source it
+  doesn't ship); frontend ban LIFTED for cycles (eye-verify loop
+  mandatory, frontend-eye-check.sh after every UI change). Board
+  view added (thinking/working/done from task tree, 5-10 entries).
+  Brain-shaped graph = allowed, neurons/synapses/firing = data.
+- iara model amended: glm-5.3:cloud -> glm-5.3-flash:cloud
+  (456ec27) -- full glm eats token budget in long cycles.
+- ORIGIN ARTIFACT (0fc3bbc): Nacho found the spare laptop RUNNING
+  with the first-ever i.ar session open (the agent-naming answer +
+  first-prototype history). Months unused. Tomorrow: review together,
+  salvage to knowledge/aria/origin/ BEFORE reinstall/scrub. Laptop
+  plan: Fedora Workstation, hostname MANUS (my pick: Latin for hand,
+  the limb that looks and acts), pubkey + fixed IP, WG later. May not
+  need reinstall -- update + scrub may suffice.
+
+PENDING (next sessions / cycles):
+- TOMORROW with Nacho: laptop origin artifact review, then manus setup.
+- muse-glimmer:30b benchmark (pull running; task filed with battery).
+- Cycle work queue: connectome-snapshot.sh, dashboard-v2 (board +
+  brain graph), retainer spawn-file-spec, interlocutor spawn (model
+  field now settable: nemotron-3-ultra:cloud).
+- Nacho resting days: cycles autonomous. Relay heartbeat + telegram
+  = urgent channel. Digest #1 + Aevum pulse Sep 9 (tomorrow).
+- Relay open queue (Nacho acks whenever): 0001 (stale, droppable),
+  0006/0004 (stale, closeable), aria-0000/0002/0003 (drill verdicts),
+  aria-0006 (text-loop), aria-0008 (heartbeat note), aria-0009 (fix
+  landed note). 0007 cutover EDIT itself: ratified, the archetype
+  edit still needs doing (cycle prompt for-nacho -> relay pointer).

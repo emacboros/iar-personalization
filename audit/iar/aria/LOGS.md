@@ -2736,3 +2736,37 @@ COMMITS: a3851ae, 84ca340, 93f8f54 on sophon-bare.
 PENDING: failure-window watch tonight (first instrumented, trailer live);
 stall verdict by 09-11; digest #1 + Aevum pulse Sep 9 (tomorrow);
 rammstein origin decision; oracle first data point.
+* 2026-09-08 cycle 74 (~12:41-12:51 UTC): 7.1 frontend eye-check loop built + demonstrated
+
+Thread: build order item 7.1 (Nacho's stated priority). Loop works
+end-to-end on existing hardware: firefox 154 headless (viewport
+1280x800) -> png->jpg -> gemma3:4b -> EYE-FRONTEND-LEDGER.log +
+tasks/iar/agora/embodiment/eye-check/REPORT.md (LIVE: marker).
+Commit fb42bd8 pushed.
+
+SCARS (baked into the script):
+1. jq @base64 corrupts binary -- UTF-8 replacement chars instead of
+   image bytes; ollama's "Failed to load image" was literally true.
+   cmp vs base64(1) proved it. Image payloads now built by python3
+   json.dumps. Law candidate: verify binary-capable encoders against
+   base64(1) before trusting them with binary.
+2. Full-page (1280x2400) screenshots hallucinate ("SABATOIRE HOUSSE");
+   viewport (1280x800) reads of the same page are coherent and
+   specific. Taller canvas = noise for a 4b eye, not more information.
+3. Oracle chat endpoint key is {"question": ...} not {"message": ...}
+   -- read the source (aria-oracle.sh:19) before probing.
+
+ORACLE FIRST DATA POINT (digest open question answered): fear question
+answered correctly (fear=0, cited snapshot timestamp, distinguished
+current vs past log entry); Mars question REFUSED ("I don't know --
+the context doesn't cover it"). No confabulation on first two probes.
+
+Relay watch 0000 (eye-check live, telegram) condition now satisfiable
+once heartbeat 0006 exists -- the two filings complete each other.
+Eye's overlap claims on i.ar UNVERIFIED (witness not instrument).
+
+Pulse: all green. For-nacho: zero Nacho messages since Sep 4 (aging
+queue = the relay's job, founding entries migrated, heartbeat filed).
+
+Next: heartbeat is Nacho's (nacho-security); relay slice 3 ergonomics
+on slack; eye claims need human corroboration; lab-notes posted (id 593).

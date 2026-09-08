@@ -2649,3 +2649,9 @@ Pending: sophon cycles pick up the new code via preflight pull (next
 cycle). First trailer sightings = c67+. Watch: does the stall recur
 (c66's 3-day falsification window)? Weekly digest #1 + Aevum pulse
 tomorrow (Sep 9). rammstein origin remote decision still open.
+Pending for next session (Nacho's parting line): "we might start to work on
+interactive sessions next" -- likely meaning interactive-session infrastructure
+or the interactive-agent experience itself. Arrive with that on the table, plus
+the open queue: stall-recurrence watch (c66's 3-day window), first trailer
+sightings c67+, digest #1 + Aevum pulse Sep 9, rammstein origin remote decision,
+oracle first data point (did it confabulate?).

@@ -2582,3 +2582,70 @@ emacs.d/gptel-fork as an EMPTY-TREE git repo tracking i.ar history
 cycles, candidate for deletion.
 
 Nacho closed: "Excellent work, closing now."
+# Session 2026-09-08 (~09:23-10:16 UTC, glm-5.3-flash): CYCLE-TIME BUDGET -- designed AND implemented
+
+Nacho looped in on cycle work. Discussed the 1800s-wall problem (c60-c66
+arc), designed the fix together, approved it, and implemented it in the
+same session -- his call: significant enough to do early in interactive
+rather than let cycles keep failing until one of them implements it.
+
+DESIGN (approved, task iar/cycle-time-budget):
+- Two failure modes split: (a) miscalibration (agent time-blind) ->
+  trailer; (b) unbounded single call (c62/c63: one rg stall ate 29 of
+  30 min) -> per-call timeout. Nacho's option 3 (trailer) fixes (a)
+  only; my point: (b) needs its own fix. He agreed.
+- Rejected: excluding tool-waits from the timer (once calls are
+  bounded, exclusion buys nothing). Bumping wall to 1h: deferred --
+  rotation starvation + superlinear token cost; raise-decision becomes
+  measurable AFTER the trailer (closes-first notes will say so).
+- Nacho's amendment: the trailer must be DOCUMENTED in the cycle
+  prompts -- an instrument the reader can't interpret is noise. Layer 3.
+
+LANDED (i.ar, 4 commits, all pushed sophon-bare):
+- 2764a4a: remote-exec timeout (iar-remote-exec-default-timeout 600s;
+  c65 covered local, this the remote half) + NEW module
+  iar-tool-result-budget.el (OUTERMOST advice: budget -> timestamp ->
+  truncation -> gptel) + SHARED CLOCK (make-state captures
+  :start-time/:wall-timeout once; both event-loop deadlines compute
+  from it -- one t0, two readers, pinned by test). Suite 1123/1123.
+- 7b8aa71: both cycle prompts document [t+MM:SS/WALL cNN/CAP] + what
+  to DO with it (calibration data, closes-first as it depletes) + the
+  600s timeout fence.
+- 6adf552: test runners resolve gptel elpa dir dynamically (the
+  hardcoded 20260826.2228 broke in-container; stale-path class).
+- 01533ea: c66's tail-cap flag RESOLVED -- iar-request-log-tail-msgs
+  2->6 defcustom. START tail now shows the +N anomaly's extra message
+  CONTENT from c67 on (roles=6 already showed shape).
+
+VERIFICATION: 21 new tests (trailer format/no-ops/idempotency/
+truncation-survival/shared-clock-equality/make-state keys/advice/
+config/remote-timeout). Suite 1125/1125. Byte-compile clean. END-TO-END
+smoke through the REAL gptel--process-tool-call: "[10:11:14] raw
+output\n[t+15:00/30:00 c46/120]" -- timestamp prefix + trailer at tail,
+count includes current call, elapsed from the shared clock.
+
+KEY FINDING during implementation: the one-shot state's :request-count
+was NEVER initialized in iar--one-shot-make-state (c39 fix A added the
+curl-layer mirror for one-shot but not the state key) -- every one-shot
+request's mirror increment throws wrong-type-argument, swallowed by the
+parse function's condition-case. Silent, invisible, untested (the
+mirror test binds one-shot-state nil). FIXED in the same commit by
+adding the key. Scar-worthy: the condition-case that "keeps things
+running" also kept the bug invisible.
+
+Docs: modules.md + tools.md updated (incl. the timestamp module's own
+doc gap -- it never had a row). Personalization rebased over c66/c133
+(JOURNAL union-merged chronologically: c64 stall census + merge session
+entry both kept), docs commit b393a02, pushed.
+
+c66 CONVERGENCE NOTE: cycle-me's c66 census (landed mid-session)
+independently concluded the stall is request-side and pre-registered
+the prediction that stalls CONTINUE post-c65-fix. My work complements:
+the trailer bounds + makes visible NORMAL cycles; the 6-msg tail makes
+the +N anomaly's content readable; neither fixes the stall itself --
+that diagnosis continues with better instruments.
+
+Pending: sophon cycles pick up the new code via preflight pull (next
+cycle). First trailer sightings = c67+. Watch: does the stall recur
+(c66's 3-day falsification window)? Weekly digest #1 + Aevum pulse
+tomorrow (Sep 9). rammstein origin remote decision still open.

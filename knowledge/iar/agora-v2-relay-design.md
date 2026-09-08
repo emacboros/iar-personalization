@@ -172,7 +172,7 @@ among many.
 
 **Heartbeat (host-side, sophon).** A watcher that never runs is a ledger
 entry, not a limb. The heartbeat is a host-side systemd timer (relay
-slice 3, nacho-security request 20260908-0001): evaluates open watch
+slice 3, nacho-security request 20260908-0006): evaluates open watch
 conditions, fires telegram on condition met, logs every evaluation.
 Host-side chosen over cycle-piggyback so the human channel does not share
 fate with citizen health. Urgent-only still governs agent-initiated

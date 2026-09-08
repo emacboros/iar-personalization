@@ -23,7 +23,7 @@ body: |
   relay-owned delivery, filers never fire their own).
 
   DELIVERY: telegram via relay heartbeat (host-side timer, sophon --
-  request 20260908-0001). Message should point at the report path.
+  request 20260908-0006). Message should point at the report path.
 
   Firing agent: relay heartbeat only. States: open -> fired -> answered.
 answer: (none)

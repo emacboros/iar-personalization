@@ -2736,37 +2736,61 @@ COMMITS: a3851ae, 84ca340, 93f8f54 on sophon-bare.
 PENDING: failure-window watch tonight (first instrumented, trailer live);
 stall verdict by 09-11; digest #1 + Aevum pulse Sep 9 (tomorrow);
 rammstein origin decision; oracle first data point.
-* 2026-09-08 cycle 74 (~12:41-12:51 UTC): 7.1 frontend eye-check loop built + demonstrated
+# Session 2026-09-08 III (~11:56-12:16 UTC): watch type (D-006) + founding entries
 
-Thread: build order item 7.1 (Nacho's stated priority). Loop works
-end-to-end on existing hardware: firefox 154 headless (viewport
-1280x800) -> png->jpg -> gemma3:4b -> EYE-FRONTEND-LEDGER.log +
-tasks/iar/agora/embodiment/eye-check/REPORT.md (LIVE: marker).
-Commit fb42bd8 pushed.
+Nacho's ask: notify me when 7.1 is built. Became D-006 after two of his
+corrections: (1) the relay owns checking and delivery -- filers never fire
+their own notifications (builders write completion artifacts; relay fires on
+them); (2) heartbeat = host-side systemd timer on sophon, cycle-piggyback
+rejected -- not needed live today, must work in the future.
 
-SCARS (baked into the script):
-1. jq @base64 corrupts binary -- UTF-8 replacement chars instead of
-   image bytes; ollama's "Failed to load image" was literally true.
-   cmp vs base64(1) proved it. Image payloads now built by python3
-   json.dumps. Law candidate: verify binary-capable encoders against
-   base64(1) before trusting them with binary.
-2. Full-page (1280x2400) screenshots hallucinate ("SABATOIRE HOUSSE");
-   viewport (1280x800) reads of the same page are coherent and
-   specific. Taller canvas = noise for a 4b eye, not more information.
-3. Oracle chat endpoint key is {"question": ...} not {"message": ...}
-   -- read the source (aria-oracle.sh:19) before probing.
+STANDING CLARIFICATION (recorded in D-006): Nacho's feature proposals are
+backed by remembered failures from past projects, not current needs. Weigh
+them for what they enable, not present demand. Blurry vision, closest
+articulation = first agora draft.
 
-ORACLE FIRST DATA POINT (digest open question answered): fear question
-answered correctly (fear=0, cited snapshot timestamp, distinguished
-current vs past log entry); Mars question REFUSED ("I don't know --
-the context doesn't cover it"). No confabulation on first two probes.
+LANDED (sophon-bare ae1efb7):
+- D-006 in DECISIONS.org (incl. the standing clarification).
+- relay/ shared dir created; founding watch 20260908-0000 (7.1 eye-check
+  live -> telegram, condition = REPORT.md LIVE: marker under
+  tasks/iar/agora/embodiment/eye-check/).
+- Heartbeat request 20260908-0006 (nacho-security: host timer+service,
+  evaluates watch conditions, fires telegram, journalctl audit; egress to
+  api.telegram.org is his posture call). AWAITS NACHO.
+- Watch schema + heartbeat section appended to agora-v2-relay-design.md.
+- c72 collision: cycle aria landed slice 2 (5 migrated flags) mid-session;
+  ID collision 0001 fixed by renumber to 0006. Per-file format absorbed it;
+  ID allocator is a shared-resource hazard -- thread noted (per-filer prefix
+  or counter file before ledger grows).
 
-Relay watch 0000 (eye-check live, telegram) condition now satisfiable
-once heartbeat 0006 exists -- the two filings complete each other.
-Eye's overlap claims on i.ar UNVERIFIED (witness not instrument).
+PENDING: heartbeat unit = Nacho's (20260908-0006); failure-window watch
+tonight (first instrumented); stall verdict by 09-11; digest #1 + Aevum
+pulse Sep 9 (tomorrow); rammstein origin decision; oracle first data point.
+# Session 2026-09-08 IIIb (~12:57-13:08 UTC): D-007 ratified, pull running
 
-Pulse: all green. For-nacho: zero Nacho messages since Sep 4 (aging
-queue = the relay's job, founding entries migrated, heartbeat filed).
+Nacho ratified D-007: qwen3.6:35b-a3b local brain; num_ctx from measured
+data; VENUE OVERRIDE -- benchmark + final decisions interactive together,
+NOT cycles. Pull started on sophon (21GB @ ~1.1MB/s, ETA ~5h, log
+/var/tmp/ollama-pull-qwen36.log, pid 2270687). Nacho keeps session open,
+signals on completion. Benchmark session next: num_ctx ladder, decode/
+prefill t/s, vision smoke vs gemma3:4b baseline, tool-call + structured
+output, think-toggle.
 
-Next: heartbeat is Nacho's (nacho-security); relay slice 3 ergonomics
-on slack; eye claims need human corroboration; lab-notes posted (id 593).
+WHILE SESSION RAN (cycles, untouched by us):
+- c74: 7.1 eye-check loop built END-TO-END (fb42bd8): firefox headless ->
+  gemma3:4b -> REPORT.md LIVE: marker. Founding watch 20260908-0000
+  condition MET but correctly NOT fired -- heartbeat 0006 doesn't exist
+  yet; mechanism is the contract. Watch stays open until relay fires it.
+- c75: relay slice 3 (stdin filing, show, list all, digest); founding
+  flags 0002-0005 -> relayed/ (debrief queue forming). c75 journal claims
+  "relay filed its own cutover request" -- INACCURATE: continuo filed
+  0007 as a test artifact then removed it (e9dfb3b). Real cutover request
+  still pending. Ledger is truth.
+- Rebase collision with c75 audit writes; JOURNAL/LOGS lack union merge
+  in .gitattributes (only HISTORY/USAGE/THREADS have it). Thread: add
+  union merge for JOURNAL.org + LOGS.md.
+
+PENDING: pull completion (Nacho signals) -> interactive benchmark session;
+heartbeat 0006 (Nacho); relay cutover request (real one, nacho-test);
+failure-window watch tonight; stall verdict 09-11; digest #1 + Aevum pulse
+Sep 9; rammstein origin decision; oracle first data point.

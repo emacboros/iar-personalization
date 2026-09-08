@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
-# relay -- AGORA v2 human-channel ledger tool (slice 3: ergonomics)
+# relay -- AGORA v2 human-channel ledger tool (first slice, deterministic)
 # Usage:
-#   relay file <class> <title> <body-file|->   file a request ('-' = body from stdin)
-#   relay list [state|all]                     list requests (default: open)
-#   relay show <id>                            print a request's full file
-#   relay digest                               Zulip-ready digest of open+relayed
-#   relay answer <id> <text>                   record Nacho's answer
-#   relay relay <id>                           open -> relayed (debrief delivery)
-#   relay hold <id> <reason>                   open -> held (visible filter)
-#   relay drop <id> <reason>                   open -> dropped (visible filter)
-#   relay bounce <id> <reason>                 misfiled: dropped with class reason
+#   relay file <class> <title> <body-file>   file a request (returns id)
+#   relay list [state]                       list requests (default: open)
+#   relay answer <id> <text>                 record Nacho's answer
+#   relay relay <id>                         open -> relayed (debrief delivery)
+#   relay hold <id> <reason>                 open -> held (visible filter)
+#   relay drop <id> <reason>                 open -> dropped (visible filter)
+#   relay bounce <id> <reason>               misfiled: dropped with class reason
 # Ledger root: $ARIA_RELAY_ROOT (default /root/personalization/relay)
 set -euo pipefail
 
@@ -23,63 +21,24 @@ for s in $STATES; do mkdir -p "$ROOT/$s"; done
 now() { date -u +%Y-%m-%dT%H:%MZ; }
 
 find_req() { # find_req <id> -> prints path or dies
-  # Filenames are YYYYMMDD-NNNN-slug.md; the id is the NNNN segment.
-  # The old glob "$ROOT/$s/$id"-*.md anchored at filename START and
-  # never matched (filenames start with the date) -- every state
-  # transition was dead on arrival. Match the seq segment exactly.
-  local id="$1" hit="" f b seq
+  local id="$1" hit=""
   for s in $STATES; do
-    for f in "$ROOT/$s"/*.md; do
-      [ -e "$f" ] || continue
-      b=$(basename "$f")
-      seq=$(echo "$b" | sed -E 's/^[0-9]{8}-([0-9]{4})-.*/\1/')
-      [ "$seq" = "$id" ] && hit="$f"
+    for f in "$ROOT/$s/$id"-*.md; do
+      [ -e "$f" ] && hit="$f"
     done
   done
   [ -n "$hit" ] || die "no request matching id '$id'"
   echo "$hit"
 }
 
-req_age() { # req_age <file> -> prints age like "4d"
-  local filed
-  filed=$(grep -m1 '^filed:' "$1" | cut -d' ' -f2)
-  echo $(( ( $(date -u +%s) - $(date -u -d "${filed//Z/} +0000" +%s) ) / 86400 ))d
-}
-
-short_id() { # short_id <filename-basename> -> "0000"
-  echo "$1" | cut -d- -f2
-}
-
 cmd_file() {
   local class="$1" title="$2" bodyfile="$3"
   echo "$CLASSES" | grep -qw "$class" || die "bad class '$class' (valid: $CLASSES)"
-  # '-' = read body from stdin (slice 3: one-call filing from cycles,
-  # no temp-file dance). Consumed into a temp file so the existing
-  # body-file path is unchanged. NOTE: an EXIT trap referencing a
-  # local var fires AFTER the function scope dies -- unbound under
-  # set -u (caught in slice-3 testing). Global var + explicit rm.
-  if [ "$bodyfile" = "-" ]; then
-    RELAY_TMP=$(mktemp /tmp/relay-body.XXXXXX)
-    cat > "$RELAY_TMP"
-    bodyfile="$RELAY_TMP"
-  fi
   [ -f "$bodyfile" ] || die "body file not found: $bodyfile"
   local id
-  # Sequence = max existing id number + 1, NOT the file count. The
-  # count collides when a file is deleted or the count drifts from the
-  # max id (continuo c139: 5 founding files 0001-0005, count=5, next
-  # id was 0005 -- a duplicate). Derive from the max id so ids are
-  # monotonic and collision-free.
-  local maxn=0
-  for f in "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped"; do
-    for m in "$f"/*.md; do
-      [ -e "$m" ] || continue
-      local b; b=$(basename "$m")
-      local seq; seq=$(echo "$b" | sed -E 's/^[0-9]{8}-([0-9]{4})-.*/\1/')
-      [ "$seq" -gt "$maxn" ] 2>/dev/null && maxn="$seq"
-    done
-  done
-  id="$(date -u +%Y%m%d)-$(printf '%04d' $((maxn+1)))"
+  local n
+  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "*.md" 2>/dev/null | wc -l)
+  id="$(date -u +%Y%m%d)-$(printf '%04d' "$n")"
   local slug
   slug="$(echo "$title" | tr '[:upper:] ' '[:lower:]-' | tr -cd '[:lower:][:digit:]-' | cut -c1-40)"
   local f="$ROOT/open/$id-$slug.md"
@@ -95,70 +54,23 @@ cmd_file() {
     sed 's/^/  /' "$bodyfile"
     echo "answer: (none)"
   } > "$f"
-  [ -n "${RELAY_TMP:-}" ] && rm -f "$RELAY_TMP" && RELAY_TMP=""
   echo "$f"
-}
-
-list_one() { # list_one <state> -- header + rows for one state
-  local state="$1"
-  printf "%-24s %-9s %-16s %s\n" "ID" "AGE" "CLASS" "TITLE"
-  for f in "$ROOT/$state"/*.md; do
-    [ -e "$f" ] || continue
-    local class title age
-    class=$(grep -m1 '^class:' "$f" | cut -d' ' -f2)
-    title=$(grep -m1 '^title:' "$f" | cut -d' ' -f2-)
-    age=$(req_age "$f")
-    printf "%-24s %-9s %-16s %s\n" "$(basename "$f" .md)" "$age" "$class" "$title"
-  done
 }
 
 cmd_list() {
   local state="${1:-open}"
-  if [ "$state" = "all" ]; then
-    local s
-    for s in $STATES; do
-      echo "--- $s:"
-      list_one "$s"
-    done
-    return 0
-  fi
   echo "$STATES" | grep -qw "$state" || die "bad state '$state'"
-  list_one "$state"
-}
-
-cmd_show() {
-  local f; f="$(find_req "$1")"
-  cat "$f"
-}
-
-cmd_digest() { # Zulip-markdown queue summary: open + relayed only.
-  # The answered/held/dropped states are history, not queue; the
-  # debrief post should surface what awaits Nacho, not what's done.
-  echo "**Relay queue -- $(date -u +%Y-%m-%d)**"
-  local any=0 s f
-  for s in open relayed; do
-    local count=0 out=""
-    for f in "$ROOT/$s"/*.md; do
-      [ -e "$f" ] || continue
-      count=$((count+1)); any=1
-      local id class title urgent age mark
-      id=$(short_id "$(basename "$f")")
-      class=$(grep -m1 '^class:' "$f" | cut -d' ' -f2)
-      title=$(grep -m1 '^title:' "$f" | cut -d' ' -f2-)
-      urgent=$(grep -m1 '^urgent:' "$f" | cut -d' ' -f2)
-      age=$(req_age "$f")
-      mark=""
-      [ "$urgent" = "yes" ] && mark=" **URGENT**"
-      out="${out}- **${id}** [${class}, ${age}]${mark}: ${title}"$'\n'
-    done
-    if [ "$count" = 0 ]; then
-      out="- (none)"$'\n'
-    fi
-    echo ""
-    echo "**${s}:**"
-    printf '%s' "$out"
+  printf "%-24s %-9s %-16s %s\n" "ID" "AGE" "CLASS" "TITLE"
+  for f in "$ROOT/$state"/*.md; do
+    [ -e "$f" ] || continue
+    local filed class title
+    filed=$(grep -m1 '^filed:' "$f" | cut -d' ' -f2)
+    class=$(grep -m1 '^class:' "$f" | cut -d' ' -f2)
+    title=$(grep -m1 '^title:' "$f" | cut -d' ' -f2-)
+    local age
+    age=$(( ( $(date -u +%s) - $(date -u -d "${filed//Z/} +0000" +%s) ) / 86400 ))d
+    printf "%-24s %-9s %-16s %s\n" "$(basename "$f" .md)" "$age" "$class" "$title"
   done
-  [ "$any" = 1 ] || echo "(queue empty)"
 }
 
 set_field() { # set_field <field> <value> <file> -- replace or append
@@ -166,9 +78,6 @@ set_field() { # set_field <field> <value> <file> -- replace or append
   if grep -q "^$field:" "$file"; then
     sed -i "s|^$field:.*|$field: $value|" "$file"
   else
-    # guarantee a newline before appending -- the file may end without
-    # one (c139: "answer: (none)hold-reason: ..." glued lines)
-    [ -s "$file" ] && [ "$(tail -c1 "$file")" ] && echo >> "$file"
     echo "$field: $value" >> "$file"
   fi
 }
@@ -195,12 +104,10 @@ cmd_answer() {
 case "${1:-}" in
   file)    shift; cmd_file "$@" ;;
   list)    shift; cmd_list "$@" ;;
-  show)    cmd_show "$2" ;;
-  digest)  cmd_digest ;;
   relay)   cmd_move "$2" relayed "relayed-at" "$(now)" ;;
   hold)    cmd_move "$2" held "hold-reason" "$3" ;;
   drop)    cmd_move "$2" dropped "drop-reason" "$3" ;;
   bounce)  cmd_move "$2" dropped "bounce-reason" "misfiled: $3" ;;
   answer)  cmd_answer "$2" "$3" ;;
-  *) sed -n '2,15p' "$0"; exit 1 ;;
+  *) sed -n '2,12p' "$0"; exit 1 ;;
 esac

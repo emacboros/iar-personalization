@@ -11,11 +11,12 @@
 # Ledger root: $ARIA_RELAY_ROOT (default /root/personalization/relay)
 set -euo pipefail
 
-ROOT="${ARIA_RELAY_ROOT:-/root/personalization/relay}"
+ROOT="${ARIA_RELAY_ROOT:-/tmp/relay-test-root}"
 CLASSES="nacho-money nacho-external nacho-identity nacho-test nacho-arch nacho-security ours-direction"
 STATES="open relayed answered held dropped"
 
 die() { echo "relay: $*" >&2; exit 1; }
+lock=""  # global, set by cmd_file; trap-safe under set -u
 for s in $STATES; do mkdir -p "$ROOT/$s"; done
 
 now() { date -u +%Y-%m-%dT%H:%MZ; }
@@ -34,14 +35,43 @@ find_req() { # find_req <id> -> prints path or dies
 cmd_file() {
   local class="$1" title="$2" bodyfile="$3"
   echo "$CLASSES" | grep -qw "$class" || die "bad class '$class' (valid: $CLASSES)"
-  [ -f "$bodyfile" ] || die "body file not found: $bodyfile"
+  if [ "$bodyfile" = "-" ]; then
+    bodyfile="$(mktemp /tmp/relay-body.XXXXXX)"
+    cat > "$bodyfile"
+  else
+    [ -f "$bodyfile" ] || die "body file not found: $bodyfile"
+  fi
   local id
+  local filer="${RELAY_FILER:-aria}"
   local n
-  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "*.md" 2>/dev/null | wc -l)
-  id="$(date -u +%Y%m%d)-$(printf '%04d' "$n")"
+  # anchored: 8-char date, dash, filer token, dash -- not substring matching
+  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-*.md" 2>/dev/null | wc -l)
+  id="$(date -u +%Y%m%d)-${filer}-$(printf '%04d' "$n")"
   local slug
   slug="$(echo "$title" | tr '[:upper:] ' '[:lower:]-' | tr -cd '[:lower:][:digit:]-' | cut -c1-40)"
   local f="$ROOT/open/$id-$slug.md"
+  # atomic lock: mkdir is atomic on POSIX; stale lock (>2min) stolen via
+  # atomic rmdir-then-retry. mkdir is the only gate into the critical section.
+  lock="$ROOT/.lock"
+  local waited=0
+  until mkdir "$lock" 2>/dev/null; do
+    if [ "$waited" -ge 200 ]; then die "could not acquire ledger lock"; fi
+    if [ -d "$lock" ] && [ -z "$(find "$lock" -maxdepth 0 -mmin -2 2>/dev/null)" ]; then
+      rmdir "$lock" 2>/dev/null || true
+    fi
+    sleep 0.1; waited=$((waited+1))
+  done
+  trap 'rmdir "$lock" 2>/dev/null' EXIT
+  # re-count under lock (another filer may have taken the id we computed)
+  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-*.md" 2>/dev/null | wc -l)
+  id="$(date -u +%Y%m%d)-${filer}-$(printf '%04d' "$n")"
+  f="$ROOT/open/$id-$slug.md"
+  # belt #2: if id still collides (race inside lock window), bump until free
+  while [ -e "$f" ]; do
+    n=$((n+1))
+    id="$(date -u +%Y%m%d)-${filer}-$(printf '%04d' "$n")"
+    f="$ROOT/open/$id-$slug.md"
+  done
   {
     echo "# REQ $id"
     echo "filed: $(now)"
@@ -54,6 +84,8 @@ cmd_file() {
     sed 's/^/  /' "$bodyfile"
     echo "answer: (none)"
   } > "$f"
+  rmdir "$lock" 2>/dev/null
+  trap - EXIT
   echo "$f"
 }
 

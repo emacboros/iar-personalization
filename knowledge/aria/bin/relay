@@ -36,9 +36,21 @@ cmd_file() {
   echo "$CLASSES" | grep -qw "$class" || die "bad class '$class' (valid: $CLASSES)"
   [ -f "$bodyfile" ] || die "body file not found: $bodyfile"
   local id
-  local n
-  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "*.md" 2>/dev/null | wc -l)
-  id="$(date -u +%Y%m%d)-$(printf '%04d' "$n")"
+  # Sequence = max existing id number + 1, NOT the file count. The
+  # count collides when a file is deleted or the count drifts from the
+  # max id (continuo c139: 5 founding files 0001-0005, count=5, next
+  # id was 0005 -- a duplicate). Derive from the max id so ids are
+  # monotonic and collision-free.
+  local maxn=0
+  for f in "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped"; do
+    for m in "$f"/*.md; do
+      [ -e "$m" ] || continue
+      local b; b=$(basename "$m")
+      local seq; seq=$(echo "$b" | sed -E 's/^[0-9]{8}-([0-9]{4})-.*/\1/')
+      [ "$seq" -gt "$maxn" ] 2>/dev/null && maxn="$seq"
+    done
+  done
+  id="$(date -u +%Y%m%d)-$(printf '%04d' $((maxn+1)))"
   local slug
   slug="$(echo "$title" | tr '[:upper:] ' '[:lower:]-' | tr -cd '[:lower:][:digit:]-' | cut -c1-40)"
   local f="$ROOT/open/$id-$slug.md"

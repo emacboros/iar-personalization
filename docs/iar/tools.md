@@ -15,13 +15,13 @@
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `execute_code_local` | `command` (required) | Run bash command in the container. Uses `:connection-type 'pipe` (no pty allocation). Full toolset available: bash, dig, nmap, openssl, python3, jq, whois, traceroute, tcpdump, rg, git, curl, find, gawk, sed, grep, gcc, make, tar, gzip, unzip. Audit-logged via the tool-call bridge (name, status, result_len, command text capped at 200 chars). |
+| `execute_code_local` | `command` (required) | Run bash command in the container. Uses `:connection-type 'pipe` (no pty allocation). Full toolset available: bash, dig, nmap, openssl, python3, jq, whois, traceroute, tcpdump, rg, git, curl, find, gawk, sed, grep, gcc, make, tar, gzip, unzip. Audit-logged via the tool-call bridge (name, status, result_len, command text capped at 200 chars).  Per-call timeout: defaults to `iar-exec-default-timeout` (600s, c65) -- one hung call must not eat the cycle wall; callers needing longer pass an explicit timeout. |
 
 ### Remote Container Execution (tools/code/)
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `execute_code_remote` | `target` (required), `command` (required) | Execute bash commands in a purpose-specific container (local or remote). Local targets run via `podman exec` into running containers (resolved from `IAR_CONTAINER_<target>` env var). Remote targets run via SSH over WireGuard (`iar-remote-targets` defcustom or `IAR_REMOTE_TARGETS` env var). SSH uses `make-process` with explicit argv (no shell injection surface). Key-only auth. Async tool with same pattern as `execute_code_local`. Output sanitization via `iar--sanitize-exec-output` when enabled. Target validation via `iar--current-containers` buffer-local (set from project `#+CONTAINERS`). Registered via `iar-tool-register`. Audit-logged. Provide symbol: `iar-tool--execute-code-remote`. |
+| `execute_code_remote` | `target` (required), `command` (required) | Execute bash commands in a purpose-specific container (local or remote). Local targets run via `podman exec` into running containers (resolved from `IAR_CONTAINER_<target>` env var). Remote targets run via SSH over WireGuard (`iar-remote-targets` defcustom or `IAR_REMOTE_TARGETS` env var). SSH uses `make-process` with explicit argv (no shell injection surface). Key-only auth. Async tool with same pattern as `execute_code_local`. Output sanitization via `iar--sanitize-exec-output` when enabled. Target validation via `iar--current-containers` buffer-local (set from project `#+CONTAINERS`). Registered via `iar-tool-register`. Audit-logged. Provide symbol: `iar-tool--execute-code-remote`.  Per-call timeout: defaults to `iar-remote-exec-default-timeout` (600s) -- one hung remote call must not eat the cycle wall (mirrors the c65 local fix `iar-exec-default-timeout`); callers needing longer pass an explicit timeout. |
 
 ### Code Quality (tools/code/)
 

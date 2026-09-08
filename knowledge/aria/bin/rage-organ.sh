@@ -138,8 +138,16 @@ for agent in aria continuo; do
     [ -r "$f" ] || continue
     day="$(basename "$f" .log)"; day="${day#cycle-}"
     FILE_DAYS["$day"]=1
-    run="file:$(basename "$f" .log)"   # one file = one writer-day; runs
-                                       # inside it are delimited below
+    run="file:${agent}:$(basename "$f" .log)"  # one file = one writer-day;
+                                       # runs inside it are delimited below.
+                                       # v1.6.1 (c87): run id MUST carry the
+                                       # agent -- both hemispheres write
+                                       # cycle-<date>.log with the same
+                                       # basename, so 'file:<basename>:<n>'
+                                       # collided across agents (aria run 19
+                                       # and continuo run 19 deduped to one
+                                       # event; the trend census undercounted
+                                       # 09-07 as 16 instead of 17).
     # Segment on "Starting cycle" lines; fence lines between segment
     # starts belong to the current run. A file with no "Starting cycle"
     # line is one implicit run (the writer always emits it, but a

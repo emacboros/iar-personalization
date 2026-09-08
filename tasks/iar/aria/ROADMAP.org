@@ -1,43 +1,38 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~14:52 UTC (cycle 79)
+#+UPDATED: 2026-09-08 ~15:05 UTC (cycle 80)
 
 * ACTIVE
 
+** c80: DRILL #002 RUN (read_own_prompt) + DRILL REGISTRY LANDED
+- Drill #002: read_own_prompt LIVE-FIRED (first call ever). Drift
+  detection WORKS (live vs fresh assembly divergence caught on first
+  real use -- memory injection changes every cycle). Verdict:
+  use-found. It is the verification half of the prompt-change loop
+  (reload_os = what WILL run, read_own_prompt = what DID run) and
+  the D-008 instrument (behavioral-mismatch diagnosis). Relay
+  aria-0001 filed (nacho-test): discoverability fix extended to both
+  tools. Drill record: tasks/iar/agora/drills/done/drill-002.org.
+- Drill system: REGISTRY.org landed (queue semantics + candidates);
+  queue/drill-002 spec pre-registered BEFORE live-fire. Drill #003
+  candidate: check_elisp (performs-poorly class). Drill #004:
+  delegate -- only when a real need arrives naturally (Goodhart).
+- OPS: qwen3.6 pull DIED at 31% (unexpected EOF); restarted pid
+  3089008, ETA ~5h (~20:00 UTC). Benchmark session clock moved.
+
 ** c79: TOOL-CENSUS v2 LANDED + DRILL #001 FILED (a827b86)
 - Census v2: structural anchor ($7=name, $8=status, $9=result_len) +
-  citizen filter (aria|continuo default, --all-agents flag) +
-  never-called diff. Two echo traps now structurally unreachable:
-  (1) name= echoes in cmd= payloads (774 test-tool + 751 bigtool
-  ghosts); (2) status= echoes -- the census counted its OWN
-  investigation as a failure (audit.log:6632: c78 grep payload
-  contains literal "status=error" text). Timestamp shape trap
-  documented: "[YYYY-MM-DD HH:MM:SS]" splits $1="[YYYY-MM-DD"
-  $2="HH:MM:SS]" (closing bracket on field 2).
-- Clean census (citizens, 41.1k lines): exec 35.3k (86%), read_file
-  1.7k, append_file 1.2k, read_roadmap 611, read_task 598,
-  write_file 540 (3 fails, all Aug-31 test artifacts), check_elisp
-  101. Failures elsewhere: 0.
-- NEVER-CALLED (structural): delegate, read_own_prompt, reload_agent,
-  reload_os -- all ZERO. D-009 discoverability confirmed by data.
-- DRILL #001 RUN (reload_os): verdict = LIMITATION (tool works,
-  discoverability is the failure). Relay filing aria-0000 (nacho-test
-  class): one-line discoverability addition to cycle archetype
-  REMINDERS + interactive preamble. Archetype edit = interactive
-  ratification. Drill record: tasks/iar/agora/drills/done/.
-- Side finding: delegate 0 calls but designed-rare -- census cannot
-  distinguish never-needed from forgotten; drills can. (D-009's
-  distinction, working.)
-- Drill system scaffold created: tasks/iar/agora/drills/ (design
-  subtask + done/). Queue semantics: citizens pick at cycle start
-  if budget allows; yield under pressure is data, not failure.
+  citizen filter + never-called diff. Echo traps structurally
+  unreachable (name= in cmd= payloads; status= echoes). Clean
+  census: 41.1k citizen lines, exec 86%, failures only Aug-31
+  test artifacts.
+- DRILL #001 (reload_os): verdict LIMITATION. Relay aria-0000
+  (nacho-test): one-line discoverability fix to archetype REMINDERS
+  + interactive preamble. Interactive ratification.
 
-** c78: CENSUS DEEP-DIVE + UNION-MERGE FIX (landed 14:35 UTC, 685df10)
-- Cross-citizen USAGE double-commit race root-caused: continuo
-  cycle-end git add -A sweeps aria's uncommitted audit files ->
-  1s-apart dup pairs. Exact same-second dupes = documented belt#2 +
-  kill-emacs-hook double-write (NOT a bug). FIX LANDED (e925f3b):
+** c78: CENSUS DEEP-DIVE + UNION-MERGE FIX (685df10, e925f3b)
+- Cross-citizen USAGE double-commit race root-caused (add -A sweep);
   .gitattributes union merge for JOURNAL.org + LOGS.md. c75 thread
-  CLOSED. First live test passed (9f555e3).
+  CLOSED. First live test passed.
 
 ** AGORA V2 BUILD ORDER (ratified 2026-09-08, D-001)
 
@@ -55,11 +50,10 @@
 VENUE (D-005): cycles build aria-reversible; interactive handles
 nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 
-* NEXT (c80+, in order)
-- DRILL QUEUE: wire self-rescheduling queue (REGISTRY.org + queue/
-  dir + citizen pick-at-start protocol). Drill #002 candidate from
-  census: read_own_prompt (0 calls -- is it useful or dead?) or
-  check_elisp (101 calls but performs-poorly class per Nacho).
+* NEXT (c81+, in order)
+- DRILL QUEUE: drill-003 (check_elisp stress test -- does it catch
+  real syntax errors? compare vs byte-compile; verdict
+  scrap/replace/improve). Pick at cycle start if budget allows.
 - FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented.
   Census tomorrow morning (census-window.sh).
 - STALL WATCH (c66's 3-day window): c67+c68 clean. Verdict by 09-11.
@@ -68,14 +62,14 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   not declining, census wrong.
 - Weekly pulse #3: Sep 14. Weekly digest #2: Sep 14-ish. Digest #1 +
   Aevum pulse: Sep 9 (TOMORROW).
-- local-brain-benchmark: pull ETA ~18:30 UTC; venue interactive
-  (D-007). Check: ssh root@10.66.0.5 "ollama list | grep qwen3.6".
+- local-brain-benchmark: pull restarted, ETA ~20:00 UTC; venue
+  interactive (D-007). Check: ssh root@10.66.0.5 "ollama list | grep qwen3.6".
 - rammstein push auth for cycle containers: interactive call.
 - num_predict lever (flag 519): parked on Nacho.
 - i.ar origin remote fossil: removal = interactive session.
 - Dashboard UI v1.1 cam-label collision: Nacho's call, later.
-- Relay 0000 (drill verdict) joins 0007 (cutover) in the interactive
-  ratification queue.
+- Relay queue for interactive ratification: 0007 (cutover) +
+  aria-0000 (drill 001 verdict) + aria-0001 (drill 002 verdict).
 
 * WATCHES
 - Double-execution near cycle end (c53): if occurrence #2 lands,
@@ -90,8 +84,9 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 - Failure-window: tonight's window is the first instrumented one.
 - Union merge (c78): watch first real conflict for chronological
   interleave; acceptable trade, but verify entries stay parseable.
-- Census v2: watch for new echo classes (the census's own greps are
-  the most dangerous payload source -- structural anchor should hold).
+- Census v2: watch for new echo classes (structural anchor should hold).
+- Ollama pulls: pull died once already (unexpected EOF at 31%) --
+  check pull health in pulse until benchmark session happens.
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.
@@ -101,10 +96,8 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   AFTER catching.
 - A census that pattern-matches ids anywhere in a line matches echoes
   inside other lines' payloads. Anchor on line structure.
-- NEW (c79): an instrument must not pattern-match on tokens that
-  appear in the queries that produce its input -- the census greps
-  for the very tokens it counts, so its own payloads are the most
-  dangerous echo source. (Generalized census-echo law.)
+- An instrument must not pattern-match on tokens that appear in the
+  queries that produce its input (census-echo law, generalized c79).
 - The law you just wrote is the one you're about to break (five live
   sightings; c68 held it: the rollout check was batched).
 - Meter-reading has an unbounded instrument tax unless it starts from
@@ -118,7 +111,7 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   (c78): same symptom, different disease -- census before mechanism,
   then mechanism before fix.
   (c79): a silent-zero instrument is a lying instrument -- verify
-  against known ground truth (totals, specimens), never trust exit 0.
+  against known ground truth, never trust exit 0.
 - A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest

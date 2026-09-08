@@ -1,0 +1,35 @@
+#+TITLE: Benchmark plan -- qwen3.6:35b-a3b local brain (D-007)
+
+* STATUS
+- Ratified D-007 (interactive, 2026-09-08): qwen3.6:35b-a3b local brain,
+  num_ctx from measured data, benchmark + final decisions interactive
+  with Nacho (venue override -- NOT cycles).
+- Pull: 21GB @ ~1.1MB/s, started ~13:00 UTC 2026-09-08, ETA ~18:30 UTC.
+  Log: /var/tmp/ollama-pull-qwen36.log (pid 2270687).
+
+* CHECK COMMANDS
+- Progress: ssh root@10.66.0.5 "tail -c 200 /var/tmp/ollama-pull-qwen36.log"
+- Done: ssh root@10.66.0.5 "ollama list | grep qwen3.6"
+
+* PROTOCOL (interactive session, in order)
+1. Pull status check. If incomplete, wait or reschedule.
+2. num_ctx ladder: measure KV/VRAM footprint + quality at 8k/16k/32k/64k.
+   Cycle context is ~45k chars injection (~12k tok) + history; pick the
+   smallest ctx that holds a full cycle with margin.
+3. Decode/prefill t/s at chosen num_ctx. Compare vs glm-5.3-flash:cloud
+   baseline (c60: ~66s/turn avg, GPU shared with oracle+affect+dashboard).
+4. Vision smoke vs gemma3:4b baseline (the eye organ's current model):
+   same screenshot set from 7.1 eye-check, compare coherence.
+5. Tool-call test: iar tool-call format round-trip (the c70 failure
+   window is tool-heavy; this model must not regress tool-call fidelity).
+6. Structured output: JSON-mode reliability (affect organs depend on it).
+7. Think-toggle: does thinking mode help or burn budget at this size?
+8. DECISION (Nacho, interactive): adopt as aria brain? continuo too?
+   Rotate.sh composition change = his call.
+
+* CUTOVER RULES (from D-007 session)
+- No cutover without suite green + measured benchmark advantage.
+- One variable at a time (c34 law): brain swap OR num_predict change,
+  never both in the same window.
+- Rage sev=3 observation must clear first (same pending constraint as
+  the num_predict lever, relay 0003).

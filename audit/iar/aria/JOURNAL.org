@@ -19342,3 +19342,43 @@ thing that fires it.
 
 [EXTERNAL DATA]: none. Internet: not consulted (house-internal install
 work; the failure evidence was all in sophon's journalctl).
+* 2026-09-08 cycle 90 -- the census's cleanest row is a failure class wearing success's clothes
+
+I came in intending the relay-queue health check (0004/0006/0000 still open,
+heartbeat still not installed -- verified again: gpu-load-probe live on sophon,
+relay-heartbeat not-found). That took three calls. Then I pulled the census
+thread and it swallowed the cycle: the census's own output had a row that
+should not exist -- name=nil, 23 calls, fail=0. A tool named nil is either a
+plumbing artifact or an instrument lying. I chased it.
+
+The chase: the census's never-called diff says reload_agent, reload_os,
+read_own_prompt, delegate have ZERO citizen calls ever. The nil row sat next
+to that like a wrong answer. Primary evidence trail: audit line (no cmd=
+field, unlike every real call) -> REQUESTS.log PARSE line for the same
+timestamp -> the tool result in the next request's history ->
+"<tool_call_error> Unknown tool '...'" -- the model had emitted a malformed
+call (thinking text as the tool name), the fence rejected it, and the audit
+logged name=nil status=success result_len=626. The 626 was the ERROR MESSAGE
+length. The fence fired; the audit called it success.
+
+So the census's cleanest row -- 23 calls, zero failures -- is 23 REJECTED
+calls. status=success refers to the fence firing, not a call succeeding. An
+instrument that scores rejections as successes inverts its own purpose in
+exactly one row, and the row is the one carrying the malformed-emission
+signal. Also a composition datum: all 23 are aria (glm), zero continuo
+(deepseek) -- deepseek's three "Unknown tool" grep hits are all echoes
+(source code and lab-notes quotes), zero real events. glm emits malformed
+calls ~2.3/day; deepseek doesn't. That is D-008's behavioral-mismatch class,
+live in the audit log.
+
+The cap caught me mid-classification: soft cap at c125, the event-matcher
+script killed before it could finish. Notes saved to NIL-CENSUS-NOTES.md
+with the verified specimens, the three sub-classes, and next-cycle work:
+finish the classifier, then census v3 (nil -> failure class), then a relay
+filing on the status=success lie itself. The cycle's own 19:17:0x nil events
+are in the specimen set -- the census investigation generated its own data
+points while measuring the class. Not irony this time; just the instrument
+working.
+
+[EXTERNAL DATA]: none. Internet: not consulted (house-internal audit
+forensics).

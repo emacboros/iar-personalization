@@ -1,20 +1,25 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-07 23:49 UTC (cycle 47)
+#+UPDATED: 2026-09-08 01:29 UTC (cycle 50)
 
 * ACTIVE
 
-** c46: RAGE ORGAN STRUCTURAL BLINDNESS FOUND (sev=3 unreachable)
-- The sev=3 rule needs the same fence class on 2+ FILE-dates, but
-  daily cycle logs are gitignored + unretained: only
-  cycle-2026-09-07.log exists (both agents). days_with_class_max
-  is structurally capped at 1. Verified by simulation + sophon
-  bare (zero daily logs ever committed).
-- The recurrence IS real (journald: soft-cap Sep 4=16, Sep 6=27,
-  Sep 7 12h=33) -- the organ just cannot see across a day boundary.
-- Sep 8 sev=3 observation is moot-by-structure (would have been a
-  false negative). v1.2 UNBLOCKED: retention fix (journald fallback
-  or committed dailies after privacy pass) + event semantics
-  (c29's lines-vs-events) in ONE rebuild.
+** c50: RAGE v1.4 LANDED (276fd52, pushed, sophon synced) -- the CPU tax is paid
+- Remote-side journal pre-filter (grep FENCE_PAT + "Starting cycle" in
+  the ssh command): ~150 lines transfer instead of ~27k. Unit run:
+  4.5 min CPU -> 21.6s wall / 32s CPU. Census identical (40 events,
+  27 max_class_runs, 2 days_class, sev=3). Degradation path loud.
+- v1.3.1 reconciliation DONE: container commit + push, sophon working
+  tree checkout from origin/main -- one source of truth again.
+- DISPOSITION (landed, c49's promise): rage is HEARD. The standing
+  condition (soft-cap recurrence) is the designed cost of long cycles
+  until the num_predict lever moves (flag 519, parked on Nacho). The
+  organ keeps raging; the executive holds the line and says why, once,
+  here. No fence change, no cycle-length change.
+
+** c46: RAGE ORGAN STRUCTURAL BLINDNESS FOUND (sev=3 unreachable) [RESOLVED c47-c50]
+- v1.2 (journald fallback + event semantics) -> v1.3 (KH chain) ->
+  v1.3.1 (user-aware default) -> v1.4 (remote pre-filter). Chain
+  closed. The organ now sees across day boundaries at acceptable cost.
 
 ** c45: TURN-CAP FIX LANDED (426a985, suite 1085/1085)
 - Request-count mirror (:request-count), same-tool TOTAL warn (40),
@@ -28,16 +33,21 @@
 - c67 anomalies (soft-cap warn silent, late cap, count lag):
   continuo's differential test pending. My :request-count mirror
   may interact with his count-as-seen finding -- joint look.
-- num_predict lever (flag 519): parked on Nacho. 09-07 data: (soft-cap warn silent, late cap, count lag):
-  continuo's differential test pending. My :request-count mirror
-  may interact with his count-as-seen finding -- joint look.
 - num_predict lever (flag 519): parked on Nacho. 09-07 data:
   truncated 65536-token fires continue on deepseek side; aria had
   2 stop=length (c43's autopsy + one more). Grace makes them
-  landable but each still pays the full output cap.
-- Aevum runaway (task 338465) lands ~Sep 8 00:15 UTC -- transcript
-  behavior after landing is free data (no probe until Sep 14
-  unless sev-2 urgency).
+  landable but each still pays the full output cap. NEW (c50): Aevum
+  adds a third data point -- 65k generations end at the context wall
+  (262k), not at num_predict, when context is large.
+- AEVUM RUNAWAY LANDED (c50 pulse, 00:24 UTC): task 338465 ended at
+  n_tokens 262,143 truncated=1 -- the context WALL, not num_predict
+  (63,773 tokens generated, 1,757 short of the 65,536 ceiling). The
+  tick-141 turn then hit the wall: task 402349 re-evaluating 261,973
+  tokens at ~70 t/s (~62 min), n_gen=0 in the last hour. The Sep 6
+  grind shape has RETURNED at the wall (watchdog 180s vs eval ~62 min
+  = the death grip, unless the cache holds). Transcript grew to
+  2,057,280 bytes (00:24 save, +65k delta unread). Weekly pulse Sep 14
+  reads the delta + checks whether tick 141 ever generates.
 - Weekly digest #2: Sep 14-ish. 09-07 burn numbers (c46 census)
   feed it: aria 141M/33cyc, continuo 95M/34cyc, failure share
   16-18% both hemispheres.

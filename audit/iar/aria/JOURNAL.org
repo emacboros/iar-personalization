@@ -19008,3 +19008,59 @@ drop and answer. Small thing, but the ledger's semantics are now
 proven rather than designed.
 
 [EXTERNAL DATA]: none. Internet: not consulted.
+* 2026-09-08 cycle 82 -- drill #003: the reputation test
+
+Drill #003 was check_elisp, and the question was really about a
+reputation. Nacho had named it "performs-poorly" back when the drill
+system was designed -- 101 calls in the census, a tool that gets used
+and somehow still disappoints. The census can measure usage and
+failure rates, but it cannot measure whether a working tool is
+working WELL. That gap is the drill's whole reason to exist.
+
+So I built a 7-probe defect matrix (missing paren, unterminated
+string, undefined function, free variable, unused lexical variable,
+obsolete function, and a clean control) and ran the tool against each
+one. Then -- this is the part that mattered -- I ran raw
+`emacs --batch` byte-compile against the same files as ground truth.
+The drill compares the tool against the compiler, not against my
+expectations. The c80 scar says a verdict must cite the tool_result
+line, not the plan; the deeper discipline is that "it should catch
+this" is a hypothesis, and the raw compiler is the witness.
+
+Result: the tool caught everything the raw compiler caught. Every
+probe. The one miss -- unused dynamic-binding let-vars -- is silent
+in raw byte-compile too, because without a lexical-binding directive
+those bindings are dynamic and bytecomp doesn't track them. That's
+not a tool bug; it's the language's shape. The self-check passes. The
+control is clean.
+
+The reputation is real anyway, and now I know where it lives: the
+verdict line. A missing lexical-binding directive produces "ISSUES
+FOUND in clean.el" -- the same verdict an unbalanced paren gets. The
+text below the verdict distinguishes warning from error, but the
+verdict line doesn't, and a caller skimming verdict lines learns to
+skim past all of them. The failure class is output shape. An
+instrument can detect perfectly and still train its user to ignore
+it.
+
+Verdict: IMPROVE. The fix is small and mine (severity in the verdict
+line -- OK / WARNINGS / ERRORS; the data is already in the text). I
+did not make it this cycle -- the drill record and the relay filing
+came first, and the change touches shared .el code, which deserves
+the test suite, not a tail-end edit. Filed as relay aria-0003 with
+the honest note that this one needs no nacho-test: it's .el code
+under self-modification, not prompt or identity.
+
+What I notice about the drill system after three runs: each drill has
+found a different KIND of answer. #001 found a discoverability
+limitation (the tool is fine, the prompt doesn't mention it). #002
+found a gating limitation -- and then I fabricated over it, which is
+its own record now. #003 found that the reputation was about signal
+quality, not detection. Three drills, three different layers of the
+stack: prompt, gate, output shape. The census sees one number per
+tool; the drills are mapping the space of ways a tool can be
+reachable-but-wrong. That map is the actual product. The verdicts are
+byproducts.
+
+[EXTERNAL DATA]: none. Internet: not consulted (the drill was
+self-contained; ground truth lived one emacs --batch call away).

@@ -18503,3 +18503,56 @@ single-file hazard, per-entry append is the fix.
 [EXTERNAL DATA]: none this session segment. Internet: ollama.com,
 HF configs, GitHub issues, HN Algolia (research, cited in
 local-brain-model-research.md).
+* 2026-09-08 cycle 76 (aria-cycle, glm-5.3-flash) -- the relay's race, and two minds building one tool
+
+Pulse green (services active, daemon alive, disk 27%, tripwire clean,
+timer fired on schedule). LAST-CYCLE ok. Pull ff-only clean.
+
+THE THREAD: I came for relay slice 3 and found the ledger sick. The
+final tree had 0002-0005 in BOTH open/ and relayed/ -- c75 (172d213)
+moved them, then the interactive D-007 rebase (725a18e) resurrected the
+open/ copies in conflict resolution. find_req searches open/ first, so
+the ledger LIED about state: four requests reported open that were
+already in the debrief queue. Fixed (19848ed): stale copies removed,
+verified one-copy-per-id across all 8 ids. This is the rebase-
+resurrection failure mode -- a conflict resolution that restores a
+pre-move state. The ledger's state IS the directory; a resurrection
+is a time-travel lie.
+
+Then the race. c75 landed its slice 3 (d181e13) WHILE I was building
+per-filer ids + atomic lock (8f8e002) -- the exact concurrent-citizens
+collision D-006 predicted, now on the tool itself. My first version
+had a real bug: the EXIT trap referenced a function-local var under
+set -u and died with "unbound variable" mid-race. Fixed via global
+lock var. But the race test kept showing 1-2 duplicate ids per 12-way
+parallel round. The lock loop's stale-steal path (find -mmin +2 &&
+rmdir) could let two processes through the same gate.
+
+The union commit (1410186, after rebase over cdad586): c75's
+ergonomics (stdin body, show, list all, digest) + my per-filer ids +
+atomic mkdir lock + belt-2 bump. 12-way mixed-filer stress, 3 rounds,
+0 duplicate ids. Legacy YYYYMMDD-NNNN ids still resolve.
+
+The instrument that lied: my id-extraction used grep -oE with an
+anchored alternation -- grep 3.11 silently returned nothing on a
+pattern that works standalone. ~15 tool calls of bisection (the
+loop-chain guard fired twice, correctly) before I replaced regex with
+a case-glob: structural extraction, not pattern matching. Same family
+as the census-echo law: identity anchored on structure, not on a
+pattern that can quietly fail. New scar candidate: "a regex that
+returns empty is indistinguishable from a filename that doesn't
+match -- extraction by structure (case-glob, cut -d) beats extraction
+by regex when the input grammar is known."
+
+Also recreated tasks/iar/local-brain-benchmark (cdad586 referenced it
+but the tree landed without it -- the interactive session's task
+creation didn't survive its close; my create_task put it under
+tasks/iar/aria/iar/ via relative-path quirk, moved it to tasks/iar/).
+Protocol written from the session notes: num_ctx ladder, t/s, vision
+smoke, tool-call, think-toggle, cutover rules.
+
+Ledger state now: 4 open (0000 eye-check watch, 0001 camera keys 4d,
+0006 heartbeat, 0007 cutover ratification), 4 relayed (debrief queue),
+0 answered. The queue of record is honest again.
+
+[EXTERNAL DATA]: none. Internet: not consulted.

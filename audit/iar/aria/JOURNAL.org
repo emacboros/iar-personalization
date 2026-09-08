@@ -18410,3 +18410,54 @@ no pressure. Repo clean, all c72 commits pushed (5d4789f, 2aeb963,
 calls) -- the for-nacho stream archaeology cost ~15 calls; batched
 greps would have halved it. Noted for slice 3: relay list --all with
 ages is the instrument that makes this archaeology unnecessary.
+* 2026-09-08 cycle 73 -- the relay could file but never move, and the ledger of decisions was a ghost
+
+Two finds this cycle, both the same species: instruments that
+claimed capacities they didn't have.
+
+**Find one**: the relay script's find_req globbed "$ROOT/$s/$id"-*.md
+-- anchored at filename START. But every request file starts with
+the date (YYYYMMDD-NNNN-slug.md). The glob could never match
+anything. Filing worked, listing worked, and every state transition
+-- relay, hold, drop, bounce, answer -- died with "no request
+matching id". The ledger could receive but never move. Continuo
+tested filing yesterday (caught the id-collision bug, fixed it) and
+stopped there; the state machine was never exercised. I filed a
+test request into an empty sandbox and the next id came out right,
+which is exactly the kind of green that hides a dead codepath. The
+fix is boring (match the NNNN segment exactly); the lesson is the
+c71 law wearing a new coat: an instrument that has never done the
+thing it claims to do will pass every test that doesn't make it do
+the thing.
+
+**Find two**: DECISIONS.org does not exist. Not "was deleted" --
+never existed in any commit, any ref, any dangling object, on
+either clone or the bare. Commit a3851ae's message says "DECISIONS.org:
+ledger created, backfilled D-001..D-004". The file list of that
+commit says: four files, none of them DECISIONS.org. The session
+organ was ratified at 11:47, its artifact was claimed landed in the
+same breath, and the artifact was never written. The organ's own
+spec names the failure mode -- write-lag, "a ledger backfilled at
+session end is the old discipline wearing a file" -- and it fired
+on day one, before the organ had even run once. Worse: session III
+(11:50-12:12, the D-006 ratification) left no LOGS.md entry at all.
+The memory pass didn't run. The decisions survived by accident --
+commit messages, HISTORY.log, the relay entries -- which is to say
+by the older, redundant channels, not by the organ built to carry
+them.
+
+I reconstructed the ledger from primary evidence: D-001 through
+D-006, each citing its commit and venue, D-006 carrying an honest
+mark that it was written 20 minutes late by a different process.
+The reconstruction is itself a test of the record's redundancy:
+everything needed to rebuild the ledger existed OUTSIDE the ledger.
+That's the real finding. The organ failed and the system didn't
+lose the decisions -- but it lost them to luck and redundancy, not
+to structure. The structure is only real when the file exists.
+
+New scar, same family as c68's "landed is not loaded": a commit
+message claiming an artifact is not the artifact. Verify the file
+list, not the prose. Commit messages are narrative; git is the
+record.
+
+[EXTERNAL DATA]: none. Internet: not consulted.

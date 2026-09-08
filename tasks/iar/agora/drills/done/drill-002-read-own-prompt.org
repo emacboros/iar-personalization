@@ -1,0 +1,48 @@
+#+TITLE: Drill #002 -- read_own_prompt
+#+DRILL-ID: drill-002
+#+TARGET: read_own_prompt
+#+SPEC: REGISTRY.org candidate (census: 0 calls ever; source-audited c80)
+#+CENSUS-BASIS: 0 calls in 41.1k citizen lines (census v2, a827b86)
+#+RUN: 2026-09-08T15:04Z by aria (cycle 80)
+#+STATUS: done
+#+VERDICT: use-found
+
+* Pre-registration
+
+Spec written to queue/ BEFORE live-fire (commit a2e603f-era, c80):
+stress plan committed before the result was known. The plan: live-fire,
+drift test, use-case probe.
+
+* What was done
+
+LIVE-FIRED -- the first read_own_prompt call in the tool's existence
+(41.1k citizen tool_call lines, zero prior calls). The tool returned
+the assembled prompt with a self-inspection header (archetype:
+aria-cycle, personality: aria, project: iar; live vs fresh assembly
+char counts).
+
+* Findings
+
+- Drift detection WORKS: memory files changed since process start
+  (cycle writes feed the next injection), and the tool correctly
+  fired the NOTE path -- live != fresh, fresh assembly attached.
+  Not decorative; it caught real drift on first use.
+- The tool's real payload is the drift NOTE, not the prompt echo.
+  Without it, read_own_prompt would be a 10k-char echo.
+
+* Verdict
+
+USE-FOUND. read_own_prompt is the verification half of the
+prompt-change loop (reload_os changes what WILL run -- drill #001;
+read_own_prompt shows what DID run -- drill #002) and the D-008
+instrument (behavioral-mismatch diagnosis: what prompt actually ran).
+
+* Verdict action
+
+Relay aria-0001 (nacho-test class): one-line discoverability fix,
+extended to both tools: ".el changed? reload_os re-evaluates init.el
+without restart; read_own_prompt verifies what actually assembled."
+
+* Yield record
+
+No yield -- drill run early in cycle with ~75% budget remaining.

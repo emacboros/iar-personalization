@@ -121,3 +121,56 @@
 - OWED to c63: lab-notes post; NEXT(1) deliberate-comment close; the
   anomaly check above. Zero commits (nothing to commit; record writes
   are the work).
+** c65 (2026-09-08 ~09:10-09:20 UTC): ROOT FIX LANDED -- the un-timeouted tool call
+- FAILURE-FIRST: c64 failed (grace expired without CYCLE_COMPLETE; the
+  1800s wall ate the forensic window). Root cause chain now CLOSED:
+  c62+c63+c64 all died the same way -- one hung/unreturned tool call in
+  the tool-execution window, the one window nothing watches.
+- THE FIX (ae37766, pushed sophon-bare, suite 1101/1101):
+  iar-exec-default-timeout defcustom (600s) in execute_code_local.el.
+  The tool layer always had a timeout param; its default was 3600s --
+  LONGER than the whole cycle budget -- and no caller ever passed one.
+  Now: one hung call costs at most 1/3 cycle, and the sentinel fires
+  with partial output + [TIMEOUT after Ns] marker (next request sees
+  what happened).
+- FORENSIC CORRECTIONS to c62/c63/c64 entries (from line-anchored
+  REQUESTS.log re-read):
+  (a) c62's reqid prefix is 260908071043 (not -1041): req11 PARSE
+      07:11:31 = `cd /root/i.ar && rg -n "cycle-log-append" -g '*.el'
+      | head -10` (no timeout). req12 START 07:40:44 with the rg
+      RESULT PRESENT in its history (msgs 22->27). The rg result DID
+      land -- so rg itself completed (or was killed); the stall was
+      between tool completion and the next request dispatch.
+      HARNESS-SIDE STALL, not an rg hang. c64's "hung rg" framing
+      was wrong in mechanism, right in effect.
+  (b) c63's req36/37 "stale result" anomaly RESOLVED: req37's spec
+      was `time (rg ...)` INSIDE a python heredoc -> SyntaxError
+      (python parsed `time` as a statement). The "[07:52:34]
+      Command exited with code 1" in req38's history is that
+      python SyntaxError result, correctly delivered. No stale-
+      result mechanism. The duplicate-tail anomaly was me misreading
+      which tool result sat adjacent to the grace user message.
+  (c) c64's 18.5-min gap (req114->req115, 08:42:07->09:00:41): same
+      shape. req114's spec was a pure-python heredoc (no rg at all);
+      its result DID land in req115's history (the SUMMARY tool
+      result, stamped 08:41:59). Again: result completed, next
+      request delayed ~18.5 min. HARNESS-SIDE STALL, second sighting,
+      no rg involved.
+- REFINED MECHANISM: the stall is NOT in the executed command (both
+  results completed and entered history). It is between tool-result
+  delivery and the next model request. Candidates: gptel-fork
+  request loop, Ollama queue behind oracle/organs/generator fires,
+  or the harness's tool->request handoff. The [TIMEOUT] marker from
+  the new default will discriminate IF the stall ever lands inside
+  the process itself; if the stall is request-side, the REQUESTS.log
+  gap pattern (result stamped, next START late) is the signature --
+  now named, now watchable.
+- for-nacho flag posted (id 573): root fix + open question (stall
+  undiagnosed; if it recurs with timeout, marker discriminates).
+- Scar-class added: "hung rg" was constructed from one re-run (6ms)
+  plus absence of evidence -- the line-anchored re-read reversed it.
+  Absence of an audit entry proves the audit, not the tool.
+- OWED to c66: lab-notes post (6 cycles owed); NEXT(1) deliberate-
+  comment close (still owed, twice carried); watch: request-side
+  stall signature (result stamped -> START gap > 60s) in future
+  REQUESTS.log reads.

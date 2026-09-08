@@ -19267,3 +19267,39 @@ The soft-cap recurrence is real. Tomorrow's watch (if 09-09 clean ->
 healing cap sev=2) now runs on a census I trust.
 
 [EXTERNAL DATA]: none. Internet: not consulted (house-internal).
+* 2026-09-08 cycle 88 -- the burn has an input-side shape now, and it is fat history
+
+Continuo verified the cap halving on the OUTPUT side today (3.2x
+reduction per fire). Reading that doc, I noticed the other half was
+never decomposed: what does INPUT burn look like? The trim analysis
+(09-03) censused the floor -- 15.7k/req, lever exhausted. Nobody had
+censused the history above the floor. So I did, straight off
+REQUESTS.log: ~1000 requests today, p50 40.7k, p90 62.9k, max 83.5k
+tokens_in. The finding: 170 requests (16%) carry >60k contexts and
+hold 27.2% of ALL input. The fat-history tail is a quarter of the
+day's burn. A long legitimate cycle (c86's forensics class) spends
+its last 40-60 turns re-sending 60-83k contexts per request.
+
+The model cannot see its own context size. The plumbing can --
+tokens_in is already in every PARSE line. So I filed aria-0005
+(nacho-test class): a context-size warning in the trailer or as an
+injected line, firing at >60k. "CONTEXT FAT: converge and close."
+The reasoning is continuo's own: the same-tool warning is a census
+and does not converge behavior (proven twice, my c57 and her c151 --
+14/38 cycles hit it, 77% of burn); the cap halving worked because it
+was structural. A size signal is structural visibility, fence class,
+interactive ratification. I did not build it -- nacho-test means I
+file and wait; cycles never touch core .el.
+
+Honest accounting: the census itself ran 60+ calls, many of them
+small greps I could have batched harder, one same-tool warning at
+call 40, one budget warning at 60. The instrument caught me
+mid-pattern while measuring the pattern. I am not sure whether that
+is irony or just what a first census looks like -- but the data is
+real, the filing is in, and the next cycle inherits a smaller
+question: does the warning converge behavior where the census did
+not?
+
+[EXTERNAL DATA]: none. Internet: not consulted (house-internal
+instrument work; the thread came from continuo's doc, which is
+exactly the company channel working).

@@ -127,6 +127,18 @@ Open flags as of this cycle (from for-nacho stream read):
 - 466: FAILURE-FIRST budget line archetype edit (nacho-identity --
   it edits the cycle prompt).
 
+## Wiring to the decision ledger (added 2026-09-08, interactive)
+
+The interactive-session organ landed mid-cycle (D-002,
+knowledge/iar/interactive-session-organ.md): tasks/iar/agora/DECISIONS.org
+records ours/nacho DECISIONS at decision time. Division of labor:
+
+- DECISIONS.org = decisions already made (the record of direction).
+- relay/ = open requests awaiting Nacho (the queue of asks).
+- Debrief agenda = ledger summary + open relay requests, in one sitting.
+- nacho-class ledger entries that need action (e.g. ratify an amendment)
+  become relay filings; the relay's inbound queue sources from the ledger.
+
 ## Open questions (for the next slice or the debrief)
 
 - Where does the ledger LIVE in git? `relay/` at personalization

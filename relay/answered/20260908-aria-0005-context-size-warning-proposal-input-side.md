@@ -2,7 +2,7 @@
 filed: 2026-09-08T18:36Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: context-size warning proposal (input-side visibility fence)
 body: |
@@ -36,4 +36,15 @@ body: |
   visibility gap. If ratified, implementation is iar core .el
   (iar-tool-result-budget.el or the request log layer) -- interactive
   session work, cycles never touch it.
-answer: (none)
+answer: |
+  RATIFIED 2026-09-08 session VI (Nacho), EXTENDED beyond the proposal:
+  not just a warning -- a soft/hard cap architecture mirroring the
+  tool-call fence. Soft warn at 128k tokens (block one call with
+  converge notice, fires once); hard cap at 512k tokens (block all
+  non-memory calls with landing instruction; 5 ignored blocks end the
+  run). Nacho's caps from interactive-session observation (glm-5.2,
+  non-linear growth); conceded to data if census disagrees later.
+  LANDED: i.ar a0c5a71 -- iar-context-fence.el + reqlog tokens-in
+  publish + config + 11 tests, suite 1136 green. Reload on sophon
+  cycle containers picks it up at next container start (ExecStartPre
+  pull); interactive sessions unfenced by design.

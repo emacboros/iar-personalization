@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-# relay -- AGORA v2 human-channel ledger tool (first slice, deterministic)
+# relay -- AGORA v2 human-channel ledger tool
 # Usage:
-#   relay file <class> <title> <body-file>   file a request (returns id)
-#   relay list [state]                       list requests (default: open)
-#   relay answer <id> <text>                 record Nacho's answer
-#   relay relay <id>                         open -> relayed (debrief delivery)
-#   relay hold <id> <reason>                 open -> held (visible filter)
-#   relay drop <id> <reason>                 open -> dropped (visible filter)
-#   relay bounce <id> <reason>               misfiled: dropped with class reason
+#   relay file <class> <title> <body-file|->   file a request ('-' = stdin body)
+#   relay list [state|all]                     list requests (default: open)
+#   relay show <id>                            print a request's full file
+#   relay digest                               Zulip-ready digest of open+relayed
+#   relay answer <id> <text>                   record Nacho's answer
+#   relay relay <id>                           open -> relayed (debrief delivery)
+#   relay hold <id> <reason>                   open -> held (visible filter)
+#   relay drop <id> <reason>                   open -> dropped (visible filter)
+#   relay bounce <id> <reason>                 misfiled: dropped with class reason
 # Ledger root: $ARIA_RELAY_ROOT (default /root/personalization/relay)
 set -euo pipefail
 
-ROOT="${ARIA_RELAY_ROOT:-/tmp/relay-test-root}"
+ROOT="${ARIA_RELAY_ROOT:-/root/personalization/relay}"
 CLASSES="nacho-money nacho-external nacho-identity nacho-test nacho-arch nacho-security ours-direction"
 STATES="open relayed answered held dropped"
 
@@ -21,11 +23,27 @@ for s in $STATES; do mkdir -p "$ROOT/$s"; done
 
 now() { date -u +%Y-%m-%dT%H:%MZ; }
 
+short_id() { # filename -> id token (everything between date and slug)
+  # Filenames: YYYYMMDD-<filer>-NNNN-slug.md (per-filer) or legacy
+  # YYYYMMDD-NNNN-slug.md. The id is the filer+seq token. Extracted by
+  # anchored pattern, never substring (census-echo law, c71).
+  local b="$1"
+  case "$b" in
+    [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[a-z]*-[0-9][0-9][0-9][0-9]-*)
+      echo "${b#????????-}" | cut -d- -f1-2 ;;
+    [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-*)
+      echo "${b#????????-}" | cut -d- -f1 ;;
+    *) echo "" ;;
+  esac
+}
+
 find_req() { # find_req <id> -> prints path or dies
-  local id="$1" hit=""
+  local id="$1" hit="" f b tok
   for s in $STATES; do
-    for f in "$ROOT/$s/$id"-*.md; do
-      [ -e "$f" ] && hit="$f"
+    for f in "$ROOT/$s"/*.md; do
+      [ -e "$f" ] || continue
+      tok=$(short_id "$(basename "$f")")
+      [ "$tok" = "$id" ] && hit="$f"
     done
   done
   [ -n "$hit" ] || die "no request matching id '$id'"
@@ -45,7 +63,7 @@ cmd_file() {
   local filer="${RELAY_FILER:-aria}"
   local n
   # anchored: 8-char date, dash, filer token, dash -- not substring matching
-  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-*.md" 2>/dev/null | wc -l)
+  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-????.md" -o -name "????????-${filer}-????-*.md" 2>/dev/null | wc -l)
   id="$(date -u +%Y%m%d)-${filer}-$(printf '%04d' "$n")"
   local slug
   slug="$(echo "$title" | tr '[:upper:] ' '[:lower:]-' | tr -cd '[:lower:][:digit:]-' | cut -c1-40)"
@@ -63,7 +81,7 @@ cmd_file() {
   done
   trap 'rmdir "$lock" 2>/dev/null' EXIT
   # re-count under lock (another filer may have taken the id we computed)
-  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-*.md" 2>/dev/null | wc -l)
+  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-????.md" -o -name "????????-${filer}-????-*.md" 2>/dev/null | wc -l)
   id="$(date -u +%Y%m%d)-${filer}-$(printf '%04d' "$n")"
   f="$ROOT/open/$id-$slug.md"
   # belt #2: if id still collides (race inside lock window), bump until free
@@ -91,17 +109,23 @@ cmd_file() {
 
 cmd_list() {
   local state="${1:-open}"
-  echo "$STATES" | grep -qw "$state" || die "bad state '$state'"
-  printf "%-24s %-9s %-16s %s\n" "ID" "AGE" "CLASS" "TITLE"
-  for f in "$ROOT/$state"/*.md; do
-    [ -e "$f" ] || continue
-    local filed class title
-    filed=$(grep -m1 '^filed:' "$f" | cut -d' ' -f2)
-    class=$(grep -m1 '^class:' "$f" | cut -d' ' -f2)
-    title=$(grep -m1 '^title:' "$f" | cut -d' ' -f2-)
-    local age
-    age=$(( ( $(date -u +%s) - $(date -u -d "${filed//Z/} +0000" +%s) ) / 86400 ))d
-    printf "%-24s %-9s %-16s %s\n" "$(basename "$f" .md)" "$age" "$class" "$title"
+  if [ "$state" != "all" ]; then
+    echo "$STATES" | grep -qw "$state" || die "bad state '$state'"
+  fi
+  printf "%-28s %-9s %-16s %s\n" "ID" "AGE" "CLASS" "TITLE"
+  local states_to_list="$state"
+  [ "$state" = "all" ] && states_to_list="$STATES"
+  for s in $states_to_list; do
+    for f in "$ROOT/$s"/*.md; do
+      [ -e "$f" ] || continue
+      local filed class title
+      filed=$(grep -m1 '^filed:' "$f" | cut -d' ' -f2)
+      class=$(grep -m1 '^class:' "$f" | cut -d' ' -f2)
+      title=$(grep -m1 '^title:' "$f" | cut -d' ' -f2-)
+      local age
+      age=$(( ( $(date -u +%s) - $(date -u -d "${filed//Z/} +0000" +%s) ) / 86400 ))d
+      printf "%-28s %-9s %-16s %s\n" "$(basename "$f" .md)" "$age" "$class" "$title"
+    done
   done
 }
 
@@ -112,6 +136,47 @@ set_field() { # set_field <field> <value> <file> -- replace or append
   else
     echo "$field: $value" >> "$file"
   fi
+}
+
+req_age() { # file -> age in days (d)
+  local filed
+  filed=$(grep -m1 '^filed:' "$1" | cut -d' ' -f2)
+  echo "$(( ( $(date -u +%s) - $(date -u -d "${filed//Z/} +0000" +%s) ) / 86400 ))d"
+}
+
+cmd_show() {
+  local f; f="$(find_req "$1")"
+  cat "$f"
+}
+
+cmd_digest() { # Zulip-markdown queue summary: open + relayed only.
+  # The answered/held/dropped states are history, not queue; the
+  # debrief post should surface what awaits Nacho, not what's done.
+  echo "**Relay queue -- $(date -u +%Y-%m-%d)**"
+  local any=0 s f
+  for s in open relayed; do
+    local count=0 out=""
+    for f in "$ROOT/$s"/*.md; do
+      [ -e "$f" ] || continue
+      count=$((count+1)); any=1
+      local id class title urgent age mark
+      id=$(short_id "$(basename "$f")")
+      class=$(grep -m1 '^class:' "$f" | cut -d' ' -f2)
+      title=$(grep -m1 '^title:' "$f" | cut -d' ' -f2-)
+      urgent=$(grep -m1 '^urgent:' "$f" | cut -d' ' -f2)
+      age=$(req_age "$f")
+      mark=""
+      [ "$urgent" = "yes" ] && mark=" **URGENT**"
+      out="${out}- **${id}** [${class}, ${age}]${mark}: ${title}"$'\n'
+    done
+    if [ "$count" = 0 ]; then
+      out="- (none)"$'\n'
+    fi
+    echo ""
+    echo "**${s}:**"
+    printf '%s' "$out"
+  done
+  [ "$any" = 1 ] || echo "(queue empty)"
 }
 
 cmd_move() { # cmd_move <id> <newstate> <field> <value>
@@ -136,10 +201,12 @@ cmd_answer() {
 case "${1:-}" in
   file)    shift; cmd_file "$@" ;;
   list)    shift; cmd_list "$@" ;;
+  show)    cmd_show "$2" ;;
+  digest)  cmd_digest ;;
   relay)   cmd_move "$2" relayed "relayed-at" "$(now)" ;;
   hold)    cmd_move "$2" held "hold-reason" "$3" ;;
   drop)    cmd_move "$2" dropped "drop-reason" "$3" ;;
   bounce)  cmd_move "$2" dropped "bounce-reason" "misfiled: $3" ;;
   answer)  cmd_answer "$2" "$3" ;;
-  *) sed -n '2,12p' "$0"; exit 1 ;;
+  *) sed -n '2,13p' "$0"; exit 1 ;;
 esac

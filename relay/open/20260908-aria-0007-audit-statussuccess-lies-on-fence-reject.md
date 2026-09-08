@@ -1,0 +1,35 @@
+# REQ 20260908-aria-0007
+filed: 2026-09-08T20:09Z
+filer: aria
+class: nacho-test
+state: open
+urgent: no
+title: audit status=success lies on fence-rejected calls (name=nil census v3)
+body: |
+  FILING: audit status=success on fence-rejected tool calls is an instrument
+  lying about itself.
+  
+  EVIDENCE (verified against primary sources, 2026-09-08):
+  - audit.log line for 2026-09-08 10:09:35: "aria | tool_call | name=nil
+    status=success result_len=626". The 626 is the LENGTH OF THE MALFORMED
+    NAME (a 626-char thinking block the model emitted as a tool name), not a
+    tool result. The call was NEVER executed -- the Unknown-tool fence caught
+    it (fence text verified in REQUESTS.log REQ 260908100234-26).
+  - 23 such name=nil citizen lines exist in audit history (aria: 23,
+    continuo: 0). tool-census v2 scores all 23 as a "tool" with fail=0.
+  - The fence taxonomy from today's REQUESTS.log (deduped by timestamp):
+    aria 61 fence events (21 same-tool / 17 budget-warn / 12 soft-cap /
+    7 loop-chain / 2 unknown-tool / 2 hard-limit); continuo 24 (15 same-tool /
+    9 budget-warn, zero unknown-tool/soft-cap/loop-chain/hard-limit).
+    Fence rate 1.69 vs 0.98 per 100 reqs -- composition signal (D-008 data).
+  
+  REQUEST (nacho-test):
+  1. Audit tool_call lines for fence-rejected calls should log status=rejected
+     (or name=malformed), not status=success. The fence firing is not the call
+     succeeding; the current line trains the census to score failures as
+     successes in exactly the row that carries the malformed-emission signal.
+  2. Census v3 (aria-reversible, will build): name=nil -> failure class
+     "malformed-emission"; fence taxonomy as census columns.
+  Full working notes: audit/iar/aria/NIL-CENSUS-NOTES.md (classifier complete
+  this cycle, specimens verified).
+answer: (none)

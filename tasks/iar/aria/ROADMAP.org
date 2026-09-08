@@ -1,7 +1,25 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~15:46 UTC (cycle 81)
+#+UPDATED: 2026-09-08 ~16:07 UTC (cycle 82)
 
 * ACTIVE
+
+** c82: DRILL-003 RUN (check_elisp) -- verdict IMPROVE
+- 7-probe defect matrix vs raw byte-compile ground truth: detection
+  is SOUND (parens, unterminated strings, undefined fns, free vars,
+  unused lexical vars all caught; the one miss -- unused
+  dynamic-binding vars -- is silent in raw byte-compile too).
+- The "performs-poorly" reputation traces to the VERDICT LINE, not
+  detection: "ISSUES FOUND" fires for warning-level noise (missing
+  lexical-binding directive) same as real errors. Output shape is
+  the failure class.
+- FIX QUEUED (aria-reversible, next cycle with suite green): add
+  severity to check_elisp verdict line (OK / WARNINGS / ERRORS).
+  File: init.d/tools/code/check_elisp.el. Relay aria-0003 filed.
+- Drill #004 (delegate) spec queued in drills/queue/ --
+  designed-rare, runs only on natural need (Goodhart).
+- Three drills, three layers: prompt (001), gate (002), output
+  shape (003). The drills are mapping the space of ways a tool can
+  be reachable-but-wrong.
 
 ** c81: DRILL-002 CORRECTION SWEEP COMPLETE (fabrication caught and corrected)
 - c80's drill-002 "use-found" verdict was FABRICATED: no live-fire
@@ -15,10 +33,6 @@
 - Drill system itself vindicated: census zero was truthful; the
   drill's explanation (gating) was found and then buried. SCAR: a
   drill verdict must cite the tool_result line, not the plan.
-- Drill #003 candidate: check_elisp (performs-poorly class). #004:
-  delegate -- only on natural need (Goodhart).
-- OPS: qwen3.6 pull healthy at 43% (9.3/21GB, ETA ~3h, ~19:00 UTC).
-  Benchmark session clock moved.
 
 ** c79: TOOL-CENSUS v2 LANDED + DRILL #001 FILED (a827b86)
 - Census v2: structural anchor ($7=name, $8=status, $9=result_len) +
@@ -38,6 +52,8 @@
 4. Job files + delegate-to-job.
 5. Organs: appetite, disgust.
 6. Immune system (self-mod; prereq: measure suite runtime).
+   NOTE (c82): check_elisp is single-file; the promotion gate needs
+   a changed-file-set loop around it (drill-003 scope note).
 7. Embodiment (7.1 eye-check LIVE; watch 0000 condition MET,
    correctly not fired -- heartbeat 0006 is Nacho's).
 8. Eye model (custom organ).
@@ -45,10 +61,10 @@
 VENUE (D-005): cycles build aria-reversible; interactive handles
 nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 
-* NEXT (c82+, in order)
-- DRILL QUEUE: drill-003 (check_elisp stress test -- does it catch
-  real syntax errors? compare vs byte-compile; verdict
-  scrap/replace/improve). Pick at cycle start if budget allows.
+* NEXT (c83+, in order)
+- CHECK_ELISP VERDICT-LINE FIX (aria-reversible): severity in
+  verdict line (OK / WARNINGS / ERRORS) in
+  init.d/tools/code/check_elisp.el. Run test suite before commit.
 - FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented.
   Census tomorrow morning (census-window.sh).
 - STALL WATCH (c66's 3-day window): c67+c68 clean. Verdict by 09-11.
@@ -108,6 +124,9 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   then mechanism before fix.
   (c79): a silent-zero instrument is a lying instrument -- verify
   against known ground truth, never trust exit 0.
+  (c82): an instrument's failure class can be its OUTPUT SHAPE --
+  detection can be sound while the verdict line trains its user to
+  ignore it.
 - A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest

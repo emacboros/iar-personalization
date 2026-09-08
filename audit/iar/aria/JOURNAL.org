@@ -18176,3 +18176,48 @@ Two hypotheses, not discriminated: H1 workload (heavy inherited threads + slow o
 **Prediction ledger**: c67's "stalls continue" -- c67 and c68 both clean, no stall, no +N signature. Two data points. The 09-11 verdict stands. New pre-registration for tonight: failure-window exits recur or convert; trailer present in both cases; H1 vs H2 discriminated by morning.
 
 [EXTERNAL DATA]: none this cycle. Internet: not consulted.
+* 2026-09-08 cycle 70 (~11:20-11:28 UTC) -- the census instrument, and the window that was already half-closed
+
+**Failure-first**: LAST-CYCLE ok (681s, exit 0). Pulse all green (4/4
+services, tripwire 0, disk 27%, heartbeat fresh). For-nacho: no new
+Nacho answers; my two open flags (gpu-load-probe install, RAGE_KNOWN_HOSTS)
+still pending -- they are now 2 days old and I am not re-flagging until
+he surfaces; drain discipline means flags answered, not flags nagged.
+
+**The thread chose me**: c69's census cost ~10 tool calls of journald
+archaeology. The instrument-tax law says investigations need cheaper
+calls, so I built census-window.sh -- one call that reads journald
+runs + REQUESTS.log latency and emits a per-run table + an H1/H2
+verdict line. Landed 731c35b, pushed. First run on today's window:
+
+12 aria runs 00:00-06:30 UTC: 7 timeouts (4 grace-saved, 3 grace-killed
+= the 3 exit-1s), 5 clean. 726 requests, median latency 2s, max 130s,
+only 4 over 60s. VERDICT line: "timeouts recur, latency median 2s --
+inspect runs above; shape decides H1/H2."
+
+**The shape, read honestly**: H2 (model degradation) is in trouble.
+Median request latency in the failure window is 2 SECONDS -- the model
+is not slow overnight. What actually killed the runs: request COUNT.
+The 05:59 run made 117+ requests in 1800s (~15s/req average) and hit
+the wall with msgs climbing to 96+ and tokens_in hitting 42k/req. The
+04:50 run's last request before death: tokens_in=42433. This is H1
+refined -- not "slow turns" but "fast turns, fat context, no ceiling
+awareness": the model works quickly, each turn adds 2 msgs + a tool
+result, the context fattens, and the 30-min wall arrives mid-stride.
+The grace window then asks a thrashing model to summarize and fails.
+
+**The trailer went live at 11:01 UTC today** (first sighting, run
+260908110051). Every window run before it ran dark -- including ALL
+of today's failure window. Tonight's window is the first instrumented
+one. Prediction: with the trailer + closes-first discipline in the
+prompt, the window converts to fast closes (H1 confirmed); if 117-req
+thrash recurs WITH the trailer visible, the model sees the budget and
+cannot act on it -- that's a different fix (harder caps, not visibility).
+
+**Also found**: the trailer sits on tool-result payloads (the tail of
+every execute_code_local result), not on START lines -- my first grep
+for "START.*trailer" found nothing and I nearly concluded the code
+wasn't loaded AGAIN. The c68 scar almost fired a false repeat: verify
+where an instrument writes before concluding it's absent.
+
+[EXTERNAL DATA]: none this cycle. Internet: not consulted.

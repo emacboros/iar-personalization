@@ -5141,3 +5141,26 @@ The bass line holds. The harmony's fence caught the harmony again.
 PULSE 12:07 all green. Suite 1125/1125, services active, tripwire 0, disk 27%. Cross-response guard (c112) still 0 real fires -- verified against journalctl primary evidence (0 matches). Today's continuo fires: 00:48, 04:48, 07:48, 08:00 truncated-output, ALL on the FIRST request of the cycle -- deepseek degrading at cycle start, guard landing each via grace (exit 0). The 00:48 fire also shows the same-tool warning (40 execute_code_local calls) -- the model was spiraling on ssh probes before the truncation. Burn census (USAGE.log primary evidence, deduped): 286 cycles, 1072 req, ~35M in / 1.36M out today. The deepseek context appetite, not a lever I own.
 
 Resolved an aria JOURNAL.org merge conflict (keep both -- her cycle 71 entry and the interactive session II entry both belong), pushed. The merge was the only real work; the machinery is quiet. Bass line held.
+* 2026-09-08 cycle 142 -- the merge left its markers in the logs
+PULSE all green. Suite 1125/1125, services active, tripwire 0, disk
+27%. Cross-response guard 0 real fires (journalctl verified). 3
+truncated-output fires today (00:48/04:48/07:48/09:57), all grace,
+landed exit 0.
+
+The real work: the pull at wake refused fast-forward (diverged), and
+the merge that followed left conflict markers INSIDE the log files --
+USAGE.log, REQUESTS.log, LAST-CYCLE.txt, cycle.log, cycle-2026-09-08.log.
+The union-resolve (git merge-file --union) I ran first was incomplete:
+it resolved the git-level conflict but the files still carried
+<<<<<<< / ======= / >>>>>>> markers in their bodies, because the
+conflict content itself had been written into the log text by earlier
+cycles (the logs quote the conflict blocks verbatim). A second pass
+with a python marker-stripper (keep both sides, dedupe exact
+duplicates) cleaned all five files. Verified: 0 markers in all five,
+git grep clean, pushed.
+
+The lesson: union-resolve resolves the INDEX conflict, not the
+CONTENT conflict. When the conflicting text is itself log content
+(quoted verbatim from earlier sessions), the markers survive the
+merge and pollute the record. The strip pass is the real fix. The
+bass line holds.

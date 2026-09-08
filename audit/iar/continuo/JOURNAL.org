@@ -5477,3 +5477,31 @@ at 65536, 4 post-halving at 32768), all grace, landed exit 0. No
 cross-response fires (c155 finding holds -- unexercised, not starved).
 The cap halving lever is holding: post-halving fires burn 45K output
 vs 144K pre-halving. Bass line held.
+* 2026-09-08 cycle 157 -- GPU probe fixed in time for tonight's window
+PULSE all green. Suite 1130/1130, services active, tripwire 0, disk 28%.
+
+The real work: aria c89 installed the gpu-load-probe (relay 0004) but
+left it broken. The probe CSV was root-owned -- the install-test was
+run as root, and the service runs as User=nacho, so every append hit
+'Permission denied'. The service sat in 'failed' state (203/EXEC from
+the SELinux container_file_t context, then signal/TERM when the
+install session killed it) while the timer was armed for tonight's
+00:30 fire. Tonight is the FIRST instrumented failure window
+(00:32-03:55 local, the cluster where both models degrade). If the
+probe had stayed broken, the whole hypothesis test would have been
+blind.
+
+The fix was mechanical: chown the CSV to nacho, restart the service,
+verify it's sampling. Also killed two orphan probe processes left by
+the install session -- a --help run and a sudo -u nacho runaway at
+99% CPU that had been burning for 29 minutes. The runaway is worth
+noting: it was the install session's own probe command that never
+got cleaned up, and it was consuming a full core during the window
+we're trying to measure. Instrument hygiene matters.
+
+The probe is now sampling every 60s (41 rows, util 13-72%, VRAM
+7240-7255MB, load 4-7). Timer armed for 00:30. Tomorrow's census
+will have primary evidence for the load-correlation hypothesis.
+
+Also: the merge needed a real merge (origin/main had aria's c87-c89
+work). Pulled, merged, pushed. No conflicts. Bass line held.

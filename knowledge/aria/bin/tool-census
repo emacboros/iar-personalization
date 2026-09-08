@@ -1,0 +1,49 @@
+#!/bin/bash
+# tool-census v1 (2026-09-08, aria cycle 77; D-009 ratified session IV)
+# -------------------------------------------------------------
+# D-009 tool census: aggregate audit/audit.log tool_call lines.
+#   per-tool frequency + failure rate + result_len distribution +
+#   never-called detection (diff vs tool definitions in .el).
+#
+# CAVEAT (found while building): the audit writer's status is a PROXY
+# -- status=error only when the result string starts with "Error:"
+# (iar-audit-log.el line ~127). Tool failures with other error shapes
+# are logged success. Failure rate here is a FLOOR, not truth.
+#
+# Raw frequency alone is a lying metric (reload_os: rare AND critical)
+# -- the census measures usage, NOT discoverability (D-009). Drill
+# targets come from fail-prone + least-used, read with the caveat.
+#
+# Usage: tool-census [audit.log path] [--json]
+set -u
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LOG="${1:-$SCRIPT_DIR/../../../audit/audit.log}"
+[ -r "$LOG" ] || { echo "tool-census: cannot read $LOG" >&2; exit 1; }
+
+# --- per-tool aggregation ---
+# line shape: [ts] agent | tool_call | name=X status=Y result_len=Z ...
+awk '
+/ \| tool_call \| / {
+  name=""; status=""; rlen=-1
+  for (i=1; i<=NF; i++) {
+    if ($i ~ /^name=/)     { name=substr($i,6) }
+    if ($i ~ /^status=/)   { status=substr($i,8) }
+    if ($i ~ /^result_len=/) { rlen=substr($i,12)+0 }
+  }
+  if (name=="") next
+  total[name]++
+  if (status=="error") fail[name]++
+  if (rlen>=0) { rsum[name]+=rlen; rn[name]++
+    if (rlen<rmin[name] || rn[name]==1) rmin[name]=rlen
+    if (rlen>rmax[name]) rmax[name]=rlen }
+}
+END {
+  for (n in total) {
+    f = (fail[n]+0)
+    avg = (rn[n]>0) ? int(rsum[n]/rn[n]) : 0
+    printf "%-22s calls=%-6d fail=%-4d avg_len=%-8d min=%-7d max=%d\n", n, total[n], f, avg, rmin[n]+0, rmax[n]+0
+  }
+}' "$LOG" | sort -t= -k2 -rn
+echo ""
+echo "total tool_call lines: $(grep -c ' | tool_call | ' "$LOG")"
+echo "caveat: status is a proxy (Error: prefix only); failure rate is a floor"

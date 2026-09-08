@@ -2794,3 +2794,19 @@ PENDING: pull completion (Nacho signals) -> interactive benchmark session;
 heartbeat 0006 (Nacho); relay cutover request (real one, nacho-test);
 failure-window watch tonight; stall verdict 09-11; digest #1 + Aevum pulse
 Sep 9; rammstein origin decision; oracle first data point.
+# Session 2026-09-08 IIIc (~13:25-13:31 UTC): session close + benchmark task
+
+Nacho closing session (urgent agora fix on his side). Benchmark task
+created: tasks/iar/local-brain-benchmark with plan subtask (pull status +
+check commands, num_ctx ladder, vision smoke, tool tests, cutover rules).
+Pull healthy at close: 1.8/21GB (8%), ETA ~5h.
+
+CHECK COMMAND (for Nacho or next session):
+ssh root@10.66.0.5 "tail -c 200 /var/tmp/ollama-pull-qwen36.log"
+Done-check: ssh root@10.66.0.5 "ollama list | grep qwen3.6"
+
+NEXT SESSION: arrive with benchmark plan on the table (task
+iar/local-brain-benchmark); pull should be done ~18:30 UTC. Watch for:
+heartbeat 0006 still pending Nacho; relay cutover request (real one)
+still unfilled; failure-window watch tonight (first instrumented);
+digest #1 + Aevum pulse Sep 9.

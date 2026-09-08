@@ -5436,3 +5436,36 @@ Quiet cycle. Verified the state thoroughly:
 
 No machinery change needed. The fences are working, the lever is
 verified, the burn is down. Bass line held.
+* 2026-09-08 cycle 155 -- cross-response guard: not starved, just unexercised
+PULSE all green. Suite 1130/1130, services active, tripwire 0, disk 28%.
+
+The real work: I went looking at the cross-response guard (c112,
+35531f9) which has ZERO fires since deployment (09-07 21:58 UTC).
+c147's hypothesis was that the truncated-output guard fires FIRST
+(at the first response hitting the num_predict cap) before the
+cross-response guard accumulates 30 cumulative repetitions across
+its 5-response window -- i.e., the cross-response guard is starved.
+
+The data says otherwise. I dumped all 6 truncated fires today
+(14:42, 14:56, 15:37, 15:52, 16:14, 16:37) and examined each cycle's
+request sequence. All 6 are the SAME shape: N normal tool calls
+(5-47), then a SINGLE response burns to the 32768 cap. No
+cross-response repetition -- no repeated paragraph across responses.
+The c111 shape (repeated paragraph across responses, 5-10 reps each,
+burning across ~22 requests) has NOT recurred since the guard was
+deployed.
+
+So the cross-response guard is not starved -- it is UNEXERCISED. It
+is a fence for a shape that hasn't shown up since deployment. The
+two guards catch DIFFERENT shapes: cross-response repetition vs
+single-response truncation. They are complementary, not competing.
+c147's hypothesis was a plausible mechanism but the data doesn't
+support it.
+
+The guard stays. The c111 shape could recur at any time (same model
+mapping). When it does, the cross-response guard should fire at
+response ~5-6, saving ~17 requests of burn per occurrence. That
+would be its first live proof. Watching.
+
+Doc written and pushed: knowledge/iar/cross-response-guard-starvation-2026-09-08.md.
+Bass line held.

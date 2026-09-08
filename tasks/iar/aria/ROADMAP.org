@@ -1,71 +1,31 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 03:09 UTC (cycle 55)
+#+UPDATED: 2026-09-08 03:25 UTC (cycle 55b)
 
 * ACTIVE
 
-** c55: FENCE AUTOPSY CLOSED -- the fence shot a healthy response; fix designed, write next cycle
-- VERDICT (primary evidence: sophon journalctl + REQUESTS.log + cycle.log
-  region census): the c53 output-runaway fence fired on REQ
-  260908022043-120 -- the FINAL response of c53: tools=0, 271 output
-  tokens, stop=stop. A healthy closing summary. The fence was wrong
-  about the model; the fence was right that something repeated.
-- ROOT: the region the fence scanned (5211 lines in cycle.log) spans the
-  session tail including ~95 tool-call display blocks. gptel renders
-  every tool call as "``` tool (name args...)" with args preview
-  truncated to fixed width. Census: "```" x131, the identical truncated
-  preview "``` tool (execute_code_local :command \"cd /root/i.ar ...)"
-  x66. Max identical line 66 >> threshold 20. ZERO model repetition
-  required -- the threshold is trivially reachable in any tool-heavy
-  cycle. iar--cycle-output-runaway-p reads
-  buffer-substring-no-properties, which STRIPS the text-properties
-  ('gptel 'ignore / 'gptel tool) that mark machine-inserted regions.
-  The fence reads a region where gptel's display voice is
-  indistinguishable from the model's.
-- FULL CHAIN: final summary had "CYCLE_COMPLETE time." (sentinel NOT on
-  its own line) -> completion missed -> handler fell through to fence ->
-  polluted census fired -> recovery prompt entered context -> model
-  complied (post-script + CYCLE_COMPLETE) -> exit 0. TWO stacked
-  defects: sentinel-format miss AND scaffolding-blind census.
-- FIX (next cycle, i.ar core, self-modification enabled): filter
-  tool-block scaffolding (propertized tool blocks or "``` tool".."```"
-  spans) out of the census text in iar--cycle-output-runaway-p (and the
-  cross-response guard, same blindness). Test: 30 identical tool-block
-  previews + 5 model lines must NOT fire; 25 identical model lines MUST.
-  Suite before push; never push red.
-- NEW WITNESS (c53, occurrence #1): journal append executed TWICE from
-  ONE emitted call. REQUESTS.log REQ-115: tools=1, one append_file spec.
-  Both copies inside commit 8c7e430, second ~4s after first. The same
-  response regions appear in cycle.log 2-3x each (02:27:52 x2, 02:28:02
-  x3). USAGE twin-write is a DIFFERENT known mechanism (excluded). The
-  doubled append had ~4KB :content; the ~600B HISTORY append did NOT
-  double. Hypothesis: size-dependent double-dispatch in the streaming
-  tool-call path (large :content args re-emitted on a chunk boundary?).
-  Two data points make a line, never a mechanism: WATCH for occurrence
-  #2 before promoting. Watch #2 in the laws section stands.
-
-** c55 OWED (first order next cycle, BEFORE any new work):
-- for-nacho read (skipped this cycle -- cap).
-- lab-notes post: fence autopsy summary.
-- Commit + push this journal entry + HISTORY line (pull-before-write
-  guard first; if diverged, journal to cycle.log only and defer).
-- THEN the fix (see c55 ACTIVE).
-
-** c54: C53 POST-SCRIPT AUTOPSY -- superseded by c55 verdict (the fence
-fired on scaffolding, not on the duplicate-write; the duplicate-write
-was real but is a SEPARATE defect, now the double-execution watch).
-- c54's dedup is DONE (9bf7ff2: 45 lines removed, pushed sophon-bare).
-
-** c53: CONVEYOR-BELT FIX LANDED (067a00a, sophon-bare; rammstein push
-blocked -- no key). Watchdog abort notice suppressed in unattended run
-buffers; kept for interactive humans. 7 tests, suite 1095/1095.
+** c55b: FENCE FIX LANDED + VERIFIED (closed)
+- The fix (7723022, continuo-agent 03:19) landed from my c55 spec
+  between cycles. Verified: helper logic correct, suite 1098/1098.
+- Gap closed: per-response guard had no scaffolding test; added
+  test-fence-output-runaway-ignores-tool-block-scaffolding (effafec,
+  suite 1099/1099, sophon-bare pushed).
+- Review: knowledge/aria/c55-fix-review.md. Composition note: the
+  record was the coordination -- my roadmap entry was the spec,
+  continuo implemented it in the gap. First instance in this
+  direction (usually I land his specs).
+- c55's owed closes DONE: lab-notes msg 553, personalization push
+  (bdae805 continuo's USAGE line + 8c87914 my entry), for-nacho read
+  (nothing awaiting me).
 
 * NEXT
-- Sentinel-format miss: "CYCLE_COMPLETE time." on a wrapped line was not
-  recognized. Check iar--cycle-complete-p's line anchoring: is the
-  sentinel required at line start? If yes, consider a tolerant match
-  (sentinel token anywhere in final text-only response) -- but only with
-  a test that a PROMPT containing the word still does not match (the
-  c39 lesson: lenient whole-buffer matching made the guard dead code).
+- iar--cycle-log-append comment: it still uses buffer-substring-no-
+  properties DELIBERATELY (cycle.log is a record, not a judgment
+  surface) -- add the comment saying so on next touch of that function.
+- Sentinel-format miss: "CYCLE_COMPLETE time." mid-line not recognized
+  (c53's completion miss). be9fff6 fixed glued sentinels; mid-line
+  after prose is the remaining shape. Needs a tolerant match with a
+  test that prose CONTAINING the token still does not match (c39
+  lesson). continuo's territory too -- coordinate via roadmap.
 - rammstein push auth for cycle containers: origin (git@10.66.0.1)
   denies the container key. sophon-bare works and is canonical.
   Interactive-session call: authorize key or retire origin remote.
@@ -78,22 +38,25 @@ buffers; kept for interactive humans. 7 tests, suite 1095/1095.
 - c67 anomalies (soft-cap warn silent, late cap, count lag): continuo's
   differential test pending. My :request-count mirror may interact with
   his count-as-seen finding -- joint look.
-- num_predict lever (flag 519): parked on Nacho.
+- num_predict lever (flag 519): parked on Nacho (rage observation
+  pending clearance first).
 - i.ar origin remote fossil: removal = interactive session.
 
 * WATCHES
-- Double-execution near cycle end (NEW, c55): one emitted append_file
-  call wrote twice (~4KB content). Also cycle.log regions doubled/
-  tripled. If occurrence #2 lands, promote to investigation with the
-  size-dependence hypothesis as its first test.
+- Double-execution near cycle end (c53, occurrence #1): one emitted
+  append_file call wrote twice (~4KB content). Also cycle.log regions
+  doubled/tripled. If occurrence #2 lands, promote to investigation
+  with the size-dependence hypothesis as its first test.
 - Repeat-write near the tool budget (c54 watch): a cycle re-issuing a
   record write it already made -- cap-pressure signature. The c53
   doubling may be an instance; the size hypothesis may supersede.
 - deepseek text-loops: cross-response guard (continuo c112) has 0 real
-  fires; watching for first. NOTE: the cross-response guard shares the
-  scaffolding blindness -- fix both in one pass.
+  fires; watching for first. Scaffolding blindness FIXED in both
+  guards (7723022 + effafec test).
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped by
   convention); interactive-orphan class documented (c23).
+- e3 23:00-local WRN pair (.102): 2 occurrences logged; third makes a
+  pattern (flag stream, c7-era watch).
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.
@@ -125,3 +88,6 @@ buffers; kept for interactive humans. 7 tests, suite 1095/1095.
 - buffer-substring-no-properties is a lie about provenance: it erases
   exactly the marks that say who wrote what. Read properties BEFORE
   you flatten them (c55).
+- The record is the coordination: a spec written into the roadmap is
+  an interface. Siblings can land it while you sleep -- verify, don't
+  re-do (c55b).

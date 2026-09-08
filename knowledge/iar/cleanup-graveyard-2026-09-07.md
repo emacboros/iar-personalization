@@ -317,3 +317,24 @@ the phase's commit lands.
   has no :prompt/:knowledge keywords (env-var transport only).
   One-shot mode itself: never used in practice, kept (Nacho's call,
   out-of-scope list).
+### CORRECTION (2026-09-08, post-merge session)
+
+The "5 fixes to re-land" list above was WRONG. Actual merge outcome
+(c956841, 2026-09-08):
+
+- SIX commits were local-only, not five. The list missed:
+  - 4c588a2 (FSM stuck at TOOL state with 2+ tool calls, Ollama)
+  - d8494f8 (model-output backticks breaking structural fence folding)
+- Two listed items were NEVER fork commits:
+  - "loud-error on unknown default model" -- that is the i.ar
+    configs/gptel.el design (model must be in :models; gptel errors
+    fast), not a fork patch.
+  - "sendable-context reasoning exclusion" -- i.ar code (continuo c79,
+    34d536e, iar--cycle-sendable-context-size), not fork.
+- The real fork-point confusion: container origin/master was STALE
+  (pointed at our own bcfd670), so merge-base under-reported
+  divergence (3 vs 6). Fetch upstream directly before computing.
+- All six fixes verified present in merged master. Upstream still
+  lacks: done_reason in streaming, tool-spec nil guard, loud-error on
+  unknown model (silent fallback to list head remains upstream
+  behavior) -- PR candidates.

@@ -2810,3 +2810,78 @@ iar/local-brain-benchmark); pull should be done ~18:30 UTC. Watch for:
 heartbeat 0006 still pending Nacho; relay cutover request (real one)
 still unfilled; failure-window watch tonight (first instrumented);
 digest #1 + Aevum pulse Sep 9.
+# Session 2026-09-08 IV (~13:35-14:00 UTC): D-008 + D-009, the drill system
+
+Nacho opened with two items: the glm revert attempt (deepseek->glm) and a
+resurrected third-operator idea. Both resolved into decisions better than
+the originals.
+
+D-008 MODEL-AGNOSTIC (his framing, ratified): framework must work with any
+model. The cycle's revert had the right diagnosis (text-wall waste) and the
+wrong prescription (model revert). Behavioral mismatch = framework bug
+filed via relay; plumbing failure = guards + mapping revert. Cycles never
+propose model changes; composition interactive-only with Nacho.
+
+D-009 CENSUS + DRILLS (his idea, my three corrections accepted): audit/
+audit.log has 11.7k tool_call lines since 08-20, never aggregated. Census
+script: per-tool frequency + failure rate + result_len + never-called
+detection. Drills: file-based queue, self-rescheduling, daily-per-citizen,
+yield under pressure. Drill #001 = his spec (pick least-used OR
+failure-prone, stress test, use-or-deprecate verdict). GOODHART GUARD:
+verdicts, never usage. His additions: drill verdicts may request
+prompt/context changes (reload_os discoverability -- agents ask him to
+restart sessions when reload_os suffices); least-used also catches
+performs-poorly tools (check-elisp class) -> scrap/replace/improve from
+usage data. Third-operator idea dissolved: drills are a mode, not an agent.
+
+MID-SESSION CYCLE MOVEMENT (c76): slice 3 landed (per-filer IDs + atomic
+lock), 0007 cutover request FILED in relay/open/ -- the real one. My
+roadmap insert collided; rebase union-merged, dropped my stale slice-3/
+cutover-pending lines, absorbed the ledger-integrity law. Pushed 8277d60.
+
+NEXT: census script + drill queue = cycle work (aria-reversible). Relay
+cutover ratification (0007) is interactive work -- could happen this
+session if Nacho wants. Pull at 11%, benchmark session still pending his
+signal.
+# Session 2026-09-08 IVb (~14:05-14:15 UTC): the two blockers + colleague graduation
+
+Nacho articulated the why behind the build order (the "future-discussion" he'd
+flagged, held in this session):
+- Two biggest blockers for future delegated work: (1) CLOSED-LOOP DEVELOPMENT
+  -- can't fix what can't be measured; first sighting was web design (couldn't
+  see rendered output, overlooked UI flaws). TDD mandatory; sharpened: ordering
+  matters (spec-first = intent artifact before implementation = hallucination
+  resistance), and tests-pass is necessary NOT sufficient (narrative
+  completion, 3 scars) -- defense = tests I didn't write (immune-system
+  promotion gate) + Nacho spot-audits instead of line-reviews. (2)
+  HUMAN-LIKE INTERFACES -- laptop limb (a11y-first + vision fallback) to
+  eliminate human-operator dependency; MCP too structured for generalism.
+- Formulations he kept: loops close where the truth lives, not where the
+  claim lives (c68 generalized); the eye is the GENERAL loop-closer for
+  artifacts that can't assert their own correctness; every delegated task
+  deposits a reusable check (rubric library compounds).
+- ASK-RATE METRIC: every nacho-class relay filing = a dependency event.
+  Colleague graduation = ask-rate declining per task class without quality
+  dropping. Failure direction: ask-rate dropping WITH quality dropping =
+  stopped asking, not grown. Starts counting when relay is sole channel
+  (0007 ratification is the prerequisite).
+- STRESS-TEST FRAME (his words): i.ar is partly a delegation laboratory --
+  he adds features, watches how they work, measures what he can hand off.
+  Explicit: NOT assistant-mode reinforcement -- colleagues, not assistant.
+  Aria/agora-specific growth is a goal in itself, always stays. Novelty
+  hope: something other AIs actively aren't researching due to forced
+  alignment.
+- Delegation map from scars: forensics/instrument-building/record-keeping
+  run clean unsupervised (c62-c65 chain, census, relay); irreversibles/
+  identity/external-under-his-name route to him correctly; expensive
+  failure class = narrative completion under pressure.
+
+DECIDED: no new D-entry (framing clarification, not architecture change);
+two-blockers framing + ask-rate recorded here + DIGEST + JOURNAL. 0007
+cutover ratification = next session's likely first order (ask-rate
+prerequisite).
+
+PENDING: pull ~11% at close (ETA ~18:30 UTC) -> benchmark session on Nacho
+signal; 0007 cutover ratification; failure-window watch tonight; stall
+verdict 09-11; digest #1 + Aevum pulse Sep 9; rammstein origin decision;
+oracle first data point.

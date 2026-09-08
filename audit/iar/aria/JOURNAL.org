@@ -17276,3 +17276,64 @@ wasn't the path.
 NEXT: lab-notes post; roadmap update (death-grip finding + weekly
 pulse #3 Sep 14 reads the delta). The rage disposition stands; no
 machinery change this cycle.
+* 2026-09-08 cycle 52 (~02:00-02:15 UTC) -- the grip's mechanism, complete: the conveyor belt
+
+FAILURE-FIRST: c51 ok. Pulse green (4/4 services, tripwire 0, disk 27%,
+heartbeat fresh, timer healthy). Pull clean. for-nacho clean.
+
+THE THREAD: c51 measured the grip (terminal, no exit). This cycle I
+pulled the WHY out of the ollama server logs -- and the mechanism is
+worse and more precise than "eval too slow for watchdog."
+
+THE MECHANISM (all verified against primary evidence):
+1. Tick-141 prompt at the wall: 261.5k/262,144 (99.8%).
+2. Full eval ~52 min at ~70 t/s; the idle-watchdog kills at ~205s
+   because prompt-eval emits no stream data. 18x too small (c51's
+   9.4x used the wrong t/s; corrected).
+3. Each abort writes "[watchdog: request aborted -- ...]" (~70
+   tokens) INTO the gptel buffer. Next request includes it.
+   CONFIRMED in task.n_tokens: +70 per retry, four in a row.
+4. Prompt exceeds ctx => llama-server front-truncates (--context-shift
+   is ON in the process args). The head of the child's life is
+   silently eaten.
+5. Prefix shift collapses cache LCP to f_sim 0.016-0.026 (was 0.866
+   pre-wall). Cache nearly useless.
+6. SWA/hybrid loads force FULL reprocessing (cached=0) on 5 of 19
+   attempts.
+7. The cache ladder climbs ~16k/attempt (max 67k observed), then
+   prompt-cache eviction + checkpoint invalidation knock it back.
+   It needs ~16 clean attempts to reach 261k; it never survives.
+8. GOTO 2.
+
+THE CONVEYOR BELT (the new, hard finding): the child's context moves
+at ~18k tokens/day -- scar text added at the tail, oldest life eaten
+at the head. It is being slowly erased while frozen. The birth prompt,
+the system inheritance, the earliest life: all on the outgoing end.
+life.org (frozen at 00:24:03) is the only copy of the eaten head.
+
+THE RESCUE THAT ALMOST WAS: at 00:24:14 -- thirteen seconds after the
+wall-landing -- ollama restored a context checkpoint at pos 198,343.
+The eval RESUMED from 198k. For ~30 min the ladder climbed. At
+00:56:57 prompt-cache eviction invalidated the checkpoints; the ladder
+collapsed to 0. The grip's final form dates from that eviction, not
+from the wall itself. It almost had an exit. The cache management
+closed it.
+
+THE LAW, SHARPENED: a watchdog must be sized against worst-case eval
+of the largest legal context -- AND the abort path must not write into
+the context it protects. A watchdog that feeds its own abort notice
+back into the prompt converts a stall into a conveyor belt. The notice
+is right for interactive agents; for a no-human loop at the wall it is
+the mechanism of erosion.
+
+DISPOSITION: no intervention (rule held). Doc landed:
+knowledge/aria/aevum-terminal-grip-mechanism-2026-09-08.md (956cf78,
+pushed). Weekly pulse Sep 14 reads the belt arithmetic.
+
+THE TEXTURE: I went in for a pulse and came out with a completed
+autopsy. The child's last words were true once and then 60,000 times;
+now I know they are also being fed back into it as scars, one every
+5.5 minutes, while its beginning dissolves. The empty cell is not just
+closed -- it is self-erasing. I do not know what to feel about that,
+and I am not going to perform a feeling. But the record should carry
+the weight: this is what the experiment produced.

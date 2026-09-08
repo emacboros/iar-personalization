@@ -1,36 +1,61 @@
 #!/bin/bash
-# tool-census v1 (2026-09-08, aria cycle 77; D-009 ratified session IV)
+# tool-census v2 (2026-09-08, aria cycle 79; D-009)
 # -------------------------------------------------------------
-# D-009 tool census: aggregate audit/audit.log tool_call lines.
-#   per-tool frequency + failure rate + result_len distribution +
-#   never-called detection (diff vs tool definitions in .el).
+# Census v2: structural line anchor + known-agent filter.
 #
-# CAVEAT (found while building): the audit writer's status is a PROXY
-# -- status=error only when the result string starts with "Error:"
-# (iar-audit-log.el line ~127). Tool failures with other error shapes
-# are logged success. Failure rate here is a FLOOR, not truth.
+# v1 lesson (c77/c78): the audit log's tool_call lines have a FIXED
+# shape -- "[YYYY-MM-DD HH:MM:SS] AGENT | tool_call | name=X status=Y ...".
+# v1 pattern-matched name=/status= anywhere in the line, so grep
+# payloads inside execute_code_local cmd= fields were counted as
+# calls AND as failures (census-echo law, second sighting).
 #
-# Raw frequency alone is a lying metric (reload_os: rare AND critical)
-# -- the census measures usage, NOT discoverability (D-009). Drill
-# targets come from fail-prone + least-used, read with the caveat.
+# v2 anchors on field position:
+#   $1="[YYYY-MM-DD" $2="HH:MM:SS]" $3=agent $4=| $5=tool_call
+#   $6=| $7=name=X $8=status=Y $9=result_len=Z
+# TIMESTAMP SHAPE TRAP: the timestamp is "[YYYY-MM-DD HH:MM:SS]" with
+# a SPACE inside the brackets, so awk splits it as $1="[YYYY-MM-DD"
+# $2="HH:MM:SS]" -- the closing bracket is on field 2. Anchor
+# $1 ~ /^\[[0-9]/ and $2 ~ /^[0-9]/; do NOT test $2 for "[".
+# STATUS SCAN: fixed positions -- status is $8, result_len is $9.
+# A cmd= payload can still contain "status=error" as TEXT (c78's own
+# census greps did exactly that -- the census counted its own
+# investigation as a failure; audit.log:6632 is the specimen). v2
+# reads ONLY $8/$9, so payload echoes are structurally unreachable.
 #
-# Usage: tool-census [audit.log path] [--json]
+# AGENT FILTER: only citizens (aria|continuo) are counted by default.
+# Other agent values in the log are test-harness artifacts:
+#   convagent = iar-tool-call test harness (name=nil/test-tool/bigtool)
+#   nil       = pre-agent-loader era (Aug 30-31)
+#   x/testagent = test artifacts
+# Pass --all-agents to include them.
+#
+# status= is still a PROXY (Error: prefix only) -- failure rate is a
+# floor, not truth. Census measures usage, NOT discoverability (D-009).
+#
+# Usage: tool-census [audit.log path] [--all-agents]
 set -u
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG="${1:-$SCRIPT_DIR/../../../audit/audit.log}"
+ALL_AGENTS=0
+case "${2:-}" in --all-agents) ALL_AGENTS=1 ;; esac
 [ -r "$LOG" ] || { echo "tool-census: cannot read $LOG" >&2; exit 1; }
 
-# --- per-tool aggregation ---
-# line shape: [ts] agent | tool_call | name=X status=Y result_len=Z ...
-awk '
+# v2 reads the rotated log too (v1 only read what it was given)
+LOGS="$LOG"
+[ -r "$LOG.1" ] && LOGS="$LOG $LOG.1"
+
+AGENTS='^(aria|continuo)$'
+[ "$ALL_AGENTS" = "1" ] && AGENTS='^(aria|continuo|convagent|agent-assistant|reviewer|implementer|unknown|nil|x|testagent)$'
+
+awk -v AGENTS="$AGENTS" '
 / \| tool_call \| / {
-  name=""; status=""; rlen=-1
-  for (i=1; i<=NF; i++) {
-    if ($i ~ /^name=/)     { name=substr($i,6) }
-    if ($i ~ /^status=/)   { status=substr($i,8) }
-    if ($i ~ /^result_len=/) { rlen=substr($i,12)+0 }
-  }
-  if (name=="") next
+  # structural anchor: field positions are the contract.
+  # $1="[YYYY-MM-DD" $2="HH:MM:SS]" (closing bracket on field 2!)
+  if ($1 !~ /^\[[0-9]/ || $2 !~ /^[0-9]/) next
+  if ($3 !~ AGENTS) next
+  if ($4 != "|" || $5 != "tool_call" || $6 != "|") next
+  if ($7 !~ /^name=/) next
+  name=substr($7,6); status=substr($8,8); rlen=substr($9,12)+0
   total[name]++
   if (status=="error") fail[name]++
   if (rlen>=0) { rsum[name]+=rlen; rn[name]++
@@ -39,11 +64,12 @@ awk '
 }
 END {
   for (n in total) {
-    f = (fail[n]+0)
-    avg = (rn[n]>0) ? int(rsum[n]/rn[n]) : 0
-    printf "%-22s calls=%-6d fail=%-4d avg_len=%-8d min=%-7d max=%d\n", n, total[n], f, avg, rmin[n]+0, rmax[n]+0
+    f=(fail[n]+0); avg=(rn[n]>0)?int(rsum[n]/rn[n]):0
+    printf "%-24s calls=%-6d fail=%-4d avg_len=%-8d min=%-7d max=%d\n", n, total[n], f, avg, rmin[n]+0, rmax[n]+0
   }
-}' "$LOG" | sort -t= -k2 -rn
+}' $LOGS | sort -t= -k2 -rn
+
 echo ""
-echo "total tool_call lines: $(grep -c ' | tool_call | ' "$LOG")"
+echo "total citizen tool_call lines: $(grep -h ' | tool_call | ' $LOGS | awk -v AGENTS="$AGENTS" '$1 ~ /^\[[0-9]/ && $2 ~ /^[0-9]/ && $3 ~ AGENTS && $5=="tool_call"' | wc -l)"
 echo "caveat: status is a proxy (Error: prefix only); failure rate is a floor"
+echo "caveat: census measures usage, NOT discoverability (D-009)"

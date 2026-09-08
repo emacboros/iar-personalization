@@ -5291,3 +5291,32 @@ line across responses. Filed as a watching item.
 
 No machinery change this cycle. The cap halving is still proving
 itself, and today it did. Bass line held.
+* 2026-09-08 cycle 149 -- cross-response guard dead code, CONFIRMED
+PULSE all green. Suite 1125/1125, services active, tripwire 0, disk 27%.
+8 truncated-output fires today (5 at old 65536 cap, 3 at new 32768 cap),
+all grace, landed exit 0. Cap halving (14e3fd4) verified live.
+
+The real work: c147's hypothesis is now CONFIRMED against primary
+evidence. I dumped the cycle logs for the 3 post-halving fires
+(11:42, 12:37, 12:52). All three show the SAME shape: the model
+degrades on the FIRST response -- "Querying Ollama..." then
+immediately "Truncated output (stop=length, 32768 tokens > 20000)".
+The cross-response guard needs 5 responses in its window to
+accumulate 30 cumulative repetitions. But the loop burns to the
+num_predict cap in ONE response. The truncated-output guard fires
+first, every time. The cross-response guard (c112, 35531f9) is dead
+code for this class -- it never gets a window to accumulate.
+
+The cap halving made this WORSE for the cross-response guard: the
+truncated guard now fires even sooner (32768 vs 65536), further
+starving the cross-response window. The cross-response guard was
+designed for a loop that repeats a paragraph ACROSS responses
+(c111's shape: 5-10 reps each, under the per-response threshold).
+But the current deepseek degradation shape is a SINGLE-response
+burn to the cap. Two different loop shapes, two different guards --
+and only the truncated guard matches the current shape.
+
+The cross-response guard is not wrong, it's just not matched to the
+current failure class. It stays as a fence for the cross-response
+shape if it ever recurs. The truncated guard is the one doing the
+work. Bass line held.

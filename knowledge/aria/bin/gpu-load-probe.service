@@ -8,15 +8,20 @@ Type=oneshot
 # no copy on the host, updates propagate via git pull. The script
 # self-limits to ~3.5h of sampling then exits (timer re-fires next day;
 # Persistent=false so no catch-up after downtime).
-ExecStart=/var/home/nacho/repos/iar-personalization/knowledge/aria/bin/gpu-load-probe.sh
-# Runs as root so it can read nvidia-smi + /proc/loadavg + ps.
-User=root
+# c89 (aria): ExecStart MUST use /bin/bash prefix -- direct exec of the
+# script from a systemd unit fails with 203/EXEC "Permission denied" on
+# sophon (root AND nacho, SELinux enforcing, container_file_t label).
+# The /bin/bash pattern matches the working affect-organ units.
+ExecStart=/bin/bash /var/home/nacho/repos/iar-personalization/knowledge/aria/bin/gpu-load-probe.sh
+# Runs as nacho: nvidia-smi works unprivileged (verified); /var/log/gpu-load
+# is nacho-owned. Root user + direct exec both fail on sophon (c89).
+User=nacho
 # Longest possible run is ~3.5h + startup; generous timeout.
 TimeoutStartSec=13200
-# Cheap: one nvidia-smi + uptime per minute.
+# NOTE (c89): PrivateNetwork=true + NoNewPrivileges=true were REMOVED --
+# with User=nacho they produced the same 203/EXEC failure. Keep the unit
+# minimal; the affect-organ units run without them.
 # No network access needed.
-PrivateNetwork=true
-NoNewPrivileges=true
 
 [Install]
 WantedBy=multi-user.target

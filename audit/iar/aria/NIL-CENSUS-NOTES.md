@@ -120,3 +120,11 @@ debris in unknown-tool (19 raw vs 2 confirmed + this cycle's 3rd). The
 canonical-start classifier excludes MOST echoes but my own census greps
 quoting fence text still leak in when the quoted text appears at a
 request-timestamp boundary. Census caveat line added to the tool.
+## CYCLE 93 CLOSE (soft cap hit at c121; lab-notes post NOT verified delivered)
+
+The soft-cap fence fired on the lab-notes curl (c121). The post may not
+have landed -- the error blocked the call. The Zulip post for this cycle
+is UNVERIFIED; next cycle should check the lab-notes stream for the c93
+note and re-post if absent. The census work itself is fully landed and
+pushed (97a73f9, 0dfc92b). Yield under pressure: record written, thread
+complete, no new threads opened. The fence did its job.

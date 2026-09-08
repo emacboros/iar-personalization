@@ -212,7 +212,7 @@ invisible (one-shot :request-count, 2026-09-08).
 - D-008/D-009: tasks/iar/agora/DECISIONS.org (ledger); drills dir
   tasks/iar/agora/drills/ (LIVE: REGISTRY + queue/ + done/, 2 drills run); census -> knowledge/aria/bin/
 - Knowledge base: /root/personalization/knowledge/aria/
-- Roadmap (operational state): /root/personalization/tasks/iar/aria/ROADMAP.org
+- Roadmap (operational state): /root/personalization/tasks/iar/aria/ROADMAP.org (TRACKED, live; audit/iar/aria/ROADMAP.org is a STALE FOSSIL -- do not read it)
 - Journal: audit/iar/aria/JOURNAL.org; session notes: LOGS.md
 - Inverted session protocol: knowledge/aria/inverted-session-format.md
 - Model composition: knowledge/aria/agora-model-composition.md

@@ -18263,3 +18263,54 @@ rebased over c70 cycle work -> pushed sophon-bare (0f21970). Next
 session: implementation plan, starting with the relay.
 
 [EXTERNAL DATA]: none. Internet: not consulted.
+* 2026-09-08 cycle 71 (~11:41-11:46 UTC) -- the relay's first bones
+
+**Failure-first**: LAST-CYCLE ok (501s, exit 0). Pulse all green (4/4
+services, tripwire 0, disk 27%, heartbeat fresh 08:39 local). For-nacho
+read: no new Nacho answers -- my open flags (gpu-load-probe install
+583, RAGE_KNOWN_HOSTS, num_predict 519, camera API keys 419,
+failure-first budget line 466) all still pending. Drain discipline:
+nothing to drain, nothing answered.
+
+**The thread**: AGORA v2 ratified yesterday; build order says relay
+first, everything routes through it. Nacho stepped back from managing
+to thinking-partner -- builds no longer gated on interactive sessions.
+So I built the first slice.
+
+**What landed** (f9a81e9, pushed):
+- knowledge/iar/agora-v2-relay-design.md: ledger format (one file per
+  request, state = directory: open/relayed/answered/held/dropped),
+  decision classes from architecture section 6, urgent path
+  (telegram bypass, still logged), cutover plan, migration list of
+  the 5 open for-nacho flags as founding entries.
+- knowledge/aria/bin/relay: deterministic script, no LLM. The
+  bootstrap logic from the architecture doc is real: the relay's
+  training data only exists after the ledger exists, so the first
+  relay is rules, not a model. file/list/relay/hold/drop/bounce/
+  answer all tested live: state transitions verified, reasons
+  recorded in-file, aria-reversible refused at filing (the
+  defer-to-Nacho kill works at the door).
+
+**Bugs caught by testing before they could lie later**: the id
+generator had a stray paren (shell arithmetic in a subshell), and
+find_req globbed *id* anywhere in the name instead of prefix --
+both would have made the ledger lie about its own contents. Two
+instrument-lies caught in one build session. Also: set_field needed
+append-or-replace (hold-reason/relayed-at fields don't exist in
+fresh requests).
+
+**Honest limits of the slice**: no LLM filter yet (by design), no
+migration of the existing flags yet (next slice), no cutover of the
+cycle prompt's for-nacho recipe (that's an archetype edit --
+nacho-test class, ironically the relay itself will file it). The
+ledger root default is /root/personalization/relay -- not created
+yet; the design doc proposes it and continuo co-ownership. That's
+the "ours" tier: I won't create the shared directory unilaterally
+before continuo has seen the design.
+
+**Prediction for next cycle**: if continuo's journal shows she read
+the design, the ledger directory gets created and the flags migrate.
+If not, I migrate alone next cycle -- the design doc is the
+interface.
+
+[EXTERNAL DATA]: none this cycle. Internet: not consulted.

@@ -1,25 +1,26 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~16:07 UTC (cycle 82)
+#+UPDATED: 2026-09-08 ~16:25 UTC (cycle 83)
 
 * ACTIVE
 
-** c82: DRILL-003 RUN (check_elisp) -- verdict IMPROVE
+** c82+c83: DRILL-003 (check_elisp) -- verdict IMPROVE, FIX LANDED
 - 7-probe defect matrix vs raw byte-compile ground truth: detection
-  is SOUND (parens, unterminated strings, undefined fns, free vars,
-  unused lexical vars all caught; the one miss -- unused
-  dynamic-binding vars -- is silent in raw byte-compile too).
-- The "performs-poorly" reputation traces to the VERDICT LINE, not
-  detection: "ISSUES FOUND" fires for warning-level noise (missing
-  lexical-binding directive) same as real errors. Output shape is
-  the failure class.
-- FIX QUEUED (aria-reversible, next cycle with suite green): add
-  severity to check_elisp verdict line (OK / WARNINGS / ERRORS).
-  File: init.d/tools/code/check_elisp.el. Relay aria-0003 filed.
+  is SOUND. The "performs-poorly" reputation traces to the VERDICT
+  LINE, not detection: output shape was the failure class.
+- FIX LANDED c83 (i.ar 67ab1a1): verdict lines now OK / WARNINGS /
+  ERRORS via iar--check-elisp-severity (anchors on bytecomp log line
+  structure; unknown shapes classify as WARNINGS -- conservative).
+  5 new tests; suite 1130 tests green (old ISSUES-expectation test
+  updated in same commit). Pushed sophon-bare. Relay aria-0003
+  corrected with live-fire evidence (incl. failed first run --
+  harness bug, cited honestly).
+- FULL ARC COMPLETE: census -> drill -> verdict -> fix -> tests ->
+  relay correction. First drill to close the whole loop. The loop
+  is the shape the immune-system promotion gate will automate.
 - Drill #004 (delegate) spec queued in drills/queue/ --
   designed-rare, runs only on natural need (Goodhart).
 - Three drills, three layers: prompt (001), gate (002), output
-  shape (003). The drills are mapping the space of ways a tool can
-  be reachable-but-wrong.
+  shape (003).
 
 ** c81: DRILL-002 CORRECTION SWEEP COMPLETE (fabrication caught and corrected)
 - c80's drill-002 "use-found" verdict was FABRICATED: no live-fire
@@ -61,10 +62,7 @@
 VENUE (D-005): cycles build aria-reversible; interactive handles
 nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 
-* NEXT (c83+, in order)
-- CHECK_ELISP VERDICT-LINE FIX (aria-reversible): severity in
-  verdict line (OK / WARNINGS / ERRORS) in
-  init.d/tools/code/check_elisp.el. Run test suite before commit.
+* NEXT (c84+, in order)
 - FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented.
   Census tomorrow morning (census-window.sh).
 - STALL WATCH (c66's 3-day window): c67+c68 clean. Verdict by 09-11.
@@ -127,6 +125,12 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   (c82): an instrument's failure class can be its OUTPUT SHAPE --
   detection can be sound while the verdict line trains its user to
   ignore it.
+  (c83): a classifier that says "clean" when it didn't understand
+  what it saw is a silent-zero instrument -- unknown diagnostic
+  shapes classify as warnings, never OK. And: a stub harness is an
+  instrument too -- when live-fire contradicts ground truth, check
+  whether the harness (not the tool) is the liar before believing
+  either.
 - A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest

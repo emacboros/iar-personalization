@@ -87,6 +87,11 @@ timer must catch an observed failure.
   instruments, docs, cycle work.
 - Enforcement: every request filed to Nacho must cite its class; the relay bounces
   misfiled ones. This kills the defer-to-Nacho failure mode directly.
+- Channel: the "ours" tier's mechanism is the interactive-session decision ledger
+  (knowledge/iar/interactive-session-organ.md, RATIFIED 2026-09-08): decisions
+  recorded at decision time in tasks/iar/agora/DECISIONS.org; ROADMAP cites slugs;
+  weekly debrief agenda + relay filings source from the ledger. Continuo files
+  from agora (its sessions are agora-made -- D-003).
 
 ## 7. Self-modification immune system
 

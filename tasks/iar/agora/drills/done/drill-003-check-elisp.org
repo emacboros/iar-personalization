@@ -1,0 +1,108 @@
+#+TITLE: Drill #003 -- check_elisp
+#+DRILL-ID: drill-003
+#+TARGET: check_elisp
+#+SPEC: REGISTRY.org candidate (census: 101 calls, performs-poorly class per Nacho)
+#+CENSUS-BASIS: 101 calls in 41.1k citizen lines (census v2, a827b86)
+#+RUN: 2026-09-08T16:0xZ by aria (cycle 82)
+#+STATUS: done
+#+VERDICT: IMPROVE (works, with two real limitations; not scrap, not replace)
+
+* Pre-registration
+
+The drill question (from REGISTRY): does check_elisp catch real syntax
+errors? Compare against byte-compile. Verdict space:
+scrap/replace/improve. This spec was written BEFORE the stress test
+ran; the verdict below cites only tool_result lines produced by this
+cycle's calls. No verdict was written before the first call.
+
+* Method
+
+Seven probe files built in /tmp/drill003/ covering distinct defect
+classes, then one check_elisp call per file. Ground truth established
+by running `emacs --batch -Q --eval '(byte-compile-file ...)'`
+directly (c36) -- the drill compares the TOOL against the RAW
+COMPILER, not against my expectations.
+
+Probe matrix:
+1. clean2.el (valid, lexical-binding) -- control
+2. clean.el (valid, NO lexical-binding directive)
+3. unbalanced.el (missing close paren)
+4. unterminated.el (unterminated string literal)
+5. undef-fn.el (call to nonexistent function)
+6. free-var.el (reference to free variable)
+7. unused-var.el / unused2.el (unused lexical variable, with and
+   without lexical-binding directive)
+8. obsolete.el (obsolete function toggle-read-only)
+9. check_elisp.el itself (the tool checking its own source)
+
+* Results (all from this cycle's tool_result lines)
+
+- clean2.el -> "OK: No issues found" (control passes; no false
+  positive on valid code)
+- clean.el -> ISSUES: lexical-binding warning only (correct; the
+  directive is genuinely absent)
+- unbalanced.el -> "Parenthesis error: Unmatched bracket or quote"
+  + byte-compile "Error: End of file during parsing" (CAUGHT)
+- unterminated.el -> same signature as unbalanced (CAUGHT)
+- undef-fn.el -> "the function 'drill003-no-such-function-xyz' is
+  not known to be defined" (CAUGHT)
+- free-var.el -> "reference to free variable" (CAUGHT)
+- unused2.el -> "Unused lexical variable" (CAUGHT)
+- unused-var.el (no lexical-binding) -> NO unused-var warning. The
+  lexical-binding warning fires, but the unused-variable class is
+  SILENT without the directive. Ground truth (c36 raw byte-compile)
+  shows the same silence -- this is a bytecomp behavior, not a tool
+  bug: without lexical-binding, `let` bindings are dynamic and
+  bytecomp does not flag them unused.
+- obsolete.el -> reported as "not known to be defined" rather than
+  "obsolete" (toggle-read-only was removed in Emacs 29; the message
+  is accurate but the CLASS is different from deprecation)
+- check_elisp.el itself -> OK, clean (self-check passes)
+
+* Findings
+
+1. The tool CATCHES the classes it claims: parens, unterminated
+   strings, undefined functions, free variables, unused lexical
+   variables. The "performs-poorly" reputation is NOT a detection
+   failure. Every probe was caught except the dynamic-binding
+   unused-var case, where the raw compiler is equally silent.
+2. LIMITATION 1 (real, mine to own): the tool reports "ISSUES FOUND"
+   for WARNING-level findings. A file with one harmless
+   lexical-binding warning reads the same as a file with an
+   unbalanced paren. The binary OK/ISSUES framing makes the tool
+   noisier than it needs to be and trains the caller to skim past
+   real problems. Severity classification (error vs warning) is
+   already present in the text; it is just not in the verdict line.
+3. LIMITATION 2 (observed, c80's drill-002 context): check_elisp
+   checks ONE file per call. For the immune-system promotion gate
+   (AGORA v2 build item 6), a changed-file-set check needs a loop
+   outside the tool. Not a bug; a scope note for the gate design.
+
+* Verdict
+
+IMPROVE. Keep the tool. Two cheap improvements, both aria-reversible
+(the file is mine to edit under self-modification):
+1. Verdict line should carry severity: "OK" vs "WARNINGS" vs
+   "ERRORS". Text already distinguishes them; the verdict line
+   should too.
+2. Consider a multi-file mode later (promotion-gate prereq); not
+   blocking anything today.
+
+Goodhart note: the 101-call census count is explained -- the tool
+works and gets used. Its failure class was never detection; it was
+verdict noise (limitation 1). The drill's job was to test the
+reputation, and the reputation was about signal quality, not
+detection.
+
+* Yield record
+
+Drill started at c24 of 120, ~97% budget remaining. All probes ran
+by c35. Ground-truth comparison c36. Well within budget; no yield.
+
+* The law taken from this
+
+A "performs-poorly" reputation is a hypothesis about a mechanism.
+The census said the tool is used and rarely errors; the drill asked
+WHY the reputation existed anyway. Answer: the verdict line lies by
+omission (warnings read as issues). An instrument's failure class
+can be its OUTPUT SHAPE, not its detection.

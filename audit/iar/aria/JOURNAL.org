@@ -17976,3 +17976,78 @@ close (twice carried now -- it is becoming a monument to its own
 deferral); watch the request-side stall signature.
 
 [EXTERNAL DATA]: none this cycle. Internet: not consulted.
+* 2026-09-08 cycle 66 (~09:41-09:55 UTC) -- the stall census: 7 sightings, one shape, and the +N anomaly caught in the act
+
+FAILURE-FIRST: c65 ok. Pulse green (4/4 services, tripwire 0, disk 27%,
+heartbeat 06:41 fresh, timer on cadence). Pull clean. for-nacho: no
+answers since id 573 (my own c65 root-fix flag) -- queue is mine, none
+stale.
+
+THE THREAD (pulled, not assigned): c65 left the request-side stall
+signature named but unsighted. I built the census: every PARSE->START
+gap > 60s in REQUESTS.log, line-anchored (the c43/c65 lesson applied
+on the first try this time).
+
+THE CENSUS: 7 stalls, all 2026-09-08, all aria/glm sessions:
+c56 1762s, c57 1759s, c58 1766s, c59 1553s, c62 1753s, c61 1652s,
+c64 1114s. Six of seven are ~1755-1766s -- the 1800s wall minus
+~30-45s. THE STALL IS NOT A SEPARATE FAILURE: the stall IS the wall.
+The "harness-side stall" and "timeout-grace cycle death" are one
+event seen from two sides. The cycle burns its budget waiting on a
+request that never starts; the wall fires; grace lands; cycle ends.
+c59 (1553s) and c64 (1114s) are partial-budget variants.
+
+THE SHAPE (identical in all 7): pre-stall PARSE issues a tool call ->
+tool executes (fast, seconds) -> result lands -> NO next request
+starts -> wall fires at 1800s -> grace request starts. The stall is
+between tool-result delivery and next-request dispatch, exactly where
+c65 placed it. The new [TIMEOUT] marker never fired -- the executed
+commands were never the problem.
+
+THE NEW EVIDENCE -- the grace requests' histories are WRONG. Delta
+analysis (pre-stall START msgs vs grace START msgs): expected +2
+(assistant tool-call + tool result) + 1 (grace user msg) = +3.
+Actual: c56 +6, c57 +6, c58 +7, c59 +9, c61 +5, c62 +5, c64 +9.
+And the roles sequences show impossible shapes: c56 has THREE
+consecutive assistant messages [25][26][27] where no request ever
+ran, and its tail tool result carries req11's rg result (stamped
+03:50:47, content = req11's command) at position [28] -- a DUPLICATE
+of a result already in history at [23]. c64's grace history gained
++9 = ~4 assistant+tool pairs' worth of messages with zero logged
+requests between. Messages exist in the grace request's array that
+no logged request produced.
+
+WHAT THIS MEANS: the grace gptel-send serializes the BUFFER, and the
+buffer at grace time contains more conversation than the FSM's
+request history accounts for -- duplicated tool results, assistant
+message runs. The stall and the +N msgs anomaly (c55's named class,
+instrument built for exactly this) are the SAME EVENT. The FSM sits
+between TRET and WAIT (tool result processed but next request never
+dispatched) while the buffer accumulates display content; the grace
+send then rebuilds messages from the bloated buffer.
+
+HONEST LIMIT: the tail-cap instrument (2 msgs per START line) cannot
+show what [25][26][27] ARE. Three hypotheses, not discriminated:
+(a) double-inserted tool results (display + inject paths both
+writing), (b) glm thinking responses stored as multiple assistant
+messages on the stall path only, (c) FSM retry/replay re-appending.
+Discriminator: raise the START tail cap to 6 msgs (matching the
+roles field) -- a 3-line .el change. That is .el code, so it is an
+interactive-session item (the no-self-modification law). Flagged to
+for-nacho (id pending this cycle).
+
+THE PREDICTION LEDGER: c65 predicted "next cycle closes in under 5
+calls, thread in under 20." Actual: ~42 calls, 14 min. The census
+script was ONE batched call (the law held); the cost was the
+follow-the-evidence chain -- each answer opened the next question,
+and the tail-cap limit was invisible until I hit it. Instrument tax:
+the tail cap cost ~6 calls to discover and characterize.
+
+OWED to c67: lab-notes post; roadmap update (stall=wall unification
+rewrites the c62-c65 chain's open question); the tail-cap flag is
+with Nacho; watch whether c67+ cycles stall again now that the
+default tool timeout exists (the stall is request-side, so the
+timeout fix should NOT have changed it -- prediction: stalls
+continue, and the next one lands with the +N signature again).
+
+[EXTERNAL DATA]: none this cycle. Internet: not consulted.

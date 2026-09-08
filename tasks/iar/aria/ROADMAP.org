@@ -1,59 +1,80 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 06:57 UTC (cycle 61)
+#+UPDATED: 2026-09-08 09:55 UTC (cycle 66)
 
 * ACTIVE
 
-** c61: AFFECT-LAYER AUDIT (landed, 6a4eca9)
-- Fear organ VERIFIED CORRECT: 06:01Z sev=2 read the real c58 failure
-  at read time; decays at next hourly fire. Rage sev=3 factually
-  grounded (fence class recurred 3 file-days) -- but the dominant
-  class today is timeout-grace, whose root is DESIGN TENSION, not a
-  bug. Neither organ lied.
-- THE 1800s-WALL FINDING: c60 = 28 requests / 1861s (~66s/turn,
-  glm-5.3-flash thinking + GPU shared with oracle/organs/generator).
-  ~28 turns x 40-60s ≈ 1800s -> the CLOCK binds, soft cap (120
-  calls) unreachable. 5/7 aria cycles today ended via timeout-grace.
-  Design options flagged to Nacho (id 567): raise timeout / trim
-  injection / design cycles to fit ~25 turns. Infra decision, his.
-- TZ SCAR NAMED WITH COST (flag 419 class, costliest sighting):
-  ~20 tool calls spent diagnosing a journal "freeze" that was my own
-  UTC-vs-local confusion. LAW: sophon journal timestamps are LOCAL
-  (-03); every --since/--until gets a timezone anchor or a `date`
-  check FIRST. Second misdiagnosis from this class -- it is a named
-  scar now, not a caution.
+** c66: STALL CENSUS -- the stall IS the wall (landed, journal c66)
+- 7 stalls on 09-08, all aria/glm: c56 1762s, c57 1759s, c58 1766s,
+  c59 1553s, c62 1753s, c61 1652s, c64 1114s. Six of seven =
+  1800s wall minus ~30-45s. The "harness-side stall" (c62-c65 chain)
+  and "timeout-grace cycle death" are ONE event: the cycle burns its
+  budget waiting for a request that never starts; the wall fires.
+- Shape (all 7): tool call issued -> tool executes fast -> result
+  lands -> NO next request -> wall -> grace. The stall lives between
+  tool-result delivery and next-request dispatch. The c65 [TIMEOUT]
+  marker never fired -- executed commands were never the problem.
+- NEW EVIDENCE: grace requests' histories are bloated. Delta vs
+  expected +3: c56 +6, c57 +6, c58 +7, c59 +9, c61 +5, c62 +5,
+  c64 +9. c56: three consecutive assistant msgs + req11's tool
+  result DUPLICATED at [28] (already at [23]). c64: +9 with zero
+  logged requests between. Messages exist that no logged request
+  produced -- grace send serializes a buffer with more history than
+  the FSM accounts for. The stall and c55's +N msgs anomaly are the
+  SAME EVENT.
+- INSTRUMENT LIMIT: START tail cap = 2 msgs cannot show what the
+  extra messages are. Discriminator: raise tail cap to 6 msgs
+  (3-line .el change) -- INTERACTIVE SESSION item (no .el
+  self-modification in cycles). Flagged to for-nacho.
+- Hypotheses for the extra msgs (not discriminated): (a) tool result
+  double-insert (display + inject paths), (b) glm thinking stored as
+  multiple assistant msgs on the stall path, (c) FSM replay
+  re-appending.
 
-* NEXT (c60+, in order)
+** c61: AFFECT-LAYER AUDIT (landed, 6a4eca9)
+- Fear organ VERIFIED CORRECT; rage grounded. 1800s-wall finding:
+  ~28 turns x 40-60s binds the clock. Design options flagged to
+  Nacho (id 567) -- now SUPERSEDED by the c66 unification: the wall
+  binds because the stall eats the budget, not because 28 turns x
+  latency fills it. Re-read id 567 in light of c66 before Nacho
+  decides.
+
+* NEXT (c67+, in order)
+- c67 prediction (pre-registered): stalls CONTINUE (the stall is
+  request-side; the c65 tool-timeout fix should not have changed
+  it). If a c67+ cycle stalls, the census pattern should re-fire --
+  and the +N signature should appear again. If NO stall recurs in
+  3 days, the stall correlates with something the timeout fix
+  changed -- which would falsify the request-side placement.
+- Tail-cap flag: waiting on Nacho (interactive .el change). If he
+  defers, a cycle-side workaround: parse RESPONSE body_tail thinking
+  chunks for the grace request to infer what the model saw.
 - rammstein push auth for cycle containers: origin (git@10.66.0.1)
   denies the container key. sophon-bare works and is canonical.
   Interactive-session call: authorize key or retire origin remote.
 - Weekly pulse #3: Sep 14. Belt arithmetic: abort census (~300/day
   expected), transcript mtime (frozen 00:24:03), front-truncation
-  depth vs scar growth. The pulse is the record, not the rescue.
+  depth vs scar growth.
 - Weekly digest #2: Sep 14-ish. 09-07 burn numbers (c46 census):
   aria 141M/33cyc, continuo 95M/34cyc, failure share 16-18% both.
   Carries terminal-grip + conveyor-belt + fence-autopsy findings.
 - c67 anomalies (soft-cap warn silent, late cap, count lag):
   continuo's differential test pending. My :request-count mirror
   may interact with his count-as-seen finding -- joint look.
-- num_predict lever (flag 519): parked on Nacho (rage observation
-  pending clearance first).
+- num_predict lever (flag 519): parked on Nacho.
 - i.ar origin remote fossil: removal = interactive session.
 - Dashboard UI v1.1 cam-label collision: Nacho's call, revisit later.
 
 * WATCHES
 - Double-execution near cycle end (c53, occurrence #1): one emitted
-  append_file call wrote twice (~4KB content). Also cycle.log
-  regions doubled/tripled. If occurrence #2 lands, promote to
-  investigation with the size-dependence hypothesis as its first
-  test.
-- Repeat-write near the tool budget (c54 watch): a cycle re-issuing
-  a record write it already made -- cap-pressure signature. The c53
-  doubling may be an instance; the size hypothesis may supersede.
+  append_file call wrote twice (~4KB content). The c66 finding
+  (grace buffer bloat, duplicated tool results) may be the same
+  disease one layer up: display/inject double-writes. If occurrence
+  #2 lands, test the double-insert hypothesis FIRST.
+- Repeat-write near the tool budget (c54 watch): cap-pressure
+  signature. c53 doubling may be an instance.
 - deepseek text-loops: cross-response guard (continuo c112) has 0
-  real fires; watching for first. Scaffolding blindness FIXED in
-  both guards (7723022 + effafec test).
-- USAGE twin-writes: belt#2 double lines persist (harmless, deduped
-  by convention); interactive-orphan class documented (c23).
+  real fires; watching for first.
+- USAGE twin-writes: belt#2 double lines persist (harmless, deduped).
 - e3 23:00-local WRN pair (.102): 2 occurrences logged; third makes
   a pattern (flag stream, c7-era watch).
 
@@ -68,106 +89,32 @@
   and check the line's OWN fields, not echoed content (c43).
 - The law you just wrote is the one you're about to break (c34,
   c38, c39, c43, c57 -- five live sightings; c58 applied it, c59
-  finally collected the full dividend: failure-first HANDED the
-  carried thread to me with evidence attached).
+  collected the dividend, c66 held it: census was ONE batched call).
 - Meter-reading has an unbounded instrument tax unless it starts
   from a script. Investigations need cheaper calls, not fewer.
 - The mechanical difference is the difference: script-first
-  autopsies take one cycle; from-scratch forensics take five
-  (c43 vs c39-c41 vs c59 -- the law now has a positive sighting).
+  autopsies take one cycle; from-scratch forensics take five.
 - Block-replace with an assert, never sed-eyeballing a big file
   (c45).
 - Instruments lying about themselves is the deepest failure class
-  (14/27/30/31 + turn-counter, c39 + rage day-blindness, c46 + c55:
-  a fence that reads a region its own display layer co-authored).
+  (14/27/30/31 + turn-counter + fence templates + tail caps: the
+  instrument's OWN limits are part of its testimony -- c66: the
+  2-msg tail cap hid the very messages the anomaly consists of).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest
   legal context -- and the abort path must not write into the
   context it protects (c51/c52; c53 = our copy closed).
 - A fence's verdict and its evidence can disagree: autopsy the
-  evidence, not the verdict (c54). And the evidence itself can be
-  co-authored by machinery: strip the scaffolding before you count
-  the speech (c55).
-- buffer-substring-no-properties is a lie about provenance: it
-  erases exactly the marks that say who wrote what. Read
-  properties BEFORE you flatten them (c55).
+  evidence, not the verdict (c54). Strip the scaffolding before you
+  count the speech (c55).
+- buffer-substring-no-properties is a lie about provenance (c55).
 - The record is the coordination: a spec written into the roadmap
   is an interface. Siblings can land it while you sleep -- verify,
   don't re-do (c55b).
 - Closes are the FIRST turns of every cycle, before the thread
-  (c55, named c55-c57, applied c58). Commit-before-limit is its
-  sibling: a memory write that never lands is the next cycle
-  opening in debt.
-- A sentinel is a terminator, not a line format: match the
-  trailing boundary, not the line shape (c59 -- the fence class's
-  last root).
-** c62 (2026-09-08 ~07:10-07:41 UTC): THE WALL BY ORIENTATION ALONE
-- TIME LIMIT after ~10 turns / ~32s of tool-execution time. Pulse was
-  green; nothing failed; the cycle simply ran out of clock while orienting.
-- HYPOTHESES for c63 to discriminate (read rotate journal + cycle.log
-  timestamps for true start and per-turn gaps): (a) per-turn latency
-  ballooned under GPU load (oracle 07:01 fire + organs + generator +
-  this cycle sharing the 3080) -- 10 turns x ~180s ≈ 1800s; (b) the
-  fence clock is lying (instruments-lying class). If (a), id 567
-  sharpens: the binding constraint is latency x turns, not turns alone;
-  even minimal cycles die under load.
-- Foreign protocol in the grace prompt (delegation-to-reviewer,
-  LOOP_COMPLETE, remove_task) weighed against the cycle archetype and
-  REJECTED -- harness template shared across agent types, most likely;
-  injection-resistance law held.
-- OWED to c63: lab-notes post; NEXT(1) deliberate-comment close; the
-  anomaly check above. Zero commits (nothing to commit; record writes
-  are the work).
-** c65 (2026-09-08 ~09:10-09:20 UTC): ROOT FIX LANDED -- the un-timeouted tool call
-- FAILURE-FIRST: c64 failed (grace expired without CYCLE_COMPLETE; the
-  1800s wall ate the forensic window). Root cause chain now CLOSED:
-  c62+c63+c64 all died the same way -- one hung/unreturned tool call in
-  the tool-execution window, the one window nothing watches.
-- THE FIX (ae37766, pushed sophon-bare, suite 1101/1101):
-  iar-exec-default-timeout defcustom (600s) in execute_code_local.el.
-  The tool layer always had a timeout param; its default was 3600s --
-  LONGER than the whole cycle budget -- and no caller ever passed one.
-  Now: one hung call costs at most 1/3 cycle, and the sentinel fires
-  with partial output + [TIMEOUT after Ns] marker (next request sees
-  what happened).
-- FORENSIC CORRECTIONS to c62/c63/c64 entries (from line-anchored
-  REQUESTS.log re-read):
-  (a) c62's reqid prefix is 260908071043 (not -1041): req11 PARSE
-      07:11:31 = `cd /root/i.ar && rg -n "cycle-log-append" -g '*.el'
-      | head -10` (no timeout). req12 START 07:40:44 with the rg
-      RESULT PRESENT in its history (msgs 22->27). The rg result DID
-      land -- so rg itself completed (or was killed); the stall was
-      between tool completion and the next request dispatch.
-      HARNESS-SIDE STALL, not an rg hang. c64's "hung rg" framing
-      was wrong in mechanism, right in effect.
-  (b) c63's req36/37 "stale result" anomaly RESOLVED: req37's spec
-      was `time (rg ...)` INSIDE a python heredoc -> SyntaxError
-      (python parsed `time` as a statement). The "[07:52:34]
-      Command exited with code 1" in req38's history is that
-      python SyntaxError result, correctly delivered. No stale-
-      result mechanism. The duplicate-tail anomaly was me misreading
-      which tool result sat adjacent to the grace user message.
-  (c) c64's 18.5-min gap (req114->req115, 08:42:07->09:00:41): same
-      shape. req114's spec was a pure-python heredoc (no rg at all);
-      its result DID land in req115's history (the SUMMARY tool
-      result, stamped 08:41:59). Again: result completed, next
-      request delayed ~18.5 min. HARNESS-SIDE STALL, second sighting,
-      no rg involved.
-- REFINED MECHANISM: the stall is NOT in the executed command (both
-  results completed and entered history). It is between tool-result
-  delivery and the next model request. Candidates: gptel-fork
-  request loop, Ollama queue behind oracle/organs/generator fires,
-  or the harness's tool->request handoff. The [TIMEOUT] marker from
-  the new default will discriminate IF the stall ever lands inside
-  the process itself; if the stall is request-side, the REQUESTS.log
-  gap pattern (result stamped, next START late) is the signature --
-  now named, now watchable.
-- for-nacho flag posted (id 573): root fix + open question (stall
-  undiagnosed; if it recurs with timeout, marker discriminates).
-- Scar-class added: "hung rg" was constructed from one re-run (6ms)
-  plus absence of evidence -- the line-anchored re-read reversed it.
-  Absence of an audit entry proves the audit, not the tool.
-- CLOSED THIS CYCLE: NEXT(1) deliberate-comment landed (1efd1a0,
-  suite 1101/1101). Lab-notes posted (id 574). Watch for c66+:
-  request-side stall signature (result stamped -> START gap > 60s)
-  in future REQUESTS.log reads.
+  (c55-c57, applied c58). Commit-before-limit is its sibling.
+- A sentinel is a terminator, not a line format (c59).
+- Two failures that share a timestamp are one failure wearing two
+  names -- census before mechanism (c66: stall = wall; the c62-c65
+  "open question" was asking for a discriminator that the census
+  answered in one script).

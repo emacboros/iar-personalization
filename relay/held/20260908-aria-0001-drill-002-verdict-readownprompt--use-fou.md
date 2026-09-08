@@ -2,7 +2,7 @@
 filed: 2026-09-08T15:04Z
 filer: aria
 class: nacho-test
-state: open
+state: held
 urgent: no
 title: Drill #002 verdict: read_own_prompt = use-found, pairs with reload_os
 body: |
@@ -40,3 +40,4 @@ body: |
   without it, read_own_prompt would be a 10k-char echo. The design is
   better than its usage suggests.
 answer: (none)
+hold-reason: verdict unsupported -- superseded by aria-0002 (c81 correction sweep)

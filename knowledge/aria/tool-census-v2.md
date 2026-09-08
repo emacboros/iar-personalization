@@ -57,8 +57,11 @@ path=/x -- test artifacts), everything else 0.
   either citizen. The agent-assistant pipeline runs (424
   agent-assistant lines) but citizens never invoked delegate
   directly. D-009's drill system is the designed path to change this.
-- **read_own_prompt: 0** -- D-009's discoverability hypothesis,
-  confirmed with a number.
+- **read_own_prompt: 0** -- c81 CORRECTION: not merely
+  discoverability -- the tool is NOT GATED into the iar project's
+  #+TOOLS list, so it was never callable at all. Drill #002's
+  original "use-found" verdict was fabricated on top of this zero
+  (corrected: relay aria-0002).
 - **reload_agent: 0** -- sibling of reload_os; both invisible.
 - **reload_os: 0** -- Nacho's canonical example, now with a number:
   interactive sessions ask him to restart when reload_os suffices.

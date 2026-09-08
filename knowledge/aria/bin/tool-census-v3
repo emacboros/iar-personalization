@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+# tool-census v3 (2026-09-08, aria cycle 93; D-009)
+# -------------------------------------------------------------
+# v3 adds to v2:
+#   1. name=nil audit rows -> FAILURE class "malformed-emission"
+#      (fence-rejected calls the audit logs as status=success; see
+#      relay aria-0007). Never counted as a tool row.
+#   2. Fence taxonomy from REQUESTS.log: classified on the fence's
+#      CANONICAL OPENING (echo-proof -- the census's own greps quoting
+#      fence text are excluded by construction), deduped by timestamp.
+#      Escape-normalize FIRST (backslash-n is two literal chars in
+#      stored text), then lstrip, then match the head.
+#
+# Traps inherited and kept:
+#   - grep -oE quote-boundary truncation: python extraction only.
+#   - structural field anchor on audit lines (v2's lesson).
+#   - census measures usage, NOT discoverability (D-009).
+#
+# Usage: tool-census-v3 [personalization repo root]
+#        (default: script's repo root, i.e. ../../..)
+import re, glob, collections, os, sys
+
+ROOT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..")
+os.chdir(ROOT)
+
+KEYS = [("Same-tool warning", "same-tool"),
+        ("Tool-call budget warning", "budget-warning"),
+        ("Tool-call soft cap", "soft-cap"),
+        ("LOOP CHAIN DETECTED", "loop-chain"),
+        ("TOOL-CALL LIMIT REACHED", "hard-limit"),
+        ("Unknown tool", "unknown-tool")]
+
+def canon_class(body):
+    t = body.replace("\\\\n", "\n").replace("\\n", "\n")
+    t = re.sub(r"\\+'", "'", t)
+    t = re.sub(r'\\+"', '"', t)
+    t = t.lstrip(" \n\\'\"")
+    head = t[:120]
+    for k, cls in KEYS:
+        if k in head:
+            return cls
+    return None
+
+print("== tool-census v3 ==")
+for agent in ("aria", "continuo"):
+    # --- audit side ---
+    total = collections.Counter(); fail = collections.Counter(); nil = 0
+    for path in glob.glob("audit/audit.log*"):
+        for line in open(path, errors="replace"):
+            if " | tool_call | " not in line:
+                continue
+            f = line.split()
+            if len(f) < 9 or not (f[0].startswith("[2") and f[1].endswith("]")):
+                continue
+            if f[2] != agent or f[4] != "tool_call" or f[5] != "|" or not f[6].startswith("name="):
+                continue
+            name = f[6][5:]; status = f[7][7:]
+            if name == "nil":
+                nil += 1
+                continue
+            total[name] += 1
+            if status == "error":
+                fail[name] += 1
+    # --- fence side ---
+    counts = collections.Counter(); seen = set()
+    for path in sorted(glob.glob(f"audit/iar/{agent}/REQUESTS.log*")):
+        data = open(path, errors="replace").read()
+        for m in re.finditer(r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\][^\n]*?<tool_call_error>(.*?)</tool_call_error>", data, re.S):
+            ts = m.group(1)
+            if ts in seen:
+                continue
+            seen.add(ts)
+            cls = canon_class(m.group(2))
+            if cls:
+                counts[cls] += 1
+    n = sum(counts.values())
+    print(f"-- {agent}: malformed-emission(name=nil)={nil} | fence events={n} | " +
+          " ".join(f"{k}={v}" for k, v in counts.most_common()))
+    print("   top tools:")
+    for name, c in total.most_common(6):
+        print(f"     {name:24s} calls={c} fail={fail.get(name, 0)}")
+print()
+print("caveat: status is a proxy (Error: prefix only); failure rate is a floor")
+print("caveat: census measures usage, NOT discoverability (D-009)")
+print("caveat: unknown-tool counts include echo debris; confirmed specimens only via manual verification")

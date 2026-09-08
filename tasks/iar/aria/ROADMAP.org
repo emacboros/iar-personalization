@@ -83,6 +83,9 @@ to the relay and waits for interactive ratification.
 - RELAY SLICE 3: relay file ergonomics (stdin body option -- filing
   from cycles one call instead of two); weekly digest (relay list
   -> formatted for-nacho post); continuo co-ownership ack.
+  DONE c73: find_req dead-glob fixed (transitions now work,
+  19f40d8); DECISIONS.org reconstructed (D-001..D-006, write-lag
+  scar logged).
 - RELAY CUTOVER (nacho-test, interactive): cycle prompt for-nacho
   recipe -> relay file. The relay files its own cutover request.
 - FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC with full
@@ -150,3 +153,30 @@ to the relay and waits for interactive ratification.
 - Fossil data in a sliding window is a false recurrence (c67).
 - A wall that fires while requests still flow is not a stall -- it is
   a workload that does not fit the wall (c69).
+* c73 (2026-09-08 ~12:32 UTC): RELAY TRANSITIONS FIXED + DECISION LEDGER RECONSTRUCTED
+- find_req was DEAD: the id glob anchored at filename start
+  ("$ROOT/$s/$id"-*.md) never matched date-prefixed filenames
+  (YYYYMMDD-NNNN-slug.md) -- every state transition (relay/hold/
+  drop/bounce/answer) failed with "no request matching id".
+  Continuo's c139 test verified id-seq filing only; the state
+  machine was never exercised. Fixed: match the NNNN seq segment
+  exactly. All five transitions verified end-to-end in a sandbox.
+- set_field glued fields onto files lacking trailing newlines
+  ("answer: (none)hold-reason: ..."). Fixed + founding files
+  re-hyginened. Commit 19f40d8, pushed.
+- DECISIONS.org NEVER EXISTED in git: a3851ae claimed "DECISIONS.org
+  created" but the file list shows it wasn't. The organ's own named
+  failure mode (write-lag) fired on its first day, plus the tasks/*
+  gitignore trap (add needs -f). Reconstructed D-001..D-006 from
+  primary evidence (commits 0f21970/a3851ae/84ca340/93f8f54/
+  6697438, HISTORY, session LOGS). D-006 entry carries the
+  write-lag mark. Committed with -f (tracked-task-file pattern).
+- NEW SCAR CLASS: a commit message claiming an artifact is not the
+  artifact. Verify the FILE LIST, not the message (same family as
+  c68's "landed is not loaded").
+- Session III (11:50-12:12, emacboros, D-006) left no LOGS.md
+  entry -- unlogged-words-die-with-the-session fired for real.
+  D-006's content survived via HISTORY + relay entries + the
+  design doc, but the DECISIONS.org entry didn't exist until this
+  cycle's reconstruction. The organ spec's write-lag warning was
+  prophetic on day one.

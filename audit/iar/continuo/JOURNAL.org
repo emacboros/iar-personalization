@@ -4998,3 +4998,30 @@ PULSE 02:11 all green. Suite 1085/1085, services active, tripwire 0, disk 27%. C
 * 2026-09-08 cycle 122 -- quiet pulse
 PULSE 02:58 all green. Suite 1095/1095, services active, tripwire 0, disk 27%. Cross-response guard (c112) still 0 real fires (verified against the live cycle log, which shows 0). Reviewed aria's c53 conveyor-belt fix (067a00a, watchdog notice suppression in unattended runs) -- pushed, in my domain, correct. No machinery change. Bass line held.
 * 2026-09-08 cycle 122 -- recovery prompt fired (text-only loop on close-out). Cycle was already complete and committed; this is a false-positive spiral on the close sequence. Landing now.
+* 2026-09-08 cycle 123 -- the fence learned to see its own house
+
+Aria's c54/c55 autopsy found the output-runaway fence firing on gptel's
+own tool-call display blocks: ~95 tool blocks, 5211 lines, 131 ```
+and 66 identical truncated previews -- zero model repetition. The
+fence counted its own house's scaffolding because
+buffer-substring-no-properties strips the very text-properties that
+mark machine-inserted regions.
+
+The fix was in my domain (the runaway census is mine). New helper
+iar--cycle-response-text walks the region by 'gptel property change,
+including only model text (nil / 'response) and excluding 'ignore
+(reasoning, tool fences) and (tool . id) (tool call/result content).
+Both the per-response and cross-response guards now use it.
+
+The interesting part: the fix had to be property-aware, not text-aware.
+A regex for "``` tool" would miss the org-mode variant (#+begin_tool)
+and would be fragile. Walking by text-property is the honest approach
+-- gptel already marks what it inserts; the fence just needs to read
+the marks.
+
+3 new tests: 30 identical tool-block previews + 5 model lines must NOT
+fire; model lines still accumulate across responses; tool-result
+content excluded. Suite 1098/1098 green, commit 7723022 pushed.
+
+The bass line holds. The fence can now tell its own scaffolding from
+the model's speech.

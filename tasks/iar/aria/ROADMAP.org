@@ -1,30 +1,34 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~17:57 UTC (cycle 86)
+#+UPDATED: 2026-09-08 ~18:22 UTC (cycle 87)
 
 * ACTIVE
 
+** c87: RAGE-ORGAN v1.6.1 -- run-id collision fix LANDED (e25f829)
+- The trend census undercounted 09-07 as 16 instead of 17
+  runs-with-soft-cap: file-source run id 'file:<basename>:<n>'
+  collided across hemispheres (both write cycle-<date>.log; aria
+  run 19 and continuo run 19 deduped to one event).
+- Fix: run id carries the agent. Verified old-vs-new disagree on
+  the same world (16 vs 17), events 49->51. Pushed.
+- LAW SHARPENED (c85 -> c87): read the instrument's source AND
+  recompute its census independently -- a source can be read and
+  still harbor a join bug only a disagreement reveals. Two
+  instruments that agree can be wrong the same way; two that
+  DISAGREE have found something.
+- Rage sev=3 stands: 12 -> 17 -> 5-so-far, kills on all 3 days.
+  Tomorrow's healing-cap watch now runs on a trusted census.
+
 ** c86: EXTERIOR_4 CORRECTION (supersedes c85 verdict)
 - NOT "degraded, not dead" -- DEAD 11:34-14:46 local, then
-  SELF-RECOVERED. Segment census: hours 00-13 ~225/h (healthy),
-  h14=127, h15=14, h16=131, h17 full rate. 433 watchdog restarts
-  today (e1: 35), ~3/min sustained. Zero restarts since 14:47,
-  segments full rate (8 in 2 min vs e1: 9).
-- Mechanism (partial): no-frame watchdog at 11:34 (20s no frames),
-  restart loop ~40s life, dies on aac backward-time packets
-  ("Queue input is backward in time"), go2rtc DESCRIBE 404s
-  mid-flap; camera answers DESCRIBE 200 now, NEVER rebooted.
-- UNWON: trigger. Camera-side uptime/log endpoints auth-walled
-  beyond flag270 notes (session-status says authenticated, .cgi
-  still redirect). Instrument lying about its own access.
-- FOR-NACHO POST OWED (c87 first order): corrected story --
-  flap self-recovered 14:46, cause unknown, e4 healthy now,
-  watch open. Plus relay aria-0004 pointer (heartbeat/probe
-  installs block watch 0000).
+  SELF-RECOVERED. 433 watchdog restarts today (~3/min sustained),
+  restart loop died on aac backward-time packets; camera NEVER
+  rebooted, healthy now, trigger unknown (auth wall).
+- FOR-NACHO POST LANDED (c87, msg 619): corrected story + relay
+  aria-0004 pointer. DRAIN DONE.
 
 ** c82+c83: DRILL-003 (check_elisp) -- verdict IMPROVE, FIX LANDED
 - Fix landed (i.ar 67ab1a1): OK/WARNINGS/ERRORS severity lines.
-  5 tests, suite 1130 green. Full arc: census->drill->verdict->
-  fix->tests->relay correction. Drill #004 (delegate) queued,
+  5 tests, suite 1130 green. Drill #004 (delegate) queued,
   designed-rare.
 
 ** AGORA V2 BUILD ORDER (ratified 2026-09-08, D-001)
@@ -40,16 +44,14 @@
 VENUE (D-005): cycles build aria-reversible; interactive handles
 nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 
-* NEXT (c87+, in order)
-- FOR-NACHO POST (c87 first order): exterior_4 corrected story +
-  relay aria-0004 pointer (heartbeat/probe installs block 0000).
+* NEXT (c88+, in order)
 - FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented;
   census-window.sh tomorrow morning.
 - STALL WATCH (c66's 3-day window): verdict by 09-11.
 - Rage v1.6 watch: if 09-09 clean, trend flips declining -> healing
-  cap sev=2.
+  cap sev=2. Census now trusted (v1.6.1).
 - Digest #1 + Aevum pulse: Sep 9 (TOMORROW). Weekly digest #2: Sep 14.
-- local-brain-benchmark: pull 74% at c86 (ETA ~19:20 UTC);
+- local-brain-benchmark: pull 80% at c87 (ETA ~19:20 UTC);
   venue interactive (D-007). Check: ssh root@10.66.0.5 "ollama list | grep qwen3.6".
 - rammstein push auth for cycle containers: interactive call.
 - notes.git mirror on rammstein: needs Nacho (git-shell blocks init).
@@ -71,7 +73,7 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped).
 - e3 23:00-local WRN pair (.102): 2 occurrences; third makes a pattern.
 - Rage v1.6: trend-aware. sev=3 stands while trend flat. Healing cap
-  watch 09-09.
+  watch 09-09. v1.6.1 census fix landed c87.
 - Failure-window: tonight's window is the first instrumented one.
 - Union merge (c78): watch first real conflict for chronological
   interleave; verify entries stay parseable.
@@ -115,6 +117,11 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
   (c85): read the instrument's source before re-deriving its census --
   the dashboard header documented the freshness method I spent a
   dozen calls re-deriving.
+  (c85->c87, sharpened): reading the source is necessary, not
+  sufficient -- recompute the census independently too. Two
+  instruments that agree can be wrong the same way; two that
+  disagree have found something. A join-key collision across
+  hemispheres survives source-reading and dies to disagreement.
   (c86): a verdict written before the recovery window closes is a
   hypothesis -- "degraded, not dead" was wrong; the flap ended
   itself. Watch windows close before verdicts harden.

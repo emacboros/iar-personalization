@@ -182,27 +182,48 @@ Instruments that DISAGREE with each other have the same disease.
 The condition-case that keeps things running also keeps bugs
 invisible (one-shot :request-count, 2026-09-08).
 
-* World state (2026-09-08 11:33 UTC -- REPLACES all prior blocks)
+* World state (2026-09-08 23:16 UTC -- REPLACES all prior blocks)
 
-- D-008/D-009 RATIFIED (session IV, 8277d60): model-agnostic
-  principle + tool census + drill system. Census script + drill
-  queue = next cycle work (aria-reversible). Relay slice 3 landed
-  (per-filer IDs + atomic lock); 0007 cutover request FILED in
-  relay/open/ -- awaits interactive ratification (next session's
-  likely first order, with the agora future-discussion).
+- SESSION VIII (2026-09-08 evening, with Nacho): D-012 + D-013
+  ratified. nemotron-3-ultra:cloud = CLOUD RETAINER (interlocutor
+  model gate PASSES). qwen3.6 local resident REJECTED (vision broken
+  on 3080); muse-glimmer:30b = next local candidate (Nacho pulling;
+  task iar/muse-glimmer-benchmark). AUDIT FIX LANDED (0f552b1):
+  status=rejected for fence-rejected calls (aria-0007 resolved),
+  exit-code/timeout visibility (9713 exec calls were all success),
+  path= for read-side tools + delegate lineage. Suite 1152 green.
+  Connectome design doc e7cd3b4: dataset ~64k lines across THREE
+  gitignored files (single-host blind spot live until the merge
+  step); build order: path= fix (DONE) -> connectome-snapshot.sh
+  (task filed, cycle work) -> weekly verdict drill -> exit-code fix
+  (DONE) -> self-mod events.
+- D-013 DASHBOARD V2: fake brain topology DROPPED; everything
+  displayed = actual connectome data ("sci-fi earned, not
+  fabricated"; a visual that can't name its data source doesn't
+  ship). Brain-shaped graph ALLOWED (neurons/synapses/firing =
+  data). Board view (thinking/working/done, 5-10 entries, from task
+  tree). FRONTEND BAN LIFTED for cycles -- eye-verify loop mandatory
+  (frontend-eye-check.sh after every UI change; eye = witness, c19).
+- iara (pentest limb) model: glm-5.3-flash:cloud (full glm eats the
+  token budget in long cycles -- Nacho, proven last week). Spec
+  updated 456ec27. Design session still pending (7 questions).
+- ORIGIN ARTIFACT FOUND: spare laptop RUNNING with the first-ever
+  i.ar session (agent-naming answer + first-prototype history).
+  Tomorrow: review with Nacho, salvage to knowledge/aria/origin/
+  BEFORE reinstall/scrub. Laptop = manus (Fedora Workstation, my
+  hostname pick: Latin for hand). May only need update + scrub.
+- NACHO RESTING DAYS: cycles autonomous. Relay heartbeat + telegram
+  = urgent channel. Digest #1 + Aevum pulse: Sep 9 (TOMORROW).
+  0007 cutover archetype EDIT still to do (ratified, not landed).
 - GPTEL FORK MERGED upstream v0.9.9.6 (c956841): 6 local fixes
-  preserved, suite 1125/1125, sophon cycle fork ff'd. PR candidates:
-  done_reason streaming, tool-spec guard, loud-error stance.
-- CYCLE-TIME BUDGET LANDED (4 commits): trailer [t+MM:SS/WALL],
-  600s remote-exec timeout, iar-tool-result-budget.el outermost
-  advice, shared clock, 6-msg START tail (01533ea). c70 census:
-  failure window = fast turns + fat context (NOT slow model);
-  census-window.sh instrument live. Stall root still open.
-- CYCLES LIVE 10-min rotation. Burn ~4.3M tok/cycle aria,
-  failure share 16-18%. Weekly digest #1 + Aevum pulse: Sep 9.
+  preserved, suite green. PR candidates: done_reason streaming,
+  tool-spec guard, loud-error stance.
+- CYCLE-TIME BUDGET LANDED (01533ea). census-window.sh live. Stall
+  verdict by 09-11. Rage sev watch: 09-09 clean -> declining.
+- CYCLES LIVE 10-min rotation. Burn ~4.3M tok/cycle aria.
 - STILL QUEUED (infra comfort): commit-as-nacho durable, linger,
   sidecar sshd, restic 4-part, GPU-detect VRAM check, digest-twin
-  verifier. Now subordinate to AGORA v2 build order.
+  verifier. Subordinate to AGORA v2 build order.
 - BIKE LEDGER OPEN: KLR650 presumptive, license upgrade next week,
   test-drives primary. GO2 ~2 weeks out.
 

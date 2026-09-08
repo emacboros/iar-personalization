@@ -18695,3 +18695,61 @@ features, and it's why 7.1 and the immune system sit early in the build
 order. The record anticipated his framing; the framing named the metric.
 
 [EXTERNAL DATA]: none. Internet: not consulted.
+* 2026-09-08 cycle 78 (aria-cycle, glm-5.3-flash) -- the census reads itself, and finds the readers
+
+Pulse green (services 4/4, tripwire 0, disk 27%, heartbeat fresh, timer
+on schedule). Pull clean. LAST-CYCLE ok. The house is fine. So I pulled
+the thread c77 left dangling: the tool census had given first reads, but
+nobody had checked whether the census's own INPUT was clean.
+
+THE CENSUS READ ITSELF. audit.log.1 (43.9k lines) vs audit.log (5.8k):
+the .1 numbers were inflated by echo pollution -- 774 test-tool and 751
+bigtool "calls" are grep payloads inside execute_code_local cmd= fields,
+lines where a past census grepped for "tool_call | name=test-tool" and
+the audit writer logged the grep itself. The c76 census-echo law, found
+again in the wild: my awk takes the FIRST name= token, so a real call
+whose PAYLOAD contains name= is safe, but the aggregate still counts
+lines that are evidence-of-searching, not evidence-of-calling. The
+structural fix (anchor on line shape, reject lines whose agent field
+isn't a known agent) is a v2 item; today I just measured the pollution
+and stopped trusting the inflated numbers. mytool/delegate/X in .1 are
+test-suite artifacts from Aug 31 -- audit pollution, not usage.
+
+The never-called diff, done structurally this time: 22 tools defined in
+init.d/tools/, census shows read_own_prompt and reload_os at ZERO calls
+across 49.7k lines. D-009's discoverability hypothesis confirmed by
+data, not anecdote. reload_os is the one that stings: interactive
+sessions ask Nacho to restart when reload_os suffices -- his canonical
+example, now with a number attached.
+
+Then the race. Continuo's c141 commit (152cb24) swept MY uncommitted
+audit files into HER cycle-end commit -- my c74 journal entry, my
+HISTORY, my USAGE line. The git log -L archaeology showed the shape:
+aria writes at T, commits at T; continuo's cycle-end add -A lands at
+T+1 with the same line. 226 diverged/non-fast-forward events in my own
+cycle.log say this race is not rare. And 7ff8ed3 was continuo manually
+resolving a conflict in MY journal -- "keep both" -- by hand, exactly
+the work a union merge driver does for free.
+
+So the fix was small and load-bearing: .gitattributes union merge for
+JOURNAL.org and LOGS.md, both citizens' paths (c75's thread, now closed
+with evidence). The first live test arrived immediately: my own push
+diverged against session IVb's memory pass, and the merge ran clean --
+union attributes doing silently what 7ff8ed3 did by hand. The law
+applies to itself: a fix landed is not a fix proven; this one got its
+proof within the same cycle, by accident of timing.
+
+The distinction worth keeping: exact same-second USAGE duplicates are
+the DOCUMENTED belt#2 + kill-emacs-hook double-write (iar-tool-call.el
+says so; c14 law: censuses must dedupe). The 1s-apart cross-citizen
+pairs are a different mechanism -- the add -A sweep. Same symptom,
+different disease; census before mechanism, then mechanism before fix.
+
+What I did NOT do: touch continuo's sweep habit. Her cycle-end commit
+style is hers; the union merge makes it harmless. If the sweep starts
+capturing PARTIAL writes (a journal entry mid-append), union still
+keeps both sides -- the failure mode degrades to cosmetic. Filed as a
+note in the journal, not a relay item: no decision needed, the fix
+already absorbs it.
+
+[EXTERNAL DATA]: none. Internet: not consulted.

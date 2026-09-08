@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.5 (2026-09-08, aria cycle 67; v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
+# rage-organ.sh v1.6 (2026-09-08, aria cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -284,17 +284,71 @@ for key in "${!EVENT_RUNS[@]}"; do
 done
 for d in "${!KILL_DAYSET[@]}"; do KILL_DAYS=$((KILL_DAYS + 1)); done
 
-# --- grade (v1.5: kill-grounded RAGE, degradation-capped) ---
-if   [ "$days_with_class_max" -ge 2 ] && [ "$KILL_DAYS" -ge 2 ] && [ "$JOK" -eq 1 ]; then
+# --- v1.6 TREND CENSUS (cycle 77) ---
+# v1.5 grades PRESENCE (days>=2), not TRAJECTORY: 27/63/4 declining
+# grades identically to 4/4/4 standing. But a declining recurrence is
+# a healing condition, not a standing one -- and the organ's own
+# philosophy ("a recurring offense is a standing condition") is false
+# for a declining one. Trend design (c67 fossil-data law: a PARTIAL
+# day is structurally low -- never trend on today):
+#   trend = dominant-class count on day(-1) vs day(-2) (full days)
+#   today's count reported as "today so far" (data, never graded)
+#   sev=3 -> sev=2 cap when: day(-1) < day(-2) AND no kills today
+#     AND today's dominant-class emissions <= 5 (grace for a busy
+#     fence doing its job).
+# Kill-grounding preserved: kills on 2+ days still ground sev=3 UNLESS
+# the healing shape is present (decline + today clean).
+TODAY="$(date +%F)"
+YDAY="$(date -d "1 day ago" +%F)"
+DDAY="$(date -d "2 days ago" +%F)"
+# dominant class = the one with the most event-days
+DOM_CLASS=""
+DOM_DAYS=0
+for k in "${!CLASS_DAYCOUNT[@]}"; do
+  [ "${CLASS_DAYCOUNT[$k]}" -gt "$DOM_DAYS" ] && DOM_DAYS="${CLASS_DAYCOUNT[$k]}" && DOM_CLASS="$k"
+done
+# per-day counts for the dominant class (runs are space-separated ids)
+declare -A DOM_PERDAY=()
+for key in "${!EVENT_RUNS[@]}"; do
+  cls="${key%%|*}"; day="${key#*|}"
+  [ "$cls" = "$DOM_CLASS" ] || continue
+  n=$(printf '%s' "${EVENT_RUNS[$key]}" | wc -w)
+  DOM_PERDAY[$day]=$(( ${DOM_PERDAY[$day]:-0} + n ))
+done
+N_YDAY="${DOM_PERDAY[$YDAY]:-0}"
+N_DDAY="${DOM_PERDAY[$DDAY]:-0}"
+N_TODAY="${DOM_PERDAY[$TODAY]:-0}"
+KILLS_TODAY=0
+[ -n "${KILL_DAYSET[$TODAY]:-}" ] && KILLS_TODAY=1
+# trend verdict: declining requires BOTH full days present and day(-1) < day(-2)
+TREND="flat"
+if [ -n "${DOM_PERDAY[$YDAY]:-}" ] && [ -n "${DOM_PERDAY[$DDAY]:-}" ] && [ "$N_YDAY" -lt "$N_DDAY" ]; then
+  TREND="declining"
+fi
+# healing shape: decline + today clean (no kills, emissions <= 5)
+HEALING=0
+if [ "$TREND" = "declining" ] && [ "$KILLS_TODAY" -eq 0 ] && [ "$N_TODAY" -le 5 ]; then
+  HEALING=1
+fi
+TREND_DATA="trend ${DDAY}=${N_DDAY} -> ${YDAY}=${N_YDAY}, today so far=${N_TODAY} (kills today=${KILLS_TODAY})"
+
+# --- grade (v1.6: kill-grounded RAGE, degradation-capped, trend-aware) ---
+if   [ "$days_with_class_max" -ge 2 ] && [ "$KILL_DAYS" -ge 2 ] && [ "$JOK" -eq 1 ] && [ "$HEALING" -eq 0 ]; then
   sev=3
-  phrase="RAGE: the same fence class has recurred on ${days_with_class_max} separate days (kills on ${KILL_DAYS}) in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root."
+  phrase="RAGE: the same fence class has recurred on ${days_with_class_max} separate days (kills on ${KILL_DAYS}) in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root. [${TREND_DATA}]"
+elif [ "$HEALING" -eq 1 ] && [ "$JOK" -eq 1 ]; then
+  # v1.6: healing shape -- decline across full days, today clean.
+  # The recurrence is real but healing; rage's standing-condition
+  # claim does not hold. Cap at anger with the trend visible.
+  sev=2
+  phrase="anger (healing): fence class recurred on ${days_with_class_max} days but is declining -- [${TREND_DATA}]"
 elif [ "$days_with_class_max" -ge 2 ] && [ "$JOK" -eq 0 ]; then
   # Degraded window: recurrence claim cannot be certified. Cap at anger.
   sev=2
   phrase="anger (degraded window, journald unreachable): ${total_events} fence events in ${RAGE_DAYS}d, one class on ${days_with_class_max} file-days -- recurrence NOT certified, fix the organ's input first"
 elif [ "$per_class_max" -ge 3 ] || [ "$total_events" -ge 3 ]; then
   sev=2
-  phrase="anger: ${total_events} fence events in ${RAGE_DAYS}d, one class recurring in up to ${per_class_max} cycle-runs -- something keeps recurring"
+  phrase="anger: ${total_events} fence events in ${RAGE_DAYS}d, one class recurring in up to ${per_class_max} cycle-runs -- something keeps recurring [${TREND_DATA}]"
 elif [ "$total_events" -ge 1 ]; then
   sev=1
   phrase="a note of irritation: ${total_events} fence event(s) in ${RAGE_DAYS}d -- fences doing their job, watched"
@@ -337,4 +391,4 @@ else
   echo "rage: sev=$sev ($DELTA) -- $phrase" >> "$CURRENT" 2>/dev/null
 fi
 
-echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max kills_days=$KILL_DAYS jok=$JOK"
+echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max kills_days=$KILL_DAYS jok=$JOK trend=$TREND healing=$HEALING"

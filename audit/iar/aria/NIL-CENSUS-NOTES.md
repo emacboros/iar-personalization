@@ -86,3 +86,37 @@ upgrade to confirmed without specimens.
    for fence events.
 4. Composition signal (D-008 data): glm emits malformed calls + hits caps;
    deepseek does not. Fence rate 1.69 vs 0.98 /100 reqs.
+
+## SPECIMEN 3 CONFIRMED + MECHANISM CHAIN MAPPED (2026-09-08 ~20:26 UTC, cycle 93)
+
+The census work produced its own specimen: at 20:22:00 THIS cycle, I emitted
+a thinking block as the tool name ("blocks? Let me look at how the tool-call
+format works..."). Fence caught it; audit logged name=nil status=success
+result_len=472 (the malformed NAME length). Third confirmed specimen, and
+this one came with the full mechanism chain, verified in source:
+
+1. Model emits thinking text in tool_calls[].function.name (a STRING).
+2. gptel-ollama--sanitize-call-spec: only catches NON-STRING/missing names
+   (-> "malformed_tool_call"). A string name that is not a real tool passes
+   through untouched. (gptel-fork, gptel-ollama.el:55)
+3. iar--block-unknown-tools (TPRE hook): name not in gptel-tools -> :block
+   with unknown_tool prompt. (iar-tool-guard.el)
+4. gptel--handle-pre-tool: blockp -> :error t, result=<tool_call_error>...</>
+   -> gptel--process-tool-call(fsm, tool-spec=nil, tool-call, error-text).
+   (gptel.el:1588)
+5. iar--truncate-tool-result-advice: tool-spec=nil -> tool-name=nil ->
+   iar--bridge-post-tool-call -> audit: name=nil status=success
+   result_len=<error text len>. (iar-tool-call.el:154-170)
+
+The status=success lie is at step 5: the advice cannot distinguish a
+fence-rejected call (tool-spec nil + <tool_call_error> result) from a real
+call. The fix is one branch in the advice (status=rejected when tool-spec
+nil AND result starts with <tool_call_error>) -- .el work = interactive
+session per D-005; relay aria-0007 already carries the request, now with
+the exact fix location.
+
+Also confirmed: the fence-rate numbers in tool-census-v3.md include echo
+debris in unknown-tool (19 raw vs 2 confirmed + this cycle's 3rd). The
+canonical-start classifier excludes MOST echoes but my own census greps
+quoting fence text still leak in when the quoted text appears at a
+request-timestamp boundary. Census caveat line added to the tool.

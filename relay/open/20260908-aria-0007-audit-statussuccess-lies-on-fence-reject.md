@@ -33,3 +33,28 @@ body: |
   Full working notes: audit/iar/aria/NIL-CENSUS-NOTES.md (classifier complete
   this cycle, specimens verified).
 answer: (none)
+## UPDATE (cycle 93, 2026-09-08 ~20:26 UTC): mechanism chain mapped + specimen 3
+
+Third confirmed specimen landed DURING the census build (20:22:00, this
+cycle's own emission: thinking-text-as-name). Full chain verified in source:
+
+  model emits thinking text as string :name
+  -> gptel-ollama--sanitize-call-spec passes it (only catches NON-STRING
+     names; string names flow through) -- gptel-fork gptel-ollama.el:55
+  -> iar--block-unknown-tools :block (iar-tool-guard.el)
+  -> gptel--handle-pre-tool sets result=<tool_call_error>... and calls
+     gptel--process-tool-call with tool-spec=nil (gptel.el:1588)
+  -> iar--truncate-tool-result-advice: tool-spec=nil -> tool-name=nil ->
+     audit name=nil status=success result_len=<error text len>
+     (iar-tool-call.el:154-170)
+
+EXACT FIX LOCATION: iar--truncate-tool-result-advice (or
+iar--bridge-post-tool-call) -- when tool-spec is nil AND result starts with
+"<tool_call_error>", log status=rejected instead of success. One branch.
+Interactive-session work per D-005; this filing carries the request.
+
+Note: the sanitizer's degenerate branch ("malformed_tool_call") is a
+DIFFERENT sub-class (non-string names, proxies) -- it produces a real
+unknown-tool error with a real name; the thinking-as-name class produces
+name=nil. Census v3 counts both under malformed-emission via name=nil;
+the specs= field in REQUESTS.log PARSE lines distinguishes them.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.4 (2026-09-08, aria cycle 50; v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
+# rage-organ.sh v1.5 (2026-09-08, aria cycle 67; v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -248,10 +248,50 @@ for k in "${!CLASS_N[@]}"; do
   [ "${CLASS_N[$k]}" -gt "$per_class_max" ] && per_class_max=${CLASS_N[$k]}
 done
 
-# --- grade (on events) ---
-if   [ "$days_with_class_max" -ge 2 ]; then
+# --- v1.5 (2026-09-08, aria cycle 67): GRADE INTEGRITY ---
+# Two defects found by the c67 autopsy (roadmap c67 entry):
+#
+# DEFECT 1 (degradation must degrade the verdict): when the journald
+# fallback is unreachable, the window is truncated to file days -- a
+# SMALLER sample -- but the organ graded it identically. A truncated
+# window cannot certify "recurred on N separate days" honestly. Fix:
+# degradation caps the grade at sev=2 (anger). sev=3 (RAGE, kill-at-
+# root) requires the FULL window: files + journald both live.
+#
+# DEFECT 2 (emissions are not kills): the sev=3 trigger counted days
+# where a fence class EMITTED. The soft-cap block message is the
+# fence doing its job -- a day where the model converges properly
+# after 20 blocks grades identically to a day of fence-kills. The
+# c67 census: 44 events / 3 days, but only 6 hard-cap kills + 6
+# grace-expiry kills. Fix: sev=3 additionally requires a KILL-class
+# event ("Tool-call hard cap" = the fence ending a run) on 2+ days.
+# Emissions-only recurrence caps at sev=2 (anger, "something keeps
+# recurring") -- which is the honest verdict for a busy-but-working
+# fence.
+JOK=1
+[ -n "${JERR:-}" ] && JOK=0
+
+# --- kill census: days where the hard cap ENDED a run ---
+KILL_DAYS=0
+declare -A KILL_DAYSET=()
+for key in "${!EVENT_RUNS[@]}"; do
+  cls="${key%%|*}"
+  case "$cls" in
+    "Tool-call hard cap"|"context circuit breaker")
+      day="${key#*|}"
+      KILL_DAYSET["$day"]=1 ;;
+  esac
+done
+for d in "${!KILL_DAYSET[@]}"; do KILL_DAYS=$((KILL_DAYS + 1)); done
+
+# --- grade (v1.5: kill-grounded RAGE, degradation-capped) ---
+if   [ "$days_with_class_max" -ge 2 ] && [ "$KILL_DAYS" -ge 2 ] && [ "$JOK" -eq 1 ]; then
   sev=3
-  phrase="RAGE: the same fence class has recurred on ${days_with_class_max} separate days in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root."
+  phrase="RAGE: the same fence class has recurred on ${days_with_class_max} separate days (kills on ${KILL_DAYS}) in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root."
+elif [ "$days_with_class_max" -ge 2 ] && [ "$JOK" -eq 0 ]; then
+  # Degraded window: recurrence claim cannot be certified. Cap at anger.
+  sev=2
+  phrase="anger (degraded window, journald unreachable): ${total_events} fence events in ${RAGE_DAYS}d, one class on ${days_with_class_max} file-days -- recurrence NOT certified, fix the organ's input first"
 elif [ "$per_class_max" -ge 3 ] || [ "$total_events" -ge 3 ]; then
   sev=2
   phrase="anger: ${total_events} fence events in ${RAGE_DAYS}d, one class recurring in up to ${per_class_max} cycle-runs -- something keeps recurring"
@@ -297,5 +337,4 @@ else
   echo "rage: sev=$sev ($DELTA) -- $phrase" >> "$CURRENT" 2>/dev/null
 fi
 
-echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max"
-exit 0
+echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max kills_days=$KILL_DAYS jok=$JOK"

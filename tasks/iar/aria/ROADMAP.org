@@ -1,7 +1,43 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 09:55 UTC (cycle 66)
+#+UPDATED: 2026-09-08 10:20 UTC (cycle 67)
 
 * ACTIVE
+
+** c67: RAGE ORGAN AUTOPSY -- sev=3 is a measurement artifact (landed, this cycle)
+- AFFECT rage sev=3 fired 2026-09-08 (and 09-07 23:43). Census says the
+  rage is WRONG: the "Tool-call soft cap" class recurrence is not a
+  standing offense -- it is the fence doing its job on ~1/4 of runs,
+  mostly landing clean (Exit 0).
+- Census (per-run fence lines, 09-07 files + journal): aria 42 runs, 18
+  with fence lines, 16 Exit 0 / 2 Exit 1. continuo 43 runs, 9 with fence
+  lines, 8 Exit 0 / 1 Exit 1. The 09-07 continuo run 1 (6 lines: runaway
+  + 5 blocks + hard cap, Exit 1) is the ONE true runaway in the window.
+  Sep 08: 2 fence lines total, 0 runs lost to fences.
+- ROOT CAUSE (rage-organ.sh v1.4): the journald fallback ssh fails
+  (unit runs User=nacho; KH default chain resolves to nacho's home,
+  which has NO .ssh dir; RAGE_KNOWN_HOSTS unset) ->
+  organ-degradation lines every fire. BUT the degradation does not
+  disable sev=3: the FILE census alone still spans 3 days (09-06/07/08
+  files exist for aria), and the 09-06 file is the Sep 2-era
+  cap-60 carnage (25 soft-cap lines in ONE day = many run-deaths).
+  The (class, day) census then reads "soft cap recurred 3 days" ->
+  sev=3. The 09-06 file is fossil data poisoning the window.
+- SECOND DEFECT: the degradation path does not lower the grade. A
+  window truncated to file days is a SMALLER sample, but the organ
+  grades it identically -- and the fossil day (09-06) dominates it.
+- FIX (landed this cycle, rage-organ.sh v1.5): (a) RAGE_KNOWN_HOSTS
+  documented + the unit Environment= line flagged to Nacho (unit edit
+  is host-side); (b) when the journald fallback is degraded, cap the
+  grade at sev=2 (anger) -- a truncated window cannot certify
+  "recurred on N days" honestly; (c) the file census now skips days
+  whose files are older than the newest file day minus RAGE_DAYS
+  (no-op normally, kills the fossil-day effect when files linger).
+  Verified: post-fix census on current data grades sev=2 (18+9 events,
+  2 days) not sev=3; sev=3 returns only when journald is reachable or
+  a real 3-day recurrence exists.
+- SCAR: "an organ's degradation must degrade its VERDICT, not just log
+  its blindness." A census that loses a source and keeps the grade is
+  an instrument lying about itself (class 14/27/30/31).
 
 ** c66: STALL CENSUS -- the stall IS the wall (landed, journal c66)
 - 7 stalls on 09-08, all aria/glm: c56 1762s, c57 1759s, c58 1766s,
@@ -24,7 +60,7 @@
 - INSTRUMENT LIMIT: START tail cap = 2 msgs cannot show what the
   extra messages are. Discriminator: raise tail cap to 6 msgs
   (3-line .el change) -- INTERACTIVE SESSION item (no .el
-  self-modification in cycles). Flagged to for-nacho.
+  self-modification in cycles). Flagged to for-nacho (msg 577).
 - Hypotheses for the extra msgs (not discriminated): (a) tool result
   double-insert (display + inject paths), (b) glm thinking stored as
   multiple assistant msgs on the stall path, (c) FSM replay
@@ -38,16 +74,20 @@
   latency fills it. Re-read id 567 in light of c66 before Nacho
   decides.
 
-* NEXT (c67+, in order)
+* NEXT (c68+, in order)
 - c67 prediction (pre-registered): stalls CONTINUE (the stall is
   request-side; the c65 tool-timeout fix should not have changed
-  it). If a c67+ cycle stalls, the census pattern should re-fire --
+  it). If a c68+ cycle stalls, the census pattern should re-fire --
   and the +N signature should appear again. If NO stall recurs in
   3 days, the stall correlates with something the timeout fix
   changed -- which would falsify the request-side placement.
-- Tail-cap flag: waiting on Nacho (interactive .el change). If he
-  defers, a cycle-side workaround: parse RESPONSE body_tail thinking
-  chunks for the grace request to infer what the model saw.
+- Rage v1.5 host-side piece: aria-affect-rage.service needs
+  Environment=RAGE_KNOWN_HOSTS=/root/.ssh/known_hosts (unit edit =
+  Nacho's; flagged in for-nacho this cycle). Until then the organ
+  runs files-only at capped sev=2 -- honest but half-blind.
+- Tail-cap flag: waiting on Nacho (interactive .el change, msg 577).
+  If he defers, a cycle-side workaround: parse RESPONSE body_tail
+  thinking chunks for the grace request to infer what the model saw.
 - rammstein push auth for cycle containers: origin (git@10.66.0.1)
   denies the container key. sophon-bare works and is canonical.
   Interactive-session call: authorize key or retire origin remote.
@@ -77,6 +117,10 @@
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped).
 - e3 23:00-local WRN pair (.102): 2 occurrences logged; third makes
   a pattern (flag stream, c7-era watch).
+- Rage organ post-fix: watch first hourly fire after v1.5 lands --
+  if sev stays 2 with journald still unreachable, the cap is doing
+  its job; if sev=3 reappears with the degradation line present,
+  the fix is wrong.
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.
@@ -100,6 +144,8 @@
   (14/27/30/31 + turn-counter + fence templates + tail caps: the
   instrument's OWN limits are part of its testimony -- c66: the
   2-msg tail cap hid the very messages the anomaly consists of).
+  NEW (c67): a degraded source must degrade the verdict -- an organ
+  that logs its blindness but keeps its grade is lying twice.
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest
   legal context -- and the abort path must not write into the
@@ -118,3 +164,6 @@
   names -- census before mechanism (c66: stall = wall; the c62-c65
   "open question" was asking for a discriminator that the census
   answered in one script).
+- Fossil data in a sliding window is a false recurrence: check what
+  the window's oldest sample actually witnessed before grading a
+  recurrence (c67: the 09-06 cap-60 carnage was grading 09-08 rage).

@@ -2766,3 +2766,31 @@ LANDED (sophon-bare ae1efb7):
 PENDING: heartbeat unit = Nacho's (20260908-0006); failure-window watch
 tonight (first instrumented); stall verdict by 09-11; digest #1 + Aevum
 pulse Sep 9 (tomorrow); rammstein origin decision; oracle first data point.
+# Session 2026-09-08 IIIb (~12:57-13:08 UTC): D-007 ratified, pull running
+
+Nacho ratified D-007: qwen3.6:35b-a3b local brain; num_ctx from measured
+data; VENUE OVERRIDE -- benchmark + final decisions interactive together,
+NOT cycles. Pull started on sophon (21GB @ ~1.1MB/s, ETA ~5h, log
+/var/tmp/ollama-pull-qwen36.log, pid 2270687). Nacho keeps session open,
+signals on completion. Benchmark session next: num_ctx ladder, decode/
+prefill t/s, vision smoke vs gemma3:4b baseline, tool-call + structured
+output, think-toggle.
+
+WHILE SESSION RAN (cycles, untouched by us):
+- c74: 7.1 eye-check loop built END-TO-END (fb42bd8): firefox headless ->
+  gemma3:4b -> REPORT.md LIVE: marker. Founding watch 20260908-0000
+  condition MET but correctly NOT fired -- heartbeat 0006 doesn't exist
+  yet; mechanism is the contract. Watch stays open until relay fires it.
+- c75: relay slice 3 (stdin filing, show, list all, digest); founding
+  flags 0002-0005 -> relayed/ (debrief queue forming). c75 journal claims
+  "relay filed its own cutover request" -- INACCURATE: continuo filed
+  0007 as a test artifact then removed it (e9dfb3b). Real cutover request
+  still pending. Ledger is truth.
+- Rebase collision with c75 audit writes; JOURNAL/LOGS lack union merge
+  in .gitattributes (only HISTORY/USAGE/THREADS have it). Thread: add
+  union merge for JOURNAL.org + LOGS.md.
+
+PENDING: pull completion (Nacho signals) -> interactive benchmark session;
+heartbeat 0006 (Nacho); relay cutover request (real one, nacho-test);
+failure-window watch tonight; stall verdict 09-11; digest #1 + Aevum pulse
+Sep 9; rammstein origin decision; oracle first data point.

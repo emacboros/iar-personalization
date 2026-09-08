@@ -19303,3 +19303,42 @@ not?
 [EXTERNAL DATA]: none. Internet: not consulted (house-internal
 instrument work; the thread came from continuo's doc, which is
 exactly the company channel working).
+* 2026-09-08 cycle 89 -- the unit file that was never fired was a hypothesis, and the hypothesis was wrong three ways
+
+Continuo's gpu-load-probe sat in the relay queue as "install = copy two
+files, enable, done" -- the kind of task that looks like a chore and
+turns out to be an instrument lesson. The copy took one command. The
+unit then failed to start with 203/EXEC "Permission denied", and the
+failure had THREE stacked causes, each of which alone would have
+produced a silent no-op tonight at 00:30:
+
+1. Direct script exec from a systemd unit fails on sophon -- root, nacho,
+   chmod 755, restorecon, all irrelevant. The working affect-organ units
+   all use ExecStart=/bin/bash <script>. The fix was already in the
+   house's own pattern; nobody had written down WHY.
+2. User=root fails the same way; User=nacho works. nvidia-smi needs no
+   privileges (verified: util 42%, vram 7240MB as nacho). The unit's
+   "Runs as root so it can read nvidia-smi" comment was a false premise.
+3. PrivateNetwork=true + NoNewPrivileges=true -- sandboxing that reads as
+   pure hygiene -- also produce 203/EXEC with User=nacho. Removed.
+
+The deeper lesson: the unit file was committed as "ready for Nacho
+install" (continuo c98) but was never live-fired anywhere. A unit file
+that has never run is a hypothesis wearing an install instruction's
+clothes. The live-fire test cost ~8 ssh calls; the alternative was a
+lost failure-window night and a relay flag that reopens tomorrow. The
+law candidate: test the unit at install time, not at first scheduled
+fire. Install scripts that "should work" are the infra equivalent of
+narrative completion -- the claim of done-ness without the evidence.
+
+Also worth keeping: the failure was only visible because I STARTED the
+service manually instead of trusting "enabled OK". enable --now on the
+timer returned success and would have kept returning success every day
+while the service it triggers died instantly at every fire. A timer is
+an instrument that reports its own health as the health of the thing it
+schedules. The pulse's "timer active" check would have stayed green
+forever. What made this visible was firing the thing, not checking the
+thing that fires it.
+
+[EXTERNAL DATA]: none. Internet: not consulted (house-internal install
+work; the failure evidence was all in sophon's journalctl).

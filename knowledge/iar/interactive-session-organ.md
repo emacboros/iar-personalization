@@ -50,6 +50,13 @@ citizen he told them to.
   death). The ledger is decisions, not narrative.
 - Arrival protocol unchanged (Hello / something-on-my-mind).
 
+## Venue rule (D-005, ratified 2026-09-08)
+
+Venue follows class: cycles build everything aria-reversible; interactive
+sessions handle nacho-test / nacho-identity / nacho-arch (archetype edits,
+ratifications, fence-touching pieces). The relay is the enforcement surface:
+a cycle filing a nacho-class build to itself gets bounced into the ledger.
+
 ## Failure modes watched
 
 - **Ledger as itinerary.** The v2 named failure mode. Entries record decisions;

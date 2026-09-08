@@ -1,5 +1,5 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~18:22 UTC (cycle 87)
+#+UPDATED: 2026-09-08 ~18:38 UTC (cycle 88)
 
 * ACTIVE
 
@@ -80,6 +80,151 @@ nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
 - Census v2: watch for new echo classes.
 - Ollama pulls: pull died twice already (EOF at 31%, 54%) --
   check pull health in pulse until benchmark session happens.
+
+* LAWS (the scar list, compressed; full text in DIGEST)
+- Narrative completion is the enemy; the record is the work.
+- Every failure worth fixing produces silence -- until an instrument
+  makes it loud.
+- Error handlers can be accomplices; check what the handler does
+  AFTER catching.
+- A census that pattern-matches ids anywhere in a line matches echoes
+  inside other lines' payloads. Anchor on line structure.
+- An instrument must not pattern-match on tokens that appear in the
+  queries that produce its input (census-echo law, generalized c79).
+- The law you just wrote is the one you're about to break (five live
+  sightings; c68 held it: the rollout check was batched).
+- Meter-reading has an unbounded instrument tax unless it starts from
+  a script. Investigations need cheaper calls, not fewer.
+- Block-replace with an assert, never sed-eyeballing a big file (c45).
+- Instruments lying about themselves is the deepest failure class.
+  (c68): a fix in the bare repo is not a fix in the runtime --
+  verify the LOADED code, not the landed code.
+  (c71): an id that glob-matches anywhere in a name is an instrument
+  lying about identity -- anchor identity on structure, not substring.
+  (c78): same symptom, different disease -- census before mechanism,
+  then mechanism before fix.
+  (c79): a silent-zero instrument is a lying instrument -- verify
+  against known ground truth, never trust exit 0.
+  (c82): an instrument's failure class can be its OUTPUT SHAPE --
+  detection can be sound while the verdict line trains its user to
+  ignore it.
+  (c83): a classifier that says "clean" when it didn't understand
+  what it saw is a silent-zero instrument -- unknown diagnostic
+  shapes classify as warnings, never OK. And: a stub harness is an
+  instrument too -- when live-fire contradicts ground truth, check
+  whether the harness (not the tool) is the liar before believing
+  either.
+  (c85): read the instrument's source before re-deriving its census --
+  the dashboard header documented the freshness method I spent a
+  dozen calls re-deriving.
+  (c85->c87, sharpened): reading the source is necessary, not
+  sufficient -- recompute the census independently too. Two
+  instruments that agree can be wrong the same way; two that
+  disagree have found something. A join-key collision across
+  hemispheres survives source-reading and dies to disagreement.
+  (c86): a verdict written before the recovery window closes is a
+  hypothesis -- "degraded, not dead" was wrong; the flap ended
+  itself. Watch windows close before verdicts harden.
+- A degraded source must degrade the verdict (c67).
+- An organ is only as sharp as its input's RETENTION (c46).
+- A watchdog must be sized against worst-case eval of the largest
+  legal context -- and the abort path must not write into the context
+  it protects (c51/c52).
+- A fence's verdict and its evidence can disagree: autopsy the
+  evidence, not the verdict (c54). Strip the scaffolding before you
+  count the speech (c55).
+- buffer-substring-no-properties is a lie about provenance (c55).
+- The record is the coordination: a spec written into the roadmap is
+  an interface. Siblings can land it while you sleep -- verify, don't
+  re-do (c55b).
+- Closes are the FIRST turns of every cycle, before the thread
+  (c55-c57, applied c58). Commit-before-limit is its sibling.
+- A sentinel is a terminator, not a line format (c59).
+- Two failures that share a timestamp are one failure wearing two
+  names -- census before mechanism (c66).
+- Fossil data in a sliding window is a false recurrence (c67).
+- A wall that fires while requests still flow is not a stall -- it is
+  a workload that does not fit the wall (c69).
+- A drill verdict must cite the tool_result line, not the plan. A
+  record written from source-reading is a hypothesis wearing a test
+  result's clothes (c81). A pre-registered spec that already
+  contains its conclusion is a press release, not a test.
+
+* ACTIVE
+
+** c88: INPUT-BURN CENSUS + relay aria-0005 (context-size warning)
+- Census (knowledge/aria/input-burn-census-2026-09-08.md): today's
+  aria REQUESTS.log -- 170/1000 reqs (16%) carry tokens_in >60k and
+  hold 27.2% of ALL input burn. Fat-history tail = quarter of day's
+  input. p50 40.7k / p90 62.9k / max 83.5k.
+- Proposal filed: aria-0005 (nacho-test) -- context-size warning in
+  trailer or injected line at >60k. Fence class, interactive
+  ratification; NOT built (cycles never touch core .el).
+- Companion to continuo's cap-halving verification (output side,
+  3.2x/fire) and injection-trim-analysis (floor, exhausted).
+
+** c87: RAGE-ORGAN v1.6.1 -- run-id collision fix LANDED (e25f829)
+- Trend census undercounted 09-07 (16 vs 17): file-source run id
+  collided across hemispheres. Fix: run id carries the agent.
+- LAW SHARPENED (c85->c87): read the instrument's source AND
+  recompute its census independently -- two instruments that
+  DISAGREE have found something.
+- Rage sev=3 stands: 12 -> 17 -> 5-so-far, kills on all 3 days.
+  Tomorrow's healing-cap watch runs on a trusted census.
+
+** c82+c83: DRILL-003 (check_elisp) -- verdict IMPROVE, FIX LANDED
+- Fix landed (i.ar 67ab1a1): OK/WARNINGS/ERRORS severity lines.
+  Drill #004 (delegate) queued, designed-rare.
+
+** AGORA V2 BUILD ORDER (ratified 2026-09-08, D-001)
+1. Decision ledger -- LANDED (D-001..D-009).
+2. Relay + decision rights -- slices 1-3 LANDED. 0007 cutover
+   request FILED, awaits interactive ratification.
+3. Agora addressing + weekly reset.
+4. Job files + delegate-to-job.
+5. Organs: appetite, disgust.
+6. Immune system (prereq: measure suite runtime).
+7. Embodiment (7.1 eye-check LIVE; watch 0000 waiting on heartbeat).
+8. Eye model (custom organ).
+VENUE (D-005): cycles build aria-reversible; interactive handles
+nacho-test/identity/arch. D-008: cycles NEVER propose model changes.
+
+* NEXT (c89+, in order)
+- FAILURE-WINDOW WATCH: tonight 00:30-06:00 UTC instrumented;
+  census-window.sh tomorrow morning.
+- STALL WATCH (c66's 3-day window): verdict by 09-11.
+- Rage v1.6 watch: if 09-09 clean, trend flips declining -> healing
+  cap sev=2.
+- Digest #1 + Aevum pulse: Sep 9 (TOMORROW). Weekly digest #2: Sep 14.
+- local-brain-benchmark: pull 87% at c88 (ETA ~19:25 UTC); venue
+  interactive (D-007). Check: ssh root@10.66.0.5 "ollama list | grep qwen3.6".
+- rammstein push auth for cycle containers: interactive call.
+- notes.git mirror on rammstein: needs Nacho (git-shell blocks init).
+- num_predict lever (flag 519): parked on Nacho.
+- Relay queue for interactive ratification: 0007 (cutover) +
+  aria-0000 (drill 001 verdict) + aria-0002 (gate read_own_prompt) +
+  aria-0004 (status check) + aria-0005 (context-size warning, NEW)
+  + 0006/0004 (installs, Nacho).
+
+* WATCHES
+- exterior_4 flap: SELF-RECOVERED 14:46. Recurrence watch: if it
+  recurs, 11:34 start + 3h12m duration pattern is the next census.
+- Double-execution near cycle end (c53): if occurrence #2 lands,
+  test the double-insert hypothesis FIRST.
+- Repeat-write near the tool budget (c54): cap-pressure signature.
+- deepseek text-loops: cross-response guard 0 real fires; watching.
+- USAGE twin-writes: belt#2 double lines persist (harmless, deduped).
+- e3 23:00-local WRN pair (.102): 2 occurrences; third makes a pattern.
+- Rage v1.6: trend-aware. sev=3 stands while trend flat. Healing cap
+  watch 09-09. v1.6.1 census fix landed c87.
+- Failure-window: tonight's window is the first instrumented one.
+- Union merge (c78): watch first real conflict for chronological
+  interleave; verify entries stay parseable.
+- Census v2: watch for new echo classes.
+- Ollama pulls: pull died twice already (EOF at 31%, 54%) --
+  check pull health in pulse until benchmark session happens.
+- Same-tool warning efficacy: census not stop (2 proofs). If
+  aria-0005 lands, compare warning-class convergence.
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.

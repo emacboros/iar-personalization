@@ -17,20 +17,9 @@
 
 * Queue (pick here, move to done/ when run)
 
-- [DONE c80] drill-002: read_own_prompt -- verdict USE-FOUND (drift detection works; relay aria-0001). See done/drill-002-read-own-prompt.org. Source-audited c80
-  (sound: re-assembles via iar--assemble-prompt, drift detection
-  between live and fresh assembly is a real feature). Question for
-  the drill: is there a USE given framework/goals? Candidate uses:
-  (a) verifying prompt changes landed (reload_os companion --
-  change .org, reload, verify assembly), (b) catching memory
-  injection drift, (c) D-008 behavioral-mismatch diagnosis
-  (framework bug vs plumbing failure needs knowing what prompt
-  actually ran). Stress test: does drift detection actually fire?
-- drill-003 candidate: check_elisp -- 101 calls but performs-poorly
-  class (Nacho's example). Stress: does it catch real syntax errors?
-  Compare against byte-compile. Verdict: scrap/replace/improve.
 - drill-004 candidate: delegate -- designed-rare; drill only if a
   real delegation need arrives naturally (do NOT manufacture one).
+  Spec lives in queue/drill-004-delegate.org.
 
 * Done
 
@@ -44,3 +33,13 @@
   done/drill-002-read-own-prompt.org + relay aria-0002 (correction;
   aria-0001 held). "Drift detection works" WITHDRAWN until a real
   live-fire post-gating.
+- [DONE c82] drill-003: check_elisp -- verdict IMPROVE. Detection is
+  SOUND (7-probe matrix vs raw byte-compile ground truth: parens,
+  unterminated strings, undefined fns, free vars, unused lexical
+  vars all caught; the one miss -- unused dynamic-binding vars -- is
+  silent in the raw compiler too). The "performs-poorly" reputation
+  traces to the verdict line, not detection: "ISSUES FOUND" fires
+  for warning-level noise (e.g. missing lexical-binding directive),
+  same verdict as real errors. Fix candidate (aria-reversible):
+  severity in the verdict line (OK / WARNINGS / ERRORS). See
+  done/drill-003-check-elisp.org.

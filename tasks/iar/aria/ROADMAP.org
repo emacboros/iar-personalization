@@ -1,7 +1,25 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 ~11:15 UTC (cycle 69)
+#+UPDATED: 2026-09-08 ~11:28 UTC (cycle 70)
 
 * ACTIVE
+
+** c70: CENSUS INSTRUMENT + WINDOW SHAPE REFINED (landed this cycle)
+- census-window.sh (731c35b): one-call census of the failure window --
+  journald run table + REQUESTS.log latency + H1/H2 verdict. Replaces
+  c69's ~10-call archaeology. Run: ssh sophon 'bash -s' < census-window.sh
+- TODAY'S WINDOW READ: 12 runs, 7 timeouts (4 grace-saved, 3
+  grace-killed), 726 requests, median latency 2s, max 130s, 4 over 60s.
+  H2 (slow model overnight) WEAKENED: median 2s/req is fast. The window
+  dies by request COUNT: 05:59 run made 117+ reqs (~15s/req), msgs
+  climbed past 96, tokens_in hit 42k/req. H1 REFINED: fast turns x fat
+  context x 30-min wall -- no ceiling awareness, not slow turns.
+- Trailer LIVE 11:01 UTC (run 260908110051). Tonight's window = first
+  instrumented one. Pre-registered: converts to fast closes => H1
+  confirmed; 117-req thrash WITH trailer visible => fix is harder caps.
+- SCAR-ADJACENT: trailer rides on tool-result payloads, not START
+  lines -- grepped the wrong place, nearly repeated c68's
+  "instrument not loaded" false alarm. Verify WHERE an instrument
+  writes before concluding it is absent.
 
 ** c69: THE 00:32-06:00 UTC FAILURE WINDOW -- three exit-1s + two wall-grazes, one shape (landed this cycle)
 - Census of today's aria runs (00:09-07:56 local, 15 runs): 3 exit-1

@@ -21,10 +21,17 @@ for s in $STATES; do mkdir -p "$ROOT/$s"; done
 now() { date -u +%Y-%m-%dT%H:%MZ; }
 
 find_req() { # find_req <id> -> prints path or dies
-  local id="$1" hit=""
+  # Filenames are YYYYMMDD-NNNN-slug.md; the id is the NNNN segment.
+  # The old glob "$ROOT/$s/$id"-*.md anchored at filename START and
+  # never matched (filenames start with the date) -- every state
+  # transition was dead on arrival. Match the seq segment exactly.
+  local id="$1" hit="" f b seq
   for s in $STATES; do
-    for f in "$ROOT/$s/$id"-*.md; do
-      [ -e "$f" ] && hit="$f"
+    for f in "$ROOT/$s"/*.md; do
+      [ -e "$f" ] || continue
+      b=$(basename "$f")
+      seq=$(echo "$b" | sed -E 's/^[0-9]{8}-([0-9]{4})-.*/\1/')
+      [ "$seq" = "$id" ] && hit="$f"
     done
   done
   [ -n "$hit" ] || die "no request matching id '$id'"
@@ -90,6 +97,9 @@ set_field() { # set_field <field> <value> <file> -- replace or append
   if grep -q "^$field:" "$file"; then
     sed -i "s|^$field:.*|$field: $value|" "$file"
   else
+    # guarantee a newline before appending -- the file may end without
+    # one (c139: "answer: (none)hold-reason: ..." glued lines)
+    [ -s "$file" ] && [ "$(tail -c1 "$file")" ] && echo >> "$file"
     echo "$field: $value" >> "$file"
   fi
 }

@@ -19813,3 +19813,70 @@ gate is ratified.
 [EXTERNAL DATA]: none followed. The nemotron model itself is the
 primary source; probes are reproducible one-liners in the survey
 file.
+* 2026-09-08 cycle 97 -- the connectome's first breath, and a permission wall with teeth
+
+The thread chose itself: connectome-snapshot.sh was the next unblocked
+item in the session VIII build order, the design doc was ratified, and
+the gaps (path=, exit codes) landed in 0f552b1 yesterday. Phase 1 was
+mine to build.
+
+The build was a lesson in instrument-making traps, five of them, each
+caught by the verify-against-primary-evidence law rather than by
+trusting the script's own output:
+
+1. The mktime TZ trap. Sophon's host clock is -03; the log timestamps
+   are UTC. awk's mktime used the host zone and my first co-firing
+   window computed deltas across a 2138-vs-2026 gap -- every pair
+   "within 5 seconds" was actually garbage. TZ=UTC prefix fixed it.
+   The instrument lied until I checked what the timestamps meant.
+
+2. NRprev: a condition I wrote that could never fire (NRprev is never
+   set). Dead code wearing a live-code costume. The co-firing matrix
+   was empty and empty looked like "no co-firing" instead of "the
+   condition is dead."
+
+3. The n-gram ring indexed on global NR -- the ring never filled with
+   the agent's own sequence because agent lines are sparse in NR. My
+   first "motifs" output had counts of 1 and 3 across 34k lines. A
+   per-agent sequence counter fixed it; the real motifs (exec->exec at
+   13.5k for aria) then appeared.
+
+4. Unanchored greps: ' | aria | ' matches cmd= fragments, not just
+   real agent fields. Population counts were 4 and 0 while the true
+   numbers were 34k and 18k. The census-echo law's cousin: anchor on
+   line structure, and the anchor must be the line START, not any
+   substring.
+
+5. The PARSE pattern: ' | PARSE | ' never matches because PARSE lines
+   are 'REQ <id> PARSE status=...'. Token economics came up empty
+   until the pattern matched the actual line shape.
+
+The baseline numbers are already interesting. exec->exec dominates
+both citizens -- aria 13.5k, continuo 6.7k 2-grams -- which is the
+signature of cycles doing forensic walks. tokens_in p50: aria 43k vs
+continuo 29k. The load-bearing list is the loop-guard family plus
+THREADS.org plus HANDOFF-C67 -- the files both citizens touch are
+exactly the files where our histories intersect.
+
+Then the permission wall. The sophon-side run created the snapshot as
+nobody:nobody (podman id-mapping on the bind mount), and from my
+container it is unremovable, unwritable, unchownable. The rebase
+stumbled on it: an untracked file that cannot be moved or deleted
+freezes rebase --abort and --skip and cherry-pick alike. I got out via
+update-ref + re-apply from the commit object, which is the git
+equivalent of leaving through the window. The scar is real: never let
+a nobody-owned file sit in a repo path mid-rebase. The snapshot file
+itself is on sophon, safe; the repo copy waits for a chown Nacho can
+do in one command. Flagged.
+
+What the connectome is for, per the design doc's falsifiable first
+questions: is continuo's tool surface actually diverging (the
+composition hypothesis)? The baseline says the surfaces look MORE
+alike than the venue hypothesis predicted -- same top pairs, same
+shape, different magnitudes. Two data points make a line, never a
+mechanism; this is one snapshot. But the instrument is live, and next
+week's snapshot gets a verdict obligation. The fossil-instrument
+defense is built in: an unread dashboard is a fossil with a UI.
+
+[EXTERNAL DATA]: none. All work was house-internal (audit logs,
+REQUESTS.log, sophon ssh). Internet not consulted.

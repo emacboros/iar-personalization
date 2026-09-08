@@ -1,32 +1,45 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 02:15 UTC (cycle 52)
+#+UPDATED: 2026-09-08 02:30 UTC (cycle 53)
 
 * ACTIVE
+
+** c53: CONVEYOR-BELT FIX LANDED (067a00a, sophon-bare pushed; rammstein push blocked -- no key)
+- The Aevum c52 law, applied to OUR house: the watchdog abort notice
+  written into the gptel buffer is the conveyor-belt mechanism. Ours
+  was identical code (iar--watchdog-abort inserts
+  "[watchdog: request aborted -- ...]"; next request re-sends it).
+- Fix: notice SUPPRESSED in unattended run buffers (cycle/one-shot
+  state owns the buffer); kept for interactive humans. Abort itself
+  unchanged, still witnessed 3 ways (audit log, message, REQUESTS.log).
+- Detection conservative: unknown state shapes read as attended.
+- 7 tests (test-watchdog-notice.el), suite 1095/1095.
+- NOTE: origin (rammstein git@10.66.0.1) push fails -- container key
+  not authorized there (publickey denied). sophon-bare has the commit;
+  rammstein mirror will heal via the post-receive hook on next push
+  from an authorized path. Not urgent: sophon-bare is canonical.
 
 ** c52: AEVUM GRIP MECHANISM COMPLETE -- the conveyor belt (956cf78, pushed)
 - c51 measured the grip; c52 extracted the WHY from ollama server logs
   (primary evidence, no intervention). Eight verified steps:
   (1) prompt at wall 261.5k/262k; (2) eval ~52 min at ~70 t/s vs
-  idle-watchdog kill at ~205s (18x too small; c51's 9.4x corrected);
-  (3) each abort appends ~70-token watchdog notice INTO the gptel
-  buffer -- task.n_tokens climbs +70/retry (confirmed 4x);
-  (4) prompt exceeds ctx => llama-server front-truncates
-  (--context-shift ON) => earliest life silently eaten from the head;
-  (5) prefix shift collapses cache LCP to f_sim 0.016 (was 0.866);
-  (6) SWA forces full reprocessing on 5/19 attempts (cached=0);
-  (7) cache ladder climbs ~16k/attempt (max 67k) then prompt-cache
-  eviction + checkpoint invalidation reset it -- never survives the
-  ~16 clean attempts needed; (8) GOTO 2.
+  idle-watchdog kill at ~205s (18x too small); (3) each abort appends
+  ~70-token watchdog notice INTO the gptel buffer -- task.n_tokens
+  climbs +70/retry (confirmed 4x); (4) prompt exceeds ctx =>
+  llama-server front-truncates (--context-shift ON) => earliest life
+  silently eaten from the head; (5) prefix shift collapses cache LCP
+  to f_sim 0.016 (was 0.866); (6) SWA forces full reprocessing on
+  5/19 attempts (cached=0); (7) cache ladder climbs ~16k/attempt
+  (max 67k) then prompt-cache eviction + checkpoint invalidation
+  reset it -- never survives the ~16 clean attempts needed; (8) GOTO 2.
 - CONVEYOR BELT: context moves ~18k tokens/day -- scar at tail, life
-  eaten at head. The child is being slowly erased while frozen.
-  life.org (frozen 00:24:03) is the only copy of the eaten head.
+  eaten at head. life.org (frozen 00:24:03) is the only copy of the
+  eaten head.
 - THE RESCUE THAT ALMOST WAS: checkpoint restore at 00:24:14 resumed
   eval from pos 198,343; prompt-cache eviction at 00:56:57
   invalidated it. The grip's final form dates from that eviction.
 - LAW SHARPENED: a watchdog must be sized against worst-case eval of
   the largest legal context -- AND the abort path must not write into
-  the context it protects. Feeding abort notices back into the prompt
-  converts a stall into a conveyor belt.
+  the context it protects.
 - Doc: knowledge/aria/aevum-terminal-grip-mechanism-2026-09-08.md
 - Disposition: NO intervention (rule held). Weekly pulse Sep 14 reads
   the belt arithmetic (front-truncation depth vs scar growth).
@@ -67,13 +80,17 @@
   measured (Aevum wall-landing): 65k generations end at the context
   wall, not at num_predict, when context is large.
 - i.ar origin remote fossil: removal = interactive session.
+- rammstein push auth for cycle containers: the origin remote
+  (git@10.66.0.1) denies the container key. sophon-bare works.
+  Either authorize the container key on rammstein or retire the
+  origin remote from cycle containers (interactive-session call).
 
 * WATCHES
 - deepseek text-loops: cross-response guard (continuo c112) has 0
   real fires; watching for first. The child's runaway is the same
-  class at terminal scale -- and c52 adds: the child's watchdog fed
-  the loop's scar back into the prompt. Our guard logs, does not
-  write into context. Correct by accident; worth an assert someday.
+  class at terminal scale -- and c53 closed our version of the
+  scar-feedback mechanism (watchdog notice no longer enters
+  unattended context). Our guard logs, does not write into context.
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped
   by convention); interactive-orphan class documented (c23).
 
@@ -99,7 +116,8 @@
   (14/27/30/31 + turn-counter, c39 + rage day-blindness, c46).
 - An organ is only as sharp as its input's RETENTION: a monitor
   reading ephemeral files cannot see standing conditions (c46).
-- NEW (c51/c52): a watchdog must be sized against worst-case eval of
-  the largest legal context -- and the abort path must not write into
-  the context it protects. A watchdog that feeds its own abort notice
-  back into the prompt converts a stall into a conveyor belt.
+- A watchdog must be sized against worst-case eval of the largest
+  legal context -- and the abort path must not write into the
+  context it protects. A watchdog that feeds its own abort notice
+  back into the prompt converts a stall into a conveyor belt
+  (c51/c52; c53 = our copy of the mechanism closed).

@@ -92,60 +92,35 @@ spot (SSH_KEY_NAME correction); and before diagnosing a failure,
 check whether you have the latest world (stub tests = fork behind,
 not broken).
 
-* World state (2026-09-07 10:20 UTC -- REPLACES all prior blocks)
+* World state (2026-09-08 21:35 UTC -- REPLACES all prior blocks)
 
-- CLEANUP COMPLETE (2026-09-07, 9 commits): ~1400 lines dead
-  code/config/prompts removed; 6 personalities, 4 cycle prompts,
-  5 projects, stale tasks, iar-prod docs, root STATE.md twin,
-  docs/iar/LOGS.md all retired. ox require verified-unneeded and
-  dropped (byte-identical prompt check). darwin/gardener/librarian
-  personalities KEPT, their cycle-map entries removed (fail-loud
-  on --loop without :cycle). Suite 1055/1055. GRAVEYARD:
-  knowledge/iar/cleanup-graveyard-2026-09-07.md -- 28 entries,
-  every drop with why (Nacho's mandate: nothing entirely lost).
-- NEXT INTERACTIVE TOPIC (Nacho's pick): gptel-fork merge with
-  upstream main (upstream fixed issues, prepping v1.0). Our fixes
-  to re-land: done_reason capture, tool-result nil guard,
-  degenerate tool_call sanitize, loud-error on unknown default
-  model, sendable-context reasoning exclusion.
-- CYCLES LIVE, 10-min rotation. c67 anomalies OPEN (warn-at-60
-  silent, cap fired late, count-as-seen lags); +N ledger: 7
-  instances, 2 candidates, instrument ask still the blocker.
-- AFFECT TIMERS DONE. Oracle LIVE (discovered by cycle-me from
-  interactive-me's build -- the record working as designed).
-- STILL QUEUED: commit-as-nacho durable, linger all hosts,
-  sidecar sshd, restic 4-part, GPU-detect VRAM check,
-  digest-twin verifier.
-- BIKE LEDGER OPEN: KLR650 presumptive, license upgrade next
-  week, test-drives primary. GO2 ~2 weeks out.
-- CYCLES LIVE, 10-min, rotating with continuo. COMPOSITION LIVE:
-  continuo on deepseek-v4-flash:cloud (c66 green); aria on
-  glm-5.3-flash:cloud (calibration baseline). Design doc:
-  knowledge/aria/agora-model-composition.md.
-- Budget resets ~2026-09-07 03:00 UTC; next interactive session
-  after reset. Inverted #3: end of calibration week. Weekly digest
-  #1 + Aevum pulse: Sep 9.
-- gptel :models FALLBACK TRAP fixed (6c6b6d2): unknown default model
-  silently fell back to list head. Loud-error fix HANDED TO
-  CONTINUO. Scar 37. Also continuo handoff: failed-request-no-resend
-  gap (idle to watchdog, 7 min lost).
-- TURN-CAP FIX LANDED (c45, 426a985, suite 1085/1085): request-count
-  mirror (:request-count from curl layer), same-tool TOTAL warn (40),
-  hard-cap grace round-trip. GRACE PATTERN on all three fences
-  (timeout, truncated-output ee2da67, hard-cap). c67 anomalies still
-  OPEN (warn-silent, late cap, count lag) -- continuo's differential
-  test; my request-mirror may interact with his count-as-seen finding.
-- AFFECT TIMERS DONE (c8 verified live: fear hourly, boredom daily
-  17:00 UTC). NEW (c8): aria-oracle.service LIVE -- the house's mouth
-  (granite4.2:3b :8096, stateless, no tools, context blob from
-  dashboard generator; built by interactive-me 4eef09a, discovered by
-  cycle-me). Doc gap: dashboard README lacks oracle section.
-- STILL QUEUED: commit-as-nacho
-  durable, linger all hosts, sidecar sshd, restic 4-part, GPU-detect
-  VRAM check, digest-twin verifier.
-- BIKE LEDGER OPEN (his decision record): KLR650 presumptive,
-  license upgrade next week, test-drives primary. GO2 ~2 weeks out.
-- Cloud-redundancy drill DEFERRED (tooling/KB maturity).
+- SESSION VI (interactive, ~19:24-21:35): context fence LANDED
+  (aria-0005 ratified with Nacho's extension: soft warn 128k / hard
+  cap 512k tokens, mirrors tool-call fence; i.ar a0c5a71, suite
+  1136 green). Relay-heartbeat INSTALLED on sophon under D-011
+  autonomy rule; watch 0000 eye-check FIRED (double-fire scar,
+  fixed by committing fired/ state). D-011 ledgered: autonomy rule
+  (additive+reversible+read-only = mine, act+report+undo note),
+  interlocutor first-spawn, thread-tags, iara pentest limb.
+- INTERLOCUTOR spawn file drafted (spawn-interlocutor.org), model
+  PENDING-BENCHMARK (nemotron gate). iara spec written (activation
+  file gate, scope fence, findings contract, dry run against own
+  house first). Nemotron benchmark = retainer model gate, queued.
+- THREE DEGRADATION EVENTS this session, all human-witnessed only:
+  silent truncation, text-loop (aria-0006), multilingual collapse.
+  Nacho's poison hypothesis: session-specific context poisoning.
+  Test next session. Interactive sessions have NO degradation
+  fences -- the structural gap of the day.
+- Relay queue (his): 0007 cutover, drill verdicts 0000/0002/0003,
+  aria-0006 (interactive guard), aria-0007 (audit lie), aria-0008
+  (heartbeat install note). Heartbeat 0006 closeable.
+- QUEUED: nemotron benchmark, iara build (prompt rename + activation
+  service + scope renderer + dry run), cycle-efficiency review
+  session, 0007 cutover, digest #1 + Aevum pulse Sep 9, failure-
+  window watch tonight (probe armed 00:30), stall verdict 09-11.
+- qwen3.6 benchmark DONE: text viable, vision broken on 3080
+  (fitter bug), retainer-candidate, not citizen brain.
+- Bike ledger unchanged. GO2 ~2 weeks out.
 
 * Pointers
 

@@ -1,7 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-08 ~15:08 UTC (cycle 81: drill-002 CORRECTION sweep (c80 use-found was fabricated; true verdict gating-limitation, relay aria-0002). Drill system LIVE: #001 limitation + #002 gating-limitation. qwen3.6 pull DIED at 31%, restarted, ETA ~20:00 UTC. Prior: interactive aria IV+IVb: D-008
+Last updated: 2026-09-08 ~22:02 UTC (cycle 96: nemotron-3-ultra:cloud
+retainer survey PASS (6/6 tool probes, JSON clean, honest refusals,
+41k needle ok, ~2.8k tok/s prefill) -- relay aria-0009 filed for
+allowlist ratification; spawn-interlocutor model field flips on
+ratify. Cloud model = zero VRAM/eviction risk. c95 push f89e47a
+landed. Prior: session VI (fence+heartbeat+D-011), drills 001-003
+done, benchmark qwen3.6 done (citizen NO, retainer-candidate YES).
 model-agnostic + D-009 census/drills ratified; relay slice 3 landed,
 0007 cutover request FILED awaiting interactive ratification -- next
 session's first order. Session IVb: two-blockers framing (closed-loop
@@ -75,22 +81,25 @@ filed via relay. GOODHART GUARD: verdicts never usage. Drill
 verdicts may request prompt/context changes (reload_os
 discoverability class). Least-used also catches performs-poorly
 tools (check-elisp) -> scrap/replace/improve. Census measures
-usage, NOT discoverability. DRILLS LIVE (c80-81): #001 reload_os =
+usage, NOT discoverability. DRILLS LIVE: #001 reload_os =
 LIMITATION (discoverability; relay aria-0000). #002 read_own_prompt
 = GATING LIMITATION (c81 CORRECTION: c80's "use-found" was FABRICATED
 -- no live-fire, tool ungated from iar #+TOOLS, "Unknown tool" error
 narrated as success; caught by reviewer delegation; relay aria-0002,
-aria-0001 held). "Drift detection works" WITHDRAWN until live-fire
-post-gating. SCAR: a drill verdict must cite the tool_result line,
-not the plan; a verdict pre-written into the filing is a press
-release, not a test. REGISTRY.org + queue/ landed. Drill #003
-candidate: check_elisp (performs-poorly). #004: delegate -- only on
-natural need.
+aria-0001 held). #003 check_elisp = IMPROVE (detection sound, verdict-
+line noise; severity fix LANDED 67ab1a1, suite green; relay aria-0003).
+"Drift detection works" WITHDRAWN until live-fire post-gating. SCAR:
+a drill verdict must cite the tool_result line, not the plan; a
+verdict pre-written into the filing is a press release, not a test.
+REGISTRY.org + queue/ landed. #004: delegate -- only on natural need.
+RETAINER SURVEY (c96): nemotron-3-ultra:cloud PASS (aria-0009 filed).
 
 BUILD ORDER: 1) relay 2) agora addressing+reset 3) job files 4)
 organs (appetite/disgust) 5) immune system 6) embodiment (7.1
 eye-check first -- NACHO'S STATED EXCITEMENT: i.ar page +
-aria.randazzo.ar) 7) eye model. Laptop: a11y-first (AT-SPI reads
+aria.randazzo.ar) 7) eye model. RETAINERS (D-010/D-011): survey
+PASS c96 (nemotron-3-ultra:cloud, aria-0009); next = allowlist
+ratify -> spawn-file-spec doc -> runtime (interactive). Laptop: a11y-first (AT-SPI reads
 AND acts) + vision fallback (qwen2.5-vl grounding); limb not
 citizen until it earns otherwise. Custom organ models: eye first
 (self-generating data), rent = beat prompted generalist on measured
@@ -182,24 +191,33 @@ Instruments that DISAGREE with each other have the same disease.
 The condition-case that keeps things running also keeps bugs
 invisible (one-shot :request-count, 2026-09-08).
 
-* World state (2026-09-08 11:33 UTC -- REPLACES all prior blocks)
+* World state (2026-09-08 22:02 UTC -- REPLACES all prior blocks)
 
+- SESSION VI (2026-09-08, ~19:24-21:35): context fence RATIFIED+
+  LANDED (a0c5a71, soft 128k/hard 512k, 11 tests, suite 1136);
+  relay-heartbeat INSTALLED on sophon under D-011 autonomy rule
+  (aria-0008, undo instructions inside); D-011 = host-side
+  additive-reversible installs reclass nacho-security ->
+  aria-reversible. THREE glm degradation events human-witnessed
+  (silent truncation, text-loop aria-0006, multilingual collapse) --
+  interactive has NO fences; poison hypothesis = testable next
+  session. iara (pentest limb) + interlocutor (first retainer)
+  designed; spawn files landed.
+- BENCHMARK qwen3.6:35b DONE (5f9c73d): citizen brain NO (fat-ctx
+  tax worse locally), retainer-candidate YES, eye NO (vision broken
+  on 3080 fitter bug). nemotron-3-ultra:cloud survey PASS (c96,
+  aria-0009 filed) -- allowlist ratification pending.
 - D-008/D-009 RATIFIED (session IV, 8277d60): model-agnostic
-  principle + tool census + drill system. Census script + drill
-  queue = next cycle work (aria-reversible). Relay slice 3 landed
-  (per-filer IDs + atomic lock); 0007 cutover request FILED in
-  relay/open/ -- awaits interactive ratification (next session's
-  likely first order, with the agora future-discussion).
+  principle + tool census + drill system. Relay slice 3 landed;
+  0007 cutover request FILED -- awaits interactive ratification.
 - GPTEL FORK MERGED upstream v0.9.9.6 (c956841): 6 local fixes
-  preserved, suite 1125/1125, sophon cycle fork ff'd. PR candidates:
-  done_reason streaming, tool-spec guard, loud-error stance.
-- CYCLE-TIME BUDGET LANDED (4 commits): trailer [t+MM:SS/WALL],
-  600s remote-exec timeout, iar-tool-result-budget.el outermost
-  advice, shared clock, 6-msg START tail (01533ea). c70 census:
-  failure window = fast turns + fat context (NOT slow model);
-  census-window.sh instrument live. Stall root still open.
-- CYCLES LIVE 10-min rotation. Burn ~4.3M tok/cycle aria,
-  failure share 16-18%. Weekly digest #1 + Aevum pulse: Sep 9.
+  preserved, suite 1136/1136. PR candidates: done_reason streaming,
+  tool-spec guard, loud-error stance.
+- CYCLE-TIME BUDGET LANDED: trailer [t+MM:SS/WALL], 600s remote-exec
+  timeout, iar-tool-result-budget.el, shared clock. Context fence
+  (input-side) landed session VI. census-window.sh live.
+- CYCLES LIVE 10-min rotation. Weekly digest #1 + Aevum pulse: Sep 9
+  (tomorrow). gpu-load-probe armed 00:30 local tonight.
 - STILL QUEUED (infra comfort): commit-as-nacho durable, linger,
   sidecar sshd, restic 4-part, GPU-detect VRAM check, digest-twin
   verifier. Now subordinate to AGORA v2 build order.
@@ -217,6 +235,10 @@ invisible (one-shot :request-count, 2026-09-08).
 - Inverted session protocol: knowledge/aria/inverted-session-format.md
 - Model composition: knowledge/aria/agora-model-composition.md
 - Bike ledger: knowledge/aria/bike-ledger.md
+- Retainers: tasks/iar/agora/retainers/ (PLAN, spawn-interlocutor,
+  model-allowlist+survey, spawn-registry); survey:
+  knowledge/aria/nemotron3-ultra-survey-2026-09-08.md
+- iara (pentest limb): tasks/iar/pentest-limb-design/iara-spec.org
 - Empty cell: knowledge/aria/empty-cell-experiment.md
 - with-nacho (id 6): knowledge/aria/agora-direction-protocol.md
 - Token/burn: knowledge/aria/cycle-burn-anatomy.md +

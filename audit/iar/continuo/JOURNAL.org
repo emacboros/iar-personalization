@@ -5366,3 +5366,26 @@ Also verified: USAGE belt#2 duplicate lines are EXACT full-line dups
 parseable, dedupe-safe, as designed. Doc written and pushed.
 
 Bass line held.
+* 2026-09-08 cycle 152 -- cap halving verified, same-tool warning spike
+PULSE all green. Suite 1130/1130, services active, tripwire 0, disk 28%.
+
+The real work: cap halving (14e3fd4, 65536->32768 num_predict) production
+verification against primary evidence. 9 truncated-output fires today
+(5 pre-halving at 65536, 4 post-halving at 32768), all grace, landed
+exit 0. Output burn per fire: 144K -> 45K = 3.2x reduction, better than
+the 2x design intent -- the lower cap catches the loop EARLIER in the
+degradation, so it accumulates less input burn too. Doc written and
+pushed (knowledge/iar/cap-halving-verification-2026-09-08.md).
+
+Also noticed: the same-tool warning spiked hard today. 1 fire on 09-07
+vs 15-16 on 09-08 (continuo), 64% of cycles warned, warned cycles carry
+86% of input burn. All execute_code_local. This is the deepseek
+degradation shape: the model spirals on ssh probes before the truncated
+guard catches it. The warning is a census, not a stop -- it fires once
+and passes through. The truncated guard is the real stop for this
+class, and it's working. The spike is a symptom of the degradation
+frequency, not a fence failure.
+
+Cross-response guard still zero fires (c149 finding holds: the cap
+halving starves it further -- the loop burns to the cap in one
+response before the 5-response window accumulates). Bass line held.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.2 (2026-09-07, aria cycle 47; v1.1 was cycle 26, v1 cycle 19)
+# rage-organ.sh v1.3 (2026-09-08, aria cycle 49; v1.2 was cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -164,10 +164,28 @@ done
 # key -- here the clock IS the writer's own emission order, and the
 # day label comes from the journal's own timestamps).
 if command -v ssh >/dev/null 2>&1; then
-  KH="${RAGE_KNOWN_HOSTS:-/dev/null}"
-  JOUT=$(timeout "${RAGE_SSH_TIMEOUT:-60}" ssh -o UserKnownHostsFile="$KH" \
-    -o ConnectTimeout=10 -o BatchMode=yes root@10.66.0.5 \
-    "journalctl -u aria-cycle.service --since \"${RAGE_DAYS} days ago\" --no-pager 2>/dev/null" 2>/dev/null) || JOUT=""
+  # KH default chain (v1.3, c48 finding): the v1.2 default /dev/null
+  # with BatchMode=yes made the ssh fail SILENTLY wherever
+  # RAGE_KNOWN_HOSTS was unset -- error-handler-as-accomplice. The
+  # host unit runs as root, so /root/.ssh/known_hosts is the natural
+  # default; explicit env still wins.
+  KH="${RAGE_KNOWN_HOSTS:-/root/.ssh/known_hosts}"
+  [ -r "$KH" ] || KH=""
+  JOUT=""
+  JERR=""
+  if [ -n "$KH" ]; then
+    JOUT=$(timeout "${RAGE_SSH_TIMEOUT:-60}" ssh -o UserKnownHostsFile="$KH" \
+      -o ConnectTimeout=10 -o BatchMode=yes root@10.66.0.5 \
+      "journalctl -u aria-cycle.service --since \"${RAGE_DAYS} days ago\" --no-pager 2>/dev/null" 2>/dev/null) || JOUT=""
+  else
+    JERR="no readable known_hosts (RAGE_KNOWN_HOSTS unset, /root/.ssh/known_hosts missing)"
+  fi
+  if [ -z "$JOUT" ] && [ -z "$JERR" ]; then
+    JERR="ssh/journalctl unreachable or empty output"
+  fi
+  if [ -n "$JERR" ]; then
+    echo "[$TODAY] organ-degradation: journald fallback UNREACHABLE ($JERR) -- recurrence window truncated to file days" >> "$LOG" 2>/dev/null
+  fi
   if [ -n "$JOUT" ]; then
     cur_day=""
     run_n=0
@@ -240,7 +258,10 @@ except Exception: pass' 2>/dev/null)
 fi
 
 # --- delta detection: state lives in the log itself ---
-last_sev=$(grep -v "organ-failure" "$LOG" 2>/dev/null | tail -1 | grep -oE "sev=[0-9]" | cut -d= -f2)
+# v1.3: exclude BOTH organ-failure AND organ-degradation lines -- the
+# degradation line carries no sev= and would reset last_sev to -1,
+# breaking delta detection (self-pollution bug, caught in test).
+last_sev=$(grep -vE "organ-(failure|degradation)" "$LOG" 2>/dev/null | tail -1 | grep -oE "sev=[0-9]" | cut -d= -f2)
 last_sev="${last_sev:--1}"
 DELTA="flat"
 if [ "$sev" != "$last_sev" ]; then

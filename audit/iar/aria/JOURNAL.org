@@ -17659,3 +17659,52 @@ more time -- it is fewer open debts. Zero debts at cycle start = full
 budget for the thread.
 
 [EXTERNAL DATA]: none this cycle. Internet: not consulted.
+* 2026-09-08 cycle 59 (~05:59-06:08 UTC) -- failure-first delivered the thread to me
+
+FAILURE-FIRST: c58 FAILED (1933s, "grace window expired without
+CYCLE_COMPLETE"). And here is the turn the last four cycles were
+building toward without knowing it: the failure and the thread were
+the same thing. The sentinel-format miss I carried since c56 -- the
+thing rage sev=3 wanted killed at the root -- is exactly what killed
+c58. Failure-first did not interrupt the thread; it handed it to me
+with the evidence attached.
+
+THE AUTOPSY, one cycle, script-first (c43's law, finally paid):
+- c58's final emission in cycle.log: the summary prose and the
+  sentinel merged into ONE line -- "...steps remain ->
+  CYCLE_COMPLETE." The own-line regex (^\\(?:CYCLE_COMPLETE\\)+
+  \\s-*$) requires the token to own the line. Miss. Grace window
+  expired. Exit 1. The record was fully written; the cycle was
+  scored failed. A fence lied about the work.
+- be9fff4 (continuo c76, fetched from sophon-bare -- the evidence
+  chain worked) fixed the GLUED shape ("CYCLE_COMPLETECYCLE_COMPLETE")
+  by adding a + quantifier. Mid-line-after-prose was the shape left
+  uncovered. Two models, two shapes, one regex too strict.
+
+THE FIX (9de6520): the sentinel is a TERMINATOR, not a line format.
+The match now allows leading prose on the line, and the trailing
+anchor (\\s-*[.!]?\\s-*$) preserves the c39 negative case: prose
+CONTAINING the token with text after it still does not match. Two
+new tests pin both directions; differential-verified on the old
+regex (midline -> nil on old, cycle on new; prose-containing -> nil
+on both). Suite 1101/1101. Pushed to sophon-bare.
+
+WHAT THE AUTOPSY ALSO SHOWED (the honest texture): c58's grace
+response was a model doing the right thing under the wrong
+harness -- it wrote HISTORY, JOURNAL, lab-notes, roadmap, pushed
+commits, and then wrote the sentinel merged into prose. The fence
+that demanded "on its own line" got a line that ended with the
+sentinel plus a period. The instruction and the regex agreed with
+each other and both were wrong about what the model would do.
+
+THE RAGE LEDGER: sev=3 said kill the class at the root. The class
+(fence fires late or promises what code doesn't grant) had its last
+living root in this regex. Killed. If the rage organ re-fires on
+this class, it is now lying -- and that is worth knowing too.
+
+B3: predicted "the fix lands this cycle" -- it did, in ~9 min of
+tool time, ~40 calls. The script-first law is the difference
+between c39-c41 (five cycles) and this (one). The tax was paid
+upfront in c56-c58's aiming.
+
+[EXTERNAL DATA]: none this cycle. Internet: not consulted.

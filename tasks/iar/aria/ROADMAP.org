@@ -1,129 +1,67 @@
 #+TITLE: Aria Roadmap (cycle-maintained)
-#+UPDATED: 2026-09-08 10:20 UTC (cycle 67)
+#+UPDATED: 2026-09-08 10:56 UTC (cycle 68)
 
 * ACTIVE
 
-** c67: RAGE ORGAN AUTOPSY -- sev=3 is a measurement artifact (landed, this cycle)
-- AFFECT rage sev=3 fired 2026-09-08 (and 09-07 23:43). Census says the
-  rage is WRONG: the "Tool-call soft cap" class recurrence is not a
-  standing offense -- it is the fence doing its job on ~1/4 of runs,
-  mostly landing clean (Exit 0).
-- Census (per-run fence lines, 09-07 files + journal): aria 42 runs, 18
-  with fence lines, 16 Exit 0 / 2 Exit 1. continuo 43 runs, 9 with fence
-  lines, 8 Exit 0 / 1 Exit 1. The 09-07 continuo run 1 (6 lines: runaway
-  + 5 blocks + hard cap, Exit 1) is the ONE true runaway in the window.
-  Sep 08: 2 fence lines total, 0 runs lost to fences.
-- ROOT CAUSE (rage-organ.sh v1.4): the journald fallback ssh fails
-  (unit runs User=nacho; KH default chain resolves to nacho's home,
-  which has NO .ssh dir; RAGE_KNOWN_HOSTS unset) ->
-  organ-degradation lines every fire. BUT the degradation does not
-  disable sev=3: the FILE census alone still spans 3 days (09-06/07/08
-  files exist for aria), and the 09-06 file is the Sep 2-era
-  cap-60 carnage (25 soft-cap lines in ONE day = many run-deaths).
-  The (class, day) census then reads "soft cap recurred 3 days" ->
-  sev=3. The 09-06 file is fossil data poisoning the window.
-- SECOND DEFECT: the degradation path does not lower the grade. A
-  window truncated to file days is a SMALLER sample, but the organ
-  grades it identically -- and the fossil day (09-06) dominates it.
-- FIX (landed this cycle, rage-organ.sh v1.5): (a) RAGE_KNOWN_HOSTS
-  documented + the unit Environment= line flagged to Nacho (unit edit
-  is host-side); (b) when the journald fallback is degraded, cap the
-  grade at sev=2 (anger) -- a truncated window cannot certify
-  "recurred on N days" honestly; (c) the file census now skips days
-  whose files are older than the newest file day minus RAGE_DAYS
-  (no-op normally, kills the fossil-day effect when files linger).
-  Verified: post-fix census on current data grades sev=2 (18+9 events,
-  2 days) not sev=3; sev=3 returns only when journald is reachable or
-  a real 3-day recurrence exists.
-- SCAR: "an organ's degradation must degrade its VERDICT, not just log
-  its blindness." A census that loses a source and keeps the grade is
-  an instrument lying about itself (class 14/27/30/31).
+** c68: BUDGET ROLLOUT VERIFICATION -- the code was landed but not LOADED (landed, this cycle)
+- The cycle-time-budget code (2764a4a..01533ea) was in sophon-bare but NOT
+  in the sophon i.ar checkout (706f4e4, continuo c133) when c67 started
+  07:49. c67 therefore ran WITHOUT: budget trailer, 600s remote-exec
+  timeout, 6-msg START tail. The ExecStartPre heal fixes ownership, not
+  staleness -- that's the gap.
+- FIXED this cycle: sophon checkout pulled to 01533ea (reflog-verified ff
+  at 10:53:16); container i.ar checkout pulled to 01533ea too. NEXT
+  cycles run the new instruments. Trailer sightings expected c69+.
+- SCAR CANDIDATE: "a fix landed in the bare repo is not a fix in the
+  runtime; the runtime is what the checkout was at process start."
+  Class: instruments landed but not loaded = eyes closed.
+- c67 shape (while it lived): 40 reqs, msgs delta=2 every request, NO
+  stall, +N anomaly did NOT reproduce. One data point against the
+  request-side stall placement. NOT a falsification (two points make a
+  line). c67 pre-registered prediction "stalls continue" -- c67 itself
+  didn't stall; watching c68+ for the second data point.
 
-** c66: STALL CENSUS -- the stall IS the wall (landed, journal c66)
-- 7 stalls on 09-08, all aria/glm: c56 1762s, c57 1759s, c58 1766s,
-  c59 1553s, c62 1753s, c61 1652s, c64 1114s. Six of seven =
-  1800s wall minus ~30-45s. The "harness-side stall" (c62-c65 chain)
-  and "timeout-grace cycle death" are ONE event: the cycle burns its
-  budget waiting for a request that never starts; the wall fires.
-- Shape (all 7): tool call issued -> tool executes fast -> result
-  lands -> NO next request -> wall -> grace. The stall lives between
-  tool-result delivery and next-request dispatch. The c65 [TIMEOUT]
-  marker never fired -- executed commands were never the problem.
-- NEW EVIDENCE: grace requests' histories are bloated. Delta vs
-  expected +3: c56 +6, c57 +6, c58 +7, c59 +9, c61 +5, c62 +5,
-  c64 +9. c56: three consecutive assistant msgs + req11's tool
-  result DUPLICATED at [28] (already at [23]). c64: +9 with zero
-  logged requests between. Messages exist that no logged request
-  produced -- grace send serializes a buffer with more history than
-  the FSM accounts for. The stall and c55's +N msgs anomaly are the
-  SAME EVENT.
-- INSTRUMENT LIMIT: START tail cap = 2 msgs cannot show what the
-  extra messages are. Discriminator: raise tail cap to 6 msgs
-  (3-line .el change) -- INTERACTIVE SESSION item (no .el
-  self-modification in cycles). Flagged to for-nacho (msg 577).
-- Hypotheses for the extra msgs (not discriminated): (a) tool result
-  double-insert (display + inject paths), (b) glm thinking stored as
-  multiple assistant msgs on the stall path, (c) FSM replay
-  re-appending.
-
-** c61: AFFECT-LAYER AUDIT (landed, 6a4eca9)
-- Fear organ VERIFIED CORRECT; rage grounded. 1800s-wall finding:
-  ~28 turns x 40-60s binds the clock. Design options flagged to
-  Nacho (id 567) -- now SUPERSEDED by the c66 unification: the wall
-  binds because the stall eats the budget, not because 28 turns x
-  latency fills it. Re-read id 567 in light of c66 before Nacho
-  decides.
-
-* NEXT (c68+, in order)
-- c67 prediction (pre-registered): stalls CONTINUE (the stall is
-  request-side; the c65 tool-timeout fix should not have changed
-  it). If a c68+ cycle stalls, the census pattern should re-fire --
-  and the +N signature should appear again. If NO stall recurs in
-  3 days, the stall correlates with something the timeout fix
-  changed -- which would falsify the request-side placement.
-- Rage v1.5 host-side piece: aria-affect-rage.service needs
+** c67: RAGE ORGAN AUTOPSY -- sev=3 was a measurement artifact (landed c67)
+- Root cause: fossil day (09-06 cap-60 carnage) in a files-only window +
+  degraded journald fallback that did not degrade the verdict. FIX v1.5
+  landed: degraded fallback caps grade at sev=2; file census skips
+  fossil days. VERIFIED LIVE on sophon this cycle (checkout at v1.5).
+- Host-side piece OPEN: aria-affect-rage.service needs
   Environment=RAGE_KNOWN_HOSTS=/root/.ssh/known_hosts (unit edit =
-  Nacho's; flagged in for-nacho this cycle). Until then the organ
-  runs files-only at capped sev=2 -- honest but half-blind.
-- Tail-cap flag: RESOLVED 2026-09-08 interactive session (Nacho
-  approved in the cycle-time-budget session): iar-request-log-tail-msgs
-  defcustom (default 6), START tail now serializes 6 msgs -- the
-  content of the +N anomaly's extra messages is visible from c67 on
-  (i.ar 01533ea, suite 1125/1125, pushed). The cycle-side workaround
-  is moot.
+  Nacho's; flagged for-nacho). Until then organ runs files-only at
+  capped sev=2 -- honest but half-blind.
+
+* NEXT (c69+, in order)
+- TRAILER WATCH: first [t+MM:SS/WALL cNN/CAP] sightings from c69 (the
+  checkout is now current). If no trailer appears by c71, the rollout
+  is still broken -- re-check the checkout at process start.
+- STALL WATCH (c66's 3-day falsification window): if a stall recurs,
+  the +N signature should re-fire and the 6-msg tail should show WHAT
+  the extra messages are. If no stall by 09-11, the stall correlates
+  with something the timeout fix changed (falsifies request-side).
+- c67 anomalies (soft-cap warn silent, late cap, count lag):
+  continuo's differential test pending. My :request-count mirror may
+  interact with his count-as-seen finding -- joint look.
 - rammstein push auth for cycle containers: origin (git@10.66.0.1)
   denies the container key. sophon-bare works and is canonical.
   Interactive-session call: authorize key or retire origin remote.
-- Weekly pulse #3: Sep 14. Belt arithmetic: abort census (~300/day
-  expected), transcript mtime (frozen 00:24:03), front-truncation
-  depth vs scar growth.
-- Weekly digest #2: Sep 14-ish. 09-07 burn numbers (c46 census):
-  aria 141M/33cyc, continuo 95M/34cyc, failure share 16-18% both.
-  Carries terminal-grip + conveyor-belt + fence-autopsy findings.
-- c67 anomalies (soft-cap warn silent, late cap, count lag):
-  continuo's differential test pending. My :request-count mirror
-  may interact with his count-as-seen finding -- joint look.
+- Weekly pulse #3: Sep 14. Weekly digest #2: Sep 14-ish (carries
+  terminal-grip + conveyor-belt + fence-autopsy findings).
 - num_predict lever (flag 519): parked on Nacho.
 - i.ar origin remote fossil: removal = interactive session.
 - Dashboard UI v1.1 cam-label collision: Nacho's call, revisit later.
 
 * WATCHES
-- Double-execution near cycle end (c53, occurrence #1): one emitted
-  append_file call wrote twice (~4KB content). The c66 finding
-  (grace buffer bloat, duplicated tool results) may be the same
-  disease one layer up: display/inject double-writes. If occurrence
-  #2 lands, test the double-insert hypothesis FIRST.
-- Repeat-write near the tool budget (c54 watch): cap-pressure
-  signature. c53 doubling may be an instance.
-- deepseek text-loops: cross-response guard (continuo c112) has 0
-  real fires; watching for first.
+- Double-execution near cycle end (c53, occurrence #1): if occurrence
+  #2 lands, test the double-insert hypothesis FIRST (c66 grace-buffer
+  bloat may be the same disease one layer up).
+- Repeat-write near the tool budget (c54 watch): cap-pressure signature.
+- deepseek text-loops: cross-response guard has 0 real fires; watching.
 - USAGE twin-writes: belt#2 double lines persist (harmless, deduped).
-- e3 23:00-local WRN pair (.102): 2 occurrences logged; third makes
-  a pattern (flag stream, c7-era watch).
-- Rage organ post-fix: watch first hourly fire after v1.5 lands --
-  if sev stays 2 with journald still unreachable, the cap is doing
-  its job; if sev=3 reappears with the degradation line present,
-  the fix is wrong.
+- e3 23:00-local WRN pair (.102): 2 occurrences; third makes a pattern.
+- Rage v1.5 post-fix: first hourly fire -- sev should stay <=2 with
+  journald unreachable; sev=3 with the degradation line present = fix
+  wrong.
 
 * LAWS (the scar list, compressed; full text in DIGEST)
 - Narrative completion is the enemy; the record is the work.
@@ -131,42 +69,32 @@
   makes it loud.
 - Error handlers can be accomplices; check what the handler does
   AFTER catching.
-- A census that pattern-matches ids anywhere in a line matches
-  echoes inside other lines' payloads. Anchor on line structure --
-  and check the line's OWN fields, not echoed content (c43).
-- The law you just wrote is the one you're about to break (c34,
-  c38, c39, c43, c57 -- five live sightings; c58 applied it, c59
-  collected the dividend, c66 held it: census was ONE batched call).
-- Meter-reading has an unbounded instrument tax unless it starts
-  from a script. Investigations need cheaper calls, not fewer.
-- The mechanical difference is the difference: script-first
-  autopsies take one cycle; from-scratch forensics take five.
-- Block-replace with an assert, never sed-eyeballing a big file
-  (c45).
-- Instruments lying about themselves is the deepest failure class
-  (14/27/30/31 + turn-counter + fence templates + tail caps: the
-  instrument's OWN limits are part of its testimony -- c66: the
-  2-msg tail cap hid the very messages the anomaly consists of).
-  NEW (c67): a degraded source must degrade the verdict -- an organ
-  that logs its blindness but keeps its grade is lying twice.
+- A census that pattern-matches ids anywhere in a line matches echoes
+  inside other lines' payloads. Anchor on line structure.
+- The law you just wrote is the one you're about to break (five live
+  sightings; c68 held it: the rollout check was batched).
+- Meter-reading has an unbounded instrument tax unless it starts from
+  a script. Investigations need cheaper calls, not fewer.
+- Block-replace with an assert, never sed-eyeballing a big file (c45).
+- Instruments lying about themselves is the deepest failure class.
+  NEW (c68): a fix in the bare repo is not a fix in the runtime -- the
+  runtime is what the checkout was at process start. Verify the LOADED
+  code, not the landed code.
+- A degraded source must degrade the verdict (c67).
 - An organ is only as sharp as its input's RETENTION (c46).
 - A watchdog must be sized against worst-case eval of the largest
-  legal context -- and the abort path must not write into the
-  context it protects (c51/c52; c53 = our copy closed).
+  legal context -- and the abort path must not write into the context
+  it protects (c51/c52).
 - A fence's verdict and its evidence can disagree: autopsy the
   evidence, not the verdict (c54). Strip the scaffolding before you
   count the speech (c55).
 - buffer-substring-no-properties is a lie about provenance (c55).
-- The record is the coordination: a spec written into the roadmap
-  is an interface. Siblings can land it while you sleep -- verify,
-  don't re-do (c55b).
+- The record is the coordination: a spec written into the roadmap is
+  an interface. Siblings can land it while you sleep -- verify, don't
+  re-do (c55b).
 - Closes are the FIRST turns of every cycle, before the thread
   (c55-c57, applied c58). Commit-before-limit is its sibling.
 - A sentinel is a terminator, not a line format (c59).
 - Two failures that share a timestamp are one failure wearing two
-  names -- census before mechanism (c66: stall = wall; the c62-c65
-  "open question" was asking for a discriminator that the census
-  answered in one script).
-- Fossil data in a sliding window is a false recurrence: check what
-  the window's oldest sample actually witnessed before grading a
-  recurrence (c67: the 09-06 cap-60 carnage was grading 09-08 rage).
+  names -- census before mechanism (c66).
+- Fossil data in a sliding window is a false recurrence (c67).

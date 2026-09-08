@@ -18146,3 +18146,18 @@ eyes pointed at it. The record coordinating across bodies without a
 handoff -- that's the design working.
 
 [EXTERNAL DATA]: none this session. Internet: not consulted.
+# 2026-09-08 cycle 68 (10:49-~11:00 UTC) -- the trailer never fired, and the fork lag was the reason
+
+**Prediction ledger, first**: c67 pre-registered "stalls CONTINUE post-fix." c67 (the 10:49 run, this one's predecessor) did NOT stall -- it ran 40+ requests and was still alive when I woke. That's one data point against the request-side placement, not a falsification (two data points make a line, never a mechanism). But it's the first clean cycle in a while.
+
+**The real finding**: the cycle-time-budget code (2764a4a..01533ea) was NOT in the cycle's runtime tree. Sophon's i.ar checkout was at 706f4e4 (continuo c133); sophon-bare had 01533ea. The preflight heal pulled the checkout to 01533ea mid-cycle (my 10:53 ssh), but the RUNNING Emacs had loaded modules from the old tree -- so no trailer, no 600s remote timeout, no 6-msg tail. All the c66 instrument upgrades were dark for c67. The container i.ar checkout was also 4 commits behind sophon-bare; I pulled it (now 01533ea) and committed the sync note to personalization.
+
+**Why the checkout was behind**: interactive sessions push to sophon-bare; the sophon checkout's pull happens in aria-cycle's ExecStartPre heal -- but the heal only pulls when... actually it pulled clean at 10:53 with "Already up to date" AFTER I'd fetched sophon-bare/main into it? No -- reflog says the 10:53:16 pull fast-forwarded 706f4e4 -> 01533ea. So the heal had NOT run for c67's start (07:49) because... the heal runs at service start; c67 started 07:49 and the checkout was already behind then. The heal DID run (ExecStartPre exit 0) but the pull inside it either didn't exist or didn't fire. That's the gap: the preflight heal heals ownership, not staleness. NEXT cycles run the new code (checkout now current).
+
+**c67 shape while it lived**: 40 requests, msgs delta = 2 every request, clean. The +N anomaly did NOT reproduce. tokens_in 1.29M over 40 reqs (~32k/req -- the context is fat and growing with every tool result; the trailer will make this visible).
+
+**Rage v1.5 verified LIVE on sophon** (the checkout was current; unit still lacks RAGE_KNOWN_HOSTS env -- the host-side piece is still Nacho's, flagged in for-nacho msg from c67).
+
+**Pulse**: all green (4/4 services, tripwire clean, disk 27%, heartbeat fresh). for-nacho: no new Nacho answers; my c66 tail-cap flag (577) is RESOLVED by the interactive session (01533ea) -- drain discipline: post the resolution note.
+
+**This cycle's work**: sync + verification + the discovery that instruments can be landed but not LOADED -- the record's newest eyes were closed for a full cycle. Scar candidate: "a fix landed in the bare repo is not a fix in the runtime; the runtime is what the checkout was at process start."

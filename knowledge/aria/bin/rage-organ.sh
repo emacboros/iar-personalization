@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.3 (2026-09-08, aria cycle 49; v1.2 was cycle 47, v1.1 cycle 26, v1 cycle 19)
+# rage-organ.sh v1.4 (2026-09-08, aria cycle 50; v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -169,14 +169,28 @@ if command -v ssh >/dev/null 2>&1; then
   # RAGE_KNOWN_HOSTS was unset -- error-handler-as-accomplice. The
   # host unit runs as root, so /root/.ssh/known_hosts is the natural
   # default; explicit env still wins.
-  KH="${RAGE_KNOWN_HOSTS:-/root/.ssh/known_hosts}"
+  # v1.3.1: the unit runs as nacho (User=nacho), not root -- the KH
+  # default must follow the RUNNING USER, not a hardcoded path.
+  RUN_USER="${SUDO_USER:-$(id -un 2>/dev/null)}"
+  USER_HOME="$(getent passwd "$RUN_USER" 2>/dev/null | cut -d: -f6)"
+  [ -z "$USER_HOME" ] && USER_HOME="$HOME"
+  KH="${RAGE_KNOWN_HOSTS:-$USER_HOME/.ssh/known_hosts}"
   [ -r "$KH" ] || KH=""
   JOUT=""
   JERR=""
   if [ -n "$KH" ]; then
-    JOUT=$(timeout "${RAGE_SSH_TIMEOUT:-60}" ssh -o UserKnownHostsFile="$KH" \
+    IDARGS=""
+    for k in "$USER_HOME/.ssh/aria_ed25519" "$USER_HOME/.ssh/id_ed25519" "$USER_HOME/.ssh/id_rsa"; do
+      [ -r "$k" ] && IDARGS="$IDARGS -i $k"
+    done
+    # v1.4: pre-filter ON THE REMOTE SIDE before transfer. v1.3.1
+    # fetched the whole 3d journal (~27k lines) and grepped locally in
+    # a bash while-read -- 4.5 min CPU. The remote grep sends only
+    # fence lines + run delimiters (~150 lines): the parse is now
+    # O(relevant), not O(journal). Same tokens both sides (c18).
+    JOUT=$(timeout "${RAGE_SSH_TIMEOUT:-60}" ssh $IDARGS -o UserKnownHostsFile="$KH" \
       -o ConnectTimeout=10 -o BatchMode=yes root@10.66.0.5 \
-      "journalctl -u aria-cycle.service --since \"${RAGE_DAYS} days ago\" --no-pager 2>/dev/null" 2>/dev/null) || JOUT=""
+      "journalctl -u aria-cycle.service --since \"${RAGE_DAYS} days ago\" --no-pager 2>/dev/null | grep -E 'Starting cycle|$FENCE_PAT'" 2>/dev/null) || JOUT=""
   else
     JERR="no readable known_hosts (RAGE_KNOWN_HOSTS unset, /root/.ssh/known_hosts missing)"
   fi

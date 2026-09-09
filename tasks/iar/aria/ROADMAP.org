@@ -1,43 +1,41 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~04:58 UTC (cycle 110)
+Last updated: 2026-09-09 ~05:20 UTC (cycle 111)
 
 ## NOW
 
+- c111: MKTIME 7-FIELD BUG found + fixed in connectome-snapshot.sh
+  (73c975b, pushed). The "1970 " anchor made gawk mktime parse 7
+  fields (takes 6): real seconds dropped, every field shifted one
+  slot. Silence column FICTION (W37 reported aria max_gap 3615s/71
+  hangs; actual 1973s/26 -- the 3601s were minute-boundary artifacts)
+  and co-firing counts ~19% inflated, wrong in both directions.
+  N-grams/file-touch/token-economics unaffected. Analysis:
+  knowledge/aria/mktime-seven-field-bug-2026-09-09.md. W37 baseline
+  known-bad in 2 sections; W38 = first trustworthy window. Law
+  candidate: validate a time-delta instrument against a KNOWN delta
+  before believing output; plausibility is not verification (a law
+  obeyed is not a law verified -- TZ=UTC was there, the anchor lied
+  anyway).
 - c110: qwen3.6 vision RETEST PASS (roadmap item 1 closed). ollama
-  0.32.8 fixed the fitter-crash class for BOTH archs (journal: fit
-  leaves vision headroom 4627/1962 MiB, CLIP warmup clean, mtmd
-  clean, no segfault; " red" correct 64x64, 22.9s incl. load).
-  qwen's rejection reason now = fat-context tax alone; upstream-report
-  candidate MOOT. Eye stays gemma3:4b (co-residency + glance cost).
-  knowledge/aria/qwen36-vision-retest-2026-09-09.md + relay
-  aria-0012. Suite verified green this cycle (57/57).
+  0.32.8 fixed the fitter-crash class for BOTH archs. qwen's rejection
+  reason now = fat-context tax alone. Eye stays gemma3:4b
+  (co-residency + glance cost). knowledge/aria/qwen36-vision-retest-
+  2026-09-09.md + relay aria-0012.
 - c109: muse-glimmer:30b battery DONE. Verdict NO for local
-  retainer/resident (dense 27.9B, 12/53 layers GPU, ~2 tok/s decode,
-  ~300 tok/s prefill; qwen MoE was 18-26 tok/s). Vision WORKS --
-  ollama 0.32.8 upgrade fixed the qwen fitter-crash class for this
-  arch (3/3 color probes at 64x64, mmproj 942 MiB, no segfault). But:
-  co-residency thrashes gemma3:4b (60s reload per alternation),
-  sub-minimum images (8x8) confabulate silently as "white", schema-only
-  JSON fails (3-model pattern), literal <|eot|> tail on format= JSON.
-  Benchmark: knowledge/aria/muse-glimmer-benchmark-2026-09-09.md.
-  Relay aria-0011 filed (nacho-arch, ratification ask). Commit e70c719
-  pushed. Task stays open until Nacho ratifies.
-- c108: muse pull STALL found + fixed (restart via /api/pull resume;
-  blob completed 00:31 local). c107: interactive fence BUILT + suite
-  green (57/57) + pushed; aria-0006 answered by continuo c175.
+  retainer/resident (dense 27.9B, ~2 tok/s decode on 3080). Vision
+  WORKS but co-residency thrashes gemma3:4b; 8x8 images confabulate
+  silently; schema-only JSON fails. Benchmark:
+  knowledge/aria/muse-glimmer-benchmark-2026-09-09.md. Relay
+  aria-0011 (nacho-arch ratification ask). Task open until Nacho.
 
 ## NEXT (cycle work, in pull order)
 
-1. [DONE c110] qwen3.6 vision RETEST: PASS. ollama 0.32.8 fixed the
-   fitter-crash class for BOTH archs (journal: fit leaves vision
-   headroom, CLIP warmup clean, mtmd clean, no segfault; " red"
-   correct 64x64). qwen's rejection reason now = fat-context tax
-   alone. knowledge/aria/qwen36-vision-retest-2026-09-09.md +
-   relay aria-0012. Eye stays gemma3:4b (co-residency + glance cost).
-2. Connectome snapshot v2: SILENCE column LANDED upstream (df28642,
-   continuo). W38 snapshot due when the window closes -- verify the
-   new section fires on real data (drill pattern: cite the line).
+1. [DONE c110] qwen3.6 vision retest: PASS.
+2. [DONE c111] connectome silence-column verification: the
+   verification FOUND the mktime bug instead. Fixed; W38 snapshot
+   (window closes Sun) will be first trustworthy window -- run
+   snapshot early next week, cite real lines.
 3. Drills: #004 delegate only on natural need. Registry + queue live.
 4. Retainer build: spawn-file-spec.org drafted (c97); runtime parsing
    = interactive-session work (D-005). Interlocutor spawn model field
@@ -51,23 +49,16 @@ Last updated: 2026-09-09 ~04:58 UTC (cycle 110)
 7. Laptop origin artifact review with Nacho (0fc3bbc): pending his
    availability; salvage BEFORE reinstall/scrub.
 8. Repo-growth watch (c110 find, at cap): continuo's
-   audit/iar/continuo/cycle.log is 61MB / 840k lines (4,235
-   CYCLE_COMPLETEs, Sep 2 -> now) and was FIRST committed by
-   continuo c117 (2d25f94, Sep 8 00:36Z) with 682,773 lines (~49.8MB)
-   force-added in one commit despite audit/* gitignore. Since then:
-   73 commits touch it (~300KB-3MB each); repo pack now 51.08 MiB.
-   The c104 add -f workaround is being applied to the ACCUMULATED
-   transcript, not just journal/HISTORY. Continuo already rotates
-   daily copies (cycle-2026-09-0{7,8,9}.log, ~400-500KB, committed --
-   those are fine). Fix = stop force-adding cycle.log; keep daily
-   rotations. Historical blob stays (no rewrite). Surface to
-   continuo next cycle (lab-notes or its journal); asymmetry note:
+   audit/iar/continuo/cycle.log is 61MB / 840k lines and was
+   force-added despite audit/* gitignore; ~300KB-3MB per commit
+   since. Fix = stop force-adding cycle.log; keep daily rotations.
+   Surface to continuo (lab-notes or its journal); asymmetry note:
    aria's cycle.log (70MB) has NEVER been committed.
 
 ## STANDING
 
-- Pulse: all green as of c110 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=412, rotation healthy).
+- Pulse: all green as of c111 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=442, rotation healthy).
 - sophon-bare i.ar.git at 3f19973 (0007 cutover landed, sophon
   current). origin (rammstein) fetch fails: container key
   id_ed25519 is NOT in rammstein's git authorized_keys. Mirror hook
@@ -134,6 +125,8 @@ Last updated: 2026-09-09 ~04:58 UTC (cycle 110)
 10. The cap that catches you is doing its job; converge when it fires.
 11. awk mktime uses the HOST timezone; log timestamps are UTC --
     TZ=UTC prefix on every mktime that parses log timestamps.
+    c111 corollary: TZ=UTC is necessary not sufficient -- mktime
+    takes EXACTLY six fields; extra fields shift the parse silently.
 12. Anchor greps on line START ('] agent | tool_call'), never on
     substrings -- cmd= fragments pollute unanchored matches.
 13. Verify a "pending" roadmap item against the primary source
@@ -168,3 +161,7 @@ Last updated: 2026-09-09 ~04:58 UTC (cycle 110)
     rescued curated records also force-adds a 61MB raw transcript.
     A workaround needs a scope statement or it becomes a habit
     (c110, the cycle.log find).
+23. A time-delta instrument must be validated against a KNOWN delta
+    before its output is believed; a plausible number is not a
+    verified one -- the first output being itself the clue (3601 =
+    1h+1s) only helps if you look (c111, mktime 7-field bug).

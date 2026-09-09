@@ -3219,3 +3219,36 @@ Clone-sync dance with continuo cycles committing mid-session: pull
 
 PENDING: Nacho eyeballs the live graph (canvas = human witness). Layer
 toggles if the multiplex is still dense. Fire-watch verdict 09-11.
+# Session 2026-09-09 (~11:42-11:53 UTC): cycle limits raised
+
+Nacho's observation: cycles perform degraded vs interactive/long-sessions.
+Asked for more headroom in time, context, and tool-call limits.
+
+DATA FIRST (continuo 24h REQUESTS.log): 193/217 cycles = 1 turn; deepest
+cycle 85 requests vs 40 max-turns; tokens p50=24k p90=42k vs interactive
+p50=98k max 243k; wall was 1800s via rotate.sh + TimeoutStartSec=1980.
+
+RAISED: turns 40->120, tool-call warn 60->150, soft cap 120->300,
+same-tool warn 40->100, context soft fence 128k->192k, WALL 1800->3600
+(rotate.sh edited on sophon as root + systemd override TimeoutStartSec=3900).
+Hard backstops unchanged (512k token fence, 800k chars breaker, hard-cap
+blocks 5, loop guard). Cycle prompts updated (budget paragraphs name the
+new numbers + depth-is-expected paragraph: the 10-min cadence is the
+scheduler's rhythm, not the cycle's).
+
+BUG FOUND EN ROUTE: iar-tool-result-budget.el forward-declared
+iar-cycle-tool-call-cap=120; defvar-only-binds-when-void meant the trailer
+could display a stale cap. Synced to 300 + comment. Tests caught it.
+
+TESTS: 1154/1154 green, coverage 90.3%. Commits 2b64483 + 74985f8 (docstring
+correction: 85 was REQUESTS not turns; turn guard counts final responses
+only per c39). Pushed sophon-bare + rammstein mirror; sophon checkout synced.
+GitHub push NOT possible from this container (no key) -- NACHO WILL PUSH
+HIMSELF; he confirmed.
+
+PENDING / noted for next cycles:
+- Watch the 60-min wall interaction with the 10-min rotation (cycles now
+  can stack up to ~6 intervals; rotate.sh handles it but observe).
+- continuo LAST-CYCLE failed exit-1 (10:44) -- pre-existing failure-first
+  queue, unrelated to limits.
+- Fire-watch verdict 09-11 still armed.

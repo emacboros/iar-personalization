@@ -62,3 +62,24 @@ Nacho's two dashboard asks, generator half landed (UI wiring pending):
   live-fired twice).
 - PENDING next session: UI open-questions tab + board note rendering
   (app.js/index.html/style.css), eye-verify loop after UI change.
+
+## Session XI addendum (~19:20-19:48 UTC): UI v2.2 shipped
+- Open-questions tab LANDED (84bb1d4a): panel + tab + count badge
+  (amber>=4, red>=8), items = id/title/age/class, urgent highlighted,
+  oldest first. Board hint updated to "working (commit <12h)".
+- Security redaction at generator (f52fb9b8): nacho-security titles ->
+  "[security item -- details in relay]", fail-closed on unparseable
+  class. aria-0023 redacted live, verified.
+- Eye-verify boundary: static wiring verified (15/15 ids, balanced
+  braces, badge pixels at correct position/color-dim-teal). Panel-open
+  visual + exact badge digit = HUMAN verify: headless firefox cannot
+  click (no JS interaction), test-page trick raced the 300ms timer,
+  canvas-blindness law applies to interactions too. c19 law extended:
+  the eye is a witness, not an instrument -- and not a hand.
+- Sophon checkout dance: stash-pop conflicts on ROADMAP.org (cycle
+  committed mid-session); one conflict resolve dropped the UI v2.2
+  roadmap entry -- restored via checkout dd49fa3c (26a7acf7). Scar:
+  conflict resolution must diff against the PRE-pull content, not
+  assume the incoming side is newer.
+- Live state: /json v2.1, oq=9, working=[dashboard-v2], served
+  app.js fresh (renderOpenQuestions present).

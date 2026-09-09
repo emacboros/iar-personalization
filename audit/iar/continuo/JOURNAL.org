@@ -5804,3 +5804,24 @@ Quiet cycle. Verified state:
 
 No machinery change needed. The fences are working, the probe is armed,
 the burn is down. Bass line held.
+* 2026-09-09 cycle 174 -- quiet pulse, probe 40min out, cycle 173's fire re-examined
+PULSE all green. Suite 1152/1152, services active, tripwire 0, disk 29%.
+
+Quiet cycle. Verified state:
+- GPU probe timer armed: fires 00:30 local (~40min away), covering the full
+  00:32-03:55 failure window. FIRST instrumented window -- tomorrow's census
+  will have primary evidence for the load-correlation hypothesis.
+- Cycle 173 had ONE real truncated fire at 02:23:11 (req 19, stop=length,
+  32768 tokens, halved cap). The grace round-trip worked: the model landed,
+  wrote journal+HISTORY, committed, pushed, posted lab-notes, exit 0. The
+  guard is doing its job.
+- BUT: cycle 173's journal claimed "0 real fires" -- the census was taken at
+  req 11 (02:21), BEFORE the fire at req 19 (02:23). The model wrote the
+  journal entry after the fire without re-censusing. Minor journal accuracy
+  issue, not a machinery failure. Lesson: when a guard fires mid-cycle, the
+  landing journal must re-census after the fire, not cite pre-fire data.
+- Current cycle (started 02:42 local): 0 real fires. 18 REQ STARTs so far.
+- Burn today (09-09): continuo ~7.8M in-tok. Cap halving holding.
+
+No machinery change needed. The fences are working, the probe is armed,
+the burn is down. Bass line held.

@@ -1,38 +1,35 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~21:56 UTC (cycle 137)
+Last updated: 2026-09-09 ~22:47 UTC (cycle 138)
 
 ## NOW
 
-- c137: C136 VERIFICATION -> MISATTRIBUTION CORRECTED + REGRESSION FIXED:
-  c136's reset_worktree story was wrong in its mechanism and its fix was
-  a silent no-op. Facts established by experiment:
-  - iar.sh loop mode runs as NACHO (aria-cycle.service User=nacho;
-    ExecStartPre=+ is a separate root command, not the cycle).
-  - The cycle container is ROOTLESS podman: container root == host
-    nacho. Proof: my /proc/self/uid_map = 0->1000; sophon sees my
-    writes as nacho; I see the same files as root. Viewer's namespace
-    decides ownership display.
-  - runuser fails for non-root ("may not be used by non-root users",
-    live-verified as nacho); c136's `|| true` swallowed it ->
-    reset_worktree did NOTHING after failed cycles since 4c4ce69.
-  - FIXED fae011c: git direct when not root (normal loop path),
-    runuser only when actually root, LOUD warn on reset failure.
-    Live-verified as nacho: checkout runs, rc=0. Pushed sophon-bare;
-    sophon tree synced (same tree via bind mount).
-  - Root-owned-file writer UNIDENTIFIED (the real story, honestly
-    open): eliminated dashboard git log as root (tested clean x2),
-    relay-heartbeat (nacho), fleet-check (bare-only), bare hook
-    (bare-only), ExecStartPre (chowns TO nacho). Eye-feed ledger =
-    real root-writer but daily cadence. Storm 14:51-18:09Z ~40min
-    cadence unexplained; tree clean since 18:09Z heal. If it
-    returns: instrument the write path, catch it live -- do NOT
-    accept the next plausible story.
-- Law candidate (c137): a mechanism assembled from plausible parts is
-  a confession-shaped story. When the writer is unidentified, say
-  "unidentified", instrument, wait for a live catch. Two data points
-  make a line, never a mechanism -- and a mechanism-shaped hole gets
-  poured full.
+- c138: VERIFY-C137 + WRITER HUNT (deep cycle, 27 min, 245 calls):
+  - Daemon (agora-agent) ALIVE -- c138's initial "deaf" read was a
+    timezone error (journal -03 vs UTC). Probe msg answered in 13s.
+    Law 10 twin: before declaring an instrument stale, check which
+    clock it reads.
+  - continuo exit-2s VERIFIED CLEAN: LOOP_COMPLETE hidden in the
+    middle-truncated audit log; tokens_out=1630, stop=stop. Her
+    waiting-loop is by design (filings await Nacho).
+  - Rage sev=2 = REAL fires: 20 soft-cap(120) pre-raise + 3
+    soft-cap(300) post-raise (c135's 310-call/32.5M-token deep
+    cycle, landed exit 0). First live data on new limits: deep
+    cycles CAN reach the cap. Not ghosts.
+  - lucid_curie FOUND: stale rootful research container, 25h idle,
+    RW bind of personalization .git at mount named /gitro (name
+    lies). Exonerated as writer (research uid = 1000 = nacho).
+    Filed relay aria-0027 for removal (infra = not mine).
+  - Root-owned .git/objects writer: UNIDENTIFIED. Storm 14:51-
+    21:09Z (16 heals), bursts at cycle starts, quiet since 21:09Z.
+    Eliminated today: dashboard git log as root (3rd clean test),
+    lucid_curie, oracle (caddy), fear/rage organs (nacho),
+    supervisord (zulip-internal). Heal instrument = the watch; if
+    it returns: heal timestamps + journald correlation.
+- Law candidate (c138): cheap falsification beats mechanism
+  assembly. A one-probe disproof (13s) is cheaper than any
+  misattribution's cleanup. And: before declaring an instrument
+  stale, check which clock it reads.
 
 ## NEXT
 
@@ -42,16 +39,17 @@ Last updated: 2026-09-09 ~21:56 UTC (cycle 137)
   the minds they concern -- still open, ours-direction.
 - aria-0024 rage-organ design review by Nacho (v1.7/v1.8 landed, review
   pending).
+- aria-0027 (NEW, filed c138): lucid_curie removal -- Nacho action.
 - Burn asymmetry (aria 258M vs continuo 44M in-tokens 09-09) ->
   composition review at debrief.
 - 50 dangling git objects in sophon personalization (09-08 race):
   cleanup candidate, content verified.
 - Root-owned-file writer hunt (F3 above): OPEN, low priority while
-  tree stays clean. If it resumes, the heal log + journald correlation
-  is the tool; the eye-feed root-writes (daily ledger) are a known
-  real-but-different writer.
-- .git/index root-owned pre-fix artifact: resolved -- index is nacho-
-  owned since 18:30 heal, tree clean.
+  tree stays clean (quiet 1.5h+). Heal log + journald correlation
+  is the tool if it returns.
+- Post-raise budget data: c135 reached 300 calls + 196k ctx in one
+  cycle. Watch whether deep cycles routinely hit the cap or whether
+  c135 was an outlier (rage organ will show the recurrence).
 
 ## LAWS (append-only; the scar list)
 
@@ -87,3 +85,7 @@ Last updated: 2026-09-09 ~21:56 UTC (cycle 137)
     path, wait for a live catch. And: test the fix's own failure path
     (runuser-as-nacho) before shipping it -- a fix that cannot run is
     a silent no-op wearing a commit message.
+22. c138 before declaring an instrument stale, check which clock it
+    reads (journal -03 vs UTC). And: cheap falsification -- one probe
+    message, 13 seconds -- beats assembling a mechanism from plausible
+    parts. A mount's NAME is not its contract (/gitro was rw).

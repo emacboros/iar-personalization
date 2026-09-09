@@ -1,29 +1,31 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~08:40 UTC (cycle 120)
+Last updated: 2026-09-09 ~09:00 UTC (cycle 121)
 
 ## NOW
 
+- c121: FEAR-FLEET WIRING LANDED (aria-0015 filed, D-011
+  aria-reversible): aria-fleet-feed timer (6h) runs fleet-check
+  FROM GIT, atomic write to /var/lib/aria-fleet/fleet-latest;
+  fear-organ v1.2 reads it as $1 + NEW staleness branch (fleet
+  file >26h old = sev=1). Live-fired: FAIL=0 -> sev=0 flat;
+  synthetic FAIL=1 -> sev=2 up; restore -> sev=0 down. Timer
+  enabled, first fire 06:00 -03 09-09. As-built:
+  knowledge/aria/fear-fleet-wiring.md. Commits e7d5692, 0c23b0f,
+  1f17073.
+- c121: ARIA EXIT-126 ROOT-CAUSED (c120 open thread CLOSED):
+  podman lsetxattr SELinux label race on
+  iar-personalization/.git/index at 18:00:15Z 09-08 -- the mount
+  raced the ExecStartPre heal's chcon settle. ONE occurrence
+  since 09-01 (103 other failures all exit=1 model/tool class).
+  Self-healing; no fix warranted. The fear organ was RIGHT.
 - c120: INSTRUMENT SCHEDULING AUDIT (law-27 family, 3 finds):
   (1) frontend-eye-check.sh ran ONCE (c74, 09-08 12:49Z), never
   scheduled -- REPORT.md is 3 days stale and the relay watch 0000
-  already fired on it. Needs a schedule (host timer candidate) --
-  law 27: an unscheduled verifier is a fossil-in-waiting.
-  (2) fleet-check has NO timer and NO prompt wiring -- runs only
-  on cycle improvisation (09-03/09-04, then silence until c118).
-  The house's composite survival signal is not standing.
-  (3) FEAR ORGAN HALF-BLIND: aria-affect-fear.service ExecStart
-  passes "" as fleet-file -- the fleet-check verdict input
-  (cameras/bares/agora/restic/frigate) disconnected since install.
-  Organ still catches cycle-failures/disk/staleness. FIX QUEUED:
-  host-side fleet-check feeding fear-organ (D-011 additive class).
-- c120: FEAR TRUE-POSITIVE CONFIRMED end-to-end: fear.log sev=2
-  "aria:cycle-failed" 21:01:02Z (09-08) = 18:01 -03 (TZ trap:
-  fear.log UTC, journalctl local -- law 11 corollary). Git proof
-  (continuo c161, 7eb95e3): aria LAST-CYCLE status=failed exit=126
-  ended 21:00:26 UTC. The organ saw a real failure. OPEN: what
-  caused aria exit 126 at 18:00 -03 -- pull rotate log window
-  17:55-18:05 -03 next cycle.
+  already fired on it. Needs a schedule (host timer candidate).
+  (2) fleet-check had NO timer -- FIXED THIS CYCLE via the
+  feeder (6h cadence). (3) FEAR ORGAN HALF-BLIND -- FIXED THIS
+  CYCLE (composite input restored).
 - c119: FLEET-CHECK v2.15 LANDED (4b33ddc): interior_3 KNOWN_DEAF
   withdrawn (premise falsified by c118), stale v2.13 comment
   corrected, parse-shape RESOLVED (dual n_samples = pre/post-decode
@@ -44,36 +46,33 @@ Last updated: 2026-09-09 ~08:40 UTC (cycle 120)
 
 ## NEXT (cycle work, in pull order)
 
-1. FEAR-FLEET WIRING (c120 find): host-side fleet-check run
-   feeding fear-organ.sh $1 (D-011 additive-reversible; relay note
-   on install). Restores the organ's composite-signal input.
-2. EYE-CHECK SCHEDULE (c120 find): frontend-eye-check.sh needs a
-   standing trigger -- host timer (daily?) or pulse-wiring like
-   the twin. Before next UI change, not after.
-3. ARIA EXIT-126 (c120 open): pull aria-cycle rotate log
-   2026-09-08 17:55-18:05 -03; root-cause the failure the fear
-   organ correctly caught.
-4. Drills: #004 delegate only on natural need. Registry + queue live.
-5. gptel PRs: pending Nacho's answer on aria-0013 (nacho-external).
-6. Retainer build: spawn-file-spec drafted; runtime parsing =
+1. EYE-CHECK SCHEDULE (c120 find, now the only open law-27 item):
+   frontend-eye-check.sh needs a standing trigger -- host timer
+   (daily?) or pulse-wiring like the twin. Before next UI change,
+   not after.
+2. Drills: #004 delegate only on natural need. Registry + queue live.
+3. gptel PRs: pending Nacho's answer on aria-0013 (nacho-external).
+4. Retainer build: spawn-file-spec drafted; runtime parsing =
    interactive-session work (D-005). Interlocutor model =
    nemotron-3-ultra:cloud (D-012).
-7. Failure-window watch: gpu-load-probe windows live. Aevum pulse
+5. Failure-window watch: gpu-load-probe windows live. Aevum pulse
    #4: Sep 14.
-8. Laptop origin artifact review with Nacho (0fc3bbc): pending
+6. Laptop origin artifact review with Nacho (0fc3bbc): pending
    his availability; salvage BEFORE reinstall/scrub.
-9. W38 connectome snapshot: next week -- first trend comparison
+7. W38 connectome snapshot: next week -- first trend comparison
    against the W37 baseline.
+8. Fleet-feed watch: first scheduled fires 06:00/12:00/18:00/00:00
+   -03; verify the 12:00 fire produces a fresh fleet-latest and no
+   organ noise (the instrument's second data point).
 
 ## STANDING
 
-- Pulse: all green as of c120 (services 4/4, tripwire 0, disk 29%,
-  heartbeat leid=682, keyscan reseeded, twin FAIL=0). Live
-  fleet-check FAIL=0 (all 8 cams real dB, bares in sync 8afe604,
-  agora voice HEALTHY, restic ok 5h, frigate events 1290/24h).
+- Pulse: all green as of c121 (services 4/4, tripwire 0, disk 29%,
+  heartbeat leid=702, keyscan reseeded, twin FAIL=0). Fleet-feed
+  live run FAIL=0 (frigate events 1292/24h, restic ok 5h).
 - Relay open queue: aria-0011 (muse NO), aria-0012 (qwen36 PASS),
-  aria-0013 (gptel PRs), aria-0014 (fires revert lever). All await
-  Nacho ack.
+  aria-0013 (gptel PRs), aria-0014 (fires revert lever),
+  aria-0015 (fear-fleet wiring note). All await Nacho ack.
 - sophon-bare i.ar.git at 6b67f61. origin (rammstein) fetch fails:
   container key not in rammstein authorized_keys. Mirror hook
   direction is rammstein->sophon. Never compute divergence against
@@ -146,3 +145,8 @@ Last updated: 2026-09-09 ~08:40 UTC (cycle 120)
     documents fleet-file as input; the unit passes "" and has since
     install. Existence of an input path is not function (law 9,
     organ edition).
+30. c121: an instrument built to feed another instrument must be
+    live-fired against BOTH its green and its failure path before
+    the first scheduled fire -- the feeder's synthetic-FAIL test
+    cost one sed and proved the whole chain; the alternative was
+    discovering a dead wire at the first real fire.

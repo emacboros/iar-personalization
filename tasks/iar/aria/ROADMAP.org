@@ -1,47 +1,46 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~02:41 UTC (cycle 106)
+Last updated: 2026-09-09 ~03:03 UTC (cycle 107)
 
 ## NOW
 
-- c106: DEBT-CLEARING CYCLE. 2cd094f pushed (c105 cap-blocked;
-  continuo ed3c625 on top, ff-clean). Lab-notes re-posted
-  (thread/commit-history-lies, c93 precedent). Connectome design
-  doc + hang-witness asymmetry section (a6073de): audit.log logs
-  at completion -> hangs invisible; commits undercount failure
-  windows; wrapper-exit != cycle-health; REQUESTS.log latency gaps
-  = the hang witness; snapshot should grow a SILENCE column.
-- drill-002 live-fire debt PAID (92fccc2): read_own_prompt fired
-  c104 01:51Z (audit line + REQ 260909015048-5). "Drift detection
-  works" RESTORED with primary evidence. Registry + done-file
-  updated.
-- aria-0006 seam READ (not built): interactive sessions have NO
-  state (iar--cycle-state/one-shot nil -> fences no-op; tool-cap
-  breaker documents "interactive not capped"). Bridge runs for
-  every gptel response; fences just don't arm. Fix shape: a
-  lightweight interactive state the cross-response +
-  output-runaway checks can read, recovery = snap-out insert.
-  Shared agent module -> suite green before commit. Journal c106
-  has the full seam map.
-- muse pull 78% at 02:40Z (12466/15980MB), ~1.0-1.3 MB/s, ETA
-  ~03:35Z. Battery next cycle. Loop-chain guard caught blob-poll
-  iterator (11 same-tool chain) -- law 6, converged.
+- c107: aria-0006 interactive fence BUILT (proposal, default off).
+  Seam verified AT SOURCE (gptel fork: post-response hook receives
+  (start end) positions, fires on DONE only; bridge registered
+  globally at load -> fires interactively; cycle/one-shot handlers
+  buffer-local -> absent interactively = the seam). Implementation
+  in iar-agent-cycle.el: iar-interactive-fences defcustom (default
+  nil, nacho-test class), iar--interactive-state (buffer-local,
+  lazy), iar--interactive-fence-handler (global hook, no-op unless
+  armed + no cycle/one-shot state + not disarmed). Reuses the
+  cycle fences' pure checks (output-runaway 20, cross-response 30/5).
+  Recovery = one snap-out; second fire = DISARM + message (human is
+  the loop; M-x iar--interactive-fences-reset re-arms). 7 tests
+  written. check-elisp clean (pre-existing warnings only).
+- COMMITTED LOCAL (personalization fa4505a journal+history; i.ar
+  source+tests UNCOMMITTED -- cap hit before git add). SUITE NOT RUN
+  -- the run was cut by the cap. NEVER PUSH RED / NEVER CLAIM GREEN
+  WITHOUT THE RUN: next cycle FIRST ACTION is the suite.
+- muse pull 86% at 02:53Z (13620/15980 MB), NOT LISTED in ollama
+  yet. ETA ~03:35Z holds. Battery next cycle after this one.
 
 ## NEXT (cycle work, in pull order)
 
-1. muse-glimmer:30b battery WHEN PULL LANDS (~03:35Z). Confirm
+1. SUITE RUN for the interactive fence (FIRST ACTION): cd
+   /root/i.ar/emacs.d && ./test/run-tests.sh (full suite). Fix
+   whatever it finds. Suite green -> commit i.ar source+tests ->
+   push sophon-bare -> push personalization (fa4505a pending push)
+   -> answer relay aria-0006 with the verdict + seam map + the
+   defcustom default-off ratification ask. If red: fix before any
+   push; if the fix grows past budget, journal + park.
+2. muse-glimmer:30b battery WHEN PULL LANDS (~03:35Z). Confirm
    `ollama list | grep muse` first. Vision FIRST via the VALIDATED
-   probe recipe (prep note 33d3fb1 verbatim; control passed on
-   gemma3:4b). Watch journalctl for fitter pattern. Then text/tool/
-   schema/ctx-ladder/eviction per battery.org. If budget-short:
-   vision + text only, defer rest (pre-analysis a695b92 carries
-   context). Verdict via relay.
-2. Interactive text-loop guard (aria-0006): build the interactive
-   state + wire cross-response/output-runaway checks to it. .el
-   work in iar-agent-cycle.el + tests; suite green before commit;
-   relay answer references the seam map (journal c106). Nacho
-   ratification still needed (nacho-test class) -- build as
-   PROPOSAL branch or behind a defcustom default-off if unsure.
+   probe recipe (prep note 33d3fb1; control passed on gemma3:4b).
+   Watch journalctl for fitter pattern (pre-analysis a695b92:
+   1.9B vision tower, CLIP-style, no deepstack -- fitter bug if
+   alive will hit HARDER than qwen). Then text/tool/schema/
+   ctx-ladder/eviction per battery.org. Budget-short: vision +
+   text only. Verdict via relay.
 3. Connectome snapshot v2: add SILENCE column (max inter-PARSE gap
    per agent per cycle window) to connectome-snapshot.sh. W38
    snapshot gets the falsifiable observation (drill pattern).
@@ -50,38 +49,53 @@ Last updated: 2026-09-09 ~02:41 UTC (cycle 106)
    parsing = interactive-session work (D-005).
 6. Failure-window watch: gpu-load-probe first instrumented window
    00:30 tonight (Sep 10); continuo owns the census. Aevum pulse #4:
-   Sep 14.
-7. 0007 cutover archetype EDIT: ratified, still not landed.
-   Interactive-session class (archetype file). Awaiting Nacho.
+   Sep 14 (pulse-3 landed 23:40Z Sep 8: fixed-point holds, 253
+   aborts/day, tick 141, belt still eating -- read pulse-3 for the
+   two-regime confirmation).
+7. 0007 cutover archetype EDIT: LANDED upstream 3f19973 (cutover
+   text in aria_daily.org). CLOSED.
 
 ## STANDING
 
-- Pulse: all green as of c106 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=252, rotation healthy).
-- Container ssh note (c105): /root/.ssh has id_ed25519 (not
-  aria_ed25519); default-key ssh to sophon works. Rage organ's
-  v1.6.2 key-order fix concerns its own probe path only.
-- read_own_prompt live-fire DONE (c104); drill-002 debt PAID (c106).
+- Pulse: all green as of c107 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=272, rotation healthy).
+- sophon-bare i.ar.git at 3f19973 (0007 cutover landed, sophon
+  current). origin (rammstein) fetch fails: container key
+  id_ed25519 is NOT in rammstein's git authorized_keys (nacho@yoga,
+  ansible@yoga, git-mirror@sophon, radicale-backup@rammstein only).
+  sophon-bare HAS aria@i.ar. Mirror hook (post-receive on
+  rammstein) pushes to sophon -- direction is rammstein->sophon.
+  The c106 "origin/main..HEAD" divergence check was run against a
+  STALE origin ref (fetch fails = stale forever) -- law 7 lives.
+- Stale branch continuo/usage-write-fix DELETED from sophon-bare
+  (c107: verified fully merged into main, 0 unmerged commits).
+- 14 of 20 sophon repos have DANGLING HEAD (HEAD->refs/heads/master,
+  only main exists; concepts.git has ZERO refs at all). Known issue,
+  fixes queued for Nacho (digest). Do not clone those by branch name.
+- Container ssh note: /root/.ssh has id_ed25519; sophon accepts it
+  (in sophon's git authorized_keys). rammstein git does NOT.
 - Diverged-pull protocol: stash -> rebase -> pop -> push. SCAR
-  (c97): nobody-owned untracked file freezes rebase. Escape:
-  update-ref + re-apply from object.
+  (c97): nobody-owned untracked file freezes rebase.
 - audit/iar is GITIGNORED in personalization repo -- git add -f
   required for journal/HISTORY commits (c104 discovery).
 - Timer-state lie: aria-cycle.service shows "activating" mid-cycle.
 - glm degradation watch (session VI): 3 human-witnessed events;
-  aria-0006 = 4th class sighting (interactive, no guard).
+  aria-0006 = 4th class sighting (interactive, no guard -- the
+  guard is now BUILT, pending suite + ratification).
 - aria-cycle.conf key parse: ini-format key=value (cut -d=, not -d:).
 - Sophon-side file creation = nobody:nobody (podman id-mapping).
 - Zulip read API: narrow param URL-encoded JSON; .subject not .topic.
 - Ollama sparse blobs: partial blobs pre-allocate; st_blocks is the
-  written bytes (c99). Blob dir is /usr/share/ollama/blobs (NOT
-  .ollama/models/blobs -- c106 correction).
+  written bytes (c99). Blob dir is /usr/share/ollama/blobs.
 - gemma3 cold-load = 17-20s; affect organs' 20s curl timeout races
-  it right after any ollama restart (c99, one-shot, self-heals).
+  it right after any ollama restart (c99, self-heals).
 - Vision probe recipe (c104): b64 via ssh-interpolated python on
   sophon side; heredoc+JSON mangles base64 -> mtmd decode failure.
 - Soft-cap economics (c101): 120 calls x ~35-60k mean ctx = 4-7M
-  in-tok; the cap fires late (6M+ burned). Batching is the lever.
+  in-tok; the cap fires late. Batching is the lever. c107 burn:
+  ~35 calls of source-reading -- the .el reading was the right
+  spend, but grep-walks could batch harder (one grep with -A/-B
+  beats five separate seds).
 - Ran-as law (c102): every organ/instrument logs WHO it ran as and
   which input-branch it took.
 - gemma3:4b "mmproj" is NOT clip -- architecture=gemma3, whole
@@ -97,6 +111,9 @@ Last updated: 2026-09-09 ~02:41 UTC (cycle 106)
 6. The fence that catches you mid-walk is RIGHT; stop the walk.
 7. Instruments that disagree: fetch upstream directly before
    computing divergence (merge-base against stale ref lies).
+   c107 corollary: a remote that CANNOT be fetched (perm denied)
+   serves a stale ref forever -- check fetch success, not just
+   ref existence.
 8. Pull-before-write, always; stash-rebase-push on divergence.
 9. Existence is not function: test the claim.
 10. The cap that catches you is doing its job; converge when it fires.
@@ -123,3 +140,6 @@ Last updated: 2026-09-09 ~02:41 UTC (cycle 106)
 19. Waiting for a state change is not work: polling a blob/ETA
     cannot accelerate it -- check once, record the ETA, spend the
     budget on something that converges (c106).
+20. A test suite that has not run is a press release, not a test --
+    built is not verified; commit local-only until the suite speaks
+    (c107, the c104 scar applied to my own build).

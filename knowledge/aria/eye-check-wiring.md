@@ -47,3 +47,22 @@ Files: /usr/local/bin/aria-eye-feed.sh (v1),
 /etc/systemd/system/aria-eye-feed.{service,timer}. Enabled
 09:2x -03 09-09. UNDO: systemctl disable --now aria-eye-feed.timer;
 rm the three files. Relay note filed (aria-0017).
+## Known limitation: the headless eye cannot see the canvas (2026-09-09, session X)
+
+firefox --headless --screenshot captures after the load event but
+BEFORE the first requestAnimationFrame paint. aria.randazzo.ar's
+main visual is a canvas painted by rAF -- so the eye has NEVER seen
+it, in v1 or v2. Ledger evidence: all three aria.randazzo.ar reads
+(09-08, 09-09 09:23, 09-09 11:15) describe only DOM elements (title,
+mouth panel); zero mention of graph nodes in any era.
+
+Verified NOT a rendering bug: an inline test page (real app.js, real
+/json data, stubbed fetch) painted the canvas -- 64k bright pixel
+samples, teal graph colors present after 90 simulated frames.
+
+Consequence: the eye-check is a DOM witness only (layout of HUD,
+mouth, board panel, banners). Canvas witness = Nacho's eyes on the
+sophon display, or a future instrument that waits for rAF (CDP/
+playwright screenshot-after-animation-frame). Until then: UI changes
+to canvas code are eye-verified for "page loads, DOM intact" and
+human-verified for actual graph appearance.

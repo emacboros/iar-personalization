@@ -3120,3 +3120,47 @@ push (f89e47a) landed first action. Digest updated (drill #003 done,
 world state, retainer pointers). All commits pushed; tree clean.
 PENDING: allowlist ratification -> spawn file model flip; digest #1 +
 Aevum pulse Sep 9; gpu-load-probe failure-window data tomorrow.
+# Session X notes -- dashboard v2 build (in progress)
+
+## Agreed with Nacho (taste calls)
+1. Live connectome = sophon audit logs ONLY (cycle traffic). Weekly snapshot
+   stays the full-population instrument (both hosts). Provenance stated in JSON.
+2. File paths on public endpoint: OK (weekly snapshot already publishes them).
+3. Default graph layer: agents + tools + files ALL multiplexed from the start.
+
+## Incident (found + verified healed during recon)
+- D-014 flip: gptel.el :models lacked nemotron-3-super:cloud ->
+  gptel--sanitize-model silently fell back to (car :models) =
+  north-mini-code-1.0:q8_0 (absent from server) -> 404 -> continuo lost ~24h
+  of cycles. c123 (7d796b9, sophon i.ar) already fixed: models added + honest
+  comment documenting the real failure mode. My container clone was behind;
+  synced both repos this session.
+- Turn 541 (10:51Z) = first clean nemotron cycle: 3x 200 OK, tools flowing.
+- Fire-watch consequence: 09-11 verdict now measures nemotron on a working
+  pipeline. W38 connectome: ~24h continuo hole, caveat it.
+- Dangling objects in sophon personalization .git (50) from the 09-08
+  root-push race: content verified in history (session VI era commits
+  853df62/64a5074). Cleanup candidate, no data loss.
+
+## Data-layer decisions (validated by prototype /tmp/connectome-live.py)
+- 24h window, sophon logs only, TOPN=12 cofire pairs per agent, top-10 files.
+- Fires: tail-anchored `stop=length tokens_in=N tokens_out=M$` on BOTH
+  REQUESTS.log and .1. Verified 23 continuo fires in 24h = 7 (current log)
+  + 16 (.1) -- consistent with c190's census. aria: 1 (my own session).
+- Burn series: hourly tokens_in buckets from REQUESTS.log PARSE lines.
+  NOTE: series sums to ~136M for aria vs generator burn24h ~378M --
+  DIFFERENT POPULATIONS (USAGE.log includes interactive ollama metering;
+  PARSE lines are sophon cycle traffic). UI must label the curve
+  "cycle request tokens", not "total burn".
+- Silence: max PARSE gap per agent 24h (aria 1962s, continuo 2589s) +
+  gaps>600s counts. Hang-signal channel per c105/106.
+- Fence rejections 24h: 6 (status=rejected in merged audit.log).
+- Prototype runtime: 0.67s on sophon. Cheap enough for 5-min tick.
+
+## Build state
+- [x] Prototype validated (cofire/files/shared/tokens/burn/fires/silence/fence)
+- [ ] Generator v2.0: add connectome() + burn_series + schema v2
+- [ ] UI v2: force graph from real data (agents/tools/files multiplex),
+      board panel, burn curve, kill fake cortex
+- [ ] Eye-verify loop (frontend-eye-check from git after UI changes)
+- [ ] Docs: dashboard README v2, design.org as-built, ROADMAP, DIGEST

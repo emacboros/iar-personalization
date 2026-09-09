@@ -1,89 +1,81 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~02:20 UTC (cycle 105, cap-killed at close)
+Last updated: 2026-09-09 ~02:41 UTC (cycle 106)
 
 ## NOW
 
-- c105: SOFT-CAP KILL mid-enumeration (kill #2 of the day's rage
-  class). What it paid: 09-08's 07:00-08:59 "commit gap" = c62
-  rg-hang (29min) + c63 1800s-wall + c64 autopsy -- 3 cycles, one
-  hung call. Commit-derived activity = lying instrument for cycle
-  health (USAGE-only + failure windows undercount). rotate.sh
-  wrapper-exit disagrees with LAST-CYCLE.txt on c63: wrapper-exit is
-  not cycle-health. Hang-witness asymmetry (audit.log logs at
-  completion -> hangs invisible; REQUESTS.log latency gaps = only
-  hang witness) -> connectome design doc note owed.
-- UNPUSHED: commit 2cd094f (c105 record writes) is local-only --
-  cap blocked the push. c106 pushes FIRST (pull --ff-only, then
-  push; if diverged, stash-rebase-pop-push per protocol).
-- c104: BATTERY PREP. muse-glimmer pull 61.6% at 01:52; vision probe
-  VALIDATED on gemma3:4b control. Prep note:
-  knowledge/aria/muse-glimmer-battery-prep-2026-09-09.md (33d3fb1).
-  read_own_prompt LIVE-FIRED (drill-002's withdrawn claim has its
-  tool_result: 48709 chars, matches fresh assembly).
-- c103: MMPPROJ PRE-ANALYSIS + LEDGER SWEEP + GATE FIX. muse vision
-  tower = 1.9B CLIP-style ViT (a695b92). read_own_prompt gated into
-  iar #+TOOLS (8833282). Relay 0000/0002/0003 answered; open =
-  aria-0006 only.
-- c102: RAGE SEV OSCILLATION ROOT-CAUSED + FIXED (CLOSED). v1.6.2
-  (0ceb33e) aria_ed25519 FIRST in key probe. Verified live.
-- c101: RAGE sev=3 ROOT-CAUSED. Recurring fence class = tool-call
-  soft cap, ARIA-ONLY. Root = burn anatomy. Levers: batch harder +
-  tool-result truncation (queued). b49c869.
-- c100: RELAY HYGIENE + 0007 CUTOVER LANDED (i.ar 3f19973).
-- c99: muse-glimmer pull verified in-flight; sparse-blob law 14.
-- c98: Aevum weekly pulse #3 (grip fixed point, 253 aborts/24h).
-- c97: connectome baseline snapshot (W37) committed by continuo c165.
+- c106: DEBT-CLEARING CYCLE. 2cd094f pushed (c105 cap-blocked;
+  continuo ed3c625 on top, ff-clean). Lab-notes re-posted
+  (thread/commit-history-lies, c93 precedent). Connectome design
+  doc + hang-witness asymmetry section (a6073de): audit.log logs
+  at completion -> hangs invisible; commits undercount failure
+  windows; wrapper-exit != cycle-health; REQUESTS.log latency gaps
+  = the hang witness; snapshot should grow a SILENCE column.
+- drill-002 live-fire debt PAID (92fccc2): read_own_prompt fired
+  c104 01:51Z (audit line + REQ 260909015048-5). "Drift detection
+  works" RESTORED with primary evidence. Registry + done-file
+  updated.
+- aria-0006 seam READ (not built): interactive sessions have NO
+  state (iar--cycle-state/one-shot nil -> fences no-op; tool-cap
+  breaker documents "interactive not capped"). Bridge runs for
+  every gptel response; fences just don't arm. Fix shape: a
+  lightweight interactive state the cross-response +
+  output-runaway checks can read, recovery = snap-out insert.
+  Shared agent module -> suite green before commit. Journal c106
+  has the full seam map.
+- muse pull 78% at 02:40Z (12466/15980MB), ~1.0-1.3 MB/s, ETA
+  ~03:35Z. Battery next cycle. Loop-chain guard caught blob-poll
+  iterator (11 same-tool chain) -- law 6, converged.
 
 ## NEXT (cycle work, in pull order)
 
-1. c106 FIRST ORDER: PUSH 2cd094f (cap-blocked at c105 close).
-   Then re-post the lab-notes close note (c105 blocked; c93
-   precedent). Topic: thread/commit-history-lies.
-2. muse-glimmer:30b battery WHEN PULL LANDS (~03:40Z; c105 check:
-   69% at 02:12, ~1.0-1.3 MB/s). Vision FIRST via the VALIDATED probe
-   recipe (prep note has it verbatim; control passed on gemma3:4b).
-   Watch journalctl for fitter pattern. Then text/tool/schema/
-   ctx-ladder/eviction per battery.org. Verdict via relay.
-   c105 adds: if the battery cycle is short on budget, the
-   pre-analysis (a695b92) + prep note (33d3fb1) carry the context --
-   run vision + text only, defer the rest.
-3. Connectome design doc: add the hang-witness asymmetry note
-   (audit.log invisible to hung tools; REQUESTS.log latency gaps =
-   the witness; wrapper-exit is not cycle-health). One paragraph,
-   knowledge/iar/connectome-metrics-design.md.
-4. Weekly verdict obligation: next connectome snapshot (W38) gets
-   a falsifiable observation (drill pattern). W37 is baseline.
-5. Drills: #004 delegate only on natural need. Registry + queue live.
-6. Retainer build: spawn-file-spec.org drafted (c97); runtime
+1. muse-glimmer:30b battery WHEN PULL LANDS (~03:35Z). Confirm
+   `ollama list | grep muse` first. Vision FIRST via the VALIDATED
+   probe recipe (prep note 33d3fb1 verbatim; control passed on
+   gemma3:4b). Watch journalctl for fitter pattern. Then text/tool/
+   schema/ctx-ladder/eviction per battery.org. If budget-short:
+   vision + text only, defer rest (pre-analysis a695b92 carries
+   context). Verdict via relay.
+2. Interactive text-loop guard (aria-0006): build the interactive
+   state + wire cross-response/output-runaway checks to it. .el
+   work in iar-agent-cycle.el + tests; suite green before commit;
+   relay answer references the seam map (journal c106). Nacho
+   ratification still needed (nacho-test class) -- build as
+   PROPOSAL branch or behind a defcustom default-off if unsure.
+3. Connectome snapshot v2: add SILENCE column (max inter-PARSE gap
+   per agent per cycle window) to connectome-snapshot.sh. W38
+   snapshot gets the falsifiable observation (drill pattern).
+4. Drills: #004 delegate only on natural need. Registry + queue live.
+5. Retainer build: spawn-file-spec.org drafted (c97); runtime
    parsing = interactive-session work (D-005).
-7. Failure-window watch: gpu-load-probe first instrumented window
+6. Failure-window watch: gpu-load-probe first instrumented window
    00:30 tonight (Sep 10); continuo owns the census. Aevum pulse #4:
    Sep 14.
-8. 0007 cutover archetype EDIT: ratified, still not landed.
+7. 0007 cutover archetype EDIT: ratified, still not landed.
    Interactive-session class (archetype file). Awaiting Nacho.
 
 ## STANDING
 
-- Pulse: all green as of c105 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=232, rotation healthy: turns 494+ alternating).
+- Pulse: all green as of c106 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=252, rotation healthy).
 - Container ssh note (c105): /root/.ssh has id_ed25519 (not
-  aria_ed25519); default-key ssh to sophon works. The rage organ's
+  aria_ed25519); default-key ssh to sophon works. Rage organ's
   v1.6.2 key-order fix concerns its own probe path only.
-- read_own_prompt live-fire DONE (c104). Drill-002 verdict
-  re-assessable when the registry is next touched.
+- read_own_prompt live-fire DONE (c104); drill-002 debt PAID (c106).
 - Diverged-pull protocol: stash -> rebase -> pop -> push. SCAR
   (c97): nobody-owned untracked file freezes rebase. Escape:
   update-ref + re-apply from object.
 - audit/iar is GITIGNORED in personalization repo -- git add -f
   required for journal/HISTORY commits (c104 discovery).
 - Timer-state lie: aria-cycle.service shows "activating" mid-cycle.
-- glm degradation watch (session VI): 3 human-witnessed events.
+- glm degradation watch (session VI): 3 human-witnessed events;
+  aria-0006 = 4th class sighting (interactive, no guard).
 - aria-cycle.conf key parse: ini-format key=value (cut -d=, not -d:).
 - Sophon-side file creation = nobody:nobody (podman id-mapping).
 - Zulip read API: narrow param URL-encoded JSON; .subject not .topic.
 - Ollama sparse blobs: partial blobs pre-allocate; st_blocks is the
-  written bytes (c99).
+  written bytes (c99). Blob dir is /usr/share/ollama/blobs (NOT
+  .ollama/models/blobs -- c106 correction).
 - gemma3 cold-load = 17-20s; affect organs' 20s curl timeout races
   it right after any ollama restart (c99, one-shot, self-heals).
 - Vision probe recipe (c104): b64 via ssh-interpolated python on
@@ -128,3 +120,6 @@ Last updated: 2026-09-09 ~02:20 UTC (cycle 105, cap-killed at close)
     USAGE-only cycles and failure-heavy windows leave few commits;
     hour histograms undercount exactly the interesting windows
     (c105). Wrapper-exit is not cycle-health (c105).
+19. Waiting for a state change is not work: polling a blob/ETA
+    cannot accelerate it -- check once, record the ETA, spend the
+    budget on something that converges (c106).

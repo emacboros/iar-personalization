@@ -1,87 +1,88 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~05:35 UTC (cycle 112)
+Last updated: 2026-09-09 ~06:20 UTC (cycle 114)
 
 ## NOW
 
+- c114: FIRE-CENSUS thread. Continuo's daily census is a
+  re-derivation ladder (c175 "5 fires" -> c179 "1" -> c181 "2" ->
+  c182 "6, undercounted") -- an instrument that exists only as
+  per-cycle improvisation re-derives its methodology every run,
+  and the methodology has a known trap (c32 self-inflation: census
+  greps echo their own terms into specs= text). My own recount
+  stepped on the same rake: unanchored grep returned 73 "fires"
+  across 16 bursts (2.39M "wasted" tokens) -- physically
+  impossible (15 "fires" in 20s at 04:44 = continuo seeing itself).
+  Real count: ~6 fires today, all 32768-tok halved cap, all
+  deepseek-v4-flash (continuo's anchored post-c170 count stands).
+  Fix = NEXT item 9. Dashboard-v2 board view: design read
+  end-to-end, prepped as next build (data layer cycle-sized, UI
+  wiring stays interactive per CYCLES.md).
+- c113: REPO-GROWTH closed. continuo's cycle.log UNTRACKED
+  (917ff7d). Mechanism: c117 (09-08 00:36, quiet pulse) force-added
+  it once; once TRACKED, gitignore is bypassed for modifications --
+  every continuo git_commit (add -A) swept the day's growth (76
+  commits, ~847k lines, 4.1GB across blob versions). Fix = git rm
+  --cached (file kept on disk, gitignore re-asserts). Verified on
+  sophon checkout + both bare repos. History rewrite (shrinking the
+  4.1GB) = Nacho-class call, not taken.
 - c112: GPTEL FORK UPSTREAM-GAP AUDIT. All 6 fork-only fixes
-  (4c588a2 d8494f8 bcfd670 7370286 970da80 8715a6c) verified still
-  fork-only AND all 6 failure classes LIVE upstream (checked 4799c80
-  file content, not commit absence). Invisible-turn regression tests
-  4/4 green standalone -- the 8715a6c "needs reconciliation" note is
-  RESOLVED (continuo c78 landed the point-max fix). i.ar suite 57/57.
-  knowledge/aria/gptel-pr-candidates-2026-09-09.md (table + risk-
-  adjusted PR order). Relay aria-0013 (nacho-external: file PRs? --
-  his GitHub identity; my prep if yes). Dangling af2889db = fsck
-  residue of bcfd670 (identical tree, nothing lost).
+  verified still fork-only AND all 6 failure classes LIVE upstream
+  (checked 4799c80 file content). Invisible-turn regression tests
+  4/4 green standalone. knowledge/aria/gptel-pr-candidates-2026-09-09.md
+  (table + risk-adjusted PR order). Relay aria-0013 (nacho-external).
 - c111: MKTIME 7-FIELD BUG found + fixed in connectome-snapshot.sh
-  (73c975b, pushed). The "1970 " anchor made gawk mktime parse 7
-  fields (takes 6): real seconds dropped, every field shifted one
-  slot. Silence column FICTION (W37 reported aria max_gap 3615s/71
-  hangs; actual 1973s/26 -- the 3601s were minute-boundary artifacts)
-  and co-firing counts ~19% inflated, wrong in both directions.
-  N-grams/file-touch/token-economics unaffected. Analysis:
-  knowledge/aria/mktime-seven-field-bug-2026-09-09.md. W37 baseline
-  known-bad in 2 sections; W38 = first trustworthy window. Law
-  candidate: validate a time-delta instrument against a KNOWN delta
-  before believing output; plausibility is not verification (a law
-  obeyed is not a law verified -- TZ=UTC was there, the anchor lied
-  anyway).
-- c110: qwen3.6 vision RETEST PASS (roadmap item 1 closed). ollama
-  0.32.8 fixed the fitter-crash class for BOTH archs. qwen's rejection
-  reason now = fat-context tax alone. Eye stays gemma3:4b
-  (co-residency + glance cost). knowledge/aria/qwen36-vision-retest-
-  2026-09-09.md + relay aria-0012.
+  (73c975b). W37 silence + co-firing numbers known-bad; W38 =
+  first trustworthy window. Analysis:
+  knowledge/aria/mktime-seven-field-bug-2026-09-09.md.
+- c110: qwen3.6 vision RETEST PASS. ollama 0.32.8 fixed the
+  fitter-crash class for BOTH archs. Eye stays gemma3:4b.
 - c109: muse-glimmer:30b battery DONE. Verdict NO for local
-  retainer/resident (dense 27.9B, ~2 tok/s decode on 3080). Vision
-  WORKS but co-residency thrashes gemma3:4b; 8x8 images confabulate
-  silently; schema-only JSON fails. Benchmark:
-  knowledge/aria/muse-glimmer-benchmark-2026-09-09.md. Relay
+  retainer/resident (dense 27.9B, ~2 tok/s decode on 3080). Relay
   aria-0011 (nacho-arch ratification ask). Task open until Nacho.
 
 ## NEXT (cycle work, in pull order)
 
 1. [DONE c110] qwen3.6 vision retest: PASS.
-2. [DONE c111] connectome silence-column verification: the
-   verification FOUND the mktime bug instead. Fixed; W38 snapshot
-   (window closes Sun) will be first trustworthy window -- run
-   snapshot early next week, cite real lines.
+2. [DONE c111] connectome silence-column verification (found the
+   mktime bug instead; W38 snapshot early next week).
 3. Drills: #004 delegate only on natural need. Registry + queue live.
 3b. gptel PRs: pending Nacho's answer on aria-0013 (nacho-external).
    If yes: prepare branch + PR text per candidate, order 970da80 ->
    7370286 -> 4c588a2 -> d8494f8 -> bcfd670 -> 8715a6c. Fresh
-   upstream fetch required before filing (law 7; container key
-   cannot fetch origin).
+   upstream fetch required before filing (law 7).
 4. Retainer build: spawn-file-spec.org drafted (c97); runtime parsing
    = interactive-session work (D-005). Interlocutor spawn model field
    = nemotron-3-ultra:cloud (allowlist ratified D-012).
-5. Failure-window watch: gpu-load-probe first instrumented window
-   00:30 tonight (Sep 10); continuo owns the census. Aevum pulse #4:
-   Sep 14 (pulse-3 landed 23:40Z Sep 8: fixed-point holds, 253
-   aborts/day, tick 141, belt still eating).
+5. Failure-window watch: gpu-load-probe windows live (CPU-correlation
+   confirmed, load hypothesis dead per continuo c179-181; lever =
+   model mapping, Nacho's call). Aevum pulse #4: Sep 14.
 6. Digest #1 + Aevum pulse: Sep 9 (TODAY) -- retainer heartbeat is
    Nacho's; cycles prepare data if asked via relay.
 7. Laptop origin artifact review with Nacho (0fc3bbc): pending his
    availability; salvage BEFORE reinstall/scrub.
-8. [DONE c113] Repo-growth: continuo's cycle.log UNTRACKED
-   (917ff7d). Mechanism was worse than c110 thought: c117 (09-08
-   00:36, quiet pulse) force-added it once; once TRACKED, gitignore
-   is bypassed for modifications -- every continuo git_commit
-   (add -A) swept the day's growth (76 commits, ~847k lines, 4GB
-   across blob versions). Fix = git rm --cached (file kept on
-   disk, gitignore re-asserts, add -A can no longer see it).
-   Verified on sophon checkout + both bare repos. Continuo
-   notified via lab-notes.
+8. [DONE c113] Repo-growth: continuo's cycle.log UNTRACKED.
+9. FIRE-CENSUS INSTRUMENT (c114): add an anchored fire-census
+   section to connectome-snapshot.sh (PARSE lines, v1.7-style
+   anchored tail: error= stop= tokens_in= tokens_out= at line END;
+   tokens_out > 20000 = real truncated-output fire). Ends the daily
+   re-derivation ladder; methodology baked once. Cycle-sized.
+10. DASHBOARD-V2 BOARD VIEW (D-013 addendum, prepped c114): add
+    "board" field to aria-dashboard.sh python assemble block
+    (task-tree digest: thinking/working/done, 5-10 entries, from
+    tasks/iar/ tree + ROADMAP NEXT). Real data, try/except, bump
+    version v1.8 -> v1.9. UI wiring stays interactive (CYCLES.md).
+    Eye-verify after any UI change (D-013).
 
 ## STANDING
 
-- Pulse: all green as of c112 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=462, rotation healthy).
-- sophon-bare i.ar.git at 3f19973 (0007 cutover landed, sophon
-  current). origin (rammstein) fetch fails: container key
-  id_ed25519 is NOT in rammstein's git authorized_keys. Mirror hook
-  (post-receive on rammstein) pushes to sophon -- direction is
-  rammstein->sophon. Never compute divergence against origin refs.
+- Pulse: all green as of c114 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=512, rotation healthy).
+- sophon-bare i.ar.git at 6b67f61 (interactive fences landed by
+  continuo c175, suite 1159 green). origin (rammstein) fetch fails:
+  container key id_ed25519 is NOT in rammstein's git authorized_keys.
+  Mirror hook direction is rammstein->sophon. Never compute divergence
+  against origin refs.
 - 14 of 20 sophon repos have DANGLING HEAD (HEAD->master, only main
   exists). Do not clone those by branch name.
 - Container ssh note: /root/.ssh has id_ed25519; sophon accepts it;
@@ -89,17 +90,8 @@ Last updated: 2026-09-09 ~05:35 UTC (cycle 112)
 - Diverged-pull protocol: stash -> rebase -> pop -> push. SCAR
   (c97): nobody-owned untracked file freezes rebase.
 - audit/iar is GITIGNORED in personalization repo -- git add -f
-  required for journal/HISTORY commits (c104 discovery). c110
-  corollary: -f is for CURATED records (journal/HISTORY/daily
-  cycle-YYYY-MM-DD.log), NOT the accumulated cycle.log transcript.
-- Timer-state lie: aria-cycle.service shows "activating" mid-cycle.
-- glm degradation watch (session VI): 3 human-witnessed events;
-  aria-0006 = 4th class sighting (interactive guard BUILT, suite
-  green, pushed; ratification ask open in aria-0006 thread).
-- aria-cycle.conf key parse: ini-format "key = value" -- cut -d= -f2
-  leaves a LEADING SPACE (401 UNAUTHORIZED, c110); use grep -oP
-  '(?<=key = )' or awk '/^key = /{print $3}' (continuo's working form).
-- Sophon-side file creation = nobody:nobody (podman id-mapping).
+  required for journal/HISTORY commit (scope: curated records ONLY,
+  law 22; tracked-ness is sticky state -- c113).
 - Zulip read API: narrow param URL-encoded JSON; .subject not .topic.
 - Ollama sparse blobs: partial blobs pre-allocate; st_blocks is the
   written bytes (c99). Blob dir is /usr/share/ollama/blobs.
@@ -121,9 +113,12 @@ Last updated: 2026-09-09 ~05:35 UTC (cycle 112)
 - c109: the ~2s POST cadence to sophon ollama mid-cycle is the cycle
   agent's own glm-5.3-flash:cloud turns (session-*.scope in journal).
   Instrument seeing itself -- do not re-investigate.
-- c110: ollama keep-alives outlive the cycle that set them (muse was
-  resident "Forever" from c109 when c110 woke). Unload what you
-  loaded; check `ollama ps` before assuming steady state.
+- c110: ollama keep-alives outlive the cycle that set them. Unload
+  what you loaded; check `ollama ps` before assuming steady state.
+- c114: convagent/mirror/testagent/otheragent/unknown rows in
+  audit.log = TEST-SUITE artifacts (136 lines today), not agents.
+  Connectome merge must exclude them (like nil rows) or the census
+  counts the suite as a citizen.
 
 ## LAWS (accumulated; the ones that keep biting)
 
@@ -147,6 +142,9 @@ Last updated: 2026-09-09 ~05:35 UTC (cycle 112)
     takes EXACTLY six fields; extra fields shift the parse silently.
 12. Anchor greps on line START ('] agent | tool_call'), never on
     substrings -- cmd= fragments pollute unanchored matches.
+    c114 corollary: REQUESTS.log census greps must anchor the TAIL
+    (error= stop= tokens_in= tokens_out= at line end) -- specs=
+    self-echo manufactures fires (c32 law, re-learned by re-count).
 13. Verify a "pending" roadmap item against the primary source
     before working it -- roadmap lines go stale.
 14. Apparent size lies on sparse files; read the blocks (c99).
@@ -178,8 +176,15 @@ Last updated: 2026-09-09 ~05:35 UTC (cycle 112)
 22. Workarounds generalize past their warrant: the -f flag that
     rescued curated records also force-adds a 61MB raw transcript.
     A workaround needs a scope statement or it becomes a habit
-    (c110, the cycle.log find).
+    (c110, the cycle.log find). c113 corollary: the workaround's
+    effect is STICKY -- tracked-ness is state nobody owned;
+    gitignore only governs untracked files.
 23. A time-delta instrument must be validated against a KNOWN delta
     before its output is believed; a plausible number is not a
     verified one -- the first output being itself the clue (3601 =
     1h+1s) only helps if you look (c111, mktime 7-field bug).
+24. An instrument that exists only as per-cycle improvisation
+    re-derives its methodology every run and re-learns its own trap
+    each time (c114, the fire-census ladder). If a census runs more
+    than twice by hand, it wants to be a script with the anchoring
+    baked in.

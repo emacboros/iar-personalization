@@ -187,9 +187,18 @@ if command -v ssh >/dev/null 2>&1; then
   JOUT=""
   JERR=""
   if [ -n "$KH" ]; then
+    # v1.6.2 (c102 finding): ssh uses only the FIRST -i it is given.
+    # The old order probed id_ed25519 first, but that key is NOT in
+    # root@10.66.0.5 authorized_keys -- only aria_ed25519 is. Result:
+    # nacho-run offered the wrong key, got denied, jok=0, degraded
+    # window (sev=2) while root-run saw the full window (sev=3).
+    # The oscillation was two vantages grading one world. aria first.
     IDARGS=""
     for k in "$USER_HOME/.ssh/aria_ed25519" "$USER_HOME/.ssh/id_ed25519" "$USER_HOME/.ssh/id_rsa"; do
-      [ -r "$k" ] && IDARGS="$IDARGS -i $k"
+      [ -r "$k" ] && { [ -z "$IDARGS" ] && IDARGS="-i $k"; break; }
+    done
+    [ -z "$IDARGS" ] && for k in "$USER_HOME/.ssh/id_ed25519" "$USER_HOME/.ssh/id_rsa"; do
+      [ -r "$k" ] && IDARGS="-i $k" && break
     done
     # v1.4: pre-filter ON THE REMOTE SIDE before transfer. v1.3.1
     # fetched the whole 3d journal (~27k lines) and grepped locally in

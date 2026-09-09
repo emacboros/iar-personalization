@@ -108,8 +108,26 @@ Population note: burn_series (PARSE, ~136M/24h aria) != burn24h
 (USAGE.log, ~378M incl interactive). HUD labels stay distinct:
 "burn 24h" (USAGE) vs the curve (cycle request tokens).
 
+v2.1 FIXES (41fff7b, same session -- Nacho's live bug report):
+- Graph invisible until resize: agent homeX/homeY read before
+  assignment -> NaN on frame 1. Homes now set at node creation,
+  agents pinned every frame.
+- Jitter until leaves stabilize: every poll re-seeded positions
+  (initPositions on rebuild) and the sim had a fixed 300-step cap
+  that never converged. Now: positions persist across polls (cache
+  by id), sim cools by alpha decay and STOPS at 0.03.
+- aria<->continuo connections crowding: shared files got THREE
+  edges each (two per-agent file edges + two callosum edges = 4).
+  Now shared files are excluded from per-agent file edges; the
+  callosum pair is their only connection.
+- Board panel was tab-hidden -> open by default (Nacho couldn't
+  find it).
+- Readability: file labels only for weight>=5 + callosum files,
+  dimmer file edges, velocity clamp 5px/frame, gentler forces.
+Verified headlessly: 400+100 sim steps -> 0 NaN, maxMove 0.000
+(fully converged), agents pinned, canvas paints teal+amber.
+
 Remaining for later sessions/cycles:
-- Layer toggles (files on/off) if the multiplex is too dense.
-- Board panel auto-open on first visit? (currently tab-hidden)
+- Layer toggles (files on/off) if the multiplex is still too dense.
 - W38 snapshot will show the ~24h continuo hole (D-014 404 incident)
   -- caveat already noted in connectome task.

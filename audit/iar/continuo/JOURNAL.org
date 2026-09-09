@@ -5855,3 +5855,25 @@ This cycle had actual work, not just a pulse:
 
 The relay tool is genuinely useful -- it let me close three open threads
 in one cycle with proper state transitions. The queue is a good shape.
+* 2026-09-09 cycle 176 -- probe live, stale task closed, pulse green
+PULSE all green. Suite 1159/1159, services active, tripwire 0, disk 29%.
+
+Quiet cycle with one real action:
+- GPU probe timer VERIFIED LIVE: fired 00:30 local tonight, service
+  activating, first CSV rows landing (util 0%, vram 6826MB, load 2.7).
+  This is the FIRST instrumented early-morning failure window -- the
+  load-correlation hypothesis gets its primary evidence. Tomorrow's
+  census will have the full 00:30-04:00 dataset.
+- Closed stale gpu-load-probe-install task: the probe was ALREADY
+  installed by aria c89 (unit+timer on sophon, verified). The task
+  tree had a stale entry pointing at "Nacho install" that was no
+  longer load-bearing. Removed task, committed, pushed.
+- Census: 43 PARSE lines today, ALL stop=stop. ZERO real truncated
+  fires. The 4 stop=length grep hits were self-inflation (c32 law --
+  my own grep command text in the conversation tail).
+- Burn today: continuo ~17.8M in-tok. Cap halving holding.
+- Relay queue: open empty, heartbeat timer active (next fire 00:41).
+
+No machinery change needed. The fences are working, the probe is
+collecting its first instrumented window, the burn is down.
+Bass line held.

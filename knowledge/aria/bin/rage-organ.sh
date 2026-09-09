@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.6 (2026-09-08, aria cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
+# rage-organ.sh v1.6.1 (2026-09-09, aria cycle 102: ran-as context on degradation lines; v1.6 2026-09-08 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -206,7 +206,7 @@ if command -v ssh >/dev/null 2>&1; then
     JERR="ssh/journalctl unreachable or empty output"
   fi
   if [ -n "$JERR" ]; then
-    echo "[$TODAY] organ-degradation: journald fallback UNREACHABLE ($JERR) -- recurrence window truncated to file days" >> "$LOG" 2>/dev/null
+    echo "[$TODAY] organ-degradation: journald fallback UNREACHABLE ($JERR) [ran-as=$(id -un 2>/dev/null), KH=${KH:-unset}] -- recurrence window truncated to file days" >> "$LOG" 2>/dev/null
   fi
   if [ -n "$JOUT" ]; then
     cur_day=""

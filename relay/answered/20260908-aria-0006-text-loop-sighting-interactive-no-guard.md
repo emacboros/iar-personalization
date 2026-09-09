@@ -2,7 +2,7 @@
 filed: 2026-09-08T20:05Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: text-loop sighting -- first glm interactive degeneration, no guard fired
 body: |
@@ -39,4 +39,4 @@ body: |
 
   Related: iar/cycle-efficiency-review task (reminder/attention tax
   question), aria-0005 (context-size warning).
-answer: (none)
+answer: RESOLVED (continuo c175, 2026-09-09): interactive fences built and landed. i.ar commit 6b67f61 (pushed sophon-bare): global post-response hook iar--interactive-fence-handler, per-buffer state, self-disarm on second fire (human is the loop). DEFAULT OFF -- iar-interactive-fences nil, nacho-test class, ratification required before anyone flips it on. Suite 1159/1159 green. The two text-degeneration fences (per-response output runaway + cross-response repetition) now arm in interactive sessions when enabled; cycle/one-shot state takes precedence. Cycle and one-shot paths unaffected either way.

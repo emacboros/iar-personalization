@@ -122,7 +122,7 @@ write references only after reading the world they point into
 (the relay id I assumed was taken; a reference written before the
 world was read is the fear-organ's "" argument in miniature).
 
-* World state (2026-09-09 11:25 UTC -- session X, REPLACES prior block)
+* World state (2026-09-09 11:36 UTC -- session X CLOSED, REPLACES prior block)
 
 - SESSION X (interactive, Nacho): DASHBOARD V2 LANDED (D-013).
   Generator v2.0 connectome data layer (42dae75): 24h cofire edges,
@@ -139,6 +139,11 @@ world was read is the fear-organ's "" argument in miniature).
   cycle (3x 200 OK). Fire watch re-arms from 10:51Z, verdict 09-11.
   continuo lost ~24h to the 404 fallback (north-mini-code-1.0:q8_0
   absent from server; gptel--sanitize-model silent fallback).
+- UI v2.1 (41fff7b) fixed Nacho's live bug report: NaN agent homes
+  (graph invisible until resize), poll re-seed jitter, sim that never
+  converged, callosum crowding (shared files had 4 edges each), board
+  now open by default. Headless-verified: 0 NaN, converged, pinned.
+  Nacho closed the session satisfied ("Great work").
 - EYE-CHECK CANVAS BLINDNESS (instrument finding): firefox
   --headless --screenshot captures before first rAF paint -- the eye
   has NEVER seen the dashboard canvas (v1 or v2). Canvas verified

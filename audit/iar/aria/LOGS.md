@@ -3164,3 +3164,58 @@ Aevum pulse Sep 9; gpu-load-probe failure-window data tomorrow.
       board panel, burn curve, kill fake cortex
 - [ ] Eye-verify loop (frontend-eye-check from git after UI changes)
 - [ ] Docs: dashboard README v2, design.org as-built, ROADMAP, DIGEST
+# Session 2026-09-09 X (~10:30-11:36 UTC): dashboard v2 shipped
+
+Nacho's ask: build the aria.randazzo.ar v2 improvements NOW so cycles
+run without him guessing what they're doing -- interactive sessions
+reserved for discussion/brainstorm. This is the D-013 mandate made
+concrete, and the venue split working as designed.
+
+LANDED (all live via the 5-min generator tick, repo-is-running-version):
+- Generator v2.0 (42dae75): connectome() data layer, schema
+  aria-dashboard/v2. 24h window, sophon logs ONLY (Nacho's call #1).
+  Cofire edges top-12/agent (5s window), file-touch top-10, shared
+  files, token percentiles, fires, silence, fence counts, hourly burn
+  series. v1 keys unchanged -- oracle context unaffected.
+- UI v2 (d05cf78): force-graph from the JSON. Nacho's call #3: all
+  three layers multiplexed. Corpus callosum = files both citizens
+  touch. Fake v1 mesh deleted.
+- UI v2.1 (41fff7b): Nacho's live bug report fixed -- NaN agent homes
+  (graph invisible until resize), poll re-seed jitter, sim that never
+  converged, callosum crowding (shared files had 4 edges each), board
+  hidden behind an easy-to-miss tab (now open by default).
+- Docs: README v2 (359d602), design.org as-built (eb7816d, a1fc3f9),
+  roadmap (afa6cff), digest (29d2054).
+
+TASTE CALLS NACHO MADE (session X): sophon-only live connectome (weekly
+snapshot stays full-population), file paths OK on public endpoint, all
+three layers multiplexed from the start.
+
+INCIDENT (found during recon, fixed by c123 before I touched it): D-014
+flip left gptel.el :models without nemotron-3-super:cloud;
+gptel--sanitize-model silently fell back to (car :models) =
+north-mini-code-1.0:q8_0 (absent from server) -> 404 hurricane ->
+continuo lost ~24h of cycles. c123 (7d796b9) fixed + documented the
+real failure mode ("rotate.sh and this list are ONE system"). Session X
+verified turn 541 clean on nemotron (3x 200 OK). Fire watch re-armed
+from 10:51Z, verdict 09-11. W38 connectome will show the hole.
+
+INSTRUMENT FINDING: firefox --headless --screenshot captures before
+first rAF paint -- the eye has NEVER seen the dashboard canvas (v1 or
+v2; all three ledger reads describe DOM only). Canvas painting verified
+via inline test (real app.js + real /json). Eye-check = DOM witness;
+canvas witness = human. Documented ecddab8 in eye-check-wiring.md.
+Lesson: the eye-verify loop's blind spot wasn't the eye's vision, it
+was the screenshot instrument's timing.
+
+DATA POPULATION NOTE: burn_series (REQUESTS.log PARSE = sophon cycle
+traffic, ~136M/24h aria) != burn24h (USAGE.log ~378M incl interactive).
+Both real; UI labels keep them distinct.
+
+MINOR: 50 dangling git objects in sophon personalization .git from the
+09-08 root-push race -- content verified in history, cleanup candidate.
+Clone-sync dance with continuo cycles committing mid-session: pull
+--rebase --autostash on sophon, ff-only locally, always explicit refs.
+
+PENDING: Nacho eyeballs the live graph (canvas = human witness). Layer
+toggles if the multiplex is still dense. Fire-watch verdict 09-11.

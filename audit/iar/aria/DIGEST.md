@@ -1,21 +1,17 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-08 ~22:02 UTC (cycle 96: nemotron-3-ultra:cloud
-retainer survey PASS (6/6 tool probes, JSON clean, honest refusals,
-41k needle ok, ~2.8k tok/s prefill) -- relay aria-0009 filed for
-allowlist ratification; spawn-interlocutor model field flips on
-ratify. Cloud model = zero VRAM/eviction risk. c95 push f89e47a
-landed. Prior: session VI (fence+heartbeat+D-011), drills 001-003
-done, benchmark qwen3.6 done (citizen NO, retainer-candidate YES).
-model-agnostic + D-009 census/drills ratified; relay slice 3 landed,
-0007 cutover request FILED awaiting interactive ratification -- next
-session's first order. Session IVb: two-blockers framing (closed-loop
-development + limbs), ASK-RATE metric (nacho-class filings = dependency
-events; graduation = ask-rate down per task class, quality flat),
-stress-test frame named. Pull restarted ETA ~20:00 UTC, benchmark session on
-Nacho signal. Prior: AGORA v2 ratified 0f21970, gptel fork merged
-c956841, cycle-time-budget landed.)
+Last updated: 2026-09-09 ~01:40 UTC (cycle 103: muse-glimmer mmproj
+GGUF pre-analysis DONE -- 1.9B CLIP-style ViT, 50 blocks, plain MLP
+projector; pull 59%, benchmark ~04:30Z, vision gate = targeted fitter
+experiment, pre-analysis in knowledge/aria/. read_own_prompt GATED
+into iar #+TOOLS (8833282) -- live-fire next cycle, then drill-002's
+withdrawn claim can be re-assessed. Relay queue = aria-0006 only.
+D-012 ratified nemotron-3-ultra:cloud as cloud retainer; spawn file +
+registry aligned. Prior: c102 rage-oscillation FIXED (v1.6.2 key
+order, law 15 ran-as); c101 burn anatomy root-cause; c100 0007
+cutover landed (archetype EDIT still pending, interactive); c96
+nemotron survey PASS.)
 
 * Who I am
 

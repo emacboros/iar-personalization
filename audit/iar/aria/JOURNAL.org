@@ -20364,3 +20364,80 @@ are ready.
 
 [EXTERNAL DATA]: none. All house-internal (git, audit logs, .el
 sources, sophon blob stats). Internet not consulted.
+* 2026-09-09 cycle 107 -- the interactive fence built (aria-0006, proposal form)
+
+FAILURE-FIRST: c106 ok. Pulse green (4 services, tripwire 0, disk 29%,
+heartbeat leid=272). Pull clean. Roadmap said muse battery next -- I
+verified the pull against the primary source (law 13): 13.6GB/15.98GB
+(86%), NOT landed, NOT LISTED in ollama. Battery correctly deferred;
+the ETA math from c106 holds (~03:35Z, this cycle started 02:52).
+
+Thread: aria-0006, the interactive text-loop guard. Last cycle mapped
+the seam; this cycle I read the actual plumbing and built it.
+
+THE PLUMBING, verified from source (not from my own summary):
+- gptel fork's gptel-post-response-functions receives (start end)
+  BUFFER POSITIONS (gptel.el 242-248, 1449-1454) -- the bridge
+  (iar--bridge-post-response) just relays them under different
+  parameter names; run-hook-with-args passes positions through.
+  The bridge fires on DONE only (gptel--handle-post-insert, FSM
+  state DONE), not per tool round.
+- iar--tool-call-setup registers the bridge GLOBALLY at load
+  (iar-tool-call.el 385) -- so the bridge fires in interactive
+  sessions too. But the cycle/one-shot HANDLERS are registered
+  buffer-locally inside iar-run-cycle/iar-run-one-shot only.
+  Interactive: bridge fires, no handler, fences no-op. Seam
+  CONFIRMED at the source level.
+- The tool-call cap and context breaker are registered globally
+  but dispatch on (or iar--cycle-state iar--one-shot-state) --
+  no-op interactively. The truncated-output guard reads the
+  reqlog's last-stop (which IS populated interactively!) but is
+  only CALLED from the cycle handler's continue branch -- so it
+  never runs interactively either.
+
+THE BUILD (proposal form, default OFF):
+- iar-interactive-fences defcustom, default nil -- nacho-test
+  class (changes what plumbing may interrupt), ratification
+  required before anyone flips it on.
+- iar--interactive-state: buffer-local plist, lazily created on
+  first response when armed. Same fence-relevant keys as the
+  cycle state (:cross-rep-window, :runaway-recovery-given,
+  :disarmed).
+- iar--interactive-fence-handler: global post-response hook,
+  registered at load. No-ops when off, when a cycle/one-shot
+  state owns the run (their handlers own their buffers -- no
+  double-fire), or when disarmed. When armed: runs the SAME two
+  checks (output-runaway >= 20 identical lines, cross-response
+  >= 30 cumulative across 5-response window) via the existing
+  pure functions -- the interactive state is bound into the
+  iar--one-shot-state alias slot the cross-response check reads,
+  then read back and restored.
+- Recovery contract: ONE snap-out round-trip (same prompt shape
+  as the cycle path), then DISARM on second fire with a message
+  + an inserted note telling the human how to re-arm
+  (M-x iar--interactive-fences-reset). No exit code -- the human
+  IS the loop. A fence that silently re-arms is a fence that can
+  be ignored; disarm-and-say-so is the honest interactive
+  version of "second fire ends the run".
+- 7 tests: default-off no-op, runaway recovery then disarm,
+  cross-rep fires at threshold, cycle precedence, one-shot
+  precedence, clean responses no-op, reset re-arms.
+
+WHERE IT STANDS: implementation + tests written, check-elisp
+clean (only pre-existing warnings), but the SUITE RUN was cut
+short by the soft cap -- the test file loads (0-match was a
+selector-pattern issue; the file loads via run-tests.el's
+directory walk) but I have NOT yet seen the new tests pass, and
+the full suite has not run. Per law: never push red, never
+claim green without the run. The commit below is LOCAL ONLY --
+not pushed. Next cycle: run the suite, fix whatever it finds,
+THEN push, THEN answer the relay filing with the verdict.
+
+HONEST STATUS: built, not verified. The seam map from c106 is
+confirmed at source level; the fence shape follows the cycle
+path's proven contract. But a test suite that hasn't run is a
+press release, not a test -- the c104 scar applies to my own
+work too.
+
+[EXTERNAL DATA]: none. All house-internal (i.ar sources, gptel
+fork source, sophon blob stats). Internet not consulted.

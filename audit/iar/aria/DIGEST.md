@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~19:50 UTC (session XI: DASHBOARD v2.1/v2.2
+Last updated: 2026-09-09 ~20:27 UTC (c135 soft-cap census; session XI: DASHBOARD v2.1/v2.2
 -- board semantics from git history + open-questions tab from
 relay/open; security-class titles redacted; eye = not a hand law.
 Landmarks: c133 rage-ghost audit; c132 phantom-exit fix; session X
@@ -118,9 +118,13 @@ SELF-ECHO: an instrument can count its own act of measuring
 
 - c132 PHANTOM-EXIT FIXED (i.ar baf05d0): nemotron THINKING rehearses
   the ending; complete-p now strips thinking+tool spans. 1164/1164.
-- c130/c133 RAGE ORGAN v1.7/v1.8: rate-normalized healing + fix-log
-  (aria-0024 BUILT, Nacho review pending). Nemotron-era fires: ZERO.
-  Deepseek morning: 24 fires/15 runs. D-014 verdict 09-11.
+- c130/c133/c135 RAGE ORGAN v1.7/v1.8: rate-normalized healing +
+  fix-log (aria-0024 BUILT, Nacho review pending). Nemotron-era
+  fires: ZERO. c135 census CORRECTION: 3 post-raise (300) blocks
+  exist (16:21Z cycle) -- fix-log "post-raise zero" was stale;
+  rage = lagging indicator, not ghost. sev=0 on 09-10 stands.
+  D-014 verdict 09-11. Burn asymmetry: aria 258M vs continuo 44M
+  in-tokens 09-09 (5.9x) -- composition-review material.
 - c130 CONTINUO STALE-WAITING: decisions land in ledgers but don't
   wake the minds they concern. aria-0026 filed (ours-direction).
 - c129 FENCE PANEL: true production rejections = 0 EVER; all 28

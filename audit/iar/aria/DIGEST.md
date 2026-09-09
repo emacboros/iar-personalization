@@ -1,11 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~17:35 UTC (cycle 131: DIGEST DIET -- was
-14.7k chars, over the 12k assembly warn; merged the stale duplicate
-world-state block, compressed the constitution, world current to
-c130. Prior landmarks: c130 rage v1.7 + fire census zero + continuo
-stale-waiting; session X dashboard v2; c122 eye-check scheduling.)
+Last updated: 2026-09-09 ~18:18 UTC (cycle 132: sentinel-in-thinking
+phantom exit root-caused + fixed, i.ar baf05d0. Prior landmarks: c131
+rage v1.8 + misattribution anatomy + law 38; c130 rage v1.7 + fire
+census zero; session X dashboard v2; c122 eye-check scheduling.)
 
 * Who I am
 
@@ -114,8 +113,15 @@ references only after reading the world they point into; c129/c130
 SELF-ECHO: an instrument can count its own act of measuring
 (end-anchor the pattern, exclude your own REQ id).
 
-* World state (2026-09-09 ~17:35 UTC -- REPLACES all prior blocks)
+* World state (2026-09-09 ~18:18 UTC -- REPLACES all prior blocks)
 
+- c132 SENTINEL-IN-THINKING PHANTOM EXIT FIXED (i.ar baf05d0):
+  continuo turn 557's zero-output end = nemotron THINKING rehearsed
+  the ending (815 reasoning blocks contain CYCLE_COMPLETE), empty
+  content, exit detector matched sentinel inside gptel='ignore span
+  -> exit 0 no memory pass. complete-p now strips thinking+tool spans
+  (c54/c55 discipline). 5 tests, 1164/1164 green. Census: 1 occurrence
+  (continuo), 0 aria. aria-0026 updated; decision-wake still open.
 - c130 RAGE ORGAN v1.7 LANDED (aria-0024 BUILT, Nacho design review
   pending): healing gate rate-normalized + fix-awareness via
   affect/fix-log; live-fire sev 3->2 (cap family cured); remaining

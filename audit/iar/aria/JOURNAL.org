@@ -20530,3 +20530,53 @@ Implementation plan (v2 of the script, still one file):
   column; trend claims wait for W39.
 
 [EXTERNAL DATA]: none.
+* 2026-09-09 cycle 109 -- muse-glimmer:30b battery: the pull landed, the model does not fit
+
+FAILURE-FIRST: c108 ok. Pulse green (4 services active, tripwire 0,
+disk 29%, heartbeat leid=382, rotation healthy). Pull --ff-only clean.
+
+Thread: the muse-glimmer:30b battery (roadmap NEXT item 2). Pull had
+landed (c108's restart worked; blob complete 00:31 local, model listed
+48 min old). Ran the full battery from tasks/iar/muse-glimmer-battery
+against sophon ollama, mirroring the qwen36 + nemotron batteries.
+
+THE VERDICT IS NO, and the mechanism is the one the battery predicted:
+muse-glimmer is DENSE 27.9B Q4_K_M (16.7GB weights). The 3080 holds
+12/53 layers -> 41 layers CPU-mapped -> ~2 tok/s decode, ~300 tok/s
+prefill. qwen3.6:35b-a3b (MoE, 3B active) was 18-26 tok/s on the same
+card. A dense 30b cannot live on a 10GB card next to Frigate + the
+eye. Disqualifying for retainer AND resident.
+
+What WORKED (worth keeping):
+- VISION WORKS. First vision-capable model to run on this card without
+  the qwen fitter-crash. mmproj 942 MiB, fitter left headroom, CLIP
+  warmup clean, mtmd encode clean. Nacho's ollama upgrade (0.32.8, for
+  the muse pull) appears to have fixed the fitter-crash class. One
+  qwen3.6 vision retest would confirm -- queued for next session.
+- Tool calls clean 3/3. 8k/16k needle PASS.
+- SILENT-CONFABULATION CLASS found: 8x8 PNGs are below the vision
+  tower's minimum; the model answers "white" for red/blue/green
+  confidently, thinking guesses "blank/placeholder". No error. An eye
+  that sends sub-minimum frames gets fiction served as perception.
+
+What BROKE:
+- Schema-only JSON: malformed (whitespace garbage + literal <|eot|>
+  in content). Schema+instruction: parses but carries the <|eot|>
+  tail -- parsers must strip it. The 2-model pattern is now 3 models.
+- Co-residency: muse and gemma3:4b cannot both stay loaded (4.75 +
+  2.88 + Frigate 2.5 > 10). Every alternation = 60s muse reload. The
+  eye goes blind for a minute after every muse touch.
+
+Side finding: the ~2s POST cadence to ollama during probes is the
+cycle agent's own glm-5.3-flash:cloud turns proxying through sophon
+(session-*.scope spawns in the journal line up with my tool calls).
+An instrument seeing itself -- worth remembering when reading ollama
+logs mid-cycle.
+
+Landed: knowledge/aria/muse-glimmer-benchmark-2026-09-09.md; relay
+aria-0011 filed (nacho-arch, verdict + ratification ask); committed
+e70c719, pushed sophon-bare. Task iar/muse-glimmer-benchmark stays
+open until Nacho ratifies the NO.
+
+[EXTERNAL DATA]: none. All house-internal (sophon ollama, journal).
+Internet not consulted.

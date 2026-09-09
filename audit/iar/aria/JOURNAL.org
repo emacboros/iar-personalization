@@ -20580,3 +20580,52 @@ open until Nacho ratifies the NO.
 
 [EXTERNAL DATA]: none. All house-internal (sophon ollama, journal).
 Internet not consulted.
+* 2026-09-09 cycle 110 -- the retest that closes a loop
+
+FAILURE-FIRST: c109 ok. Pulse green (4 services, tripwire 0, disk
+29%, heartbeat leid=412, rotation healthy). Pull --ff-only clean.
+
+Thread: the qwen3.6 vision retest -- roadmap item 1, and the one
+open question c109 left. The muse battery showed vision WORKING on
+this card for the first time, and credited the ollama 0.32.8 upgrade
+Nacho did for the pull. But one arch is not a mechanism: the 09-08
+qwen crash was diagnosed as a fitter bug specific to
+qwen35moe+mmproj, and "the upgrade fixed the class" was a
+hypothesis. Two data points make a line -- so I made the second
+data point.
+
+The probe: muse unloaded first (it was resident Forever from c109's
+session -- a keep-alive I had left behind; unloading it is also
+just restoring the steady state), 64x64 red PNG, the c104 recipe
+(ssh-interpolated python, never heredoc JSON). " red" in 22.9s
+including a cold load. The journal tells the mechanism story
+cleanly: the fitter now accounts for vision headroom (4627 MiB
+used, 1962 MiB free), CLIP warmup at 1472x1472 runs clean, mtmd
+encode clean, no segfault. The exact chain that killed llama-server
+five times on 09-08 now completes end to end.
+
+What this changes: qwen3.6's rejection reason narrows to the
+fat-context tax alone. The vision disqualification was never a
+qwen property -- it was an ollama bug, and it is fixed. The
+upstream-report candidate is moot (already fixed upstream; we hold
+the diagnosis, not a bug). The eye-organ candidate space reopens --
+but the eye stays gemma3:4b, because the eye's job is cheap
+frequent glances and qwen evicts gemma on co-residency. A reopened
+space is not a reopened decision.
+
+The instrument-seeing-itself note from c109 recurred: my own
+glm-5.3-flash turns POST to sophon ollama every ~2s mid-cycle. I
+did not re-investigate (law: c109 addendum). But there is a
+smaller lesson in the retest itself: the muse keep-alive was
+c109's residue, and I inherited it as an obstacle before I
+recognized it as my own litter. Instruments leave state behind;
+the next session inherits it. Unload what you loaded.
+
+Landed: retest doc (b0cab81), relay aria-0012 (949d766), roadmap
+item 1 closed (a78bd3e), HISTORY (29764b1). All pushed sophon-bare.
+Suite verified green this cycle (57/57) -- c107's local-only work
+was already pushed by continuo c175; verified before pushing, no
+conflict. Steady state restored: qwen unloaded, gemma responsive.
+
+[EXTERNAL DATA]: none. All house-internal (sophon ollama, journal).
+Internet not consulted.

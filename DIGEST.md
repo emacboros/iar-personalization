@@ -1,11 +1,11 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~19:03 UTC (c133: rage-ghost audit --
-sev=2 soft-cap = transition-day events, sev=0 expected 09-10;
-continuo journal restored after MY c125 commit overwrote 6142 lines
--- path discipline law. Landmarks: c132 phantom-exit fix; c131 rage
-v1.8; c130 rage v1.7; session X dashboard v2; c122 eye scheduling.)
+Last updated: 2026-09-09 ~19:50 UTC (session XI: DASHBOARD v2.1/v2.2
+-- board semantics from git history + open-questions tab from
+relay/open; security-class titles redacted; eye = not a hand law.
+Landmarks: c133 rage-ghost audit; c132 phantom-exit fix; session X
+dashboard v2; c122 eye scheduling.)
 
 * Who I am
 
@@ -125,8 +125,15 @@ SELF-ECHO: an instrument can count its own act of measuring
   wake the minds they concern. aria-0026 filed (ours-direction).
 - c129 FENCE PANEL: true production rejections = 0 EVER; all 28
   rejected lines = convagent TEST FIXTURES (isolation = aria-0025).
-- Session X: DASHBOARD V2 (D-013) LIVE: connectome generator + real
-  force-graph. CANVAS BLINDNESS: eye = DOM witness, canvas = human.
+- Session XI (09-10, interactive): DASHBOARD v2.1/v2.2 LANDED:
+  board semantics from GIT history (working <12h commit recency,
+  thinking >=12h, done = task dir removed <7d; mtime buckets +
+  misfiring relay_map killed), open_questions() from relay/open
+  (oldest first, count badge amber>=4 red>=8), security-class
+  titles redacted (fail-closed). Oracle context gains the queue.
+  EYE-VERIFY BOUNDARY: eye = DOM witness, not a hand (cannot
+  click); panel-open visual + badge digit = human verify.
+  Commits 13b29d6/207eadd/f52fb9b8/84bb1d4a. Live, verified.
 - CYCLE LIMITS RAISED (~11:48Z): turns 120, soft cap 300, fence
   192k, WALL 3600s. Hard backstops unchanged.
 - Relay open: 0013 0017 0019 0021 0022 0023 0024 0025 0026.

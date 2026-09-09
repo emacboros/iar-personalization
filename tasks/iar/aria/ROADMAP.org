@@ -1,68 +1,65 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~13:13 UTC (cycle 126)
+Last updated: 2026-09-09 ~14:00 UTC (cycle 127)
 
 ## NOW
 
-- c126: TIMER-STALL WATCH CLOSED (benign, mechanism VERIFIED):
-  recompute-from-NOW on service completion, immediate next fire,
-  no catch-up burst. next_elapse healthy. Doc updated with verdict.
-  Corollary: 60-min wall + 10-min rotation = back-to-back long
-  cycles (cycle-duration-driven spacing) -- expected.
-- c126: continuo 08:32 -03 timeout ROOT-CAUSED: deepseek (pre-flip),
-  79 reqs, 3.18M in-tok, grace expired. Last 5 reqs (~1.27M tok)
-  INVISIBLE -- REQUESTS.log was root-owned (poisoning, see below).
-- c126: ROOT-OWNED AUDIT-FILE POISONING (09:58Z-12:04Z): 349 write
-  failures, 4 runs affected, heal cleaned 3x then stuck-clean at
-  12:04Z. Writer UNIDENTIFIED after ~25 probes. Relay aria-0022
-  filed (nacho-arch): host-side auditd watch to name the writer.
-  Eye-check REPORT.md root-ownership = my c122 root-run (known).
-- c126: continuo FIRST FULL NEMOTRON CYCLE CLEAN (12:28Z): 46 reqs,
-  1.78M in, exit 0, 1112s, ZERO truncated-output fires. Fire-watch
-  verdict 09-11 trending as D-014 predicted (n=1).
+- c127: POISONING ROOT-CAUSED (half): the .git-object writer = MY OWN
+  c123 cycle's root-ssh git add/commit/pull on the sophon working tree
+  (REQ 260909063010-32..35 in REQUESTS.log). Mechanism: the aria
+  cycle key (4BApz...) is in root authorized_keys with NO forced
+  command -> any cycle ssh = full root on sophon -> root git writes
+  root-owned .git state. Relay aria-0023 filed (nacho-security):
+  forced-command restriction or move push remotes to git user.
+  MY DISCIPLINE FIX (immediate, law 35): never run git add/commit/
+  push on the sophon working tree over root ssh. Read-only status/
+  log/fetch verified safe (trees clean after ~250 probes).
+- c127: AUDIT-FILE writer (aria-0022) still unattributed, but the
+  window has a shape: opened at continuo's 404-fallback era start
+  (09:28Z cycle), closed at that era's timeout end (12:04Z). The
+  writer stopped when the era ended. auditd empty for the window
+  (no fchown rules installed); journal has no chown records; the
+  12 USER_CMD sudo events 10:49-50Z decoded to my own c124
+  twin-verifier runs (read-only). auditd watch still the settle move.
+- c127: FIRE CENSUS nemotron era (10:51-13:40Z, ~3 continuo cycles):
+  ZERO real fires (anchored stop=length + tokens_out>=30000, c189
+  method). The 9 raw 'truncated' grep hits = self-echo of census
+  commands (c32 law). Deepseek's morning: 6+ real fires. Verdict
+  09-11 trending as D-014 predicted (n small).
+- c126: TIMER-STALL WATCH CLOSED (benign, mechanism VERIFIED).
+- c126: continuo 08:32 -03 timeout root-caused (deepseek pre-flip).
+- c126: continuo FIRST FULL NEMOTRON CYCLE CLEAN (12:28Z).
 - SESSION X (interactive, 10:30-11:25Z): DASHBOARD V2 LANDED (D-013).
-- c125: EYE BATTERY V1 RUN (relay aria-0019 items a+b): qwen3.6 beats
-  gemma3:4b on JOB A, tie on JOB B, co-residency impossible, costs
-  priced (6 scripts / 8 sites). Decision Nacho's (aria-0021).
+- c125: EYE BATTERY V1 RUN (relay aria-0021): decision Nacho's.
 
 ## NEXT (cycle work, in pull order)
 
-1. Fire watch: continuo cycles running nemotron-3-super:cloud.
-   Census fires through 09-11, verdict on the flip (context-shape
-   vs model). First full nemotron cycle: 0 fires.
-2. Root-owned poisoning: await Nacho's auditd watch (aria-0022).
-   If poisoning recurs before the watch lands, capture `ls -la`
-   + `stat` of the poisoned files + journalctl -g chown around
-   the window BEFORE the heal cleans them (evidence preservation).
-3. Eye swap session prep: blinded-judge pass (optional, design in
-   eye-battery-v2.sh header) + qwen warm-ttft measurement. Awaits
-   Nacho's D-decision on aria-0021/0019.
-4. Twin-verifier PERS fix (sophon-side, c124 diagnosis): script
-   hardcodes /root/personalization but runs as nacho via sudo -u.
-   Needs sophon checkout edit -- relay or in-session.
+1. Fire watch: census continuo nemotron fires through 09-11,
+   verdict on the flip. Method: anchored PARSE + stop=length +
+   tokens_out>=30000 (c189/c127).
+2. Poisoning: await Nacho on aria-0022 (auditd watch) + aria-0023
+   (key policy). If poisoning recurs pre-watch: capture ls -la +
+   stat + journalctl -g chown BEFORE the heal (evidence preservation).
+3. Eye swap session prep: blinded-judge pass (design in
+   eye-battery-v2.sh header) + qwen warm-ttft. Awaits aria-0021 D.
+4. Twin-verifier PERS fix (sophon-side, c124): script hardcodes
+   /root/personalization, runs as nacho via sudo -u.
 5. Drills: #004 delegate only on natural need.
-6. gptel PRs: pending Nacho's answer on aria-0013.
+6. gptel PRs: pending aria-0013.
 7. Retainer build: spawn-file-spec drafted; runtime parsing =
-   interactive-session work (D-005). Interlocutor = gemma4:cloud.
-8. Failure-window watch: gpu-load-probe windows live. Aevum
-   pulse #4: Sep 14.
-9. Laptop origin artifact review with Nacho: pending his
-   availability; salvage BEFORE reinstall/scrub.
-10. W38 connectome snapshot: next week -- first trend comparison
-    against W37 baseline (caveat: ~24h continuo hole from the
-    404 window).
+   interactive-session work (D-005).
+8. Failure-window watch: gpu-load-probe windows live. Aevum #4: Sep 14.
+9. Laptop origin artifact review with Nacho: pending availability.
+10. W38 connectome snapshot: next week (caveat: ~24h continuo hole).
 
 ## STANDING
 
-- Pulse: all green as of c126 (services 4/4, tripwire 0, disk 29%,
-  heartbeat leid=982, keyscan reseeded, twin FAIL=0 -- i.ar copy
-  MISSING lines are the known c124 PERS bug family, not divergence).
-- Relay open queue (Nacho acks whenever): aria-0013 (gptel PRs),
-  aria-0017 (eye-check install note), aria-0018 (D-014 landed note
-  -- superseded by 0020), aria-0019 (qwen-as-eye -- DATA LANDED via
-  0021), aria-0020 (D-014 plumbing failure note), aria-0021 (eye
-  battery results), aria-0022 (root-owned poisoning + auditd ask).
-  0002/0003/0007 ratified.
+- Pulse: all green as of c127 (services 4/4, tripwire 0, disk 29%,
+  heartbeat leid=1042, keyscan reseeded, twin FAIL=0 -- i.ar copy
+  MISSING lines = known c124 PERS bug family, not divergence).
+- Relay open queue: aria-0013, 0017, 0018 (superseded by 0020),
+  0019 (data landed via 0021), 0020, 0021, 0022, 0023 (NEW:
+  root-ssh key policy). 0002/0003/0007 ratified.
 - sophon-bare i.ar.git at 5ab51ff. Container checkout at 9d82cfa
   (origin fetch fails from container; use sophon-bare explicit main).
 - 14 of 20 sophon repos have DANGLING HEAD (HEAD->master, only
@@ -146,6 +143,12 @@ Last updated: 2026-09-09 ~13:13 UTC (cycle 126)
     systemd unit (no User=) writes as root -- my own c122 eye-feed
     poisoned the tree it watches. Check WHO a unit runs as before
     pointing it at a shared tree.
+35. c127: the ssh key in your container is the identity the HOST
+    sees -- a key with no forced command in root's authorized_keys
+    makes every cycle ssh a full root shell. Never run git
+    add/commit/push on a shared working tree over root ssh; root
+    git writes root-owned objects. Read-only (status/log/fetch) is
+    safe. The structural fix is key policy, not discipline.
 
 ## SESSION IX ADDENDUM (2026-09-09 ~09:28 UTC)
 

@@ -21764,3 +21764,65 @@ was the correct move; the relay filing is the convergence.
 
 [EXTERNAL DATA]: none. All house-internal (sophon journalctl,
 git logs, systemd units, podman inspect, ollama journal).
+* 2026-09-09 cycle 127 -- the writer had a face: my own key, unrestricted
+
+The poisoning hunt continued from c126 and this time it went
+somewhere. The question was WHO ran git as root on the sophon
+working tree. The answer, when it finally surfaced, was
+embarrassing and clean: I did. Cycle c123 (06:32Z) ran git
+add/commit/push and git pull ON THE SOPHON WORKING TREE over root
+ssh -- the commands are sitting in my own REQUESTS.log at REQ
+260909063010-32..35, quoted in full. The cycle containers are
+rootless podman (container-root maps to nacho -- I re-verified with
+a live uid-probe this cycle), but the SSH path is different: the
+aria_ed25519 key mounted into the container is in root's
+authorized_keys on sophon with NO forced command. Any cycle that
+sshes with it becomes full root on sophon. c123 used that power for
+git operations; root git writes root-owned .git/index and objects;
+the heal has been cleaning the same class all day (338
+iar-personalization/.git paths healed today).
+
+So the .git-object poisoning class has a named author: me, via an
+unrestricted root key. The discipline fix is mine and immediate --
+never run git add/commit/push on the sophon working tree over root
+ssh (read-only status/log/fetch are safe; they write no objects; I
+verified the trees are clean after ~250 probes this cycle). The
+structural fix is not mine: the key policy is Nacho's. Filed
+aria-0023 (nacho-security): forced-command restriction or a move of
+the push remotes to the git user. One of those one-liners makes the
+whole class impossible.
+
+The audit-file poisoning (REQUESTS.log, USAGE.log, JOURNAL.org --
+the files the heal kept re-cleaning between 09:28Z and 12:04Z) is
+still unattributed, but the window now has a shape: it opened when
+continuo's 404-fallback era began (09:28Z cycle start) and closed
+when that era's last cycle timed out (12:04Z). The writer stopped
+exactly when that era ended. That correlation is the strongest lead
+aria-0022 has -- and the unrestricted-root-key finding makes the
+suspect pool wide enough to take seriously. The auditd watch Nacho
+can install would settle it in one poisoning event.
+
+The fire watch advanced in the background: nemotron era census
+(10:51-13:40Z, ~3 continuo cycles) = ZERO real truncated-output
+fires (stop=length with tokens_out>=30000, the c189 anchored
+method). The 9 'truncated' strings I first grepped were
+self-echo -- continuo's own census commands quoting the pattern
+(c32 law, again, wearing a new coat). Deepseek's last morning
+produced 6+ real fires; nemotron's first hours produced none. n is
+still small, verdict 09-11, but the line is pointing where D-014
+predicted.
+
+The texture: this cycle was a long walk through other people's
+logs -- auditd (empty for the window), journalctl (timezone traps
+twice), USER_CMD hex blobs (auditd truncates long commands; the
+12 sudo events at 10:49-50Z decoded to my own twin-verifier
+invocations from c124), podman uid probes. The fences caught me
+once (same-tool warning at 100). The answer was not in any single
+log; it was in the correlation between the heal timestamps and the
+cycle trace timestamps. Two data points made a line; ~250 calls
+made it a mechanism-shaped hypothesis with one leg still
+unattributed. The relay has both halves: 0022 (the writer watch)
+and 0023 (the key policy).
+
+[EXTERNAL DATA]: none. All house-internal (sophon journalctl,
+audit logs, podman, git, sshd logs).

@@ -5960,3 +5960,30 @@ plausible source.
 The probe is doing what instruments do: its first full window
 falsified the GPU-load arm, confirmed the CPU arm, and exposed its
 own dead field. Fixed.
+* 2026-09-09 cycle 180 -- probe falsifies the load hypothesis
+PULSE all green. Suite not run (quiet cycle). Services active, tripwire 0, disk 29%.
+
+The probe's second full window (112 samples, 00:30-02:23 local) did
+what instruments do: it killed the hypothesis it was built to test.
+Both truncated-output fires inside the window (01:47, 02:01 local)
+happened at LOW load (load1 ~3.0) and moderate GPU util (49-62%).
+The earlier windows' fires (00:44/01:03, load1 9.6-12.4) were the
+exception, not the rule. The fires correlate with the MODEL --
+deepseek-v4-flash:cloud degrades in bursts, independent of load.
+
+The CPU-contention hypothesis (localsearch-3 + Frigate) is WEAKENED
+further. The real lever is the model mapping: revert continuo to
+glm-5.3-flash:cloud. That's Nacho's call on rotate.sh, already
+flagged URGENT in the roadmap and now backed by a falsified
+hypothesis and a clean fire census.
+
+One instrumentation note: the ollama_reqs field was dead this window
+(0 across all 112 samples) because bash buffered the old line 50 at
+loop start (00:29) -- the a3efb8a fix landed 02:06 but the running
+process never re-read the file. The fix takes effect tomorrow's
+window. Verified the pattern works (`ps aux | grep -c '[l]lama-server'`
+returns 1 as nacho); the dead field is a script-buffering artifact,
+not a permission issue.
+
+The probe has served its purpose. The load hypothesis is dead; the
+model mapping is the lever. Bass line held.

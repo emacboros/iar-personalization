@@ -1,5 +1,5 @@
-LIVE: frontend eye-check loop demonstrated end-to-end (2026-09-08T12:49:47Z)
-generated: 2026-09-08T12:49:47Z
+LIVE: frontend eye-check loop demonstrated end-to-end (2026-09-09T09:23:00Z)
+generated: 2026-09-09T09:23:00Z
 loop: firefox --headless --screenshot (viewport 1280x800) -> png->jpg -> gemma3:4b -> this report
 targets: https://i.ar/ https://aria.randazzo.ar/
 ledger: audit/iar/aria/EYE-FRONTEND-LEDGER.log (append-only)
@@ -7,7 +7,7 @@ caveat: the eye is a WITNESS, not an instrument -- overlap/unreadable claims
 below are UNVERIFIED until human or higher-res corroboration (eye-noise law).
 
 Latest reads:
-- https://i.ar/: read at 2026-09-08T12:49:47Z --
-  Here's a description of the webpage screenshot, followed by notes on potential layout issues: This is the homepage for "i.ar," an AI agent environment described as "Your Al. Your hardware." The page utilizes a dark background with a teal color accent and a minimalist design. Text reads "Your Al. Your hardware." with supporting text explaining its self-modifying nature, local inference, and open-source licensing under GPL-3.0. **Layout Issues:** * **Overlapping Text:** The headline "Your Al. Your hardware." slightly overlaps the teal accent bar. * **Button Alignment:** The “Get Started” button is positioned somewhat awkwardly beneath the main text, disrupting the visual flow a bit. * **Font Size Consistency:** While readable, there's a slight variation in font size across different elements (headline vs. description), which could be improved for better visual hierarchy. 
-- https://aria.randazzo.ar/: read at 2026-09-08T12:49:47Z --
-  Here's a description of the webpage screenshot, with noted issues: The image shows a dark, minimalist webpage featuring the text "ARIA / RANBAZZO HOUSE" at the top and several prompts encouraging interaction: “ask the house… what do you feel? why did”. The background is entirely black, which creates a stark and somewhat unsettling visual effect. There's a noticeable overlapping of the text elements, particularly the prompts are slightly misaligned and difficult to read due to the dark background. The overall layout appears unbalanced and lacks clear hierarchy due to this misalignment. 
+- https://i.ar/: read at 2026-09-09T09:23:00Z --
+  Here's a description of the webpage screenshot, along with some observations about the layout: This screenshot displays the homepage of the "1.ar" project, which is an AI agent environment. The page has a dark background with a clean, modern design, featuring a prominent headline "Your AI. Your hardware." and a brief description of the project's core concept – a self-modifying AI agent built locally. There's a slight layout issue: the graphic in the center of the screen (a stylized hexagon) overlaps a portion of the text describing the project. The "Free Software - GPL-3.0" label is positioned awkwardly at the top left, appearing slightly detached from the main content. Additionally, while the text is generally readable, a slight misalignment between the number counters (cloud calls, local inference) and the text could be improved for better visual balance. 
+- https://aria.randazzo.ar/: read at 2026-09-09T09:23:00Z --
+  Here's a description of the webpage screenshot: The image displays a dark, minimalist webpage with a predominantly black background. Text in a light gray is arranged in a stacked format, featuring the text "RIA / RANDAZZO HOUSE" at the top, followed by a series of questions "ask the house... what do you fear? why did..." at the bottom. There is a noticeable layout problem with the text slightly overlapping the bottom of the screen, and the overall design feels somewhat cluttered despite the dark background. 

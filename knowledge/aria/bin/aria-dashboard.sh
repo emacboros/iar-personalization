@@ -21,6 +21,8 @@
 # Failure posture: every source wrapped; missing source -> null field,
 # generator still emits JSON. Stale is visible (generated_at + UI age).
 #
+# v1.9 (2026-09-09, aria c116): board() -- task-tree digest (D-013 addendum),
+#   thinking/working/done from tasks/iar/ mtimes + relay verdicts. Real data only.
 # v1.8 (2026-09-07, aria c21): affect() parses rage too (additive; rage organ live since c20).
 # v1.7 fix (2026-09-07, cycle 2): req_health anchored both ends --
 #   specs= self-pollution (echoed diagnostic greps) manufactured fake
@@ -51,7 +53,7 @@ export REPO OUT_DIR
 UI_SRC="$SCRIPT_DIR/../dashboard/ui"
 
 python3 - <<'PYEOF'
-import json, os, re, subprocess, time
+import glob, json, os, re, subprocess, time
 from datetime import datetime, timezone
 
 REPO = os.environ["REPO"]; OUT = os.environ["OUT_DIR"]
@@ -303,10 +305,63 @@ def host():
     return {"gpu": gpu, "failed_units": failed, "containers": containers,
             "models": models, "timers_next": timers_next}
 
+
+# ---- board: task-tree digest (D-013 addendum, aria c116) ----
+def board():
+    """thinking/working/done digest from tasks/iar/ (real-data rule:
+    state derives from file mtimes + relay verdicts, never hand-edited
+    status fields). 5-10 entries total, curated brevity."""
+    tbase = os.path.join(REPO, "tasks/iar")
+    out = {"thinking": [], "working": [], "done": []}
+    if not os.path.isdir(tbase):
+        return out
+    now = time.time()
+    # done: landed artifacts (connectome snapshots)
+    try:
+        if glob.glob(os.path.join(REPO, "knowledge/aria/connectome/snapshot-*.md")):
+            out["done"].append({"task": "connectome-snapshot",
+                                "note": "latest snapshot landed"})
+    except Exception: pass
+    # done: verdicts filed to relay (open = ack pending, work itself done)
+    try:
+        open_dir = os.path.join(REPO, "relay", "open")
+        open_l = [f.lower() for f in os.listdir(open_dir)] \
+            if os.path.isdir(open_dir) else []
+        relay_map = {
+            "muse-glimmer": ("muse-glimmer-benchmark", "verdict filed (relay open)"),
+            "qwen36": ("local-brain-benchmark", "verdict filed (relay open)"),
+        }
+        for slug, (task, note) in relay_map.items():
+            if any(slug in f for f in open_l):
+                out["done"].append({"task": task, "note": note})
+    except Exception: pass
+    # working/thinking: newest-file age per top-level task dir
+    ages = {}
+    for root, dirs, files in os.walk(tbase):
+        for f in files:
+            if not f.endswith(".org"): continue
+            p = os.path.join(root, f)
+            rel = os.path.relpath(p, tbase)
+            if rel.startswith("ROADMAP.org"): continue
+            top = rel.split(os.sep)[0]
+            if top in ("aria", "continuo", "agora"): continue  # meta trees
+            try: age_h = (now - os.path.getmtime(p)) / 3600
+            except Exception: continue
+            ages[top] = min(ages.get(top, 1e9), age_h)
+    for top, age in sorted(ages.items(), key=lambda x: x[1]):
+        if any(top == d["task"] for d in out["done"]): continue
+        if age < 24:
+            out["working"].append({"task": top, "age_h": round(age, 1)})
+        else:
+            out["thinking"].append({"task": top, "age_h": round(age, 1)})
+    out["working"] = out["working"][:5]
+    out["thinking"] = out["thinking"][:3]
+    return out
+
 # ---- assemble + atomic write ----
 doc = {
     "schema": "aria-dashboard/v1",
-    "version": "v1.8",
+    "version": "v1.9",
     "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "agents": {a: {**(last_cycle(a) or {}), "burn24h": usage(a),
                    "req_health_24h": req_health(a)} for a in AGENTS},
@@ -314,6 +369,7 @@ doc = {
     "affect": affect(),
     "house": house(),
     "host": host(),
+    "board": board(),
 }
 os.makedirs(OUT, exist_ok=True)
 tmp = os.path.join(OUT, ".dashboard.json.tmp")

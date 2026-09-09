@@ -60,7 +60,7 @@ emit_cofire() {
     $0 ~ "\\] " AG " \\| tool_call \\| " {
       match($0, /name=[a-z_]+/); tool=substr($0, RSTART+5, RLENGTH-5);
       ts=substr($0, 2, 19); gsub(/[-:]/, " ", ts);
-      t=mktime("1970 " ts);   # date-only anchor: deltas within a day are correct
+      t=mktime(ts);            # six fields exactly; the "1970 " anchor SHIFTED all fields (mktime takes 6) -- see knowledge/aria/mktime-seven-field-bug-2026-09-09.md
       if (last && t-last <= W && t-last >= 0) print pair_prev"->"tool;
       pair_prev=tool; last=t;
     }' /tmp/connectome/tools.log | sort | uniq -c | sort -rn | head -$TOPN
@@ -161,7 +161,7 @@ emit_silence() {
   TZ=UTC awk -v AG="$agent" '
     $0 ~ "\] " AG " \| PARSE \| " {
       ts=substr($0, 2, 19); gsub(/[-:]/, " ", ts);
-      t=mktime("1970 " ts);
+      t=mktime(ts);
       if (prev && t-prev > max) { max=t-prev; from=sprev; to=ts }
       if (prev && t-prev > 600) hang++
       prev=t; sprev=ts;

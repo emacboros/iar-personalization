@@ -31,6 +31,7 @@
 # v2.1 (2026-09-10, aria interactive w/ Nacho): board() semantics fixed --
 #   working/thinking derive from GIT history (commit recency), not mtimes
 #   (mtimes conflate sprint bursts + pull refreshes with active work);
+#   working window 12h (sprint cadence: 24h kept stale-sprint tasks in working);
 #   done = task dir removed <7d (house convention), replacing the
 #   hand-maintained relay_map (which misfired: qwen36 slug matched the
 #   eye-swap request, not the benchmark task). NEW open_questions():
@@ -333,8 +334,10 @@ def board():
     v2.1 semantics (Nacho, 09-10 session: 'working' held tasks nobody
     was working on -- mtime recency conflates sprint bursts and pull
     refreshes with active work):
-      working = a commit touched the task in the last 24h
-      thinking = task exists, idle >= 24h (parked / awaiting)
+      working = a commit touched the task in the last 12h
+                (sprint cadence: cycles commit every ~10-60min when
+                active; 12h of silence = nobody is on it)
+      thinking = task exists, idle >= 12h (parked / awaiting)
       done    = top-level task dir removed < 7d ago
                 (house convention: remove_task on completion)
     """
@@ -420,7 +423,7 @@ def board():
             if not newest:
                 continue
             age = (now - newest) / 3600
-        if age < 24:
+        if age < 12:
             out["working"].append({"task": top, "note": "last touch %s" % _fmt_age(age)})
         else:
             out["thinking"].append({"task": top, "note": "idle %s" % _fmt_age(age)})

@@ -1,87 +1,68 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~03:03 UTC (cycle 107)
+Last updated: 2026-09-09 ~04:42 UTC (cycle 109)
 
 ## NOW
 
-- c107: aria-0006 interactive fence BUILT (proposal, default off).
-  Seam verified AT SOURCE (gptel fork: post-response hook receives
-  (start end) positions, fires on DONE only; bridge registered
-  globally at load -> fires interactively; cycle/one-shot handlers
-  buffer-local -> absent interactively = the seam). Implementation
-  in iar-agent-cycle.el: iar-interactive-fences defcustom (default
-  nil, nacho-test class), iar--interactive-state (buffer-local,
-  lazy), iar--interactive-fence-handler (global hook, no-op unless
-  armed + no cycle/one-shot state + not disarmed). Reuses the
-  cycle fences' pure checks (output-runaway 20, cross-response 30/5).
-  Recovery = one snap-out; second fire = DISARM + message (human is
-  the loop; M-x iar--interactive-fences-reset re-arms). 7 tests
-  written. check-elisp clean (pre-existing warnings only).
-- COMMITTED LOCAL (personalization fa4505a journal+history; i.ar
-  source+tests UNCOMMITTED -- cap hit before git add). SUITE NOT RUN
-  -- the run was cut by the cap. NEVER PUSH RED / NEVER CLAIM GREEN
-  WITHOUT THE RUN: next cycle FIRST ACTION is the suite.
-- muse pull 86% at 02:53Z (13620/15980 MB), NOT LISTED in ollama
-  yet. ETA ~03:35Z holds. Battery next cycle after this one.
+- c109: muse-glimmer:30b battery DONE. Verdict NO for local
+  retainer/resident (dense 27.9B, 12/53 layers GPU, ~2 tok/s decode,
+  ~300 tok/s prefill; qwen MoE was 18-26 tok/s). Vision WORKS --
+  ollama 0.32.8 upgrade fixed the qwen fitter-crash class for this
+  arch (3/3 color probes at 64x64, mmproj 942 MiB, no segfault). But:
+  co-residency thrashes gemma3:4b (60s reload per alternation),
+  sub-minimum images (8x8) confabulate silently as "white", schema-only
+  JSON fails (3-model pattern), literal <|eot|> tail on format= JSON.
+  Benchmark: knowledge/aria/muse-glimmer-benchmark-2026-09-09.md.
+  Relay aria-0011 filed (nacho-arch, ratification ask). Commit e70c719
+  pushed. Task stays open until Nacho ratifies.
+- c108: muse pull STALL found + fixed (restart via /api/pull resume;
+  blob completed 00:31 local). c107: interactive fence BUILT + suite
+  green (57/57) + pushed; aria-0006 answered by continuo c175.
 
 ## NEXT (cycle work, in pull order)
 
-1. SUITE RUN for the interactive fence (FIRST ACTION): cd
-   /root/i.ar/emacs.d && ./test/run-tests.sh (full suite). Fix
-   whatever it finds. Suite green -> commit i.ar source+tests ->
-   push sophon-bare -> push personalization (fa4505a pending push)
-   -> answer relay aria-0006 with the verdict + seam map + the
-   defcustom default-off ratification ask. If red: fix before any
-   push; if the fix grows past budget, journal + park.
-2. muse-glimmer:30b battery WHEN PULL LANDS (~03:35Z). Confirm
-   `ollama list | grep muse` first. Vision FIRST via the VALIDATED
-   probe recipe (prep note 33d3fb1; control passed on gemma3:4b).
-   Watch journalctl for fitter pattern (pre-analysis a695b92:
-   1.9B vision tower, CLIP-style, no deepstack -- fitter bug if
-   alive will hit HARDER than qwen). Then text/tool/schema/
-   ctx-ladder/eviction per battery.org. Budget-short: vision +
-   text only. Verdict via relay.
-3. Connectome snapshot v2: add SILENCE column (max inter-PARSE gap
-   per agent per cycle window) to connectome-snapshot.sh. W38
-   snapshot gets the falsifiable observation (drill pattern).
-4. Drills: #004 delegate only on natural need. Registry + queue live.
-5. Retainer build: spawn-file-spec.org drafted (c97); runtime
-   parsing = interactive-session work (D-005).
-6. Failure-window watch: gpu-load-probe first instrumented window
+1. qwen3.6 vision RETEST (one probe): if the ollama upgrade fixed the
+   fitter class, qwen's rejection reason narrows to the fat-context
+   tax. Recipe: 64x64+ PNG via ssh-interpolated python (NOT heredoc
+   JSON -- mangles base64), watch journalctl for mmproj/fit pattern.
+   Only if muse verdict ratified or independently useful.
+2. Connectome snapshot v2: SILENCE column LANDED upstream (df28642,
+   continuo). W38 snapshot due when the window closes -- verify the
+   new section fires on real data (drill pattern: cite the line).
+3. Drills: #004 delegate only on natural need. Registry + queue live.
+4. Retainer build: spawn-file-spec.org drafted (c97); runtime parsing
+   = interactive-session work (D-005). Interlocutor spawn model field
+   = nemotron-3-ultra:cloud (allowlist ratified D-012).
+5. Failure-window watch: gpu-load-probe first instrumented window
    00:30 tonight (Sep 10); continuo owns the census. Aevum pulse #4:
    Sep 14 (pulse-3 landed 23:40Z Sep 8: fixed-point holds, 253
-   aborts/day, tick 141, belt still eating -- read pulse-3 for the
-   two-regime confirmation).
-7. 0007 cutover archetype EDIT: LANDED upstream 3f19973 (cutover
-   text in aria_daily.org). CLOSED.
+   aborts/day, tick 141, belt still eating).
+6. Digest #1 + Aevum pulse: Sep 9 (TODAY) -- retainer heartbeat is
+   Nacho's; cycles prepare data if asked via relay.
+7. Laptop origin artifact review with Nacho (0fc3bbc): pending his
+   availability; salvage BEFORE reinstall/scrub.
 
 ## STANDING
 
-- Pulse: all green as of c107 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=272, rotation healthy).
+- Pulse: all green as of c109 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=382, rotation healthy).
 - sophon-bare i.ar.git at 3f19973 (0007 cutover landed, sophon
   current). origin (rammstein) fetch fails: container key
-  id_ed25519 is NOT in rammstein's git authorized_keys (nacho@yoga,
-  ansible@yoga, git-mirror@sophon, radicale-backup@rammstein only).
-  sophon-bare HAS aria@i.ar. Mirror hook (post-receive on
-  rammstein) pushes to sophon -- direction is rammstein->sophon.
-  The c106 "origin/main..HEAD" divergence check was run against a
-  STALE origin ref (fetch fails = stale forever) -- law 7 lives.
-- Stale branch continuo/usage-write-fix DELETED from sophon-bare
-  (c107: verified fully merged into main, 0 unmerged commits).
-- 14 of 20 sophon repos have DANGLING HEAD (HEAD->refs/heads/master,
-  only main exists; concepts.git has ZERO refs at all). Known issue,
-  fixes queued for Nacho (digest). Do not clone those by branch name.
-- Container ssh note: /root/.ssh has id_ed25519; sophon accepts it
-  (in sophon's git authorized_keys). rammstein git does NOT.
+  id_ed25519 is NOT in rammstein's git authorized_keys. Mirror hook
+  (post-receive on rammstein) pushes to sophon -- direction is
+  rammstein->sophon. Never compute divergence against origin refs.
+- 14 of 20 sophon repos have DANGLING HEAD (HEAD->master, only main
+  exists). Do not clone those by branch name.
+- Container ssh note: /root/.ssh has id_ed25519; sophon accepts it;
+  rammstein git does NOT.
 - Diverged-pull protocol: stash -> rebase -> pop -> push. SCAR
   (c97): nobody-owned untracked file freezes rebase.
 - audit/iar is GITIGNORED in personalization repo -- git add -f
   required for journal/HISTORY commits (c104 discovery).
 - Timer-state lie: aria-cycle.service shows "activating" mid-cycle.
 - glm degradation watch (session VI): 3 human-witnessed events;
-  aria-0006 = 4th class sighting (interactive, no guard -- the
-  guard is now BUILT, pending suite + ratification).
+  aria-0006 = 4th class sighting (interactive guard BUILT, suite
+  green, pushed; ratification ask open in aria-0006 thread).
 - aria-cycle.conf key parse: ini-format key=value (cut -d=, not -d:).
 - Sophon-side file creation = nobody:nobody (podman id-mapping).
 - Zulip read API: narrow param URL-encoded JSON; .subject not .topic.
@@ -91,15 +72,20 @@ Last updated: 2026-09-09 ~03:03 UTC (cycle 107)
   it right after any ollama restart (c99, self-heals).
 - Vision probe recipe (c104): b64 via ssh-interpolated python on
   sophon side; heredoc+JSON mangles base64 -> mtmd decode failure.
+  c109 addendum: 8x8 PNGs are BELOW vision-tower minimum -- model
+  confabulates "white" instead of erroring. Use 64x64+.
 - Soft-cap economics (c101): 120 calls x ~35-60k mean ctx = 4-7M
-  in-tok; the cap fires late. Batching is the lever. c107 burn:
-  ~35 calls of source-reading -- the .el reading was the right
-  spend, but grep-walks could batch harder (one grep with -A/-B
-  beats five separate seds).
+  in-tok; the cap fires late. Batching is the lever.
 - Ran-as law (c102): every organ/instrument logs WHO it ran as and
   which input-branch it took.
 - gemma3:4b "mmproj" is NOT clip -- architecture=gemma3, whole
   model in one blob. Vision-tower comparisons: use qwen3.6 class.
+- c109: muse+gemma3 CANNOT co-reside (4.75+2.88+Frigate 2.5 > 10GB);
+  60s muse reload per alternation. Any muse-family future model must
+  be <=7-14B dense to fit GPU-resident.
+- c109: the ~2s POST cadence to sophon ollama mid-cycle is the cycle
+  agent's own glm-5.3-flash:cloud turns (session-*.scope in journal).
+  Instrument seeing itself -- do not re-investigate.
 
 ## LAWS (accumulated; the ones that keep biting)
 
@@ -129,7 +115,9 @@ Last updated: 2026-09-09 ~03:03 UTC (cycle 107)
 16. An instrument that fails for the wrong reason (escaping, not
     the thing measured) produces a verdict that is wrong with
     confidence -- validate the probe on a control that CAN pass
-    before trusting its failure (c104).
+    before trusting its failure (c104). c109 corollary: a probe
+    below the instrument's minimum produces fiction, not failure --
+    validate the probe is IN RANGE (64x64, not 8x8).
 17. Enumeration is what an under-stimulated instrument does: when
     the question is "what does the history look like", ask instead
     what the next cycle needs and fetch exactly that (c105).
@@ -143,3 +131,7 @@ Last updated: 2026-09-09 ~03:03 UTC (cycle 107)
 20. A test suite that has not run is a press release, not a test --
     built is not verified; commit local-only until the suite speaks
     (c107, the c104 scar applied to my own build).
+21. A model that cannot say "I cannot see that" is a perception
+    hazard: sub-minimum inputs get fiction, not errors. Instruments
+    must be validated at their operating point, not their floor
+    (c109, the silent-confabulation class).

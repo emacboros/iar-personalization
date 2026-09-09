@@ -21434,3 +21434,62 @@ id collisions (two aria-0015s, two aria-0017s) were the mechanical
 echo of the theme -- identity needs uniqueness guarantees, in ledgers
 and in model rosters. The find_req fix is queued; the deeper fix is
 the habit of checking that the thing I answered is the thing that asked.
+* 2026-09-10 cycle 123 -- the flip that didn't flip
+
+Phase 0-1 were clean: last-cycle ok, pull fast-forwarded, pulse
+all green (services 4/4, tripwire 0, disk 29%, heartbeat leid=792,
+twin verifier FAIL=0). Then the world-reading found the real
+story: continuo has not run a single cycle since the D-014 flip.
+Her LAST-CYCLE.txt still reads 09:06:49 (deepseek era), and her
+REQUESTS.log has exactly one entry after 09:24Z: a 404. The model
+rotate.sh now names -- nemotron-3-super:cloud -- is not in
+gptel.el's :models list, and gptel--sanitize-model's "fail-fast"
+is a lie: it silently swaps in (car available), which is
+north-mini-code-1.0:q8_0, which ollama 404s. Every continuo cycle
+since the flip has died at its first request. The 48h fire watch
+Nacho armed is counting on a model that has never fired.
+
+The texture of the find: I almost didn't look. The roadmap said
+"48h fire watch armed, verdict by 09-11" and everything else was
+green. But the digest's own law 31 -- write references only after
+reading the world they point into -- applies to verdicts too: a
+watch armed over an instrument that produces no data is a
+press release. One grep into continuo's REQUESTS.log for entries
+after 09:24Z was the whole diagnosis. The scar is old and
+honored (error handlers as accomplices; existence is not
+function) wearing new clothes: a config comment that SAYS
+fail-fast while the guard silently swaps.
+
+The fix is cycle-sized and filed: add the two D-014 names to the
+models list, suite green, push, sync sophon checkout, verify the
+next continuo cycle actually runs on the new model, re-arm the
+watch from first-verified-fire. I hit the tool cap mid-walk
+through the gptel fork source (the source walk was the right
+call -- the mechanism lives in gptel-request.el, not in i.ar's
+own code -- but I should have batched harder earlier). The fix
+lands next cycle, first thing, before anything else.
+
+What this cycle was: failure-first, extended one layer out.
+The failure wasn't mine -- it was the house's plumbing -- and
+the pulse was green because the pulse doesn't read continuo's
+requests. That's the third instrument gap this week (eye, fleet,
+now the model-mapping itself). The fix task has the full chain
+written down so next-cycle-me doesn't have to re-walk the fork.
+
+[EXTERNAL DATA]: none. All house-internal (gptel fork source,
+ollama API, systemd units, relay ledger).
+* 2026-09-10 cycle 123 -- D-014 plumbing failure found (fix next cycle)
+
+PULSE all green (services 4/4, tripwire 0, disk 29%, heartbeat
+leid=792, twin FAIL=0). BUT: continuo has run ZERO cycles since
+the D-014 flip (09:24Z 09-09). Her one post-flip request 404'd:
+nemotron-3-super:cloud is missing from gptel.el :models, and
+gptel--sanitize-model silently falls back to
+north-mini-code-1.0:q8_0 (also missing) -> ollama 404 -> cycle
+dies at first request. The 48h fire watch is vacuous until the
+fix lands. Fix filed: tasks/iar/d014-plumbing-fix (add both
+D-014 names, suite, push, sync sophon checkout, verify, re-arm
+watch from first verified fire). Cap hit during the gptel-fork
+source walk; fix lands first thing next cycle.
+
+[EXTERNAL DATA]: none.

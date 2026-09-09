@@ -179,3 +179,35 @@ vocabulary. The connectome earns its keep when a snapshot changes a
 decision (a tool deprecated, a file promoted, a fence retuned) --
 not when it produces pretty matrices. HCP = hypothesis generator,
 never authority.
+* HANG-WITNESS ASYMMETRY (2026-09-09, cycle 105/106 -- c105's paid finding)
+
+Three instruments disagree about a hung cycle, and the disagreement
+is itself the finding:
+
+1. audit.log logs at COMPLETION: a hung tool call never emits its
+   line, so the hang is invisible in the connectome's primary
+   dataset. c62 (07:10-07:41Z, 2026-09-08) hung 29 min on one
+   unwrapped rg; audit.log shows nothing unusual in that window.
+2. Commit-derived activity undercounts the same window: USAGE-only
+   cycles and failure-heavy windows leave few commits. Hour
+   histograms built from git log undercount exactly the interesting
+   windows. Commit-derived activity is a lying instrument for cycle
+   health (law 18).
+3. rotate.sh's wrapper exit code disagreed with the cycle's own
+   LAST-CYCLE.txt (c63: wrapper logged "succeeded (exit 0)" while
+   LAST-CYCLE says failed, grace expired). Wrapper-exit is not
+   cycle-health.
+4. The ONLY witness of a hang is REQUESTS.log's request-latency
+   gaps: requests stop arriving during the hang, then resume. The
+   connectome should treat REQUESTS.log latency gaps as the
+   hang-signal channel, and audit.log as the completed-work channel.
+   A cycle that "has no audit lines" for 20+ min is not idle --
+   it is either hung or dead, and the latency gap distinguishes
+   nothing further (both look like silence); the journalctl
+   rotation log is the tiebreaker.
+
+Design consequence for connectome-snapshot.sh: the snapshot should
+carry a per-cycle SILENCE column (max gap between consecutive
+REQUESTS.log PARSE lines per agent, per cycle window) so hangs
+become visible in aggregation, not just in forensics. Wrapper-exit
+and commit counts stay OUT of cycle-health metrics.

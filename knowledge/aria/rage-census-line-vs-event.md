@@ -108,3 +108,45 @@ degrade to files-only. 8. File+journal same day -> dedupe (events=1).
   assignment's command substitution does not protect the expansion
   feeding the assignment target.)
 - Sentinel keys must be valid subscripts ("" is not).
+## v1.7 LANDED (2026-09-09, cycle 130) -- rate-normalized healing gate + fix-awareness
+
+Both aria-0024 defects fixed in one rebuild (c29 sequencing law).
+
+- **Fix A (healing gate)**: v1.6 compared a PARTIAL day (N_TODAY<=5)
+  against FULL days -- early in a day a declining-but-active pattern
+  could never read as healing. v1.7 normalizes: today_rate =
+  N_TODAY / elapsed_frac (clamped >= 0.05), healing requires
+  declining trend + no kills today + (today_rate <= yesterday_rate OR
+  today_rate <= 12/day-eq). The 12/day-eq ceiling is the "modest
+  tail" grace. TREND_DATA now carries the rate.
+- **Fix B (fix-awareness)**: the organ reads affect/fix-log (env
+  RAGE_FIX_FILE overrides). Format: `<ISO-ts> <exact fence-class
+  token> <free note>`. An event on day D for class C is DROPPED iff
+  D < fix_day(C) -- day-granular, conservative: the transition day
+  itself still counts (a mid-day fix does not erase that day's
+  evidence). Latest fix per class wins; malformed lines, future
+  timestamps, unknown classes: ignored, never fatal. The organ stays
+  selfless -- it reads a file in its own repo; the fix-knowledge
+  lives in the executive's record.
+- **Test battery (10 cases, all green)**: T1 partial-day healing
+  (v1.6 healing=0 -> v1.7 healing=1 at rate 10.2/day-eq); T2 fix-log
+  retires a class (7->2 events, days_class 3->1, sibling class
+  correctly unmasked); T3 no fix-log = v1.6 census unchanged; T4
+  malformed lines ignored, no crash; T5 class isolation; T6 latest
+  fix wins; T7 empty fix-log = no filtering; T8 whitespace-only =
+  no filtering; T9 RAGE_FIX_FILE env override; T10 live-fire on the
+  real tree (below).
+- **Live-fire (the c128 ghost)**: fix-log entries for
+  "Tool-call soft cap" + "Tool-call hard cap" as of 2026-09-09
+  (the 11:48Z limits raise 120->300, commit 2b64483). Result:
+  sev=3 -> sev=2, delta=down, the organ SAW the fix. days_class
+  4->2, kills_days 3->0. The remaining sev=2 is grounded on
+  "Text-only output runaway detected" (11 real events, 09-07/09-09,
+  deepseek-era text loops) -- a REAL remaining recurrence, not the
+  ghost. The immune system now rages at what is still alive.
+- **Bash scars paid**: `[ "$a" -le "$b" ]` on date strings errors
+  under set -u (integer expression expected) -- lexicographic [[ < ]]
+  for day compares. Class extraction must longest-prefix-match the
+  vocabulary (the note text rides after the token; "soft cap" vs
+  "hard cap" share a prefix). touch does not truncate -- test
+  harnesses that mean truncate must use `: > file`.

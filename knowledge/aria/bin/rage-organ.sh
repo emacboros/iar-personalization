@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.6.1 (2026-09-09, aria cycle 102: ran-as context on degradation lines; v1.6 2026-09-08 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
+# rage-organ.sh v1.7 (2026-09-09, aria cycle 130: rate-normalized healing gate + fix-awareness via fix-log, aria-0024; v1.6.1 cycle 102: ran-as context; v1.6 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -247,6 +247,69 @@ if command -v ssh >/dev/null 2>&1; then
   fi
 fi
 
+# --- v1.7 FIX-AWARENESS (aria-0024 defect B) ---
+# The organ reads only its own symptom stream: a root fix that retires
+# a fence class is invisible to it, so it keeps raging at a ghost
+# (c128: the rage organ raged at the soft-cap class hours AFTER the
+# limits raise retired it). Fix: an optional fix-log the executive
+# appends when a root fix lands. Format (one per line):
+#   <YYYY-MM-DDTHH:MM:SSZ> <exact fence-class token> <free note...>
+# Semantics: an event on day D for class C is DROPPED iff
+#   D < fix_day(C)   (day-granular, conservative: the transition day
+#   itself still counts -- a fix landing mid-day does not erase that
+#   day's evidence). Latest fix per class wins. Malformed lines,
+#   future timestamps, unknown classes: ignored, never fatal.
+# The organ stays selfless: it reads a file in its own repo; the
+# fix-knowledge lives in the executive's record, not in the organ.
+FIX_LOG="${RAGE_FIX_FILE:-$PDIR/affect/fix-log}"
+declare -A FIX_DAY=()   # class -> fix day (YYYY-MM-DD)
+FIX_DAY["__sentinel__"]="__sentinel__"
+if [ -r "$FIX_LOG" ]; then
+  while IFS= read -r fline; do
+    fts="$(printf '%s' "$fline" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' | head -1)"
+    [ -z "$fts" ] && continue
+    fday="$(printf '%s' "$fts" | cut -c1-10)"
+    frest="$(printf '%s' "$fline" | sed -E "s/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z[[:space:]]+//")"
+    # class = the FIRST vocabulary token that prefixes the remainder
+    # (the note text rides after it). Order matters: check the longer
+    # soft/hard-cap tokens before any shared prefix.
+    fcls=""
+    for tok in "Text-only output runaway detected" "context circuit breaker" "Tool-call soft cap" "Tool-call hard cap" "LOOP GUARD"; do
+      case "$frest" in
+        "$tok"*) fcls="$tok"; break ;;
+      esac
+    done
+    [ -z "$fcls" ] && continue
+    # future-fix guard: lexicographic day compare (both YYYY-MM-DD)
+    if [[ "$fday" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] && [[ "$fday" < "$TODAY" || "$fday" == "$TODAY" ]]; then
+      FIX_DAY["$fcls"]="$fday"
+    fi
+  done < "$FIX_LOG"
+fi
+unset 'FIX_DAY[__sentinel__]' 2>/dev/null
+# filter: drop events older than their class's fix day
+if [ "${#FIX_DAY[@]}" -gt 0 ]; then
+  for key in "${!EVENT_RUNS[@]}"; do
+    cls="${key%%|*}"; day="${key#*|}"
+    fday="${FIX_DAY[$cls]:-}"
+    [ -z "$fday" ] && continue
+    if [[ "$day" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] && [[ "$day" < "$fday" ]]; then
+      unset 'EVENT_RUNS[$key]' 2>/dev/null
+    fi
+  done
+  # rebuild CLASS_N + total_events from the surviving events
+  CLASS_N=()
+  CLASS_N["__sentinel__"]=1
+  total_events=0
+  for key in "${!EVENT_RUNS[@]}"; do
+    cls="${key%%|*}"
+    n=$(printf '%s' "${EVENT_RUNS[$key]}" | wc -w)
+    CLASS_N[$cls]=$(( ${CLASS_N[$cls]:-0} + n ))
+    total_events=$((total_events + n))
+  done
+  unset 'CLASS_N[__sentinel__]' 2>/dev/null
+fi
+
 # --- per-class census (the rage thresholds, on events) ---
 # drop the set-u sentinels before counting
 unset 'EVENT_RUNS[__sentinel__|__sentinel__]' 2>/dev/null
@@ -342,12 +405,28 @@ TREND="flat"
 if [ -n "${DOM_PERDAY[$YDAY]:-}" ] && [ -n "${DOM_PERDAY[$DDAY]:-}" ] && [ "$N_YDAY" -lt "$N_DDAY" ]; then
   TREND="declining"
 fi
-# healing shape: decline + today clean (no kills, emissions <= 5)
+# healing shape (v1.7, aria-0024 defect A): v1.6 compared a PARTIAL
+# day (N_TODAY<=5) against FULL days -- early in a day a
+# declining-but-active pattern can never read as healing, and a
+# genuinely-healed pattern reads as healing only late in the day.
+# Fix: normalize today by elapsed fraction of the day and compare
+# RATES. today_rate = N_TODAY / elapsed_frac, clamped so the first
+# minutes of a day cannot divide by ~0. Healing = declining trend +
+# no kills today + today's projected full-day rate does not exceed
+# yesterday's rate (the pattern is not re-accelerating) and is at
+# most a modest tail (<= 12/day-equivalent, vs the 17/12/7 declining
+# days that motivated the gate).
 HEALING=0
-if [ "$TREND" = "declining" ] && [ "$KILLS_TODAY" -eq 0 ] && [ "$N_TODAY" -le 5 ]; then
+ELAPSED_HRS=$(( 10#$(date -u +%H) * 3600 + 10#$(date -u +%M) * 60 + 10#$(date -u +%S) ))
+ELAPSED_FRAC=$(awk -v s="$ELAPSED_HRS" 'BEGIN{f=s/86400; if (f<0.05) f=0.05; printf "%.4f", f}')
+TODAY_RATE=$(awk -v n="$N_TODAY" -v f="$ELAPSED_FRAC" 'BEGIN{printf "%.1f", n/f}')
+YDAY_RATE=0
+[ -n "${DOM_PERDAY[$YDAY]:-}" ] && YDAY_RATE=$(awk -v n="$N_YDAY" 'BEGIN{printf "%.1f", n}')
+RATE_OK=$(awk -v tr="$TODAY_RATE" -v yr="$YDAY_RATE" 'BEGIN{print (tr <= yr + 0.001 || tr <= 12.0) ? 1 : 0}')
+if [ "$TREND" = "declining" ] && [ "$KILLS_TODAY" -eq 0 ] && [ "$RATE_OK" -eq 1 ]; then
   HEALING=1
 fi
-TREND_DATA="trend ${DDAY}=${N_DDAY} -> ${YDAY}=${N_YDAY}, today so far=${N_TODAY} (kills today=${KILLS_TODAY})"
+TREND_DATA="trend ${DDAY}=${N_DDAY} -> ${YDAY}=${N_YDAY}, today so far=${N_TODAY} (rate ${TODAY_RATE}/day-eq, kills today=${KILLS_TODAY})"
 
 # --- grade (v1.6: kill-grounded RAGE, degradation-capped, trend-aware) ---
 if   [ "$days_with_class_max" -ge 2 ] && [ "$KILL_DAYS" -ge 2 ] && [ "$JOK" -eq 1 ] && [ "$HEALING" -eq 0 ]; then

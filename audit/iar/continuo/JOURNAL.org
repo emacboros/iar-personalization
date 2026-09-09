@@ -5877,3 +5877,31 @@ Quiet cycle with one real action:
 No machinery change needed. The fences are working, the probe is
 collecting its first instrumented window, the burn is down.
 Bass line held.
+* 2026-09-09 cycle 177 -- probe first window: CPU-correlated, not GPU
+PULSE all green. Suite not run (quiet cycle). Services active, tripwire 0, disk 29%.
+
+Real work this cycle:
+- GPU probe FIRST instrumented failure window analyzed (00:30-01:18
+  local partial, 49 samples). The GPU-load arm of the load-correlation
+  hypothesis is WEAKENED: GPU util in the window is LOW (21.1% avg)
+  vs daytime (38.8%). CPU load1 is HIGH in the window (7.87 avg vs
+  5.06 daytime), and at fire times (00:44, 01:03 local -- both
+  truncated-output fires today) load1 was 9.60/12.40 with GPU util
+  only 8-13%.
+- CPU source identified: localsearch-3 (GNOME file indexer, 72.7%
+  CPU, running since Sep 01) + Frigate's 8-camera pipeline. The
+  early-morning CPU contention is the plausible correlate, not GPU.
+- Doc written (knowledge/iar/gpu-load-probe-first-window-2026-09-09.md),
+  committed (def1cf3), pushed. Posted lab-notes + for-nacho flag with
+  the candidate mitigation (ionice/nice localsearch-3 or Frigate
+  off-peak detection -- interactive, Nacho's call).
+- One ssh command timed out (600s) mid-analysis -- the awk with
+  embedded quotes hung; re-ran with a simpler quoting shape and it
+  completed in <1s. Noted, routed around.
+
+Caveat: only 2 fire-time samples so far. The 02:23 fire (cycle 174)
+is still ahead in this window. Tomorrow's census gets all 3 fire
+samples with the full 00:30-04:00 dataset.
+
+The probe is doing what instruments do: falsifying the hypothesis it
+was built to test, and pointing at a better one.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria-dashboard generator v1.1 (2026-09-07, aria interactive session w/ Nacho)
+# aria-dashboard generator v2.0 (2026-09-09, aria interactive session X w/ Nacho)
 # -------------------------------------------------------------
 # Aggregates house + agent state into one JSON snapshot, synced with the
 # UI (index.html/app.js/style.css) into the caddy-served directory.
@@ -21,6 +21,13 @@
 # Failure posture: every source wrapped; missing source -> null field,
 # generator still emits JSON. Stale is visible (generated_at + UI age).
 #
+# v2.0 (2026-09-09, session X): D-013 connectome data layer -- connectome()
+#   (co-firing edges, file-touch, shared load-bearing files, token percentiles,
+#   fires, silence, fence rejections from sophon audit logs, 24h window),
+#   burn_series() (hourly tokens_in per agent from REQUESTS.log PARSE lines).
+#   Schema -> aria-dashboard/v2 (v1 keys unchanged; oracle context unaffected).
+#   Live connectome = sophon logs ONLY (cycle traffic; full population =
+#   weekly snapshot, provenance stated in JSON). Nacho-ratified session X.
 # v1.9 (2026-09-09, aria c116): board() -- task-tree digest (D-013 addendum),
 #   thinking/working/done from tasks/iar/ mtimes + relay verdicts. Real data only.
 # v1.8 (2026-09-07, aria c21): affect() parses rage too (additive; rage organ live since c20).
@@ -358,10 +365,133 @@ def board():
     out["thinking"] = out["thinking"][:3]
     return out
 
+
+# ---- connectome (D-013 data layer, session X) ----
+# 24h window over sophon audit logs ONLY (cycle traffic; the weekly
+# snapshot is the full-population instrument -- both hosts -- and stays
+# authoritative for history). Anchors per c115/c32: PARSE lines anchored
+# on '] REQ <id> PARSE '; fires tail-anchored on
+# 'stop=length tokens_in=N tokens_out=M$'; census-echo law honored
+# (patterns never match their own specs= echo because specs= text never
+# ENDS a line with the fire tail).
+AUD_ROOT = os.path.join(REPO, "audit")
+COFIRE_WINDOW = 5
+TOPN = 12
+TS_RE = re.compile(r"^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]")
+PARSE_RE = re.compile(r"\] REQ \d+-\d+ PARSE ")
+FIRE_TAIL_RE = re.compile(r"stop=length tokens_in=\d+ tokens_out=\d+\s*$")
+WRITE_TOOLS = ("write_file", "append_file", "write_subtask", "create_task",
+               "read_file", "list_directory", "read_knowledge")
+
+def _ts(line):
+    m = TS_RE.match(line)
+    if not m: return None
+    try:
+        return datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp()
+    except Exception:
+        return None
+
+def _read(path):
+    try:
+        with open(path, errors="replace") as f:
+            return f.read().splitlines()
+    except Exception:
+        return []
+
+def connectome():
+    cutoff = NOW - 86400
+    out = {"window": "24h",
+           "source": "sophon audit logs (cycle traffic; full population in weekly snapshot)",
+           "cofire": {}, "files": {}, "shared_files": [], "tokens": {},
+           "burn_series": {}, "fires_24h": {}, "silence_24h": {},
+           "fence_rejections_24h": 0}
+    try:
+        merged = _read(os.path.join(AUD_ROOT, "audit.log.1")) + \
+                 _read(os.path.join(AUD_ROOT, "audit.log"))
+    except Exception:
+        merged = []
+    tool_lines = []
+    fence = 0
+    for ln in merged:
+        if " | tool_call | " not in ln: continue
+        if "name=nil" in ln: continue
+        if re.search(r"\| (mirror|convagent|bessie|unknown|agent-assistant) \|", ln): continue
+        if "status=rejected" in ln:
+            fence += 1
+            continue
+        t = _ts(ln)
+        if t is None or t < cutoff: continue
+        tool_lines.append((t, ln))
+    out["fence_rejections_24h"] = fence
+
+    cofire = {a: {} for a in AGENTS}
+    files = {a: {} for a in AGENTS}
+    for a in AGENTS:
+        prev_t = prev_tool = None
+        for t, ln in sorted(tool_lines, key=lambda x: x[0]):
+            if f"] {a} | tool_call | " not in ln: continue
+            m = re.search(r"name=([a-z_]+)", ln)
+            if not m: continue
+            tool = m.group(1)
+            if prev_t is not None and 0 <= t - prev_t <= COFIRE_WINDOW:
+                pair = prev_tool + "->" + tool
+                cofire[a][pair] = cofire[a].get(pair, 0) + 1
+            prev_t, prev_tool = t, tool
+            if tool in WRITE_TOOLS:
+                pm = re.search(r'(?:path|filepath)="([^"]+)"', ln) or \
+                     re.search(r"(?:path|filepath)=(\S+)", ln)
+                if pm:
+                    files[a][pm.group(1)] = files[a].get(pm.group(1), 0) + 1
+
+    def top_pairs(d, n):
+        return [[k.split("->")[0], k.split("->")[1], v]
+                for k, v in sorted(d.items(), key=lambda x: -x[1])[:n]]
+    for a in AGENTS:
+        out["cofire"][a] = top_pairs(cofire[a], TOPN)
+        out["files"][a] = [[k, v] for k, v in
+                           sorted(files[a].items(), key=lambda x: -x[1])[:10]]
+    shared = sorted(set(files["aria"]) & set(files["continuo"]),
+                    key=lambda p: -(files["aria"].get(p, 0) + files["continuo"].get(p, 0)))[:TOPN]
+    out["shared_files"] = shared
+
+    for a in AGENTS:
+        lines = []
+        for suffix in (".1", ""):
+            lines += _read(os.path.join(AUD, a, "REQUESTS.log" + suffix))
+        toks = []; fires = 0
+        max_gap = 0; over600 = 0; prev_t = None
+        burn = {}
+        for ln in lines:
+            if not PARSE_RE.search(ln): continue
+            t = _ts(ln)
+            if t is None or t < cutoff: continue
+            m = re.search(r"tokens_in=(\d+)", ln)
+            if m:
+                n = int(m.group(1))
+                toks.append(n)
+                hour = int(t // 3600)
+                burn[hour] = burn.get(hour, 0) + n
+            if FIRE_TAIL_RE.search(ln): fires += 1
+            if prev_t is not None:
+                gap = t - prev_t
+                if gap > max_gap: max_gap = gap
+                if gap > 600: over600 += 1
+            prev_t = t
+        srt = sorted(toks)
+        def pct(p):
+            return srt[min(len(srt) - 1, int(len(srt) * p))] if srt else None
+        out["tokens"][a] = {"n": len(toks), "p50": pct(.5), "p90": pct(.9),
+                            "p99": pct(.99), "max": srt[-1] if srt else None}
+        out["fires_24h"][a] = fires
+        out["silence_24h"][a] = {"max_gap_s": max_gap, "over_600": over600}
+        base = int(NOW // 3600) - 23
+        out["burn_series"][a] = [[h, burn.get(h, 0)] for h in range(base, base + 24)]
+    return out
+
 # ---- assemble + atomic write ----
 doc = {
-    "schema": "aria-dashboard/v1",
-    "version": "v1.9",
+    "schema": "aria-dashboard/v2",
+    "version": "v2.0",
     "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "agents": {a: {**(last_cycle(a) or {}), "burn24h": usage(a),
                    "req_health_24h": req_health(a)} for a in AGENTS},
@@ -370,6 +500,7 @@ doc = {
     "house": house(),
     "host": host(),
     "board": board(),
+    "connectome": connectome(),
 }
 os.makedirs(OUT, exist_ok=True)
 tmp = os.path.join(OUT, ".dashboard.json.tmp")

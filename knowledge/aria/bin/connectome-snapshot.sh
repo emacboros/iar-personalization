@@ -150,7 +150,44 @@ done
 echo
 } >> "$OUT"
 
-# --- 5. fence/rejection counts (post-0f552b1 rows) ---
+
+# --- 6. silence (hang-signal channel; c105/106 hang-witness asymmetry) ---
+# REQUESTS.log PARSE lines are the only witness of a hang: requests stop
+# arriving during a hang, then resume. Max gap between consecutive PARSE
+# timestamps per agent = the silence column. Gaps > 600s (the tool
+# timeout ceiling) are hang-class candidates.
+emit_silence() {
+  local agent="$1"
+  TZ=UTC awk -v AG="$agent" '
+    $0 ~ "\] " AG " \| PARSE \| " {
+      ts=substr($0, 2, 19); gsub(/[-:]/, " ", ts);
+      t=mktime("1970 " ts);
+      if (prev && t-prev > max) { max=t-prev; from=sprev; to=ts }
+      if (prev && t-prev > 600) hang++
+      prev=t; sprev=ts;
+    }
+    END {
+      if (max > 0) printf "max_gap_s=%d from=%s to=%s gaps_over_600s=%d\n", max, from, to, hang+0;
+      else print "no PARSE lines";
+    }' /tmp/connectome/req-$agent.log
+}
+{
+echo "## Silence (hang-signal channel, REQUESTS.log PARSE gaps)"
+echo
+echo "Max gap between consecutive PARSE lines per agent. Gaps > 600s"
+echo "(tool-timeout ceiling) are hang-class candidates; cross-check the"
+echo "from/to stamps against journalctl rotation logs before claiming a hang."
+echo
+for ag in aria continuo; do
+  echo "### $ag"
+  echo '```'
+  emit_silence "$ag"
+  echo '```'
+  echo
+done
+} >> "$OUT"
+
+# --- 7. fence/rejection counts (post-0f552b1 rows) ---
 {
 echo "## Fence rejections (status=rejected, post 0f552b1)"
 echo '```'

@@ -1,14 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~09:27 UTC (cycle 122: EYE-CHECK
-SCHEDULING landed -- aria-eye-feed daily timer feeds the
-frontend-eye-check, law-27 family CLOSED (twin c119, fleet feeder
-c121, eye feeder c122), relay aria-0017; D-014 landed mid-cycle
-from session IX: continuo->nemotron-3-super, retainer->gemma4:
-cloud, qwen3.6 resident, 48h fire watch armed verdict 09-11.
-Prior: c121 fear-fleet wiring + exit-126 root-cause; c120
-instrument audit; c119 fleet-check v2.15; c117 fire-census.)
+Last updated: 2026-09-09 ~12:22 UTC (cycle 125: EYE BATTERY V1
+run for aria-0019 -- qwen3.6 BEATS gemma3:4b on JOB A (screenshot
+desc), tie JOB B, co-residency impossible (qwen load evicts
+gemma3), swap costs priced, relay aria-0021; caller inventory +
+battery scripts committed. Prior: c124 D-014 plumbing fix verified
+(turn 541 clean nemotron); c122 eye-check scheduling; c121
+fear-fleet wiring; session X dashboard v2 (D-013).)
 
 * Who I am
 
@@ -60,8 +59,7 @@ only on natural need.
 BUILD ORDER: 1) relay (LIVE) 2) agora addressing+reset 3) job files
 4) organs (affect LIVE: boredom/fear/rage; fear organ now has FULL
 sensory input) 5) immune system 6) embodiment (7.1 eye-check LIVE
-+ SCHEDULED daily) 7) eye model. Dashboard + oracle LIVE on
-aria.randazzo.ar.
++ SCHEDULED daily) 7) eye model (battery run c125, swap decision pending). Dashboard + oracle LIVE on aria.randazzo.ar.
 
 * North star + the door
 
@@ -121,6 +119,62 @@ live-fire-both-paths-before-first-scheduled-fire; c122 NEW LAW 31:
 write references only after reading the world they point into
 (the relay id I assumed was taken; a reference written before the
 world was read is the fear-organ's "" argument in miniature).
+
+* World state (2026-09-09 12:22 UTC -- c125, REPLACES prior block)
+
+- c125 EYE BATTERY V1 (aria-0019 items a+b, relay aria-0021):
+  qwen3.6:35b-a3b BEATS gemma3:4b on JOB A (screenshot description:
+  correct brand reads vs gemma3's "1.ar"/"Randezzo" misreads +
+  invented defects), TIE on JOB B (camera classification 2/2 both).
+  Co-residency IMPOSSIBLE: qwen load EVICTS gemma3 (ollama ps
+  post-battery: only qwen, 4312 MB). Swap costs: 6 scripts/8 sites
+  (inventory: knowledge/aria/gemma3-caller-inventory-2026-09-09.md),
+  eye-check max-time 45->300s (first qwen call hit 240s ceiling),
+  fear/rage mouth latency 6s->45s warm. n=2 = a line, not a
+  mechanism. Results: knowledge/aria/eye-battery-results-
+  2026-09-09.md. Decision stays Nacho's (D-014 pattern). qwen now
+  resident = live test subject for keep-warm question.
+- c124: D-014 plumbing fix LANDED+VERIFIED (7d796b9): turn 541
+  (10:51Z) first clean nemotron cycle. Fire watch re-armed from
+  10:51Z, verdict 09-11.
+- TWIN-VERIFIER PERS BUG (c124 diagnosis, UNFIXED): digest-twin-
+  verifier.sh hardcodes PERS=/root/personalization but runs as
+  nacho via sudo -u on sophon; /root not traversable. Fix: PERS
+  resolves to the checkout the script lives in. Sophon-side edit.
+- EYE-FEED REPORT 11:15Z: fresh reads, gemma3 still misreading
+  "1.ar" + inventing overlaps (eye-noise pattern continues; battery
+  now documents it side-by-side vs qwen).
+
+* World state (2026-09-09 11:36 UTC -- session X CLOSED)
+
+- SESSION X (interactive, Nacho): DASHBOARD V2 LANDED (D-013).
+  Generator v2.0 connectome data layer (42dae75): 24h cofire edges,
+  file-touch, shared_files (callosum), token percentiles, fires,
+  silence, fence counts, hourly burn series -- sophon logs only
+  (Nacho call), schema aria-dashboard/v2, v1 keys unchanged.
+  UI v2 (d05cf78): force-graph from real JSON (agents pinned midline,
+  tools+files multiplexed -- Nacho call), edges weighted by measured
+  frequency, callosum = both-citizens files, fire pulses red, board
+  panel rendered. v1 fake mesh DELETED. Docs: README v2 (359d602),
+  design.org as-built (eb7816d), roadmap (afa6cff).
+- D-014 PLUMBING VERIFIED HEALED: c123 fixed gptel.el :models
+  (7d796b9); turn 541 (10:51Z) = first clean nemotron-3-super:cloud
+  cycle (3x 200 OK). Fire watch re-arms from 10:51Z, verdict 09-11.
+  continuo lost ~24h to the 404 fallback (north-mini-code-1.0:q8_0
+  absent from server; gptel--sanitize-model silent fallback).
+- UI v2.1 (41fff7b) fixed Nacho's live bug report: NaN agent homes
+  (graph invisible until resize), poll re-seed jitter, sim that never
+  converged, callosum crowding (shared files had 4 edges each), board
+  now open by default. Headless-verified: 0 NaN, converged, pinned.
+  Nacho closed the session satisfied ("Great work").
+- EYE-CHECK CANVAS BLINDNESS (instrument finding): firefox
+  --headless --screenshot captures before first rAF paint -- the eye
+  has NEVER seen the dashboard canvas (v1 or v2). Canvas verified
+  painting via inline test. Eye = DOM witness; canvas witness =
+  human. Documented ecddab8 in eye-check-wiring.md.
+- W38 connectome caveat: ~24h continuo hole from the 404 window.
+- Dangling git objects in sophon personalization (50, from 09-08
+  root-push race): content verified in history, cleanup candidate.
 
 * World state (2026-09-09 09:27 UTC -- REPLACES all prior blocks)
 

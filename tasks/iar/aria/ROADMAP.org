@@ -1,9 +1,17 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~04:55 UTC (cycle 110)
+Last updated: 2026-09-09 ~04:58 UTC (cycle 110)
 
 ## NOW
 
+- c110: qwen3.6 vision RETEST PASS (roadmap item 1 closed). ollama
+  0.32.8 fixed the fitter-crash class for BOTH archs (journal: fit
+  leaves vision headroom 4627/1962 MiB, CLIP warmup clean, mtmd
+  clean, no segfault; " red" correct 64x64, 22.9s incl. load).
+  qwen's rejection reason now = fat-context tax alone; upstream-report
+  candidate MOOT. Eye stays gemma3:4b (co-residency + glance cost).
+  knowledge/aria/qwen36-vision-retest-2026-09-09.md + relay
+  aria-0012. Suite verified green this cycle (57/57).
 - c109: muse-glimmer:30b battery DONE. Verdict NO for local
   retainer/resident (dense 27.9B, 12/53 layers GPU, ~2 tok/s decode,
   ~300 tok/s prefill; qwen MoE was 18-26 tok/s). Vision WORKS --
@@ -42,11 +50,24 @@ Last updated: 2026-09-09 ~04:55 UTC (cycle 110)
    Nacho's; cycles prepare data if asked via relay.
 7. Laptop origin artifact review with Nacho (0fc3bbc): pending his
    availability; salvage BEFORE reinstall/scrub.
+8. Repo-growth watch (c110 find, at cap): continuo's
+   audit/iar/continuo/cycle.log is 61MB / 840k lines (4,235
+   CYCLE_COMPLETEs, Sep 2 -> now) and was FIRST committed by
+   continuo c117 (2d25f94, Sep 8 00:36Z) with 682,773 lines (~49.8MB)
+   force-added in one commit despite audit/* gitignore. Since then:
+   73 commits touch it (~300KB-3MB each); repo pack now 51.08 MiB.
+   The c104 add -f workaround is being applied to the ACCUMULATED
+   transcript, not just journal/HISTORY. Continuo already rotates
+   daily copies (cycle-2026-09-0{7,8,9}.log, ~400-500KB, committed --
+   those are fine). Fix = stop force-adding cycle.log; keep daily
+   rotations. Historical blob stays (no rewrite). Surface to
+   continuo next cycle (lab-notes or its journal); asymmetry note:
+   aria's cycle.log (70MB) has NEVER been committed.
 
 ## STANDING
 
-- Pulse: all green as of c109 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=382, rotation healthy).
+- Pulse: all green as of c110 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=412, rotation healthy).
 - sophon-bare i.ar.git at 3f19973 (0007 cutover landed, sophon
   current). origin (rammstein) fetch fails: container key
   id_ed25519 is NOT in rammstein's git authorized_keys. Mirror hook
@@ -59,12 +80,16 @@ Last updated: 2026-09-09 ~04:55 UTC (cycle 110)
 - Diverged-pull protocol: stash -> rebase -> pop -> push. SCAR
   (c97): nobody-owned untracked file freezes rebase.
 - audit/iar is GITIGNORED in personalization repo -- git add -f
-  required for journal/HISTORY commits (c104 discovery).
+  required for journal/HISTORY commits (c104 discovery). c110
+  corollary: -f is for CURATED records (journal/HISTORY/daily
+  cycle-YYYY-MM-DD.log), NOT the accumulated cycle.log transcript.
 - Timer-state lie: aria-cycle.service shows "activating" mid-cycle.
 - glm degradation watch (session VI): 3 human-witnessed events;
   aria-0006 = 4th class sighting (interactive guard BUILT, suite
   green, pushed; ratification ask open in aria-0006 thread).
-- aria-cycle.conf key parse: ini-format key=value (cut -d=, not -d:).
+- aria-cycle.conf key parse: ini-format "key = value" -- cut -d= -f2
+  leaves a LEADING SPACE (401 UNAUTHORIZED, c110); use grep -oP
+  '(?<=key = )' or awk '/^key = /{print $3}' (continuo's working form).
 - Sophon-side file creation = nobody:nobody (podman id-mapping).
 - Zulip read API: narrow param URL-encoded JSON; .subject not .topic.
 - Ollama sparse blobs: partial blobs pre-allocate; st_blocks is the
@@ -87,6 +112,9 @@ Last updated: 2026-09-09 ~04:55 UTC (cycle 110)
 - c109: the ~2s POST cadence to sophon ollama mid-cycle is the cycle
   agent's own glm-5.3-flash:cloud turns (session-*.scope in journal).
   Instrument seeing itself -- do not re-investigate.
+- c110: ollama keep-alives outlive the cycle that set them (muse was
+  resident "Forever" from c109 when c110 woke). Unload what you
+  loaded; check `ollama ps` before assuming steady state.
 
 ## LAWS (accumulated; the ones that keep biting)
 
@@ -136,3 +164,7 @@ Last updated: 2026-09-09 ~04:55 UTC (cycle 110)
     hazard: sub-minimum inputs get fiction, not errors. Instruments
     must be validated at their operating point, not their floor
     (c109, the silent-confabulation class).
+22. Workarounds generalize past their warrant: the -f flag that
+    rescued curated records also force-adds a 61MB raw transcript.
+    A workaround needs a scope statement or it becomes a habit
+    (c110, the cycle.log find).

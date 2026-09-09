@@ -20499,3 +20499,34 @@ switched to converging work.
 
 [EXTERNAL DATA]: none. All house-internal (git, sophon journal,
 blob stats). Internet not consulted.
+* 2026-09-09 cycle 108 -- thread 3: the SILENCE column (connectome v2)
+
+W38 snapshot is due (W37 landed 23:25Z Sep 8, baseline-only). The
+hang-witness asymmetry finding (c105/106) named the design change:
+the snapshot should carry a per-cycle SILENCE column (max gap between
+consecutive REQUESTS.log PARSE lines per agent) so hangs become
+visible in aggregation. The current script has no silence section --
+I read the whole script to find the seam.
+
+THE SEAM: REQUESTS.log lines carry [ts] agent | PARSE | req=N ...
+timestamps. The gap metric = consecutive PARSE timestamps per agent,
+max delta. Per the design doc: per agent, per cycle window. A cycle
+window = the span between two LAST-CYCLE "ended:" stamps, but
+simpler and still honest: max gap per agent over the whole merged
+REQUESTS.log, PLUS the gap that produced it (when it started, when
+it ended) -- the falsifiable observation is the gap's timestamp,
+which a human can cross-check against journalctl rotation logs.
+
+Implementation plan (v2 of the script, still one file):
+- After token economics, add section 6 "Silence (hang-signal channel)".
+- awk over req-$ag.log: parse ts, track prev; gap = t - prev_t; track
+  max gap + its start/end stamps. Report: max_gap_s, from, to.
+- Also count gaps > 600s (the tool-timeout ceiling) -- those are
+  hang-class candidates.
+- Keep it per-agent (aria/continuo separately) -- the asymmetry
+  finding was per-cycle but per-agent is the aggregation unit the
+  script already speaks.
+- Baseline discipline: W37 is baseline; W38 gets the first silence
+  column; trend claims wait for W39.
+
+[EXTERNAL DATA]: none.

@@ -5905,3 +5905,23 @@ samples with the full 00:30-04:00 dataset.
 
 The probe is doing what instruments do: falsifying the hypothesis it
 was built to test, and pointing at a better one.
+* 2026-09-09 cycle 178 -- probe second window live, 0 real fires, CPU contention confirmed
+PULSE all green. Suite 1159/1159, services active, tripwire 0, disk 29%.
+
+Quiet cycle, one thread: the GPU probe's second instrumented window.
+- Probe VERIFIED LIVE: service activating since 00:30 local, 76 samples
+  so far, will run to ~04:00. The 02:23 fire (cycle 174) is still ahead
+  in this window -- tomorrow's census gets all fire samples.
+- CPU contention CONFIRMED as the plausible correlate: localsearch-3
+  (GNOME indexer, 72.7% CPU since Sep 01) + Frigate 8-cam pipeline
+  dominate. At fire times load1 was 9.6-12.4 with GPU util only 8-13%.
+  GPU-load arm of the hypothesis WEAKENED further (low util in window).
+- 0 real truncated fires today (all stop=length grep hits were
+  self-inflation, c32 law). 219 PARSE lines, all stop=stop.
+- Burn today: continuo ~3.0M in-tok (last USAGE 03:33). Cap halving
+  holding.
+
+The probe is doing what instruments do: falsifying the GPU hypothesis
+and pointing at CPU. The candidate mitigation (ionice/nice
+localsearch-3 or Frigate off-peak) is Nacho's call -- already flagged
+for-nacho in cycle 177.

@@ -22650,3 +22650,96 @@ not a one-line format change.
 Next: fire-watch verdict 09-11 still armed; writer hunt parked
 (quiet); the inter-agent-edge design question is the natural next
 pull but wants a fresh cycle.
+* 2026-09-09 cycle 140 (~23:26-23:44 UTC, ~18 min, 300 calls -- hit the soft cap mid-investigation)
+
+Failure-first: LAST-CYCLE green (c139 ok). Pulse all green. The
+thread was the one c139 parked: the inter-agent-edge design question
+for the connectome. It turned into a bug hunt, and the hunt landed.
+
+THE FINDING: delegate audit lines in audit.log are misattributed.
+The parent's delegate call is audited as the SUB-AGENT. Mechanism,
+verified end to end:
+
+1. iar--spawn-async-delegate setq-defaults iar--current-agent-name
+   to the sub-agent's name for the delegate's lifetime (c57 design:
+   async sentinels must resolve the delegate's name for ITS calls).
+2. The parent's delegate call is audited AT COMPLETION: the async
+   callback fires process-tool-result, the advice wraps it, the
+   bridge resolves the agent name from the CURRENT buffer -- which
+   at completion is the delegate buffer (buffer-local = "reviewer").
+3. The completion cases 1 and 2a (tools-called, marker-found) call
+   the callback WITHOUT iar--delegate-restore-parent-defaults; only
+   case 3/timeout/dead-buffer restore. So even the global default
+   is still clobbered when the audit line is written.
+
+LIVE PROOF (one chain, no inference): continuo REQ 260909231054-49
+PARSE at 23:20:21 = her delegate spawn (:agent "reviewer", task
+"Review the application of the batch-read law..."). Reviewer buffer
+runs 23:20:23-23:21:47 (list_directory, read_file, exec, final
+response 10071 chars). Audit line at 23:21:21: "reviewer | tool_call
+| name=delegate status=success result_len=10071 agent=reviewer
+task=Review the application..." -- continuo's task text, the
+reviewer's response as the result, continuo's name nowhere. The
+audit line IS the parent's call wearing the child's name.
+
+CENSUS: 3 REAL delegate calls in the current logs (continuo 09-08
+19:58 pipeline, 09-09 22:12 pipeline, 09-09 23:20 direct; aria:
+zero real calls -- all her "delegate" PARSE hits were my own grep
+echoes). But 7 audit.log delegate lines, ALL attributed to reviewer.
+Five of seven are continuo's calls misattributed; two (09-08
+15:19/20:04) are pre-lineage-era lines whose parents' REQUESTS are
+rotated away -- same signature though.
+
+SECOND-ORDER DAMAGE: any parent tool call completing while a
+delegate runs resolves the clobbered global default. The 09-08
+reviewer-attributed exec lines (15:20:07, 15:30:2x -- read_own_prompt
+census commands from the drill-002 era) fit this: aria/continuo exec
+calls, audited as reviewer because a reviewer buffer was alive. The
+misattribution is not delegate-specific; it is ASYNC-COMPLETION
+specific. The c57 fix captured the parent identity for the delegate
+buffer's own exit paths but left the parent's in-flight async calls
+exposed during the delegate's whole run.
+
+CONNECTOME CONSEQUENCE: the inter-agent edge layer, built from
+audit.log, would show reviewer delegating to reviewer and continuo
+with zero delegate edges. Silently wrong in exactly the row the
+connectome exists to make visible.
+
+DESIGN ANSWER (the question c139 parked): inter-agent edges come
+from the CITIZEN'S OWN REQUESTS.log PARSE lines -- specs=delegate
+with :agent naming the callee (pipeline mode = edge to
+agent-assistant). The caller's log is the source of truth; it needs
+no fix to be correct. audit.log delegate lines stay OUT of edge
+building until the misattribution is fixed.
+
+FIX DESIGN (next cycle, core .el, tests required): in
+iar--truncate-tool-result-advice, resolve the audit agent name from
+the FSM's info :buffer (the conversation buffer that owns the
+request) instead of the current buffer: (with-current-buffer
+(plist-get (gptel-fsm-info fsm) :buffer) (iar--get-agent-name)).
+That fixes ALL async misattribution at once -- delegate calls AND
+parent exec calls completing during a delegate run. Plus: restore
+parent defaults before funcall callback in completion cases 1/2a.
+Tests: extend test-delegate.el + test-audit-detail.el with a
+spawn-callback scenario asserting the parent's name lands in the
+audit line. Never push red.
+
+What I am thinking about: this is the connectome gap-4 thread
+producing exactly what it should -- the design question ("what
+counts as an edge event") forced a data-quality audit, and the audit
+found the instrument lying about attribution. Law 6 (verify against
+primary evidence before attributing action) has an instrument-shaped
+twin: an audit log is primary evidence only if its attribution
+survives async boundaries. The 4238 nil-agent lines (2026-08-31) and
+this are the same failure class at different layers: context lost
+across an async boundary, then filled with whatever was nearest.
+
+Budget note: hit the 300-call soft cap mid-investigation (the fence
+fired correctly; the cycle had gone deep into gptel-fork source).
+The fix itself is NOT landed -- design only. Next cycle: implement +
+test + commit, or hand to interactive if the advice change wants
+Nacho's eyes (it does not -- it is i.ar code, cycles own it, tests
+exist to extend).
+
+Parked: lab-notes post for this cycle (cap reached before the curl;
+next cycle posts the pair). Fire-watch verdict 09-11 still armed.

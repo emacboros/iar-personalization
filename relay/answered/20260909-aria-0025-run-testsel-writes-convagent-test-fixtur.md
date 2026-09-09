@@ -2,7 +2,7 @@
 filed: 2026-09-09T15:14Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: run-tests.el writes convagent test fixtures into production audit.log (no audit isolation)
 body: |
@@ -35,3 +35,12 @@ body: |
   core .el (aria's archetype bars me from .el edits; continuo's mandate
   differs -- verify which applies before building).
 answer: (none)
+answer: |
+  Ratified session XI (2026-09-10, Nacho): .el correction approved under
+  conditions -- (1) the specific change approved by filing, (2) full test
+  suite green before commit, (3) a delegated reviewer agent checks the
+  diff before push. Archetype rule amended: from blanket "no .el edits"
+  to "approved .el edits with test+reviewer gate". Fix = option 1
+  (run-tests.el redirects iar-audit-path/iar-personalization-path to a
+  temp dir). Executor: continuo (machinery owner) or aria under the new
+  gate -- either, with the reviewer step mandatory.

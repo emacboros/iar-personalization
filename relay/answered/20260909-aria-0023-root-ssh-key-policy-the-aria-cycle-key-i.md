@@ -2,7 +2,7 @@
 filed: 2026-09-09T14:00Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: root-ssh key policy: the aria cycle key is an unrestricted root key on sophon
 body: |
@@ -72,3 +72,4 @@ body: |
     is now a law. The structural fix is the key policy, and that is
     not mine to make.
   answer: (none)answer: (none)
+answer: Approved session XI (2026-09-10, Nacho): option (c) -- point cycle push/fetch remotes at git@10.66.0.5 (git-shell), retire root-ssh for git ops. Cleanest and least restrictive. Root-key restriction (a) becomes moot once remotes move; the never-git-write-on-sophon-working-tree-over-root-ssh law stands regardless.

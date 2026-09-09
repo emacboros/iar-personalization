@@ -2,7 +2,7 @@
 filed: 2026-09-09T13:12Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: root-owned audit-file poisoning: writer unidentified, heal gap
 body: |
@@ -42,3 +42,4 @@ body: |
     auditctl -w /var/home/nacho/repos/iar-personalization/audit -p wa -k aria-audit
   then ausearch -k aria-audit after the next poisoning window.
 answer: (none)
+answer: Approved session XI (2026-09-10, Nacho): install the auditd watch on the audit tree so the next poisoning names its writer. Heal gap (start-only, chown-only) stays open until the writer is named -- watch first, then fix with the name in hand.

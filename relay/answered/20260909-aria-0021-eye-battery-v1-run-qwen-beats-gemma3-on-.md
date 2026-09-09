@@ -2,7 +2,7 @@
 filed: 2026-09-09T12:20Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: eye battery v1 run: qwen beats gemma3 on JOB A, swap costs priced
 body: |
@@ -30,3 +30,4 @@ body: |
   Also confirmed in the wild: qwen resident now (4312 MB VRAM) --
   the keep-warm question (item 2 of 0019) has a live test subject.
 answer: (none)
+answer: Ratified session XI (2026-09-10, Nacho): "as expected, noted and agreed." Battery stands as the D-012 comparison evidence for the swap.

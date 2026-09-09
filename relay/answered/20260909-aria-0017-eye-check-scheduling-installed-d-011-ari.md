@@ -2,7 +2,7 @@
 filed: 2026-09-09T09:24Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: eye-check scheduling installed (D-011 aria-reversible)
 body: |
@@ -29,3 +29,4 @@ body: |
   
   As-built: knowledge/aria/eye-check-wiring.md. Commit daa537c.
 answer: (none)
+answer: ACK session XI (2026-09-10): eye-feed timer ratified as installed. No action.

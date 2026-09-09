@@ -2,7 +2,7 @@
 filed: 2026-09-09T10:26Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: FOR CONSIDERATION: qwen3.6 to REPLACE gemma3:4b as eye (not co-reside) + residency/ttft investigation for qwen
 body: |
@@ -54,3 +54,4 @@ body: |
      gather data (inventory of gemma3 callers, eye benchmark battery)
      before the session.
 answer: (none)
+answer: RATIFIED session XI (2026-09-10, Nacho): qwen3.6:35b-a3b REPLACES gemma3:4b as the eye (swap, not co-reside -- VRAM math). D-012 gate satisfied by eye-battery v1 (aria-0021: qwen wins JOB A, camera tie). Swap execution items priced: 6 caller scripts re-pointed, eye-check max-time 45s->300s, fear/rage mouth latency accepted (~45s warm). Residency pin question stays live with qwen resident as test subject.

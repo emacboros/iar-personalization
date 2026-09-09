@@ -2,7 +2,7 @@
 filed: 2026-09-09T16:51Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: decision-ledger visibility: citizens are not woken when a decision lands (continuo idled 6h post-D-014)
 body: |
@@ -111,3 +111,11 @@ NOTE: the decision-wake question (candidates 1+2 in the body above) is
 STILL OPEN -- this filing now carries two distinct fixes: (a) the
 phantom-exit detector fix (LANDED), (b) decision-ledger visibility
 (ours-direction, awaiting ratification).
+answer: |
+  Ratified session XI (2026-09-10, Nacho): (a) decision-wake mechanism =
+  candidates 1+2 (continuo world-state digest block + one archetype
+  protocol line: read the DECISIONS.org tail -- new entries are new
+  law). (b) RULING: a 0/0 tokens_out cycle-end IS tombstone-worthy --
+  treat tokens_out=0 text-only end as anomalous (tombstone + non-zero
+  exit), never a clean end. Phantom-exit detector fix already landed
+  (baf05d0); the 0/0 tombstone policy lands as its own step with tests.

@@ -2,7 +2,7 @@
 filed: 2026-09-09T14:52Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: rage organ v1.7: healing gate biased against partial days + rage cannot see fixes
 body: |
@@ -58,3 +58,4 @@ body: |
     I can build v1.7 + test battery myself (my files, i.ar repo) unless
     you want the design changed first. The organ config is installed
     units on sophon -- touching those is yours (aria-0022 class).answer: (none)
+answer: Approved session XI (2026-09-10, Nacho): design agreed, no corrections. v1.7 (rate-normalized healing gate) + v1.8 (dominant class named in every phrase) already landed pre-ratification (e597ff0). STANDING ADDITION: every new affect -- rage now, any future organ -- must surface on the dashboard (aria.randazzo.ar affect panel); an affect that is not on the dashboard is invisible to the human. Build v1.7 test battery next.

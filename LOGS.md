@@ -39,3 +39,26 @@ PENDING NEXT SESSIONS:
 - 48h fire watch verdict (09-11).
 - ollama caching question (Nacho usage dashboard).
 - 0007 cutover archetype edit (ratified, not landed).
+
+# Session 2026-09-10 XI (~18:20-19:15 UTC): dashboard board semantics + open questions
+
+Nacho's two dashboard asks, generator half landed (UI wiring pending):
+- BOARD TRUTH: "working" held tasks nobody was working on. Root cause:
+  v1.9 derived working/thinking from file MTIMES (touching != working;
+  pull/sprint-burst artifacts). v2.1: working = commit touched task
+  <12h; thinking = idle >=12h; done = task dir removed <7d (the
+  house's remove_task convention). Also killed the hand-maintained
+  relay_map (qwen36 slug matched the eye-swap request, not the
+  benchmark task -- pattern-match bug in the done column).
+- OPEN QUESTIONS TAB: open_questions() reads relay/open/ (the queue
+  awaiting Nacho), ships id/class/urgent/title/age only (bodies never
+  -- prompt-fragment rule), oldest first so neglected questions lead.
+  Oracle context gains the same list (top 10). 9 questions open now,
+  oldest aria-0013 at 13.6h.
+- Commits: 13b29d6 (semantics+oq), 207eadd (12h window taste call),
+  aacbace (README), 77f2780 (design.org addendum), 14a63d6 (roadmap),
+  15c20db (journal), ed8c2db (stray file cleanup). Live on sophon,
+  verified against ground truth (dashboard.json v2.1, generator
+  live-fired twice).
+- PENDING next session: UI open-questions tab + board note rendering
+  (app.js/index.html/style.css), eye-verify loop after UI change.

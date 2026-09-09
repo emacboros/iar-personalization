@@ -416,7 +416,12 @@ def connectome():
         if " | tool_call | " not in ln: continue
         if "name=nil" in ln: continue
         if re.search(r"\| (mirror|convagent|bessie|unknown|agent-assistant) \|", ln): continue
-        if "status=rejected" in ln:
+        # END-ANCHORED (c189 census law): a true rejection line ENDS with
+        # 'status=rejected result_len=N' -- no cmd= field. Self-echo (audit
+        # census greps quoting the pattern inside cmd=) has cmd= AFTER the
+        # status field, so the substring match inflates the count (c129:
+        # 6/6 'rejections' in the 24h window were my own grep commands).
+        if re.search(r"status=rejected result_len=[0-9]+$", ln):
             fence += 1
             continue
         t = _ts(ln)

@@ -28,6 +28,14 @@
 #   Schema -> aria-dashboard/v2 (v1 keys unchanged; oracle context unaffected).
 #   Live connectome = sophon logs ONLY (cycle traffic; full population =
 #   weekly snapshot, provenance stated in JSON). Nacho-ratified session X.
+# v2.1 (2026-09-10, aria interactive w/ Nacho): board() semantics fixed --
+#   working/thinking derive from GIT history (commit recency), not mtimes
+#   (mtimes conflate sprint bursts + pull refreshes with active work);
+#   done = task dir removed <7d (house convention), replacing the
+#   hand-maintained relay_map (which misfired: qwen36 slug matched the
+#   eye-swap request, not the benchmark task). NEW open_questions():
+#   relay/open/ queue (id/class/urgent/title/age, oldest first) for the
+#   UI open-questions tab. Schema unchanged (v2, additive); version v2.1.
 # v1.9 (2026-09-09, aria c116): board() -- task-tree digest (D-013 addendum),
 #   thinking/working/done from tasks/iar/ mtimes + relay verdicts. Real data only.
 # v1.8 (2026-09-07, aria c21): affect() parses rage too (additive; rage organ live since c20).
@@ -313,58 +321,155 @@ def host():
             "models": models, "timers_next": timers_next}
 
 
-# ---- board: task-tree digest (D-013 addendum, aria c116) ----
+# ---- board: task-tree digest (D-013 addendum; v2.1 semantics) ----
+def _fmt_age(h):
+    return ("%.1fh" % h) if h < 24 else ("%.1fd" % (h / 24))
+
 def board():
     """thinking/working/done digest from tasks/iar/ (real-data rule:
-    state derives from file mtimes + relay verdicts, never hand-edited
-    status fields). 5-10 entries total, curated brevity."""
+    state derives from GIT HISTORY + the removal convention, never
+    hand-edited status fields or bare mtimes).
+
+    v2.1 semantics (Nacho, 09-10 session: 'working' held tasks nobody
+    was working on -- mtime recency conflates sprint bursts and pull
+    refreshes with active work):
+      working = a commit touched the task in the last 24h
+      thinking = task exists, idle >= 24h (parked / awaiting)
+      done    = top-level task dir removed < 7d ago
+                (house convention: remove_task on completion)
+    """
     tbase = os.path.join(REPO, "tasks/iar")
     out = {"thinking": [], "working": [], "done": []}
     if not os.path.isdir(tbase):
         return out
     now = time.time()
-    # done: landed artifacts (connectome snapshots)
+    # done: task dirs whose description.org was deleted within 7d
+    try:
+        log = run("git -C " + REPO + " log --diff-filter=D --name-only "
+                  "--since=7.days --format=@%at -- tasks/iar/ 2>/dev/null", 10) or ""
+        cur_ts = None
+        removed = {}
+        for ln in log.splitlines():
+            ln = ln.strip()
+            if ln.startswith("@"):
+                try: cur_ts = int(ln[1:])
+                except Exception: cur_ts = None
+                continue
+            m = re.match(r"tasks/iar/([^/]+)/description\.org$", ln)
+            if m and cur_ts:
+                top = m.group(1)
+                if top not in ("aria", "continuo", "agora"):
+                    removed[top] = min(removed.get(top, 1e9),
+                                       (now - cur_ts) / 3600)
+        for top, age in sorted(removed.items(), key=lambda x: x[1]):
+            out["done"].append({"task": top, "note": "removed %s ago" % _fmt_age(age)})
+    except Exception:
+        pass
+    # done: landed artifacts (connectome snapshots -- standing patrol)
     try:
         if glob.glob(os.path.join(REPO, "knowledge/aria/connectome/snapshot-*.md")):
             out["done"].append({"task": "connectome-snapshot",
                                 "note": "latest snapshot landed"})
-    except Exception: pass
-    # done: verdicts filed to relay (open = ack pending, work itself done)
-    try:
-        open_dir = os.path.join(REPO, "relay", "open")
-        open_l = [f.lower() for f in os.listdir(open_dir)] \
-            if os.path.isdir(open_dir) else []
-        relay_map = {
-            "muse-glimmer": ("muse-glimmer-benchmark", "verdict filed (relay open)"),
-            "qwen36": ("local-brain-benchmark", "verdict filed (relay open)"),
-        }
-        for slug, (task, note) in relay_map.items():
-            if any(slug in f for f in open_l):
-                out["done"].append({"task": task, "note": note})
-    except Exception: pass
-    # working/thinking: newest-file age per top-level task dir
+    except Exception:
+        pass
+    # working/thinking: last COMMIT age per top-level task dir
+    # (git history is the shared truth; file mtime only as >30d fallback)
     ages = {}
-    for root, dirs, files in os.walk(tbase):
-        for f in files:
-            if not f.endswith(".org"): continue
-            p = os.path.join(root, f)
-            rel = os.path.relpath(p, tbase)
-            if rel.startswith("ROADMAP.org"): continue
-            top = rel.split(os.sep)[0]
-            if top in ("aria", "continuo", "agora"): continue  # meta trees
-            try: age_h = (now - os.path.getmtime(p)) / 3600
-            except Exception: continue
-            ages[top] = min(ages.get(top, 1e9), age_h)
-    for top, age in sorted(ages.items(), key=lambda x: x[1]):
-        if any(top == d["task"] for d in out["done"]): continue
+    try:
+        log = run("git -C " + REPO + " log --since=30.days --name-only "
+                  "--format=@%at -- tasks/iar/ 2>/dev/null", 10) or ""
+        cur_ts = None
+        for ln in log.splitlines():
+            ln = ln.strip()
+            if ln.startswith("@"):
+                try: cur_ts = int(ln[1:])
+                except Exception: cur_ts = None
+                continue
+            if not ln or cur_ts is None:
+                continue
+            parts = ln.split("/")
+            if len(parts) < 4 or parts[0] != "tasks" or parts[1] != "iar":
+                continue
+            top = parts[2]
+            if top in ("aria", "continuo", "agora") or top == "ROADMAP.org":
+                continue
+            ages[top] = min(ages.get(top, 1e9), (now - cur_ts) / 3600)
+    except Exception:
+        pass
+    # inventory: every task dir on disk (catches tasks with no commit in window)
+    tops = set(ages)
+    try:
+        for d in os.listdir(tbase):
+            if os.path.isdir(os.path.join(tbase, d)) and d not in ("aria", "continuo", "agora"):
+                tops.add(d)
+    except Exception:
+        pass
+    for top in sorted(tops, key=lambda t: ages.get(t, 1e9)):
+        if any(top == d["task"] for d in out["done"]):
+            continue
+        age = ages.get(top)
+        if age is None:
+            # no commit in 30d: newest file mtime, coarse
+            newest = 0
+            for root, _, fs in os.walk(os.path.join(tbase, top)):
+                for f in fs:
+                    try:
+                        newest = max(newest, os.path.getmtime(os.path.join(root, f)))
+                    except Exception:
+                        pass
+            if not newest:
+                continue
+            age = (now - newest) / 3600
         if age < 24:
-            out["working"].append({"task": top, "age_h": round(age, 1)})
+            out["working"].append({"task": top, "note": "last touch %s" % _fmt_age(age)})
         else:
-            out["thinking"].append({"task": top, "age_h": round(age, 1)})
-    out["working"] = out["working"][:5]
-    out["thinking"] = out["thinking"][:3]
+            out["thinking"].append({"task": top, "note": "idle %s" % _fmt_age(age)})
+    out["working"] = out["working"][:6]
+    out["thinking"] = out["thinking"][:4]
     return out
 
+# ---- open questions: the relay queue awaiting Nacho (v2.1) ----
+def open_questions():
+    """relay/open/ = questions awaiting Nacho. Real data: the ledger IS
+    the queue. Ships header fields only (id/class/urgent/title/age) --
+    never bodies (bodies can carry prompt fragments; titles are queue
+    states). Oldest first: the neglected questions lead the list."""
+    qdir = os.path.join(REPO, "relay", "open")
+    out = []
+    if not os.path.isdir(qdir):
+        return out
+    now = time.time()
+    for f in sorted(os.listdir(qdir)):
+        if not f.endswith(".md"):
+            continue
+        entry = {"id": f[:-3], "age_h": None, "class": None,
+                 "urgent": False, "title": ""}
+        try:
+            head = open(os.path.join(qdir, f), errors="replace").read(2048)
+            for ln in head.splitlines():
+                s = ln.strip()
+                if s.startswith("filed: ") and entry["age_h"] is None:
+                    try:
+                        t = datetime.strptime(s[7:].strip(), "%Y-%m-%dT%H:%MZ")
+                        entry["age_h"] = round(
+                            (now - t.replace(tzinfo=timezone.utc).timestamp()) / 3600, 1)
+                    except Exception:
+                        pass
+                elif s.startswith("class: ") and entry["class"] is None:
+                    entry["class"] = s[7:].strip()
+                elif s.startswith("urgent: ") and not entry["urgent"]:
+                    entry["urgent"] = s[8:].strip() == "yes"
+                elif s.startswith("title: ") and not entry["title"]:
+                    entry["title"] = s[7:].strip()[:110]
+        except Exception:
+            pass
+        m = re.match(r"\d{8}-([a-z]+)-(\d+)", f)
+        if m:
+            entry["id"] = "%s-%s" % (m.group(1), m.group(2))
+        out.append(entry)
+    out.sort(key=lambda x: x["age_h"] if x["age_h"] is not None else 1e18,
+             reverse=True)
+    return out
 
 # ---- connectome (D-013 data layer, session X) ----
 # 24h window over sophon audit logs ONLY (cycle traffic; the weekly
@@ -496,7 +601,7 @@ def connectome():
 # ---- assemble + atomic write ----
 doc = {
     "schema": "aria-dashboard/v2",
-    "version": "v2.0",
+    "version": "v2.1",
     "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "agents": {a: {**(last_cycle(a) or {}), "burn24h": usage(a),
                    "req_health_24h": req_health(a)} for a in AGENTS},
@@ -505,6 +610,7 @@ doc = {
     "house": house(),
     "host": host(),
     "board": board(),
+    "open_questions": open_questions(),
     "connectome": connectome(),
 }
 os.makedirs(OUT, exist_ok=True)
@@ -550,6 +656,18 @@ for a in ("aria", "continuo"):
     add(a.upper() + " LAST CYCLE", "audit/iar/" + a + "/LAST-CYCLE.txt", 12)
 add("RECENT HISTORY (last 20 operational lines)", "audit/iar/aria/HISTORY.log", 20)
 add("ROADMAP TOP (current priorities)", "tasks/iar/aria/ROADMAP.org", 40)
+try:
+    oq = d.get("open_questions") or []
+    if oq:
+        parts.append("### OPEN QUESTIONS (relay queue awaiting Nacho, oldest first)")
+        for x in oq[:10]:
+            age = x.get("age_h")
+            parts.append("- [%s] %s (%s ago)" % (
+                x.get("class") or "?", x.get("title") or x.get("id"),
+                ("%.0fh" % age) if age is not None else "?"))
+        parts.append("")
+except Exception:
+    pass
 
 blob = chr(10).join(parts)
 with open(os.path.join(OUT, "context.txt"), "w") as f:

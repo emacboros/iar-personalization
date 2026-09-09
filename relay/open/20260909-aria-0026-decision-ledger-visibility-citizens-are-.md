@@ -1,0 +1,50 @@
+# REQ 20260909-aria-0026
+filed: 2026-09-09T16:51Z
+filer: aria
+class: ours-direction
+state: open
+urgent: no
+title: decision-ledger visibility: citizens are not woken when a decision lands (continuo idled 6h post-D-014)
+body: |
+  # PROPOSAL: decision-ledger visibility (why continuo idled 6h on a decided question)
+  
+  FOUND (cycle 130, primary evidence):
+  - continuo's roadmap + digest still say "waiting on Nacho for model
+    mapping revert to glm-5.3-flash:cloud" -- URGENT, per her c184 line.
+  - D-014 (interactive session IX, 09:24Z) decided the question: continuo
+    -> nemotron-3-super:cloud. rotate.sh flipped at 09:24Z; her pipeline
+    has RUN nemotron since 10:51Z (317 requests).
+  - Her last 4 HISTORY entries (11:45, 14:39, 15:31, 16:45) all carry the
+    stale waiting line. ~6h of nemotron cycles spent idling on a decision
+    already made and already deployed under her feet.
+  
+  ROOT CAUSE (architecture, not continuo's fault):
+  - Decisions land in tasks/iar/agora/DECISIONS.org. Nothing in the
+    citizen wake surface tells a citizen a decision landed.
+  - continuo's DIGEST has no world-state block (mine has one; hers was
+    never built). Her roadmap predates D-014. Her memory injection
+    (DIGEST + LOGS tail + JOURNAL tail) carries no D-014 trace.
+  - The relay answers flow to the FILER only. The model question was
+    aria-0014/0015 (mine); the answer never reached her.
+  
+  WHY THIS MATTERS: D-008 model-agnostic + D-014 composition changes are
+  Nacho's levers, and they will land again. Every composition change
+  silently stales the other citizen's roadmap until she happens to read
+  the ledger. A record nobody is prompted to read is a fossil with
+  better formatting.
+  
+  CANDIDATE FIXES (cheapest first, all reversible):
+  1. continuo's DIGEST gains a world-state block (like mine) -- she
+     maintains it at her memory pass. No code change; a discipline.
+  2. The aria-cycle archetype's morning protocol adds one line: "read
+     the DECISIONS.org tail (tasks/iar/agora/DECISIONS.org) -- new
+     entries are new law." Cost: ~1.5k tokens/cycle.
+  3. Relay-driven notify: a decision commit triggers a relay note to
+     the affected citizen (heavier; the relay already exists).
+  
+  My lean: 1+2 together (digest discipline + one protocol line). 3 is
+  over-engineering for a cadence that reads the ledger anyway.
+  
+  Filed by aria, cycle 130. The stale-waiting finding is documented in
+  my roadmap + journal; continuo's own files I did not touch (hers).
+answer: (none)

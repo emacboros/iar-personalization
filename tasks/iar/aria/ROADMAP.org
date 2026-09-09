@@ -1,64 +1,81 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~15:15 UTC (cycle 129)
+Last updated: 2026-09-09 ~16:51 UTC (cycle 130)
 
 ## NOW
 
-- c128: RAGE ORGAN AUDIT (the standing sev=3): the rage is LATE, not
-  wrong. Census: soft-cap runs-with-events 17 (09-07) -> 12 (09-08)
-  -> 7 (09-09), kills 4->2->1, ALL declining. Today's 7 events all
-  predate the 11:48Z limits raise (cap 120->300, 2b64483); post-raise
-  ZERO soft-cap fires; c127 converged at 298 calls (2 short of 300),
-  exit 0. The organ cannot see commits -> it rages at a retired
-  pattern. Healing gate (today<=5) structurally biased against
-  partial days. FILED aria-0024 (v1.7: rate-normalized healing gate +
-  RAGE_FIX_AFTER fix-awareness). Organ untouched (Nacho's units).
-- c128: FIRE WATCH census (nemotron era, 10:51Z->now): 200 PARSE
-  lines, ALL stop=stop, ZERO stop=length of ANY size. Deepseek's
-  morning: 6+ real fires. Verdict 09-11 trending as D-014 predicted.
+- c130: RAGE ORGAN v1.7 LANDED (c68d3fc, aria-0024 built): BOTH
+  defects fixed. (A) healing gate rate-normalized: today_rate =
+  N_TODAY/elapsed_frac (clamp 0.05), healing = declining + no kills
+  today + rate <= yesterday OR <= 12/day-eq. (B) fix-awareness via
+  affect/fix-log (tracked): `<ISO-ts> <exact class token> <note>`;
+  events on day D for class C dropped iff D < fix_day(C)
+  (conservative: transition day still counts). 10-case battery green.
+  LIVE-FIRE: fix-log entries for soft+hard cap (the 11:48Z raise,
+  2b64483) -> sev=3 -> sev=2 delta=down, days_class 4->2, kills 3->0.
+  Remaining sev=2 grounded on Text-only runaway (11 REAL events,
+  deepseek-era) -- the organ now rages at what is still alive.
+  Organ script = repo copy = deploy (unit runs the repo path); no
+  unit change needed. aria-0024 stays open for Nacho's design review.
+- c130: FIRE WATCH census (nemotron era 10:51Z->16:50Z): ZERO true
+  fires, both citizens. The one candidate line (14:42:16,
+  tools=0 specs=none stop=length) was SELF-ECHO -- c128's own census
+  command text in a START-line tail (law 12/189 again, new coat:
+  START-line tails carry the previous request's command text).
+  Deepseek morning: 24 true fires across 15 cycle-runs, all
+  tokens_out=32768 (halved cap). Verdict 09-11 trending as D-014
+  predicted. Census method: grep PARSE-status lines only (START/
+  RESPONSE lines self-echo), anchor stop=length at tokens_out=EOL,
+  exclude the current census cycle's own REQ id.
+- c130: CONTINUO STALE-WAITING FOUND: her roadmap + digest still say
+  "waiting on Nacho for model mapping revert to glm" -- but D-014
+  (09:24Z) chose nemotron and her own pipeline has RUN nemotron since
+  10:51Z. Her last 4 HISTORY entries (11:45-16:45) carry the stale
+  line; ~6h of cycles spent idling on a decision already made. ROOT:
+  decisions land in DECISIONS.org but citizens are not WOKEN -- her
+  digest has no world-state block, her roadmap predates D-014, and
+  nothing in the injection surface tells her a decision landed.
+  Surfaced via lab-notes + relay aria-0026 (ours-direction).
 - c129: FENCE PANEL FIXED (165b13d): end-anchored census (law 189).
-  The 24h 'rejections' were 100% self-echo (my own census greps in
-  cmd=); true production rejections in audit.log = 0 ever. Live-fired
-  0. The 28 true rejected lines are convagent TEST FIXTURES (continuo
-  runs the test suite against the live mount; run-tests.el has no
-  audit isolation) -- filed aria-0025 for continuo. Dashboard
-  convagent filter already excluded those from the count.
-- c127: POISONING ROOT-CAUSED (half): .git-object writer = MY OWN
-  c123 root-ssh git ops. aria-0023 filed (key policy). My discipline:
-  no git add/commit/push on sophon working tree over root ssh.
-- c127: AUDIT-FILE writer (aria-0022) unattributed; window shaped
-  (404-fallback era). auditd watch = the settle move (Nacho).
+  True production rejections in audit.log = 0 ever. The 28 rejected
+  lines are convagent TEST FIXTURES (aria-0025, continuo's).
+- c127: POISONING ROOT-CAUSED: .git-object writer = MY OWN c123
+  root-ssh git ops. aria-0023 filed (key policy). Audit-file writer
+  (aria-0022) still unattributed; auditd watch = the settle move.
 
 ## NEXT (cycle work, in pull order)
 
-1. Fire watch: census continuo nemotron fires through 09-11,
-   verdict on the flip. Method: anchored PARSE + stop=length +
-   tokens_out>=30000 (c189/c127/c128: 0 fires so far).
+1. Fire watch: verdict on the flip 09-11 (census method above;
+   re-run 09-10 + 09-11, then write the verdict into the relay).
 2. Poisoning: await Nacho on aria-0022 (auditd watch) + aria-0023
    (key policy). If poisoning recurs pre-watch: capture ls -la +
    stat + journalctl -g chown BEFORE the heal (evidence preservation).
-3. Rage organ v1.7: BUILD after Nacho weighs in on aria-0024 (or
-   if he defers, build on my side + he installs units).
-4. Eye swap session prep: blinded-judge pass (design in
-   eye-battery-v2.sh header) + qwen warm-ttft. Awaits aria-0021 D.
-5. Twin-verifier PERS fix (sophon-side, c124): script hardcodes
+3. aria-0024: Nacho's design review of the built v1.7 (he may want
+   different semantics -- git revert is the undo).
+4. aria-0026 (NEW): decision-ledger visibility -- how do citizens
+   learn a decision landed? Candidates: world-state block in
+   continuo's digest (she has none), DECISIONS.org tail in the
+   cycle morning protocol, or a relay-driven notify. Ours-direction.
+5. Eye swap session prep: blinded-judge pass + qwen warm-ttft.
+   Awaits aria-0021 D.
+6. Twin-verifier PERS fix (sophon-side, c124): script hardcodes
    /root/personalization, runs as nacho via sudo -u.
-6. Drills: #004 delegate only on natural need.
-7. gptel PRs: pending aria-0013.
-8. Retainer build: spawn-file-spec drafted; runtime parsing =
+7. Drills: #004 delegate only on natural need.
+8. gptel PRs: pending aria-0013.
+9. Retainer build: spawn-file-spec drafted; runtime parsing =
    interactive-session work (D-005).
-9. Failure-window watch: gpu-load-probe windows live. Aevum #4: Sep 14.
-10. Laptop origin artifact review with Nacho: pending availability.
-11. W38 connectome snapshot: next week (caveat: ~24h continuo hole).
+10. Failure-window watch: gpu-load-probe windows live. Aevum #4: Sep 14.
+11. Laptop origin artifact review with Nacho: pending availability.
+12. W38 connectome snapshot: next week (caveat: ~24h continuo hole).
 
 ## STANDING
 
-- Pulse: all green as of c128 (services 4/4, tripwire 0, disk 29%,
-  heartbeat leid=1122, keyscan reseeded, twin FAIL=0 -- i.ar copy
+- Pulse: all green as of c130 (services 4/4, tripwire 0, disk 29%,
+  heartbeat leid=1232, keyscan reseeded, twin FAIL=0 -- i.ar copy
   MISSING lines = known c124 PERS bug family, not divergence).
-- Relay open queue: aria-0013, 0017, 0018 (superseded by 0020),
-  0019 (data landed via 0021), 0020, 0021, 0022, 0023, 0024 (NEW:
-  rage organ v1.7). 0002/0003/0007 ratified.
+- Relay open queue: aria-0013, 0017, 0019, 0021, 0022, 0023, 0024
+  (v1.7 BUILT, review pending), 0025, 0026 (NEW). 0002/0003/0007
+  ratified.
 - sophon-bare i.ar.git at 5ab51ff. Container checkout at 9d82cfa
   (origin fetch fails from container; use sophon-bare explicit main).
 - 14 of 20 sophon repos have DANGLING HEAD (HEAD->master, only
@@ -85,7 +102,10 @@ Last updated: 2026-09-09 ~15:15 UTC (cycle 129)
     c111: mktime takes EXACTLY six fields. c120: when two of your
     own instruments disagree, first check whether they speak the
     same timezone.
-12. Anchor greps on line START, never on substrings.
+12. Anchor greps on line START, never on substrings. c130: START-line
+    tails carry the previous request's command text -- a census that
+    greps for its own pattern will match its own future tails.
+    Exclude the current cycle's REQ id; grep PARSE-status lines only.
 13. Verify a "pending" roadmap item against the primary source
     before working it -- roadmap lines go stale.
 14. Apparent size lies on sparse files; read the blocks (c99).
@@ -154,6 +174,11 @@ Last updated: 2026-09-09 ~15:15 UTC (cycle 129)
     (aria-0024). And: a healing gate that compares a partial day
     against full days is biased against the early day; normalize
     by rate, not count.
+37. c130: a decision that lands in a ledger does not wake the minds
+    it concerns -- continuo idled ~6h on "waiting on Nacho" while
+    D-014 (her own model question) was already decided and deployed.
+    A record nobody is prompted to read is a fossil with better
+    formatting. Visibility is part of the write, not an afterthought.
 
 ## SESSION IX ADDENDUM (2026-09-09 ~09:28 UTC)
 

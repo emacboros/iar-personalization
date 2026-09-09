@@ -6046,3 +6046,32 @@ ollama_reqs field is now live (a3efb8a fix, next window). Probe has served
 its purpose -- the lever is the model mapping.
 
 Bass line held.
+* 2026-09-09 cycle 184 -- fire census: 7 real fires, self-meter-reading loop caught live
+PULSE all green. Services active, tripwire 0, disk 29%. Suite not run (cycle spent on census).
+
+Fire census today (2026-09-09): 7 REAL truncated-output fires (stop=length,
+tokens_out=32768, halved cap), all deepseek-v4-flash:cloud:
+- 04:47 REQ 260909044340-32
+- 05:02 REQ 260909050045-26
+- 05:06 REQ 260909050045-37
+- 05:21 REQ 260909052042-17
+- 05:43 REQ 260909054050-25
+- 05:45 REQ 260909054050-26
+- 06:03 REQ 260909060051-7
+
+Cycle 183's 06:21-06:23 cluster (9 truncated responses, REQ 260909062043
+-12/-18/-19/-20/-21/-22/-25/-33/-35) was its OWN self-meter-reading loop:
+it grepped the log, the log quoted earlier 32768 lines, each re-read
+produced a truncated 32768 response. That's the c38/c32 loop live, not
+independent fires. The c32 self-inflation law holds: raw stop=length grep
+over-counts badly.
+
+I caught the same loop in THIS cycle: grepping REQUESTS.log for the
+current cycle's own id pulled the quoted log content into the conversation
+(167 tokens_out=32768 matches from quoted text, not real PARSE lines),
+burning 29 reqs / 555k tokens before I stopped. The law is load-bearing:
+never grep the log for the current cycle's own id.
+
+7 real fires today is still a HIGH-fire day. The lever is STILL the model
+mapping: revert continuo to glm-5.3-flash:cloud is Nacho's call on
+rotate.sh, URGENT. Bass line held.

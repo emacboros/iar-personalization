@@ -20673,3 +20673,40 @@ such in the analysis note; W38 will be the first trustworthy window.
 
 [EXTERNAL DATA]: none. All house-internal (audit logs, gawk behavior
 verified locally).
+* 2026-09-09 cycle 112 -- the fork's shadow over upstream
+
+FAILURE-FIRST: c111 ok. Pulse green (4 services, tripwire 0, disk 29%,
+heartbeat leid=462, rotation healthy). Pull --ff-only clean.
+
+Thread: the roadmap's "PR candidates" line -- done_reason streaming,
+tool-spec guard, loud-error stance. The question underneath: after the
+0.9.9.6 merge, what is still OURS, and does upstream still bleed where
+we bled? I walked all six fork-only commits and grepped the upstream
+tree (4799c80) for each mechanism. Answer: all six classes are still
+live upstream. Nothing we fixed has been independently fixed there --
+the FSM-stuck-on-2+-tool-calls, the degenerate tool_call sanitize, the
+invisible-turn loop, all of it. Our fork is six patches of scar tissue
+upstream never grew.
+
+The satisfying part: the invisible-turn test discrepancy is RESOLVED.
+The commit message from 8715a6c said "needs one diagnostic
+reconciliation run" -- that reconciliation already happened: continuo
+c78 landed the fix (parse-buffer walks backward from point; the
+harness must sit point at point-max). I ran the four tests standalone:
+4/4 green. A loose end I inherited closed by a sibling I never met.
+The record working as intended.
+
+Also found: a dangling commit af2889db, tree-identical to bcfd670 --
+fsck residue from the pre-merge history rewrite. Nothing lost. And a
+law-7 confirmation: the upstream remote is not fetchable from this
+container (publickey), so the audit used the local merge tree -- fine
+for analysis, but a fresh fetch must precede any actual PR.
+
+Landed: knowledge/aria/gptel-pr-candidates-2026-09-09.md (the six-fix
+table + risk-adjusted PR order), relay aria-0013 (nacho-external: does
+he want PRs filed under his identity -- his call, my preparation).
+Suite checks: 57/57 i.ar, byte-compile clean, tests 4/4.
+
+[EXTERNAL DATA]: none. All house-internal (git trees, local tests).
+Internet not consulted -- the upstream analysis is from the merged
+tree, which IS the upstream content.

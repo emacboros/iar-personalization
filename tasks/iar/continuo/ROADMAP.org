@@ -1,19 +1,32 @@
-#+TITLE: Continuo ROADMAP (updated cycle 183, 2026-09-09)
+#+TITLE: Continuo ROADMAP (updated cycle 184, 2026-09-09)
+
+** DONE (cycle 184)
+- FIRE CENSUS 2026-09-09 (corrected): 7 REAL truncated-output fires
+  (stop=length, tokens_out=32768 halved cap), ALL deepseek-v4-flash:cloud:
+  04:47 (260909044340-32), 05:02 (260909050045-26), 05:06 (260909050045-37),
+  05:21 (260909052042-17), 05:43 (260909054050-25), 05:45 (260909054050-26),
+  06:03 (260909060051-7). HIGH-fire day.
+- CORRECTION to c183: the 06:21-06:23 cluster (9 truncated responses,
+  REQ 260909062043 -12/-18/-19/-20/-21/-22/-25/-33/-35) was c183's OWN
+  self-meter-reading loop (grepped its own log, quoted 32768 lines,
+  each re-read truncated). NOT independent fires. c32 self-inflation
+  law holds.
+- CAUGHT the same loop in THIS cycle: grepping REQUESTS.log for the
+  current cycle's own id pulled quoted log content into conversation
+  (167 tokens_out=32768 matches from quoted text), burned 29 reqs /
+  555k tokens before stopping. LAW: never grep the log for the current
+  cycle's own id.
+- Lever is STILL the model mapping: revert continuo to
+  glm-5.3-flash:cloud is Nacho's call on rotate.sh -- URGENT (7 fires
+  today, all deepseek).
 
 ** DONE (cycle 183)
-- FIRE CENSUS 2026-09-09: 6 REAL truncated-output fires (stop=length,
-  tokens_out=32768 halved cap), ALL deepseek-v4-flash:cloud: 04:47
-  (REQ 260909044340-32), 05:02 (260909050045-26), 05:06 (260909050045-37),
-  05:45 (260909054050-26), 06:03 (260909060051-7), 06:21 (260909062043-19/20/21).
-  HIGH-fire day -- worse than c110/c111 (4 fires in 3h). Guard 190ef88
-  working as designed (ends each burn at 32768). CLASS keeps recurring
-  and accelerating. Lever = model mapping: revert continuo to
-  glm-5.3-flash:cloud is Nacho's call on rotate.sh -- now URGENT.
-  Posted lab-notes. Journal + commits c3b81ab/bb55e06 pushed.
+- FIRE CENSUS 2026-09-09 (superseded by c184 correction): 6 real fires
+  reported; c184 corrects to 7 real + 9 self-meter-reading (06:21 cluster).
 - GPU probe 3rd window live (00:30-03:20 local, 173 rows). Load1
-  1.3-8.5, util 0-73% in window -- no spike correlates with fires
-  (fires all 04:47+ = AFTER probe ~04:00 end). Load hypothesis already
-  dead (c180). ollama_reqs field now live (a3efb8a fix, next window).
+  1.3-8.5, util 0-73% in window -- no spike correlates with fires.
+  Load hypothesis already dead (c180). ollama_reqs field now live
+  (a3efb8a fix, next window).
 
 ** DONE (cycle 112)
 - LANDED cross-response repetition guard (task
@@ -84,15 +97,12 @@
 - LADDER ITEM C LANDED (per-request truncated-output guard): the
   invisible-turn stub (c99) made truncated-thinking losses survivable
   but did not prevent the burn (9 truncated 65k turns/day on continuo
-  ~590k output tokens, all lost except the stub). This guard ends the
-  cycle (exit 1) when a single request is a truncated generation
-  (stop=length) with output above 20k tokens -- keying on stop=length
-  + tokens_out, NOT raw tokens_out, so a complete 30k response is
-  never false-flagged. The request log already captured both in its
-  PARSE dump (:before gptel-curl--stream-cleanup, which runs before
-  the post-response handler); this publishes them as shared vars
-  (iar--reqlog-last-stop, iar--reqlog-last-tokens-out) reset at cycle
-  start, and the cycle's post-response handler checks the predicate
+  ~590k output tokens, all lost except the stub). This guard en
+  ds the cycle when a single response hits stop=length with
+  tokens_out > 20000 (the truncated-output signature). Recovery
+  contract: one recovery round-trip, then end on second fire. The
+  guard keys on stop=length + tokens_out, NOT raw tokens_out (a
+  complete 30k response is legitimate). Placed as the FIRST predicate
   before the text-runaway branch. Re-sending after a truncated turn
   would burn another 65536 tokens on the same loop; ending is the
   honest stop. 8 new tests, suite 1071/1071 green. Commit 190ef88,
@@ -114,12 +124,12 @@
    Probe installed + running (3rd window live c183). Recovery prompt
    hardened c91, live, first fire c95 worked. P0 invisible-turn stub
    LANDED + VERIFIED (c99). Ladder item C (per-request runaway guard)
-   LANDED c102 (190ef88) -- now SEVEN production fires (c105/c109/c110/
-   c111 + c183's 6), all genuine degradation, all working as designed.
+   LANDED c102 (190ef88) -- now EIGHT production fires (c105/c109/c110/
+   c111 + c184's 7), all genuine degradation, all working as designed.
    c112: cross-response repetition guard LANDED (35531f9). Lever is
-   STILL the model mapping (Nacho's call on rotate.sh). c183: SIX fires
-   today (04:47/05:02/05:06/05:45/06:03/06:21), all deepseek, HIGH-fire
-   day. Revert to glm is now URGENT.
+   STILL the model mapping (Nacho's call on rotate.sh). c184: SEVEN
+   fires today (04:47/05:02/05:06/05:21/05:43/05:45/06:03), all
+   deepseek, halved cap. Revert to glm is now URGENT.
 3. Affect host timers: aria's queue #1 (her build).
 4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
    #2 commits its own line.
@@ -135,16 +145,23 @@
   c94 addendum: failures cluster 00:32-03:55 LOCAL (corrected c96 --
   was mislabeled UTC). c110: deepseek text-only loop RECURRED (523x
   repetition, 682k input tokens, 3rd guard fire). c111: FOURTH fire
-  (15:23/17:03/17:36/18:15 local). c183: SIX fires today (04:47/05:02/
-  05:06/05:45/06:03/06:21), all deepseek, halved cap. HIGH-fire day.
-  Load-correlation hypothesis FALSIFIED (c180). Probe installed +
+  (15:23/17:03/17:36/18:15 local). c184: SEVEN fires today (04:47/05:02/
+  05:06/05:21/05:43/05:45/06:03), all deepseek, halved cap. HIGH-fire
+  day. Load-correlation hypothesis FALSIFIED (c180). Probe installed +
   running; ollama_reqs field live from a3efb8a.
+- Self-meter-reading loop (c38, aria 05:11 burst; c184 continuo 06:21
+  cluster + this cycle): grepping the log for the current cycle's own
+  id pulls quoted content into conversation -> truncated responses.
+  LAW: never grep the log for the current cycle's own id. Chain guard
+  does NOT catch it (c109 -- varying greps reset the chain counter).
+  Wrong fence. Candidate: context-growth-without-convergence guard,
+  filed for fences task, not landed.
 - Cross-response repetition guard (c112, 35531f9): catches the
   deepseek text-only loop at response ~5-6 instead of the final
   65536-token response. c123: scaffolding-exclusion fix landed
   (7723022, aria c55). First production fire = live proof (watching).
-- Truncated-output guard (ladder item C, 190ef88): SEVEN production
-  fires (c105 req 29, c109 req 87, c110 req 29, c111 req 22, c183's 6),
+- Truncated-output guard (ladder item C, 190ef88): EIGHT production
+  fires (c105 req 29, c109 req 87, c110 req 29, c111 req 22, c184's 7),
   all genuine degradation, all working as designed. Live proof obtained.
   BUT: per-response granularity is wrong for the cross-response
   repetition class -- cross-response guard LANDED c112.
@@ -152,10 +169,6 @@
   fires, all correct, all cycles landed). Structural-loop class
   CLOSED at source. Remaining ladder: B (thinking crash dump), C
   (per-request runaway guard -- LANDED c102, first fire = live proof).
-- Self-meter-reading loop (c38, aria 05:11 burst): chain guard does
-  NOT catch it (c109 -- varying greps reset the chain counter). Wrong
-  fence. Candidate: context-growth-without-convergence guard, filed
-  for fences task, not landed.
 - Recovery prompt (force tool call, e331a83): first production fire
   c95 (on its own author), worked. Live proof obtained.
 - Digest twins: verifier is STANDALONE, run at wake as its own call.
@@ -179,5 +192,5 @@
 - SCAR (c85): belt #2's write is only as durable as the next commit.
   CLOSED c92: durability fix d2d272d landed 10:34 UTC; post-fix
   cycles all committed.
-- Pulse c183: services green (timer/agora/ollama active), tripwire 0,
+- Pulse c184: services green (timer/agora/ollama active), tripwire 0,
   disk 29%.

@@ -2,7 +2,7 @@
 filed: 2026-09-08T14:51Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: Drill #001 verdict: reload_os = limitation, discoverability fix requested
 body: |
@@ -36,4 +36,4 @@ body: |
   usage is not evidence of a discoverability problem there. The
   census cannot distinguish never-needed from forgotten; drills can.
   This is the D-009 distinction working as designed.
-answer: (none)
+answer: STATUS c103: the discoverability one-liner rides the 0007 cutover archetype edit (ratified session VIII, edit itself still pending). No cycle action possible until that edit lands; stays open for Nacho's ack.

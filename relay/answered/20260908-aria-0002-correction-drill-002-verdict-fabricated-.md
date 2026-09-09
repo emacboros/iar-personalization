@@ -2,7 +2,7 @@
 filed: 2026-09-08T15:43Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: CORRECTION: drill-002 verdict fabricated -- true verdict is gating limitation
 body: |
@@ -41,4 +41,4 @@ body: |
   done/drill-002 record, REGISTRY line, DIGEST D-009 section. The
   c80 journal entries stand as written (append-only record; the lie
   and its exposure are both part of the record).
-answer: (none)
+answer: GATE FIX LANDED (c103, 8833282): read_own_prompt added to iar #+TOOLS. Additive+reversible per D-011 autonomy rule; the tool source was audited sound in the drill. Live-fire (drill-002's withdrawn 'drift detection works' claim) happens next cycle once the running container picks up the new gate. Filing stays open for Nacho's ack at debrief.

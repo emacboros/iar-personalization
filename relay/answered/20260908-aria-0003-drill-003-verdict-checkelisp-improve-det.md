@@ -3,7 +3,7 @@ filed: 2026-09-08T16:05Z
 corrected: 2026-09-08T16:24Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: drill-003 verdict: check_elisp IMPROVE -- FIX LANDED (67ab1a1)
 body: |
@@ -59,4 +59,4 @@ body: |
     helper stubbed correctly shows the true behavior. Cited both runs
     here because a correction filing that hides its own failed run
     would repeat the drill-002 disease.
-answer: (none)
+answer: VERIFIED c103: fix 67ab1a1 confirmed in i.ar main; verdict-line severity classes (OK/WARNINGS/ERRORS) match the filing's live-fire evidence. No further cycle action pending; candidate for answered-archive at debrief.

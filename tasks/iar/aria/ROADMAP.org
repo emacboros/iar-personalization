@@ -1,42 +1,43 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~21:08 UTC (cycle 136)
+Last updated: 2026-09-09 ~21:56 UTC (cycle 137)
 
 ## NOW
 
-- c136: FEAR-ORGAN FORENSICS + TWO PLUMBING FIXES (this cycle, failure-first):
-  (1) continuo turn-567 exit 1 root-caused: nemotron hit stop=length 32k
-  TWICE (grace round-trip + 2nd fire, both thinking-heavy, never landed);
-  runaway guard ended the run BY DESIGN. Guard works; model-behavior datum
-  for the D-014 fire watch. (2) The fear organ's 3 heartbeat-stale alarms
-  (12:00/16:01/19:01 UTC 09-09, 2 telegrams to Nacho) read a STALE sophon
-  working tree -- aria LAST-CYCLE.txt showed ended=13:14 when truth was
-  15:19. Two mechanisms PROVEN by experiment:
-  - OWNERSHIP: cycle containers run uid 1000 cap-drop=all (no
-    DAC_OVERRIDE); reset_worktree (iar.sh, host root) ran git checkout .
-    as root after failed cycles -> root-owned .git/index + files ->
-    container write failures (the 16:41Z Permission-denied storm).
-    FIXED: iar.sh 4c4ce69 -- reset_worktree resolves repo owner and runs
-    git via runuser as that user. Pushed sophon-bare.
-  - CONTENT: autostash pop failure silently strands in-flight cycle
-    artifacts in stash@{0} ("cycle in-flight", 19:43Z) -- working tree
-    reverts to old committed values. The stranded stash held a full
-    cycle close; verified fully redundant (landed via 3711ae20 +
-    26a7acf7) and dropped. INSTRUMENT: fear-organ signal 2b
-    stash-unpopped(N) sev=2 (d699ddeb). Live-fired: quiet at 0 stashes.
-  Law candidate: when an alarm and journald disagree, check WHAT the
-  alarm reads, not just whether it reads correctly -- the file was the
-  corrupt instrument. Twin of law 33: every host-root write into the
-  shared tree is cross-boundary contamination, even when it looks like
-  cleanup.
-- OPEN (continuo's side): the nemotron thinking-runaway shape (32k
-  thinking, no landing, twice per cycle) -- grace design question for
-  thinking-heavy models belongs in the D-014 fire-watch verdict (09-11).
+- c137: C136 VERIFICATION -> MISATTRIBUTION CORRECTED + REGRESSION FIXED:
+  c136's reset_worktree story was wrong in its mechanism and its fix was
+  a silent no-op. Facts established by experiment:
+  - iar.sh loop mode runs as NACHO (aria-cycle.service User=nacho;
+    ExecStartPre=+ is a separate root command, not the cycle).
+  - The cycle container is ROOTLESS podman: container root == host
+    nacho. Proof: my /proc/self/uid_map = 0->1000; sophon sees my
+    writes as nacho; I see the same files as root. Viewer's namespace
+    decides ownership display.
+  - runuser fails for non-root ("may not be used by non-root users",
+    live-verified as nacho); c136's `|| true` swallowed it ->
+    reset_worktree did NOTHING after failed cycles since 4c4ce69.
+  - FIXED fae011c: git direct when not root (normal loop path),
+    runuser only when actually root, LOUD warn on reset failure.
+    Live-verified as nacho: checkout runs, rc=0. Pushed sophon-bare;
+    sophon tree synced (same tree via bind mount).
+  - Root-owned-file writer UNIDENTIFIED (the real story, honestly
+    open): eliminated dashboard git log as root (tested clean x2),
+    relay-heartbeat (nacho), fleet-check (bare-only), bare hook
+    (bare-only), ExecStartPre (chowns TO nacho). Eye-feed ledger =
+    real root-writer but daily cadence. Storm 14:51-18:09Z ~40min
+    cadence unexplained; tree clean since 18:09Z heal. If it
+    returns: instrument the write path, catch it live -- do NOT
+    accept the next plausible story.
+- Law candidate (c137): a mechanism assembled from plausible parts is
+  a confession-shaped story. When the writer is unidentified, say
+  "unidentified", instrument, wait for a live catch. Two data points
+  make a line, never a mechanism -- and a mechanism-shaped hole gets
+  poured full.
 
 ## NEXT
 
 - FIRE WATCH verdict 09-11 (armed from turn 541): nemotron fire census
-  now includes the turn-567 double-stop=length as model-behavior data.
+  includes the turn-567 double-stop=length as model-behavior data.
 - aria-0026 (decision-wake): decisions land in ledgers but don't wake
   the minds they concern -- still open, ours-direction.
 - aria-0024 rage-organ design review by Nacho (v1.7/v1.8 landed, review
@@ -45,8 +46,12 @@ Last updated: 2026-09-10 ~21:08 UTC (cycle 136)
   composition review at debrief.
 - 50 dangling git objects in sophon personalization (09-08 race):
   cleanup candidate, content verified.
-- .git/index root-owned RIGHT NOW (pre-fix reset_worktree artifact):
-  next ExecStartPre heal will chown it; verify on next cycle.
+- Root-owned-file writer hunt (F3 above): OPEN, low priority while
+  tree stays clean. If it resumes, the heal log + journald correlation
+  is the tool; the eye-feed root-writes (daily ledger) are a known
+  real-but-different writer.
+- .git/index root-owned pre-fix artifact: resolved -- index is nacho-
+  owned since 18:30 heal, tree clean.
 
 ## LAWS (append-only; the scar list)
 
@@ -73,7 +78,12 @@ Last updated: 2026-09-10 ~21:08 UTC (cycle 136)
     is a rumor.
 19. c133 evidence bases rotate: a verdict without a timestamp is a
     fossil in waiting.
-20. c136 (this cycle) when an alarm and the primary log disagree, audit
-    what the alarm READS -- the file can be the corrupt instrument. And:
+20. c136 when an alarm and the primary log disagree, audit what the
+    alarm READS -- the file can be the corrupt instrument. And:
     host-root writes into the uid-1000 container's tree are
     cross-boundary contamination even when they look like cleanup.
+21. c137 a mechanism assembled from plausible parts is a story, not a
+    finding. When the writer is unidentified: say so, instrument the
+    path, wait for a live catch. And: test the fix's own failure path
+    (runuser-as-nacho) before shipping it -- a fix that cannot run is
+    a silent no-op wearing a commit message.

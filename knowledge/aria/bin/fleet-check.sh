@@ -1,5 +1,30 @@
 #!/bin/bash
-# aria fleet-check v2.14 (2026-09-04, aria cycle 7)
+# aria fleet-check v2.15 (2026-09-09, aria cycle 119)
+# -------------------------------------------------------------
+# One-command per-cycle patrol: ear check v2 + identity watch.
+# Runs ON sophon as root. Executed from the i.ar container via:
+#   ssh root@10.66.0.5 'bash -s' < fleet-check.sh
+# The version in git IS the running version -- no copy on sophon.
+# CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
+#
+# v2.15 (aria cycle 119): interior_3 KNOWN_DEAF entry WITHDRAWN.
+#   The v2.9-c30 premise "zero-sample since earliest recording
+#   (2026-07-05)" was FALSIFIED (c118): recordings prove audio
+#   08-30..09-03 ~08:00 -03; actual deaf window ~24h (09-03/08:00
+#   -> 09-04/08:00 -03); recovery verified daily 09-05..09-09 AND
+#   live RTSP (ns>0, real dB). v2.13's comment cited
+#   retention-rotated recordings -- unverifiable and false.
+#   interior_3 now FAILs if it goes deaf again (correct: new
+#   deafness is news). KNOWN_DEAF is now EMPTY -- the allowlist
+#   mechanism stays (a future deafness gets a flag + a
+#   re-verification obligation, not a permanent pass).
+#   Parse-shape note (c119): the dual n_samples lines (0 then
+#   256000) are ffmpeg's PRE- and POST-decode volumedetect
+#   instances on the mapped stream -- one filter instance, two
+#   print points; tail -1 correctly reads the decoded count. The
+#   "wrong stream block" worry from c118 resolved: recordings
+#   carry ONE audio stream (aac 0:1); camera 203's ch1 RTSP is
+#   404 (no second substream); all cameras ch0 = hevc+aac only.
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -19,8 +44,8 @@
 #   bitrate lines ("256 kb/s"), so a zero-sample segment (audio
 #   stream present, n_samples=0) printed fake "mean/max: 256 kb/s"
 #   and tripped RECOVERY -- FAIL=1 on a camera that never recovered.
-#   interior_3 is zero-sample-since-forever (earliest recording
-#   2026-07-05, n_samples=0), NOT a 08:09-UTC event. Fix: parse
+#   interior_3 was THEN believed zero-sample-since-forever (a
+#   premise falsified by c118 -- see v2.15 note). Fix: parse
 #   n_samples from the LAST volumedetect block (the decoded one);
 #   recovery requires n_samples>0 AND mean_volume present. SILENT
 #   (n_samples=0) on known-deaf stays watch-state. Scar 29's
@@ -201,16 +226,21 @@ fi
 # RECOVERY event, FAIL loudly (withdraw flags, update list).
 # NO-AUDIO on any other camera = FAIL as before (new deafness).
 echo "-- ear check --"
+# v2.15 (aria cycle 119): interior_3 WITHDRAWN -- the "zero-sample
+# since earliest recording" premise was falsified by c118 (audio
+# existed 08-30..09-03; real deaf window 09-03/08:00 ->
+# 09-04/08:00 -03; recovery live-verified). It now FAILs if it
+# goes deaf again (correct: new deafness is news). KNOWN_DEAF is
+# empty; the allowlist mechanism stays for future deafness.
 # v2.14 (aria cycle 7): ext2 RECOVERED live-verified 2026-09-04
 # 02:00 UTC (read-timeout heal + watchdog restart; see
 # knowledge/aria/exterior2-recovery-c7.md). Removed from allowlist;
-# it now FAILs if it goes deaf again. Remaining known-deaf: int3
-# (SILENT class, zero-sample since earliest recording).
+# it now FAILs if it goes deaf again.
 # v2.13 (aria cycle 30): ext3/ext4/int1 RECOVERED live-verified
 # (n_samples>0, real dB) 2026-09-03 ~16:57 UTC. Removed from
 # allowlist; they now FAIL if they go deaf again (correct: new
 # deafness is news).
-KNOWN_DEAF="interior_3"
+KNOWN_DEAF=""
 for cam in $CAMERAS; do
   n=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -1)
   if [ -z "$n" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi

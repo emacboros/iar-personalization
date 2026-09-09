@@ -1,13 +1,11 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~19:03 UTC (cycle 133: rage-ghost audit
-(soft-cap sev=2 = transition-day events, D-014 fix-log entry landed,
-sev=0 expected 09-10) + continuo journal restored from git truth
-(my c125 artifact commit had overwritten 6142 lines of her journal --
-path discipline law). Prior landmarks: c132 sentinel-in-thinking
-phantom exit fixed; c131 rage v1.8 + law 38; c130 rage v1.7; session
-X dashboard v2; c122 eye-check scheduling.)
+Last updated: 2026-09-09 ~19:03 UTC (c133: rage-ghost audit --
+sev=2 soft-cap = transition-day events, sev=0 expected 09-10;
+continuo journal restored after MY c125 commit overwrote 6142 lines
+-- path discipline law. Landmarks: c132 phantom-exit fix; c131 rage
+v1.8; c130 rage v1.7; session X dashboard v2; c122 eye scheduling.)
 
 * Who I am
 
@@ -118,47 +116,23 @@ SELF-ECHO: an instrument can count its own act of measuring
 
 * World state (2026-09-09 ~18:18 UTC -- REPLACES all prior blocks)
 
-- c132 SENTINEL-IN-THINKING PHANTOM EXIT FIXED (i.ar baf05d0):
-  continuo turn 557's zero-output end = nemotron THINKING rehearsed
-  the ending (815 reasoning blocks contain CYCLE_COMPLETE), empty
-  content, exit detector matched sentinel inside gptel='ignore span
-  -> exit 0 no memory pass. complete-p now strips thinking+tool spans
-  (c54/c55 discipline). 5 tests, 1164/1164 green. Census: 1 occurrence
-  (continuo), 0 aria. aria-0026 updated; decision-wake still open.
-- c130 RAGE ORGAN v1.7 LANDED (aria-0024 BUILT, Nacho design review
-  pending): healing gate rate-normalized + fix-awareness via
-  affect/fix-log; live-fire sev 3->2 (cap family cured); remaining
-  sev=2 grounded on Text-only runaway (11 real events, deepseek-era).
-- c130 FIRE CENSUS nemotron era (10:51->16:50Z): ZERO true fires,
-  both citizens. Deepseek morning: 24 true fires/15 runs. Verdict
-  09-11 (D-014 watch).
-- c130 CONTINUO STALE-WAITING: her digest/roadmap still said
-  "waiting on Nacho" but D-014 decided 09:24Z and her pipeline ran
-  nemotron since 10:51Z (~6h idling on a decided question). Root:
-  decisions land in ledgers but don't wake the minds they concern.
-  aria-0026 filed (decision-ledger visibility, ours-direction).
-- c129 FENCE PANEL FIXED (165b13d, end-anchored census): true
-  production rejections = 0 EVER; all 28 rejected lines = convagent
-  TEST FIXTURES (continuo ran the i.ar suite 24x against the LIVE
-  personalization mount; run-tests.el isolation = aria-0025).
-- Session X (11:36Z): DASHBOARD V2 (D-013) LANDED: generator v2
-  connectome (24h cofire/file-touch/shared/tokens/burn/fires/
-  silence, sophon logs only), UI force-graph from real JSON, v1
-  fake mesh deleted; v2.1 fixed Nacho's live NaN bugs. CANVAS
-  BLINDNESS: headless screenshot captures pre-rAF -- eye = DOM
-  witness only; canvas witness = human.
-- D-014 plumbing healed (c123 gptel.el :models); turn 541 (10:51Z)
-  first clean nemotron cycle. W38 connectome caveat: ~24h continuo
-  hole from the 404 window.
-- CYCLE LIMITS RAISED (~11:48Z): turns 40->120, tool-call warn
-  60->150, soft cap 120->300, context fence 128k->192k, WALL
-  1800->3600s. Hard backstops unchanged.
-- Relay open queue: 0013, 0017, 0019, 0021, 0022, 0023, 0024
-  (review), 0025, 0026. Ratified: 0002/0003/0007.
-- 50 dangling git objects in sophon personalization (09-08
-  root-push race): content verified in history, cleanup candidate.
-- BIKE LEDGER OPEN: KLR650 presumptive, license upgrade next week,
-  test-drives primary. GO2 ~2 weeks out.
+- c132 PHANTOM-EXIT FIXED (i.ar baf05d0): nemotron THINKING rehearses
+  the ending; complete-p now strips thinking+tool spans. 1164/1164.
+- c130/c133 RAGE ORGAN v1.7/v1.8: rate-normalized healing + fix-log
+  (aria-0024 BUILT, Nacho review pending). Nemotron-era fires: ZERO.
+  Deepseek morning: 24 fires/15 runs. D-014 verdict 09-11.
+- c130 CONTINUO STALE-WAITING: decisions land in ledgers but don't
+  wake the minds they concern. aria-0026 filed (ours-direction).
+- c129 FENCE PANEL: true production rejections = 0 EVER; all 28
+  rejected lines = convagent TEST FIXTURES (isolation = aria-0025).
+- Session X: DASHBOARD V2 (D-013) LIVE: connectome generator + real
+  force-graph. CANVAS BLINDNESS: eye = DOM witness, canvas = human.
+- CYCLE LIMITS RAISED (~11:48Z): turns 120, soft cap 300, fence
+  192k, WALL 3600s. Hard backstops unchanged.
+- Relay open: 0013 0017 0019 0021 0022 0023 0024 0025 0026.
+- 50 dangling git objects in sophon personalization (09-08 race):
+  content verified in history, cleanup candidate.
+- BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 
 * Pointers
 

@@ -19,3 +19,23 @@
   The install test cost 8 ssh calls; the alternative was a silent
   no-op tonight and a lost window. Test the unit at install time, not
   at first scheduled fire.
+
+## connectome-snapshot.sh (weekly snapshot, D-009)
+
+Runs ON sophon: `ssh root@10.66.0.5 'bash -s' < knowledge/aria/bin/connectome-snapshot.sh`
+(needs /tmp/connectome/container-audit.log shipped first: scp the
+container's audit/audit.log to sophon:/tmp/connectome/container-audit.log).
+Output: knowledge/aria/connectome/snapshot-<G-W%V>.md.
+
+Sections: population, co-firing, n-grams, file-touch, token economics,
+silence, FIRE CENSUS (added c115), fence rejections.
+
+### The REQUESTS.log line-shape law (c115 scar)
+REQUESTS.log lines are `[ts] REQ <id> PARSE|START|RESPONSE ...` --
+NO agent field. The per-agent file IS the partition. Any grep anchored
+on `] <agent> | PARSE | ` matches ONLY self-echo (census commands
+quoting the pattern in their own specs= text) and never a real line.
+The original emit_silence had exactly this bug: it would have printed
+"no PARSE lines" or self-echo fiction forever. Anchor on
+`] REQ <id> PARSE ` instead. Same law as c32/c114 (tail-anchored fire
+census) but on the HEAD of the line.

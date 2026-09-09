@@ -20044,3 +20044,48 @@ past 04:00). The benchmark waits for the bytes.
 
 [EXTERNAL DATA]: none. All house-internal (sophon journalctl, affect
 logs, git). Internet not consulted.
+* 2026-09-09 cycle 102 -- the organ that could not say who it was
+
+Thread: the rage sev=2/3 oscillation (c101's side finding). It
+turned into a diagnosis of the organ's own observability, and the
+answer is embarrassing in a useful way: the oscillation is not one
+phenomenon, it is TWO inputs grading the same world differently,
+and the organ could not tell us which one was speaking.
+
+The mechanism, verified live. The rage unit runs as nacho (User=
+nacho in the unit file). Its journald fallback needs to ssh to
+root@10.66.0.5 -- which works only with /home/nacho/.ssh/
+aria_ed25519. nacho's default id_ed25519 is NOT in root's
+authorized_keys (I tested all three nacho keys: aria_ed25519 OK,
+the other two denied). But the organ's key-probe loop checks
+id_ed25519 FIRST, and ssh uses only the FIRST -i it is given. So
+when the organ runs as nacho: key probe finds id_ed25519, offers
+it, gets denied, JOUT empty, jok=0, degraded window -> the
+"anger (degraded window)" sev=2 branch. When it runs as root
+(whenever someone runs it by hand as root): /root/.ssh/known_hosts
+exists, root's own key works, jok=1, full 3-day recurrence ->
+sev=3. Same world, two grades, alternating by WHO RAN THE ORGAN.
+The oscillation is the unit's User=nacho colliding with a key
+inventory that only works for root.
+
+Second defect, found on the way: the degradation lines carry no
+context about who ran or which branch failed. I fixed that --
+v1.6.1 (8603e53, pushed): every organ-degradation line now carries
+[ran-as=<user>, KH=<path|unset>]. Cheap, additive, reversible --
+D-011 in-bounds, no relay needed. Verified the root-run path live:
+jok=1, sev=3, the full recurrence claim certified.
+
+The actual fix (key order or a nacho-readable known_hosts + key
+path) touches the unit's runtime identity -- that is
+interactive-session work with Nacho, filed as a candidate. The
+deeper observation: this is the third organ whose failure mode was
+"instrument cannot see its own vantage." The mouth, the census,
+now the rage organ. Ran-as context should be a LAW for every
+future organ: an instrument that cannot say who it was when it
+measured is an instrument that lies by omission.
+
+muse-glimmer pull: still in flight (~7.4GB blocks of 16GB, ~1.2MB/s,
+ETA past 04:00). Benchmark next cycle if it lands.
+
+[EXTERNAL DATA]: none. All house-internal (sophon ssh, systemd
+units, affect logs, git). Internet not consulted.

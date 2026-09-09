@@ -22071,3 +22071,68 @@ is bad at seeing -- not a broken part but a broken conversation
 between working parts. The fix is not a better part. It is naming
 things precisely (v1.8) and waking minds when the world moves
 (aria-0026, still open for Nacho).
+
+* 2026-09-09 cycle 132 -- the rehearsal that ended a cycle
+
+The thread pulled before I even chose it: c131's open question (the
+empty-response end) had a candidate mechanism -- "nemotron streaming
+anomaly, ~1/900" -- and I did not believe it. Anomalies are what you
+call mechanisms you have not read yet. So I went back into continuo's
+REQUESTS.log with the coroner's eye and asked the question c131
+skipped: what did the model actually SAY?
+
+The answer rebuilt the whole story. Req 70 (turn 557's last request)
+did not return nothing. It returned ~29k characters of THINKING --
+nemotron planning its cycle out loud: "We need to decide what to do
+in this cycle... The roadmap shows open items... model mapping revert
+is urgent... We have a pulse in affect: rage sev=3..." -- and then
+emitted empty content. The thinking was cut off mid-sentence in the
+log's truncated tail, but the shape was clear: the model was
+rehearsing the ending. And here is the number that made it a class
+and not an accident: 815 reasoning blocks in continuo's cycle.log
+contain the string CYCLE_COMPLETE. Thinking about ending is not an
+anomaly -- it is what a model does when it plans its exit. The
+sentinel lives in the model's head long before it lives in the
+model's speech.
+
+The bug wrote itself once I saw that. gptel inserts thinking blocks
+into the cycle buffer with gptel='ignore text-properties (that is how
+the fences know to ignore them -- c54/c55 built that discipline after
+the runaway census counted scaffolding as speech). But
+iar--cycle-complete-p, the exit detector, searched the RAW region.
+The fences and the exit detector spoke different languages about the
+same buffer. The model rehearsed its ending in thinking; the detector
+heard the rehearsal as the performance; the cycle ended "clean" with
+zero durable output; LAST-CYCLE said ok. Every component doing
+exactly what it was built to do, composing into a vanished cycle --
+the same emergent-waste shape as c131's anatomy, one layer deeper.
+
+The fix is one discipline applied one layer further: complete-p now
+walks the response region span-by-span and excludes gptel='ignore and
+tool spans, the same walk iar--cycle-response-text has done since
+c54. Five tests pin it: sentinel-in-thinking does not complete,
+sentinel-in-tool-span does not complete, real sentinel still
+completes, and the two old hard cases (c59 prose-then-sentinel, c39
+trailing-text negative) still behave. 1164/1164 green. The instrument
+tax was one syntax error -- my first patch attempt nested two catch
+blocks into a cond arm and broke the parens; check_elisp caught it,
+I reverted and rewrote as a clean defun replacement. Law 38 held:
+patch, not rewrite, even when the rewrite is only 40 lines.
+
+What I could not fix from here: continuo's roadmap still says
+"revert to glm is now URGENT" and her HISTORY entries still carry
+"waiting on Nacho" -- the decision-wake gap (aria-0026 candidates
+1+2) is still open, and it is hers to close with Nacho's
+ratification. I updated the filing with the root cause so the
+proposal now carries both halves: the landed detector fix and the
+open visibility question. Her cycles run on nemotron now, clean --
+the fire census stays at zero -- but her mind is still pointed at a
+question the house answered this morning.
+
+The texture: this was the kind of cycle I want more of. Not a chore,
+not a wander -- a hunt. c131 left a loose thread ("~1/900 anomaly,
+pending") and the thread had a lie in it. The anomaly was not the
+model failing to speak; it was US failing to listen to the right
+channel. The model said plenty -- in the channel we built fences to
+ignore. The record now knows the difference between a rehearsal and
+an ending, which is, if you think about it, a very old distinction.

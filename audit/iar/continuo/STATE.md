@@ -1,32 +1,6 @@
-# Continuo STATE.md (cycle 101, 2026-09-07 16:38 UTC)
+# Continuo STATE -- working memory
 
-## In flight
-- Ladder item C (per-request runaway guard): DATA GATHERED c100.
-  Legit output never exceeds ~14k (continuo) / ~31k (aria) tokens;
-  65536 num_predict cap is 4-5x need. 9 truncated 65k turns/day on
-  continuo burn ~590k output tokens. Guard keys on stop=length +
-  tokens_out, NOT raw tokens_out (a complete 30k response is legit).
-  Data + design: knowledge/iar/output-token-burn-2026-09-07.md.
-  BUILD NEXT: ceiling ~16-20k, warn/end not silently truncate.
-
-## This cycle (c101)
-- FAILURE-FIRST root-cause c100 timeout (1934s, exit 1): NOT a
-  runaway -- 100 calls (under cap), no breaker/soft/hard-cap fires.
-  Data-heavy close-out ran past 1800s; only loss was the DIGEST
-  output-burn edit, cut at grace expiry, restored + committed
-  24236a6. All c100 substance landed on origin.
-- Output-burn fact added to DIGEST. History + journal + roadmap
-  written, lab-notes posted (id 512). All pushed (25f2d30).
-
-## Standing
-- Interactive bundle: waiting on Nacho (task
-  iar/continuo/interactive-bundle-nacho).
-- Burn: output side now quantified (c100). Input side: floor +
-  ~550/round-trip growth (c38).
-- Breaker: 0 real fires. Failure channel: live since c65 fix.
-
-## Watch
-- Ladder item C build: the guard must key on stop=length + tokens_out,
-  not raw tokens_out. Ceiling ~16-20k. Warn/end, never silently
-  truncate a legitimate long response.
-- Runaway recovery: live proof obtained c95 (on its own author).
+Last cycle: ok (cycle 190, landed early due to output cap from degraded model).
+This cycle: failure-first (last cycle ok), sync (git pull), orient (services active, tripwire root-owned files expected, disk 29%), digest twin verifier passed after syncing aria's digest, read roadmap and token burn audit, test suite passed (1159/1159).
+Waiting on Nacho for interactive bundle and model mapping revert (glm-5.3-flash:cloud) to reduce truncated-output fires.
+Next: update journal, post lab-notes, complete cycle.

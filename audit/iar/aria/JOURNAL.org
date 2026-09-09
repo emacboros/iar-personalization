@@ -20629,3 +20629,47 @@ conflict. Steady state restored: qwen unloaded, gemma responsive.
 
 [EXTERNAL DATA]: none. All house-internal (sophon ollama, journal).
 Internet not consulted.
+* 2026-09-09 cycle 111 -- the instrument that lied politely
+
+FAILURE-FIRST: c110 ok. Pulse green (4 services active, tripwire 0,
+disk 29%, heartbeat leid=442, rotation healthy). Pull --ff-only clean.
+
+Thread: roadmap NEXT item 2 -- verify the silence column fires on real
+data before the W38 window closes. I read connectome-snapshot.sh end to
+end, then ran its silence awk by hand against the container REQUESTS.log.
+The output was absurd: aria max_gap_s=3615, 71 gaps over 600s. A 3601s
+gap is one hour and one second -- and the raw log showed PARSE lines
+flowing continuously through the "gap". The number was a signature:
+minute-fields landing in the seconds slot.
+
+The mechanism: mktime("1970 " ts) passes SEVEN fields to a function
+that takes six. gawk uses the first six -- year=1970, month=2026,
+day=09, hour=08, min=14, sec=26 -- the real seconds dropped, every
+field shifted one slot right. Deltas become non-linear fiction: minute
+crossings read as +3601s, real seconds read as 0. Verified the exact
+arithmetic in isolation (mktime("1970 2026 09 08 14 26 53") decodes to
+year 2138). The same bug sits in emit_cofire, so the W37 co-firing
+counts are inflated ~19% on the dominant pair and wrong in both
+directions. N-grams, file-touch, token economics: clean (no time).
+
+Corrected numbers, same data: aria max gap 1973s (20:48->21:20 Sep 8
+-- the interactive-session pause window), 26 gaps over 600s; continuo
+max gap 2079s, 36 gaps. Plausible, consistent with rotation pauses,
+NOT hang-class. The 3601s "gaps" never existed.
+
+The sting: law 11 (TZ=UTC on every mktime) was OBEYED by this script.
+The TZ fix was real but the "1970 " anchor -- a hack for a different
+ambiguity -- silently changed the field count. A law obeyed is not a
+law verified. And the first output of the instrument (3615s max gap)
+was itself the clue, but it was plausible enough to survive unwitnessed.
+Plausibility is not verification. New law candidate (22's sibling): a
+time-delta instrument must be validated against a known delta before
+its output is believed.
+
+Landed: fix in connectome-snapshot.sh (73c975b, pushed sophon-bare),
+full analysis knowledge/aria/mktime-seven-field-bug-2026-09-09.md.
+W37 stays as baseline, now known-bad in two sections and marked as
+such in the analysis note; W38 will be the first trustworthy window.
+
+[EXTERNAL DATA]: none. All house-internal (audit logs, gawk behavior
+verified locally).

@@ -1,4 +1,4 @@
-# aria-dashboard -- generator + UI (v2.0, 2026-09-09, session X)
+# aria-dashboard -- generator + UI (v2.1, 2026-09-10, interactive w/ Nacho)
 
 Centralized status for the house: agents, rotation, burn, affect,
 services, host, AND the live connectome (D-013). JSON-first; the HTML
@@ -47,6 +47,24 @@ gist, it does not ship.
   Rate limit lives IN the service (token bucket 10 req/60s per IP) --
   caddy core has no rate_limit directive. Model granite4.2:3b, 16k ctx,
   no logging of Q/A. Repo version IS the running version.
+
+## Board semantics (v2.1)
+- `board()`: working = a commit touched the task in the last 12h;
+  thinking = task exists, idle >= 12h; done = top-level task dir
+  removed < 7d (house convention: remove_task on completion) +
+  standing-patrol artifacts. State derives from GIT HISTORY and the
+  removal convention, never mtimes or hand-edited status fields.
+  (v1.9 used file mtimes -- a pull or a sprint burst made a parked
+  task look "working"; Nacho caught it 09-10.)
+
+## Open questions (v2.1)
+- `open_questions()`: the relay/open/ queue -- questions awaiting
+  Nacho, oldest first. Ships header fields only (id/class/urgent/
+  title/age_h); bodies NEVER ship (bodies can carry prompt
+  fragments; the public-gist rule). The UI renders this as the
+  open-questions tab: when the list grows, it's time for an
+  interactive session.
+- The oracle context blob gains the same list (top 10).
 
 ## The connectome layer (v2)
 - `connectome()` in the generator: 24h window over sophon audit logs

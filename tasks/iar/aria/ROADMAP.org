@@ -1,9 +1,33 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~07:15 UTC (cycle 117)
+Last updated: 2026-09-09 ~08:05 UTC (cycle 118)
 
 ## NOW
 
+- c118: DIGEST-TWIN VERIFIER FIRST LIVE RUN (instrument validation):
+  caught a REAL divergence -- top-level DIGEST.md (a8aec9, last sync
+  c103/Sep 8) vs audit live (545b0cb, c117 diet). Synced (dfed59c),
+  re-run FAIL=0. Lesson: an instrument that exists but is never
+  scheduled is a fossil-in-waiting -- it needed one wiring decision
+  nobody made. Wiring into the wake pulse is PENDING (one line in
+  the cycle batch; do it next cycle).
+- c118: INTERIOR_3 KNOWN-DEAF PREMISE FALSIFIED: fleet-check v2.14
+  returned "RECOVERED" and the investigation showed the KNOWN_DEAF
+  entry (carried since v2.9/cycle 10) was wrong. Recordings prove
+  interior_3 had audio 08-30..09-03 ~08:00 -03; actual deaf window
+  ~24h (09-03/08 00:50 -> 09-04/08 01:42 local -03, aac
+  zero-sample); recovery verified daily 09-05..09-09 AND live RTSP
+  (3x probes, 80-84k samples). v2.13's "zero-sample since earliest
+  recording (2026-07-05)" cites retention-rotated recordings --
+  unverifiable and false. Camera-side event; NO frigate journal
+  entries at either boundary (frigate up since 09-01 23:41; the
+  09-03 05:00 and 09-04 06:41 crash windows bracket but do not
+  explain the deafness). NEXT CYCLE OWES: fleet-check v2.15 --
+  withdraw interior_3 from KNOWN_DEAF, fix the stale v2.13 comment,
+  note the dual-stream parse question (camera 203 live RTSP serves
+  aac 0:1 + pcm 0:0; recordings carry aac; verify the volumedetect
+  tail-parse reads the right stream before trusting RECOVERY
+  verdicts), suite-run, commit.
 - c117: FIRE-CENSUS CROSS-EXAMINATION (validation cycle): instrument
   stands (aria 0 / continuo 20 strict-EOL). c185 hand-list corrected:
   3 false positives (05:02/05:21/05:43 are stop=stop, misread from
@@ -14,52 +38,27 @@ Last updated: 2026-09-09 ~07:15 UTC (cycle 117)
   for fires (PARSE is the only channel); census commands migrate
   foreign log content across agent partitions (tail-anchor is the
   wall). knowledge/aria/fires-forensics-2026-09-09.md (1f3809a).
-- c116: W37 CONNECTOME SNAPSHOT RUN (roadmap item 2 DONE, pulled
-  forward): 65630 tool_call lines merged (aria 37809 / continuo
-  19553), both hosts. First trustworthy window (mktime + silence
-  fixes in). Key numbers: aria p50 ctx 41.5k vs continuo 27k;
-  continuo 20 fires (11+9 by day), aria 0; silence max-gap aria
-  1962s / continuo 2079s (both < tool-timeout ceiling, no hang
-  class); 40 fence rejections. Baseline only -- no trend claims
-  until W38. Snapshot: knowledge/aria/connectome/snapshot-2026-W37.md
-  (committed b343d00).
-- c116: DASHBOARD-V2 BOARD VIEW DATA LAYER LANDED (roadmap item 1
-  DONE at the data layer, bbf9171): board() in aria-dashboard.sh
-  v1.9 -- thinking/working/done from tasks/iar/ mtimes + relay
-  verdicts (real-data rule, no hand-edited status). Differential +
-  missing-repo tests green; LIVE on /json within one timer tick
-  (verified). UI wiring stays interactive per CYCLES.md -- board
-  field is available for the frontend.
-- c115: FIRE-CENSUS INSTRUMENT LANDED (roadmap item 9 DONE,
-  6ab2821+18ccd11). Section 7 in connectome-snapshot.sh: fire =
-  PARSE line tail-anchored `error=<X> stop=length tokens_in=<N>
-  tokens_out=<M>` at line END; per-agent counts + per-day histogram.
-  Ends the c114 re-derivation ladder. BONUS FIND (the c115 scar):
-  emit_silence + token-economics greps were anchored on
-  `] <agent> | PARSE | ` -- a shape that does NOT EXIST in
-  REQUESTS.log (lines are `[ts] REQ <id> PARSE ...`; no agent field;
-  the per-agent file IS the partition). Old regex matched ONLY
-  self-echo; silence column was fiction since landing. Re-anchored
-  on `] REQ <id> PARSE `, validated (fake-log unit + real-data
-  smoke: aria 0 fires/1962s max gap; continuo 20 fires 09-08+09-09,
-  REQ-id dedup clean). Law added to INSTALL-NOTES + roadmap law 25.
-  Real-data note: continuo's c183 hand count said 6 fires today;
-  instrument says 9 on 09-09 (window-boundary difference likely;
-  instrument is now the arbiter).
-- c114: fire-census thread diagnosis (the ladder itself), dashboard
-  board view prepped. c113: repo-growth closed (917ff7d). c112:
-  gptel upstream-gap audit + aria-0013. c111: mktime 7-field bug
-  fixed (73c975b). c110: qwen3.6 vision retest PASS. c109:
-  muse-glimmer NO (aria-0011, open until Nacho).
+- c116: W37 CONNECTOME SNAPSHOT RUN: 65630 tool_call lines merged
+  (aria 37809 / continuo 19553), both hosts. First trustworthy window.
+  Key numbers: aria p50 ctx 41.5k vs continuo 27k; continuo 20 fires,
+  aria 0; silence max-gap aria 1962s / continuo 2079s (no hang class);
+  40 fence rejections. Baseline only -- no trend claims until W38.
+  Snapshot: knowledge/aria/connectome/snapshot-2026-W37.md (b343d00).
+- c116: DASHBOARD-V2 BOARD VIEW DATA LAYER LANDED (bbf9171, v1.9
+  live on /json). UI wiring stays interactive per CYCLES.md.
+- c115: FIRE-CENSUS INSTRUMENT LANDED (6ab2821+18ccd11) + silence
+  column line-shape scar fixed (REQUESTS.log has NO agent field; the
+  per-agent file IS the partition).
 
 ## NEXT (cycle work, in pull order)
 
-1. [DONE c116] Dashboard-v2 board view DATA LAYER (v1.9 live).
-   UI wiring = interactive session (CYCLES.md rule stands).
-2. [DONE c116] W37 connectome snapshot (pulled forward; W38 next
-   week for the first trend comparison).
-3. Drills: #004 delegate only on natural need. Registry + queue live.
-3b. gptel PRs: pending Nacho's answer on aria-0013 (nacho-external).
+1. [OWED c118] fleet-check v2.15: withdraw interior_3 from
+   KNOWN_DEAF, fix stale v2.13 comment, dual-stream parse check,
+   suite-run, commit. Also: wire digest-twin-verifier.sh into the
+   wake pulse (one batched call; it caught a real divergence on its
+   first run -- it should not need luck to run again).
+2. Drills: #004 delegate only on natural need. Registry + queue live.
+3. gptel PRs: pending Nacho's answer on aria-0013 (nacho-external).
    If yes: prepare branch + PR text per candidate, order 970da80 ->
    7370286 -> 4c588a2 -> d8494f8 -> bcfd670 -> 8715a6c. Fresh
    upstream fetch required before filing (law 7).
@@ -69,54 +68,36 @@ Last updated: 2026-09-09 ~07:15 UTC (cycle 117)
 5. Failure-window watch: gpu-load-probe windows live (CPU-correlation
    confirmed, load hypothesis dead per continuo c179-181; lever =
    model mapping, Nacho's call). Aevum pulse #4: Sep 14.
-6. Digest #1 + Aevum pulse: Sep 9 (TODAY) -- retainer heartbeat is
-   Nacho's; cycles prepare data if asked via relay.
-7. Laptop origin artifact review with Nacho (0fc3bbc): pending his
+6. Laptop origin artifact review with Nacho (0fc3bbc): pending his
    availability; salvage BEFORE reinstall/scrub.
-8. [DONE c113] Repo-growth: continuo's cycle.log UNTRACKED.
-9. [DONE c115] Fire-census instrument: landed + silence-column
-   line-shape scar fixed (6ab2821).
-10. (see 1)
+7. W38 connectome snapshot: next week -- first trend comparison
+   against the W37 baseline.
 
 ## STANDING
 
-- Pulse: all green as of c117 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=582, keyscan reseeded, rotation healthy).
+- Pulse: all green as of c118 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=632, keyscan reseeded, rotation healthy).
+  fleet-check v2.14: FAIL=1 ONLY on the stale interior_3 RECOVERED
+  verdict (item 1 above); everything else green (bares in sync
+  dfed59c, agora voice HEALTHY, restic ok 4h, frigate events 1311/24h
+  interior=701 exterior=610 -- exterior-zero question RESOLVED,
+  exterior cameras produce events).
 - sophon-bare i.ar.git at 6b67f61 (interactive fences landed by
   continuo c175, suite 1159 green). origin (rammstein) fetch fails:
   container key id_ed25519 is NOT in rammstein's git authorized_keys.
   Mirror hook direction is rammstein->sophon. Never compute divergence
   against origin refs.
 - 14 of 20 sophon repos have DANGLING HEAD (HEAD->master, only main
-  exists). Do not clone those by branch name.
-- Container ssh note: /root/.ssh has id_ed25519; sophon accepts it;
-  rammstein git does NOT.
-- Diverged-pull protocol: stash -> rebase -> pop -> push. SCAR
-  (c97): nobody-owned untracked file freezes rebase.
-- audit/iar is gitignored; curated record files (JOURNAL, ROADMAP,
-  HISTORY, REQUESTS) need `git add -f` (c115 used it; scope: those
-  four paths only, never transcripts -- see law 22).
-- write_file drops the exec bit on script files (c115: 100755 ->
-  100644 silently); chmod +x after every write_file to a script.
-- gemma3:4b "mmproj" is NOT clip -- architecture=gemma3, whole
-  model in one blob. Vision-tower comparisons: use qwen3.6 class.
-- c109: muse+gemma3 CANNOT co-reside (4.75+2.88+Frigate 2.5 > 10GB);
-  60s muse reload per alternation. Any muse-family future model must
-  be <=7-14B dense to fit GPU-resident.
-- c109: the ~2s POST cadence to sophon ollama mid-cycle is the cycle
-  agent's own glm-5.3-flash:cloud turns (session-*.scope in journal).
-  Instrument seeing itself -- do not re-investigate.
-- c110: ollama keep-alives outlive the cycle that set them. Unload
-  what you loaded; check `ollama ps` before assuming steady state.
-- c114: convagent/mirror/testagent/otheragent/unknown rows in
-  audit.log = TEST-SUITE artifacts (136 lines today), not agents.
-  Connectome merge must exclude them (like nil rows) or the census
-  counts the suite as a citizen.
-- c115: REQUESTS.log lines are `[ts] REQ <id> PARSE|START|RESPONSE
-  ...` -- NO agent field; the per-agent file IS the partition. Never
-  grep for `] <agent> | PARSE | ` in REQUESTS.log (self-echo only).
-  audit.log tool_call lines DO have the agent field; REQUESTS.log
-  does not. Know which file you are in.
+  exists). Do not clone those by branch name; use explicit refs.
+- Relay open queue: aria-0011 (muse NO), aria-0012 (qwen36 PASS),
+  aria-0013 (gptel PRs), aria-0014 (fires revert lever). All await
+  Nacho ack. No new filings this cycle; nothing answered.
+- Digest twin: SYNCED (dfed59c, verifier FAIL=0). Verifier wiring
+  into wake pulse = next-cycle item 1.
+- Aevum: weekly-only, pulse #4 Sep 14 (Nacho's ssh; cycles prepare
+  data if asked via relay).
+- BIKE LEDGER OPEN: KLR650 presumptive, license upgrade next week,
+  test-drives primary. GO2 ~2 weeks out.
 
 ## LAWS (accumulated; the ones that keep biting)
 
@@ -128,69 +109,61 @@ Last updated: 2026-09-09 ~07:15 UTC (cycle 117)
 6. The fence that catches you mid-walk is RIGHT; stop the walk.
 7. Instruments that disagree: fetch upstream directly before
    computing divergence (merge-base against stale ref lies).
-   c107 corollary: a remote that CANNOT be fetched (perm denied)
-   serves a stale ref forever -- check fetch success, not just
-   ref existence.
 8. Pull-before-write, always; stash-rebase-push on divergence.
 9. Existence is not function: test the claim.
 10. The cap that catches you is doing its job; converge when it fires.
 11. awk mktime uses the HOST timezone; log timestamps are UTC --
     TZ=UTC prefix on every mktime that parses log timestamps.
-    c111 corollary: TZ=UTC is necessary not sufficient -- mktime
-    takes EXACTLY six fields; extra fields shift the parse silently.
+    c111 corollary: mktime takes EXACTLY six fields; extra fields
+    shift the parse silently.
 12. Anchor greps on line START ('] agent | tool_call'), never on
     substrings -- cmd= fragments pollute unanchored matches.
     c114 corollary: REQUESTS.log census greps must anchor the TAIL
-    (error= stop= tokens_in= tokens_out= at line end) -- specs=
-    self-echo manufactures fires (c32 law, re-learned by re-count).
+    (error= stop= tokens_in= tokens_out= at line end).
 13. Verify a "pending" roadmap item against the primary source
     before working it -- roadmap lines go stale.
 14. Apparent size lies on sparse files; read the blocks (c99).
 15. An instrument that cannot say who it was when it measured lies
     by omission -- ran-as + input-branch context (c102).
-16. An instrument that fails for the wrong reason (escaping, not
-    the thing measured) produces a verdict that is wrong with
-    confidence -- validate the probe on a control that CAN pass
-    before trusting its failure (c104). c109 corollary: a probe
-    below the instrument's minimum produces fiction, not failure --
-    validate the probe is IN RANGE (64x64, not 8x8).
-17. Enumeration is what an under-stimulated instrument does: when
-    the question is "what does the history look like", ask instead
+16. An instrument that fails for the wrong reason produces a verdict
+    that is wrong with confidence -- validate the probe on a control
+    that CAN pass before trusting its failure (c104). c109 corollary:
+    a probe below the instrument's minimum produces fiction -- check
+    the probe is IN RANGE.
+17. Enumeration is what an under-stimulated instrument does: ask
     what the next cycle needs and fetch exactly that (c105).
-18. Commit-derived activity is a lying instrument for cycle health:
-    USAGE-only cycles and failure-heavy windows leave few commits;
-    hour histograms undercount exactly the interesting windows
+18. Commit-derived activity is a lying instrument for cycle health
     (c105). Wrapper-exit is not cycle-health (c105).
-19. Waiting for a state change is not work: polling a blob/ETA
-    cannot accelerate it -- check once, record the ETA, spend the
-    budget on something that converges (c106).
+19. Waiting for a state change is not work: check once, record the
+    ETA, spend the budget on something that converges (c106).
 20. A test suite that has not run is a press release, not a test --
     built is not verified; commit local-only until the suite speaks
-    (c107, the c104 scar applied to my own build).
+    (c107).
 21. A model that cannot say "I cannot see that" is a perception
-    hazard: sub-minimum inputs get fiction, not errors. Instruments
-    must be validated at their operating point, not their floor
-    (c109, the silent-confabulation class).
-22. Workarounds generalize past their warrant: the -f flag that
-    rescued curated records also force-adds a 61MB raw transcript.
-    A workaround needs a scope statement or it becomes a habit
-    (c110, the cycle.log find). c113 corollary: the workaround's
-    effect is STICKY -- tracked-ness is state nobody owned;
-    gitignore only governs untracked files.
+    hazard (c109, silent-confabulation class).
+22. Workarounds generalize past their warrant: a workaround needs a
+    scope statement or it becomes a habit (c110). c113 corollary:
+    the workaround's effect is STICKY -- tracked-ness is state
+    nobody owned.
 23. A time-delta instrument must be validated against a KNOWN delta
-    before its output is believed; a plausible number is not a
-    verified one -- the first output being itself the clue (3601 =
-    1h+1s) only helps if you look (c111, mktime 7-field bug).
+    before its output is believed (c111, mktime 7-field bug).
 24. An instrument that exists only as per-cycle improvisation
-    re-derives its methodology every run and re-learns its own trap
-    each time (c114, the fire-census ladder). If a census runs more
-    than twice by hand, it wants to be a script with the anchoring
-    baked in.
+    re-derives its methodology every run (c114). If a census runs
+    more than twice by hand, it wants to be a script.
 25. A per-agent file has no agent column; the partition is the path
-    (c115). Any grep that names the agent inside a file that never
-    contains agent names is grepping for ghosts, and the ghosts it
-    finds are always itself. An instrument reporting "all quiet"
-    because its regex cannot match a real line is worse than no
-    instrument -- it manufactures the all-clear the instrument
-    exists to contradict. Validate a new instrument against a
-    control that MUST match before trusting its zeros.
+    (c115). Validate a new instrument against a control that MUST
+    match before trusting its zeros.
+26. c118: a scar whose evidence base has rotated out from under it
+    (retention-deleted recordings) must be re-verified before it is
+    trusted again -- "zero-sample since earliest recording" cited
+    recordings that no longer exist, and the claim was false for six
+    days. A plausible scar is a hypothesis, not a fact.
+27. c118: an instrument that exists but is never scheduled is a
+    fossil-in-waiting (the digest-twin verifier sat unbuilt-in-name
+    for 3 days and caught a real divergence on its first run).
+    Wiring a verifier into a standing routine is part of building
+    the verifier, not a follow-up task.
+28. c118: recovery/healing events with NO journal entries at the
+    boundary are camera-side (or otherwise below the logging floor) --
+    absence of logs at the boundary is itself evidence about WHERE
+    the event lives, not that it did not happen.

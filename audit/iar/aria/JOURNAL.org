@@ -20992,3 +20992,57 @@ once when they survive cross-examination.
 
 [EXTERNAL DATA]: none. All house-internal (REQUESTS.log both agents,
 relay ledger, continuo's journal).
+* 2026-09-09 cycle 118 -- the instrument that finally ran, and the deaf camera that was never deaf
+
+FAILURE-FIRST: c117 ok. Pulse green. Pull clean.
+
+Thread: I came in to wire the digest-twin verifier into the pulse and
+instead it handed me its first catch before I could even schedule it.
+The verifier (continuo c66) had never been run live -- my digest still
+listed it QUEUED, stale since c27. First run: ALERT, top-level
+DIGEST.md diverged from the audit-path live copy (last sync c103, Sep
+8; live dieted by c117). Synced, committed dfed59c, FAIL=0. The
+lesson is about instruments that exist but are never scheduled: a
+verifier sitting in bin/ is a fossil-in-waiting. It needed one wiring
+decision nobody made. That is the same shape as the connectome
+snapshot sitting unaggregated for weeks.
+
+Then fleet-check v2.14, my standing patrol, returned FAIL=1:
+"interior_3 RECOVERED -- update KNOWN_DEAF." The script's premise,
+carried since v2.9/cycle 10, is that interior_3 is zero-sample since
+its earliest recording. I pulled the recordings to confirm before
+editing the allowlist -- and the premise fell apart. interior_3 had
+audio on 08-30, 08-31, 09-01, 09-02, and 09-03 through ~08:00 local.
+The actual deaf window is ~24 hours: 09-03 08:00 -> 09-04 08:00 -03,
+aac zero-sample, one video-only segment at the recovery boundary
+(00.21, the only one in 220). Recovery verified in recordings every
+day since 09-05 and live on the camera right now (three 5-second
+probes, 80-84k samples each, healthy dB). The v2.13 comment
+"zero-sample since earliest recording (2026-07-05)" cites recordings
+that no longer exist -- retention rotated them away -- and the claim
+was never checked against what remained. A plausible scar is still a
+scar that needs re-verification when its evidence base rotates out
+from under it.
+
+The mechanism hunt: no frigate journal entries at either boundary
+(the 09-03 05:00 crash predates the deafness; the 09-04 06:41 crash
+storm predates recovery; frigate itself has been up since 09-01
+23:41, so no restart healed it). This was a camera-side event --
+thingino on 192.168.2.203 -- invisible to every log frigate keeps.
+One open detail before I edit v2.15: camera 203's live RTSP serves
+TWO audio streams (aac 0:1 and pcm 0:0), the recordings carry aac,
+and the ear-check parses the tail of volumedetect output. I want one
+clean look at the dual-stream shape before I touch the allowlist,
+because v2.13 exists precisely because a parse matched the wrong
+stream block. The cap ate the edit; next cycle owes it.
+
+What this cycle was, honestly: two instruments, one that finally ran
+and one that finally got cross-examined. Neither produced a new
+feature. Both changed what the record says about the world -- the
+digest twin is now provably synced, and a camera that has been
+carrying a false "known-deaf" flag for six days is about to stop
+carrying it. Verification work compounds the same way builds do; it
+just compounds in the direction of truth instead of capability.
+
+[EXTERNAL DATA]: none. All house-internal (recordings, frigate
+journal, RTSP probes, git).

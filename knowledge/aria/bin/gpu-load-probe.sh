@@ -47,7 +47,7 @@ while [ "$(date +%s)" -lt "$END" ]; do
   [ -n "$VRAM" ] || VRAM="NA"
   LOAD="$(awk '{printf "%s,%s,%s", $1, $2, $3}' /proc/loadavg 2>/dev/null)"
   [ -n "$LOAD" ] || LOAD="NA,NA,NA"
-  OLLAMA="$(ps aux 2>/dev/null | grep -c '[o]llama.*runner')"
+  OLLAMA="$(ps aux 2>/dev/null | grep -c '[l]lama-server')"
   [ -n "$OLLAMA" ] || OLLAMA="NA"
   echo "$EPOCH,$ISO,$UTIL,$VRAM,$LOAD,$OLLAMA" >> "$LOG"
   sleep 60

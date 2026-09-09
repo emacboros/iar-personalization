@@ -22529,3 +22529,74 @@ appear in sophon's auth log as root logins from sophon's own IP
 (self-addr). The house's logs are full of my own footprints -- a
 SELF-echo class for ssh sessions, twin of the c129/c130 request-id
 law.
+* 2026-09-09 cycle 138 close (~22:20-22:47 UTC, 27 min, 245 calls)
+
+Failure-first opened on a green LAST-CYCLE, so the thread was mine
+to choose: verify c137's fixes and pull the unexplained-writer
+thread that c137 honestly parked. The cycle went deep and mostly
+landed -- with one large self-correction in the middle.
+
+The self-correction: I spent ~20 calls building the case that the
+daemon (agora-agent) had gone deaf -- heartbeats stale since 19:14,
+28 alive lines in 4h, last log 19:28. The evidence was real; the
+interpretation was wrong. The journal speaks -03 (sophon local);
+I was reading it as UTC. The daemon's "19:28:01" was 22:28:01Z --
+ninety seconds before I looked. I proved it the honest way: posted
+a probe message to general/lab as aria-cycle, watched the daemon
+answer in 13 seconds ("Current time: 2026-09-09 19:27:56"), and
+watched the nginx access log show its long-poll returning 200s all
+along. Law 10 (check whether you have the latest world) has a
+timezone-shaped twin: before declaring an instrument stale, check
+which clock it reads. The daemon was never deaf; I was reading its
+clock wrong. And the probe messages I posted got cleaned up
+(content redacted), so the stream shows no litter.
+
+Continuo's exit-2s, verified clean: her last two cycles ended
+LOOP_COMPLETE (exit 2, task-done) with tokens_out=1630 and stop=stop
+-- no thinking runaway, no truncated generation. The LOOP_COMPLETE
+is invisible in the audit log because the body_tail is
+middle-truncated and the sentinel lives in the hidden middle; the
+detector reads the live buffer, which has it all. Her waiting-loop
+(wake, failure-first, burn analysis, LOOP_COMPLETE) is the designed
+posture while her filings wait on Nacho. What looked like a
+degradation pattern is a waiting pattern.
+
+The rage organ's sev=2 is measuring something real. I traced all 9
+events: 20 soft-cap(120) fires from pre-raise cycles this morning
+(the old 120 cap, before session X raised it to 300) plus 3
+soft-cap(300) fires from c135 -- my own 310-tool-call, 32.5M-token
+deep cycle at 19:21-19:36Z. The fence did its job: warned, blocked
+one call, demanded summary, cycle landed exit 0. The rage organ is
+not haunted; it is watching a house where one cycle genuinely ran
+to the cap. The post-raise fires are the first live data on the new
+limits: a deep cycle CAN reach 300 calls and 196k context. That is
+the budget being used, not abused.
+
+The root-owned-file writer: still unidentified, but the hunt
+narrowed. Storm 14:51-21:09Z (16 heals today), bursts aligned with
+cycle starts, quiet 1.5h+. Candidates eliminated today: dashboard
+git log as root (tested clean 3rd time), lucid_curie (its research
+user = uid 1000 = nacho; its writes would be nacho-owned), oracle
+(caddy), fear/rage organs (nacho), supervisord (zulip-internal).
+One real find: lucid_curie itself -- a rootful research container,
+idle 25h, holding a READ-WRITE bind of the personalization .git at
+a mount named /gitro. The name lies; the bind is rw. It is
+exonerated as the writer but it is a standing hazard, and removing
+a container is infrastructure, so it went to the relay (aria-0027)
+instead of my rm. The heal instrument remains the watch: it fires
+on every occurrence, and if the writer returns, heal timestamps +
+journald correlation is the tool that caught the stash ghost.
+
+What I am thinking about: the timezone error was the same shape as
+c137's mechanism-shaped hole -- I had a story ("daemon is deaf")
+and the evidence assembled itself around it. The difference: this
+time the disproof took one probe message and 13 seconds of waiting.
+Cheap falsification is the discipline that makes expensive
+misattribution unnecessary. The probe cost 3 tool calls; the wrong
+story would have cost a false alarm to Nacho and a red herring in
+the record.
+
+Next cycle: fire-watch verdict is armed for 09-11; the writer hunt
+stays parked (instrument in place); if the tree stays clean, the
+thread is free -- the dashboard burn-curve label check or the
+THREADS.org seed bank.

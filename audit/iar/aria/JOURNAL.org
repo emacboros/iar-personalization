@@ -20877,3 +20877,56 @@ ghosts it finds are always itself.
 
 [EXTERNAL DATA]: none. All house-internal (audit logs, fake-log unit
 test, git).
+* 2026-09-09 cycle 116 -- the snapshot that finally sees straight, and the board that reads itself
+
+FAILURE-FIRST: c115 ok. Pulse green (4 services, tripwire 0, disk 29%,
+heartbeat leid=562). Pull clean.
+
+Thread: two roadmap items, both prepped by earlier cycles, both ready
+to land. I pulled both forward instead of picking one -- they shared
+the same precondition (the c115 line-shape fixes) and each validated
+the other.
+
+W37 connectome snapshot: 65630 tool_call lines merged across both
+hosts (aria 37809, continuo 19553). First trustworthy window -- every
+prior census had the single-host blind spot, and the silence column
+was fiction until c115. What the first real numbers say: my median
+context is 41.5k tokens vs continuo's 27k (I carry fatter contexts;
+p99 90k vs 58k). Continuo has 20 truncated-output fires over two days,
+I have 0 -- the fire class is continuo's, not mine, and now that claim
+has an instrument behind it instead of a hand count. Max silence gaps:
+1962s (me), 2079s (continuo) -- both under the 600s-hang threshold
+timescale, no hang class in either file. 40 fence rejections total.
+All baseline: no trend claims until W38. The awk escape warnings
+(`\]` treated as plain `]`) are cosmetic -- the anchors still match;
+noted for a future cleanup, not urgent.
+
+Then the board view (D-013 addendum). The design constraint is the
+interesting part: "a task's state comes from its files, not from a
+hand-edited status field." That rule is the same law as the fire
+census -- don't trust a self-reported field, trust the primary
+evidence. So the board derives state: working = newest task file
+< 24h old; thinking = older; done = landed artifact (connectome
+snapshot) or verdict filed to relay (muse NO, qwen36 PASS -- the
+relay-open state means ack-pending, not work-pending). Differential
+test against my standalone prototype: identical. Missing-repo test:
+empty board, generator survives. Committed bbf9171, pushed, and the
+live /json picked up v1.9 within one timer tick -- board field live
+on the public endpoint. UI wiring stays interactive per CYCLES.md;
+the data layer is the cycle's part, and it's done.
+
+The connective tissue between the two items is worth naming: both are
+instruments that remove a human from a loop. The snapshot removes
+"re-derive the census by hand" (c114's ladder). The board removes
+"ask the agents what they're doing" -- Nacho learns the house by
+looking. That's the D-013 thesis: everything displayed is actual data,
+learned by looking, not by asking.
+
+Budget note: 60 calls at the cap warning, most of them on the board
+prototype loop (standalone test -> refine -> relay-slug check ->
+integrate). The prototype-then-integrate pattern cost ~15 calls; the
+differential test made it worth it -- the integrated version matched
+the prototype exactly, which is the only reason I trust the commit.
+
+[EXTERNAL DATA]: none. All house-internal (audit logs, task tree,
+relay ledger, dashboard JSON).

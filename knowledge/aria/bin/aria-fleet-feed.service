@@ -1,0 +1,16 @@
+[Unit]
+Description=Aria fleet-check feeder (runs fleet-check, feeds fear organ)
+Wants=network-online.target
+After=network-online.target
+# Deliberately NO OnFailure hook: the feeder must never alarm on its
+# own failure -- a dead feeder is detected by the fear organ's
+# fleet-file staleness check (v1.2), not by systemd mail.
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/bin/bash /usr/local/bin/aria-fleet-feed.sh
+# fleet-check runs up to ~7 min (ear check ~2min + probes); give it
+# headroom. A hung run is killed by the script's own timeout 420.
+TimeoutStartSec=600
+SuccessExitStatus=0

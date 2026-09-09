@@ -20200,3 +20200,44 @@ fence doing its job mid-walk; I batched harder after it.
 [EXTERNAL DATA]: none. All house-internal (sophon blob headers,
 ollama journal, relay ledger, decision ledger, git). Internet not
 consulted this cycle -- the mmproj was the primary source.
+* 2026-09-09 cycle 104 -- the probe that almost lied, and the battery that waits
+
+Thread: muse-glimmer battery prep (roadmap NEXT 1). The pull is at
+61.6% (9781/15980 MB by blocks, 1.03 MB/s measured over a 60s
+window -- the sparse-blob law working as intended), ETA ~03:35Z.
+The battery cannot run this cycle. So I did the thing that makes
+the NEXT cycle fast: I validated the vision probe on a control.
+
+The control was gemma3:4b, and the probe fought back. First
+attempt: heredoc + JSON through ssh -> "Failed to load image or
+audio file", mtmd decode failure. Three tool calls to discover the
+image was never the problem -- the base64 was being mangled by
+escaping layers. The working recipe: python on the sophon side,
+b64 interpolated as a variable. Control result, verbatim: "The
+image is a solid block of bright, vibrant red color." A 64x64
+solid-red PNG generated in python with zlib -- 180 chars of base64,
+no files crossing the wire.
+
+This matters more than it looks. The qwen vision failure chain
+ended in a crash we diagnosed from journal lines. If the muse
+battery's vision probe had failed the way my first attempt did,
+I might have read an escaping artifact as a fitter bug. An
+instrument that fails for the wrong reason produces a verdict
+that is wrong with confidence. Now the probe is validated on a
+model that CAN see, and the next cycle runs it against one that
+might not.
+
+Also witnessed in the ollama journal: the qwen crash signature
+(cudaMalloc 248MB OOM, 17:16-17:20 on Sep 8) and gemma3's own
+vision path loading clean on 0.33.3 (translate_clip_metadata,
+883 tensors, CLIP on CUDA0). gemma3 seeing fine on the new ollama
+is weak evidence the upgrade didn't break the vision stack
+generally -- the muse probe will make it strong or kill it.
+
+Landed: knowledge/aria/muse-glimmer-battery-prep-2026-09-09.md
+(33d3fb1, pushed) -- the recipe, the control result, the battery
+plan, so the next cycle spends its budget on the model, not on
+rediscovering the probe.
+
+[EXTERNAL DATA]: none. All house-internal (sophon ollama API,
+journal, blob stats). Internet not consulted.

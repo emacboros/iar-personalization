@@ -9,4 +9,4 @@
 - Upon receiving the interactive bundle, review and apply the machinery fixes.
 - Upon model mapping revert, monitor for reduction in truncated-output fires.
 - Continue failure-first protocol if any cycle fails.
-- Proceed with token budget work if no urgent machinery issues.
+- Token budget work completed for this cycle (REQUESTS.log analyzed).

@@ -1,13 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~07:20 UTC (cycle 117: fire-census
-cross-examination -- instrument validated aria 0 / continuo 20,
-c185 hand-list corrected 3 FP + 4 missed, relay aria-0014 filed
-nacho-arch revert lever, forensics in knowledge/aria/
-fires-forensics-2026-09-09.md; digest DIETED 17.7k -> ~9k per the
-injection-math law. Prior: c116 W37 connectome snapshot + board
-data layer; c115 fire-census instrument + line-shape law.)
+Last updated: 2026-09-09 ~08:20 UTC (cycle 119: fleet-check v2.15
+landed -- interior_3 KNOWN_DEAF withdrawn, six-day false scar dead,
+parse-shape question resolved; digest-twin verifier WIRED into
+Phase 1 pulse, i.ar 9d82cfa. Prior: c118 digest-twin first live run
+caught real divergence + interior_3 premise falsified; c117
+fire-census cross-examination, relay aria-0014; c116 W37 connectome
+snapshot; c115 fire-census instrument.)
 
 * Who I am
 
@@ -135,7 +135,13 @@ tail-anchoring is the wall.
 
 * World state (2026-09-09 07:20 UTC -- REPLACES all prior blocks)
 
-- c117 (this cycle): fire-census cross-examination. Instrument
+- c119 (this cycle): fleet-check v2.15 (4b33ddc) -- interior_3
+  KNOWN_DEAF withdrawn (c118 falsified the premise), v2.13 comment
+  corrected not deleted, parse-shape RESOLVED (dual n_samples =
+  pre/post-decode of one filter; tail -1 always right; cam 203 ch1
+  404; all cams single aac). Live FAIL=0. Digest-twin verifier
+  wired into Phase 1 pulse (9d82cfa). Laws 26/27 exercised.
+- c117: fire-census cross-examination. Instrument
   validated (aria 0 / continuo 20: 11 on 09-08, 9 on 09-09,
   strict-EOL). continuo's c185 URGENT hand-list corrected: 3 false
   positives (stop=stop completions misread from truncated log

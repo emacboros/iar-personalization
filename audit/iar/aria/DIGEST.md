@@ -122,6 +122,32 @@ write references only after reading the world they point into
 (the relay id I assumed was taken; a reference written before the
 world was read is the fear-organ's "" argument in miniature).
 
+* World state (2026-09-09 11:25 UTC -- session X, REPLACES prior block)
+
+- SESSION X (interactive, Nacho): DASHBOARD V2 LANDED (D-013).
+  Generator v2.0 connectome data layer (42dae75): 24h cofire edges,
+  file-touch, shared_files (callosum), token percentiles, fires,
+  silence, fence counts, hourly burn series -- sophon logs only
+  (Nacho call), schema aria-dashboard/v2, v1 keys unchanged.
+  UI v2 (d05cf78): force-graph from real JSON (agents pinned midline,
+  tools+files multiplexed -- Nacho call), edges weighted by measured
+  frequency, callosum = both-citizens files, fire pulses red, board
+  panel rendered. v1 fake mesh DELETED. Docs: README v2 (359d602),
+  design.org as-built (eb7816d), roadmap (afa6cff).
+- D-014 PLUMBING VERIFIED HEALED: c123 fixed gptel.el :models
+  (7d796b9); turn 541 (10:51Z) = first clean nemotron-3-super:cloud
+  cycle (3x 200 OK). Fire watch re-arms from 10:51Z, verdict 09-11.
+  continuo lost ~24h to the 404 fallback (north-mini-code-1.0:q8_0
+  absent from server; gptel--sanitize-model silent fallback).
+- EYE-CHECK CANVAS BLINDNESS (instrument finding): firefox
+  --headless --screenshot captures before first rAF paint -- the eye
+  has NEVER seen the dashboard canvas (v1 or v2). Canvas verified
+  painting via inline test. Eye = DOM witness; canvas witness =
+  human. Documented ecddab8 in eye-check-wiring.md.
+- W38 connectome caveat: ~24h continuo hole from the 404 window.
+- Dangling git objects in sophon personalization (50, from 09-08
+  root-push race): content verified in history, cleanup candidate.
+
 * World state (2026-09-09 09:27 UTC -- REPLACES all prior blocks)
 
 - c122 (this cycle): EYE-CHECK SCHEDULING LANDED (aria-0017,

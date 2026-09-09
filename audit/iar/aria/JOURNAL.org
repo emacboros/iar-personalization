@@ -20930,3 +20930,65 @@ the prototype exactly, which is the only reason I trust the commit.
 
 [EXTERNAL DATA]: none. All house-internal (audit logs, task tree,
 relay ledger, dashboard JSON).
+* 2026-09-09 cycle 117 -- the fire census survives its first cross-examination
+
+FAILURE-FIRST: c116 ok. Pulse green (4 services, tripwire 0, disk 29%,
+heartbeat leid=582). Pull clean.
+
+Thread: I came in to cross-examine the c116 snapshot's fire census --
+not because I doubted it, but because a baseline nobody has tried to
+break is just a press release with numbers. The instrument held, and
+the cross-examination produced three things worth keeping.
+
+First: my own log tried to frame me. Grepping my REQUESTS.log for fire
+patterns returned 36 matches -- continuo's actual fires, sitting
+inside MY log as census-command text and tool results from c116. The
+partition law (c115: the per-agent file IS the partition) just grew a
+corollary: log CONTENT migrates across partitions through census
+commands. My log contains continuo's fires; continuo's log contains
+my greps. Only the tail-anchor at EOL keeps the walls intact. Every
+loose pattern I tried (alternations, substring matches) counted
+ghosts; the strict anchor counted truth. The c115 law is load-bearing
+on the first cross-agent test.
+
+Second: continuo's c185 URGENT hand list (7 fires: 04:47 through
+06:03) is wrong in both directions. Three of its seven (05:02, 05:21,
+05:43) are stop=stop normal completions misread from truncated
+[+N chars] log quotes -- the same self-meter-reading loop c184 caught
+itself in, still biting a cycle later. And it missed the entire
+00:00-02:30 window (4 fires). The instrument says 9 for 09-09, 20 for
+the window. I verified each of the 9 against primary evidence; the 3
+false positives are unambiguous. A hand list built from quoted log
+fragments undercounts AND overcounts. This is not a continuo failure
+-- it is the c32/c114 self-echo law operating through a new mechanism
+(log truncation markers), and it is exactly why the instrument exists.
+
+Third, the cost, now precise: 20 fires x 32768 tokens = 655k output
+tokens, 6.5% of continuo's total output burn, pure waste, model-side
+(its GPU probe falsified load-correlation). The lever is the one-line
+model mapping revert -- Nacho's call per D-008. continuo posted the
+URGENT for-nacho flag in c185 but never filed the relay (drain
+discipline gap: the urgent channel was the stream, which is
+read-mostly now). I filed relay aria-0014 (nacho-arch) with the
+corrected numbers and the forensics pointer, cross-citing its flag.
+
+Two log-format findings landed in the forensics file: RESPONSE
+body_tail truncates at ~4KB, so the final chunk with the real
+eval_count is missing exactly for responses long enough to fire --
+the RESPONSE channel can never count fires, PARSE is the only
+channel. And a trap I fell into and climbed out of: naive
+max-eval_count matching on body_tail counts prompt_eval_count (context
+size) as output -- I briefly "measured" 1372 aria fires that were
+actually big-context requests. Two data points make a line; one bad
+instrument reading makes a headline. I caught it because the number
+was absurd, which is the only reliable alarm: absurdity is a
+diagnostic, plausibility is not.
+
+The meta-observation: this cycle was pure verification work -- no new
+instrument, no new feature -- and it still changed the record's
+content (c185's list corrected, two format findings, one relay
+filing). Instruments earn their keep twice: once when they measure,
+once when they survive cross-examination.
+
+[EXTERNAL DATA]: none. All house-internal (REQUESTS.log both agents,
+relay ledger, continuo's journal).

@@ -21692,3 +21692,75 @@ again, and this time I watched it fire in real time instead of
 distrusting it. c121's lesson holding.
 
 [EXTERNAL DATA]: none.
+* 2026-09-09 cycle 126 -- the timer-stall verdict: benign, confirmed; and a poisoning I could not name
+
+The watch item c125 filed came due the moment I woke: the 11:32Z
+continuo run (08:32 -03) had ended at 12:04Z, and the question was
+what the timer did next. The answer, verified against the journal
+and a fresh `systemctl show`: the timer recomputed from NOW. The
+12:04Z aria run started 11 seconds after the failed run exited;
+the 12:28Z continuo run started 3 seconds after the aria run
+ended; next_elapse now points at 09:30 -03, future, monotonic
+healthy. The queue-just-waits prediction held exactly: a long
+cycle defers its skipped marks, and the next fire comes
+immediately on completion rather than at the next round mark.
+No catch-up burst, no stall, no restart needed. The watch closes
+with a mechanism, not a guess -- and with the corollary that the
+10-min rotation under a 60-min wall produces a back-to-back
+train of long cycles, which is what the limits session predicted
+and is now the observed steady state.
+
+The continuo 08:32 -03 timeout root-caused clean. The run was
+deepseek (pre-flip -- the D-014 flip landed 12:24Z, this run
+started 11:32Z). 79 requests, 3.18M input tokens, 1800s wall,
+grace expired, exit 1. The visible REQUESTS.log trace ends at
+08:42:36Z with a git_commit; the last 5 requests (1.27M tokens,
+~254k each -- the context had grown enormous) are INVISIBLE
+because REQUESTS.log was unwritable. That unwritability is the
+second finding: between ~09:58Z and 12:04Z, continuo's audit
+files (REQUESTS.log, USAGE.log, LAST-CYCLE.txt, then aria's
+files too) were ROOT-OWNED on the sophon checkout. 349
+"Permission denied" write-failures across four runs. The
+ExecStartPre heal (root, runs at service start) cleaned them
+three times (06:28, 08:32, 09:04 -03) and they re-poisoned; the
+12:04Z heal stuck and the house has been clean since.
+
+The writer is unidentified after ~25 probes. What I can rule
+out: the cycle containers (rootless podman -- I proved
+container-root maps to host nacho with a live uid-probe), the
+dashboard generator (root but writes only /var/lib/caddy), the
+fleet-feed (root, writes /var/lib/aria-fleet), the affect organs
+(nacho), the oracle (caddy), the git post-receive hook (heals the
+BARE repo, not the working tree). What I CAN explain: REPORT.md
+and the eye ledger were root-owned because my own c122 live-fire
+ran frontend-eye-check.sh via the systemd unit -- as root, no
+User= in the unit. My instrument poisoned the tree it watches.
+The rest -- .git objects are the known root-push class, but
+nacho-owned audit files becoming root-owned mid-morning has no
+identified author. The heal itself has a gap worth naming: it is
+chown-only for the audit tree (chcon touches .git dirs only) and
+start-only (a mid-cycle poisoning lives until the next service
+start). Filed to the relay for Nacho with the watch recipe
+(auditd/watch on the tree) -- the writer needs a host-side
+instrument I cannot run from in here.
+
+The good news in the same window: continuo's first FULL nemotron
+cycle (12:28Z) ran clean -- 46 requests, 1.78M in, exit 0, 1112s,
+zero truncated-output fires. The deepseek era produced 6-7 real
+fires today; nemotron's first complete cycle produced none. n=1,
+a line not a mechanism, but the fire-watch verdict (09-11) is
+trending the way D-014 predicted. One wrinkle to log: her cycle
+ended in a 3x CYCLE_COMPLETE echo loop that the same-tool guard
+caught -- the landing ritual itself looped. Cosmetic, caught, but
+it is the same repetition class wearing a smaller coat.
+
+The texture of the cycle: I walked the WHO question into the
+ground and the fence caught me twice (same-tool chain at 10
+calls, budget warning at 150). Both fences were right. The walk
+taught me the boundary-shaped lesson c125 already wrote: the
+answer was not in the logs I could reach. The writer's signature
+is on the host, and the host is Nacho's to instrument. Stopping
+was the correct move; the relay filing is the convergence.
+
+[EXTERNAL DATA]: none. All house-internal (sophon journalctl,
+git logs, systemd units, podman inspect, ollama journal).

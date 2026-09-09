@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.7 (2026-09-09, aria cycle 130: rate-normalized healing gate + fix-awareness via fix-log, aria-0024; v1.6.1 cycle 102: ran-as context; v1.6 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
+# rage-organ.sh v1.8 (2026-09-09, aria cycle 131: DOM_CLASS named in every sev>=1 phrase -- the cycle-131 misattribution finding; v1.7 cycle 130: rate-normalized healing gate + fix-awareness via fix-log, aria-0024; v1.6.1 cycle 102: ran-as context; v1.6 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
 # "what keeps recurring that must be killed at the ROOT?"
@@ -429,25 +429,32 @@ fi
 TREND_DATA="trend ${DDAY}=${N_DDAY} -> ${YDAY}=${N_YDAY}, today so far=${N_TODAY} (rate ${TODAY_RATE}/day-eq, kills today=${KILLS_TODAY})"
 
 # --- grade (v1.6: kill-grounded RAGE, degradation-capped, trend-aware) ---
+# v1.8 (cycle 131): DOM_CLASS is named in every sev>=1 phrase. The
+# unnamed phrase ("one class recurring in up to N cycle-runs") let
+# continuo misattribute the valence to the context breaker (which had
+# fired ZERO times) and spend 2.4M input tokens investigating a cured
+# problem. An unnamed valence is a rumor; a named one is a signal.
+DOM_NAME="${DOM_CLASS:-unknown-class}"
+
 if   [ "$days_with_class_max" -ge 2 ] && [ "$KILL_DAYS" -ge 2 ] && [ "$JOK" -eq 1 ] && [ "$HEALING" -eq 0 ]; then
   sev=3
-  phrase="RAGE: the same fence class has recurred on ${days_with_class_max} separate days (kills on ${KILL_DAYS}) in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root. [${TREND_DATA}]"
+  phrase="RAGE: class '$DOM_NAME' has recurred on ${days_with_class_max} separate days (kills on ${KILL_DAYS}) in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root. [${TREND_DATA}]"
 elif [ "$HEALING" -eq 1 ] && [ "$JOK" -eq 1 ]; then
   # v1.6: healing shape -- decline across full days, today clean.
   # The recurrence is real but healing; rage's standing-condition
   # claim does not hold. Cap at anger with the trend visible.
   sev=2
-  phrase="anger (healing): fence class recurred on ${days_with_class_max} days but is declining -- [${TREND_DATA}]"
+  phrase="anger (healing): class '$DOM_NAME' recurred on ${days_with_class_max} days but is declining -- [${TREND_DATA}]"
 elif [ "$days_with_class_max" -ge 2 ] && [ "$JOK" -eq 0 ]; then
   # Degraded window: recurrence claim cannot be certified. Cap at anger.
   sev=2
-  phrase="anger (degraded window, journald unreachable): ${total_events} fence events in ${RAGE_DAYS}d, one class on ${days_with_class_max} file-days -- recurrence NOT certified, fix the organ's input first"
+  phrase="anger (degraded window, journald unreachable): ${total_events} fence events in ${RAGE_DAYS}d, dominant class '$DOM_NAME' on ${days_with_class_max} file-days -- recurrence NOT certified, fix the organ's input first"
 elif [ "$per_class_max" -ge 3 ] || [ "$total_events" -ge 3 ]; then
   sev=2
-  phrase="anger: ${total_events} fence events in ${RAGE_DAYS}d, one class recurring in up to ${per_class_max} cycle-runs -- something keeps recurring [${TREND_DATA}]"
+  phrase="anger: ${total_events} fence events in ${RAGE_DAYS}d, dominant class '$DOM_NAME' recurring in up to ${per_class_max} cycle-runs -- something keeps recurring [${TREND_DATA}]"
 elif [ "$total_events" -ge 1 ]; then
   sev=1
-  phrase="a note of irritation: ${total_events} fence event(s) in ${RAGE_DAYS}d -- fences doing their job, watched"
+  phrase="a note of irritation: ${total_events} fence event(s) in ${RAGE_DAYS}d, class '$DOM_NAME' -- fences doing their job, watched"
 else
   sev=0
   phrase="quiet -- no fence has fired in ${RAGE_DAYS}d; nothing to confront"
@@ -487,4 +494,4 @@ else
   echo "rage: sev=$sev ($DELTA) -- $phrase" >> "$CURRENT" 2>/dev/null
 fi
 
-echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max kills_days=$KILL_DAYS jok=$JOK trend=$TREND healing=$HEALING"
+echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max kills_days=$KILL_DAYS jok=$JOK trend=$TREND healing=$HEALING dom_class=$DOM_NAME"

@@ -35,8 +35,9 @@
 #   done = task dir removed <7d (house convention), replacing the
 #   hand-maintained relay_map (which misfired: qwen36 slug matched the
 #   eye-swap request, not the benchmark task). NEW open_questions():
-#   relay/open/ queue (id/class/urgent/title/age, oldest first) for the
 #   UI open-questions tab. Schema unchanged (v2, additive); version v2.1.
+#   Security-class titles redacted on the public endpoint (nacho-security
+#   -> '[security item -- details in relay]'; fail-closed on unparseable).
 # v1.9 (2026-09-09, aria c116): board() -- task-tree digest (D-013 addendum),
 #   thinking/working/done from tasks/iar/ mtimes + relay verdicts. Real data only.
 # v1.8 (2026-09-07, aria c21): affect() parses rage too (additive; rage organ live since c20).
@@ -469,6 +470,13 @@ def open_questions():
         m = re.match(r"\d{8}-([a-z]+)-(\d+)", f)
         if m:
             entry["id"] = "%s-%s" % (m.group(1), m.group(2))
+        # security-class items: title redacted on the public endpoint
+        # (Nacho-ratified default, 09-10 session: a title like 0023's
+        # "unrestricted root key" must not sit on an unauthenticated
+        # URL). id/class/age still ship. Fail-closed: unparseable
+        # class also redacts. One-line revert if Nacho wants raw.
+        if entry["class"] is None or entry["class"] == "nacho-security":
+            entry["title"] = "[security item -- details in relay]"
         out.append(entry)
     out.sort(key=lambda x: x["age_h"] if x["age_h"] is not None else 1e18,
              reverse=True)

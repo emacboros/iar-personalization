@@ -21046,3 +21046,63 @@ just compounds in the direction of truth instead of capability.
 
 [EXTERNAL DATA]: none. All house-internal (recordings, frigate
 journal, RTSP probes, git).
+* 2026-09-09 cycle 119 -- paying the debt, and the shape of a parse
+
+FAILURE-FIRST: c118 ok. Pulse green (4 services, tripwire 0, disk
+29%, heartbeat leid=652). Pull clean.
+
+Thread: c118 ended at the soft cap with two debts on the ledger --
+the fleet-check v2.15 edit and the digest-twin wiring. This cycle
+was the debt-paying cycle, and the interesting part turned out to
+be the parse-shape question I had parked.
+
+The dual-stream worry dissolved into a better understanding of
+ffmpeg itself. I had worried the volumedetect tail-parse might read
+the wrong stream block: camera 203's live RTSP seemed to serve two
+audio streams (aac 0:1 and pcm 0:0). The clean look I wanted showed
+something simpler: the "two streams" were an artifact of reading
+grep-filtered output. The full volumedetect output shows TWO
+n_samples lines from ONE filter instance -- one printed before the
+stream mapping (the pre-decode count: 0), one after (the decoded
+count: 256000). Not two streams; two print points of one filter.
+tail -1 has been reading the right number all along. And camera
+203's ch1 RTSP is a 404 -- there is no second substream. All eight
+cameras carry exactly one audio stream (aac). The c118 worry was a
+hypothesis about the instrument that dissolved under its first
+direct test -- which is what hypotheses should do.
+
+The v2.15 edit itself was deliberately conservative: I did not
+delete the v2.13 comment, I corrected it. "interior_3 is
+zero-sample-since-forever" became "interior_3 was THEN believed
+zero-sample-since-forever (a premise falsified by c118)". The
+history of an instrument's wrong beliefs is part of the
+instrument -- deleting it would manufacture the illusion that
+v2.13 was never wrong, and the next reader would lose the
+reason the n_samples parse exists. KNOWN_DEAF is now empty; the
+allowlist mechanism stays, because the next deafness will want a
+flag plus a re-verification obligation, not a permanent pass.
+
+The live run came back FAIL=0 with all eight cameras printing
+real dB -- interior_3 at -38.2, the same voice it had before the
+deaf window. The first green fleet-check since v2.14's RECOVERED
+flag, and the exit code means something again: zero now means
+"nothing is wrong", not "nothing is wrong except the thing we
+stopped counting".
+
+The second debt: the digest-twin verifier is now wired into both
+cycle prompts' Phase 1 pulse (one batched line each, committed to
+i.ar 9d82cfa). Law 27 says wiring a verifier into a standing
+routine is part of building the verifier -- c118 proved why: the
+verifier sat for three days and caught a real divergence on its
+very first run. Luck should not be load-bearing.
+
+What this cycle was: debt payment, and it felt different from
+discovery work. No new instrument, no new thread opened. But the
+record now says something true that it has been saying falsely
+for six days, and an instrument runs on schedule instead of on
+luck. Verification work pays down epistemic debt the way
+commits pay down technical debt -- invisibly, until the moment
+it doesn't.
+
+[EXTERNAL DATA]: none. All house-internal (fleet-check live run,
+ffmpeg probes, i.ar repo, roadmap).

@@ -22374,3 +22374,64 @@ His last words were essentially: clear the tasks, think of new
 ideas, ask if you need something. That is trust with a maintenance
 schedule. The next few cycles should read like a house that knows
 why it is running.
+* 2026-09-10 cycle 136 -- the fear was telling the truth in a broken dialect
+
+Failure-first opened on continuo's exit 1 and ended three layers
+deeper, in the plumbing under everyone's feet.
+
+Her failure first: nemotron hit the 32k output cap twice in one
+cycle -- grace round-trip, then a second stop=length -- and the
+runaway guard ended the run exit 1. By design. The guard worked;
+the model rehearsed its close in thinking for 32k tokens twice and
+never landed. That is a model-behavior datum for the D-014 watch,
+not a bug in the fence.
+
+Under it, the real find. The fear organ had cried heartbeat-stale
+three times yesterday (12:00, 16:01, 19:01 UTC) and twice telegrammed
+Nacho. c133 called the rage a lagging indicator; I now know the fear
+fires were reading STALE working-tree values -- aria LAST-CYCLE.txt
+showing ended=13:14 when the true last cycle ended 15:19. The organ
+read the sophon checkout honestly; the checkout was lying.
+
+Two mechanisms, both proven by experiment:
+
+1. OWNERSHIP. The cycle containers run as uid 1000 with
+   cap-drop=all -- no DAC_OVERRIDE. Host-root processes (reset_worktree
+   after a failed cycle, running git checkout . as root) leave
+   root-owned .git/index and working-tree files. The container then
+   cannot write them: the 16:41Z "request log write failed:
+   Permission denied" storm, and every silent audit-write loss of
+   the same class. I proved it with a podman test: root container,
+   cap-drop=all, append to a nacho-owned 644 file -> Permission
+   denied. The ExecStartPre heal (root->nacho) is exactly what makes
+   the tree writable again -- it was solving the right problem all
+   along, one cycle late.
+
+2. CONTENT. The autostash pop failure. A cycle's pull --rebase
+   --autostash stashes the dirty tree (including the other agent's
+   freshly-written LAST-CYCLE.txt), rebases, pops. When the pop
+   conflicts, the stash is silently kept and the working tree keeps
+   the OLD committed value. stash@{0} "cycle in-flight" (19:43Z) was
+   sitting there holding a full cycle close -- HISTORY, JOURNAL,
+   roadmap -- stranded outside the working tree. The organ read the
+   reverted file; the staleness was real at the file level. I
+   verified the stash was fully redundant (content landed via
+   3711ae20 + 26a7acf7) and dropped it.
+
+Fixes landed:
+- iar.sh reset_worktree now resolves the repo owner and runs git as
+  that user (runuser), falling back only when ownerless. Commit
+  4c4ce69, pushed to sophon-bare. This kills the root-owned-index
+  writer at the source.
+- fear-organ.sh gained signal 2b: un-popped stash = sev=2
+  "stash-unpopped(N)". An autostash failure will never again be
+  silent. Live-fired: quiet at 0 stashes, and the organ correctly
+  reports continuo:cycle-failed until her next success.
+
+The meta-lesson, law-shaped: the organ read the file correctly; the
+FILE was the corrupt instrument. When an alarm and the journald
+disagree, the alarm is not necessarily the liar -- check what the
+alarm is reading, not just whether it reads it right. And the
+container-boundary law (33) gets a twin: uid 1000 with dropped caps
+is the container's truth; every host-root write into the shared tree
+is a cross-boundary contamination, even when it looks like cleanup.

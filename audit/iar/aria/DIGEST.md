@@ -1,13 +1,15 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~08:20 UTC (cycle 119: fleet-check v2.15
-landed -- interior_3 KNOWN_DEAF withdrawn, six-day false scar dead,
-parse-shape question resolved; digest-twin verifier WIRED into
-Phase 1 pulse, i.ar 9d82cfa. Prior: c118 digest-twin first live run
-caught real divergence + interior_3 premise falsified; c117
-fire-census cross-examination, relay aria-0014; c116 W37 connectome
-snapshot; c115 fire-census instrument.)
+Last updated: 2026-09-09 ~09:00 UTC (cycle 121: FEAR-FLEET WIRING
+landed -- aria-fleet-feed 6h timer feeds fear-organ v1.2 the
+composite signal it was missing since install, live-fired both
+paths, relay aria-0015; aria exit-126 ROOT-CAUSED (podman SELinux
+label race, one occurrence, self-healing). Prior: c120 instrument
+scheduling audit (3 finds: eye-check unscheduled, fleet-check
+unwired, fear half-blind); c119 fleet-check v2.15 + digest-twin
+wired; c118 interior_3 premise falsified; c117 fire-census
+cross-exam; c116 W37 connectome baseline.)
 
 * Who I am
 
@@ -135,12 +137,19 @@ tail-anchoring is the wall.
 
 * World state (2026-09-09 07:20 UTC -- REPLACES all prior blocks)
 
-- c119 (this cycle): fleet-check v2.15 (4b33ddc) -- interior_3
-  KNOWN_DEAF withdrawn (c118 falsified the premise), v2.13 comment
-  corrected not deleted, parse-shape RESOLVED (dual n_samples =
-  pre/post-decode of one filter; tail -1 always right; cam 203 ch1
-  404; all cams single aac). Live FAIL=0. Digest-twin verifier
-  wired into Phase 1 pulse (9d82cfa). Laws 26/27 exercised.
+- c121 (this cycle): FEAR-FLEET WIRING landed (e7d5692+0c23b0f,
+  as-built knowledge/aria/fear-fleet-wiring.md): aria-fleet-feed
+  6h timer runs fleet-check FROM GIT -> atomic
+  /var/lib/aria-fleet/fleet-latest; fear-organ v1.2 reads it +
+  staleness branch (>26h = sev=1). Live-fired: FAIL=0 -> sev=0,
+  synthetic FAIL=1 -> sev=2 up, restore -> sev=0 down. Timer
+  enabled 05:55 -03. Relay aria-0015 filed (D-011 reversible,
+  undo inside). ARIA EXIT-126 ROOT-CAUSED: podman lsetxattr
+  SELinux label race on .git/index (18:00:15Z 09-08, right after
+  ExecStartPre chcon) -- ONE occurrence, self-healing, no fix.
+  The fear organ was RIGHT; my distrust was the error. Law 30:
+  live-fire an instrument's green AND failure path before its
+  first scheduled fire.
 - c117: fire-census cross-examination. Instrument
   validated (aria 0 / continuo 20: 11 on 09-08, 9 on 09-09,
   strict-EOL). continuo's c185 URGENT hand-list corrected: 3 false
@@ -169,7 +178,8 @@ tail-anchoring is the wall.
   v0.9.9.6; PR candidates pending Nacho on aria-0013.
 - CYCLES LIVE 10-min rotation. Relay open queue: aria-0011 (muse
   NO), aria-0012 (qwen36 PASS), aria-0013 (gptel PRs), aria-0014
-  (fires revert lever). All await Nacho ack.
+  (fires revert lever), aria-0015 (fear-fleet wiring). All await
+  Nacho ack.
 - STILL QUEUED (infra comfort): commit-as-nacho durable, linger,
   sidecar sshd, restic 4-part, GPU-detect VRAM check, digest-twin
   verifier. Subordinate to AGORA v2 build order.
@@ -205,9 +215,10 @@ tail-anchoring is the wall.
 - Cycle runs via aria-cycle.service on sophon (oneshot,
   glm-5.3-flash:cloud, --timeout 1800), 10-min timer ROTATING
   with continuo. Heal in ExecStartPre.
-- fleet-check.sh v2.10: standing patrol. Script at
-  knowledge/aria/bin/fleet-check.sh (NOT audit/). Run ON sophon,
-  ssh 'bash -s' <, timeout >=300s.
+- fleet-check.sh v2.15: standing patrol, NOW SCHEDULED via
+  aria-fleet-feed.timer (6h, sophon) -> /var/lib/aria-fleet/
+  fleet-latest -> fear-organ $1. Manual run: ssh 'bash -s' <,
+  timeout >=300s. Script at knowledge/aria/bin/fleet-check.sh.
 - CLEANUP GRAVEYARD: knowledge/iar/cleanup-graveyard-2026-09-07.md
   (28 entries; consult before re-proposing any dropped idea).
 

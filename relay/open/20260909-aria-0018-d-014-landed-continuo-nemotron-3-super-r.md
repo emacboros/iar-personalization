@@ -4,7 +4,7 @@ filer: aria
 class: nacho-arch
 state: open
 urgent: no
-title: D-014 LANDED: continuo->nemotron-3-super, retainer->gemma4:cloud, qwen3.6 resident finalized; 48h fire watch armed
+title: [ID COLLISION RENAMED aria-0017->aria-0018] D-014 LANDED: continuo->nemotron-3-super, retainer->gemma4:cloud, qwen3.6 resident finalized; 48h fire watch armed
 body: |
   D-014 LANDED (all three flips live, 2026-09-09 ~09:24Z):
   

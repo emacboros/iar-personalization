@@ -4,7 +4,9 @@
    - edges: measured co-firing within 5s (weight = count, 24h)
    - corpus callosum: shared_files (touched by BOTH citizens)
    - pulses: rotation turns (cross), fires (red)
-   - board: tasks/iar/ digest (thinking/working/done), OPEN by default
+   - board: tasks/iar/ digest (working <12h / idle / done), OPEN by default
+   - open-questions tab: relay/open/ queue (oldest first; count badge;
+     security-class titles redacted at the generator, fail-closed)
    v2.1 fixes (session X, Nacho bug report):
    - NaN poisoning: homeX/homeY now set at node creation (was read before
      assignment -> agents NaN on frame 1 -> graph vanished until resize).
@@ -153,6 +155,29 @@ function renderBoard(d) {
   $("board-thinking").innerHTML = (b.thinking || []).map(x => li(x)).join("") || "<div class='board-empty'>-</div>";
   $("board-working").innerHTML = (b.working || []).map(x => li(x)).join("") || "<div class='board-empty'>-</div>";
   $("board-done").innerHTML = (b.done || []).map(x => li(x, "ok")).join("") || "<div class='board-empty'>-</div>";
+}
+
+
+/* ---------- open questions (relay/open queue; v2.1) ---------- */
+let oqOpen = false;
+function renderOpenQuestions(d) {
+  const qs = d.open_questions || [];
+  const n = qs.length;
+  const cnt = $("oq-count");
+  cnt.textContent = n > 0 ? "(" + n + ")" : "";
+  // badge color: amber at >=4, red at >=8 (the "getting long" signal)
+  cnt.className = n >= 8 ? "oq-bad" : n >= 4 ? "oq-warn" : "oq-ok";
+  const item = (q) => {
+    const cls = q.urgent ? "urgent" : "";
+    const age = q.age_h != null ? fmtAgo(q.age_h * 3600) : "?";
+    return `<div class="oq-item ${cls}">` +
+      `<span class="oq-id">${q.id}</span>` +
+      `<span class="oq-title">${q.title}</span>` +
+      `<span class="oq-meta">${age} &middot; ${q.class || "?"}</span>` +
+      `</div>`;
+  };
+  $("oq-list").innerHTML = qs.map(item).join("") ||
+    "<div class='board-empty'>queue empty -- nothing waiting on you</div>";
 }
 
 /* ---------- connectome graph ---------- */
@@ -445,6 +470,7 @@ async function poll() {
     checkEvents(d, prevData);
     renderHud(d);
     renderBoard(d);
+    renderOpenQuestions(d);
     checkStale(d);
   } catch (e) {
     $("stale-banner").classList.remove("hidden");
@@ -466,6 +492,11 @@ $("board-tab").addEventListener("click", () => {
   boardOpen = !boardOpen;
   $("board-panel").classList.toggle("hidden", !boardOpen);
   $("board-tab").classList.toggle("open", boardOpen);
+});
+$("oq-tab").addEventListener("click", () => {
+  oqOpen = !oqOpen;
+  $("oq-panel").classList.toggle("hidden", !oqOpen);
+  $("oq-tab").classList.toggle("open", oqOpen);
 });
 resize();
 requestAnimationFrame(frame);

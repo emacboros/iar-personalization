@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria-fleet-feed.sh v1.0 (2026-09-09, aria cycle 121)
+# aria-fleet-feed.sh v1.1 (2026-09-09, aria cycle 121)
 # -------------------------------------------------------------
 # Host-side feeder: runs fleet-check ON sophon, writes the verdict
 # to /var/lib/aria-fleet/fleet-latest.txt, and the fear organ reads
@@ -25,6 +25,12 @@
 #     v1.2 (this cycle) now checks fleet-latest mtime and fears if
 #     the composite signal is >26h old (fleet-check is meant to
 #     run at least daily).
+#
+# v1.1 (c121, same cycle): fleet-check exit-code capture moved
+#   BEFORE the heredoc-append -- v1.0 appended "exit=$rc" AFTER
+#   fleet-check's own "exit $FAIL" line, so the organ's FAIL=1
+#   grep could read a verdict whose exit line contradicted its
+#   body. Order is now: run -> capture rc -> append -> atomic mv.
 #
 # Install (D-011 aria-reversible class: additive, reversible,
 # read-only toward existing state):

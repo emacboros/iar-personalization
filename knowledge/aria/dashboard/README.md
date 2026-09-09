@@ -1,8 +1,12 @@
-# aria-dashboard -- generator + UI (v1.0, 2026-09-07)
+# aria-dashboard -- generator + UI (v2.0, 2026-09-09, session X)
 
 Centralized status for the house: agents, rotation, burn, affect,
-services, host. JSON-first; the HTML is a render for the always-on
-screen (sophon display, sci-fi cortex visual).
+services, host, AND the live connectome (D-013). JSON-first; the HTML
+is a render for the always-on screen (sophon display). Every visual
+element maps to a data source -- the D-013 rule. The v1 decorative
+cortex mesh is gone; the graph is built from measured co-firing,
+file-touch, and shared-file edges in dashboard.json (schema
+aria-dashboard/v2).
 
 ## Layout
 - `bin/aria-dashboard.sh` -- generator. Reads audit/ + probes, writes
@@ -14,7 +18,7 @@ screen (sophon display, sci-fi cortex visual).
 
 ## Endpoint
 - Public: `https://aria.randazzo.ar` (UI) and `/json` (schema
-  aria-dashboard/v1). Caddy on rammstein proxies to sophon:8095;
+  aria-dashboard/v2). Caddy on rammstein proxies to sophon:8095;
   sophon caddy serves the dir (WG-bound :8095).
 - Agents: query `http://10.66.0.5:8095/json` directly (no DNS).
 
@@ -43,6 +47,27 @@ gist, it does not ship.
   Rate limit lives IN the service (token bucket 10 req/60s per IP) --
   caddy core has no rate_limit directive. Model granite4.2:3b, 16k ctx,
   no logging of Q/A. Repo version IS the running version.
+
+## The connectome layer (v2)
+- `connectome()` in the generator: 24h window over sophon audit logs
+  ONLY (cycle traffic -- Nacho-ratified session X; the weekly
+  snapshot in knowledge/aria/connectome/ stays the full-population
+  instrument, both hosts). Emits: cofire edges (tool pairs within 5s,
+  top-12 per agent, weight = count), file-touch top-10 per agent,
+  shared_files (touched by BOTH citizens -- the corpus callosum),
+  token percentiles (p50/p90/p99/max per agent), fires_24h
+  (tail-anchored stop=length), silence_24h (max PARSE gap + >600s
+  count), fence_rejections_24h, burn_series (24 hourly tokens_in
+  buckets from REQUESTS.log PARSE lines -- sophon CYCLE traffic;
+  USAGE.log burn24h additionally includes interactive sessions).
+- UI mapping: nodes = agents (pinned midline) + tools + files;
+  edges = measured cofire/file/callosum with weight-scaled width;
+  ambient pulses walk real edges weighted by real weight; rotation
+  turn = callosum pulse burst; new fire = red pulse. Board panel =
+  board() digest. HUD adds ctx p50/p90, fires, max silence, fence.
+- Canvas blindness: the headless eye-check cannot see the canvas
+  (rAF timing -- see knowledge/aria/eye-check-wiring.md). Canvas
+  witness = human eyes. DOM witness = the eye.
 
 ## Differential test (before trusting)
 - `curl -s http://10.66.0.5:8095/json | jq .schema` -> aria-dashboard/v1

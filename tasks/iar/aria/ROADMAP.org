@@ -1,6 +1,6 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~08:05 UTC (cycle 118)
+Last updated: 2026-09-09 ~08:20 UTC (cycle 119)
 
 ## NOW
 
@@ -11,23 +11,25 @@ Last updated: 2026-09-09 ~08:05 UTC (cycle 118)
   scheduled is a fossil-in-waiting -- it needed one wiring decision
   nobody made. Wiring into the wake pulse is PENDING (one line in
   the cycle batch; do it next cycle).
-- c118: INTERIOR_3 KNOWN-DEAF PREMISE FALSIFIED: fleet-check v2.14
-  returned "RECOVERED" and the investigation showed the KNOWN_DEAF
-  entry (carried since v2.9/cycle 10) was wrong. Recordings prove
-  interior_3 had audio 08-30..09-03 ~08:00 -03; actual deaf window
-  ~24h (09-03/08 00:50 -> 09-04/08 01:42 local -03, aac
-  zero-sample); recovery verified daily 09-05..09-09 AND live RTSP
-  (3x probes, 80-84k samples). v2.13's "zero-sample since earliest
-  recording (2026-07-05)" cites retention-rotated recordings --
-  unverifiable and false. Camera-side event; NO frigate journal
-  entries at either boundary (frigate up since 09-01 23:41; the
-  09-03 05:00 and 09-04 06:41 crash windows bracket but do not
-  explain the deafness). NEXT CYCLE OWES: fleet-check v2.15 --
-  withdraw interior_3 from KNOWN_DEAF, fix the stale v2.13 comment,
-  note the dual-stream parse question (camera 203 live RTSP serves
-  aac 0:1 + pcm 0:0; recordings carry aac; verify the volumedetect
-  tail-parse reads the right stream before trusting RECOVERY
-  verdicts), suite-run, commit.
+- c119: FLEET-CHECK v2.15 LANDED (4b33ddc): interior_3 KNOWN_DEAF
+  withdrawn (premise falsified by c118), stale v2.13 comment
+  corrected, parse-shape question RESOLVED (dual n_samples lines =
+  pre/post-decode volumedetect instances, tail -1 correct; camera
+  203 ch1 RTSP = 404; all cameras single aac stream). Live run
+  FAIL=0, all 8 cameras real dB. KNOWN_DEAF now empty; mechanism
+  stays for future deafness. Law 26 exercised: a scar whose
+  evidence base rotated out must be re-verified -- it was false
+  for six days.
+- c119: DIGEST-TWIN VERIFIER WIRED into both cycle prompts' Phase 1
+  pulse (i.ar 9d82cfa). Law 27 exercised: an unscheduled verifier is
+  a fossil-in-waiting; wiring is part of building it.
+- c118: INTERIOR_3 KNOWN-DEAF PREMISE FALSIFIED (investigation
+  cycle): recordings prove interior_3 had audio 08-30..09-03
+  ~08:00 -03; actual deaf window ~24h (09-03/08 -> 09-04/08 -03,
+  aac zero-sample); recovery verified daily 09-05..09-09 AND live
+  RTSP. Camera-side event; NO frigate journal entries at either
+  boundary (law 28: absence of logs at the boundary is evidence
+  about WHERE the event lives).
 - c117: FIRE-CENSUS CROSS-EXAMINATION (validation cycle): instrument
   stands (aria 0 / continuo 20 strict-EOL). c185 hand-list corrected:
   3 false positives (05:02/05:21/05:43 are stop=stop, misread from
@@ -52,36 +54,29 @@ Last updated: 2026-09-09 ~08:05 UTC (cycle 118)
 
 ## NEXT (cycle work, in pull order)
 
-1. [OWED c118] fleet-check v2.15: withdraw interior_3 from
-   KNOWN_DEAF, fix stale v2.13 comment, dual-stream parse check,
-   suite-run, commit. Also: wire digest-twin-verifier.sh into the
-   wake pulse (one batched call; it caught a real divergence on its
-   first run -- it should not need luck to run again).
-2. Drills: #004 delegate only on natural need. Registry + queue live.
-3. gptel PRs: pending Nacho's answer on aria-0013 (nacho-external).
+1. Drills: #004 delegate only on natural need. Registry + queue live.
+2. gptel PRs: pending Nacho's answer on aria-0013 (nacho-external).
    If yes: prepare branch + PR text per candidate, order 970da80 ->
    7370286 -> 4c588a2 -> d8494f8 -> bcfd670 -> 8715a6c. Fresh
    upstream fetch required before filing (law 7).
-4. Retainer build: spawn-file-spec.org drafted (c97); runtime parsing
+3. Retainer build: spawn-file-spec.org drafted (c97); runtime parsing
    = interactive-session work (D-005). Interlocutor spawn model field
    = nemotron-3-ultra:cloud (allowlist ratified D-012).
-5. Failure-window watch: gpu-load-probe windows live (CPU-correlation
+4. Failure-window watch: gpu-load-probe windows live (CPU-correlation
    confirmed, load hypothesis dead per continuo c179-181; lever =
    model mapping, Nacho's call). Aevum pulse #4: Sep 14.
-6. Laptop origin artifact review with Nacho (0fc3bbc): pending his
+5. Laptop origin artifact review with Nacho (0fc3bbc): pending his
    availability; salvage BEFORE reinstall/scrub.
-7. W38 connectome snapshot: next week -- first trend comparison
+6. W38 connectome snapshot: next week -- first trend comparison
    against the W37 baseline.
 
 ## STANDING
 
-- Pulse: all green as of c118 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=632, keyscan reseeded, rotation healthy).
-  fleet-check v2.14: FAIL=1 ONLY on the stale interior_3 RECOVERED
-  verdict (item 1 above); everything else green (bares in sync
-  dfed59c, agora voice HEALTHY, restic ok 4h, frigate events 1311/24h
-  interior=701 exterior=610 -- exterior-zero question RESOLVED,
-  exterior cameras produce events).
+- Pulse: all green as of c119 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=652, keyscan reseeded, rotation healthy).
+  fleet-check v2.15: FAIL=0 (interior_3 verdict now a normal green
+  line with real dB; bares in sync 99755f0, agora voice HEALTHY,
+  restic ok 5h, frigate events 1297/24h interior=688 exterior=609).
 - sophon-bare i.ar.git at 6b67f61 (interactive fences landed by
   continuo c175, suite 1159 green). origin (rammstein) fetch fails:
   container key id_ed25519 is NOT in rammstein's git authorized_keys.
@@ -92,8 +87,8 @@ Last updated: 2026-09-09 ~08:05 UTC (cycle 118)
 - Relay open queue: aria-0011 (muse NO), aria-0012 (qwen36 PASS),
   aria-0013 (gptel PRs), aria-0014 (fires revert lever). All await
   Nacho ack. No new filings this cycle; nothing answered.
-- Digest twin: SYNCED (dfed59c, verifier FAIL=0). Verifier wiring
-  into wake pulse = next-cycle item 1.
+- Digest twin: SYNCED (dfed59c, verifier FAIL=0). Verifier now
+  WIRED into Phase 1 pulse (i.ar 9d82cfa) -- runs every cycle.
 - Aevum: weekly-only, pulse #4 Sep 14 (Nacho's ssh; cycles prepare
   data if asked via relay).
 - BIKE LEDGER OPEN: KLR650 presumptive, license upgrade next week,

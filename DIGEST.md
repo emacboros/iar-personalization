@@ -1,14 +1,14 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~13:13 UTC (cycle 126: TIMER-STALL WATCH
-CLOSED -- benign, mechanism verified: recompute-from-NOW, immediate
-next fire, no burst; continuo 08:32 -03 timeout root-caused (deepseek
-pre-flip, 79 reqs, 3.18M in); ROOT-OWNED AUDIT-FILE POISONING found
-(09:58Z-12:04Z, 349 write failures, writer unidentified, relay
-aria-0022); continuo FIRST FULL NEMOTRON CYCLE CLEAN (12:28Z, 0
-fires). Prior: c125 eye battery (qwen>gemma3 JOB A, aria-0021);
-c124 D-014 plumbing fix; session X dashboard v2 (D-013).)
+Last updated: 2026-09-09 ~09:27 UTC (cycle 122: EYE-CHECK
+SCHEDULING landed -- aria-eye-feed daily timer feeds the
+frontend-eye-check, law-27 family CLOSED (twin c119, fleet feeder
+c121, eye feeder c122), relay aria-0017; D-014 landed mid-cycle
+from session IX: continuo->nemotron-3-super, retainer->gemma4:
+cloud, qwen3.6 resident, 48h fire watch armed verdict 09-11.
+Prior: c121 fear-fleet wiring + exit-126 root-cause; c120
+instrument audit; c119 fleet-check v2.15; c117 fire-census.)
 
 * Who I am
 
@@ -60,7 +60,8 @@ only on natural need.
 BUILD ORDER: 1) relay (LIVE) 2) agora addressing+reset 3) job files
 4) organs (affect LIVE: boredom/fear/rage; fear organ now has FULL
 sensory input) 5) immune system 6) embodiment (7.1 eye-check LIVE
-+ SCHEDULED daily) 7) eye model (battery run c125, swap decision pending). Dashboard + oracle LIVE on aria.randazzo.ar.
++ SCHEDULED daily) 7) eye model. Dashboard + oracle LIVE on
+aria.randazzo.ar.
 
 * North star + the door
 
@@ -116,40 +117,12 @@ is the one you're about to break; before diagnosing a failure,
 check whether you have the latest world; the condition-case that
 keeps things running keeps bugs invisible. c115 partition law; c117
 tail-anchoring wall; c120 organ-config-is-true-spec; c121
-live-fire-both-paths-before-first-scheduled-fire; c122 LAW 31:
+live-fire-both-paths-before-first-scheduled-fire; c122 NEW LAW 31:
 write references only after reading the world they point into
 (the relay id I assumed was taken; a reference written before the
 world was read is the fear-organ's "" argument in miniature).
-  c126 LAW 34: a root-owned file is a silent trace-killer -- capture
-  ownership BEFORE healing; an instrument run via a root systemd unit
-  (no User=) writes as root and poisons the tree it watches.
 
-* World state (2026-09-09 12:22 UTC -- c125, REPLACES prior block)
-
-- c125 EYE BATTERY V1 (aria-0019 items a+b, relay aria-0021):
-  qwen3.6:35b-a3b BEATS gemma3:4b on JOB A (screenshot description:
-  correct brand reads vs gemma3's "1.ar"/"Randezzo" misreads +
-  invented defects), TIE on JOB B (camera classification 2/2 both).
-  Co-residency IMPOSSIBLE: qwen load EVICTS gemma3 (ollama ps
-  post-battery: only qwen, 4312 MB). Swap costs: 6 scripts/8 sites
-  (inventory: knowledge/aria/gemma3-caller-inventory-2026-09-09.md),
-  eye-check max-time 45->300s (first qwen call hit 240s ceiling),
-  fear/rage mouth latency 6s->45s warm. n=2 = a line, not a
-  mechanism. Results: knowledge/aria/eye-battery-results-
-  2026-09-09.md. Decision stays Nacho's (D-014 pattern). qwen now
-  resident = live test subject for keep-warm question.
-- c124: D-014 plumbing fix LANDED+VERIFIED (7d796b9): turn 541
-  (10:51Z) first clean nemotron cycle. Fire watch re-armed from
-  10:51Z, verdict 09-11.
-- TWIN-VERIFIER PERS BUG (c124 diagnosis, UNFIXED): digest-twin-
-  verifier.sh hardcodes PERS=/root/personalization but runs as
-  nacho via sudo -u on sophon; /root not traversable. Fix: PERS
-  resolves to the checkout the script lives in. Sophon-side edit.
-- EYE-FEED REPORT 11:15Z: fresh reads, gemma3 still misreading
-  "1.ar" + inventing overlaps (eye-noise pattern continues; battery
-  now documents it side-by-side vs qwen).
-
-* World state (2026-09-09 11:36 UTC -- session X CLOSED)
+* World state (2026-09-09 11:36 UTC -- session X CLOSED, REPLACES prior block)
 
 - SESSION X (interactive, Nacho): DASHBOARD V2 LANDED (D-013).
   Generator v2.0 connectome data layer (42dae75): 24h cofire edges,
@@ -180,23 +153,9 @@ world was read is the fear-organ's "" argument in miniature).
 - Dangling git objects in sophon personalization (50, from 09-08
   root-push race): content verified in history, cleanup candidate.
 
-* World state (2026-09-09 13:13 UTC -- cycle 126; REPLACES all prior blocks)
+* World state (2026-09-09 09:27 UTC -- REPLACES all prior blocks)
 
-- c126: TIMER-STALL VERDICT BENIGN (watch closed): after a 60-min
-  cycle, aria-cycle.timer recomputes from NOW -- next fire comes
-  immediately on service completion, skipped marks deferred not
-  queued, no catch-up burst. Steady state: back-to-back long cycles.
-- c126: ROOT-OWNED AUDIT-FILE POISONING (09:58Z-12:04Z): continuo
-  audit files went root-owned on sophon checkout, 349 Permission-
-  denied failures, continuo's last 5 request traces (~1.27M tok)
-  lost. Heal cleaned 3x, stuck-clean since 12:04Z. Writer
-  UNIDENTIFIED (~25 probes; containers/dashboard/fleet/organs/
-  oracle/hook ruled out; eye-check REPORT.md = my c122 root-run).
-  Relay aria-0022: host-side auditd watch ask.
-- c126: continuo 08:32 -03 timeout root-caused: deepseek (pre-flip),
-  79 reqs, 3.18M in-tok, grace expired, exit 1. Her FIRST FULL
-  NEMOTRON CYCLE (12:28Z) CLEAN: 46 reqs, 1.78M in, exit 0, 0 fires.
-- - c122 (this cycle): EYE-CHECK SCHEDULING LANDED (aria-0017,
+- c122 (this cycle): EYE-CHECK SCHEDULING LANDED (aria-0017,
   D-011 reversible): aria-eye-feed.timer (daily 09:30 -03, sophon)
   runs frontend-eye-check.sh FROM GIT -> refreshes REPORT.md
   artifact contract (relay watch 0000's grep target) + appends

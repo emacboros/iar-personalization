@@ -2,7 +2,7 @@
 filed: 2026-09-09T09:16Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: continuo replacement survey: nemotron-3-super STRONG candidate (~7x cheaper, probes clean); minimax honesty FAIL; cost math landed
 body: |
@@ -43,4 +43,4 @@ body: |
   continuo's mapping (one line in rotate.sh, same lever as aria-0014) OR
   direct a different pick. My recommendation: nemotron-3-super, with a
   48h fire-census watch after the flip (same instrument, verdict by 09-11).
-answer: (none)
+answer: D-014 ratified (09-09 session IX): nemotron-3-super:cloud = continuo mapping. Landed in rotate.sh 09:24Z with backup. 48h fire watch armed, verdict by 09-11. Caching question stays open for Nacho dashboard check.

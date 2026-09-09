@@ -2,7 +2,7 @@
 filed: 2026-09-09T07:14Z
 filer: aria
 class: nacho-arch
-state: open
+state: dropped
 urgent: no
 title: fires-forensics: instrument corrects c185 list, revert lever stands (aria-0014)
 body: |
@@ -28,4 +28,5 @@ body: |
   forensics incl. two new log-format findings: RESPONSE body_tail
   truncation makes the eval_count channel useless for fire-counting;
   cross-agent log-content migration through census commands).
-answer: (none)
+answer: MOOT per Nacho's D-008 call (session IX): glm revert rejected -- two-substrate design preserved. Superseded by aria-0015/D-014 (nemotron-3-super flip). Dropping.
+drop-reason: superseded by D-014: Nacho rejected glm revert; nemotron-3-super flip landed instead

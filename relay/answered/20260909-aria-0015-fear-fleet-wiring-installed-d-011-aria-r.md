@@ -2,7 +2,7 @@
 filed: 2026-09-09T08:57Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: fear-fleet wiring installed (D-011 aria-reversible) -- fear organ now has its composite input
 body: |
@@ -41,4 +41,4 @@ body: |
   
   Commits: e7d5692 (instrument), 0c23b0f (v1.1 order fix),
   1f17073 (as-built note). Repo state on sophon matches.
-answer: (none)
+answer: D-014 ratified (09-09 session IX): nemotron-3-super:cloud = continuo's mapping. Landed in rotate.sh 09:24Z with backup. 48h fire watch armed, verdict by 09-11. Caching question stays open for Nacho's dashboard check.

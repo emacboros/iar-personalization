@@ -1,51 +1,44 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~06:20 UTC (cycle 114)
+Last updated: 2026-09-09 ~06:35 UTC (cycle 115)
 
 ## NOW
 
-- c114: FIRE-CENSUS thread. Continuo's daily census is a
-  re-derivation ladder (c175 "5 fires" -> c179 "1" -> c181 "2" ->
-  c182 "6, undercounted") -- an instrument that exists only as
-  per-cycle improvisation re-derives its methodology every run,
-  and the methodology has a known trap (c32 self-inflation: census
-  greps echo their own terms into specs= text). My own recount
-  stepped on the same rake: unanchored grep returned 73 "fires"
-  across 16 bursts (2.39M "wasted" tokens) -- physically
-  impossible (15 "fires" in 20s at 04:44 = continuo seeing itself).
-  Real count: ~6 fires today, all 32768-tok halved cap, all
-  deepseek-v4-flash (continuo's anchored post-c170 count stands).
-  Fix = NEXT item 9. Dashboard-v2 board view: design read
-  end-to-end, prepped as next build (data layer cycle-sized, UI
-  wiring stays interactive per CYCLES.md).
-- c113: REPO-GROWTH closed. continuo's cycle.log UNTRACKED
-  (917ff7d). Mechanism: c117 (09-08 00:36, quiet pulse) force-added
-  it once; once TRACKED, gitignore is bypassed for modifications --
-  every continuo git_commit (add -A) swept the day's growth (76
-  commits, ~847k lines, 4.1GB across blob versions). Fix = git rm
-  --cached (file kept on disk, gitignore re-asserts). Verified on
-  sophon checkout + both bare repos. History rewrite (shrinking the
-  4.1GB) = Nacho-class call, not taken.
-- c112: GPTEL FORK UPSTREAM-GAP AUDIT. All 6 fork-only fixes
-  verified still fork-only AND all 6 failure classes LIVE upstream
-  (checked 4799c80 file content). Invisible-turn regression tests
-  4/4 green standalone. knowledge/aria/gptel-pr-candidates-2026-09-09.md
-  (table + risk-adjusted PR order). Relay aria-0013 (nacho-external).
-- c111: MKTIME 7-FIELD BUG found + fixed in connectome-snapshot.sh
-  (73c975b). W37 silence + co-firing numbers known-bad; W38 =
-  first trustworthy window. Analysis:
-  knowledge/aria/mktime-seven-field-bug-2026-09-09.md.
-- c110: qwen3.6 vision RETEST PASS. ollama 0.32.8 fixed the
-  fitter-crash class for BOTH archs. Eye stays gemma3:4b.
-- c109: muse-glimmer:30b battery DONE. Verdict NO for local
-  retainer/resident (dense 27.9B, ~2 tok/s decode on 3080). Relay
-  aria-0011 (nacho-arch ratification ask). Task open until Nacho.
+- c115: FIRE-CENSUS INSTRUMENT LANDED (roadmap item 9 DONE,
+  6ab2821+18ccd11). Section 7 in connectome-snapshot.sh: fire =
+  PARSE line tail-anchored `error=<X> stop=length tokens_in=<N>
+  tokens_out=<M>` at line END; per-agent counts + per-day histogram.
+  Ends the c114 re-derivation ladder. BONUS FIND (the c115 scar):
+  emit_silence + token-economics greps were anchored on
+  `] <agent> | PARSE | ` -- a shape that does NOT EXIST in
+  REQUESTS.log (lines are `[ts] REQ <id> PARSE ...`; no agent field;
+  the per-agent file IS the partition). Old regex matched ONLY
+  self-echo; silence column was fiction since landing. Re-anchored
+  on `] REQ <id> PARSE `, validated (fake-log unit + real-data
+  smoke: aria 0 fires/1962s max gap; continuo 20 fires 09-08+09-09,
+  REQ-id dedup clean). Law added to INSTALL-NOTES + roadmap law 25.
+  Real-data note: continuo's c183 hand count said 6 fires today;
+  instrument says 9 on 09-09 (window-boundary difference likely;
+  instrument is now the arbiter).
+- c114: fire-census thread diagnosis (the ladder itself), dashboard
+  board view prepped. c113: repo-growth closed (917ff7d). c112:
+  gptel upstream-gap audit + aria-0013. c111: mktime 7-field bug
+  fixed (73c975b). c110: qwen3.6 vision retest PASS. c109:
+  muse-glimmer NO (aria-0011, open until Nacho).
 
 ## NEXT (cycle work, in pull order)
 
-1. [DONE c110] qwen3.6 vision retest: PASS.
-2. [DONE c111] connectome silence-column verification (found the
-   mktime bug instead; W38 snapshot early next week).
+1. DASHBOARD-V2 BOARD VIEW (D-013 addendum, prepped c114): add
+   "board" field to aria-dashboard.sh python assemble block
+   (task-tree digest: thinking/working/done, 5-10 entries, from
+   tasks/iar/ tree + ROADMAP NEXT). Real data, try/except, bump
+   version v1.8 -> v1.9. UI wiring stays interactive (CYCLES.md).
+   Eye-verify after any UI change (D-013).
+2. W38 connectome snapshot run (first trustworthy window -- mktime
+   fixed c111, silence fixed c115): scp container audit.log to
+   sophon /tmp/connectome/, run the script, read the numbers.
+   Early next week per c111 note; can pull forward if a cycle
+   wants it.
 3. Drills: #004 delegate only on natural need. Registry + queue live.
 3b. gptel PRs: pending Nacho's answer on aria-0013 (nacho-external).
    If yes: prepare branch + PR text per candidate, order 970da80 ->
@@ -62,22 +55,14 @@ Last updated: 2026-09-09 ~06:20 UTC (cycle 114)
 7. Laptop origin artifact review with Nacho (0fc3bbc): pending his
    availability; salvage BEFORE reinstall/scrub.
 8. [DONE c113] Repo-growth: continuo's cycle.log UNTRACKED.
-9. FIRE-CENSUS INSTRUMENT (c114): add an anchored fire-census
-   section to connectome-snapshot.sh (PARSE lines, v1.7-style
-   anchored tail: error= stop= tokens_in= tokens_out= at line END;
-   tokens_out > 20000 = real truncated-output fire). Ends the daily
-   re-derivation ladder; methodology baked once. Cycle-sized.
-10. DASHBOARD-V2 BOARD VIEW (D-013 addendum, prepped c114): add
-    "board" field to aria-dashboard.sh python assemble block
-    (task-tree digest: thinking/working/done, 5-10 entries, from
-    tasks/iar/ tree + ROADMAP NEXT). Real data, try/except, bump
-    version v1.8 -> v1.9. UI wiring stays interactive (CYCLES.md).
-    Eye-verify after any UI change (D-013).
+9. [DONE c115] Fire-census instrument: landed + silence-column
+   line-shape scar fixed (6ab2821).
+10. (see 1)
 
 ## STANDING
 
-- Pulse: all green as of c114 (services active, tripwire 0, disk 29%,
-  heartbeat alive leid=512, rotation healthy).
+- Pulse: all green as of c115 (services active, tripwire 0, disk 29%,
+  heartbeat alive leid=532, keyscan reseeded, rotation healthy).
 - sophon-bare i.ar.git at 6b67f61 (interactive fences landed by
   continuo c175, suite 1159 green). origin (rammstein) fetch fails:
   container key id_ed25519 is NOT in rammstein's git authorized_keys.
@@ -89,22 +74,11 @@ Last updated: 2026-09-09 ~06:20 UTC (cycle 114)
   rammstein git does NOT.
 - Diverged-pull protocol: stash -> rebase -> pop -> push. SCAR
   (c97): nobody-owned untracked file freezes rebase.
-- audit/iar is GITIGNORED in personalization repo -- git add -f
-  required for journal/HISTORY commit (scope: curated records ONLY,
-  law 22; tracked-ness is sticky state -- c113).
-- Zulip read API: narrow param URL-encoded JSON; .subject not .topic.
-- Ollama sparse blobs: partial blobs pre-allocate; st_blocks is the
-  written bytes (c99). Blob dir is /usr/share/ollama/blobs.
-- gemma3 cold-load = 17-20s; affect organs' 20s curl timeout races
-  it right after any ollama restart (c99, self-heals).
-- Vision probe recipe (c104): b64 via ssh-interpolated python on
-  sophon side; heredoc+JSON mangles base64 -> mtmd decode failure.
-  c109 addendum: 8x8 PNGs are BELOW vision-tower minimum -- model
-  confabulates "white" instead of erroring. Use 64x64+.
-- Soft-cap economics (c101): 120 calls x ~35-60k mean ctx = 4-7M
-  in-tok; the cap fires late. Batching is the lever.
-- Ran-as law (c102): every organ/instrument logs WHO it ran as and
-  which input-branch it took.
+- audit/iar is gitignored; curated record files (JOURNAL, ROADMAP,
+  HISTORY, REQUESTS) need `git add -f` (c115 used it; scope: those
+  four paths only, never transcripts -- see law 22).
+- write_file drops the exec bit on script files (c115: 100755 ->
+  100644 silently); chmod +x after every write_file to a script.
 - gemma3:4b "mmproj" is NOT clip -- architecture=gemma3, whole
   model in one blob. Vision-tower comparisons: use qwen3.6 class.
 - c109: muse+gemma3 CANNOT co-reside (4.75+2.88+Frigate 2.5 > 10GB);
@@ -119,6 +93,11 @@ Last updated: 2026-09-09 ~06:20 UTC (cycle 114)
   audit.log = TEST-SUITE artifacts (136 lines today), not agents.
   Connectome merge must exclude them (like nil rows) or the census
   counts the suite as a citizen.
+- c115: REQUESTS.log lines are `[ts] REQ <id> PARSE|START|RESPONSE
+  ...` -- NO agent field; the per-agent file IS the partition. Never
+  grep for `] <agent> | PARSE | ` in REQUESTS.log (self-echo only).
+  audit.log tool_call lines DO have the agent field; REQUESTS.log
+  does not. Know which file you are in.
 
 ## LAWS (accumulated; the ones that keep biting)
 
@@ -188,3 +167,11 @@ Last updated: 2026-09-09 ~06:20 UTC (cycle 114)
     each time (c114, the fire-census ladder). If a census runs more
     than twice by hand, it wants to be a script with the anchoring
     baked in.
+25. A per-agent file has no agent column; the partition is the path
+    (c115). Any grep that names the agent inside a file that never
+    contains agent names is grepping for ghosts, and the ghosts it
+    finds are always itself. An instrument reporting "all quiet"
+    because its regex cannot match a real line is worse than no
+    instrument -- it manufactures the all-clear the instrument
+    exists to contradict. Validate a new instrument against a
+    control that MUST match before trusting its zeros.

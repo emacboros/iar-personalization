@@ -1,13 +1,22 @@
-/* aria dashboard v2.0 -- connectome renderer (D-013).
+/* aria dashboard v2.1 -- connectome renderer (D-013).
    EVERY visual element maps to a data source in dashboard.json:
    - nodes: agents (2 citizens) + tools (cofire endpoints) + files (file-touch)
    - edges: measured co-firing within 5s (weight = count, 24h)
    - corpus callosum: shared_files (touched by BOTH citizens)
-   - pulses: rotation turns (cross), fires (red), silence breaches (amber)
-   - burn curve: connectome.burn_series (hourly tokens_in, sophon cycle traffic)
-   - board: tasks/iar/ digest (thinking/working/done)
-   The v1 fake cortex (fixed-seed decorative mesh) is GONE.
-   Polls /json every 30s; canvas animates at rAF; motion slow (burn-in). */
+   - pulses: rotation turns (cross), fires (red)
+   - board: tasks/iar/ digest (thinking/working/done), OPEN by default
+   v2.1 fixes (session X, Nacho bug report):
+   - NaN poisoning: homeX/homeY now set at node creation (was read before
+     assignment -> agents NaN on frame 1 -> graph vanished until resize).
+   - Position persistence: polls no longer re-seed the layout; node
+     positions survive rebuilds (cache by id), sim only reheats when a
+     NEW node appears or on resize.
+   - Real cooling: alpha-decay simulation, stops at low energy (was:
+     300-step cap + reset every poll = perpetual jitter).
+   - Callosum dedup: shared files no longer get per-agent edges ON TOP
+     of their two callosum edges (was 3 edges to one node = the crowd).
+   - Readability: file labels only for heavier files, dimmer file edges,
+     gentler forces, velocity clamp. */
 "use strict";
 
 const J = (u) => fetch(u, {cache: "no-store"}).then(r => r.json());
@@ -20,8 +29,8 @@ let activeAgent = null;
 let lastTurn = null;
 let graph = {nodes: [], edges: [], byId: {}};
 let pulses = [];
-let sim = null;            // force simulation state
-let showFiles = true;      // multiplex: all three layers on by default (Nacho's call)
+let sim = null;            // {alpha, done}
+let showFiles = true;      // multiplex: all three layers on (Nacho's call)
 
 /* ---------- color grammar ---------- */
 function sevColor(sev, age_s) {
@@ -56,6 +65,7 @@ function baseName(p) {
   const name = parts[parts.length - 1] || p;
   return name.length > 22 ? name.slice(0, 19) + "…" : name;
 }
+function clampV(v, m) { return Math.max(-m, Math.min(m, v)); }
 
 /* ---------- hud ---------- */
 function row(k, v, cls) {
@@ -111,7 +121,7 @@ function renderHud(d) {
   const aff = d.affect || {};
   for (const n of ["boredom", "fear", "rage"]) {
     const a = aff[n] || {};
-    if (a.sev == null && n === "rage") continue; // rage renders only when it exists
+    if (a.sev == null && n === "rage") continue;
     h3 += row(n, `sev=${a.sev ?? "?"}`, sevClass(a));
   }
   const sil = c.silence_24h || {};
@@ -135,8 +145,8 @@ function genAge(d) {
   return Math.max(0, (Date.now() - Date.parse(d.generated_at)) / 1000);
 }
 
-/* ---------- board ---------- */
-let boardOpen = false;
+/* ---------- board (open by default; tab toggles) ---------- */
+let boardOpen = true;
 function renderBoard(d) {
   const b = d.board || {};
   const li = (x, cls) => `<div class="board-item ${cls || ""}">${x.task}${x.note ? ` <span class="note">${x.note}</span>` : ""}</div>`;
@@ -145,91 +155,115 @@ function renderBoard(d) {
   $("board-done").innerHTML = (b.done || []).map(x => li(x, "ok")).join("") || "<div class='board-empty'>-</div>";
 }
 
-/* ---------- connectome graph (ALL data from dashboard.json) ---------- */
+/* ---------- connectome graph ---------- */
+function agentHome(id) {
+  return {x: window.innerWidth * (id === "agent:aria" ? 0.30 : 0.70),
+          y: window.innerHeight * 0.40};
+}
 function buildGraph(d) {
   const c = d.connectome;
   if (!c || !c.cofire) return;
+  // position cache: keep existing nodes' places across polls (no re-jitter)
+  const old = {};
+  for (const n of graph.nodes) old[n.id] = n;
   const nodes = [], edges = [], byId = {};
-  function node(id, kind, agent) {
+  let anyFresh = false;
+
+  function node(id, kind, agent, w) {
     if (byId[id] != null) return byId[id];
-    const n = {id, kind, agent: agent || null, r: kind === "agent" ? 7 : kind === "file" ? 3 : 4.5,
-               x: 0, y: 0, vx: 0, vy: 0};
+    const prev = old[id];
+    const n = {id, kind, agent: agent || null, w: w || 0,
+               r: kind === "agent" ? 7 : kind === "file" ? 3 : 4.5,
+               x: 0, y: 0, vx: 0, vy: 0, fresh: !prev};
+    if (prev) { n.x = prev.x; n.y = prev.y; }
+    else anyFresh = true;
+    if (kind === "agent") { const h = agentHome(id); n.homeX = h.x; n.homeY = h.y; if (!prev) { n.x = h.x; n.y = h.y; } }
     byId[id] = nodes.length;
     nodes.push(n);
     return nodes.length - 1;
   }
-  // agents: the two citizens, always present
-  node("agent:aria", "agent", "aria");
-  node("agent:continuo", "agent", "continuo");
-  // tools: cofire endpoints, per agent
+
+  const ariaI = node("agent:aria", "agent", "aria");
+  const contI = node("agent:continuo", "agent", "continuo");
+
+  // tools: cofire endpoints (weight = pair count)
   for (const a of ["aria", "continuo"]) {
     for (const [t1, t2, w] of (c.cofire[a] || [])) {
-      const i1 = node("tool:" + t1, "tool", a);
-      const i2 = node("tool:" + t2, "tool", a);
+      const i1 = node("tool:" + t1, "tool", a, w);
+      const i2 = node("tool:" + t2, "tool", a, w);
       edges.push({a: i1, b: i2, w, kind: "cofire", agent: a});
     }
   }
-  // files: file-touch (agent->file edges carry the touch count)
-  if (showFiles) {
-    for (const a of ["aria", "continuo"]) {
-      for (const [p, w] of (c.files[a] || [])) {
-        const ia = node("agent:" + a, "agent", a);
-        const fi = node("file:" + p, "file", a);
-        edges.push({a: ia, b: fi, w, kind: "file", agent: a});
-      }
-    }
-    // corpus callosum: files touched by BOTH citizens
-    for (const p of (c.shared_files || [])) {
-      const fi = node("file:" + p, "file", null);
-      edges.push({a: node("agent:aria", "agent", "aria"), b: fi, w: 1, kind: "callosum", agent: "aria"});
-      edges.push({a: node("agent:continuo", "agent", "continuo"), b: fi, w: 1, kind: "callosum", agent: "continuo"});
+
+  // files. shared files (callosum) are handled ONCE below -- no per-agent
+  // duplicates (v2.0 drew 3 edges to each shared file: the crowd).
+  const sharedSet = new Set(c.shared_files || []);
+  const fileW = {aria: {}, continuo: {}};
+  for (const a of ["aria", "continuo"]) {
+    for (const [p, w] of (c.files[a] || [])) {
+      fileW[a][p] = w;
+      if (sharedSet.has(p)) continue;
+      const ai = a === "aria" ? ariaI : contI;
+      const fi = node("file:" + p, "file", a, w);
+      edges.push({a: ai, b: fi, w, kind: "file", agent: a});
     }
   }
-  graph = {nodes, edges, byId};
-  initPositions();
-}
+  // corpus callosum: shared files, one node, two edges (the ONLY bridge)
+  for (const p of (c.shared_files || [])) {
+    const fi = node("file:" + p, "file", null, Math.max(fileW.aria[p] || 0, fileW.continuo[p] || 0));
+    edges.push({a: ariaI, b: fi, w: fileW.aria[p] || 1, kind: "callosum", agent: "aria"});
+    edges.push({a: contI, b: fi, w: fileW.continuo[p] || 1, kind: "callosum", agent: "continuo"});
+  }
 
-function initPositions() {
-  // seed: agents on midline, tools fanned per side, files below
+  graph = {nodes, edges, byId};
+  if (anyFresh) { seedFresh(); reheat(); }
+}
+function seedFresh() {
+  // give brand-new nodes a sane starting spot (existing nodes keep theirs)
   const W = window.innerWidth, H = window.innerHeight;
   for (const n of graph.nodes) {
-    if (n.pinned) continue;
-    if (n.kind === "agent") {
-      n.x = n.id === "agent:aria" ? W * 0.30 : W * 0.70;
-      n.y = H * 0.42;
-    } else if (n.kind === "tool") {
+    if (!n.fresh || n.kind === "agent") continue;
+    if (n.kind === "tool") {
       const side = n.agent === "aria" ? -1 : 1;
-      const idx = hashStr(n.id) % 100 / 100;
-      n.x = W / 2 + side * (W * 0.10 + idx * W * 0.22);
-      n.y = H * 0.15 + (hashStr(n.id + "y") % 100) / 100 * H * 0.45;
+      const idx = (hashStr(n.id) % 100) / 100;
+      n.x = W / 2 + side * (W * 0.08 + idx * W * 0.20);
+      n.y = H * 0.12 + (hashStr(n.id + "y") % 100) / 100 * H * 0.42;
     } else {
-      n.x = W * 0.15 + (hashStr(n.id) % 100) / 100 * W * 0.70;
-      n.y = H * 0.72 + (hashStr(n.id + "y") % 100) / 100 * H * 0.16;
+      // callosum files start midway between agents; others below their agent
+      if (n.agent == null) {
+        n.x = W * 0.42 + (hashStr(n.id) % 100) / 100 * W * 0.16;
+        n.y = H * 0.55 + (hashStr(n.id + "y") % 100) / 100 * H * 0.15;
+      } else {
+        const ax = n.agent === "aria" ? W * 0.30 : W * 0.70;
+        n.x = ax + (hashStr(n.id) % 100) / 100 * (n.agent === "aria" ? -1 : 1) * W * 0.16;
+        n.y = H * 0.58 + (hashStr(n.id + "y") % 100) / 100 * H * 0.20;
+      }
     }
-    n.vx = n.vy = 0;
+    n.fresh = false;
   }
-  sim = {steps: 0};
 }
+function reheat() { sim = {alpha: 1, done: false}; }
 function hashStr(s) {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
   return (h >>> 0);
 }
 
+/* ---------- force simulation (cooled; stops at low energy) ---------- */
 function stepSim() {
-  if (!sim || sim.steps > 300) return;
-  const W = window.innerWidth, H = window.innerHeight;
+  if (!sim || sim.done) return;
   const N = graph.nodes;
-  // repulsion (sparse: sample pairs)
+  const alpha = sim.alpha;
+  // repulsion (pairwise, capped, scaled by alpha)
   for (let i = 0; i < N.length; i++) {
     for (let j = i + 1; j < N.length; j++) {
       const a = N[i], b = N[j];
       let dx = b.x - a.x, dy = b.y - a.y;
       let d2 = dx * dx + dy * dy;
-      if (d2 < 1) { dx = (hashStr(a.id + b.id) % 7) - 3; dy = (hashStr(b.id + a.id) % 7) - 3; d2 = 1; }
-      if (d2 > 90000) continue;             // 300px cutoff
-      const f = 2400 / d2;
+      if (d2 > 57600) continue;                    // 240px cutoff
+      if (d2 < 1) { dx = ((hashStr(a.id + b.id) % 7) - 3) || 2; dy = ((hashStr(b.id + a.id) % 7) - 3) || 2; d2 = 1; }
       const d = Math.sqrt(d2);
+      const f = Math.min(3, 900 / d2) * alpha;
       a.vx -= dx / d * f; a.vy -= dy / d * f;
       b.vx += dx / d * f; b.vy += dy / d * f;
     }
@@ -239,32 +273,23 @@ function stepSim() {
     const a = N[e.a], b = N[e.b];
     const dx = b.x - a.x, dy = b.y - a.y;
     const d = Math.max(1, Math.hypot(dx, dy));
-    const rest = e.kind === "callosum" ? 150 : 110;
-    const f = (d - rest) * 0.004;
-    a.vx += dx / d * f * d; a.vy += dy / d * f * d;
-    b.vx -= dx / d * f * d; b.vy -= dy / d * f * d;
+    const rest = e.kind === "callosum" ? 170 : 115;
+    const k = (e.kind === "callosum" ? 0.006 : 0.015) * alpha;
+    const f = k * (d - rest);
+    a.vx += dx / d * f; a.vy += dy / d * f;
+    b.vx -= dx / d * f; b.vy -= dy / d * f;
   }
-  // agents pinned to their midline anchors (they ARE the anatomy)
+  // integrate; agents are PINNED to their homes (never integrated)
   for (const n of N) {
-    if (n.kind === "agent") {
-      n.x += (n.homeX - n.x) * 0.1; n.y += (n.homeY - n.y) * 0.1;
-    }
+    if (n.kind === "agent") { n.x = n.homeX; n.y = n.homeY; continue; }
+    n.vx = clampV(n.vx, 5); n.vy = clampV(n.vy, 5);
+    n.x += n.vx; n.y += n.vy;
+    n.vx *= 0.75; n.vy *= 0.75;
+    n.x = Math.max(30, Math.min(window.innerWidth - 30, n.x));
+    n.y = Math.max(30, Math.min(window.innerHeight - 150, n.y));
   }
-  // integrate + soft bounds
-  for (const n of N) {
-    if (n.kind === "agent") continue;
-    n.vx *= 0.85; n.vy *= 0.85;
-    n.x += Math.max(-8, Math.min(8, n.vx));
-    n.y += Math.max(-8, Math.min(8, n.vy));
-    n.x = Math.max(30, Math.min(W - 30, n.x));
-    n.y = Math.max(30, Math.min(H - 130, n.y));
-  }
-  // set agent homes
-  for (const n of N) if (n.kind === "agent") {
-    n.homeX = n.id === "agent:aria" ? W * 0.30 : W * 0.70;
-    n.homeY = H * 0.42;
-  }
-  sim.steps++;
+  sim.alpha *= 0.97;
+  if (sim.alpha < 0.03) sim.done = true;
 }
 
 /* ---------- canvas ---------- */
@@ -275,7 +300,13 @@ function resize() {
   W = window.innerWidth; H = window.innerHeight;
   cv.width = W * DPR; cv.height = H * DPR;
   cx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  initPositions();
+  // reseed everything on viewport change + reheat
+  for (const n of graph.nodes) {
+    if (n.kind === "agent") { const h = agentHome(n.id); n.x = h.x; n.y = h.y; n.homeX = h.x; n.homeY = h.y; }
+    else { n.x = 0; n.y = 0; n.fresh = true; }
+  }
+  seedFresh();
+  reheat();
 }
 window.addEventListener("resize", resize);
 
@@ -287,30 +318,27 @@ function frame(now) {
   stepSim();
   cx.clearRect(0, 0, W, H);
 
-  // vignette
   const g = cx.createRadialGradient(W / 2, H / 2 - 40, 10, W / 2, H / 2, Math.max(W, H) * 0.7);
   g.addColorStop(0, `hsla(${hue.h}, 45%, 12%, 0.55)`);
   g.addColorStop(1, "rgba(4,7,12,0)");
   cx.fillStyle = g; cx.fillRect(0, 0, W, H);
 
-  // edges: width = log weight, opacity = normalized weight
+  // edges: width = log-ish weight, opacity = normalized weight
   const maxW = {};
   for (const e of graph.edges) {
-    const k = e.kind + (e.agent || "");
+    const k = e.kind;
     maxW[k] = Math.max(maxW[k] || 1, e.w);
   }
   for (const e of graph.edges) {
     const a = graph.nodes[e.a], b = graph.nodes[e.b];
     if (!a || !b) continue;
-    const k = e.kind + (e.agent || "");
-    const t = e.w / maxW[k];
-    const alpha = 0.06 + 0.30 * t;
-    let color;
-    if (e.kind === "callosum") color = `hsla(45, 70%, 60%, ${0.15 + 0.25 * t})`;
-    else if (e.kind === "file") color = `hsla(${hue.h}, 40%, 55%, ${alpha * 0.7})`;
-    else color = `hsla(${hue.h}, 55%, 55%, ${alpha})`;
+    const t = e.w / (maxW[e.kind] || 1);
+    let color, width;
+    if (e.kind === "callosum") { color = `hsla(45, 70%, 60%, ${0.18 + 0.22 * t})`; width = 1.2 + 1.2 * t; }
+    else if (e.kind === "file") { color = `hsla(${hue.h}, 40%, 55%, ${0.05 + 0.16 * t})`; width = 0.5 + 1.2 * t; }
+    else { color = `hsla(${hue.h}, 55%, 55%, ${0.07 + 0.28 * t})`; width = 0.5 + 2.0 * t; }
     cx.strokeStyle = color;
-    cx.lineWidth = e.kind === "callosum" ? 1.4 : 0.5 + 2.2 * t;
+    cx.lineWidth = width;
     cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke();
   }
 
@@ -318,15 +346,15 @@ function frame(now) {
   const t = now / 1000;
   for (const n of graph.nodes) {
     const tw = 0.5 + 0.5 * Math.sin(t * 0.7 + (hashStr(n.id) % 628) / 100);
-    const lit = n.agent === activeAgent || n.kind === "agent";
     let color, r = n.r;
     if (n.kind === "agent") {
       const isLit = n.id === "agent:" + (activeAgent || "");
       color = `hsla(${hue.h}, ${isLit ? 75 : 45}%, ${isLit ? 65 : 50}%, ${isLit ? 0.95 : 0.6})`;
       r = 7 * (isLit ? 1.25 : 1);
     } else if (n.kind === "file") {
-      color = `hsla(45, 30%, 55%, ${0.35 + 0.25 * tw})`;
+      color = `hsla(45, 30%, 55%, ${0.30 + 0.20 * tw})`;
     } else {
+      const lit = n.agent === activeAgent;
       color = `hsla(${hue.h}, ${lit ? 65 : 40}%, ${lit ? 60 : 45}%, ${(lit ? 0.85 : 0.5) * (0.6 + 0.4 * tw)})`;
     }
     cx.fillStyle = color;
@@ -336,12 +364,17 @@ function frame(now) {
       cx.font = "11px " + getComputedStyle(document.body).getPropertyValue("--mono");
       cx.textAlign = "center";
       cx.fillText(n.id.replace("agent:", "").toUpperCase(), n.x, n.y - 16);
-    } else if (n.kind === "file" || (n.kind === "tool" && n.r > 4)) {
-      cx.fillStyle = n.kind === "file" ? "rgba(232,184,75,0.5)" : "rgba(159,216,212,0.55)";
+    } else if (n.kind === "tool") {
+      cx.fillStyle = "rgba(159,216,212,0.55)";
       cx.font = "9px " + getComputedStyle(document.body).getPropertyValue("--mono");
       cx.textAlign = "center";
-      const label = n.kind === "file" ? baseName(n.id.replace("file:", "")) : n.id.replace("tool:", "");
-      cx.fillText(label, n.x, n.y + n.r + 11);
+      cx.fillText(n.id.replace("tool:", ""), n.x, n.y + n.r + 11);
+    } else if (n.kind === "file" && (n.w >= 5 || n.agent == null)) {
+      // label only heavier files + all callosum files (readability)
+      cx.fillStyle = n.agent == null ? "rgba(232,184,75,0.75)" : "rgba(232,184,75,0.45)";
+      cx.font = "9px " + getComputedStyle(document.body).getPropertyValue("--mono");
+      cx.textAlign = "center";
+      cx.fillText(baseName(n.id.replace("file:", "")), n.x, n.y + n.r + 11);
     }
   }
 
@@ -376,7 +409,6 @@ function spawnPulse(e, speed, bad) {
 function checkEvents(d, prev) {
   const turn = d.rotation && d.rotation.turn;
   if (turn != null && lastTurn != null && turn !== lastTurn) {
-    // cross-hemisphere fire: pulse the callosum edges (real shared files)
     const cal = graph.edges.filter(e => e.kind === "callosum");
     for (const e of cal.slice(0, 6)) spawnPulse(e, 0.8);
   }
@@ -384,7 +416,6 @@ function checkEvents(d, prev) {
     lastTurn = turn;
     activeAgent = d.rotation.next_agent || null;
   }
-  // new fires since last poll -> red pulses on that agent's heaviest edge
   const c = d.connectome || {}, pc = (prev && prev.connectome) || {};
   for (const a of ["aria", "continuo"]) {
     const f = (c.fires_24h || {})[a] || 0, pf = (pc.fires_24h || {})[a] || 0;

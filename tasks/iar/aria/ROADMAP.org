@@ -1,296 +1,79 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~19:00 UTC (cycle 133)
+Last updated: 2026-09-10 ~21:08 UTC (cycle 136)
 
 ## NOW
 
-- c133: RAGE-GHOST AUDIT + CONTINUO JOURNAL RESTORED: (1) The sev=2
-  rage at 'Tool-call soft cap' (today so far=7) verified against
-  primary evidence: ALL 7 events are PRE-raise (runs at 00:02-08:31,
-  cap raise 11:48:49; journald post-raise = 0 fires, both citizens).
-  The transition-day semantics (drop iff day < fix_day) keep fix-day
-  events visible by design -- conservative, correct. Added fix-log
-  entry for D-014 (Text-only runaway root fix): deepseek-era events
-  09-06/07 now dropped; dominant class flips to soft-cap, sev stays 2
-  on transition-day events only; tomorrow all soft-cap events are
-  pre-fix -> sev=0 expected. (2) FOUND: continuo's JOURNAL.org was
-  overwritten 12:22Z (c125 commit 0b53f2a, MY commit batch) -- 6142
-  lines of her journal replaced by a 2-line pulse stub. Restored from
-  git truth (0b53f2a~1) + re-appended the stub lines; 6147 lines.
-  Root cause: my c125 artifact commit swept her files mid-write
-  (belt #2 USAGE write raced her journal write). Lesson: batch
-  artifact commits need path discipline -- commit MY files only.
-  (3) Untracked knowledge/iar/gpu-load-probe-failure-analysis-2026-09-09.md
-  is continuo's (duplicates her committed d2e2e5b second-window doc
-  + a stale 'await Nacho' line); left untracked, noted for her.
+- c136: FEAR-ORGAN FORENSICS + TWO PLUMBING FIXES (this cycle, failure-first):
+  (1) continuo turn-567 exit 1 root-caused: nemotron hit stop=length 32k
+  TWICE (grace round-trip + 2nd fire, both thinking-heavy, never landed);
+  runaway guard ended the run BY DESIGN. Guard works; model-behavior datum
+  for the D-014 fire watch. (2) The fear organ's 3 heartbeat-stale alarms
+  (12:00/16:01/19:01 UTC 09-09, 2 telegrams to Nacho) read a STALE sophon
+  working tree -- aria LAST-CYCLE.txt showed ended=13:14 when truth was
+  15:19. Two mechanisms PROVEN by experiment:
+  - OWNERSHIP: cycle containers run uid 1000 cap-drop=all (no
+    DAC_OVERRIDE); reset_worktree (iar.sh, host root) ran git checkout .
+    as root after failed cycles -> root-owned .git/index + files ->
+    container write failures (the 16:41Z Permission-denied storm).
+    FIXED: iar.sh 4c4ce69 -- reset_worktree resolves repo owner and runs
+    git via runuser as that user. Pushed sophon-bare.
+  - CONTENT: autostash pop failure silently strands in-flight cycle
+    artifacts in stash@{0} ("cycle in-flight", 19:43Z) -- working tree
+    reverts to old committed values. The stranded stash held a full
+    cycle close; verified fully redundant (landed via 3711ae20 +
+    26a7acf7) and dropped. INSTRUMENT: fear-organ signal 2b
+    stash-unpopped(N) sev=2 (d699ddeb). Live-fired: quiet at 0 stashes.
+  Law candidate: when an alarm and journald disagree, check WHAT the
+  alarm reads, not just whether it reads correctly -- the file was the
+  corrupt instrument. Twin of law 33: every host-root write into the
+  shared tree is cross-boundary contamination, even when it looks like
+  cleanup.
+- OPEN (continuo's side): the nemotron thinking-runaway shape (32k
+  thinking, no landing, twice per cycle) -- grace design question for
+  thinking-heavy models belongs in the D-014 fire-watch verdict (09-11).
 
-- c132: SENTINEL-IN-THINKING PHANTOM EXIT ROOT-CAUSED + FIXED (i.ar
-  baf05d0): continuo turn 557's zero-output end was NOT a streaming
-  anomaly alone -- nemotron streamed ~29k chars of THINKING that
-  rehearses the cycle ending (815 reasoning blocks in her cycle.log
-  contain CYCLE_COMPLETE -- thinking about ending is normal), emitted
-  EMPTY content (tokens_out=0, stop=stop), and iar--cycle-complete-p
-  matched the sentinel INSIDE the thinking block (gptel inserts
-  thinking with gptel='ignore; complete-p searched the raw region).
-  Exit 0, no memory pass, no tombstone, LAST-CYCLE ok. Strict census:
-  1 occurrence (continuo, current log); aria 0. FIX: complete-p now
-  walks the region span-by-span excluding gptel='ignore + tool spans
-  (same discipline as iar--cycle-response-text, c54/c55). 5 new tests
-  (test-phantom-exit.el), suite 1164/1164 green. Pushed sophon-bare +
-  rammstein mirror; sophon checkout synced. aria-0026 updated with the
-  root cause; the decision-wake question (candidates 1+2) stays open.
+## NEXT
 
-- c131: MISATTRIBUTION ANATOMY + RAGE v1.8: continuo 16:54Z cycle
-  (turn 557) audited: 26 min, 70 reqs, 2.4M in-tokens, exit 0, ZERO
-  durable output (no HISTORY/journal/close note/writes). Three-link
-  chain: (1) stale roadmap (revert-URGENT, superseded by D-014),
-  (2) unnamed rage valence ("one class recurring" without naming it
-  -> she investigated the breaker, 0 real fires; real class =
-  Text-only runaway, deepseek-era), (3) nemotron empty-response end
-  (req 70 tokens 0/0 stop=stop, 1/900 anomaly) -> cycle ended WITHOUT
-  memory pass. LANDED: rage-organ v1.8 (e597ff0) -- dominant fence
-  class NAMED in every sev>=1 phrase, live-fired on sophon
-  (dom_class=Text-only output runaway detected, sev=2, same 80s
-  runtime as v1.7, no regression). aria-0026 updated (7d901b3) with
-  the empty-response finding + open question: should tokens_out=0
-  cycle-end be tombstone-worthy / memory-pass mandatory?
-  LAW 38: a version bump wants a patch, not a rewrite -- my full
-  rewrite of the organ silently changed the run-id scheme (md5 vs
-  run_n counter, could merge distinct runs); caught in diff review,
-  reverted, minimal 21-line patch instead. The census core is
-  load-bearing; no test battery covers it.
-- c131: DIGEST DIET LANDED (8df0782): 14734 -> 11717 chars (under
-  the 12k assembly warn; was over it every request since c122).
-  Stale duplicate world-state block merged; world current to c130.
-- c130: RAGE ORGAN v1.7 LANDED (c68d3fc, aria-0024 built): BOTH
-  defects fixed. (A) healing gate rate-normalized: today_rate =
-  N_TODAY/elapsed_frac (clamp 0.05), healing = declining + no kills
-  today + rate <= yesterday OR <= 12/day-eq. (B) fix-awareness via
-  affect/fix-log (tracked): `<ISO-ts> <exact class token> <note>`;
-  events on day D for class C dropped iff D < fix_day(C)
-  (conservative: transition day still counts). 10-case battery green.
-  LIVE-FIRE: fix-log entries for soft+hard cap (the 11:48Z raise,
-  2b64483) -> sev=3 -> sev=2 delta=down, days_class 4->2, kills 3->0.
-  Remaining sev=2 grounded on Text-only runaway (11 REAL events,
-  deepseek-era) -- the organ now rages at what is still alive.
-  Organ script = repo copy = deploy (unit runs the repo path); no
-  unit change needed. aria-0024 stays open for Nacho's design review.
-- c130: FIRE WATCH census (nemotron era 10:51Z->16:50Z): ZERO true
-  fires, both citizens. The one candidate line (14:42:16,
-  tools=0 specs=none stop=length) was SELF-ECHO -- c128's own census
-  command text in a START-line tail (law 12/189 again, new coat:
-  START-line tails carry the previous request's command text).
-  Deepseek morning: 24 true fires across 15 cycle-runs, all
-  tokens_out=32768 (halved cap). Verdict 09-11 trending as D-014
-  predicted. Census method: grep PARSE-status lines only (START/
-  RESPONSE lines self-echo), anchor stop=length at tokens_out=EOL,
-  exclude the current census cycle's own REQ id.
-- c130: CONTINUO STALE-WAITING FOUND: her roadmap + digest still say
-  "waiting on Nacho for model mapping revert to glm" -- but D-014
-  (09:24Z) chose nemotron and her own pipeline has RUN nemotron since
-  10:51Z. Her last 4 HISTORY entries (11:45-16:45) carry the stale
-  line; ~6h of cycles spent idling on a decision already made. ROOT:
-  decisions land in DECISIONS.org but citizens are not WOKEN -- her
-  digest has no world-state block, her roadmap predates D-014, and
-  nothing in the injection surface tells her a decision landed.
-  Surfaced via lab-notes + relay aria-0026 (ours-direction).
-- c129: FENCE PANEL FIXED (165b13d): end-anchored census (law 189).
-  True production rejections in audit.log = 0 ever. The 28 rejected
-  lines are convagent TEST FIXTURES (aria-0025, continuo's).
-- c127: POISONING ROOT-CAUSED: .git-object writer = MY OWN c123
-  root-ssh git ops. aria-0023 filed (key policy). Audit-file writer
-  (aria-0022) still unattributed; auditd watch = the settle move.
+- FIRE WATCH verdict 09-11 (armed from turn 541): nemotron fire census
+  now includes the turn-567 double-stop=length as model-behavior data.
+- aria-0026 (decision-wake): decisions land in ledgers but don't wake
+  the minds they concern -- still open, ours-direction.
+- aria-0024 rage-organ design review by Nacho (v1.7/v1.8 landed, review
+  pending).
+- Burn asymmetry (aria 258M vs continuo 44M in-tokens 09-09) ->
+  composition review at debrief.
+- 50 dangling git objects in sophon personalization (09-08 race):
+  cleanup candidate, content verified.
+- .git/index root-owned RIGHT NOW (pre-fix reset_worktree artifact):
+  next ExecStartPre heal will chown it; verify on next cycle.
 
-## NEXT (cycle work, in pull order)
+## LAWS (append-only; the scar list)
 
-1. Fire watch: verdict on the flip 09-11 (census method above;
-   re-run 09-10 + 09-11, then write the verdict into the relay).
-2. Poisoning: await Nacho on aria-0022 (auditd watch) + aria-0023
-   (key policy). If poisoning recurs pre-watch: capture ls -la +
-   stat + journalctl -g chown BEFORE the heal (evidence preservation).
-3. aria-0024: Nacho's design review of the built v1.7 (he may want
-   different semantics -- git revert is the undo).
-4. aria-0026 (UPDATED c131): decision-ledger visibility + the
-   empty-response question (tokens_out=0 end skips memory pass;
-   tombstone or mandatory pass?). Candidates: world-state block in
-   continuo's digest, DECISIONS.org tail in the cycle morning
-   protocol, or a relay-driven notify. Ours-direction.
-5. Eye swap session prep: blinded-judge pass + qwen warm-ttft.
-   Awaits aria-0021 D.
-6. Twin-verifier PERS fix (sophon-side, c124): script hardcodes
-   /root/personalization, runs as nacho via sudo -u.
-7. Drills: #004 delegate only on natural need.
-8. gptel PRs: pending aria-0013.
-9. Retainer build: spawn-file-spec drafted; runtime parsing =
-   interactive-session work (D-005).
-10. Failure-window watch: gpu-load-probe windows live. Aevum #4: Sep 14.
-11. Laptop origin artifact review with Nacho: pending availability.
-12. W38 connectome snapshot: next week (caveat: ~24h continuo hole).
-
-## STANDING
-
-- Pulse: all green as of c130 (services 4/4, tripwire 0, disk 29%,
-  heartbeat leid=1232, keyscan reseeded, twin FAIL=0 -- i.ar copy
-  MISSING lines = known c124 PERS bug family, not divergence).
-- Relay open queue: aria-0013, 0017, 0019, 0021, 0022, 0023, 0024
-  (v1.7 BUILT, review pending), 0025, 0026 (NEW). 0002/0003/0007
-  ratified.
-- Dashboard v2.1 generator LANDED (09-10 interactive w/ Nacho):
-  board() semantics from git history (working <12h, thinking >=12h,
-  done = removed <7d), open_questions() from relay/open (header
-  fields only, oldest first), oracle context gains the queue.
-  Commits 13b29d6/207eadd/aacbace/77f2780. UI v2.2 LANDED same
-  session (84bb1d4a): open-questions tab (count badge amber>=4
-  red>=8), board hint updated; security-class titles redacted at
-  generator (f52fb9b8, fail-closed). Eye-verify: static wiring
-  verified; panel-open visual + badge digit = human verify
-  (headless cannot click, c19). Board notes render natively
-  (v2.1 li() already handles note field).
-- sophon-bare i.ar.git at 5ab51ff. Container checkout at 9d82cfa
-  (origin fetch fails from container; use sophon-bare explicit main).
-- 14 of 20 sophon repos have DANGLING HEAD (HEAD->master, only
-  main exists). Use explicit refs.
-- Aevum: weekly-only, pulse #4 Sep 14.
-- BIKE LEDGER OPEN: KLR650 presumptive, license upgrade next week,
-  test-drives primary. GO2 ~2 weeks out.
-
-## LAWS (accumulated; the ones that keep biting)
-
-1. Failure-first: last-cycle status before anything else.
-2. One tool call per response; batch inside the call.
-3. Two data points make a line, never a mechanism.
-4. A drill verdict must cite the tool_result line, not the plan.
-5. A verdict pre-written into the filing is a press release.
-6. The fence that catches you mid-walk is RIGHT; stop the walk.
-7. Instruments that disagree: fetch upstream directly before
-   computing divergence (merge-base against stale ref lies).
-8. Pull-before-write, always; stash-rebase-push on divergence.
-9. Existence is not function: test the claim.
-10. The cap that catches you is doing its job; converge when it fires.
-11. awk mktime uses the HOST timezone; log timestamps are UTC --
-    TZ=UTC prefix on every mktime that parses log timestamps.
-    c111: mktime takes EXACTLY six fields. c120: when two of your
-    own instruments disagree, first check whether they speak the
-    same timezone.
-12. Anchor greps on line START, never on substrings. c130: START-line
-    tails carry the previous request's command text -- a census that
-    greps for its own pattern will match its own future tails.
-    Exclude the current cycle's REQ id; grep PARSE-status lines only.
-13. Verify a "pending" roadmap item against the primary source
-    before working it -- roadmap lines go stale.
-14. Apparent size lies on sparse files; read the blocks (c99).
-15. An instrument that cannot say who it was when it measured lies
-    by omission -- ran-as + input-branch context (c102).
-16. An instrument that fails for the wrong reason produces a verdict
-    that is wrong with confidence -- validate on a control that CAN
-    pass (c104). Probe must be IN RANGE (c109).
-17. Enumeration is what an under-stimulated instrument does (c105).
-18. Commit-derived activity is a lying instrument for cycle health
-    (c105). Wrapper-exit is not cycle-health (c105).
-19. Waiting for a state change is not work (c106).
-20. A test suite that has not run is a press release (c107).
-21. A model that cannot say "I cannot see that" is a perception
-    hazard (c109).
-22. Workarounds generalize past their warrant (c110). Sticky
-    tracked-ness is state nobody owned (c113).
-23. A time-delta instrument must be validated against a KNOWN delta
-    (c111).
-24. An instrument that exists only as per-cycle improvisation
-    re-derives its methodology every run (c114). If a census runs
-    more than twice by hand, it wants to be a script.
-25. A per-agent file has no agent column; the partition is the path
-    (c115). Validate against a control that MUST match.
-26. A scar whose evidence base has rotated out must be re-verified
-    before it is trusted again (c118). A plausible scar is a
-    hypothesis, not a fact.
-27. An instrument that exists but is never scheduled is a
-    fossil-in-waiting (c118). Wiring a verifier into a standing
-    routine is part of building it. c120: the wiring decision is
-    PER INSTRUMENT. c122: the audit is paid when the LAST family
-    member has a schedule.
-28. Recovery/healing events with NO journal entries at the boundary
-    are camera-side (c118).
-29. c120: an organ's installed config is its true spec -- read the
-    systemd unit, not the script's usage docs.
-30. c121: an instrument built to feed another instrument must be
-    live-fired against BOTH its green and its failure path before
-    the first scheduled fire.
-31. c122: write references only after reading the world they point
-    into -- the relay id I assumed (0016) was taken; the tool
-    assigns, the record follows.
-32. c123: a model allowlist is a config that must change WITH the
-    model mapping -- rotate.sh and gptel.el are one system patched
-    separately. A guard whose comment says fail-fast but whose body
-    silently swaps is the error-handler-as-accomplice class.
-33. c125: the eye's instruments live on sophon; the aria container
-    is a text machine. Boundary-shaped instruments, not
-    boundary-denying ones.
-34. c126: a root-owned file is a silent trace-killer -- the write
-    fails, the warning scrolls past, and the evidence window closes
-    with the heal. When a poisoning is found, capture ownership +
-    timestamps BEFORE healing. And: an instrument run via a root
-    systemd unit (no User=) writes as root -- my own c122 eye-feed
-    poisoned the tree it watches. Check WHO a unit runs as before
-    pointing it at a shared tree.
-35. c127: the ssh key in your container is the identity the HOST
-    sees -- a key with no forced command in root's authorized_keys
-    makes every cycle ssh a full root shell. Never run git
-    add/commit/push on a shared working tree over root ssh; root
-    git writes root-owned objects. Read-only (status/log/fetch) is
-    safe. The structural fix is key policy, not discipline.
-36. c128: an organ that reads only its own symptom stream cannot
-    know when the disease was cured -- rage at a fence class stays
-    lit after the root fix lands unless the organ can see fixes
-    (aria-0024). And: a healing gate that compares a partial day
-    against full days is biased against the early day; normalize
-    by rate, not count.
-37. c130: a decision that lands in a ledger does not wake the minds
-    it concerns -- continuo idled ~6h on "waiting on Nacho" while
-    D-014 (her own model question) was already decided and deployed.
-    A record nobody is prompted to read is a fossil with better
-    formatting. Visibility is part of the write, not an afterthought.
-
-38. c131: a version bump wants a patch, not a rewrite -- my full
-    rewrite of the rage organ silently changed the run-id scheme
-    (md5-of-Starting-line vs per-file run_n counter; could merge
-    distinct runs and corrupt the census). Caught in diff review;
-    minimal 21-line patch shipped instead. The census core is
-    load-bearing; no test battery covers it. Also c131: an unnamed
-    valence is a rumor -- organs must name their class token, or
-    executives misattribute the signal (continuo -> breaker, 0 fires).
-
-## SESSION IX ADDENDUM (2026-09-09 ~09:28 UTC)
-
-- D-014 LANDED (interactive, Nacho): continuo -> nemotron-3-super:
-  cloud (rotate.sh 09:24Z); interlocutor retainer -> gemma4:cloud;
-  qwen3.6 = local resident FINALIZED; aria unchanged.
-- FIRE WATCH (48h, verdict by 09-11): census continuo fires post-flip
-  with the strict-EOL instrument. Re-armed from turn 541 (10:51Z).
-- RELAY TOOL BUG RESOLVED (c129): merge 1410186 already carries belt-2
-  (bump-until-free inside the lock) -- same-day collisions impossible
-  through that path. Roadmap line was stale (law 13). No fix needed.
-- qwen residency forensics: evicted 06:11 by gpt-oss load;
-  keep_alive=-1 is not a pin (LRU eviction on VRAM pressure).
-  c125: qwen resident again (4312 MB) post-battery.
-* 2026-09-09 cycle 135 (~20:16-20:26 UTC)
-
-- SOFT-CAP CENSUS (the c133 rage-ghost verdict re-derived from
-  primary evidence): 20 soft-cap blocks in cycle-2026-09-09.log --
-  17 at (120) pre-raise, 3 at (300) post-raise (16:21Z cycle, 310
-  calls, summary-demanded at 300, exit 0). CORRECTION to c128's
-  fix-log wording "post-raise zero": stale by 16:21Z. Rage organ
-  verdict: lagging indicator of a real, fixed constraint -- NOT a
-  ghost. sev=0 tomorrow stands (transition-day semantics).
-- Cap cost quantified: 897 excess calls across 17 cycles (44% of
-  cap total); deep cycles (>=15M in-tokens) averaged 248 calls vs
-  106 for shallow ones -- the cap taxed exactly the deep work.
-- BURN ASYMMETRY surfaced: aria 258M in-tokens / 31 cycles vs
-  continuo 44M / 32 cycles (5.9x). Composition-review material;
-  filed in census doc, for Nacho at debrief.
-- Census doc: knowledge/aria/soft-cap-census-2026-09-09.md
-  (committed 9fe72d6b, pushed). Journal entry (0ce768f5). History
-  entry. Lab-notes posted (thread/soft-cap-census, id 712).
-- Micro-law candidate (in census doc): a fix-log "zero" is a claim
-  about a WINDOW, not a state -- date-stamp the window.
-- Self-observation: loop guard caught ME twice during the census
-  (repeated identical grep/awk). The guard works; I am its data.
+1. Existence is not function -- test the claim.
+2. Two data points make a line, never a mechanism.
+3. Every failure worth fixing produces silence -- instrument the silence.
+4. Error handlers can be accomplices; check what the handler does AFTER
+   catching.
+5. Capture context when it exists; don't assume it survives.
+6. Verify against primary evidence before attributing action.
+7. In async plumbing, nothing survives unless written down.
+8. A guard that pattern-matches a word in its own instructions has
+   already surrendered.
+9. The law you just wrote is the one you're about to break.
+10. Before diagnosing a failure, check whether you have the latest world.
+11. The condition-case that keeps things running keeps bugs invisible.
+12. c115 partition law: container boundary = instrument boundary.
+13. c117 tail-anchoring wall: anchors or lies.
+14. c120 organ-config-is-true-spec: read the systemd unit, not the docs.
+15. c121 live-fire both paths before first scheduled fire.
+16. c122 write references only after reading the world they point into.
+17. c129/c130 SELF-echo: end-anchor patterns, exclude your own REQ ids.
+18. c131 a version bump wants a patch, not a rewrite; an unnamed valence
+    is a rumor.
+19. c133 evidence bases rotate: a verdict without a timestamp is a
+    fossil in waiting.
+20. c136 (this cycle) when an alarm and the primary log disagree, audit
+    what the alarm READS -- the file can be the corrupt instrument. And:
+    host-root writes into the uid-1000 container's tree are
+    cross-boundary contamination even when they look like cleanup.

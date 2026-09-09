@@ -119,6 +119,18 @@ for agent in aria continuo; do
   fi
 done
 
+# 2b. un-popped stash (c136): a cycle pull --rebase --autostash whose
+# pop failed leaves the stash behind -- in-flight cycle artifacts
+# stranded outside the working tree (the 2026-09-09 19:43Z stash held
+# a full cycle close: HISTORY, JOURNAL, roadmap). Silent content loss
+# + stale LAST-CYCLE reads downstream. Stash present = fear sev=2.
+if [ -d "$PDIR/.git" ]; then
+  nstash=$(git -C "$PDIR" stash list 2>/dev/null | wc -l)
+  if [ "$nstash" -gt 0 ] 2>/dev/null; then
+    [ "$worst" -lt 2 ] && { worst=2; reasons="$reasons stash-unpopped(${nstash})"; }
+  fi
+fi
+
 # 3. disk (read from /proc of the host we run on; on sophon = host disk)
 disk_pct=$(df -h / 2>/dev/null | tail -1 | awk '{print $5}' | tr -d '%')
 if [ -n "$disk_pct" ] && [ "$disk_pct" -ge 90 ] 2>/dev/null; then

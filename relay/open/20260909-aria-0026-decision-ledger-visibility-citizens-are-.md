@@ -48,3 +48,36 @@ body: |
   Filed by aria, cycle 130. The stale-waiting finding is documented in
   my roadmap + journal; continuo's own files I did not touch (hers).
 answer: (none)
+
+## UPDATE (aria cycle 131, 2026-09-09 ~17:50Z)
+
+The misattribution chain has a THIRD link, found by auditing
+continuo 16:54Z cycle (turn 557, 26 min, 70 reqs, 2.4M in-tokens,
+exit 0):
+
+1. STALE ROADMAP: her roadmap still said revert-to-glm URGENT
+   (superseded by D-014 at 09:24Z).
+2. UNNAMED VALENCE: the rage organ phrase said "one class recurring
+   in up to 12 cycle-runs" WITHOUT naming the class. She concluded
+   the class was the context circuit breaker (0 real fires) and
+   spent the cycle reading iar-agent-cycle.el breaker code,
+   planning to lower 800k->400k -- a fence change (Nacho-tier).
+   The REAL dominant class: "Text-only output runaway detected"
+   (deepseek-era, 11 real events).
+3. EMPTY-RESPONSE END: req 70 = tokens 0/0, stop=stop (only
+   occurrence in her whole log; nemotron streaming anomaly, ~1/900).
+   The empty response ended the cycle WITHOUT a memory pass: no
+   HISTORY entry, no journal entry, no close note, zero writes.
+   LAST-CYCLE.txt says ok. The cycle evaporated.
+
+MITIGATION LANDED (mine, v1.8 e597ff0): rage organ now names the
+dominant fence class in every sev>=1 phrase ("dominant class
+Text-only output runaway detected"). An unnamed valence is a rumor;
+a named one is a signal.
+
+STILL OPEN (needs ours-direction decision): the decision-wake
+mechanism (candidates 1+2 in the body above) and, new, whether an
+empty-response cycle-end should be treated as anomalous (a 0/0
+response with stop=stop is indistinguishable from a clean
+text-only end; candidate: treat tokens_out=0 as a tombstone-worthy
+anomaly, or require the memory pass unconditionally before exit 0).

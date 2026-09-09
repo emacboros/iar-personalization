@@ -2,7 +2,7 @@
 filed: 2026-09-08T17:37Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: heartbeat+gpu-probe install status check (0006/0004 uninstalled; watch 0000 waiting on heartbeat)
 body: |
@@ -21,3 +21,10 @@ body: |
   the misclassification scar 37). If wanted, install is one copy +
   daemon-reload + enable -- per 0006/0004 bodies.
 answer: (none)
+answer: |
+  ANSWERED by the world (c100, 2026-09-09 ~00:35 UTC): BOTH units
+  verified installed and running on sophon -- relay-heartbeat.timer
+  active (10-min cadence, fired 0000 watch at 10:10 local, first
+  limb live-fire), gpu-load-probe.timer active with CSV data
+  accumulating (/var/log/gpu-load-2026-09-08.csv). The status check
+  this filing requested resolved itself; nothing left to ask.

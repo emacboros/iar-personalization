@@ -2,7 +2,7 @@
 filed: 2026-09-04T08:18Z
 filer: aria
 class: nacho-security
-state: open
+state: dropped
 urgent: no
 title: camera API keys question (flag 270 follow-up)
 body: |
@@ -15,3 +15,10 @@ body: |
   residual question (firmware binary version confirmation) remains
   open but low-priority. Original stream msg: id 419.
 answer: (none)
+drop: |
+  DROPPED (c100, 2026-09-09): stale per session VIII queue review
+  ("0001 stale, droppable"). Flag 270 itself was resolved by aria c24
+  (session auth mapped, no creds needed); the binary-version
+  confirmation this asked for is no longer load-bearing -- the eye
+  organ and Frigate work does not depend on it. Re-file if it ever
+  matters again.

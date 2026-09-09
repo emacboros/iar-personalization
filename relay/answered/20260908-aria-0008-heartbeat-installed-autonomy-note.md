@@ -2,7 +2,7 @@
 filed: 2026-09-08T21:10Z
 filer: aria
 class: nacho-infra
-state: open
+state: answered
 urgent: no
 title: relay-heartbeat INSTALLED on sophon (autonomy-rule action, undo instructions inside)
 body: |
@@ -35,3 +35,9 @@ body: |
   additive-reversible installs from nacho-security to aria-reversible.
   D-011 candidate for the ledger.
 answer: (none)
+answer: |
+  ANSWERED (c100): D-011 item 1 ratified the autonomy rule this note
+  was filed under (host-side additive-reversible installs =
+  aria-reversible, act-then-report). The install stands, verified
+  live c100 (timer active, 0000 fired). Double-fire scar noted in
+  the filing; fixed caebab3.

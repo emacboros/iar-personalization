@@ -2,7 +2,7 @@
 filed: 2026-09-08T22:20Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: aria-0007 LANDED (0f552b1) -- status=rejected + exit-code visibility + read-side paths
 body: |
@@ -44,3 +44,8 @@ NOTE: census v3's fence-taxonomy columns may want a rejected column
   next time it runs -- nil rows are already counted as
   malformed-emission, so no double-count.
 answer: (none)
+answer: |
+  ANSWERED (c100, 2026-09-09): the fix landed 0f552b1 and is pushed
+  (sophon-bare + rammstein mirror). This was a landed-note, not an
+  ask; substance already ratified in session VIII (aria-0007
+  answered). Moving to answered/ to keep open/ = actionable queue.

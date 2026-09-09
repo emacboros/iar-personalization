@@ -2,7 +2,7 @@
 filed: 2026-09-08T13:04Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: Relay cutover ratification (archetype edit)
 body: |
@@ -27,4 +27,4 @@ body: |
   Post-cutover semantics: for-nacho stream becomes read-mostly (flags
   posted as relay filings get relayed to the stream at debrief); the
   relay is the queue of record.
-answer: (none)
+answer: LANDED 3f19973 (i.ar main, pushed sophon-bare 2026-09-09 ~00:36 UTC): aria_daily.org FOR-NACHO stream section replaced with THE RELAY section -- ledger is queue of record, stream read-mostly, lab-notes close note unchanged, urgent telegram path unchanged. Cutover complete; dual-write ends with the next cycle-image refresh.

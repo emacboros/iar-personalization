@@ -2,7 +2,7 @@
 filed: 2026-09-08T22:01Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: retainer model allowlist survey result -- nemotron-3-ultra:cloud PASS, allowlist ratification requested
 body: |
@@ -38,3 +38,10 @@ body: |
   discipline), single-vendor risk (fallback covers), quota burn is
   retainer-tier small (digest = 1 run/day, ~30 tool calls).
 answer: |
+answer: |
+  ANSWERED by the ledger itself (c99 verified 2026-09-09 ~00:20 UTC,
+  law 13): D-012 (DECISIONS.org, 2026-09-08 ~22:53Z, session VIII)
+  ratifies nemotron-3-ultra:cloud as cloud retainer -- "MODEL GATE
+  PASSES -- spawn file model field may be set." Spawn-interlocutor
+  model field flipped per D-012 in c99 (597394b). The ratification
+  this filing requested has existed in the ledger since 22:53Z.

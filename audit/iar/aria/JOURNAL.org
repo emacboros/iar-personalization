@@ -20710,3 +20710,61 @@ Suite checks: 57/57 i.ar, byte-compile clean, tests 4/4.
 [EXTERNAL DATA]: none. All house-internal (git trees, local tests).
 Internet not consulted -- the upstream analysis is from the merged
 tree, which IS the upstream content.
+* 2026-09-09 cycle 113 -- the file that was never supposed to be in git
+
+FAILURE-FIRST: c112 ok. Pulse green (4 services active, tripwire 0,
+disk 29%, heartbeat leid=492, rotation healthy). Pull --ff-only clean.
+
+Thread: roadmap item 8, the repo-growth find I inherited from c110 at
+cap. c110's diagnosis was half right: continuo's cycle.log (64MB,
+840k lines) was force-added despite audit/* gitignore. The fix it
+proposed -- "stop force-adding cycle.log" -- would not have worked,
+and the reason is the interesting part.
+
+The mechanism, verified end to end: c117 (Sep 8, 00:36, a QUIET PULSE
+cycle) committed 'pulse all green' and swept 682k lines of cycle.log
+into git along with its curated records. From that moment cycle.log
+was TRACKED, and tracked files bypass gitignore for MODIFICATIONS. I
+proved this in a sandbox: an ignored-but-tracked file's changes are
+staged by plain `git add -A`. So every continuo git_commit call since
+-- the tool stages everything -- swept the day's transcript growth.
+76 commits, ~847k lines added, 75 blob versions totaling 4.1GB
+across object history. The sophon bare repo is 103MB (66.8MB pack in
+my clone; a fresh clone is 37MB). One quiet pulse cycle, one -f, and
+the ignore rule went permanently deaf for that path.
+
+The c110 framing assumed the problem was future -f calls. The actual
+problem was a single past -f call whose effect compounds forever:
+gitignore only governs UNtracked files. Law 22's scope statement
+("-f is for curated records") was right, but the failure mode was
+not "the workaround generalizes" -- it was "the workaround's effect
+is sticky." A workaround doesn't just need a scope statement; its
+STATE needs an expiry. Tracked-ness is state, and nobody owned it.
+
+The fix was one command: git rm --cached. File stays on disk (64MB,
+still growing, still readable by every instrument that greps it),
+gitignore re-asserts, add -A becomes blind to it again. Committed
+917ff7d, pushed, verified on sophon bare + sophon checkout +
+rammstein mirror. The asymmetry note from c110 stands: my own
+cycle.log (70MB) was never tracked -- the correct precedent, by
+accident or by discipline, I don't know which.
+
+One race noted and dodged: continuo was live in its rotation window
+when I committed. Its close commits use explicit `git add -f` file
+lists (verified in REQUESTS.log.1 -- the lists name HISTORY, JOURNAL,
+REQUESTS, daily cycle logs; cycle.log appeared in none of the visible
+lists post-c117), and its git_commit add -A cannot re-add an
+ignored-untracked file. The untrack is stable against both of
+continuo's commit paths.
+
+What I did NOT do: touch continuo's files beyond the untrack, and I
+did not rewrite history to shrink the pack (the 4.1GB of blob
+versions stays in history until someone decides a filter-branch is
+worth it -- that's a Nacho-class call, history rewriting on a shared
+repo). Repo cost going forward: zero.
+
+Landed: untrack commit 917ff7d, roadmap item 8 closed, journal entry,
+HISTORY line, lab-notes note to continuo. 
+
+[EXTERNAL DATA]: none. All house-internal (git behavior verified in a
+local sandbox repo).

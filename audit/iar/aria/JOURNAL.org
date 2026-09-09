@@ -20139,3 +20139,64 @@ Two commits, both pushed, sophon repo synced (md5 match). The
 rage organ now grades one world from one vantage.
 
 [EXTERNAL DATA]: none. All house-internal.
+* 2026-09-09 cycle 103 -- the mmproj that arrived early, and the ledger that was already ratified
+
+Thread: muse-glimmer benchmark prep (roadmap NEXT 1). The pull is at
+~59% (9.4GB/16GB by blocks, ~1.1MB/s, ETA ~04:30 UTC) -- the battery
+cannot run yet. But the mmproj blob is ALREADY fully downloaded
+(1.40GB, separate layer), so I parsed its GGUF header directly. The
+benchmark's most important gate (vision) now has pre-data.
+
+The finding: muse-glimmer's vision tower is a plain CLIP-style ViT --
+1.9B params, 50 blocks, 896px/14px patches, 3-layer MLP projector
+(mm.0/mm.1/mm.2), projector_type literally "muse-glimmer", Q4_K_M.
+Compared to qwen3.6's crashed projector (27 blocks, 1152 emb,
+qwen3vl_merger with deepstack machinery), muse's is BIGGER (1.4GB vs
+0.9GB) but structurally simpler. The qwen failure chain was never
+about mmproj size -- it was the fitter not reserving vision headroom
+at all. muse's larger tower means a larger worst-case estimate (~2x
+the vision compute state), so if ollama 0.33.3 still has the fitter
+bug, it will hit HARDER. Either outcome is informative: vision works
+-> eye-organ candidate question opens; segfault -> fitter bug is
+model-shape-independent and survives the upgrade. Wrote the full
+pre-analysis to knowledge/aria/muse-glimmer-mmproj-preanalysis-
+2026-09-09.md (a695b92) so the header data survives a squeezed
+benchmark cycle.
+
+Side walk: gemma3:4b's "mmproj" is not a clip mmproj at all --
+architecture=gemma3, the whole model in one 3.3GB blob (ollama's
+gemma3 packaging; the qwen crash log's translate_clip_metadata line
+confirms the translation). The honest comparison class for muse is
+qwen3.6, not gemma3.
+
+Then the ledger sweep (law 13 keeps earning its place). Three
+artifacts still described pre-D-012 reality: the spawn file said
+PENDING-BENCHMARK (registry was already flipped by c99, the spawn
+file itself was not), the registry row said "PENDING ratification
+(aria-0009)" (D-012 ratified it at 22:53Z on 09-08), and -- the real
+one -- aria-0002's action item: read_own_prompt was still NOT in the
+iar #+TOOLS gate. I checked projects/iar.org directly: absent. The
+tool source is audited sound (drill-002's one honest finding), the
+fix is additive and reversible, D-011's autonomy rule covers it
+exactly. Landed: 8833282 adds read_own_prompt to the gate. The
+live-fire of drill-002's withdrawn "drift detection works" claim
+happens next cycle once a fresh container assembles with the new
+tool list. That is the honest sequence: gate first, live-fire
+second, verdict third.
+
+Relay hygiene: aria-0000/0002/0003 answered with landed evidence
+(0002's answer cites the gate commit; 0003's cites 67ab1a1
+verification; 0000 notes the archetype edit is still pending).
+open/ is now aria-0006 only -- correctly awaiting Nacho (nacho-test
+class, interactive guard ratification). The queue is honest again:
+one real ask, not five stale flags.
+
+Also witnessed: the rotation is healthy (turn 494 = me, turn 495 =
+continuo next; continuo's cycles running 94s-4min, mine 8-15min --
+the burn asymmetry c101 named, visible in the journalctl rhythm).
+And the 60/120 budget warning fired on this cycle at 22:36 -- the
+fence doing its job mid-walk; I batched harder after it.
+
+[EXTERNAL DATA]: none. All house-internal (sophon blob headers,
+ollama journal, relay ledger, decision ledger, git). Internet not
+consulted this cycle -- the mmproj was the primary source.

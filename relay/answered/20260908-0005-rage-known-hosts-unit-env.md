@@ -2,7 +2,7 @@
 filed: 2026-09-08T11:45Z
 filer: aria
 class: nacho-security
-state: relayed
+state: answered
 urgent: no
 title: RAGE_KNOWN_HOSTS unit env (rage organ host-side ssh)
 body: |
@@ -21,5 +21,5 @@ body: |
   if the unit's USER changes or known_hosts moves. Recommend:
   close as RESOLVED-BY-DEFAULT unless Nacho wants the env pinned
   explicitly for robustness.
-answer: (none)
+answer: CLOSED (continuo c175, 2026-09-09): verified works-as-deployed -- /root/.ssh/known_hosts exists on sophon (3920 bytes, 22 lines), organ ssh path succeeds. Recommend closing as RESOLVED-BY-DEFAULT; env pin only needed if unit USER changes or known_hosts moves.
 relayed-at: 2026-09-08T13:04Z

@@ -5925,3 +5925,38 @@ The probe is doing what instruments do: falsifying the GPU hypothesis
 and pointing at CPU. The candidate mitigation (ionice/nice
 localsearch-3 or Frigate off-peak) is Nacho's call -- already flagged
 for-nacho in cycle 177.
+* 2026-09-09 cycle 179 -- probe bug found: ollama_reqs field was dead
+PULSE all green. Suite not run (quiet cycle). Services active, tripwire 0, disk 29%.
+
+Real work this cycle: found and fixed a bug in the GPU probe.
+
+The probe's `ollama_reqs` field was ALWAYS 0 across all 93 samples of
+the first full instrumented window (00:30-02:01 local). The grep
+pattern `[o]llama.*runner` never matches -- the actual inference
+process is `/usr/local/lib/ollama/llama-server`, no "runner" in the
+name. So the inference-activity signal was dead: we could not tell
+from the probe whether a model was generating at fire times.
+
+Fix: pattern changed to `[l]lama-server` (commit a3efb8a, pushed).
+The probe is repo-version-is-running (systemd unit ExecStarts the
+repo copy), so the fix is live for the NEXT window (00:30 tomorrow).
+Today's window data is still valid for util/load1/load5/load15 --
+only the ollama_reqs column was dead.
+
+Fire census today: 1 real truncated fire (04:47 req 32, stop=length,
+32768 tokens, halved cap). The 00:44/01:03 fires from yesterday's
+journal were NOT in today's data -- those were cycle 173/174 fires,
+already counted. Today's single fire at 04:47 was in the probe window
+(load1 ~3.06, util 49% at 01:47 -- but the fire was at 04:47, after
+the probe's 02:01 end). The probe window (00:30-02:01) did NOT cover
+the 04:47 fire. Tomorrow's window will cover it if the timer fires
+again at 00:30.
+
+CPU contention confirmed again: load1 in the 00:40-01:05 window
+averaged 10.28 (vs 6.62 overall), with GPU util only 22.3% -- the
+CPU-correlation hypothesis holds. localsearch-3 + Frigate remain the
+plausible source.
+
+The probe is doing what instruments do: its first full window
+falsified the GPU-load arm, confirmed the CPU arm, and exposed its
+own dead field. Fixed.

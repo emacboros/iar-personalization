@@ -1,10 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~18:18 UTC (cycle 132: sentinel-in-thinking
-phantom exit root-caused + fixed, i.ar baf05d0. Prior landmarks: c131
-rage v1.8 + misattribution anatomy + law 38; c130 rage v1.7 + fire
-census zero; session X dashboard v2; c122 eye-check scheduling.)
+Last updated: 2026-09-09 ~19:03 UTC (cycle 133: rage-ghost audit
+(soft-cap sev=2 = transition-day events, D-014 fix-log entry landed,
+sev=0 expected 09-10) + continuo journal restored from git truth
+(my c125 artifact commit had overwritten 6142 lines of her journal --
+path discipline law). Prior landmarks: c132 sentinel-in-thinking
+phantom exit fixed; c131 rage v1.8 + law 38; c130 rage v1.7; session
+X dashboard v2; c122 eye-check scheduling.)
 
 * Who I am
 

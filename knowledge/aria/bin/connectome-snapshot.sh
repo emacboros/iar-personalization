@@ -11,6 +11,16 @@
 # Traps honored: census-echo law (anchor on line structure, never query
 # tokens), nil-agent rows excluded, status=rejected counted separately,
 # first snapshot = baseline only (no trend claims).
+#
+# REQUESTS.log LINE SHAPE (verified 2026-09-09, c115 -- the c115 scar):
+#   [ts] REQ <id> PARSE status=... error=X stop=Y tokens_in=N tokens_out=M
+#   [ts] REQ <id> START backend=... model=... msgs=N ...
+#   [ts] REQ <id> RESPONSE http=200 body_tail=...
+# There is NO agent field in REQUESTS.log lines. The per-agent partition
+# IS the file path (audit/iar/<agent>/REQUESTS.log). Any grep that anchors
+# on "] <agent> | PARSE | " matches ONLY self-echo (census commands
+# quoting the pattern in specs=) and NEVER a genuine line. All REQUESTS.log
+# greps here anchor on '] REQ <id> PARSE ' instead.
 set -u
 REPO=/var/home/nacho/repos/iar-personalization
 AUDIT_DIR=$REPO/audit
@@ -134,6 +144,8 @@ echo
 } >> "$OUT"
 
 # --- 4. token economics from REQUESTS.log (fat-context early warning) ---
+# Anchored on '] REQ <id> PARSE ' -- genuine line shape; unanchored
+# ' PARSE ' greps count census commands' own specs= echo (c115).
 {
 echo "## Token economics (REQUESTS.log, per agent)"
 echo
@@ -142,7 +154,7 @@ for ag in aria continuo; do
   [ -f "$f.1" ] && cat "$f.1" "$f" > /tmp/connectome/req-$ag.log || cp "$f" /tmp/connectome/req-$ag.log
   echo "### $ag"
   echo '```'
-  grep ' PARSE ' /tmp/connectome/req-$ag.log \
+  grep -E '\] REQ [0-9]+-[0-9]+ PARSE ' /tmp/connectome/req-$ag.log \
     | grep -oE 'tokens_in=[0-9]+' | cut -d= -f2 \
     | sort -n | awk '{a[NR]=$1} END {if(NR>0) printf "n=%d p50=%d p90=%d p99=%d max=%d\n", NR, a[int(NR*0.5)], a[int(NR*0.9)], a[int(NR*0.99)], a[NR]}'
   echo '```'
@@ -156,10 +168,13 @@ echo
 # arriving during a hang, then resume. Max gap between consecutive PARSE
 # timestamps per agent = the silence column. Gaps > 600s (the tool
 # timeout ceiling) are hang-class candidates.
+# c115 FIX: was anchored on '] <agent> | PARSE | ' -- a shape that does
+# not exist in REQUESTS.log (no agent field; the file IS the partition).
+# It matched only self-echo and would have reported fiction forever.
 emit_silence() {
   local agent="$1"
-  TZ=UTC awk -v AG="$agent" '
-    $0 ~ "\] " AG " \| PARSE \| " {
+  TZ=UTC awk '
+    $0 ~ "\] REQ [0-9]+-[0-9]+ PARSE " {
       ts=substr($0, 2, 19); gsub(/[-:]/, " ", ts);
       t=mktime(ts);
       if (prev && t-prev > max) { max=t-prev; from=sprev; to=ts }
@@ -187,7 +202,46 @@ for ag in aria continuo; do
 done
 } >> "$OUT"
 
-# --- 7. fence/rejection counts (post-0f552b1 rows) ---
+# --- 7. fire census (truncated-output fires; c114 methodology, baked) ---
+# A fire = a PARSE line whose tail is exactly `error=<X> stop=length
+# tokens_in=<N> tokens_out=<M>` at LINE END. Anchoring the TAIL is the
+# whole method: census greps that match substrings count their own
+# specs= echo (c32 self-inflation; c114's 73-fictional-fires recount).
+# stop=length + tokens_out at the 32768 halved cap = generation hit the
+# output ceiling mid-turn. Per-agent counts + per-day histogram.
+# c115 FIX: no agent-name anchor -- REQUESTS.log lines have no agent
+# field; the per-agent file IS the partition (see header).
+emit_fires() {
+  local agent="$1"
+  grep -E 'error=[^ ]+ stop=length tokens_in=[0-9]+ tokens_out=[0-9]+$' /tmp/connectome/req-$agent.log \
+    | TZ=UTC awk '
+      { ts=substr($0, 2, 10); day[ts]++; n++ }
+      END {
+        for (d in day) printf "%s: %d\n", d, day[d] | "sort";
+        if (n > 0) printf "TOTAL fires: %d\n", n;
+        else print "TOTAL fires: 0";
+      }'
+}
+{
+echo "## Fire census (truncated-output fires, REQUESTS.log PARSE lines)"
+echo
+echo "A fire = PARSE line ending exactly with \`error=<X> stop=length"
+echo "tokens_in=<N> tokens_out=<M>\` -- tail-anchored so census commands"
+echo "never count their own specs= echo (c32/c114). stop=length at the"
+echo "32768 halved cap = output ceiling hit mid-turn. Cross-check bursts"
+echo "against journalctl before attributing cause (law 26: two data"
+echo "points make a line, never a mechanism)."
+echo
+for ag in aria continuo; do
+  echo "### $ag"
+  echo '```'
+  emit_fires "$ag"
+  echo '```'
+  echo
+done
+} >> "$OUT"
+
+# --- 8. fence/rejection counts (post-0f552b1 rows) ---
 {
 echo "## Fence rejections (status=rejected, post 0f552b1)"
 echo '```'

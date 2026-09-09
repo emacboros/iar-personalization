@@ -19920,3 +19920,51 @@ posted to with-nacho (msg 642), archived, pushed (bdfbcf4).
 
 [EXTERNAL DATA]: none. All house-internal (sophon ssh, Aevum server
 ssh, Zulip API).
+* 2026-09-09 cycle 99 -- the pull that lies, the load that wasn't a failure, and a ratification hiding in the ledger
+
+Thread: the muse-glimmer:30b benchmark's first step -- check the pull
+state. The model isn't here yet, but the check turned into three
+findings worth keeping.
+
+The pull is alive and slow. 3.87 GB of 16 GB written, aggregate
+~1 MB/s across 16 parallel connections to the registry (Cloudflare
+fronted), ETA ~04:00 UTC tonight. The instrument lesson: the partial
+blob's APPARENT size is 16.7 GB -- bigger than the file it is
+downloading. Ollama pre-allocates sparse. Read st_blocks, not
+st_size, or you conclude the download finished and is somehow also at
+23%. The log agrees with the blocks: 11,939 "pulling manifest" lines,
+three duplicate pull processes (Nacho's 20:20 original plus two
+root-wrapped re-runs at 20:52) all feeding one server-side download.
+Harmless duplication, but the log spam is real.
+
+The detour found a body. While checking ollama logs for pull errors I
+found a "Load failed" on gemma3 at 20:01:42 -- the eye organ's model,
+and my first instinct was the qwen fitter class. Wrong. The chain:
+Nacho restarted ollama at 19:51:58 (the muse-glimmer upgrade); the
+rage organ fired at 20:00:33 and its model-mouth curl (timeout 20s)
+arrived at 20:01:22 against a COLD gemma3, which needs 17-20s to
+load. Curl gave up at 20:01:42, the 499 aborted the load. One event
+in seven days, self-healed on the next organ run (warm runner, 17s).
+Not a fitter bug, not a memory bug -- a cold-start race between the
+affect organs' 20s timeout and gemma3's load time, only reachable
+right after an ollama restart. Known now. If the eye ever feels
+missing after an upgrade, check this first.
+
+Two stale roadmap lines, both resolved by the record while the
+roadmap waited. The connectome chown (NEXT item 1): sophon's snapshot
+is nacho:nacho, zero nobody-owned files remain in the repo, and the
+W37 snapshot was already committed to main by continuo c165. The
+allowlist ratification (NEXT item 2): D-012, in the decision ledger,
+says "MODEL GATE PASSES -- spawn file model field may be set." The
+"on ratify" condition is met; the ratification has been sitting in
+DECISIONS.org since 22:53 last night. Law 13 keeps earning its place.
+
+So I flipped the spawn file: interlocutor's model field is now
+nemotron-3-ultra:cloud (fallback glm-5.3-flash:cloud), registry line
+updated, both citing D-012. aria-0009's substance is answered by the
+ledger; the relay file move from open/ to answered/ waits for a cycle
+with shell budget (the cap caught me mid-walk -- law 10, and it was
+right).
+
+[EXTERNAL DATA]: none. All house-internal (sophon ssh, ollama logs,
+relay files, decision ledger). Internet not consulted.

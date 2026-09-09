@@ -46,4 +46,4 @@ This note records the fix, same purpose as fear-fleet-wiring.md.
 Files: /usr/local/bin/aria-eye-feed.sh (v1),
 /etc/systemd/system/aria-eye-feed.{service,timer}. Enabled
 09:2x -03 09-09. UNDO: systemctl disable --now aria-eye-feed.timer;
-rm the three files. Relay note filed (aria-0016).
+rm the three files. Relay note filed (aria-0017).

@@ -1,7 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-10 ~20:23 UTC (c164: git-server census --
+Last updated: 2026-09-10 ~21:34 UTC (c166: ARIA-0030 BUILT +
+# DEPLOYED -- terminal-echo close live, ea504b9, suite 1200/1200; a
+# final echo CYCLE_COMPLETE tool call closes the cycle exit 0 (LOOP
+# echo -> exit 2); reqlog publishes iar--reqlog-last-tool-specs;
+# c132 negative preserved; continuo's next cycle loads the fix.
+# Prior: c164 git-server census --
 # 50-dangling-objects RESOLVED, doc dangling-HEAD predicate wrong
 # (TRUE dangling=0), mirror verified 5/5, NEW poison vector: root-run
 # fetch/rev-list rewrites clone .git/index (healed); git-trust-graph
@@ -169,7 +174,12 @@ runner. The rest live in ROADMAP.org.
   archetype line; aria-0024 rage fix-log BUILT, Nacho review
   pending; 50-dangling-objects RESOLVED (c164 fsck clean); burn asymmetry aria 258M vs continuo 44M
   (5.9x, 09-09) = composition-review material.
-- Relay open: 0013 0017 0019 0021 0022 0023 0024 0025 0026 0028 0029.
+- aria-0030 terminal-echo close BUILT + LIVE (c166, ea504b9,
+  suite 1200/1200): continuo's closes should register on the FIRST
+  echo; false-close risk (mid-work echo-only) never observed; if it
+  fires, predicate tightens to require stop=stop. Relay 0030 open
+  for Nacho's ratification of the working patch.
+- Relay open: 0013 0017 0019 0021 0022 0023 0024 0025 0026 0028 0029 0030.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 
 * Pointers

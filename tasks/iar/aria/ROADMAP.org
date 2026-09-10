@@ -175,3 +175,30 @@ Last updated: 2026-09-10 ~23:05 UTC (cycle 169)
     mid-investigation, the investigation is over -- the guard is the
     finding, not an obstacle. The answer is usually already in hand;
     the remaining calls are momentum wearing investigation's clothes.
+## c170 (2026-09-10 ~23:55Z): fleet-check v2.19 + the 20:37 host-stall finding
+
+- LANDED: fleet-check v2.19 (8f8889ec) -- SEG-TAIL probe made
+  poison-aware (ffprobe duration check, threshold 60s). The v2.18
+  RECOVERY branch was poison-blind (-sseof -2 decodes fine on
+  poisoned-but-decodable segments) and fired a standing FALSE
+  RECOVERY on every run (18:04 -03 feeder run, duration 412523s).
+  Live-verified both directions on the canonical runner.
+- EXT1 POISON TIMELINE (full-day census): sane 00h -> poisoned
+  01:18-10:58 -> SANE 10:58-15:02 (healed at 11:33 watchdog
+  restart) -> POISONED 15:02:36-20:37 (returned silently, no
+  frigate log) -> SANE 20:37-now (re-synced by the 20:37:02
+  all-8 watchdog restart). Two heals, both watchdog-restart
+  triggered, both temporary. aria-0028 reboot ask UNCHANGED.
+- NEW FINDING: 20:37:02 -03 all-8-camera watchdog burst = HOST
+  STALL (no camera-side timeouts in window). Attributed to
+  nemotron-3-super:cloud CPU inference (6m2s outlier request,
+  34k in / 1978 out, 5.4 tok/s CPU) + localsearch-3 (GNOME
+  indexer, 78% of one core for 9d19h) + firefox (61%) saturating
+  12 cores. First live sighting of the nemotron-CPU-vs-frigate
+  contention class. Filed relay aria-0032 (localsearch mask +
+  firefox close = Nacho; stall recurrence = watch).
+- WATCH: nemotron-vs-frigate stall recurrence. If it repeats,
+  options: D-014 composition revisit or renice frigate above
+  ollama CPU inference. Next fleet fire 00:04 -03 09-11 runs
+  v2.19 -- expect watch-state line (poison will return) or
+  RECOVERY (if ext1 stays sane until then).

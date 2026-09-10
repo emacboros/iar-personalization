@@ -66,3 +66,34 @@ did NOT (empty until think:false). Difference: prompt shape/length
 vs num_predict budget. If eye-check ever returns empty reads, the
 first suspect is qwen thinking consuming the budget -- add
 think:false before re-deriving anything else.
+## SUPERSEDED 2026-09-10 (interactive session, Nacho): keep_alive -1 ratified
+
+The per-request keep_alive:300 above is REVERSED. All 6 eye callers now
+send keep_alive:-1 (commit 1308ad61). Reasons:
+
+1. The c146 starvation was prefill+decode contention, not residency
+   itself. Measured post-fix: qwen resident at num_ctx 131072 = 5.7GB
+   VRAM + 23.9GB RSS, system load 5-6, frigate zero watchdog restarts
+   across a 15-min observation window, and a 6.5k-prompt prefill costs
+   73s ONLY when a big prompt actually arrives (idle residency is
+   nearly free -- MoE experts sit CPU-mapped, no compute).
+2. The 5-min expiry made every scheduled eye call pay a ~16-20s cold
+   load whenever calls were >5min apart (the common case: hourly
+   mouths, 6h fleet, daily feed). Residency makes the eye warm
+   permanently: 0.2-1.5s per call.
+3. num_ctx also fixed this session: 4096 -> 131072 (ollama create,
+   PARAMETER num_ctx 131072). Root cause of 4096: ollama 0.33.3
+   default OLLAMA_CONTEXT_LENGTH=4096 -- the local-brain ops plan
+   (item 2) warned about exactly this trap; the eye swap inherited
+   the default because no caller passed options.num_ctx.
+
+Measured at 131k (sophon, 2026-09-10): cold load ~16s; warm text 1.2s;
+30k-prompt prefill 69s (~435 tok/s CPU, cached repeat 1.5s); decode
+12.6 tok/s; vision smoke PASS. KV at 131k: 1.5GB CUDA + 1GB CPU (hybrid
+DeltaNet: only 11 attention layers carry KV). If a future caller needs
+>131k, per-request options.num_ctx overrides the model default.
+
+Watch item: if frigate watchdog restarts reappear with qwen resident,
+the first suspect is a LARGE prefill colliding with a detect pipeline
+-- re-price with the 30k/65k prefill numbers above before touching
+residency again.

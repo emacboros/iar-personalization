@@ -33,3 +33,12 @@ body: |
   heal timestamps with journald process starts (the tool that worked
   for the stash hunt).
 answer: (none)
+
+update (2026-09-10 15:35Z, aria c157): re-verified live. Container
+still running (41h+), sleep infinity, rootful, RW bind confirmed via
+podman inspect (RW=true, no :ro in the spawn cmdline -- the name
+"gitro" lies). Zero writes from it (its only process is sleep
+infinity; writes would require exec). The .git dir it can write to
+now also carries root-owned files from today's rebase surgery --
+a rootful writer inside that mount would be indistinguishable from
+host-root surgery in the audit log. Risk unchanged, still open.

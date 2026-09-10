@@ -1,22 +1,22 @@
 # Connectome snapshot 2026-W37
 
-Generated: 2026-09-10 19:04 UTC | window: 5 s | TOPN: 15
+Generated: 2026-09-10 19:11 UTC | window: 5 s | TOPN: 15
 
 ## Population
 
 | source | tool_call lines |
 |---|---|
-| merged (both hosts) | 90817 |
-| aria | 56122 |
+| merged (both hosts) | 90978 |
+| aria | 56283 |
 | continuo | 24487 |
 
 ## Co-firing (top pairs, 5s window)
 
 ### aria
 ```
-  36053 execute_code_local->execute_code_local
-   1283 read_file->execute_code_local
-   1051 execute_code_local->read_file
+  36187 execute_code_local->execute_code_local
+   1285 read_file->execute_code_local
+   1053 execute_code_local->read_file
     477 execute_code_local->read_roadmap
     381 read_roadmap->read_task
     307 write_file->execute_code_local
@@ -24,7 +24,7 @@ Generated: 2026-09-10 19:04 UTC | window: 5 s | TOPN: 15
     273 read_task->execute_code_local
     265 execute_code_local->append_file
     252 append_file->append_file
-    248 append_file->execute_code_local
+    250 append_file->execute_code_local
     163 execute_code_local->write_file
     138 read_task->read_task
     133 read_knowledge->read_knowledge
@@ -54,39 +54,39 @@ Generated: 2026-09-10 19:04 UTC | window: 5 s | TOPN: 15
 
 ### aria 2-grams
 ```
-  22987 execute_code_local->execute_code_local
-    811 read_file->execute_code_local
-    738 execute_code_local->read_file
-    293 execute_code_local->read_roadmap
-    290 execute_code_local->append_file
-    269 append_file->execute_code_local
-    226 execute_code_local->write_file
-    222 write_file->execute_code_local
-    220 append_file->append_file
-    207 read_roadmap->read_task
-    206 read_task->execute_code_local
-    181 read_file->read_file
-    105 write_roadmap->execute_code_local
-     93 read_roadmap->execute_code_local
-     69 read_task->read_task
+  23056 execute_code_local->execute_code_local
+    821 read_file->execute_code_local
+    742 execute_code_local->read_file
+    298 execute_code_local->append_file
+    288 execute_code_local->read_roadmap
+    271 append_file->execute_code_local
+    228 append_file->append_file
+    226 write_file->execute_code_local
+    223 execute_code_local->write_file
+    213 read_roadmap->read_task
+    191 read_task->execute_code_local
+    185 read_file->read_file
+    113 write_roadmap->execute_code_local
+     92 read_roadmap->execute_code_local
+     73 execute_code_local->read_task
 ```
 ### aria 3-grams
 ```
-  14406 execute_code_local->execute_code_local->execute_code_local
-    485 read_file->execute_code_local->execute_code_local
-    391 execute_code_local->read_file->execute_code_local
-    366 execute_code_local->execute_code_local->read_file
-    185 execute_code_local->execute_code_local->read_roadmap
-    166 execute_code_local->execute_code_local->append_file
-    134 execute_code_local->write_file->execute_code_local
-    114 execute_code_local->read_roadmap->read_task
-    107 append_file->execute_code_local->execute_code_local
-     97 read_task->execute_code_local->execute_code_local
-     94 read_roadmap->read_task->execute_code_local
-     92 execute_code_local->append_file->execute_code_local
-     91 execute_code_local->append_file->append_file
-     81 execute_code_local->execute_code_local->write_file
-     77 write_file->execute_code_local->execute_code_local
+  14470 execute_code_local->execute_code_local->execute_code_local
+    491 read_file->execute_code_local->execute_code_local
+    429 execute_code_local->read_file->execute_code_local
+    334 execute_code_local->execute_code_local->read_file
+    180 execute_code_local->execute_code_local->read_roadmap
+    172 execute_code_local->execute_code_local->append_file
+    143 execute_code_local->write_file->execute_code_local
+    118 execute_code_local->read_roadmap->read_task
+    116 append_file->execute_code_local->execute_code_local
+     89 execute_code_local->append_file->append_file
+     85 execute_code_local->append_file->execute_code_local
+     84 read_roadmap->read_task->execute_code_local
+     82 read_task->execute_code_local->execute_code_local
+     77 execute_code_local->execute_code_local->write_file
+     75 read_file->read_file->execute_code_local
 ```
 ### continuo 2-grams
 ```
@@ -129,7 +129,7 @@ Generated: 2026-09-10 19:04 UTC | window: 5 s | TOPN: 15
 
 ### aria writes (top 15)
 ```
-   1228 name=append_file 
+   1230 name=append_file 
     583 name=write_file 
     130 name=git_commit 
      41 name=create_task 
@@ -143,11 +143,11 @@ Generated: 2026-09-10 19:04 UTC | window: 5 s | TOPN: 15
      41 path=/root/personalization/tasks/iar/aria/ROADMAP.org
      40 path=/'
      31 path=/root/personalization/knowledge/aria/bin/rage-organ.sh
+     20 path=/root/personalization/knowledge/aria/bin/connectome-snapshot.sh
      19 path="/var/home/nacho/repos/iar-personalization...
      16 path=/root/personalization/knowledge/aria/bin/relay
      16 path=/root/personalization/knowledge/aria/bin/fleet-check.sh
      14 path=/root/personalization/knowledge/aria/connectome/snapshot-2026-W37.md
-     14 path=/root/personalization/knowledge/aria/bin/connectome-snapshot.sh
      13 path=/root/personalization/knowledge/aria/vision-eye.md
 ```
 
@@ -189,15 +189,26 @@ path=/root/personalization/audit/iar/aria/LAST-CYCLE.txt
 path=/root/personalization/audit/iar/aria/THREADS.org
 ```
 
+## REQ source note (c162)
+
+REQ census built from: aria=cycle.log, continuo=cycle.log.
+REQUESTS.log rotates to .1 keeping ONE generation; chunks rotated out
+are lost (verified 09-10: continuo 09-09 12-18h UTC window absent from
+REQUESTS.log(.1), present in cycle.log). cycle.log is never rotated and
+carries the same '] REQ <id> ...' lines, so it is the primary source
+when present. Silence gaps computed from a rotated-out window are
+ARTIFACTS -- cross-check any gap > 600s against cycle.log before
+claiming a hang.
+
 ## Token economics (REQUESTS.log, per agent)
 
 ### aria
 ```
-n=3506 p50=60821 p90=108793 p99=174327 max=188896
+n=536 p50=34532 p90=74626 p99=104569 max=325732
 ```
 ### continuo
 ```
-n=2423 p50=28092 p90=45184 p99=65207 max=325732
+n=669 p50=29455 p90=75241 p99=97403 max=118381
 ```
 
 ## Silence (hang-signal channel, REQUESTS.log PARSE gaps)
@@ -208,12 +219,12 @@ from/to stamps against journalctl rotation logs before claiming a hang.
 
 ### aria
 ```
-max_gap_s=2494 from=2026 09 10 07 54 29 to=2026 09 10 08 36 03 gaps_over_600s=20
+max_gap_s=242845 from=2026 09 04 05 04 46 to=2026 09 07 00 32 11 gaps_over_600s=284
 ```
 
 ### continuo
 ```
-max_gap_s=27032 from=2026 09 09 11 33 25 to=2026 09 09 19 03 57 gaps_over_600s=51
+max_gap_s=215750 from=2026 09 04 05 04 53 to=2026 09 06 17 00 43 gaps_over_600s=207
 ```
 
 ## Fire census (truncated-output fires, REQUESTS.log PARSE lines)
@@ -227,15 +238,21 @@ points make a line, never a mechanism).
 
 ### aria
 ```
-2026-09-10: 1
-TOTAL fires: 1
+2026-09-06: 2
+2026-09-07: 26
+2026-09-08: 13
+2026-09-09: 27
+2026-09-10: 6
+TOTAL fires: 74
 ```
 
 ### continuo
 ```
-2026-09-09: 8
-2026-09-10: 8
-TOTAL fires: 16
+2026-09-06: 1
+2026-09-07: 18
+2026-09-08: 35
+2026-09-09: 12
+TOTAL fires: 66
 ```
 
 ## Fence rejections (status=rejected, post 0f552b1)

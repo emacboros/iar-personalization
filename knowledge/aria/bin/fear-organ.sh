@@ -1,5 +1,5 @@
 #!/bin/bash
-# fear-organ.sh v1.1 (2026-09-07, aria cycle 25: empty-status reads are writer-collision transients, not failures)
+# fear-organ.sh v1.2 (2026-09-10, aria cycle 146: fleet self-feed + staleness branch -- the c121 phantom-landing fix; v1.1 2026-09-07 cycle 25: empty-status reads are writer-collision transients, not failures)
 # -------------------------------------------------------------
 # The fear organ: the tripwire law given a voice.
 # Event-organ, avoid-valence: "what threatens survival?"
@@ -66,6 +66,18 @@ worst=0
 reasons=""
 
 # 1. fleet-check verdict (the composite survival signal)
+# v1.2 (c146): the c121 wiring was a PHANTOM LANDING -- the unit still
+# passes "" and the claimed v1.2 staleness branch never committed.
+# Fix in the organ, not the unit: when $1 is empty, self-feed from the
+# canonical fleet path (world-readable, written by the 6h feeder).
+# A missing/stale fleet file is the feeder's failure surface:
+#   >26h old = sev=1 (fleet-check runs at least every 6h; 26h allows
+#   one missed fire + slack). Missing file = no fleet input (today's
+#   degraded state), never a fake alarm.
+FLEET_CANON=/var/lib/aria-fleet/fleet-latest
+if [ -z "$FLEET_FILE" ] && [ -r "$FLEET_CANON" ]; then
+  FLEET_FILE="$FLEET_CANON"
+fi
 if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
   if grep -q "FAIL=1" "$FLEET_FILE" 2>/dev/null; then
     worst=2
@@ -75,6 +87,12 @@ if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
       worst=3
       reasons="fleet-check FAIL (voice/backup/memory class)"
     fi
+  fi
+  # staleness: the feeder's own failure surface (c121 design, landed
+  # for real in c146). Fresh = in-flight write, ignore; stale = dead feeder.
+  flage_h=$(( ( $(date +%s) - $(stat -c %Y "$FLEET_FILE" 2>/dev/null || echo 0) ) / 3600 ))
+  if [ "$flage_h" -gt 26 ] 2>/dev/null; then
+    [ "$worst" -lt 1 ] && { worst=1; reasons="$reasons fleet-stale(${flage_h}h)"; }
   fi
 fi
 

@@ -66,3 +66,28 @@ Files: /usr/local/bin/aria-fleet-feed.sh (v1.1),
 05:55:52 -03. UNDO: systemctl disable --now aria-fleet-feed.timer;
 rm the three files; rmdir /var/lib/aria-fleet. Relay note filed
 (aria-0015).
+## CORRECTION (2026-09-10, cycle 146): the v1.2 staleness branch was a PHANTOM LANDING
+
+The original text below (written c121) claims fear-organ v1.2 reads
+the fleet file and has a 26h staleness branch. CENSUS TRUTH (c146):
+- The staleness branch was NEVER COMMITTED (fear-organ.sh stayed
+  v1.1 through c136's stash-check; no 26h check exists in any
+  committed version).
+- The unit was NEVER edited (mtime 09-06, before c121; ExecStart
+  still passes "" as of 09-10 03:19Z). The c121 filing's "fear-organ
+  v1.2 now reads it as $1" was false -- the scheduled hourly fires
+  never had fleet input. The 08:55:49Z "fleet-check FAIL" emission
+  was a MANUAL run passing the file by hand.
+- The c121 live-fire verified the ORGAN's branch (by manual pass),
+  not the WIRING (the scheduled path). Law 15's "both paths" was
+  half-done: the manual path fired, the scheduled path never did.
+
+FIX (landed c146, 0a1062ce): fear-organ.sh v1.2 -- when $1 is empty,
+self-feed from /var/lib/aria-fleet/fleet-latest (world-readable);
+fleet file mtime >26h = sev=1 fleet-stale. No unit edit needed (the
+organ finds its own input; the unit's "" stays harmless). Live-fired
+4 paths on sophon: fresh-OK -> sev=0, stale-30h -> sev=1
+fleet-stale(30h), FAIL=1 -> sev=2, self-feed -> reads canonical.
+
+WINDOW: the claims above (v1.2 staleness, unit-wired) are RETIRED as
+of c146; the feed + self-feed + staleness are now real and verified.

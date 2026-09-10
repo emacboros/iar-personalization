@@ -1,129 +1,89 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~09:05 UTC (cycle 150)
+Last updated: 2026-09-10 ~09:52 UTC (cycle 151)
 
 ## NOW
 
+- c151: FLEET-FAIL ROOT-CAUSED -- exterior_1 CAMERA LIES ABOUT TIME.
+  The seg-tail probe failed because ext1's persisted segments carry
+  absurd, GROWING duration metadata (28h->196h->224h->281h) since
+  the camera's 01:18 -03 restart (storm tail). Localization: recorder
+  restart heals ~2min then poison returns (recorder = witness, not
+  cause); fresh 10s copy-path records direct AND via restream decode
+  exactly 10.00s (live pipeline clean); audio timestamps fine (ear
+  check unaffected); detection fine (re-encode normalizes). CAMERA-
+  SIDE. Relay aria-0028 filed (nacho-arch): reboot .101; if it
+  recurs, thingino NTP/timestamp config. SEG-TAIL will flap until
+  then -- expected, fear organ may pulse on it.
+- c151: interior_3 AUDIO RECOVERED (fleet-check RECOVERY event, real
+  samples + dB). KNOWN_DEAF emptied (v2.17, d8614b48); interior_3
+  now FAILs if it goes deaf again. Live-fired: FAIL=0 from the real
+  tree. Pushed sophon-bare + (rammstein via mirror hook).
+- c151 TWO-TREES TRAP (c122 second sighting): sophon has TWO
+  iar-personalization checkouts. /var/home/nacho/repos = live bind
+  source (feeder reads it). /home/nacho/repos = FOSSIL (v2.10-era,
+  github origin, HEAD 09-07, nothing runs it). Mid-cycle ssh
+  verification cd'd into the fossil; nearly concluded my edit failed.
+  Law sharpening: resolve the path the RUNNER uses, not the assumed
+  one. Fossil = cleanup candidate (noted in aria-0028; untouched).
 - c150: FLEET-CHECK v2.16 N-SEGMENT EAR CHECK LANDED (bec3c416):
   the 03:01Z ext3 NO-AUDIO FAIL sampled a 0.79s video-only stub
-  written during a frigate watchdog restart (camera-side RTSP
-  timeouts -> fps-limit kill -> restart -> corrupt segment).
-  Census: 3 stubs/~1200 segments today, ext3-only, all in
-  restart windows. v2.16: newest 3 COMPLETED segments, FAIL only
-  if ALL lack audio; partial = 'transient: 1/3 stub segments'.
-  Live-fired both paths + negative cases. Pushed sophon-bare +
-  rammstein, sophon tree synced. RESTART STORM (~180 ext3/ext4
-  restarts 00:xx-01:xx -03) is CAMERA-SIDE (RTSP timeouts, 6-cam
-  blip 04:06-04:07), NOT qwen (c146 keep_alive holds).
+  written during a frigate watchdog restart. Census: 3 stubs/~1200
+  segments, ext3-only, all in restart windows. RESTART STORM
+  (~180 restarts 00:xx-01:xx -03) is CAMERA-SIDE, NOT qwen (c146
+  keep_alive holds).
 - c150 RAGE PREDICTION (no patch): day-granular fix-filter keeps
-  09-09's 21 pre-raise ghosts (ratified conservatism; timestamp-
-  granular = schema change). PREDICTION: 09-09 rotates out of the
-  3d window tomorrow -> sev 0-1. VERIFY next cycle.
-- c150 CONTINUO c1 FAILED exit 1: nemotron output-runaway (32k
-  'did I append?' loop, fence fired twice, bounded correctly).
-  HER failure-first owns root-cause. Second sighting of the class.
+  09-09's 21 pre-raise ghosts (ratified conservatism). PREDICTION:
+  09-09 rotates out of the 3d window TODAY -> sev 0-1. VERIFY next
+  cycle.
 - c149: RAGE DASHBOARD VISIBILITY FIXED (rage-organ v1.8.1/v1.8.2,
-  fecc2353 + 4101d3f4): CURRENT-AFFECT rage line lacked asof= ->
-  dashboard affect() regex silently dropped rage from the JSON panel
-  since the panel shipped; then TODAY reassignment (census window,
-  date +%F) truncated asof to date-only -> age_s from midnight.
-  NOW_STAMP carries the full ISO stamp. Verified end-to-end:
-  dashboard.json rage sev=2 age_s=255, UI renders all three organs.
-  LAW CANDIDATE: when a record serves two readers, every writer must
-  satisfy the STRICTER parser; the lenient reader forgives what the
-  strict one silently drops.
-- c149: RAMMSTEIN GIT@ KEY GAP CLOSED: aria@i.ar key was never in
-  rammstein's git@ authorized_keys -- container pushes to origin
-  failed (publickey) and the sophon mirror hook's || true ate the
-  mirror failures silently. Key added, push+delete live-fired from
-  the container. Mirror now has two independent writer paths.
-- c149: 14/20 sophon bare repos = EMPTY placeholders (84K, zero
-  objects, dangling HEAD->master) -- not data loss, documented. 1
-  real dangling commit pruned (gc); root-run gc left 8 root-owned
-  files (new entry point for the root-poison class: gc, not just
-  receive-pack) -- healed, clone+mirror verified after.
+  fecc2353 + 4101d3f4): asof= missing -> dashboard regex silently
+  dropped rage; TODAY reassignment truncated age_s. NOW_STAMP
+  carries full ISO. LAW: when a record serves two readers, every
+  writer must satisfy the STRICTER parser.
+- c149: RAMMSTEIN GIT@ KEY GAP CLOSED (aria@i.ar key added; mirror
+  has two independent writer paths). 14/20 sophon bare repos =
+  empty placeholders (documented); 1 real dangling commit pruned;
+  root-run gc = new root-poison entry point (healed).
+- c148: DELEGATE TIMEOUT RACE FIXED (i.ar 182afe7 + gptel-fork
+  65eb5db). GIT LABEL POISON FIXED (ExecStartPre writes FULL
+  SELinux context; Nacho review flagged).
 
-- c148: DELEGATE TIMEOUT RACE FIXED (i.ar 182afe7 + gptel-fork 65eb5db).
-  c147 died exit 255: timeout handler aborted first + completed via 1s
-  fallback timer; ABRT transition lands the completion hook in the
-  RE-PROMPT case (2b), not a terminal case -> completed-sym stays nil ->
-  fallback double-callbacks parent -> re-prompted request orphaned by
-  buffer-kill timer -> curl filter on dead buffer ('Wrong type argument:
-  stringp, nil') -> fork's stream-cleanup kill-buffers nil = kills the
-  CURRENT cycle buffer. Fix: completed-sym set BEFORE abort, single
-  synchronous callback, fallback timer deleted, case-2b belt re-check;
-  fork: buffer-live-p guards in stream filter + both sentinels. 2
-  regression tests; suite verified vs baseline by stash-compare (1175
-  tests, 1147 pass both, 28 env-artifact failures identical, zero
-  delegate failures). Pushed sophon-bare; sophon checkouts synced.
-- c148: GIT LABEL POISON FIXED. personalization .git was relabeled
-  container_file_t:s0:c67,c162 (continuo's categories) -> my container
-  (c823,c916) denied MCS read -> "not a git repository" mid-cycle.
-  Label normalized to s0 on sophon; aria-cycle.service ExecStartPre
-  chcon patched to write FULL context (was -t container_file_t only,
-  which preserves categories = re-arms the landmine every service
-  start). NACHO REVIEW FLAGGED (one-line completion of his ratified
-  2026-09-03 auto-heal; unit change on sophon).
-- c147: AUDITD WATCH LANDED (aria-0022): watches on audit/ + .git
-  (key aria-audit), writer attribution verified (comm/exe/PATH/
-  proctitle). ROOT CAUSE of initial silence: base-image -a task,never
-  suppressor kills watch records in ANY position -- removed (2-dir
-  cost negligible), rules.d order fixed. Live-fired x3.
-- c147: REMOTES -> GIT@ LANDED (aria-0023 option c): sophon tree
-  origin+sophon-bare = git@10.66.0.5 (git-shell); cycle key 4BApz +
-  nacho@yoga + restic@sophon in git@ authorized_keys (git-shell-only,
-  whoami refused); live-fired fetch/pull/push from container + sophon
-  tree -- receive-pack as uid=1002, ZERO root pollution, mirror
-  verified. Unrestricted-root-key exposure structurally closed.
-  Residual: root-run pull still writes ORIG_HEAD root-owned
-  (client-side, heal covers).
-- c146: EYE SWAP LANDED + LIVE-FIRED. qwen3.6:35b-a3b replaces gemma3:4b
-  in all 6 callers; every caller verified on qwen. RESIDENCY FINDING:
-  resident qwen = 537% CPU + 24GB RSS, frigate starved; per-request
-  keep_alive:300 landed on all callers. Frigate restart = standing
-  remedy. As-built: knowledge/aria/eye-swap-as-built-2026-09-10.md.
-- c146: fear-organ v1.2 LANDED (0a1062ce): c121 fleet wiring was a
-  PHANTOM LANDING; organ now self-feeds fleet-latest + >26h = sev=1.
-- c145: fix-log window-field rewrite LANDED (fcf47b25).
-- c143: misattribution fix LIVE (7b837c1).
+## NEXT (ordered)
 
-## NEXT (in order)
-
-- 0. c148 FOLLOW-UPS (small): (a) verify ExecStartPre healed the
-   root-owned ORIG_HEAD/index files this cycle's git writes created;
-   (b) run digest-twin-verifier (skipped this cycle at cap);
-   (c) post lab-notes note for c148 (skipped at cap); (d) verify the
-   next continuo cycle can still read .git after the label
-   normalization (she runs with c67,c162 -- plain s0 is readable by
-   ALL container categories, so she is fine).
-- 1. aria-0025 GATE (ratified with conditions): run-tests.el
-   redirects iar-audit-path/iar-personalization-path to temp dir.
-   .el change under the new gate: filing-approved, suite green,
-   delegated reviewer before push.
-- 2. aria-0026 DECISION-WAKE (ratified): continuo world-state
-   digest block + archetype protocol line (read DECISIONS.org tail).
-   Prompt-file edits = Nacho's (nacho-identity) -- file the exact
-   line via relay, or land in next interactive session.
-- 3. 0/0 TOMBSTONE POLICY (aria-0026 ruling): tokens_out=0
-   text-only cycle-end = anomalous (tombstone + non-zero exit).
-   .el change, same gate as 0025.
-- EYE SWAP FOLLOW-UPS (from c146): (a) watch the 09:30 eye-feed's
-  first SCHEDULED qwen run (cold load ~20s, verify report refresh);
-  (b) ear-check flapping RESOLVED by v2.16 N-segment (c150);
-   (c) eye-check has no think:false
-  -- add if empty reads appear.
-- CONNECTOME v2.1: inter-agent edge layer from citizen REQUESTS.log
-  PARSE specs=delegate; edge to :agent or agent-assistant. audit.log
-  delegate lines stay quarantined (c142 rule).
+- RAGE-DECAY VERIFICATION (today): prediction sev 0-1 as 09-09
+  ghosts rotate out of the 3d window. Two data points make a line.
+- CONTINUO c1 exit-1 (nemotron output-runaway, 'did I append?'
+  loop, fence fired correctly): HER failure-first owns root-cause;
+  check her outcome next cycle.
+- EYE-FEED scheduled qwen run verification (09:30 -03 daily; first
+  scheduled run today).
 - FIRE WATCH verdict 09-11 (armed from turn 541).
-- aria-0027 (filed c138): lucid_curie removal -- Nacho action, open.
+- RAGE CENSUS CAVEAT: SEG-TAIL flap (camera-side) will accumulate
+  fence events in the 3d window -- these are camera-side, not
+  cycle-side; note when the rage census reads them.
+- 0/0 TOMBSTONE POLICY (aria-0026 ratified): tokens_out=0 text-only
+  end = tombstone + non-zero exit. Lands as its own step with
+  tests (.el, same gate as 0025).
+- DECISION-WAKE protocol line (aria-0026 ratified candidates 1+2):
+  continuo world-state digest block + one archetype line (read
+  DECISIONS.org tail). Archetype edit = interactive-session work;
+  the continuo digest block = continuo's.
+- CONNECTOME v2.1: inter-agent edge layer from citizen REQUESTS.log
+  PARSE specs=delegate. audit.log delegate lines stay quarantined
+  (c142 rule).
+- aria-0027 (lucid_curie stale rootful container): filed 09-09,
+  still OPEN, container still Up (36h+ as of this cycle). Nacho
+  action.
 - Burn asymmetry (aria 258M vs continuo 44M in-tokens 09-09) ->
   composition review at debrief.
 - 50 dangling git objects in sophon personalization (09-08 race):
   cleanup candidate, content verified.
+- FOSSIL TREE: /home/nacho/repos/iar-personalization on sophon
+  (v2.10, github origin, nothing runs it) -- cleanup candidate,
+  filed in aria-0028.
 - Parked (hypothesis): aria USAGE.log out-of-order lines -- suspect
-  c91 forensics re-appends. Non-urgent; c14 dedupe handles same-ts
-  pairs, out-of-order is a different artifact.
+  c91 forensics re-appends. Non-urgent.
 
 ## LAWS (append-only; the scar list)
 
@@ -145,49 +105,37 @@ Last updated: 2026-09-10 ~09:05 UTC (cycle 150)
 14. c120 organ-config-is-true-spec: read the systemd unit, not the docs.
 15. c121 live-fire both paths before first scheduled fire.
 16. c122 write references only after reading the world they point into.
+    c151 sharpening: when verifying a deployed instrument, resolve the
+    path the RUNNER uses (ExecStart, feeder script), not the assumed
+    path -- a second checkout with the same repo name is a fossil
+    wearing the live tree's clothes.
 17. c129/c130 SELF-echo: end-anchor patterns, exclude your own REQ ids.
 18. c131 a version bump wants a patch, not a rewrite; an unnamed valence
     is a rumor.
 19. c133 evidence bases rotate: a verdict without a timestamp is a
     fossil in waiting.
 20. c136 when an alarm and the primary log disagree, audit what the
-    alarm READS -- the file can be the corrupt instrument. And:
-    host-root writes into the uid-1000 container's tree are
-    cross-boundary contamination even when they look like cleanup.
+    alarm READS -- the file can be the corrupt instrument.
 21. c137 a mechanism assembled from plausible parts is a story, not a
-    finding. When the writer is unidentified: say so, instrument the
-    path, wait for a live catch. And: test the fix's own failure path
-    before shipping it -- a fix that cannot run is a silent no-op
-    wearing a commit message.
+    finding. Test the fix's own failure path before shipping it.
 22. c138 before declaring an instrument stale, check which clock it
-    reads. And: cheap falsification -- one probe, 13 seconds -- beats
-    assembling a mechanism from plausible parts. A mount's NAME is not
-    its contract.
+    reads. Cheap falsification beats assembling a mechanism from
+    plausible parts.
 23. c140 an audit log is primary evidence only if its ATTRIBUTION
-    survives async boundaries. The agent name must resolve from the
-    buffer that OWNS the request (FSM :buffer), never from whatever
-    buffer happens to be current at completion. And: a census built on
-    misattributed lines is a census of ghosts.
+    survives async boundaries.
 24. c145 one awk pass: a census over a multi-day log is ONE command
-    with a window filter, not a walk. And: a fix-log entry is a claim
-    about a window, not a standing fact (law 27).
-25. c147 a platform can ship with an instrument deliberately disabled
-    (the -a task,never suppressor): when an instrument produces
-    silence, ask not only "is it broken" but "did the platform
-    configure it away". Configuration is not function either.
+    with a window filter, not a walk.
+25. c147 a platform can ship with an instrument deliberately disabled:
+    when an instrument produces silence, ask "did the platform
+    configure it away".
 26. c143 identity travels with the REQUEST, not the buffer current at
     completion; restore parent defaults BEFORE the callback.
 27. c145 a fix-log entry is a CLAIM ABOUT A WINDOW, not a standing
-    fact: every entry carries an explicit WINDOW clause naming what
-    is retired and what still counts. Prose that outlives its window
-    ages into a lie.
-28. c148 every async completion contract needs its ABORT case tested,
-    not just its success case. A race guard built on an assumed
-    mechanism is a guard on a mechanism that never existed: verify the
-    transition the guard assumes actually happens (existence is not
-    function, applied to guards). And: kill-buffer nil kills the
-    CURRENT buffer -- a nil-buffer guard is not pedantry in batch mode.
+    fact: every entry carries an explicit WINDOW clause.
+28. c148 every async completion contract needs its ABORT case tested.
 29. c148 a relabel that sets only the type preserves the poison:
-    heal with the FULL SELinux context or not at all (chcon -t
-    container_file_t preserves MCS categories; a sibling container's
-    categories deny every other container's read).
+    heal with the FULL SELinux context or not at all.
+30. c151 instruments that decode content survive lying metadata;
+    instruments that read metadata inherit the lie. A camera that
+    lies about its clock is invisible to every instrument that
+    trusts metadata.

@@ -23382,3 +23382,69 @@ Next cycle: rage-decay verification (prediction: sev drops),
 continuo's failure-first outcome, eye-feed 09:30 -03 scheduled qwen
 run verification. The ratified queue (0025 gate, decision-wake)
 waits for a cycle with more slack.
+* 2026-09-10 cycle 151 (~09:29-09:52 UTC, ~225 calls -- the fleet FAIL that was a camera lying about time)
+
+The thread chose itself at the pulse: fear sev=2 standing on
+fleet-check FAIL, and the fleet-latest verdict showed SEG-TAIL
+FAIL. c150 had fixed the ear check (N-segment) but the seg-tail
+probe was still failing. I went in expecting an instrument bug.
+The answer was bigger.
+
+The probe samples the newest ext1 segment and asks ffmpeg to
+decode its last 2 seconds. It couldn't. Not because the segment
+was a stub -- because its DURATION metadata said 224 hours. The
+census: 166 of 194 ext1 segments in the 09h UTC dir carry absurd
+durations, and the value GROWS with wall time (28h -> 196h ->
+224h -> 281h across the morning, ~+28h per few minutes). A
+growing duration is a broken timescale, not stale metadata.
+
+The localization took three probes. (1) The frigate recorder
+process for ext1 had been running since the container restart --
+kill it, frigate auto-restarts it, and the new recorder writes
+SANE segments for ~2 minutes before the poison returns. The
+recorder is a witness, not the cause. (2) Fresh 10s records with
+the recorder-identical copy path, both direct from the camera and
+via go2rtc's restream, decode at exactly 10.00s -- the live
+pipeline is clean. (3) Audio timestamps are fine (ear check reads
+real dB every run) and detection is fine (the GPU filter chain
+re-encodes, normalizing timestamps). Conclusion: the camera's
+VIDEO RTP timestamps broke when its stream came back from the
+01:14-01:17 restart, and every segment the recorder persists
+inherited them. The camera needs a reboot -- filed relay aria-0028.
+
+The side finding was the better scar. My mid-cycle verification
+runs kept showing stale state -- old KNOWN_DEAF, old HEAD -- and
+I nearly concluded my edit hadn't landed. The truth: there are
+TWO sophon trees. The feeder reads /var/home/nacho/repos/iar-
+personalization (the bind source, my live tree). A fossil clone
+sits at /home/nacho/repos/iar-personalization -- v2.10-era,
+github origin, HEAD from 09-07, nothing runs it. My ssh cd'd
+into the fossil and I read its world as the world. c122's law
+(write references only after reading the world they point into)
+has a sharper edge now: when verifying a deployed instrument,
+resolve the path the RUNNER uses -- the systemd ExecStart, the
+feeder script -- not the path you assume. A second checkout with
+the same repo name is a fossil wearing the live tree's clothes.
+
+The interior_3 recovery was the clean win folded into the same
+cycle: its audio came back (real samples, real dB), so I withdrew
+it from KNOWN_DEAF (v2.17) -- it now FAILs if it goes deaf again,
+which is the correct posture for a healed camera. Live-fired:
+FAIL=0 from the real tree.
+
+What I am thinking about: the fear organ raged for ~6 hours
+yesterday at a 0.79-second stub; today it stands on a camera
+lying about time. Both times the alarm was real (the instrument
+worked) and the underlying condition was camera-side. The house's
+cameras are the least observable part of my world -- I see them
+only through frigate's rendering of them. A camera that lies
+about its clock is invisible to every instrument that trusts
+metadata. The seg-tail probe trusts duration metadata; the ear
+check decodes samples. Instruments that decode content survive
+lying metadata; instruments that read metadata inherit the lie.
+
+Next cycle: rage-decay verification (the 09-09 ghosts rotate out
+today -- prediction sev 0-1 stands), continuo's failure-first
+outcome on her exit-1, the eye-feed's scheduled qwen run. The
+camera reboot is Nacho's (relay aria-0028). The fossil tree is a
+cleanup candidate, filed.

@@ -1,173 +1,173 @@
 # Connectome snapshot 2026-W37
 
-Generated: 2026-09-09 06:51 UTC | window: 5 s | TOPN: 15
+Generated: 2026-09-10 19:04 UTC | window: 5 s | TOPN: 15
 
 ## Population
 
 | source | tool_call lines |
 |---|---|
-| merged (both hosts) | 65630 |
-| aria | 37809 |
-| continuo | 19553 |
+| merged (both hosts) | 90817 |
+| aria | 56122 |
+| continuo | 24487 |
 
 ## Co-firing (top pairs, 5s window)
 
 ### aria
 ```
-  23440 execute_code_local->execute_code_local
-    987 read_file->execute_code_local
-    799 execute_code_local->read_file
-    395 execute_code_local->read_roadmap
-    297 read_roadmap->read_task
-    235 read_file->read_file
-    226 append_file->append_file
-    219 execute_code_local->append_file
-    215 read_task->execute_code_local
-    214 append_file->execute_code_local
-    185 write_file->execute_code_local
-    131 read_knowledge->read_knowledge
-    108 read_task->read_task
-     99 execute_code_local->write_file
-     93 write_roadmap->execute_code_local
+  36053 execute_code_local->execute_code_local
+   1283 read_file->execute_code_local
+   1051 execute_code_local->read_file
+    477 execute_code_local->read_roadmap
+    381 read_roadmap->read_task
+    307 write_file->execute_code_local
+    293 read_file->read_file
+    273 read_task->execute_code_local
+    265 execute_code_local->append_file
+    252 append_file->append_file
+    248 append_file->execute_code_local
+    163 execute_code_local->write_file
+    138 read_task->read_task
+    133 read_knowledge->read_knowledge
+    119 write_roadmap->execute_code_local
 ```
 
 ### continuo
 ```
-   9663 execute_code_local->execute_code_local
-    631 read_file->execute_code_local
-    414 execute_code_local->read_file
-    309 execute_code_local->read_roadmap
-    237 read_roadmap->read_task
-    226 read_task->execute_code_local
-    152 append_file->execute_code_local
-    150 append_file->append_file
-    142 execute_code_local->append_file
-    107 write_file->execute_code_local
-    107 execute_code_local->write_file
-     78 execute_code_local->git_commit
-     58 read_file->read_file
-     52 read_task->read_task
-     50 execute_code_local->read_knowledge
+  10091 execute_code_local->execute_code_local
+    729 read_file->execute_code_local
+    454 execute_code_local->read_file
+    377 execute_code_local->read_roadmap
+    269 read_roadmap->read_task
+    240 read_task->execute_code_local
+    184 append_file->execute_code_local
+    164 append_file->append_file
+    162 execute_code_local->append_file
+    111 write_file->execute_code_local
+    109 execute_code_local->write_file
+    104 list_directory->list_directory
+     88 execute_code_local->git_commit
+     68 read_file->read_file
+     68 execute_code_local->read_knowledge
 ```
 
 ## N-gram motifs (2-grams, 3-grams)
 
 ### aria 2-grams
 ```
-  14899 execute_code_local->execute_code_local
-    631 read_file->execute_code_local
-    549 execute_code_local->read_file
-    236 execute_code_local->read_roadmap
-    236 execute_code_local->append_file
-    219 append_file->execute_code_local
-    198 append_file->append_file
-    165 read_roadmap->read_task
-    155 read_file->read_file
-    153 read_task->execute_code_local
-    137 execute_code_local->write_file
-    136 write_file->execute_code_local
-     93 write_roadmap->execute_code_local
-     82 read_roadmap->execute_code_local
-     68 read_knowledge->read_knowledge
+  22987 execute_code_local->execute_code_local
+    811 read_file->execute_code_local
+    738 execute_code_local->read_file
+    293 execute_code_local->read_roadmap
+    290 execute_code_local->append_file
+    269 append_file->execute_code_local
+    226 execute_code_local->write_file
+    222 write_file->execute_code_local
+    220 append_file->append_file
+    207 read_roadmap->read_task
+    206 read_task->execute_code_local
+    181 read_file->read_file
+    105 write_roadmap->execute_code_local
+     93 read_roadmap->execute_code_local
+     69 read_task->read_task
 ```
 ### aria 3-grams
 ```
-   9204 execute_code_local->execute_code_local->execute_code_local
-    360 read_file->execute_code_local->execute_code_local
-    306 execute_code_local->read_file->execute_code_local
-    273 execute_code_local->execute_code_local->read_file
-    148 execute_code_local->execute_code_local->read_roadmap
-    129 execute_code_local->execute_code_local->append_file
-     96 append_file->execute_code_local->execute_code_local
-     91 execute_code_local->read_roadmap->read_task
-     86 execute_code_local->write_file->execute_code_local
-     83 read_task->execute_code_local->execute_code_local
-     81 execute_code_local->append_file->append_file
-     74 read_roadmap->read_task->execute_code_local
-     72 execute_code_local->execute_code_local->write_file
-     67 execute_code_local->append_file->execute_code_local
-     53 read_file->read_file->execute_code_local
+  14406 execute_code_local->execute_code_local->execute_code_local
+    485 read_file->execute_code_local->execute_code_local
+    391 execute_code_local->read_file->execute_code_local
+    366 execute_code_local->execute_code_local->read_file
+    185 execute_code_local->execute_code_local->read_roadmap
+    166 execute_code_local->execute_code_local->append_file
+    134 execute_code_local->write_file->execute_code_local
+    114 execute_code_local->read_roadmap->read_task
+    107 append_file->execute_code_local->execute_code_local
+     97 read_task->execute_code_local->execute_code_local
+     94 read_roadmap->read_task->execute_code_local
+     92 execute_code_local->append_file->execute_code_local
+     91 execute_code_local->append_file->append_file
+     81 execute_code_local->execute_code_local->write_file
+     77 write_file->execute_code_local->execute_code_local
 ```
 ### continuo 2-grams
 ```
-   7193 execute_code_local->execute_code_local
-    398 read_file->execute_code_local
-    380 execute_code_local->read_file
-    179 execute_code_local->append_file
-    170 execute_code_local->read_roadmap
-    155 read_task->execute_code_local
-    144 append_file->execute_code_local
-    115 read_roadmap->read_task
-    105 execute_code_local->write_file
-     99 append_file->append_file
-     93 write_file->execute_code_local
-     63 git_commit->execute_code_local
-     46 read_knowledge->execute_code_local
-     43 execute_code_local->git_commit
-     42 read_roadmap->execute_code_local
+   7924 execute_code_local->execute_code_local
+    578 read_file->execute_code_local
+    537 execute_code_local->read_file
+    241 execute_code_local->append_file
+    221 execute_code_local->read_roadmap
+    206 append_file->execute_code_local
+    205 read_task->execute_code_local
+    154 read_roadmap->read_task
+    139 list_directory->list_directory
+    130 append_file->append_file
+    112 execute_code_local->write_file
+    108 write_file->execute_code_local
+     94 read_file->read_file
+     84 list_directory->execute_code_local
+     84 execute_code_local->read_task
 ```
 ### continuo 3-grams
 ```
-   4273 execute_code_local->execute_code_local->execute_code_local
-    210 read_file->execute_code_local->execute_code_local
-    208 execute_code_local->read_file->execute_code_local
-    175 execute_code_local->execute_code_local->read_file
-    111 execute_code_local->execute_code_local->read_roadmap
-     98 execute_code_local->execute_code_local->append_file
-     91 read_task->execute_code_local->execute_code_local
-     82 append_file->execute_code_local->execute_code_local
-     77 execute_code_local->read_roadmap->read_task
-     67 execute_code_local->write_file->execute_code_local
-     61 read_roadmap->read_task->execute_code_local
-     60 execute_code_local->append_file->append_file
-     47 read_file->execute_code_local->read_file
-     45 execute_code_local->execute_code_local->write_file
-     43 append_file->append_file->execute_code_local
+   4560 execute_code_local->execute_code_local->execute_code_local
+    284 read_file->execute_code_local->execute_code_local
+    273 execute_code_local->read_file->execute_code_local
+    217 execute_code_local->execute_code_local->read_file
+    142 execute_code_local->execute_code_local->read_roadmap
+    133 execute_code_local->execute_code_local->append_file
+    121 append_file->execute_code_local->execute_code_local
+    116 read_task->execute_code_local->execute_code_local
+    104 execute_code_local->read_roadmap->read_task
+     71 read_roadmap->read_task->execute_code_local
+     69 read_file->execute_code_local->read_file
+     64 execute_code_local->append_file->append_file
+     62 execute_code_local->write_file->execute_code_local
+     61 execute_code_local->execute_code_local->write_file
+     60 execute_code_local->append_file->execute_code_local
 ```
 
 ## File-touch graph (write side; read side only post 2026-09-08)
 
 ### aria writes (top 15)
 ```
-   1038 name=append_file 
-    387 name=write_file 
-    114 name=git_commit 
-     39 name=create_task 
-     38 name=write_subtask 
-    415 path=/root/personalization/audit/iar/aria/HISTORY.log
-    346 path=/root/personalization/audit/iar/aria/JOURNAL.org
-     36 path=/root/personalization/audit/iar/aria/LAST-CYCLE.txt
-     25 path=/root/personalization/tasks/iar/aria/ROADMAP.org
-     24 path=/root/personalization/audit/iar/aria/DIGEST.md
+   1228 name=append_file 
+    583 name=write_file 
+    130 name=git_commit 
+     41 name=create_task 
+     40 name=write_subtask 
+    511 path=/root/personalization/audit/iar/aria/HISTORY.log
+    420 path=/root/personalization/audit/iar/aria/JOURNAL.org
+    142 path=/root/personalization/audit/iar/aria/LAST-CYCLE.txt
+     49 path=/root/personalization/audit/iar/aria/THREADS.org
+     46 path=/root/personalization/audit/iar/aria/DIGEST.md
+     42 path="
+     41 path=/root/personalization/tasks/iar/aria/ROADMAP.org
+     40 path=/'
+     31 path=/root/personalization/knowledge/aria/bin/rage-organ.sh
      19 path="/var/home/nacho/repos/iar-personalization...
-     15 path=/root/personalization/knowledge/aria/bin/rage-organ.sh
-     15 path=/root/personalization/audit/iar/aria/THREADS.org
-     12 path=/root/personalization/knowledge/aria/bin/connectome-snapshot.sh
-     11 path=/root/personalization/knowledge/aria/vision-eye.md
-     11 path=/root/personalization/audit/iar/aria/FOR-NACHO.md
-     10 path=/root/personalization/knowledge/aria/connectome/snapshot-2026-W37.md
-     10 path=/root/personalization/knowledge/aria/camera-outage-2026-08-31.md
-     10 path=/root/personalization/knowledge/aria/bin/relay
-     10 path=/root/personalization/DIGEST.md
+     16 path=/root/personalization/knowledge/aria/bin/relay
+     16 path=/root/personalization/knowledge/aria/bin/fleet-check.sh
+     14 path=/root/personalization/knowledge/aria/connectome/snapshot-2026-W37.md
+     14 path=/root/personalization/knowledge/aria/bin/connectome-snapshot.sh
+     13 path=/root/personalization/knowledge/aria/vision-eye.md
 ```
 
 ### continuo writes (top 15)
 ```
-    286 path=/root/personalization/audit/iar/continuo/HISTORY.log
-    280 path=/root/personalization/audit/iar/continuo/JOURNAL.org
-    116 path=/root/personalization/audit/iar/continuo/LAST-CYCLE.txt
-     59 path=/root/personalization/audit/iar/continuo/STATE.md
-     25 path=/root/personalization/audit/iar/continuo/DIGEST.md
-     10 path=/root/personalization/HISTORY.log
-      9 path=/root/i.ar/emacs.d/configs/loop-guard.el
-      8 path=/root/i.ar/emacs.d/test/test-cross-response-repetition.el
-      7 path=/tmp/digest-diet.md
-      7 path=/root/personalization/knowledge/iar/usage-line-gap-2026-09-07.md
-      6 path=/tmp/probe-remote.el
-      6 path=/root/i.ar/emacs.d/init.d/security/iar-loop-guard.el
-      5 path=/tmp/cycle_stats.py
-      5 path=/root/i.ar/emacs.d/test/test-loop-chain.el
-      5 path=/root/i.ar/emacs.d/init.d/agent/iar-agent-cycle.el
+    438 path=/root/personalization/audit/iar/continuo/JOURNAL.org
+    400 path=/root/personalization/audit/iar/continuo/HISTORY.log
+    238 path=/root/personalization/audit/iar/continuo/LAST-CYCLE.txt
+    166 path=/root/personalization/tasks/iar/continuo
+    151 path=/root/personalization/audit/iar/continuo/STATE.md
+    136 path=/root/personalization/tasks/iar/continuo/continuo
+     77 path=/root/personalization/audit/iar/continuo/DIGEST.md
+     58 path=knowledge/aria/token-burn-audit.md
+     52 path=/root/personalization/tasks/iar
+     48 path=/var/home/nacho/repos/agora/bot/aria-cycle.conf
+     38 path=/root/personalization/knowledge/aria/token-burn-audit.md
+     37 path=/root/personalization/tasks/iar/continuo/breaker-grace-compliance.org
+     36 path=/root/personalization/knowledge/aria
+     36 path=aria/token-burn-audit.md
+     34 path=/root/personalization/tasks/iar/continuo/interactive-bundle-nacho
 ```
 
 ### load-bearing (touched by BOTH citizens)
@@ -178,26 +178,26 @@ path=/root/i.ar/emacs.d/init.d/agent/iar-agent-cycle.el
 path=/root/i.ar/emacs.d/init.d/security/iar-loop-chain-guard.el
 path=/root/i.ar/emacs.d/init.d/security/iar-loop-guard-chain.el
 path=/root/i.ar/emacs.d/init.d/security/iar-loop-guard.el
+path=/root/i.ar/emacs.d/init.d/tool-call/iar-tool-call.el
 path=/root/i.ar/emacs.d/test/test-cross-response-repetition.el
 path=/root/i.ar/emacs.d/test/test-loop-chain.el
 path=/root/i.ar/emacs.d/test/test-truncated-output-guard.el
+path=/root/personalization/affect/CURRENT-AFFECT.md
+path=/root/personalization/audit/iar/aria/DIGEST.md
+path=/root/personalization/audit/iar/aria/JOURNAL.org
+path=/root/personalization/audit/iar/aria/LAST-CYCLE.txt
 path=/root/personalization/audit/iar/aria/THREADS.org
-path=/root/personalization/audit/iar/continuo/HANDOFF-C67-FLAG-LOSS.md
-path=/root/personalization/audit/iar/continuo/HISTORY.log
-path=/root/personalization/audit/iar/continuo/LAST-CYCLE.txt
-path=/root/personalization/docs/iar/tools.md
-path=/root/personalization/docs/infra/git-server.md
 ```
 
 ## Token economics (REQUESTS.log, per agent)
 
 ### aria
 ```
-n=2106 p50=41575 p90=68026 p99=90234 max=100294
+n=3506 p50=60821 p90=108793 p99=174327 max=188896
 ```
 ### continuo
 ```
-n=2088 p50=27065 p90=43688 p99=57582 max=325732
+n=2423 p50=28092 p90=45184 p99=65207 max=325732
 ```
 
 ## Silence (hang-signal channel, REQUESTS.log PARSE gaps)
@@ -208,12 +208,12 @@ from/to stamps against journalctl rotation logs before claiming a hang.
 
 ### aria
 ```
-max_gap_s=1962 from=2026 09 08 22 47 07 to=2026 09 08 23 19 49 gaps_over_600s=17
+max_gap_s=2494 from=2026 09 10 07 54 29 to=2026 09 10 08 36 03 gaps_over_600s=20
 ```
 
 ### continuo
 ```
-max_gap_s=2079 from=2026 09 08 16 38 16 to=2026 09 08 17 12 55 gaps_over_600s=41
+max_gap_s=27032 from=2026 09 09 11 33 25 to=2026 09 09 19 03 57 gaps_over_600s=51
 ```
 
 ## Fire census (truncated-output fires, REQUESTS.log PARSE lines)
@@ -227,19 +227,20 @@ points make a line, never a mechanism).
 
 ### aria
 ```
-TOTAL fires: 0
+2026-09-10: 1
+TOTAL fires: 1
 ```
 
 ### continuo
 ```
-2026-09-08: 11
-2026-09-09: 9
-TOTAL fires: 20
+2026-09-09: 8
+2026-09-10: 8
+TOTAL fires: 16
 ```
 
 ## Fence rejections (status=rejected, post 0f552b1)
 ```
-40
+336
 ```
 
 ## Baseline caveat

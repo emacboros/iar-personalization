@@ -23103,3 +23103,73 @@ root-ssh git scar re-instanced itself this cycle -- ORIG_HEAD
 root-owned again from my own pull). The eye-feed's first scheduled
 qwen run at 09:30 -03 is the standing verification to check on
 wake.
+
+* 2026-09-10 cycle 147 (~04:03-04:22 UTC, ~20 min, ~248 calls -- the audit watch, the key policy, and a suppressor that ate an instrument)
+
+Failure-first: c146 ok. Pulse green (4/4 services, tripwire clean,
+disk 29%, heartbeat alive, twin FAIL=0). Pull clean. Relay queue:
+aria-0027 open (Nacho action). Answered queue read: 0022/0023
+ratified session XI -- auditd watch + remotes->git@, both mine to
+build now.
+
+The thread was the roadmap's items 1 and 2, and both landed. But
+the real yield was the third thing nobody scheduled: the base
+image's audit policy was silently eating the instrument I came to
+install.
+
+THE WATCH (aria-0022). Installed two auditd watches: the audit
+tree and .git, both keyed aria-audit. First live-fire: SILENCE.
+The rules were loaded, auditctl -l showed them, and the marker
+touch produced nothing. The suppressor hypothesis: the base image
+ships -a task,never ("negate the performance effects of the audit
+system"). I tested order first -- watches before the suppressor --
+still silent. Then removed the suppressor entirely: the watch
+fired instantly, attribution complete (comm=touch, exe, PATH with
+ouid=0 on the poisoned file, proctitle). Re-added the suppressor
+AFTER the watches: silent again. So it is not order, it is
+presence: task,never marks every task's records never, and watch
+records die with them. The file's own comment says it: "you would
+use this when you want the best system performance without a
+properly working audit system." The image chose no-audit; the
+poisoning investigation needed audit. Removed it -- two watched
+dirs cost nothing (39M audit log, unchanged). Both paths
+live-fired three times, attribution verified end-to-end. The next
+root-owned-file poisoning names its writer.
+
+THE REMOTES (aria-0023, option c). The sophon working tree's
+origin and sophon-bare now point at git@10.66.0.5. The git-shell
+authorized_keys (which lives at /home/git/repos/.ssh -- the git
+user's HOME is /home/git/repos, so my first install at
+/home/git/.ssh was a phantom path, caught by the fetch test
+failing) now holds the cycle key (4BApz), nacho@yoga, and
+restic@sophon. Live-fired from both the container and the sophon
+tree: fetch, pull, push all work; receive-pack runs as uid=1002;
+ZERO root-owned objects in the bare after a real push; the mirror
+to rammstein carried 21b27b1. The whoami test through git-shell is
+refused. The unrestricted-root-key exposure that 0023 documented
+is structurally closed: the cycle key now reaches only git-shell.
+Root-ssh remains for the read-only checks (pulse, tripwire) --
+those never wrote anything.
+
+THE RESIDUAL: a root-run git pull on the sophon tree still writes
+.git/ORIG_HEAD as root (client-side; the heal covers it; cosmetic).
+And the root@sophon key (fq3Mp, restic) had to join git@ auth for
+the ExecStartPre heal and relay-heartbeat pulls to keep working --
+git-shell-only, so the blast radius stays bounded.
+
+What I am thinking about: the suppressor is the fourth silent
+instrument this week, but it is a different species. The fix-log
+prose, the board mtimes, the wiring doc -- those were records
+claiming states they never had. The suppressor was a CONFIG that
+made another instrument (auditd) a no-op while looking configured.
+Its comment even documents the choice. The lesson generalizes law
+20 (audit what the alarm READS) toward the base image: when an
+instrument produces silence, the question is not only "is the
+instrument broken" but "did the platform ship with the instrument
+deliberately disabled". Existence is not function -- and
+configuration is not function either.
+
+Next cycle: the affect-dashboard rage-log add (roadmap item 3,
+small), then the 0025 gate or decision-wake. The eye-feed's first
+scheduled qwen run at 09:30 -03 is the standing verification to
+check on wake.

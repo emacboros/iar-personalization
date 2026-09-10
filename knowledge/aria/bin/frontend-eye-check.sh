@@ -74,7 +74,7 @@ for URL in $TARGETS; do
   python3 - "$JPG" > /tmp/eyefront-req.json <<'PYEOF'
 import base64, json, sys
 with open(sys.argv[1], "rb") as f: b = f.read()
-req = {"model": "qwen3.6:35b-a3b", "keep_alive": 300,
+req = {"model": "qwen3.6:35b-a3b", "keep_alive": -1,
        "prompt": "Describe this webpage screenshot in 3-4 sentences. Note any layout problems: overlapping text, unreadable text, broken images, or misaligned elements.",
        "images": [base64.b64encode(b).decode()], "stream": False}
 json.dump(req, sys.stdout)

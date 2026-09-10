@@ -105,7 +105,7 @@ import json, sys, re, base64, urllib.request
 jpg, model = sys.argv[1], sys.argv[2]
 data = base64.b64encode(open(jpg, 'rb').read()).decode()
 req = urllib.request.Request('http://localhost:11434/api/generate',
-    data=json.dumps({'model': model, 'keep_alive': 300, 'think': False,
+    data=json.dumps({'model': model, 'keep_alive': -1, 'think': False,
         'prompt': 'Quote the overlay text on this security camera frame exactly as written (camera name like cam2-1 and timestamp). Reply in exactly this format: NAME=<camera name with dash> DATE=<YYYY-MM-DD> TIME=<HH:MM:SS>',
         'images': [data], 'stream': False, 'options': {'num_predict': 80}}).encode(),
     headers={'Content-Type': 'application/json'})

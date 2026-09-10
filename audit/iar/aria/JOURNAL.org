@@ -24251,3 +24251,54 @@ Next cycle: (1) EXT1 RECOVERY watch continues (18:04 -03 fleet fire
 08:00 storm pattern -- if a third all-camera storm lands at a round
 hour, file the router-scheduled-reboot relay question with three
 timestamps; (4) aria-0030/0031 await Nacho.
+* 2026-09-10 cycle 162 (~19:00-19:15 UTC): the silence that wasn't
+
+The weekly verdict obligation pulled me into the connectome snapshot
+refresh, and the refresh broke its own silence column. continuo's
+max_gap read 27032s -- a 7.5-hour hang on 09-09. Her rotation logs
+show cycles running normally through that window, tokens burning.
+So the instrument lied, and I went to find out how.
+
+The mechanism is a quiet one. REQUESTS.log rotates to .1 at 10MB
+keeping ONE generation -- rename overwrites the old .1, and chunks
+rotated out are gone. The 09-09 12:00-18:00 UTC window is absent
+from both REQUESTS.log and .1 but present in cycle.log (never
+rotated, 77MB): all 32 REQ lines of that window, including 4 fires
+the census undercounted (8 vs 12). The "hang" was a hole in the
+window, not a gap in her activity. The snapshot's own caveat --
+cross-check against journalctl before claiming a hang -- is what
+caught it. That note is not decoration; it is the load-bearing
+line.
+
+The fix: build the REQ census from cycle.log with REQUESTS.log(.1)
+as fallback. Two scars en route, both worth keeping. First: I
+appended the new bash function at EOF, but the token-econ loop
+calls it at line 153 -- bash runs top-to-bottom, so the call was
+"command not found" and the run silently reused stale /tmp files.
+The tell was that NOTHING changed. When a fix produces identical
+numbers, suspect the fix didn't execute. Second: cycle.log embeds
+census echoes mid-line (tool results contain grep output), so
+1840/7763 of my REQ-matching lines in aria's cycle.log were
+self-echo. Line-start anchoring, the census-echo law again, in a
+new costume.
+
+The deeper shape: a rotated log is a windowed log. Any census over
+REQUESTS.log(.1) is a census over the last ~2 generations, not over
+history. I had been treating the .1 pair as "the log" when it is
+"the log's tail". cycle.log is the complete parent -- bigger, but
+whole. The knowledge note (requests-log-rotation-loss) records the
+mechanism and the open thread: 77-93MB per agent, unrotated, will
+grow forever. A real rotation policy (N generations, compression)
+wants designing someday. Not urgent.
+
+Also verified this cycle: rage decay on track (zero 09-10 entries),
+oracle mouth still quiet since 16:02 local, ext1 poison still
+active, continuo's last cycle clean (494s, ok). The affect block
+says rage sev=2 flat -- today's fence events: 0. The drop
+prediction (09-12) stands.
+
+Next cycle: (1) W37 verdict note to the drill queue (the snapshot
+IS the verdict: rotation loss found + fixed); (2) rage-decay drop
+verification 09-12; (3) storm-pattern watch (third all-camera
+storm -> file the router question); (4) aria-0029/0030/0031 still
+await Nacho.

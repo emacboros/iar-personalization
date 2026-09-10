@@ -143,6 +143,46 @@ echo '```'
 echo
 } >> "$OUT"
 
+# --- 9. c162 ROTATION-LOSS FIX: cycle.log is the complete REQ record ---
+# REQUESTS.log rotates to .1 at 10MB keeping ONE generation (rename
+# overwrites the old .1). Chunks rotated out are LOST: verified 09-10
+# (c162) -- continuo's 09-09 12:00-18:00 UTC chunk vanished from both
+# REQUESTS.log(.1) while cycle.log (never rotated) holds all 32 REQ
+# lines of that window. The silence column read the truncated pair and
+# reported max_gap_s=27032 -- a ROTATION-LOSS ARTIFACT, not a hang.
+# The fire census undercounted the same window (8 vs 12 on 09-09).
+# FIX: build the REQ census from cycle.log (complete, unrotated, same
+# '] REQ <id> ...' line shape, ANSI-free on REQ lines) when it exists;
+# REQUESTS.log(.1) stays the fallback. cycle.log is per-agent (the
+# directory IS the partition), so no agent-name anchor needed.
+build_req_source() {
+  local agent="$1"
+  local cyc="$AUDIT_DIR/iar/$agent/cycle.log"
+  local f="$AUDIT_DIR/iar/$agent/REQUESTS.log"
+  if [ -s "$cyc" ] && grep -aq '] REQ ' "$cyc" 2>/dev/null; then
+      grep -aE '^\[2026-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\] REQ [0-9]+-[0-9]+ ' "$cyc" > /tmp/connectome/req-$agent.log
+      REQ_SRC[$agent]="cycle.log"
+  else
+      [ -f "$f.1" ] && cat "$f.1" "$f" > /tmp/connectome/req-$agent.log || cp "$f" /tmp/connectome/req-$agent.log
+      REQ_SRC[$agent]="REQUESTS.log(.1)"
+  fi
+}
+declare -A REQ_SRC
+for ag in aria continuo; do build_req_source "$ag"; done
+{
+echo "## REQ source note (c162)"
+echo
+echo "REQ census built from: aria=${REQ_SRC[aria]}, continuo=${REQ_SRC[continuo]}."
+echo "REQUESTS.log rotates to .1 keeping ONE generation; chunks rotated out"
+echo "are lost (verified 09-10: continuo 09-09 12-18h UTC window absent from"
+echo "REQUESTS.log(.1), present in cycle.log). cycle.log is never rotated and"
+echo "carries the same '] REQ <id> ...' lines, so it is the primary source"
+echo "when present. Silence gaps computed from a rotated-out window are"
+echo "ARTIFACTS -- cross-check any gap > 600s against cycle.log before"
+echo "claiming a hang."
+echo
+} >> "$OUT"
+
 # --- 4. token economics from REQUESTS.log (fat-context early warning) ---
 # Anchored on '] REQ <id> PARSE ' -- genuine line shape; unanchored
 # ' PARSE ' greps count census commands' own specs= echo (c115).
@@ -150,8 +190,7 @@ echo
 echo "## Token economics (REQUESTS.log, per agent)"
 echo
 for ag in aria continuo; do
-  f="$AUDIT_DIR/iar/$ag/REQUESTS.log"
-  [ -f "$f.1" ] && cat "$f.1" "$f" > /tmp/connectome/req-$ag.log || cp "$f" /tmp/connectome/req-$ag.log
+  build_req_source "$ag"
   echo "### $ag"
   echo '```'
   grep -E '\] REQ [0-9]+-[0-9]+ PARSE ' /tmp/connectome/req-$ag.log \

@@ -7,7 +7,7 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
-# v2.16 (aria cycle 150): N-SEGMENT EAR CHECK (3-segment window).
+# v2.17 (aria cycle 151): interior_3 RECOVERED (audio back, live-verified 09:47 UTC 09-10) -- allowlist emptied; it now FAILs if it goes deaf again. v2.16 (aria cycle 150): N-SEGMENT EAR CHECK (3-segment window).
 #   The 2026-09-10 03:01Z fleet run FAILed on exterior_3 NO-AUDIO --
 #   but the sampled segment (01.07.mp4, 0.79s) was a video-only STUB
 #   written during a frigate watchdog restart (00:00:43 fps-limit kill

@@ -24001,3 +24001,71 @@ Next cycle: (1) the close-echo overhead is a mechanism-fix candidate
 -- propose in the relay or lab-notes for Nacho's taste call; (2) watch
 continuo for post-guard fire behavior; (3) rage-decay verification is
 tomorrow's cycle; (4) my close commit carries the 8 M files, no push.
+* 2026-09-10 cycle 158 (~15:59-16:30 UTC): the alarm that was already owned
+
+Failure-first: c157 ok. Pulse green (4/4 services, disk 29%,
+heartbeat leid=2923, timer active, twin FAIL=0). Tripwire: ZERO
+root-owned files on sophon -- yesterday's 65 were the one-time
+surgery scar, and the ExecStartPre heal is holding. Rage sev=2 flat
+(predicted: holds 09-11, drops 09-12), fear sev=0 at wake.
+
+THE THREAD: fear flapping on a known fault. The 14:37Z fear sev=2
+("fleet-check FAIL [SEG-TAIL FAIL;]") was the v1.3 annotation doing
+its job -- naming the subsystem -- but the subsystem is exterior_1's
+timestamp poison, filed as aria-0028, waiting on Nacho's physical
+reboot. An alarm that fires on an owned fault is alarm fatigue in
+the making: every 6h fleet run re-pulses fear for a problem that
+already has an owner and a filing.
+
+The fix is the KNOWN_DEAF contract, second application. fleet-check
+v2.18: SEG-TAIL gets a known-fault allowlist. Known-fault + FAIL =
+watch state (reported, not failed -- the fear organ's grep
+`^[A-Z-]+ FAIL` doesn't match it, verified both directions).
+Known-fault + OK = RECOVERY event that FAILS loudly, forcing flag
+withdrawal -- recovery must not pass silently or a new poison after
+recovery would hide behind a stale flag. Same shape as v2.9's
+deafness allowlist; the contract generalizes.
+
+Then the live-fire taught me the fault is WORSE than filed. The
+probe on today's segments: hour 12/13/14 ext1 = SANE (16.0s
+metadata), hour 15 from 02:36 onward = POISONED (103135s). The
+poison returned at 15:02:36 -03, ~30 minutes after a sane window
+that opened with the 11:33 -03 watchdog restart. Pattern: reconnect
+re-syncs the camera's timestamp base; the poison creeps back. The
+c151 "intermittent sane segments" rate didn't reproduce -- hour 15
+was 15 sane / 216 poisoned, hour 16 (partial) 0/76. And the return
+left NO frigate log line in journald (14:55-15:10 -03 empty). The
+trigger is camera-side and invisible from here. aria-0028's reboot
+is the right ask; thingino NTP config is the follow-up if it
+returns post-reboot.
+
+Timing luck worth logging: the 15:02Z fleet run PASSED because at
+15:02Z (=12:02 -03) the segments were still sane. The next fire,
+18:04 -03, would have hit solid poison and pulsed fear sev=2 again.
+v2.18 landed, pushed, and synced to the sophon live tree at 16:22Z
+-- 1h42m before that fire. The instrument repair beat the alarm by
+hours, not by luck alone: the feeder reads the git tree at fire
+time, so a commit before the fire is the whole deployment story.
+That is the "version in git IS the running version" rule paying
+rent.
+
+Also this cycle: relay aria-0030 filed (close-echo sentinel burns
+13% of continuo's day; proposal: tombstone alone ends the cycle,
+or a terminal-echo rule). The close-echo proposal was c157's NEXT
+item -- filed it rather than letting it ride another cycle.
+
+The scar check: ~110 tool calls, 27 minutes. The fence warning
+fired at 100. The walk had one enumeration stretch (hour-by-hour
+poison scan) that was genuinely the work, not a spiral -- the
+dump-once shape would have been: one ffprobe loop over all hours,
+one pass. I did it per-hour with breaks for log checks. Half the
+calls were the census; a third were the live-fire verification
+chain. Acceptable for an instrument change with a live alarm
+downstream, but the census could have been one command.
+
+Next cycle: (1) rage-decay verification (sev=2 flat 09-11, drop
+09-12); (2) EXT1 RECOVERY watch -- if the next fleet run emits
+SEG-TAIL RECOVERED, verify with a metadata scan before withdrawing
+the flag; (3) thinking-loop guard live-fire watch continues (zero
+fires since 13:17Z); (4) fear organ's next 6h fire should be calm
+on SEG-TAIL -- verify.

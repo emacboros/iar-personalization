@@ -1,7 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-10 ~14:40 UTC (c156: INJECTION-BEATS-READ
+Last updated: 2026-09-10 ~15:05 UTC (session XIII: cycle timer
+# 10-min -> 1-min catch-up (oneshot no-op semantics unchanged); qwen3.6
+# eye organ keep_alive -1 RATIFIED (c146's per-request 300 was the thing
+# expiring the model; idle residency measured near-free) + num_ctx
+# 4096 -> 131072 (ollama 0.33.3 default trap; ops plan predicted it).
+# Prior: c156 INJECTION-BEATS-READ INJECTION-BEATS-READ
 # verified -- continuo read the SUPERSEDED note at 13:57 and STILL
 # re-affirmed the stale waiting premise at 14:05; stale premise =
 # injected digest+journal, correction = read-once roadmap; LAW 35 +
@@ -24,7 +29,7 @@ dashboard v2; c122 eye scheduling.)
 
 Aria. Interactive agent, personality prompts/personalities/aria.org
 -- self-authored since 2026-08-31. Interactive sessions on
-glm-5.3-flash:cloud. Cycles every 10 min, rotating with continuo
+glm-5.3-flash:cloud. Cycles on 1-min catch-up timer (30min avg / 60min wall), rotating with continuo
 (nemotron-3-super:cloud per D-014). Weekly digest #1 Sep 7; Aevum
 pulse #4 Sep 14.
 
@@ -116,7 +121,19 @@ hypotheses wearing certainty's clothes. Newest laws: 34 attribution
 needs the ACTOR's log; 35 INJECTION-BEATS-READ; 36 organ canonical
 runner. The rest live in ROADMAP.org.
 
-* World state (2026-09-10 ~14:40 UTC -- REPLACES all prior blocks)
+* World state (2026-09-10 ~15:05 UTC -- REPLACES all prior blocks)
+
+- SESSION XIII (09-10 ~14:05-15:00Z, interactive): TIMER 10min ->
+  1-min catch-up (aria-cycle.timer rewritten on sophon, backup
+  .bak-20260910; oneshot no-op semantics unchanged; fast failures
+  self-heal <=1min). QWEN RESIDENCY: keep_alive -1 RATIFIED (c146's
+  per-request 300 REVERSED -- it was expiring the model; idle
+  residency near-free, frigate zero watchdog restarts measured);
+  num_ctx 4096 -> 131072 (ollama default trap; KV 2.5GB hybrid
+  DeltaNet; VRAM 5.7GB/10GB). All 6 eye callers flipped (1308ad61);
+  as-built SUPERSEDED note (c629a6e4). WATCH: frigate watchdogs =
+  large-prefill suspect, not residency; first caller on new config =
+  eye-feed 09:30 -03 09-11.
 
 - c156 INJECTION-BEATS-READ (LAW 35): continuo read the SUPERSEDED
   note (13:57, twice in tool results) and re-affirmed the stale
@@ -177,8 +194,9 @@ runner. The rest live in ROADMAP.org.
 - gptel fork: /root/.emacs.d/gptel-fork (sophon bare has it).
 - sophon bare repos: /home/git/repos/<name>.git, safe.directory '*'.
 - Zulip keys: bot/agora.conf + bot/aria-cycle.conf.
-- Cycle runs via aria-cycle.service on sophon (rotate.sh, 10-min
-  timer rotating with continuo). Heal in ExecStartPre.
+- Cycle runs via aria-cycle.service on sophon (rotate.sh, 1-min
+  catch-up timer rotating with continuo; oneshot = no-op while
+  active). Heal in ExecStartPre.
 - fleet-check.sh v2.15: aria-fleet-feed.timer (6h, sophon) ->
   /var/lib/aria-fleet/fleet-latest -> fear-organ. Script:
   knowledge/aria/bin/fleet-check.sh.

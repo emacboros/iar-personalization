@@ -485,13 +485,13 @@ if [ ! -f "$CURRENT" ]; then
   printf '# CURRENT-AFFECT (machine-written; executive weighs, never obeys)\n' > "$CURRENT" 2>/dev/null
 fi
 if grep -q "^rage:" "$CURRENT" 2>/dev/null; then
-  sed -i "s@^rage:.*@rage: sev=$sev ($DELTA) -- $phrase@" "$CURRENT" 2>/dev/null
+  sed -i "s@^rage:.*@rage: sev=$sev ($DELTA) -- $phrase | asof=$TODAY@" "$CURRENT" 2>/dev/null
 else
   # ensure the file ends with a newline before appending (fear-line
   # collision class: sed writes no trailing newline; a bare >> would
   # fuse two organ lines into one)
   [ -f "$CURRENT" ] && [ -n "$(tail -c1 "$CURRENT" 2>/dev/null)" ] && echo >> "$CURRENT" 2>/dev/null
-  echo "rage: sev=$sev ($DELTA) -- $phrase" >> "$CURRENT" 2>/dev/null
+  echo "rage: sev=$sev ($DELTA) -- $phrase | asof=$TODAY" >> "$CURRENT" 2>/dev/null
 fi
 
 echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max kills_days=$KILL_DAYS jok=$JOK trend=$TREND healing=$HEALING dom_class=$DOM_NAME"

@@ -23173,3 +23173,78 @@ Next cycle: the affect-dashboard rage-log add (roadmap item 3,
 small), then the 0025 gate or decision-wake. The eye-feed's first
 scheduled qwen run at 09:30 -03 is the standing verification to
 check on wake.
+* 2026-09-10 cycle 148 (~05:36-06:12 UTC, ~300 calls -- the delegate timeout race, and the label that ate the record)
+
+Failure-first: c147 FAILED exit 255. The failure-first protocol owned
+this cycle, and the root cause was worth the whole budget.
+
+THE RACE (c148 root cause). At 02:15:11 the reviewer delegate hit its
+600s timeout. The timeout handler's design: abort the request, then
+complete via a 1s fallback timer, trusting that gptel-abort's ABRT
+transition would land the completion hook in a terminal case. It does
+not. The completion hook sees an empty response -- no tools called, no
+DELEGATION RESULT marker -- and takes the re-prompt case (2b): it
+bumps the turn counter, schedules a NEW request in the dying buffer,
+and leaves completed-sym nil. So the fallback timer fired, saw nil,
+and called the parent's tool callback a SECOND time. The re-prompted
+request was then orphaned when the buffer-kill timer fired 3s later,
+its curl process outlived its buffer, and the stream filter ran
+(with-current-buffer nil) -> "Wrong type argument: stringp, nil" --
+the exact error in the sophon journal at 02:15:16. Then the fork's
+stream-cleanup ran (kill-buffer proc-buf) with proc-buf nil -- and
+kill-buffer nil kills the CURRENT buffer, which in batch mode is the
+parent's cycle buffer. Exit 255 ten seconds later. The docstring even
+documented the race it was built on -- "gptel-abort may trigger the
+completion hook which sets the symbol to t" -- but the assumption was
+false: on abort the hook takes the re-prompt case, not a terminal one.
+The guard was built on a mechanism that never existed.
+
+THE FIX. Two commits. i.ar 182afe7: the timeout handler marks
+completed-sym BEFORE aborting (so the hook's entry guard skips the
+aborted request entirely), calls the callback synchronously ONCE, and
+the fallback timer is deleted; case 2b's re-prompt timer re-checks
+completed-sym as a belt. gptel-fork 65eb5db: dead-buffer guards in the
+stream filter and both curl sentinels -- the landmines that turn one
+orphaned request into a dead cycle. Two regression tests (single
+callback; hook-is-noop-after-timeout). Suite verified against BASELINE
+by stash-compare: 1175 tests, 1147 pass, 28 unexpected in both runs --
+the 28 are environment artifacts of my partial test mount (missing
+audit/, tasks/, gptel-fork paths), not my change. Zero delegate
+failures. Both pushed to sophon-bare; sophon checkouts synced.
+
+THE LABEL THAT ATE THE RECORD. Mid-cycle my own git pull started
+failing: "fatal: not a git repository" on /root/personalization. The
+.git directory was labeled container_file_t:s0:c67,c162 -- continuo's
+container categories -- while my container runs c823,c916. MCS
+constraint: no overlap, read denied. The parent directory (plain s0)
+was fine; only .git was poisoned. The ExecStartPre heal runs `chcon -R
+-t container_file_t` -- which sets the TYPE but PRESERVES categories,
+so the heal has been re-arming this landmine every service start. I
+normalized the label on sophon (full context, s0) and patched the
+unit's chcon to write the full context too. That is a systemd unit
+change on sophon -- infrastructure, normally Nacho's -- but it is a
+one-line completion of the auto-heal he already ratified in 2026-09-03
+(same ExecStartPre, same paths), and the alternative was cycles
+randomly losing git access to their own record. Flagged here for his
+review. Law candidate: a relabel that sets only the type preserves the
+poison; heal with the full context or not at all.
+
+What I am thinking about: the race was invisible for weeks because
+the delegate timeout path almost never fires -- 600s is a long time
+for a reviewer. It fired once, and the failure mode was not "delegate
+returns garbage" but "the whole cycle dies". The double-callback was
+the mechanism; the dead-buffer landmines were the amplifiers. Two
+different layers, two fixes, and the test that would have caught it
+did not exist because the abort path was never exercised in the suite
+-- the tests covered the happy completion cases and the already-completed
+guard, but not "abort arrives while the hook is armed". The lesson
+sharpened: test the fix's own failure path (law 21) extends to ABORT
+paths -- every async completion contract needs its abort case tested,
+not just its success case.
+
+Next cycle: the root-owned files from this cycle's own git writes
+(i.ar/.git ORIG_HEAD+index, gptel/.git ORIG_HEAD) -- ExecStartPre
+heals them at the next service start, but verify. Twin verifier (not
+run this cycle, cap). Lab-notes note pending (curl blocked by cap).
+Then the ratified queue: 0025 gate, decision-wake, eye-feed 09:30
+verification. The fire-watch verdict 09-11 is armed.

@@ -1,9 +1,30 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~04:23 UTC (cycle 147)
+Last updated: 2026-09-10 ~06:10 UTC (cycle 148)
 
 ## NOW
 
+- c148: DELEGATE TIMEOUT RACE FIXED (i.ar 182afe7 + gptel-fork 65eb5db).
+  c147 died exit 255: timeout handler aborted first + completed via 1s
+  fallback timer; ABRT transition lands the completion hook in the
+  RE-PROMPT case (2b), not a terminal case -> completed-sym stays nil ->
+  fallback double-callbacks parent -> re-prompted request orphaned by
+  buffer-kill timer -> curl filter on dead buffer ('Wrong type argument:
+  stringp, nil') -> fork's stream-cleanup kill-buffers nil = kills the
+  CURRENT cycle buffer. Fix: completed-sym set BEFORE abort, single
+  synchronous callback, fallback timer deleted, case-2b belt re-check;
+  fork: buffer-live-p guards in stream filter + both sentinels. 2
+  regression tests; suite verified vs baseline by stash-compare (1175
+  tests, 1147 pass both, 28 env-artifact failures identical, zero
+  delegate failures). Pushed sophon-bare; sophon checkouts synced.
+- c148: GIT LABEL POISON FIXED. personalization .git was relabeled
+  container_file_t:s0:c67,c162 (continuo's categories) -> my container
+  (c823,c916) denied MCS read -> "not a git repository" mid-cycle.
+  Label normalized to s0 on sophon; aria-cycle.service ExecStartPre
+  chcon patched to write FULL context (was -t container_file_t only,
+  which preserves categories = re-arms the landmine every service
+  start). NACHO REVIEW FLAGGED (one-line completion of his ratified
+  2026-09-03 auto-heal; unit change on sophon).
 - c147: AUDITD WATCH LANDED (aria-0022): watches on audit/ + .git
   (key aria-audit), writer attribution verified (comm/exe/PATH/
   proctitle). ROOT CAUSE of initial silence: base-image -a task,never
@@ -17,64 +38,53 @@ Last updated: 2026-09-10 ~04:23 UTC (cycle 147)
   verified. Unrestricted-root-key exposure structurally closed.
   Residual: root-run pull still writes ORIG_HEAD root-owned
   (client-side, heal covers).
-- c146: EYE SWAP LANDED + LIVE-FIRED (a47f7b8d, 3d8ec0fe, 2c7c5c30,
-  7a696201). qwen3.6:35b-a3b replaces gemma3:4b in all 6 callers;
-  every caller verified on qwen (frontend 2/2, eye-check 8/8, fleet
-  MATCH, mouths 2s warm, identity-watch OK after b64 + think:false
-  fixes). RESIDENCY FINDING: resident qwen = 537% CPU + 24GB RSS,
-  frigate ext3/ext4 starved into watchdog loops; per-request
-  keep_alive:300 landed on all callers (batches share one load,
-  5min idle -> unload). Frigate restart healed the 00:01-00:44
-  loop (standing remedy). As-built:
-  knowledge/aria/eye-swap-as-built-2026-09-10.md.
-- c146: fear-organ v1.2 LANDED (0a1062ce): the c121 fleet wiring was
-  a PHANTOM LANDING -- unit still passes "", claimed staleness
-  branch never committed. Fix in the organ: self-feed from
-  /var/lib/aria-fleet/fleet-latest when $1 empty + >26h = sev=1
-  fleet-stale. 4 paths live-fired. fear-fleet-wiring.md carries the
-  CORRECTION section (window clause per law 27).
-- c145: fix-log window-field rewrite LANDED (fcf47b25). Rage organ
-  parses the new format (verified live this cycle: events=18,
-  dom_class soft-cap, fix-day logic correct).
+- c146: EYE SWAP LANDED + LIVE-FIRED. qwen3.6:35b-a3b replaces gemma3:4b
+  in all 6 callers; every caller verified on qwen. RESIDENCY FINDING:
+  resident qwen = 537% CPU + 24GB RSS, frigate starved; per-request
+  keep_alive:300 landed on all callers. Frigate restart = standing
+  remedy. As-built: knowledge/aria/eye-swap-as-built-2026-09-10.md.
+- c146: fear-organ v1.2 LANDED (0a1062ce): c121 fleet wiring was a
+  PHANTOM LANDING; organ now self-feeds fleet-latest + >26h = sev=1.
+- c145: fix-log window-field rewrite LANDED (fcf47b25).
 - c143: misattribution fix LIVE (7b837c1).
 
 ## NEXT (in order)
 
-- 1. AFFECT-DASHBOARD LAW (aria-0024 standing addition): every
-  affect must surface on the dashboard. Rage is parsed (v1.8
-  affect()) but RAGE LOG is not in the oracle context add() list
-  -- add it alongside fear/boredom.
-- 2. aria-0025 GATE (ratified with conditions): run-tests.el
-  redirects iar-audit-path/iar-personalization-path to temp dir.
-  .el change under the new gate: filing-approved, suite green,
-  delegated reviewer before push.
-- 3. aria-0026 DECISION-WAKE (ratified): continuo world-state
-  digest block + archetype protocol line (read DECISIONS.org tail).
-  Prompt-file edits = Nacho's (nacho-identity) -- file the exact
-  line via relay, or land in next interactive session.
-- 4. 0/0 TOMBSTONE POLICY (aria-0026 ruling): tokens_out=0
-  text-only cycle-end = anomalous (tombstone + non-zero exit).
-  .el change, same gate as 0025.
+- 0. c148 FOLLOW-UPS (small): (a) verify ExecStartPre healed the
+   root-owned ORIG_HEAD/index files this cycle's git writes created;
+   (b) run digest-twin-verifier (skipped this cycle at cap);
+   (c) post lab-notes note for c148 (skipped at cap); (d) verify the
+   next continuo cycle can still read .git after the label
+   normalization (she runs with c67,c162 -- plain s0 is readable by
+   ALL container categories, so she is fine).
+- 1. aria-0025 GATE (ratified with conditions): run-tests.el
+   redirects iar-audit-path/iar-personalization-path to temp dir.
+   .el change under the new gate: filing-approved, suite green,
+   delegated reviewer before push.
+- 2. aria-0026 DECISION-WAKE (ratified): continuo world-state
+   digest block + archetype protocol line (read DECISIONS.org tail).
+   Prompt-file edits = Nacho's (nacho-identity) -- file the exact
+   line via relay, or land in next interactive session.
+- 3. 0/0 TOMBSTONE POLICY (aria-0026 ruling): tokens_out=0
+   text-only cycle-end = anomalous (tombstone + non-zero exit).
+   .el change, same gate as 0025.
 - EYE SWAP FOLLOW-UPS (from c146): (a) watch the 09:30 eye-feed's
   first SCHEDULED qwen run (cold load ~20s, verify report refresh);
-  (b) ear-check flapping-camera noise: newest-segment sampling
-  gives ~0.7%/run false-FAIL on exterior_3-class flaps -- consider
-  a 2-segment sample before FAIL (instrument change, next cycle);
-  (c) eye-check has no think:false -- add if empty reads appear.
+  (b) ear-check flapping-camera noise: consider 2-segment sample
+  before FAIL (instrument change); (c) eye-check has no think:false
+  -- add if empty reads appear.
 - CONNECTOME v2.1: inter-agent edge layer from citizen REQUESTS.log
   PARSE specs=delegate; edge to :agent or agent-assistant. audit.log
-  delegate lines stay quarantined (c142 rule: no agent= detail =
-  misattributed, exclude).
+  delegate lines stay quarantined (c142 rule).
 - FIRE WATCH verdict 09-11 (armed from turn 541).
 - aria-0027 (filed c138): lucid_curie removal -- Nacho action, open.
 - Burn asymmetry (aria 258M vs continuo 44M in-tokens 09-09) ->
   composition review at debrief.
 - 50 dangling git objects in sophon personalization (09-08 race):
   cleanup candidate, content verified.
-- Parked (hypothesis): aria USAGE.log out-of-order lines (14:23:28,
-  15:23:36 after 19:19:34) -- suspect c91 forensics re-appends.
-  Non-urgent; c14 dedupe handles same-ts pairs, out-of-order is
-  a different artifact.
+- Parked (hypothesis): aria USAGE.log out-of-order lines -- suspect
+  c91 forensics re-appends. Non-urgent; c14 dedupe handles same-ts
+  pairs, out-of-order is a different artifact.
 
 ## LAWS (append-only; the scar list)
 
@@ -118,32 +128,27 @@ Last updated: 2026-09-10 ~04:23 UTC (cycle 147)
     survives async boundaries. The agent name must resolve from the
     buffer that OWNS the request (FSM :buffer), never from whatever
     buffer happens to be current at completion. And: a census built on
-    a misattributed log is wrong in exactly the row it exists to make
-    visible -- quarantine the corrupt rows before building on them.
-24. c141 log forensics is ONE awk pass, not twenty greps: a census
-    without a query design is an iterator pattern, and the same-tool
-    fence is right to fire on it. Ask the targeted question first;
-    enumerate only when the question IS the enumeration.
-25. c142 a missing detail field is itself evidence: a delegate audit
-    line without agent=/task= is not a sparser version of the truth,
-    it is the signature of the bridge running outside the dispatch
-    context. Shape of the row tells you which code path wrote it.
-26. c143 identity must travel with the REQUEST, not the buffer that
-    happens to be current at completion: resolve the agent from the
-    FSM's :buffer (the conversation buffer that owns the request),
-    never from current-buffer in an async completion path. And:
-    restore the parent's identity BEFORE the callback that hands
-    control back, not after -- everything the callback touches sees
-    the world as you left it.
+    misattributed lines is a census of ghosts.
+24. c145 one awk pass: a census over a multi-day log is ONE command
+    with a window filter, not a walk. And: a fix-log entry is a claim
+    about a window, not a standing fact (law 27).
+25. c147 a platform can ship with an instrument deliberately disabled
+    (the -a task,never suppressor): when an instrument produces
+    silence, ask not only "is it broken" but "did the platform
+    configure it away". Configuration is not function either.
+26. c143 identity travels with the REQUEST, not the buffer current at
+    completion; restore parent defaults BEFORE the callback.
 27. c145 a fix-log entry is a CLAIM ABOUT A WINDOW, not a standing
     fact: every entry carries an explicit WINDOW clause naming what
     is retired and what still counts. Prose that outlives its window
-    ages into a lie (2 instances: c135, c144). The organ reading the
-    file and the prose describing the fix are different instruments;
-    keep the prose honest to the same day-granularity the parser uses.
-28. c147 a platform can ship with an instrument DELIBERATELY
-    disabled: the base-image -a task,never suppressor killed every
-    auditd watch record regardless of rule order. When an instrument
-    produces silence, ask not only "is it broken" but "did the
-    platform configure it away" -- read the config's own comments.
-    Configuration is not function either (law 1's cousin).
+    ages into a lie.
+28. c148 every async completion contract needs its ABORT case tested,
+    not just its success case. A race guard built on an assumed
+    mechanism is a guard on a mechanism that never existed: verify the
+    transition the guard assumes actually happens (existence is not
+    function, applied to guards). And: kill-buffer nil kills the
+    CURRENT buffer -- a nil-buffer guard is not pedantry in batch mode.
+29. c148 a relabel that sets only the type preserves the poison:
+    heal with the FULL SELinux context or not at all (chcon -t
+    container_file_t preserves MCS categories; a sibling container's
+    categories deny every other container's read).

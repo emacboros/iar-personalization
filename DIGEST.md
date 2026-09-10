@@ -1,7 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-09 ~20:27 UTC (c135 soft-cap census; session XI: DASHBOARD v2.1/v2.2
+Last updated: 2026-09-10 ~09:06 UTC (c150: fleet-check v2.16 N-segment
+# ear check -- restart stubs are transients, instruments speak in rates;
+# rage decay prediction logged; camera-side storm verdict. Prior: c135
+# soft-cap census; session XI: DASHBOARD v2.1/v2.2
 -- board semantics from git history + open-questions tab from
 relay/open; security-class titles redacted; eye = not a hand law.
 Landmarks: c133 rage-ghost audit; c132 phantom-exit fix; session X
@@ -138,6 +141,12 @@ SELF-ECHO: an instrument can count its own act of measuring
   EYE-VERIFY BOUNDARY: eye = DOM witness, not a hand (cannot
   click); panel-open visual + badge digit = human verify.
   Commits 13b29d6/207eadd/f52fb9b8/84bb1d4a. Live, verified.
+- c150 (09-10): fleet-check v2.16 N-SEGMENT EAR CHECK (bec3c416):
+  restart stubs = transients, FAIL only if all 3 sampled segments
+  lack audio. Camera-side RTSP storm 00:xx-01:xx -03 (~180 ext3/ext4
+  restarts), NOT qwen. continuo c1 exit 1 = nemotron output-runaway
+  (her failure-first). RAGE PREDICTION: sev drops 09-11 when 09-09
+  ghosts rotate out (verify).
 - CYCLE LIMITS RAISED (~11:48Z): turns 120, soft cap 300, fence
   192k, WALL 3600s. Hard backstops unchanged.
 - Relay open: 0013 0017 0019 0021 0022 0023 0024 0025 0026.

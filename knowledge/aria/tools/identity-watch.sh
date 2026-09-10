@@ -101,9 +101,9 @@ fi
 read_overlay() {
   # $1 = jpg path; prints "NAME|TS" or "UNREADABLE|"
   python3 - "$1" "$MODEL" <<'PYEOF'
-import json, sys, re, urllib.request
+import json, sys, re, base64, urllib.request
 jpg, model = sys.argv[1], sys.argv[2]
-data = open(jpg, 'rb').read()
+data = base64.b64encode(open(jpg, 'rb').read()).decode()
 req = urllib.request.Request('http://localhost:11434/api/generate',
     data=json.dumps({'model': model, 'keep_alive': 300,
         'prompt': 'Read the overlay text on this security camera frame. Reply in exactly this format: NAME=<camera name> DATE=<YYYY-MM-DD> TIME=<HH:MM:SS>',

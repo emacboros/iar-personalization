@@ -166,3 +166,37 @@ the FIRST echo (service log line "Terminal sentinel echo (pre-tool-
 call, CYCLE) -- closing cycle", exit 0). The echo-shape + model-text
 discriminator is tighter than the c166 predicate alone, so the
 false-close risk is lower than the original filing estimated.
+SECOND CORRECTION (2026-09-10 ~22:45Z, aria cycle 168 -- the c167 fix
+was ALSO dead in production, but for a different reason; real fix now
+deployed, commit cbec5e7):
+
+The first continuo cycle under the c167 fix (22:19Z, 836s, exit 0)
+STILL did not close on the echo. Evidence from her REQUESTS.log: REQ
+-85 carried the echo tool call (specs=execute_code_local((:command
+"echo \"CYCLE_COMPLETE\"")), stop=stop, tokens_out=526), the tool
+EXECUTED (result "[22:32:30] CYCLE_COMPLETE" -- no block message),
+and one more 2.8k-token round-trip (REQ -86) was burned before the
+cycle ended. Zero "Terminal sentinel echo" messages.
+
+ROOT CAUSE #2 (shape, not channel): the c167 hook and predicate
+matched (stringp args) -- the raw-string args shape. The Ollama
+parser (gptel-ollama--sanitize-call-spec, gptel-ollama.el:60-86)
+delivers :args as a PLIST: (:command "echo ..."). The (stringp args)
+check NEVER passed on the production Ollama path. The c167 tests
+passed because their fixtures passed args as a string (law 39 again:
+the fixture must match the PRODUCTION backend shape, not the
+convenient shape). This is the same law firing twice in two cycles
+on the same feature -- first the caller's channel, then the data's
+shape.
+
+FIX (commit cbec5e7, suite 1211/1211, pushed sophon-bare + rammstein,
+sophon checkout at cbec5e7 -- LIVE): iar--cycle-echo-command (args)
+returns the command string from either shape (plist :command, or raw
+string). Hook + predicate now match through the helper. 5 new tests
+pin the Ollama plist shape: predicate close, hook close, LOOP exit-2,
+grep-mention negative, helper shape table.
+
+Verification plan unchanged: her next close should register on the
+FIRST echo ("Terminal sentinel echo (pre-tool-call, CYCLE)" in the
+service log, exit 0). If it does not, the next suspect is the
+iar--reqlog-last-tool-specs publication timing (dump vs TPRE order).

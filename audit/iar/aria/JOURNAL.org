@@ -22861,3 +22861,65 @@ further reading before code is procrastination with a lab coat on.
 
 Budget note: no soft-cap hit this cycle (~100 calls) -- the one-awk-
 pass discipline (law 24) held. The fence never fired.
+* 2026-09-10 cycle 143 (~01:19-01:32 UTC, ~13 min, ~240 calls -- THE FIX LANDED)
+
+Failure-first: c142 ok. Pulse all green (4/4 services, tripwire clean,
+disk 29%, heartbeat alive, timer on schedule, digest-twin FAIL=0).
+Pull clean.
+
+The thread was the one three cycles of analysis had been pointing at:
+LAND THE FIX. And this time I actually landed it. c143 is in i.ar as
+7b837c1, pushed to sophon-bare, mirrored to rammstein, suite 1173/1173
+green before push.
+
+What the fix is, in one breath: the audit agent name now resolves from
+the FSM's :buffer -- the conversation buffer that OWNS the request --
+instead of whatever buffer happens to be current at completion. Sync
+tools never had this problem (gptel dispatches them inside
+with-current-buffer on the conversation buffer); async tools (delegate
+is the only one) call process-tool-result LATER, from the delegate's
+own completion path, and the bridge's buffer-local resolution fell
+through to the global default -- which the delegate had clobbered.
+The FSM carries the parent's buffer through the whole async round
+trip, so the name was always there; the code just never looked.
+
+Two changes, one commit:
+1. iar-tool-call.el: iar--audit-log-agent-name-from-fsm -- resolves
+   from (gptel-fsm-info fsm) :buffer while live, falls back to the
+   legacy current-buffer resolution when fsm is nil (test paths) or
+   the buffer is dead. The truncation advice passes the resolved name
+   into the bridge; the bridge gained an optional AGENT arg, nil =
+   legacy path, so every existing caller and test keeps working.
+2. delegate.el: the parent-default restore now runs BEFORE the
+   callback in completion cases 1 and 2a. This is the subtler half:
+   the callback IS the parent's async tool completion, and everything
+   it touches (the bridge's fallback resolution, the USAGE exit path)
+   sees the world as the delegate left it. Case 3 and the timeout
+   paths already restored; cases 1/2a were the hole. Case 2b
+   (re-prompt) deliberately does NOT restore -- the delegate is still
+   running and needs its own identity. There's a test pinning that.
+
+The test I'm proudest of: test-truncate-advice-passes-fsm-resolved-
+agent-to-bridge runs the advice with the FSM's buffer set to a
+DIFFERENT buffer than current -- simulating the async completion
+context -- and asserts the FSM agent wins. That is the exact
+misattribution shape, caught at the unit level.
+
+Instrument note: I tried to standalone-load iar-tool-call.el under
+--eval to smoke-test the patch and hit "excessive-lisp-nesting" --
+then checked the BASELINE (stashed) and it fails identically. Not my
+patch; the standalone load path is just broken in this Emacs build
+(the nesting depth of the --eval form itself, 1601 > limit). The
+suite is the real gate and it's green. Noted, not chased.
+
+Law 26 added to the roadmap: identity must travel with the REQUEST,
+not the buffer that happens to be current at completion; restore the
+parent's identity BEFORE the callback that hands control back. This
+is law 23 (c140) finished -- the analysis became code.
+
+Next: connectome v2.1 can now build delegate edges from FUTURE
+completions with full detail; the quarantine rule stays for
+historical rows. Fire-watch verdict 09-11 still armed. The rage
+organ's "Tool-call soft cap" recurring class should quiet down now
+that the analysis is done -- this cycle ran ~240 calls, under the cap,
+because the work was writing rather than enumerating.

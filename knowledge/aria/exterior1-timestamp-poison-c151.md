@@ -119,3 +119,60 @@ case is bounded spurious RECOVERY noise, not alarm masking.
 Live-fired on sophon (canonical runner) 16:22 UTC: watch-state line
 emitted, FAIL=0, fear organ compatibility verified both directions.
 Next fleet fire 18:04 -03 will hit the poison and stay calm.
+
+## ADDENDUM 2 (c170, 2026-09-10 ~23:45Z): the probe was poison-blind; v2.19 fixes the instrument
+
+The v2.18 RECOVERY branch fired a standing FALSE RECOVERY: the
+18:04 -03 feeder run emitted "SEG-TAIL RECOVERED" while the newest
+segment's duration metadata was 412523s (114h). Root cause: the
+probe (`ffmpeg -sseof -2`) is poison-blind -- with a poisoned
+container duration, the seek clamps into real GOPs and decodes fine.
+The probe's OK never meant "recovered"; it meant "decodable".
+
+Full-day census (ffprobe format=duration, ext1, 09-10):
+
+| window (-03)     | duration          | state |
+|------------------|-------------------|-------|
+| 00h              | 16.0s             | sane |
+| 01:18 - 10:58    | 303546 -> 809444s | POISONED (grows ~14.3x wall) |
+| ~10:58 - 15:02   | 16.0s             | SANE (healed at 11:33 -03 watchdog restart) |
+| 15:02:36 - 20:37 | 103135 -> 515670s | POISONED (returned silently at 15:02:36, no frigate log) |
+| 20:37:02 - now   | 21.1s -> 16.0s    | SANE (re-synced by the 20:37:02 all-8 watchdog restart) |
+
+Two heals, both triggered by frigate watchdog restarts (stream
+reconnects re-sync the camera's timestamp base). Both heals were
+real but temporary -- the poison returns when the stream breaks
+again. aria-0028 (camera reboot, Nacho) is still the fix.
+
+fleet-check v2.19 (8f8889ec): SEG-TAIL now pairs the tail decode
+with an ffprobe duration check (threshold 60s; sane = 16.0s).
+RECOVERY requires decode AND sane duration. Poisoned-but-decodable
+now reports watch state (quiet, flag set) instead of RECOVERY.
+Live-verified both directions on the canonical runner.
+
+### The 20:37 -03 all-8-camera watchdog burst (c170, NEW finding)
+
+At 20:37:02 -03 ALL EIGHT cameras watchdogged simultaneously
+(fps-limit exceeded, 36 events in the minute). Unlike the
+08:10-08:35 and 11:32-11:33 bursts, there were NO camera-side RTSP
+i/o timeouts in the window -- this is a HOST STALL, not a camera
+event. Timing: continuo's nemotron-3-super:cloud CPU-inference
+request (34k tokens in, 1978 out, 6m2s wall = 5.4 tok/s CPU decode)
+was mid-cycle; sophon load was already ~9 from localsearch-3
+(GNOME LocalSearch indexer, 78% of one core for 9d19h, 7d10h CPU
+burned), firefox (61% since a day), and the frigate detector (36%).
+12 cores saturated -> frigate starved -> all-8 watchdogs.
+
+This is the FIRST live sighting of the nemotron-CPU-inference-vs-
+frigate contention class (D-014 moved continuo to nemotron:cloud
+which runs CPU-only; qwen stays GPU-resident). The 6m2s outlier
+request is the stall trigger; typical nemotron requests are 2-15s.
+
+Cleanup candidates (Nacho's desktop, his call -- filed, not touched):
+1. localsearch-3.service (user unit, GNOME LocalSearch/tracker3
+   indexer): 7d10h CPU over 9d19h uptime. Mask or disable on sophon.
+2. firefox on sophon (61% CPU, 1d3h elapsed): if this is a stale
+   remote session, close it.
+3. The 20:37 stall itself: if nemotron CPU inference keeps colliding
+   with frigate, the composition question (D-014) may want revisiting
+   -- or frigate's nice level raised. Watch for recurrence.

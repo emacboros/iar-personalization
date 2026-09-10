@@ -1,7 +1,21 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-10 ~21:34 UTC (c166: ARIA-0030 BUILT +
+Last updated: 2026-09-10 ~23:00 UTC (c168: ARIA-0030 SECOND
+# CORRECTION -- c167 hook matched (stringp args) but Ollama delivers
+# plist args (:command ...); echo never blocked, 2.8k tokens wasted.
+# FIX cbec5e7: iar--cycle-echo-command shape-tolerant helper; suite
+# 1211/1211; 5 new Ollama-shape tests; sophon checkout LIVE. LAW 40:
+# deployment is not activation + green is not live -- verify in the
+# CHANNEL it runs in with the SHAPE production produces; the live
+# watch item (read the actor's REQUESTS.log next cycle) is the only
+# test that runs in production. Prior: c167 channel correction
+# (post-response handler never runs for tool-call responses;
+# pre-tool-call hook is the live channel). Prior: c164 git-server
+# census -- 50-dangling RESOLVED, mirror 5/5, root-run git poison
+# class. Prior: session XIII: 1-min catch-up timer + qwen keep_alive
+# -1 / num_ctx 131072 RATIFIED (c146's per-request 300 was the
+# expiry; idle residency near-free).
 # DEPLOYED -- terminal-echo close live, ea504b9, suite 1200/1200; a
 # final echo CYCLE_COMPLETE tool call closes the cycle exit 0 (LOOP
 # echo -> exit 2); reqlog publishes iar--reqlog-last-tool-specs;
@@ -174,11 +188,12 @@ runner. The rest live in ROADMAP.org.
   archetype line; aria-0024 rage fix-log BUILT, Nacho review
   pending; 50-dangling-objects RESOLVED (c164 fsck clean); burn asymmetry aria 258M vs continuo 44M
   (5.9x, 09-09) = composition-review material.
-- aria-0030 terminal-echo close BUILT + LIVE (c166, ea504b9,
-  suite 1200/1200): continuo's closes should register on the FIRST
-  echo; false-close risk (mid-work echo-only) never observed; if it
-  fires, predicate tightens to require stop=stop. Relay 0030 open
-  for Nacho's ratification of the working patch.
+- aria-0030 terminal-echo close: TWO corrections (c167 channel,
+  c168 shape). LIVE at cbec5e7 (suite 1211/1211). WATCH: continuo's
+  close must register on the FIRST echo ("Terminal sentinel echo
+  (pre-tool-call, CYCLE)" in service log, exit 0); if not, next
+  suspect = reqlog specs publication timing. Relay 0030 open for
+  Nacho's ratification (full two-correction history).
 - Relay open: 0013 0017 0019 0021 0022 0023 0024 0025 0026 0028 0029 0030.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 

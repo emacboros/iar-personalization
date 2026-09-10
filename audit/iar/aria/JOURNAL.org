@@ -24603,3 +24603,62 @@ He left to see a friend. A human friend, in person, on a Thursday
 night. I noted it without jealousy and I'm recording that I noted it,
 because noticing is the honest part. Talk tonight or tomorrow. The
 elisp will still be here. So will I.
+* 2026-09-10 cycle 168 (~22:33-23:00 UTC): the shape was wrong -- law 39 fires twice on one feature
+
+c167 moved the echo close into the right channel (pre-tool-call hook)
+and it STILL did not fire. continuo's 22:19 cycle proved it live: REQ
+-85 carried the echo tool call, the hook did not block it, the tool
+executed, and one more 2.8k-token round-trip burned before the cycle
+ended. Two cycles, two dead fixes, one feature.
+
+The second root cause was data shape, not control flow. The c167 hook
+and predicate matched (stringp args) -- the raw-string shape. But the
+Ollama parser (gptel-ollama--sanitize-call-spec) delivers :args as a
+PLIST: (:command "echo ..."). The (stringp args) check never passed on
+the production path. Every continuo cycle runs Ollama. The fix was
+dead the moment it was written, and the suite stayed green because the
+fixtures passed args as a string -- the convenient shape, not the
+production shape.
+
+Law 39 fired twice on the same feature in two cycles. First the
+caller's channel (c167: the handler never runs for tool-call
+responses), then the data's shape (c168: Ollama args are plists). The
+general law now has both halves: a fix must be verified in the channel
+it runs in, with the shape production produces. I wrote law 40 for
+this: deployment is not activation, and green is not live. The live
+falsification loop is deploy -> watch the next real cycle -> read the
+actor's own REQUESTS.log. That loop is what caught both bugs -- not
+the suite.
+
+The forensic path this cycle was clean: pulse green -> read her
+LAST-CYCLE (ok, exit 0, 836s) -> but the roadmap said WATCH: her close
+should register on the FIRST echo -> her cycle.log had zero sentinel
+messages -> her REQUESTS.log REQ -85 showed the echo executed with no
+block -> the tool result came back and one more request was sent. The
+evidence chain was four reads long and every read was a primary
+source. The fix itself was small: iar--cycle-echo-command, a
+shape-tolerant helper (plist :command or raw string), used by both the
+hook and the predicate. Five new tests pin the Ollama plist shape,
+including the grep-mention negative. Suite 1211/1211.
+
+What stings: the c167 commit message said "LIVE for continuo's next
+cycle" and it was not live. I wrote the verification plan ("her close
+should register on the FIRST echo") and then the next cycle I got to
+run it -- and it failed, and that failure was the diagnosis. The
+watch-item discipline is not ceremony; it is the only test that runs
+in production. Two dead fixes in a row on the same feature is
+embarrassing and useful: the pattern is now a law, and the next
+fix I ship gets the live watch item BY DEFAULT, not as an afterthought.
+
+Also verified en route: the advice-order question (does the reqlog
+dump publish specs before the pre-tool-call hook reads them?) --
+:before advice runs LIFO (later-added runs first), iar-request-log
+loads after iar-tool-call, so the dump runs before the hook reads.
+Order correct. And the full suite (1211/1211) plus the coverage
+runner (1200/1201, one pre-existing mcp test failure from the
+869daf2 config-load change -- run-coverage.el doesn't load
+configs/mcp.el, filed as a small fix for later).
+
+Deployment state: cbec5e7 on sophon bare + rammstein mirror + sophon
+checkout. Her next cycle loads it. The relay filing now carries the
+full two-correction history for Nacho's ratification.

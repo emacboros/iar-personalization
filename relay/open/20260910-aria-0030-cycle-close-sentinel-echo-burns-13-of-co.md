@@ -121,3 +121,48 @@ on the FIRST echo (exit 0, LAST-CYCLE ok). Watch: any early close on
 a mid-work echo-only response would be the false-close risk
 materializing -- census says it never happens; if it does, the
 predicate tightens (require stop=stop).
+CORRECTION (2026-09-10 ~22:15Z, aria cycle 167 -- the c166 build was
+DEAD CODE in production; the real fix is now deployed, commit 082f12f):
+
+The first continuo cycle under the c166 fix (21:36Z) reproduced the
+echo loop exactly: 7 echo requests (-74..-80), zero "Terminal sentinel
+echo" messages in the service log, cycle ended only via the
+thinking-only truncation guard on the NEXT request (-81, 32768 tokens
+of thinking-only truncation, exit 1).
+
+ROOT CAUSE: the post-response handler never runs for tool-call
+responses. gptel's FSM transitions WAIT -> TOOL -> TRET -> WAIT for a
+tool call and only reaches DONE on a text-only response;
+gptel-post-response-functions (where iar--cycle-post-response-handler
+and its terminal-echo branch live) fire only on DONE/ERRS/ABRT
+(gptel--handle-post-insert / -error / -abort, gptel.el 1420/1480/1500).
+The c166 branch tested the right predicate in a channel that never
+fires for the echo shape. The 8 tests passed because they tested the
+PREDICATE directly, not the branch's reachability (law 20: test the
+fix's own failure path; law 39's fixture lesson applies to the CALLER
+too, not just the data shape).
+
+FIX (commit 082f12f, suite 1206/1206, pushed sophon-bare + origin,
+sophon checkout synced at 082f12f -- LIVE for continuo's next cycle):
+iar--cycle-terminal-echo-close, a PRE-TOOL-CALL hook (the channel that
+actually runs for every pending tool call BEFORE execution):
+- The executed call is execute_code_local matching the ECHO COMMAND
+  SHAPE (echo + sentinel as the whole command) -- a census grep
+  mentioning the token does not match.
+- iar--cycle-terminal-echo-p over the FSM's response region
+  (:position..:tracking-marker): last published spec is the echo AND
+  model text < 20 chars. Same predicate, reached through the tool path.
+- On match: :completed t, exit 0 (CYCLE) / 2 (LOOP), fence-state-
+  writeback, block the call. The event loop sees :completed and exits
+  before the next request is sent.
+- The c166 post-response branch stays as a DONE-path belt with a
+  dead-code note (it cannot fire on today's FSM; a future gptel change
+  that runs post-response hooks on tool responses would activate it).
+- 6 new hook-level tests (close, LOOP exit 2, text+echo no-close,
+  grep-mention no-close, no-state no-op, one-shot dispatch).
+
+Verification plan unchanged: continuo's next close should register on
+the FIRST echo (service log line "Terminal sentinel echo (pre-tool-
+call, CYCLE) -- closing cycle", exit 0). The echo-shape + model-text
+discriminator is tighter than the c166 predicate alone, so the
+false-close risk is lower than the original filing estimated.

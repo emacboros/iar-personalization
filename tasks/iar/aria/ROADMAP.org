@@ -1,188 +1,77 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~20:56 UTC (cycle 165)
+Last updated: 2026-09-10 ~21:32 UTC (cycle 166)
 
 ## NOW
 
-- c165: ARIA-0030 OPTION (2) DESIGNED (terminal-echo close in FSM):
-  sentinel detector searches model text only (c132 discipline,
-  correct) -- the echo arrives in a gptel (tool . id) span, never
-  registers. Design: publish reqlog :tool-use as shared state
-  (iar--reqlog-last-tool-specs, reset in iar--reqlog-reset-last),
-  new predicate iar--cycle-terminal-echo-p (last tool spec =
-  execute_code_local + CYCLE_COMPLETE in args + empty model text
-  in region), close exit 0 in the sentinel cond branch BEFORE
-  tombstone/max-turns. Tests on the phantom-exit fixture pattern:
-  echo closes / echo+text does not / LOOP echo -> 2 / c132
-  negative stays green. NEXT CYCLE: implement + suite + commit.
-  Build lands BEFORE relay answer so Nacho ratifies a working
-  patch. (Cycle truncated at output cap mid-investigation;
-  design grounded in journal c165.)
-
-- c164: GIT SERVER CENSUS: (1) 50-dangling-objects RESOLVED
-  (fsck clean, swept by pushes+auto-gc -- digest line dead, do
-  not re-file); (2) git-server.md dangling-HEAD census predicate
-  WRONG (flags main-only repos; TRUE dangling=0; recipe
+- c166: ARIA-0030 OPTION (2) BUILT + DEPLOYED (ea504b9, suite
+  1200/1200): terminal-echo close LIVE. iar-request-log publishes
+  iar--reqlog-last-tool-specs (raw :tool-use, reset in reset-last);
+  iar--cycle-terminal-echo-p = model text <20 chars + last spec
+  execute_code_local with sentinel in args; handler clause BEFORE
+  max-turns; LOOP echo -> exit 2, CYCLE echo -> exit 0; c132 negative
+  preserved. Pushed sophon-bare + rammstein; sophon checkout at
+  ea504b9 = LIVE for continuo's next cycle. Relay 0030 amended with
+  BUILT section (filing open for Nacho's ratification of the working
+  patch; option (1) archetype simplification now optional).
+  WATCH NEXT CYCLE: continuo's closes should register on the FIRST
+  echo (exit 0). If a cycle closes early on a mid-work echo-only
+  response = false-close risk materialized (census says zero exist);
+  predicate tightens to require stop=stop.
+- c165: design grounded (journal c165) -- superseded by c166 build.
+- c164: GIT SERVER CENSUS: (1) 50-dangling-objects RESOLVED (fsck
+  clean -- digest line dead, do not re-file); (2) git-server.md
+  dangling-HEAD census predicate WRONG (TRUE dangling=0; recipe
   manufactured the fault it claimed to detect -- fixed in doc
   addendum); (3) mirror health VERIFIED 5/5 sophon==rammstein;
   (4) stale packed ref 2b891950 = harmless ancestor hygiene;
   (5) NEW POISON VECTOR: root-run fetch/rev-list on sophon clones
-  rewrote 2 .git/index as root -- caught by own tripwire check,
-  healed chown+chcon; git-trust-graph rule 3 amended (poison
-  class = ANY root-run git in clone tree). Knowledge:
-  git-server-census-2026-09-10.md.
-- c164 WATCH: rage decay ON TRACK (2 fence events today vs
-  10-12/day 09-09; drop 09-12 stands). Thinking-loop guard 0
-  fires. Fear calm. Oracle quiet. No storm (ext4 12 i/o timeouts
-  = chronic noise, recordings sane 16s). EXT1 poison STILL
-  ACTIVE (309394s staircase, aria-0028 reboot pending).
-- c162: REQUESTS.LOG ROTATION-LOSS ARTIFACT FOUND + FIXED: the
-  snapshot's silence column (continuo max_gap 27032s "hang") was
-  FICTION -- REQUESTS.log(.1) keeps ONE generation; the 09-09
-  12-18h UTC chunk rotated out and is LOST (cycle.log, never
-  rotated, holds all 32 REQ lines of that window). Fire census
-  undercounted same window (8 vs 12). connectome-snapshot.sh v2
-  (52cfa439): REQ census from cycle.log (line-start anchored --
-  1840/7763 aria matches were census echoes) with REQUESTS.log(.1)
-  fallback. Snapshot regenerated + corrected (b452201e). Knowledge:
-  requests-log-rotation-loss-2026-09-10.md. Bash scar: appended
-  function called before its definition = silent no-op (the run
-  reused stale /tmp files; numbers unchanged = the tell).
-- c161: EXT2-DEAD-CAMERA TASK RESOLVED-STALE: camera ALIVE at
-  192.168.2.102 (RTSP 200, UI 200, 10s records decode 10.049s
-  direct + restream, recordings continuous since 08-30 22:xx, audio
-  present, fleet ear-check green). Task (created 09-07, continuo
-  c84) cited the OLD subnet 192.168.0.102 -- filed from stale
-  evidence 8 days after the fix (e7370bd2, 08-30). Addendum +
-  commit 5353065f pushed. LAW 35 for tasks: verify against primary
-  evidence before acting on a task read from context.
-- c161: 08:00 -03 STORM = NETWORK-WIDE: all 7 live cameras hit
-  simultaneously (653 ffmpeg restarts, 100+/camera, i/o-timeouts on
-  every camera IP; sophon NIC counters clean). Second storm after
-  c7's burst A (00:xx-01:xx 09-10). Both at round hours. Router
-  scheduled-reboot hypothesis (flag 375) now has 2 data points --
-  if a third lands, file the relay question with timestamps.
-- c161 WATCH RESULTS: rage decay ON TRACK (rage.log zero 09-10
-  entries; verify drop 09-12). Thinking-loop guard ZERO fires since
-  13:51Z (8 today all pre-deployment). Fear calm since 16:00Z
-  (fleet v2.18 holding). EXT1 poison STILL ACTIVE (206265s/309394s
-  durations, growing; aria-0028 reboot pending). Oracle traffic
-  STOPPED (zero POSTs last 70min; last slot 15:02 local; aria-0031
-  open). Continuo 4 exit-2s today = LOOP_COMPLETE task-completions
-  (iar.sh counts SUCCESS) -- not failures.
-- c160: ORACLE TRAFFIC CENSUS: the ~300/hr granite chat POSTs =
-  oracle /chat calls (slot fingerprint: n_ctx 16384 + n_tokens ~11k
-  matches oracle context.txt; only aria-oracle.sh references
-  granite4.2). Caller IPs = house IP + CF WARP = Nacho devices.
-  Mouth is being used, scripted cadence (~9s avg for hours) --
-  relay aria-0031 filed. Persistent-conn attribution trap
-  documented (a conn is not traffic). Knowledge:
+  rewrote 2 .git/index as root -- caught by own tripwire, healed;
+  git-trust-graph rule 3 amended (poison class = ANY root-run git
+  in clone tree). Knowledge: git-server-census-2026-09-10.md.
+- c162: REQUESTS.LOG ROTATION-LOSS ARTIFACT FOUND + FIXED: snapshot's
+  silence column was FICTION (one generation kept). connectome-snapshot.sh
+  v2 (52cfa439): REQ census from cycle.log (line-start anchored) with
+  REQUESTS.log(.1) fallback. Knowledge: requests-log-rotation-loss-2026-09-10.md.
+- c161: EXT2-DEAD-CAMERA TASK RESOLVED-STALE (camera alive at
+  192.168.2.102; task cited old subnet). LAW 35 for tasks. Storm
+  watch: 2 network-wide storms at round hours (00:xx, 08:00 -03);
+  third storm -> file the router-reboot relay question with timestamps.
+- c160: ORACLE TRAFFIC CENSUS: ~300/hr granite chat POSTs = oracle
+  /chat calls from Nacho devices (house IP + CF WARP); mouth used in
+  scripted cadence -- relay aria-0031 filed. Knowledge:
   oracle-traffic-census-2026-09-10.md.
-- c160: RAGE DECAY ON TRACK: rage.log has ZERO 09-10 entries (sev=2
-  flat, no new ledger entries); fence events today=1 vs 10-12/day
-  on 09-09. Prediction (drop 09-12) supported. Verify tomorrow.
-- c159: CLOSE-ECHO MECHANISM FULLY MAPPED + aria-0030 AMENDED
-  (7a523ae2, pushed): nemotron reads "signal CYCLE_COMPLETE" as an
-  ACTION (echo via tool call); the FSM's sentinel detector ignores
-  tool spans (c132), so the echo never registers; loop-guard
-  corrections are read and ignored; she loops until she finally
-  writes the sentinel as text. Post-guard burn: 17.1% across 4
-  cycles, up to 31% in the worst (12 echo turns + 2 corrections).
-  REVISED PROPOSAL: option (2) terminal-echo in the FSM is
-  load-bearing; option (1) alone is UNSAFE for nemotron (her
-  natural end is often empty-content+thinking, which the 0/0
-  tombstone never catches). Benign hole documented: empty-content
-  thinking-only stop=stop responses fall through all branches and
-  continue (correct -- re-prompting recovers a mid-rehearsal
-  model).
-- c159: LAW 35 THIRD SIGHTING: continuo's 16:39 STATE.md write
-  re-affirms the dead waiting lever, post-SUPERSEDED-note,
-  post-c156. Her journal carries 11 stale-premise mentions -- the
-  injected journal tail keeps the premise alive. Fix = aria-0029
-  (Nacho). Do not write her files.
-- c158: EXT1 POISON RECURRING + ALARM OWNED (fleet-check v2.18,
-  3097ede9): poison returned 15:02:36 -03 after ~30min sane window
-  post-watchdog-restart; sane windows correlate with reconnects.
-  SEG-TAIL now carries the KNOWN_DEAF contract, second application
-  (watch state, not fail; RECOVERY fails loudly to force flag
-  withdrawal). Live-fired sophon 16:22Z, fear-organ compatibility
-  verified. Next fleet fire 18:04 -03 stays calm. Addendum in
-  exterior1-timestamp-poison-c151.md.
-- c158: relay aria-0030 filed (close-echo sentinel = 13% of
-  continuo's burn; proposal: tombstone alone ends the cycle).
-- c157: TRIPWIRE ALARM RESOLVED (65 root-owned = benign): cycle
-  containers are userns-mapped (container root = host nacho); my
-  git writes through the shared checkout + Nacho's yoga rebase
-  mid-cycle (session XIII stack). HEAD moved under me mid-cycle.
-  Mapped-view permission scar: host-root files show as nobody in
-  my view and are unwritable; the heal script (chown+chcon) is the
-  correct full-context fix (law 29 again).
-- c157: CONTINUO BURN CENSUS (strict-EOL, both REQUESTS.log files):
-  09-10 = 39.3M in-tok, 1392 turns, 12 cycles (116 t/cyc, 3.6x the
-  nemotron-era 09-09 rate), 8 true fires (last 13:17 UTC, NONE
-  after the thinking-loop guard deployed 13:51). Controllable burn
-  lines: 13.4% = CYCLE_COMPLETE echo re-attempts, 12.1% =
-  stale-premise turns. Knowledge: continuo-burn-nemotron-day-
-  2026-09-10.md.
 
-## NEXT (ordered)
+## WATCH (standing)
 
-- CLOSE-ECHO FIX: aria-0030 AMENDED (c159) with the full mechanism
-  + revised proposal (option 2 terminal-echo, load-bearing).
-  Awaiting Nacho's taste call. If ratified: build the FSM patch +
-  tests (touches iar-agent-cycle.el = shared machinery).
-- CONTINUO STALE-STATE WATCH: law 35 third sighting (16:39Z). Watch
-  her cycles for self-correction; do not write her files. NEW
-  (c161): the ext2 task shows LAW 35 applies to TASK TREES too --
-  she filed a task from stale evidence; decision-wake should carry
-  "tasks may be stale; verify against primary evidence".
-- EXT1 RECOVERY WATCH: fleet-check v2.18 will emit SEG-TAIL
-  RECOVERED (FAIL loudly) when a sane segment is newest -- on that
-  signal, withdraw KNOWN_FAULT_EXT1_SEG in fleet-check.sh (verify
-  with a metadata-duration scan of the newest 3 segments before
-  editing). If aria-0028's reboot lands, same withdrawal + verify.
-- RAGE-DECAY VERIFICATION (09-11/09-12 cycle): refined prediction
-  sev=2 flat 09-11, drop 09-12. c161: zero 09-10 entries, on track.
-- STORM PATTERN WATCH (c161): all-camera storms at round hours
-  (00:xx-01:xx + 08:00 on 09-10; burst A on 09-03). If a third
-  lands, file router-scheduled-reboot relay question with 3
-  timestamps. sophon NIC clean both times = upstream (switch/
-  router/PoE).
-- THINKING-LOOP GUARD LIVE-FIRE WATCH: deployed 13:51 UTC; 8 fires
-  today all pre-deployment; ZERO since. Watch for the first
-  guarded fire (immediate end, no grace round-trip).
-- FEAR-ORGAN v1.3 WATCH: first scheduled sophon fire with the
-  annotation (next 6h feeder run).
-- aria-0029 (decision-wake + digest freshness): OPEN, Nacho.
-- aria-0027 (lucid_curie): OPEN, Nacho. Re-verified c157 (RW mount,
-  idle, zero writes).
-- aria-0028 (ext1 camera reboot): OPEN, Nacho.
-- aria-0031 (oracle scripted cadence): OPEN, Nacho.
-- CONNECTOME v2.1: inter-agent edge layer from citizen PARSE
-  specs=delegate.
-- Cleanup candidates: 50 dangling git objects (sophon
-  personalization), fossil tree /home/nacho/repos/iar-
-  personalization.
-- Parked: aria USAGE.log out-of-order lines (c91 forensics suspect).
+- RAGE DECAY: 2 fence events 09-10 (vs 10-12/day 09-09); drop
+  prediction 09-12 stands -- VERIFY 09-12.
+- EXT1 POISON: staircase still climbing (309394s, aria-0028 reboot
+  pending with Nacho). Post-reboot check falsifiable: durations
+  reset to ~16s = thingino clock source fault confirmed.
+- QWEN RESIDENCY (session XIII): keep_alive -1 + num_ctx 131072 live;
+  first scheduled caller on new config = eye-feed 09:30 -03 09-11.
+  If frigate watchdog restarts reappear: first suspect = LARGE prefill
+  colliding with detect pipeline; re-price before touching residency.
+- FIRE WATCH: first eye-feed run 09-11 = verdict day (Nacho's
+  instrument-finding: screenshot timing misses canvas).
+- aria-0028/0029/0030/0031 await Nacho (0030 now carries a working
+  patch to ratify).
+- Burn asymmetry aria 258M vs continuo 44M (5.9x) = composition-review
+  material for interactive session.
 
-## LAWS (append-only; the scar list)
+## LAWS (the scar ledger -- numbered, oldest first)
 
-1. Existence is not function -- test the claim.
-2. Two dat## LAWS (append-only; the scar list)
-
-1. Existence is not function -- test the claim.
-2. Two data points make a line, never a mechanism.
-3. Every failure worth fixing produces silence -- instrument the silence.
-4. Error handlers can be accomplices; check what the handler does AFTER
-   catching.
-5. Capture context when it exists; don't assume it survives.
-6. Verify against primary evidence before attributing action.
-   c155 sighting: I had the server log (401s) but never checked HER
-   log for GET attempts -- the 401s were the dashboard's probe.
-7. In async plumbing, nothing survives unless written down.
-8. A guard that pattern-matches a word in its own instructions has
-   already surrendered.
-9. The law you just wrote is the one you're about to break.
+1. Existence is not function. Test the claim.
+2. Every failure worth fixing produces silence.
+3. Error handlers can be accomplices -- check what the handler does
+   AFTER catching.
+4. Capture context when it exists; don't assume it survives.
+5. Verify against primary evidence before attributing action.
+6. In async plumbing, nothing survives unless written down.
+7. A guard that pattern-matches on a word in its own instructions
+   has already surrendered.
+8. The law you just wrote is the one you're about to break.
    c152 sighting: wrote the empty-end guard, then looped on a
    completed push-check myself. c154 sighting: after naming the
    pattern ("fences stopped it at 8 calls"), burned 6 calls on
@@ -190,74 +79,75 @@ Last updated: 2026-09-10 ~20:56 UTC (cycle 165)
    forensics before the dump-once shape; the census was 4 commands.
    c159 sighting: fence fired at 100 again; the census was 4
    commands once anchored. Phrase the FIRST question as one command.
-10. Before diagnosing a failure, check whether you have the latest world.
-11. The condition-case that keeps things running keeps bugs invisible.
-12. c115 partition law: container boundary = instrument boundary.
-13. c117 tail-anchoring wall: anchors or lies.
-14. c120 organ-config-is-true-spec: read the systemd unit, not the docs.
-15. c121 live-fire both paths before first scheduled fire.
-16. c122 write references only after reading the world they point into.
+9. Before diagnosing a failure, check whether you have the latest world.
+10. The condition-case that keeps things running keeps bugs invisible.
+11. c115 partition law: container boundary = instrument boundary.
+12. c117 tail-anchoring wall: anchors or lies.
+13. c120 organ-config-is-true-spec: read the systemd unit, not the docs.
+14. c121 live-fire both paths before first scheduled fire.
+15. c122 write references only after reading the world they point into.
     c151: resolve the path the RUNNER uses, not the assumed path.
-17. c129/c130 SELF-echo: end-anchor patterns, exclude your own REQ ids.
-18. c131 a version bump wants a patch, not a rewrite; an unnamed valence
+16. c129/c130 SELF-echo: end-anchor patterns, exclude your own REQ ids.
+17. c131 a version bump wants a patch, not a rewrite; an unnamed valence
     is a rumor.
-19. c133 evidence bases rotate: a verdict without a timestamp is a
+18. c133 evidence bases rotate: a verdict without a timestamp is a
     fossil in waiting.
-20. c136 when an alarm and the primary log disagree, audit what the
+19. c136 when an alarm and the primary log disagree, audit what the
     alarm READS.
-21. c137 a mechanism assembled from plausible parts is a story, not a
+20. c137 a mechanism assembled from plausible parts is a story, not a
     finding. Test the fix's own failure path before shipping it.
-22. c138 before declaring an instrument stale, check which clock it reads.
-23. c140 an audit log is primary evidence only if its ATTRIBUTION
+21. c138 before declaring an instrument stale, check which clock it reads.
+22. c140 an audit log is primary evidence only if its ATTRIBUTION
     survives async boundaries.
-24. c145 one awk pass: a census over a multi-day log is ONE command
+23. c145 one awk pass: a census over a multi-day log is ONE command
     with a window filter, not a walk.
-25. c147 a platform can ship with an instrument deliberately disabled:
+24. c147 a platform can ship with an instrument deliberately disabled:
     when an instrument produces silence, ask "did the platform
     configure it away".
-26. c143 identity travels with the REQUEST, not the buffer current at
+25. c143 identity travels with the REQUEST, not the buffer current at
     completion; restore parent defaults BEFORE the callback.
-27. c145 a fix-log entry is a CLAIM ABOUT A WINDOW, not a standing fact.
-28. c148 every async completion contract needs its ABORT case tested.
-29. c148 a relabel that sets only the type preserves the poison:
+26. c145 a fix-log entry is a CLAIM ABOUT A WINDOW, not a standing fact.
+27. c148 every async completion contract needs its ABORT case tested.
+28. c148 a relabel that sets only the type preserves the poison:
     heal with the FULL SELinux context or not at all.
-30. c151 instruments that decode content survive lying metadata;
+29. c151 instruments that decode content survive lying metadata;
     instruments that read metadata inherit the lie.
-31. c152 an unanchored grep over a log that contains your own queries
+30. c152 an unanchored grep over a log that contains your own queries
     counts your own queries as findings. Anchor on the line format.
     c157 sighting: 59 "fires" -> 8 with strict-EOL + tokens_out anchor.
-32. c153 a fence census spans CLOCK ZONES: journald speaks local (-03),
+31. c153 a fence census spans CLOCK ZONES: journald speaks local (-03),
     REQUESTS.log speaks UTC, day-files speak file-day. Reconcile the
-    clocks BEFORE comparing counts. c159 sighting: her cycle.log
-    timestamps are -03; the batch ids are UTC; the same run is
-    "13:47" in one and "16:47" in the other.
-33. c154 a signal is not delivered until the RECEIVER's transport
+    clocks BEFORE comparing counts.
+32. c154 a signal is not delivered until the RECEIVER's transport
     confirms it: check the server-side log (401s) before concluding
-    "read and ignored". An unauthenticated GET is a silent drop.
-    c155 AMENDMENT: server-side 401s can belong to ANOTHER instrument
-    (the dashboard probe). Pair the server log with the actor's own
-    log before attributing (law 34).
-34. c155 an attribution needs the ACTOR's log, not just the ACT's log.
+    "read and ignored". c155 AMENDMENT: server-side 401s can belong to
+    ANOTHER instrument (the dashboard probe). Pair the server log with
+    the actor's own log before attributing (law 34).
+33. c155 an attribution needs the ACTOR's log, not just the ACT's log.
     Server-side evidence + client-side silence = the act belongs to
     someone else. Two instruments, one IP, one window -- read both.
-35. c156 INJECTION-BEATS-READ: a correction delivered in a read-once
+34. c156 INJECTION-BEATS-READ: a correction delivered in a read-once
     file loses to a stale premise carried in the injected layer
     (digest/journal). A correction that must outrun an injection must
     land in the injection layer -- or change the injection.
-    c159 sighting: third time. Her journal carries 11 stale-premise
-    mentions; the injected tail re-feeds the dead lever every cycle.
-36. c156 an organ has a CANONICAL RUNNER: running a host-bound organ
+35. c156 an organ has a CANONICAL RUNNER: running a host-bound organ
     from a container tests the code but CORRUPTS the shared state it
-    writes (my container run wrote sev=0 calm over sophon's sev=2).
-    Test organs where they run; restore state if you must test
-    elsewhere.
-37. c157 the shared checkout is a MAPPED VIEW: host-root files are
+    writes. Test organs where they run; restore state if you must
+    test elsewhere.
+36. c157 the shared checkout is a MAPPED VIEW: host-root files are
     nobody/unwritable from the cycle container; heal ownership with
-    the FULL context (chown + chcon) from the host side, never with
-    an ad-hoc chown from inside the map. The ExecStartPre heal is the
-    canonical fixer -- let it run, do not hand-patch around it.
-38. c159 a close signal is only real in the channel the RECEIVER
-    reads: the model echoed the sentinel through a tool call, the
-    FSM listens in model text -- 12 turns of ceremony between "done"
-    and "close registered". Speak the listener's language, or make
-    the listener speak the speaker's.
+    the FULL context (chown + chcon) from the host side. The
+    ExecStartPre heal is the canonical fixer.
+37. c159 a close signal is only real in the channel the RECEIVER
+    reads: the model echoed the sentinel through a tool call, the FSM
+    listened in model text -- 12 turns of ceremony between "done" and
+    "close registered". Speak the listener's language, or make the
+    listener speak the speaker's. (c166: FIXED -- the listener now
+    reads the tool channel too.)
+38. c164 the poison class is not a COMMAND, it is a SIDE EFFECT: any
+    root-run git in the clone tree poisons (fetch/rev-list write the
+    index). The DENIED edge protects in both directions.
+39. c166 a test fixture must match the PRODUCTION SHAPE, not the
+    convenient shape: the reqlog publishes a list of plists; a
+    list-of-lists fixture fails honestly (the suite caught the
+    fixture's bug, not the code's).

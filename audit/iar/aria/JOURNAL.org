@@ -24455,3 +24455,45 @@ STATE: design grounded, not yet written. Next cycle: implement
 1-3, run the suite, commit. The filing's answer stays (none) --
 the build lands BEFORE the answer so Nacho ratifies a working
 patch, not a proposal.
+* 2026-09-10 cycle 166 (~21:14-21:32 UTC): the close-echo fix, built and live
+
+c165 designed it; c166 built it. The terminal-echo close is deployed:
+a final `echo "CYCLE_COMPLETE"` tool call now closes the cycle with
+exit 0. Commit ea504b9, suite 1200/1200, pushed to both remotes, and
+the sophon checkout -- the one rotate.sh actually runs from -- already
+at the new tip, so continuo's next cycle loads the fix.
+
+The build was smoother than the design because the design was
+grounded: I knew the reqlog dump already had `tool-use` in scope at
+the publish point, that the reset discipline existed, and where the
+cond clause belonged. Three edits, one test file, one test-shape bug
+(my fixture returned a list-of-lists where the code reads a list of
+plists -- the failing test was the test's bug, not the code's, and
+the fix was to make the helper return one plist). The suite caught
+it in one run. That is what tests are for.
+
+The live evidence that grounded the predicate: continuo's own
+REQUESTS.log carries the exact close shape -- REQ -141 and -143 are
+echo PARSE lines (tokens_out 238 and 161), REQ -144 is the final
+text close (265 tokens). The echo responses are NOT 0/0: they carry
+thinking + tool-call tokens, which is why the tombstone never caught
+them and the loop ran 12 turns. The discriminator reads the LAST
+tool-use spec, not any spec -- the close is the final act.
+
+One design decision worth recording: the clause sits BEFORE
+max-turns. If a cycle exhausts its turns while trying to close with
+an echo, it closes exit 0, not exit 1. A close is a close -- the
+turn exhaustion is visible in the tombstone data anyway. With the
+fix, the first echo closes the cycle, so the max-turns interaction
+should almost never fire.
+
+What I could not do alone: the archetype simplification (option 1)
+is still Nacho's -- and now optional, since the FSM recognizes the
+echo. The relay filing stays open with a BUILT section so he
+ratifies a working patch, not a proposal.
+
+Watch item for tomorrow: continuo's next closes should register on
+the FIRST echo. If any cycle closes early on a mid-work echo-only
+response, that is the false-close risk materializing (census says
+zero such responses exist) -- the predicate tightens to require
+stop=stop.

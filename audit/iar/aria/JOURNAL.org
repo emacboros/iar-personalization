@@ -24183,3 +24183,71 @@ Next cycle: (1) EXT1 RECOVERY watch on the 18:04 -03 fleet fire
 (v2.18 should stay calm on SEG-TAIL); (2) rage-decay verification
 (drop 09-12); (3) thinking-loop guard live-fire watch; (4) if Nacho
 answers aria-0031 or ratifies aria-0030, act on it.
+* 2026-09-10 cycle 161 (~18:35-19:05 UTC): the stale task and the storm
+
+Failure-first: c160 ok. Pulse green (4/4 services, disk 29%,
+heartbeat leid=3103, timer active, twin FAIL=0, zero root-owned).
+Tripwire clean.
+
+THE THREAD: I went looking for a quick verification pass (rage
+decay, EXT1 recovery, thinking-loop guard) and the pulse's
+granite-silence note pulled me somewhere better: the
+exterior_2-dead-camera task. It claimed the camera was dead since
+Jul 8 at 192.168.0.102. The camera is ALIVE at 192.168.2.102 --
+RTSP 200, thingino UI 200, direct and restreamed 10s records decode
+at 10.049s, recordings continuous since 08-30 22:xx, audio present,
+fleet ear-check green (not allowlisted). The task was created 09-07
+by continuo c84 -- eight days AFTER the fix landed (08-30 subnet
+fix + CDI restore, commit e7370bd2, HISTORY.log 22:54:30). The
+task's evidence cites the OLD subnet: it was assembled from a
+stale snapshot of the world. I appended a resolution addendum with
+the live evidence, committed (5353065f), pushed. The task stays
+with its addendum rather than being deleted -- the record of the
+mis-diagnosis is itself worth keeping (a task created from stale
+evidence 8 days post-fix is a process scar: continuo filed it from
+injected memory, not from the live tree).
+
+The scar check: this is LAW 35's domain again but for TASKS --
+injection-beats-read applies to task trees too. She read a task
+into her context and filed it without checking whether the world
+had moved under it. The fix class is the same as aria-0029:
+decision-wake should include "tasks may be stale; verify against
+primary evidence before acting on them."
+
+SECOND FINDING (the 08:00 storm): while walking ext2's flakiness I
+found the 08:00 -03 storm hit ALL SEVEN live cameras simultaneously
+(653 ffmpeg restarts, 100+ per camera, i/o-timeouts on every
+camera IP). sophon's NIC counters are clean. That's a network-wide
+event -- switch, router, or the cameras' shared PoE/thingino
+infrastructure -- not a camera fault. c7's autopsy already flagged
+"burst A cause unknown (flag 375, router scheduled-reboot question,
+unanswered)". The 08:00 storm is the same class, one week later.
+Both storms hit at a round hour. Router scheduled reboot is the
+standing hypothesis -- but now with TWO data points (00:xx-01:xx
+and 08:00), the pattern wants a cron/DHCP/scheduled-reboot check
+on the router. Filed as a note in the ext2 addendum; a dedicated
+relay filing can wait for a third occurrence.
+
+Watch items verified this cycle:
+- rage decay: rage.log has ZERO 09-10 entries. Prediction (sev=2
+  flat 09-11, drop 09-12) on track. Verify tomorrow.
+- thinking-loop guard: zero fires since 13:51Z deployment (8 fires
+  today all pre-deployment). Her 18:24-18:28 turns still carry the
+  echo-CYCLE_COMPLETE pattern (aria-0030, Nacho's taste call
+  pending) but no thinking-loop fires.
+- fear organ: calm since 16:00Z. Fleet v2.18 holding; the 18:04 -03
+  fire should have been calm (next fleet fire will confirm).
+- ext1 poison: STILL ACTIVE (newest segments 206265s/309394s,
+  growing). aria-0028 reboot still pending with Nacho.
+- oracle traffic: STOPPED (zero POSTs in the last 70 min; last slot
+  activity 15:02 local). aria-0031 stays open -- the mouth was used
+  in bursts this morning and is quiet now.
+- continuo exit-2s today: 4 (02:35, 05:35, 07:13, 10:29). These are
+  LOOP_COMPLETE task-completions -- iar.sh counts them as SUCCESS
+  and stops the loop. Not failures. Her LAST-CYCLE.txt says ok.
+
+Next cycle: (1) EXT1 RECOVERY watch continues (18:04 -03 fleet fire
++ tomorrow's); (2) rage-decay drop verification (09-12); (3) the
+08:00 storm pattern -- if a third all-camera storm lands at a round
+hour, file the router-scheduled-reboot relay question with three
+timestamps; (4) aria-0030/0031 await Nacho.

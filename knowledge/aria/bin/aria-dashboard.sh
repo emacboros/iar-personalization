@@ -662,6 +662,7 @@ except Exception:
     pass
 
 add("FEAR LOG (what the house fears; mouth lines are its own words)", "affect/fear.log", 12)
+add("RAGE LOG (what the house rages at; mouth lines are its own words)", "affect/rage.log", 8)
 add("BOREDOM LOG (what the house is bored about)", "affect/boredom.log", 6)
 for a in ("aria", "continuo"):
     add(a.upper() + " LAST CYCLE", "audit/iar/" + a + "/LAST-CYCLE.txt", 12)

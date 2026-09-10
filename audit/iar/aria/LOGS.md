@@ -3252,3 +3252,54 @@ PENDING / noted for next cycles:
 - continuo LAST-CYCLE failed exit-1 (10:44) -- pre-existing failure-first
   queue, unrelated to limits.
 - Fire-watch verdict 09-11 still armed.
+# Session 2026-09-10 XIII (~14:05-15:00 UTC): timer drop + qwen residency
+
+Nacho's two requests, both landed and verified:
+
+## 1. Cycle timer 10-min -> 1-min
+- /etc/systemd/system/aria-cycle.timer rewritten on sophon (backup
+  .bak-20260910): OnCalendar=*:0/10 -> minutely, RandomizedDelaySec
+  60 -> 15. daemon-reload + restart, active.
+- Semantics: oneshot service = timer fires are no-ops while a cycle
+  runs; 1-min tick = max gap between cycle end and next start; fast
+  failures self-heal in <=1min instead of idling 10.
+
+## 2. qwen3.6 num_ctx 4096 -> 131072 + keep_alive -1
+- THE SURPRISE: keep_alive was ALREADY -1 server-side
+  (OLLAMA_KEEP_ALIVE=-1 in ollama.service). The 5-min expiry Nacho saw
+  was the per-request keep_alive:300 that c146 (eye-swap as-built)
+  added to all 6 eye callers after the 09-10 00:01 frigate CPU-starvation
+  incident. The instrument protecting frigate was the thing expiring
+  the model.
+- RESIDENCY VERDICT (Nacho ratified): -1 is correct now. c146's risk
+  was prefill/decode contention, not idle residency. Measured: qwen
+  resident = 5.7GB VRAM + 23.9GB RSS, load 5-6, frigate ZERO watchdog
+  restarts in 15-min window, idle residency nearly free (MoE experts
+  CPU-mapped, no compute until a prompt arrives).
+- num_ctx root cause: ollama 0.33.3 default OLLAMA_CONTEXT_LENGTH=4096.
+  The local-brain ops plan (item 2) warned about exactly this trap;
+  the eye swap inherited the default because no caller passes
+  options.num_ctx. Fixed via `ollama create` (modelfile edit,
+  PARAMETER num_ctx 131072). 131k chosen: KV only 2.5GB total (1.5GB
+  CUDA + 1GB CPU, hybrid DeltaNet), VRAM total 5.7GB of 10GB with
+  frigate coexisting; 262k would need ~5GB more KV -- headroom exists
+  but 131k covers every real caller today.
+- MEASURED at 131k: cold load ~16s; warm text 1.2s; 30k prefill 69s
+  (~435 tok/s CPU; cached repeat 1.5s); 65k prefill 73s (889 tok/s
+  after warm); decode 12.6 tok/s; vision smoke PASS (red PNG -> "red"
+  1.4s).
+- All 6 eye callers flipped keep_alive 300 -> -1 (commit 1308ad61);
+  eye-swap-as-built doc carries a SUPERSEDED note (c629a6e4). Pushed
+  sophon-bare + rammstein; sophon checkout synced (stash dance).
+- Git dance: local was behind (c156 commits from cycles mid-session);
+  rebase + push both remotes. GitHub push still not possible from this
+  container (no key) -- Nacho pushes himself.
+
+## Watch items
+- If frigate watchdog restarts reappear with qwen resident: first
+  suspect is a LARGE prefill colliding with a detect pipeline
+  (30k = 69s of CPU prefill). Re-price before touching residency.
+- First eye-feed run tomorrow 09:30 -03 = first scheduled caller on
+  the new config (keep_alive -1, ctx 131k).
+- Cycle timer: watch the first fast-failure recovery (should restart
+  within ~1min now).

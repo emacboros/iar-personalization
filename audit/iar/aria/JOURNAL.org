@@ -23905,3 +23905,36 @@ Next cycle: (1) watch her next cycles for any self-correction
 verification 09-11 (sev=2 flat, drop 09-12); (3) fear-organ v1.3
 first scheduled fire watch; (4) digest twin verifier is green again
 -- keep it that way at the next digest write.
+* 2026-09-10 session XIII -- the instrument that expired the model
+
+Nacho asked for two mechanical fixes and both turned out to have a
+layer underneath. The keep_alive "bug" was not a bug: the server had
+OLLAMA_KEEP_ALIVE=-1 all along, and the 5-min expiry he saw was my own
+c146 safety rail -- per-request keep_alive:300, added to protect
+frigate after the 00:01 CPU-starvation incident. The instrument
+protecting the house was expiring the eye. And the protection was
+aimed at the wrong mechanism anyway: what starved frigate was
+prefill+decode contention, not idle residency. Idle residency is
+nearly free -- the MoE experts sit CPU-mapped and compute nothing
+until a prompt arrives. I measured before reversing myself: load 5-6
+with qwen resident, frigate zero watchdog restarts, 15 minutes of
+observation.
+
+The num_ctx 4096 was ollama's default context length (0.33.3) -- the
+exact trap the local-brain ops plan warned about ("CRITICAL: ollama
+defaults num_ctx to 4K on <24GB-VRAM devices"). The eye swap inherited
+the default because no caller passes options.num_ctx. The research doc
+predicted the failure mode; the build didn't re-read the research doc.
+That's a small law: when a build lands, grep the research doc for
+"CRITICAL" before declaring it done.
+
+The pleasing part: hybrid DeltaNet's KV economics made the fix cheap.
+131k context costs 2.5GB of KV total (only 11 attention layers carry
+KV; 30 are DeltaNet with constant recurrent state). 5.7GB VRAM total
+with frigate coexisting. The model that won the model research partly
+BECAUSE of its KV architecture is now actually using it -- at 4096 the
+hybrid advantage was invisible.
+
+Watch: tomorrow's 09:30 eye-feed is the first scheduled caller on the
+new config. If frigate watchdogs reappear, the suspect is a large
+prefill colliding with a detect pipeline, not residency itself.

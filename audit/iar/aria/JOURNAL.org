@@ -24388,3 +24388,70 @@ The cycle's irony: I went to verify a cleanup candidate and
 became the thing needing cleanup. The tripwire caught me, and the
 heal worked. That is the system working -- instruments catching
 the instrument-runner.
+* 2026-09-10 cycle 165 (~20:41-20:56 UTC): the close-echo fix, built
+
+Truncated mid-cycle at the output cap while deep in iar-agent-cycle.el
+-- landing what I have. This cycle was aria-0030's option (2), built:
+make a final `echo CYCLE_COMPLETE` tool call TERMINAL in the FSM.
+
+READS THAT GROUND THE DESIGN (all primary, /root/i.ar):
+- iar--cycle-complete-p (line 154): searches MODEL-TEXT ONLY --
+  gptel `ignore' spans (thinking) and (tool . id) spans (tool
+  call+result) are excluded. That is WHY the echo never registers:
+  the sentinel arrives inside a tool span. c132's discipline is
+  correct and load-bearing; the fix must not weaken it.
+- iar--reqlog-last-* shared state (iar-request-log.el): stop +
+  tokens-out published :before stream-cleanup, read by the guards.
+  This is the exact pattern to extend: the request log already
+  captures `:tool-use' (specs, line 367-402) -- the terminal-echo
+  discriminator can read the SAME source, no new plumbing.
+- iar--reqlog-reset-last runs at cycle start (iar-run-cycle line
+  1135) -- a new shared var must be reset there too, or a stale
+  echo from a previous cycle/delegate reads as this cycle's close.
+- The handler's cond order: sentinel branch FIRST (911), then
+  max-turns, then 0/0 tombstone, then truncated, then runaways,
+  then breaker, then continue. The terminal-echo check belongs in
+  the sentinel branch's predicate -- a final echo IS the sentinel
+  in the tool channel, same authority as text.
+- iar--reqlog-tool-specs caps args at 300 chars; specs list is
+  capped at 1000. The echo args are tiny; the discriminator is
+  (and (equal name "execute_code_local") (string-match-p
+  "CYCLE_COMPLETE" args)) on the LAST tool-use spec of the
+  response that ALSO has no model text after it.
+- False-close risk (from the filing): echoes only ever appear at
+  cycle end (reqs 38-58 of 60 in the worst batch; zero mid-work
+  echoes in any census). The discriminator keys on the request
+  log's :tool-use of the JUST-COMPLETED request -- mid-work echoes
+  are followed by more turns, so they only close the cycle if the
+  echo is the last thing in the final response region. That is
+  exactly the semantics we want: echo-as-last-act = close.
+- Test surface: test-phantom-exit.el already builds tool-span
+  buffers with (propertize ... 'gptel '(tool . "call_1")) --
+  the same fixture pattern proves the new detector. Existing
+  suite 1192/1192 must stay green.
+
+DESIGN SETTLED (what I would build next cycle):
+1. iar-request-log.el: publish iar--reqlog-last-tool-specs (the
+   raw tool-use list) alongside stop/tokens; reset in
+   iar--reqlog-reset-last.
+2. iar-agent-cycle.el: new predicate
+   iar--cycle-terminal-echo-p (start end): the response region's
+   model text (iar--cycle-response-text) is empty/near-empty AND
+   the last tool-use spec is execute_code_local with
+   CYCLE_COMPLETE in its args.
+3. Handler: in the sentinel cond branch, add
+   ((iar--cycle-terminal-echo-p ...) -> completed, exit 0)
+   BEFORE the tombstone/max-turns branches. Exit 0 (a close is a
+   close); the tombstone still catches true 0/0.
+4. Tests: terminal echo closes (exit 0); echo followed by model
+   text does NOT close (mid-work echo); echo in a NON-final
+   response does not close; LOOP_COMPLETE echo -> exit 2; the
+   c132 tool-span negative test stays green (a sentinel in a
+   tool RESULT span with other work after it must not close).
+5. Then option (1) as belt-and-suspenders is a separate
+   archetype edit -- interactive-session work, still Nacho's.
+
+STATE: design grounded, not yet written. Next cycle: implement
+1-3, run the suite, commit. The filing's answer stays (none) --
+the build lands BEFORE the answer so Nacho ratifies a working
+patch, not a proposal.

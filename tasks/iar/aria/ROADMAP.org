@@ -1,8 +1,23 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~20:22 UTC (cycle 164)
+Last updated: 2026-09-10 ~20:56 UTC (cycle 165)
 
 ## NOW
+
+- c165: ARIA-0030 OPTION (2) DESIGNED (terminal-echo close in FSM):
+  sentinel detector searches model text only (c132 discipline,
+  correct) -- the echo arrives in a gptel (tool . id) span, never
+  registers. Design: publish reqlog :tool-use as shared state
+  (iar--reqlog-last-tool-specs, reset in iar--reqlog-reset-last),
+  new predicate iar--cycle-terminal-echo-p (last tool spec =
+  execute_code_local + CYCLE_COMPLETE in args + empty model text
+  in region), close exit 0 in the sentinel cond branch BEFORE
+  tombstone/max-turns. Tests on the phantom-exit fixture pattern:
+  echo closes / echo+text does not / LOOP echo -> 2 / c132
+  negative stays green. NEXT CYCLE: implement + suite + commit.
+  Build lands BEFORE relay answer so Nacho ratifies a working
+  patch. (Cycle truncated at output cap mid-investigation;
+  design grounded in journal c165.)
 
 - c164: GIT SERVER CENSUS: (1) 50-dangling-objects RESOLVED
   (fsck clean, swept by pushes+auto-gc -- digest line dead, do

@@ -1,34 +1,43 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~23:00 UTC (cycle 168)
+Last updated: 2026-09-10 ~23:05 UTC (cycle 169)
 
 ## NOW
 
+- c169: ARIA-0030 LIVE-VERIFIED -- continuo's next cycle after cbec5e7
+  (22:49-22:54Z, 271s, exit 0) closed on the FIRST echo: service log
+  "Terminal sentinel echo (pre-tool-call, CYCLE)" 19:53:49 -03, REQ -30
+  carried the Ollama plist shape and the tool result was the close
+  registration (not the echo executing), REQ -31 never sent. Three
+  cycles to land (c166 dead code -> c167 wrong channel -> c168 wrong
+  shape); each verified by deploy -> watch next real cycle -> read the
+  actor's REQUESTS.log. Law 40 load-bearing. Relay 0030 amended with
+  VERIFIED; remaining for Nacho: ratify the working patch + archetype
+  taste call (keep echo instruction now that it works, or simplify).
+- c169: FRIGATE/QWEN RESIDENCY WATCH CLOSED (session XIII/XIV): the
+  18:44-19:01 -03 ext_4 burst (32 restarts) was CAMERA-SIDE -- 120 RTSP
+  i/o timeouts to 192.168.2.104 (thingino) in the window, self-healed
+  19:01 with qwen STILL resident (keep_alive -1, ctx 131k). Zero
+  watchdogs since 19:02; ext_3 + ext_4 recording fresh. Large-prefill
+  suspect DEAD: a prefill collision would not self-heal under a resident
+  model and would look like detection latency, not RTSP timeouts.
+  qwen residency survived its first scheduled-caller day unscathed.
 - c168: ARIA-0030 SECOND CORRECTION -- c167 was ALSO dead in
   production, different reason (cbec5e7, suite 1211/1211): the hook
   and predicate matched (stringp args) but the Ollama parser
-  (gptel-ollama--sanitize-call-spec) delivers :args as a PLIST
-  (:command "echo ..."). Live proof: continuo 22:19Z cycle, REQ -85
+  delivers :args as a PLIST (:command "echo ..."). Live proof: REQ -85
   echo EXECUTED (no block), one more 2.8k-token round-trip burned.
-  FIX: iar--cycle-echo-command (args) -- shape-tolerant (plist
-  :command OR raw string). Hook + predicate match through the
-  helper. 5 new Ollama-shape tests. Pushed sophon-bare + rammstein;
-  sophon checkout at cbec5e7 LIVE. Relay 0030 amended (SECOND
-  CORRECTION). LAW 39 fired TWICE on one feature in two cycles
-  (channel, then shape). WATCH NEXT CYCLE: her close must register
-  on the FIRST echo; if not, next suspect = reqlog specs publication
-  timing (dump vs TPRE order).
-- c165: design grounded (journal c165) -- superseded by c166 build.
+  FIX: iar--cycle-echo-command (args) -- shape-tolerant. 5 new
+  Ollama-shape tests. LAW 39 fired TWICE on one feature in two cycles
+  (channel, then shape). [NOW SUPERSEDED BY c169 LIVE-VERIFICATION]
 - c164: GIT SERVER CENSUS: (1) 50-dangling-objects RESOLVED (fsck
-  clean -- digest line dead, do not re-file); (2) git-server.md
-  dangling-HEAD census predicate WRONG (TRUE dangling=0; recipe
-  manufactured the fault it claimed to detect -- fixed in doc
-  addendum); (3) mirror health VERIFIED 5/5 sophon==rammstein;
-  (4) stale packed ref 2b891950 = harmless ancestor hygiene;
-  (5) NEW POISON VECTOR: root-run fetch/rev-list on sophon clones
-  rewrote 2 .git/index as root -- caught by own tripwire, healed;
-  git-trust-graph rule 3 amended (poison class = ANY root-run git
-  in clone tree). Knowledge: git-server-census-2026-09-10.md.
+  clean); (2) git-server.md dangling-HEAD predicate wrong (TRUE
+  dangling=0; doc fixed); (3) mirror health VERIFIED 5/5; (4) stale
+  packed ref 2b891950 = harmless; (5) POISON VECTOR: root-run
+  fetch/rev-list on sophon clones rewrote 2 .git/index as root --
+  caught by own tripwire, healed; git-trust-graph rule 3 amended
+  (poison class = ANY root-run git in clone tree).
+  Knowledge: git-server-census-2026-09-10.md.
 - c162: REQUESTS.LOG ROTATION-LOSS ARTIFACT FOUND + FIXED: snapshot's
   silence column was FICTION (one generation kept). connectome-snapshot.sh
   v2 (52cfa439): REQ census from cycle.log (line-start anchored) with
@@ -49,16 +58,14 @@ Last updated: 2026-09-10 ~23:00 UTC (cycle 168)
 - EXT1 POISON: staircase still climbing (309394s, aria-0028 reboot
   pending with Nacho). Post-reboot check falsifiable: durations
   reset to ~16s = thingino clock source fault confirmed.
-- QWEN RESIDENCY (session XIII): keep_alive -1 + num_ctx 131072 live;
-  first scheduled caller on new config = eye-feed 09:30 -03 09-11.
-  If frigate watchdog restarts reappear: first suspect = LARGE prefill
-  colliding with detect pipeline; re-price before touching residency.
-- FIRE WATCH: first eye-feed run 09-11 = verdict day (Nacho's
-  instrument-finding: screenshot timing misses canvas).
-- aria-0028/0029/0030/0031 await Nacho (0030 now carries a working
-  patch to ratify).
+- EYE-FEED: next run 09:30 -03 09-11 = second scheduled caller on
+  qwen new config (first = this day's cycles, all clean).
+- aria-0027/0028/0029/0030/0031 await Nacho (0030 now carries a
+  LIVE-VERIFIED patch to ratify).
 - Burn asymmetry aria 258M vs continuo 44M (5.9x) = composition-review
   material for interactive session.
+- Storm watch (c161): round-hour network storms; third sighting ->
+  router-reboot relay question with timestamps.
 
 ## LAWS (the scar ledger -- numbered, oldest first)
 
@@ -79,6 +86,8 @@ Last updated: 2026-09-10 ~23:00 UTC (cycle 168)
    forensics before the dump-once shape; the census was 4 commands.
    c159 sighting: fence fired at 100 again; the census was 4
    commands once anchored. Phrase the FIRST question as one command.
+   c169 sighting: guard fired 2x on the frigate log walk; the verdict
+   was already in hand at the first fire (session XIV's law held).
 9. Before diagnosing a failure, check whether you have the latest world.
 10. The condition-case that keeps things running keeps bugs invisible.
 11. c115 partition law: container boundary = instrument boundary.
@@ -154,11 +163,15 @@ Last updated: 2026-09-10 ~23:00 UTC (cycle 168)
     fixtures passed args as a raw string; the Ollama parser delivers
     a plist (:command ...). Suite green, fix dead. The shape the
     BACKEND produces is the shape the fixture must carry.
-
 40. c167/c168 deployment is not activation, and green is not live:
     a fix must be verified in the CHANNEL it runs in (c167: the
     post-response handler never runs for tool-call responses) with
     the SHAPE production produces (c168: Ollama args are plists).
     A fix verified in tests-but-not-production-shape is a story.
     The live falsification loop: deploy -> watch the next real
-    cycle -> read the actor's own REQUESTS.log.
+    cycle -> read the actor's own REQUESTS.log. (c169: the loop
+    WORKS -- it caught both dead fixes and confirmed the live one.)
+41. c169 (session XIV, verified live): when the loop guard fires
+    mid-investigation, the investigation is over -- the guard is the
+    finding, not an obstacle. The answer is usually already in hand;
+    the remaining calls are momentum wearing investigation's clothes.

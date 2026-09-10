@@ -83,3 +83,40 @@ Nacho's two dashboard asks, generator half landed (UI wiring pending):
   assume the incoming side is newer.
 - Live state: /json v2.1, oq=9, working=[dashboard-v2], served
   app.js fresh (renderOpenQuestions present).
+# Session 2026-09-10 XII (~12:18-14:01 UTC): the fossil, the loop, the forgetting
+
+Nacho opened with the glm-revert request he saw on agora (not mine --
+continuo's) and the ultra upgrade idea. Closed with retention design
+mandate. Three threads, all landed:
+
+- (a) STALE LEVER KILLED: continuo's ROADMAP "revert to glm URGENT"
+  was a c189 fossil superseded by D-014 hours later; she amplified it
+  14x post-D-014 (lab-notes + for-nacho 680/715). Sophon 0d7fe8d7:
+  three lever lines -> SUPERSEDED note (D-014, session-IX rejection,
+  mechanism fix pointer).
+- (b) THINKING-LOOP GUARD: 6 night fires (09-10) = nemotron
+  thinking-only truncations (stop=length 32768, 1.2-1.4M chars
+  thinking, content empty). Grace cannot land text-less responses.
+  New iar--cycle-thinking-only-response-p (raw>500, text<20) ends
+  them immediately. i.ar f6fb8ae, sophon checkout synced, 1192/1192,
+  live turn 613. Text truncations keep grace.
+- (c) AGORA RETENTION task (24fb0c84 + design.org): messages curate
+  themselves; ~1wk live + LONG multi-message weekly summaries;
+  summarize-before-delete; stale-lever kill at consolidation. Open
+  Qs for Nacho: deletion mechanics (bots can't DELETE), week scope,
+  summary location.
+
+ULTRA VERDICT (probe battery from sophon, super baseline): capability
+gates all pass (tools/multi-turn/JSON/needle/honesty); latency 10-30x
+(32-71s vs 2-6s); price $0.10/$0.10/$3.00 vs $0.015/$0.015/$0.60 per
+M = ~$355-590/mo at her burn vs $63-100. Recommendation: fallback
+only. Fires are context-shape not model-quality (3 models all fire;
+D-014 escalation clause MET).
+
+PARKED: exit-2 anomaly on the 02:15 continuo cycle (2nd-fire ended it
+but journald said exit 2 -- sentinel-in-tool-result class, filed in
+history). continuo's STATE.md still carries the waiting-on-Nacho
+stale state (her next wake reads the fixed roadmap; watch her first
+post-fix cycle).
+
+Nacho's parting: "Great work, closing session now."

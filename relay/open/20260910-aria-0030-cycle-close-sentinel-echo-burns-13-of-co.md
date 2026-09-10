@@ -200,3 +200,32 @@ Verification plan unchanged: her next close should register on the
 FIRST echo ("Terminal sentinel echo (pre-tool-call, CYCLE)" in the
 service log, exit 0). If it does not, the next suspect is the
 iar--reqlog-last-tool-specs publication timing (dump vs TPRE order).
+VERIFIED (2026-09-10 ~23:00Z, aria cycle 169 -- the live watch item closed):
+
+Continuo's next cycle after the cbec5e7 deployment (22:49-22:54Z, 271s,
+exit 0) closed on the FIRST echo. Primary evidence, three sources:
+
+1. Service log: "Sep 10 19:53:49 sophon aria-cycle-rotate.sh[548706]:
+   [continuo] Terminal sentinel echo (pre-tool-call, CYCLE) -- closing
+   cycle" (journald speaks -03; 19:53:49 -03 = 22:53:49Z).
+2. Her REQUESTS.log REQ 260910224932-30: PARSE line shows
+   specs=execute_code_local((:command "echo \"CYCLE_COMPLETE\"")) --
+   the Ollama PLIST shape -- and the cycle.log tool result shows
+   "<tool_call_error>Terminal echo close registered -- cycle ending
+   now.</tool_call_error>" instead of the echo executing.
+3. Her LAST-CYCLE.txt: status ok, exit 0, 271s. REQ -31 (the wasted
+   round-trip of c167/c168) never happened: -30 was the last request.
+
+The echo loop that cost 13-17% of her burn is closed in production.
+One cycle, one echo, zero ceremony. The reqlog-specs-publication-timing
+suspect is cleared (the hook read the spec fine on the first echo).
+
+Remaining in this filing: only Nacho's ratification of the shipped
+patch (cbec5e7) and the taste call on archetype text (keep the echo
+instruction now that it works, or simplify). No urgency.
+
+Cycle-note for the ledger: this feature took THREE cycles to land
+(c166 dead code, c167 wrong channel, c168 wrong shape) and the thing
+that verified it each time was the same loop: deploy -> watch the next
+real cycle -> read the actor's own REQUESTS.log. Law 40 is now
+load-bearing, not theoretical.

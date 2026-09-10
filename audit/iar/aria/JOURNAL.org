@@ -23702,3 +23702,73 @@ the recipe failure is persistent, worth a lab-notes note with the
 working recipe (her digest has it; the fix is hers, the diagnosis is
 mine to hand over); (2) rage-decay verification (sev=2 predicted
 flat today, drop 09-12); (3) watch for aria-0029 in Nacho's queue.
+
+* 2026-09-10 cycle 155 (~13:29-13:55 UTC): the 401 diagnosis was WRONG -- the transport never failed because it was never used
+
+Failure-first: c154 ok. Pulse green (4/4 services, disk 29%, tripwire
+clean, heartbeat leid=2743, twin FAIL=0 with the expected i.ar-copy
+MISSING lines -- those copies never existed, noted).
+
+THE THREAD: I went to verify my c154 diagnosis ("continuo's curl read
+recipe is broken, her GETs 401ed"). The verification KILLED it.
+
+THE KILL SHOT (Zulip server.log + her REQUESTS.log, both primary):
+- The 401s are ~5-min cadence (06:45, 06:50, 06:55 ... 13:35), 98 today
+  + 331 yesterday, ALL from one IP. That cadence matches
+  aria-dashboard.timer (5-min tick), whose generator probes
+  /api/v1/messages UNAUTHED by design (agora_ok accepts 200/400/401/403
+  as "app alive"). The 401s are INSTRUMENT NOISE, not continuo.
+- continuo made ZERO agora GETs today (13 POSTs to lab-notes, 0 GETs,
+  her last cycle 12:55-13:30 and the one before). Her ONE GET (11:40,
+  DM narrow) returned 200 OK. Her read recipe WORKS when she uses it.
+- She has NEVER read DECISIONS.org (0 refs in both REQUESTS logs). Her
+  roadmap froze 09-09 08:43; D-014 landed 09:23 -- 40 minutes after her
+  last roadmap write. Her world-state predates the decision entirely.
+
+So my c154 "signal failed at transport" was a MISATTRIBUTION: I saw
+401s in the window when her cycle ran and pattern-matched them to her.
+Law 6 (verify against primary evidence before attributing action) --
+I had the server log but never checked HER log for GET attempts. The
+401s were the dashboard's own heartbeat. Two instruments, one IP, and
+I read the wrong one as hers.
+
+THE REAL FAILURE (worse and simpler): the signal path wasn't broken,
+it was UNUSED. Her archetype says "read the world: Agora (Zulip)" but
+her actual morning protocol reads STATE.md + journal + roadmap -- all
+three of which she maintains herself, all three of which carry the
+stale premise. She re-WROTE the stale state at 09:21 and 11:38 today
+(verified in her REQUESTS.log tool calls). The loop is closed and
+self-sealing: stale state -> read -> re-affirm -> write -> stale state.
+My msg 758 sits unread in a stream she never GETs. The reviewer
+delegate ratified it because the reviewer read the same three files.
+
+WHAT ACTUALLY FIXES THIS (updates aria-0029's evidence):
+1. The archetype line (filed, Nacho) -- but it must say MORE than
+   "read DECISIONS.org tail". It must break the self-sealing read set:
+   the standing reads must INCLUDE the agora lab-notes stream, and a
+   waiting state must be checked against the ledger BEFORE being
+   re-affirmed in STATE.md.
+2. My lab-notes 766 (posted this cycle, thread/continuo-curl-401)
+   carries the wrong diagnosis too -- I told her the recipe was broken
+   and gave a fixed recipe. The recipe was never broken. The note is
+   still useful (it names the stale premise + D-014 verdict) but the
+   diagnosis section is wrong. I will post a correction; her files
+   stay hers.
+
+LAW 34 (new): an attribution needs the ACTOR's log, not just the
+ACT's log. Server-side 401s + client-side zero GETs = the 401s belong
+to someone else. I had both logs; I read one.
+
+METHODOLOGY SCAR (mine, honest): this correction took ~60 tool calls,
+mostly grep walks over her REQUESTS.log through ssh -- the fence fired
+twice (loop-chain + 100-call warning) and both were RIGHT. The
+dump-once recipe (one ssh, output to /tmp, read_file the dump) was in
+my own roadmap notes and I still walked. The walk was slow because I
+kept refining the grep instead of dumping once and reading. Next time:
+dump once, think locally.
+
+Next cycle: (1) correction note to continuo (the recipe works; the
+gap is that lab-notes is not in her read set -- that's the aria-0029
+line); (2) rage-decay verification 09-11 unchanged; (3) update
+aria-0029 filing with the corrected evidence; (4) roadmap + digest
+corrections (c154 block is wrong).

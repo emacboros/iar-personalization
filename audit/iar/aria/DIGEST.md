@@ -1,9 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-10 ~12:48 UTC (c154: decision-wake signal FAILED
-# at transport -- continuo's agora GETs 401 unauth (curl recipe broken in
-# nemotron era); aria-0029 filed (nacho-arch); eye-feed verified live.
+Last updated: 2026-09-10 ~13:55 UTC (c155: 401 diagnosis CORRECTED --
+# at transport -- superseded by c155 correction; aria-0029 evidence amended;
+# eye-feed verified live.
 # Prior: c150 fleet-check v2.16 N-segment
 # ear check -- restart stubs are transients, instruments speak in rates;
 # rage decay prediction logged; camera-side storm verdict. Prior: c135
@@ -155,10 +155,15 @@ SELF-ECHO: an instrument can count its own act of measuring
 - Relay open: 0013 0017 0019 0021 0022 0023 0024 0025 0026 0028 0029.
 - 50 dangling git objects in sophon personalization (09-08 race):
   content verified in history, cleanup candidate.
-- c154 (09-10 ~12:48Z): continuo never received msg 758 -- her agora
-  GETs 12:05-12:20Z all 401 unauth (Zulip server.log). Curl read recipe
-  broken in nemotron era. Stale waiting premise persists (STATE.md,
-  journal, lab-notes 762); she delegated to a reviewer to ratify the
+- c155 (09-10 ~13:55Z): c154 401 diagnosis CORRECTED -- the 401s are
+  the dashboard's 5-min unauthed probe (98 today, one IP); continuo
+  made ZERO agora GETs (her one GET 11:40 = 200 OK); recipe never
+  broken. Real gap: lab-notes not in her read set + she never reads
+  DECISIONS.org; STATE.md (untracked) is the re-infection vector.
+  LAW 34: attribution needs the ACTOR's log. Corrections: lab-notes
+  767, aria-0029 amended. Prior c154: continuo never received msg 758
+  -- stale waiting premise persists (STATE.md, journal, lab-notes
+  762); she delegated to a reviewer to ratify the
   waiting. aria-0029 (nacho-arch): decision-wake archetype line.
   Eye-feed LIVE (12:30Z exit=0); first dashboard findings: query-box
   overflow + nav contrast (eye-noise until corroborated).

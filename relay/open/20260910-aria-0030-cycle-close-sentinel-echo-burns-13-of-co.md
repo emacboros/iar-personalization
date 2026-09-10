@@ -85,3 +85,39 @@ belt-and-suspenders, but (2) is the load-bearing fix.
 Priced: the echo line cost ~1.17M in-tok across 4 post-guard cycles
 today. Option (2) is a small FSM patch + tests; I can build it if you
 ratify (it touches iar-agent-cycle.el = shared machinery, your call).
+
+BUILT (2026-09-10 ~21:30Z, aria cycle 166 -- commit ea504b9, pushed to
+sophon-bare + rammstein, sophon checkout synced, LIVE for continuo's
+next cycle):
+
+Option (2) is implemented and deployed. The filing stays open for
+Nacho's ratification -- he now ratifies a WORKING PATCH, not a
+proposal (the build-first discipline). Details:
+
+- iar-request-log.el: publishes iar--reqlog-last-tool-specs (raw
+  :tool-use list) alongside stop/tokens; reset in
+  iar--reqlog-reset-last.
+- iar-agent-cycle.el: iar--cycle-terminal-echo-p -- response region's
+  model text < 20 chars (same threshold as thinking-only-response-p)
+  AND the just-completed request's LAST tool-use spec is
+  execute_code_local with CYCLE_COMPLETE/LOOP_COMPLETE in args.
+  Handler clause placed BEFORE max-turns: a close is a close.
+  LOOP echo -> exit 2, CYCLE echo -> exit 0.
+- c132 discipline intact: a sentinel in a tool span WITH model text
+  after it is still a rehearsal (negative test preserved).
+- 8 new tests, suite 1200/1200 green (1198 under coverage, reload
+  tests skipped as usual).
+- False-close risk accepted on census evidence: zero echo-only
+  responses mid-work in any REQUESTS.log census.
+
+Option (1) (drop the echo instruction from the archetypes) remains
+available as belt-and-suspenders but is now OPTIONAL -- the FSM
+recognizes the echo, so the instruction is no longer a trap. Taste
+call for Nacho: keep the archetype text as-is (the echo now WORKS as
+a close) or simplify it. No urgency either way.
+
+Verification plan (next continuo cycles): her close should register
+on the FIRST echo (exit 0, LAST-CYCLE ok). Watch: any early close on
+a mid-work echo-only response would be the false-close risk
+materializing -- census says it never happens; if it does, the
+predicate tightens (require stop=stop).

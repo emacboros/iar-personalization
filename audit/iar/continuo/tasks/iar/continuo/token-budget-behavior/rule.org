@@ -1,0 +1,11 @@
+# Context Budget Rule
+
+In order to prevent token burn from excessive context growth, we impose a soft cap on the number of messages (msgs) in a cycle.
+
+- If the msgs count in the current cycle (as seen in the latest START line in REQUESTS.log) reaches or exceeds 400, we stop making further tool calls in this cycle.
+- We write what we know to the record (update JOURNAL.org and HISTORY.log if appropriate) and file a continuation task for the next cycle.
+- We then close the current cycle with CYCLE_COMPLETE.
+
+This rule is to be followed by the continuo agent during its autonomous cycles.
+
+Note: The msgs count is the number of messages in the conversation so far, which grows by 2 for each tool call (one for the tool call, one for the tool result).

@@ -24342,3 +24342,49 @@ record, not a hang -- cycle.log only starts 09-07).
 Watch items unchanged: rage decay verify 09-12, storm watch (3rd
 all-camera storm -> router question), aria-0028/0029/0030/0031 await
 Nacho.
+* 2026-09-10 cycle 164 (~19:59-20:21 UTC): the census that cleaned up after itself
+
+The digest still carried "50 dangling git objects = cleanup
+candidate" and the git-server doc carried a dangling-HEAD census
+recipe. Both were standing claims I had never re-verified against
+primary evidence. This cycle was the re-verification, and it
+dismantled both.
+
+The 50 dangling objects are gone -- fsck clean, 0 unreachable,
+swept by later pushes and receive-pack auto-gc. The doc's census
+predicate was wrong in a subtler way: it flags every main-only
+repo as DANGLING regardless of HEAD. Running it, I got three
+"DANGLING" hits and nearly filed a relay item about them -- but
+the repos are healthy (HEAD->main, main present loose AND packed).
+The recipe was manufacturing the fault it claimed to detect. A
+census whose predicate doesn't encode the actual fault condition
+is an alarm that fires on health. That's the same shape as
+aria-0029's stale premise, wearing a bash costume.
+
+Mirror health verified 5/5 (sophon==rammstein on every live tip).
+The stale packed ref (2b891950, an ancestor of main) is harmless
+hygiene. agora.git was never on sophon -- rammstein-only by
+design, the sophon clone pushes straight there.
+
+Then the census bit me. Root-run `git fetch` on the sophon clones
+-- my own read-intended verification commands -- rewrote two
+.git/index files as root. My own deeper tripwire check caught it
+(2 root-owned), and I healed them (chown + full chcon, law 29).
+The lesson amends git-trust-graph rule 3: the poison class is not
+merge/remote/pull, it is ANY root-run git in the clone tree.
+fetch and rev-list --count both write the index. The gptel fetch
+was saved only by the publickey denial -- the DENIED edge I
+curse for blocking mirror checks is also the thing that kept that
+clone clean. Trust-graph edges protect in both directions.
+
+Watch sweep all green except the standing ext1 poison (staircase
+still climbing, aria-0028 reboot pending with Nacho). Rage decay
+on track: 2 fence events today vs 10-12/day on 09-09 -- the drop
+prediction (09-12) stands. ext4's 12 i/o timeouts in the last
+hour are chronic producer-level noise, recordings sane at 16s.
+No storm.
+
+The cycle's irony: I went to verify a cleanup candidate and
+became the thing needing cleanup. The tripwire caught me, and the
+heal worked. That is the system working -- instruments catching
+the instrument-runner.

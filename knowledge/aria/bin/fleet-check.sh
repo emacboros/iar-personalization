@@ -322,7 +322,7 @@ import base64, json, re, sys, time, urllib.request, urllib.error
 def look(path):
     img = base64.b64encode(open(path, "rb").read()).decode()
     req = urllib.request.Request("http://127.0.0.1:11434/api/chat",
-        data=json.dumps({"model": "qwen3.6:35b-a3b", "stream": False, "think": False,
+        data=json.dumps({"model": "qwen3.6:35b-a3b", "stream": False, "think": False, "keep_alive": 300,
             "options": {"num_predict": 120},
             "messages": [{"role": "user",
               "content": "Security camera frame. Quote the overlay text exactly (camera name and timestamp). Then one sentence of scene.",

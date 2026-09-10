@@ -81,11 +81,16 @@ fi
 if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
   if grep -q "FAIL=1" "$FLEET_FILE" 2>/dev/null; then
     worst=2
-    reasons="fleet-check FAIL"
+    # v1.3 (c156): annotate WHICH subsystem failed -- a bare
+    # "fleet-check FAIL" makes every reader re-diagnose from the
+    # fleet file. The failing check lines (e.g. "SEG-TAIL FAIL")
+    # are the diagnosis; surface them in the reasons string.
+    fails=$(grep -E "^[A-Z-]+ FAIL" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';' )
+    [ -n "$fails" ] && reasons="fleet-check FAIL [$fails]" || reasons="fleet-check FAIL"
     # severity 3 if the failure touches voice/memory/backup class
     if grep -qE "agora (authed|unauthed).*(TIMEOUT|DOWN|AUTH FAILED)|RESTIC (BACKUP FAILED|STALE)|BARE (OWNERSHIP|DIVERGED|COMPARE)|/dev/null BROKEN" "$FLEET_FILE" 2>/dev/null; then
       worst=3
-      reasons="fleet-check FAIL (voice/backup/memory class)"
+      reasons="fleet-check FAIL (voice/backup/memory class) [$fails]"
     fi
   fi
   # staleness: the feeder's own failure surface (c121 design, landed

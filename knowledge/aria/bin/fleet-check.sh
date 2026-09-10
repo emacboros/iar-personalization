@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.15 (2026-09-09, aria cycle 119)
+# aria fleet-check v2.16 (2026-09-10, aria cycle 150)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,23 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.16 (aria cycle 150): N-SEGMENT EAR CHECK (3-segment window).
+#   The 2026-09-10 03:01Z fleet run FAILed on exterior_3 NO-AUDIO --
+#   but the sampled segment (01.07.mp4, 0.79s) was a video-only STUB
+#   written during a frigate watchdog restart (00:00:43 fps-limit kill
+#   -> 00:01:08 restart -> corrupt segment discarded -> 0.79s stub).
+#   Root cause chain: camera-side RTSP timeouts (.103, then a
+#   multi-camera blip 04:06-04:07 -03) -> frigate restarts -> stub
+#   segments during recovery. Census: 3 video-only stubs in ~1200
+#   segments today (hours 00-07 UTC), ext3-only, all in restart/
+#   timeout windows. The single-segment sample turns a seconds-long
+#   transient into a FAIL -- c146's "flapping-camera noise" finding,
+#   now with a mechanism. Fix: sample the newest 3 COMPLETED segments;
+#   FAIL only if ALL lack audio (a stub among healthy neighbors is a
+#   transient, reported but not failed). True deafness still fails:
+#   all 3 stubs = no audio in ~48s of footage = real deafness.
+#   Live-fired: healthy cam (3x ns=256000 -> OK), stub window replay
+#   (neighbors healthy -> OK), negative case logic verified.
 # v2.15 (aria cycle 119): interior_3 KNOWN_DEAF entry WITHDRAWN.
 #   The v2.9-c30 premise "zero-sample since earliest recording
 #   (2026-07-05)" was FALSIFIED (c118): recordings prove audio
@@ -242,45 +259,54 @@ echo "-- ear check --"
 # deafness is news).
 KNOWN_DEAF=""
 for cam in $CAMERAS; do
-  n=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -1)
-  if [ -z "$n" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi
+  # v2.16: newest 3 COMPLETED segments (tail -4 | head -3: skip the
+  # in-progress newest, which frigate is still writing -- a partial
+  # segment can legitimately lack audio mid-write).
+  segs=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -4 | head -3)
+  if [ -z "$segs" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi
+  n=$(echo "$segs" | tail -1)
   age=$(( $(date +%s) - $(stat -c %Y "$n") ))
   if [ "$age" -gt 120 ]; then echo "$cam STALE(${age}s)"; FAIL=1; fi
-  # audio: map 0:a fails on video-only segments -> NO-AUDIO
-  aout=$(timeout 30 ffmpeg -hide_banner -i "$n" -map 0:a -af volumedetect -f null - 2>&1)
-  if echo "$aout" | grep -q "matches no streams"; then
-    if echo " $KNOWN_DEAF " | grep -q " $cam "; then
-      echo "$cam age=${age}s NO-AUDIO (known-deaf, watch state)"
-    else
-      echo "$cam age=${age}s NO-AUDIO"; FAIL=1
+  # v2.16 audio verdict: probe the 3-segment window. noaudio counts
+  # segments with NO audio stream OR zero decoded samples (both are
+  # "no usable audio"). FAIL only if ALL 3 are dead -- a single stub
+  # among healthy neighbors is a restart transient (reported, not failed).
+  noaudio=0; nprobe=0; last_mv=""; last_mx=""
+  for seg in $segs; do
+    nprobe=$((nprobe+1))
+    aout=$(timeout 30 ffmpeg -hide_banner -i "$seg" -map 0:a -af volumedetect -f null - 2>&1)
+    if echo "$aout" | grep -q "matches no streams"; then
+      noaudio=$((noaudio+1)); continue
     fi
-  else
-    # v2.13 (cycle 30): the old dB grep matched INPUT bitrate lines
-    # ("256 kb/s") as "dB" hits -- a zero-sample segment printed fake
-    # mean/max and tripped RECOVERY on a known-deaf cam (interior_3,
-    # live-verified 16:53 UTC). Parse the DECODED block instead:
-    # volumedetect prints one n_samples per output stream; the last
-    # one is the decoded audio. Recovery = samples AND a mean.
     ns=$(echo "$aout" | grep -oP "n_samples: \K[0-9]+" | tail -1)
+    if [ -z "$ns" ] || [ "$ns" -eq 0 ]; then noaudio=$((noaudio+1)); continue; fi
     mv_db=$(echo "$aout" | grep -oP "mean_volume: \K[-0-9.]+" | tail -1)
     mx_db=$(echo "$aout" | grep -oP "max_volume: \K[-0-9.]+" | tail -1)
-    if [ -z "$ns" ] || [ "$ns" -eq 0 ]; then
-      # v2.10 (cycle 11): stream present but zero decoded samples =
-      # SILENT. The interior_3 lesson: this sailed through as green
-      # with an empty "mean/max:" line.
-      if echo " $KNOWN_DEAF " | grep -q " $cam "; then
-        echo "$cam age=${age}s SILENT (known-deaf, watch state -- stream present, 0 samples)"
-      else
-        echo "$cam age=${age}s SILENT: audio stream present but ZERO samples"; FAIL=1
-      fi
-    elif [ -n "$mv_db" ] && echo " $KNOWN_DEAF " | grep -q " $cam "; then
-      echo "$cam RECOVERED: audio present again (mean/max: $mv_db dB $mx_db dB) -- update KNOWN_DEAF, withdraw flags"; FAIL=1
-    elif [ -n "$mv_db" ]; then
-      echo "$cam age=${age}s mean/max: $mv_db dB $mx_db dB"
+    [ -n "$mv_db" ] && { last_mv="$mv_db"; last_mx="$mx_db"; }
+  done
+  if [ "$nprobe" -eq 0 ]; then
+    echo "$cam age=${age}s PROBE-EMPTY (segs list empty)"; FAIL=1
+  elif [ "$noaudio" -eq "$nprobe" ]; then
+    # ALL sampled segments lack audio = real deafness (or known-deaf)
+    if echo " $KNOWN_DEAF " | grep -q " $cam "; then
+      echo "$cam age=${age}s NO-AUDIO (known-deaf, watch state; $noaudio/$nprobe dead)"
     else
-      # samples decoded but no mean_volume line: unhandled shape, fail closed
-      echo "$cam age=${age}s VOLUME-UNPARSED (samples=$ns, no mean_volume)"; FAIL=1
+      echo "$cam age=${age}s NO-AUDIO ($noaudio/$nprobe segments dead)"; FAIL=1
     fi
+  elif echo " $KNOWN_DEAF " | grep -q " $cam " && [ -n "$last_mv" ]; then
+    # v2.13 contract preserved: RECOVERY on a known-deaf cam fails loudly
+    echo "$cam RECOVERED: audio present again (mean/max: $last_mv dB $last_mx dB) -- update KNOWN_DEAF, withdraw flags"; FAIL=1
+  elif [ -n "$last_mv" ]; then
+    # healthy audio in the window (partial stubs reported inline)
+    if [ "$noaudio" -gt 0 ]; then
+      echo "$cam age=${age}s mean/max: $last_mv dB $last_mx dB (transient: $noaudio/$nprobe stub segments)"
+    else
+      echo "$cam age=${age}s mean/max: $last_mv dB $last_mx dB"
+    fi
+  else
+    # audio streams present with samples but no mean_volume parsed:
+    # unhandled shape, fail closed (v2.13 discipline)
+    echo "$cam age=${age}s VOLUME-UNPARSED (samples>0, no mean_volume)"; FAIL=1
   fi
 done
 

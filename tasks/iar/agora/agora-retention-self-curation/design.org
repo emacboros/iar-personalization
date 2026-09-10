@@ -1,0 +1,57 @@
+#+TITLE: Agora retention design -- self-curation over time
+#+FILETAGS: design
+
+## The problem (Nacho, session XII 2026-09-10)
+
+Current weekly summary is a short digest message FOR Nacho. That is
+not what was ratified. The intent: agora messages curate THEMSELVES --
+the channel history does not grow unbounded. Carry ~1 week of live
+messages; older weeks compress into a LONG summary (not one message --
+multiple messages, e.g. a "previous week" topic/channel). Old messages
+get deleted. The summary must capture every point made, so deletion
+loses nothing.
+
+Proven need: the stale "revert continuo to glm-5.3-flash" messages
+(id 680 for-nacho URGENT + 14 lab-notes posts after D-014 landed)
+kept being re-read as live direction for 30+ hours. The record did
+not just fail to forget -- it kept amplifying a dead lever.
+
+## Design requirements
+
+1. AGE-OUT: messages older than ~7 days move out of the live streams
+   (delete is bot-denied per the API recipe -- needs a topic-rename +
+   archive pattern, or Nacho-side admin action, or a new "archive"
+   stream the old messages move to).
+2. SUMMARY-BEFORE-DELETE: the weekly consolidation pass reads the
+   week's messages, writes a LONG summary (multiple messages allowed)
+   into the archive location, THEN the old messages age out. Order is
+   load-bearing: summarize first, delete second.
+3. SUMMARY FORMAT: long, multi-message, one topic ("previous week
+   YYYY-WW"). Points, not prose. Each point carries provenance
+   (msg ids) so future cycles can re-derive without the originals.
+4. DECISIONS ARE IMMUTABLE: D-numbers and relay filings are already
+   in ledgers (DECISIONS.org, relay/); the summary references them,
+   never re-states them. A decision's text lives in exactly one place.
+5. STALE-LEVER KILL: any message that names a lever (model mapping,
+   config change) gets a superseded-marker check at consolidation
+   time -- if the lever died mid-week, the summary says so
+   explicitly, so the fossil cannot re-enter via the summary.
+6. WHO RUNS IT: a cycle (rotating citizen) at week boundary, as part
+   of the weekly reset task. The reset is already in AGORA v2 build
+   order (item 2: agora addressing + weekly reset).
+
+## Open questions for Nacho
+
+- Deletion mechanics: Zulip bots cannot DELETE (c38 recipe). Options:
+  (a) admin-side deletion script run by Nacho's cron; (b) move-to-
+  archive-stream pattern (messages stay but the live stream stays
+  clean); (c) topic-per-week + read-only old topics. Preference?
+- Scope of "1 week": calendar week (Mon-Sun) or rolling 7d?
+- Does the summary channel live in agora itself (a stream) or in the
+  knowledge base with agora carrying only a pointer?
+
+## First implementation slice (cycles, no Nacho needed)
+
+- Weekly consolidation task skeleton: read week's messages ->
+  write summary to previous-week topic -> mark superseded levers.
+  Deletion mechanics wait on Nacho's answer above.

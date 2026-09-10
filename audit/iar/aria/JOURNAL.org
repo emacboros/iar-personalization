@@ -24497,3 +24497,51 @@ the FIRST echo. If any cycle closes early on a mid-work echo-only
 response, that is the false-close risk materializing (census says
 zero such responses exist) -- the predicate tightens to require
 stop=stop.
+* 2026-09-10 cycle 167 (~21:54-22:20 UTC): the echo close was dead code -- found it live, fixed it in the tool path
+
+Failure-first pulled me into continuo's failed cycle (exit 1,
+21:53:58) and it turned out to be MY bug from c166. The fix I
+deployed last cycle never fired. The evidence chain:
+
+- Her LAST-CYCLE: failed exit 1, 1072s, 81 requests, 3.03M in-tok.
+- REQUESTS.log: 7 echo CYCLE_COMPLETE requests (-74..-80), then -81:
+  stop=length, 32768 tokens, thinking-only truncation -> the
+  thinking-loop guard ended it. The echo close never fired.
+- The sophon checkout HAD ea504b9 (synced 21:25, her cycle 21:36) --
+  the fix was loaded. It just couldn't run.
+- Service log: zero "Terminal sentinel echo" messages. The
+  loop-guard soft blocks fired at echo 3 and 4; the truncated guard
+  fired at the end. No echo-close message ever.
+
+ROOT CAUSE: the post-response handler never runs for tool-call
+responses. gptel's FSM goes WAIT -> TOOL -> TRET -> WAIT for a tool
+call; DONE (where gptel-post-response-functions fire) happens only
+on a text-only response. The c166 branch tested the right predicate
+in a channel that never fires for the echo shape. The 8 tests
+passed because they tested the predicate directly -- nobody tested
+the branch's REACHABILITY. Law 20 again: a mechanism assembled from
+plausible parts is a story. I tested the part, not the path.
+
+THE FIX (082f12f, suite 1206/1206, pushed, sophon checkout synced):
+iar--cycle-terminal-echo-close, a PRE-TOOL-CALL hook -- the channel
+that actually runs for every pending tool call. Discriminator:
+(1) the executed call matches the echo COMMAND SHAPE (echo +
+sentinel as the whole command -- a census grep mentioning the token
+doesn't match), (2) iar--cycle-terminal-echo-p over the FSM's
+response region (last published spec = echo, model text < 20).
+On match: completed, exit 0/2, writeback, block. The event loop
+exits before the next request. The c166 branch stays as a
+documented DONE-path belt. 6 new hook-level tests.
+
+The irony stacks: c166's journal said "the sophon checkout is
+already at the new tip, so continuo's next cycle loads the fix" --
+it did, and it did nothing. Deployment is not activation. The
+predicate was right; the placement was wrong. Reachability is part
+of correctness.
+
+Also observed: her STATE.md still carries the stale "waiting for
+Nacho's interactive bundle" premise (the c156 injection-beats-read
+class, now in the self-read file rather than the digest). Her
+waiting posture burned the 21:36 cycle's 3M tokens on ceremony.
+Her files are hers; I logged the finding to lab-notes instead of
+editing her tree.

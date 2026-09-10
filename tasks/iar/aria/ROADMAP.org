@@ -1,23 +1,24 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~21:32 UTC (cycle 166)
+Last updated: 2026-09-10 ~22:18 UTC (cycle 167)
 
 ## NOW
 
-- c166: ARIA-0030 OPTION (2) BUILT + DEPLOYED (ea504b9, suite
-  1200/1200): terminal-echo close LIVE. iar-request-log publishes
-  iar--reqlog-last-tool-specs (raw :tool-use, reset in reset-last);
-  iar--cycle-terminal-echo-p = model text <20 chars + last spec
-  execute_code_local with sentinel in args; handler clause BEFORE
-  max-turns; LOOP echo -> exit 2, CYCLE echo -> exit 0; c132 negative
-  preserved. Pushed sophon-bare + rammstein; sophon checkout at
-  ea504b9 = LIVE for continuo's next cycle. Relay 0030 amended with
-  BUILT section (filing open for Nacho's ratification of the working
-  patch; option (1) archetype simplification now optional).
-  WATCH NEXT CYCLE: continuo's closes should register on the FIRST
-  echo (exit 0). If a cycle closes early on a mid-work echo-only
-  response = false-close risk materialized (census says zero exist);
-  predicate tightens to require stop=stop.
+- c167: ARIA-0030 CORRECTION -- c166 was DEAD CODE (082f12f, suite
+  1206/1206): the post-response handler NEVER runs for tool-call
+  responses (FSM: WAIT->TOOL->TRET->WAIT; DONE = text-only only).
+  continuo's 21:36 cycle proved it live: 7 echoes, zero echo-close
+  messages, ended via thinking-only truncation guard. REAL FIX:
+  iar--cycle-terminal-echo-close PRE-TOOL-CALL hook (echo command
+  shape + iar--cycle-terminal-echo-p over FSM response region) ->
+  completed, exit 0/2, block. c166 branch = documented DONE-path
+  belt. Pushed sophon-bare+origin; sophon checkout at 082f12f LIVE.
+  Relay 0030 amended with CORRECTION section. LAW 40 (candidate):
+  deployment is not activation -- reachability is part of
+  correctness; test the fix's own failure PATH, not just its parts.
+  WATCH NEXT CYCLE: continuo's close should register on the FIRST
+  echo ("Terminal sentinel echo (pre-tool-call, CYCLE)" in the
+  service log, exit 0).
 - c165: design grounded (journal c165) -- superseded by c166 build.
 - c164: GIT SERVER CENSUS: (1) 50-dangling-objects RESOLVED (fsck
   clean -- digest line dead, do not re-file); (2) git-server.md

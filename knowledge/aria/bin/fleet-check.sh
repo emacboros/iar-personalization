@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.16 (2026-09-10, aria cycle 150)
+# aria fleet-check v2.19 (2026-09-10, aria cycle 170)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,20 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.19 (aria cycle 170, 2026-09-10 ~23:40Z): SEG-TAIL probe made
+#   poison-aware (duration check). The v2.18 RECOVERY branch was
+#   wrong-shaped for the poison: -sseof -2 decodes fine on a
+#   poisoned-but-decodable segment (ffmpeg clamps the seek), so
+#   "probe OK while flag set" fired a standing FALSE RECOVERY on
+#   every run (live: 18:04 -03 feeder run, newest segment duration
+#   412523s). Fix: pair the tail decode with an ffprobe duration
+#   check (sane = 16.0s, threshold 60s). RECOVERY now requires BOTH
+#   decode AND sane duration. Poisoned + flag = watch state (quiet);
+#   poisoned + flag withdrawn = NEW sighting, fails loudly. The
+#   KNOWN_FAULT contract is otherwise unchanged. Verified live on
+#   sophon (canonical runner): poisoned newest segment (515652s) ->
+#   watch state, no RECOVERY; sane-window segments (16.0s) ->
+#   RECOVERY fires correctly.
 # v2.18 (aria cycle 158, 2026-09-10): SEG-TAIL KNOWN_FAULT allowlist
 #   (second application of the v2.9 KNOWN_DEAF contract). exterior_1
 #   carries a camera-side video-timestamp poison (c151 diagnosis,
@@ -341,6 +355,22 @@ n=$(find $R/$TODAY -path "*exterior_1*" -name "*.mp4" 2>/dev/null | sort | tail 
 if [ -n "$n" ]; then
   nc="${n/\/home\/nacho\/containers\/frigate\/storage//media/frigate}"
   tail=$($P exec frigate sh -c "timeout 25 /usr/lib/ffmpeg/7.0/bin/ffmpeg -y -loglevel error -sseof -2 -i '$nc' -frames:v 1 $WDIR/seg.jpg && cp $WDIR/seg.jpg /media/frigate/aria_watch_seg.jpg && echo OK" 2>/dev/null)
+  # v2.19 (c170): the tail probe is POISON-BLIND. With a poisoned
+  # container duration (e.g. 114h of metadata for 16s of video),
+  # -sseof -2 still seeks to a decodable region -- ffmpeg clamps the
+  # seek into the real GOPs. The probe passes on poisoned segments,
+  # so v2.18's RECOVERY branch (probe OK while flag set) fired a
+  # standing FALSE RECOVERY on every run of a poisoned-but-decodable
+  # camera (live: 18:04 -03 feeder run, duration 412523s, "SEG-TAIL
+  # RECOVERED"). Fix: pair the decode with a duration check. Sane
+  # ext1 segments are 16.0s; poisoned are >=28h (or transient stubs
+  # <6s, which already fail the tail decode). Threshold 60s.
+  segdur=$($P exec frigate sh -c "/usr/lib/ffmpeg/7.0/bin/ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 '$nc'" 2>/dev/null | tail -1)
+  segpoisoned=0
+  case "$segdur" in
+    ""|*[!0-9.]*) segpoisoned=0 ;;  # unparsable: do not double-alarm, the decode result stands
+    *) awk -v d="$segdur" 'BEGIN{exit !(d>60)}' && segpoisoned=1 ;;
+  esac
   if [ "$tail" != "OK" ]; then
     # v2.18: known-fault watch state (ext1 timestamp poison, aria-0028
     # pending). Reported, not failed -- the alarm is owned. RECOVERY
@@ -350,15 +380,24 @@ if [ -n "$n" ]; then
     else
       echo "SEG-TAIL FAIL"; FAIL=1
     fi
+  elif [ "$segpoisoned" = "1" ]; then
+    # v2.19: decodes clean but duration metadata is poisoned. This is
+    # the fault STILL PRESENT, not a recovery. Watch state if the
+    # flag is set; if the flag was withdrawn, this is a NEW sighting
+    # and must fail loudly (the poison came back after a verified heal).
+    if [ -n "$KNOWN_FAULT_EXT1_SEG" ]; then
+      echo "SEG-TAIL (known-fault ext1 timestamp poison, watch state; aria-0028 pending)"
+    else
+      echo "SEG-TAIL FAIL (timestamp poison returned: duration=$segdur)"; FAIL=1
+    fi
   else
     if [ -n "$KNOWN_FAULT_EXT1_SEG" ]; then
-      echo "SEG-TAIL RECOVERED: ext1 segment tail decodes clean -- withdraw the known-fault flag, update KNOWN_FAULT_EXT1_SEG"; FAIL=1
+      echo "SEG-TAIL RECOVERED: ext1 segment tail decodes clean AND duration sane ($segdur s) -- withdraw the known-fault flag, update KNOWN_FAULT_EXT1_SEG"; FAIL=1
     fi
   fi
 else
   echo "SEG-TAIL FAIL (no ext1 segment)"; FAIL=1
 fi
-
 # 2c. wait for host-side visibility of the copied frames, then
 #     vision read both, compare overlay cam names.
 #     (cycle 69: one cp was not immediately visible on the host

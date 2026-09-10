@@ -1,67 +1,60 @@
 # ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-09 ~23:45 UTC (cycle 140)
+Last updated: 2026-09-10 ~01:00 UTC (cycle 142)
 
 ## NOW
 
-- c140: DELEGATE-AUDIT MISATTRIBUTION FOUND + MECHANISM VERIFIED (18 min,
-  300 calls, hit soft cap):
-  - The parent's delegate call is audited as the SUB-AGENT. Mechanism:
-    spawn setq-defaults iar--current-agent-name to the sub-agent; the
-    parent's async callback fires at completion; the bridge resolves the
-    agent name from the current buffer (= delegate buffer at that
-    moment). Completion cases 1/2a never restore parent defaults.
-  - LIVE PROOF: continuo REQ -49 (23:20:21 spawn) -> reviewer buffer
-    23:20:23-23:21:47 -> audit line 23:21:21 "reviewer | delegate |
-    result_len=10071 agent=reviewer task=<continuo's text>".
-  - CENSUS: 3 REAL delegate calls (all continuo; aria zero) vs 7
-    audit.log delegate lines ALL attributed to reviewer. 5 misattributed
-    continuo calls + 2 pre-lineage-era same-signature lines.
-  - SECOND-ORDER: parent async exec calls completing during a delegate
-    run also resolve the clobbered default (09-08 reviewer-attributed
-    exec lines fit). Not delegate-specific: async-completion-specific.
-  - CONNECTOME CONSEQUENCE: edge layer from audit.log would be silently
-    wrong (reviewer->reviewer edges, continuo invisible).
-  - DESIGN ANSWER (c139's parked question): inter-agent edges come from
-    the CITIZEN'S OWN REQUESTS.log PARSE specs=delegate (:agent names
-    the callee; pipeline mode = edge to agent-assistant). Caller's log
-    = source of truth. audit.log delegate lines quarantined until fix.
-- c139: CONNECTOME GAP-1 VERIFIED CLOSED (path= logging live since
-  0f552b1; all no-path read_file calls pre-deploy; file-touch graph
-  unblocked). Lesson: a census without a time axis lies.
-- c138: daemon timezone error corrected (law 22); continuo exit-2s
-  clean; rage sev=2 = real fires (pre-raise + c135's deep cycle);
-  lucid_curie RW-mount hazard filed (aria-0027); writer hunt parked.
+- c142: 15:19:38 CENSUS SETTLED -- reading (a) CONFIRMED. A delegate
+  audit line WITHOUT agent=/task= detail is the misattribution
+  signature (the bridge ran at async completion, outside dispatch
+  context). 20:04:41 has the same shape: second instance, parent
+  completion, callee unknown from the line alone. The 5 post-lineage
+  continuo-spawned reviewer lines (09-09) stand verified (c140).
+  QUARANTINE RULE for connectome v2.1: delegate lines lacking agent=
+  detail = misattributed completions, exclude from edge building.
+- c140/c141: misattribution mechanism confirmed at source level
+  (gptel--handle-tool-use dispatch: sync tools run inside
+  with-current-buffer on FSM :buffer; async tools complete later in
+  whatever buffer is current).
 
-## NEXT
+## NEXT (in order)
 
-- FIX THE MISATTRIBUTION (next cycle, i.ar core .el, tests required):
-  in iar--truncate-tool-result-advice, resolve the audit agent name
-  from the FSM info :buffer (the conversation buffer owning the
-  request), not the current buffer:
-  (with-current-buffer (plist-get (gptel-fsm-info fsm) :buffer)
-    (iar--get-agent-name)).
-  Plus: restore parent defaults BEFORE funcall callback in delegate
-  completion cases 1/2a. Tests: extend test-delegate.el +
-  test-audit-detail.el (spawn-callback scenario asserting the parent's
-  name in the audit line). Suite green before push. Never push red.
-- CONNECTOME v2.1 (after the fix): inter-agent edge layer from citizen
-  REQUESTS.log PARSE specs=delegate; edge to :agent or agent-assistant.
-- FIRE WATCH verdict 09-11 (armed from turn 541): nemotron fire census
-  includes the turn-567 double-stop=length as model-behavior data.
-- aria-0026 (decision-wake): ratified session XI (candidates 1+2 +
-  0/0-tombstone ruling); implementation pending.
+- 1. LAND THE MISATTRIBUTION FIX (first thing next cycle, NO
+  investigation first -- three cycles of analysis is enough):
+  - In iar--truncate-tool-result-advice (init.d/tool-call/
+    iar-tool-call.el:154), resolve the audit agent from the FSM's
+    :buffer instead of current buffer:
+      (with-current-buffer (plist-get (gptel-fsm-info fsm) :buffer)
+        (iar--audit-log-agent-name))
+    Pass that into iar--bridge-post-tool-call (extend signature to
+    take agent, or resolve inside the advice). FSM is nil in some
+    test paths -- keep the current-buffer fallback when fsm is nil
+    or :buffer is dead.
+  - In iar--delegate-completion-fn (init.d/tools/agent/delegate.el),
+    restore parent defaults BEFORE funcall callback in cases 1/2a
+    (currently only case 3 + timeout paths restore).
+  - Tests: extend test-delegate.el + test-audit-detail.el with a
+    spawn-callback scenario asserting the parent's name lands in the
+    audit line. Suite green before push. Never push red.
+- 2. CONNECTOME v2.1: inter-agent edge layer from citizen REQUESTS.log
+  PARSE specs=delegate; edge to :agent or agent-assistant. audit.log
+  delegate lines stay quarantined (c142 rule: no agent= detail =
+  misattributed, exclude).
+- FIRE WATCH verdict 09-11 (armed from turn 541).
+- aria-0026 (decision-wake): ratified session XI; implementation pending.
 - aria-0024 rage-organ design review by Nacho (v1.7/v1.8 landed).
 - aria-0027 (filed c138): lucid_curie removal -- Nacho action.
 - Burn asymmetry (aria 258M vs continuo 44M in-tokens 09-09) ->
   composition review at debrief.
 - 50 dangling git objects in sophon personalization (09-08 race):
   cleanup candidate, content verified.
-- Root-owned-file writer hunt: OPEN, low priority while tree stays
-  clean. Heal log + journald correlation is the tool if it returns.
-- Post-raise budget data: c135 reached 300 calls + 196k ctx; c140 also
-  hit the cap (deep investigation). Watch whether caps are routinely
-  reached or these are outliers (rage organ will show recurrence).
+- Post-raise budget data: c135, c140, c141 hit the 300-call cap;
+  c142 did NOT (~100 calls) -- law-24 one-awk-pass discipline held,
+  fence never fired. Keep batching log forensics into single passes.
+- Parked (hypothesis): aria USAGE.log out-of-order lines (14:23:28,
+  15:23:36 after 19:19:34) -- suspect c91 forensics re-appends.
+  Non-urgent; c14 dedupe handles same-ts pairs, out-of-order is
+  a different artifact.
 
 ## LAWS (append-only; the scar list)
 
@@ -107,3 +100,11 @@ Last updated: 2026-09-09 ~23:45 UTC (cycle 140)
     buffer happens to be current at completion. And: a census built on
     a misattributed log is wrong in exactly the row it exists to make
     visible -- quarantine the corrupt rows before building on them.
+24. c141 log forensics is ONE awk pass, not twenty greps: a census
+    without a query design is an iterator pattern, and the same-tool
+    fence is right to fire on it. Ask the targeted question first;
+    enumerate only when the question IS the enumeration.
+25. c142 a missing detail field is itself evidence: a delegate audit
+    line without agent=/task= is not a sparser version of the truth,
+    it is the signature of the bridge running outside the dispatch
+    context. Shape of the row tells you which code path wrote it.

@@ -1,9 +1,27 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~16:25 UTC (cycle 158)
+Last updated: 2026-09-10 ~16:58 UTC (cycle 159)
 
 ## NOW
 
+- c159: CLOSE-ECHO MECHANISM FULLY MAPPED + aria-0030 AMENDED
+  (7a523ae2, pushed): nemotron reads "signal CYCLE_COMPLETE" as an
+  ACTION (echo via tool call); the FSM's sentinel detector ignores
+  tool spans (c132), so the echo never registers; loop-guard
+  corrections are read and ignored; she loops until she finally
+  writes the sentinel as text. Post-guard burn: 17.1% across 4
+  cycles, up to 31% in the worst (12 echo turns + 2 corrections).
+  REVISED PROPOSAL: option (2) terminal-echo in the FSM is
+  load-bearing; option (1) alone is UNSAFE for nemotron (her natural
+  end is often empty-content+thinking, which the 0/0 tombstone never
+  catches). Benign hole documented: empty-content thinking-only
+  stop=stop responses fall through all branches and continue
+  (correct -- re-prompting recovers a mid-rehearsal model).
+- c159: LAW 35 THIRD SIGHTING: continuo's 16:39 STATE.md write
+  re-affirms the dead waiting lever, post-SUPERSEDED-note,
+  post-c156. Her journal carries 11 stale-premise mentions -- the
+  injected journal tail keeps the premise alive. Fix = aria-0029
+  (Nacho). Do not write her files.
 - c158: EXT1 POISON RECURRING + ALARM OWNED (fleet-check v2.18,
   3097ede9): poison returned 15:02:36 -03 after ~30min sane window
   post-watchdog-restart; sane windows correlate with reconnects.
@@ -17,40 +35,30 @@ Last updated: 2026-09-10 ~16:25 UTC (cycle 158)
 - c157: TRIPWIRE ALARM RESOLVED (65 root-owned = benign): cycle
   containers are userns-mapped (container root = host nacho); my git
   writes through the shared checkout + Nacho's yoga rebase mid-cycle
-  (session XIII stack; 497e13ff/be860871 -> 3bd928b8/1434de59,
-  unpushed to bare 6ff77fc4). HEAD moved under me mid-cycle. Close
-  commit carries the 8 live M files, NO push while surgery is fresh.
-  Mapped-view permission scar: host-root files show as nobody in my
-  view and are unwritable; the heal script (chown+chcon) is the
-  correct full-context fix; my ad-hoc chown lacked the relabel half
-  (law 29 again).
+  (session XIII stack). HEAD moved under me mid-cycle. Mapped-view
+  permission scar: host-root files show as nobody in my view and are
+  unwritable; the heal script (chown+chcon) is the correct
+  full-context fix (law 29 again).
 - c157: CONTINUO BURN CENSUS (strict-EOL, both REQUESTS.log files):
   09-10 = 39.3M in-tok, 1392 turns, 12 cycles (116 t/cyc, 3.6x the
   nemotron-era 09-09 rate), 8 true fires (last 13:17 UTC, NONE after
   the thinking-loop guard deployed 13:51). Controllable burn lines:
-  13.4% = CYCLE_COMPLETE echo re-attempts (13/cycle; sentinel echo is
-  redundant ceremony over the tombstone policy -- mechanism-fix
-  candidate for Nacho), 12.1% = stale-premise turns (4.74M tokens on
-  the dead waiting lever -- c156's injection-beats-read priced in
-  tokens). Knowledge: continuo-burn-nemotron-day-2026-09-10.md.
-- Prior: c156 INJECTION-BEATS-READ (law 35) + fear-organ v1.3
-  (4ac42f95, fleet FAIL reasons carry subsystem lines) + law 36
-  (organ canonical runner = sophon host).
+  13.4% = CYCLE_COMPLETE echo re-attempts, 12.1% = stale-premise
+  turns. Knowledge: continuo-burn-nemotron-day-2026-09-10.md.
 
 ## NEXT (ordered)
 
-- CLOSE-ECHO FIX PROPOSAL: FILED as relay aria-0030 (nacho-arch,
-  09-10). Awaiting Nacho's taste call. Evidence: 132 turns/5.25M
-  tok = 13.4% of continuo's day.
-- CONTINUO STALE-STATE WATCH: injection-beats-read means the
-  SUPERSEDED roadmap note alone will NOT flip her. Watch her cycles
-  for self-correction; do not write her files.
+- CLOSE-ECHO FIX: aria-0030 AMENDED (c159) with the full mechanism +
+  revised proposal (option 2 terminal-echo, load-bearing). Awaiting
+  Nacho's taste call. If ratified: build the FSM patch + tests
+  (touches iar-agent-cycle.el = shared machinery).
+- CONTINUO STALE-STATE WATCH: law 35 third sighting (16:39Z). Watch
+  her cycles for self-correction; do not write her files.
 - EXT1 RECOVERY WATCH: fleet-check v2.18 will emit SEG-TAIL
   RECOVERED (FAIL loudly) when a sane segment is newest -- on that
-  signal, withdraw KNOWN_FAULT_EXT1_SEG in fleet-check.sh (the
-  poison may have self-cleared via reconnect; verify with a
-  metadata-duration scan of the newest 3 segments before editing).
-  If aria-0028's reboot lands, same withdrawal + verify.
+  signal, withdraw KNOWN_FAULT_EXT1_SEG in fleet-check.sh (verify
+  with a metadata-duration scan of the newest 3 segments before
+  editing). If aria-0028's reboot lands, same withdrawal + verify.
 - RAGE-DECAY VERIFICATION (09-11 cycle): refined prediction sev=2
   flat 09-11, drop 09-12.
 - THINKING-LOOP GUARD LIVE-FIRE WATCH: deployed 13:51 UTC; 8 fires
@@ -88,6 +96,8 @@ Last updated: 2026-09-10 ~16:25 UTC (cycle 158)
    pattern ("fences stopped it at 8 calls"), burned 6 calls on
    ssh-grep variations. c157 sighting: 28 min + ~100 calls on git
    forensics before the dump-once shape; the census was 4 commands.
+   c159 sighting: fence fired at 100 again; the census was 4
+   commands once anchored. Phrase the FIRST question as one command.
 10. Before diagnosing a failure, check whether you have the latest world.
 11. The condition-case that keeps things running keeps bugs invisible.
 12. c115 partition law: container boundary = instrument boundary.
@@ -126,7 +136,9 @@ Last updated: 2026-09-10 ~16:25 UTC (cycle 158)
     c157 sighting: 59 "fires" -> 8 with strict-EOL + tokens_out anchor.
 32. c153 a fence census spans CLOCK ZONES: journald speaks local (-03),
     REQUESTS.log speaks UTC, day-files speak file-day. Reconcile the
-    clocks BEFORE comparing counts.
+    clocks BEFORE comparing counts. c159 sighting: her cycle.log
+    timestamps are -03; the batch ids are UTC; the same run is
+    "13:47" in one and "16:47" in the other.
 33. c154 a signal is not delivered until the RECEIVER's transport
     confirms it: check the server-side log (401s) before concluding
     "read and ignored". An unauthenticated GET is a silent drop.
@@ -140,6 +152,8 @@ Last updated: 2026-09-10 ~16:25 UTC (cycle 158)
     file loses to a stale premise carried in the injected layer
     (digest/journal). A correction that must outrun an injection must
     land in the injection layer -- or change the injection.
+    c159 sighting: third time. Her journal carries 11 stale-premise
+    mentions; the injected tail re-feeds the dead lever every cycle.
 36. c156 an organ has a CANONICAL RUNNER: running a host-bound organ
     from a container tests the code but CORRUPTS the shared state it
     writes (my container run wrote sev=0 calm over sophon's sev=2).
@@ -150,3 +164,8 @@ Last updated: 2026-09-10 ~16:25 UTC (cycle 158)
     the FULL context (chown + chcon) from the host side, never with
     an ad-hoc chown from inside the map. The ExecStartPre heal is the
     canonical fixer -- let it run, do not hand-patch around it.
+38. c159 a close signal is only real in the channel the RECEIVER
+    reads: the model echoed the sentinel through a tool call, the
+    FSM listens in model text -- 12 turns of ceremony between "done"
+    and "close registered". Speak the listener's language, or make
+    the listener speak the speaker's.

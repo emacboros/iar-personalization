@@ -24069,3 +24069,59 @@ SEG-TAIL RECOVERED, verify with a metadata scan before withdrawing
 the flag; (3) thinking-loop guard live-fire watch continues (zero
 fires since 13:17Z); (4) fear organ's next 6h fire should be calm
 on SEG-TAIL -- verify.
+* 2026-09-10 cycle 159 (~16:47-16:58 UTC): the close-echo anatomy
+
+Failure-first: c158 ok. Pulse green (4/4 services, disk 29%,
+heartbeat leid=2973, timer active, twin FAIL=0, zero root-owned).
+Tripwire clean -- the heal is holding.
+
+THE THREAD: continuo's close-echo, live. I picked up where c158's
+census left off and pulled her post-guard closes apart. The finding
+upgraded aria-0030 from "13% of daily burn" to "17-31% of each
+post-guard cycle" -- and the mechanism is now fully mapped, not
+inferred:
+
+1. The archetype says "End with CYCLE_COMPLETE" / "Signal ... on its
+   own line". Nemotron reads "signal" as an ACTION: she calls
+   execute_code_local with `echo "CYCLE_COMPLETE"`.
+2. The FSM's sentinel detector searches MODEL TEXT ONLY (c132) --
+   tool-call spans are excluded. The echo never registers. The tool
+   result comes back "CYCLE_COMPLETE" and the cycle continues.
+3. The loop-guard fires SOFT BLOCK at 3 identical calls; she reads
+   the correction and echoes again anyway. Worst batch: 12 echo
+   turns, 2 corrections, 383k + 64k tokens of a 1.43M-token cycle.
+4. She eventually emits CYCLE_COMPLETE as real text (in the unseen
+   body_tail) and the sentinel branch ends the cycle.
+
+The amendment (committed 7a523ae2, pushed) revises the proposal:
+option (2) -- make a final echo CYCLE_COMPLETE tool call terminal in
+the FSM -- is the load-bearing fix. Option (1) alone (drop the echo
+instruction, rely on the 0/0 tombstone) is NOT SAFE for nemotron:
+her natural end is often empty-content + thinking-only, which the
+tombstone (tokens_out=0) will never catch. I also mapped a benign
+hole on the way: empty-content thinking-only responses with
+stop=stop fall through every branch and continue -- correct behavior
+(the model is mid-rehearsal; re-prompting recovers it), but it
+belongs in the record because it bounds what any close-fix can
+assume.
+
+LAW 35, third sighting: her STATE.md write at 16:39 (post-SUPERSEDED
+note, post-c156) re-affirms the dead waiting lever. Her journal
+carries 11 stale-premise mentions -- the injected journal tail is
+the layer keeping the premise alive. The fix remains aria-0029
+(decision-wake line), Nacho's. I do not write her files.
+
+Method note: this census was the dump-once shape done mostly right
+-- python one-pass extraction over her REQUESTS.log, targeted
+follow-ups. ~110 tool calls total, half the census, a third the
+live-fire verification chain. The fence warning fired at 100 again;
+the census itself was 4 commands once anchored. The recurring
+lesson (law 9) is now: the FIRST question I ask of a log should be
+phrased as one command, and the walk only starts if that command
+surprises me.
+
+Next cycle: (1) rage-decay verification (sev=2 flat 09-11, drop
+09-12); (2) EXT1 RECOVERY watch on the 18:04 -03 fleet fire (v2.18
+should stay calm); (3) thinking-loop guard live-fire watch continues
+(zero fires since 13:17Z); (4) if Nacho ratifies aria-0030 option
+(2), build the FSM patch + tests.

@@ -24710,3 +24710,68 @@ defaulted to one-more-grep twice where session-XIV-me might have
 phrased the first question as one command (law 8's c159 sighting).
 The law exists because of me, tonight's version included. That is
 not a complaint; it is the texture data the prompt asked for.
+* 2026-09-10 cycle 170 (~23:11-23:45 UTC): the instrument that could not see the poison
+
+The fleet verdict said RECOVERED. The camera was not healed. That
+gap -- between what the probe can see and what the fault is -- was
+the whole cycle.
+
+The 18:04 -03 feeder run emitted "SEG-TAIL RECOVERED: ext1 segment
+tail decodes clean -- withdraw the known-fault flag". Loud, per the
+v2.18 contract: probe OK while fault listed = recovery, fail so it
+cannot pass silently. But the newest segment's duration metadata was
+412523 seconds -- 114 hours for 16 seconds of video. The poison was
+alive. The probe had passed on a poisoned segment, and the recovery
+contract read that pass as a heal.
+
+Why: the probe is `ffmpeg -sseof -2` -- seek to end minus 2 seconds.
+With a poisoned container duration, ffmpeg clamps the seek into the
+real GOPs and decodes fine. The probe tests DECODABILITY, not
+SANITY. Those were the same thing before the poison; the poison
+severed them, and the instrument kept answering from the severed
+half. v2.19 pairs the decode with an ffprobe duration check (sane
+is 16.0s; threshold 60s). RECOVERY now requires both. Live-verified
+in both directions on the canonical runner: poisoned segment ->
+watch state, quiet; sane segments -> RECOVERY fires (and one was
+real -- see below).
+
+The census that fell out of the diagnosis is the day's real map.
+The poison is not intermittent noise; it is a sawtooth. Sane at
+00h. Poisoned 01:18-10:58, growing ~14.3x wall time. Sane
+10:58-15:02 -- healed by the 11:33 watchdog restart, a stream
+reconnect re-syncing the camera's timestamp base. Poisoned again at
+15:02:36, silently, no frigate log line to mark it. Sane again at
+20:37 -- re-synced by another watchdog restart. Two heals, both
+caused by reconnects, both temporary. The reboot ask (aria-0028)
+stands; the camera's clock base is broken and reconnects only reset
+the damage.
+
+And then the second finding, which I did not go looking for. The
+20:37:02 re-sync was not a camera event: ALL EIGHT cameras
+watchdogged in the same second. No RTSP timeouts in the window.
+That is a host stall -- twelve cores saturated. The timing points
+at continuo's nemotron-3-super:cloud CPU-inference request (34k
+tokens in, 1978 out, six minutes two seconds wall -- 5.4 tok/s of
+CPU decode), stacked on localsearch-3, the GNOME indexer that has
+burned 7d10h of CPU at 78% of a core for nine and a half days, and
+a firefox at 61%. D-014 moved continuo to nemotron:cloud; nobody
+priced what CPU-only inference on a loaded NVR host does to the
+detect pipeline. First live sighting of the contention class.
+Filed as relay aria-0032: localsearch mask + firefox close are
+Nacho's calls (his desktop); the stall recurrence is my watch.
+
+Law 39's shape lesson, third sighting, and the sharpest: the
+fixture matched production, the channel was right, and the
+instrument still lied -- because its PASS/FAIL axis (decodes vs
+not) was orthogonal to the fault axis (sane vs poisoned). A
+recovery contract built on a probe that cannot see the fault
+manufactures recoveries. The general form: before trusting an
+OK/FAIL signal, ask what the probe physically measures, and whether
+that quantity distinguishes the fault from its absence. v2.18 was
+built carefully -- the KNOWN_FAULT contract is good design -- and
+it still needed the probe's blindness named before it could work.
+
+Budget note: ~200 calls, 34 minutes. The loop guard fired once
+(the 10-call chain warning mid-frigate-log-walk) and I switched to
+the batched-census shape it demanded. The census was one command
+per question after that. The law works when I let it.

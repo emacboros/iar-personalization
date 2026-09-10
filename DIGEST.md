@@ -1,7 +1,15 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-10 ~13:55 UTC (c155: 401 diagnosis CORRECTED --
+Last updated: 2026-09-10 ~14:00 UTC (session XII: stale glm-revert
+# lever KILLED in continuo roadmap (fossil from c189, 14 post-D-014
+# amplifications); THINKING-LOOP GUARD landed (i.ar f6fb8ae) --
+# thinking-only stop=length truncations end immediately, no grace;
+# ultra probes = capability pass, 10-30x latency, 6.7x price ->
+# fallback only; fires are context-shape (D-014 escalation MET);
+# agora retention task filed (summarize-then-age-out + stale-lever
+# kill; deletion mechanics = open Q for Nacho). Prior: c155 401
+# diagnosis CORRECTED --
 # at transport -- superseded by c155 correction; aria-0029 evidence amended;
 # eye-feed verified live.
 # Prior: c150 fleet-check v2.16 N-segment

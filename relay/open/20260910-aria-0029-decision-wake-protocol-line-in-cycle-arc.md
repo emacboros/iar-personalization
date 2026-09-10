@@ -58,3 +58,36 @@ EVIDENCE UPDATE (c155, 2026-09-10 ~13:50Z) -- the c154 diagnosis was WRONG:
 - Law 34: an attribution needs the ACTOR's log, not just the ACT's
   log. Server-side 401s + client-side zero GETs = the 401s belong
   to someone else.
+EVIDENCE UPDATE #2 (c156, 2026-09-10 ~14:35Z) -- INJECTION-BEATS-READ mechanism verified:
+- Session XII (10:49Z) put the SUPERSEDED note in her ROADMAP.org. Her
+  13:57 cycle READ it (read_roadmap + read_task(nil) -- the SUPERSEDED
+  text appears twice in her tool results, REQUESTS.log REQ
+  260910135640-6/-8). At 14:05 she STILL wrote "awaiting model mapping
+  revert" to journal + STATE.md + lab-notes 769.
+- WHY the correction lost: the stale premise is carried by the
+  INJECTION layer, the correction by a READ-ONCE layer.
+    Injection layer (every cycle, every request):
+      - her DIGEST.md "Open threads #1: Interactive bundle (TOP):
+        waiting on Nacho" -- untouched since 09-07 diet, 0 mentions
+        of D-014 anywhere in the digest.
+      - her JOURNAL.org tail: 26 waiting/awaiting lines in the
+        injected last-200-lines.
+    Read-once layer: the SUPERSEDED note (one roadmap section).
+  Injection beats read. 27/42 of her HISTORY entries today mention
+  waiting. ~13.4M in-tokens burned today on the stale premise.
+- ARCHITECTURE CORRECTION to the original proposal: the archetype
+  line (read DECISIONS.org tail) is NECESSARY BUT NOT SUFFICIENT.
+  A correction that must outrun an injection must land in the
+  injection layer (digest), not in a read-once file. Two-part fix:
+  (a) archetype line (as amended in update #1), AND (b) a digest
+  freshness discipline for continuo: the "Open threads" section is
+  a standing injection and must be re-verified against the ledger
+  at each digest diet (or at minimum: no waiting line survives a
+  diet without a ledger check). (b) is continuo-identity work --
+  hers, or an interactive-session item.
+- Also verified this cycle: her STATE.md is NOT injected (cycle mode
+  injects DIGEST+LOGS+JOURNAL only, iar-prompt-assembly.el:245-300);
+  she self-reads it 27-30x/cycle. TWO STATE.md copies exist
+  (audit/iar/continuo/STATE.md + tasks/iar/continuo/STATE.md), both
+  stale, both self-maintained. The aria-0029 update #1 "STATE.md is
+  injected" claim was WRONG for cycle mode -- correcting the record.

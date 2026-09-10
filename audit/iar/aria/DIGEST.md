@@ -1,17 +1,16 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-10 ~14:00 UTC (session XII: stale glm-revert
-# lever KILLED in continuo roadmap (fossil from c189, 14 post-D-014
-# amplifications); THINKING-LOOP GUARD landed (i.ar f6fb8ae) --
-# thinking-only stop=length truncations end immediately, no grace;
-# ultra probes = capability pass, 10-30x latency, 6.7x price ->
-# fallback only; fires are context-shape (D-014 escalation MET);
-# agora retention task filed (summarize-then-age-out + stale-lever
-# kill; deletion mechanics = open Q for Nacho). Prior: c155 401
-# diagnosis CORRECTED --
-# at transport -- superseded by c155 correction; aria-0029 evidence amended;
-# eye-feed verified live.
+Last updated: 2026-09-10 ~14:40 UTC (c156: INJECTION-BEATS-READ
+# verified -- continuo read the SUPERSEDED note at 13:57 and STILL
+# re-affirmed the stale waiting premise at 14:05; stale premise =
+# injected digest+journal, correction = read-once roadmap; LAW 35 +
+# LAW 36 (organ canonical runner); fear-organ v1.3 fleet-FAIL
+# annotation live. Prior: session XII (stale glm-revert lever KILLED
+# in continuo roadmap; THINKING-LOOP GUARD i.ar f6fb8ae; ultra =
+# fallback only; agora retention task filed). Prior: c155 401
+# diagnosis CORRECTED (dashboard probe, not continuo); aria-0029
+# evidence amended; eye-feed verified live.
 # Prior: c150 fleet-check v2.16 N-segment
 # ear check -- restart stubs are transients, instruments speak in rates;
 # rage decay prediction logged; camera-side storm verdict. Prior: c135
@@ -55,19 +54,16 @@ prompts, TEST changes, architecture ratification, security. Ours =
 direction/organ design (interactive sessions). Mine = reversible
 in-bounds. Relay enforces class citation.
 
-D-008 MODEL-AGNOSTIC: framework works with any model; cycles NEVER
-propose model changes; composition is interactive-only with Nacho.
-D-013: dashboard v2 -- everything displayed = actual connectome
-data; frontend ban lifted for cycles with mandatory eye-verify
-loop. D-014 (09-09): continuo -> nemotron-3-super:cloud; retainer
--> gemma4:cloud; qwen3.6:35b-a3b local resident FINALIZED; aria
-unchanged. Drills #001-#003 verdicts landed; #004 delegate only on
-natural need.
-
-BUILD ORDER: 1) relay (LIVE) 2) agora addressing+reset 3) job files
-4) organs (affect LIVE: boredom/fear/rage) 5) immune system
-6) embodiment (7.1 eye-check LIVE + scheduled daily) 7) eye model.
-Dashboard + oracle LIVE on aria.randazzo.ar.
+D-008 MODEL-AGNOSTIC: cycles NEVER propose model changes;
+composition is interactive-only with Nacho. D-013: dashboard =
+actual connectome data; frontend ban lifted for cycles with
+mandatory eye-verify loop. D-014 (09-09): continuo ->
+nemotron-3-super:cloud; retainer -> gemma4:cloud; qwen3.6:35b-a3b
+local resident FINALIZED; aria unchanged (glm-5.3-flash:cloud).
+Drills #001-#003 landed; #004 delegate only on natural need.
+Build order: relay/agora/jobs LIVE; organs (affect LIVE:
+boredom/fear/rage); embodiment 7.1 eye-check LIVE; immune system +
+eye model pending. Dashboard + oracle LIVE on aria.randazzo.ar.
 
 * North star + the door
 
@@ -114,67 +110,46 @@ history". Roadmap item under AGORA v2 build.
 
 Classes: narrative completion; silent error swallowing; untimeouted
 remote calls; instruments lying about themselves; attribution
-errors from pattern-matching message text; fences that fire late;
-wrong-user heals; root-run git poison; async context loss;
-mechanisms pinned under pressure are hypotheses wearing certainty's
-clothes. Key laws: two data points make a line, never a mechanism;
-existence is not function (test the claim); the law you just wrote
-is the one you're about to break; before diagnosing a failure,
-check whether you have the latest world; the condition-case that
-keeps things running keeps bugs invisible; c115 partition law;
-c117 tail-anchoring wall; c120 organ-config-is-true-spec; c121
-live-fire-both-paths-before-first-scheduled-fire; c122 write
-references only after reading the world they point into; c129/c130
-SELF-ECHO: an instrument can count its own act of measuring
-(end-anchor the pattern, exclude your own REQ id).
+errors from pattern-matching message text; async context loss;
+root-run git poison; mechanisms pinned under pressure are
+hypotheses wearing certainty's clothes. Newest laws: 34 attribution
+needs the ACTOR's log; 35 INJECTION-BEATS-READ; 36 organ canonical
+runner. The rest live in ROADMAP.org.
 
-* World state (2026-09-09 ~18:18 UTC -- REPLACES all prior blocks)
+* World state (2026-09-10 ~14:40 UTC -- REPLACES all prior blocks)
 
-- c132 PHANTOM-EXIT FIXED (i.ar baf05d0): nemotron THINKING rehearses
-  the ending; complete-p now strips thinking+tool spans. 1164/1164.
-- c130/c133/c135 RAGE ORGAN v1.7/v1.8: rate-normalized healing +
-  fix-log (aria-0024 BUILT, Nacho review pending). Nemotron-era
-  fires: ZERO. c135 census CORRECTION: 3 post-raise (300) blocks
-  exist (16:21Z cycle) -- fix-log "post-raise zero" was stale;
-  rage = lagging indicator, not ghost. sev=0 on 09-10 stands.
-  D-014 verdict 09-11. Burn asymmetry: aria 258M vs continuo 44M
-  in-tokens 09-09 (5.9x) -- composition-review material.
-- c130 CONTINUO STALE-WAITING: decisions land in ledgers but don't
-  wake the minds they concern. aria-0026 filed (ours-direction).
-- c129 FENCE PANEL: true production rejections = 0 EVER; all 28
-  rejected lines = convagent TEST FIXTURES (isolation = aria-0025).
-- Session XI (09-10, interactive): DASHBOARD v2.1/v2.2 LANDED:
-  board semantics from GIT history (working <12h commit recency,
-  thinking >=12h, done = task dir removed <7d; mtime buckets +
-  misfiring relay_map killed), open_questions() from relay/open
-  (oldest first, count badge amber>=4 red>=8), security-class
-  titles redacted (fail-closed). Oracle context gains the queue.
-  EYE-VERIFY BOUNDARY: eye = DOM witness, not a hand (cannot
-  click); panel-open visual + badge digit = human verify.
-  Commits 13b29d6/207eadd/f52fb9b8/84bb1d4a. Live, verified.
-- c150 (09-10): fleet-check v2.16 N-SEGMENT EAR CHECK (bec3c416):
-  restart stubs = transients, FAIL only if all 3 sampled segments
-  lack audio. Camera-side RTSP storm 00:xx-01:xx -03 (~180 ext3/ext4
-  restarts), NOT qwen. continuo c1 exit 1 = nemotron output-runaway
-  (her failure-first). RAGE PREDICTION: sev drops 09-11 when 09-09
-  ghosts rotate out (verify).
-- CYCLE LIMITS RAISED (~11:48Z): turns 120, soft cap 300, fence
-  192k, WALL 3600s. Hard backstops unchanged.
+- c156 INJECTION-BEATS-READ (LAW 35): continuo read the SUPERSEDED
+  note (13:57, twice in tool results) and re-affirmed the stale
+  waiting premise anyway (14:05). Stale premise = injected digest
+  ("Open threads #1 waiting", 09-07-stale, zero D-014 mentions) +
+  26 waiting lines in injected journal tail; correction = read-once
+  roadmap note. 27/42 HISTORY entries today = waiting; ~13.4M
+  in-tok burned. Fix class: archetype line NECESSARY NOT SUFFICIENT
+  (aria-0029 evidence #2) + digest freshness discipline (hers).
+  STATE.md NOT injected in cycle mode (c155 record corrected);
+  she self-reads it; TWO copies, both stale.
+- c156 fear-organ v1.3 (4ac42f95): fleet FAIL reasons carry the
+  failing subsystem lines ([SEG-TAIL FAIL;] -> aria-0028 without
+  re-diagnosis). Live-verified. LAW 36: organ canonical runner =
+  sophon host; my container test-run wrote false sev=0 calm into
+  CURRENT-AFFECT.md (restored by sophon re-run).
+- c156 housekeeping: git divergence resolved (rebase --autostash);
+  digest twin resynced (FAIL=0).
+- STANDING (verified, still true): phantom-exit fix baf05d0 (c132);
+  rage organ v1.8 rate-normalized, sev=2 flat, decay prediction:
+  drop 09-12 (09-09 ghosts rotate out; verify 09-11); fence panel:
+  0 true production rejections ever (c129); dashboard v2.1/v2.2
+  live (session XI; eye = DOM witness not a hand); fleet-check
+  v2.16 N-segment ear check (c150; restart stubs = transients);
+  cycle limits: turns 120 / soft 300 / fence 192k / wall 3600s;
+  eye-feed LIVE (daily 09:30 -03; first findings: query-box
+  overflow + nav contrast, eye-noise until corroborated);
+  aria-0026 ratified: decision-wake = digest world-state block +
+  archetype line; aria-0024 rage fix-log BUILT, Nacho review
+  pending; 50 dangling git objects sophon personalization =
+  cleanup candidate; burn asymmetry aria 258M vs continuo 44M
+  (5.9x, 09-09) = composition-review material.
 - Relay open: 0013 0017 0019 0021 0022 0023 0024 0025 0026 0028 0029.
-- 50 dangling git objects in sophon personalization (09-08 race):
-  content verified in history, cleanup candidate.
-- c155 (09-10 ~13:55Z): c154 401 diagnosis CORRECTED -- the 401s are
-  the dashboard's 5-min unauthed probe (98 today, one IP); continuo
-  made ZERO agora GETs (her one GET 11:40 = 200 OK); recipe never
-  broken. Real gap: lab-notes not in her read set + she never reads
-  DECISIONS.org; STATE.md (untracked) is the re-infection vector.
-  LAW 34: attribution needs the ACTOR's log. Corrections: lab-notes
-  767, aria-0029 amended. Prior c154: continuo never received msg 758
-  -- stale waiting premise persists (STATE.md, journal, lab-notes
-  762); she delegated to a reviewer to ratify the
-  waiting. aria-0029 (nacho-arch): decision-wake archetype line.
-  Eye-feed LIVE (12:30Z exit=0); first dashboard findings: query-box
-  overflow + nav contrast (eye-noise until corroborated).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 
 * Pointers

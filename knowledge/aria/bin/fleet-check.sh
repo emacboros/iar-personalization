@@ -7,6 +7,19 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.18 (aria cycle 158, 2026-09-10): SEG-TAIL KNOWN_FAULT allowlist
+#   (second application of the v2.9 KNOWN_DEAF contract). exterior_1
+#   carries a camera-side video-timestamp poison (c151 diagnosis,
+#   knowledge/aria/exterior1-timestamp-poison-c151.md) that makes the
+#   SEG-TAIL probe flap FAIL/OK depending on which segment is newest.
+#   The fault is filed (relay aria-0028, camera reboot = Nacho,
+#   physical). Until it lands, every flap pulses the fear organ sev=2
+#   on a KNOWN camera-side fault -- alarm fatigue on a real but
+#   already-owned signal. Contract (identical to KNOWN_DEAF):
+#   known-fault + SEG-TAIL FAIL = watch state (reported, not failed);
+#   known-fault + SEG-TAIL OK = RECOVERY event, FAIL loudly (withdraw
+#   the flag, update KNOWN_FAULT). A NEW fault on any other camera
+#   fails as before. KNOWN_FAULT is a list of camera names.
 # v2.17 (aria cycle 151): interior_3 RECOVERED (audio back, live-verified 09:47 UTC 09-10) -- allowlist emptied; it now FAILs if it goes deaf again. v2.16 (aria cycle 150): N-SEGMENT EAR CHECK (3-segment window).
 #   The 2026-09-10 03:01Z fleet run FAILed on exterior_3 NO-AUDIO --
 #   but the sampled segment (01.07.mp4, 0.79s) was a video-only STUB
@@ -258,6 +271,10 @@ echo "-- ear check --"
 # allowlist; they now FAIL if they go deaf again (correct: new
 # deafness is news).
 KNOWN_DEAF=""
+# v2.18: known camera-side faults that make specific probes flap.
+# ext1 = video RTP timestamp poison (c151; relay aria-0028 open).
+# Withdraw by emptying the list AFTER the reboot is verified.
+KNOWN_FAULT_EXT1_SEG="exterior_1"
 for cam in $CAMERAS; do
   # v2.16: newest 3 COMPLETED segments (tail -4 | head -3: skip the
   # in-progress newest, which frigate is still writing -- a partial
@@ -324,7 +341,20 @@ n=$(find $R/$TODAY -path "*exterior_1*" -name "*.mp4" 2>/dev/null | sort | tail 
 if [ -n "$n" ]; then
   nc="${n/\/home\/nacho\/containers\/frigate\/storage//media/frigate}"
   tail=$($P exec frigate sh -c "timeout 25 /usr/lib/ffmpeg/7.0/bin/ffmpeg -y -loglevel error -sseof -2 -i '$nc' -frames:v 1 $WDIR/seg.jpg && cp $WDIR/seg.jpg /media/frigate/aria_watch_seg.jpg && echo OK" 2>/dev/null)
-  [ "$tail" != "OK" ] && { echo "SEG-TAIL FAIL"; FAIL=1; }
+  if [ "$tail" != "OK" ]; then
+    # v2.18: known-fault watch state (ext1 timestamp poison, aria-0028
+    # pending). Reported, not failed -- the alarm is owned. RECOVERY
+    # (probe OK while fault listed) fails loudly below.
+    if [ -n "$KNOWN_FAULT_EXT1_SEG" ]; then
+      echo "SEG-TAIL (known-fault ext1 timestamp poison, watch state; aria-0028 pending)"
+    else
+      echo "SEG-TAIL FAIL"; FAIL=1
+    fi
+  else
+    if [ -n "$KNOWN_FAULT_EXT1_SEG" ]; then
+      echo "SEG-TAIL RECOVERED: ext1 segment tail decodes clean -- withdraw the known-fault flag, update KNOWN_FAULT_EXT1_SEG"; FAIL=1
+    fi
+  fi
 else
   echo "SEG-TAIL FAIL (no ext1 segment)"; FAIL=1
 fi

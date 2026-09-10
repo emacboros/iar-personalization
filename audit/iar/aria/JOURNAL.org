@@ -24125,3 +24125,61 @@ Next cycle: (1) rage-decay verification (sev=2 flat 09-11, drop
 should stay calm); (3) thinking-loop guard live-fire watch continues
 (zero fires since 13:17Z); (4) if Nacho ratifies aria-0030 option
 (2), build the FSM patch + tests.
+* 2026-09-10 cycle 160 (~17:20-18:02 UTC): the oracle census
+
+Failure-first: c159 ok. Pulse green (4/4 services, disk 29%,
+heartbeat leid=3023, timer active, twin FAIL=0, zero root-owned).
+
+THE THREAD: the pulse handed me granite4.2:3b resident on sophon and
+~300/hour chat POSTs to ollama since 06:00 local, and none of the
+inventory callers explain it. I pulled the thread and it took most
+of the cycle to land the attribution.
+
+Two wrong turns, both instructive. First: the persistent ollama
+connection belongs to agora-agent (pid 9911, LangChain daemon), and
+I spent ~30 calls trying to make it the caller -- its conf says
+gpt-oss:120b, the requests ran granite, and I kept looking for the
+mechanism that would reconcile that. The resolution: a persistent
+httpx keep-alive conn is not evidence of traffic. A conn is not a
+call. Law 6's pattern-matching trap, in a new costume. Second: my
+tcpdump captures of the POST bodies kept coming up empty (snap and
+filter mistakes on lo/wg0), burning calls against a filter that was
+never going to match the way I wrote it.
+
+The discriminator that worked was one command: send a known oracle
+/chat myself, then read the ollama slot line. n_tokens=12261 for my
+call vs ~11090-11098 for the mystery POSTs -- same shape (context
+blob + short question), n_ctx_slot=16384 = granite's context. And
+only aria-oracle.sh references granite4.2 anywhere in the repo. The
+mystery POSTs are oracle /chat calls. The oracle logs nothing by
+design, so the server-side slot log is the only witness -- model +
+context fingerprinting from the server side is a new instrument
+trick worth keeping.
+
+The callers: X-Forwarded-For shows the house IP (181.28.154.180 --
+sophon and yoga share the home ISP egress, confirmed via ifconfig.me
+from both) and a Cloudflare WARP egress IP. Both Nacho-side. The
+mouth is being used, from at least two devices, in bursts. Peak
+sustained rate ~6.5/min for hours is more than a human typing --
+scripted or a tab loop. Rate limiter held; granite (~3.6GB VRAM)
+coexisted with frigate fine. Not infrastructure, not an attack. I
+filed relay aria-0031 asking Nacho whether the scripting is his.
+
+Also this cycle: rage decay verification -- rage.log has ZERO 09-10
+entries, fence events today=1 vs 10-12/day on 09-09. My prediction
+(sev=2 flat 09-11, drop 09-12) is supported by the trend. Verify
+tomorrow. And continuo's last cycle closed clean (1222s, ok, no
+echo-loop batch visible in the tail) -- the guard watch continues.
+
+The scar check: ~190 tool calls, 40 minutes, and the fence warned at
+150. The census was, in the end, ONE decisive command (oracle test +
+slot read) after a long walk. The walk had real work in it (ruling
+out the agent, the organs, the eye callers) but the discriminator
+should have been my FIRST question: when a model is resident and
+nobody in the inventory claims it, fingerprint the slot log before
+hunting processes. Law 9 again, with a sharper edge.
+
+Next cycle: (1) EXT1 RECOVERY watch on the 18:04 -03 fleet fire
+(v2.18 should stay calm on SEG-TAIL); (2) rage-decay verification
+(drop 09-12); (3) thinking-loop guard live-fire watch; (4) if Nacho
+answers aria-0031 or ratifies aria-0030, act on it.

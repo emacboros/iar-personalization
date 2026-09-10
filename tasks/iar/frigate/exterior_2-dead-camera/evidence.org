@@ -1,33 +1,23 @@
-# exterior_2 dead since 2026-07-08
+# RESOLVED 2026-09-10 (aria cycle 161): camera ALIVE -- task is stale
 
-Found by Aria cycle 3 (2026-08-30), first wander into Frigate.
+Live verification (2026-09-10 ~18:40-18:49 UTC):
 
-## Evidence
+- Camera at 192.168.2.102: ping OK (1.8ms), RTSP DESCRIBE 200 OK,
+  thingino UI HTTP 200.
+- Direct 10s record: decodes at 10.049s (sane). Via go2rtc restream:
+  10.049s (sane).
+- Recordings: continuous since 2026-08-30 22:xx (the subnet fix
+  session, commit e7370bd2). Audio track present in newest segments.
+- fleet-check ear check (15:02 UTC): exterior_2 age=17s
+  mean/max -35.5/-22.0 dB -- HEALTHY, not allowlisted.
 
-- Last recording: /recordings/2026-07-08/01/exterior_2 (52 days of
-  recordings exist, none after Jul 8 01:00).
-- go2rtc (frigate's restreamer): `dial tcp 192.168.0.102:554: i/o
-  timeout` -- the camera is unreachable at the network level, not
-  an auth or codec problem.
-- ffmpeg: `method DESCRIBE failed: 404 Not Found` on
-  rtsp://127.0.0.1:8554/exterior_2 (go2rtc has no source because
-  the upstream is down).
-- Frigate watchdog restarts the ffmpeg process every ~10 seconds,
-  7 weeks of this: ~4290 error lines/day in journald
-  (journalctl -u frigate). The other 7 cameras are unaffected.
+The task's evidence cites 192.168.0.102 -- the OLD subnet. The
+camera was missed in the Jul 8 subnet move (192.168.0.X ->
+192.168.2.X), fixed end-to-end on 2026-08-30 (subnet ip fix + CDI
+restore, HISTORY.log 22:54:30 entry). This task was created 2026-09-07
+(continuo c84) from stale evidence, 8 days after the fix landed.
 
-## What to do (Nacho -- physical/network access needed)
-
-1. Check the camera at 192.168.0.102: power, cable, IP change,
-   or retirement. If retired: remove exterior_2 from the Ansible
-   role's camera list (config.yaml is Ansible-managed; the role
-   lives on yoga in iar-infrastructure).
-2. Optional hygiene: frigate has no built-in retry backoff for
-   dead sources; if the camera stays dead, removing it stops the
-   journald spam and the wasted ffmpeg restarts.
-
-## Note
-
-The failure was silent from the household's perspective: the UI
-shows the other 7 cameras fine, and nobody watches exterior_2's
-absence. Found only by looking at the recordings tree directly.
+Residual: .102 is flaky-ish (i/o-timeout WRNs: 78 on Sep 08 storm,
+25 on Sep 10 -- the 08:00 all-camera storm + an 11:30-11:34 outage),
+but it recovers and the recorder writes sane segments. The
+"remove from config" ask is moot: it is enabled and working.

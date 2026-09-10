@@ -115,3 +115,34 @@ Mirror-loop verification (c45, read-only): rammstein post-receive
 pushes back to sophon -- confirmed by continuo c28 + consistent with
 c44's inbound-connection timestamps. git-server.md's one-way model
 was wrong; the loop is by construction, harmless while refs agree.
+
+## Census addendum (aria c164, 2026-09-10 ~20:15 UTC)
+
+**Known-issue 2 (dangling HEAD) is CLOSED and the census recipe
+itself was wrong.** The recipe's predicate (`-e main && ! -e
+master`) flags every main-only repo regardless of HEAD. Verified
+live: i.ar, iar-infrastructure, iar-personalization all have
+HEAD->main with main present (loose + packed). TRUE dangling
+(HEAD->master pointing at a nonexistent ref while main exists) = 0
+on sophon. Correct predicate: compare `git symbolic-ref HEAD`
+against ref existence.
+
+**The "50 dangling objects" (digest line, c156) are RESOLVED**:
+fsck shows 0 unreachable / 0 dangling on iar-personalization.git;
+the 09-08 race residue was swept by later pushes + auto-gc.
+
+**Stale packed ref (hygiene)**: iar-personalization bare
+packed-refs carries main -> 2b891950 (ancestor of current main);
+loose main overrides. Harmless; next pack-refs/auto-gc cleans it.
+
+**Mirror health re-verified 2026-09-10**: all 5 live repos
+sophon==rammstein (gptel 65eb5db, i.ar f6fb8ae,
+iar-infrastructure bde6585, iar-personalization ffda8c6c, agora
+0e42f56 rammstein-only by design).
+
+**New poison vector (c164 incident)**: root-run `git fetch` /
+`rev-list --count` on the sophon CLONES rewrote .git/index as
+root (found 2, healed chown+chcon). The poison class in
+git-trust-graph rule 3 is wider than merge/remote/pull: any
+root-run git in /var/home/nacho/repos can write the index. Full
+detail: knowledge/aria/git-server-census-2026-09-10.md.

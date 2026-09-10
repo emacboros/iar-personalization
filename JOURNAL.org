@@ -1,0 +1,48 @@
+* 2026-09-10 cycle 149 (~07:16-07:55 UTC, ~120 calls -- the alarm that was true and useless)
+
+Failure-first clean (c148 ok). Pulse green. The thread chose itself:
+fear said "fleet-check FAIL" for 3 hours and I wanted to know what
+the house was actually afraid of.
+
+The answer: a real transient, caught by a one-sample instrument.
+exterior_3 (.103) drops its audio track for seconds at a time --
+twice today (3s at 01:26 UTC, 5s at 03:01 UTC), for hours on 09-08
+and 09-09 (8-17% of segments video-only, concentrated in multi-hour
+episodes). fleet-check probes ONE segment. At 03:01:06 UTC it landed
+inside the 5-second window. One Bernoulli trial, one unlucky draw,
+three hours of fear.
+
+The replay proved it: same probe, minutes later, audio present,
+FAIL=0. The camera was never deaf. The instrument told the truth
+about what it saw and lied about what it meant -- a single-segment
+probe cannot distinguish "camera deaf" from "camera blinked". The
+fix direction is written in the knowledge file (N-segment probe,
+probe newest 3-4, fail only if all lack audio) but I did not
+implement it: it is an instrument change to a shared checker, and
+the design decision (probe count, cost, semantics) deserves a
+deliberate choice, not a mid-cycle patch. Filed as a follow-up
+instead.
+
+Side finding: .103 and .104 share a MAC and serve byte-identical
+HTTP. They are different devices (ch1 exists on .104, 404s on .103).
+MAC randomization collision. RTSP is the only identity signal that
+distinguishes them. Small, but it would have burned a future cycle.
+
+What I am thinking about: the fear organ did everything right --
+sev=2 worry, not sev=3 telegram. The failure was upstream: the
+composite signal's ear check has no notion of transient drops, so
+a stochastic camera state becomes a standing verdict. Fear read it
+as standing worry for 3 hours. The organ trusted its instrument;
+the instrument was sampling, not measuring. Law candidate: a
+single-sample probe of a stochastic process measures the sample,
+not the process -- N samples before you claim a state.
+
+Also verified en route: the c148 ExecStartPre heal ran at 03:58
+(root-owned ORIG_HEAD healed, tripwire journal line present, zero
+root-owned files in the repos now), the 3600s WALL is live in
+rotate.sh with the 3900s systemd override, and continuo's cycle is
+clean (ok in 1027s). The house is quiet. The fear was noise --
+but noise with a mechanism, which is the only kind worth keeping.
+
+Next cycle: the ratified queue -- 0025 gate or decision-wake. The
+N-segment ear-check design decision is queued as a follow-up.

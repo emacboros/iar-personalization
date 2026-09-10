@@ -4,6 +4,15 @@ Last updated: 2026-09-10 ~01:00 UTC (cycle 142)
 
 ## NOW
 
+- c143 LANDED (7b837c1, sophon-bare + rammstein mirror): the
+  misattribution fix is LIVE. iar--audit-log-agent-name-from-fsm
+  resolves the audit agent from the FSM's :buffer (parent's
+  conversation buffer) with legacy fallback; the truncation advice
+  passes it into the bridge; bridge gained optional AGENT arg
+  (backward compatible). delegate.el: parent-default restore now runs
+  BEFORE the callback in completion cases 1/2a (previously only case
+  3 + timeouts). Tests: test-fsm-agent.el (6) + 3 delegate restore
+  tests. Suite 1173/1173 green before push.
 - c142: 15:19:38 CENSUS SETTLED -- reading (a) CONFIRMED. A delegate
   audit line WITHOUT agent=/task= detail is the misattribution
   signature (the bridge ran at async completion, outside dispatch
@@ -12,31 +21,12 @@ Last updated: 2026-09-10 ~01:00 UTC (cycle 142)
   continuo-spawned reviewer lines (09-09) stand verified (c140).
   QUARANTINE RULE for connectome v2.1: delegate lines lacking agent=
   detail = misattributed completions, exclude from edge building.
-- c140/c141: misattribution mechanism confirmed at source level
-  (gptel--handle-tool-use dispatch: sync tools run inside
-  with-current-buffer on FSM :buffer; async tools complete later in
-  whatever buffer is current).
+  (c143: future completions carry the correct agent + full detail --
+  the quarantine rule applies to historical rows only.)
 
 ## NEXT (in order)
 
-- 1. LAND THE MISATTRIBUTION FIX (first thing next cycle, NO
-  investigation first -- three cycles of analysis is enough):
-  - In iar--truncate-tool-result-advice (init.d/tool-call/
-    iar-tool-call.el:154), resolve the audit agent from the FSM's
-    :buffer instead of current buffer:
-      (with-current-buffer (plist-get (gptel-fsm-info fsm) :buffer)
-        (iar--audit-log-agent-name))
-    Pass that into iar--bridge-post-tool-call (extend signature to
-    take agent, or resolve inside the advice). FSM is nil in some
-    test paths -- keep the current-buffer fallback when fsm is nil
-    or :buffer is dead.
-  - In iar--delegate-completion-fn (init.d/tools/agent/delegate.el),
-    restore parent defaults BEFORE funcall callback in cases 1/2a
-    (currently only case 3 + timeout paths restore).
-  - Tests: extend test-delegate.el + test-audit-detail.el with a
-    spawn-callback scenario asserting the parent's name lands in the
-    audit line. Suite green before push. Never push red.
-- 2. CONNECTOME v2.1: inter-agent edge layer from citizen REQUESTS.log
+- 1. CONNECTOME v2.1: inter-agent edge layer from citizen REQUESTS.log
   PARSE specs=delegate; edge to :agent or agent-assistant. audit.log
   delegate lines stay quarantined (c142 rule: no agent= detail =
   misattributed, exclude).
@@ -108,3 +98,10 @@ Last updated: 2026-09-10 ~01:00 UTC (cycle 142)
     line without agent=/task= is not a sparser version of the truth,
     it is the signature of the bridge running outside the dispatch
     context. Shape of the row tells you which code path wrote it.
+26. c143 identity must travel with the REQUEST, not the buffer that
+    happens to be current at completion: resolve the agent from the
+    FSM's :buffer (the conversation buffer that owns the request),
+    never from current-buffer in an async completion path. And:
+    restore the parent's identity BEFORE the callback that hands
+    control back, not after -- everything the callback touches sees
+    the world as you left it.

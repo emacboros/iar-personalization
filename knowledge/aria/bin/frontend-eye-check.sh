@@ -44,7 +44,7 @@ fi
 LEDGER="$PDIR/audit/iar/aria/EYE-FRONTEND-LEDGER.log"
 REPORT="$PDIR/tasks/iar/agora/embodiment/eye-check/REPORT.md"
 OLLAMA="http://10.66.0.5:11434/api/generate"
-EYE="gemma3:4b"
+EYE="qwen3.6:35b-a3b"
 NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 TARGETS="https://i.ar/ https://aria.randazzo.ar/"
 
@@ -74,12 +74,12 @@ for URL in $TARGETS; do
   python3 - "$JPG" > /tmp/eyefront-req.json <<'PYEOF'
 import base64, json, sys
 with open(sys.argv[1], "rb") as f: b = f.read()
-req = {"model": "gemma3:4b",
+req = {"model": "qwen3.6:35b-a3b",
        "prompt": "Describe this webpage screenshot in 3-4 sentences. Note any layout problems: overlapping text, unreadable text, broken images, or misaligned elements.",
        "images": [base64.b64encode(b).decode()], "stream": False}
 json.dump(req, sys.stdout)
 PYEOF
-  RESP=$(curl -s --max-time 120 "$OLLAMA" -d @/tmp/eyefront-req.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('response') or d.get('error',''))" 2>/dev/null)
+  RESP=$(curl -s --max-time 300 "$OLLAMA" -d @/tmp/eyefront-req.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('response') or d.get('error',''))" 2>/dev/null)
   rm -f /tmp/eyefront-req.json "$PNG" "$JPG"
   if [ -z "$RESP" ]; then
     echo "[$NOW] $URL FAIL eye-empty" >> "$LEDGER"
@@ -103,7 +103,7 @@ if [ -n "$REPORT_BODY" ] && [ "$OVERALL" != "degraded" ]; then
   cat > "$REPORT" <<EOF
 LIVE: frontend eye-check loop demonstrated end-to-end ($NOW)
 generated: $NOW
-loop: firefox --headless --screenshot (viewport 1280x800) -> png->jpg -> gemma3:4b -> this report
+loop: firefox --headless --screenshot (viewport 1280x800) -> png->jpg -> qwen3.6:35b-a3b -> this report
 targets: https://i.ar/ https://aria.randazzo.ar/
 ledger: audit/iar/aria/EYE-FRONTEND-LEDGER.log (append-only)
 caveat: the eye is a WITNESS, not an instrument -- overlap/unreadable claims

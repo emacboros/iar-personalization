@@ -322,13 +322,13 @@ import base64, json, re, sys, time, urllib.request, urllib.error
 def look(path):
     img = base64.b64encode(open(path, "rb").read()).decode()
     req = urllib.request.Request("http://127.0.0.1:11434/api/chat",
-        data=json.dumps({"model": "gemma3:4b", "stream": False, "think": False,
+        data=json.dumps({"model": "qwen3.6:35b-a3b", "stream": False, "think": False,
             "options": {"num_predict": 120},
             "messages": [{"role": "user",
               "content": "Security camera frame. Quote the overlay text exactly (camera name and timestamp). Then one sentence of scene.",
               "images": [img]}]}).encode(),
         headers={"Content-Type": "application/json"})
-    r = json.load(urllib.request.urlopen(req, timeout=120))
+    r = json.load(urllib.request.urlopen(req, timeout=300))
     return r["message"]["content"]
 def look_retry(path, tries=3):
     last = None

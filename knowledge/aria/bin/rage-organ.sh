@@ -462,7 +462,7 @@ fi
 
 # --- model mouth (optional enhancement; template is the floor) ---
 if command -v curl >/dev/null 2>&1 && [ "$sev" -ge 2 ]; then
-  mp=$(timeout 20 curl -s http://127.0.0.1:11434/api/chat -d "{\"model\":\"gemma3:4b\",\"stream\":false,\"think\":false,\"options\":{\"num_predict\":60},\"messages\":[{\"role\":\"user\",\"content\":\"One sentence, first person, no theater: the system I live in keeps showing this recurring signal: '$phrase'. What does anger at a recurring failure feel like as a sentence?\"}]}" 2>/dev/null | python3 -c 'import json,sys
+  mp=$(timeout 300 curl -s http://127.0.0.1:11434/api/chat -d "{\"model\":\"qwen3.6:35b-a3b\",\"stream\":false,\"think\":false,\"options\":{\"num_predict\":60},\"messages\":[{\"role\":\"user\",\"content\":\"One sentence, first person, no theater: the system I live in keeps showing this recurring signal: '$phrase'. What does anger at a recurring failure feel like as a sentence?\"}]}" 2>/dev/null | python3 -c 'import json,sys
 try: print(json.load(sys.stdin)["message"]["content"][:200])
 except Exception: pass' 2>/dev/null)
   [ -n "$mp" ] && phrase="$phrase | mouth: $mp"

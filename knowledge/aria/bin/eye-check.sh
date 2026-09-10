@@ -62,7 +62,7 @@ for CAM in $cams; do
   runuser -l nacho -c "podman cp frigate:/tmp/eyecheck.jpg /tmp/eyecheck.jpg" >/dev/null 2>&1
   [ ! -s /tmp/eyecheck.jpg ] && { echo "$CAM FAIL frame-grab"; echo "[$NOW] $CAM FAIL frame-grab ($BASE)" >> "$LEDGER"; continue; }
   B64=$(base64 -w0 /tmp/eyecheck.jpg)
-  RESP=$(curl -s --max-time 45 "$OLLAMA" -d "{\"model\":\"gemma3:4b\",\"prompt\":\"This is a security camera frame. Answer with ONLY the camera name it most likely shows, choosing from: front-door, backyard, driveway, street, balcony, living-room, bedroom, kitchen, garage, garden, other. One word or hyphenated pair, nothing else.\",\"images\":[\"$B64\"],\"stream\":false}" | jq -r '.response' 2>/dev/null | tr -d '[:space:]' | head -c 40)
+  RESP=$(curl -s --max-time 300 "$OLLAMA" -d "{\"model\":\"qwen3.6:35b-a3b\",\"prompt\":\"This is a security camera frame. Answer with ONLY the camera name it most likely shows, choosing from: front-door, backyard, driveway, street, balcony, living-room, bedroom, kitchen, garage, garden, other. One word or hyphenated pair, nothing else.\",\"images\":[\"$B64\"],\"stream\":false}" | jq -r '.response' 2>/dev/null | tr -d '[:space:]' | head -c 40)
   # The eye answers with scene semantics, not frigate names -- the ledger
   # records the RAW read; identity-matching against expected scene is the
   # analyst's job (v1 keeps it honest, no auto-verdict).

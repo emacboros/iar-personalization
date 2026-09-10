@@ -43,7 +43,7 @@ STOR=/home/nacho/containers/frigate/storage
 FF=/usr/lib/ffmpeg/7.0/bin
 CAM_IP=192.168.2.101
 CAM_NAME=exterior_1
-MODEL=gemma3:4b
+MODEL=qwen3.6:35b-a3b
 
 # Reseed host key if /tmp is fresh (keyscan output IS known_hosts format;
 # sophon's key verified out-of-band 2026-08-31).
@@ -110,7 +110,7 @@ req = urllib.request.Request('http://localhost:11434/api/generate',
         'images': [data], 'stream': False, 'options': {'num_predict': 60}}).encode(),
     headers={'Content-Type': 'application/json'})
 try:
-    r = json.loads(urllib.request.urlopen(req, timeout=60).read())['response']
+    r = json.loads(urllib.request.urlopen(req, timeout=300).read())['response']
     name = re.search(r'cam2-\d+', r)
     ts = re.search(r'20\d\d-\d\d-\d\d', r)
     print((name.group(0) if name else 'UNREADABLE') + '|' + (ts.group(0) if ts else ''))

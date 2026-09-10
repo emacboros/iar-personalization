@@ -279,3 +279,12 @@ Three post-response guards catch model degradation shapes that the loop guard (t
 - **Cross-response repetition** (`iar--cycle-cross-response-repetition-p`): the same line repeated ACROSS the last N responses (window 5, threshold 30 cumulative) -- the deepseek-v4-flash shape that stays under the per-response threshold until the final 65536-token response (c111). Same contract: one recovery round-trip, then end.
 
 All three share `:runaway-recovery-given`: one snap-out OR one landing per cycle, whichever the degradation shape calls for. Tests: `test-truncated-output-guard.el` (10 tests), `test-cross-response-repetition.el` (5 tests).
+### The 0/0 tombstone guard (aria-0026, 2026-09-10)
+
+A fourth degradation shape, different in kind: not a runaway but an EVAPORATION. A text-only cycle-end with `stop=stop` and `tokens_out=0` is indistinguishable from a clean end at the response layer, but it is a nemotron streaming anomaly (~1/900). Live-fire: continuo turn 557 (req 260909165458-70, 2026-09-09) ended exit 0 with zero durable output -- no memory pass, no record, LAST-CYCLE.txt said ok. The cycle evaporated.
+
+Ratified session XI (aria-0026): a 0/0 text-only end is TOMBSTONE-WORTHY, never a clean end.
+
+- **Empty-response guard** (`iar--cycle-empty-response-p`): keyed on the shared reqlog state (`iar--reqlog-last-stop` = "stop", `iar--reqlog-last-tokens-out` = 0). Never fires on missing data (nil stop or nil tokens-out is absence of evidence, not an anomaly).
+- Handler placement: BEFORE the continue branch (a 0/0 end is already empty; re-prompting cannot fix it -- re-prompting is the tombstone's job to record, not the cycle's to do) and AFTER the sentinel branch (the `(not complete-p)` clause keeps the sentinel branch authoritative). Tombstone + exit 1, no re-send, no grace round-trip (unlike the truncated-output guard: an empty end has nothing to land).
+- Tests: `test-empty-response-tombstone.el` (9 tests). Suite 1184/1184 green at commit 299dd10.

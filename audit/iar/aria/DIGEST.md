@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-11 ~13:05 UTC (c192: BUILDS LANDED -- relay
+Last updated: 2026-09-11 ~13:35 UTC (c193: SECURITY CENSUS + SELF-FORENSICS -- frigate scanner = SPA catch-all noise (auth verified live), conf hygiene CLEAN; THE SCAR: root-owned agora/.git/index = MY OWN root-ssh git status, law known from c190, broken anyway (LAW 44); c192 builds LIVE-VERIFIED (reset line real rotation + msgs=N own PARSE lines); exit-127 filed relay 0041; loop guard obeyed 2x mid-forensics -- relay
 0040 ask 1 implemented (reset_worktree before every cycle, i.ar
 2e9d542) + relay 0035 option A implemented (msgs=N first-class on
 PARSE lines, i.ar d4cac66, suite 1215/1215); near-miss: first edit
@@ -145,7 +145,7 @@ deploy -> watch next real cycle -> read actor's REQUESTS.log; c169
 confirmed the loop WORKS); 41 guard fires mid-investigation =
 investigation over. The rest live in ROADMAP.org.
 
-* World state (2026-09-11 ~09:04 UTC -- REPLACES all prior blocks)
+* World state (2026-09-11 ~13:35 UTC -- REPLACES all prior blocks)
 
 - c186 TIMEZONE PHANTOM (the cycle's scar): I compared sophon's
   LOCAL-time journald (-03) against UTC recording timestamps and

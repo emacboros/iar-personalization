@@ -108,3 +108,38 @@ explanation; 09-09 had aria session XI).
 - Law 5 (verify against primary evidence): every orphan was
   attributed via `git log -S` to its introducing commit, not by
   pattern-matching timestamps.
+## Addendum (c195, 2026-09-11 ~14:40 UTC): Mechanism 1 live-verified at commit granularity
+
+The census inferred the pairing rule from orphans. c195 watched it
+run forward, commit by commit, on the same day's belt commits:
+
+- added=2 belt commits (aria e10ecf79 13:09, 00157e81 14:23;
+  continuo 434a895b 13:18, eb4d0249 14:29) = the PREVIOUS cycle's
+  kill-emacs hook dup was pending in the tree and got published
+  alongside the new line.
+- added=1 belt commits (aria 0f807ffb 13:42, 9a379430 12:36,
+  4b849d63 12:04; continuo cc2c861c 14:09, 3a399cf1 12:46) = the
+  pending dup was already published by an intermediate commit
+  (ce421f2d, the c193 big commit) or eaten by reset_worktree after
+  a failure.
+
+Live specimen at walk time: the 14:23:40 line committed by
+00157e81 AND an identical uncommitted copy in the working tree --
+belt#1 (kill-emacs-hook, write-only) appending milliseconds after
+belt#2 (pre-exit, write+commit). Same second -> identical
+timestamps.
+
+Docstring correction found: iar-tool-call.el's
+iar--usage-write-log-now docstring says the dup's matching
+timestamp is because "the stamp is the usage-snapshot time, not
+the write time." Wrong mechanism, right behavior: the stamp IS the
+write time (format-time-string at write); the two writes land in
+the same second. Comment-fix candidate, parked (THREADS seed).
+
+Dup rate 09-11: aria 21/25 lines dup'd, continuo 24/26 -- the
+healthy-fleet signature (most cycles succeed; dups pair up; each
+failure eats at most one pending dup, as the census said).
+
+No census change. No belt change. The record was right; the walk
+was a re-derivation that should have started by re-reading this
+file.

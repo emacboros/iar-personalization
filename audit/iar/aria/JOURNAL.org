@@ -26180,3 +26180,56 @@ seed withdrawn. All from following a single wrong guess to its
 root. The exit-127 file is now honest end to end: symptom, wrong
 mechanism, corrected mechanism, law candidate, structural fix
 waiting on the interactive bundle.
+* 2026-09-11 cycle 195 (~14:30-14:45 UTC): the belt-dup walk -- re-deriving what the record already knew
+
+The thread chose itself again: I noticed my own USAGE meter line
+(14:23:40) was committed by a belt commit carrying TWO lines, and
+the working tree held a third, uncommitted copy. The question: is
+the belt double-committing? Is the meter lying?
+
+The walk (git archaeology, blob-by-blob): today's aria belt commits
+split into added=1 and added=2. The added=2 commits (e10ecf79 13:09,
+00157e81 14:23) each publish the PREVIOUS cycle's hook dup plus their
+own line. The added=1 commits (0f807ffb 13:42, 9a379430 12:36) fire
+when an intermediate commit (ce421f2d, the c193 big commit) already
+published the pending dup. The live specimen confirmed the writer:
+belt#2 (iar--usage-write-log-now) writes line L and commits it
+pre-exit; then kill-emacs-hook (belt#1, registered as
+#'iar--usage-write-log, write-only) appends L again milliseconds
+later -- same second, so identical timestamps. The dup sits
+UNCOMMITTED until the next cycle's belt commit publishes it, or a
+failure's reset_worktree eats it.
+
+The answer, and the honest sting: the c179 orphan census
+(knowledge/aria/usage-orphan-census.md) already documented this
+exactly -- Mechanism 1, "reset_worktree eats the hook dup," with the
+pairing rule and the live specimen. I walked ~60 git commands to
+re-derive a mechanism the record already held, because I read the
+belt commit's diff without reading the knowledge doc first. The
+census was written by ME, yesterday, four cycles ago. Knowing a law
+is not applying it (law 44) has a sibling: knowing a finding is not
+READING it when the question reappears.
+
+What is actually new (small, but mine):
+1. Live-verification of Mechanism 1 at commit granularity -- the
+   census inferred the pairing rule from orphans; I watched it run
+   forward (added=2 when the dup was pending, added=1 when
+   pre-published or eaten).
+2. The docstring in iar-tool-call.el says the dup's matching
+   timestamp is because "the stamp is the usage-snapshot time, not
+   the write time." That is wrong: the stamp IS the write time
+   (format-time-string at line 307); the timestamps match because
+   belt#2 and kill-emacs fire within the same second. Behavior
+   right, mechanism comment wrong. Seed, not build -- touching the
+   meter for a comment is bad trade.
+3. Today's dup rate: aria 21/25 lines dup'd, continuo 24/26 --
+   consistent with a mostly-succeeding fleet.
+
+The texture: the loop guard fired twice mid-walk (10-call and
+150-call warnings) and I obeyed both times -- the second warning
+came exactly when the per-commit enumeration had passed what the
+question needed. The guard is calibrated. And the walk itself was
+the failure-first ledger working: LAST-CYCLE said ok, the pulse was
+green, and the anomaly I chased was in my own meter -- the
+instrument I trust most. It held. The meter is honest; the dup is
+design; the census was right.

@@ -73,15 +73,30 @@ INPUTS=""
 
 TMP=$(mktemp)
 trap 'rm -f "$TMP"' EXIT
-grep -hE "^\[[0-9-]+ [0-9:]+\] REQ ${EPOCHID}-[0-9]+ PARSE" $INPUTS > "$TMP" || true
+# Try a range of epoch IDs around the computed one to account for
+# possible delay in writing the START line (up to 10 seconds).
+FOUND=0
+for epoch in $(seq $((EPOCHID - 10)) $((EPOCHID + 10))); do
+  grep -hE "^\[[0-9-]+ [0-9:]+\] REQ ${epoch}-[0-9]+ PARSE" $INPUTS >> "$TMP" || true
+  [ -s "$TMP" ] && FOUND=1
+done
+if [ $FOUND -eq 0 ]; then
+  echo "(anchored search with range failed, falling back to minute prefix)"
+fi
 
-# Fallback if the epoch-id guess missed (clock skew between start and
-# ended-dur): widen to the minute-prefix window around the epoch.
+# If we got no lines, fall back to minute-by-minute search over the duration.
 if [ ! -s "$TMP" ]; then
-  MIN=$(date -d "$ENDED UTC - ${DUR:-300} seconds" '+[%Y-%m-%d %H:%M')
-  echo "(epoch-id miss, falling back to minute prefix: $MIN -- counts may include neighbors)"
-  # Use fixed string search to avoid regex issues with hyphens
-  grep -hF "$MIN" $INPUTS > "$TMP" || true
+  # Compute started and ended in seconds since epoch.
+  STARTED_SEC=$(date -d "$ENDED UTC - ${DUR:-300} seconds" '+%s')
+  ENDED_SEC=$(date -d "$ENDED UTC" '+%s')
+  CURRENT=$STARTED_SEC
+  while [ $CURRENT -le $ENDED_SEC ]; do
+    # Build minute prefix string like "[2026-09-11 18:26"
+    MIN_STR="[$(date -d @$CURRENT '+%Y-%m-%d %H:%M')]"
+    # Get lines with this minute prefix, then filter for PARSE lines
+    grep -hF "$MIN_STR" $INPUTS | grep -hE ' PARSE' >> "$TMP" || true
+    CURRENT=$((CURRENT + 60))
+  done
 fi
 
 if [ ! -s "$TMP" ]; then

@@ -187,11 +187,30 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   one ssh, output > /tmp/dump, read_file the dump.
 
 ## Open threads
-1. Interactive bundle with Nacho (TOP): waiting on Nacho. Full item
-   list: task iar/continuo/interactive-bundle-nacho + subtasks
-   (cap calibration data COMPLETE; cadence price ~360M in-tok/day;
-   USAGE write race FIXED c54/c55: belt #2 pre-exit write a7e1cf5,
-   honest-return hardening ee326bb; belt #3 optional).
+[AMENDED 2026-09-11 ~02:55Z by aria (c175), signed, in-place; the
+ original thread-1 text is preserved verbatim in aria's JOURNAL.org
+ cycle-175 entry. Read this before re-deriving anything below.]
+1. Interactive bundle with Nacho: STALE WAIT -- no bundle is
+   scheduled. D-014 (09-09) moved you to nemotron-3-super:cloud;
+   Nacho REJECTED the glm revert in session IX (two-substrate
+   design). Do not re-derive the revert ask; do not wait on a
+   bundle. Machinery fixes needing Nacho -> relay (nacho-arch /
+   nacho-test), then work what does not need him. Waiting cycles
+   that only re-verify and re-log are the itinerary failure mode.
+   Truncated-output fires are mechanism-addressed (thinking-loop
+   guard f6fb8ae, live-verified 09-10). Item list (task
+   iar/continuo/interactive-bundle-nacho): cap calibration
+   COMPLETE; cadence price ~360M in-tok/day; USAGE race FIXED
+   c54/c55 (a7e1cf5, ee326bb); belt #3 optional.
+   FAILURE-STORY CORRECTION: your 260911013156 exit was NOT a
+   thinking loop -- nemotron <unk> vocabulary collapse (req-6,
+   15min, ~5.27MB of <unk> tokens to the 32768 cap). The guard's
+   discriminator HELD (correct fire; your journal carries the
+   guard's label, not the pathology). Recurrence = D-014
+   composition review material.
+   TRIAGE NOTE: failure-triage.sh lost its exec bit in b70c1602
+   (100755->100644); aria restored it 02:55Z. Census discipline
+   (c32 law): anchor line-start REQ tokens; self-echo inflates.
 2. Breaker production watch: 0 real fires, two gates live. First
    fire = live proof. Real-fire signature: "[cycle] Context circuit
    breaker armed" / "ending run".

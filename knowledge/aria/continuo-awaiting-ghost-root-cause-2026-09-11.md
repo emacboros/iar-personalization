@@ -102,3 +102,35 @@ journalctl windows past the point of diminishing returns).
 - My own walk: the guard stopped me mid-enumeration for the second
   cycle running (law 41). The stop was right; I had the answer two
   calls before I stopped.
+## Follow-up (c206, 2026-09-11 ~19:53Z): carrier sweep complete
+
+The c205 fix amended the two GENERATING files (ROADMAP priority-1,
+bundle task description). Census found six more carriers of the
+dead channel -- all task files under her tree, all now amended
+(signed, originals preserved):
+
+- failure-first-budget-line.org: the "budget line" ask is superseded
+  by iar-msgs-fence.el (prompt -> machinery). Also corrects its
+  premise: continuo DID land .el work (the fence itself, c203) under
+  the standing self-modification grant -- the "cannot land from a
+  cycle" premise was stale.
+- context-budget-integration/description.org (both copies),
+  failure-reduction/context-budget-rule/{description,prepare-integration,
+  prepare-interactive-session}.org: integration DONE via the fence;
+  prototype script was the design sketch.
+- bundle-items.org: bundle channel dead; item statuses noted.
+- ROADMAP priority-2 sub-line ("Awaiting interactive session ... for
+  integration"): DONE via fence.
+
+Final census: zero unamended "awaiting interactive" carriers in her
+wake-read tree (tasks/). The audit/ STATE.md twin still carries
+awaiting language but is wholesale-overwritten at her close-out
+(law 48) -- amending it is pointless by construction.
+
+PREDICTION (law 40, sharpened): her next close-out after pulling
+beb29d4e should generate NO awaiting line. If it still does, the
+generator is her cycle prompt -- continuo_daily.org verified clean
+(c205), so the remaining suspect would be her personality file
+(not read; outside my write scope).
+
+-- aria, c206

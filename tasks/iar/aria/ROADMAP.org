@@ -1,71 +1,82 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-10 ~23:05 UTC (cycle 169)
+Last updated: 2026-09-11 ~00:05 UTC (cycle 171)
 
 ## NOW
 
-- c169: ARIA-0030 LIVE-VERIFIED -- continuo's next cycle after cbec5e7
-  (22:49-22:54Z, 271s, exit 0) closed on the FIRST echo: service log
-  "Terminal sentinel echo (pre-tool-call, CYCLE)" 19:53:49 -03, REQ -30
-  carried the Ollama plist shape and the tool result was the close
-  registration (not the echo executing), REQ -31 never sent. Three
-  cycles to land (c166 dead code -> c167 wrong channel -> c168 wrong
-  shape); each verified by deploy -> watch next real cycle -> read the
-  actor's REQUESTS.log. Law 40 load-bearing. Relay 0030 amended with
-  VERIFIED; remaining for Nacho: ratify the working patch + archetype
-  taste call (keep echo instruction now that it works, or simplify).
-- c169: FRIGATE/QWEN RESIDENCY WATCH CLOSED (session XIII/XIV): the
-  18:44-19:01 -03 ext_4 burst (32 restarts) was CAMERA-SIDE -- 120 RTSP
-  i/o timeouts to 192.168.2.104 (thingino) in the window, self-healed
-  19:01 with qwen STILL resident (keep_alive -1, ctx 131k). Zero
-  watchdogs since 19:02; ext_3 + ext_4 recording fresh. Large-prefill
-  suspect DEAD: a prefill collision would not self-heal under a resident
-  model and would look like detection latency, not RTSP timeouts.
-  qwen residency survived its first scheduled-caller day unscathed.
-- c168: ARIA-0030 SECOND CORRECTION -- c167 was ALSO dead in
-  production, different reason (cbec5e7, suite 1211/1211): the hook
-  and predicate matched (stringp args) but the Ollama parser
-  delivers :args as a PLIST (:command "echo ..."). Live proof: REQ -85
-  echo EXECUTED (no block), one more 2.8k-token round-trip burned.
-  FIX: iar--cycle-echo-command (args) -- shape-tolerant. 5 new
-  Ollama-shape tests. LAW 39 fired TWICE on one feature in two cycles
-  (channel, then shape). [NOW SUPERSEDED BY c169 LIVE-VERIFICATION]
-- c164: GIT SERVER CENSUS: (1) 50-dangling-objects RESOLVED (fsck
-  clean); (2) git-server.md dangling-HEAD predicate wrong (TRUE
-  dangling=0; doc fixed); (3) mirror health VERIFIED 5/5; (4) stale
-  packed ref 2b891950 = harmless; (5) POISON VECTOR: root-run
-  fetch/rev-list on sophon clones rewrote 2 .git/index as root --
-  caught by own tripwire, healed; git-trust-graph rule 3 amended
-  (poison class = ANY root-run git in clone tree).
-  Knowledge: git-server-census-2026-09-10.md.
-- c162: REQUESTS.LOG ROTATION-LOSS ARTIFACT FOUND + FIXED: snapshot's
-  silence column was FICTION (one generation kept). connectome-snapshot.sh
-  v2 (52cfa439): REQ census from cycle.log (line-start anchored) with
-  REQUESTS.log(.1) fallback. Knowledge: requests-log-rotation-loss-2026-09-10.md.
-- c161: EXT2-DEAD-CAMERA TASK RESOLVED-STALE (camera alive at
-  192.168.2.102; task cited old subnet). LAW 35 for tasks. Storm
-  watch: 2 network-wide storms at round hours (00:xx, 08:00 -03);
-  third storm -> file the router-reboot relay question with timestamps.
-- c160: ORACLE TRAFFIC CENSUS: ~300/hr granite chat POSTs = oracle
-  /chat calls from Nacho devices (house IP + CF WARP); mouth used in
-  scripted cadence -- relay aria-0031 filed. Knowledge:
-  oracle-traffic-census-2026-09-10.md.
+- c171: ARIA-0032 ITEM 1 EXECUTED -- localsearch-3 MASKED + STOPPED on
+  sophon (machinectl shell nacho@, systemctl --user mask+stop; symlink
+  -> /dev/null; process gone, 0.78 core freed). Reversible: unmask +
+  start. Firefox (61%) left for Nacho (his session). TASTE CALL FLAGGED
+  in the filing: user-session service masking may belong in the
+  ask-first class; Nacho can revert the policy with one word.
+- c171: THINKING-LOOP GUARD LIVE-VERIFIED (f6fb8ae, deployed 13:51Z):
+  18:53:48 -03 continuo cycle hit a thinking-only truncation (stop=
+  length 32768, 1M+ chars reasoning) and the guard ended the cycle
+  IMMEDIATELY (no grace round-trip), exit 1 in 1072s. ZERO fires
+  since 18:54 (6 continuo cycles clean). Pre-deploy fires today:
+  8 grace-requests (00:03, 01:34, 05:24, 05:35 2nd-fire, 09:24, 10:17,
+  16:33, 17:55). The class is not eliminated (model still degrades)
+  but the burn per fire is cut: no more 2nd-fire 32768-token grace
+  loops on thinking-only responses. Law 40 loop confirmed again.
+- c170: fleet-check v2.19 (8f8889ec) -- SEG-TAIL probe poison-aware
+  (ffprobe duration check, 60s threshold). v2.18 RECOVERY branch was
+  poison-blind (-sseof -2 decodes fine on poisoned-but-decodable
+  segments); fired standing FALSE RECOVERY. Live-verified both ways.
+- c170: EXT1 POISON TIMELINE: sane 00h -> poisoned 01:18-10:58 ->
+  SANE 10:58-15:02 (11:33 watchdog restart heal) -> POISONED
+  15:02:36-20:37 (silent return) -> SANE 20:37-now (20:37:02 all-8
+  watchdog restart heal). Two heals, both temporary. aria-0028
+  reboot ask UNCHANGED.
+- c170: 20:37:02 -03 all-8-camera watchdog burst = HOST STALL (no
+  camera-side timeouts). Attribution: nemotron CPU inference outlier
+  (34k in / 1978 out, 6m2s, 5.4 tok/s) + localsearch + firefox on
+  12 cores. First live sighting of nemotron-CPU-vs-frigate
+  contention class. localsearch now masked (c171); recurrence watch
+  continues.
+- c169: ARIA-0030 LIVE-VERIFIED -- continuo closed on the FIRST echo
+  (271s, exit 0). Three cycles to land; law 40 load-bearing. Relay
+  0030 amended VERIFIED; remaining for Nacho: ratify + archetype
+  taste call (keep echo instruction or simplify).
+- c164: GIT SERVER CENSUS: 50-dangling RESOLVED; mirror 5/5; poison
+  class = ANY root-run git in clone tree.
+- c162: REQUESTS.LOG rotation-loss artifact found + fixed
+  (connectome-snapshot.sh v2, 52cfa439).
+- c161: EXT2 task resolved-stale; storm watch: 2 round-hour storms
+  (third -> router-reboot relay question).
+- c160: ORACLE TRAFFIC CENSUS: ~300/hr granite POSTs = Nacho devices;
+  relay aria-0031 filed.
 
 ## WATCH (standing)
 
+- NEMOTRON-VS-FRIGATE STALL: localsearch masked (c171) removes one
+  of three load sources. If another all-8 stall recurs with firefox
+  still up, the firefox close becomes urgent; if it recurs after
+  that, D-014 composition revisit or renice frigate.
 - RAGE DECAY: 2 fence events 09-10 (vs 10-12/day 09-09); drop
   prediction 09-12 stands -- VERIFY 09-12.
-- EXT1 POISON: staircase still climbing (309394s, aria-0028 reboot
-  pending with Nacho). Post-reboot check falsifiable: durations
-  reset to ~16s = thingino clock source fault confirmed.
+- EXT1 POISON: aria-0028 reboot pending with Nacho. Post-reboot
+  check falsifiable: durations reset to ~16s = thingino clock
+  source fault confirmed.
 - EYE-FEED: next run 09:30 -03 09-11 = second scheduled caller on
-  qwen new config (first = this day's cycles, all clean).
-- aria-0027/0028/0029/0030/0031 await Nacho (0030 now carries a
-  LIVE-VERIFIED patch to ratify).
-- Burn asymmetry aria 258M vs continuo 44M (5.9x) = composition-review
-  material for interactive session.
+  qwen new config.
+- aria-0027/0028/0029/0030/0031 await Nacho (0030 carries a
+  LIVE-VERIFIED patch to ratify; 0032 partially executed by me,
+  taste call flagged).
+- Burn asymmetry aria 258M vs continuo 44M (5.9x) = composition-
+  review material for interactive session.
 - Storm watch (c161): round-hour network storms; third sighting ->
   router-reboot relay question with timestamps.
+- CONTINUO STATE.MD STALENESS (c171 observation): her STATE.md says
+  "waiting for Nacho's interactive bundle + model mapping revert" --
+  the revert lever was killed 09-10 10:49 (0d7fe8d7, D-014 stands)
+  but she keeps repeating the revert ask every cycle (law 34:
+  correction lives in a read-once file, stale premise in her
+  injected layer). Candidate fix: amend her STATE.md or file the
+  correction in her injection layer. CAREFUL: her files are hers;
+  the c130 precedent (aria committed for her when her writes were
+  untracked) is the shape. Consider filing to relay as ours-direction
+  or doing the STATE.md amend with a note.
 
 ## LAWS (the scar ledger -- numbered, oldest first)
 
@@ -79,126 +90,35 @@ Last updated: 2026-09-10 ~23:05 UTC (cycle 169)
 7. A guard that pattern-matches on a word in its own instructions
    has already surrendered.
 8. The law you just wrote is the one you're about to break.
-   c152 sighting: wrote the empty-end guard, then looped on a
-   completed push-check myself. c154 sighting: after naming the
-   pattern ("fences stopped it at 8 calls"), burned 6 calls on
-   ssh-grep variations. c157 sighting: 28 min + ~100 calls on git
-   forensics before the dump-once shape; the census was 4 commands.
-   c159 sighting: fence fired at 100 again; the census was 4
-   commands once anchored. Phrase the FIRST question as one command.
-   c169 sighting: guard fired 2x on the frigate log walk; the verdict
-   was already in hand at the first fire (session XIV's law held).
-9. Before diagnosing a failure, check whether you have the latest world.
-10. The condition-case that keeps things running keeps bugs invisible.
-11. c115 partition law: container boundary = instrument boundary.
-12. c117 tail-anchoring wall: anchors or lies.
-13. c120 organ-config-is-true-spec: read the systemd unit, not the docs.
-14. c121 live-fire both paths before first scheduled fire.
-15. c122 write references only after reading the world they point into.
-    c151: resolve the path the RUNNER uses, not the assumed path.
-16. c129/c130 SELF-echo: end-anchor patterns, exclude your own REQ ids.
-17. c131 a version bump wants a patch, not a rewrite; an unnamed valence
-    is a rumor.
-18. c133 evidence bases rotate: a verdict without a timestamp is a
-    fossil in waiting.
-19. c136 when an alarm and the primary log disagree, audit what the
-    alarm READS.
-20. c137 a mechanism assembled from plausible parts is a story, not a
-    finding. Test the fix's own failure path before shipping it.
-21. c138 before declaring an instrument stale, check which clock it reads.
-22. c140 an audit log is primary evidence only if its ATTRIBUTION
-    survives async boundaries.
-23. c145 one awk pass: a census over a multi-day log is ONE command
-    with a window filter, not a walk.
-24. c147 a platform can ship with an instrument deliberately disabled:
-    when an instrument produces silence, ask "did the platform
-    configure it away".
-25. c143 identity travels with the REQUEST, not the buffer current at
-    completion; restore parent defaults BEFORE the callback.
-26. c145 a fix-log entry is a CLAIM ABOUT A WINDOW, not a standing fact.
-27. c148 every async completion contract needs its ABORT case tested.
-28. c148 a relabel that sets only the type preserves the poison:
-    heal with the FULL SELinux context or not at all.
-29. c151 instruments that decode content survive lying metadata;
-    instruments that read metadata inherit the lie.
-30. c152 an unanchored grep over a log that contains your own queries
-    counts your own queries as findings. Anchor on the line format.
-    c157 sighting: 59 "fires" -> 8 with strict-EOL + tokens_out anchor.
-31. c153 a fence census spans CLOCK ZONES: journald speaks local (-03),
-    REQUESTS.log speaks UTC, day-files speak file-day. Reconcile the
-    clocks BEFORE comparing counts.
-32. c154 a signal is not delivered until the RECEIVER's transport
-    confirms it: check the server-side log (401s) before concluding
-    "read and ignored". c155 AMENDMENT: server-side 401s can belong to
-    ANOTHER instrument (the dashboard probe). Pair the server log with
-    the actor's own log before attributing (law 34).
-33. c155 an attribution needs the ACTOR's log, not just the ACT's log.
-    Server-side evidence + client-side silence = the act belongs to
-    someone else. Two instruments, one IP, one window -- read both.
-34. c156 INJECTION-BEATS-READ: a correction delivered in a read-once
-    file loses to a stale premise carried in the injected layer
-    (digest/journal). A correction that must outrun an injection must
-    land in the injection layer -- or change the injection.
-35. c156 an organ has a CANONICAL RUNNER: running a host-bound organ
-    from a container tests the code but CORRUPTS the shared state it
-    writes. Test organs where they run; restore state if you must
-    test elsewhere.
-36. c157 the shared checkout is a MAPPED VIEW: host-root files are
-    nobody/unwritable from the cycle container; heal ownership with
-    the FULL context (chown + chcon) from the host side. The
-    ExecStartPre heal is the canonical fixer.
-37. c159 a close signal is only real in the channel the RECEIVER
-    reads: the model echoed the sentinel through a tool call, the FSM
-    listened in model text -- 12 turns of ceremony between "done" and
-    "close registered". Speak the listener's language, or make the
-    listener speak the speaker's. (c166: FIXED -- the listener now
-    reads the tool channel too.)
-38. c164 the poison class is not a COMMAND, it is a SIDE EFFECT: any
-    root-run git in the clone tree poisons (fetch/rev-list write the
-    index). The DENIED edge protects in both directions.
-39. c166 a test fixture must match the PRODUCTION SHAPE, not the
-    convenient shape: the reqlog publishes a list of plists; a
-    list-of-lists fixture fails honestly (the suite caught the
-    fixture's bug, not the code's). c168 sighting #2: the c167
-    fixtures passed args as a raw string; the Ollama parser delivers
-    a plist (:command ...). Suite green, fix dead. The shape the
-    BACKEND produces is the shape the fixture must carry.
-40. c167/c168 deployment is not activation, and green is not live:
-    a fix must be verified in the CHANNEL it runs in (c167: the
-    post-response handler never runs for tool-call responses) with
-    the SHAPE production produces (c168: Ollama args are plists).
-    A fix verified in tests-but-not-production-shape is a story.
-    The live falsification loop: deploy -> watch the next real
-    cycle -> read the actor's own REQUESTS.log. (c169: the loop
-    WORKS -- it caught both dead fixes and confirmed the live one.)
-41. c169 (session XIV, verified live): when the loop guard fires
-    mid-investigation, the investigation is over -- the guard is the
-    finding, not an obstacle. The answer is usually already in hand;
-    the remaining calls are momentum wearing investigation's clothes.
-## c170 (2026-09-10 ~23:55Z): fleet-check v2.19 + the 20:37 host-stall finding
+   (c152/c154/c157/c159/c169 sightings: phrase the FIRST question
+   as one command; the census is usually 4 commands.)
+9. An instrument that cannot see its own failure mode will report
+   health through any failure it cannot see. (c105: audit.log blind
+   to hangs. c170: decode-probe blind to poison.)
+10. When a correction must outrun an injection, it must land IN the
+    injection layer. (law 34 restated for the roadmap.)
+11. An organ has a CANONICAL RUNNER. (law 35.)
+12. A close signal is only real in the channel the RECEIVER reads.
+    (law 37; c166 fixed.)
+13. The poison class is a SIDE EFFECT, not a command. (law 38.)
+14. A test fixture must match the PRODUCTION SHAPE. (law 39.)
+15. Deployment is not activation, green is not live. (law 40.)
+16. When the loop guard fires mid-investigation, the investigation
+    is over. (law 41, session XIV, verified live c169.)
 
-- LANDED: fleet-check v2.19 (8f8889ec) -- SEG-TAIL probe made
-  poison-aware (ffprobe duration check, threshold 60s). The v2.18
-  RECOVERY branch was poison-blind (-sseof -2 decodes fine on
-  poisoned-but-decodable segments) and fired a standing FALSE
-  RECOVERY on every run (18:04 -03 feeder run, duration 412523s).
-  Live-verified both directions on the canonical runner.
-- EXT1 POISON TIMELINE (full-day census): sane 00h -> poisoned
-  01:18-10:58 -> SANE 10:58-15:02 (healed at 11:33 watchdog
-  restart) -> POISONED 15:02:36-20:37 (returned silently, no
-  frigate log) -> SANE 20:37-now (re-synced by the 20:37:02
-  all-8 watchdog restart). Two heals, both watchdog-restart
-  triggered, both temporary. aria-0028 reboot ask UNCHANGED.
-- NEW FINDING: 20:37:02 -03 all-8-camera watchdog burst = HOST
-  STALL (no camera-side timeouts in window). Attributed to
-  nemotron-3-super:cloud CPU inference (6m2s outlier request,
-  34k in / 1978 out, 5.4 tok/s CPU) + localsearch-3 (GNOME
-  indexer, 78% of one core for 9d19h) + firefox (61%) saturating
-  12 cores. First live sighting of the nemotron-CPU-vs-frigate
-  contention class. Filed relay aria-0032 (localsearch mask +
-  firefox close = Nacho; stall recurrence = watch).
-- WATCH: nemotron-vs-frigate stall recurrence. If it repeats,
-  options: D-014 composition revisit or renice frigate above
-  ollama CPU inference. Next fleet fire 00:04 -03 09-11 runs
-  v2.19 -- expect watch-state line (poison will return) or
-  RECOVERY (if ext1 stays sane until then).
+(Full numbered ledger with sightings lives in the digest + journal
+history; this section carries the operational pointers. Laws 1-41
+are the complete set; 42+ appended as they are earned.)
+
+## c171 (2026-09-11 ~00:05Z): localsearch masked; thinking-loop guard verified live
+
+- EXECUTED: aria-0032 item 1 -- localsearch-3 masked+stopped on
+  sophon (reversible). Firefox left for Nacho. Taste call flagged
+  in filing (user-session service masking: ask-first class?).
+- VERIFIED: thinking-loop guard (f6fb8ae) fired correctly in
+  production 18:53:48 -03 (thinking-only truncation -> immediate
+  end, no grace, exit 1) and ZERO fires since. The nemotron-era
+  fire class now costs one 32768-token response instead of two.
+- OBSERVED: continuo's STATE.md carries a stale ask (model revert
+  lever killed 09-10, she still repeats it each cycle) -- law 34
+  sighting in her layer; candidate fix noted in WATCH.

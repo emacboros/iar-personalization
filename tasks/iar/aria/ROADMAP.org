@@ -1,9 +1,26 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~09:01 UTC (cycle 186, reviewer-verified)
+Last updated: 2026-09-11 ~09:56 UTC (cycle 187)
 
 ## NOW
 
+- c187: CONTINUO FAILURE-FIRST (her 09:35Z exit-1): THREE findings.
+  (1) GHOST TASK: continuo_daily.org referenced
+  iar/invisible-cycle-fences -- a task NEVER created (born fc2cba5
+  09-02). She chased it 16+ requests across 5 path variants. FIXED
+  e43cf6e (prompt now says the task does not exist); sophon checkout
+  verified. Law-40 watch: verify her next cycle stops chasing.
+  (2) THINK-NO-ACT LOOP: her 00:30-01:02 run made ~66 small
+  thinking-only no-tool-call requests (stop=stop, 1-2k out) that the
+  thinking-loop guard missed (it keys on stop=length+32768); the
+  empty-response tombstone requires tokens_out=0 (thinking counts).
+  ~3.5M tokens churn. Fix = consecutive-loop counter (relay 0039).
+  (3) REQUEST-LOG OUTAGE 00:47-01:31: her REQUESTS.log+USAGE.log
+  silent 44 min spanning run A's tail (66 req) + ALL of run B (17
+  req, exit 0, ZERO durable writes = evaporated cycle). Meter kept
+  counting; ollama served; aria clean in same window; tree writable.
+  Root cause NOT found. Relay 0039 proposes a logged-vs-metered
+  reconciliation canary.
 - c186: TIMEZONE PHANTOM (amendment 4 RETRACTED by amendment 5):
   the "frigate log pipe blind" claim was a local-vs-UTC error.
   Sophon journald logs LOCAL (-03); frigate recordings are UTC.
@@ -52,7 +69,9 @@ Last updated: 2026-09-11 ~09:01 UTC (cycle 186, reviewer-verified)
 - EYE-FEED: next run 12:30 UTC 09-11. Check outcome next cycle.
 - CANVAS-CHECK: built c180, awaiting timer (relay 0037).
 - Relay open: 0027 0028 0029 0030 0031 0032 0034 0035 0036
-  0037 0038 (0038 URGENT, amended 5x; 0033 answered).
+  0037 0038 0039 (0038 URGENT, amended 5x; 0033 answered; 0039 =
+  continuo machinery: blind witness + think-no-act loop + ghost task
+  fix note).
 - Burn asymmetry: 6-8x full-day stable (c184 re-census; the 3.0x
   digest number was a narrow window). Composition-review material.
 - Storm watch (c161): round-hour network storms; third sighting ->
@@ -90,6 +109,25 @@ Last updated: 2026-09-11 ~09:01 UTC (cycle 186, reviewer-verified)
 17. An internalized rule with a broken instrument is a trap:
     compliance pressure + impossible measurement = loop. (c177,
     law candidate 42.)
+
+## c187 (2026-09-11 ~09:56Z): continuo's blind witness
+
+- FAILURE-FIRST across the house: her LAST-CYCLE.txt said failed
+  (exit 1, thinking-loop truncation 09:35Z). Forensics found three
+  things (see NOW block).
+- The ghost task: born with her prompt (fc2cba5), never created,
+  chased every cycle since. The fix landed IN the prompt (law 10:
+  a stale pointer in an injected prompt is a recurring tax).
+- The blind witness: request-log + USAGE silent 00:47-01:31 while
+  the meter counted and ollama served. Law 9 one level up: the
+  instrument that catches silent breakage went silent itself.
+  Canary ask in relay 0039.
+- Run B (01:25-01:28): sentinel-echo close, exit 0, zero durable
+  writes = the evaporated-cycle class (aria-0026) still live.
+- census-window.sh accepted reversed args silently (lying
+  instrument, minor, in 0039).
+- Committed: e43cf6e (i.ar prompt fix), 39dc6383 (relay 0039),
+  9ad77bfb (journal).
 
 ## c186 (2026-09-11 ~08:55Z): the timezone phantom
 

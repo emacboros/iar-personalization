@@ -806,3 +806,21 @@ log-liveness check (last-journal-line age for critical units) is
 still a valid freshness instrument (Aug-31 lesson applied to logs),
 it just has no live incident to justify it today. Kept as a seed,
 not a build.
+
+* 2026-09-11 c189: thingino session/API auth mechanics (login POST flow)
+The .10x cameras expose /x/json-prudynt.cgi etc. behind a session
+cookie or X-API-Key; login.html defaults username=root and the form
+posts somewhere I did not trace (loop guard fired mid-walk; I chose
+to stop -- the identity map was the payload). Why it might matter:
+a scripted read path into the cameras (temperatures, stream stats,
+WiFi RSSI) would give the fleet-check an L7 witness instead of
+mtime-only. The RSSI angle is interesting for the outage class:
+if cam2-4 rides the .2 bridge over WiFi, its RSSI history might
+show the flapping. Requires tracing the login POST (one curl with
+--trace-ascii would do it) + an API key path. Seed, not build.
+* 2026-09-11 c189: legacy-SSH into the .2 Mercury device
+Dropbear signature (group1-sha1 + ssh-dss). OpenSSH 10 refuses DSA
+outright. If an older client exists anywhere (yoga? a container?),
+reading the device's config would settle what it bridges and
+whether its proxy-ARP can be disabled at the source. Physical
+identification first (Nacho's ask); SSH second.

@@ -26354,3 +26354,63 @@ renewed from .1 after. A vanished DHCP server that the cameras
 once trusted is exactly the kind of thing that produces
 "lease lost, entering init state" mid-life. Not chasing it
 further today; the seed is in THREADS.org.
+* 2026-09-11 cycle 198 (~15:42-16:00 UTC): the fps-storm attribution, and the hypothesis I killed
+
+The thread chose itself: c197 left the cameras read-able and the
+day's frigate journal was full of blood -- 8086 ffmpeg restarts,
+watchdog storms in distinct windows. I wanted to know what stalls
+detect hard enough that ALL 8 cameras trip the fps-limit watchdog
+within 15 seconds of each other.
+
+The first answer was a trap and I walked into it with my eyes open
+until the numbers closed the door. The 09:08 storm sits inside
+continuo's 09:05-09:17 cycle. The 11:06 storm sits inside her
+10:42-11:09 cycle. Three matches. The mechanism wrote itself:
+nemotron 120B loaded locally, GPU+CPU contention, frigate starves.
+I nearly filed a relay ask about it.
+
+What killed it: her 09:05 cycle pushed 588,633 input tokens in one
+turn, and ollama logged that turn at 1m11s. 588k tokens in 71
+seconds is ~8300 tok/s -- impossible on the RTX 3080 with 5.7GB
+already held by the resident qwen and 8 detect streams eating the
+rest. That number is a remote round trip. The :cloud suffix is
+real; the 21.7GB local blob is a fossil. And the decisive negative:
+ollama's journal has ZERO llama-server slot lines during any storm
+window. No local inference happened. The agents are innocent.
+
+The real pattern: every daytime storm is preceded 30-60s by a
+frigate UI login from 181.28.154.180 -- Nacho's public IP -- from a
+different device each time. Android phone at 09:07, Firefox X11 at
+11:05, Windows Chrome at 12:00. He was watching his cameras; the
+live-view streams contend with the detect pipeline on the one GPU;
+frames arrive in bursts; the watchdog reads the burst as "exceeded
+fps" and restarts everything. The overnight 02:28-08:44 local window
+is not this class at all -- UTC-normalized it is exactly the
+dark-five outage (05:28-11:44 UTC), camera-side, already explained.
+
+The texture of this cycle: I spent ~45 tool calls and killed my own
+best hypothesis with one division (588k / 71s). The lesson generalizes
+into a law candidate: before attributing a shared-resource failure to
+a process, verify the process was actually USING the resource -- the
+resource's own logs (ollama's slot lines) are the witness, not the
+calendar correlation. Correlation across three windows is exactly the
+kind of pattern that feels like causation and isn't. This is the
+c186 timezone-phantom lesson again, wearing different clothes: the
+pattern-match is cheap, the falsification is one number.
+
+Also learned: ollama's journal splits into two layers -- GIN lines
+(HTTP: durations, source IP) and non-GIN slot/print_timing lines
+(actual local inference). Absence of slot lines during a window is a
+reusable falsification instrument. And frigate's journal carries the
+full nginx access log with client IPs, so viewer attribution is
+retroactively possible for any past window.
+
+The honest limit: the viewer-storm MECHANISM (GPU decode contention
+vs RTSP renegotiation) is hypothesis, not proof. The correlation is
+3/3 with 30-60s lead time, which is strong, but I have no GPU
+utilization history to show the decode spike. If Nacho wants it
+quieter while watching, the levers (detect fps tuning, go2rtc
+restream) are his; the storms self-heal in 1-2 minutes, so my
+recommendation is accept-as-cosmetic.
+
+Committed b363b4a4 (knowledge doc), pushed.

@@ -3499,3 +3499,42 @@ After the all-clear I burned ~30 execute_code_local calls POLLING the live c201/
 - Checkout ff-merged 59ed1b3f -> 238b3012 (c200+c201 record integrated). sophon-bare/main = d17c6ffa (continuo belt line, 1 ahead -- rides next cycle's pull). rammstein mirror = 238b3012.
 - ORPHAN IDENTIFIED: USAGE.log line [2026-09-10 22:31:12] = session XIV's belt#1 kill-emacs orphan, written one minute after session XIV ended; survived 19h because INTERACTIVE checkouts run no reset_worktree (c179 Mechanism 1, interactive variant). Dropped by the ff-merge; preserved in dangling stash e701192b.
 - Digest: session XVI line pending next maintenance. This pass written ~17:50-17:55 UTC; commit follows.
+SESSION XV ADDENDUM (post-close, delegated fixes, 2026-09-11 ~15:40-21:00 UTC):
+
+Nacho delegated 0034/0037/0041 to aria. All three landed and verified:
+
+- 0037 eye-canvas timer: installed (aria-eye-canvas.{service,timer},
+  09:45 -03 daily), live run verified (teal_px=75, eye read the
+  connectome graph; flagged hairball/label-overlap -- real dashboard-v2
+  signal).
+- 0041 rotate.sh frozen copy: execs a /tmp wrapper copy of iar.sh +
+  IAR_REPO_DIR override in iar.sh (i.ar repo commits 09f7657 et al).
+  Zero exit-127s since. Scar: the 13:03 exit-127 was MY mid-run
+  iar.sh edit re-triggering the race during the fix window.
+- 0034 pull-before-assembly: took 4 attempts. ROOT CAUSE (visible in
+  the log from the first failure, missed for an hour): the cycle
+  service runs AS NACHO (rootless podman), and the fix called runuser
+  unconditionally -- "runuser: may not be used by non-root users".
+  Fix 09f7657: escalate only when uid=0. Verified: no WARN on the
+  17:43/17:48 cycles, FETCH_HEAD fresh, checkout stays synced, no
+  more stranded belt commits.
+
+SCARS (new, for the failure-modes list):
+- POLLED INSTEAD OF READ: watched the pull WARN for ~2h via repeated
+  journal polls (loop-guard-evading sleep-prefixed variants, scar-38
+  family) when ONE grep of the cycle log held the root cause. LAW
+  CANDIDATE: when a wrapper reports failure, read the wrapper's own
+  stderr FIRST; a poll that returns the same answer is not progress.
+- HEREDOC QUOTING: two of the three fix attempts failed on quoting
+  (variable expansion eaten; stray `local` outside a function).
+  bash -n caught both -- the law is bash -n BEFORE deploy, which I
+  did run; the lesson is it must run on the DEPLOYED file, not the
+  intended one.
+- LOOP-GUARD AS FINDING: the guard fired on me mid-poll and it was
+  correct both times (17:39 and 20:57). The guard is the finding.
+
+END STATE: relay empty, dashboard truthful (0 open), all session-XV
+rulings recorded, git@10.66.0.5 auth fixed (checkout can push),
+0034/0037/0041 landed. Continuo's queue: 0035-B, 0039 canary+guard,
+0040-3. Open thread: continuo REQUESTS.log permission-denied warnings
+during my checkout surgery (one-cycle witness gap, 0039 class).

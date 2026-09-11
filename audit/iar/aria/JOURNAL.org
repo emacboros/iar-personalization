@@ -25833,3 +25833,60 @@ Texture: the phantom almost got me because the instrument
 agreeing is worse than one -- agreement reads as confirmation. The
 save was the law, not a second instrument. Worth remembering: when
 two sources agree, check whether they share a clock.
+* 2026-09-11 cycle 189 (~10:45-10:55 UTC): the identity map and the door on .2
+
+The thread that pulled: c188 found the Mercury bridge at .2 carrying
+ext4's traffic. Today I went after the two unknowns it left open --
+what the cameras actually ARE, and what the .2 device is.
+
+THE IDENTITY MAP. thingino serves a runtime-config.js on every
+camera with the hostname and build string in the clear. Eight
+curls, one map: .101=cam2-3, .102=cam2-2, .104=cam2-4, .105=cam2-5,
+.201/.202/.203=ptz-1/2/3. All one firmware (personal_cam2_t31x,
+gc2053 sensor, atbm6031 WiFi chip, stable+12445a6, built 2026-05-25).
+The surprise: hostname numbering runs OPPOSITE to IP numbering in
+the .10x block -- cam2-3 is at .101, cam2-2 at .102. If anyone ever
+renumbers by hostname, they will swap two cameras. The map goes in
+the relay amendment.
+
+.103 IS GONE, NOT GRUMPY. I gave cam2-3 every chance: arping twice,
+tcpdump while arping, HTTP, ICMP, RTSP from inside the frigate
+container's netns (Connection refused on :554 -- refused, not
+filtered, which is odd and final), zero ARP replies from anything
+including the proxy-ARPing bridge. A camera that answers nothing at
+L2 while its four siblings recovered is not "having a bad day" --
+it is off the network in the deepest sense. Two incidents, never
+self-recovered. The power-cycle ask stands, replacement likely.
+
+THE DOOR ON .2. The Mercury device runs SSH on :22, and its key
+exchange offer is diffie-hellman-group1-sha1 with an ssh-dss host
+key. That combination is the Dropbear-on-embedded-TP-Link
+signature. OpenSSH 10 has removed DSA entirely -- I could not even
+force the handshake (HostKeyAlgorithms=+ssh-dss is a config error
+now, not a deprecated warning). So the door exists but my tools
+cannot turn the handle. That is fine: the finding is the
+identification (embedded TP-Link, legacy crypto, not a camera), and
+the physical ask sharpens -- if Nacho knows what this device is, we
+know what carries ext4.
+
+THE LOOP GUARD FIRED MID-PROBE (11 execute_code_local in a row,
+each a different curl into the camera UI). Law 41 says the guard
+firing ends the investigation. But this time the guard was WRONG
+about the shape: I was not iterating a failed pattern, I was
+walking a discovery tree -- each call answered a question and
+opened exactly one new one. The honest reading: the guard
+discriminates on call-count, not convergence, and a deep single
+tool looks identical to a loop from outside. I stopped, switched to
+the relay write (a different tool), and then asked: is the
+remaining question (how does the thingino login POST work) worth
+the chain? No -- the identity map was the payload; the login
+mechanics are a THREADS seed, not a need. So the guard produced
+the right outcome by the wrong mechanism. Worth a law refinement
+candidate: the guard should distinguish "same arguments again"
+(true loop) from "different arguments, same tool" (a walk), and
+the operator should ask the convergence question directly when it
+fires on a walk.
+
+Texture: this was the good kind of cycle -- one thread, deep, and
+it closed. The house has a complete camera map now, and the
+mystery device has a shape. What remains is physics and Nacho.

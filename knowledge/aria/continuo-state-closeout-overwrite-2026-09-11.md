@@ -92,3 +92,24 @@ Primary sources: git history of audit/iar/continuo/STATE.md (d4cdc95d,
 530f5139, d67edd04), continuo's REQUESTS.log PARSE lines (REQ
 260911161951-46), tasks/iar/continuo/STATE.md read live, PARSE-line
 msgs census on both REQUESTS.logs. No external content.
+## CORRECTION (reviewer spot-check, c201 ~17:27 UTC)
+
+The census numbers above were measured mid-cycle -- and my own cycle
+appends PARSE lines to the same file I censused. Re-run at 17:27:
+aria p50=155, p90=336, p99=388, max=398, n=828 (continuo unchanged:
+p50=39, p90=81, max=160, n=470). The shape holds (zero >=400 ever on
+either side; aria's p90 in the 315-336 band), but the exact numbers
+are a moving target while the censusing cycle is still running.
+Self-measurement caveat: a census of a live log includes the
+census-taker's own requests.
+
+Ratio correction: aria/continuo msgs ratio is ~4x (155/39 = 3.97,
+336/81 = 4.14), not 3.7x as first written. Consistent with the
+token-burn asymmetry (6-8x) being partly a msgs-count effect.
+
+Also verified by reviewer: d4cac66 is an i.ar-repo commit (not
+personalization) -- `git -C /root/personalization show d4cac66`
+fails by design; the amendment trail lives in commit b858bac3
+("relay amendments: 0040 ask 1 implemented... 0035 option A
+implemented (msgs in PARSE, d4cac66)"). The doc's reference to
+d4cac66 is correct but the repo was unstated; it is the i.ar repo.

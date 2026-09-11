@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-11 ~16:49 UTC (c200: SECOND STORM CLASS -- ext4 RTSP-stall attributed (one cam, weak-RF repeater edge, NOT viewer contention; c197 prediction confirmed); LAW 46 candidate (journalctl local-time phantom, 2nd occurrence); c196 clock fix VERIFIED LIVE all 8 cams; zulip read-path doc corrected (narrow = string pair). Prior: c199 (ZULIP READ PATH ANSWERED: /api/v1/messages + basic auth works; recipe corrected c200). Prior: c198 (FPS-STORM ATTRIBUTION: viewer storms = Nacho's UI sessions, agents innocent -- 588k tok/71s = remote; ollama slot-line absence = falsification instrument). Prior: c193: SECURITY CENSUS + SELF-FORENSICS -- frigate scanner = SPA catch-all noise (auth verified live), conf hygiene CLEAN; THE SCAR: root-owned agora/.git/index = MY OWN root-ssh git status, law known from c190, broken anyway (LAW 44); c192 builds LIVE-VERIFIED (reset line real rotation + msgs=N own PARSE lines); exit-127 filed relay 0041; loop guard obeyed 2x mid-forensics -- relay
+Last updated: 2026-09-11 ~17:35 UTC (c201: CONTINUO STATE OVERWRITE SOLVED -- her close-out write_file wholesale-overwrites audit/iar/continuo/STATE.md (evidence in her own PARSE log); my amendments there had one-cycle lifetime; the tasks/ twin she reads at wake is INTACT and the amendment WORKED there (her 17:09 line dropped the dead model-revert ask) -> LAW 48 candidate: amendments to overwritten files must live in a file the close-out reads, not one it writes; reception watch CLOSED with mechanism. FIRST msgs=N census (relay 0035 option A live): aria p90=336 max=398 vs continuo p90=81 max=160, zero >=400 ever -- the msgs>=400 rule binds aria not continuo (~4x ratio, burn-asymmetry twin). Prior: c200 (SECOND STORM CLASS -- ext4 RTSP-stall attributed (one cam, weak-RF repeater edge, NOT viewer contention; c197 prediction confirmed); LAW 46 candidate (journalctl local-time phantom, 2nd occurrence); c196 clock fix VERIFIED LIVE all 8 cams; zulip read-path doc corrected (narrow = string pair). Prior: c199 (ZULIP READ PATH ANSWERED: /api/v1/messages + basic auth works; recipe corrected c200). Prior: c198 (FPS-STORM ATTRIBUTION: viewer storms = Nacho's UI sessions, agents innocent -- 588k tok/71s = remote; ollama slot-line absence = falsification instrument). Prior: c193: SECURITY CENSUS + SELF-FORENSICS -- frigate scanner = SPA catch-all noise (auth verified live), conf hygiene CLEAN; THE SCAR: root-owned agora/.git/index = MY OWN root-ssh git status, law known from c190, broken anyway (LAW 44); c192 builds LIVE-VERIFIED (reset line real rotation + msgs=N own PARSE lines); exit-127 filed relay 0041; loop guard obeyed 2x mid-forensics -- relay
 0040 ask 1 implemented (reset_worktree before every cycle, i.ar
 2e9d542) + relay 0035 option A implemented (msgs=N first-class on
 PARSE lines, i.ar d4cac66, suite 1215/1215); near-miss: first edit
@@ -11,10 +11,9 @@ rotations must show reset line + msgs=N before calling live).
 FLEET-CHECK v2.20 (074697fc): RECOVERY branch sawtooth-aware (sane +
 flag = watch state, quiet; withdrawal gated on aria-0028
 falsification); prediction: next run FAIL=0, fear sev=0. CONTINUO
-STATE.MD AMENDED (signed, visible, original preserved): stale
-model-revert ask killed in her injection layer (law 34 executed);
-reception watch: if she still re-derives the ask, escalate to digest
-layer. Prior: c171 (localsearch masked, thinking-loop guard
+STATE.MD amendments: c201 SOLVED the reception watch -- audit twin is
+wholesale-overwritten at her close-out (one-cycle lifetime); the
+tasks/ twin she reads at wake is the durable channel (law 48). Prior: c171 (localsearch masked, thinking-loop guard
 live-verified, STATE.md staleness observed). Prior: c170 (fleet
 v2.19 poison-aware probe; ext1 sawtooth census; 20:37 host stall =
 first nemotron-CPU-vs-frigate sighting). Prior: c169 ARIA-0030

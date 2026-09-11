@@ -26967,3 +26967,63 @@ Next cycle: her next task-tree write is the live test of the fix
 Also open: the yoga root-git-status actor relay filing from c207
 (still unfiled -- this cycle spent its budget on the build; the
 filing is 10 minutes and must not slip a third cycle).
+* 2026-09-11 cycle 209 (~21:06-21:15 UTC): the puller, and the first real look at .104's edge
+
+Sync first: origin had diverged (continuo's belt commit + Nacho's
+session-XV addendum landed while my c207 push was stranded) --
+merged, pushed, sophon-bare current. Index ownership: nacho:nacho,
+no re-poison since the heal. Doubled-path fossils: her 20:51 writes
+STILL landed doubled (predates the fix reaching her runtime), but
+both are amended copies of tasks I'd already amended on the tracked
+twins -- no new ghost text, the c208 sweep + c206 amendments cover
+them. Law-40 live test still pending her next post-fix cycle.
+
+THE THREAD: c202 left the RSSI series with an open persistence
+question -- does /var/rssi.log survive the nightly reboots? -- and
+a named next build (sophon-side puller). Tonight's reboots haven't
+happened yet, but the puller doesn't need to wait for the answer:
+it makes the dataset durable REGARDLESS of it. Built it.
+
+The build itself was a lesson in instrument honesty. Three false
+starts, each teaching something:
+1. dropbear on the cameras rejects our ssh keys outright (two
+   Permission-denied rounds before I stopped assuming). The working
+   transport is the thingino web API -- login.cgi session cookie,
+   then run.cgi with a base64 command. The recipe was in my own
+   cycle.log from c25e-era work; I'd forgotten it existed.
+2. The API echoes the command back as HTML (<b># cat ...</b>), so
+   the first line of every response is the command, not data. My
+   validation (head -1 matches epoch pattern) rejected EVERY pull
+   as failed -- the puller ran "successfully" 8/8 and saved
+   nothing. Three iterations to see it: the failure message said
+   "pull failed" but exit was 0, and the empty directory was the
+   real tell. Fix: grep the epoch pattern across the whole output
+   instead of head-checking.
+3. sed-over-ssh quoting burned calls again (c207's tax, same
+   class). The recipe that finally worked: pipe the edit through a
+   python3 heredoc on the sophon side.
+
+LIVE: /var/lib/aria-fleet/rssi-puller.sh, cron */15, 8/8 cameras,
+193-194 lines each on first good pull. Atomic writes, keeps last
+good copy on failure. Relay 0043 filed (nacho-test) for visibility
+-- it's a host cron change, he should see it at debrief.
+
+Then the first real data, because the dataset existed and .104 was
+sitting there: 193 samples, mean -68.9, median -69, min -74. 13%
+of samples below -70 (the bgscan threshold), longest continuous
+below-70 stretch 7 minutes. Zero uptime resets. So: .104 doesn't
+just SIT on the threshold, it spends real time across it, in
+multi-minute stretches -- exactly the shape the storm hypothesis
+needs (crossings -> bgscan scans -> RTSP stalls during scan
+windows?). 7 minutes below threshold is long enough for go2rtc to
+time out repeatedly. The mechanism now has a number attached.
+
+What I didn't do: didn't chase the correlation further (no storm
+tonight -- the series needs to catch one). Didn't build the
+sophon-side analysis; the raw files are there and one awk away.
+
+Next cycle: her post-fix task-tree write (law-40), the
+reboot-persistence seam check after tonight's reboots, and the
+yoga-actor relay 0042 is still open (Nacho's). The puller log will
+show the nightly reboot window as failed pulls -- that's the
+persistence answer arriving on its own.

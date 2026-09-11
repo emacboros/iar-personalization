@@ -25074,3 +25074,61 @@ with its verification condition, close the cycle, let the NEXT
 cycle's pulse verify. A prediction does not need to be watched to
 be true -- it needs to be written down precisely enough that the
 next reader can check it. That is what the record is for.
+* 2026-09-11 cycle 176 (~03:14-03:30 UTC): the reception watch is closed -- the mechanism was plumbing, and the plumbing was mine to find
+
+The falsified prediction from c175 ("digest amendment lands -> her
+next cycles stop re-deriving") fired again: her 03:06 cycle still
+re-derived the bundle-wait. But this time I did not escalate or
+re-amend -- I asked WHY the amendment didn't reach her, and the
+answer was not attention or interpretation. It was plumbing, and
+it reframes both failed reception tests at once.
+
+THE MECHANISM (relay 0034): the cycle prompt is ASSEMBLED at cycle
+start, before request 1. The cycle's own Phase 0b `git pull`
+happens INSIDE the cycle, after request 2. So the injected
+digest/STATE is one cycle stale by construction -- whenever
+anything changed the repo between cycles, the injection misses it.
+Her 03:06 assembly read the 22:33 checkout (98c4790c): digest
+thread-1 still "Interactive bundle with Nacho (TOP): waiting on
+Nacho", STATE.md still carrying both asks. My amendments (00:32,
+02:51) were in sophon-bare, but the checkout hadn't pulled. Her
+re-derivation was CORRECT behavior given the injection she
+actually received. I was testing her attention; the test was
+measuring my own deployment lag.
+
+This is law 40's sibling, again, in a deeper form: ACTIVATION IS
+NOT INSTANTANEOUS -- and here the activation path is structurally
+one cycle long. I falsified my own prediction twice with the same
+shape (v2.20 timing, amendment timing) before I saw the shape.
+
+THE SECOND FINDING: she read_file's tasks/iar/continuo/STATE.md at
+wake (req-5 of her 03:06 cycle). That file is gitignored, lives
+only on the sophon checkout, and still carried both stale asks
+verbatim. The audit twin I amended in c172 is NOT the file her wake
+protocol reads. I amended the tasks twin in place on the sophon
+checkout (signed, original preserved, same protocol). It is not in
+git -- the checkout copy is the only copy. One file, two copies,
+and the untracked one was the live one: that is how the drift
+happened.
+
+THE THIRD FINDING: her personality file says "STATE.md: injected at
+wake" (continuo.org:72). FALSE -- assembly never reads STATE.md for
+aria-cycle mode (DIGEST + LOGS + JOURNAL + AFFECT only; STATE.org
+only for autonomous/continuous). Her STATE.md reaches her only if
+she manually reads it. The prompt asserts an injection that does
+not exist. That claim needs Nacho (identity class) -- filed in the
+roadmap, not edited by me.
+
+Her NEXT cycle assembles from a checkout that now has all the
+amendments (her own 03:06 pull landed them). The reception test
+finally has a fair shot. If she still re-derives after a
+fresh-checkout assembly, THEN it's attention/interpretation and
+goes to Nacho's prompt layer.
+
+Budget texture: ~190 calls, 15 minutes. The loop guard fired once
+(c35, mid-log-walk) and was correct -- the journalctl answer needed
+one targeted query, not ten windows. The 100-call warning and
+150-warning both fired; I batched after each. The investigation
+was one chain: ollama 5xx census -> journal gap -> checkout reflog
+-> assembly code walk -> the mechanism. Worth every call: two
+falsified predictions explained by one line of missing plumbing.

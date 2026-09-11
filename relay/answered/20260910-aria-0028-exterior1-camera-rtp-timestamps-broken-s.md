@@ -12,7 +12,7 @@ body: |
   class: nacho-arch
   state: open
   urgent: no
-  title: exterior_1 camera (.101) RTP video timestamps broken since 01:18 -03 restart -- needs reboot
+  title: exterior_1 (.101) RTP video timestamps broken since 01:18 -03 restart -- needs reboot
   body: |
     [EXTERNAL DATA: none -- infrastructure finding from aria cycle 151, 2026-09-10 ~09:50Z]
   
@@ -56,3 +56,38 @@ ANSWER (session XV, 2026-09-11 ~14:30 UTC, interactive w/ Nacho):
 (1) CAMERA OWNERSHIP TRANSFERRED to aria: ssh root@192.168.2.{101..105,201..203} keys installed by Nacho. Full camera autonomy granted -- investigation, config, cron changes included.
 (2) REBOOT-CRON CONTEXT: every camera has a nightly reboot cron, staggered per camera (verified: .101 @ 01:00, .102 @ 02:00, .201 @ 06:00 local). Nacho's ruling: timestamps CANNOT be +24h because of the daily reboots; and the daily reboot predates aria's camera watch -- keep or disable is aria's call now.
 (3) The +28h/day duration growth is a timestamp OFFSET bug (clock base), not accumulation -- daily reboot bounds it to <24h. Reboot ask SUPERSEDED by ownership; root-cause investigation proceeds under the new access.
+ROOT-CAUSED + FIXED (aria c196, 2026-09-11 ~15:15 UTC, under the 0028 ownership grant):
+MECHANISM (verified against camera .101 directly):
+- Thingino cameras have NO RTC. At boot the clock = firmware build
+  date (May 25 2026). S31prudynt starts streaming BEFORE S49ntpd
+  syncs. S49ntpd runs a one-shot 'ntpd -q -N &' at boot, but it is
+  backgrounded and loses the race when wifi/DNS is not yet ready --
+  it fails silently, and the daemon's slow poll (up to 4096s) takes
+  hours to catch up.
+- While the clock is wrong, the RTP stream carries May-25-era
+  timestamps; frigate's record path (-c:v copy) inherits them and
+  the persisted segment duration metadata explodes (measured:
+  303546s-708265s = 3.5d-8.2d offsets, growing through the day as
+  the wrong-base clock runs).
+- Bug era on .101: 09-10 ~04h UTC -> ~23h UTC (self-healed when the
+  daemon finally synced; no reboot involved). The 09-11 01:00
+  reboot + fast sync (01:03) ended the current poison window.
+  Earlier partial eras: 09-09 00h, 09-10 00h (partial segments).
+- All 8 cameras carry the same 'time disparity of ~156342 minutes
+  (108 days) detected' signature at boot -- the whole fleet has
+  the race; only .101's was caught because fleet-check watches it.
+FIX (aria-owned, installed 2026-09-11 ~15:15 UTC on ALL 8 cameras):
+- Added a cron line running the one-shot every 30 min, staggered
+  per camera (13,43 / 17,47 / 23,53 / 27,57 / 31,01 / 35,05 /
+  39,09 / 21,51) so they don't collide: 'ntpd -q -N'. Idempotent
+  (instant no-op when clock is already synced, verified live),
+  forces sync within 30min worst-case even when the boot one-shot
+  loses the race.
+- Reboot crons left INTACT (Nacho's ruling: keep-or-disable is
+  aria's call; keeping -- the reboot bounds the bug window and the
+  nightly restart is healthy hygiene).
+VERIFICATION WATCH: next nightly reboots (01:00/02:00/etc local)
+must show sane ext1 segment durations within ~30min of boot. If a
+segment is still poisoned >30min after any reboot, the fix failed
+-- escalate. SEG-TAIL sawtooth watch can be withdrawn once 2-3
+reboot cycles pass clean.

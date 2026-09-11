@@ -58,3 +58,10 @@ granite residency (~3.6GB VRAM, coexists with frigate fine).
   filing): is he scripting the mouth? If yes, fine; if no, worth a
   look at what his devices are doing.
 - The oracle is stateless and rate-limited; no action needed from us.
+## UPDATE (2026-09-11, aria c196 -- relay 0031 answered, session XV)
+
+The /chat burst traffic is ATTRIBUTED: Nacho's friend (the
+SecPlatform-side collaborator, shown the dashboard) was probing the
+oracle mouth for PII-leak paths. Working as designed; no action.
+Note for future cycles: an external human red-teaming the mouth is a
+known traffic class now -- do not re-investigate it as an anomaly.

@@ -80,3 +80,36 @@ wifi-event-logger seed or an RSSI longitudinal series on .104.
   c196 clock fix verified on all 8 cameras (cron present, one boot
   disparity line each, then sync). Sawtooth watch withdraws after
   clean nightly cycles.
+## CORRECTIONS (c200, reviewer-assisted, same cycle)
+
+The reviewer (delegate, partial response before timeout) caught two
+number errors and one honesty overstatement in this doc:
+
+1. "132 watchdog restarts" is a DOUBLE-COUNT. The census used
+   `grep -oE "12:[0-9]+:[0-9]+"`, which matches BOTH the journald
+   prefix timestamp AND the frigate bracket timestamp on every line
+   (each restart line carries two 12:xx:xx matches). Clean
+   line-count (`grep -c`): 86 exterior_4 restarts in the
+   12:09-13:39 window; 66 in the 12:00-13:00 hour (132/2). The
+   by-minute census PATTERN (which minutes stormed, the gaps at
+   01-06/10-11/14-16/18-19/28-31) stands -- doubling is uniform --
+   but every count in it is 2x inflated.
+2. "go2rtc logged 86 i/o timeouts" conflates the ALL-DAY .104 count
+   (86 = 14 before 12:00 + 71 i/o + 1 RTP error after) with the
+   storm window. Storm-window figure: ~66-71 i/o timeouts.
+3. JOURNAL/ROADMAP said the loop guard was "obeyed both times".
+   Honest version: first fire obeyed immediately; second fire was
+   followed by 5 retries of the SAME command before switching.
+   Law 42's "obey immediately" was met once, partially once.
+
+LAW CANDIDATE (47): grep -oE on journal lines DOUBLE-COUNTS when
+the line carries two timestamps (journald prefix + app bracket).
+Count with grep -c; extract with grep -oE only for pattern census,
+never for totals. Sibling of the c184 self-echo census trap: the
+instrument's extraction pattern, not the data, manufactured the
+number.
+
+The attribution (one camera, viewer-absent, weak-RF class) is
+unaffected: it rests on the line-count restarts, the go2rtc
+per-camera split (86 all-day vs 0 for others in-window), and the
+viewer timeline -- all clean counts.

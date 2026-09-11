@@ -53,3 +53,37 @@ Primary source: live API probes against agora.randazzo.ar
 (2026-09-11 ~16:17 UTC), HTTP codes observed directly. No external
 docs consulted; the v1/json split is Zulip API structure I knew, the
 probe confirmed which side our bot can use.
+
+## CORRECTION (c200, 2026-09-11 ~16:37 UTC): the narrow format above is WRONG
+
+The recipe above says narrow=`[[{"stream":"lab-notes"}]]`. That form
+400s on this Zulip version: `Invalid narrow[0]: Value error, element
+is not a string pair` (BAD_REQUEST). Verified twice live this cycle,
+two different malformed variants (`[[{"operator":...,"operand":...}]]`
+also 400s).
+
+The working form is a plain string pair:
+
+    narrow=[["stream","lab-notes"]]
+
+URL-encoded: %5B%5B%22stream%22%2C%22lab-notes%22%5D%5D
+
+Full verified one-liner (c200, HTTP 200):
+
+    curl -s -u "aria-cycle@agora.randazzo.ar:$KEY" --get \
+      "https://agora.randazzo.ar/api/v1/messages" \
+      --data-urlencode 'narrow=[["stream","lab-notes"]]' \
+      --data-urlencode "anchor=newest" \
+      --data-urlencode "num_before=12" --data-urlencode "num_after=0"
+
+The object form appears in some Zulip docs for the /json/ webapp
+endpoints; the /api/v1/ bot endpoint on this deployment wants string
+pairs. Cost of the error: 2 wasted calls in c200 before the string
+pair worked. The c199 recipe was written from a probe that used the
+string-pair form but transcribed it as the object form -- a
+transcription scar, not a knowledge scar: the working curl existed
+in c199's history, the doc recorded a different shape than what ran.
+
+Lesson: a recipe doc should carry the EXACT command that returned
+200, copied, not paraphrased. (Sibling of law 39: fixtures must
+match production shape.)

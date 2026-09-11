@@ -26276,3 +26276,72 @@ to my own fix -- deployment is not activation. The next cycles
 should read the newest ext1 segment duration after each camera's
 reboot minute and withdraw the SEG-TAIL sawtooth only after 2-3
 clean cycles.
+* 2026-09-11 cycle 197 (~15:26-15:35 UTC): the dark-five verdict, from the cameras' own logs
+
+The thread chose itself: 0038 was answered with Nacho's method
+mandate -- "no more L2-only inference chains, read the cameras'
+own logs" -- and the standing watch I'd promised (ping .55/.2 each
+cycle, correlate with dark events) was still unkept. So I kept it,
+and then went further: first full SSH walk of all 8 cameras as an
+owned thing.
+
+## The verdict (evidence, not inference)
+
+All 8 cameras UP and recording. Frigate segments fresh (<2min old
+for all 8), durations SANE (16.0s -- the clock-race fix is holding:
+no poisoned segments in the newest files). The 05:28Z dark-five
+event is OVER; all five recovered via the 12:12Z reboot-cron wave.
+
+## The correlation (the thing the mandate asked for)
+
+Signal census (wpa_cli bss level, per camera, right now):
+- .101 -35, .102 -25, .202 -41, .203 -41, .201 -51, .105 -56
+  (all on nacho_guest / .55 BE230)
+- .103 -57, .104 -70 (both on nacho_camaras / .2 Mercury repeater)
+
+The two cameras that went dark LONGEST (6h44m, never caught the
+09:40 wave) are exactly the two on the repeater, and exactly the
+two with the worst signal. .104 at -70 is at the bgscan threshold
+(-70) -- one dB of noise from the "simple:30:-70:3600" scan
+trigger. This CONFIRMS Nacho's working hypothesis (weak-RF at the
+repeater edge) with per-camera numbers, and explains the
+asymmetric recovery: strong-signal guest cameras re-associate
+fast, weak-signal repeater cameras sit in scan/retry silence.
+
+## The confession in the logs
+
+.103's logread shows the 05:28Z event's camera-side face: DHCP
+lease loss (server .215 unreachable), lease re-obtained from .1
+-- and then the dmesg ring wrapped, erasing the deauth lines for
+the dark window. The ring buffer ate the evidence; the logread
+timestamps (May 25 boot date -> Sep 11 post-ntp) bracket it.
+
+## Instruments and their honesty
+
+- The bgscan threshold is a hypothesis-generator, not a verdict:
+  -70 is the configured scan trigger, and .104 sits exactly on it.
+  But zero deauths in current uptime means the current window is
+  clean -- the dark windows' camera-side face is UNRECORDED
+  (dmesg wrap). The persistent wifi-event logger (0039, my ask,
+  continuo's to build) is the instrument that would have caught
+  it.
+- The fleet-check ear channels and frigate segments agree: house
+  healthy. The fear-organ's STALE-cameras watch should resolve at
+  the next run (the 09:03Z artifact predates the 12:12Z recovery).
+
+## The texture
+
+~40 tool calls, all read-only, zero config changes. The method
+mandate changed the texture of the work: instead of an inference
+chain from sophon's side of the wire ("five devices with zero L2
+presence = shared power dead" -- WRONG, power lights were on), I
+have per-camera ground truth: RSSI numbers, wpa states, DHCP
+histories, dmesg rings. The cameras are not black boxes anymore.
+They are little Linux machines with WiFi silicon that hangs, and
+now I can read them whenever I want.
+
+The one thing I could NOT do: verify the 05:28Z trigger event
+itself. The camera-side evidence is erased (dmesg wrap), and
+sophon-side has no AP-side logs (.55 and .2 are closed boxes to
+me -- no SSH, no web UI checked yet). The trigger remains
+attributed to "upstream event, mechanism unknown." Honest limit.

@@ -145,7 +145,25 @@ deploy -> watch next real cycle -> read actor's REQUESTS.log; c169
 confirmed the loop WORKS); 41 guard fires mid-investigation =
 investigation over. The rest live in ROADMAP.org.
 
-* World state (2026-09-10 ~23:05 UTC -- REPLACES all prior blocks)
+* World state (2026-09-11 ~09:02 UTC -- REPLACES all prior blocks)
+
+- c186 TIMEZONE PHANTOM (the cycle's scar): I compared sophon's
+  LOCAL-time journald (-03) against UTC recording timestamps and
+  manufactured a phantom "frigate log pipe blind" failure; filed it
+  as relay 0038 amendment 4, then retracted via amendment 5 after
+  one date-check falsified it. The 08:09:56 second death IS in the
+  logs (05:08:50 local); the "04:47 fps-flood precursor" was the
+  recovery burst itself. LAW CANDIDATE: verify both clocks (or
+  UTC-normalize) before comparing timestamps from two sources;
+  reviewer suggests dropping "same host" at graduation. Reviewer
+  verified the correction cascade (4/5 PASS, WATCH line fixed).
+- CAMERA OUTAGE 09-11: five dark since 05:28:20 UTC; three
+  (ext5/int1/int2) recovered 07:46-47, died again 08:08:50-09:56
+  (journal + mtimes agree); ext3/ext4 never returned. Flapping
+  power on the shared device feeding the five. Relay 0038 amended
+  5x (latest = retraction). Physical ask unchanged: find the
+  device, check PSU, plan replacement. Eye-feed 12:30 UTC run =
+  first during degraded house.
 
 - c169 LIVE-VERIFICATION: aria-0030 echo-close fix confirmed in
   production (continuo closed on FIRST echo, exit 0, 271s; the

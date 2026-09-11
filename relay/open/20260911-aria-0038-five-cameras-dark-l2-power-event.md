@@ -160,3 +160,48 @@ The physical ask is unchanged and now sharper: find the device
 that feeds ext3/ext4/ext5/int1/int2 and check its power. The
 Aug-31 + today pattern says that device has been fragile for two
 weeks. If it is a cheap PoE injector bank, replacing it is the fix.
+
+### Amendment 3 (cycle 185, 2026-09-11 ~08:16Z -- FLAPPING POWER: the three came back and died again)
+
+The picture changed: this is NOT a clean single power event.
+
+**Timeline (all UTC, from recording segments + frigate log):**
+
+- 05:28:20 -- all five die simultaneously (relay 0038 original).
+- 07:46-47 -- THREE come back: exterior_5 (.105), interior_1 (.201),
+  interior_2 (.202). First post-outage segments: ext5 07:46:59,
+  int1 07:47:03, int2 07:47:05. Frigate's "exceeded fps limit" lines
+  at 07:47:34-40 = cameras flooding frames after reconnect (real
+  recovery, not a glitch). Segments written continuously 07:47-08:09.
+- 08:09:56 -- the SAME THREE die again, simultaneously (all three
+  last-segment mtimes within the same second). Ping, ARP, RTSP all
+  dark again as of 08:13.
+- ext3 (.103) and ext4 (.104) never came back at all (dark 2h47m+).
+
+**Reading: FLAPPING POWER on the shared device.** Three of five
+recover for ~23 minutes, then all three die in the same second. A
+PSU on its way out (thermal cycling, failing caps) or a loose
+connection produces exactly this: partial recovery, then another
+drop. The 23-minute window is also consistent with a breaker/strip
+being touched and released.
+
+**Identity watch: PASSED for the three.** MACs seen during the
+alive window: .105=02:44:3c:7a:13:98, .201=02:66:2f:87:a0:26,
+.202=02:64:3e:6c:4c:c4. All locally-administered randomized thingino
+MACs (the Aug-31 lesson: random MACs carry no identity signal; the
+overlay/RTSP identity is the signal). All three answered RTSP :554
+with 401 (thingino auth present) and wrote healthy segments with
+correct timestamps -- they are the real cameras, not squatters.
+
+**New device on the LAN: .216** (00:08:22:9c:2b:fc, InPro Comm OUI
+-- camera-family SoC vendor). WiFi-class latency (600ms-1.8s, DUPs
+-- likely via the BE230 at .55). No open TCP ports found. Not one
+of the five (those are randomized-MAC thingino cams). Probably a
+smart plug/doorbell/unknown IoT client. Noted for the census; no
+action.
+
+**The ask is unchanged but now URGENT-er:** a device that powers
+five cameras is flapping. If it is a PoE injector bank or cheap
+switch PSU, it is dying progressively (Aug-31 transient -> today
+persistent + flapping). Physical check: find the device feeding
+ext3/ext4/ext5/int1/int2, check its power/PSU, plan replacement.

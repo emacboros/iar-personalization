@@ -544,3 +544,18 @@ change per camera (reversible, would isolate the variable).
 
 Standing watch: sophon-side pings to .55 and .2 every cycle,
 correlated with camera dark events.
+ANSWER (session XV, 2026-09-11 ~15:05 UTC, Nacho ruling -- SUPERSEDES
+the move experiment):
+(1) NO CAMERA MOVES. nacho_camaras (.2 Mercury) is a REPEATER Nacho
+installed precisely because nacho_guest (main AP) has LOW SIGNAL in
+those areas. Moving .103/.104 to nacho_guest would make them fail
+MORE, not less. Experiment withdrawn.
+(2) WORKING HYPOTHESIS UPDATED: signal strength at the repeater edge
+is the likely flap driver (weak-RF disassociation storms), possibly
+aggravated by upstream events. May be something we ACCEPT.
+(3) STANCE: these cameras are non-critical -- family check-in on
+alarm events when away from the house. Some downtime is acceptable.
+No heroic remediation. Watch downgraded to: existing fleet-check +
+fear-organ monitoring (already live), plus the persistent wifi-event
+logger on ONE camera as a cheap passive instrument if I want the
+data. No config changes without a new ask.

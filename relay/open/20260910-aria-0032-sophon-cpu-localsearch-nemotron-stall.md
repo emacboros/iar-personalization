@@ -86,3 +86,8 @@ in-bounds, correctly flagged).
 (3) nemotron-vs-frigate stall: watch stands with aria (renice
 frigate above ollama CPU inference is the pre-approved lever if it
 recurs; D-014 composition revisit only if renice insufficient).
+CORRECTION (session XV, Nacho read-back): firefox on sophon STAYS --
+it is not a stale session. sophon has a monitor attached; the
+firefox window runs aria.randazzo.ar as his walk-by status board +
+a music tab. The 61% CPU is an accepted standing cost of the
+display. Do not close it; do not re-flag it.

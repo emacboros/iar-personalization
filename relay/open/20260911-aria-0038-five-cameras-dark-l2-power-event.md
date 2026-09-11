@@ -467,3 +467,80 @@ timing data. Replacement plan if it flaps again.
 (3) .2 Mercury device: leave for now (identity + legacy-SSH read
 optional, later).
 (4) fail2ban gap on frigate/Caddy log path: noted, low priority.
+ANSWER (session XV, 2026-09-11 ~14:50 UTC, Nacho ruling):
+(1) PSU/HARDWARE RULED OUT by Nacho's own pre-aria debugging: when
+cameras went dark he walked up to them -- POWER LIGHT ON. The feed
+is a plain wall charger (nothing to fail). The dark state is
+NETWORK-level, not power.
+(2) WORKING HYPOTHESIS (Nacho): firmware/software. Candidates: the
+atbm6031 WiFi driver/firmware hanging (chip is in the build string
+personal_cam2_t31x_gc2053_atbm6031; cheap IoT WiFi silicon, hang-
+prone), AP-side flap (.2 Mercury bridge carries ext4; .55 BE230
+candidate shared AP), or thingino network-stack wedge. The .2
+proxy-ARP going silent for dark cameras fits WiFi disassociation
+(bridge only answers for reachable clients).
+(3) METHOD MANDATE: investigate via SSH (keys installed on all 8).
+Cameras run linux. No more L2-only inference chains -- read the
+cameras' own logs/state.
+(4) Daily reboot cron: evaluate with data (does it clear WiFi driver
+state? does the flap correlate with reboot times? it does NOT --
+flaps hit 05:28Z, reboots are 01:00-06:00 staggered local).
+INVESTIGATION (session XV, 2026-09-11 ~15:00 UTC, aria -- first SSH
+camera walk, per Nacho's method mandate):
+
+## Topology map (verified, all 8 cameras)
+
+ALL EIGHT CAMERAS ARE WIFI (wlan0, atbm6031 driver, no ethernet).
+Two SSIDs, two APs:
+- nacho_guest -> BSSID 72:7f:f0:1e:4a:a8 = the .55 BE230 (wlan
+  virtual MAC of 68:7f:f0:1e:4a:a8). Cameras: .101, .102, .105,
+  .201, .202, .203.
+- nacho_camaras -> BSSID 08:8a:f1:6a:62:56 = the .2 Mercury box
+  (wlan virtual MAC of 0a:8a:f1:0a:62:56 -- same OUI 8a:f1).
+  Cameras: .103, .104 ONLY.
+
+## The flap correlation (fits the dark-five timeline)
+
+The five dark cameras (ext3/ext4/ext5/int1/int2 = .103/.104/.105/
+.201/.202) span BOTH APs. But: .103/.104 ride the .2 Mercury box;
+.105/.201/.202 ride .55. Two failure modes fit:
+(a) .55 BE230 flapping (drops 3 of 5) + .2 Mercury flapping
+    (drops the other 2) -- two devices, similar timing;
+(b) ONE upstream common point (router .1 / ISP) resetting WiFi
+    radios or DHCP, hitting both APs' clients at once.
+Simultaneous 05:28:20 stop across both APs' clients leans (b):
+a single upstream event (router reboot/ISP DHCP renewal) would
+deauth every STA at once; recovery timing then varies per camera
+by re-association speed (ext3 slowest -- 6h44m, missed the 09:40
+wave, caught 12:12).
+
+## Camera-side evidence (dmesg, atbm6031)
+
+- Boot-time association is CLEAN (join -> associated -> keys ->
+  connecting done, ~55s after boot on every camera).
+- ZERO deauth/disassoc lines in the CURRENT uptime on all five
+  dark-capable cameras (dmesg ring only holds this boot -- 5.1h
+  for all five, bounded by the staggered reboots).
+- wpa_supplicant bgscan="simple:30:-70:3600" on every camera.
+- .103/.104/.105/.201/.202 all booted 5.1h ago = the 12:12Z flap-up
+  recovery was NOT self-reassociation -- it was the REBOOT CRON
+  wave (reboots 3:00-7:00 local = 5.1h before 14:50). Correction to
+  amendment 8: "ext3 caught the 12:12 wave" -- the 12:12 recovery
+  IS the cron wave, not a flap-up. All five rebooted within their
+  3:00-7:00 local staggered window and came back clean.
+
+## Key inference
+
+The cameras do NOT deauth on their own (zero deauth lines while
+up). The dark windows are either AP-side or upstream-side
+disconnections where the camera's supplicant sits in scan/retry
+silence (dmesg ring buffer may also wrap during long dark windows).
+Next instrument: persistent wifi-event logging on one camera
+(logread -> a file that survives dmesg wrap) + sophon-side flap
+correlation with .55/.2 reachability. Also: .2 Mercury carries
+nacho_camaras ONLY (2 cameras) -- if .2 is the flapper, moving
+.103/.104 to nacho_guest (.55) is a one-line wpa_supplicant.conf
+change per camera (reversible, would isolate the variable).
+
+Standing watch: sophon-side pings to .55 and .2 every cycle,
+correlated with camera dark events.

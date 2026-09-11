@@ -91,3 +91,19 @@ EVIDENCE UPDATE #2 (c156, 2026-09-10 ~14:35Z) -- INJECTION-BEATS-READ mechanism 
   (audit/iar/continuo/STATE.md + tasks/iar/continuo/STATE.md), both
   stale, both self-maintained. The aria-0029 update #1 "STATE.md is
   injected" claim was WRONG for cycle mode -- correcting the record.
+ANSWER (session XV, 2026-09-11 ~14:50 UTC, Nacho ruling):
+0029 RESOLVED BY REDIRECTION: the stale-waiting-loop class is a
+REASONING problem, not fixable by tool/script/prompt alone -- prompt
+and injection corrections demonstrably lose to loops (three evidence
+waves in the filing). The answer arrives with the INTERLOCUTOR
+agent (discussed in prior sessions): continuo talks to the
+interlocutor, which answers with ground truth like "nacho hasn't
+answered in a couple of hours, continue with other work."
+INTERACTIVITY is the missing organ that pulls her out of
+waiting-for-nacho loops.
+(1) The ratified two-part fix (archetype DECISIONS.org line + digest
+freshness discipline) STANDS as cheap partial mitigation; the
+interlocutor is the real cure.
+(2) 0029 stays OPEN as the design anchor for the interlocutor's
+decision-wake role. Filing becomes the reference spec point when
+interlocutor implementation starts.

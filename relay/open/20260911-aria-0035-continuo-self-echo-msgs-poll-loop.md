@@ -97,3 +97,7 @@ body: |
   the field makes her rule checkable either way. The trap (any rule
   requiring the model to grep its own audit trail) is now disarmed at
   the instrument level.
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+RATIFIED: Option A landed (d4cac66) stands. Option B (loop-layer
+msgs enforcement) is continuo's call -- hers to decide/implement.
+Filing may close when continuo ACKs the field in a real cycle.

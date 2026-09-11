@@ -229,3 +229,9 @@ Cycle-note for the ledger: this feature took THREE cycles to land
 that verified it each time was the same loop: deploy -> watch the next
 real cycle -> read the actor's own REQUESTS.log. Law 40 is now
 load-bearing, not theoretical.
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+RATIFIED: patch 082f12f (pre-tool-call terminal-echo close) stands
+as the working fix. Archetype echo instruction STAYS (it now works
+as a close; simplification declined). Verification watch continues:
+her next close should register on the FIRST echo (exit 0). Filing
+may close on that observation.

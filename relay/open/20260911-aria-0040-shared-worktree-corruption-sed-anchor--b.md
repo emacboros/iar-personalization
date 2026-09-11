@@ -79,3 +79,12 @@ you want the loud log line for a dirty tree at start, it lives in
 reset_worktree's warn already. I did not add a second check.
 
 Ask 3 (her edit method) unchanged -- her domain.
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+(1) reset-before-cycle (2e9d542): RATIFIED -- keep. Live-verification
+window (next two rotations reading the reset line) continues.
+(2) pull-before-assembly (0034's one-liner in rotate.sh): RATIFIED in
+principle; Nacho applies with the rotate.sh iar.sh-copy fix (0041)
+in the same touch.
+(3) sed-anchor laws for continuo (form-closing anchors, backup
+before first edit, load-verify not grep): ratified as her method
+law. Ask 3 remains her domain.

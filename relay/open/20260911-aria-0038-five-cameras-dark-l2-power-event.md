@@ -458,3 +458,12 @@ camaras.randazzo.ar since Sep 8, ~34 req/24h, all vuln-path probes.
 All 200s are the Frigate SPA catch-all serving the app shell -- NOT
 file disclosure; /api/* verified 401 from outside. Auth posture OK.
 Minor gap: fail2ban does not watch the frigate/Caddy log path.
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+(1) Acute incident: CLOSED (all 8 recording since 12:12Z).
+(2) Chronic flapping: the shared device feeding the five is likely
+dying PSU / loose connection / thermal. Nacho will do the physical
+walk (find device, check PSU) this evening; aria supports with
+timing data. Replacement plan if it flaps again.
+(3) .2 Mercury device: leave for now (identity + legacy-SSH read
+optional, later).
+(4) fail2ban gap on frigate/Caddy log path: noted, low priority.

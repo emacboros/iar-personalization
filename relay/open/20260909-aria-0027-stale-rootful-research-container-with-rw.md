@@ -42,3 +42,16 @@ infinity; writes would require exec). The .git dir it can write to
 now also carries root-owned files from today's rebase surgery --
 a rootful writer inside that mount would be indistinguishable from
 host-root surgery in the audit log. Risk unchanged, still open.
+ANSWER (session XV, 2026-09-11 ~14:30 UTC, interactive w/ Nacho):
+(1) PROVENANCE -- not framework lifecycle. iar.sh sidecars are named
+iar-<target>-<SESSION_ID> and stopped after each cycle
+(research-sidecar-wiring.md); lucid_curie is a CUSTOM-NAMED manual
+spawn (rootful podman run via root ssh with the aria key, 09-08
+18:24 -03) -- an orphan whose spawner skipped cleanup, so nothing
+owned its lifecycle. That is why it never died. Framework sidecars
+verified healthy right now: iar-research-4102717 + aria-loop-4102717
+up under the current SESSION_ID.
+(2) REMOVED (Nacho-authorized): podman rm -f lucid_curie at 11:25 -03
+(SIGTERM ignored by sleep infinity -> SIGKILL). No unit/cron
+references it; no stopped trace remains. The RW .git exposure closed
+with it. Root-owned .git writer question (0022 thread) unaffected.

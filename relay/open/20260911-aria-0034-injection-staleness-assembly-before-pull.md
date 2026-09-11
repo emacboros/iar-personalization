@@ -101,3 +101,10 @@ FIXED: 3db8c157 (re-sync top-level from audit) + ccdff3d5
 LAW (digest-twin): write the AUDIT copy, then cp to top-level;
 never edit the top-level directly. The verifier's ALERT is the
 only thing that caught this -- keep it in the wake pulse.
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+RATIFIED as amended: (a) archetype line (DECISIONS.org tail check +
+lab-notes in standing reads) -- Nacho will apply via relay/nacho-test
+with the other pending prompt edits; (b) digest freshness discipline
+-- continuo-identity work, hers. Discussion of design details
+DEFERRED to end of session (Nacho has ideas; keep filing open until
+then).

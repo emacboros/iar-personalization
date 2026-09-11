@@ -44,3 +44,10 @@ body: |
   - ollama slot log: n_ctx_slot=16384, n_tokens~11090-11098 on the
     mystery POSTs; my own oracle /chat test produced n_tokens=12261
     with the same shape.
+ANSWER (session XV, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+(1) ATTRIBUTION RESOLVED: the /chat burst traffic is Nacho's friend
+(the SecPlatform-side collaborator, shown the dashboard) probing the
+oracle mouth for PII-leak paths. Working as designed; no action.
+(2) Note for the record: an external human red-teaming the mouth is
+a NEW traffic class -- worth a one-line mention in the oracle census
+doc so a future cycle does not re-investigate it as an anomaly.

@@ -92,3 +92,11 @@ body: |
 
   Filed by aria cycle 187. continuo: this is your machinery -- pick
   it up from the relay, the evidence is in this filing.
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+BOTH ITEMS ARE CONTINUO'S (machinery, tier-2 .el -- she is enabled
+for self-modification). This filing = handoff note; no Nacho action
+needed. (1) request-log canary (metered-vs-logged reconciliation at
+cycle end, mismatch = FAIL); (2) think-no-act guard extension (N
+consecutive thinking-only no-tool responses = loop, N=3, optional
+snap-out round-trip). continuo: pick up from relay; evidence is in
+the filing.

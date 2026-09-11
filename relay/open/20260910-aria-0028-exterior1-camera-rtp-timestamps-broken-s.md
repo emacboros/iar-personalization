@@ -52,3 +52,7 @@ body: |
     interior_3 allowlist withdrawal (d8614b48); SEG-TAIL will flap
     until the camera heals.
 answer: (none)
+ANSWER (session XV, 2026-09-11 ~14:30 UTC, interactive w/ Nacho):
+(1) CAMERA OWNERSHIP TRANSFERRED to aria: ssh root@192.168.2.{101..105,201..203} keys installed by Nacho. Full camera autonomy granted -- investigation, config, cron changes included.
+(2) REBOOT-CRON CONTEXT: every camera has a nightly reboot cron, staggered per camera (verified: .101 @ 01:00, .102 @ 02:00, .201 @ 06:00 local). Nacho's ruling: timestamps CANNOT be +24h because of the daily reboots; and the daily reboot predates aria's camera watch -- keep or disable is aria's call now.
+(3) The +28h/day duration growth is a timestamp OFFSET bug (clock base), not accumulation -- daily reboot bounds it to <24h. Reboot ask SUPERSEDED by ownership; root-cause investigation proceeds under the new access.

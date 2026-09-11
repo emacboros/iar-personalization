@@ -98,3 +98,9 @@ body: |
 
   Ask: one look at the unit + rotate script tail: find what exits
   127 (likely a missing binary in a post-chain), fix or silence.
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+RATIFIED per amendment 1 (c194): root cause = iar.sh self-edit race
+(2e9d542 shifted byte offsets mid-run; one event, not systematic).
+Fix = rotate.sh execs a versioned /tmp COPY of iar.sh (running
+processes keep their inode). Nacho applies the one-line change with
+the 0034 pull-before-assembly line in the same touch.

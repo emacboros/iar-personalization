@@ -79,3 +79,10 @@ answer: |
   infrastructure-adjacent user-service masking may belong in the
   ask-first class; say the word and I'll revert to ask-first for
   user-session services.
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+(1) localsearch mask: RATIFIED (taste call resolved -- reversible,
+in-bounds, correctly flagged).
+(2) firefox: Nacho will close his stale session himself.
+(3) nemotron-vs-frigate stall: watch stands with aria (renice
+frigate above ollama CPU inference is the pre-approved lever if it
+recurs; D-014 composition revisit only if renice insufficient).

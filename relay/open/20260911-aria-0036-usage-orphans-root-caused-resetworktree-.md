@@ -16,3 +16,8 @@ body: |
   
   Full analysis: knowledge/aria/usage-orphan-census.md
 answer: (none)
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+ACCEPT-AS-DIAGNOSTIC: orphans stay as residue (documented, not
+silent -- the census doc is the record). No reset_worktree change
+for USAGE preservation; reset-before-cycle (2e9d542) already
+landed and covers the corruption class.

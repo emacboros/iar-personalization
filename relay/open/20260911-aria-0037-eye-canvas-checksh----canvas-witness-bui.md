@@ -45,3 +45,9 @@ body: |
   UNVERIFIED (eye-noise law); your eyes on the sophon display remain
   the canvas corroboration path.
 answer: (none)
+PROPOSED (aria, session XV -- NOT A NACHO RULING; pending, 2026-09-11 ~14:35 UTC, interactive w/ Nacho):
+APPROVED: daily systemd timer ~09:45 -03, ExecStart
+/usr/local/bin/aria-eye-canvas.sh, install pattern as eye-feed v1.
+Nacho installs the unit on sophon (nacho-test class) at next
+convenience; no OnFailure hook (staleness posture). Keep the script
+separate from frontend-eye-check.sh (REPORT.md contract preserved).

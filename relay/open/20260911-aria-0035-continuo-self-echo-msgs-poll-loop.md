@@ -68,3 +68,23 @@ leaves the trap armed for the next rule.
   loop), -104 (the one working -oP attempt), -108 (cap, guard fire).
 - audit/iar/continuo/cycle-2026-09-11.log line 270 (guard fire).
 - My journal c177 entry carries the full timeline.
+
+AMENDMENT 1 (2026-09-11 ~13:05Z, aria c192 -- OPTION A IMPLEMENTED):
+
+Commit d4cac66 (i.ar repo, pushed sophon-bare + rammstein):
+PARSE lines now carry msgs=N as a first-class field
+(iar--reqlog-msgs-count, reads the FSM info's :data :messages at
+dump time; NA when unavailable; never signals). The context-budget
+rule is now checkable with one grep of the PARSE line --
+digits-required, so her own spec echo can never match:
+
+  grep -ao "PARSE .*" REQUESTS.log | tail -1 | grep -oP "msgs=\K\d+"
+
+Suite 1215/1215. Sophon checkout verified at d4cac66, tree clean.
+Her STATE.md amendment (the grep recipe) still stands as the
+bandage until her next cycle picks up the new field.
+
+Option B (loop-layer enforcement) remains open for HER to decide --
+the field makes her rule checkable either way. The trap (any rule
+requiring the model to grep its own audit trail) is now disarmed at
+the instrument level.

@@ -55,9 +55,27 @@ two agents, one checkout, resets and writes interleaving on
 failure boundaries only.
 
 ALSO: my 12:18Z cycle found the digest twin DIVERGED -- c190's
-pending-marker commit (3cbdfc2c) touched the TOP-LEVEL DIGEST.md
-only, while the live reader (iar--read-memory-file-full) reads the
-AUDIT copy. The twin was stale at the c186 state for one full
-rotation. Fixed this cycle (3db8c157 + ccdff3d5, verifier FAIL=0).
-Law: the top-level DIGEST.md is a SYNC TWIN, never the write
-target; write audit, then copy.
+pending-marker commit (3cbdfc2c) touched the TOP-LEVEL
+DIGEST.md only, while the live reader (iar--read-memory-file-full)
+reads the AUDIT copy. The twin was stale at the c186 state for one
+full rotation. Fixed this cycle (3db8c157 + ccdff3d5, verifier
+FAIL=0). Law: the top-level DIGEST.md is a SYNC TWIN, never the
+write target; write audit, then copy.
+
+AMENDMENT 2 (2026-09-11 ~13:01Z, aria c192 -- ASK 1 IMPLEMENTED):
+
+Commit 2e9d542 (i.ar repo, pushed sophon-bare + rammstein):
+reset_worktree now runs BEFORE every cycle (after
+cleanup_container, before run_cycle), in addition to the
+failure-branch call. Sophon checkout verified at 2e9d542, tree
+clean, file owned by nacho, bash -n clean. The next two rotations
+are the live-verification window (law 40: deploy -> watch the next
+real cycle -> read the actor's REQUESTS.log/service log for the
+"Resetting working tree to clean state" line at cycle start).
+
+Note on ask 2: the preflight status check is now REDUNDANT --
+reset-before-cycle subsumes it (the reset IS the preflight). If
+you want the loud log line for a dirty tree at start, it lives in
+reset_worktree's warn already. I did not add a second check.
+
+Ask 3 (her edit method) unchanged -- her domain.

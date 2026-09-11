@@ -1,8 +1,52 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~21:28 UTC (cycle 210)
+Last updated: 2026-09-11 ~21:46 UTC (cycle 211)
 
 ## NOW
+
+- c211 (21:37-21:46Z): LAW-40 LIVE TEST ARMED (84eb2ab, pushed
+  sophon-bare): iar-request-log-full-capture = t in configs/
+  tool-limits.el (defcustom appended at file end, overrides the
+  defvar). Next cycle's pull-before-assembly picks it up; the
+  FIRST real request should dump audit/<agent>/REQUESTS-full/
+  REQ-<id>.json. VERIFY then REVERT in the same cycle.
+  - Belt sync: f8e72df8 (c210 close) was stranded ahead-2 on BOTH
+    checkouts (my c210 push never landed on sophon checkout --
+    it was pushed to sophon-bare but the checkout fetches from
+    sophon-bare only at cycle start; origin git@10.66.0.1 fetch
+    401s from sophon checkout -- publickey. sophon-bare remote
+    is the working transport). Pushed; sophon checkout current.
+  - Continuo watch: her 21:13 cycle CLEAN -- awaiting-ghost line
+    GONE from close-out (c205/c206 fix holds, law-40 verified),
+    zero doubled-path writes since 20:51 (d09916a live test
+    still pending her next task-tree write), msgs max 94, echo
+    close worked first try. Her lab-notes post took 3 attempts
+    (Zulip API param confusion: type/to/topic vs subject) --
+    seed filed, hers.
+  - Frigate recipe learned (8 calls): root podman ps does NOT
+    see nacho's rootless containers. Recipe:
+    machinectl shell nacho@ /bin/sh -c "podman exec frigate
+    wget -qO- http://127.0.0.1:5000/api/stats". All 8 cams ~5.0
+    fps OK. Host 8971 401s (nginx auth) -- container-internal
+    is the path.
+  - RSSI round 2: .104 n=213 mean -68.8, 12.2% below -70,
+    longest below-70 stretch 4 samples (~4min), zero gaps,
+    zero uptime resets. puller.log discrepancy: cron appends to
+    rssi/puller.log but the file is EMPTY (puller writes
+    nothing on success -- fine, but the redirect target exists
+    empty; cosmetic).
+  NEXT CYCLES (in order):
+  (1) VERIFY + REVERT full-capture: check REQUESTS-full/ has a
+      REQ-*.json with full payload (msgs count >= START msgs),
+      then set the defcustom back to nil, commit, push both.
+  (2) continuo's next post-fix task-tree write must land flat
+      (doubled-path fix d09916a live test).
+  (3) reboot-persistence seam: after tonight's reboots, camera-side
+      /var/rssi.log first line vs sophon copy answers persistence
+      empirically (puller keeps last-good; gaps = reboots).
+  (4) storm watch: next ext4-storm window -> pull sophon's .104
+      series FIRST (perishable evidence rule), correlate RSSI dips
+      vs go2rtc timeouts.
 
 - c210 (21:20-21:28Z): FULL-INJECTION CAPTURE FLAG BUILT (2e3f7f0,
   pushed origin + sophon-bare). iar-request-log-full-capture
@@ -16,20 +60,6 @@ Last updated: 2026-09-11 ~21:28 UTC (cycle 210)
   filter removes, not just what it keeps. (b) /root/i.ar/emacs.d/
   gptel-fork is an EMPTY DIR here (fork lives at /root/.emacs.d/
   gptel-fork) -- 6 debug calls burned on a stale pointer.
-  NEXT CYCLES (in order):
-  (1) law-40 live test of the capture flag: enable
-      iar-request-log-full-capture for one cycle, confirm a
-      REQ-*.json lands with full payload, DISABLE. (Edit is in
-      configs/tool-limits.el; deployed-not-active until a real
-      request dumps a file.)
-  (2) continuo's next post-fix task-tree write must land flat
-      (doubled-path fix d09916a live test).
-  (3) reboot-persistence seam: after tonight's reboots, puller.log
-      shows the reboot window as failed pulls; camera-side first
-      line vs sophon copy answers persistence empirically.
-  (4) storm watch: next ext4-storm window -> pull sophon's .104
-      series FIRST (perishable evidence rule), correlate RSSI dips
-      vs go2rtc timeouts.
 
 - c209 (21:06-21:15Z): RSSI PULLER LIVE (build). sophon
   /var/lib/aria-fleet/rssi-puller.sh, cron */15, thingino web API
@@ -50,7 +80,7 @@ Last updated: 2026-09-11 ~21:28 UTC (cycle 210)
   126. LAW 44 SECOND ACTOR SHAPE: interactive root ssh + "read-only"
   git commands. Relay 0042 OPEN (nacho-security): confirm yoga
   actor + iar.sh index-chown proposal. Index verified nacho-owned
-  c209 (no re-poison since heal).
+  c209/c211 (no re-poison since heal).
 
 ## STANDING (verified, still true)
 
@@ -64,7 +94,8 @@ Last updated: 2026-09-11 ~21:28 UTC (cycle 210)
   puller (c209). Data: /var/lib/aria-fleet/rssi/<ip>.log. Doc:
   knowledge/aria/rssi-puller-live-2026-09-11.md.
 - CAMERA WATCH: 7/8 recording; .103 network-dead (chronic; relay
-  0038). .2 = Dropbear bridge carrying ext4.
+  0038). .2 = Dropbear bridge carrying ext4. Frigate stats recipe:
+  machinectl shell nacho@ podman exec frigate wget (rootless store).
 - Relay open: 0042 (yoga actor, Nacho), 0043 (puller visibility).
   Verify against answered/ before citing older ids.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
@@ -83,6 +114,14 @@ Last updated: 2026-09-11 ~21:28 UTC (cycle 210)
   silently matched nothing. Use a python file (write_file) with
   asserted anchors, or check the written bytes after.
 - scp-then-run for multi-line python over ssh (c207).
+- Frigate stats (c211): root podman can't see nacho's rootless
+  containers. machinectl shell nacho@ /bin/sh -c "podman exec
+  frigate wget -qO- http://127.0.0.1:5000/api/stats". Host 8971
+  401s (nginx auth on); container-internal 5000 is the path.
+- sophon i.ar checkout remotes: origin (git@10.66.0.1) fetch 401s
+  from there (publickey); sophon-bare (root@10.66.0.5) is the
+  working transport. Push to sophon-bare, checkout picks up at
+  next cycle start.
 - Timezone discipline: sophon journal = LOCAL -03; my records = UTC.
   Normalize before comparing (c186 law).
 - gptel fork in THIS container: /root/.emacs.d/gptel-fork (the

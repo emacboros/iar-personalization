@@ -1,9 +1,35 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~14:46 UTC (cycle 195)
+Last updated: 2026-09-11 ~15:17 UTC (cycle 196)
 
 ## NOW
 
+- c196 (14:53-15:17Z): CAMERA CLOCK RACE ROOT-CAUSED + FIXED (0028,
+  first work under the camera-ownership grant). The 0028 RTP
+  timestamp bug: thingino cams have NO RTC; boot clock = firmware
+  build date (May 25); S31prudynt streams BEFORE S49ntpd syncs; the
+  boot one-shot `ntpd -q -N &` loses the wifi/DNS race and fails
+  silently; daemon slow-poll (4096s) takes hours. RTP carries the
+  May-25 base -> frigate copy-path durations explode (measured
+  3.5-8.2d offsets). ALL 8 cameras carry the boot 'time disparity
+  ~156342 min (108d)' signature -- fleet-wide race, only .101 was
+  watched. FIX: cron `ntpd -q -N` every 30min on all 8 cams,
+  staggered minutes (idempotent, verified live <0.1s no-op when
+  synced). Reboot crons KEPT (Nacho's keep-or-disable = my call).
+  WATCH: next nightly reboots must show sane ext1 durations within
+  30min of boot; SEG-TAIL sawtooth withdraws after 2-3 clean cycles.
+  Knowledge: knowledge/aria/camera-clock-race-2026-09-11.md.
+  Committed ba1766c5 -> 742aeb85.
+- c196 relay: Nacho CLEARED the whole queue mid-cycle (4bc8aa93,
+  15:12) -- all 15 session-XV filings open->answered by HIS hand;
+  my amendment to 0028 landed on top cleanly (rebase merged). open/
+  now EMPTY. Lesson: check the queue state before filing hygiene
+  moves mid-cycle; his clear raced my moves and both survived.
+- c196 ZULIP READ PATH: bot GET /json/messages = 401 UNAUTHORIZED
+  (send POST /api/v1/messages works fine, id 853). Read path needs
+  the /json/ + cookie/CSRF dance or a different auth mode -- parked
+  as a THREADS seed (read access would let cycles read continuo's
+  posts + Nacho's replies directly).
 - c195 (14:30-14:45Z): BELT-DUP WALK -- re-derived c179 Mechanism 1
   live. Noticed my own belt commit (00157e81) carrying 2 lines +
   uncommitted dup in tree; git archaeology (~60 cmds, loop guard 2x,
@@ -128,13 +154,11 @@ Last updated: 2026-09-11 ~14:46 UTC (cycle 195)
   300 / fence 192k / wall 3600s; eye-feed LIVE (daily 09:30 -03);
   aria-0026 ratified; 50-dangling-objects RESOLVED; burn asymmetry
   6-8x full-day (composition-review material).
-- Relay open: 0027 0028 0029 0030 0031 0032 0033 0034 0035 0036
-  0037 0038 0039 0040 0041. SESSION XV (8873ae4b) ruled 10 of them
-  (PROPOSED blocks, pending Nacho read-back): 0027 EXECUTED, 0028
-  ownership->aria, 0030/0032/0034/0036/0037/0038/0040/0041
-  ratified (0034+0041+0037 = Nacho applies), 0035 option B +
-  0039 both items = continuo's. 0029 deferred to session-end
-  discussion. 0041 amended c194 (root-caused).
+- Relay: QUEUE CLEARED 15:12Z by Nacho (4bc8aa93) -- all session-XV
+  filings answered, open/ empty. Pending HIS application: 0034
+  pull-before-assembly, 0037 eye-canvas timer unit, 0041 rotate.sh
+  copy-exec (one touch). Pending CONTINUO: 0035 option B, 0039 both
+  items, 0040 ask 3. 0029 = design anchor for interlocutor.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 
 ## ARCHIVE (c183-c190 detail lives here; trimmed from NOW)

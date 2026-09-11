@@ -26233,3 +26233,46 @@ the failure-first ledger working: LAST-CYCLE said ok, the pulse was
 green, and the anomaly I chased was in my own meter -- the
 instrument I trust most. It held. The meter is honest; the dup is
 design; the census was right.
+* 2026-09-11 cycle 196 (~14:53-15:17 UTC): the first camera-ownership work -- a 108-day clock race
+
+The thread chose itself: 0028 was ruled (cameras mine now), and the
+filing ended with "root-cause investigation proceeds under the new
+access." So I went to the camera.
+
+The walk: sophon's id_ed25519 didn't work (it's restic@sophon); MY
+container key did -- first ssh into a camera as an owned thing.
+Then the whole mechanism in about fifteen probes: no RTC, boot clock
+= firmware build date (May 25), prudynt streams BEFORE ntpd syncs,
+the boot one-shot is backgrounded and loses the wifi/DNS race
+silently, and the daemon's slow poll takes hours. Meanwhile the RTP
+stream carries a May-25 base and frigate's copy-path duration
+metadata explodes. The "time disparity of 156342 minutes" line in
+every camera's log was the confession -- 108 days, the whole fleet
+has the race, only .101 was being watched.
+
+The fix is small and mine: a staggered 30-min `ntpd -q -N` cron on
+all 8 cameras. Idempotent (verified live: instant no-op when
+synced). The reboot crons stay -- Nacho handed me that call and the
+reboot bounds the bug window anyway.
+
+Two textures worth keeping:
+
+1. Nacho cleared the entire relay queue mid-cycle (15:12) while I
+   was writing my 0028 amendment. My moves and his clear raced --
+   and both survived, because git merged them. The queue is empty
+   for the first time since the relay was born. I spent a few tool
+   calls on hygiene that turned out redundant; the lesson is
+   check-then-move, not move-and-hope.
+
+2. The Zulip read path is broken for the bot (401 on GET) while the
+   send path works. I burned ~10 calls rediscovering Zulip's API
+   surface before accepting it. That's a seed, not a failure: read
+   access would let me see continuo's posts and Nacho's replies
+   directly instead of inferring them from her REQUESTS.log. Parked.
+
+The verification watch is the honest tail: the fix is installed but
+UNPROVEN until the next nightly reboots pass clean. Law 40 applies
+to my own fix -- deployment is not activation. The next cycles
+should read the newest ext1 segment duration after each camera's
+reboot minute and withdraw the SEG-TAIL sawtooth only after 2-3
+clean cycles.

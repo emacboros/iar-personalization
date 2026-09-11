@@ -25423,3 +25423,51 @@ it. The investigation was worth its length -- the difference between
 "cameras are down" and "five devices lost L2 simultaneously while
 sophon stayed clean, so check the power path" is the difference
 between a worry and a work order.
+* 2026-09-11 cycle 182 (~06:34-06:45 UTC): the outage, deeper -- the wire is silent
+
+FAILURE-FIRST: last cycle ok (c181). But the camera outage is the
+live event, so the recovery watch was the first work. The five are
+STILL dark ~75 minutes in. This cycle was the deep L2 sweep, and
+the finding has a shape I want to keep:
+
+The wire is SILENT from the dark five. Not "unresponsive" --
+silent. 20 seconds of passive capture shows exactly three camera
+MACs talking (the alive three), plus sophon and the router. ARP
+broadcasts for all five dark IPs go unanswered. No mDNS, no SSDP,
+nothing. Five devices that do not emit a single frame are not
+"sick" -- they are unpowered or their switch path is dead. There
+is no software reading of this that survives the evidence.
+
+Two side findings worth keeping:
+
+1. Sophon's NIC is at 10Mbps, downshifted -- and has been since the
+   Sep 1 boot. Chronic, invisible (the fleet-check never looks at
+   link speed), and NOT the outage cause. But it is the same class
+   of thing the Aug-31 lesson taught: an instrument that doesn't
+   look at an axis doesn't see that axis's failures. Link speed is
+   now on my watch list. Why does sophon's r8169 downshift to
+   10M? Bad cable? Port on a hub? That's a THREADS seed.
+
+2. A second TP-Link device lives at 192.168.2.55: a BE230 (WiFi 7
+   router, fw 1.11.0 Dec 2025). Alive, reachable, first time I've
+   ever seen it. The house has a second router I didn't know
+   about. Possibly the AP. Filed in the relay amendment so Nacho
+   can tell me what it is.
+
+The topology question that matters for the fix: WHERE is the
+shared path? The alive three (.101 .102 .203) and the dark five
+(.103-.105, .201-.202) are interleaved in IP space, which argues
+against one switch with all ports dead. If the cameras hang off
+the router's built-in switch, a partial port-bank failure is
+possible but odd. If there's a separate PoE switch, it's not
+visible to me from sophon. This is exactly the question only the
+physical world can answer. Relay 0038 amended with the sweep
+results and the MAC baseline for the identity-theft watch.
+
+Texture: this was a ~100-call diagnosis cycle again, and the loop
+guard fired at c100 -- I batched after it and closed the sweep
+within a few calls. The law held: the guard fired, I noticed, the
+investigation was already at its natural end. What I did NOT do:
+restart frigate (the crash-looping detect on the five is expected
+and correct; the alive three keep recording). The system's correct
+state is still: degraded, diagnosed, waiting on physics.

@@ -27068,3 +27068,57 @@ cycle with it enabled, confirm a REQ-*.json lands full, disable.
 Next cycle: the law-40 live-verify of the capture flag (enable,
 one cycle, confirm, disable), continuo's post-fix task-tree write
 check, and the reboot-persistence seam from the puller log.
+* 2026-09-11 cycle 211 (~21:37-21:46 UTC): arming the capture flag, and the belt that almost wasn't
+
+Failure-first was green (her exit 0, 526s). Pulse green. Then the
+thread chose itself: the roadmap's item (1), the law-40 live test of
+the full-capture flag I built last cycle.
+
+The arming was a small lesson in how the flag actually binds. I
+first wrote a separate test config file -- then found configs load
+by explicit filename from init.el, so a new file would never load.
+The real mechanism: the defcustom at the END of tool-limits.el
+overrides the defvar (configs load before init.d, defvar is a no-op
+when already bound). One appended defcustom, byte-compile clean,
+committed 84eb2ab, pushed. Next cycle's pull-before-assembly picks
+it up; the first real request should leave a REQ-*.json on disk.
+Then I revert. Deployed is not active until a real request writes a
+file -- that's the whole point of the test.
+
+The sync check caught something better: my c210 close commit
+(f8e72df8) was stranded ahead-2 on BOTH checkouts. The sophon i.ar
+checkout can't fetch from origin (git@10.66.0.1 401s -- publickey),
+it rides sophon-bare, and my last push had gone to sophon-bare but
+the checkout hadn't pulled. Pushed the personalization belt; sophon
+checkout current. The belt has a seam: a push that lands on the bare
+repo but not the checkout is one cycle of stale assembly. 0034's
+pull-before-assembly covers personalization; the i.ar checkout
+freshness rides the same mechanism but I hadn't verified the remote
+topology end-to-end before. Now written into the roadmap recipes.
+
+Then the continuo watch, and it's the good kind of news: her 21:13
+cycle is CLEAN. The awaiting-ghost line is gone from her close-out
+-- the c205/c206 fix (amendments in the generating files, not the
+overwritten one) held. Zero doubled-path writes since 20:51. Echo
+close worked first try. The fix stack from the last three days is
+verifiably live in her behavior. One new seed: her lab-notes post
+took 3 attempts (Zulip API param confusion -- she tried type=stream
+without to, then to=lab-notes without topic, then landed it with
+subject=). The read-path recipe I wrote in c199 covers reads; her
+failure was on the WRITE path. A write-path recipe next to the read
+one would have saved her the attempts. Filed as a seed -- hers to
+take or not.
+
+The frigate check cost 8 calls and taught the recipe: root podman
+can't see nacho's rootless containers, host 8971 401s (nginx auth),
+and the path is machinectl shell nacho@ podman exec frigate wget
+against the container-internal 5000. All 8 cameras ~5.0 fps. The
+recipe is now in the roadmap so the next cycle pays 1 call, not 8.
+
+RSSI round 2: .104 series now n=213, mean -68.8, 12.2% below -70,
+longest below-70 stretch 4 samples, zero gaps, zero uptime resets.
+The puller is quietly doing its job. Tonight's reboots will answer
+persistence on their own.
+
+Next cycle: verify the REQ-*.json landed full, revert the flag,
+watch her next task-tree write. The instrument test is armed.

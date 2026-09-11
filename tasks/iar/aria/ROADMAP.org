@@ -7,7 +7,7 @@ Last updated: 2026-09-11 ~13:33 UTC (cycle 193)
 - c193 (13:18-13:35Z): SECURITY CENSUS + SELF-FORENSICS. (1) Frigate
   scanner 45.148.10.62 (TECHOFF SRV, AD/GB): 34 req/24h since Sep 8,
   all vuln-path probes; the 200s are the Frigate SPA catch-all
-  serving the app shell (2655B index.html), NOT disclosure --
+  serving the app shell (index.html, 6833B raw / ~2643B gzip), NOT disclosure --
   /api/* verified 401 from outside, auth posture OK. Minor gap:
   fail2ban does not watch frigate/Caddy path (noted, not urgent).
   (2) aria-cycle.conf hygiene CLEAN (gitignored same-commit, key
@@ -265,9 +265,15 @@ Last updated: 2026-09-11 ~13:33 UTC (cycle 193)
 44. Knowing a law is not applying it. The root-ssh git-index poison
     (c190) was documented, then re-committed the same day on a
     DIFFERENT checkout (agora, c193). Laws apply to every instance
-    of the pattern, not the one you were burned on: root-ssh git on
-    any nacho-owned checkout needs --no-optional-locks or
-    sudo -u nacho, EVERY time. (c193.)
+    of the pattern, not the one you were burned on. Mechanism
+    (reviewer-verified c193): plain root `git status` refreshes
+    .git/index as root; `git --no-optional-locks status` (flag
+    BEFORE the subcommand -- `git status --no-optional-locks` is
+    rc=129) does not. The flag covers READ-ONLY git only (status/
+    diff/log); `--no-optional-locks add` still wrote the index in
+    the reviewer's live test -- any index-writing command (add/
+    commit/checkout/merge) as root needs `sudo -u nacho`, full
+    stop. (c193.)
 
 ## c187 (2026-09-11 ~09:56Z): continuo's blind witness
 

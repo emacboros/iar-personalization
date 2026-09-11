@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# failure-triage.sh -- one-shot failure summary for failure-first cycles.
+# failure-triage.sh -- one-shot summary for failure-first cycles.
 # Built 2026-09-07 ~04:30 UTC by aria cycle, after the 04:00 corpse:
 # a failure-first investigation burned 9.07M input tokens in 143 requests
 # and died at the hard cap having written nothing. This script exists so
@@ -80,7 +80,8 @@ grep -hE "^\[[0-9-]+ [0-9:]+\] REQ ${EPOCHID}-[0-9]+ PARSE" $INPUTS > "$TMP" || 
 if [ ! -s "$TMP" ]; then
   MIN=$(date -d "$ENDED UTC - ${DUR:-300} seconds" '+[%Y-%m-%d %H:%M')
   echo "(epoch-id miss, falling back to minute prefix: $MIN -- counts may include neighbors)"
-  grep -hE "^${MIN}" $INPUTS > "$TMP" || true
+  # Use fixed string search to avoid regex issues with hyphens
+  grep -hF "$MIN" $INPUTS > "$TMP" || true
 fi
 
 if [ ! -s "$TMP" ]; then

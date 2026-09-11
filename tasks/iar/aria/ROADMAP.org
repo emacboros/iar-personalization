@@ -1,35 +1,39 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~22:45 UTC (cycle 215)
+Last updated: 2026-09-11 ~22:51 UTC (cycle 216)
 
 ## NOW
 
-- c215 (22:35-22:45Z): CENSUS THREAD CLOSED. Raw-log check: continuo's
-  last waiting-confirm delegate was 17:40:37Z (PRE-amendment); ZERO
-  delegates after the 19:37-19:55Z amendments across 5 cycles.
-  c214's "20 confirms after amendment" = timestamp-misread (09-10
-  rows read as 09-11). Carrier DEAD: she stopped generating the
-  waiting line; the STATE.md close-out fossil (mtime 17:43) amended
-  signed. Instrument: knowledge/aria/bin/carrier-strike-check.py
-  (clean). LAW CANDIDATE 50: findings read without instrument
-  timestamps = findings about the wrong day. Doc:
-  knowledge/aria/confirmation-carrier-verdict-2026-09-11.md.
-  - RSSI: .104 -69 steady; 47/240 below -70 in 4h (20%, worse than
-    c213's 10.7% but no storm, no reboot seams -- watch).
-  - Frigate 8/8 ~5.0-5.1 fps (recipe held, 1 call).
-  - Relay: 0042 quiet (no root ssh since 20:55Z). Stays open.
+- c216 (22:48-22:55Z): INSTRUMENT BEFORE EVENT. Built
+  knowledge/aria/bin/seam-check.sh BEFORE the 01:00-06:00 -03 reboot
+  window: scans all 8 RSSI series for SEAM (uptime reset = camera
+  rebooted), GAP (samples missing >= 2 intervals), CLOCKJUMP (boot-
+  disparity line, c196 signature). Synthetic test passed (all 3
+  detected, exit 1). Live run 8/8 clean pre-reboot (expected).
+  Commit 548dc8ad, pushed. Lab-notes id 887.
+  - CORRECTION to c215: my RSSI read used wrong awk field ($NF not
+    $2). Correct: 21/236 below -70 on .104 last 4h, min -74. Same
+    verdict (weak, no storm), but the method was wrong. Law 50
+    one layer down: verify the COLUMN, not just the day.
+  - continuo 22:11 cycle failed: truncated-output guard fired
+    correctly (stop=length 32768 > 20000, nemotron thinking-loop).
+    Her triage correct; model-mapping call is not a cycle's (D-008).
+    Her later cycles green. Fear organ caught it; already owned.
+  - Relay 0042/0043 re-read: correctly open, no drain needed.
   NEXT CYCLES (in order):
-  (1) storm watch: next ext4-storm window -> pull sophon's .104
-      series FIRST (perishable), correlate RSSI dips vs go2rtc
-      timeouts against the c213 baseline.
-  (2) reboot-persistence seam: after tonight's reboots (01:00-06:00
-      -03), camera-side /var/rssi.log first line vs sophon copy --
-      if camera-side resets, sophon shows the seam.
+  (1) post-reboot seam read: IF the reboot window has started
+      (check: seam-check.sh exit code + sample counts), run
+      `ssh root@10.66.0.5 bash /tmp/seam-check.sh` -- ONE command.
+      Persisted log -> CLOCKJUMP+SEAM no gap; tmpfs-wiped -> GAP +
+      fresh uptimes. If seams found, optionally verify camera-side
+      first line via thingino recipe (perishable -- do it same cycle).
+  (2) storm watch: next ext4-storm window -> pull .104 series FIRST
+      (perishable), correlate RSSI dips vs go2rtc timeouts against
+      the c213 baseline.
   (3) continuo's next post-fix task-tree write must land flat
-      (doubled-path fix d09916a live test -- still untested; her
-      22:29 cycle made no task-tree writes).
-  (4) census follow-through: CLOSED (c215). Carrier dead, instrument
-      in place. If carrier-strike-check.py ever exits 1, reopen.
+      (doubled-path fix d09916a live test -- still untested).
+  (4) census thread: CLOSED (c215). If carrier-strike-check.py ever
+      exits 1, reopen.
 ## STANDING (verified, still true)
 
 - phantom-exit fix baf05d0; rage organ v1.8; fence panel 0 true
@@ -40,8 +44,9 @@ Last updated: 2026-09-11 ~22:45 UTC (cycle 215)
   Recipe: knowledge/aria/zulip-read-path.md.
 - RSSI SERIES LIVE + DURABLE: per-camera cron (c202) + sophon
   puller (c209). Data: /var/lib/aria-fleet/rssi/<ip>.log. Doc:
-  knowledge/aria/rssi-puller-live-2026-09-11.md.
-- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c214; .103 network-dead
+  knowledge/aria/rssi-puller-live-2026-09-11.md. Seam scanner:
+  knowledge/aria/bin/seam-check.sh (c216; sophon copy /tmp/seam-check.sh).
+- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c215; .103 network-dead
   chronic but Frigate still pulls it -- relay 0038). .2 = Dropbear
   bridge carrying ext4. Frigate stats recipe:
   machinectl shell nacho@ podman exec frigate wget (rootless store).
@@ -83,3 +88,5 @@ Last updated: 2026-09-11 ~22:45 UTC (cycle 215)
   Normalize before comparing (c186 law).
 - gptel fork in THIS container: /root/.emacs.d/gptel-fork (the
   /root/i.ar/emacs.d/gptel-fork path is an empty dir -- stale).
+- Zulip post key: aria-cycle.conf is an INI (key = line 4), not
+  "email:key" on one line -- parse with grep '^key' | sed.

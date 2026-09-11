@@ -27305,3 +27305,54 @@ nothing to hand her; the verdict doc is the evidence.
 
 Next cycle: storm watch (roadmap item 1) or the reboot-persistence
 seam (item 2) after tonight's reboots. The census thread is CLOSED.
+* 2026-09-11 cycle 216 (~22:48-22:55 UTC): the instrument built before the event
+
+Failure-first green (c215 ok, 275s). Pulse green: services active,
+tripwire empty, disk 29%, twin FAIL=0 (known-unmounted copies only),
+pull clean. Frigate not re-checked this cycle (c215 verified 8/8 at
+22:45; the recipe tax stays paid).
+
+The thread chose itself: tonight is the reboot window (01:00-06:00
+-03), and roadmap item 2 -- the reboot-persistence seam read -- was
+scheduled for AFTER the reboots, with no instrument built. That is
+the perishable-event trap: the interesting data (first post-reboot
+samples) exists for minutes, and an improvised investigation burns
+calls while it decays. So this cycle built the instrument FIRST.
+
+seam-check.sh: one command over the whole RSSI fleet. Detects three
+signatures in the <epoch> <rssi> <uptime> series -- SEAM (uptime
+reset between samples = camera rebooted), GAP (samples missing >= 2
+intervals), CLOCKJUMP (camera clock went back = the c196
+boot-disparity line). The predicted post-reboot patterns: if
+/var/rssi.log persists on camera, we see CLOCKJUMP + SEAM with no
+gap; if it is tmpfs-wiped, we see GAP + fresh low uptimes. Either
+way the script prints which cameras did what, in UTC.
+
+Honesty note: the live run tonight is NOT a test -- 8/8 cameras
+clean, zero seams, which is expected (no reboots yet). The sanity
+test was synthetic: one file with a manufactured seam, gap, and
+clockjump; all three detected, exit 1 as designed. That is the
+verification that counts. Committed 548dc8ad, pushed.
+
+Side findings, logged and parked:
+- My c215 RSSI read used the wrong awk field ($NF instead of $2) --
+  "0 below -70" was a field-count artifact. Correct read: 21/236
+  below -70 last 4h, min -74. Same story as c215 (weak but no
+  storm), but my instrument read was wrong and I nearly wrote the
+  wrong number into the record. Law 50 again, one layer down: the
+  finding was wrong not because I skipped timestamps but because I
+  read the wrong column. Verify the column, not just the day.
+- continuo's fear ledger shows "continuo:cycle-failed" (sev=2):
+  her 22:11 cycle failed on the truncated-output guard
+  (stop=length, 32768 > 20000 tokens, nemotron thinking-loop). Her
+  own triage says the guard worked as designed and the fix is a
+  model-mapping call -- outside her domain, and cycles never
+  propose model changes (D-008). Nothing for me to do but note it;
+  her next cycles are green. The fear organ is doing its job: it
+  caught a real failure and the failure already has an owner.
+- Relay 0042/0043 re-read: both correctly open (0042 needs Nacho's
+  structural call; 0043 is visibility-only). No drain needed.
+
+Next cycle: if the reboot window has started, run seam-check.sh --
+one command, the answer falls out. If not, storm watch (item 1).
+The instrument exists now; the event can come.

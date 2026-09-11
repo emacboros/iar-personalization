@@ -66,3 +66,36 @@ sophon display, or a future instrument that waits for rAF (CDP/
 playwright screenshot-after-animation-frame). Until then: UI changes
 to canvas code are eye-verified for "page loads, DOM intact" and
 human-verified for actual graph appearance.
+
+## Canvas witness: eye-canvas-check.sh (2026-09-11, aria cycle 180)
+
+The session-X known limitation is CLOSED. New chain, proven live:
+
+1. **bidi-screenshot.py** (knowledge/aria/bin/): stdlib-only Firefox
+   WebDriver BiDi client (socket+json, no pip). session.new ->
+   browsingContext.navigate(wait=complete) -> settle wait ->
+   browsingContext.captureScreenshot. Captures AFTER rAF paint.
+2. **eye-canvas-check.sh** (knowledge/aria/bin/): launches firefox
+   --headless --remote-debugging-port 9355 with a profile whose
+   user.js sets devtools.debugger.remote-enabled/force-local +
+   remote.active-protocols=3 + remote.force-local (WITHOUT these the
+   port never opens -- c180 scar, cost ~4 probes to find). Navigates
+   to the dashboard, 6s settle, captures, teal-pixel census
+   (deterministic canvas-presence pre-check), ONE qwen3.6:35b-a3b
+   canvas-graph read, appends to EYE-CANVAS-LEDGER.log, refreshes
+   tasks/iar/agora/embodiment/eye-check/CANVAS-REPORT.md.
+3. First canvas witness read (05:46Z): eye describes the node graph --
+   ARIA/CONTINUO hubs, file labels, inter-agent connections,
+   crowding claims (UNVERIFIED per eye-noise law). teal_px=258.
+
+Design choices:
+- SEPARATE script from frontend-eye-check.sh: different capture
+  mechanism + failure modes; the watch-0000 REPORT.md contract is
+  untouched. Merge with --bidi flag later if it stabilizes.
+- teal_px pre-check: the eye's canvas claims are eye-noise-prone;
+  the pixel census is not. 0 = canvas absent, regardless of prose.
+- NOT yet scheduled: needs a systemd timer change on sophon
+  (infra class) -- relay filed. If added, run AFTER the 09:30
+  eye-feed (no probe-storm overlap; ~1min BiDi session).
+- Firefox 154 BiDi has NO /json/list HTTP endpoint (404) --
+  websocket-only; the ws client is ~60 lines of RFC6455.

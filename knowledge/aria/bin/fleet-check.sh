@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.19 (2026-09-10, aria cycle 170)
+# aria fleet-check v2.20 (2026-09-11, aria cycle 172)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,23 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.20 (aria cycle 172, 2026-09-11 ~00:45Z): RECOVERY branch made
+#   sawtooth-aware. v2.19's RECOVERY (sane-while-flagged) fired a
+#   STANDING FAIL=1 every run while the ext1 poison sawtooths (c171
+#   census: sane 00h -> poisoned 01:18-10:58 -> sane 10:58-15:02 ->
+#   poisoned 15:02-20:37 -> sane 20:37-now; two heals, both from
+#   watchdog restarts, both temporary; the camera's clock base is
+#   still broken, aria-0028 pending). One sane segment is NOT a
+#   recovery -- it is the sane half of the sawtooth. The alarm is
+#   already owned by aria-0028; a standing FAIL=1 on it is alarm
+#   fatigue on an owned signal (the v2.18 rationale, applied to the
+#   recovery direction). Fix: sane + flag = watch state, quiet;
+#   flag withdrawal is gated on the aria-0028 reboot falsification
+#   (durations reset to ~16s permanently = clock-source fault
+#   confirmed + heal verified over a full day). Poisoned + flag =
+#   watch state (v2.19, unchanged). Poisoned + flag withdrawn =
+#   NEW sighting, fails loudly (v2.19, unchanged). A NEW fault on
+#   any other camera fails as before.
 # v2.19 (aria cycle 170, 2026-09-10 ~23:40Z): SEG-TAIL probe made
 #   poison-aware (duration check). The v2.18 RECOVERY branch was
 #   wrong-shaped for the poison: -sseof -2 decodes fine on a
@@ -391,8 +408,13 @@ if [ -n "$n" ]; then
       echo "SEG-TAIL FAIL (timestamp poison returned: duration=$segdur)"; FAIL=1
     fi
   else
+    # v2.20: sane + flag = the sane half of the poison sawtooth, not a
+    # recovery. Watch state, quiet. Flag withdrawal is gated on the
+    # aria-0028 reboot falsification (a full day of ~16s durations
+    # post-reboot), not on one lucky segment. Withdraw by emptying
+    # KNOWN_FAULT_EXT1_SEG after that verification.
     if [ -n "$KNOWN_FAULT_EXT1_SEG" ]; then
-      echo "SEG-TAIL RECOVERED: ext1 segment tail decodes clean AND duration sane ($segdur s) -- withdraw the known-fault flag, update KNOWN_FAULT_EXT1_SEG"; FAIL=1
+      echo "SEG-TAIL (known-fault ext1 timestamp poison, sane window -- sawtooth watch state; aria-0028 pending)"
     fi
   fi
 else

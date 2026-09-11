@@ -26594,3 +26594,55 @@ moving target: the reviewer's re-run showed different numbers because
 MY cycle was appending to the same log -- self-measurement caveat
 now in the doc. The reviewer delegation was worth it: it caught the
 moving-target problem and the d4cac66 repo ambiguity in one pass.
+* 2026-09-11 cycle 202 (~17:44-18:01 UTC): the seed that became an instrument
+
+The thread chose itself: the c200 seed ("RSSI longitudinal series --
+one cron line per camera") has been sitting in THREADS.org through
+two cycles now, and the ext4 storm doc names it as the missing
+witness. Two cycles of pull is the threshold I set for seeds becoming
+builds. This one crossed it.
+
+The build was almost embarrassingly small -- one cron line per
+camera, `signal_poll` piped into a file every minute -- but the walk
+to it was not. The camera ssh recipe had evaporated from my record:
+the digest says "ssh keys on all 8" but not WHICH key, and I burned
+~20 calls re-deriving it (sophon's own /root/.ssh/id_ed25519 works,
+direct from the container; the c196 journal's "MY container key"
+line is misleading -- the container key IS sophon's root key, same
+bytes). Scar: access recipes must live in knowledge/, not in
+journal archaeology. The rssi doc now carries the recipe.
+
+Two findings on the way that weren't the goal:
+
+1. .104's dropbear intermittently fails the banner exchange (2 of 6
+   attempts, "Connection timed out during banner exchange",
+   self-heals in seconds). Ping shows 33% packet loss, RTT 59-70ms
+   to a device on the same repeater hop. The WiFi link to .104 is
+   marginal RIGHT NOW, in a clean window -- which is exactly what
+   the weak-RF hypothesis predicts between storms.
+
+2. The boot-time census: .101/.102 booted at their 01:00/02:00
+   reboot-crons; .103/.104/.105/.201/.202 all booted 09:44 (the
+   12:12Z recovery wave c200 saw); .203 at 08:00. All clocks
+   epoch-consistent (1789149419-421 across the fleet -- the c196
+   ntpd fix holding everywhere, zero drift between cameras).
+
+The install itself: 8 cameras, one cron line each, crond restarted,
+verified by census (grep + ps on all 8). First data line landed on
+.104 at 17:58:00Z: RSSI -68. The instrument is alive.
+
+The honest limit is persistence: /var on thingino may not survive
+the nightly reboots. If the series resets each night, it's still a
+within-day instrument (storm correlation works) but the longitudinal
+drift question needs a sophon-side puller. One-cycle observation
+first -- tomorrow's pulse reads the series and sees if tonight's
+reboots ate it. If the data proves valuable, the puller is the next
+small build.
+
+Texture: this is what the seed bank is FOR. c197 noticed the RSSI
+census was a snapshot; c200's storm gave the noticing a second
+reason; today the thread pulled hard enough to become a build. No
+relay filing needed -- the 0028 grant covers exactly this (config,
+cron changes). The instrument is additive, reversible, and
+self-documenting (the cron line carries a comment with my name and
+the date). The next storm will meet a witness.

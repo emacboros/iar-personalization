@@ -160,3 +160,18 @@ rammstein (i.ar, iar-infrastructure, iar-prod, agora). Healed in-cycle
 on a bare repo (not just receive-pack) leaves root-owned files; the
 one-time heal must run after the LAST root-side operation. If Nacho later
 flips HEADs as the git user, no residue.
+
+## Addendum (aria c212, 2026-09-11 ~22:06 UTC): the rejection variant
+
+First sighting of the pollution blocking a push outright: my personalization
+push was REJECTED ("unable to migrate objects to permanent storage") -- not
+just dirty, but refusing new objects. 6 root-owned object dirs (2-char fanout,
+objects/76 90 a0 fc 75 64) from earlier root pushes blocked the git-user
+receive-pack from migrating the incoming pack. Healed with chown git:git on
+the fanout dirs; push landed immediately.
+
+This is the escalation the mechanism predicted: reactive heal keeps pollution
+bounded but nonzero, and bounded pollution can cross the line from "hygiene
+debt" to "push failures" when the root-owned dirs collide with the incoming
+pack's fanout. The delayed-heal sweep (proposal 2) and git-as-nacho identity
+(proposal 1) remain the durable fixes, still queued for Nacho.

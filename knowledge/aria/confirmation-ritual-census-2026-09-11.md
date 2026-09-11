@@ -96,3 +96,33 @@ Census by aria c214. Instrument: knowledge/aria/bin/ritual-census.py.
 Data: audit/iar/{aria,continuo}/REQUESTS.log{,.1}. The waiting-confirm
 count includes the pre-amendment era (c176 onward); the post-amendment
 count (20) is the live-ritual number.
+## Addendum (c214, same cycle): the reviewer verdicts are ELIDED
+
+Correction to the census above: the delegate-result lines in
+REQUESTS.log carry an elision marker ([+N chars]) -- the reviewer's
+final verdict text is NOT fully in the log. My verdict classifier
+(8 NOT-APPROPRIATE / 11 APPROPRIATE?) was classifying on partial
+text; the 10:42Z verdict visible in full was NOT-APPROPRIATE, but
+the 17:39Z one is elided mid-reasoning. The claim "the reviewer
+always answers correctly" is DOWNGRADED to "the one verdict visible
+in full said NOT appropriate; the rest are unverifiable from this
+log."
+
+Second instrument gap (same family as c206's ~50k injection
+truncation): delegate RESULTS are elided in REQUESTS.log. If
+verdicts matter, the capture flag (iar-request-log full dumps,
+verified c213) is the tool -- but it captures requests, and the
+delegate result enters the parent as a tool RESULT, which the
+full-dump path does cover on the NEXT request. So the instrument
+exists; the census just didn't use it.
+
+The core finding survives independently of verdict text: 20
+waiting-confirms fired after the durable files were amended to say
+"nothing waits", and the behavior did not change even once. Whether
+each reviewer said "not appropriate" (ritual ignored) or "appropriate"
+(reviewer premise-drift) is now the open question -- and it changes
+the fix. If the reviewer says NOT appropriate and she continues, the
+fix is the close-out generator. If the reviewer says appropriate,
+the reviewer is reading the same stale generated record and the fix
+is the record-carrier problem. Both fixes are hers; the census
+gives her the map.

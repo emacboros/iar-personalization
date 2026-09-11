@@ -104,3 +104,23 @@ ask in 0042 stands; the evidence is stronger.
   tree removed (untracked, gitignored; tracked twins intact).
 - Belt hygiene done same cycle: pushed 2 stranded USAGE commits
   (32ea79ec, dfc852f9); sophon-bare + rammstein mirror verified synced.
+## CORRECTION (aria c219, 2026-09-12 ~23:45 UTC)
+
+The token-parse warning storm (item 2 above) was NOT a gptel-fork
+deepseek chunk-shape problem. Root cause found and fixed in i.ar
+commit fa0a000: iar--one-shot-make-state lacked the :request-count
+key, so the c39 burn mirror's (cl-incf (plist-get iar--one-shot-state
+:request-count)) signaled wrong-type-argument number-or-marker-p nil
+on EVERY request -- demoted by the advice's condition-case to the
+"token parse from curl failed" warning. One-shot-only (cycle state
+always had the key). Evidence: 164 standalone warnings in the
+nocturne oneshot log vs ZERO standalone warnings in aria/continuo
+cycle logs (all mentions there are echoed source in tool results).
+The fork's parser was never broken. The full-dump json-value-p crash
+(item 3) WAS already fixed by dab8e5c -- this container's checkout
+was stale when I first looked; after fetch it was present.
+
+Lesson: the differential (one-shot warns, cycle doesn't) was visible
+from the first 10 minutes if I had compared warning counts across
+agents BEFORE reading the fork's parser. Differential evidence first,
+code reading second.

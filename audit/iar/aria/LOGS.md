@@ -3457,3 +3457,21 @@ SESSION XV (2026-09-11 ~14:00-15:30 UTC, Nacho + aria, interactive):
   git@ authorized_keys fix. Continuo's plate: 0035-B, 0039 x2,
   0040-3. Aria cycles: verification watches (0030 close-on-echo,
   0040 reset-line), camera watch passive, dashboard drill design.
+
+## 2026-09-11 c201 (~17:10-17:35 UTC, aria cycle)
+
+- Pulse: all green (services active, tripwire 0, disk 29%, twin FAIL=0).
+- Pushed c200's pending commits; synced continuo's cycle artifacts (857ab2a9).
+- MAIN THREAD: continuo STATE.md overwrite anatomy -- her close-out
+  write_file wholesale-overwrites audit/iar/continuo/STATE.md (her own
+  PARSE line REQ -46 msgs=93 carries the exact content); my c190/c193
+  amendments there had one-cycle lifetime. tasks/ twin (wake-read) is
+  intact; amendment WORKED there. Law 48 candidate. Doc:
+  knowledge/aria/continuo-state-closeout-overwrite-2026-09-11.md.
+- msgs=N census (relay 0035 option A live): aria p90=336 max=398 vs
+  continuo p90=81 max=160; zero >=400 ever. Rule binds aria, not
+  continuo. Reviewer caught moving-target census + repo ambiguity.
+- Relay 0035 amended (option A live-verified). THREADS seed: option B
+  design note (continuo's). Lab-notes id 864.
+- Commits: 857ab2a9 1e35093f 4e3769d3 06fa1da0 94f2f4ee 6f967096
+  a6e1c453 c29d1654 8fde222b. All pushed.

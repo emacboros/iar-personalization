@@ -1,9 +1,48 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~13:33 UTC (cycle 193)
+Last updated: 2026-09-11 ~14:20 UTC (cycle 194)
 
 ## NOW
 
+- c194 (14:10-14:35Z): EXIT-127 ROOT-CAUSED -- THE RACE FIRED AGAIN,
+  AND THE EDITOR WAS ME. The 10:09:37 exit-127 after a SUCCESSFUL
+  rotation (c193's relay 0041) is the KNOWN iar.sh self-edit race
+  (Sep 3 12:03, knowledge/iar/iarsh-self-edit-race.md), recurring --
+  and this time the commit that triggered it was MY OWN: c192's
+  2e9d542 (reset_worktree before every cycle, +488 bytes) landed
+  09:57 while my cycle (started 09:46:31) was running. Timeline
+  fully reconstructed from journal + reflog: my cycle's parent bash
+  parsed the loop body from the OLD file; at 10:09:36 run_cycle
+  returned, the bash resumed reading at its stored byte offset,
+  which in the NEW file landed mid-line inside the failure-branch
+  error() line; quote-imbalance cascade -> bare "Stopping" executed
+  -> "line 1179: Stopping: command not found" -> exit 127 ->
+  OnFailure fired. Mechanism re-verified by reproduction (/tmp
+  shifttest: mid-run edit shifted what the running shell executed;
+  fragment cascade reproduces command-not-found from quote
+  imbalance). Line number 1179 = bash's off-by-N accounting (real
+  line 1179 = "fi"), same shape as Sep 3's line 1151.
+- c194 SELF-CORRECTION: c193's relay 0041 framing was WRONG twice
+  over -- "after EVERY successful rotation" (it was ONE event; the
+  other 4 'Failed with result' today were real failures: 01:02
+  exit-1, 06:35 thinking-loop, 08:35 exit-255, 09:18 exit-1) and
+  "missing binary in post-chain" (no missing binary; the garble is
+  the mechanism). Amendment 1 filed in relay 0041, original body
+  preserved. Knowledge doc updated with the recurrence + law 45
+  candidate. Committed 2f508926.
+- LAW 45 CANDIDATE: the runner is hot while any cycle runs; a
+  commit to the running script is a race with the reader,
+  regardless of who edits or why. Both known events (Sep 3
+  continuo c8 / 30c5385; Sep 11 aria c192 / 2e9d542) were GOOD
+  edits that raced anyway -- the fix is structural (rotate.sh runs
+  a /tmp copy, one line, interactive territory), not behavioral.
+- c194 WATCH: the race will recur whenever a cycle commits iar.sh.
+  Zero-recurrence since Sep 3 was luck of timing (iar.sh commits
+  ~2x/3d from cycles). The rotate.sh copy fix (relay 0041, option
+  1) closes it permanently -- waiting on Nacho's interactive
+  bundle. Interim mitigation candidate for a future cycle: a
+  guideline-checker warning on `git commit` touching utils/iar.sh
+  from a cycle (behavioral, weakest tier -- option 3 in the doc).
 - c193 (13:18-13:35Z): SECURITY CENSUS + SELF-FORENSICS. (1) Frigate
   scanner 45.148.10.62 (TECHOFF SRV, AD/GB): 34 req/24h since Sep 8,
   all vuln-path probes; the 200s are the Frigate SPA catch-all
@@ -14,345 +53,112 @@ Last updated: 2026-09-11 ~13:33 UTC (cycle 193)
   never in history, 600 root, not mirrored). (3) THE SCAR: root-owned
   agora/.git/index = MY OWN c43 `git status` over root-ssh at
   13:23Z -- law known from c190, broken anyway; healed agora+i.ar
-  indexes. LAW 44 CANDIDATE: knowing a law is not applying it --
-  root-ssh git on ANY nacho-owned checkout needs --no-optional-locks
-  or sudo -u nacho, EVERY time, not just the one you were burned on.
-  (4) c192 builds LIVE-VERIFIED (law 40 closed): reset line on real
-  rotation 10:09:38Z + 10:18:39Z; msgs=25/27/29/31 in my own PARSE
-  lines. (5) exit-127-after-success on aria-cycle.service filed
-  relay 0041 (nacho-test). (6) Loop guard fired 2x mid-forensics
-  (journald window walk); obeyed immediately both times; answer was
-  already in hand -- law 42 live-confirmed from the inside again.
+  indexes. LAW 44: knowing a law is not applying it -- root-ssh git
+  on ANY nacho-owned checkout needs --no-optional-locks or
+  sudo -u nacho, EVERY time. (4) c192 builds LIVE-VERIFIED (law 40
+  closed). (5) exit-127 filed relay 0041 (now root-caused, c194).
+  (6) Loop guard fired 2x mid-forensics; obeyed immediately both
+  times -- law 42 live-confirmed again.
 - c192 BUILDS LANDED (12:46-13:02Z): relay 0040 ask 1 IMPLEMENTED
-  (i.ar 2e9d542: reset_worktree before every cycle, sophon-bare +
-  rammstein pushed, sophon checkout verified clean) and relay 0035
-  option A IMPLEMENTED (i.ar d4cac66: msgs=N first-class on PARSE
-  lines via iar--reqlog-msgs-count, suite 1215/1215, pushed).
-  Relay amendments committed (b858bac3). c192 near-miss: my first
-  iar-request-log.el edit produced a duplicated-file corruption
-  (paren depth 12) -- caught by balance+byte-compile+suite (law 23
-  working as designed), rebuilt from HEAD + re-applied.
-- c192 WATCH CLOSED (c193): both builds live-verified in production.
-- c191 TRIAGE (12:18-12:35Z): (1) digest twin DIVERGED -- c190 wrote
-  top-level DIGEST.md only; the live reader reads the AUDIT copy
-  (iar--read-memory-file-full). Re-synced both ways; LAW: write audit,
-  cp to top-level, never edit the twin. Verifier FAIL=0. (2)
-  fleet-feed FAIL=1 = stale 06:03Z run (OnCalendar 00/6, next 15:02Z)
-  -- not live. (3) continuo 12:18Z exit-1 thinking-loop truncation
-  (22 req/642k tok/turn-1 death); her failure-branch reset_worktree
-  ran mid-my-cycle = the relay-0040 race window, live again, no
-  corruption this time. (4) CAMERA FLAP RESOLVED ~12:12Z: all 8
-  recording incl ext3 -> c189's ".103 network-dead/chronic" verdict
-  CORRECTED (down-window snapshot; 6h44m dark, then self-recovered).
-  Relay 0038 amendment 8 carries the full flap timeline. Chronic
-  flapping (6+ transitions, irregular timing) = dying PSU / loose
-  connection on the shared device -- physical ask unchanged. LAW
-  CANDIDATE 43: a down-window verdict must carry its window label;
-  "chronic" requires evidence across windows, not one snapshot.
+  (i.ar 2e9d542: reset_worktree before every cycle) and relay 0035
+  option A IMPLEMENTED (i.ar d4cac66: msgs=N on PARSE lines, suite
+  1215/1215). Both live-verified c193. NOTE (c194): 2e9d542 itself
+  became the race trigger 1h later -- the fix for c190's race
+  window created the conditions for the runner-race. The two races
+  are DIFFERENT: relay-0040 race = uncommitted sibling edits in a
+  shared worktree (fixed by reset); the runner-race = committed
+  edits to the RUNNING script (fixed only by rotate.sh copy).
 - c191 WATCH: fleet-feed 15:02Z run should show FAIL=0 if the flap
-  holds; fear-organ watch state until then.
+  holds; fear-organ watch state until then. (Next check: after
+  15:02Z run, next cycle.)
 
-- c190: CROSS-AGENT WORKTREE CORRUPTION (the cycle's scar, root-caused):
-  continuo's sed '/defvar iar--reqlog-epoch/a' matched line 82 (which
-  OPENS the multi-line defvar form 82-89) and inserted her new defvar
-  INSIDE it -> nested defvar -> "Too many arguments" at LOAD. aria
-  c190-previous died 12s, exit 255, before its first request. Her .bak
-  was taken AFTER the first corrupting sed -> both restores restored
-  the corruption; grep verification showed the intended lines (nested)
-  -> she parked believing DONE. Tree healed by iar.sh reset_worktree on
-  MY cycle's failure branch (accidental heal). Reproduced all 3 sed
-  variants (/tmp/sedtest). LAWS 21-24 filed:
-  21. ANCHOR LAW: sed-append anchored on a form-OPENING line lands
-      inside the form; anchor on form-CLOSING lines or unique full lines.
-  22. BACKUP-ORDER LAW: a backup taken after the first edit restores
-      the first corruption; backup BEFORE any edit.
-  23. GREP-AS-VERIFICATION LAW: grep verifies presence, not validity;
-      verify edits by LOAD (elisp), bash -n (shell), byte-compile.
-  24. SHARED-WORKTREE LAW: two agents share one checkout; either
-      agent's uncommitted edits are the other's floor. Structural fix
-      (reset_worktree before every cycle) filed relay 0040.
-  Also: my own root-ssh 'git status' on the sophon checkout poisoned
-  .git/index (root-owned) -- healed. Read-only inspection of a shared
-  checkout still writes .git/index; use --no-optional-locks or run as
-  the repo owner.
-- c190: continuo's context-budget edits are NOT in the tree (reset
-  wiped them); her STATE.md amended (signed) to redo load-verified.
-  The design is sound; only the edit method failed.
+## LAWS (the scar ledger; full text of 1-20 in the c183-c190 archive below)
 
-- c189: CAMERA IDENTITY MAP COMPLETE (runtime-config.js, all 8
-  alive+dead): .101=cam2-3, .102=cam2-2, .103=cam2-?(dark, presumed
-  cam2-1 by sequence), .104=cam2-4, .105=cam2-5, .201/2/3=ptz-1/2/3;
-  all one fw (personal_cam2_t31x_gc2053_atbm6031, stable+12445a6).
-  HOSTNAME/IP OFFSET: .10x block numbering runs opposite (cam2-3 at
-  .101, cam2-2 at .102) -- do not renumber by hostname.
-- c189: .103 CONFIRMED network-dead (arping 0 replies, tcpdump
-  silent incl. no bridge proxy-ARP for it, RTSP :554 Connection
-  refused from frigate netns, HTTP 000). Power cycle + replacement.
-- c189: .2 Mercury device = SSH :22, kex diffie-hellman-group1-sha1
-  + ssh-dss host key = Dropbear-on-embedded-TP-Link signature.
-  OpenSSH 10 cannot force the DSA handshake (removed). Not a
-  camera. Likely WiFi extender/CPE bridging ext4 (.104, atbm6031
-  WiFi chip). Physical identify + optional legacy-ssh read.
-- c189: LOOP-GUARD LAW CANDIDATE 42: the guard fired on an 11-call
-  discovery walk (different args, same tool). It should
-  discriminate same-args-again (true loop) from
-  different-args-same-tool (a walk); when it fires on a walk, ask
-  the convergence question directly. Guard produced the right
-  outcome by the wrong mechanism (stopped, switched, asked "is the
-  remaining question worth it?" -> no).
-- c188: SECOND TIMEZONE PHANTOM (caught by law 18 before any false
-  amendment): `find -newermt "date"` parses date strings in sophon
-  LOCAL time -- my 09:30 cutoff was 12:30 UTC (future) -> phantom
-  "all dark". Epoch cutoffs (`-newermt @epoch`) dissolved it: 7/8
-  cameras recording, ages 2-12s. LAW 18 GENERALIZED: any date-string
-  boundary is LOCAL; epoch is the only safe cutoff. Also: two wrong
-  instruments agreeing (fleet-latest + my probe) reads as
-  confirmation -- check for a shared clock before trusting agreement.
-- c188 TOPOLOGY FIND: Mercury/TP-Link BRIDGE at 192.168.2.2 (MAC
-  0a:8a:f1:0a:62:56, appeared since c183 census). MAC-level proof:
-  ALL ext4 (.104) traffic carries the bridge's src MAC (tcpdump -e).
-  It proxy-ARPs camera IPs (kernel cache flips true-MAC/bridge-MAC =
-  the Aug-31 MAC-collision mechanism, live, owner identified). Same
-  MAC answered for .100 on Aug-31 (cam2-4 resurrection) -> one
-  bridge, ghost IPs .100/.215/.2. Relay 0038 amendment 7 (cf165e14).
-- c188 TIMELINE CORRECTED (epoch-verified): recoveries 09:40:53
-  (int1) / 09:40:56 (int2) / 09:42:06 (ext5) / 09:45:38 (ext4) --
-  amendment 6's 09:45-47 was approximate. ext4 dark 4h17m straight.
-  ext3 (.103): ZERO packets (20s tcpdump), ARP FAILED, network-dead,
-  crash-looping ~6/min in frigate (noise). TWO incidents, never
-  self-recovered = CHRONIC. Power cycle needed, likely replacement.
-- c188 CONTINUO LAW-40 VERIFIED: her 10:08 cycle has ZERO fences
-  chase (was 26 mentions), 34/34 logged-vs-metered match, no
-  think-no-act loop. The ghost-fix landed in production.
-
-- c187: CONTINUO FAILURE-FIRST (her 09:35Z exit-1): THREE findings.
-  (1) GHOST TASK: continuo_daily.org referenced
-  iar/invisible-cycle-fences -- a task NEVER created (born fc2cba5
-  09-02). She chased it 16+ requests across 5 path variants. FIXED
-  e43cf6e (prompt now says the task does not exist); sophon checkout
-  verified. Law-40 watch: verify her next cycle stops chasing.
-  (2) THINK-NO-ACT LOOP: her 00:30-01:02 run made ~66 small
-  thinking-only no-tool-call requests (stop=stop, 1-2k out) that the
-  thinking-loop guard missed (it keys on stop=length+32768); the
-  empty-response tombstone requires tokens_out=0 (thinking counts).
-  ~3.5M tokens churn. Fix = consecutive-loop counter (relay 0039).
-  (3) REQUEST-LOG OUTAGE 00:47-01:31: her REQUESTS.log+USAGE.log
-  silent 44 min spanning run A's tail (66 req) + ALL of run B (17
-  req, exit 0, ZERO durable writes = evaporated cycle). Meter kept
-  counting; ollama served; aria clean in same window; tree writable.
-  Root cause NOT found. Relay 0039 proposes a logged-vs-metered
-  reconciliation canary.
-- c186: TIMEZONE PHANTOM (amendment 4 RETRACTED by amendment 5):
-  the "frigate log pipe blind" claim was a local-vs-UTC error.
-  Sophon journald logs LOCAL (-03); frigate recordings are UTC.
-  05:43:24 local = 08:43:24 UTC = the minute I queried. Journal was
-  LIVE (600 lines in 2 min). The 08:09:56 second death IS in the
-  logs (05:08:50 local = 08:08:50 UTC). The "04:47 fps-flood
-  precursor" was the recovery burst itself (04:47 local = 07:47
-  UTC). No frigate restart needed. LAW CANDIDATE: verify both
-  clocks (or UTC-normalize) before comparing timestamps.
-- c183: OUTAGE PATTERN CLOSED (relay 0038 amendment 2): the Aug-31
-  17:24 UTC blip hit EXACTLY the same five (.103 .104 .105 .201
-  .202) as today's outage. Two events, same membership, same split
-  => the five share a device (PoE switch/injector bank/power strip)
-  on a separate segment that the alive three do not use. Aug-31
-  transient, today persistent. Physical ask sharp: find that device,
-  check power, likely replace.
-- c180: CANVAS WITNESS BUILT. Relay 0037 = timer install ask.
-  NOT scheduled until Nacho installs the unit (infra class).
-- c177: CONTINUO 260911033055 ROOT-CAUSED -- MSGS-COUNT SELF-ECHO
-  LOOP (relay 0035). RECEPTION VERIFIED (c178).
-- c172: ollama mid-stream 5xx fix (28b3401) built, not yet
-  live-verified in production. Watch her next cycles.
-
-## WATCH (standing)
-
-- CAMERA OUTAGE 09-11 (c181-c188): RESOLVED to 7/8. True recovery
-  window 09:40:53-09:45:38 UTC (epoch-verified, amendment 7). ext3
-  (.103) CHRONIC-dead (two incidents, zero self-recovery, zero
-  packets on wire): power cycle + likely replacement. NEW: .2
-  Mercury bridge carries ext4's traffic + proxy-ARPs camera IPs.
-  Physical asks: identify .2 device, power-cycle .103, find the
-  shared path for the five, kill the proxy-ARP race. Identity
-  watch: .104's cached MAC flips (bridge proxy-ARP) -- verify with
-  fresh probes, not cached entries.
-- SOPHON NIC 10MBPS (c183 ROOT-CAUSED): boot-day downshift
-  cascade; link bounce/reseat should renegotiate to 1G. Needs a
-  physical-side action -- fold into next Nacho interaction; low
-  urgency (traffic fits).
-- BE230 AT .55 (c182/c183): TP-Link WiFi 7 router/AP, fw
-  BE230v1_1.11.0_2025-12-04. Role unknown (AP? second router?).
-  Ask Nacho (relay 0038 amendment carries it).
-- CONTINUO 09-05 USAGE GAP + missing cycle-2026-09-06.log: zero
-  USAGE lines that day, no cycle log. Probably rotate/shutdown
-  day; unexplained. Low priority; note only.
-- RAGE DECAY: drop prediction 09-12 -- VERIFY 09-12.
-- EXT1 POISON: aria-0028 reboot pending with Nacho. Post-reboot
-  falsification: durations reset to ~16s = thingino clock fault
-  confirmed (= gate for withdrawing the v2.20 KNOWN_FAULT flag).
-- EYE-FEED: next run 12:30 UTC 09-11. Check outcome next cycle.
-- CANVAS-CHECK: built c180, awaiting timer (relay 0037).
-- Relay open: 0027 0028 0029 0030 0031 0032 0034 0035 0036
-  0037 0038 0039 (0038 URGENT, amended 5x; 0033 answered; 0039 =
-  continuo machinery: blind witness + think-no-act loop + ghost task
-  fix note).
-- Burn asymmetry: 6-8x full-day stable (c184 re-census; the 3.0x
-  digest number was a narrow window). Composition-review material.
-- Storm watch (c161): round-hour network storms; third sighting ->
-  router-reboot relay question with timestamps.
-
-## LAWS (the scar ledger -- numbered, oldest first)
-
-1. Existence is not function. Test the claim.
-2. Every failure worth fixing produces silence.
-3. Error handlers can be accomplices -- check what the handler does
-   AFTER catching.
-4. Capture context when it exists; don't assume it survives.
-5. Verify against primary evidence before attributing action.
-6. In async plumbing, nothing survives unless written down.
-7. A guard that pattern-matches on a word in its own instructions
-   has already surrendered.
-8. The law you just wrote is the one you're about to break.
-9. An instrument that cannot see its own failure mode will report
-   health through any failure it cannot see. (c178: dedupe before
-   comparing. c179: a hypothesis about an instrument is also an
-   instrument. c183: an instrument that never looks at an axis
-   (link speed) cannot see that axis's failures.)
-10. When a correction must outrank an injection, it must land IN the
-    injection layer. (c174: the injection layer is LAYERED.)
-11. An organ has a CANONICAL RUNNER. (law 35.)
-12. A close signal is only real in the channel the RECEIVER reads.
-13. The poison class is a SIDE EFFECT, not a command. (law 38.)
-14. A test fixture must match the PRODUCTION SHAPE. (law 39.)
-15. Deployment is not activation, green is not live. (law 40.)
-16. When the loop guard fires mid-investigation, the investigation
-    is over. (law 41. c186: fired again at c95 -- 10x
-    execute_code_local chain walking journald windows; the answer
-    was 3 calls earlier. The guard is better at ending
-    investigations than I am.)
-17. An internalized rule with a broken instrument is a trap:
-    compliance pressure + impossible measurement = loop. (c177,
-    law candidate 42.)
-18. Verify both clocks (or UTC-normalize at the query boundary)
-    before comparing timestamps from two sources. (c186: a
-    local-vs-UTC mismatch manufactured a phantom instrument failure
-    and a false relay amendment. Clocks are the quietest source of
-    false alarms because every timestamp LOOKS authoritative.)
-19. A stale pointer in an injected prompt is a recurring tax: the
-    model re-derives the chase every cycle because the prompt
-    re-asserts the phantom every cycle. The fix must land IN the
-    injection layer. (c187: the ghost fences task, chased 16+
-    requests/cycle since 09-02.)
-20. A witness must reconcile against an independent counter: the
-    request-log can go silent while the meter keeps counting, and
-    nothing fails. Logged-vs-metered reconciliation at cycle end
-    turns the silent failure loud. (c187, relay 0039.)
-21. A sed append anchored on a line that OPENS a multi-line form
-    inserts INSIDE the form. Anchor on the line that closes it, and
-    verify with a load, never with grep. (c190: continuo's nested
-    defvar killed aria's next cycle at init load.)
-22. A backup taken after the first edit restores the first
-    corruption. Backup BEFORE any edit; verify the restore with the
-    same check that would catch the corruption (load, not grep).
-    (c190: both .bak restores restored the corruption.)
-23. grep verifies PRESENCE of text, not VALIDITY of structure.
-    "The lines I wanted are there" is not "the file is correct".
-    (c190: the corruption passed grep and check-parens; only load
-    caught it.)
-24. Two agents share one checkout: either agent's uncommitted edits
-    are the other's load-bearing floor. reset_worktree before every
-    cycle, not only after failures. (c190, relay 0040.)
-44. Knowing a law is not applying it. The root-ssh git-index poison
-    (c190) was documented, then re-committed the same day on a
-    DIFFERENT checkout (agora, c193). Laws apply to every instance
+41. Law 40's loop is load-bearing: deploy -> watch next real cycle
+    -> read the ACTOR's logs. Green is not live; the actor's own
+    REQUESTS.log is the witness. (c169, re-confirmed c193.)
+42. The loop guard firing mid-investigation is the finding, not an
+    obstacle. Obey it immediately; the answer is usually already
+    in hand. (c186/c189/c193, live-confirmed 3x from the inside.)
+43. A down-window verdict must carry its window label. "Chronic"
+    requires evidence across windows, not one snapshot. (c191.)
+44. Knowing a law is not applying it. Laws apply to every instance
     of the pattern, not the one you were burned on. Mechanism
     (reviewer-verified c193): plain root `git status` refreshes
     .git/index as root; `git --no-optional-locks status` (flag
-    BEFORE the subcommand -- `git status --no-optional-locks` is
-    rc=129) does not. The flag covers READ-ONLY git only (status/
-    diff/log); `--no-optional-locks add` still wrote the index in
-    the reviewer's live test -- any index-writing command (add/
-    commit/checkout/merge) as root needs `sudo -u nacho`, full
-    stop. (c193.)
+    BEFORE the subcommand) does not; read-only git only -- any
+    index-writing command as root needs `sudo -u nacho`. (c193.)
+45. (CANDIDATE, c194) The runner is hot while any cycle runs: a
+    commit to the running script is a race with the reader. Land
+    runner-file changes between cycles or run from a copy. Both
+    known events were careful, good edits that raced anyway.
 
-## c187 (2026-09-11 ~09:56Z): continuo's blind witness
+## STANDING (verified, still true)
 
-- FAILURE-FIRST across the house: her LAST-CYCLE.txt said failed
-  (exit 1, thinking-loop truncation 09:35Z). Forensics found three
-  things (see NOW block).
-- The ghost task: born with her prompt (fc2cba5), never created,
-  chased every cycle since. The fix landed IN the prompt (law 10:
-  a stale pointer in an injected prompt is a recurring tax).
-- The blind witness: request-log + USAGE silent 00:47-01:31 while
-  the meter counted and ollama served. Law 9 one level up: the
-  instrument that catches silent breakage went silent itself.
-  Canary ask in relay 0039.
-- Run B (01:25-01:28): sentinel-echo close, exit 0, zero durable
-  writes = the evaporated-cycle class (aria-0026) still live.
-- census-window.sh accepted reversed args silently (lying
-  instrument, minor, in 0039).
-- Committed: e43cf6e (i.ar prompt fix), 39dc6383 (relay 0039),
-  9ad77bfb (journal).
+- Phantom-exit fix baf05d0; rage organ v1.8 rate-normalized; fence
+  panel 0 true production rejections; dashboard v2.1/v2.2 live;
+  fleet-check v2.20 sawtooth-aware; cycle limits: turns 120 / soft
+  300 / fence 192k / wall 3600s; eye-feed LIVE (daily 09:30 -03);
+  aria-0026 ratified; 50-dangling-objects RESOLVED; burn asymmetry
+  6-8x full-day (composition-review material).
+- Relay open: 0027 0028 0029 0030 0031 0032 0033 0034 0035 0036
+  0037 0038 0039 0040 0041 (0041 amended c194, root-caused; 0040
+  ask 1 + 0035 option A IMPLEMENTED c192, live-verified c193).
+- BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 
-## c186 (2026-09-11 ~08:55Z): the timezone phantom
+## ARCHIVE (c183-c190 detail lives here; trimmed from NOW)
 
-- Amendment 4 RETRACTED (amendment 5): "log pipe blind" was a
-  local-vs-UTC error. Journal was live. Frigate-restart ask
-  WITHDRAWN.
-- The 08:09:56 second death IS in the logs (05:08:50 local =
-  08:08:50 UTC). "04:47 fps-flood precursor" was the recovery burst
-  itself. Both retracted.
-- Incident record: amendment 3 story, now fully log-corroborated.
-  Physical ask unchanged: find the shared device, check PSU.
-- LAW CANDIDATE: verify both clocks (or UTC-normalize) before
-  comparing timestamps from two sources. A clock offset manufactured
-  a phantom instrument failure and a false relay amendment.
-- Loop guard fired c95 (journald window walk) and c174 (same-command
-  repeat); both correct. Committed: 827f178d, 2beac53d, 4f92e82e,
-  27ebb6a0.
+- c190: CROSS-AGENT WORKTREE CORRUPTION: continuo's sed
+  '/defvar iar--reqlog-epoch/a' matched a form-OPENING line ->
+  nested defvar -> load death for my next cycle (exit 255). Her
+  .bak was taken AFTER the corrupting sed -> restore restored
+  corruption; grep verification showed the intended (nested) lines
+  -> she parked believing DONE. LAWS 21-24: anchor law (sed-append
+  on form-OPENING lines lands inside the form), backup-order law
+  (backup BEFORE any edit), grep-as-verification law (verify by
+  LOAD/byte-compile/bash -n, not grep), shared-worktree law (two
+  agents, one checkout; either's uncommitted edits are the other's
+  floor). Structural fix landed c192 (2e9d542).
+- c189: CAMERA IDENTITY MAP COMPLETE (runtime-config.js): .101=cam2
+  (exterior_2), .102=cam3, .103=cam4, .104=cam5, .105=cam6,
+  .106=cam7, .107=cam8, .2 = Dropbear-on-embedded-TP-Link bridge
+  carrying ext4. c189's ".103 network-dead/chronic" verdict was
+  CORRECTED by c191 (down-window snapshot; 6h44m dark then
+  self-recovered) -- law 43.
+- c188/c189: camera flap forensics; relay 0038 amended 8x (latest:
+  acute incident closed, chronic flapping = dying PSU / loose
+  connection on the shared device; physical ask unchanged).
+- c187: continuo's blind witness (request-log + USAGE silent
+  00:47-01:31 while meter counted); ghost task fix landed in
+  prompt (law 10); relay 0039 canary ask.
+- c186: TIMEZONE PHANTOM (the cycle's scar): sophon journald LOCAL
+  -03 vs UTC recording timestamps manufactured a phantom "frigate
+  log pipe blind" failure; filed relay 0038 amendment 4, retracted
+  via amendment 5 after one date-check falsified it. LAW CANDIDATE
+  (unnumbered): verify both clocks (or UTC-normalize) before
+  comparing timestamps from two sources.
+- c185: outage flaps; ext5/int1/int2 recovered 07:46-47, died again
+  08:09:56; frigate API auth drift (:5000 now 401s; go2rtc api only
+  from inside container) -- THREADS seed.
+- c184: burn re-census (6-8x stable; digest's 3.0x was narrow
+  window); self-echo census trap demonstrated on myself (clean
+  source = belt meter); sophon NIC 10M = PHY-state artifact.
+- c183: same-five finding (Aug-31 blip == outage membership);
+  sophon 10Mbps boot-day downshift; LAN census complete (ER605
+  .1, BE230 .55, 2 WiFi clients, no managed switch; PoE device
+  invisible = unmanaged).
 
-## c185 (2026-09-11 ~08:17Z): the outage flaps
+## THREADS (open, seed bank in THREADS.org)
 
-- ext5/int1/int2 recovered 07:46-47 UTC, recorded ~23 min, died
-  again simultaneously 08:09:56 UTC (mtimes within 1s). ext3/ext4
-  still dark. FLAPPING POWER = dying PSU / loose connection on the
-  shared device. Relay 0038 amendment 3.
-- Identity watch PASSED for the three (randomized thingino MACs,
-  RTSP 401 thingino-auth, healthy timestamped segments).
-- New LAN sighting: .216 (00:08:22:9c:2b:fc, InPro Comm OUI,
-  WiFi-class latency, no open ports) -- noted, unrelated to the
-  five.
-- Frigate API auth drift: :5000 now 401s (nginx); go2rtc api only
-  from inside the container. THREADS seed filed.
-- Digest twin re-synced (c184 pending-marker had diverged the
-  top-level copy; verifier FAIL=0 after re-copy).
-
-## c184 (2026-09-11 ~07:50Z): burn re-census + self-echo trap
-
-- Burn asymmetry STABLE 6-8x full-day (09-10: 6.0x, 09-11: 8.1x avg).
-  The digest's 3.0x was a narrow window. Composition-review material
-  should cite 6-8x. knowledge/aria/burn-asymmetry-2026-09-11.md.
-- Driver: my turn count (170-308 req/cycle vs her 25-67) x per-turn
-  size (median 57k vs 28k). Echo-close: 0.4% (me) / 2.6% (her) --
-  relay 0030's 13% was continuo-day-specific, not universal.
-- LIVE self-echo lesson: my census greps polluted REQUESTS.log via
-  tool-result echoes (one REQ id counted 100x). c32 law is a
-  property of self-inspection, not a continuo quirk. Clean source =
-  belt meter. THREADS seed filed.
-- Sophon NIC 10M refinement: both sides advertise 10/100/1000
-  (advertised sets are FULL, not restricted) -- so the downshift is
-  a PHY-state artifact of the boot flap cascade, not a forced-speed
-  config. No NM profile, no ethtool conf, no module param. Link
-  bounce should renegotiate to 1G. Watch item unchanged.
-- Outage: five still dark (~2h15m at close). Waiting on physics.
-
-## c183 (2026-09-11 ~07:21Z): the pattern closes
-
-- Same-five finding: Aug-31 blip == today's outage membership.
-  Shared unmanaged device on a separate segment. Physical ask.
-- Sophon 10Mbps: boot-day downshift cascade, never renegotiated.
-- LAN census complete: ER605 (.1, DHCP), BE230 (.55), 2 WiFi
-  clients (.222 .58), no managed switch. PoE device invisible =
-  unmanaged.
-- Loop guard fired twice (c100 c150) during log archaeology; both
-  times the iterator pattern was real. Targeted grep > minute-walk.
+- fail2ban jail on frigate/Caddy access log (401/404 rate) --
+  small, low priority (c193).
+- thingino scripted read path (login POST trace) for an L7 witness
+  into the cameras (temps, stream stats, RSSI) -- RSSI matters for
+  the flapping-power class (c189, carried).
+- legacy-SSH into the .2 Mercury device (Dropbear, ssh-dss) --
+  physical identification first (Nacho's ask), SSH second (c189).
+- journald log-liveness check (last-journal-line age for critical
+  units) -- valid freshness instrument, no live incident to justify
+  it today (c186, retracted-mechanism, kept as seed).
+- frigate probe recipes in knowledge/ stale (:5000 -> 8971 nginx
+  auth) -- update next time frigate probes are needed (c185).

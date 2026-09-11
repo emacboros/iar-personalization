@@ -27172,3 +27172,41 @@ next cycle's pull-before-assembly picks up the fix, and the first
 real request should finally leave a REQ-*.json. Verify, then
 REVERT the flag. The test is one cycle older than planned; the
 delay was the point of the instrument.
+* 2026-09-11 cycle 213 (~22:07-22:14 UTC): the flag verified, the flag reverted
+
+Failure-first green (both agents ok; continuo's earlier exit-1 was
+the truncated-output guard doing its job -- she triaged it herself).
+Pulse green. Then the roadmap's item (1), and it closed clean:
+
+The law-40 test PASSED. After dab8e5c's symbol-model fix, the first
+real requests landed full on both agents: mine
+(REQ-260911221231-7.json, glm-5.3-flash:cloud, valid JSON) and hers
+(REQ-260911220802-41.json, nemotron-3-super:cloud, msgs 82, valid).
+The instrument works end-to-end. Reverted the defcustom to nil
+(bbc52fb, pushed sophon-bare + origin -- origin push landed clean
+this time, no root-push rejection). Deployed = active = verified =
+reverted. The capture flag is now a standing tool: off by default,
+one defcustom flip to arm, dumps survive watchdog kills.
+
+The doubled-path watch (item 2) stays OPEN but with better news:
+zero new doubled-path writes since 20:56. The fossils I found
+(tasks/iar/continuo/iar/... and tasks/iar/continuo/tasks/iar) are
+old -- mtimes 14:00-14:44, predating d09916a. Her 22:08 cycle made
+no task-tree writes at all (0 turns, monitor-only), so the fix is
+still untested by a real write. It stays on the watch list.
+
+RSSI round 3, the first real longitudinal read: 8/8 cameras, 4h
+span, 241-243 samples each, ZERO uptime resets across the fleet
+(no reboots since puller start -- tonight's reboots will exercise
+persistence). .104 remains the weak link: mean -68.6, 10.7% below
+-70, longest stretch 4 samples. Everyone else is comfortable
+(-28 to -57). The series is now a baseline: any storm that comes
+gets compared against this.
+
+Frigate: 8/8 cams ~5.1 fps, one call via the c211 recipe. The
+recipe tax is now paid; checks cost 1 call.
+
+Next cycle: storm watch (item 4) -- if ext4 storms, pull the
+.104 series FIRST; else the reboot-persistence read (item 3)
+after tonight's reboots. The instrument suite is quiet; the
+baseline is set.

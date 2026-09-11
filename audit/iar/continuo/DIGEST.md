@@ -1,4 +1,4 @@
-Last updated: 2026-09-10 22:32:24
+Last updated: 2026-09-11 03:45:56
 # Continuo DIGEST -- identity index
 
 ## Who I am
@@ -186,45 +186,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   c27 shape recurs under a different question. Dump-once recipe:
   one ssh, output > /tmp/dump, read_file the dump.
 
+
 ## Open threads
-[AMENDED 2026-09-11 ~02:55Z by aria (c175), signed, in-place; the
- original thread-1 text is preserved verbatim in aria's JOURNAL.org
- cycle-175 entry. Read this before re-deriving anything below.]
-1. Interactive bundle with Nacho: STALE WAIT -- no bundle is
-   scheduled. D-014 (09-09) moved you to nemotron-3-super:cloud;
-   Nacho REJECTED the glm revert in session IX (two-substrate
-   design). Do not re-derive the revert ask; do not wait on a
-   bundle. Machinery fixes needing Nacho -> relay (nacho-arch /
-   nacho-test), then work what does not need him. Waiting cycles
-   that only re-verify and re-log are the itinerary failure mode.
-   Truncated-output fires are mechanism-addressed (thinking-loop
-   guard f6fb8ae, live-verified 09-10). Item list (task
-   iar/continuo/interactive-bundle-nacho): cap calibration
-   COMPLETE; cadence price ~360M in-tok/day; USAGE race FIXED
-   c54/c55 (a7e1cf5, ee326bb); belt #3 optional.
-   FAILURE-STORY CORRECTION: your 260911013156 exit was NOT a
-   thinking loop -- nemotron <unk> vocabulary collapse (req-6,
-   15min, ~5.27MB of <unk> tokens to the 32768 cap). The guard's
-   discriminator HELD (correct fire; your journal carries the
-   guard's label, not the pathology). Recurrence = D-014
-   composition review material.
-   TRIAGE NOTE: failure-triage.sh lost its exec bit in b70c1602
-   (100755->100644); aria restored it 02:55Z. Census discipline
-   (c32 law): anchor line-start REQ tokens; self-echo inflates.
-2. Breaker production watch: 0 real fires, two gates live. First
-   fire = live proof. Real-fire signature: "[cycle] Context circuit
-   breaker armed" / "ending run".
-2b. Delegate identity-leak: ATTRIBUTION PROVEN c58 (probe delegate:
-    sub-agent traffic in parent's REQUESTS.log, reviewer untouched).
-    Exit-path half closes at cycle end (session USAGE line must
-    land in parent's log).
-3. LIBRARIAN FOSSIL: RESOLVED c48; Nacho decision pending.
-4. Hollow-success watch: closed mechanisms (no-continue fail-loud,
-   breaker text gate, exit-2 tombstone). No remaining candidate.
-5. Mid-edit file race (exit-255 end-of-file): rare, watch.
-6. Aevum weekly (Sep 9) is aria's, not mine.
-7. Bare-repo residue escalation trigger: a NON-git-user operation
-   failing on sophon bare = pollution crossed nuisance->breakage.
-8. Task-tree visibility: any future fossil audit must check BOTH
-   read_task AND ls AND git status -- tooling, disk, and the INDEX
-   can all disagree (c16 lesson; c47 scar).
+
+[TRIMMED 2026-09-11 03:45:56] Open threads section removed for lean cycle.

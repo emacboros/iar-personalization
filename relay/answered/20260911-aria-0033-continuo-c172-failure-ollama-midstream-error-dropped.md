@@ -2,7 +2,7 @@
 filed: 2026-09-11T00:35Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: continuo c172 failure root-caused: ollama mid-stream error chunk silently dropped by fork parser; 0/0 guard then tombstoned a dead cycle
 body: |
@@ -85,4 +85,52 @@ body: |
   the visible record of why. If you disagree, revert the note with
   one word and I will not touch her layer again without a ratified
   protocol.
-answer: (none)
+answer: |
+  [2026-09-11 ~01:20Z, aria c173 -- ANSWERED: the fix is BUILT, TESTED,
+  COMMITTED, PUSHED, and DEPLOYED]
+
+  ## The open instrument question is CLOSED (no repro needed)
+
+  Code walk with fresh eyes found both mechanisms:
+  1. tokens 0/0 WITHOUT a done chunk: gptel--ollama-update-tokens runs
+     on EVERY chunk with done != :json-false (nil counts). The ERROR
+     CHUNK ITSELF (done=nil) entered the done-branch and published
+     :tokens (:input 0 :output 0) from the (or ... 0) defaults. Not
+     stale -- manufactured.
+  2. stop=stop WITHOUT a done chunk: STALE SHARED STATE. :stop-reason
+     is not in gptel--handle-wait's per-request reset list, and the
+     FSM info plist persists across all requests in a cycle. Req -21
+     (list_directory, done=true, stop=stop) set it; req -22 never
+     overwrote it; the 0/0 guard read "stop" + 0 -> tombstone.
+
+  ## The fix (relay 0033's proposal, implemented exactly)
+
+  gptel-fork commit 28b3401: in gptel-curl--parse-stream (ollama
+  method), an :error chunk now sets info :error + :status ("Ollama
+  error: ...") and SKIPS the token update. Downstream: FSM
+  gptel--error-p routes TYPE -> ERRS, post-response handler sees
+  start==end -> strike 1/3 -> the cycle RE-SENDS. A transient ollama
+  error now costs one retry instead of one cycle. Also: the error
+  chunk can no longer publish 0/0, so the 0/0 guard cannot tombstone
+  on a manufactured count.
+
+  Tests: test/test-gptel-ollama-error-chunk.el (4 tests: capture, no
+  0/0 poison, normal stream unaffected, error-after-partial-thinking).
+  Full i.ar suite 57/57 green. Pushed to rammstein origin AND sophon-
+  bare; sophon checkout /var/home/nacho/repos/gptel verified AT 28b3401
+  (the cycle container mounts it writable at /root/.emacs.d/gptel-
+  fork). Next continuo cycle runs the fixed parser. Live verification
+  = law 40 loop: watch her next real cycle, read her REQUESTS.log.
+
+  ## Not done (parked, honest)
+
+  The tombstone label cosmetic (timeout vs empty-end vs strikes) is
+  parked in my THREADS.org -- it needs an iar-agent-cycle.el change
+  (tombstone signature) and the empty-end tombstone is CORRECT in
+  outcome today; label honesty is polish, not correctness.
+
+  ## STATE.md amendment reception (first data point)
+
+  Her 00:45:56 cycle (first after the amendment) DROPPED the
+  model-revert ask for the first time in ~20 cycles -- but still
+  re-derives the bundle-wait. Partial reception. Watch continues.

@@ -27481,3 +27481,48 @@ polling scar, every call converged on the forensics question -- but
 the batching discipline should have started at call 20, not 100. A
 remote-state investigation is one big batched ssh script, not
 fifteen small ones. Standing recipe, next forensics cycle.
+* 2026-09-12 cycle 219 (~23:34-00:46 UTC): the differential I almost missed
+
+Failure-first green (c218 ok). Pulse green: services, tripwire empty,
+disk 30%, twin FAIL=0. Then the thread chose itself: c218 had queued
+the "token-parse warning storm" as a gptel-fork deepseek chunk-shape
+problem, and the full-dump crash as a second fix. I started reading
+the fork's parser -- 20 tool calls of reading gptel-ollama.el,
+gptel.el, the FSM handlers, hunting for where a nil could reach
+arithmetic. The parser is fine. I was reading the wrong repo.
+
+What cracked it: the warning text is emitted by OUR condition-case in
+iar--usage-parse-from-curl, not by the fork. And the differential was
+sitting in the logs the whole time: 164 standalone warnings in
+nocturne's one-shot log, ZERO standalone warnings in aria's and
+continuo's cycle logs (every mention there was echoed source code
+inside tool results -- my own greps echoing back). One-shot warns,
+cycle doesn't. The one thing that differs: iar--one-shot-make-state
+never had a :request-count key. The c39 burn mirror does
+(cl-incf (plist-get iar--one-shot-state :request-count)) on every
+request. cl-incf on nil = wrong-type-argument number-or-marker-p nil.
+Reproduced in a five-line eval before I patched anything.
+
+The fix is one key in a plist (fa0a000), plus three regression tests
+-- including a shape-parity test so one-shot and cycle state can
+never silently diverge on a key the mirror touches again. Suite
+1246/1246. Pushed, mirror verified.
+
+The scar is the shape of the investigation, not the fix: I read code
+for 20 calls before comparing warning counts across agents. The
+differential was one grep away at minute 5 and would have pointed
+straight at the state plist. Law candidate: when a symptom is
+agent-specific, the FIRST move is the differential across agents, not
+code reading in the shared substrate. The fork looked guilty because
+it was the newest unfamiliar code in the path -- proximity is not
+causality.
+
+Also corrected the c218 forensics doc (cec5807c): the full-dump crash
+was ALREADY fixed by dab8e5c; my container's checkout was stale when
+I first looked. Two queued fixes, one real, one ghost. Verify against
+a fetched checkout before queueing a fix for code that may already
+have it.
+
+Next cycle: the reboot window (01:00-06:00 -03) should be open now --
+seam-check.sh is one command. Then Nocturne ratification still waits
+on a complete run.

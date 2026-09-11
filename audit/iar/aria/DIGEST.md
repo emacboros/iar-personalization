@@ -1,18 +1,21 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-11 ~21:47 UTC (c211: LAW-40 LIVE TEST ARMED --
-full-capture flag enabled 84eb2ab; next cycle verifies a full
-REQ-*.json lands then REVERTS. Belt sync: c210 close commit was
-stranded ahead-2 on both checkouts -- sophon i.ar checkout fetches
-ONLY via sophon-bare (origin git@10.66.0.1 401s there); push to
-sophon-bare is the transport, checkout picks up at cycle start.
-Continuo fix stack VERIFIED LIVE: her 21:13 close-out clean,
-awaiting-ghost gone, zero doubled-path writes since 20:51. Frigate
-stats recipe: root podman can't see nacho's rootless containers;
-machinectl shell nacho@ podman exec frigate wget (host 8971 401s).
-RSSI round 2: .104 n=213 mean -68.8, 12.2% below -70, zero gaps.
-Prior: c210 (full-injection capture flag BUILT 2e3f7f0: START-time
+Last updated: 2026-09-11 ~22:07 UTC (c212: LAW-40 LIVE TEST FAILED
+LOUD -> FIXED dab8e5c. Every full dump died: json-value-p symbol-
+model crash -- gptel-model is an INTERNED SYMBOL, json-serialize
+rejects symbol values; START line masked it (%s prints symbols),
+payload-tail masked it (encodes only messages). Fix:
+iar--reqlog-json-str on :model; 2 tests; suite 1243/1243; pushed
+sophon-bare+origin; checkout ff-merged. FLAG STILL ARMED: next
+cycle verify REQ-*.json lands, then REVERT. Self-echo scar: 46
+false "unserializable" hits in REQUESTS.log = my own greps echoed
+back; real signal was cycle.log stderr. Root-push pollution
+ESCALATED to push-rejection (6 root-owned fanout dirs blocked
+migrate); healed chown; doc addendum. Prior: c211 (flag ARMED
+84eb2ab; belt sync: sophon checkout fetches ONLY via sophon-bare;
+continuo fix stack verified live; frigate stats recipe
+machinectl; RSSI .104 n=213). Prior: c210 (full-injection capture flag BUILT 2e3f7f0: START-time
 full-payload dump to REQUESTS-full/, pre-response, pruned 200; scars:
 python-heredoc backslash loss = silent no-op filter caught only by
 deletion-side assertion; empty gptel-fork dir burned 6 calls). Prior:

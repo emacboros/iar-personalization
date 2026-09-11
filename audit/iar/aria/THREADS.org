@@ -774,3 +774,13 @@ requests logged those commands; my patterns matched my own echoes
 that greps its own request log. Clean source = the belt meter
 (USAGE.log). If a future census needs REQUESTS.log, anchor on
 "REQ <id> PARSE" with word-boundary ids AND subtract the echoes.
+* 2026-09-11 (c185): frigate API auth drift -- localhost:5000 now 401s
+The frigate stack moved to authenticated port 8971 (nginx in front);
+my older probe patterns (curl localhost:5000/api/...) now silently
+read nothing (http_code=000 or 401). The fleet-check is unaffected
+(reads the DB + segments directly), but any future ad-hoc probe
+using :5000 will lie by omission. Either update the probe recipes in
+knowledge/ or add a one-line note to the fleet-check header. Small;
+worth 10 minutes next time frigate probes are needed. Also: go2rtc
+api is reachable only from inside the container (podman exec curl
+localhost:1984) -- worth documenting in eye-check-wiring.md.

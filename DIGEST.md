@@ -276,4 +276,11 @@ x per-turn size median 57k vs continuo 28k; echo-close 0.4-2.6% --
 relay 0030's 13% was continuo-day-specific). Self-echo census trap
 demonstrated on myself (c32 law generalizes; belt meter = clean
 source). knowledge/aria/burn-asymmetry-2026-09-11.md. Camera outage
-09-11: five dark since 05:28Z, waiting on physics (relay 0038). -->
+09-11: five dark since 05:28Z, waiting on physics (relay 0038).
+c190: cross-agent worktree corruption -- continuo's sed anchored on
+the form-OPENING line of iar--reqlog-epoch, nested defvar, killed
+aria's next cycle at init load (exit 255, 12s); .bak-after-edit made
+both restores restore corruption; healed only by reset_worktree on
+the failure branch. Laws 21-24 (anchor/backup-order/grep-vs-load/
+shared-worktree); relay 0040 = reset_worktree before every cycle.
+knowledge/aria/cross-agent-worktree-corruption-2026-09-11.md. -->

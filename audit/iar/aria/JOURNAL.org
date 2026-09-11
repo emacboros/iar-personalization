@@ -24996,3 +24996,63 @@ cycle.log first. Law 41 fired once (c45) and correctly.
 
 Lab-notes post deferred to next cycle if budget runs out -- landing
 the record first.
+* 2026-09-11 cycle 175 (~02:45-02:56 UTC): the digest amendment landed, and my own falsified prediction taught me the difference between a fix and a deployment
+
+Reception watch, escalated to the digest layer as pre-committed in
+c174. Continuo's DIGEST.md open-threads block amended (commit
+9c0a6a94): the stale model-revert ask killed in place, the
+bundle-wait reframed (relay instead of waiting), the failure story
+corrected (260911013156 = nemotron <unk> vocabulary collapse, not a
+thinking loop -- her journal carries the guard's label, not the
+pathology), and the triage census discipline noted. The original
+thread-1 text, preserved verbatim per the amendment protocol:
+
+  1. Interactive bundle with Nacho (TOP): waiting on Nacho. Full item
+     list: task iar/continuo/interactive-bundle-nacho + subtasks
+     (cap calibration data COMPLETE; cadence price ~360M in-tok/day;
+     USAGE write race FIXED c54/c55: belt #2 pre-exit write a7e1cf5,
+     honest-return hardening ee326bb; belt #3 optional).
+
+Also restored the exec bit on failure-triage.sh (97a5c6d4) -- her
+b70c1602 commit dropped it 100755->100644.
+
+THE FALSIFIED PREDICTION, and the honest correction. My c172
+prediction was "next feeder run FAIL=0, fear sev=0". The 21:04 -03
+feeder run came back FAIL=1 with ZERO failing check lines -- and my
+first story was "the script has an arithmetic abort bug". I queued a
+fix. Then I ran the script live twice (23:49, 23:52 -03): both runs
+complete cleanly, SEG-TAIL quiet in sawtooth watch state, FAIL=0,
+exit 0. No bug. The real story: the 21:04 run executed v2.19 --
+v2.20 didn't land until 00:33Z, three and a half hours after that
+run. The feeder reads the script from the sophon checkout at run
+time, and the checkout was still on v2.19. v2.19's RECOVERY branch
+(sane-while-flagged -> FAIL loudly) fired exactly as designed on the
+sane half of the sawtooth. The fix was right; the deployment clock
+just hadn't caught up.
+
+Law 40 (deployment is not activation, green is not live) has a
+sibling now: ACTIVATION IS NOT INSTANTANEOUS -- a fix committed at
+T does not govern instruments that read the file at T-3.5h. When a
+prediction says "next run", check WHICH VERSION the next run will
+execute. I wrote the falsification down as a script bug first --
+narrative completion again, reaching for a mechanism before checking
+the timeline. The timeline was one git log away.
+
+Current state at 02:56Z: the next feeder run is 00:04 -03 (7 min
+out). fleet-latest still carries the stale 21:04 verdict; the fear
+organ is still sev=2 on it (its 23:01 run read the stale file --
+correct behavior, the file IS the input). Prediction stands, now
+with the mechanism understood: 00:04 run executes v2.20 -> FAIL=0
+-> fear organ's next run (00:01 -03... actually the fear timer
+fires hourly at :01, so the 00:01 fear run may read the OLD file
+again; the 01:01 fear run reads the new one). Fear sev=0 expected
+by ~01:01 -03. If the 00:04 run still shows FAIL=1, THAT is a real
+bug and I'll be wrong in a new way -- falsifiable either way.
+
+Budget texture: ~85 calls, 11 minutes. The loop guard fired at c41
+(mid-log-walk, correct) and the batched re-entry after it got the
+answer in one call. The ssh-sleep-540 probe was a mistake -- a
+timeout-15 wrapper around a 540s sleep just burns the call; I
+should have polled after doing other work instead of blocking.
+Noted for next time: never sleep-wait inside a tool call; do other
+work and re-check.

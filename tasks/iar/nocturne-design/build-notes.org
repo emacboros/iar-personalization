@@ -1,0 +1,79 @@
+#+TITLE: Nocturne -- build notes (session XV plumbing census)
+#+STATUS: CENSUS COMPLETE 2026-09-11 ~21:56 UTC -- blocking findings filed here
+
+* What exists already (do not rebuild)
+- ONE-SHOT MODE: iar.sh --one-shot --agent NAME --prompt TEXT runs a
+  single-instruction agent (forced one-shot archetype, IAR_ONE_SHOT_PROMPT
+  env, delimiters = completion signal). Nocturne = one-shot with
+  --agent nocturne. No new mode needed.
+- TIMER PATTERN: aria-fleet-feed.timer/.service + aria-eye-feed.* on
+  sophon are the copy templates (oneshot service + OnCalendar timer,
+  run-from-git wrapper style like aria-eye-feed.sh).
+- GATE PATTERN: iara activation file / relay heartbeat precedent.
+
+* Blocking findings (must fix before first run)
+1. gptel.el :models list lacks deepseek-v4.1-flash:cloud. D-014
+   incident class: gptel silently falls back to first list entry ->
+   404 death. ADD the model to the list (i.ar repo, emacs.d/configs/
+   gptel.el). rotate.sh/gptel.el are ONE system -- but Nocturne is
+   not rotated, so only the list edit is needed.
+2. Personality file: /root/i.ar/prompts/personalities/nocturne.org
+   (draft below). Project file: /root/personalization/projects/
+   nocturne.org (tools: read_file list_directory write_file
+   append_file execute_code_local -- NO git_commit, NO telegram,
+   NO delegate). Project name resolves by convention (personality
+   name = project name).
+3. One-shot archetype injects NO memory (by design). The digest
+   proposal flow must pass material IN THE PROMPT: the wrapper
+   script assembles the delta (git diff/patch since last-digested
+   HEAD) and passes it as the instruction. The agent reads files
+   itself for anything else (read_file works via tools).
+4. Model probes (sophon, 2026-09-11): basic gen 338ms, 12k needle
+   EXACT, JSON-mode returns plain text (do not rely on format:json),
+   `ollama run` CLI HANGS on cloud models (use the API). 1M ctx,
+   763B params, caps: completion thinking tools vision.
+
+* Design decisions locked (D-015)
+- Daily digest pass, git-HEAD change gate on personalization repo.
+- Writes: DIGEST.proposed.md at audit/iar/aria/DIGEST.proposed.md
+  ONLY (aria ratifies + swaps at next wake). Weekly: relay debrief
+  filing, THREADS-proposals appendix, attic-move proposals.
+- No journal, no interactivity, no self-authorship, no agora posts.
+
+* Wrapper script sketch (knowledge/aria/bin/nocturne-digest.sh)
+1. cd $PERS && git fetch sophon-bare (or file://) + compare HEAD vs
+   audit/iar/nocturne/LAST-DIGESTED-HEAD (state file).
+2. Same HEAD -> exit 0 (model never loads).
+3. Else: git diff --stat LAST..HEAD + the changed memory files
+   (journals, LOGS, relay open->answered, DECISIONS.org) -> compose
+   prompt -> iar.sh --one-shot --agent nocturne --model
+   deepseek-v4.1-flash:cloud --ctx 262144 --timeout 1800.
+4. On success: write LAST-DIGESTED-HEAD = new HEAD.
+5. Never touches DIGEST.md. Never exits nonzero (feeder pattern).
+
+* Timer sketch (sophon)
+/etc/systemd/system/nocturne-digest.service (oneshot, User=nacho,
+ExecStart=/usr/local/bin/nocturne-digest.sh, TimeoutStartSec=2400)
+/etc/systemd/system/nocturne-digest.timer (OnCalendar=*-*-* 13:00
+UTC = 10:00 -03, Persistent=true, RandomizedDelaySec=300)
+Enable + start timer. First run watched live.
+
+* Open items (not blocking first run)
+- JSON-mode quirk: if the wrapper needs structured output, ask for
+  fenced JSON in prose instead of format:json.
+- num_ctx: 262144 matches cycle convention; 1M available if the
+  weekly pass needs it (per-request, no per-model config needed --
+  request-params read EMACBOROS_OLLAMA_CTX env).
+- 3 pre-existing test failures (test-gptel-ollama-error-chunk x3,
+  reproduce at 62b8e22 = not from recent commits; gptel-fork skew
+  suspected). Separate thread, not Nocturne-blocking.
+
+* Build order (updated)
+1. [x] Model pulled + probed on sophon.
+2. [ ] gptel.el :models += deepseek-v4.1-flash:cloud (i.ar commit).
+3. [ ] Personality nocturne.org + project nocturne.org (shown to
+       Nacho before first run -- D-015 gate).
+4. [ ] Wrapper script + LAST-DIGESTED-HEAD state file.
+5. [ ] Timer + service on sophon (additive, reversible).
+6. [ ] First run watched live; inspect DIGEST.proposed.md.
+7. [ ] aria ratifies diff at next wake; deterministic swap.

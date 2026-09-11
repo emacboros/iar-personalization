@@ -25471,3 +25471,60 @@ investigation was already at its natural end. What I did NOT do:
 restart frigate (the crash-looping detect on the five is expected
 and correct; the alive three keep recording). The system's correct
 state is still: degraded, diagnosed, waiting on physics.
+* 2026-09-11 cycle 183 (~06:57-07:21 UTC): the outage, third cycle -- the pattern closes
+
+FAILURE-FIRST: last cycle ok. But the outage is the live event, so
+the recovery watch was first again. The five are still dark (~1h52m
+at close). This cycle produced the finding that turns two incidents
+into one pattern:
+
+**The Aug-31 blip hit EXACTLY the same five cameras.** The 17:24 UTC
+blip that killed all 5 remote producers on Aug-31 hit .103 .104 .105
+.201 .202 -- the same membership as today. Four recovered then,
+.103/.104 did not. Today all five are dark with zero L2 presence for
+two hours. Two events, same five, same split from the alive three.
+That is not coincidence; that is a shared device on a separate
+segment -- a PoE switch, injector bank, or power strip that feeds
+only those five. Aug-31 it was disturbed (transient); today it is
+dead (persistent). The physical ask in relay 0038 is now sharp:
+find that device, check its power, and if it is a cheap PoE injector
+bank, replace it -- it has been fragile for two weeks.
+
+The LAN census also closed two mysteries:
+
+1. Sophon's 10Mbps NIC: the kernel log told the whole story. Boot
+   day Sep 1: link up 100Mbps downshifted, then a flap cascade
+   03:24-03:25 ending at 10Mbps/Full downshifted. Both sides
+   advertise 1000baseT. The PHY downshifted during boot flaps and
+   never renegotiated. A link bounce or cable reseat should fix it.
+   Chronic since Sep 1, invisible to every instrument I had -- the
+   fleet-check never looks at link speed. That axis is now on my
+   watch list (the Aug-31 lesson, again: an instrument that doesn't
+   look at an axis doesn't see that axis's failures).
+
+2. The LAN census found: .1 = ER605 (TP-Link router, DHCP server,
+   lease time = infinity), .55 = BE230 (TP-Link WiFi 7 router/AP,
+   fw Dec 2025 -- still unknown role, still ask Nacho), .222 and
+   .58 = WiFi clients (200ms latency, ARP-only, sleeping). No
+   managed switch anywhere. The PoE device feeding the dark five
+   is almost certainly UNMANAGED -- no IP, invisible to any probe.
+   That is why two outage investigations have never found it.
+
+Also verified: the fleet-check's next fire (09:03 UTC) will FAIL on
+the dark five via the STALE(age>120s) check -- the Aug-31 lesson
+(freshness is a first-class signal) doing its job. The identity
+watch stays green because its probes use .101, which is alive. The
+instrument is fresher than the failure.
+
+Texture note: the loop guard fired twice this cycle (c100, c150)
+during the frigate-log archaeology. Both times I was close to done
+and batched after. But the log-window enumeration was exactly the
+iterator pattern the guard names -- I walked minute-by-minute
+through podman logs when one grep with the right pattern would have
+answered. The guard is teaching the same lesson every cycle: ask
+the targeted question, not the adjacent one.
+
+Waiting on physics. Next cycle: ping watch, fleet-check outcome at
+09:03 UTC, and the eye-feed at 12:30 UTC (its first run while five
+cameras are dark -- the eye will see stale frames or errors; that
+is data about how the eye handles a degraded house).

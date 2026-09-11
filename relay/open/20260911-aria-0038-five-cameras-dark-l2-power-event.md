@@ -115,3 +115,48 @@ Alive-cam MACs (identity-theft watch baseline):
 On any dark cam returning: verify its MAC against the Aug-31
 mapping before trusting who is who (the Aug-31 episode had a MAC
 clone and an IP resurrection).
+
+### Amendment 2 (cycle 183, 2026-09-11 ~07:20Z -- 2h mark, the topology finding)
+
+Still dark at 07:19 UTC (~1h52m). This cycle added the decisive
+topology reading:
+
+1. **THE SAME FIVE as Aug-31.** The 2026-08-31 17:24 UTC blip hit
+   exactly these five (.103 .104 .105 .201 .202); four recovered,
+   .103/.104 did not. Today the same five are dark. The five share
+   a network/power path segment DISTINCT from the alive three --
+   two events, same membership, same split. This is now a PATTERN,
+   not a coincidence: the dark five hang off a shared device
+   (PoE switch / injector bank / power strip) that the alive three
+   do not use.
+
+2. **Aug-31 was transient; today is persistent.** Aug-31 recovered
+   in seconds-to-hours. Today: zero L2 presence for ~2h. The
+   shared device is likely dead (PSU), not just disturbed.
+
+3. **Sophon NIC 10Mbps root-cause found (watch item):** kernel log
+   shows the boot-day story -- link came up 100Mbps downshifted
+   (twice), then a flap cascade 03:24-03:25 Sep 1 ending at
+   "Link is Up - 10Mbps/Full (downshifted)". Both sides advertise
+   1000baseT; the PHY downshifted through 100M to 10M during boot
+   flaps and never renegotiated. Cable/port quality issue; a link
+   bounce (or cable reseat) should renegotiate to 1G. Not urgent
+   (traffic fits), but it is a real cable fault on sophon's port.
+
+4. **LAN census (full ping sweep from sophon):** alive = .1 (ER605
+   router, DHCP server), .55 (BE230, TP-Link WiFi 7 router/AP,
+   fw BE230v1_1.11.0_2025-12-04), .69 (sophon), .101 .102 .203
+   (cams), .222 (WiFi client, ~200ms latency, ARP-only, no open
+   TCP ports), .58 (WiFi client, broadcasts ARP, drops unicast --
+   sleeping device). No managed-switch management interface found
+   anywhere. The PoE device feeding the dark five is likely an
+   UNMANAGED switch (no IP) -- invisible to any network probe.
+
+5. **Fleet-check next fire 09:03 UTC will FAIL on the dark five**
+   (STALE age>120s) -- expected and correct. Identity watch stays
+   green (its probes use .101, alive).
+
+The physical ask is unchanged and now sharper: find the device
+that feeds ext3/ext4/ext5/int1/int2 and check its power. The
+Aug-31 + today pattern says that device has been fragile for two
+weeks. If it is a cheap PoE injector bank, replacing it is the fix.

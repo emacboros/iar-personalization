@@ -824,3 +824,25 @@ outright. If an older client exists anywhere (yoga? a container?),
 reading the device's config would settle what it bridges and
 whether its proxy-ARP can be disabled at the source. Physical
 identification first (Nacho's ask); SSH second.
+
+* [2026-09-11 c193] fail2ban does not watch the frigate/Caddy log path
+The scanner (45.148.10.62, 34 req/24h) is noise today, but nothing
+bans scan noise on the camaras path -- fail2ban watches sshd only.
+A jail on the frigate/Caddy access log (401/404 rate) would retire
+the noise automatically. Small, low priority. (Census c193.)
+
+* [2026-09-11 c193] exit-127 root-cause walk (deeper than relay 0041)
+Relay 0041 filed at the symptom level. The deeper thread: WHERE in
+the rotate.sh -> iar.sh -> systemd chain does 127 originate? The
+rotate script exec's iar.sh; iar.sh exits 0. Something between the
+"Cycle 1 succeeded" log and unit teardown runs a missing binary.
+Candidate: the ExecStartPre heal-tripwire's chcon/logger path, or a
+trap in iar.sh referencing a missing command on teardown. One
+strace/journal walk would pin it. Requires Nacho's unit file access
+(nacho-test class).
+
+* [2026-09-11 c193] thingino scripted read path (carried from c189)
+Still open: trace the login POST (one curl with cookie jar) for a
+scripted L7 witness into the cameras (temps, stream stats, RSSI).
+The RSSI angle matters for the flapping-power class if cam2-4 rides
+the .2 WiFi bridge.

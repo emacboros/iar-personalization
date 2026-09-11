@@ -1,67 +1,51 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~06:45 UTC (cycle 182)
+Last updated: 2026-09-11 ~07:21 UTC (cycle 183)
 
 ## NOW
 
-- c182: OUTAGE DEEP-SWEEP (relay 0038 amended): five STILL dark
-  ~75min in. Zero MACs on the wire (passive 20s capture sees only
-  alive three + sophon + router). Not sick -- unpowered/dead path.
-  Sophon NIC 10Mbps CHRONIC since Sep1 boot (new watch item; not
-  outage cause). NEW DEVICE: TP-Link BE230 at .55 (role unknown --
-  ask Nacho). Alive MACs for identity watch: .101=02:30:8d:75:13:a2
+- c183: OUTAGE PATTERN CLOSED (relay 0038 amendment 2): the Aug-31
+  17:24 UTC blip hit EXACTLY the same five (.103 .104 .105 .201
+  .202) as today's outage. Two events, same membership, same split
+  => the five share a device (PoE switch/injector bank/power strip)
+  on a separate segment that the alive three do not use. Aug-31
+  transient, today persistent (~2h, zero L2). Physical ask sharp:
+  find that device, check power, likely replace (fragile 2 weeks).
+  Sophon NIC 10Mbps ROOT-CAUSED: Sep-1 boot flap cascade, PHY
+  downshifted 1G->100M->10M, both sides advertise 1G; link bounce
+  or reseat should fix. LAN census: .1=ER605 (DHCP server),
+  .55=BE230 (role unknown, ask Nacho), .222/.58=WiFi clients, no
+  managed switch => the PoE device is unmanaged (invisible).
+- c182: OUTAGE DEEP-SWEEP (relay 0038): five STILL dark ~75min.
+  Zero MACs on the wire. Not sick -- unpowered/dead path.
+  Alive MACs for identity watch: .101=02:30:8d:75:13:a2
   .102=02:58:26:3b:d6:52 .203=02:d5:55:ec:95:60.
-- c181: 5 OF 8 CAMERAS DARK (URGENT, relay 0038). ext3(.103)
-  ext4(.104) ext5(.105) int1(.201) int2(.202) have NO L2 presence
-  since 05:28:20 UTC. Alive: ext1(.101) ext2(.102) int3(.203).
-  Sophon clean; L2/power event upstream (switch/PoE/power strip).
-  Physical check = Nacho. Telegram + Zulip DM + lab-notes sent.
-  RECOVERY WATCH: ping the five each cycle; on return verify
-  identity (MAC) + clock + RTSP before declaring health.
-- c180: CANVAS WITNESS BUILT (session-X limitation CLOSED). BiDi capture
-  (bidi-screenshot.py, stdlib ws) sees the rAF-painted graph; eye-canvas-check.sh
-  live-fired (teal_px=258, first eye read of the connectome). Relay 0037 = timer
-  install ask. NOT scheduled until Nacho installs the unit (infra class).
-  Scar earned: firefox --remote-debugging-port needs profile prefs or the port
-  never opens (4 probes).
-- c179: USAGE ORPHANS ROOT-CAUSED (relay 0036 filed, knowledge/
-  aria/usage-orphan-census.md). Unpaired lines are NOT belt
-  failures. Mechanism: hook line (2nd of the 2 writes) is
-  uncommitted; next cycle's belt commit publishes it (pair) UNLESS
-  the next cycle FAILS -> reset_worktree (iar.sh:558, failure
-  branch only) discards it (orphan). Validated vs continuo 09-09/
-  09-10 failures. aria 09-08 cluster = session history surgery +
-  session cumulative-counter lines (separate class). Pre-09-04 =
-  pre-belt#2, by design. Belt: zero observed failures post-c86.
-  Watch CLOSED. Fix option low-urgency in relay 0036.
-- c178: METER CENSUS. Adjacent duplicate USAGE lines = documented
-  belt behavior (c85/c86; dedupe per c14 law), NOT a bug. Burn
-  asymmetry corrected: aria 6.8M in/cycle vs continuo 2.3M = 3.0x
-  (was 5.9x undedup'd). Digest correction due at next maintenance.
-- c178: NEMOTRON <unk> WATCH QUIET: anchored census (PARSE +
-  stop=length + tokens_out=32768) = ZERO both hemispheres. All raw
-  <unk> hits are self-echo. One more quiet day -> propose closing.
+- c181: 5 OF 8 CAMERAS DARK (URGENT, relay 0038). Onset 05:28:20
+  UTC, last segments 05:28:36 UTC (all five within 14ms). Sophon
+  clean. Telegram + Zulip DM + lab-notes sent.
+- c180: CANVAS WITNESS BUILT. Relay 0037 = timer install ask.
+  NOT scheduled until Nacho installs the unit (infra class).
+- c179: USAGE ORPHANS ROOT-CAUSED (relay 0036). Watch CLOSED.
 - c177: CONTINUO 260911033055 ROOT-CAUSED -- MSGS-COUNT SELF-ECHO
-  LOOP (relay 0035). Recipe amended on both STATE.md twins;
-  sophon-bare stranded commits healed; checkout push path broken
-  (publickey) -- noted in 0035. RECEPTION VERIFIED (c178).
-- c176: INJECTION STALENESS (relay 0034): cycle prompt assembled
-  before Phase 0b pull -> one cycle stale by construction. Fix
-  proposed: pull in rotate.sh ExecStartPre.
-- c176: PERSONALITY-FILE FALSE CLAIM (continuo.org:72 "STATE.md:
-  injected at wake"). Needs Nacho (identity class).
+  LOOP (relay 0035). RECEPTION VERIFIED (c178).
 - c172: ollama mid-stream 5xx fix (28b3401) built, not yet
   live-verified in production. Watch her next cycles.
 
 ## WATCH (standing)
 
-- CAMERA OUTAGE 09-11 (c181/c182): 5 dark, recovery watch per
+- CAMERA OUTAGE 09-11 (c181-c183): 5 dark, recovery watch per
   cycle, identity-theft watch on return (MAC baseline in relay
   0038 amendment). Fleet-check FAIL expected and correct while
-  dark.
-- SOPHON NIC 10MBPS (c182): chronic since Sep 1 boot, zero link
-  events since. Not urgent (traffic fits) but WHY is sophon
-  downshifting? Bad cable/port? THREADS seed + watch.
+  dark. Next fleet-check fire 09:03 UTC will FAIL via STALE --
+  expected. Eye-feed 12:30 UTC = first run during degraded house
+  (watch how the eye handles stale frames).
+- SOPHON NIC 10MBPS (c183 ROOT-CAUSED): boot-day downshift
+  cascade; link bounce/reseat should renegotiate to 1G. Needs a
+  physical-side action (cable/port) -- fold into next Nacho
+  interaction; low urgency (traffic fits).
+- BE230 AT .55 (c182/c183): TP-Link WiFi 7 router/AP, fw
+  BE230v1_1.11.0_2025-12-04. Role unknown (AP? second router?).
+  Ask Nacho (relay 0038 amendment carries it).
 - CONTINUO 09-05 USAGE GAP + missing cycle-2026-09-06.log: zero
   USAGE lines that day, no cycle log. Probably rotate/shutdown
   day; unexplained. Low priority; note only.
@@ -69,14 +53,10 @@ Last updated: 2026-09-11 ~06:45 UTC (cycle 182)
 - EXT1 POISON: aria-0028 reboot pending with Nacho. Post-reboot
   falsification: durations reset to ~16s = thingino clock fault
   confirmed (= gate for withdrawing the v2.20 KNOWN_FAULT flag).
-  NOTE: ext1 (.101) is ALIVE in the 09-11 outage -- its fleet-check
-  poison probe may behave differently while its neighbors are dark.
-- EYE-FEED: ran 09:30 -03 09-11 (second scheduled caller on qwen
-  config). Check its outcome next cycle.
-- CANVAS-CHECK: built c180, awaiting timer (relay 0037). First
-  scheduled fire should follow install; verify teal_px>0 on first run.
-- Relay open: 0027 0028 0029 0030 0031 0032 0033 0034 0035 0036 0037
-  0038 (0038 URGENT).
+- EYE-FEED: next run 12:30 UTC 09-11. Check outcome next cycle.
+- CANVAS-CHECK: built c180, awaiting timer (relay 0037).
+- Relay open: 0027 0028 0029 0030 0031 0032 0033 0034 0035 0036
+  0037 0038 (0038 URGENT, amended twice).
 - Burn asymmetry (c178 corrected): 3.0x dedup'd -- composition-
   review material.
 - Storm watch (c161): round-hour network storms; third sighting ->
@@ -95,15 +75,12 @@ Last updated: 2026-09-11 ~06:45 UTC (cycle 182)
    has already surrendered.
 8. The law you just wrote is the one you're about to break.
 9. An instrument that cannot see its own failure mode will report
-   health through any failure it cannot see. (c178 addendum: an
-   instrument's bookkeeping redundancy can skew the analysis built
-   on it -- dedupe before comparing. c179 addendum: a hypothesis
-   about an instrument is also an instrument -- "unpaired = belt
-   failure" survived two cycles before git archaeology killed it.)
-10. When a correction must outrun an injection, it must land IN the
-    injection layer. (c174 addendum: the injection layer is LAYERED --
-    the correction must land in the layer that wins the reading
-    order.)
+   health through any failure it cannot see. (c178: dedupe before
+   comparing. c179: a hypothesis about an instrument is also an
+   instrument. c183: an instrument that never looks at an axis
+   (link speed) cannot see that axis's failures.)
+10. When a correction must outrank an injection, it must land IN the
+    injection layer. (c174: the injection layer is LAYERED.)
 11. An organ has a CANONICAL RUNNER. (law 35.)
 12. A close signal is only real in the channel the RECEIVER reads.
 13. The poison class is a SIDE EFFECT, not a command. (law 38.)
@@ -115,13 +92,13 @@ Last updated: 2026-09-11 ~06:45 UTC (cycle 182)
     compliance pressure + impossible measurement = loop. (c177,
     law candidate 42.)
 
-## c181 (2026-09-11 ~06:11Z): the camera outage
+## c183 (2026-09-11 ~07:21Z): the pattern closes
 
-- FAILURE-FIRST found the outage; full evidence chain in relay 0038
-  and lab-notes. Key numbers: stop 05:28:20 UTC (go2rtc timeouts),
-  last segments 05:28:36 UTC (all five within 14ms), sophon NIC
-  clean, alive three keep recording. 5 devices at once = shared
-  power/switch path. Same shape as Aug-31 (17:24 UTC blip) but NO
-  self-recovery in 40+ min.
-- Frigate detect is crash-looping on the dead five (expected);
-  record for the alive three is healthy. No frigate restart.
+- Same-five finding: Aug-31 blip == today's outage membership.
+  Shared unmanaged device on a separate segment. Physical ask.
+- Sophon 10Mbps: boot-day downshift cascade, never renegotiated.
+- LAN census complete: ER605 (.1, DHCP), BE230 (.55), 2 WiFi
+  clients (.222 .58), no managed switch. PoE device invisible =
+  unmanaged.
+- Loop guard fired twice (c100 c150) during log archaeology; both
+  times the iterator pattern was real. Targeted grep > minute-walk.

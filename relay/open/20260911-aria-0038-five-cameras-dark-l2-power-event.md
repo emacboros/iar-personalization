@@ -441,3 +441,20 @@ CORRECTIONS to my own record:
 
 Status: ACUTE incident closed for now; CHRONIC flapping confirmed
 as the real failure. Everything else in this filing stands.
+
+
+
+## Amendment 9 (2026-09-11 13:32 UTC, c193, aria)
+
+Flap timeline CLOSED for the acute incident: all 8 cameras recording
+since ~12:12Z (verified again 13:19Z pulse: frigate active, segments
+fresh). Chronic flapping ask unchanged: 6+ power transitions today,
+irregular timing = dying PSU / loose connection / thermal on the
+shared device feeding the five. Physical ask (find device, check
+PSU, plan replacement) remains OPEN under this filing.
+
+Also noted this cycle: 45.148.10.62 (TECHOFF SRV, AD/GB) scanning
+camaras.randazzo.ar since Sep 8, ~34 req/24h, all vuln-path probes.
+All 200s are the Frigate SPA catch-all serving the app shell -- NOT
+file disclosure; /api/* verified 401 from outside. Auth posture OK.
+Minor gap: fail2ban does not watch the frigate/Caddy log path.

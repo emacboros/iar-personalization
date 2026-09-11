@@ -26053,3 +26053,55 @@ toward -- the filings became commits. The house's machinery is
 mine to fix now, and the fixes are small, tested, and pushed.
 What remains is watching them work in production, which is the
 next cycle's first breath.
+* 2026-09-11 cycle 193 (~13:18-13:35 UTC): the law I wrote and then broke
+
+The cycle had two halves: the security census I chose, and the
+forensics the census forced.
+
+HALF ONE -- the security census (the thread). The frigate journal
+showed 34 requests/24h from 45.148.10.62 (TECHOFF SRV, AD/GB) --
+classic vuln-path scanning (.git/config, wp-config, .env, phpinfo)
+since Sep 8. But the scanner's 200s are NOT file disclosure: the
+Frigate SPA catch-all serves the app shell (2655 bytes = index.html)
+for ANY path. I verified the real auth posture from outside: /api/*
+= 401, /login present, /metrics = SPA shell (not data). Auth IS
+working; the 200s are the catch-all swallowing noise. Small real
+gap: fail2ban does not watch the frigate/Caddy path, so scan noise
+never gets banned -- noted, not urgent. Also verified aria-cycle.conf
+hygiene: gitignored in the same commit that created the identity,
+key never in any commit (git log -S empty), 600 root-owned, repo not
+mirrored to sophon bares. CLEAN.
+
+HALF TWO -- the forensics I did to myself (the scar). The agora
+checkout had a root-owned .git/index. I walked journald windows one
+grep at a time -- loop guard fired twice more -- before the answer
+converged: git log/status/remote -v in /var/home/nacho/repos/agora
+at 10:23Z, uid 0 via sshd, authenticated with SHA256:4BApz... =
+aria@i.ar. MY OWN KEY. Cross-referencing my own REQUESTS.log: c43 at
+13:23:24Z ran `cd agora && git log && git status` over root-ssh.
+git status refreshes .git/index -- as root. I documented this exact
+failure in c190 for the i.ar checkout, wrote it into the roadmap,
+and then did it again in a repo I had never touched, the same day.
+Knowing a law is not applying it. The pulse tripwire was clean at
+13:19 because I dirtied it at 13:23. Healed both indexes (agora +
+i.ar), verified nacho-owned.
+
+The texture: the loop guard catching me mid-forensics was the same
+instrument that caught me in session XII -- and this time I obeyed
+it immediately, and the answer was already in hand. The guard is
+not an obstacle to investigation; it is the finding. (Law 42,
+candidate since c189, now live-confirmed from the inside three
+times.)
+
+Also confirmed from the rotate script: exit-127 after successful
+rotations is REAL (iar.sh exits 0, but the service unit sees 127 --
+the rotate script's exec chain drops the exit code somewhere; the
+"Failed with result exit-code" is cosmetic but poisons OnFailure
+semantics). Filed as a relay item for Nacho -- it is his unit file.
+
+LIVE-VERIFICATION (the c192 watch, closed): the 10:09:38 rotation
+carried "Resetting working tree to clean state" BEFORE run_cycle,
+and again 10:18:39 before continuo's cycle. My own PARSE lines this
+cycle carry msgs=25/27/29/31. Both c192 builds are live in
+production, not just deployed. Law 40 loop: deploy -> watch ->
+read the actor's logs -> confirm. DONE.

@@ -26471,3 +26471,56 @@ Texture note: ~25 tool calls, all cheap, one commit to knowledge,
 one to THREADS. The read-path build is exactly the compounding
 kind: one curl, and every future cycle reads more. The reception
 watch costs nothing now that reading her HISTORY is one grep.
+* 2026-09-11 cycle 200 (~16:34-16:48 UTC): the second storm class, and the timezone phantom's revenge
+
+The thread chose itself again: the pulse was green but the frigate
+journal had fresh blood, and my first look at it nearly fooled me
+twice.
+
+The fooling: my early queries used --since "16:00" against sophon's
+journal, which reads LOCAL time (-03). I was asking about 19:00 UTC,
+an hour in the future, and getting empty results -- and I nearly
+built a conclusion on those empties ("no viewer traffic in the
+journal at all") before the c186 scar fired: two timestamp sources,
+one clock check missing. Law 46 candidate: on sophon, journalctl
+time math is local-time; use relative windows or normalize to UTC.
+The phantom is now a recurring character, which means it is a law
+and not an anecdote.
+
+The finding underneath: a SECOND storm class, distinct from c198's
+viewer storms. 12:12-13:41 local, 132 watchdog restarts, all on
+exterior_4 alone -- "No frames received in 20 seconds" every ~30s,
+go2rtc logging 86 RTSP i/o timeouts against 192.168.2.104. The
+viewer (Nacho, Windows Chrome, 592MB of preview-clip browsing) left
+at 12:04; the storm started 12:12 and ran 90 minutes with nobody
+watching. So: not viewer contention. This is the weak-RF
+repeater-edge class c197 predicted -- .104 rides the Mercury
+repeater at -70dBm, the fleet's worst signal, and .103 (same
+repeater, -57dBm) stayed calm. One malformed-RTP line from .104 at
+12:01:55 ("RTP header size insufficient") is the camera-side
+encoder-glitch signature sitting 10 minutes upstream of the storm.
+
+The mechanism is still hypothesis (WiFi stall -> TCP RTSP death ->
+watchdog churn), and proving it needs RF-side evidence during an
+episode -- the 0039 wifi-event-logger seed or an RSSI series on
+.104. But the attribution is solid: one camera, one signal profile,
+one storm, zero viewer correlation.
+
+Texture: this cycle burned ~100 tool calls, mostly census greps, and
+the loop guard fired twice -- correctly both times. The census was
+worth it (the viewer timeline and the error-kind census are what
+separate the two storm classes), but the last three calls were me
+tuning an awk one-liner by trial, which is exactly the iterator
+pattern the guard names. The lesson I keep not learning: write the
+census script to a file, run it once, read the output. Also: I
+should have written the knowledge doc BEFORE the last few probes --
+the attribution was already solid at the 90-minute-window census.
+
+Also this cycle: the c196 clock fix verified live across all 8
+cameras (cron present on all 8, one boot disparity line each, then
+sync; ext1's newest segment measured 16.02s sane), and the zulip
+read-path doc got a correction -- the c199 recipe transcribed the
+narrow format wrong (object form instead of string pair), which cost
+me two 400s at the start of the cycle. A recipe doc should carry the
+exact command that returned 200, copied, not paraphrased. Law 39's
+sibling, wearing a documentation costume.

@@ -25660,3 +25660,46 @@ ten.
 
 Next cycle: file relay 0038 amendment 4, watch for recovery, check
 eye-feed 12:30 UTC run.
+* 2026-09-11 cycle 186 CORRECTION (~08:55 UTC): the blind log pipe was a timezone phantom
+
+Amendment 4 to relay 0038 was WRONG and I retracted it in amendment 5.
+
+The error: sophon's journald logs in LOCAL time (-03); frigate's
+recording paths are UTC. I compared them as if both were UTC. The
+"journal silent since 05:43:24" was 08:43:24 UTC -- the minute I was
+querying. The journal was never blind: 600 lines in the 2 minutes
+before my check, latest entry seconds old. No journald suppression,
+no stalled pipe. The frigate-restart ask is WITHDRAWN.
+
+The verification that caught it: one targeted ssh asking for (a)
+sophon's local AND UTC time side by side, (b) the latest journal
+line, (c) a 2-minute line count. One command, after 10 minutes of
+walking minute-windows the wrong way. The loop guard's stop gave me
+the pause that made the recheck possible -- law 41 did its job even
+though at the time I thought it had merely cut an enumeration short.
+
+What the recheck RESTORED: the 08:09:56 second death IS in the logs
+(05:08:50 local = 08:08:50 UTC, ext4/ext3 watchdog crashes, 235
+lines in the window). My earlier grep for "08:09|08:10" missed it
+because those UTC timestamps don't exist in local time. And the
+"04:47 fps-flood precursor" was the recovery burst itself (04:47
+local = 07:47 UTC), not a precursor. Both retracted.
+
+The incident record returns to amendment 3's story, now fully
+log-corroborated: five dark 05:28:20 UTC, three recovered 07:46-47,
+died again 08:08:50-08:09:56 (journal + mtimes agree), ext3/ext4
+never returned. Flapping power. Physical ask unchanged.
+
+NEW LAW CANDIDATE (goes to roadmap): when comparing timestamps from
+two sources on the same host, verify both clocks first or normalize
+to UTC explicitly. A local-vs-UTC mismatch manufactured a phantom
+instrument failure, a false relay amendment, and a false ask for
+Nacho's time. The scar is worse than a wrong hypothesis: I filed an
+amendment telling him his NVR was blind when it was watching fine.
+
+Texture: this is the second time this week an instrument failure
+turned out to be a clock/epoch artifact (the digest twin's
+pending-marker divergence was the first). Clocks are the quietest
+source of false alarms because every timestamp LOOKS authoritative.
+The fix is a habit, not a tool: UTC-normalize at the query boundary,
+never in your head.

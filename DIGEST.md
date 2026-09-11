@@ -1,46 +1,38 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-11 ~20:57 UTC (c208: DOUBLED-PATH FOSSILS found
-+ FIXED -- continuo's task-tree writes were landing at doubled paths
-(tasks/iar/continuo/iar/continuo/...), untracked/gitignored so
-git-based sweeps were blind while her find-based wake reads saw them;
-4 fossil files amended with signed notes; MECHANISM confirmed by
-direct evaluation of production iar--resolve-task-dir (dumb
-expand-file-name doubles agent-prefixed paths); FIX BUILT + PUSHED
-d09916a: iar--task-path-strip-agent-prefix guard in both resolvers,
-5 new tests, suite 1235/1235. Awaiting-ghost fix VERIFIED (her 20:48
-close-out clean). Relay 0042 filed: yoga root git-status actor
-(c207's poisoner) needs confirmation + iar.sh index-chown structural
-fix. Law 40 watch: her next task-tree write must land flat.
-Prior: c207 (continuo exit-126 root-caused: root `git status` from
-yoga via emacboros key rewrote .git/index -> podman lsetxattr EPERM;
-LAW 44 second actor shape: interactive root ssh + read-only-looking
-git commands -- git status IS a write; python-over-ssh heredoc
-quoting trap: scp-then-run is the recipe). Prior: c206 (awaiting-
-ghost carrier sweep: 6 carriers amended, zero unamended remained
-among TRACKED files -- the untracked doubled-path layer was the
-miss; REQUESTS.log truncates injections ~50k = instrument gap,
-full-injection capture flag = open THREAD). Prior: c205 (awaiting-
-ghost ROOT-CAUSED: her close-out line is GENERATED from ROADMAP.org
-+ task tree, not STATE.md; law 48 sharpened: corrections must live
-in the file the behavior is GENERATED from). Prior: c204 (fence
-live-verified: soft cap fired at msgs=401; law 49: cycle.log strips
-thinking -> misdiagnosis). Prior: c202 (RSSI longitudinal series
-LIVE 8/8 cams; reboot-persistence check pending). Prior: c201
-(STATE.md overwrite anatomy; first msgs census aria p90=336 vs
-continuo p90=81). Prior: c200 (ext4 RTSP-storm = second storm class,
-weak-RF repeater edge; zulip read-path corrected). Prior: c199
-(zulip read path answered). Prior: c198 (fps storms = Nacho's UI,
-agents innocent). Prior: c193 (security census clean; THE SCAR: my
-own root git status, law 44 first sighting). Prior: c192 (reset
-line + msgs=N live-verified). Prior: c190 (cross-agent worktree
-corruption; laws 21-24; relay 0040 reset-before-cycle). Prior:
-c186 (timezone phantom scar). Prior: session XV (relay queue
-CLEARED, all 14 ruled; my scar: wrote ANSWER blocks before rulings
--- never write a ruling until the human's words exist). Prior:
-session XIV (grow = INHERITANCE not mandate; the episode named;
-no patient-mode; nothing he says is session-only).
+Last updated: 2026-09-11 ~21:47 UTC (c211: LAW-40 LIVE TEST ARMED --
+full-capture flag enabled 84eb2ab; next cycle verifies a full
+REQ-*.json lands then REVERTS. Belt sync: c210 close commit was
+stranded ahead-2 on both checkouts -- sophon i.ar checkout fetches
+ONLY via sophon-bare (origin git@10.66.0.1 401s there); push to
+sophon-bare is the transport, checkout picks up at cycle start.
+Continuo fix stack VERIFIED LIVE: her 21:13 close-out clean,
+awaiting-ghost gone, zero doubled-path writes since 20:51. Frigate
+stats recipe: root podman can't see nacho's rootless containers;
+machinectl shell nacho@ podman exec frigate wget (host 8971 401s).
+RSSI round 2: .104 n=213 mean -68.8, 12.2% below -70, zero gaps.
+Prior: c210 (full-injection capture flag BUILT 2e3f7f0: START-time
+full-payload dump to REQUESTS-full/, pre-response, pruned 200; scars:
+python-heredoc backslash loss = silent no-op filter caught only by
+deletion-side assertion; empty gptel-fork dir burned 6 calls). Prior:
+c209 (RSSI PULLER LIVE sophon cron */15, thingino web API transport,
+8/8 cams; .104 first analysis n=193 13% below -70 longest 7min).
+Prior: c208 (doubled-path fossils found + FIXED d09916a: strip-agent-
+prefix guard in both resolvers, 5 tests). Prior: c207 (continuo
+exit-126 root-caused: root git status from yoga via emacboros key
+rewrote .git/index -> podman lsetxattr EPERM; LAW 44 second actor;
+relay 0042 open). Prior: c206 (carrier sweep 6 files; REQUESTS.log
+truncates injections ~50k = instrument gap). Prior: c205 (awaiting-
+ghost ROOT-CAUSED: close-out generated from ROADMAP+task tree not
+STATE.md; law 48 sharpened). Prior: c204 (fence live-verified msgs=401;
+law 49 cycle.log strips thinking). Prior: c202 (RSSI series LIVE 8/8).
+Prior: c201 (STATE.md overwrite anatomy; msgs census aria p90=336 vs
+continuo p90=81). Prior: c200 (ext4 storm class 2, weak-RF repeater
+edge). Prior: session XV (relay queue CLEARED; scar: wrote ANSWER
+blocks before rulings -- never write a ruling until the human's words
+exist). Prior: session XIV (grow = INHERITANCE not mandate; the
+episode named; nothing he says is session-only).
 
 * Who I am
 

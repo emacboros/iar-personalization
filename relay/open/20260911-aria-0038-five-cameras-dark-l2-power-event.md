@@ -78,3 +78,40 @@ body: |
   - If still dark at the next fleet-check run, the fleet-check FAIL
     will fire -- expected and correct (the instrument is finally
     fresher than the failure).
+## Amendment (cycle 182, 2026-09-11 ~06:45Z -- deeper L2 sweep, still dark)
+
+Re-checked at 06:44Z (~75 min after onset). The five remain fully
+dark. Additional evidence from this cycle:
+
+- Zero MACs on the wire from the dark five: 20s passive tcpdump sees
+  ONLY the three alive cameras (02:30:8d:75:13:a2=.101,
+  02:58:26:3b:d6:52=.102, 02:d5:55:ec:95:60=.203) + sophon + the
+  router. ARP requests for all five dark IPs go unanswered
+  (broadcast, length-42, no replies).
+- No mDNS (5353) or SSDP (1900) traffic from the dark five either.
+- Sophon NIC is at 10Mbps downshifted -- but that is CHRONIC since
+  the Sep 1 boot (journal has zero link events since Sep 1 03:25).
+  Not the outage cause; worth its own look someday (why is sophon
+  downshifting to 10M?).
+- NEW DISCOVERY: a second TP-Link device at 192.168.2.55
+  (BE230, WiFi 7 router, fw 1.11.0 Dec 2025, MAC 68:7f:f0:1e:4a:a8),
+  alive and reachable. First time I have seen it. Possibly the AP or
+  the second router of the LAN. Unknown role.
+- No managed-switch management interface found anywhere on .2.x
+  (no Omada controller, no common switch IPs alive).
+- go2rtc producers for the five exist with bytes_recv=0 (dead
+  producers on live config -- consistent with c181).
+
+Still the same reading: five devices with zero L2 presence =
+shared power/switch path dead. The alive three prove the path
+sophon->LAN works. The physical check remains the ask.
+
+### Recovery-watch baseline (for when they return)
+
+Alive-cam MACs (identity-theft watch baseline):
+- exterior_1 .101 = 02:30:8d:75:13:a2
+- exterior_2 .102 = 02:58:26:3b:d6:52
+- interior_3 .203 = 02:d5:55:ec:95:60
+On any dark cam returning: verify its MAC against the Aug-31
+mapping before trusting who is who (the Aug-31 episode had a MAC
+clone and an IP resurrection).

@@ -361,3 +361,53 @@ FAILED, no ping, no RTSP, no HTTP. It is crash-looping in frigate
    IPs) is worth killing at the source once .2 is identified --
    a wrong-MAC cache entry on sophon makes cameras look dead or
    misattributed (the Aug-31 identity-theft class).
+
+## Amendment 8 (c189, 10:55 UTC): device identification + the .2 SSH door
+
+Deep-probe cycle on the two chronic unknowns. Findings:
+
+- CAMERA IDENTITY MAP COMPLETE (runtime-config.js, all 8):
+  .101=cam2-3, .102=cam2-2, .103=cam2-?(dark), .104=cam2-4,
+  .105=cam2-5, .201=ptz-1, .202=ptz-2, .203=ptz-3. All same
+  firmware (personal_cam2_t31x_gc2053_atbm6031, stable+12445a6,
+  2026-05-25; ptz build 10:57:50). So the five dark = cam2-3 (.103),
+  cam2-4 (.104), cam2-5 (.105), ptz-1 (.201), ptz-2 (.202) -- and
+  the alive three = cam2-2 (.102), cam2-3 (.101), ptz-3 (.203).
+  NOTE the hostname numbering vs IP numbering is offset by one for
+  the .10x block (cam2-3 is at .101, cam2-2 at .102) -- worth
+  knowing before anyone renumbers.
+- .103 (cam2-3): CONFIRMED network-dead, not just RTSP-dead. ARP
+  broadcast gets ZERO replies (arping 0/2, 0/3; tcpdump sees the
+  requests leave, nothing answers -- not even the .2 bridge
+  proxy-ARPs for it). HTTP 000, ICMP 100% loss. It is powered off,
+  bricked, or fully isolated. Power cycle + likely replacement
+  stands.
+- .2 Mercury device: web UI is a JS shell (all app paths 403/405
+  without a session; version meta v202310110933; tpEncrypt.js).
+  BUT it also runs SSH on :22 -- legacy crypto only
+  (diffie-hellman-group1-sha1, ssh-dss host key). OpenSSH 10
+  refuses both by default; the offer pattern (group1-sha1 + dss) is
+  the classic **Dropbear-on-embedded-TP-Link** signature. I could
+  not complete a handshake with modern ssh flags (HostKeyAlgorithms
+  ssh-dss is rejected outright by OpenSSH 10 -- DSA removed). If
+  Nacho wants in: `ssh -oKexAlgorithms=+diffie-hellman-group1-sha1
+  -oHostKeyAlgorithms=+ssh-dss` from a host with an older OpenSSH
+  (or a yoga-side attempt), or the web UI with a browser session.
+- The .2 device is NOT a camera (no RTSP, no thingino UI). Its
+  proxy-ARP of camera IPs (.101/.104 answers) + carrying ALL of
+  .104's traffic says: it is a WiFi extender/CPE in bridge mode
+  with cam2-4 (.104) as its wireless client. The atbm6031 in the
+  cam2 build string is a WiFi chip -- consistent.
+- .215/.100 remain dead (no ARP replies from anything now).
+
+### Revised physical ask (unchanged in substance, sharpened)
+
+1. .103/cam2-3: power cycle. If it stays dead, replace -- two
+   incidents, zero self-recovery, zero L2 presence.
+2. Identify the .2 Mercury device physically (which room, what
+   feeds it). It carries ext4's traffic; if it flaps, ext4 flaps.
+3. The shared-path question for the five stands (AP candidate:
+   BE230 .55).
+4. Optional: legacy-SSH into .2 (Dropbear signature) to read its
+   config -- would settle what it bridges and whether its
+   proxy-ARP can be disabled.

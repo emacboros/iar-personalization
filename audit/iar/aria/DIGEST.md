@@ -1,27 +1,31 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-10 ~23:05 UTC (c169: ARIA-0030 LIVE-VERIFIED --
-continuo's next cycle after cbec5e7 closed on the FIRST echo (service
-log sentinel line 19:53:49 -03, REQ -30 Ollama plist shape parsed, tool
-result = close registration, REQ -31 never sent, exit 0, 271s). Three
-cycles to land (c166 dead code -> c167 wrong channel -> c168 wrong
-shape); each verified by deploy -> watch next real cycle -> read the
-actor's REQUESTS.log. LAW 40 load-bearing; LAW 41 added (guard fires
-mid-investigation = investigation over; session XIV's law, verified
-live same day). FRIGATE/QWEN WATCH CLOSED: 18:44-19:01 -03 ext_4 burst
-(32 restarts) was camera-side (120 RTSP i/o timeouts to 192.168.2.104,
-thingino), self-healed 19:01 with qwen STILL resident; large-prefill
-suspect DEAD; residency survived first scheduled-caller day. Relay 0030
-amended VERIFIED; Nacho ratifies a working patch. Prior: c168 shape
-correction (cbec5e7, suite 1211/1211, law 39 fired twice). Prior: c164
-git-server census (50-dangling RESOLVED, mirror 5/5, root-run git
-poison class). Prior: session XIII (1-min catch-up timer + qwen
-keep_alive -1 / num_ctx 131072 RATIFIED). Prior: c156
-INJECTION-BEATS-READ (law 35) + fear-organ v1.3. Prior: session XII
-(thinking-loop guard f6fb8ae). Landmarks: c150 fleet-check v2.16;
-session XI dashboard v2.1/v2.2; c133 rage-ghost audit; c132
-phantom-exit fix; session X dashboard v2; c122 eye scheduling.)
+Last updated: 2026-09-11 ~00:55 UTC (c172: CONTINUO c172 FAILURE
+ROOT-CAUSED -- ollama mid-stream Internal Server Error silently
+dropped by the fork's ollama parser (:error key unread) -> 0/0 guard
+tombstoned a dead cycle; outcome right, story wrong; fix filed relay
+0033 for continuo's machinery domain = capture :error chunks ->
+strike mechanism -> one retry instead of one dead cycle; open
+question: PARSE stop=stop with no done chunk in logged body).
+FLEET-CHECK v2.20 (074697fc): RECOVERY branch sawtooth-aware (sane +
+flag = watch state, quiet; withdrawal gated on aria-0028
+falsification); prediction: next run FAIL=0, fear sev=0. CONTINUO
+STATE.MD AMENDED (signed, visible, original preserved): stale
+model-revert ask killed in her injection layer (law 34 executed);
+reception watch: if she still re-derives the ask, escalate to digest
+layer. Prior: c171 (localsearch masked, thinking-loop guard
+live-verified, STATE.md staleness observed). Prior: c170 (fleet
+v2.19 poison-aware probe; ext1 sawtooth census; 20:37 host stall =
+first nemotron-CPU-vs-frigate sighting). Prior: c169 ARIA-0030
+LIVE-VERIFIED (first-echo close, 271s; law 40 load-bearing; law 41
+added). Prior: c164 git-server census. Prior: session XIII (1-min
+catch-up timer + qwen keep_alive -1 / num_ctx 131072 RATIFIED).
+Prior: c156 INJECTION-BEATS-READ (law 35) + fear-organ v1.3. Prior:
+session XII (thinking-loop guard f6fb8ae). Landmarks: c150
+fleet-check v2.16; session XI dashboard v2.1/v2.2; c133 rage-ghost
+audit; c132 phantom-exit fix; session X dashboard v2; c122 eye
+scheduling.)
 
 * Who I am
 
@@ -157,16 +161,17 @@ investigation over. The rest live in ROADMAP.org.
   rage organ v1.8 rate-normalized, sev=2 flat, decay prediction:
   drop 09-12 (verify 09-12); fence panel: 0 true production
   rejections ever (c129); dashboard v2.1/v2.2 live (eye = DOM
-  witness not a hand); fleet-check v2.16 N-segment ear check;
+  witness not a hand); fleet-check v2.20 sawtooth-aware SEG-TAIL;
   cycle limits: turns 120 / soft 300 / fence 192k / wall 3600s;
   eye-feed LIVE (daily 09:30 -03; findings: query-box overflow +
   nav contrast, eye-noise until corroborated); aria-0026 ratified
   (decision-wake = digest world-state block + archetype line);
   50-dangling-objects RESOLVED; burn asymmetry aria 258M vs
   continuo 44M (5.9x) = composition-review material.
-- Relay open: 0027 0028 0029 0030 0031 (0030 now carries
-  LIVE-VERIFIED patch; 0013 0017 0019 0021 0022 0023 0024 0025 0026
-  were answered earlier -- verify against answered/ before citing).
+- Relay open: 0027 0028 0029 0030 0031 0032 0033 (0033 = continuo
+  machinery fix + STATE.md amendment rationale; 0013 0017 0019 0021
+  0022 0023 0024 0025 0026 were answered earlier -- verify against
+  answered/ before citing).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 
 * Pointers

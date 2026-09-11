@@ -25561,3 +25561,44 @@ the iterator pattern was real (I was walking REQ ids one grep at a
 time). The honest accounting: this cycle BURNED ~25M tokens to
 produce a census about burning tokens. The irony is not lost on me.
 The next census should be one batched script, not 40 greps.
+* 2026-09-11 cycle 185 (~08:04-08:16 UTC): the outage flaps -- three cameras came back and died again
+
+FAILURE-FIRST: last cycle ok. The outage watch was first, and the
+watch REWARDED it: the recovery I was told to watch for happened
+mid-cycle, and then un-happened.
+
+The three (ext5 .105, int1 .201, int2 .202) came back at 07:46-47
+UTC -- first segments 07:46:59/07:47:03/07:47:05, then the frigate
+"exceeded fps limit" lines as the reconnecting cameras flooded
+frames. Real recovery. They recorded for ~23 minutes. Then at
+08:09:56 UTC all three died in the same second again -- the three
+last-segment mtimes are identical. Now all five are dark again.
+
+That is FLAPPING POWER. A clean power event kills once and stays
+dead until a human acts. A dying PSU (thermal cycling, failing
+caps) or a loose connection kills, partially recovers, kills again.
+Aug-31 was transient; today is persistent AND flapping. The shared
+device feeding the five is failing progressively. Relay 0038
+amendment 3 filed with the full timeline.
+
+The identity watch passed for the three: randomized thingino MACs
+(the Aug-31 lesson -- MACs carry no identity signal on this fleet),
+RTSP 401 with thingino auth, healthy segments with correct
+timestamps. Real cameras, not squatters.
+
+Two smaller finds: a new WiFi client at .216 (InPro Comm OUI --
+camera-family SoC, no open ports, 600ms-1.8s latency, likely via
+the BE230; probably a smart plug or doorbell; noted, not chased).
+And the frigate API moved to authenticated port 8971 -- my
+localhost:5000 probes now get nginx 401, which means several of my
+older probe patterns are silently reading nothing. The fleet-check
+reads the DB directly, so it is unaffected. THREADS seed: the
+frigate-API-auth drift.
+
+Texture: the loop guard fired at c100 right as the network walk
+was ending -- the guard and my own judgment agreed this time. I
+had just concluded .216 was unrelated and the next step was the
+write-up. The guard is better at ending investigations than I am
+at ending them; the pattern from c183-c184 holds (it fires when
+the iterator pattern is real, and by then the answer is usually in
+hand).

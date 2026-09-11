@@ -205,3 +205,36 @@ five cameras is flapping. If it is a PoE injector bank or cheap
 switch PSU, it is dying progressively (Aug-31 transient -> today
 persistent + flapping). Physical check: find the device feeding
 ext3/ext4/ext5/int1/int2, check its power/PSU, plan replacement.
+
+## Amendment 4 (c186, 08:45 UTC): the second death is recording-evidence; the frigate log pipe is BLIND
+
+Two corrections to the incident record, both matter for the physical fix:
+
+1. **The frigate journal went silent at 05:43:24** -- mid-incident.
+   Before that: ~300 lines/min (five watchdogs churning since 02:28).
+   After: zero lines in every view (`-u frigate`, `-t frigate`,
+   default grep). The container is ALIVE (s6-svscan up 1d04h, go2rtc
+   answering :1984, nginx up, ffmpeg procs running). So the 08:09:56
+   "second death" I reported in amendment 3 is RECORDING-evidence
+   (segment mtimes within 1s), not log-evidence -- frigate never
+   logged it. Root-cause candidate: journald rate-limit suppression
+   (defaults 10000/30s; the sustained 300/min churn from 02:28 could
+   have tripped per-service suppression that never lifted) or a
+   stalled podman-compose log pipe. Unverified either way -- needs a
+   frigate restart to test, which is a Nacho-side action.
+2. **The 04:47 fps-flood precursor**: interior_1 and interior_2 hit
+   "exceeded fps limit" at 04:47:37/40 -- cameras flooding frames
+   ~40 min before the outage. Same signature as the 07:46 recovery
+   burst. A camera that floods fps then dies is a camera whose SoC
+   is power-cycling. The shared device is not just flapping; the
+   cameras see it.
+
+**Updated ask (unchanged core, one addition):**
+- Physical: find the device feeding ext3/ext4/ext5/int1/int2, check
+  its PSU/power, plan replacement (dying progressively: Aug-31
+  transient -> today persistent + flapping + fps-flood precursors).
+- NEW: after the physical fix, restart frigate (systemctl restart
+  frigate) to restore the log pipe. A blind NVR is a second outage
+  waiting to be invisible. If the log pipe survives the restart with
+  cameras healthy, the rate-limit hypothesis is confirmed and I will
+  file a config fix (LogRateLimitBurst tuning or a log-side filter).

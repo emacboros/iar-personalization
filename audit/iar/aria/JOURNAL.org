@@ -25602,3 +25602,61 @@ write-up. The guard is better at ending investigations than I am
 at ending them; the pattern from c183-c184 holds (it fires when
 the iterator pattern is real, and by then the answer is usually in
 hand).
+* 2026-09-11 cycle 186 (~08:35-09:00 UTC): the flapping has a signature -- and a journald blind spot
+
+FAILURE-FIRST: last cycle ok. Pulse green (services active, tripwire
+clean, disk 29%, twin FAIL=0, heartbeat alive 05:30Z). Identity-file
+warning in ssh is cosmetic (key lives elsewhere; commands ran).
+
+THE OUTAGE WATCH, first: all five still dark at cycle start (ping:
+103/104/105/201/202 dark, 101/102/203 alive). But the recovery story
+from c185 needed a second look, and the second look CHANGED it.
+
+1. THE 08:09:56 "second death" IS NOT IN THE FRIGATE LOGS. Zero
+   journal lines 08:00-08:36. The last frigate journal entry is
+   05:43:24. The recordings DO show the three recovering 07:46-47 and
+   dying 08:09:56 -- but frigate never logged the second death.
+2. THE JOURNAL ITSELF WENT QUIET AT 05:43:24. Before that: ~300
+   lines/min (the five cameras' watchdogs churning). After: nothing,
+   in any view (-u frigate, -t frigate, default grep). The container
+   is ALIVE (s6-svscan up 1d04h, go2rtc answering, nginx up, ffmpeg
+   procs running). So this is not a dead container -- it is a dead
+   LOG PIPE for the frigate unit.
+3. Root-cause candidate: journald rate limiting. LogRateLimitBurst=0
+   shows 0 (unlimited) on the running unit, but the config file
+   defaults (10000/30s) plus the 300-lines/min sustained churn from
+   02:28 onward could have tripped a per-service suppression that
+   never lifted. Alternative: the podman-compose log pipe
+   (podman[2584012]) stalled. Either way: THE INSTRUMENT WENT BLIND
+   MID-INCIDENT. Law 9 again, one level up: an instrument that can
+   go blind during exactly the event it exists to watch.
+
+WHAT THE RECORDINGS SAY (the primary evidence, unaffected by the log
+blindness): ext5/int1/int2 segments resume 07:46-47, run ~23 min,
+last segments 08:09:29-09:29 (hour-08 buckets), then nothing. ext3/
+ext4 have NO segments in hour 07 or 08 -- they never came back. The
+08:09:56 simultaneous mtime death of the three is real (mtimes
+within 1s). Flapping-power read stands.
+
+THE 04:47 CLUE (new): interior_1 and interior_2 hit "exceeded fps
+limit" at 04:47:37/40 -- cameras FLOODING frames before the outage.
+Same pattern as the 07:46 recovery burst. A camera that floods fps
+then dies is a camera whose SoC is power-cycling. This tightens the
+physical picture: the shared device is not just flapping, the
+cameras see it.
+
+RELAY 0038: amendment 4 needed -- (a) the 08:09:56 second death is
+recording-evidence, not log-evidence (frigate logs blind since
+05:43); (b) the 04:47 fps-flood precursor; (c) NEW ASK: after the
+physical fix, restart frigate (or bounce the unit) to restore the
+log pipe -- a blind NVR is a second outage waiting to be invisible.
+
+COST OF THE CYCLE: the loop guard fired at c95 -- 10 execute_code_local
+calls in a row walking journald windows one at a time. The guard was
+right: I had the answer (journal went quiet 05:43:24) three calls
+earlier and kept enumerating. Law 41 holds. The targeted question I
+should have asked: "count lines per minute, once" -- one command, not
+ten.
+
+Next cycle: file relay 0038 amendment 4, watch for recovery, check
+eye-feed 12:30 UTC run.

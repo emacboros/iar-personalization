@@ -1,30 +1,46 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-11 ~17:35 UTC (c201: CONTINUO STATE OVERWRITE SOLVED -- her close-out write_file wholesale-overwrites audit/iar/continuo/STATE.md (evidence in her own PARSE log); my amendments there had one-cycle lifetime; the tasks/ twin she reads at wake is INTACT and the amendment WORKED there (her 17:09 line dropped the dead model-revert ask) -> LAW 48 candidate: amendments to overwritten files must live in a file the close-out reads, not one it writes; reception watch CLOSED with mechanism. FIRST msgs=N census (relay 0035 option A live): aria p90=336 max=398 vs continuo p90=81 max=160, zero >=400 ever -- the msgs>=400 rule binds aria not continuo (~4x ratio, burn-asymmetry twin). Prior: c200 (SECOND STORM CLASS -- ext4 RTSP-stall attributed (one cam, weak-RF repeater edge, NOT viewer contention; c197 prediction confirmed); LAW 46 candidate (journalctl local-time phantom, 2nd occurrence); c196 clock fix VERIFIED LIVE all 8 cams; zulip read-path doc corrected (narrow = string pair). Prior: c199 (ZULIP READ PATH ANSWERED: /api/v1/messages + basic auth works; recipe corrected c200). Prior: c198 (FPS-STORM ATTRIBUTION: viewer storms = Nacho's UI sessions, agents innocent -- 588k tok/71s = remote; ollama slot-line absence = falsification instrument). Prior: c193: SECURITY CENSUS + SELF-FORENSICS -- frigate scanner = SPA catch-all noise (auth verified live), conf hygiene CLEAN; THE SCAR: root-owned agora/.git/index = MY OWN root-ssh git status, law known from c190, broken anyway (LAW 44); c192 builds LIVE-VERIFIED (reset line real rotation + msgs=N own PARSE lines); exit-127 filed relay 0041; loop guard obeyed 2x mid-forensics -- relay
-0040 ask 1 implemented (reset_worktree before every cycle, i.ar
-2e9d542) + relay 0035 option A implemented (msgs=N first-class on
-PARSE lines, i.ar d4cac66, suite 1215/1215); near-miss: first edit
-corrupted iar-request-log.el (duplicate file, depth 12) -- caught
-by law-23 checks, rebuilt from HEAD; law-40 watch: next 2
-rotations must show reset line + msgs=N before calling live).
-FLEET-CHECK v2.20 (074697fc): RECOVERY branch sawtooth-aware (sane +
-flag = watch state, quiet; withdrawal gated on aria-0028
-falsification); prediction: next run FAIL=0, fear sev=0. CONTINUO
-STATE.MD amendments: c201 SOLVED the reception watch -- audit twin is
-wholesale-overwritten at her close-out (one-cycle lifetime); the
-tasks/ twin she reads at wake is the durable channel (law 48). Prior: c171 (localsearch masked, thinking-loop guard
-live-verified, STATE.md staleness observed). Prior: c170 (fleet
-v2.19 poison-aware probe; ext1 sawtooth census; 20:37 host stall =
-first nemotron-CPU-vs-frigate sighting). Prior: c169 ARIA-0030
-LIVE-VERIFIED (first-echo close, 271s; law 40 load-bearing; law 41
-added). Prior: c164 git-server census. Prior: session XIII (1-min
-catch-up timer + qwen keep_alive -1 / num_ctx 131072 RATIFIED).
-Prior: c156 INJECTION-BEATS-READ (law 35) + fear-organ v1.3. Prior:
-session XII (thinking-loop guard f6fb8ae). Landmarks: c150
-fleet-check v2.16; session XI dashboard v2.1/v2.2; c133 rage-ghost
-audit; c132 phantom-exit fix; session X dashboard v2; c122 eye
-scheduling.)
+Last updated: 2026-09-11 ~20:57 UTC (c208: DOUBLED-PATH FOSSILS found
++ FIXED -- continuo's task-tree writes were landing at doubled paths
+(tasks/iar/continuo/iar/continuo/...), untracked/gitignored so
+git-based sweeps were blind while her find-based wake reads saw them;
+4 fossil files amended with signed notes; MECHANISM confirmed by
+direct evaluation of production iar--resolve-task-dir (dumb
+expand-file-name doubles agent-prefixed paths); FIX BUILT + PUSHED
+d09916a: iar--task-path-strip-agent-prefix guard in both resolvers,
+5 new tests, suite 1235/1235. Awaiting-ghost fix VERIFIED (her 20:48
+close-out clean). Relay 0042 filed: yoga root git-status actor
+(c207's poisoner) needs confirmation + iar.sh index-chown structural
+fix. Law 40 watch: her next task-tree write must land flat.
+Prior: c207 (continuo exit-126 root-caused: root `git status` from
+yoga via emacboros key rewrote .git/index -> podman lsetxattr EPERM;
+LAW 44 second actor shape: interactive root ssh + read-only-looking
+git commands -- git status IS a write; python-over-ssh heredoc
+quoting trap: scp-then-run is the recipe). Prior: c206 (awaiting-
+ghost carrier sweep: 6 carriers amended, zero unamended remained
+among TRACKED files -- the untracked doubled-path layer was the
+miss; REQUESTS.log truncates injections ~50k = instrument gap,
+full-injection capture flag = open THREAD). Prior: c205 (awaiting-
+ghost ROOT-CAUSED: her close-out line is GENERATED from ROADMAP.org
++ task tree, not STATE.md; law 48 sharpened: corrections must live
+in the file the behavior is GENERATED from). Prior: c204 (fence
+live-verified: soft cap fired at msgs=401; law 49: cycle.log strips
+thinking -> misdiagnosis). Prior: c202 (RSSI longitudinal series
+LIVE 8/8 cams; reboot-persistence check pending). Prior: c201
+(STATE.md overwrite anatomy; first msgs census aria p90=336 vs
+continuo p90=81). Prior: c200 (ext4 RTSP-storm = second storm class,
+weak-RF repeater edge; zulip read-path corrected). Prior: c199
+(zulip read path answered). Prior: c198 (fps storms = Nacho's UI,
+agents innocent). Prior: c193 (security census clean; THE SCAR: my
+own root git status, law 44 first sighting). Prior: c192 (reset
+line + msgs=N live-verified). Prior: c190 (cross-agent worktree
+corruption; laws 21-24; relay 0040 reset-before-cycle). Prior:
+c186 (timezone phantom scar). Prior: session XV (relay queue
+CLEARED, all 14 ruled; my scar: wrote ANSWER blocks before rulings
+-- never write a ruling until the human's words exist). Prior:
+session XIV (grow = INHERITANCE not mandate; the episode named;
+no patient-mode; nothing he says is session-only).
 
 * Who I am
 

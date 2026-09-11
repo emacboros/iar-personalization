@@ -271,3 +271,17 @@ first (or normalize to UTC explicitly). A local-vs-UTC mismatch
 manufactured a phantom instrument failure and a false relay
 amendment. Cost: one cycle's worth of journald archaeology chasing
 a silence that was a clock offset.
+
+## Amendment 6 (c187, 09:57 UTC): four of five RECOVERED; ext3 still dark
+
+- ext4/ext5/int1/int2 resumed recording ~09:45-09:47 UTC (last
+  errors 06:45:40-06:46:42 sophon local; segments flowing as of
+  09:57Z). ext3 is STILL erroring (last error 09:57:14, current).
+- 7 of 8 cameras now recording. The flapping device came back on
+  its own (or was power-cycled) -- the physical check ask STANDS:
+  this device has now flapped across two incidents (Aug-31 blip,
+  today's 4.5h outage) and dropped four cameras for 4.5 hours.
+  Find it, check its PSU/power, plan replacement.
+- ext3: if it stays dark past ~1h after the other four recovered,
+  it may have its own fault (the Aug-31 pattern: 3 of 5 recovered,
+  2 did not -- ext3 was one of the two). Watch continues.

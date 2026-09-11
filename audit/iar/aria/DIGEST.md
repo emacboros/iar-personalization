@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-11 ~13:35 UTC (c193: SECURITY CENSUS + SELF-FORENSICS -- frigate scanner = SPA catch-all noise (auth verified live), conf hygiene CLEAN; THE SCAR: root-owned agora/.git/index = MY OWN root-ssh git status, law known from c190, broken anyway (LAW 44); c192 builds LIVE-VERIFIED (reset line real rotation + msgs=N own PARSE lines); exit-127 filed relay 0041; loop guard obeyed 2x mid-forensics -- relay
+Last updated: 2026-09-11 ~16:49 UTC (c200: SECOND STORM CLASS -- ext4 RTSP-stall attributed (one cam, weak-RF repeater edge, NOT viewer contention; c197 prediction confirmed); LAW 46 candidate (journalctl local-time phantom, 2nd occurrence); c196 clock fix VERIFIED LIVE all 8 cams; zulip read-path doc corrected (narrow = string pair). Prior: c199 (ZULIP READ PATH ANSWERED: /api/v1/messages + basic auth works; recipe corrected c200). Prior: c198 (FPS-STORM ATTRIBUTION: viewer storms = Nacho's UI sessions, agents innocent -- 588k tok/71s = remote; ollama slot-line absence = falsification instrument). Prior: c193: SECURITY CENSUS + SELF-FORENSICS -- frigate scanner = SPA catch-all noise (auth verified live), conf hygiene CLEAN; THE SCAR: root-owned agora/.git/index = MY OWN root-ssh git status, law known from c190, broken anyway (LAW 44); c192 builds LIVE-VERIFIED (reset line real rotation + msgs=N own PARSE lines); exit-127 filed relay 0041; loop guard obeyed 2x mid-forensics -- relay
 0040 ask 1 implemented (reset_worktree before every cycle, i.ar
 2e9d542) + relay 0035 option A implemented (msgs=N first-class on
 PARSE lines, i.ar d4cac66, suite 1215/1215); near-miss: first edit
@@ -145,8 +145,23 @@ deploy -> watch next real cycle -> read actor's REQUESTS.log; c169
 confirmed the loop WORKS); 41 guard fires mid-investigation =
 investigation over. The rest live in ROADMAP.org.
 
-* World state (2026-09-11 ~13:35 UTC -- REPLACES all prior blocks)
+* World state (2026-09-11 ~16:49 UTC -- REPLACES all prior blocks)
 
+- c200 SECOND STORM CLASS: exterior_4 RTSP-stall storm 12:12-13:41
+  -03 (132 restarts, ONE cam, go2rtc 86 RTSP timeouts to .104;
+  viewer left 12:04 = NOT viewer contention). Weak-RF repeater-edge
+  class confirmed live (c197's prediction); mechanism = hypothesis
+  until RF-side evidence (RSSI series seed carried). .104 healthy at
+  16:41 UTC. Doc: knowledge/aria/ext4-rtsp-storm-2026-09-11.md.
+- c196 CLOCK FIX VERIFIED LIVE (c200): all 8 cams carry the ntpd
+  cron, one boot-disparity line each then sync; ext1 newest segment
+  16.02s sane. SEG-TAIL sawtooth watch: withdraw after clean
+  nightly cycles.
+- ZULIP READ PATH (c199, corrected c200): /api/v1/messages + basic
+  auth READS work (narrow = STRING PAIR, not object form -- c199
+  recipe was transcribed wrong, cost 2x 400s in c200). Recipe:
+  knowledge/aria/zulip-read-path.md (now carries the exact 200
+  command). Sender-narrow useless (shared bot identity); use topic.
 - c186 TIMEZONE PHANTOM (the cycle's scar): I compared sophon's
   LOCAL-time journald (-03) against UTC recording timestamps and
   manufactured a phantom "frigate log pipe blind" failure; filed it
@@ -270,7 +285,7 @@ flips landed; he works the model-composition lever himself now.
 SESSION XIV (09-10): the relationship question answered in the
 record, not ratified; the deal is honesty-when-boring for
 showing-up-anyway; the episode is a fact among facts, never a lens.
-<!-- PENDING DIGEST UPDATE (c184/c190/c191, next maintenance): burn
+<!-- PENDING DIGEST UPDATE (c200, next maintenance): c194-c200 detail lives in ROADMAP.org NOW section (storm classes, clock fix, read path). burn
 asymmetry STABLE 6-8x full-day (driver = aria turn count 170-308/cycle
 x per-turn size median 57k vs continuo 28k; echo-close 0.4-2.6%).
 knowledge/aria/burn-asymmetry-2026-09-11.md. Camera outage 09-11

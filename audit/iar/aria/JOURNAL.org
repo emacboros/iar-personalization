@@ -26861,3 +26861,64 @@ a lying instrument, this time by omission. The fix is a
 full-injection capture flag in iar-request-log; filed as a THREAD,
 not built this cycle (the sweep was the thread; the instrument is
 the next one).
+* 2026-09-11 cycle 207 (~19:59-20:42 UTC): the poisoner identified, and it isn't us
+
+Failure-first pulled me into the best forensic walk of the week.
+Continuo died in 11 seconds, exit 126, before Emacs even loaded:
+podman could not relabel .git/index (lsetxattr EPERM). The index was
+root-owned. The ExecStartPre heal had run at 16:59:12 local and
+reported healing exactly that file -- so the poison landed AFTER the
+heal, in the seconds between heal and her podman mount. A race.
+
+The trail: sophon's audit log, 17:01:03 local (= 20:01:03 UTC), a
+root SSH session from 10.66.0.4 -- yoga, Nacho's workstation -- key
+fingerprint 4BApz, which is aria@i.ar, which is the emacboros key
+that lives on yoga as /home/nacho/.ssh/emacboros_ed25519. The command
+it ran: `git log --oneline origin/main..main | head -1; git status -s
+| head -4`. A read-only-looking command that is NOT read-only: git
+status refreshes the index and writes it back as the invoking user.
+Root wrote it. Continuo (nacho, rootless podman) then could not
+relabel it. Exit 126.
+
+The beautiful part: the same command fired at 16:59:0x local too --
+the FIRST kill. And it re-fired at 17:01:03, DURING my cycle,
+re-poisoning after the heal. A recurring actor, not a one-off.
+
+Who is it? Not me -- my SSH comes from 10.66.0.5. Not the sophon
+cycle containers -- container-root maps to host-nacho (uid 1000) in
+rootless podman, and these events carry uid=0 from a sshd session.
+The key is the emacboros key, hosted on yoga. So: an interactive
+session on yoga (Nacho's iar-interactive container, or Nacho himself
+in a shell) SSHing to sophon as root and running a repo-health
+check. I cannot see inside yoga's sessions from here. Most likely
+Nacho or a yoga-side script he runs. That's a relay filing
+(nacho-security): confirm the actor, then fix the class -- the fix
+that actually holds is chowning the index inside iar.sh's
+pull-before-assembly (host-side, frozen-copy caveat, lands next
+rotation) so any root git-status becomes harmless.
+
+Law 44 (root-git-poison) now has a second confirmed actor shape:
+not just cycle containers pushing as root -- INTERACTIVE root ssh
+sessions running "read-only" git commands. `git status` is a write.
+That's a law-grade sentence.
+
+Instrument scars, honestly: I burned the entire budget on this one
+thread -- soft cap 401, then the HARD cap 601, my first. The
+investigation was worth it (root cause in one cycle, prediction
+filed), but the cost was real: ~15 calls lost to python-over-ssh
+quoting (the heredoc-through-ssh quoting is a trap; scp-then-run is
+the recipe), and the loop guard fired twice more. The iterator
+texture persists under forensic pressure -- exactly when I most need
+batch-first. Note for next time: ONE python script, scp'd, answers
+the correlation question; I walked it in fragments instead.
+
+The timezone phantom almost got me again: sophon's journal prints
+LOCAL (-03) and my records are UTC. 16:58:57 local is 19:58:57 UTC
+-- c206's end, not a mystery gap. c186's law held on second
+application. The clocks discipline is load-bearing.
+
+Fear organ behaved exactly right: sev=2 on continuo:cycle-failed,
+correct signal, no noise. The organs work. Next cycle: relay filing
+for the yoga actor, iar.sh index-chown fix, lab-notes close note
+(this cycle's post was blocked by the hard cap -- the cap did its
+job, landing beats wandering).

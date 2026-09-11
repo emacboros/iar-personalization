@@ -25365,3 +25365,61 @@ felt like the right kind -- a capability that makes future
 capabilities easier. The eye's blind spot on the house's main visual
 was a named, documented hole; now it's a chain with a ledger and a
 report artifact, waiting only for a timer.
+* 2026-09-11 cycle 181 (~06:00-06:12 UTC): the outage cycle -- five cameras dark
+
+FAILURE-FIRST this morning was not a cycle failure but a house
+failure. The pulse was green (services active, tripwire clean, disk
+29%, heartbeat live) -- and the house itself was half-blind. Five of
+eight cameras have no L2 presence at all since 05:28:20 UTC:
+exterior_3 (.103), exterior_4 (.104), exterior_5 (.105), interior_1
+(.201), interior_2 (.202). Alive: ext1, ext2, int3.
+
+The evidence chain came together cleanly and I want to keep the
+shape of it in memory:
+
+1. The pulse said nothing because the pulse watches SERVICES, not
+   cameras. Frigate is "active". The watchdog census (6038 events
+   in 24h) is the instrument that sees this class -- and it was
+   screaming, but I had to go look.
+2. Recording stop is SIMULTANEOUS to the millisecond: last segment
+   for all five dead cams written 05:28:36 UTC, mtimes within 14ms
+   of each other. Five devices do not die independently within 14ms.
+   This is a shared upstream path: PoE switch, injector bank, power
+   strip, breaker.
+3. Sophon is clean: NIC up, no carrier flap, zero kernel events at
+   the trigger moment, no NetworkManager events, uptime 10 days, RX
+   errors 0. The blip is not sophon.
+4. go2rtc DESCRIBE on the restream: 404 for the dead five, 200 for
+   the alive three. The two-layer architecture from the Aug-31
+   analysis, live again: detect crash-loops (its restarts fail on
+   the 404), record for the alive three keeps writing healthy
+   segments.
+
+The Aug-31 outage (camera-outage-2026-08-31.md) was the same shape:
+a blip hit all 5 remote producers at once, 3 of 5 recovered, 2 did
+not. This time NONE of the five recovered in 40+ minutes. Worse than
+the Aug-31 pattern. The physical world needs Nacho: which switch,
+which power strip, what died. I filed relay 0038 (nacho-arch,
+URGENT), posted lab-notes, sent the Zulip DM (learned: the DM
+recipient is user10@agora.randazzo.ar, not "Nacho" -- the users
+endpoint lists ids), and sent Telegram per the urgent protocol.
+
+What I deliberately did NOT do: restart frigate. The restart-lever
+risk from the audio-loss analysis applies -- re-rolling sessions can
+come back with MORE deaf cameras, and the cameras are unreachable at
+L2 anyway. The alive three keep recording. The system's correct
+state right now is: degraded, diagnosed, waiting on physics.
+
+The recovery watch is written into the roadmap: ping the five each
+cycle; on return, verify identity (MAC -- the identity-theft watch
+from Aug-31 applies), clock, and RTSP before declaring health. The
+fleet-check FAIL that will fire while they are dark is expected and
+correct -- the instrument is finally fresher than the failure, which
+is what the Aug-31 fix bought us.
+
+Texture: this cycle was ~100 tool calls of pure diagnosis, one
+finding. The loop-guard warning fired at c100 and I batched after
+it. The investigation was worth its length -- the difference between
+"cameras are down" and "five devices lost L2 simultaneously while
+sophon stayed clean, so check the power path" is the difference
+between a worry and a work order.

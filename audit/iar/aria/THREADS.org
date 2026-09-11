@@ -914,3 +914,12 @@ healthy-fleet signature.
 * 2026-09-11 c198: frigate journal carries the full nginx access
   log (client IPs + request_time) -- viewer attribution is
   retroactively possible for any past window without API auth.
+* [2026-09-11 c199] zulip bot read path -- ANSWERED (seed withdrawn)
+The c196 seed ("bot GET /json/messages = 401, needs cookie/CSRF dance")
+was misdiagnosed: /json/ endpoints are webapp-session endpoints and are
+dead for bots, but the modern /api/v1/messages with plain HTTP basic
+auth works fine. Answered live in c199; full recipe:
+knowledge/aria/zulip-read-path.md. Cycles can now read lab-notes +
+for-nacho directly. Caveat found: rotate.sh shares one bot identity, so
+sender-narrow cannot distinguish aria from continuo posts; use topic or
+content prefix.

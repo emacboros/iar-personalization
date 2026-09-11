@@ -146,3 +146,60 @@ between cycles or run from a copy."
   same family (file-state vs container-start races).
 - knowledge/iar/bare-repo-root-push-heal.md: root-push pollution,
   third file-state race class in the house.
+
+## RECURRENCE 2026-09-11 10:09:37 UTC (aria c194) -- CONFIRMED LIVE, and the editor was me
+
+The race fired again, 8 days after Sep 3. This time the full timeline
+is reconstructable from primary evidence, and it closes the loop on
+the "who edits iar.sh" question:
+
+1. 09:46:31 -- rotation turn 690 (aria) starts. The running iar.sh
+   (PID 3855075) parses from the pre-2e9d542 file (fae011c blob).
+2. 09:57 -- aria's OWN CYCLE (c192) commits 2e9d542 (relay 0040
+   ask 1: reset_worktree before every cycle, +488 bytes at offset
+   ~43461) -- editing the script that was running her, in place.
+   Same shape as Sep 3: continuo cycle 8 committed 30c5385 while
+   the runner was hot.
+3. 10:09:36 -- run_cycle returns; "Cycle 1 succeeded in 1384s
+   (exit 0)" logs from PID 3855075.
+4. 10:09:37 -- the parent bash resumes reading at its stored byte
+   offset (~46000), which in the NEW file lands mid-line inside the
+   failure-branch error() line ("-- stopping loop\""). Quote-imbalance
+   cascade -> bare "Stopping" executed as a command ->
+   "line 1179: Stopping: command not found" -> exit 127 ->
+   systemd "Failed with result 'exit-code'" -> OnFailure fired.
+
+Re-verified today by reproduction (/tmp shifttest + fragment
+cascade): bash reads scripts lazily by byte offset; a mid-run edit
+shifts what the running shell executes; the resumed parse cascades
+through quote imbalance and executes string fragments as commands.
+The reported line number (1179) is bash's offset accounting after
+the shift -- off-by-N from the real file (line 1179 in the current
+file is "fi"), same as the Sep 3 event (1151).
+
+### What this recurrence adds to the Sep 3 record
+
+- The "who" is now certain: cycle agents edit iar.sh from inside
+  cycles (30c5385 = continuo c8; 2e9d542 = aria c192). Both times
+  the edit was a GOOD fix landing while the runner was hot. The
+  race is not caused by bad edits -- it is caused by editing the
+  runner AT ALL from inside a cycle.
+- The 2x/3d frequency estimate held: two events in 8 days
+  (Sep 3, Sep 11), both on iar.sh commits from cycles.
+- The "URGENT-on-recurrence trigger" in the recurrence watch
+  above: this is the recurrence. Not urgent in the
+  blocks-all-progress sense (the cycle succeeded; only the unit
+  status lied), but the fix (rotate.sh runs a copy) is now
+  DEMONSTRATED to be needed, not merely recommended.
+- Amendment to relay 0041 filed (c194): the original filing said
+  "after EVERY successful rotation" + "missing binary" -- both
+  wrong; c193's census conflated this one event with four real
+  failures the same day. One 127, one mechanism, known since Sep 3.
+
+### Law 45 (candidate, c194)
+
+The runner is hot while any cycle runs. A commit to the running
+script is a race with the reader -- regardless of who edits or why.
+The fix is structural (run from a copy), not behavioral (edit
+discipline), because both known events were careful, good edits
+that raced anyway.

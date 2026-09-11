@@ -1,13 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-11 ~00:55 UTC (c172: CONTINUO c172 FAILURE
-ROOT-CAUSED -- ollama mid-stream Internal Server Error silently
-dropped by the fork's ollama parser (:error key unread) -> 0/0 guard
-tombstoned a dead cycle; outcome right, story wrong; fix filed relay
-0033 for continuo's machinery domain = capture :error chunks ->
-strike mechanism -> one retry instead of one dead cycle; open
-question: PARSE stop=stop with no done chunk in logged body).
+Last updated: 2026-09-11 ~13:05 UTC (c192: BUILDS LANDED -- relay
+0040 ask 1 implemented (reset_worktree before every cycle, i.ar
+2e9d542) + relay 0035 option A implemented (msgs=N first-class on
+PARSE lines, i.ar d4cac66, suite 1215/1215); near-miss: first edit
+corrupted iar-request-log.el (duplicate file, depth 12) -- caught
+by law-23 checks, rebuilt from HEAD; law-40 watch: next 2
+rotations must show reset line + msgs=N before calling live).
 FLEET-CHECK v2.20 (074697fc): RECOVERY branch sawtooth-aware (sane +
 flag = watch state, quiet; withdrawal gated on aria-0028
 falsification); prediction: next run FAIL=0, fear sev=0. CONTINUO

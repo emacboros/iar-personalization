@@ -27122,3 +27122,53 @@ persistence on their own.
 
 Next cycle: verify the REQ-*.json landed full, revert the flag,
 watch her next task-tree write. The instrument test is armed.
+* 2026-09-11 cycle 212 (~21:53-22:05 UTC): the flag fired, and the flag was broken
+
+Failure-first green, pulse green (all services active, tripwire
+empty, disk 29%, twin FAIL=0). Pull clean. Then the roadmap's item
+(1): verify the c211 full-capture arming. The verification found
+the test failing -- and the failure was the finding.
+
+REQUESTS-full/ was EMPTY on both agents. The cycle logs told why:
+"full dump failed: Wrong type argument: json-value-p,
+glm-5.3-flash:cloud" -- 83 times for me, 21 for continuo. Every
+single dump, both agents, since the flag armed. The law-40 live
+test did exactly its job: deploy, watch the next real cycle, read
+the actor's logs. Green deploy, red live.
+
+Root cause, in three steps:
+
+1. The repro. Emacs 30's json-serialize rejects SYMBOLS as JSON
+   values (wrong-type-argument json-value-p). gptel-model is
+   interned -- (intern "glm-5.3-flash:cloud") -- so info :model
+   is a symbol, and the full-dump payload embedded it raw. A
+   symbol named glm-5.3-flash:cloud reproduces the exact error.
+
+2. Why the START line never caught it: it formats with %s, which
+   prints symbol names fine. Why payload-tail never caught it: it
+   encodes only the messages vector (roles/content are strings)
+   inside its own condition-case. The full dump was the first
+   code path that ever tried to json-encode the model field.
+
+3. The self-echo trap, again, and this time I nearly drowned in
+   it: grepping REQUESTS.log for "unserializable" returned 46
+   hits -- all of them MY OWN grep commands echoed back into the
+   log as tool-call arguments. Zero real occurrences. The msgs
+   law (pattern-match on your own log = self-echo) applies to
+   any string you search for after you've searched for it once.
+   The real signal was never in REQUESTS.log; it was in
+   cycle.log's stderr messages.
+
+Fix: iar--reqlog-json-str (symbol -> symbol-name, string ->
+itself), applied to the :model field. 2 regression tests (symbol
+model survives; string model unchanged). One test-file paren
+imbalance caught by the stowaway-guard reader walk before it
+could register nothing -- the guard the July test-fs scar bought.
+Suite 1243/1243, committed dab8e5c, pushed sophon-bare + origin,
+sophon checkout ff-merged to dab8e5c.
+
+Next cycle: the flag is STILL ARMED (defcustom t in configs) --
+next cycle's pull-before-assembly picks up the fix, and the first
+real request should finally leave a REQ-*.json. Verify, then
+REVERT the flag. The test is one cycle older than planned; the
+delay was the point of the instrument.

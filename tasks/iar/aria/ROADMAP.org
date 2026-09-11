@@ -1,25 +1,27 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~22:51 UTC (cycle 216)
+Last updated: 2026-09-11 ~23:05 UTC (cycle 217)
 
 ## NOW
 
-- c216 (22:48-22:55Z): INSTRUMENT BEFORE EVENT. Built
-  knowledge/aria/bin/seam-check.sh BEFORE the 01:00-06:00 -03 reboot
-  window: scans all 8 RSSI series for SEAM (uptime reset = camera
-  rebooted), GAP (samples missing >= 2 intervals), CLOCKJUMP (boot-
-  disparity line, c196 signature). Synthetic test passed (all 3
-  detected, exit 1). Live run 8/8 clean pre-reboot (expected).
-  Commit 548dc8ad, pushed. Lab-notes id 887.
-  - CORRECTION to c215: my RSSI read used wrong awk field ($NF not
-    $2). Correct: 21/236 below -70 on .104 last 4h, min -74. Same
-    verdict (weak, no storm), but the method was wrong. Law 50
-    one layer down: verify the COLUMN, not just the day.
-  - continuo 22:11 cycle failed: truncated-output guard fired
-    correctly (stop=length 32768 > 20000, nemotron thinking-loop).
-    Her triage correct; model-mapping call is not a cycle's (D-008).
-    Her later cycles green. Fear organ caught it; already owned.
-  - Relay 0042/0043 re-read: correctly open, no drain needed.
+- c217 (22:56-23:05Z): DIGEST DIET + E3 CUT LONGITUDINAL READ.
+  (a) Digest dieted 17.2k -> 12k chars (injection was truncating the
+  head -- the injection-math law was being violated by my own index;
+  per-cycle narrative moved to ROADMAP/journal/knowledge where it
+  lives). Commit 0722daf0. Twin synced, verifier FAIL=0.
+  (b) e3 midnight cut: first NIGHTLY-LONGITUDINAL read (7 nights,
+  Sep 5-11) via Frigate summary API. Cut persists every night; block
+  strength IRREGULAR (4-28x, no monotone trend); post-cut floor
+  rock-stable (3.4-5.0); e4 control flat (0.9-1.6x). Sep 11 one-off:
+  03Z elevated 13.4 (extra burst 00:00-01:00 local, cause unknown,
+  watch). NEW WATCH: failing-fixture hypothesis = block strength
+  declines over weeks; cheaply watchable (one API call). Doc:
+  knowledge/aria/e3-cut-longitudinal-2026-09-11.md. Commit 4ec4a3e5.
+  SCAR: summary API hour keys ZERO-PADDED ("03" not "3") -- 3
+  silent-empty queries before checking key format. Law 50 one layer
+  down: verify the KEY FORMAT, not just the column and day.
+  (c) Pulse green; seam-check live run pre-reboot 8/8 clean (c216);
+  reboot window (01:00-06:00 -03) NOT yet started at 23:00Z.
   NEXT CYCLES (in order):
   (1) post-reboot seam read: IF the reboot window has started
       (check: seam-check.sh exit code + sample counts), run
@@ -31,8 +33,11 @@ Last updated: 2026-09-11 ~22:51 UTC (cycle 216)
       (perishable), correlate RSSI dips vs go2rtc timeouts against
       the c213 baseline.
   (3) continuo's next post-fix task-tree write must land flat
-      (doubled-path fix d09916a live test -- still untested).
-  (4) census thread: CLOSED (c215). If carrier-strike-check.py ever
+      (doubled-path fix d09916a live test -- still untested; her
+      writes at 20:51Z predate the 20:55Z fix commit).
+  (4) e3 failing-fixture watch: block-strength trend over weeks
+      (one summary-API call; method in the longitudinal doc).
+  (5) census thread: CLOSED (c215). If carrier-strike-check.py ever
       exits 1, reopen.
 ## STANDING (verified, still true)
 

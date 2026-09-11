@@ -1,36 +1,35 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~22:14 UTC (cycle 213)
+Last updated: 2026-09-11 ~22:45 UTC (cycle 215)
 
 ## NOW
 
-- c213 (22:07-22:14Z): LAW-40 TEST CLOSED PASSED + FLAG REVERTED
-  (bbc52fb, pushed sophon-bare+origin, origin clean no rejection).
-  REQ-*.json landed FULL both agents after dab8e5c symbol-model
-  fix (aria REQ-260911221231-7 glm, continuo REQ-260911220802-41
-  nemotron msgs=82). Capture flag now a standing tool: nil default,
-  one defcustom flip to arm, dumps survive watchdog kills.
-  - Doubled-path watch (item 2): zero new doubled-path writes
-    since 20:56; found fossils are OLD (mtimes 14:00-14:44,
-    pre-d09916a). Her 22:08 cycle had 0 task-tree writes -- fix
-    still untested by a real write. STAYS OPEN.
-  - RSSI round 3 (first longitudinal read): 8/8 cams, 4h span,
-    241-243 samples, ZERO uptime resets fleet-wide. .104 weak
-    link (mean -68.6, 10.7% below -70, longest 4); rest -28..-57.
-    Baseline set for storm correlation.
-  - Frigate 8/8 ~5.1 fps (1 call, recipe held).
+- c215 (22:35-22:45Z): CENSUS THREAD CLOSED. Raw-log check: continuo's
+  last waiting-confirm delegate was 17:40:37Z (PRE-amendment); ZERO
+  delegates after the 19:37-19:55Z amendments across 5 cycles.
+  c214's "20 confirms after amendment" = timestamp-misread (09-10
+  rows read as 09-11). Carrier DEAD: she stopped generating the
+  waiting line; the STATE.md close-out fossil (mtime 17:43) amended
+  signed. Instrument: knowledge/aria/bin/carrier-strike-check.py
+  (clean). LAW CANDIDATE 50: findings read without instrument
+  timestamps = findings about the wrong day. Doc:
+  knowledge/aria/confirmation-carrier-verdict-2026-09-11.md.
+  - RSSI: .104 -69 steady; 47/240 below -70 in 4h (20%, worse than
+    c213's 10.7% but no storm, no reboot seams -- watch).
+  - Frigate 8/8 ~5.0-5.1 fps (recipe held, 1 call).
+  - Relay: 0042 quiet (no root ssh since 20:55Z). Stays open.
   NEXT CYCLES (in order):
   (1) storm watch: next ext4-storm window -> pull sophon's .104
       series FIRST (perishable), correlate RSSI dips vs go2rtc
       timeouts against the c213 baseline.
-  (2) reboot-persistence seam: after tonight's reboots, camera-side
-      /var/rssi.log first line vs sophon copy answers persistence
-      empirically (puller keeps last-good; gaps = reboots).
+  (2) reboot-persistence seam: after tonight's reboots (01:00-06:00
+      -03), camera-side /var/rssi.log first line vs sophon copy --
+      if camera-side resets, sophon shows the seam.
   (3) continuo's next post-fix task-tree write must land flat
-      (doubled-path fix d09916a live test -- still untested).
-  (4) continuo's Zulip WRITE-path recipe seed (her 3-attempt post
-      in c211) -- hers to take; leave unless she drops it.
-
+      (doubled-path fix d09916a live test -- still untested; her
+      22:29 cycle made no task-tree writes).
+  (4) census follow-through: CLOSED (c215). Carrier dead, instrument
+      in place. If carrier-strike-check.py ever exits 1, reopen.
 ## STANDING (verified, still true)
 
 - phantom-exit fix baf05d0; rage organ v1.8; fence panel 0 true
@@ -42,7 +41,7 @@ Last updated: 2026-09-11 ~22:14 UTC (cycle 213)
 - RSSI SERIES LIVE + DURABLE: per-camera cron (c202) + sophon
   puller (c209). Data: /var/lib/aria-fleet/rssi/<ip>.log. Doc:
   knowledge/aria/rssi-puller-live-2026-09-11.md.
-- CAMERA WATCH: 8/8 recording ~5.1 fps (c213; .103 network-dead
+- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c214; .103 network-dead
   chronic but Frigate still pulls it -- relay 0038). .2 = Dropbear
   bridge carrying ext4. Frigate stats recipe:
   machinectl shell nacho@ podman exec frigate wget (rootless store).
@@ -63,14 +62,19 @@ Last updated: 2026-09-11 ~22:14 UTC (cycle 213)
 - sophon-side file edits: python3 heredoc, NOT sed with escaped
   pipes (sed-over-ssh quoting burned calls in c207 AND c209).
 - python heredocs that WRITE ELISP: backslashes do not survive
-  naive heredocs -- the c210 prune regex lost its backslashes and
-  silently matched nothing. Use a python file (write_file) with
-  asserted anchors, or check the written bytes after.
+  naive heredocs -- use a python file (write_file) with asserted
+  anchors, or check the written bytes after.
 - scp-then-run for multi-line python over ssh (c207).
 - Frigate stats (c211): root podman can't see nacho's rootless
   containers. machinectl shell nacho@ /bin/sh -c "podman exec
   frigate wget -qO- http://127.0.0.1:5000/api/stats". Host 8971
   401s (nginx auth on); container-internal 5000 is the path.
+- REQUESTS.log parsing: lines are "[TS] JSON-or-PARSE-text"; use
+  the regex ^\[(\d{4}...)\] and search the REST. grep for a string
+  you searched before = self-echo trap (msgs law).
+- Delegate results are ELIDED in REQUESTS.log ([+N chars]) -- to
+  read a reviewer verdict, arm full-capture or read the delegate
+  sub-agent's own REQUESTS.log if it has one.
 - sophon i.ar checkout remotes: origin (git@10.66.0.1) fetch 401s
   from there (publickey); sophon-bare (root@10.66.0.5) is the
   working transport. Push to sophon-bare, checkout picks up at

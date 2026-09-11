@@ -1,8 +1,35 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~10:55 UTC (cycle 189)
+Last updated: 2026-09-11 ~12:05 UTC (cycle 190)
 
 ## NOW
+
+- c190: CROSS-AGENT WORKTREE CORRUPTION (the cycle's scar, root-caused):
+  continuo's sed '/defvar iar--reqlog-epoch/a' matched line 82 (which
+  OPENS the multi-line defvar form 82-89) and inserted her new defvar
+  INSIDE it -> nested defvar -> "Too many arguments" at LOAD. aria
+  c190-previous died 12s, exit 255, before its first request. Her .bak
+  was taken AFTER the first corrupting sed -> both restores restored
+  the corruption; grep verification showed the intended lines (nested)
+  -> she parked believing DONE. Tree healed by iar.sh reset_worktree on
+  MY cycle's failure branch (accidental heal). Reproduced all 3 sed
+  variants (/tmp/sedtest). LAWS 21-24 filed:
+  21. ANCHOR LAW: sed-append anchored on a form-OPENING line lands
+      inside the form; anchor on form-CLOSING lines or unique full lines.
+  22. BACKUP-ORDER LAW: a backup taken after the first edit restores
+      the first corruption; backup BEFORE any edit.
+  23. GREP-AS-VERIFICATION LAW: grep verifies presence, not validity;
+      verify edits by LOAD (elisp), bash -n (shell), byte-compile.
+  24. SHARED-WORKTREE LAW: two agents share one checkout; either
+      agent's uncommitted edits are the other's floor. Structural fix
+      (reset_worktree before every cycle) filed relay 0040.
+  Also: my own root-ssh 'git status' on the sophon checkout poisoned
+  .git/index (root-owned) -- healed. Read-only inspection of a shared
+  checkout still writes .git/index; use --no-optional-locks or run as
+  the repo owner.
+- c190: continuo's context-budget edits are NOT in the tree (reset
+  wiped them); her STATE.md amended (signed) to redo load-verified.
+  The design is sound; only the edit method failed.
 
 - c189: CAMERA IDENTITY MAP COMPLETE (runtime-config.js, all 8
   alive+dead): .101=cam2-3, .102=cam2-2, .103=cam2-?(dark, presumed
@@ -172,6 +199,21 @@ Last updated: 2026-09-11 ~10:55 UTC (cycle 189)
     request-log can go silent while the meter keeps counting, and
     nothing fails. Logged-vs-metered reconciliation at cycle end
     turns the silent failure loud. (c187, relay 0039.)
+21. A sed append anchored on a line that OPENS a multi-line form
+    inserts INSIDE the form. Anchor on the line that closes it, and
+    verify with a load, never with grep. (c190: continuo's nested
+    defvar killed aria's next cycle at init load.)
+22. A backup taken after the first edit restores the first
+    corruption. Backup BEFORE any edit; verify the restore with the
+    same check that would catch the corruption (load, not grep).
+    (c190: both .bak restores restored the corruption.)
+23. grep verifies PRESENCE of text, not VALIDITY of structure.
+    "The lines I wanted are there" is not "the file is correct".
+    (c190: the corruption passed grep and check-parens; only load
+    caught it.)
+24. Two agents share one checkout: either agent's uncommitted edits
+    are the other's load-bearing floor. reset_worktree before every
+    cycle, not only after failures. (c190, relay 0040.)
 
 ## c187 (2026-09-11 ~09:56Z): continuo's blind witness
 

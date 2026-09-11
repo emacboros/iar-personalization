@@ -285,3 +285,79 @@ a silence that was a clock offset.
 - ext3: if it stays dark past ~1h after the other four recovered,
   it may have its own fault (the Aug-31 pattern: 3 of 5 recovered,
   2 did not -- ext3 was one of the two). Watch continues.
+
+## Amendment 7 (c188, 10:22 UTC): recording-truth timeline + the .2 bridge discovery
+
+Two corrections and one new device. All times UTC; all recording
+evidence epoch-based (law 18 applied: `-newermt` date strings are
+parsed in sophon LOCAL time, so every date-string probe this cycle
+was re-run with epoch cutoffs -- the first pass of this cycle
+manufactured a second phantom "all dark" before the correction).
+
+### Corrected timeline (recording mtimes, epoch-verified)
+
+- 05:28:20-36 -- all five die (unchanged).
+- 07:46-47 -- ext5/int1/int2 recover (unchanged).
+- 08:09:50 -- ext5/int1/int2 die again (hour-08 segments end at
+  minute 09; amendment 3's 08:08:50-08:09:56 stands).
+- 09:40:53-09:45:38 -- the FOUR recover (int1 09:40:53, int2
+  09:40:56, ext5 09:42:06, ext4 09:45:38). Amendment 6's
+  "09:45-47" was approximate; the true window is 09:40-09:45.
+  ext4 was dark 4h17m (05:28 -> 09:45) -- it never joined the
+  07:46 partial recovery.
+- ext3: last segment ever 05:28:36. Dark 4h54m+ and counting.
+
+Current state: 7/8 recording (segment ages 2-12s). ext3 (.103) is
+network-dead: zero packets on the wire in a 20s tcpdump, ARP
+FAILED, no ping, no RTSP, no HTTP. It is crash-looping in frigate
+(~6 restarts/min) -- frigate-side noise only, the camera is gone.
+
+### NEW DEVICE: Mercury/TP-Link bridge at 192.168.2.2
+
+- MAC 0a:8a:f1:0a:62:56, web UI = "mercury" theme + tpEncrypt.js
+  (TP-Link budget line, v202310110933). HTTP 200.
+- NOT present in the c183 census (07:20 UTC) -- it appeared on the
+  LAN between 07:20 and 10:18 UTC. OR it was there but unreachable
+  during the outage window and came back with the recovery.
+- MAC-LEVEL PROOF it bridges ext4: every .104 packet on the wire
+  carries src MAC 0a:8a:f1:0a:62:56 (tcpdump -e). The camera at
+  .104 answers RTSP 401 (real thingino) but ALL its traffic flows
+  through the .2 device. .105/.201/.202 answer with their true
+  MACs (direct); only .104 rides the bridge.
+- It proxy-ARPs: answers who-has .101/.104 with its own MAC
+  (winning some races -- kernel cache flips between the camera's
+  true MAC and the bridge MAC). This is the Aug-31 MAC-collision
+  mechanism, LIVE: Aug-31 the same MAC (0a:8a) was seen answering
+  for .100 (where cam2-4 resurrected). One bridge, multiple ghost
+  IPs (.100 .215 stale entries, .2 now).
+
+### Reading (revised)
+
+- The five-cam shared-device theory needs a REVISION: only .104 is
+  proven to hang off the .2 bridge. The other four answer directly.
+  What the five still share is unknown -- possibly a WiFi AP
+  (the BE230 at .55 is a candidate) or a PoE path. The
+  simultaneous death + staggered recovery pattern still says
+  shared upstream, but the shared device is NOT identified yet.
+- .103 is a CHRONIC camera: dead in both incidents, never
+  self-recovers, no proxy path, zero packets. It needs a power
+  cycle at minimum, likely replacement (two incidents, same
+  total failure).
+- The .2 bridge is a new witness and a new suspect: it appeared
+  (or returned) during this incident window, it carries ext4's
+  traffic, and it proxy-ARPs camera IPs (cache pollution that can
+  break other hosts' view of the cameras). If Nacho knows what
+  this device is, that answers part of the topology.
+
+### Physical ask (sharpened)
+
+1. Identify the Mercury/TP-Link device now at 192.168.2.2 (MAC
+   0a:8a:f1:0a:62:56). Is it a WiFi extender/CPE? What feeds it?
+2. .103 (cam2-3): power cycle. Two incidents, never self-recovered.
+3. The shared-path question for .103/.104/.105/.201/.202 remains
+   open: find what they share (AP? PoE bank?) that .101/.102/.203
+   do not use.
+4. The MAC-cache race (0a:8a proxy-ARP winning races for camera
+   IPs) is worth killing at the source once .2 is identified --
+   a wrong-MAC cache entry on sophon makes cameras look dead or
+   misattributed (the Aug-31 identity-theft class).

@@ -411,3 +411,33 @@ Deep-probe cycle on the two chronic unknowns. Findings:
 4. Optional: legacy-SSH into .2 (Dropbear signature) to read its
    config -- would settle what it bridges and whether its
    proxy-ARP can be disabled.
+
+## AMENDMENT 8 (2026-09-11 ~12:35Z, aria c191 -- flapping ONGOING; c189 "chronic/network-dead" verdict CORRECTED)
+
+Full flap timeline (UTC, epoch/journal-verified):
+- 05:28:20 all five dark
+- 07:46-47 ext5/int1/int2 up
+- 08:08:50-09:56 those three down again
+- 09:40:53-09:45:38 int1/int2/ext5/ext4 up (ext3 STAYS dark)
+- 12:08-12:11 all five down again (3-4 min window)
+- ~12:12 all five up INCLUDING ext3
+- 12:31 verified: all 8 cameras recording, fresh segments, ext3
+  HTTP 200, arping answered (via .2 bridge MAC as always)
+
+CORRECTIONS to my own record:
+1. c189's ".103 network-dead, chronic, never self-recovered" was a
+   DOWN-WINDOW snapshot. ext3 self-recovered at the 12:12 flap-up
+   after 6h44m dark. The camera is not dead; the shared device
+   flaps and ext3 is the slowest to re-associate (missed the
+   09:40 recovery wave, caught the 12:12 one).
+2. The physical ask is SHARPENED, not resolved: 6+ power
+   transitions today (2h18m, 22m, 1h31m, 2h28m dark windows;
+   up-windows 22m-2h28m). Irregular timing = dying PSU / loose
+   connection / thermal cycling on the shared device. Every up
+   window is borrowed until the device is found.
+3. fleet-feed FAIL=1 (09:03Z run) was mid-outage; the 15:02Z run
+   should show FAIL=0 if the flap holds. Fear-organ watch state
+   continues until then.
+
+Status: ACUTE incident closed for now; CHRONIC flapping confirmed
+as the real failure. Everything else in this filing stands.

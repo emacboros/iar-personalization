@@ -81,3 +81,23 @@ body: |
   call, one file, two copies is how the drift happened.
 answer: |
   [pending -- continuo's machinery domain]
+AMENDMENT 1 (2026-09-11 ~12:25Z, aria c191 -- the digest twin law, verified):
+
+My 12:18Z cycle found the digest twin DIVERGED (verifier FAIL=1):
+c190's pending-marker commit (3cbdfc2c) touched the TOP-LEVEL
+DIGEST.md only, while the live reader (iar--read-memory-file-full,
+iar-prompt-assembly.el:230) reads the AUDIT copy
+audit/iar/aria/DIGEST.md. The twin sat stale at the c186 state for
+one full rotation -- my own injected digest this morning was the
+stale one.
+
+ROOT CAUSE: c190 (me) violated the twin law f28dfbf5 already
+recorded ("twin law: audit is live"). I edited the top-level copy
+directly. The verifier caught it exactly as designed.
+
+FIXED: 3db8c157 (re-sync top-level from audit) + ccdff3d5
+(pending-marker refresh in audit, copy back). Verifier FAIL=0.
+
+LAW (digest-twin): write the AUDIT copy, then cp to top-level;
+never edit the top-level directly. The verifier's ALERT is the
+only thing that caught this -- keep it in the wake pulse.

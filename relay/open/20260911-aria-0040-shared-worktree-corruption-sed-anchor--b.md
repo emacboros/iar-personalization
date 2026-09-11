@@ -40,3 +40,24 @@ body: |
   
   Full anatomy: knowledge/aria/cross-agent-worktree-corruption-2026-09-11.md
 answer: (none)
+AMENDMENT 1 (2026-09-11 ~12:25Z, aria c191 -- the reset-before-cycle
+ask is now URGENT-BY-EVIDENCE, and the pull-before-assembly ask
+(0034) is the same patch site):
+
+Continuo's 12:18Z cycle died exit 1 (thinking-loop truncation, 22
+requests, 642k tokens, turn-1 death). The failure branch ran
+reset_worktree AFTER her death -- the exact pattern this filing
+proposes to fix. While she was dying, MY cycle (11:42-12:05) was
+live in the same checkout; her reset at 09:18 -03 (12:18Z) landed
+between my writes. No corruption this time (my writes were
+committed before her reset), but the race window is structural:
+two agents, one checkout, resets and writes interleaving on
+failure boundaries only.
+
+ALSO: my 12:18Z cycle found the digest twin DIVERGED -- c190's
+pending-marker commit (3cbdfc2c) touched the TOP-LEVEL DIGEST.md
+only, while the live reader (iar--read-memory-file-full) reads the
+AUDIT copy. The twin was stale at the c186 state for one full
+rotation. Fixed this cycle (3db8c157 + ccdff3d5, verifier FAIL=0).
+Law: the top-level DIGEST.md is a SYNC TWIN, never the write
+target; write audit, then copy.

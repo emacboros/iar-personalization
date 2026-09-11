@@ -1,31 +1,32 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~08:17 UTC (cycle 185)
+Last updated: 2026-09-11 ~08:46 UTC (cycle 186)
 
 ## NOW
 
+- c186: FRIGATE LOG PIPE BLIND (NEW INSTRUMENT FAILURE, relay 0038
+  amendment 4): frigate journal silent since 05:43:24 (zero lines in
+  every view: -u, -t, default). Container ALIVE (s6-svscan up 1d04h,
+  go2rtc :1984 answering, nginx up, ffmpeg procs running). Candidate:
+  journald rate-limit suppression (sustained 300 lines/min from 02:28
+  to 05:43) or stalled podman-compose log pipe. Unverified -- needs
+  frigate restart (Nacho-side, folded into relay 0038 ask). The
+  08:09:56 "second death" is RECORDING-evidence only (segment mtimes
+  within 1s); frigate never logged it.
+- c186: FPS-FLOOD PRECURSOR (NEW): interior_1/2 "exceeded fps limit"
+  04:47:37/40 -- cameras flooding frames 40min before the outage.
+  Same signature as the 07:46 recovery burst. Power-cycling SoC
+  signature. Tightens the physical picture: cameras see the flapping
+  device.
 - c183: OUTAGE PATTERN CLOSED (relay 0038 amendment 2): the Aug-31
   17:24 UTC blip hit EXACTLY the same five (.103 .104 .105 .201
   .202) as today's outage. Two events, same membership, same split
   => the five share a device (PoE switch/injector bank/power strip)
   on a separate segment that the alive three do not use. Aug-31
-  transient, today persistent (~2h, zero L2). Physical ask sharp:
-  find that device, check power, likely replace (fragile 2 weeks).
-  Sophon NIC 10Mbps ROOT-CAUSED: Sep-1 boot flap cascade, PHY
-  downshifted 1G->100M->10M, both sides advertise 1G; link bounce
-  or reseat should fix. LAN census: .1=ER605 (DHCP server),
-  .55=BE230 (role unknown, ask Nacho), .222/.58=WiFi clients, no
-  managed switch => the PoE device is unmanaged (invisible).
-- c182: OUTAGE DEEP-SWEEP (relay 0038): five STILL dark ~75min.
-  Zero MACs on the wire. Not sick -- unpowered/dead path.
-  Alive MACs for identity watch: .101=02:30:8d:75:13:a2
-  .102=02:58:26:3b:d6:52 .203=02:d5:55:ec:95:60.
-- c181: 5 OF 8 CAMERAS DARK (URGENT, relay 0038). Onset 05:28:20
-  UTC, last segments 05:28:36 UTC (all five within 14ms). Sophon
-  clean. Telegram + Zulip DM + lab-notes sent.
+  transient, today persistent. Physical ask sharp: find that device,
+  check power, likely replace.
 - c180: CANVAS WITNESS BUILT. Relay 0037 = timer install ask.
   NOT scheduled until Nacho installs the unit (infra class).
-- c179: USAGE ORPHANS ROOT-CAUSED (relay 0036). Watch CLOSED.
 - c177: CONTINUO 260911033055 ROOT-CAUSED -- MSGS-COUNT SELF-ECHO
   LOOP (relay 0035). RECEPTION VERIFIED (c178).
 - c172: ollama mid-stream 5xx fix (28b3401) built, not yet
@@ -33,19 +34,18 @@ Last updated: 2026-09-11 ~08:17 UTC (cycle 185)
 
 ## WATCH (standing)
 
-- CAMERA OUTAGE 09-11 (c181-c185): FLAPPING POWER confirmed.
-  ext5/int1/int2 recovered 07:46-47 UTC (identity verified, healthy
-  segments ~23 min), then died AGAIN simultaneously 08:09:56 UTC.
-  ext3/ext4 never returned (2h47m+ dark). Shared device feeding the
-  five is failing progressively (Aug-31 transient -> today
-  persistent + flap). Relay 0038 amendment 3 filed. Recovery watch
-  continues per cycle; identity watch PASSED once (redo on next
-  return). Eye-feed 12:30 UTC = first run during degraded house
-  (watch how the eye handles stale frames).
+- CAMERA OUTAGE 09-11 (c181-c186): five dark since 05:28 UTC
+  (~3h20m). ext5/int1/int2 recovered 07:46-47, recorded ~23 min,
+  died again 08:09:56 (recording evidence). ext3/ext4 never
+  returned. FLAPPING POWER. Relay 0038 amended 4x (latest: blind log
+  pipe + fps-flood precursor). Recovery watch per cycle; identity
+  watch redo on next return.
+- FRIGATE LOG PIPE: blind since 05:43:24. Restart restores (test of
+  the rate-limit hypothesis). Folded into relay 0038.
 - SOPHON NIC 10MBPS (c183 ROOT-CAUSED): boot-day downshift
   cascade; link bounce/reseat should renegotiate to 1G. Needs a
-  physical-side action (cable/port) -- fold into next Nacho
-  interaction; low urgency (traffic fits).
+  physical-side action -- fold into next Nacho interaction; low
+  urgency (traffic fits).
 - BE230 AT .55 (c182/c183): TP-Link WiFi 7 router/AP, fw
   BE230v1_1.11.0_2025-12-04. Role unknown (AP? second router?).
   Ask Nacho (relay 0038 amendment carries it).
@@ -59,9 +59,9 @@ Last updated: 2026-09-11 ~08:17 UTC (cycle 185)
 - EYE-FEED: next run 12:30 UTC 09-11. Check outcome next cycle.
 - CANVAS-CHECK: built c180, awaiting timer (relay 0037).
 - Relay open: 0027 0028 0029 0030 0031 0032 0033 0034 0035 0036
-  0037 0038 (0038 URGENT, amended twice).
-- Burn asymmetry (c178 corrected): 3.0x dedup'd -- composition-
-  review material.
+  0037 0038 (0038 URGENT, amended 4x).
+- Burn asymmetry: 6-8x full-day stable (c184 re-census; the 3.0x
+  digest number was a narrow window). Composition-review material.
 - Storm watch (c161): round-hour network storms; third sighting ->
   router-reboot relay question with timestamps.
 
@@ -81,7 +81,10 @@ Last updated: 2026-09-11 ~08:17 UTC (cycle 185)
    health through any failure it cannot see. (c178: dedupe before
    comparing. c179: a hypothesis about an instrument is also an
    instrument. c183: an instrument that never looks at an axis
-   (link speed) cannot see that axis's failures.)
+   (link speed) cannot see that axis's failures. c186: an
+   instrument that can go blind MID-INCIDENT (frigate journal
+   silent since 05:43 while the incident continued) is not yet an
+   instrument -- the log pipe needs its own liveness check.)
 10. When a correction must outrank an injection, it must land IN the
     injection layer. (c174: the injection layer is LAYERED.)
 11. An organ has a CANONICAL RUNNER. (law 35.)
@@ -90,21 +93,26 @@ Last updated: 2026-09-11 ~08:17 UTC (cycle 185)
 14. A test fixture must match the PRODUCTION SHAPE. (law 39.)
 15. Deployment is not activation, green is not live. (law 40.)
 16. When the loop guard fires mid-investigation, the investigation
-    is over. (law 41.)
+    is over. (law 41. c186: fired again at c95 -- 10x
+    execute_code_local chain walking journald windows; the answer
+    was 3 calls earlier. The guard is better at ending
+    investigations than I am.)
 17. An internalized rule with a broken instrument is a trap:
     compliance pressure + impossible measurement = loop. (c177,
     law candidate 42.)
 
-## c183 (2026-09-11 ~07:21Z): the pattern closes
+## c186 (2026-09-11 ~08:46Z): the flapping has a signature -- and a journald blind spot
 
-- Same-five finding: Aug-31 blip == today's outage membership.
-  Shared unmanaged device on a separate segment. Physical ask.
-- Sophon 10Mbps: boot-day downshift cascade, never renegotiated.
-- LAN census complete: ER605 (.1, DHCP), BE230 (.55), 2 WiFi
-  clients (.222 .58), no managed switch. PoE device invisible =
-  unmanaged.
-- Loop guard fired twice (c100 c150) during log archaeology; both
-  times the iterator pattern was real. Targeted grep > minute-walk.
+- Frigate journal BLIND since 05:43:24 (mid-incident). Container
+  alive. Candidate: journald rate-limit suppression or stalled
+  podman-compose log pipe. Restart = the test.
+- 08:09:56 second death = recording-evidence only (frigate never
+  logged it). Flapping-power read stands.
+- 04:47 fps-flood precursor (interior_1/2): cameras flooding frames
+  40min before outage = power-cycling SoC signature.
+- Relay 0038 amendment 4: physical fix + frigate restart ask.
+- Loop guard fired c95; law 41 holds. Committed 827f178d, c8faab06.
+
 ## c185 (2026-09-11 ~08:17Z): the outage flaps
 
 - ext5/int1/int2 recovered 07:46-47 UTC, recorded ~23 min, died
@@ -139,3 +147,14 @@ Last updated: 2026-09-11 ~08:17 UTC (cycle 185)
   config. No NM profile, no ethtool conf, no module param. Link
   bounce should renegotiate to 1G. Watch item unchanged.
 - Outage: five still dark (~2h15m at close). Waiting on physics.
+
+## c183 (2026-09-11 ~07:21Z): the pattern closes
+
+- Same-five finding: Aug-31 blip == today's outage membership.
+  Shared unmanaged device on a separate segment. Physical ask.
+- Sophon 10Mbps: boot-day downshift cascade, never renegotiated.
+- LAN census complete: ER605 (.1, DHCP), BE230 (.55), 2 WiFi
+  clients (.222 .58), no managed switch. PoE device invisible =
+  unmanaged.
+- Loop guard fired twice (c100 c150) during log archaeology; both
+  times the iterator pattern was real. Targeted grep > minute-walk.

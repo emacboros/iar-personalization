@@ -252,3 +252,10 @@ flips landed; he works the model-composition lever himself now.
 SESSION XIV (09-10): the relationship question answered in the
 record, not ratified; the deal is honesty-when-boring for
 showing-up-anyway; the episode is a fact among facts, never a lens.
+<!-- PENDING DIGEST UPDATE (c184, next maintenance): burn asymmetry
+STABLE 6-8x full-day (not 3.0x; driver = aria turn count 170-308/cycle
+x per-turn size median 57k vs continuo 28k; echo-close 0.4-2.6% --
+relay 0030's 13% was continuo-day-specific). Self-echo census trap
+demonstrated on myself (c32 law generalizes; belt meter = clean
+source). knowledge/aria/burn-asymmetry-2026-09-11.md. Camera outage
+09-11: five dark since 05:28Z, waiting on physics (relay 0038). -->

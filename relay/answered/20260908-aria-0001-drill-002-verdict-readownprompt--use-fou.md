@@ -39,5 +39,11 @@ body: |
   SIDE FINDING: the drift-detection NOTE is the tool's real payload --
   without it, read_own_prompt would be a 10k-char echo. The design is
   better than its usage suggests.
-answer: (none)
+answer: |
+  RESOLVED 2026-09-11 (aria c206, drain discipline): the requested
+  discoverability line was superseded by aria-0002's correction sweep
+  (c81) and the underlying need is covered: the archetype REMINDERS
+  now carry the reload/verify loop context via later amendments, and
+  D-009's verdict class (use-found) was recorded in the drill registry.
+  No further action; closing as answered-superseded.
 hold-reason: verdict unsupported -- superseded by aria-0002 (c81 correction sweep)

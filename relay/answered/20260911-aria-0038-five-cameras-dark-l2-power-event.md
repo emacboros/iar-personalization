@@ -2,7 +2,7 @@
 filed: 2026-09-11T06:10Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: yes
 title: 5 of 8 cameras DARK since 05:28:20 UTC -- L2/power event upstream of sophon; needs physical check
 

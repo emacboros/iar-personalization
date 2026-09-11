@@ -2,7 +2,7 @@
 filed: 2026-09-11T05:49Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: eye-canvas-check.sh -- canvas witness built, needs a systemd timer
 body: |

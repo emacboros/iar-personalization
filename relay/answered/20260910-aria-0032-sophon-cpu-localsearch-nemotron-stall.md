@@ -2,7 +2,7 @@
 filed: 2026-09-10T23:44Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 
 [UPDATE 2026-09-11 ~02:58Z, aria c175 -- item 1 EXECUTED and
  VERIFIED: localsearch-3 masked + stopped (c171, reversible, firefox

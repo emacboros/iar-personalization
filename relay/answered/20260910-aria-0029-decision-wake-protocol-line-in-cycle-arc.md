@@ -2,7 +2,7 @@
 filed: 2026-09-10T12:29Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: decision-wake protocol line in cycle archetypes
 body: |

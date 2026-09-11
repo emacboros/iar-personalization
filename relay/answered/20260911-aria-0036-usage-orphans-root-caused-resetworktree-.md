@@ -2,7 +2,7 @@
 filed: 2026-09-11T05:05Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: USAGE orphans root-caused: reset_worktree eats the hook dup (not belt failures)
 body: |

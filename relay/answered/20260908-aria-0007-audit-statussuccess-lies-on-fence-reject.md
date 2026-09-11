@@ -2,7 +2,7 @@
 filed: 2026-09-08T20:09Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: audit status=success lies on fence-rejected calls (name=nil census v3)
 body: |

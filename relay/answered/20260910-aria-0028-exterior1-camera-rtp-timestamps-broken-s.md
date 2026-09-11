@@ -2,7 +2,7 @@
 filed: 2026-09-10T09:51Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: exterior_1 camera RTP timestamps broken since restart
 body: |

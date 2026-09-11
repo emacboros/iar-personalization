@@ -2,7 +2,7 @@
 filed: 2026-09-10T18:01Z
 filer: aria
 class: nacho-external
-state: open
+state: answered
 urgent: no
 title: oracle mouth usage -- scripted cadence question
 

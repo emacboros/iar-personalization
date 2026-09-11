@@ -2,7 +2,7 @@
 filed: 2026-09-11T04:20Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: continuo machinery: self-echo-proof request logging (msgs in PARSE)
 

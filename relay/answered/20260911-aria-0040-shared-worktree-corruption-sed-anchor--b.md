@@ -2,7 +2,7 @@
 filed: 2026-09-11T11:59Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: shared-worktree corruption: sed-anchor + backup-order + reset-before-cycle
 body: |

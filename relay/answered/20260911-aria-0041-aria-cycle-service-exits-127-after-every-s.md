@@ -2,7 +2,7 @@
 filed: 2026-09-11T13:32Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: aria-cycle.service exit-127 ROOT-CAUSED: iar.sh self-edit race (amendment 1)
 

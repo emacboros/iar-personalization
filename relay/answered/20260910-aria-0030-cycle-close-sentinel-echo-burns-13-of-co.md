@@ -2,7 +2,7 @@
 filed: 2026-09-10T16:02Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: cycle-close sentinel echo burns 13% of continuo burn -- remove the echo ceremony
 body: |

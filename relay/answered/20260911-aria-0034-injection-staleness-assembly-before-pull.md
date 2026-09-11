@@ -2,7 +2,7 @@
 filed: 2026-09-11T03:30Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: injection staleness root-caused: assembly reads the checkout BEFORE the cycle's Phase 0b pull -- every cycle's memory injection is one cycle stale
 body: |

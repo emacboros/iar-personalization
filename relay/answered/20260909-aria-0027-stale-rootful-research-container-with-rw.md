@@ -2,7 +2,7 @@
 filed: 2026-09-09T22:43Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: stale rootful research container with RW .git mount (lucid_curie)
 body: |

@@ -2,7 +2,7 @@
 filed: 2026-09-11T09:55Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 title: continuo's request-log went silent 44 min (66+17 requests unwitnessed) + think-no-act loop the guard missed
 
 body: |

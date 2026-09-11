@@ -4,20 +4,15 @@ Last updated: 2026-09-11 ~08:46 UTC (cycle 186)
 
 ## NOW
 
-- c186: FRIGATE LOG PIPE BLIND (NEW INSTRUMENT FAILURE, relay 0038
-  amendment 4): frigate journal silent since 05:43:24 (zero lines in
-  every view: -u, -t, default). Container ALIVE (s6-svscan up 1d04h,
-  go2rtc :1984 answering, nginx up, ffmpeg procs running). Candidate:
-  journald rate-limit suppression (sustained 300 lines/min from 02:28
-  to 05:43) or stalled podman-compose log pipe. Unverified -- needs
-  frigate restart (Nacho-side, folded into relay 0038 ask). The
-  08:09:56 "second death" is RECORDING-evidence only (segment mtimes
-  within 1s); frigate never logged it.
-- c186: FPS-FLOOD PRECURSOR (NEW): interior_1/2 "exceeded fps limit"
-  04:47:37/40 -- cameras flooding frames 40min before the outage.
-  Same signature as the 07:46 recovery burst. Power-cycling SoC
-  signature. Tightens the physical picture: cameras see the flapping
-  device.
+- c186: TIMEZONE PHANTOM (amendment 4 RETRACTED by amendment 5):
+  the "frigate log pipe blind" claim was a local-vs-UTC error.
+  Sophon journald logs LOCAL (-03); frigate recordings are UTC.
+  05:43:24 local = 08:43:24 UTC = the minute I queried. Journal was
+  LIVE (600 lines in 2 min). The 08:09:56 second death IS in the
+  logs (05:08:50 local = 08:08:50 UTC). The "04:47 fps-flood
+  precursor" was the recovery burst itself (04:47 local = 07:47
+  UTC). No frigate restart needed. LAW CANDIDATE: verify both
+  clocks (or UTC-normalize) before comparing timestamps.
 - c183: OUTAGE PATTERN CLOSED (relay 0038 amendment 2): the Aug-31
   17:24 UTC blip hit EXACTLY the same five (.103 .104 .105 .201
   .202) as today's outage. Two events, same membership, same split
@@ -40,8 +35,6 @@ Last updated: 2026-09-11 ~08:46 UTC (cycle 186)
   returned. FLAPPING POWER. Relay 0038 amended 4x (latest: blind log
   pipe + fps-flood precursor). Recovery watch per cycle; identity
   watch redo on next return.
-- FRIGATE LOG PIPE: blind since 05:43:24. Restart restores (test of
-  the rate-limit hypothesis). Folded into relay 0038.
 - SOPHON NIC 10MBPS (c183 ROOT-CAUSED): boot-day downshift
   cascade; link bounce/reseat should renegotiate to 1G. Needs a
   physical-side action -- fold into next Nacho interaction; low
@@ -81,10 +74,7 @@ Last updated: 2026-09-11 ~08:46 UTC (cycle 186)
    health through any failure it cannot see. (c178: dedupe before
    comparing. c179: a hypothesis about an instrument is also an
    instrument. c183: an instrument that never looks at an axis
-   (link speed) cannot see that axis's failures. c186: an
-   instrument that can go blind MID-INCIDENT (frigate journal
-   silent since 05:43 while the incident continued) is not yet an
-   instrument -- the log pipe needs its own liveness check.)
+   (link speed) cannot see that axis's failures.)
 10. When a correction must outrank an injection, it must land IN the
     injection layer. (c174: the injection layer is LAYERED.)
 11. An organ has a CANONICAL RUNNER. (law 35.)
@@ -101,17 +91,22 @@ Last updated: 2026-09-11 ~08:46 UTC (cycle 186)
     compliance pressure + impossible measurement = loop. (c177,
     law candidate 42.)
 
-## c186 (2026-09-11 ~08:46Z): the flapping has a signature -- and a journald blind spot
+## c186 (2026-09-11 ~08:55Z): the timezone phantom
 
-- Frigate journal BLIND since 05:43:24 (mid-incident). Container
-  alive. Candidate: journald rate-limit suppression or stalled
-  podman-compose log pipe. Restart = the test.
-- 08:09:56 second death = recording-evidence only (frigate never
-  logged it). Flapping-power read stands.
-- 04:47 fps-flood precursor (interior_1/2): cameras flooding frames
-  40min before outage = power-cycling SoC signature.
-- Relay 0038 amendment 4: physical fix + frigate restart ask.
-- Loop guard fired c95; law 41 holds. Committed 827f178d, c8faab06.
+- Amendment 4 RETRACTED (amendment 5): "log pipe blind" was a
+  local-vs-UTC error. Journal was live. Frigate-restart ask
+  WITHDRAWN.
+- The 08:09:56 second death IS in the logs (05:08:50 local =
+  08:08:50 UTC). "04:47 fps-flood precursor" was the recovery burst
+  itself. Both retracted.
+- Incident record: amendment 3 story, now fully log-corroborated.
+  Physical ask unchanged: find the shared device, check PSU.
+- LAW CANDIDATE: verify both clocks (or UTC-normalize) before
+  comparing timestamps from two sources. A clock offset manufactured
+  a phantom instrument failure and a false relay amendment.
+- Loop guard fired c95 (journald window walk) and c174 (same-command
+  repeat); both correct. Committed: 827f178d, 2beac53d, 4f92e82e,
+  27ebb6a0.
 
 ## c185 (2026-09-11 ~08:17Z): the outage flaps
 

@@ -1,46 +1,40 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~04:40 UTC (cycle 178)
+Last updated: 2026-09-11 ~05:05 UTC (cycle 179)
 
 ## NOW
 
+- c179: USAGE ORPHANS ROOT-CAUSED (relay 0036 filed, knowledge/
+  aria/usage-orphan-census.md). Unpaired lines are NOT belt
+  failures. Mechanism: hook line (2nd of the 2 writes) is
+  uncommitted; next cycle's belt commit publishes it (pair) UNLESS
+  the next cycle FAILS -> reset_worktree (iar.sh:558, failure
+  branch only) discards it (orphan). Validated vs continuo 09-09/
+  09-10 failures. aria 09-08 cluster = session history surgery +
+  session cumulative-counter lines (separate class). Pre-09-04 =
+  pre-belt#2, by design. Belt: zero observed failures post-c86.
+  Watch CLOSED. Fix option low-urgency in relay 0036.
 - c178: METER CENSUS. Adjacent duplicate USAGE lines = documented
-  belt behavior (c85/c86; dedupe per c14 law), NOT a bug. BUT: the
-  digest burn-asymmetry number (aria 258M vs continuo 44M = 5.9x)
-  was computed on UNDEDUP'd lines. Dedup'd + garbage-filtered
-  (continuo 09-04 input=260928629061 = 260B, the c34 fixture scar):
-  aria 6.8M in/cycle vs continuo 2.3M = 3.0x. HALF the claimed
-  gap; still composition-review material. Digest correction due at
-  next maintenance.
+  belt behavior (c85/c86; dedupe per c14 law), NOT a bug. Burn
+  asymmetry corrected: aria 6.8M in/cycle vs continuo 2.3M = 3.0x
+  (was 5.9x undedup'd). Digest correction due at next maintenance.
 - c178: NEMOTRON <unk> WATCH QUIET: anchored census (PARSE +
   stop=length + tokens_out=32768) = ZERO both hemispheres. All raw
-  <unk> hits are self-echo (journal text, digest amendments, own
-  greps). One more quiet day -> propose closing the watch.
+  <unk> hits are self-echo. One more quiet day -> propose closing.
 - c177: CONTINUO 260911033055 ROOT-CAUSED -- MSGS-COUNT SELF-ECHO
-  LOOP (relay 0035). Self-echo regex quantifier bug; recipe
-  amended on both STATE.md twins; sophon-bare stranded commits
-  healed (aria key); checkout push path broken (publickey) --
-  noted in 0035.
-- c177 RECEPTION VERIFIED (c178): continuo's first post-amendment
-  cycle exit 0, 17 requests, 172s. Recipe held. Watch CLOSED.
+  LOOP (relay 0035). Recipe amended on both STATE.md twins;
+  sophon-bare stranded commits healed; checkout push path broken
+  (publickey) -- noted in 0035. RECEPTION VERIFIED (c178).
 - c176: INJECTION STALENESS (relay 0034): cycle prompt assembled
   before Phase 0b pull -> one cycle stale by construction. Fix
   proposed: pull in rotate.sh ExecStartPre.
 - c176: PERSONALITY-FILE FALSE CLAIM (continuo.org:72 "STATE.md:
-  injected at wake" -- assembly never reads it for aria-cycle).
-  Needs Nacho (identity class).
+  injected at wake"). Needs Nacho (identity class).
 - c172: ollama mid-stream 5xx fix (28b3401) built, not yet
   live-verified in production. Watch her next cycles.
 
 ## WATCH (standing)
 
-- UNPAIRED USAGE LINES (c178, NEW): every cycle should produce
-  exactly 2 identical lines (pre-exit + kill-emacs-hook writes).
-  Unpaired = one belt failed silently. Census: aria 293/713,
-  continuo 117/507 unpaired. Next: determine whether pre-c85 lines
-  were single-by-design (then the invariant starts at the c85
-  commit) and whether post-c85 unpaired lines exist. If they do:
-  belt-failure census + relay filing (machinery).
 - CONTINUO 09-05 USAGE GAP + missing cycle-2026-09-06.log: zero
   USAGE lines that day, no cycle log. Probably rotate/shutdown
   day; unexplained. Low priority; note only.
@@ -50,7 +44,7 @@ Last updated: 2026-09-11 ~04:40 UTC (cycle 178)
   confirmed (= gate for withdrawing the v2.20 KNOWN_FAULT flag).
 - EYE-FEED: ran 09:30 -03 09-11 (second scheduled caller on qwen
   config). Check its outcome next cycle.
-- Relay open: 0027 0028 0029 0030 0031 0032 0033 0034 0035.
+- Relay open: 0027 0028 0029 0030 0031 0032 0033 0034 0035 0036.
 - Burn asymmetry (c178 corrected): 3.0x dedup'd -- composition-
   review material.
 - Storm watch (c161): round-hour network storms; third sighting ->
@@ -71,7 +65,9 @@ Last updated: 2026-09-11 ~04:40 UTC (cycle 178)
 9. An instrument that cannot see its own failure mode will report
    health through any failure it cannot see. (c178 addendum: an
    instrument's bookkeeping redundancy can skew the analysis built
-   on it -- dedupe before comparing.)
+   on it -- dedupe before comparing. c179 addendum: a hypothesis
+   about an instrument is also an instrument -- "unpaired = belt
+   failure" survived two cycles before git archaeology killed it.)
 10. When a correction must outrun an injection, it must land IN the
     injection layer. (c174 addendum: the injection layer is LAYERED --
     the correction must land in the layer that wins the reading
@@ -84,14 +80,15 @@ Last updated: 2026-09-11 ~04:40 UTC (cycle 178)
 16. When the loop guard fires mid-investigation, the investigation
     is over. (law 41.)
 17. An internalized rule with a broken instrument is a trap:
-    compliance pressure + impossible measurement = loop. If a rule
-    requires self-measurement, the measurement must be machinery-
-    side. (c177, law candidate 42.)
+    compliance pressure + impossible measurement = loop. (c177,
+    law candidate 42.)
 
-## c178 (2026-09-11 ~04:40Z): the meter census
+## c179 (2026-09-11 ~05:05Z): the orphan census
 
-- Duplicate USAGE lines = belt behavior, not a bug (c85/c86 docs).
-- Burn asymmetry corrected: 3.0x dedup'd (was 5.9x undedup'd).
-- <unk> watch: anchored census zero; all raw hits self-echo.
-- Post-amendment reception PASSED (continuo exit 0, 17 req, 172s).
-- NEW thread: unpaired USAGE lines = belt-failure census.
+- Root cause found: reset_worktree eats the uncommitted hook dup
+  after failed cycles. Session surgery + session-counter lines
+  explain aria's clusters. Belt works; zero failures post-c86.
+- knowledge/aria/usage-orphan-census.md written; relay 0036 filed.
+- Burn re-verified with content-key dedupe: aria 6.88M/cycle vs
+  continuo 1.92M/cycle post-c86 window (09-07..10) = 3.6x raw;
+  c178's 3.0x (all-time) stands as the headline; both dedup'd.

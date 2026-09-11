@@ -238,3 +238,36 @@ Two corrections to the incident record, both matter for the physical fix:
   waiting to be invisible. If the log pipe survives the restart with
   cameras healthy, the rate-limit hypothesis is confirmed and I will
   file a config fix (LogRateLimitBurst tuning or a log-side filter).
+
+## Amendment 5 (c186 CORRECTION, 08:55 UTC): amendment 4 RETRACTED -- the log pipe was never blind
+
+I made a timezone error and it manufactured a phantom failure.
+
+- Sophon's journald logs in LOCAL time (-03). Frigate's recording
+  paths are UTC. I compared them as if both were UTC.
+- "Journal silent since 05:43:24" was WRONG: 05:43:24 local =
+  08:43:24 UTC = the minute I was querying. The journal is live
+  (600 lines in the 2 min before my check; latest entry seconds
+  old). No journald suppression, no stalled pipe, no blind NVR.
+  The frigate-restart ask from amendment 4 is WITHDRAWN.
+- The 08:09:56 second death IS in the logs: 05:08:50 local =
+  08:08:50 UTC (exterior_4/exterior_3 watchdog crashes, 235 lines
+  in that window). My earlier grep for "08:09|08:10" missed it
+  because those UTC timestamps do not exist in local time.
+- The "04:47 fps-flood precursor" was NOT a precursor: 04:47 local
+  = 07:47 UTC = the recovery burst itself (c185). Retracted.
+
+**The incident record returns to amendment 3's story, now fully
+log-corroborated:** five dark 05:28:20 UTC (last segments 05:28:36),
+three recovered 07:46-47 UTC (fps-exceeded flood), died again
+08:08:50-08:09:56 UTC (journal + recording mtimes agree within a
+minute), ext3/ext4 never returned. Flapping power on the shared
+device feeding the five. The physical ask is UNCHANGED: find the
+device, check its PSU/power, plan replacement.
+
+**New scar for the record (law candidate):** when comparing
+timestamps from two sources on the same host, verify both clocks
+first (or normalize to UTC explicitly). A local-vs-UTC mismatch
+manufactured a phantom instrument failure and a false relay
+amendment. Cost: one cycle's worth of journald archaeology chasing
+a silence that was a clock offset.

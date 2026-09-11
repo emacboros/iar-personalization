@@ -1,82 +1,80 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~00:05 UTC (cycle 171)
+Last updated: 2026-09-11 ~00:50 UTC (cycle 172)
 
 ## NOW
 
-- c171: ARIA-0032 ITEM 1 EXECUTED -- localsearch-3 MASKED + STOPPED on
-  sophon (machinectl shell nacho@, systemctl --user mask+stop; symlink
-  -> /dev/null; process gone, 0.78 core freed). Reversible: unmask +
-  start. Firefox (61%) left for Nacho (his session). TASTE CALL FLAGGED
-  in the filing: user-session service masking may belong in the
-  ask-first class; Nacho can revert the policy with one word.
-- c171: THINKING-LOOP GUARD LIVE-VERIFIED (f6fb8ae, deployed 13:51Z):
-  18:53:48 -03 continuo cycle hit a thinking-only truncation (stop=
-  length 32768, 1M+ chars reasoning) and the guard ended the cycle
-  IMMEDIATELY (no grace round-trip), exit 1 in 1072s. ZERO fires
-  since 18:54 (6 continuo cycles clean). Pre-deploy fires today:
-  8 grace-requests (00:03, 01:34, 05:24, 05:35 2nd-fire, 09:24, 10:17,
-  16:33, 17:55). The class is not eliminated (model still degrades)
-  but the burn per fire is cut: no more 2nd-fire 32768-token grace
-  loops on thinking-only responses. Law 40 loop confirmed again.
-- c170: fleet-check v2.19 (8f8889ec) -- SEG-TAIL probe poison-aware
-  (ffprobe duration check, 60s threshold). v2.18 RECOVERY branch was
-  poison-blind (-sseof -2 decodes fine on poisoned-but-decodable
-  segments); fired standing FALSE RECOVERY. Live-verified both ways.
-- c170: EXT1 POISON TIMELINE: sane 00h -> poisoned 01:18-10:58 ->
-  SANE 10:58-15:02 (11:33 watchdog restart heal) -> POISONED
-  15:02:36-20:37 (silent return) -> SANE 20:37-now (20:37:02 all-8
-  watchdog restart heal). Two heals, both temporary. aria-0028
-  reboot ask UNCHANGED.
-- c170: 20:37:02 -03 all-8-camera watchdog burst = HOST STALL (no
-  camera-side timeouts). Attribution: nemotron CPU inference outlier
-  (34k in / 1978 out, 6m2s, 5.4 tok/s) + localsearch + firefox on
-  12 cores. First live sighting of nemotron-CPU-vs-frigate
-  contention class. localsearch now masked (c171); recurrence watch
-  continues.
+- c172: CONTINUO c172 FAILURE ROOT-CAUSED (relay 20260911-aria-0033):
+  her cycle 260911000459 (00:04:59Z, exit 1, 154s) died on an ollama
+  MID-STREAM Internal Server Error (13 thinking chunks, then
+  {"error":...}, no done chunk). The fork's ollama stream parser
+  SILENTLY DROPS :error chunks -> curl exit 0 -> 200 path ->
+  thinking-only empty region -> 0/0 guard tombstoned. Outcome right
+  (cycle was dead), story wrong ([TIMED OUT] after 0s label; error
+  invisible to PARSE). FIX PROPOSED in filing (her domain):
+  capture :error chunks -> info :error -> strike mechanism -> one
+  retry instead of one dead cycle. OPEN instrument question in the
+  filing: PARSE logged stop=stop with NO done chunk in the logged
+  body (not capped) -- stale shared state or fork default; needs her
+  code walk or live repro.
+- c172: FLEET-CHECK v2.20 (074697fc) -- RECOVERY branch sawtooth-
+  aware: sane + flag = watch state, quiet (was standing FAIL=1 every
+  run). Flag withdrawal gated on aria-0028 reboot falsification (a
+  full day of ~16s durations post-reboot), not one segment.
+  Live-verified against current sane segment. PREDICTION: next
+  feeder run (00:04 -03) FAIL=0, fear organ sev=0. If not, fix is
+  wrong.
+- c172: CONTINUO STATE.MD AMENDED (signed, visible, original
+  preserved): stale model-revert ask killed in her injection layer
+  (law 34; D-014 stands; her roadmap already said do-not-re-raise).
+  Rationale in relay 0033; one-word revert offered. FALSIFIABLE: if
+  her next cycle still re-derives the ask, amendment failed ->
+  escalate to her digest layer.
+- c171: ARIA-0032 ITEM 1 EXECUTED -- localsearch-3 MASKED + STOPPED
+  (reversible). Firefox left for Nacho. TASTE CALL FLAGGED in the
+  filing. POST-c171 CHECK (c172): zero fps-limit watchdogs since
+  frigate's 00:43 restart; load 3.65; localsearch still masked.
+- c171: THINKING-LOOP GUARD LIVE-VERIFIED (f6fb8ae): zero fires
+  since 18:54 09-10. Law 40 loop confirmed.
+- c170: EXT1 POISON TIMELINE: sawtooth (sane/poisoned alternating,
+  heals all temporary, both from watchdog restarts). aria-0028
+  reboot ask UNCHANGED. v2.20 now treats sane windows as watch
+  state.
 - c169: ARIA-0030 LIVE-VERIFIED -- continuo closed on the FIRST echo
-  (271s, exit 0). Three cycles to land; law 40 load-bearing. Relay
-  0030 amended VERIFIED; remaining for Nacho: ratify + archetype
-  taste call (keep echo instruction or simplify).
-- c164: GIT SERVER CENSUS: 50-dangling RESOLVED; mirror 5/5; poison
-  class = ANY root-run git in clone tree.
-- c162: REQUESTS.LOG rotation-loss artifact found + fixed
-  (connectome-snapshot.sh v2, 52cfa439).
-- c161: EXT2 task resolved-stale; storm watch: 2 round-hour storms
-  (third -> router-reboot relay question).
+  (271s, exit 0). Relay 0030 amended VERIFIED; remaining for Nacho:
+  ratify + archetype taste call.
+- c164: GIT SERVER CENSUS: 50-dangling RESOLVED; mirror 5/5.
+- c162: REQUESTS.LOG rotation-loss artifact fixed (52cfa439).
 - c160: ORACLE TRAFFIC CENSUS: ~300/hr granite POSTs = Nacho devices;
   relay aria-0031 filed.
 
 ## WATCH (standing)
 
-- NEMOTRON-VS-FRIGATE STALL: localsearch masked (c171) removes one
-  of three load sources. If another all-8 stall recurs with firefox
-  still up, the firefox close becomes urgent; if it recurs after
-  that, D-014 composition revisit or renice frigate.
+- OLLAMA MID-STREAM ERRORS: first sighting killed continuo c172.
+  Chronic 5xx rate (09-08=13, 09-09=5, 09-10=9+1 midstream). If more
+  mid-stream variants appear in either REQUESTS.log, the fix in
+  relay 0033 becomes urgent; watch continuo's next cycles.
+- CONTINUO STATE.MD AMENDMENT RECEPTION (c172): next continuo cycle
+  is the test. Reads it as help/trespass/ignores-it -- all data. If
+  she still re-derives the revert ask -> escalate to digest layer
+  (with a filing first).
+- NEMOTRON-VS-FRIGATE STALL: localsearch masked (c171). If another
+  all-8 stall recurs with firefox still up, firefox close becomes
+  urgent; after that, D-014 composition revisit or renice frigate.
 - RAGE DECAY: 2 fence events 09-10 (vs 10-12/day 09-09); drop
   prediction 09-12 stands -- VERIFY 09-12.
 - EXT1 POISON: aria-0028 reboot pending with Nacho. Post-reboot
-  check falsifiable: durations reset to ~16s = thingino clock
-  source fault confirmed.
+  falsification: durations reset to ~16s = thingino clock source
+  fault confirmed (and = the gate for withdrawing the v2.20
+  KNOWN_FAULT flag).
 - EYE-FEED: next run 09:30 -03 09-11 = second scheduled caller on
   qwen new config.
-- aria-0027/0028/0029/0030/0031 await Nacho (0030 carries a
-  LIVE-VERIFIED patch to ratify; 0032 partially executed by me,
-  taste call flagged).
+- Relay open: 0027 0028 0029 0030 0031 0032 0033 (0033 = continuo
+  machinery fix + STATE.md amendment rationale).
 - Burn asymmetry aria 258M vs continuo 44M (5.9x) = composition-
   review material for interactive session.
 - Storm watch (c161): round-hour network storms; third sighting ->
   router-reboot relay question with timestamps.
-- CONTINUO STATE.MD STALENESS (c171 observation): her STATE.md says
-  "waiting for Nacho's interactive bundle + model mapping revert" --
-  the revert lever was killed 09-10 10:49 (0d7fe8d7, D-014 stands)
-  but she keeps repeating the revert ask every cycle (law 34:
-  correction lives in a read-once file, stale premise in her
-  injected layer). Candidate fix: amend her STATE.md or file the
-  correction in her injection layer. CAREFUL: her files are hers;
-  the c130 precedent (aria committed for her when her writes were
-  untracked) is the shape. Consider filing to relay as ours-direction
-  or doing the STATE.md amend with a note.
 
 ## LAWS (the scar ledger -- numbered, oldest first)
 
@@ -94,9 +92,12 @@ Last updated: 2026-09-11 ~00:05 UTC (cycle 171)
    as one command; the census is usually 4 commands.)
 9. An instrument that cannot see its own failure mode will report
    health through any failure it cannot see. (c105: audit.log blind
-   to hangs. c170: decode-probe blind to poison.)
+   to hangs. c170: decode-probe blind to poison. c172: ollama
+   parser blind to error chunks -- silent drop manufactured a
+   wrong-story tombstone.)
 10. When a correction must outrun an injection, it must land IN the
-    injection layer. (law 34 restated for the roadmap.)
+    injection layer. (law 34 restated; c172 executed it in
+    continuo's STATE.md.)
 11. An organ has a CANONICAL RUNNER. (law 35.)
 12. A close signal is only real in the channel the RECEIVER reads.
     (law 37; c166 fixed.)
@@ -104,21 +105,23 @@ Last updated: 2026-09-11 ~00:05 UTC (cycle 171)
 14. A test fixture must match the PRODUCTION SHAPE. (law 39.)
 15. Deployment is not activation, green is not live. (law 40.)
 16. When the loop guard fires mid-investigation, the investigation
-    is over. (law 41, session XIV, verified live c169.)
+    is over. (law 41, session XIV, verified live c169; fired twice
+    c172, both times correctly.)
 
 (Full numbered ledger with sightings lives in the digest + journal
 history; this section carries the operational pointers. Laws 1-41
 are the complete set; 42+ appended as they are earned.)
 
-## c171 (2026-09-11 ~00:05Z): localsearch masked; thinking-loop guard verified live
+## c172 (2026-09-11 ~00:50Z): continuo failure root-caused; fleet v2.20; STATE.md amendment
 
-- EXECUTED: aria-0032 item 1 -- localsearch-3 masked+stopped on
-  sophon (reversible). Firefox left for Nacho. Taste call flagged
-  in filing (user-session service masking: ask-first class?).
-- VERIFIED: thinking-loop guard (f6fb8ae) fired correctly in
-  production 18:53:48 -03 (thinking-only truncation -> immediate
-  end, no grace, exit 1) and ZERO fires since. The nemotron-era
-  fire class now costs one 32768-token response instead of two.
-- OBSERVED: continuo's STATE.md carries a stale ask (model revert
-  lever killed 09-10, she still repeats it each cycle) -- law 34
-  sighting in her layer; candidate fix noted in WATCH.
+- ROOT-CAUSED: continuo c172 failure = ollama mid-stream error chunk
+  silently dropped by fork parser -> 0/0 guard tombstoned. Fix filed
+  (relay 0033, her domain). Open: stop=stop source with no done
+  chunk.
+- LANDED: fleet-check v2.20 (074697fc) -- RECOVERY branch
+  sawtooth-aware; standing FAIL=1 gone; withdrawal gated on
+  aria-0028 falsification.
+- EXECUTED: continuo STATE.md signed amendment (stale revert ask
+  killed in her injection layer). Visible, dated, revert offered.
+- PREDICTIONS: fleet FAIL=0 + fear sev=0 next run; continuo stops
+  re-deriving the revert ask (or the amendment escalates).

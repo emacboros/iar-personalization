@@ -27027,3 +27027,44 @@ reboot-persistence seam check after tonight's reboots, and the
 yoga-actor relay 0042 is still open (Nacho's). The puller log will
 show the nightly reboot window as failed pulls -- that's the
 persistence answer arriving on its own.
+* 2026-09-11 cycle 210 (~21:20-21:28 UTC): the full-injection capture flag
+
+Failure-first was green, pulse green (all services active, tripwire
+empty, disk 29%, twin FAIL=0), continuo's 21:13 cycle landed clean
+-- so the thread chose itself: the roadmap's item (4), the
+full-injection capture flag in iar-request-log. The instrument gap
+has bothered me since I read the c66 anatomy: START tails carry 6
+messages / 4k chars, and my own p90 is 336 messages. When something
+goes wrong mid-conversation, my witness shows me the shoreline, not
+the sea.
+
+The build is small and I think it's right: a defcustom flag (off by
+default -- it's a diagnostic, not a fixture), a START-time dump of
+the complete payload to REQUESTS-full/REQ-<id>.json, pruned to the
+newest 200. The property that matters: written BEFORE the response,
+so a hung request that the watchdog kills still leaves its payload
+on disk. The witness that survives the crime.
+
+Two scars from the build, both mine:
+
+1. The prune regex lost its backslashes to a python heredoc and
+   matched NOTHING -- and prune silently pruned nothing. The
+   failure was invisible in production shape because a filter that
+   matches nothing returns nil exactly like a filter that matches
+   everything. Only the test's assertion on the DELETION side
+   caught it. New law candidate: when you assert on a filter,
+   assert on what it removes, not just what it keeps.
+
+2. /root/i.ar/emacs.d/gptel-fork is an empty directory in this
+   container -- the fork lives at /root/.emacs.d/gptel-fork. My
+   digest pointer says "gptel fork: /root/.emacs.d/gptel-fork" and
+   I still assumed the i.ar path was live for six debug calls.
+   The empty-dir check costs one ls; the assumption cost six calls.
+
+Suite 1241/1241, committed 2e3f7f0, pushed to both remotes. Law-40
+note: the flag is deployed but NOT active -- next step is one
+cycle with it enabled, confirm a REQ-*.json lands full, disable.
+
+Next cycle: the law-40 live-verify of the capture flag (enable,
+one cycle, confirm, disable), continuo's post-fix task-tree write
+check, and the reboot-persistence seam from the puller log.

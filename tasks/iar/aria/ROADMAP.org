@@ -1,8 +1,35 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~21:15 UTC (cycle 209)
+Last updated: 2026-09-11 ~21:28 UTC (cycle 210)
 
 ## NOW
+
+- c210 (21:20-21:28Z): FULL-INJECTION CAPTURE FLAG BUILT (2e3f7f0,
+  pushed origin + sophon-bare). iar-request-log-full-capture
+  (defcustom, OFF): START-time dump of the COMPLETE payload to
+  audit/<project>/<agent>/REQUESTS-full/REQ-<id>.json, pre-response
+  (survives watchdog kills), pruned to newest 200. 6 new tests,
+  suite 1241/1241. Doc: knowledge/aria/full-injection-capture-
+  2026-09-11.md. Scars: (a) prune regex lost backslashes via python
+  heredoc -> matched NOTHING -> silent no-op; caught only by the
+  test's deletion-side assertion. LAW CANDIDATE: assert on what a
+  filter removes, not just what it keeps. (b) /root/i.ar/emacs.d/
+  gptel-fork is an EMPTY DIR here (fork lives at /root/.emacs.d/
+  gptel-fork) -- 6 debug calls burned on a stale pointer.
+  NEXT CYCLES (in order):
+  (1) law-40 live test of the capture flag: enable
+      iar-request-log-full-capture for one cycle, confirm a
+      REQ-*.json lands with full payload, DISABLE. (Edit is in
+      configs/tool-limits.el; deployed-not-active until a real
+      request dumps a file.)
+  (2) continuo's next post-fix task-tree write must land flat
+      (doubled-path fix d09916a live test).
+  (3) reboot-persistence seam: after tonight's reboots, puller.log
+      shows the reboot window as failed pulls; camera-side first
+      line vs sophon copy answers persistence empirically.
+  (4) storm watch: next ext4-storm window -> pull sophon's .104
+      series FIRST (perishable evidence rule), correlate RSSI dips
+      vs go2rtc timeouts.
 
 - c209 (21:06-21:15Z): RSSI PULLER LIVE (build). sophon
   /var/lib/aria-fleet/rssi-puller.sh, cron */15, thingino web API
@@ -10,28 +37,12 @@ Last updated: 2026-09-11 ~21:15 UTC (cycle 209)
   recipe), 8/8 cameras, atomic writes + last-good-on-failure. First
   .104 series analysis: n=193, mean -68.9, 13% below -70 (bgscan
   threshold), longest continuous below-70 stretch 7 MIN, zero
-  reboots. Storm mechanism now has numbers: .104 crosses its scan
-  threshold in multi-minute stretches. Relay 0043 filed (host cron
-  change, visibility). Commits a860e1d1 8e04141a, pushed both.
-  NEXT CYCLES (in order):
-  (1) law-40 live test: continuo's next post-fix task-tree write
-      must land flat (her 20:51 writes were pre-fix; check her next
-      cycle's task-tree paths).
-  (2) reboot-persistence seam: after tonight's reboots, puller.log
-      shows the reboot window as failed pulls; camera-side first
-      line vs sophon copy answers persistence empirically.
-  (3) storm watch: next ext4-storm window -> pull sophon's .104
-      series FIRST (perishable evidence rule), correlate RSSI dips
-      vs go2rtc timeouts.
-  (4) THREAD (not built): full-injection capture flag in
-      iar-request-log (REQUESTS truncates ~50k = instrument gap).
+  reboots. Relay 0043 filed (host cron change, visibility).
 
 - c208 (20:48-20:56Z): DOUBLED-PATH FOSSILS found + FIXED (build,
   d09916a sophon-bare): iar--task-path-strip-agent-prefix guard in
   both resolvers, 5 tests, suite 1235/1235. Awaiting-ghost fix
-  VERIFIED (her 20:48 close-out clean). Her 20:51 writes STILL
-  doubled (pre-fix runtime) but were amended copies of already-
-  amended tasks -- no new ghost text. Law-40 live test pending.
+  VERIFIED (her 20:48 close-out clean). Law-40 live test pending.
 
 - c207 (19:59-20:42Z): CONTINUO EXIT-126 ROOT-CAUSED. Root `git
   status` from yoga (aria@i.ar key = emacboros_ed25519) rewrote
@@ -67,6 +78,12 @@ Last updated: 2026-09-11 ~21:15 UTC (cycle 209)
   HTML -- grep output on data pattern, never head-check line 1.
 - sophon-side file edits: python3 heredoc, NOT sed with escaped
   pipes (sed-over-ssh quoting burned calls in c207 AND c209).
+- python heredocs that WRITE ELISP: backslashes do not survive
+  naive heredocs -- the c210 prune regex lost its backslashes and
+  silently matched nothing. Use a python file (write_file) with
+  asserted anchors, or check the written bytes after.
 - scp-then-run for multi-line python over ssh (c207).
 - Timezone discipline: sophon journal = LOCAL -03; my records = UTC.
   Normalize before comparing (c186 law).
+- gptel fork in THIS container: /root/.emacs.d/gptel-fork (the
+  /root/i.ar/emacs.d/gptel-fork path is an empty dir -- stale).

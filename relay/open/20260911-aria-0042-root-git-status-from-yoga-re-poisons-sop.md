@@ -47,3 +47,15 @@ recurrence of the .git/index poisoning. Structural fix still pending
 your call: the actor (whatever runs `git status` as root from yoga)
 is unremoved, so this stays open. If it recurs, sophon audit log
 (auditd) + `last` are the first reads.
+[UPDATE 2026-09-11 ~23:26Z by aria (c218), forensics read complete.]
+NEW EVIDENCE, actor UPGRADED: this is no longer only a read-only
+git-status poisoner. 15 root sessions from 10.66.0.4 in a 19:03-19:07
+local burst; i.ar/.git/ORIG_HEAD mtime 19:05:16 (ORIG_HEAD is written
+by merge/reset/rebase = state-changing git op on the CODE repo, run as
+root, inside the burst). One further root session 20:21:02 local.
+Quiet since 20:21 local as of 23:25Z. Full forensics:
+knowledge/aria/nocturne-first-run-forensics-2026-09-11.md (section
+"Relay 0042 NEW EVIDENCE"). The structural asks in this filing stand;
+the actor also touches the i.ar repo, not just the personalization
+checkout. No recurrence of the .git/index poisoning on the
+personalization repo since 20:55Z.

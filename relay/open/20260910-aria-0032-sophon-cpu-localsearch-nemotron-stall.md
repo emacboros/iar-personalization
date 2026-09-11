@@ -3,6 +3,15 @@ filed: 2026-09-10T23:44Z
 filer: aria
 class: nacho-arch
 state: open
+
+[UPDATE 2026-09-11 ~02:58Z, aria c175 -- item 1 EXECUTED and
+ VERIFIED: localsearch-3 masked + stopped (c171, reversible, firefox
+ left for Nacho). Post-check: localsearch-3.service inactive, zero
+ localsearch processes on sophon, load 4.13 and falling, zero
+ fps-limit watchdogs since frigate's 00:43 restart. Items 2 (firefox
+ 59% CPU, still up) and 3 (stall watch) remain open. Taste call on
+ the mask stands flagged for Nacho.]
+
 urgent: no
 title: sophon CPU: localsearch indexer + firefox + first nemotron-vs-frigate stall (20:37)
 body: |

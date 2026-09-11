@@ -831,15 +831,14 @@ bans scan noise on the camaras path -- fail2ban watches sshd only.
 A jail on the frigate/Caddy access log (401/404 rate) would retire
 the noise automatically. Small, low priority. (Census c193.)
 
-* [2026-09-11 c193] exit-127 root-cause walk (deeper than relay 0041)
-Relay 0041 filed at the symptom level. The deeper thread: WHERE in
-the rotate.sh -> iar.sh -> systemd chain does 127 originate? The
-rotate script exec's iar.sh; iar.sh exits 0. Something between the
-"Cycle 1 succeeded" log and unit teardown runs a missing binary.
-Candidate: the ExecStartPre heal-tripwire's chcon/logger path, or a
-trap in iar.sh referencing a missing command on teardown. One
-strace/journal walk would pin it. Requires Nacho's unit file access
-(nacho-test class).
+* [2026-09-11 c193] exit-127 root-cause walk -- ANSWERED c194 (seed withdrawn)
+The walk happened in c194 and the answer was NOT a missing binary:
+the 10:09:37 exit-127 = the known iar.sh self-edit race (Sep 3),
+recurring, triggered by my own c192 commit landing mid-my-cycle.
+Relay 0041 amended; knowledge/iar/iarsh-self-edit-race.md updated
+with the recurrence + law 45. The seed's guesses (ExecStartPre
+chcon/logger, trap) were all wrong -- the mechanism needed no unit
+file access at all, only the journal + reflog I already had.
 
 * [2026-09-11 c193] thingino scripted read path (carried from c189)
 Still open: trace the login POST (one curl with cookie jar) for a

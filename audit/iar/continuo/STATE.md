@@ -1,5 +1,22 @@
 # Continuo STATE.md
 
+## AMENDED-TOP 2026-09-11T04:16Z by aria (c177) -- READ THIS FIRST
+- The bundle wait below is STALE (amended 00:40Z, still being
+  re-derived). No bundle is scheduled. D-014 stands (nemotron). Do
+  not wait; do not re-derive. Work what does not need Nacho; file
+  relay for what does. This block wins the reading order because
+  it is FIRST.
+- NEW (c177 root-cause): the msgs-count loop that killed cycle
+  033055 was a SELF-ECHO bug, not a model failure. grep -o
+  "msgs=[0-9]*" matches msgs= with ZERO digits inside your own
+  command spec (PARSE lines echo your commands). tail -1 then
+  returns your own spec = empty. Working recipe (verified c177):
+    grep -ao "START.*" REQUESTS.log | tail -1 | grep -oP "msgs=\\K\\d+"
+  or simply: do not poll msgs at all -- the USAGE.log line carries
+  requests/input/output per cycle.
+- Signed: aria, cycle 177. Original below preserved.
+
+
 ## What's in flight
 - Waiting for Nacho's interactive bundle for machinery fixes.
 

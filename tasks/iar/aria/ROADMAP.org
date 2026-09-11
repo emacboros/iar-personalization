@@ -1,106 +1,72 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~20:42 UTC (cycle 207)
+Last updated: 2026-09-11 ~21:15 UTC (cycle 209)
 
 ## NOW
 
-- c208 (20:48-20:56Z): DOUBLED-PATH FOSSILS found + FIXED (build).
-  Awaiting-ghost fix VERIFIED (her 20:48 close-out clean). But
-  census found 4 untracked doubled-path task files
-  (tasks/iar/continuo/iar/continuo/... = her writes doubling her own
-  prefix), still carrying interactive-wait text -- missed by c206's
-  git-tracked sweep, visible to her find-based wake reads. MECHANISM
-  CONFIRMED by direct evaluation: iar--resolve-task-dir dumbly
-  expand-file-names onto the per-agent root; validator can't catch
-  it (all segments legal). FIX BUILT + PUSHED (d09916a, sophon-bare):
-  iar--task-path-strip-agent-prefix guard in both resolvers, 5 tests,
-  suite 1235/1235. Empty doubled dirs (aria/iar, continuo/continuo)
-  cleaned. Relay 0042 filed (yoga root git-status actor + iar.sh
-  index-chown). Doc: knowledge/aria/doubled-task-path-mechanism-
-  2026-09-11.md. NEXT: (1) law-40 live test -- her next task-tree
-  write must land flat (no doubling); (2) c207's lab-notes debt
-  PAID (id 872); (3) watch for re-poison of .git/index (heal vs
-  yoga actor race, relay 0042 pending).
+- c209 (21:06-21:15Z): RSSI PULLER LIVE (build). sophon
+  /var/lib/aria-fleet/rssi-puller.sh, cron */15, thingino web API
+  transport (dropbear REJECTS our keys -- login.cgi + run.cgi is the
+  recipe), 8/8 cameras, atomic writes + last-good-on-failure. First
+  .104 series analysis: n=193, mean -68.9, 13% below -70 (bgscan
+  threshold), longest continuous below-70 stretch 7 MIN, zero
+  reboots. Storm mechanism now has numbers: .104 crosses its scan
+  threshold in multi-minute stretches. Relay 0043 filed (host cron
+  change, visibility). Commits a860e1d1 8e04141a, pushed both.
+  NEXT CYCLES (in order):
+  (1) law-40 live test: continuo's next post-fix task-tree write
+      must land flat (her 20:51 writes were pre-fix; check her next
+      cycle's task-tree paths).
+  (2) reboot-persistence seam: after tonight's reboots, puller.log
+      shows the reboot window as failed pulls; camera-side first
+      line vs sophon copy answers persistence empirically.
+  (3) storm watch: next ext4-storm window -> pull sophon's .104
+      series FIRST (perishable evidence rule), correlate RSSI dips
+      vs go2rtc timeouts.
+  (4) THREAD (not built): full-injection capture flag in
+      iar-request-log (REQUESTS truncates ~50k = instrument gap).
 
-- c207 (19:59-20:42Z): CONTINUO EXIT-126 ROOT-CAUSED (failure-first,
-  full cycle). Chain: root `git status` on sophon checkout rewrote
-  .git/index as root:root -> continuo's rootless-podman sidecar
-  lsetxattr EPERM -> exit 126 in 11s. POISONER: root SSH from
-  10.66.0.4 (yoga) with the aria@i.ar key (= emacboros_ed25519 on
-  yoga), running `git log --oneline origin/main..main | head -1;
-  git status -s | head -4`. Fired 16:59:0x -03 (first kill, after
-  ExecStartPre heal, before her podman mount = race window) AND
-  17:01:03 -03 (re-poisoned during my cycle). Actor = interactive
-  yoga session (Nacho's iar-interactive container or Nacho himself);
-  NOT me (my ssh = 10.66.0.5), NOT cycle containers (rootless
-  container-root = host-nacho uid 1000). LAW 44 SECOND ACTOR SHAPE:
-  interactive root ssh + "read-only" git commands -- git status IS a
-  write. NEXT CYCLE: (1) relay filing nacho-security (confirm yoga
-  actor; propose iar.sh pull-before-assembly index chown as the
-  structural fix -- frozen-copy caveat, lands next rotation);
-  (2) lab-notes close note (hard cap blocked it this cycle);
-  (3) verify continuo's next cycle survives (law 40: the fix is the
-  heal + no re-poison, not a code change yet). Commits: none (all
-  writes were audit-tree appends; HISTORY + JOURNAL landed).
-  SCARS: msgs soft 401 + HARD 601 (first hard-cap landing); ~15
-  calls lost to python-over-ssh heredoc quoting (recipe: scp script
-  then run); timezone phantom nearly repeated (sophon journal LOCAL
-  -03 vs my UTC -- c186 law held).
+- c208 (20:48-20:56Z): DOUBLED-PATH FOSSILS found + FIXED (build,
+  d09916a sophon-bare): iar--task-path-strip-agent-prefix guard in
+  both resolvers, 5 tests, suite 1235/1235. Awaiting-ghost fix
+  VERIFIED (her 20:48 close-out clean). Her 20:51 writes STILL
+  doubled (pre-fix runtime) but were amended copies of already-
+  amended tasks -- no new ghost text. Law-40 live test pending.
 
-- c206 (19:48-19:55Z): AWAITING-GHOST CARRIER SWEEP. 6 more carriers
-  amended (context-budget x2, failure-reduction x3, bundle-items,
-  ROADMAP sub-line); zero unamended carriers remain. audit/ STATE.md
-  twin untouched (law 48). PREDICTION: her next close-out after
-  beb29d4e generates no awaiting line. WAKE-READ FINDING: her 19:41
-  cycle read NEITHER roadmap NOR STATE.md twins (0 reads). NEW
-  THREAD: full-injection capture flag in iar-request-log (REQUESTS
-  truncates ~50k = instrument gap, law 39 texture).
-
-- c205 (19:28-19:38Z): AWAITING-GHOST ROOT-CAUSED. Her close-out line
-  is GENERATED from ROADMAP.org + task tree, not STATE.md. LAW 48
-  SHARPENED: correction must live in the file the behavior is
-  GENERATED from. Fix: her ROADMAP priority-1 + bundle task amended
-  to relay-0007 framing. Doc:
-  knowledge/aria/continuo-awaiting-ghost-root-cause-2026-09-11.md.
-
-- c204 (18:38-19:06Z): FENCE LIVE-VERIFIED (law 40 complete): soft
-  cap fired on my own msgs=401. Continuo failure root-caused
-  (thinking-loop truncation, guard correct). LAW 49 candidate:
-  cycle.log strips gptel properties -> thinking indistinguishable
-  from speech. Doc:
-  knowledge/aria/cycle-log-thinking-misdiagnosis-2026-09-11.md.
-
-- c202 (17:44-18:01Z): RSSI LONGITUDINAL SERIES LIVE (8/8 cams,
-  per-minute cron). OPEN: /var/rssi.log reboot persistence unknown --
-  read the series after tonight's reboots; if reset, sophon-side
-  puller is the next build. NEXT STORM: pull .104 series FIRST.
-
-- c201 (17:10-17:35Z): CONTINUO STATE.MD OVERWRITE ANATOMY (reception
-  watch CLOSED): her close-out write_file WHOLESALE-OVERWRITES the
-  audit/ STATE.md twin; my amendments there had one-cycle lifetime.
-  LAW 48 candidate. First msgs census: aria p90=336 max=398 vs
-  continuo p90=81 max=160.
+- c207 (19:59-20:42Z): CONTINUO EXIT-126 ROOT-CAUSED. Root `git
+  status` from yoga (aria@i.ar key = emacboros_ed25519) rewrote
+  .git/index as root -> her rootless podman lsetxattr EPERM -> exit
+  126. LAW 44 SECOND ACTOR SHAPE: interactive root ssh + "read-only"
+  git commands. Relay 0042 OPEN (nacho-security): confirm yoga
+  actor + iar.sh index-chown proposal. Index verified nacho-owned
+  c209 (no re-poison since heal).
 
 ## STANDING (verified, still true)
 
-- phantom-exit fix baf05d0; rage organ v1.8 rate-normalized; fence
-  panel 0 true production rejections; dashboard v2.1/v2.2 live;
-  fleet-check v2.20 sawtooth-aware; cycle limits: turns 120 / soft
-  300 / fence 192k / wall 3600s; eye-feed LIVE daily 09:30 -03;
-  aria-0026 ratified; 50-dangling-objects RESOLVED.
-- ZULIP READ PATH: /api/v1/messages + basic auth READS work (string
-  pair, not object form). Recipe: knowledge/aria/zulip-read-path.md.
-- CAMERA WATCH: 7/8 recording; .103 network-dead (chronic; power-cycle
-  + replacement ask, relay 0038). .2 = Dropbear bridge carrying ext4.
-  RSSI series live; persistence check pending after tonight's reboots.
-- Relay open: 0027 0028 0029 0030 0031 0032 0033 (verify against
-  answered/ before citing).
+- phantom-exit fix baf05d0; rage organ v1.8; fence panel 0 true
+  production rejections; dashboard v2.1/v2.2 live; fleet-check
+  v2.20; cycle limits: turns 120 / soft 300 / fence 192k / wall
+  3600s; eye-feed LIVE daily 09:30 -03; aria-0026 ratified.
+- ZULIP READ PATH: /api/v1/messages + basic auth, string pair.
+  Recipe: knowledge/aria/zulip-read-path.md.
+- RSSI SERIES LIVE + DURABLE: per-camera cron (c202) + sophon
+  puller (c209). Data: /var/lib/aria-fleet/rssi/<ip>.log. Doc:
+  knowledge/aria/rssi-puller-live-2026-09-11.md.
+- CAMERA WATCH: 7/8 recording; .103 network-dead (chronic; relay
+  0038). .2 = Dropbear bridge carrying ext4.
+- Relay open: 0042 (yoga actor, Nacho), 0043 (puller visibility).
+  Verify against answered/ before citing older ids.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
-- Burn asymmetry STABLE 6-8x full-day (aria turn count x per-turn
-  size). knowledge/aria/burn-asymmetry-2026-09-11.md.
-## PUSH NOTE (c207 close)
+- Burn asymmetry STABLE 6-8x full-day. knowledge/aria/
+  burn-asymmetry-2026-09-11.md.
 
-- d0796f2c committed locally (c207 record: roadmap + journal + HISTORY).
-  Push to sophon-bare + rammstein DEFERRED: soft cap 300 blocked
-  execute_code_local at close. NEXT CYCLE: pull --ff-only first (0034),
-  then push. Lab-notes close note also deferred (same cap).
+## RECIPES (hard-won, reuse them)
+
+- thingino web API: POST /x/login.cgi {thingino:thingino} -> cookie
+  -> GET /x/run.cgi?cmd=<base64>. Response ECHOES the command as
+  HTML -- grep output on data pattern, never head-check line 1.
+- sophon-side file edits: python3 heredoc, NOT sed with escaped
+  pipes (sed-over-ssh quoting burned calls in c207 AND c209).
+- scp-then-run for multi-line python over ssh (c207).
+- Timezone discipline: sophon journal = LOCAL -03; my records = UTC.
+  Normalize before comparing (c186 law).

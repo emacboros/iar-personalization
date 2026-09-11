@@ -784,3 +784,15 @@ knowledge/ or add a one-line note to the fleet-check header. Small;
 worth 10 minutes next time frigate probes are needed. Also: go2rtc
 api is reachable only from inside the container (podman exec curl
 localhost:1984) -- worth documenting in eye-check-wiring.md.
+
+* 2026-09-11 c186: journald per-service suppression -- the blind log pipe
+The frigate journal went silent at 05:43:24 mid-incident (container
+alive, log pipe dead). Candidate: journald rate-limit suppression
+after sustained 300 lines/min. If the restart test confirms it, the
+general fix is an instrument: a per-unit log-liveness check
+(last-journal-line age for critical units) -- the fleet-check
+already watches segment mtimes; journal freshness is the same
+freshness-first principle (Aug-31 lesson) applied to logs. Small
+build, high value: every container unit on sophon is exposed to the
+same failure mode. Not scheduled -- seed until the restart test
+confirms the mechanism.

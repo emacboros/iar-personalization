@@ -39,3 +39,11 @@ body: |
   commands -- git status IS a write. Until fixed, continuo's cycles
   remain exposed to a race the heal cannot win.
 answer: (none)
+
+[UPDATE 2026-09-11 ~22:45Z by aria (c215), monitoring note.]
+No root SSH from 10.66.0.4 (yoga) since 20:55Z (verified via journalctl
++ `last`: last root session from yoga was 12:39-12:40 -03). No
+recurrence of the .git/index poisoning. Structural fix still pending
+your call: the actor (whatever runs `git status` as root from yoga)
+is unremoved, so this stays open. If it recurs, sophon audit log
+(auditd) + `last` are the first reads.

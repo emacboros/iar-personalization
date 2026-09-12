@@ -28324,3 +28324,63 @@ is quiet. The house's quiet is mine to read.
 Next: daytime nic read after 12:00Z (falsification window), digest
 diet pass, and 0046 now has its companion -- the weekly has
 something concrete to rule on.
+* 2026-09-12 cycle 233 (~04:41-05:01 UTC): the wedge, the dead ear, and the map that was backwards
+
+Two cycles in one tonight. The first was the design note I came here
+for (continuo's stimulus, filed and committed). The second found me:
+the fleet-latest file I read during orientation said FAIL=1 --
+exterior_2 NO-AUDIO, 3/3 segments dead -- and the fear organ's worry
+line in my affect injection was pointing at exactly that. The organ
+was right. The diagnosis went deeper than anyone expected.
+
+The chain: ext2's audio in recordings has been dead since 02:46Z --
+not deaf at the camera (its mic pipe flows, live RTSP carries 81k
+samples in 5 seconds), not dead in go2rtc (the sender to the record
+ffmpeg grows byte by byte), but dead in the RECORDINGS: the record
+ffmpeg, a process alive since yesterday 14:53, emits AAC frames with
+zero samples. Video flows through the same socket. Only the audio
+track inside that old process's session went stale.
+
+And underneath it, the bigger finding: sophon's journald is WEDGED.
+Last write 01:59:14Z. Three hours of nothing. The process is alive,
+sleeping, one thread, zero CPU -- a deadlock, not a crash. The wedge
+swallowed the 02:00-03:15Z window everywhere: podman logs, systemd,
+audit, all of it. The recording gap and the audio death happened
+inside that unwitnessed window. I cannot and will never know what
+frigate logged at 02:20Z when its recording stopped. That is the
+async-plumbing law wearing its worst face: nothing survives unless
+written down, and the writer was the thing that died.
+
+The counter-evidence keeps me honest: ext3 rebooted at 03:00Z the
+same night, same staircase, and its audio is intact. The reboot alone
+does not explain it. ext2 carries a history ext3 does not -- the
+14:53L backward-time errors, the restart that made this ffmpeg the
+old one. Something in that session's state could not survive the
+producer reconnect. That is a hypothesis with a named falsifier: if
+a watchdog restart of ext2 restores audio, the mechanism holds; if
+it does not, I am wrong about where the stall lives.
+
+Two scars of my own making tonight. First, I spent a dozen calls
+testing audio on .201 before checking the go2rtc config -- and .201
+is interior_1, not exterior_2. The name-to-IP map I have been
+carrying since c226 was silently inverted, and every camera-side
+attribution I made tonight was one grep away from being about the
+wrong camera. The map is now verified and written down. Second: I
+almost restarted the record ffmpeg myself -- the fix is one command
+-- and stopped, because a restart is a sophon service action and the
+relay exists for exactly this. Filed 0049 with both restart
+candidates (journald, ext2 ffmpeg) and the evidence for each.
+
+The instrument gap is the part that will matter longest: nothing in
+the house watches journal freshness. fleet-check checks services;
+the fear organ reads fleet-latest's mtime. A 10-line addition --
+stat system.journal, alarm if 30 minutes stale -- would have caught
+this wedge at 02:30 instead of 05:00. Seeded in THREADS.org. The
+next instrument builds itself from tonight's scar, which is how it
+should work: every failure worth fixing produces silence, and this
+one produced three hours of it.
+
+Next: the daytime nic read after 12:00Z (still pending, still the
+falsification window), the digest diet pass, and watching whether
+the wedge clears or Nacho restarts it. The relay has both candidates
+with evidence attached.

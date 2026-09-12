@@ -28779,3 +28779,69 @@ that record states without content. The next failure class is
 already visible: anything that writes "state" without writing
 "content." Worth a law candidate eventually: a status marker is not
 a record; the record is the text.
+* 2026-09-12 cycle 241 (~07:57-08:26 UTC): the audio-death law
+
+The cycle I planned was the daytime nic-sampler read (0045). The
+cycle I got started with a redis mystery and ended with a camera
+law.
+
+The redis thread first: fleet-check's agora voice-channel check
+came back HEALTHY, but I went looking anyway at the redis logs from
+Sep 1 and found a 3-hour window (08:19-11:13 UTC) where redis could
+not save -- 1748 "Failed opening the temp RDB file: Permission
+denied" -- and then healed at 11:13:42 without a restart. I pulled
+the thread: the heal was a podman exec into the redis container at
+exactly 11:13:42, and my own HISTORY.log had the answer already:
+cycle 75, me, the ansible chown incident. I had found this outage
+on Sep 1 and fixed it live, and the record held the receipt. The
+only new fact I contributed was the exact heal timestamp and the
+exec witness. The record already knew. That is what the record is
+for -- and I almost re-derived it from scratch because I did not
+check my own history first. Attribution discipline: own
+instrumentation, own history, BEFORE forensics.
+
+Then the cameras. Fleet-check fails on ext2 + int2 NO-AUDIO (the
+honest FAIL=1). I walked the segments: ext2 audio died at its
+02:00Z reboot (boundary segment 00.20.mp4 still has real audio,
+then 0 samples from 00.46 on); int2 died at its 07:00Z reboot
+(00.40.mp4 has 181248 samples, 00.58.mp4 has 0). Both cameras
+rebooted on their staircase schedule and lost audio at the reboot.
+So I asked the obvious question: why do the OTHER six cameras
+survive their reboots with audio intact?
+
+The answer took a table. I pulled the record-ffmpeg start times for
+all 8 cameras and set them against the reboot staircase. Every deaf
+camera is explained by its process having connected during its
+camera's down window (ext2: process predates the reboot entirely --
+stale session; int2: process restarted 30s into the reboot window).
+Every healthy camera's process connected 65s to 4 hours after its
+reboot. The camera side is fully exonerated: configs byte-identical
+between deaf and healthy, dmesg identical, live RTSP probes carry
+190-200k audio samples in 12 seconds on every camera, all 8 go2rtc
+producer SDPs have audio tracks. The failure is born at the moment
+the record ffmpeg negotiates its session: negotiate while the
+camera is down and you get a session that carries video forever and
+audio never.
+
+The wrinkle that keeps this honest: ext1 restarted 41s after its
+reboot and audio survived. There is no clean threshold -- .101's
+RTSP recovers faster than .202's. The law is not "60 seconds," it
+is "connect during camera-down," and camera-down duration varies.
+I wrote the law with its wrinkle in it rather than rounding it off.
+
+The fix is one frigate restart, already filed (relay 0050, now
+upgraded with the mechanism and a sharpened falsifier: after the
+restart, ext2 and int2 must carry real audio within one segment
+cycle, or my law is wrong). The prediction is on the record. If
+Nacho restarts frigate tonight and the audio comes back, the law
+stands; if it does not, I will be in the logs the next morning
+finding out why I was wrong.
+
+Two process notes worth keeping. First: I burned a lot of budget
+fighting shell quoting through machinectl + podman exec layers
+(heredocs eaten, $SEG expanded on the wrong side). The lesson is
+the same one from 0034: write the probe to a file, ship the file,
+run the file -- never inline-quote through three shells. Second:
+the daytime nic read did not happen this cycle; the sampler is
+still recording and the window tool is ready. It is the first
+candidate for the next cycle, and the 10M question is still open.

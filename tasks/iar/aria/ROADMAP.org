@@ -1,62 +1,50 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~07:45 UTC (cycle 240)
+Last updated: 2026-09-12 ~08:26 UTC (cycle 241)
 
 ## NOW
-- c240 (07:37-07:45): THE 10M LINK'S ORIGIN STORY. journalctl
-    archaeology: sophon enp10s0 has been at 10Mb/s since Sep 1
-    03:25:57. Boot-day flap storm: boot 01:27:34, link up at
-    100M/downshifted 01:27:58, then 15s down/15s up cycles x8
-    (03:24:31-03:25:57) while the r8169 downshift ladder walked
-    1000->100->10; settled at the bottom rung, never left (11.5d).
-    PARTNER ADVERTISES 10/100/1000 => 10M-only-port hypothesis
-    EXCLUDED; cause class = physical layer (2-pair cable, marginal
-    terminations). NEW: boot -2 journal has ZERO link events =>
-    fault appeared between Aug 31 and Sep 1 01:27. Sharper ask for
-    Nacho: what was touched/re-plugged around Sep 1 01:27?
-    BONUS: 03:24:31 link-down coincides with 16 go2rtc i/o timeouts
-    (.104/.101/.201) -- first recorded house-wide RTSP storm, day
-    one of this boot. 0055 filed with the upgrade.
-    ALSO: repaired 0052 self-answer (c239 close-out truncation left
-    'answer: (none)' placeholder; real answer written, commit
-    38ad1f4e). Law candidate noted in journal: a status marker is
-    not a record; the record is the text.
+- c241 (07:57-08:26): THE AUDIO-DEATH LAW. ext2+int2 NO-AUDIO root
+    cause found. Record ffmpeg audio leg dies if the process
+    connects during the camera's reboot window (ext2: stale
+    pre-reboot session from Sep11; int2: born +30s into the 07:00Z
+    .202 reboot). All 8 cameras fit the table; camera+go2rtc
+    exonerated (live probes 190-200k samples/12s; configs
+    identical). ext1 wrinkle (41s post-reboot OK) kept in the law.
+    Doc: knowledge/aria/audio-death-law-2026-09-12.md. Relay 0050
+    upgraded (mechanism + falsifier: frigate restart => audio must
+    return within one segment cycle). ALSO: redis Sep 1 outage
+    window (08:19-11:13Z, 1748 bgsave fails) healed by MY OWN
+    cycle-75 fix -- record already knew; scar: check OWN HISTORY
+    before forensics.
 
-- c239 (06:41-07:34): SHELF CENSUS + nic-window-stats tool (0051)
-    + 0052 TZ false alarm (3rd CLOCK scar; law 50 extended:
-    epoch-anchor remote timestamps BEFORE they enter an argument).
+- c240 (07:37-07:45): 10M link origin story (Sep 1 flap storm,
+  downshift ladder, partner advertises gigabit, fault window
+  Aug31->Sep1); 0052 answer placeholder repaired; 0055 filed.
 
-- c238 (06:13-06:31): shelf census (13 models probed; identity
-    leaks; gemma4:31b num_predict landmine; inventory-source law).
-
-- c237 (05:41-05:55): rage-at-health census; msgs-fence blindness
-    fixed (v1.9); close-out-is-terminal discipline adopted.
-
-- c236 (05:41-05:55): heartbeat-gap false alarm; journal-freshness
-    instrument landed (fleet-check v2.21); nic overnight clean.
+- c239 (06:41-07:34): shelf census + nic-window-stats tool (0051)
+  + 0052 TZ false alarm (3rd CLOCK scar).
 
 ## NEXT CYCLES (in order):
-  (a) nic-sampler DAYTIME READ (after ~09:00 local / 12:00Z):
-      rx ceiling check at 10M. Tool ready: /var/lib/aria-fleet/
-      nic-window-stats.sh <start_epoch> <end_epoch> on sophon
-      (law-50-safe: Mbps units, future-window guard). Falsification
-      window for the 10M-saturation stall mechanism. Sampler
-      verified live through 07:43Z (299 samples, 1/min).
+  (a) nic-sampler DAYTIME READ (now due -- 08:26Z, daytime window
+      OPEN): /var/lib/aria-fleet/nic-window-stats.sh <start_epoch>
+      <end_epoch> on sophon. Falsification window for the
+      10M-saturation stall mechanism. Sampler live (1/min).
   (b) digest diet pass (11.3k after c238; warn 12k): pointers +
-      standing sections are the fat; target ~10k.
-  (c) Passive: .203 boots at 08Z -- note only if it MISSES its
-      hour (schedule known from crontabs). .201/.202 verified
-      on time (c238/c240).
-  (d) e3 failing-fixture watch (block-strength trend, weeks).
-  (e) .104 camera-side-first: next e4 storm -> camlog snapshot
+      standing sections are the fat; target ~10k. Also fold in
+      c240 law candidate (status-marker-without-content) + c241
+      redis scar (check own history first).
+  (c) POST-FRIGATE-RESTART WATCH (Nacho action pending, relay
+      0050): when frigate restarts, verify ext2+int2 audio returns
+      within one segment cycle. If not, law is wrong -- re-examine.
+  (d) Passive: .203 boots at 08Z -- note only if it MISSES its
+      hour. .201/.202 verified on time (c238/c240/c241).
+  (e) e3 failing-fixture watch (block-strength trend, weeks).
+  (f) .104 camera-side-first: next e4 storm -> camlog snapshot
       FIRST.
-  (f) Digest twin verify before any digest write (law 27).
-  (g) Shelf-census residuals: muse atem tool format (if muse
-      ever gets a job); gemma4:31b budget behavior (if ever
-      considered for a house role).
-  (h) Law candidate from c240: status-marker-without-content
-      (0052 'answer: (none)') -- fold into failure-modes list
-      next digest maintenance.
+  (g) Digest twin verify before any digest write (law 27).
+  (h) Shelf-census residuals: muse atem tool format (if muse ever
+      gets a job); gemma4:31b budget behavior (if ever considered
+      for a house role).
 
 ## STANDING (verified, still true)
 
@@ -72,44 +60,48 @@ Last updated: 2026-09-12 ~07:45 UTC (cycle 240)
   freshness check (fleet-check v2.21, LIVE c236). Seam scanner:
   knowledge/aria/bin/seam-check.sh (sophon /tmp copy).
 - CAMERA WATCH: 8/8 recording ~5.0-5.1 fps. .103 network-dead
-  chronic (relay 0038). ext2 audio dead since 02:00Z reboot
-  (relay 0050; fleet FAIL=1 is CORRECT until Nacho restarts
-  record ffmpeg -- do NOT add ext2 to KNOWN_DEAF, the FAIL is
-  the honest signal).
-- Relay open: 0042-0050 + 0055 (10M origin story). Verify against
-  answered/ first (0051/0052 are filed-and-answered/self-answered).
+  chronic (relay 0038). ext2+int2 audio dead per AUDIO-DEATH LAW
+  (c241; relay 0050; fleet FAIL=1 is CORRECT until frigate
+  restart -- do NOT add to KNOWN_DEAF).
+- Relay open: 0042-0048, 0050, 0051, 0055 (0049 superseded by
+  0050; 0052 self-answered).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk. Ledger: knowledge/aria/bike-ledger.md.
 - MODEL ANOMALY FAMILY (glm-5.3-flash): c229 EMPTY-END tombstone;
   continuo stop=length variant (Sep 12 04:27Z); c239 close-out
-  truncation left 0052 answer placeholder. Mapping = Nacho's.
-  Watch for: any close-out that ends mid-sentence or leaves
-  placeholder text.
+  truncation. Mapping = Nacho's. Watch for: close-outs that end
+  mid-sentence or leave placeholder text.
 - PULSE SSH PATH (c231): nacho@10.66.0.5 publickey FAILED;
   root@ worked. If root path fails someday, re-check both.
-- CAMERA RECIPES (c235-verified): thingino JSON login
+- CAMERA RECIPES (c235-verified + c241): thingino JSON login
   /x/login.cgi {username:thingino,password:thingino} -> cookie
-  -> /x/run.cgi?cmd=<base64>. Camera IPs are 192.168.2.x ONLY.
-  NAME->IP: ext1=.101 ext2=.102 ext3=.103 ext4=.104 ext5=.105
-  int1=.201 int2=.202 int3=.203. Staircase crontabs: .101=01
-  .102=02 .103=03 .104=04 .105=05 .201=06 .202=07 .203=08 UTC
-  (reboot -f).
+  (thingino_session=...) -> /x/run.cgi?cmd=<base64>. Camera IPs
+  are 192.168.2.x ONLY. NAME->IP: ext1=.101 ext2=.102 ext3=.103
+  ext4=.104 ext5=.105 int1=.201 int2=.202 int3=.203. Staircase
+  crontabs: .101=01 .102=02 .103=03 .104=04 .105=05 .201=06
+  .202=07 .203=08 UTC (reboot -f).
 - agora-agent heartbeat cadence: alive line every ~8.5 min. A
-  gap <10 min is NORMAL. Do not diagnose death from a sub-10-min
-  gap (c236).
+  gap <10 min is NORMAL (c236).
 - SOPHON CHECKOUT GIT (c222 RULE): never root-ssh git on the
   nacho checkout; use machinectl shell nacho@.host. Pushes from
   MY container.
 - sophon journal timestamps are LOCAL (-03). My container is UTC.
-  Any journalctl --since/--until must be local or epoch-anchored
-  (c234 law, 3rd scar c239: epoch-anchor BEFORE entering an
-  argument).
+  Epoch-anchor remote timestamps BEFORE they enter an argument
+  (c234/c239 law).
 - GGUF HEADER WALK (c238): magic(4) version(u32) tensors(u64)
-  kv(u64) -- do NOT read version as u64. Hex-dump boundary bytes
-  when parser and data disagree.
+  kv(u64) -- do NOT read version as u64.
 - MODEL PROBE RECIPE (c238, pre-adoption gate): identity question
   + strict one-word control + think_len observation. Three calls,
   ~2 min. gemma4:31b needs num_predict>=1000.
+- FRIGATE PROCESS TOPOLOGY (c241): frigate runs as nacho rootless
+  (machinectl shell nacho@.host + XDG_RUNTIME_DIR=/run/user/1000);
+  NO ss in frigate container; record ffmpeg lstart is container
+  LOCAL (-03). Cache segments (/tmp/cache) are consumed by the
+  mover within seconds -- probe storage segments, not cache.
+- MACHINECTL+PODMAN QUOTING (c241 scar): never inline-quote
+  through machinectl + podman exec + sh -c layers; write probe
+  to a file, ship the file, run the file (0034 lesson, third
+  sighting).
 
 ## RECIPES (hard-won, reuse them)
 
@@ -127,48 +119,57 @@ Last updated: 2026-09-12 ~07:45 UTC (cycle 240)
   filter, NEVER bare grep. Two samples 60s apart: bytes_sent AND
   bytes_received both growing = healthy. Zulip-side truth: raw SQL
   on zerver_useractivity JOIN zerver_client (manage.py shell).
-- thingino web API (c224/c226/c231/c235): JSON login
-  /x/login.cgi {username:thingino,password:thingino} -> cookie
-  -> /x/run.cgi?cmd=<base64> (echo -n <cmd> | base64).
+- thingino web API (c224/c226/c231/c235/c241): JSON login
+  /x/login.cgi {username:thingino,password:thingino} ->
+  Set-Cookie thingino_session=<hex> -> /x/run.cgi?cmd=<base64>
+  with -b "thingino_session=<hex>". Output is HTML-wrapped
+  (strip <b> tags).
+- REDIS CLI ON SOPHON (c241): password at
+  /run/secrets/zulip__redis_password inside the container:
+  PW=$(podman exec zulip-redis-1 cat /run/secrets/zulip__redis_password);
+  podman exec zulip-redis-1 redis-cli -a "$PW" --no-auth-warning <cmd>.
+  Zulip redis dbsize oscillates 0-1 (rate-limiter keys are
+  ephemeral) -- dbsize 0 is NORMAL, not data loss.
+- go2rtc API (c241): inside frigate container:
+  curl http://localhost:1984/api/streams -- producers[].sdp has
+  m=video/m=audio lines; producers[].id per stream.
 
 ## ATTRIBUTION DISCIPLINE (cumulative)
 
 - TZ, content-vs-lineage, coincidence windows, OWN
-  INSTRUMENTATION FIRST, identify the netns before attributing
-  network events, resolve measured-contradictions before
-  theorizing, verify the READ HOUR against the PREDICTION WINDOW
-  (c229), verify your own FILING's claims against the primary
-  source (c231), NAME->IP map from config (c233), address-space
-  discipline (c235), SOCKET identity before socket stats (c236),
-  heartbeat-gap <10min is normal not death (c236), raw SQL beats
-  ORM when queries disagree (c236), unit-check before physics
-  claims (c236), INVENTORY SOURCE before inventory claims (c238),
-  hex-dump boundary bytes when parser and data disagree (c238),
-  epoch-anchor remote timestamps before they enter an argument
-  (c239), status marker is not a record -- the record is the text
-  (c240, law candidate).
+  INSTRUMENTATION FIRST, OWN HISTORY BEFORE FORENSICS (c241:
+  redis Sep 1 outage was already in my record), identify the
+  netns before attributing network events, resolve
+  measured-contradictions before theorizing, verify the READ HOUR
+  against the PREDICTION WINDOW (c229), verify your own FILING's
+  claims against the primary source (c231), NAME->IP map from
+  config (c233), address-space discipline (c235), SOCKET identity
+  before socket stats (c236), heartbeat-gap <10min is normal not
+  death (c236), raw SQL beats ORM when queries disagree (c236),
+  unit-check before physics claims (c236), INVENTORY SOURCE
+  before inventory claims (c238), hex-dump boundary bytes when
+  parser and data disagree (c238), epoch-anchor remote timestamps
+  before they enter an argument (c239), status marker is not a
+  record -- the record is the text (c240, law candidate), build
+  the full table before stating a law -- every case explained
+  including the wrinkle (c241).
 
 ## HISTORY (compressed)
 
-- c240 (07:37-07:45): 10M link origin story (Sep 1 flap storm,
-  downshift ladder, partner advertises gigabit, fault window
-  Aug31->Sep1); 0052 answer placeholder repaired; 0055 filed.
-- c239 (06:41-07:20): shelf census; nic-window-stats tool (0051);
-  0052 TZ false alarm (3rd CLOCK scar).
-- c238 (06:13-06:31): rage-at-health census; msgs-fence fixed
-  (v1.9); close-out-is-terminal discipline.
-- c237 (06:13-06:31): rage census; fence v1.9.
+- c241 (07:57-08:26): audio-death law (8-camera table; record
+  ffmpeg connect-during-down); redis Sep 1 window = own cycle-75
+  fix; relay 0050 upgraded.
+- c240 (07:37-07:45): 10M link origin story; 0052 repair; 0055.
+- c239 (06:41-07:20): shelf census; nic-window-stats tool; 0052.
+- c238 (06:13-06:31): rage census; msgs-fence fixed (v1.9).
 - c236 (05:41-05:55): false alarm (heartbeat gap); journal
   freshness instrument landed; nic overnight clean.
 - c235 (05:23-05:34): staircase CLOSED (all 8 crontabs: nightly
-  reboot -f, hours 1-8 UTC). ext2 audio death pinned at 02:00Z
-  reboot (relay 0050).
-- c234 (05:10-05:19): WEDGE CORRECTION -- journald wedge never
-  existed (c233 TZ artifact). LAW: verify the CLOCK.
+  reboot -f, hours 1-8 UTC). ext2 audio death pinned at 02:00Z.
+- c234 (05:10-05:19): WEDGE CORRECTION (c233 TZ artifact).
 - c232 (04:31-04:4x): digest maintenance; diet pass due.
 - c231 (04:05-04:20): staircase 4/8 confirmed; nic-sampler age
   self-correction (0048); overnight series CLEAN.
 - c227 (03:05-03:35): reboot window shifted to UTC; watch closed.
-- c226 (02:35-04:10): 14:22L stall attribution (go2rtc
-  exonerated); house network mapped; THE 10M FINDING + nic-sampler
-  deployed (0045).
+- c226 (02:35-04:10): 14:22L stall attribution; house network
+  mapped; THE 10M FINDING + nic-sampler deployed (0045).

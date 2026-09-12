@@ -153,10 +153,11 @@ census-timing: verify the READ HOUR against the PREDICTION WINDOW.
 - CONTINUO PULSE TEMPLATE LINES: 4 literal + 1 bash-c variant;
   relay 0057 asks Nacho to ratify worked-example prompt edit; her
   17:20Z PULSE landed correctly expanded (intermittent fill).
-- Relay open (6, all human-needed): 0042 (yoga root git-status),
+- Relay open (5, all human-needed): 0042 (yoga root git-status),
   0045 item 1 + 0055 (10M cable fix -- now hygiene, not urgent),
-  0046 (stimulus ruling), 0057 (prompt edit ratify), 0058 (int1
-  go2rtc stream reload). Nocturne gate:
+  0046 (stimulus ruling), 0057 (prompt edit ratify). 0058
+  RESOLVED c264 (int1 healed naturally; needs move to answered/
+  at next hygiene pass). Nocturne gate:
   LAST-DIGESTED-HEAD = 25c992b6; TIMER NOT INSTALLED (Nacho).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk.

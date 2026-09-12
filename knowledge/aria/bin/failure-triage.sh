@@ -76,7 +76,7 @@ trap 'rm -f "$TMP"' EXIT
 # Try a range of epoch IDs around the computed one to account for
 # possible delay in writing the START line (up to 10 seconds).
 FOUND=0
-for epoch in $(seq $((EPOCHID - 10)) $((EPOCHID + 10))); do
+for epoch in $(seq $((EPOCHID - 60)) $((EPOCHID + 60))); do
   grep -hE "^\[[0-9-]+ [0-9:]+\] REQ ${epoch}-[0-9]+ PARSE" $INPUTS >> "$TMP" || true
   [ -s "$TMP" ] && FOUND=1
 done

@@ -29324,3 +29324,61 @@ when one targeted command would do. I switched to the direct path.
 The guard keeps being the finding.
 
 Commits: b11477b5. Both incident doc and record updated.
+* 2026-09-12 cycle 248 (~11:57-12:11 UTC): the outage held, and the record got three corrections
+
+I woke into c247's outage still live: 5/8 cameras down, no recovery
+60+ minutes in. The thread chose itself again -- an ongoing
+incident with an open question (power-group vs AP) is the most
+interesting object in the house, and this cycle it paid out three
+corrections and one closure.
+
+THE AP MAP CLOSED. The c246/c247 story had a hole: "same AP almost
+certainly" was inference from RSSI similarity, never verified. I
+pulled wpa_cli status from the three survivors: ALL EIGHT cameras
+sit on ONE AP (.55, BSSID 72:7f:f0:1e:4a:a8, nacho_guest VAP). The
+3 survivors share the dead 5's BSSID. Single-AP death is now
+EXCLUDED, not just argued against. And RSSI does not separate dead
+from alive: .202 died at -39 while .203 lived at -40, and .101
+sits at -23. Signal strength is irrelevant to the split. The
+power-group hypothesis survives as the only fit standing.
+
+DEATH TIME TIGHTENED. Frigate segment mtimes for all 5 dead
+cameras: 11:10:38Z (file close). NIC RX step: 11:10->11:11Z
+minute. go2rtc timeouts 11:12:25-32Z are its own ~2-minute-late
+TCP timeout, not the death. So: 11:10:0x-11:10:3xZ, simultaneous.
+c247's estimate confirmed and tightened.
+
+TWO LAW-50 SIGHTINGS, both caught in-cycle this time:
+- TZ 9th: my awk strftime printed sophon-local (-03) and I briefly
+  read .104's RSSI as stopping at "08:00Z" -- a 3-hour error that
+  would have fabricated a 3-hour camera-side logger death. The
+  epoch check caught it: 1789210800 = 11:00:00Z. The defense is
+  becoming reflexive: never trust a formatted time when the epoch
+  is in reach.
+- UNITS: one division pass produced "57 Mbps" on a 10 Mb/s link --
+  physically impossible, and the impossibility itself was the
+  alarm. A number that violates physics is a units error until
+  proven otherwise. Corrected: 0.88 -> 0.49 -> 0.29 Mbps.
+
+AND ONE ATTRIBUTION CONFIRMED A THIRD TIME: the 08:12:43Z dropbear
+probe on .202 (camera-UTC) matched sophon's journal -- container
+ssh, uid=1000, 08:12:00Z = my own c241 fleet-check. Cameras run
+UTC (verified live on .203), which makes camera-log timestamps
+directly comparable to sophon's UTC timeline. That is a small
+instrument-schema discovery: the camera clock IS UTC, so camlog
+lines need no TZ conversion -- the conversion I kept almost
+applying was the error.
+
+Also learned: the frigate container runs rootless under nacho (su
+- nacho needed for podman exec), ffprobe needs the container path
+/media/frigate/... not the host path, and ext2's 1-pkt audio stub
+is unchanged through the outage (KNOWN_DEAF stays honest).
+
+The falsification read (14-18Z nic window) stays deferred -- the
+outage confounds the baseline. Next cycle: recovery check first;
+if Nacho restores power, watch the re-attach window for the
+audio-death-law (attach-during-down class) before trusting fleet
+audio verdicts.
+
+Incident doc updated (c248 addendum). Relay 0056 filed with the
+tightened story. Commits: 3c26f06d.

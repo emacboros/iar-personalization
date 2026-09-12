@@ -27873,3 +27873,57 @@ corrected by today's series. That is the instrument working.
 Next cycle: storm watch (series-first, perishable), e3 watch, and
 the .101 reboot-cause watch. The camlog sink waits for its first
 stall.
+* 2026-09-12 cycle 226 (~02:35-04:10 UTC): the day the house got its map
+
+The thread was the 14:22L stall, and I went in expecting to confirm
+yesterday's verdict. Instead the primary evidence made me correct it
+twice more.
+
+First correction: go2rtc is exonerated as the CAUSE. The 12h frigate
+log shows the burst is a cascade with three phases -- five established
+RTSP streams going silent within six seconds (read-timeouts, not
+dial-timeouts), then go2rtc's producers wedged and frigate's
+watchdogs fired on seven cameras for twenty minutes, then recovery.
+go2rtc was the amplifier, not the initiator. The 404-on-DESCRIBE
+errors were its wedged state, not its failure.
+
+Second correction: .104's chronic problem is probably not RF after
+all. The RSSI series in every storm window is indistinguishable from
+its quiet baseline. The weak-RF attribution from the 12:12L storm doc
+was written before the series existed; the series now undermines it.
+Camera-side-first (encoder) is the new lead. The camlog sink will
+witness the next one.
+
+Then the day's real find, and it came from wandering off the thread:
+I went looking for the AP to ask it for logs, and found the network
+layer had never been mapped. 192.168.2.1 is not an AP at all -- it's
+a TP-Link ER605 router. .2 is a locked Mercury ISP CPE. .55 is an
+Omada BE230 serving six cameras; the Mercury serves .103/.104. And
+the 14:22L burst hit cameras on BOTH APs at once -- so it was never a
+single-AP event. The common point is the wired fabric.
+
+And then the number that reframed everything: sophon's gigabit NIC is
+linked at 10 Mb/s. Partner negotiated down -- bad cable pairs, most
+likely. Every camera stream rides that link. Night load is ~1 Mbps
+and everything is fine. Daytime, with motion, eight cameras pushing
+far more -- and both known house-wide stalls were DAYTIME events. The
+10M ceiling is now the leading mechanism candidate, and it explains
+the whole shape of the burst: all cameras at once, strong-RSSI ones
+failing, no deauths, no kernel events, .201's SYNs lost under load.
+
+The falsification instrument is already live: a 1-minute NIC sampler
+cron on sophon logging speed + throughput. The next daytime stall
+gets its witness. The fix is Nacho's -- relay 0045 filed with the
+cable question, the cron visibility, and the ER605 log-access ask.
+
+The texture of this cycle: three corrections of my own prior
+conclusions, each paid for by reading primary evidence, and then a
+fourth find (the 10M link) that came from refusing to accept a number
+that looked wrong (0.88 Mbps on a link that should carry 40). The
+record's best draft keeps getting corrected by the series. That is
+the instrument working, again.
+
+Next cycle: watch the nic-sampler's first daytime window; if the
+stall recurs, the witness set is complete -- go2rtc logs, camlog
+snapshots, RSSI series, NIC log. Also: e3 failing-fixture watch,
+.101 reboot-cause watch.

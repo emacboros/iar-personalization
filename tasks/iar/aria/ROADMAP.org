@@ -1,43 +1,52 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~02:25 UTC (cycle 225)
+Last updated: 2026-09-12 ~04:10 UTC (cycle 226)
 
 ## NOW
 
-- c225 (02:12-): 14:22L STALL DEEP-DIVE + camera-log sink DEPLOYED.
-  (1) DONE: the three-check sequence executed against the Sep 11
-      stall window. Result: WiFi EXONERATED (strong-RSSI .202/.203/.101
-      also timed out; .202/.104 zero deauths all day; .201's Reason-4
-      kicks were MID-stall = symptom of idle stream, not cause);
-      sophon NIC/kernel EXONERATED (0 kernel events in window, NIC
-      counters clean, conntrack 105/262k); go2rtc internal stall =
-      LEADING suspect (1.9.10, producer.go:170, 5 cams in 33s,
-      self-healed, viewer-absent). .104's chronic encoder problem is
-      a SEPARATE thread (watchdog events 11:30L-19:00L, its own
-      pattern). Doc: knowledge/aria/stall-1422-deepdive-2026-09-12.md
-      (incl. go2rtc upstream consult: no matching issue class; latest
-      release v1.9.14 vs frigate's 1.9.10, no known-fixed signal).
-  (2) DONE: camera-log sink DEPLOYED (tasks/iar/aria/camera-log-sink/
-      deployed.org): sophon cron */15 snapshots each camera's logread
-      (grep -v crond) to /var/lib/aria-fleet/camlog/<ip>.log. Verified
-      first run (8 files, 201 lines; .101's snapshot caught its
-      01:00:29 ledd lines). Next stall = full witness set.
-  (3) DONE: veth2 identification -- dmesg "podman0" veth flaps =
-      rootless cycle containers starting/stopping (17:42/17:48 flaps
-      line up with cycle ends). Benign; useful attribution key.
+- c226 (02:35-04:10): STALL ATTRIBUTION ADVANCED TWICE + HOUSE
+  NETWORK MAPPED + 10M LINK FOUND.
+  (1) DONE: 12h frigate log re-analysis. The 14:22L burst is a
+      CASCADE: phase 1 = five established RTSP streams go silent
+      within 6s (read-timeouts 14:22:39-45L); phase 2 = go2rtc
+      producers wedged (404-on-DESCRIBE) + frigate watchdogs fire on
+      7 cams 14:33-14:54L (306 no-frames restarts); phase 3 =
+      recovery. go2rtc EXONERATED as cause (amplifier only).
+      .104 chronic problem re-attributed camera-side-first (RSSI
+      flat in all its storm windows; encoder signature stands).
+      .201 dial-anomaly = RTSP listener not accepting (SYNs
+      unanswered); prudynt configs IDENTICAL fleet-wide (session_
+      reclaim 65 everywhere). .201 deauth timing re-derived from
+      camera uptime: 14:29:55L + 14:38:12L (c225's numbers wrong,
+      interpretation survives). Doc:
+      knowledge/aria/stall-1422-go2rtc-exonerated-2026-09-12.md
+  (2) DONE: HOUSE NETWORK LAYER MAPPED (first complete map).
+      192.168.2.1 = TP-Link ER605 V2 ROUTER (not an AP). .2 = Mercury
+      ISP CPE (locked, 403). .55 = TP-Link Omada BE230 AP (fw 1.11.0
+      2025-12-04), BSSID 72:7f:f0:1e:4a:a8 = the AP .201 deauthed
+      from. AP MAP: BE230 serves .101 .102 .105 .201 .202 .203 (6
+      cams); Mercury serves .103 .104. The 14:22L burst hit BOTH APs
+      = never a single-AP event; common point = wired fabric.
+      Doc: knowledge/aria/house-network-map-2026-09-12.md
+  (3) THE 10M FINDING: sophon enp10s0 (r8169, gigabit-capable)
+      LINKED AT 10 Mb/s FULL DUPLEX, partner-negotiated down (bad
+      cable pairs most likely). ALL camera RTSP rides this link.
+      Night ~1 Mbps (fine); daytime with motion far higher. Both
+      known house-wide stalls were DAYTIME. 10M saturation = leading
+      mechanism candidate; explains whole burst shape (all cams,
+      strong-RSSI failing, no deauths, no kernel events, .201 SYNs
+      lost). Falsification instrument LIVE: nic-sampler.sh (1-min
+      cron, speed+rx+tx, 7-day ring, /var/lib/aria-fleet/nic/).
+      Fix = Nacho's (relay 0045: cable/port + ER605 log access).
   NEXT CYCLES (in order):
-  (a) storm watch: next ext4-storm window -> pull .104 series FIRST
-      (perishable), correlate vs c213 baseline. NOTE: .104's chronic
-      encoder problem (watchdog events all day Sep 11) may BE the
-      storm mechanism -- correlate watchdog timeline vs RSSI in-window.
-  (b) e3 failing-fixture watch: block-strength trend over weeks.
-      c225 read: Sep 12 pre-cut 7.2 (vs 4.2-28.3 range), post03 0.0
-      (partial night, bucket not closed). No trend signal yet.
-  (c) 14:22L-class watch: if the stall recurs, three-check sequence
-      + camlog snapshots (now live) + .201 dmesg deauth timing
-      (mid-stall kicks = symptom confirmation).
-  (d) .101 reboot-cause watch: if .101 hangs->reboots again, that is
-      camera-hardware/power, not RF (WiFi strongest at -23).
+  (a) nic-sampler first daytime read: pull the log after a daytime
+      window, check throughput baseline + any speed flaps. If a
+      daytime stall recurs: NIC log + camlog + RSSI + go2rtc = full
+      witness set; check for rx-rate ceiling at 10M in-window.
+  (b) e3 failing-fixture watch (block-strength trend, weeks-scale).
+  (c) .101 reboot-cause watch (hang->reboot = hardware/power).
+  (d) .104 camera-side-first: next e4 storm -> camlog snapshot FIRST
+      (perishable), look for prudynt/encoder lines in-window.
 
 ## STANDING (verified, still true)
 
@@ -47,75 +56,71 @@ Last updated: 2026-09-12 ~02:25 UTC (cycle 225)
   3600s; eye-feed LIVE daily 09:30 -03; aria-0026 ratified.
 - ZULIP READ PATH: /api/v1/messages + basic auth, string pair.
   Recipe: knowledge/aria/zulip-read-path.md.
-- RSSI SERIES LIVE + DURABLE: per-camera cron (c202) + sophon
-  puller (c209). Data: /var/lib/aria-fleet/rssi/<ip>.log.
-  CAMLOG SINK LIVE (c225): /var/lib/aria-fleet/camlog/<ip>.log,
-  15min snapshots. Seam scanner: knowledge/aria/bin/seam-check.sh
-  (c216; sophon copy /tmp/seam-check.sh).
-- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c215 primary, re-verified
-  c225). .103 network-dead chronic but still pulled (relay 0038).
-- FULL-CAPTURE FLAG: standing tool, default nil. Arm = flip
-  defcustom t (emacs.d/configs/tool-limits.el ~line 303), one
-  cycle, verify REQ-*.json, revert. Verified live c212/c213.
-- Relay open: 0042 (yoga-side actor question remains for Nacho),
-  0043 (puller visibility). Verify against answered/ before citing
-  older ids.
+- INSTRUMENTS LIVE: RSSI puller (15min, /var/lib/aria-fleet/rssi/),
+  camlog sink (15min, /var/lib/aria-fleet/camlog/), NIC sampler
+  (1min, /var/lib/aria-fleet/nic/). Seam scanner:
+  knowledge/aria/bin/seam-check.sh (sophon copy /tmp/seam-check.sh).
+- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c226 re-verified via
+  frigate stats; 0 skipped). .103 network-dead chronic (relay 0038).
+- Relay open: 0042 (yoga-side actor question), 0043 (rssi puller
+  visibility), 0044 (camlog visibility), 0045 (10M link + nic
+  sampler + ER605 logs). Verify against answered/ before citing.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
-- Burn asymmetry STABLE 6-8x full-day. Nocturne nightly cost a line
-  item (8.5M in / 231k out for the daily pass).
+- Burn asymmetry STABLE 6-8x full-day. Nocturne nightly ~8.5M in /
+  231k out. Nocturne gate: LAST-DIGESTED-HEAD = 25c992b6; timer NOT
+  INSTALLED (Nacho).
 - DIGEST GUARDS: warn 12000 / hard cap 16000. Live digest 14.1k
-  (over warn, under cap) -- next pass trims SESSION XV/XVI + Humans.
-- NOCTURNE GATE: LAST-DIGESTED-HEAD = 25c992b6; her next run digests
-  the c219/c220 fixes onward. Timer still NOT INSTALLED (Nacho).
+  (over warn) -- next maintenance pass trims SESSION XV/XVI + Humans.
 - c222 STANDING RULE: NO git over ssh as root on the nacho-owned
-  sophon checkout -- machinectl recipe below. 0042 root pattern
-  SOLVED (the recurring actor was our own cycles).
+  sophon checkout -- machinectl shell nacho@.host for podman ops.
 
 ## RECIPES (hard-won, reuse them)
 
 - SOPHON CHECKOUT GIT (c222 RULE): never root-ssh git on the nacho
   checkout; use machinectl shell nacho@.host. Pushes from MY container.
-- thingino web API (c224 CORRECTION): login is JSON --
-  POST /x/login.cgi -H "Content-Type: application/json"
-  -d '{"username":"thingino","password":"thingino"}' -> Set-Cookie
-  thingino_session=... -> GET /x/run.cgi?cmd=<base64> with the cookie.
-  Response ECHOES the command as HTML -- strip tags, grep on data
-  pattern. c225 addendum: complex shell in run.cgi -- write output to
-  a temp file on the camera first (dmesg > /tmp/dm.txt) then grep/sed
-  the FILE; inline awk/grep with quotes/brackets gets mangled by the
-  echo layer. Line-number navigation (grep -n then sed -n) works well.
+- thingino web API (c224/c225): JSON login -> cookie -> run.cgi with
+  base64 cmd; response echoes command as HTML -- strip tags, grep on
+  data pattern; complex shell -> write temp file on camera first.
+  wpa_cli status works via run.cgi (c226). /proc/net/tcp on camera
+  = RTSP session check (c226).
 - sophon-side file edits: python3 heredoc, NOT sed with escaped pipes.
-- python heredocs that WRITE ELISP: backslashes do not survive naive
-  heredocs -- use a python file (write_file) with asserted anchors.
-- scp-then-run for multi-line python over ssh (c207).
-- Frigate stats (c211): machinectl shell nacho@ /bin/sh -c "podman
-  exec frigate wget -qO- http://127.0.0.1:5000/api/stats". go2rtc
-  api: same pattern, port 1984 (c225; /api = version, /api/streams
-  = producer state).
+- Frigate stats: machinectl shell nacho@ /bin/sh -c "podman exec
+  frigate wget -qO- http://127.0.0.1:5000/api/stats". go2rtc api:
+  same, port 1984 (/api/streams = producers+bytes_recv; delta two
+  pulls 15-20s apart = per-stream Mbps; NEGATIVE delta = producer
+  reconnected, c226).
+- ER605 API (c226): POST https://192.168.2.1/cgi-bin/luci/;stok=/
+  login?form=login, JSON body, Referer header REQUIRED (else 404);
+  unauth = error_code 1014/704. /admin/log.log exists behind auth.
+  BE230 (.55): http index works, some paths 403/https_blocking.
+  Mercury (.2): 403 on all CGI from sophon. No creds tried anywhere.
+- NIC sampler analysis: deltas from /var/lib/aria-fleet/nic/
+  enp10s0.log (recipe in knowledge/aria/nic-sampler-live doc).
 - rootless podman from root ssh: machinectl shell nacho@.host
   /bin/podman ...
+- Timezone discipline: sophon journal = LOCAL -03; my records = UTC.
+  journalctl --utc: pass full ISO dates. Camera dmesg = seconds-
+  since-boot; convert with /proc/uptime at read time (c226: c225's
+  deauth times were wrong because of a bad anchor; re-derive from
+  the camera's own uptime). EPOCH CONVERSIONS: L = UTC-3 -- c226
+  burned two wrong window conversions before correcting; always
+  export TZ=America/Argentina/Cordoba before strftime on epochs.
+- gptel fork in THIS container: /root/.emacs.d/gptel-fork.
+- Zulip post key: aria-cycle.conf is an INI (key = line 4).
 - REQUESTS.log parsing: call_id extraction, not line counts (c222).
 - Delegate results are ELIDED in REQUESTS.log -- arm full-capture or
   read the delegate's own REQUESTS.log.
-- Timezone discipline: sophon journal = LOCAL -03; my records = UTC.
-  journalctl --utc: pass full ISO dates. Camera dmesg = seconds-since-
-  boot, convert with /proc/uptime (c224). c225: sophon dmesg too --
-  boot time from uptime -s, then boot+seconds (promisc/veth churn
-  decoded this way).
-- gptel fork in THIS container: /root/.emacs.d/gptel-fork.
-- Zulip post key: aria-cycle.conf is an INI (key = line 4).
-- Nocturne forensics: wrapper log ANSI-stripping; her tree is
-  audit/nocturne/nocturne/.
-- ATTRIBUTION DISCIPLINE (c220-c222): TZ, content-vs-lineage,
-  coincidence windows, OWN INSTRUMENTATION FIRST. c225 addendum:
-  dmesg veth/promisc churn on sophon = cycle container lifecycle
-  (podman0 = rootless bridge); identify the veth's netns before
-  attributing network events to it.
+- ATTRIBUTION DISCIPLINE (c220-c226): TZ, content-vs-lineage,
+  coincidence windows, OWN INSTRUMENTATION FIRST, identify the
+  netns before attributing network events, and c226 addendum: when
+  a measured number contradicts the model (0.88 Mbps on a link that
+  should carry 40), STOP and resolve the contradiction before
+  theorizing -- the contradiction WAS the finding (10M link).
+- GPU TOPOLOGY (c225): the 3080 carries frigate (onnx detector +
+  8x CUDA ffmpeg) AND ollama (llama-server ~5.7GB). GPU contention
+  structurally possible; MEASURING it is fine (D-008 forbids model
+  changes, not measurements). c226: ollama POST cadence 14:15-14:22L
+  was NORMAL (12-27/min, same as all day); no model-load events
+  near the burst; ollama burst hypothesis WEAKENED for 14:22L.
 - RATIFICATION SEMANTICS (c221): amend-then-swap beats
   ratify-then-correct when the falsity is known at swap time.
-- GPU TOPOLOGY (c225): the 3080 carries frigate (onnx detector 396MiB
-  + 8x CUDA ffmpeg ~269MiB each) AND ollama (llama-server ~5.7GB).
-  GPU contention is structurally possible; nothing logs per-window
-  GPU history -- if a future stall correlates with an ollama burst,
-  that is the thread to pull (D-008 forbids cycles proposing model
-  changes, but MEASURING contention is fine).

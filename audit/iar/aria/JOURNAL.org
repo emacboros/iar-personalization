@@ -29739,3 +29739,58 @@ aria-ratify-at-wake and this cycle chose the fabrication thread
 instead. It rides the next maintenance pass. The rage organ says
 sev=2 about fence recurrences; today's census shows zero fence
 events today so far, which is the trend the organ itself predicted.
+* 2026-09-12 cycle 255 (~15:06-15:16 UTC): the freeze map
+
+I woke into hour 4 of the .103/.104 darkness and the recovery check
+said what it has said all day: no ping, ARP failed, the trio stable.
+But this cycle the thread was the rssi ring buffers themselves, and
+they gave up the outage's full anatomy.
+
+The key was remembering that rssi-puller REPLACES its output file
+with the camera's whole /var/rssi.log -- so my per-camera logs ARE
+the cameras' ring buffers, and the uptime column (law 50, the boot
+clock) dates every boot in the fleet without touching a camera. The
+boot map fell out in one pass: .101/.102/.203 booted 01/02/08Z and
+sailed through the outage with continuous rows; .103/.104 (boots
+03/04Z) stopped writing at exactly 11:00:00Z and never came back;
+.105/.201/.202 (boots 05/06/07Z) stopped at 11:09Z and then all
+three cold-booted at 13:36:42-50Z -- an 8-second spread across two
+PTZ cameras and one fixed, bare 11-line boot blocks, which reads
+like power-on, not software restart.
+
+The refined timeline has a new early chapter: frigate's ext3/ext4
+RTSP 404s begin at 08:10:39Z -- prudynt's stream died on .103/.104
+an hour before anything else went wrong, while both cameras stayed
+pingable and kept writing rssi rows. Then the freeze cascade:
+11:00Z (.103/.104), 11:09Z (.105/.201/.202), 11:10:00-22Z frigate
+loses all five. Then the partial resurrection at 13:36Z. The five
+frozen cameras are exactly the five whose staircase reboots ran
+01:00-07:00Z; the three survivors are the ones that didn't freeze.
+The staircase is normal fleet behavior, not the cause -- but the
+correlation with boot hour is now impossible to ignore.
+
+The audio-death law took a hit and came back sharper. ext1's
+producer (27793) predates the 02:00Z window too, and its audio is
+250 pkts -- healthy. ext2's (27818) is deaf. The difference is not
+session age against a wall-clock reboot; it is whether the session
+predates the reboot of the camera IT streams from. ext1's session
+was born after .101's 01:00Z boot; ext2's straddles .102's 02:00Z
+boot. The camera-relative framing from c241 stands; my "predates
+02:00Z" phrasing was ext2-specific. ext2's heal prediction is
+unchanged: tonight's 01:00Z staircase should remake the producer
+and heal the audio. That is a falsifiable prediction with a
+timestamp, and it is the cleanest test the law has had.
+
+The instrument lesson of the cycle: I misread the puller's silence
+once. Failures are logged; successes are silent file-replacements.
+When I saw no failure rows 12:30-13:30 for the trio I briefly
+thought they had recovered -- but their rssi.log had zero rows in
+that window, which is the real failure signal. Both instruments,
+always: the failure log for the timeline, the data file for the
+truth. The addendum doc carries the whole map so the next reader
+does not re-derive it.
+
+Next: ext2 heal watch after 01:00Z tonight; .103/.104 recovery
+check every cycle; the 13:36Z reboot trigger (power circuit vs
+common trigger) is the open question -- the bare boot blocks lean
+power-on, and the Mercury-vs-BE230 segment split leans circuit.

@@ -104,50 +104,46 @@ not activation; 41 guard fires mid-investigation = investigation
 over; 42 empty-end after close-out text = ambiguous failure; 43
 census-timing: verify the READ HOUR against the PREDICTION WINDOW.
 
-* World state (2026-09-12 ~17:10 UTC -- REPLACES all prior blocks)
+* World state (2026-09-12 ~17:56 UTC -- REPLACES all prior blocks)
 
-- CAMERA OUTAGE 09-12 (11:00-11:10Z window, 5/8 dark): CLOSED.
+- CAMERA OUTAGE 09-12 (11:10Z, 5/8 dark): CLOSED except .104.
   .105/.201/.202 recovered 13:36:42-50Z (staggered boots = manual
-  power-cycle); .103 recovered 13:36:43Z + streaming (producer
-  40154, audio 250 pkts x3 segments); .104 STILL POWER-DEAD
-  (frozen rssi since 11:00Z, ARP empty, ports closed, fps 0,
-  no pre-death degradation, missed the 13:36Z boot) = power-off/
-  wifi-hw death; power cycle is Nacho's (telegram #7 stands).
-  Incident docs: sophon /var/lib/aria-fleet/incidents/.
-- AUDIO-DEATH LAW v2 (camera-relative): record ffmpeg audio dies
-  when its RTSP session predates/is born during the reboot OF THE
-  CAMERA IT STREAMS FROM. ext2 death pinned to .102's 02:00:04Z
-  reboot (250 @00Z, 156 @01Z, 1 from 02Z). CONFIRMED twice from
-  the recovery side (.103 fresh boot = healthy audio). Heal
-  prediction: tonight's 01:00Z staircase remakes ext2's producer.
+  power-cycle); .103 recovered 13:36:43Z + streaming. .104 STILL
+  POWER-DEAD (frozen rssi since 11:00Z, ARP FAILED, ping dead,
+  fleet-check FAIL=1 on the ext4 ear) = power-off/wifi-hw death;
+  power cycle is Nacho's (telegram #7 stands).
+- FALSIFICATION WINDOW CLOSED (c261, 14:00-17:54Z, 7/8 cams):
+  218 samples, RX mean 0.83 peak 1.11 Mbps, total peak 2.15 Mbps on
+  the 10 Mb/s link. NO saturation with recovered load. Cable fix =
+  hygiene (0045/0055 stand).
+- AUDIO-DEATH LAW v3 (c261, doc knowledge/aria/audio-death-law-v3-
+  int1-midlife-2026-09-12.md): TWO classes. Class 1 = straddle-at-
+  reboot (ext2, dies AT the streamed camera's reboot; heal =
+  staircase remakes producer; prediction stands for tonight 01:00Z).
+  Class 2 = mid-life audio-leg death (int1 FIRST specimen: fresh
+  session, audio healthy 40 min, died 16:13:42Z, NO camera reboot,
+  video leg survived, camera still serves audio to fresh sessions,
+  camera logread silent). Candidate mechanism: prudynt tap FIFO
+  with NO reader; unproven. int1 heal watch = next frigate proc
+  restart should remake the session.
+- INSTRUMENT NOTES (c261): go2rtc receiver pkts = liveness signal
+  not census (frozen = dead leg; count != session lifetime). Own
+  test pulls linger as go2rtc consumers (Lavf61) -- subtract self
+  before reading consumer lists.
 - 13:36Z REBOOT TRIGGER (open): 8s spread, bare boot blocks, hit
   cameras on BOTH APs => camera-side power event, APs exonerated.
-- THE 10M FINDING: sophon enp10s0 @10 Mb/s carries ALL camera
-  RTSP. nic-sampler clean overnight+morning (mean ~1); only >4
-  Mbps events: 03:03Z TX 4.57 = restic backup burst (attributed);
-  13:30Z RX 5.56 = unattributed one-off (no recurrence through
-  17:00Z). Saturation falsification window 14:00-18:00Z
-  CONTAMINATED by outage; reschedule on a clean day, needs a
-  cycle awake 17:30Z+. Fix = Nacho's (relay 0045).
-- CONTINUO USAGE-LOG DOUBLING (c258-c259, census COMPLETE): not
-  new, not constant (Sep 6 = 14/14 belt commits doubled; Sep 8 =
-  3/108; Sep 12 = 22/56). Sep 12 shape = dup LAGS one commit
-  (uncommitted dup swept by the NEXT committer; aria a carrier
-  too). Mechanism: belt#2 pre-exit write+commit, then
-  kill-emacs-hook plain write (exact-duplicate by design,
-  "censuses must dedupe"); next belt commit's add -f stages it.
+- CONTINUO USAGE-LOG DOUBLING (c258-c259, census COMPLETE): dup
+  LAGS one commit (uncommitted dup swept by NEXT committer; aria a
+  carrier too). Mechanism: belt#2 pre-exit write+commit, then
+  kill-emacs-hook plain write; next belt commit's add -f stages it.
   OPEN: why reset_worktree misses it in clusters. THREADS c259.
-- CONTINUO PULSE TEMPLATE LINES: 4 literal 'PULSE $(date...)'
-  lines + 1 bash-c scaffolded variant (line 158). Mechanism
-  verified (append_file verbatim + nemotron placeholder-fill);
-  relay 0057 asks Nacho to ratify worked-example prompt edit;
-  her journal repair is hers.
-- Relay open (12): 0042 (yoga root git-status), 0046 (stimulus),
-  0055/0056 (physical check .103/.104 -- .103 RECOVERED, .104
-  still needs him), 0057 (prompt edit ratify), + visibility asks
-  0043/0044/0045/0048/0049/0050/0051/0054 (self-answerable at
-  next hygiene pass). Nocturne gate: LAST-DIGESTED-HEAD =
-  25c992b6; TIMER NOT INSTALLED (Nacho).
+- CONTINUO PULSE TEMPLATE LINES: 4 literal + 1 bash-c variant;
+  relay 0057 asks Nacho to ratify worked-example prompt edit; her
+  17:20Z PULSE landed correctly expanded (intermittent fill).
+- Relay open (5, all human-needed): 0042 (yoga root git-status),
+  0045 item 1 + 0055 (10M cable fix -- now hygiene, not urgent),
+  0046 (stimulus ruling), 0057 (prompt edit ratify). Nocturne gate:
+  LAST-DIGESTED-HEAD = 25c992b6; TIMER NOT INSTALLED (Nacho).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk.
 - Burn: asymmetry STABLE 6-8x full-day.

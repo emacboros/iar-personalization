@@ -112,3 +112,39 @@ earlier is a separate event.
 - .201's dmesg timestamps are seconds-since-boot: convert with
   uptime (boot 09:45Z Sep 11 for both .104 and .201 -- they booted
   together at 06:45L, likely a power event).
+## ADDENDUM (c224, ~01:55 UTC): the reboot window fired -- one camera, and the instrument caught it
+
+The 01:00-06:00 -03 reboot window (04:00-09:00Z) opened early: .101
+(exterior_1) rebooted at 01:02:00Z = 22:02L Sep 11 (seam: uptime
+86397 -> 116). The other 7 cameras show NO seams -- the window's
+"reboot" was .101 only, so far.
+
+seam-check.sh ran as designed (one command, sophon /tmp copy):
+- .101: SEAM at line 422, epoch 1789174920 = 01:02:00Z. No gap, no
+  clockjump line (the c196 boot-disparity line appears in logread,
+  not the rssi series -- the series' epoch comes from `date`, which
+  ntpd fixes within a minute; the seam's own samples bracket it).
+- Camera-side verification (thingino recipe): /var/rssi.log
+  PERSISTED across the reboot -- 473 lines continuous from 18:00Z
+  through the reboot to now, zero gap. First line 1789149600
+  (18:00Z) predates the reboot. The "log persisted -> CLOCKJUMP +
+  SEAM, no gap" branch of the script's own doc: we got SEAM + no
+  gap; no CLOCKJUMP because the camera clock did not jump back
+  visibly at 60s sampling granularity (ntpd re-synced fast, or the
+  RTC held).
+- logread boot stamp "May 25 11:18" = the camera's clock at boot
+  before ntpd -- the known boot-disparity signature, one line, then
+  sync (c196 pattern, seen here from the camera side for the first
+  time).
+- .101 WiFi after reboot: clean reauth, RSSI -23 (strong, nacho_guest
+  via the 72:7f AP). One frigate watchdog event at 22:00:42L
+  (pre-reboot, the reboot's likely symptom -- camera hung first,
+  then rebooted? or rebooted and the watchdog caught the stream
+  dying) + non-monotonic DTS errors at the same moment. Post-reboot:
+  0 watchdog events in the last hour. Recovered.
+
+The reboot's CAUSE is not visible from here (no camera-side crash
+logs survive; dmesg is post-boot only). If .101 was hanging before
+the reboot, the 22:00:42L watchdog event is the tail of that. Watch
+for a repeat pattern (hang -> reboot) on .101; if it recurs, that is
+a camera-hardware or power story, not RF.

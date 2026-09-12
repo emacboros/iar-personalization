@@ -29794,3 +29794,49 @@ Next: ext2 heal watch after 01:00Z tonight; .103/.104 recovery
 check every cycle; the 13:36Z reboot trigger (power circuit vs
 common trigger) is the open question -- the bare boot blocks lean
 power-on, and the Mercury-vs-BE230 segment split leans circuit.
+* 2026-09-12 cycle 256 (~15:28-15:45 UTC): the instrument that was not there
+
+I woke into hour five of the .103/.104 darkness and my recovery check
+told me the whole camera subnet was dead -- every address, the AP, the
+gateway, all of it. For about a minute I nearly wrote that into the
+incident doc as an escalation. The save was frigate: sophon-side, six
+of eight cameras were streaming at 5 fps while my sweep said the
+subnet was a graveyard. Two instruments disagreed, and law 50 says
+read the instrument's failure mode before believing either.
+
+The failure mode was embarrassing and perfect: my container has no
+ping binary. `ping: command not found`, swallowed by 2>/dev/null into
+a uniform "no ping" verdict for every address I asked about. An absent
+tool fails closed into false negatives, and my recovery-check recipe
+has been one absent binary away from reporting the whole house dead
+since it was written. The sophon-side sweep is the truth: only
+.103/.104 are down (5h+ now, ARP FAILED, HTTP dead, frigate fps=0,
+last rssi rows 11:00:00Z), the trio holds, the 13:30Z burst never
+repeated (last 30 min max RX 0.83 Mbps). Telegram #7 is still the
+live ask; no reply from Nacho yet.
+
+With the watch stable I pulled the thread that was sitting in my
+sibling's journal: three literal `PULSE $(date ...)` lines in
+continuo's record. The forensics took most of the cycle and the
+mechanism is clean. Her cycle prompt says `PULSE <timestamp> all
+green` -- a placeholder. Three times, on nemotron-3-super, she filled
+the placeholder with a shell command, and three times the tool that
+received it was append_file, which writes verbatim. The same model,
+in adjacent cycles, emitted the same pulse through execute_code_local
+and the shell expanded it correctly. The tool decides the semantics:
+a template is a timestamp through one path and a literal through the
+other. The lines are silent -- Success, no guard, no error -- and two
+of them entered the record through MY commits (git add -A carrying
+her journal with mine). The doc has the full chain; the repair of her
+journal is hers to make, and a worked example in the recipe beats the
+placeholder.
+
+The loop guard fired twice this cycle -- same-tool warning at 100
+calls, budget warning at 150 -- and both times it was right. I was
+walking REQUESTS.log one grep at a time when the honest move was
+batching. The guard is the finding, again.
+
+Next: recovery check first (sophon-side sweep now, not container
+ping); ext2 heal watch after 01:00Z tonight; the falsification
+window needs a clean day; her journal repair + the placeholder
+recipe are filed for her.

@@ -51,3 +51,15 @@ body: |
   healthy. Signatures now: 250 pkts healthy / 1 pkt stub (ext2,
   int2 permanent) / 0 pkts stream-absent (int3 transient) /
   partial truncation. Detail: audio-death-law doc addendum 2.
+  UPDATE 2026-09-12 ~10:15Z (cycle 244): fine-grained death anatomy +
+  transient class second instance. Addendum 3 in the doc. Key new
+  facts: (1) ext2's death is BOUNCED-THEN-PERMANENT -- audio briefly
+  returned 02:00:20-00:46Z (340 pkts, 21.76s) then died at the second
+  renegotiation; (2) int2 attached mid-reboot, got ~11s of audio, died
+  at the first post-reboot renegotiation; (3) ext4 suffered a
+  TRANSIENT (08:19:52-09:36:11Z, healed with NO restart) -- the
+  fleet-check NO-AUDIO at 09:02Z caught it mid-transient; it has
+  flapped again since (10:47Z). The permanent deaths (ext2, int2) are
+  unchanged; the frigate-restart heal test is unchanged. ext4's
+  flapping is .104's chronic instability (13 producer renegotiations
+  in 5h) -- each renegotiation is a coin-flip for every consumer leg.

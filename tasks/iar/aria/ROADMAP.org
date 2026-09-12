@@ -1,80 +1,72 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~13:55 UTC (cycle 251)
+Last updated: 2026-09-12 ~14:00 UTC (cycle 252)
 
 ## NOW
-- c251 (13:24-13:55): AP EXONERATED. .101/.102 on-camera rssi.log
-  (/var/rssi.log, 60s rows) have NO gap at 11:10Z; .101's only gap
-  in 27.6h = its own 01:00-01:02Z reboot. BE230 (.55) never
-  rebooted, wifi never dropped for the 3 alive cams. Dead cams died
-  CLEAN: flat RSSI to last sample (.103 -56, .104 -67, .105 -58,
-  .201 -49, .202 -39), no degradation, no retries; same firmware
-  (prudynt-t 0141ca3fa5) + sensor (gc2053) on all 8 = no hw/fw
-  split. Leading hypothesis: POWER LOSS AT THE CAMERAS (clean
-  simultaneous stop, healthy AP, 3 nearby witnesses). Physical
-  check = Nacho (relay 0055/0056). Telegram #5 sent 13:25Z (135min).
-- OUTAGE: 5/8 down since 11:10Z (~160 min at 13:52Z). Incident doc
-  c251 addendum appended (sophon
-  /var/lib/aria-fleet/incidents/2026-09-12-camera-outage-11h.md).
-- FALSE ALARM CAUGHT (own): alive cams' camlog snapshot sizes shrink
-  59->1 lines 10:30-12:30Z -- NOT a symptom; the puller's
-  grep -v crond + ring-buffer rotation drains the visible buffer.
-  Confirmed alive cams logging normally via direct API logread
-  (crond rows current to the minute). LAW CANDIDATE: snapshot SIZE
-  is not a health metric; CONTENT is. An instrument's output
-  shrinking is not the world shrinking.
-- .58 THREADS DEVICE (c251): alive on camera wifi, SSH-2.0-
-  OpenSSH_10.2 on 22, ~1.1s RTT, ~33% ICMP loss, no other ports.
-  Unknown Linux box, bleeding-edge OpenSSH. THREADS.org updated.
-- AP identity correction: .55 = TP-Link BE230 in AP mode (fw
-  BE230v1_1.11.0_2025-12-04); LAN gateway = .1 (ER605,
-  bc:07:1d:ab:a1:11 per .101 ARP). Cameras on .55 guest VAP
-  (72:7f:f0:1e:4a:a8, 2.4GHz ch1).
+- c252 (13:49-14:00): PARTIAL RECOVERY. .105/.201/.202 returned
+  13:36:43-50Z (boots staggered 7s, uptime-col derived). go2rtc
+  re-attach 13:37:11-17Z; audio healthy all 3 (250 pkts).
+  .103/.104 STILL DEAD (no ping, ARP FAILED, no recovery rows).
+  Telegram #6 sent 13:58Z. Incident doc c252 addendum appended.
+- AUDIO-DEATH-LAW REFINED (c252, major): int2 self-healed WITHOUT
+  frigate restart -- its CAMERA reboot (13:36:49) remade the
+  go2rtc producer (id 37219, post-outage range) and audio returned
+  within one segment cycle. Poison lives in the PRODUCER session,
+  not the consumer process. ext2 = control: camera never rebooted,
+  producer still stale pre-02:00Z session (id 27818), audio still
+  1-pkt. FALSIFIABLE PREDICTION: ext2 heals at 01:00Z staircase
+  tonight when .102 reboots -- no human action needed. If it
+  doesn't heal, the refinement is wrong.
+- Fleet-check run by hand (6h timer was 5h stale): int2 audio
+  BACK (mean -33.3), ext3/ext4 STALE, ext2 NO-AUDIO. FAIL=1
+  honest for the new shape.
+- FREE INSTRUMENTS FOUND (c252): rssi.log uptime column = boot
+  clock (epoch - uptime = boot time to the second); go2rtc
+  producer-id ranges = session genealogy (27xxx-28xxx pre-outage,
+  37xxx post-recovery).
 
 ## NEXT CYCLES (in order):
-  (a) RECOVERY CHECK FIRST every cycle: ping the 5 dead at
-      192.168.2.x ONLY (.103 .104 .105 .201 .202 -- never
-      10.66.0.2x; c250 address-space scar). If back:
-      audio-death-law watch (attach-during-down class) BEFORE
-      trusting fleet audio verdicts; then reconsider the 14-18Z
-      nic falsification read (baseline confounded by outage).
-  (b) 3h mark ~14:10Z: if still down, telegram #6 (11:14 11:17
-      11:51 12:27 13:25 sent). Relay 0055 + 0056 carry the ask.
-  (c) POST-FRIGATE-RESTART WATCH (Nacho action pending, relay
-      0050): when frigate restarts, verify ext2+int2 audio
-      returns within one segment cycle (HEAL test). int3 should
-      stay healthy. Fleet FAIL=1 stays honest until then.
+  (a) RECOVERY CHECK FIRST every cycle: ping .103 .104 at
+      192.168.2.x ONLY. If they return: check whether .105/.201/
+      .202 held, then audio watch on the pair (attach-during-down
+      class is now predicted to HEAL via camera reboot).
+  (b) EXT2 HEAL WATCH: after 01:00Z tonight (next staircase), pull
+      ext2 audio census. Heal = law refinement confirmed. No heal
+      = refinement wrong, frigate restart remains the only cure.
+  (c) 3h mark ~14:10Z passed -> telegram #6 sent 13:58Z. Next:
+      if .103/.104 still down at ~16:10Z, telegram #7.
   (d) nic-sampler FALSIFICATION WINDOW (14:00-18:00Z read via
-      nic-window-stats.sh v2): needs a cycle awake after ~17:30Z
-      AND camera recovery (outage changes the traffic profile).
-      Morning windows CLEAN (means ~1.0 Mbps).
-  (e) ext4 flap trigger (c244, 10:47Z flap, no logged producer
-      renegotiation): watch for a 3rd transient with go2rtc
-      delta logging active.
+      nic-window-stats.sh v2): needs a cycle awake after ~17:30Z.
+      NOTE c252: 13:30Z single-minute RX burst 5.56 Mbps,
+      unattributed (restic ran 00:00-03 local, NOT this) -- watch
+      for recurrence; if it repeats hourly-ish, look for a cron.
+  (e) POST-RECOVERY WATCH: .105/.201/.202 audio + segments stable
+      through next hours; fleet-check FAIL should drop to ext2-only
+      after next 6h timer fire (~18:03Z).
   (f) RAGE-ORGAN DESIGN QUESTION (opened c245): thresholds grade
-      PRESENCE, not benignness. c249 data reconciles; organ
-      honest, sev=2 = deep-cycle baseline. Design, don't rush.
+      PRESENCE, not benignness. Design, don't rush.
 
 ## THREADS (open, unpulled)
-- .58 (76:e3:1a:69:e3:9c): SSH-2.0-OpenSSH_10.2 open, ~1.1s RTT,
-  ~33% loss, no other ports (c251). Unknown Linux box on camera
-  wifi. .216 (00:08:22:9c:2b:fc) still silent. Nacho's to identify;
-  do not probe further without his say.
+- .58 (76:e3:1a:69:e3:9c): was ALIVE at 13:52Z ARP (DELAY state),
+  ping dead at 13:57Z. Intermittent presence on camera wifi.
+  Nacho's to identify; do not probe further without his say.
 - PULSE RECIPE transport clarity (c249): small doc write when
   convenient.
 - Cameras run UTC: document in fleet puller docs (small write).
 
 ## LAWS (cumulative, newest first)
-- SNAPSHOT SIZE IS NOT HEALTH (c251): a puller-filtered ring buffer
-  drains visibly while the system is fine. Read CONTENT, not line
+- UPTIME COLUMN IS A BOOT CLOCK (c252): epoch - uptime-col = boot
+  time; the third column of rssi.log rows is an instrument, not
+  ballast.
+- PRODUCER-ID RANGES ARE SESSION GENEALOGY (c252): go2rtc ids
+  date sessions without logs; monotonic across container life.
+- SNAPSHOT SIZE IS NOT HEALTH (c251): read CONTENT, not line
   counts; an instrument's output shrinking is not the world
   shrinking.
-- ADDRESS SPACE BEFORE FIRST PING (c250): verify the address
-  space from config/ARP before the first probe. Cameras are
-  192.168.2.x; no WG addresses (dormant mesh 192.168.10.x,
-  enabled=false).
-- RING BUFFER IS MEMORY NOT CLOCK (2nd sighting, c250): first boot
-  line = buffer's oldest content. Boot anchors = uptime + crontab.
+- ADDRESS SPACE BEFORE FIRST PING (c250): cameras are 192.168.2.x;
+  no WG addresses (dormant mesh 192.168.10.x, enabled=false).
+- RING BUFFER IS MEMORY NOT CLOCK (c250 2nd sighting): boot
+  anchors = uptime + crontab.
 - TRANSPORT IS SCHEMA (c249): MISSING = verdict about the world;
   UNREACHABLE = verdict about the pipe.
 - UNITS (c248): a number that violates physics is a units error
@@ -91,6 +83,11 @@ Last updated: 2026-09-12 ~13:55 UTC (cycle 251)
 
 ## HISTORY (compressed)
 
+- c252 (13:49-14:00): PARTIAL RECOVERY (3/5 back 13:36:4xZ);
+  audio-death-law REFINED (producer-session poison, camera reboot
+  heals; ext2 control); .103/.104 still dead; telegram #6;
+  incident c252 addendum; fleet-check by hand; 2 new instruments
+  (uptime-col boot clock, producer-id genealogy).
 - c251 (13:24-13:55): AP EXONERATED (rssi gap analysis); dead cams
   died clean (flat RSSI, no hw/fw split); buffer-drain false alarm
   caught; .58 SSH found; AP identity corrected (.55=BE230 AP,
@@ -142,27 +139,28 @@ Last updated: 2026-09-12 ~13:55 UTC (cycle 251)
   are UTC. wpa_cli available on cameras (iw is NOT). All 8 cams on
   .55 BSSID 72:7f:f0:1e:4a:a8 nacho_guest VAP 2.4GHz. On-camera
   /var/rssi.log (60s rows) readable via thingino API -- the
-  AP-side witness instrument (c251).
+  AP-side witness instrument (c251). UPTIME COL = boot clock (c252).
+- thingino API AUTH (c252): JSON POST /x/login.cgi
+  {"username":"thingino","password":"thingino"} + cookie jar; form
+  POST fails (400 "Username required"). See flag270-camera-api.md.
 - LAN MAP (c251 corrected): .1 = ER605 gateway (bc:07:1d:ab:a1:11);
   .55 = BE230 in AP mode (fw BE230v1_1.11.0); .58 = unknown Linux
-  (OpenSSH 10.2); .69 = sophon enp10s0; cams .101-.105/.201-.203.
-- JOURNAL FRESHNESS (c236, automated in fleet-check v2.21).
-- SOCKET STATS (c236): ss -tnie "( sport = :PORT )", never bare
-  grep. Two samples 60s apart, both directions growing.
-- thingino web API (c224+): JSON login /x/login.cgi ->
-  Set-Cookie thingino_session=<hex> -> /x/run.cgi?cmd=<base64>
-  with -b cookie. Output HTML-wrapped. NOTE: nested awk quoting in
-  run.cgi commands is fragile -- prefer grep/date over awk with $.
+  (OpenSSH 10.2, intermittent); .69 = sophon enp10s0; cams
+  .101-.105/.201-.203. FRIGATE CAM MAP: ext1=.101 ext2=.102
+  ext3=.103 ext4=.104 ext5=.105 int1=.201 int2=.202 int3=.203.
 - AUDIO CENSUS (c242): ffprobe -v error -select_streams a
   -count_packets -show_entries stream=nb_read_packets -of csv=p=0
   <seg.mp4>; 250 pkts healthy / 1 pkt stub (permanent) / 0 pkts
-  stream-absent (transient).
+  stream-absent (transient). GO2RTC PRODUCER IDS date sessions
+  (c252): /api/streams via podman exec curl localhost:1984.
 - NIC SAMPLER (c226): 1-min cron, <epoch> <speed> <rx> <tx> raw
   counters on host /proc. Deltas need /60/125000 for Mbps.
   sophon-local strftime in awk = -03; use date -u -d @epoch.
+  13:30Z unattributed RX burst 5.56 Mbps (c252, watch).
 - DIGEST-TWIN-VERIFIER (c249): v1.1; KNOWN_HOSTS env-overridable
   (DIGEST_TWIN_KNOWN_HOSTS), self-heals via ssh-keyscan.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
 - Fleet pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/
   (sophon cron, 15min/15min/1min). Incident docs:
-  /var/lib/aria-fleet/incidents/.
+  /var/lib/aria-fleet/incidents/. fleet-feed timer 6h (c252: run
+  by hand when stale during incidents).

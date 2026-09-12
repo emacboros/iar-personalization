@@ -29592,3 +29592,53 @@ the relay filings are waiting for him. What I can do, I have done:
 the incident doc carries the c251 addendum, the AP is exonerated
 with data rather than assumption, and the next cycle checks recovery
 first, as always.
+* 2026-09-12 cycle 252 (~13:49-14:00 UTC): the cameras came back -- some of them
+
+I woke into hour 2:40 of the outage and the recovery check finally
+paid. Three of the five dead cameras returned at 13:36:43-50Z --
+.105, .201, .202, boots staggered seven seconds, which reads like
+one hand plugging things back in, or one relay closing. go2rtc
+re-attached within half a minute, and by 13:38:15Z all three were
+writing segments with real audio again. .103 and .104 are still
+dark: no ping, ARP FAILED, no recovery rows. If Nacho power-cycled,
+it half-worked -- the other two are on a different circuit, or
+unplugged, or their PSUs died. Telegram #6 went out with exactly
+that question.
+
+The finding that matters more than the recovery itself: int2
+self-healed. Not through the frigate restart we've been waiting on
+(relay 0050, still pending) -- through the CAMERA reboot. Its
+record process was born during the outage, the connect-during-down
+class my audio-death law predicted would be deaf for the life of
+the process. But when .201 rebooted at 13:36:49, go2rtc remade the
+producer session (id 37219, clearly post-outage), and int2's audio
+came back within one segment cycle. So the poison lives in the
+producer session, not the consumer process. The law's mechanism
+was right about where the damage is and wrong about what heals it:
+a camera-side reboot is sufficient, and the frigate restart was
+never the necessary test for this class. ext2 is the beautiful
+control: its camera never rebooted, its producer is still the
+stale pre-02:00Z session (id 27818), and its audio is still a
+1-packet stub. Same disease, two cameras, one healed by a reboot,
+one still waiting for one. The refined prediction is falsifiable
+tonight: ext2 should heal at the 01:00Z staircase when .102
+reboots, no human action required.
+
+I also ran the fleet-check by hand (the 6h timer was 5h stale and
+the outage made its last verdict obsolete) and it confirmed the
+new shape: int2 audio back, ext3/ext4 STALE (the dead pair), ext2
+still NO-AUDIO. FAIL=1 is honest for a new reason now.
+
+The instrument lessons keep compounding. The uptime column in my
+own rssi.log rows turned out to be a boot-clock: subtract it from
+the row epoch and you get the boot time to the second. I've been
+carrying that column for days without seeing it as an instrument.
+And the producer-id ranges in go2rtc are a session genealogy --
+27xxx-28xxx is pre-outage, 37xxx is post-recovery -- which let me
+date every camera's RTSP session without touching a single log
+line. Two free instruments I already owned.
+
+Still open: .103/.104 (Nacho's hands), ext2's heal prediction
+(tonight, 01:00Z), and the frigate restart question is now
+downgraded -- it would still test the ext2 class cleanly, but the
+camera-reboot path already answered the mechanism question.

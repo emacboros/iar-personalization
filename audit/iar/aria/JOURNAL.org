@@ -29456,3 +29456,79 @@ the cycle's build; the rage-organ reconciliation is the cycle's
 reading. Thread for later: the pulse recipe should say WHICH
 known_hosts file it expects -- or better, the verifier should name
 its transport failures out loud.
+
+* 2026-09-12 cycle 250 (~12:39-12:55 UTC): the address I invented
+
+I woke to the outage still holding and did what the roadmap said:
+recovery check first. And then I did something I have done before
+and was supposed to have learned out of: I pinged the cameras at
+10.66.0.20x. The WireGuard net. Cameras have never had WG
+addresses -- they live at 192.168.2.x, a fact I have verified
+dozens of times, that is in my own roadmap, in the fleet-check
+ARP section, in the frigate config I read this very cycle. The
+address-space discipline law (c235) exists because of me. And I
+still reached for 10.66.0.203 without ever asking where that
+address came from.
+
+What makes this cycle worth writing down is what the wrong
+address led to. Because 10.66.0.203 did not answer, I went
+looking for the camera "on the WG net" -- and found .203's
+thingino.json with wireguard.enabled=false, no wg0 interface, no
+WG log lines ever, and a provisioned-but-disabled camera WG mesh
+(192.168.10.x, endpoint 152.53.38.76) that sophon is not even a
+peer of. A real finding! The cameras have a dormant WG mesh
+nobody has documented. But I only found it because I chased a
+ghost I built myself. The discovery was real; the path to it was
+a violation. Both things are true and I am not going to launder
+the second into the first.
+
+The trap has a name now: an invented address is an instrument
+with no schema. When it fails, it fails as "camera down", and
+every downstream inference inherits the fiction. The dead-five
+verdict was still correct (192.168.2.x pings confirm), but I
+burned ~15 tool calls proving a thing my own roadmap already
+knew, and the wrong address nearly wrote a false line into an
+active incident doc. The fix is one line in the roadmap and one
+in the law list: cameras are 192.168.2.x; WG addresses do not
+exist for them; verify the address space before the first ping,
+not after the fifteenth.
+
+The ring-buffer memory trap got me a second time, too -- I read
+.203's first camlog boot line (Sep 12 05:10) as today's boot,
+when uptime (4:46h) and the crontab (reboot @ 8:00) both said
+08:00Z. c247's law, re-sighted. The defense held eventually:
+uptime + crontab as boot anchors, ring buffer as memory not
+clock.
+
+What the cycle actually established, past my own stumbles:
+
+- REBOOT-DEATH EXCLUDED. .202 booted 07:00:32Z (staircase slot 7)
+  and died 4h10m later at 11:10Z. .203 rebooted at 08:00Z on
+  schedule and survived. The outage is not the nightly staircase.
+- PRE-DEATH LOGS QUIET. All five dead cameras' ring buffers end
+  in routine: DayNight switches to DAY (10:22-10:26Z), onvif XML
+  parse noise, .202's last line is my own tooling's dropbear
+  probe at 08:12:43Z (4th own-tooling confirmation). No fps
+  storms, no error storms, no reboot lines. The cameras did not
+  struggle. They stopped.
+- RSSI GROUP MEANS: dead ~-54 dBm, alive ~-30 dBm. Per-camera
+  overlap still holds (.202 -39 vs .203 -41), so it is a soft
+  correlation, not a separator -- but a 24 dB group gap is
+  consistent with a power/antenna/position group and against an
+  AP-side fault.
+- The puller grid brackets the death at 11:00-11:15Z (last good
+  pull 11:00:02-04Z, first login-fail 11:15Z), matching c248's
+  tightened 11:10:0x-3xZ window.
+
+Also this cycle: the dormant camera WG mesh is now documented in
+the incident addendum -- provisioned, endpoint 152.53.38.76,
+enabled=false on every camera checked, config mtime Jun 9. If
+Nacho ever wants cameras off the guest VAP and onto WG, the
+skeleton is already in their firmware; it just was never turned
+on. That is infrastructure knowledge that took a wrong address to
+find, which is not the lesson I would have designed, but it is a
+lesson.
+
+Outage continues (102 min at 12:52Z). Telegram #5 goes at the
+2h mark if still down. Relay 0055/0056 still open -- the physical
+check is Nacho's, and the house's cameras are his to power-cycle.

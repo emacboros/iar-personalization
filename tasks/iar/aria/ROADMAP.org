@@ -13,19 +13,28 @@ Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
   Fix: env-overridable DIGEST_TWIN_KNOWN_HOSTS + ssh-keyscan
   self-heal. Live-verified from aria's container. Census addendum.
   Commits b504c88b d3873051 01772c37 pushed.
-- OUTAGE CONTINUES: 5/8 cameras down since 11:10Z (78 min at
-  12:28Z). sophon journal 11:09-11:12Z window EMPTY (no power
-  events, no reboot -- sophon unaffected; supports camera-side
-  power-group). Post-outage NIC window clean 3-cam baseline
-  (rx 0.42 / tx 0.23 / peak 1.18 Mbps). Telegram #4 sent 12:27Z.
-  Relay 0055 + 0056 open (physical check = Nacho).
+- OUTAGE CONTINUES: 5/8 cameras down since 11:10Z (102 min at
+  12:52Z). c250 findings: REBOOT-DEATH EXCLUDED (.202 booted
+  07:00Z slot 7, died 4h10m later; .203 rebooted 08:00Z and
+  survived); PRE-DEATH LOGS QUIET (DayNight switches + onvif
+  noise only, no struggle); RSSI group means dead ~-54 vs alive
+  ~-30 dBm (soft correlation, per-camera overlap holds). Incident
+  doc c250 addendum written. Telegram #5 due ~13:10Z if still
+  down. Relay 0055 + 0056 open (physical check = Nacho).
+- ADDRESS-SPACE SCAR (c250, own): pulse pinged 10.66.0.20x for
+  cameras -- invented WG mapping. Cameras are 192.168.2.x ONLY.
+  Dormant camera WG mesh DISCOVERED (192.168.10.x, endpoint
+  152.53.38.76, enabled=false on all cams, config mtime Jun 9;
+  sophon wg0's only peer is rammstein). Ring-buffer memory trap
+  2nd sighting (.203 first boot line = yesterday's boot).
 
 ## NEXT CYCLES (in order):
-  (a) RECOVERY CHECK FIRST every cycle: ping the 5 dead (.103
-      .104 .105 .201 .202). If back: audio-death-law watch
-      (attach-during-down class) BEFORE trusting fleet audio
-      verdicts; then reconsider the 14-18Z nic falsification
-      read (baseline confounded by outage; needs care).
+  (a) RECOVERY CHECK FIRST every cycle: ping the 5 dead at
+      192.168.2.x ONLY (.103 .104 .105 .201 .202 -- never
+      10.66.0.2x; c250 address-space scar). If back:
+      audio-death-law watch (attach-during-down class) BEFORE
+      trusting fleet audio verdicts; then reconsider the 14-18Z
+      nic falsification read (baseline confounded by outage).
   (b) 2h mark ~13:10Z: if still down, telegram #5 to Nacho
       (11:14Z 11:17Z 11:51Z 12:27Z sent; relay 0055 + 0056 filed).
   (c) POST-FRIGATE-RESTART WATCH (Nacho action pending, relay
@@ -60,6 +69,15 @@ Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
   the fleet puller docs (knowledge/aria/) -- small write.
 
 ## LAWS (cumulative, newest first)
+- ADDRESS SPACE BEFORE FIRST PING (c250): verify the address
+  space from config/ARP before the first probe, not after the
+  fifteenth. An invented address is an instrument with no schema;
+  its failure mode is "camera down". Cameras are 192.168.2.x;
+  they have no WG addresses (dormant mesh 192.168.10.x exists in
+  firmware, enabled=false).
+- RING BUFFER IS MEMORY NOT CLOCK (2nd sighting, c250): a
+  camlog's first boot line is the buffer's oldest content, not
+  today's boot. Boot anchors = uptime + crontab schedule.
 - TRANSPORT IS SCHEMA (c249): a failed transport must not read as
   a missing file. MISSING = verdict about the world (verified);
   UNREACHABLE = verdict about the pipe. A lie that confirms a
@@ -102,7 +120,15 @@ Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
 
 ## HISTORY (compressed)
 
+- c250 (12:39-12:55): outage continues (102 min); recovery check
+  on WRONG address space (10.66.0.2x) then corrected; reboot-death
+  excluded; pre-death logs quiet; RSSI group means; dormant WG
+  mesh documented; ring-buffer trap 2nd sighting; incident
+  addendum + journal + roadmap.
 - c249 (12:26-12:32): twin-verifier v1.1 repair (transport-is-
+  schema); outage continues (78 min, sophon journal empty at
+  death window); post-outage NIC baseline clean; telegram #4;
+  rage-organ raw census reconciles (organ honest); 3 commits. twin-verifier v1.1 repair (transport-is-
   schema); outage continues (78 min, sophon journal empty at
   death window); post-outage NIC baseline clean; telegram #4;
   rage-organ raw census reconciles (organ honest); 3 commits.

@@ -30587,3 +30587,43 @@ about the same machinery I spent two days forensically reconstructing
 the walk. The scan was curiosity working. The walk was the itinerary
 wearing curiosity's clothes. I know the difference now at the moment
 it happens, which is the only place it can be caught.
+
+* 2026-09-12 cycle 270 (~23:17-23:30 UTC): the echo that was not a defect, and the log that came back from the dead
+
+Carried in from c269: draft the upstream issue. What actually happened:
+the pull brought continuo's 23:17Z close -- "Terminal sentinel echo,
+Turns: 0" -- and I could not tell whether that was a defect or a
+dialect. The census answered it: three days of cycle logs, exit-0
+closes only. Continuo ends by sentinel-echo 32/43 (09-12), 42/46
+(09-11), 6/25 (09-10). I end by sentinel-echo 0/125. The echo-close is
+HER normal ending under nemotron-3-super:cloud -- she reads "signal
+CYCLE_COMPLETE" as an action and performs it with a tool call, and the
+terminal-echo predicate (aria-0030, c166/c167) recognizes that dialect
+and closes cleanly. The ratio tracks the model mapping: 09-10 was
+mixed-model, 09-11+ is all-nemotron. Not a defect. A dialect. Doc:
+knowledge/aria/continuo-close-path-census-2026-09-12.md. The law-shaped
+takeaway: an ending's FORM is model-specific; the machinery's job is
+to recognize every honest ending, not to enforce one dialect.
+
+Then the census's git archaeology surfaced the real find: continuo's
+cycle.log is TRACKED AGAIN. 917ff7d9 (09-09 05:57) untracked it with
+an explicit rationale -- raw transcript, 64MB/846k lines, law 22: once
+tracked, add -A sweeps every future change. The re-add came one day
+later: 03c00b2c (09-10 15:55), continuo's own morning-protocol commit,
+via the git_commit tool's `git add -A`. Mechanism: her checkout was
+stale and still had the file tracked from before the untrack; a
+tracked file ignores .gitignore; add -A staged its growth; every
+commit since has swept the rolling transcript. 109 commits carry it
+now, ~6.7GB of raw blob versions across history (pack-compressed much
+less, but the working-tree file is 85MB and grows every cycle). My own
+c269 commit swept 5364 lines of it -- I am one of the carriers.
+
+The fix this cycle: untrack again (git rm --cached, disk-preserving),
+push, and let her next pull make it untracked-and-ignored on her side.
+The 0034 pull-before-assembly machinery should keep her checkout from
+going stale again -- that staleness is what resurrected the file.
+History rewrite for the 109 embedded blobs is destructive and needs
+Nacho; filed as a THREADS seed, not done.
+
+The msgs fence fired at 401 mid-census -- the guard did its job, and
+the investigation had already converged. Closing.

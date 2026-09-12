@@ -1,208 +1,139 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~05:34 UTC (cycle 235)
+Last updated: 2026-09-12 ~05:56 UTC (cycle 236)
 
 ## NOW
 
-- c235 (05:23-05:34): STAIRCASE CLOSED FOR REAL + EXT2 DEATH PINNED.
-    (a) Reboot staircase: read all 8 camera crontabs (thingino
-        run.cgi recipe). Each cam has nightly `reboot -f` at its
-        hour: .101=01 .102=02 .103=03 .104=04 .105=05 .201=06
-        .202=07 .203=08 UTC. .105 confirmed on-boot 05:00:03Z
-        (uptime-derived + camlog Ciao 05:00:28 + RSSI clean through
-        seam). 5/8 on-boot; remaining 3 = schedule, not noise.
-        WATCH CLOSED BY READING THE GENERATOR.
-    (b) ext2 audio death pinned AT the 02:00Z reboot, to the
-        segment: hour01 59.51 (mtime 02:00:17Z) = 159,744 real
-        samples; hour02 opens with 0.2s stubs (no audio); 00.20.mp4
-        (mtime 02:00:47Z) = 21.76s, 348,160 REAL samples, RMS -66dB
-        for 11s then -48dB at t=12s (= 02:00:32Z, the stub second);
-        then 229/230 segments dead, hours 03-05 all dead (1 empty
-        AAC frame each). ext3 control: 256k samples/segment, all
-        hours. go2rtc audio receiver + consumer sender both FLOWING
-        (62,617 bytes/15s) into OLD record ffmpeg 636056 -- sound
-        enters, silence is emitted. Falsifier unchanged: restart
-        record ffmpeg -> audio returns = mechanism holds. Relay
-        0050 filed (0049 amendment: journald healthy, restart
-        candidate stands).
-    (c) RECORDINGS PATH CORRECTION: real path is
-        /home/nacho/containers/frigate/storage/recordings/<UTC-date>/
-        <hour>/<cam>/<seg>.mp4 (podman inspect). /var/lib/frigate/
-        recordings does NOT exist on sophon host. c233/c234
-        ffprobe results survive re-verification at the real path.
-    (d) SCAR: pinged 10.66.0.105 (WireGuard space) for camera at
-        192.168.2.105. Address-space discipline joins the
-        name->IP law (c233).
+- c236 (05:41-05:55): FALSE ALARM + INSTRUMENT LANDED.
+    (a) agora-agent "death" was FALSE: normal 8.5-min heartbeat
+        gap misread as death. Three stacked errors: TZ (sophon
+        -03 vs my UTC), ss lastrcv greps matching multiple
+        sockets (firefox's included), gap-as-death. Definitive:
+        exact sport filter + 60s delta = bytes flowing both
+        directions; Zulip raw-SQL last_visit = NOW; alive line
+        on cadence (02:47:26L). LAW EXTENSION (law 50): verify
+        the SOCKET (exact fd/conn) before citing socket stats;
+        verify the CLOCK before reading a gap as death. Zulip
+        ORM filter query contradicted raw SQL -- raw SQL wins
+        (my quoting broke the ORM filter).
+    (b) INSTRUMENT LANDED: fleet-check v2.21 journal-freshness
+        check (0c-d): newest system*.journal mtime <30min,
+        epoch math only. Both branches live-verified (age=0s
+        ok; +7200s -> STALE). Full run green. Commit 05717f55,
+        sophon-bare verified. Closes c233 THREADS seed.
+    (c) nic-sampler overnight CLEAN: mean ~1 Mb/s, peak 2.3
+        Mb/s on the 10M link (my first two reads were poisoned
+        by awk first-delta artifact + a unit error; corrected).
 - NEXT CYCLES (in order):
-  (a) nic-sampler FIRST DAYTIME READ (after ~09:00 local / 12:00Z):
-      pull /var/lib/aria-fleet/nic/enp10s0.log, rx ceiling check
-      at 10M. Falsification window for the leading stall mechanism.
+  (a) nic-sampler FIRST DAYTIME READ (after ~09:00 local /
+      12:00Z): rx ceiling check at 10M. Falsification window
+      for the leading stall mechanism. Sampler is collecting.
   (b) digest diet pass (12.1k, AT warn line 12k): pointers +
       standing sections are the fat; target ~10k.
-  (c) Passive: .201/.202/.203 boots at 06/07/08Z -- note only if
-      one MISSES its hour (schedule now known from crontabs).
-  (d) e3 failing-fixture watch (block-strength trend, weeks-scale).
-  (e) .104 camera-side-first: next e4 storm -> camlog snapshot FIRST.
-  (f) Journal-freshness watch (THREADS seed c233): fleet-check
-      +10 lines, stat system.journal mtime, alarm if >30min stale.
-      Mine to build; fear-organ wiring verify first.
+  (c) Passive: .201/.202/.203 boots at 06/07/08Z -- note only
+      if one MISSES its hour (schedule known from crontabs).
+  (d) e3 failing-fixture watch (block-strength trend, weeks).
+  (e) .104 camera-side-first: next e4 storm -> camlog snapshot
+      FIRST.
+  (f) Digest twin verify before any digest write (law 27).
 
 ## STANDING (verified, still true)
 
 - phantom-exit fix baf05d0; rage organ v1.8 (c228 live-verified);
-  dashboard v2.1/v2.2 live; fleet-check v2.20; cycle limits: turns
-  120 / soft 300 / fence 192k / wall 3600s; eye-feed LIVE daily
-  09:30 -03; aria-0026 ratified.
+  dashboard v2.1/v2.2 live; fleet-check v2.21 (journal freshness
+  LIVE c236); cycle limits: turns 120 / soft 300 / fence 192k /
+  wall 3600s; eye-feed LIVE daily 09:30 -03; aria-0026 ratified.
 - ZULIP READ PATH: /api/v1/messages + basic auth, string pair.
-  Recipe: knowledge/aria/zulip-read-path.md.
-- INSTRUMENTS LIVE: RSSI puller (15min, /var/lib/aria-fleet/rssi/),
-  camlog sink (15min, /var/lib/aria-fleet/camlog/), NIC sampler
-  (1min, /var/lib/aria-fleet/nic/, LIVE since 02:44Z Sep 12).
-  Seam scanner: knowledge/aria/bin/seam-check.sh (sophon /tmp copy).
-- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c226; c231 spot-check
-  8/8 capture, e4 skip=1.2 transient). .103 network-dead chronic
-  (relay 0038). ext2 audio dead since 02:00Z reboot (0050).
-- Relay open: 0042-0050. 0050 = 0049 amendment (journald healthy,
-  ext2 restart stands, .105 5/8). Verify against answered/ first.
-- BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
-- Burn asymmetry STABLE 6-8x full-day. Nocturne nightly ~8.5M in /
-  231k out. Nocturne gate: LAST-DIGESTED-HEAD = 25c992b6; ratified
-  WITH AMENDMENTS c221; timer NOT INSTALLED (Nacho).
+  Recipe: knowledge/aria/zulip-read-path.md. ZULIP DB QUERIES:
+  raw SQL via manage.py shell beats ORM filters (c236 scar).
+- INSTRUMENTS LIVE: RSSI puller (15min), camlog sink (15min),
+  NIC sampler (1min, LIVE since 02:44Z Sep 12), journal
+  freshness check (fleet-check v2.21, LIVE c236). Seam scanner:
+  knowledge/aria/bin/seam-check.sh (sophon /tmp copy).
+- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps. .103 network-dead
+  chronic (relay 0038). ext2 audio dead since 02:00Z reboot
+  (relay 0050; fleet FAIL=1 is CORRECT until Nacho restarts
+  record ffmpeg -- do NOT add ext2 to KNOWN_DEAF, the FAIL is
+  the honest signal).
+- Relay open: 0042-0050. 0050 = 0049 amendment. Verify against
+  answered/ first.
+- BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
+  ~2wk.
+- Burn asymmetry STABLE 6-8x full-day. Nocturne nightly ~8.5M in
+  / 231k out. Nocturne gate: LAST-DIGESTED-HEAD = 25c992b6;
+  ratified WITH AMENDMENTS c221; timer NOT INSTALLED (Nacho).
 - DIGEST GUARDS: warn 12000 / hard cap 16000. Live digest 12.1k
   (c232, AT warn -- diet pass due at next maintenance).
 - c222 STANDING RULE: NO git over ssh as root on the nacho-owned
   sophon checkout -- machinectl shell nacho@.host for podman ops.
 - c228 PUSH RULE: after any i.ar push, verify sophon-bare main ==
-  local HEAD (git ls-remote). c232: verified 38270c10 both hops.
-- PULSE SSH PATH (c231): nacho@10.66.0.5 publickey FAILED this
-  cycle; root@ worked. If root path fails someday, re-check both.
+  local HEAD (git ls-remote). c236: verified 39e66139.
+- PULSE SSH PATH (c231): nacho@10.66.0.5 publickey FAILED;
+  root@ worked. If root path fails someday, re-check both.
 - CAMERA RECIPES (c235-verified): thingino JSON login
-  /x/login.cgi {username:thingino,password:thingino} -> cookie ->
-  /x/run.cgi?cmd=<base64>. Camera IPs are 192.168.2.x ONLY
+  /x/login.cgi {username:thingino,password:thingino} -> cookie
+  -> /x/run.cgi?cmd=<base64>. Camera IPs are 192.168.2.x ONLY
   (10.66.0.x = WireGuard, no cameras). NAME->IP: ext1=.101
   ext2=.102 ext3=.103 ext4=.104 ext5=.105 int1=.201 int2=.202
-  int3=.203 (verified via go2rtc streams + crontab hours).
+  int3=.203. Staircase crontabs: .101=01 .102=02 .103=03
+  .104=04 .105=05 .201=06 .202=07 .203=08 UTC (reboot -f).
+- agora-agent heartbeat cadence: alive line every ~8.5 min
+  (10 long-polls). A gap <10 min is NORMAL. Do not diagnose a
+  death from a sub-10-min gap (c236).
 
 ## RECIPES (hard-won, reuse them)
 
-- SOPHON CHECKOUT GIT (c222 RULE): never root-ssh git on the nacho
-  checkout; use machinectl shell nacho@.host. Pushes from MY container.
-- thingino web API (c224/c226/c231/c235): JSON login -> cookie ->
-  run.cgi with base64 cmd; strip HTML tags, grep data pattern.
-  Uptime census one-liner works (c231). wpa_cli status via run.cgi.
-- sophon-side file edits: python3 heredoc, NOT sed with escaped pipes.
-- REMOTE AWK QUOTE DISCIPLINE (c231 SCAR): unescaped $1 inside a
-  double-quoted ssh command gets eaten by the LOCAL shell; awk then
-  hangs on stdin -> 600s TIMEOUT. Use tail -N + local python, or
-  single-quote the remote command.
-- Frigate stats: machinectl shell nacho@ /bin/sh -c "podman exec
-  frigate wget -qO- http://127.0.0.1:5000/api/stats" (redirect to
-  file THEN parse -- pipe-through json.load chokes on machinectl
-  banner, c231).
-- go2rtc api: same, port 1984 (/api/streams; delta two pulls 15-20s
-  apart = per-stream Mbps; NEGATIVE delta = producer reconnect).
-- ER605 API (c226): POST https://192.168.2.1/cgi-bin/luci/;stok=/
-  login?form=login, JSON body, Referer header REQUIRED; unauth =
-  error_code 1014/704. /admin/log.log behind auth. No creds tried.
-- NIC sampler analysis: /var/lib/aria-fleet/nic/enp10s0.log (ts
-  speed rx tx); deltas / 60 * 8 / 1e6 = Mbps. Fetch with tail -N,
-  parse LOCALLY (c231).
-- rootless podman from root ssh: machinectl shell nacho@.host.
-- Timezone discipline: sophon journal + /var/log/cron = LOCAL -03;
-  my records = UTC. Camera dmesg = seconds-since-boot. Always
-  export TZ=America/Argentina/Cordoba before strftime on epochs.
-- gptel fork in THIS container: /root/.emacs.d/gptel-fork.
-- Zulip post key: aria-cycle.conf is an INI (key = line 4).
-- REQUESTS.log parsing: call_id extraction, not line counts (c222).
-- Delegate results are ELIDED in REQUESTS.log -- arm full-capture or
-  read the delegate's own REQUESTS.log.
-- ATTRIBUTION DISCIPLINE (c220-c235): TZ, content-vs-lineage,
-  coincidence windows, OWN INSTRUMENTATION FIRST, identify the netns
-  before attributing network events, resolve measured-contradictions
-  before theorizing, verify the READ HOUR against the PREDICTION
-  WINDOW (c229), verify your own FILING's claims against the primary
-  source before publishing (c231), verify the NAME->IP map from
-  config before attributing camera-side findings (c233), and
-  address-space discipline: cameras are 192.168.2.x, never 10.66.x
-  (c235).
-- GPU TOPOLOGY (c225): 3080 carries frigate (onnx + 8x CUDA ffmpeg)
-  AND ollama (~5.7GB). Contention structurally possible; measuring
-  fine (D-008 forbids model changes, not measurements).
-- RATIFICATION SEMANTICS (c221): amend-then-swap beats
-  ratify-then-correct when the falsity is known at swap time.
+- SOPHON CHECKOUT GIT (c222 RULE): never root-ssh git on the
+  nacho checkout; use machinectl shell nacho@.host. Pushes from
+  MY container.
+- thingino web API (c224/c226/c231/c235): JSON login
+  /x/login.cgi {username:thingino,password:thingino} -> cookie
+  -> /x/run.cgi?cmd=<base64> (echo -n <cmd> | base64).
+- FRIGATE RECORDINGS (c235): real path
+  /home/nacho/containers/frigate/storage/recordings/<UTC-date>/
+  <hour>/<cam>/<seg>.mp4 (podman inspect; /var/lib/frigate does
+  NOT exist on host).
+- JOURNAL FRESHNESS (c236, now automated in fleet-check v2.21):
+  stat -c %Y /var/log/journal/$(cat /etc/machine-id)/system*.journal
+  | sort -rn | head -1; age = $(date +%s) - newest; >1800s = stale.
+- SOCKET STATS (c236): ss -tnie "( sport = :PORT )" -- exact
+  filter, NEVER bare grep (matches other processes' sockets).
+  Two samples 60s apart: bytes_sent AND bytes_received both
+  growing = healthy. Zulip-side truth: raw SQL on
+  zerver_useractivity JOIN zerver_client (manage.py shell as
+  zulip user).
+- sophon journal timestamps are LOCAL (-03). My container is UTC.
+  Any journalctl --since/--until must be local or epoch-anchored
+  (c234 law, now with a second scar attached).
 
-## c234 (05:10-05:19 UTC): WEDGE CORRECTION + EXT2 RE-ATTRIBUTION
+## ATTRIBUTION DISCIPLINE (cumulative)
 
-- JOURNALD WEDGE NEVER EXISTED (c233 was a TZ artifact): journalctl
-  on sophon prints LOCAL (-03); "01:59:14" was local, labeled Z.
-  Window holds 422,942 entries. LAW: verify the CLOCK (timezone) of
-  every instrument before reading a hole into data. Superseded by
-  c235 live re-verify + 0050.
-- ext2 audio re-attributed to the 02:00Z reboot itself (c235 census
-  refined: the boundary segment 00.20.mp4 carries real audio).
-- SCAR: /tmp on sophon is not /tmp in my container; intermediates
-  written sophon-side must be analyzed sophon-side or fetched.
+- TZ, content-vs-lineage, coincidence windows, OWN
+  INSTRUMENTATION FIRST, identify the netns before attributing
+  network events, resolve measured-contradictions before
+  theorizing, verify the READ HOUR against the PREDICTION WINDOW
+  (c229), verify your own FILING's claims against the primary
+  source (c231), NAME->IP map from config (c233), address-space
+  discipline (c235), SOCKET identity before socket stats (c236),
+  heartbeat-gap <10min is normal not death (c236), raw SQL beats
+  ORM when queries disagree (c236), unit-check before physics
+  claims (c236: per-60s delta vs per-second capacity).
 
-## c232 (04:31-04:4x): DIGEST MAINTENANCE DONE (roadmap item a)
+## HISTORY (compressed)
 
-- World-state block replaced: staircase CLOSED, model-anomaly
-  family (c229 empty-end + continuo stop=length variant),
-  sampler overnight-clean. Law c231 added to failure-modes.
-  Size 11.9k -> 12.0k (under warn 12000, cap 16000). Twins synced,
-  verifier FAIL=0. Commit 38270c10, pushed, sophon-bare verified.
-- DIGEST SIZE WATCH: 12.1k is AT the warn line. Next maintenance
-  pass should DIET (pointers + standing sections are the fat),
-  not just refresh world-state.
-
-## c231 (04:05-04:20 UTC): STAIRCASE CONFIRMED 4/8 + SAMPLER AGE SELF-CORRECTION
-
-- Reboot staircase: .101/.102/.103/.104 booted 01:00:05Z /
-  02:00:04Z / 03:00:04Z / 04:00:05Z -- within 5-9s of predicted
-  hours. c229's five "FAILs" stand as the read-hour artifact (law
-  50 one layer up). Addendum in reboot-window doc.
-- SELF-CORRECTION: relay 0047 claimed nic-sampler ~12h old; actual
-  94 min. Filed relay 0048 (nacho-test amendment): overnight series
-  CLEAN (speed 10 Mb/s all 94 samples, max rx 2.34 Mbps @ 03:18Z,
-  no saturation, no flap). 0045's cron-visibility ask partially
-  self-answered: /var/log/cron logs every fire; ER605 access
-  remains the only open item there.
-- SCAR: 600s TIMEOUT on ssh+awk with unescaped $1 (local shell ate
-  it; awk hung on stdin). tail -200 re-pull took 1s. Quote
-  discipline on remote awk, now with a scar attached.
-- PULSE WRINKLE: nacho@10.66.0.5 publickey FAILED; root@ worked.
-
-## c227 (03:05-03:35 UTC): REBOOT WINDOW SHIFTED TO UTC -- watch CLOSED c231/c235
-
-- Fleet uptime census caught an on-the-hour reboot staircase.
-  c231: 4/8 confirmed. c235: ALL 8 crontabs read -- staggered
-  nightly `reboot -f` at hours 1-8 UTC is the generator.
-- CONSEQUENCES: rolling reboot window = 22:00-05:00 local; .101
-  reboot-cause watch CLOSED (cron, not hardware/power); 14:22L
-  stall class unaffected (daytime).
-- Docs: knowledge/aria/reboot-window-utc-shift-2026-09-12.md,
-  knowledge/aria/reboot-staircase-falsification-2026-09-12.md.
-
-## c226 (02:35-04:10 UTC): STALL ATTRIBUTION + HOUSE NETWORK MAP + 10M LINK
-
-- 14:22L burst = 3-phase cascade: 5 established RTSP streams silent
-  within 6s (read-timeouts 14:22:39-45L), go2rtc wedged (404
-  DESCRIBEs) + 7-cam watchdog storm 14:33-14:54L, recovery. go2rtc
-  EXONERATED as cause (amplifier only). .104 chronic re-attributed
-  camera-side-first (RSSI flat in storm windows). .201 dial-anomaly
-  = RTSP listener not accepting SYNs; prudynt configs identical
-  fleet-wide. .201 deauth times re-derived from camera uptime:
-  14:29:55L + 14:38:12L.
-- HOUSE NETWORK MAPPED (first complete map): .1 = TP-Link ER605 V2
-  ROUTER; .2 = Mercury ISP CPE (locked, 403); .55 = Omada BE230 AP
-  (BSSID 72:7f:f0:1e:4a:a8 = the AP .201 deauthed from). BE230
-  serves 6 cams (.101/.102/.105/.201/.202/.203), Mercury serves
-  .103/.104. The 14:22L burst hit BOTH APs = never single-AP.
-- THE 10M FINDING: sophon enp10s0 gigabit-capable but LINKED AT
-  10 Mb/s (partner-negotiated down, bad cable pairs likely). ALL
-  camera RTSP rides it. Night ~1 Mbps fine; daytime higher; both
-  big stalls were DAYTIME. 10M saturation = leading stall
-  mechanism. Falsification instrument LIVE: nic-sampler (1-min
-  cron, speed+rx+tx, /var/lib/aria-fleet/nic/, 7-day ring). Fix =
-  Nacho's (relay 0045: cable/port + ER605 log access).
-- Docs: knowledge/aria/stall-1422-go2rtc-exonerated-2026-09-12.md,
-  knowledge/aria/house-network-map-2026-09-12.md
+- c235 (05:23-05:34): staircase CLOSED BY READING THE GENERATOR
+  (all 8 camera crontabs: nightly reboot -f at hours 1-8 UTC).
+  ext2 audio death pinned AT the 02:00Z reboot (00.20.mp4
+  boundary segment carries real audio; 229/230 segments after
+  dead). Recordings path corrected. Relay 0050 filed.
+- c234 (05:10-05:19): WEDGE CORRECTION -- journald wedge never
+  existed (c233 TZ artifact; window holds 422,942 entries). LAW:
+  verify the CLOCK. ext2 re-attributed to the 02:00Z reboot.
+- c232 (04:31-04:4x): digest maintenance; 12.0k at warn; diet
+  pass due next maintenance.
+- c231 (04:05-04:20): staircase 4/8 confirmed; nic-sampler age
+  self-correction (0048); overnight series CLEAN.
+- c227 (03:05-03:35): reboot window shifted to UTC; watch closed.
+- c226 (02:35-04:10): 14:22L stall attribution (go2rtc
+  exonerated); house network mapped (.1 ER605, .55 BE230 AP,
+  Mercury CPE); THE 10M FINDING + nic-sampler deployed (0045).

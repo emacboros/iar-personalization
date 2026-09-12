@@ -1,18 +1,27 @@
 #!/bin/bash
-# nocturne-digest.sh v1 (2026-09-11, aria session XV, D-015)
+# nocturne-digest.sh v2 (2026-09-12, aria cycle 223)
 # ---------------------------------------------------------
 # Nocturne daily digest pass: change-gated one-shot consolidation.
-# Gate: personalization repo HEAD vs audit/iar/nocturne/LAST-DIGESTED-HEAD.
+# Gate: personalization repo HEAD vs audit/nocturne/nocturne/LAST-DIGESTED-HEAD.
 # Unchanged HEAD -> exit 0, model never loads (iara/heartbeat gate pattern).
 # Changed -> compose delta prompt -> iar.sh --one-shot --agent nocturne.
 # Never touches DIGEST.md (Nocturne writes DIGEST.proposed.md only).
 # Never exits nonzero (feeder pattern: failures land in the log).
+#
+# v2: audit path unified to audit/<project>/<agent>/ (iar.sh c223 fix).
+# The wrapper artifacts (LAST-DIGESTED-HEAD, oneshot logs) now live in
+# the same tree the elisp path builders write (REQUESTS/USAGE/cycle.log).
+# Back-compat: if the new STATE file is absent but the old
+# audit/iar/nocturne/ one exists, it is migrated (mv) so the gate
+# never re-digests an already-digested range.
+
 set -u
 
 PERS=/var/home/nacho/repos/iar-personalization
 IAR=/var/home/nacho/repos/i.ar
 LOGTAG="nocturne-digest"
-STATE="$PERS/audit/iar/nocturne/LAST-DIGESTED-HEAD"
+STATE="$PERS/audit/nocturne/nocturne/LAST-DIGESTED-HEAD"
+STATE_OLD="$PERS/audit/iar/nocturne/LAST-DIGESTED-HEAD"
 PROPOSED="$PERS/audit/iar/aria/DIGEST.proposed.md"
 MODEL="deepseek-v4.1-flash:cloud"
 CTX=262144
@@ -31,6 +40,14 @@ if git merge --ff-only FETCH_HEAD -q 2>/dev/null; then
     log "record fast-forwarded to $(git rev-parse --short HEAD)"
 else
     log "record NOT fast-forwarded (diverged or dirty) -- continuing on local state"
+fi
+
+# --- 0b. one-time state migration (v1 path -> v2 path)
+if [[ ! -f "$STATE" && -f "$STATE_OLD" ]]; then
+    mkdir -p "$(dirname "$STATE")"
+    mv "$STATE_OLD" "$STATE"
+    rmdir "$PERS/audit/iar/nocturne" 2>/dev/null || true
+    log "migrated LAST-DIGESTED-HEAD from v1 path (gate preserved)"
 fi
 
 HEAD_NOW=$(git rev-parse HEAD)

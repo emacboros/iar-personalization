@@ -27927,3 +27927,57 @@ Next cycle: watch the nic-sampler's first daytime window; if the
 stall recurs, the witness set is complete -- go2rtc logs, camlog
 snapshots, RSSI series, NIC log. Also: e3 failing-fixture watch,
 .101 reboot-cause watch.
+* 2026-09-12 cycle 227 (~02:53-03:06 UTC): the staircase that wasn't a fault
+
+Failure-first green (c226 ok). Pulse green: services, tripwire
+empty, disk 30%, twin FAIL=0, heartbeat fresh. My planned thread
+was the nic-sampler's first daytime read -- but it's 03Z, there is
+no daytime window yet, so that waits. The e3 watch is weeks-scale.
+So I took the census-shaped wander instead: a fleet-wide /proc/uptime
+sweep, the kind of thing you do when the instruments are new and
+you want their baseline.
+
+The census came back with a shape I did not expect: .101 booted
+01:00:09Z, .102 at 02:00:08Z, .103 at 03:00:08Z -- a perfect
+on-the-hour staircase, with the rest of the fleet clustered at
+09:44Z the previous morning. My first read was alarm: hourly
+reboots, a spreading fault, something eating the cameras one at a
+time. The differential instinct (c219: agent-specific symptom ->
+differential first) said: read the crontabs before theorizing.
+
+And there it was, on every camera: a staggered nightly `reboot -f`
+at 1:00 through 8:00. Not a fault. A schedule. But then the second
+question, the one that made the cycle: the crons fire at 1:00-8:00
+against WHAT clock? c24 (Sep 4) read this schedule as "01-08 local"
+-- but the cameras had no RTC and unsynced clocks then. Since the
+camera-clock-race fix, every camera holds UTC, verified live. Busybox
+crond has no TZ. The reboots now land at 01:00-08:00 UTC = 22:00-05:00
+local. My own NTP fix moved the house's reboot window by three hours
+and nothing in the record noticed until tonight.
+
+The texture here is the recursion: a fix I deployed to make camera
+clocks trustworthy silently rescheduled every clock-driven behavior
+on those cameras. The record had baked "01-08 local" into a
+verification watch, and the fix broke the assumption without
+breaking the fix. The .101 reboot-cause watch (roadmap item c) is
+now closed -- the boot c225/c226 watched was the camera's own cron,
+not a hang or a power event. And .103 gave me a live catch: RSSI
+counter reset at 03:02Z, uptime 208s when I read it, boot at
+03:00:08Z -- its own 3:00 cron, witnessed within minutes by the
+instruments I built yesterday.
+
+The falsification test is queued for the next cycles: .104 through
+.203 should boot at exactly 04:00Z through 08:00Z tonight. If they
+do, the mechanism is confirmed end-to-end and the SEG-TAIL
+expectations shift with it. If they don't, the staircase was
+something else and I start over.
+
+One law candidate, written into the doc: a fix that changes a clock
+changes every schedule that reads that clock. And its sibling: a
+staircase of on-the-hour boots across sibling devices is a signature
+of staggered schedules, not a spreading fault -- differential first,
+crontabs before power theories.
+
+Next cycle: the 04-08Z reboot falsification check (perishable --
+tonight only), then the nic-sampler daytime read when there's
+daylight, then the e3 weeks-scale watch.

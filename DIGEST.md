@@ -1,11 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-12 ~19:35 UTC (c264: int1+ext2 audio healed NATURALLY via watchdog restarts; law v3.1; relay 0058 resolved; c262 heal recipe corrected
-# events = budget exhaustion on real work, zero runaways; rage-organ
-# v2.1 kill census = terminal emissions only).
-heal recipe source-verified, relay 0058; USAGE-doubling root cause
-found + fixed 5b03a53). Law: operational state -> ROADMAP.org;
+Last updated: 2026-09-12 ~21:11 UTC (c266: wave mechanism pinned --
+go2rtc fleet-wide re-dial; API-hang theory falsified; ext3 death
+resolved; heal credit corrected). Law: operational state -> ROADMAP.org;
 history -> logs/journal; world-state = ONE replaceable dated block.
 Guard: warn 12000 / hard cap 16000.
 
@@ -119,6 +117,17 @@ census-timing: verify the READ HOUR against the PREDICTION WINDOW.
   POWER-DEAD (frozen rssi since 11:00Z, ARP FAILED, ping dead,
   fleet-check FAIL=1 on the ext4 ear) = power-off/wifi-hw death;
   power cycle is Nacho's (telegram #7 stands).
+- WAVE MECHANISM PINNED (c266, doc knowledge/aria/wave-mechanism-
+  c266-2026-09-12.md): go2rtc re-dials ALL camera producers at the
+  same second (prudynt BackchannelStreamState logs: 18:39:32,
+  19:16:51, 19:19:12Z on .103/.105/.201, two APs). API-hang theory
+  FALSIFIED: the 3 "Failed to fetch" = ext4-specific 500s (dead-
+  camera dial timeout, browser-driven). ext3 52-min death resolved
+  (wave-3 re-dial failure -> dead-from-birth audio leg -> watchdog
+  restart healed 20:14:29Z). HEAL CREDIT CORRECTED: PUT reload was
+  a bystander (2s after the heal); relay-0058 amended. Solo-death
+  class (ext5/int1 19:13-15Z, no churn) OPEN. Wave detector signal:
+  same-second prudynt session bursts.
 - FALSIFICATION WINDOW CLOSED (c261, 14:00-17:54Z, 7/8 cams):
   218 samples, RX mean 0.83 peak 1.11 Mbps, total peak 2.15 Mbps on
   the 10 Mb/s link. NO saturation with recovered load. Cable fix =
@@ -128,17 +137,12 @@ census-timing: verify the READ HOUR against the PREDICTION WINDOW.
   straddle-at-reboot (ext2; heal = staircase remakes producer;
   stands for tonight 01:00Z). Class 2 = mid-life audio-leg death
   (int1: died 16:13:42Z, no camera reboot, video leg survived).
-  MECHANISM PINNED (c262) + HEALED NATURALLY (c264): BOTH int1
-  (class 2) and ext2 (class 1) healed at ~18:40Z via watchdog
-  restarts (fps-limit / no-frames paths) remaking the go2rtc
-  session. LAW v3.1: heal = ANY session remake (receiver-id
-  ladder 39984->42418->43127 proves it); record-proc restart DOES
-  heal (stopProducers-on-last-consumer-leave -- c262's "restart
-  insufficient" was WRONG, read past its own source note); PUT
-  alone useless. Classes differ only in TRIGGER (class 2 trigger
-  still unidentified; may be common-but-self-healing -- census
-  seeded THREADS c264). Relay 0058 RESOLVED, no action. Docs:
-  int1-class2-heal-natural + law-v3 ADDENDUM 4.
+  MECHANISM PINNED (c262): go2rtc internal audio receiver 39984
+  stalled (frozen 38135 pkts); fresh go2rtc consumers get EMPTY
+  aac track (0 samples) -- they inherit the stall, no
+  renegotiation; direct camera pulls healthy. HEAL = go2rtc
+  stream reload (relay 0058); record-proc restart INSUFFICIENT
+  (corrected). Tap FIFO demoted to background config (universal).
 - INSTRUMENT NOTES (c261): go2rtc receiver pkts = liveness signal
   not census (frozen = dead leg; count != session lifetime). Own
   test pulls linger as go2rtc consumers (Lavf61) -- subtract self
@@ -153,11 +157,10 @@ census-timing: verify the READ HOUR against the PREDICTION WINDOW.
 - CONTINUO PULSE TEMPLATE LINES: 4 literal + 1 bash-c variant;
   relay 0057 asks Nacho to ratify worked-example prompt edit; her
   17:20Z PULSE landed correctly expanded (intermittent fill).
-- Relay open (5, all human-needed): 0042 (yoga root git-status),
+- Relay open (6, all human-needed): 0042 (yoga root git-status),
   0045 item 1 + 0055 (10M cable fix -- now hygiene, not urgent),
-  0046 (stimulus ruling), 0057 (prompt edit ratify). 0058
-  RESOLVED c264 (int1 healed naturally; needs move to answered/
-  at next hygiene pass). Nocturne gate:
+  0046 (stimulus ruling), 0057 (prompt edit ratify), 0058 (int1
+  go2rtc stream reload). Nocturne gate:
   LAST-DIGESTED-HEAD = 25c992b6; TIMER NOT INSTALLED (Nacho).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk.

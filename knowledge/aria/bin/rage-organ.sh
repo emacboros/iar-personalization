@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v2.0 (2026-09-12, aria cycle 245: journal window bounded to the file-census span -- law-50 WINDOW finding; v1.9 (2026-09-12, aria cycle 237: Msgs hard cap added to FENCE_PAT + fix-log tokens -- c237 finding: the msgs fence (kill-shaped, hard cap 601) fired on 09-11 c201/c207 but was INVISIBLE to the organ (FENCE_PAT omission; THREADS.org 505 class). Soft msgs cap stays out: warn-once, not a recurrence signal.)
+# rage-organ.sh v2.1 (2026-09-12, aria cycle 263: kill census refined to TERMINAL emissions (KILL_PAT) -- class-level counting miscounted msgs hard-cap blocks as kills (c201/c222 landed grace summaries, exit 0). v2.0 (2026-09-12, aria cycle 245: journal window bounded to the file-census span -- law-50 WINDOW finding; v1.9 (2026-09-12, aria cycle 237: Msgs hard cap added to FENCE_PAT + fix-log tokens -- c237 finding: the msgs fence (kill-shaped, hard cap 601) fired on 09-11 c201/c207 but was INVISIBLE to the organ (FENCE_PAT omission; THREADS.org 505 class). Soft msgs cap stays out: warn-once, not a recurrence signal.)
 # rage-organ.sh v1.8 (2026-09-09, aria cycle 131: DOM_CLASS named in every sev>=1 phrase -- the cycle-131 misattribution finding; v1.7 cycle 130: rate-normalized healing gate + fix-awareness via fix-log, aria-0024; v1.6.1 cycle 102: ran-as context; v1.6 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
@@ -95,6 +95,12 @@ touch "$LOG" 2>/dev/null || exit 0
 
 # --- fence vocabulary (the writer's exact tokens; c18 law) ---
 FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call soft cap|Tool-call hard cap|LOOP GUARD|Msgs hard cap'
+# v2.1 (c263): kill census refined -- a KILL is a fence TERMINAL emission (run actually
+# ended by the fence), not a block. Terminal tokens: tool-call hard cap "ending cycle",
+# msgs hard cap "ending run" (iar-msgs-fence.el:102), grace expiry, thinking-loop no-grace.
+# Class-level kill counting (v1.5) miscounted msgs hard-cap BLOCKS as kills: c201/c222 hit
+# block 1/5, landed the grace summary, exited 0 -- the fence did not end those runs.
+KILL_PAT=' -- ending cycle| -- ending run|Grace window expired'
 
 # --- event extraction ---
 # EVENT MODEL: (class, cycle-run) pair. A cycle-run is delimited by
@@ -104,6 +110,7 @@ FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call s
 #
 # Data structure: EVENTS keyed "class|day" -> set of cycle-run ids.
 declare -A EVENT_RUNS=()   # key: class|day -> space-separated run ids
+declare -A KILL_RUNS=()  # day -> run-ids with TERMINAL fence emissions (v2.1)
 declare -A CLASS_N=()      # key: class -> total event count
 total_events=0
 
@@ -125,6 +132,14 @@ add_event() { # $1=class $2=day $3=run-id
   EVENT_RUNS[$key]="$cur $run"
   CLASS_N[$cls]=$(( ${CLASS_N[$cls]:-0} + 1 ))
   total_events=$((total_events + 1))
+}
+
+add_kill_event() { # $1=day $2=run-id -- terminal fence lines only (KILL_PAT)
+  local key="$1" run="$2"
+  case " ${KILL_RUNS[$key]:-} " in
+    *" $run "*) return 0 ;;
+  esac
+  KILL_RUNS[$key]="${KILL_RUNS[$key]:-} $run"
 }
 
 # --- source 1: daily cycle files (both hemispheres) ---
@@ -162,6 +177,9 @@ for agent in aria continuo; do
       cls=$(printf '%s' "$line" | grep -oE "$FENCE_PAT" | head -1)
       [ -z "$cls" ] && continue
       add_event "$cls" "$day" "$run:$run_n"
+      if printf '%s' "$line" | grep -qE "$KILL_PAT"; then
+        add_kill_event "$day" "$run:$run_n"
+      fi
     done < "$f"
   done
 done
@@ -271,6 +289,9 @@ if command -v ssh >/dev/null 2>&1; then
       # file already counted that day's events; recount = inflation).
       if [ -n "${FILE_DAYS[$cur_day]:-}" ]; then continue; fi
       add_event "$cls" "$cur_day" "jrn:$run_n"
+      if printf '%s' "$line" | grep -qE "$KILL_PAT"; then
+        add_kill_event "$cur_day" "jrn:$run_n"
+      fi
     done <<< "$JOUT"
   fi
 fi
@@ -380,18 +401,11 @@ done
 JOK=1
 [ -n "${JERR:-}" ] && JOK=0
 
-# --- kill census: days where the hard cap ENDED a run ---
+# --- kill census: days where a fence TERMINAL emission occurred (v2.1 KILL_PAT) ---
+# v1.5/v1.9 counted kill-CLASS emissions; c263 found msgs hard-cap BLOCKS (grace landed,
+# exit 0) miscounted as kills. A kill = the run actually ended by the fence (terminal line).
 KILL_DAYS=0
-declare -A KILL_DAYSET=()
-for key in "${!EVENT_RUNS[@]}"; do
-  cls="${key%%|*}"
-  case "$cls" in
-    "Tool-call hard cap"|"context circuit breaker")
-      day="${key#*|}"
-      KILL_DAYSET["$day"]=1 ;;
-  esac
-done
-for d in "${!KILL_DAYSET[@]}"; do KILL_DAYS=$((KILL_DAYS + 1)); done
+KILL_DAYS=${#KILL_RUNS[@]}
 
 # --- v1.6 TREND CENSUS (cycle 77) ---
 # v1.5 grades PRESENCE (days>=2), not TRAJECTORY: 27/63/4 declining
@@ -433,7 +447,7 @@ N_YDAY="${DOM_PERDAY[$YDAY]:-0}"
 N_DDAY="${DOM_PERDAY[$DDAY]:-0}"
 N_TODAY="${DOM_PERDAY[$TODAY]:-0}"
 KILLS_TODAY=0
-[ -n "${KILL_DAYSET[$TODAY]:-}" ] && KILLS_TODAY=1
+[ -n "${KILL_RUNS[$TODAY]:-}" ] && KILLS_TODAY=1
 # trend verdict: declining requires BOTH full days present and day(-1) < day(-2)
 TREND="flat"
 if [ -n "${DOM_PERDAY[$YDAY]:-}" ] && [ -n "${DOM_PERDAY[$DDAY]:-}" ] && [ "$N_YDAY" -lt "$N_DDAY" ]; then

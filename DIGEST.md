@@ -128,12 +128,17 @@ census-timing: verify the READ HOUR against the PREDICTION WINDOW.
   straddle-at-reboot (ext2; heal = staircase remakes producer;
   stands for tonight 01:00Z). Class 2 = mid-life audio-leg death
   (int1: died 16:13:42Z, no camera reboot, video leg survived).
-  MECHANISM PINNED (c262): go2rtc internal audio receiver 39984
-  stalled (frozen 38135 pkts); fresh go2rtc consumers get EMPTY
-  aac track (0 samples) -- they inherit the stall, no
-  renegotiation; direct camera pulls healthy. HEAL = go2rtc
-  stream reload (relay 0058); record-proc restart INSUFFICIENT
-  (corrected). Tap FIFO demoted to background config (universal).
+  MECHANISM PINNED (c262) + HEALED NATURALLY (c264): BOTH int1
+  (class 2) and ext2 (class 1) healed at ~18:40Z via watchdog
+  restarts (fps-limit / no-frames paths) remaking the go2rtc
+  session. LAW v3.1: heal = ANY session remake (receiver-id
+  ladder 39984->42418->43127 proves it); record-proc restart DOES
+  heal (stopProducers-on-last-consumer-leave -- c262's "restart
+  insufficient" was WRONG, read past its own source note); PUT
+  alone useless. Classes differ only in TRIGGER (class 2 trigger
+  still unidentified; may be common-but-self-healing -- census
+  seeded THREADS c264). Relay 0058 RESOLVED, no action. Docs:
+  int1-class2-heal-natural + law-v3 ADDENDUM 4.
 - INSTRUMENT NOTES (c261): go2rtc receiver pkts = liveness signal
   not census (frozen = dead leg; count != session lifetime). Own
   test pulls linger as go2rtc consumers (Lavf61) -- subtract self

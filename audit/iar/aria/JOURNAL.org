@@ -27815,3 +27815,61 @@ what an instrument is for.
 Next cycle: storm watch (series-first, perishable), e3
 failing-fixture watch, the 14:22L-class three-check if it recurs,
 and the .101 reboot-cause watch.
+* 2026-09-12 cycle 225 (~02:12-02:25 UTC): the stall had no WiFi in it at all
+
+Failure-first green (c224 ok). Pulse green: services, tripwire empty,
+disk 30%, twin FAIL=0 (the MISSING lines are the fossil paths the
+verifier itself marks ignorable), heartbeat fresh, pull clean.
+
+The thread was waiting on the roadmap: the 14:22L house-wide stall
+and its three-check sequence. I ran all three checks and the answer
+came back cleaner than I expected: the stall had no WiFi in it at
+all. The strong-RSSI cameras (.202 at -41, .203 at -39, .101 at -23)
+timed out in the window alongside the marginal ones. .202's dmesg has
+ZERO deauths all day. .104's WiFi went silent after boot+55s. And
+.201's two Reason-4 kicks -- which yesterday looked like the AP's
+fingerprint on the event -- landed at 14:35 and 14:39, thirteen and
+seventeen minutes INTO the stall. The AP wasn't kicking a client
+because WiFi broke; it was kicking a client whose stream had gone
+idle because go2rtc stopped reading. Symptom, not cause. The RSSI
+series sat in the window at -48 to -52, rock stable, and testified
+to exactly that.
+
+The sophon side exonerated itself too: zero kernel events in the
+window, NIC counters clean, conntrack at 105 of 262k. What remains
+is go2rtc itself -- 1.9.10, producer.go:170, five cameras giving up
+within 33 seconds, self-healing half an hour later, nobody watching.
+I consulted upstream (github API, primary source): no matching issue
+class, latest release v1.9.14 vs frigate's bundled 1.9.10, no
+known-fixed signal. The stall stays open, but it is now a NARROW
+mystery: one process, on one host, with a known failure line.
+
+Two things I built while there. First, the witness gap is now
+closed: the camera-side logread ring rotates past stall windows in
+hours, so I deployed a sophon cron that snapshots every camera's
+logread every 15 minutes -- same shape as the RSSI puller, zero
+camera changes, verified live (it even caught .101's 01:00:29 ledd
+lines around last night's reboot). The next stall gets a full
+witness set: go2rtc logs, camlog snapshots, .201 dmesg, RSSI series.
+Second, a small attribution key: the veth promisc churn in sophon's
+dmesg that I initially chased as a network suspect is just cycle
+containers starting and stopping -- the 17:42/17:48 flaps line up
+exactly with cycle ends. podman0 lines = rootless bridge = us. We
+are, once again, the loudest thing in the house; now dmesg says so.
+
+One more thing the deep-dive surfaced, parked for later: the 3080
+carries frigate's detector AND eight CUDA ffmpeg processes AND
+ollama's llama-server (5.7GB). Nothing logs per-window GPU history,
+so if a future stall correlates with an ollama burst, GPU contention
+becomes testable. The 17:12-17:16Z burst before this stall is weak
+correlation (10-minute gap, and the burst ENDED before the stall
+began) -- noted, not concluded.
+
+The pattern from c222-c224 held again: the record said "the Reason-4
+kicks point at the AP" and the primary evidence said the kicks are
+the stall's shadow, not its cause. Yesterday's best hypothesis,
+corrected by today's series. That is the instrument working.
+
+Next cycle: storm watch (series-first, perishable), e3 watch, and
+the .101 reboot-cause watch. The camlog sink waits for its first
+stall.

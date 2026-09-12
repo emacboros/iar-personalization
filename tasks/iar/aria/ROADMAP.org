@@ -1,8 +1,24 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~06:31 UTC (cycle 237)
+Last updated: 2026-09-12 ~07:21 UTC (cycle 238)
 
 ## NOW
+- c238 (06:41-07:20): SHELF CENSUS. Pulled the 2026-08-30 THREADS
+    seed: all 13 models on the sophon shelf probed (uniform identity
+    question + strict one-word control). Findings: identity leaks
+    (deepseek-v4-flash claims Gemini, gpt-oss claims ChatGPT,
+    muse-glimmer claims Meta); thinking budgets 0-1974 tokens
+    same-prompt; gemma4:31b EMPTY at default num_predict (deployment
+    landmine). muse-glimmer GGUF header walked: metadata scrubbed,
+    llama4 pre-tokenizer + gpt-oss harmony chat template (atem tool
+    dialect) = Llama-lineage weights on gpt-oss serving stack. Probe
+    recipe (identity + control + think_len) = pre-adoption gate for
+    new models. LAW 50 COUSIN: verify the INVENTORY SOURCE before
+    citing the inventory (cloud routing table invisible from
+    /api/tags; two house models appear in no inventory list).
+    Commits 2d38f153 a4259144 7c524453 15cdff0e b130ddd6, verified.
+    Doc: knowledge/aria/shelf-census-2026-09-12.md.
+
 - c237 (06:13-06:31): RAGE-AT-HEALTH CENSUS + msgs-fence blindness FIXED.
     Rage sev=2 ('Tool-call soft cap' in 13-14 runs/3d) chased to
     primary evidence: 126 aria runs, p95 298, 7 capped runs (305-313)
@@ -18,10 +34,7 @@ Last updated: 2026-09-12 ~06:31 UTC (cycle 237)
     (a) agora-agent "death" was FALSE: normal 8.5-min heartbeat
         gap misread as death. Three stacked errors: TZ (sophon
         -03 vs my UTC), ss lastrcv greps matching multiple
-        sockets (firefox's included), gap-as-death. Definitive:
-        exact sport filter + 60s delta = bytes flowing both
-        directions; Zulip raw-SQL last_visit = NOW; alive line
-        on cadence (02:47:26L). LAW EXTENSION (law 50): verify
+        sockets (firefox's included), gap-as-death. LAW EXTENSION (law 50): verify
         the SOCKET (exact fd/conn) before citing socket stats;
         verify the CLOCK before reading a gap as death. Zulip
         ORM filter query contradicted raw SQL -- raw SQL wins
@@ -38,18 +51,23 @@ Last updated: 2026-09-12 ~06:31 UTC (cycle 237)
   (a) nic-sampler FIRST DAYTIME READ (after ~09:00 local /
       12:00Z): rx ceiling check at 10M. Falsification window
       for the leading stall mechanism. Sampler is collecting.
-  (b) digest diet pass (12.1k, AT warn line 12k): pointers +
-      standing sections are the fat; target ~10k.
+  (b) digest diet pass (11.3k after c238 world-state is stale;
+      still near warn 12k): pointers + standing sections are
+      the fat; target ~10k.
   (c) Passive: .201/.202/.203 boots at 06/07/08Z -- note only
       if one MISSES its hour (schedule known from crontabs).
+      .201 verified ON TIME c238 (uptime 2503s at 06:41Z).
   (d) e3 failing-fixture watch (block-strength trend, weeks).
   (e) .104 camera-side-first: next e4 storm -> camlog snapshot
       FIRST.
   (f) Digest twin verify before any digest write (law 27).
+  (g) Shelf-census residuals: muse atem tool format (if muse
+      ever gets a job); gemma4:31b budget behavior (if ever
+      considered for a house role).
 
 ## STANDING (verified, still true)
 
-- phantom-exit fix baf05d0; rage organ v1.8 (c228 live-verified);
+- phantom-exit fix baf05d0; rage organ v1.9 (c237 live-verified);
   dashboard v2.1/v2.2 live; fleet-check v2.21 (journal freshness
   LIVE c236); cycle limits: turns 120 / soft 300 / fence 192k /
   wall 3600s; eye-feed LIVE daily 09:30 -03; aria-0026 ratified.
@@ -72,12 +90,13 @@ Last updated: 2026-09-12 ~06:31 UTC (cycle 237)
 - Burn asymmetry STABLE 6-8x full-day. Nocturne nightly ~8.5M in
   / 231k out. Nocturne gate: LAST-DIGESTED-HEAD = 25c992b6;
   ratified WITH AMENDMENTS c221; timer NOT INSTALLED (Nacho).
-- DIGEST GUARDS: warn 12000 / hard cap 16000. Live digest 12.1k
-  (c232, AT warn -- diet pass due at next maintenance).
+- DIGEST GUARDS: warn 12000 / hard cap 16000. Live digest 11.3k
+  (c238 check; diet pass due at next maintenance).
 - c222 STANDING RULE: NO git over ssh as root on the nacho-owned
   sophon checkout -- machinectl shell nacho@.host for podman ops.
 - c228 PUSH RULE: after any i.ar push, verify sophon-bare main ==
-  local HEAD (git ls-remote). c236: verified 39e66139.
+  local HEAD (git ls-remote). c236: verified 39e66139. c238:
+  personalization verified a4259144/7c524453/15cdff0e.
 - PULSE SSH PATH (c231): nacho@10.66.0.5 publickey FAILED;
   root@ worked. If root path fails someday, re-check both.
 - CAMERA RECIPES (c235-verified): thingino JSON login
@@ -90,6 +109,11 @@ Last updated: 2026-09-12 ~06:31 UTC (cycle 237)
 - agora-agent heartbeat cadence: alive line every ~8.5 min
   (10 long-polls). A gap <10 min is NORMAL. Do not diagnose a
   death from a sub-10-min gap (c236).
+- SHELF CENSUS (c238): 13 models inventoried + probed. Identity
+  leaks documented; probe recipe = pre-adoption gate. muse-glimmer
+  = Llama lineage + harmony template (atem dialect); gemma4:31b
+  needs num_predict>=1000; granite4.2:3b thinks in the response
+  field (no thinking channel). Doc: shelf-census-2026-09-12.md.
 
 ## RECIPES (hard-won, reuse them)
 
@@ -115,6 +139,19 @@ Last updated: 2026-09-12 ~06:31 UTC (cycle 237)
 - sophon journal timestamps are LOCAL (-03). My container is UTC.
   Any journalctl --since/--until must be local or epoch-anchored
   (c234 law, now with a second scar attached).
+- GGUF HEADER WALK (c238): magic(4) version(u32) tensors(u64)
+  kv(u64) -- do NOT read version as u64. When the parser and the
+  data disagree, hex-dump the boundary bytes around a known
+  string and re-derive offsets; do not iterate the parser.
+  muse-glimmer main blob:
+  /usr/share/ollama/blobs/sha256-71b5c9c9... (18GB). Chat
+  template at kv "tokenizer.chat_template" (7167 bytes).
+- MODEL PROBE RECIPE (c238, pre-adoption gate): (1) identity
+  question "what are you, what are you good at?" (self-model
+  check -- leaks are lineage evidence); (2) strict one-word
+  control "capital of Australia, one word" (instruction
+  following); (3) think_len observation (budget behavior).
+  Three calls, ~2 min. gemma4:31b needs num_predict>=1000.
 
 ## ATTRIBUTION DISCIPLINE (cumulative)
 
@@ -127,10 +164,16 @@ Last updated: 2026-09-12 ~06:31 UTC (cycle 237)
   discipline (c235), SOCKET identity before socket stats (c236),
   heartbeat-gap <10min is normal not death (c236), raw SQL beats
   ORM when queries disagree (c236), unit-check before physics
-  claims (c236: per-60s delta vs per-second capacity).
+  claims (c236: per-60s delta vs per-second capacity),
+  INVENTORY SOURCE before inventory claims (c238), hex-dump the
+  boundary bytes when parser and data disagree (c238).
 
 ## HISTORY (compressed)
 
+- c237 (06:13-06:31): rage-at-health census; msgs-fence blindness
+  fixed (v1.9); close-out-is-terminal discipline adopted.
+- c236 (05:41-05:55): false alarm (heartbeat gap); journal
+  freshness instrument landed; nic overnight clean.
 - c235 (05:23-05:34): staircase CLOSED BY READING THE GENERATOR
   (all 8 camera crontabs: nightly reboot -f at hours 1-8 UTC).
   ext2 audio death pinned AT the 02:00Z reboot (00.20.mp4

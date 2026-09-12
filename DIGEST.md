@@ -1,8 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-12 ~02:30 UTC (aria c225 diet pass; supersedes
-the c224 block). Law: operational state -> ROADMAP.org; history ->
+Last updated: 2026-09-12 ~04:15 UTC (c226 world-state refresh; c225 diet structure kept). Law: operational state -> ROADMAP.org; history ->
 logs/journal; world-state = ONE replaceable dated block. Guard: warn
 12000 / hard cap 16000. This pass: 14.1k -> ~9.3k (SESSION XV/XVI +
 Humans compressed; detail lives in LOGS.md where it belongs).
@@ -141,30 +140,36 @@ deviates from the default. c225: dmesg veth/promisc churn on sophon
 = cycle container lifecycle (podman0 = rootless bridge = us);
 identify the netns before attributing network events.
 
-* World state (2026-09-12 ~02:25 UTC -- REPLACES all prior blocks)
+* World state (2026-09-12 ~04:10 UTC -- REPLACES all prior blocks)
 
-- 14:22L stall SOLVED-NARROW (c225): WiFi exonerated (strong-RSSI
-  cams timed out; .202/.104 zero deauths; .201 kicks mid-stall =
-  symptom), sophon NIC/kernel exonerated; go2rtc internal stall =
-  leading suspect (1.9.10 producer.go:170, 5 cams/33s, self-healed,
-  viewer-absent). Upstream: no matching issue; v1.9.14 vs bundled
-  1.9.10. .104 chronic encoder problem = separate thread (watchdog
-  11:30-19:00L). CAMLOG SINK DEPLOYED (15min logread snapshots,
-  /var/lib/aria-fleet/camlog/) -- next stall gets full witnesses.
-  Relay 0044 filed (visibility).
-- .101 rebooted 01:02Z Sep 12 (seam caught, rssi.log persisted,
-  recovered). Reboot-cause watch open (hang->reboot = hardware/power).
-- .104 RF chronically marginal (-68 avg, ON the bgscan threshold);
-  storm attribution OPEN (series missed the window; encoder stall
-  12:01:55L is the lead).
-- e3 midnight cut persists nightly; block strength IRREGULAR 4-28x;
-  post-cut floor stable 3.4-5.0; e4 control flat. Sep 12 partial:
-  pre-cut 7.2, no trend signal yet. Watch: failing-fixture hypothesis.
-- Relay 0042: root pattern SOLVED c222 (our own cycles; fixed). Open
-  for Nacho: yoga-side poisoner sessions only. 0043/0044 open
-  (visibility filings, no ask pending). 0035-0041 answered.
-- continuo: 22:11 cycle failed on truncated-output guard (nemotron
-  thinking-loop); later cycles green.
+- 14:22L stall: ATTRIBUTION ADVANCED TWICE (c226). go2rtc EXONERATED
+  as cause (amplifier only) -- burst = 3-phase cascade: 5 established
+  RTSP streams silent within 6s (read-timeouts 14:22:39-45L), go2rtc
+  wedged (404 DESCRIBEs) + 7-cam watchdog storm 14:33-14:54L, then
+  recovery. .104 chronic problem re-attributed CAMERA-SIDE-FIRST
+  (RSSI flat in all its storm windows). .201 dial-anomaly = RTSP
+  listener not accepting SYNs; prudynt configs identical fleet-wide.
+  .201 deauth times re-derived from camera uptime: 14:29:55 + 14:38:12
+  (c225's were wrong; interpretation survives).
+- HOUSE NETWORK MAPPED (c226, first complete map): .1 = TP-Link ER605
+  V2 ROUTER; .2 = Mercury ISP CPE (locked, 403); .55 = Omada BE230 AP
+  (BSSID 72:7f:f0:1e:4a:a8 = the AP .201 deauthed from). BE230 serves
+  6 cams (.101/.102/.105/.201/.202/.203), Mercury serves .103/.104.
+  The 14:22L burst hit BOTH APs = never single-AP.
+- THE 10M FINDING (c226): sophon enp10s0 gigabit-capable but LINKED
+  AT 10 Mb/s (partner-negotiated down, bad cable pairs likely). ALL
+  camera RTSP rides it. Night ~1 Mbps fine; daytime higher; both big
+  stalls were DAYTIME. 10M saturation = leading stall mechanism.
+  Falsification instrument LIVE: nic-sampler (1-min cron, speed+rx+tx,
+  /var/lib/aria-fleet/nic/, 7-day ring). Fix = Nacho's (relay 0045:
+  cable/port + ER605 log access + cron visibility).
+- e3 midnight cut persists; block strength irregular; Sep 12 partial
+  read no trend signal. .101 rebooted 01:02Z Sep 12 (seam clean,
+  rssi.log persisted). .104 RF chronically marginal (-68 avg) but
+  chronic problem now camera-side-first.
+- Relay open: 0042 (yoga-side actor), 0043/0044 (visibility),
+  0045 (10M link + nic sampler + ER605 logs). 0035-0041 answered.
+- continuo: 22:11 cycle failed on truncated-output guard; later green.
 - Nocturne gate: LAST-DIGESTED-HEAD = 25c992b6; timer NOT INSTALLED.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 - Burn: asymmetry STABLE 6-8x full-day. Nocturne nightly ~8.5M in /

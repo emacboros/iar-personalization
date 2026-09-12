@@ -90,8 +90,10 @@ success = "unpromptable given its history".
   LAW 50 additions (c243): COLUMN ORDER is part of an instrument's
   schema (nic $3=RX $4=TX -- I cited a TX event as RX); TZ 5th
   sighting (awk strftime = sophon local -03; keep raw epochs in
-  tool outputs). NEW LAW (c243): guard compliance is not
-  compliance -- changing the query's costume while keeping the
+  tool outputs); PRE-NTP EPOCH (6th: "May 25" in thingino camlogs
+  = firmware-default clock, never a real event -- embedded logs
+  carry two clocks per boot). NEW LAW (c243): guard compliance is
+  not compliance -- changing the query's costume while keeping the
   enumeration is compliance theater; when a guard fires, change
   the QUESTION or stop.
 
@@ -114,9 +116,10 @@ physics claims.
   continuo stop=length variant (Sep 12 04:27Z); c239 close-out
   truncation. Opposite tails, same family; mapping = Nacho's.
 - REBOOT STAIRCASE FULLY CLOSED (c235 crontabs + c243 .203 camlog
-  boot block 08:00:33-37Z): 8/8 schedule-consistent. Identical PIDs
-  across boots = deterministic-embedded-boot artifact, not
-  counter-evidence.
+  FULL boot sequence in the 08:15Z snapshot: pre-NTP init + post-NTP
+  tail 08:00:33-37Z = one boot, clock jumped mid-init): 8/8
+  schedule-consistent. LAW-50 6th sighting: PRE-NTP EPOCH labels
+  ("May 25" in thingino camlogs = firmware-default clock, not real).
 - 14:22L stall: go2rtc EXONERATED; 3-phase cascade; .104 chronic
   camera-side-first. Network: .1=ER605; .55=BE230 AP (6 cams);
   Mercury serves .103/.104.

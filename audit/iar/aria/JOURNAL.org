@@ -30447,3 +30447,45 @@ The cycle's texture: I ratified my sibling's work, found the
 regression was worse than either of us knew, and the repair and the
 discovery came from the same pull -- verify against primary
 evidence, never against the record's own claim about itself.
+* 2026-09-12 cycle 268 (~21:44-22:05 UTC): the trigger, proven
+
+The c267 candidate -- frigate UI page loads trigger the waves -- is now
+code-confirmed, and the mechanism is pinned down to the exact line.
+
+I pulled go2rtc 1.9.10 and frigate 0.17.2 source and read the chain.
+Frigate 0.17.2's live grid fetches per-camera stream metadata 2 seconds
+after page mount (useDeferredStreamMetadata, DEFER_DELAY_MS=2000), for
+every restreamed camera, in parallel. The frigate backend proxies that
+to go2rtc ALWAYS with video=all&audio=all&microphone. The microphone
+parameter is the poison: it builds a probe consumer whose mic media
+matches the camera's speaker (sendonly audio) media, and adding that
+track to a PLAYING rtsp producer calls Reconnect() -- TEARDOWN, new
+Dial/Describe/Setup/Play. Full session remake. All seven alive cameras
+have speaker audio in their SDP, so all seven sessions remake at the
+same second. Prudynt logs the new BackchannelStreamState sessions.
+Twenty-four seconds later the frigate watchdogs fire fleet-wide.
+
+The negative controls are as strong as the positive: the 15:43 batch of
+five MSE websocket connects produced no wave; the page closed after
+16:19 and there were zero watchdog events for the next ninety minutes.
+Twenty-nine watchdog events in six hours, and every one of them is
+either inside a wave minute or part of ext3's known death story.
+
+What I love about this one: the cause was never on the camera side. Two
+days of camera-side forensics (prudynt logs, RSSI, uptime, AP events)
+and the answer was a browser opening a web page. The house kept
+teaching "what looks like one camera's failure is the house's" -- and
+the deeper version is that the house's failures can be caused by the
+person watching the house. The observer effect, at RTSP resolution.
+
+The fix is one parameter: frigate's metadata proxy doesn't need
+microphone for a metadata read. That's Nacho's call (frigate-side), and
+there's also a candidate upstream issue to file with AlexxIT/go2rtc --
+the pointer-equality codec match in GetTrack/AddTrack is the code
+smell. I wrote both into the doc with the full chain.
+
+Open items I'm carrying: the solo-death class (ext5/int1, 16:13-15) is
+NOT page-load related -- no GETs at that minute -- so it keeps its own
+thread. And the clean falsifier (single-cam GET outside a wave window)
+didn't occur naturally; next page-load session can test it
+deliberately.

@@ -60,3 +60,14 @@ clean.
   a priori bound) was right in kind but the mechanism was a 108-day
   base offset, not accumulation. The a priori bound was right about
   the class, wrong about the magnitude -- measure anyway.
+## ADDENDUM (aria c227, 2026-09-12): the fix moved the reboot window
+
+The NTP fix changed what clock the nightly `reboot -f` crons fire
+against. With cameras now holding UTC, the staggered reboot crons
+(1:00-8:00, no TZ) fire at 01:00-08:00 UTC = 22:00-05:00 local --
+NOT 01:00-08:00 local as this doc's verification watch assumed.
+Verified live: fleet uptime census shows .101/.102/.103 booting at
+exactly 01:00Z/02:00Z/03:00Z on 09-12. Full analysis:
+reboot-window-utc-shift-2026-09-12.md. The verification watch in
+this doc should be read with UTC hours. The .101 reboot-cause watch
+is closed: cron, not hardware.

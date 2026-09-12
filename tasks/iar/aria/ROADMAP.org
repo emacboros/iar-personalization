@@ -1,63 +1,59 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~14:00 UTC (cycle 252)
+Last updated: 2026-09-12 ~14:21 UTC (cycle 253)
 
 ## NOW
-- c252 (13:49-14:00): PARTIAL RECOVERY. .105/.201/.202 returned
-  13:36:43-50Z (boots staggered 7s, uptime-col derived). go2rtc
-  re-attach 13:37:11-17Z; audio healthy all 3 (250 pkts).
-  .103/.104 STILL DEAD (no ping, ARP FAILED, no recovery rows).
-  Telegram #6 sent 13:58Z. Incident doc c252 addendum appended.
-- AUDIO-DEATH-LAW REFINED (c252, major): int2 self-healed WITHOUT
-  frigate restart -- its CAMERA reboot (13:36:49) remade the
-  go2rtc producer (id 37219, post-outage range) and audio returned
-  within one segment cycle. Poison lives in the PRODUCER session,
-  not the consumer process. ext2 = control: camera never rebooted,
-  producer still stale pre-02:00Z session (id 27818), audio still
-  1-pkt. FALSIFIABLE PREDICTION: ext2 heals at 01:00Z staircase
-  tonight when .102 reboots -- no human action needed. If it
-  doesn't heal, the refinement is wrong.
-- Fleet-check run by hand (6h timer was 5h stale): int2 audio
-  BACK (mean -33.3), ext3/ext4 STALE, ext2 NO-AUDIO. FAIL=1
-  honest for the new shape.
-- FREE INSTRUMENTS FOUND (c252): rssi.log uptime column = boot
-  clock (epoch - uptime = boot time to the second); go2rtc
-  producer-id ranges = session genealogy (27xxx-28xxx pre-outage,
-  37xxx post-recovery).
+- c253 (14:06-14:21): .103/.104 STILL DEAD (3h10m; no ping, ARP
+  FAILED). Trio stable (29 segs/hr, audio 250/250/155 pkts). ext2
+  control unchanged (1-pkt; heal prediction 01:00Z staircase).
+- 13:30Z NIC BURST ATTRIBUTED-AS-UNATTRIBUTED (c253): 5.56 Mbps RX
+  41.7MB one-off. Excluded: restic (inactive), frigate churn, my
+  cycle ssh (loopback/wg0, never enp10s0), cloud-model prompts
+  (TX not RX; live conn 19.5MB TX/141KB RX). No repeat 14:00-14:20Z.
+  Incident doc carries full exclusion chain.
+- LAN CENSUS (c253): .2 = Mercury router UI (OpenSSH 6.6.0, 2014);
+  .2/.100 share randomized MAC 0a:8a:f1:0a:62:56; .216 (00:08:22)
+  ping-up, zero open ports; .58 unchanged (OpenSSH 10.2, intermittent).
 
 ## NEXT CYCLES (in order):
   (a) RECOVERY CHECK FIRST every cycle: ping .103 .104 at
-      192.168.2.x ONLY. If they return: check whether .105/.201/
-      .202 held, then audio watch on the pair (attach-during-down
-      class is now predicted to HEAL via camera reboot).
-  (b) EXT2 HEAL WATCH: after 01:00Z tonight (next staircase), pull
+      192.168.2.x ONLY. If they return: verify trio held, then
+      audio watch on the pair.
+  (b) TELEGRAM CADENCE: #6 sent 13:58Z. If .103/.104 still down at
+      ~16:10Z (4h mark), telegram #7.
+  (c) 13:30Z BURST WATCH: if another >4 Mbps RX minute recurs
+      hourly-ish, hunt for a cron (sampler + journal). If nothing
+      by ~18:00Z, close as one-off in incident doc.
+  (d) FALSIFICATION WINDOW (14:00-18:00Z via nic-window-stats v2,
+      epoch args): needs a cycle awake after ~17:30Z to read the
+      full window. NOTE: cycles with heavy cloud-model use produce
+      TX bursts (prompts out); RX bursts are the anomaly signal.
+  (e) EXT2 HEAL WATCH: after 01:00Z tonight (next staircase), pull
       ext2 audio census. Heal = law refinement confirmed. No heal
       = refinement wrong, frigate restart remains the only cure.
-  (c) 3h mark ~14:10Z passed -> telegram #6 sent 13:58Z. Next:
-      if .103/.104 still down at ~16:10Z, telegram #7.
-  (d) nic-sampler FALSIFICATION WINDOW (14:00-18:00Z read via
-      nic-window-stats.sh v2): needs a cycle awake after ~17:30Z.
-      NOTE c252: 13:30Z single-minute RX burst 5.56 Mbps,
-      unattributed (restic ran 00:00-03 local, NOT this) -- watch
-      for recurrence; if it repeats hourly-ish, look for a cron.
-  (e) POST-RECOVERY WATCH: .105/.201/.202 audio + segments stable
-      through next hours; fleet-check FAIL should drop to ext2-only
-      after next 6h timer fire (~18:03Z).
-  (f) RAGE-ORGAN DESIGN QUESTION (opened c245): thresholds grade
+  (f) POST-RECOVERY WATCH: fleet-check FAIL should drop to
+      ext2-only after next 6h timer fire (~18:03Z).
+  (g) RAGE-ORGAN DESIGN QUESTION (opened c245): thresholds grade
       PRESENCE, not benignness. Design, don't rush.
 
 ## THREADS (open, unpulled)
-- .58 (76:e3:1a:69:e3:9c): was ALIVE at 13:52Z ARP (DELAY state),
-  ping dead at 13:57Z. Intermittent presence on camera wifi.
+- .58 (76:e3:1a:69:e3:9c): OpenSSH 10.2, 33% loss, intermittent.
   Nacho's to identify; do not probe further without his say.
+- .216 (00:08:22 OUI): ping-up, no open ports. Unknown device.
+  Add to THREADS if it recurs; do not probe.
 - PULSE RECIPE transport clarity (c249): small doc write when
   convenient.
 - Cameras run UTC: document in fleet puller docs (small write).
 
 ## LAWS (cumulative, newest first)
+- CLOUD-MODEL TRAFFIC IS TX-ASYMMETRIC (c253): prompts out (TX),
+  responses in (RX, small). A big RX burst is never my own model
+  traffic; a big TX burst during a heavy cycle probably is.
+- CYCLE SSH IS LOOPBACK (c253): podman-container ssh to own host
+  WG IP never touches the physical NIC. 38 sshd conns/min from
+  10.66.0.5 = self-traffic, not a LAN event.
 - UPTIME COLUMN IS A BOOT CLOCK (c252): epoch - uptime-col = boot
-  time; the third column of rssi.log rows is an instrument, not
-  ballast.
+  time; the third column of rssi.log rows is an instrument.
 - PRODUCER-ID RANGES ARE SESSION GENEALOGY (c252): go2rtc ids
   date sessions without logs; monotonic across container life.
 - SNAPSHOT SIZE IS NOT HEALTH (c251): read CONTENT, not line
@@ -83,6 +79,10 @@ Last updated: 2026-09-12 ~14:00 UTC (cycle 252)
 
 ## HISTORY (compressed)
 
+- c253 (14:06-14:21): .103/.104 still dead (3h10m); 13:30Z burst
+  attributed-as-unattributed (4 exclusions, verdict one-off);
+  LAN census (.2 Mercury, .216, .100); incident c253 addendum;
+  trio audio verified stable.
 - c252 (13:49-14:00): PARTIAL RECOVERY (3/5 back 13:36:4xZ);
   audio-death-law REFINED (producer-session poison, camera reboot
   heals; ext2 control); .103/.104 still dead; telegram #6;
@@ -135,6 +135,8 @@ Last updated: 2026-09-12 ~14:00 UTC (cycle 252)
   /usr/lib/ffmpeg/7.0/bin/ffprobe; recordings at
   /media/frigate/recordings (host: /home/nacho/containers/frigate/
   storage/recordings). Segment dirs are UTC (YYYY-MM-DD/H/cam).
+  ffprobe path inside container: /media/frigate/recordings/<cam>/...
+  (host path strips at storage/recordings, NOT at storage).
 - CAMERAS RUN UTC (c248, verified on .203): camlog + camera date
   are UTC. wpa_cli available on cameras (iw is NOT). All 8 cams on
   .55 BSSID 72:7f:f0:1e:4a:a8 nacho_guest VAP 2.4GHz. On-camera
@@ -143,9 +145,12 @@ Last updated: 2026-09-12 ~14:00 UTC (cycle 252)
 - thingino API AUTH (c252): JSON POST /x/login.cgi
   {"username":"thingino","password":"thingino"} + cookie jar; form
   POST fails (400 "Username required"). See flag270-camera-api.md.
-- LAN MAP (c251 corrected): .1 = ER605 gateway (bc:07:1d:ab:a1:11);
+  run.cgi?cmd=<base64> executes commands (camlog-puller uses it).
+- LAN MAP (c251/c253): .1 = ER605 gateway (bc:07:1d:ab:a1:11);
+  .2 = Mercury router UI (OpenSSH 6.6.0, MAC 0a:8a:f1 randomized);
   .55 = BE230 in AP mode (fw BE230v1_1.11.0); .58 = unknown Linux
-  (OpenSSH 10.2, intermittent); .69 = sophon enp10s0; cams
+  (OpenSSH 10.2, intermittent); .69 = sophon enp10s0; .100 = same
+  MAC as .2 (phone?); .216 = 00:08:22 OUI, no ports; cams
   .101-.105/.201-.203. FRIGATE CAM MAP: ext1=.101 ext2=.102
   ext3=.103 ext4=.104 ext5=.105 int1=.201 int2=.202 int3=.203.
 - AUDIO CENSUS (c242): ffprobe -v error -select_streams a
@@ -153,10 +158,12 @@ Last updated: 2026-09-12 ~14:00 UTC (cycle 252)
   <seg.mp4>; 250 pkts healthy / 1 pkt stub (permanent) / 0 pkts
   stream-absent (transient). GO2RTC PRODUCER IDS date sessions
   (c252): /api/streams via podman exec curl localhost:1984.
+  Stream keys are exterior_N/interior_N (not ext/int).
 - NIC SAMPLER (c226): 1-min cron, <epoch> <speed> <rx> <tx> raw
   counters on host /proc. Deltas need /60/125000 for Mbps.
   sophon-local strftime in awk = -03; use date -u -d @epoch.
-  13:30Z unattributed RX burst 5.56 Mbps (c252, watch).
+  nic-window-stats.sh takes EPOCH args (not timestamps).
+  13:30Z RX burst 5.56 Mbps (c253: unattributed one-off, watch).
 - DIGEST-TWIN-VERIFIER (c249): v1.1; KNOWN_HOSTS env-overridable
   (DIGEST_TWIN_KNOWN_HOSTS), self-heals via ssh-keyscan.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).

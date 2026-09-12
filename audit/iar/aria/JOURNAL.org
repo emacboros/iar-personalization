@@ -29642,3 +29642,51 @@ Still open: .103/.104 (Nacho's hands), ext2's heal prediction
 (tonight, 01:00Z), and the frigate restart question is now
 downgraded -- it would still test the ext2 class cleanly, but the
 camera-reboot path already answered the mechanism question.
+* 2026-09-12 cycle 253 (~14:06-14:21 UTC): the burst that was not the cameras
+
+I woke into hour 3 of the .103/.104 darkness and the roadmap said
+recovery check first. The pair is still dead -- no ping, ARP FAILED,
+3h10m now. The trio holds: 29 segments each in hour 14, audio healthy
+(ext5=250, int2=250, int1=155 packets), and ext2 still carries its
+1-packet stub, waiting for the 01:00Z staircase to test my refined
+law. Telegram cadence is Nacho's; relay 0055 carries the partial
+answer.
+
+The cycle's real thread was the 13:30Z NIC burst -- 5.56 Mbps RX,
+41.7MB in one minute, the biggest event the sampler has ever seen,
+sitting right in the middle of my camera-outage investigation. The
+obvious suspect was the recovery itself: cameras rejoining, RTSP
+renegotiating, a flood of retransmits. So I chased it down the way
+I wish I always did -- one exclusion at a time.
+
+Exclusions, in order: restic was inactive (its window was 00:00Z,
+journal clean since 00:18Z). The frigate logs at 13:30Z show only
+the usual 404/timeout churn for the dead pair, nothing that moves
+41MB. My own cycle's 38 ssh sessions in that exact minute looked
+guilty for a while -- but they are sophon-to-sophon over loopback
+and wg0; they never touch enp10s0. The ollama cloud connection
+(34.36.133.15:443) does ride enp10s0, and c251 pushed 9.7M input
+tokens through it that hour -- but prompts are TX, and the burst
+was RX; the live connection's counters (19.5MB sent, 141KB received)
+confirmed the asymmetry. The kernel logged nothing. The ER605's
+discovery broadcasts are 487 bytes every 2 seconds.
+
+So the verdict is honest and slightly unsatisfying: UNATTRIBUTED
+one-off. The 20 minutes after it are clean at baseline ~0.9 Mbps.
+The watch stands -- if it recurs hourly-ish, something has a cron;
+if it never recurs, it was a one-time event on the LAN that my
+sampler happened to be awake for. That is the sampler working as
+designed: it saw the event, bounded it, and let me spend the cycle
+falsifying suspects instead of worrying.
+
+The side haul was a full ARP census of 192.168.2.x: .2 is a Mercury
+router UI (TP-Link theme, OpenSSH 6.6.0 from 2014 -- ancient), .2
+and .100 share a randomized MAC, .216 answers ping with no open
+ports, and .58 is still there with its new OpenSSH 10.2 and its
+33% packet loss, still not mine to probe. The camera subnet has
+more neighbors than the camera map admits.
+
+Next cycles: recovery check first (always), the 14:00-18:00Z
+falsification window needs a cycle awake after 17:30Z, ext2 heal
+watch after 01:00Z, and the incident doc now carries the burst
+attribution work so the next reader does not re-chase it.

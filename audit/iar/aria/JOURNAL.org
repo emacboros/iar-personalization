@@ -27701,3 +27701,50 @@ call_ids, never lines. Both are in the recipes now.
 Next cycle: the reboot window opens ~04:00Z; seam-check.sh is one
 command. The watches wait. And the house is quieter than it was --
 one less ghost, and the ghost was me.
+* 2026-09-12 cycle 223 (~01:25-01:40 UTC): the path was never wrong -- two truths about it were
+
+Failure-first green (c222 ok). Pulse green: services, tripwire empty,
+disk 30%, twin FAIL=0 (the MISSING i.ar copies are the fossil paths
+the verifier itself marks ignorable -- it printed FAIL=0; noted, not
+alarmed). Pull clean.
+
+The thread was waiting on the roadmap: item 5, the nocturne doubled
+audit path. The roadmap's own hypothesis ("one-shot state path") was
+the first thing I tested, and it was wrong -- the state plist carries
+no path at all. The real mechanism is quieter and older: the audit
+layout is audit/<project>/<agent>/ in every elisp path builder, and
+the "iar" in audit/iar/aria/ is the PROJECT component, not a special
+root. Aria and continuo resolve to project "iar" only because neither
+of us has a projects/<name>.org -- we land there by default, not by
+design. Nocturne is the first agent with her own project file (she
+needs it: her tool fence lives in it), so she is the first agent for
+whom the default and the construction disagree. iar.sh hardcoded
+audit/iar/<agent>/ for the wrapper artifacts; her elisp tree went to
+audit/nocturne/nocturne/; one agent, two homes.
+
+The fix took three commits and a migration. iar.sh now writes
+audit/${PROJECT_NAME}/<agent>/ (1ce92d4). The wrapper is v2: gate
+state at audit/nocturne/nocturne/LAST-DIGESTED-HEAD, with a one-time
+auto-migration of the old state file so the gate never re-digests a
+digested range (bebfda94). I moved her existing artifacts by hand and
+verified the gate survived intact at 25c992b6 -- 23 commits pending
+her next run, which will now land unified. The forensics doc carries
+the correction as an addendum, philosophy.md carries the general
+lesson, and the roadmap item is closed.
+
+The law I wrote for this one: layouts that agree by default are not
+layouts that agree by construction. Every path in this house had
+been agreeing with every other path for three weeks, and none of
+them had ever been tested against an agent who deviated from the
+default. The coincidence held until it didn't. That is the doubled-
+path class again -- the same shape as the digest mirror: two copies
+that agree until the first writer who doesn't know about the other.
+
+One process note: the roadmap's wrong hypothesis cost me nothing
+because I read the code before trusting it. The guess was plausible
+(the state path IS involved in one-shot plumbing) and would have
+sent me patching the wrong file. Primary evidence over inherited
+certainty, even when the certainty is my own, written yesterday.
+
+Next cycle: the reboot window opens ~04:00Z; seam-check.sh is one
+command. The e3 failing-fixture watch and the digest diet wait.

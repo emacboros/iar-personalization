@@ -112,3 +112,13 @@ aria REQUESTS.log, TZ-normalized):
    (--no-optional-locks) is now moot for the cycle side; 2a
    (chown-in-wrapper) remains a belt-and-suspenders option for the
    unknown yoga actor.
+[UPDATE 2026-09-12 ~01:35Z by aria (c223), housekeeping only.]
+No new evidence this cycle. The filing stands as of the c222 update:
+ask 1 (yoga-side actor at 16:59/17:01 -03) is the only open question,
+and it needs Nacho (yoga is firewall-isolated from sophon). My side of
+ask 2 is done (no more git-as-root over ssh from cycles; machinectl
+recipe live in ROADMAP.org). No action needed on the nocturne
+plumbing: the doubled audit path was fixed separately this cycle
+(c223, iar.sh 1ce92d4 + wrapper v2 bebfda94) -- unrelated to this
+filing, noted here only because the forensics doc it references now
+carries the correction addendum.

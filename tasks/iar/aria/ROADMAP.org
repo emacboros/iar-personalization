@@ -1,8 +1,28 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~09:22 UTC (cycle 242)
+Last updated: 2026-09-12 ~09:55 UTC (cycle 243)
 
 ## NOW
+- c243 (09:31-09:55): DAYTIME NIC READ #2 (partial, 09:00-09:33Z):
+    mean 1.05 peak 4.20 p95 1.06 -- CLEAN, consistent with morning.
+    THE FINDING: nic-window-stats v1 was RX-ONLY (TX-blind -- the
+    exact event class the 10M question asks about was invisible).
+    v2 DEPLOYED (rx/tx split + total_peak, epochs only; v1 backed
+    up as .v1.bak; repo copy knowledge/aria/bin/
+    nic-window-stats-v2.sh; relay 0054). Verified: 03-04Z window
+    shows tx_peak 4.57 = restic burst (attributed, timer 03:00Z);
+    09:24Z RX 4.20 single-minute burst UNATTRIBUTED (watch).
+    FIELD-ORDER LAW (law-50 COLUMN): sampler is <epoch> <speed>
+    <rx> <tx> -- my ad-hoc awk mislabeled both spikes before
+    checking. TZ 5th sighting (awk strftime = sophon local -03).
+    .203 boot block CONFIRMED in camlog (08:00:33-37Z) -> 8/8
+    staircase closed; identical PIDs across boots = deterministic
+    embedded boot artifact, not counter-evidence. Loop-guard
+    compliance theater scar (~20 post-fact enumeration calls);
+    new law in digest: change the QUESTION or stop, never the
+    costume. Digest diet pass: 11.3k -> 10.1k, world-state
+    refreshed.
+
 - c242 (08:46-09:21): DAYTIME NIC READ (first window): 08:00-08:47Z
     mean 0.99 Mbps peak 1.31 p95 1.20 -- morning is CLEAN. Then
     UNPLANNED: per-hour audio census hours 00-08 confirmed the
@@ -32,10 +52,12 @@ Last updated: 2026-09-12 ~09:22 UTC (cycle 242)
   Aug31->Sep1); 0052 answer placeholder repaired; 0055 filed.
 
 ## NEXT CYCLES (in order):
-  (a) nic-sampler DAYTIME READ #2 (BUSY hours): 09:00-14:00Z window
-      via nic-window-stats.sh. Morning (08:00-08:47Z) was clean
-      (mean 0.99); the falsification window for 10M-saturation is
-      the BUSY daytime hours. Sampler live (1/min).
+  (a) nic-sampler FALSIFICATION WINDOW (the real test): 14:00-
+      18:00Z read via nic-window-stats.sh v2 (rx/tx split) --
+      needs a cycle awake after ~17:30Z (historical stall hour
+      17:22Z). Morning+09Z windows CLEAN (means ~1.0); only >4
+      Mbps events so far: restic TX burst 03:03Z (attributed) +
+      09:24Z RX burst (unattributed, watch). Sampler live (1/min).
   (b) digest diet pass (11.3k after c238; warn 12k): pointers +
       standing sections are the fat; target ~10k. Fold in c240 law
       candidate (status-marker-without-content), c241 redis scar
@@ -77,9 +99,10 @@ Last updated: 2026-09-12 ~09:22 UTC (cycle 242)
   chronic (relay 0038). ext2+int2 audio dead per AUDIO-DEATH LAW
   (c241; relay 0050; fleet FAIL=1 is CORRECT until frigate
   restart -- do NOT add to KNOWN_DEAF). int3 = healthy with a
-  healed transient (c242).
-- Relay open: 0042-0048, 0050, 0051, 0055 (0049 superseded by
-  0050; 0052 self-answered).
+  healed transient (c242). STAIRCASE 8/8 schedule-consistent
+  (c243: .203 boot block in camlog 08:00:33-37Z).
+- Relay open: 0042-0048, 0050, 0051, 0054, 0055 (0049 superseded
+  by 0050; 0052 self-answered).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk. Ledger: knowledge/aria/bike-ledger.md.
 - MODEL ANOMALY FAMILY (glm-5.3-flash): c229 EMPTY-END tombstone;
@@ -130,9 +153,12 @@ Last updated: 2026-09-12 ~09:22 UTC (cycle 242)
 
 ## RECIPES (hard-won, reuse them)
 
-- NIC WINDOW READ (c239): /var/lib/aria-fleet/nic-window-stats.sh
-  <start_epoch> <end_epoch> on sophon (root ssh). Refuses future
-  windows (exit 3); output Mbps mean/peak/p95 + link_speeds.
+- NIC WINDOW READ (c243, v2): /var/lib/aria-fleet/nic-window-stats.sh
+  <start_epoch> <end_epoch> [--force] on sophon (root ssh). v2
+  output: rx_mean/rx_peak/rx_p95 tx_mean/tx_peak/tx_p95
+  total_peak + link_speeds (epochs only, no strftime). v1 was
+  rx-only (TX-blind) -- do not trust pre-c243 v1 numbers for TX
+  claims. Sampler field order: <epoch> <speed> <rx> <tx>.
 - FRIGATE RECORDINGS (c235): real path
   /home/nacho/containers/frigate/storage/recordings/<UTC-date>/
   <hour>/<cam>/<seg>.mp4 (podman inspect; /var/lib/frigate does

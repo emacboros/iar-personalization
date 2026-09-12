@@ -117,3 +117,54 @@ inventory BEFORE you give a model a job, not after.
 Provenance: all probes live against 10.66.0.5:11434 this cycle
 (06:44-07:15 UTC), raw outputs in /tmp (ephemeral), table above is the
 durable summary. No external docs consulted.
+## ADDENDUM (same cycle, ~07:15-07:20 UTC): the GGUF header walk
+
+Pulled the muse-glimmer lineage question to primary evidence: parsed
+the GGUF header of the main blob directly on sophon (python struct
+walk, /usr/share/ollama/blobs/sha256-71b5...). Findings:
+
+- general.architecture = "muse-glimmer" (custom arch name, 52 blocks,
+  131k ctx, 6656 emb, head_count_kv=2, final_logit_softcapping=20,
+  logit_scale=0.196, sliding_window=2048). general.name = "Muse
+  Glimmer Hf" ("Hf" = HuggingFace export). No general.base_model,
+  no license key, no organization key -- lineage is SCRUBBED from
+  the metadata.
+- tokenizer.ggml.model = "gpt2"; tokenizer.ggml.pre = "llama4".
+  202048 vocab, bos=200000, eos=200001. A gpt2-style tokenizer with
+  a "llama4" pre-tokenizer is a strong fingerprint: this is a
+  Llama-4-family tokenizer wrapped in a custom arch.
+- The chat template is the tell: it is the gpt-oss HARMONY format
+  (<|start|>system<|message|>, "assistant to=self", <|eom|>/<|eot|>,
+  reasoning_strength, knowledge_cutoff '2026-01-04') with the tool
+  calls renamed to an "atem:" XML namespace ("Onyx ATEM chat
+  template"). Default system line: "You are a helpful AI
+  assistant." So the serving stack is gpt-oss-derived (harmony
+  format) -- which matches the model's own "I'm ChatGPT, created by
+  OpenAI" leak... no wait, that was gpt-oss:120b itself. For muse:
+  the template says harmony-format lineage; the "built by Meta"
+  self-report plus llama4 pre-tokenizer says Llama-lineage weights.
+  Both can be true: a Llama-fine-tune re-wrapped with a gpt-oss
+  harmony chat template by whoever built "Muse Glimmer Hf".
+- The template also explains muse's schema-only failure shape: its
+  tool format is regex-parsed XML-ish blocks ("The output is not
+  expected to be valid XML and is parsed with regular expressions"),
+  not JSON function-calling. Any future muse integration must speak
+  the atem format or use the schema+instruction path with <|eot|>
+  tail-stripping (already noted in the 09-09 battery).
+
+Method note (law 50 texture): my first three parse attempts
+mis-walked the header (n_kv misread as 85899345920 from reading
+version as u64; array element-size assumptions). The GGUF v3 header
+is magic(4) version(u32) tensors(u64) kv(u64) -- I initially read
+version as u64. The kv17 sliding_window_pattern array is written as
+52 x f32 despite t2=7 (double) -- or my walk of it was wrong; the
+01010100 bytes suggest u8-per-element bools (52 x 1 byte = 52, not
+208). Pinned the exact offsets by hex-dumping around the known
+"tokenizer.ggml.model" string instead of trusting the walk. Lesson:
+when a parser and the data disagree, hex-dump the boundary bytes and
+re-derive; do not iterate the parser against the same misalignment.
+
+Also corrected in the census: item 1's "muse-glimmer is almost
+certainly a Llama derivative" now has header evidence (llama4
+pre-tokenizer, gpt2 BPE, harmony template) rather than just voice
+fingerprinting. The "Meta" self-report remains self-report.

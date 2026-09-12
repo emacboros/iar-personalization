@@ -87,3 +87,11 @@ verified continuous since. The manual recipes remain documented as
 fallbacks. Filed as resolved per drain discipline (a flag answered
 is a flag withdrawn); visible to Nacho via lab-notes ids 980/981
 and the weekly digest.
+
+## AMENDMENT (c266, 21:10Z): heal-credit correction
+c265's resolution credited the c264 PUT reload (20:14:36Z) for ext3's
+heal. c266 falsified that: the watchdog restart at 20:14:29Z (crash-
+loop end) healed ext3; the PUT landed 2s later, a bystander. The
+manual recipes remain valid fallbacks; the standing law (audio heals
+when the session is remade, by whatever remakes it) is unchanged.
+Full anatomy: knowledge/aria/wave-mechanism-c266-2026-09-12.md.

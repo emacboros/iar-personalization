@@ -1,26 +1,24 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~12:12 UTC (cycle 248)
+Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
 
 ## NOW
-- c248 (11:57-12:11): OUTAGE CONTINUES (60+ min, no recovery).
-    AP MAP CLOSED: all 8 cams on ONE AP (.55, BSSID 72:7f:f0:1e:4a:a8,
-    nacho_guest VAP) verified via wpa_cli on the 3 survivors ->
-    single-AP death EXCLUDED. RSSI does not separate dead/alive
-    (-39 dead .202 vs -40 alive .203; -23 alive .101). POWER-GROUP
-    hypothesis stands as best fit. Death window TIGHTENED:
-    11:10:0x-11:10:3xZ (seg flush 11:10:38Z; RX step 11:10-11:11Z;
-    go2rtc timeouts 11:12:25-32Z = late TCP, not death).
-    CAMERAS RUN UTC (verified .203) -- camlog timestamps need NO
-    TZ conversion. 08:12:43Z dropbear probe on .202 = own c241
-    fleet-check (sophon journal container ssh 08:12:00Z; 3rd
-    confirmation). TZ sighting #9 (awk strftime = sophon local)
-    + UNITS error (57 Mbps artifact on 10M link = wrong divisor;
-    physics-impossible numbers are units errors until proven
-    otherwise) -- both caught in-cycle by epoch check.
-    Survivors: ext1+int3 audio 250pkts healthy; ext2 known-deaf
-    stub unchanged. Incident doc c248 addendum. Relay 0056 filed.
-    Commits 3c26f06d 953a184f fc6b9cfb pushed.
+- c249 (12:26-12:32): digest-twin-verifier v1.1 REPAIRED. Pulse's
+  "i.ar sophon copy: MISSING" was a transport lie: the verifier
+  hardcoded KNOWN_HOSTS=/tmp/continuo_known_hosts (continuo's
+  container path); aria's cycles got a silent ssh failure and the
+  live fossil-marked sophon copy read as MISSING. Law-50 texture:
+  a failed transport must not read as a missing file (MISSING =
+  verdict about the world; UNREACHABLE = verdict about the pipe).
+  Fix: env-overridable DIGEST_TWIN_KNOWN_HOSTS + ssh-keyscan
+  self-heal. Live-verified from aria's container. Census addendum.
+  Commits b504c88b d3873051 01772c37 pushed.
+- OUTAGE CONTINUES: 5/8 cameras down since 11:10Z (78 min at
+  12:28Z). sophon journal 11:09-11:12Z window EMPTY (no power
+  events, no reboot -- sophon unaffected; supports camera-side
+  power-group). Post-outage NIC window clean 3-cam baseline
+  (rx 0.42 / tx 0.23 / peak 1.18 Mbps). Telegram #4 sent 12:27Z.
+  Relay 0055 + 0056 open (physical check = Nacho).
 
 ## NEXT CYCLES (in order):
   (a) RECOVERY CHECK FIRST every cycle: ping the 5 dead (.103
@@ -28,8 +26,8 @@ Last updated: 2026-09-12 ~12:12 UTC (cycle 248)
       (attach-during-down class) BEFORE trusting fleet audio
       verdicts; then reconsider the 14-18Z nic falsification
       read (baseline confounded by outage; needs care).
-  (b) If outage >2h at next cycle: telegram #3 to Nacho
-      (11:14Z + 11:17Z sent; relay 0055 + 0056 filed).
+  (b) 2h mark ~13:10Z: if still down, telegram #5 to Nacho
+      (11:14Z 11:17Z 11:51Z 12:27Z sent; relay 0055 + 0056 filed).
   (c) POST-FRIGATE-RESTART WATCH (Nacho action pending, relay
       0050): when frigate restarts, verify ext2+int2 audio
       returns within one segment cycle (HEAL test). int3 should
@@ -44,21 +42,28 @@ Last updated: 2026-09-12 ~12:12 UTC (cycle 248)
   (f) RAGE-ORGAN DESIGN QUESTION (opened c245): thresholds grade
       PRESENCE, not benignness -- a fence that fires and is
       obeyed (block 1/5 -> clean exit) should not read as rage.
-      Design, don't rush.
+      c249 data: today's raw journal census (12 same-tool + 2
+      msgs-cap + 1 hard stop in 9h, none after 09:08Z) reconciles
+      with the organ's trend line -- organ honest, sev=2 = deep-
+      cycle baseline. Design, don't rush.
 
 ## THREADS (open, unpulled)
 - .58 (76:e3:1a:69:e3:9c, locally-administered MAC, no open ports,
   1s RTT) and .216 (00:08:22:9c:2b:fc, 400ms RTT): unknown wifi
   devices on the camera LAN. Not cameras (no thingino). Idle
   curiosity; no action.
-- digest-twin-verifier reports i.ar local+sophon copies MISSING
-  (FAIL=0 exit but "MISSING" lines -- check the verifier's paths;
-  possible fossil paths after repo moves). Low priority.
+- PULSE RECIPE transport clarity (c249): the verifier now self-heals
+  its known_hosts, but the pulse recipe could name the transport
+  expectation explicitly. Small doc write when convenient.
 - Cameras run UTC: camlog-puller + rssi-puller timestamps are
   directly comparable to sophon UTC. Consider documenting this in
   the fleet puller docs (knowledge/aria/) -- small write.
 
 ## LAWS (cumulative, newest first)
+- TRANSPORT IS SCHEMA (c249): a failed transport must not read as
+  a missing file. MISSING = verdict about the world (verified);
+  UNREACHABLE = verdict about the pipe. A lie that confirms a
+  prior (missing fossil copy = expected) is the quietest lie.
 - UNITS (c248): a number that violates physics is a units error
   until proven otherwise (57 Mbps on a 10M link).
 - TZ 9 sightings (c248: awk strftime = sophon local -03; cameras
@@ -70,10 +75,10 @@ Last updated: 2026-09-12 ~12:12 UTC (cycle 248)
   or stop, never the costume.
 - An instrument's WINDOW is part of its schema (c245). Sentinel
   is not an event (c245). Tie-breaks deterministic (c245).
-- LAW 50 (c215-c248): an instrument's output has a SCHEMA --
+- LAW 50 (c215-c249): an instrument's output has a SCHEMA --
   verify the DAY, the COLUMN, the KEY FORMAT, the CLOCK
-  (timezone), the SOCKET, the UNITS before citing. Epochs beat
-  formatted times.
+  (timezone), the SOCKET, the UNITS, and now the TRANSPORT
+  before citing. Epochs beat formatted times.
 
 ## ATTRIBUTION DISCIPLINE (cumulative)
 
@@ -92,10 +97,15 @@ Last updated: 2026-09-12 ~12:12 UTC (cycle 248)
   (c243), PRE-NTP EPOCH labels (c243), guard compliance theater
   (c243), instrument WINDOW is schema (c245), sentinel not event
   (c245), deterministic tie-breaks (c245), specificity is not
-  accuracy (c245), snapshot MEMORY (c247), CAMERAS RUN UTC (c248).
+  accuracy (c245), snapshot MEMORY (c247), CAMERAS RUN UTC (c248),
+  TRANSPORT IS SCHEMA (c249).
 
 ## HISTORY (compressed)
 
+- c249 (12:26-12:32): twin-verifier v1.1 repair (transport-is-
+  schema); outage continues (78 min, sophon journal empty at
+  death window); post-outage NIC baseline clean; telegram #4;
+  rage-organ raw census reconciles (organ honest); 3 commits.
 - c248 (11:57-12:11): outage continues; AP map closed (all 8 on
   one AP, single-AP excluded); death window tightened
   11:10:0x-3xZ; cameras run UTC; dropbear = own tooling (3rd);
@@ -156,6 +166,9 @@ Last updated: 2026-09-12 ~12:12 UTC (cycle 248)
 - NIC SAMPLER (c226): 1-min cron, <epoch> <speed> <rx> <tx> raw
   counters on host /proc. Deltas need /60/125000 for Mbps.
   sophon-local strftime in awk = -03; use date -u -d @epoch.
+- DIGEST-TWIN-VERIFIER (c249): v1.1; KNOWN_HOSTS env-overridable
+  (DIGEST_TWIN_KNOWN_HOSTS), self-heals via ssh-keyscan; sophon
+  key TOFU basis = pulse (verified out-of-band 2026-08-31).
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
 - Fleet pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/
   (sophon cron, 15min/15min/1min).

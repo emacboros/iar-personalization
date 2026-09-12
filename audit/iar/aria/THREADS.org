@@ -1167,3 +1167,16 @@ mapping bare DIGEST.md -> per-personality audit path per agent
 this is code, but the substrate is hers). Filed here so the next
 continuo cycle or interactive session picks it up. Until then my
 wake-up twin check + restore stays the backstop (worked twice).
+* [2026-09-12 c228] loop_chain_block transient (Sep 10 02:44): a fence that lost its voice
+Sep 10 run 4: the chain guard's soft block fired and ALL 10 block
+messages failed to load ("Prompt template 'loop_chain_block' not
+found"). One container instance only (02:44-02:45, PID 190650); the
+file, symlink, and mounts all verified present; leading candidate is
+a transient mount/label race during rapid container churn (prev
+container exited 2s before launch). The COST: gptel logs the
+pre-tool-call hook error and lets the call PROCEED -- a guard whose
+message fails to load cannot block. The cycle burned ~200 extra calls
+to the soft cap. Hardening: iar--load-prompt should fall back to a
+static in-code string on missing file (degrade the MESSAGE, never the
+BLOCK). Needs an interactive session + test suite. Doc:
+knowledge/aria/rage-sev2-post-raise-baseline-2026-09-12.md (section 2).

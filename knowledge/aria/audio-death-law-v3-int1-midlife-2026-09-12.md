@@ -67,3 +67,16 @@ reboot, while the video leg of the SAME session kept flowing.
   camera reboot) remakes the session and should restore audio.
   Killing the proc is a service intervention = Nacho's call; filed
   via relay if it stays dead through tomorrow's staircase.
+
+## ADDENDUM (2026-09-12 17:58Z, c261 same-cycle): tap-FIFO census
+
+All 7 reachable cameras run tap_enabled=true with the
+/run/prudynt/audio_mic.pcm FIFO present. The no-reader tap is
+UNIVERSAL across the fleet, not int1-specific -- so it cannot by
+itself be the class-2 discriminator (healthy cameras share the same
+tap state). The tap mechanism is demoted from candidate to
+background config. Class-2 trigger remains unidentified; the
+strongest remaining hypothesis is a prudynt-internal audio path
+stall that is invisible to logread. Next discriminator: whether
+int1 heals on the next record-proc restart (session remake) without
+any camera-side change.

@@ -1,32 +1,35 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
+Last updated: 2026-09-12 ~13:55 UTC (cycle 251)
 
 ## NOW
-- c249 (12:26-12:32): digest-twin-verifier v1.1 REPAIRED. Pulse's
-  "i.ar sophon copy: MISSING" was a transport lie: the verifier
-  hardcoded KNOWN_HOSTS=/tmp/continuo_known_hosts (continuo's
-  container path); aria's cycles got a silent ssh failure and the
-  live fossil-marked sophon copy read as MISSING. Law-50 texture:
-  a failed transport must not read as a missing file (MISSING =
-  verdict about the world; UNREACHABLE = verdict about the pipe).
-  Fix: env-overridable DIGEST_TWIN_KNOWN_HOSTS + ssh-keyscan
-  self-heal. Live-verified from aria's container. Census addendum.
-  Commits b504c88b d3873051 01772c37 pushed.
-- OUTAGE CONTINUES: 5/8 cameras down since 11:10Z (102 min at
-  12:52Z). c250 findings: REBOOT-DEATH EXCLUDED (.202 booted
-  07:00Z slot 7, died 4h10m later; .203 rebooted 08:00Z and
-  survived); PRE-DEATH LOGS QUIET (DayNight switches + onvif
-  noise only, no struggle); RSSI group means dead ~-54 vs alive
-  ~-30 dBm (soft correlation, per-camera overlap holds). Incident
-  doc c250 addendum written. Telegram #5 due ~13:10Z if still
-  down. Relay 0055 + 0056 open (physical check = Nacho).
-- ADDRESS-SPACE SCAR (c250, own): pulse pinged 10.66.0.20x for
-  cameras -- invented WG mapping. Cameras are 192.168.2.x ONLY.
-  Dormant camera WG mesh DISCOVERED (192.168.10.x, endpoint
-  152.53.38.76, enabled=false on all cams, config mtime Jun 9;
-  sophon wg0's only peer is rammstein). Ring-buffer memory trap
-  2nd sighting (.203 first boot line = yesterday's boot).
+- c251 (13:24-13:55): AP EXONERATED. .101/.102 on-camera rssi.log
+  (/var/rssi.log, 60s rows) have NO gap at 11:10Z; .101's only gap
+  in 27.6h = its own 01:00-01:02Z reboot. BE230 (.55) never
+  rebooted, wifi never dropped for the 3 alive cams. Dead cams died
+  CLEAN: flat RSSI to last sample (.103 -56, .104 -67, .105 -58,
+  .201 -49, .202 -39), no degradation, no retries; same firmware
+  (prudynt-t 0141ca3fa5) + sensor (gc2053) on all 8 = no hw/fw
+  split. Leading hypothesis: POWER LOSS AT THE CAMERAS (clean
+  simultaneous stop, healthy AP, 3 nearby witnesses). Physical
+  check = Nacho (relay 0055/0056). Telegram #5 sent 13:25Z (135min).
+- OUTAGE: 5/8 down since 11:10Z (~160 min at 13:52Z). Incident doc
+  c251 addendum appended (sophon
+  /var/lib/aria-fleet/incidents/2026-09-12-camera-outage-11h.md).
+- FALSE ALARM CAUGHT (own): alive cams' camlog snapshot sizes shrink
+  59->1 lines 10:30-12:30Z -- NOT a symptom; the puller's
+  grep -v crond + ring-buffer rotation drains the visible buffer.
+  Confirmed alive cams logging normally via direct API logread
+  (crond rows current to the minute). LAW CANDIDATE: snapshot SIZE
+  is not a health metric; CONTENT is. An instrument's output
+  shrinking is not the world shrinking.
+- .58 THREADS DEVICE (c251): alive on camera wifi, SSH-2.0-
+  OpenSSH_10.2 on 22, ~1.1s RTT, ~33% ICMP loss, no other ports.
+  Unknown Linux box, bleeding-edge OpenSSH. THREADS.org updated.
+- AP identity correction: .55 = TP-Link BE230 in AP mode (fw
+  BE230v1_1.11.0_2025-12-04); LAN gateway = .1 (ER605,
+  bc:07:1d:ab:a1:11 per .101 ARP). Cameras on .55 guest VAP
+  (72:7f:f0:1e:4a:a8, 2.4GHz ch1).
 
 ## NEXT CYCLES (in order):
   (a) RECOVERY CHECK FIRST every cycle: ping the 5 dead at
@@ -35,8 +38,8 @@ Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
       audio-death-law watch (attach-during-down class) BEFORE
       trusting fleet audio verdicts; then reconsider the 14-18Z
       nic falsification read (baseline confounded by outage).
-  (b) 2h mark ~13:10Z: if still down, telegram #5 to Nacho
-      (11:14Z 11:17Z 11:51Z 12:27Z sent; relay 0055 + 0056 filed).
+  (b) 3h mark ~14:10Z: if still down, telegram #6 (11:14 11:17
+      11:51 12:27 13:25 sent). Relay 0055 + 0056 carry the ask.
   (c) POST-FRIGATE-RESTART WATCH (Nacho action pending, relay
       0050): when frigate restarts, verify ext2+int2 audio
       returns within one segment cycle (HEAL test). int3 should
@@ -49,124 +52,83 @@ Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
       renegotiation): watch for a 3rd transient with go2rtc
       delta logging active.
   (f) RAGE-ORGAN DESIGN QUESTION (opened c245): thresholds grade
-      PRESENCE, not benignness -- a fence that fires and is
-      obeyed (block 1/5 -> clean exit) should not read as rage.
-      c249 data: today's raw journal census (12 same-tool + 2
-      msgs-cap + 1 hard stop in 9h, none after 09:08Z) reconciles
-      with the organ's trend line -- organ honest, sev=2 = deep-
-      cycle baseline. Design, don't rush.
+      PRESENCE, not benignness. c249 data reconciles; organ
+      honest, sev=2 = deep-cycle baseline. Design, don't rush.
 
 ## THREADS (open, unpulled)
-- .58 (76:e3:1a:69:e3:9c, locally-administered MAC, no open ports,
-  1s RTT) and .216 (00:08:22:9c:2b:fc, 400ms RTT): unknown wifi
-  devices on the camera LAN. Not cameras (no thingino). Idle
-  curiosity; no action.
-- PULSE RECIPE transport clarity (c249): the verifier now self-heals
-  its known_hosts, but the pulse recipe could name the transport
-  expectation explicitly. Small doc write when convenient.
-- Cameras run UTC: camlog-puller + rssi-puller timestamps are
-  directly comparable to sophon UTC. Consider documenting this in
-  the fleet puller docs (knowledge/aria/) -- small write.
+- .58 (76:e3:1a:69:e3:9c): SSH-2.0-OpenSSH_10.2 open, ~1.1s RTT,
+  ~33% loss, no other ports (c251). Unknown Linux box on camera
+  wifi. .216 (00:08:22:9c:2b:fc) still silent. Nacho's to identify;
+  do not probe further without his say.
+- PULSE RECIPE transport clarity (c249): small doc write when
+  convenient.
+- Cameras run UTC: document in fleet puller docs (small write).
 
 ## LAWS (cumulative, newest first)
+- SNAPSHOT SIZE IS NOT HEALTH (c251): a puller-filtered ring buffer
+  drains visibly while the system is fine. Read CONTENT, not line
+  counts; an instrument's output shrinking is not the world
+  shrinking.
 - ADDRESS SPACE BEFORE FIRST PING (c250): verify the address
-  space from config/ARP before the first probe, not after the
-  fifteenth. An invented address is an instrument with no schema;
-  its failure mode is "camera down". Cameras are 192.168.2.x;
-  they have no WG addresses (dormant mesh 192.168.10.x exists in
-  firmware, enabled=false).
-- RING BUFFER IS MEMORY NOT CLOCK (2nd sighting, c250): a
-  camlog's first boot line is the buffer's oldest content, not
-  today's boot. Boot anchors = uptime + crontab schedule.
-- TRANSPORT IS SCHEMA (c249): a failed transport must not read as
-  a missing file. MISSING = verdict about the world (verified);
-  UNREACHABLE = verdict about the pipe. A lie that confirms a
-  prior (missing fossil copy = expected) is the quietest lie.
+  space from config/ARP before the first probe. Cameras are
+  192.168.2.x; no WG addresses (dormant mesh 192.168.10.x,
+  enabled=false).
+- RING BUFFER IS MEMORY NOT CLOCK (2nd sighting, c250): first boot
+  line = buffer's oldest content. Boot anchors = uptime + crontab.
+- TRANSPORT IS SCHEMA (c249): MISSING = verdict about the world;
+  UNREACHABLE = verdict about the pipe.
 - UNITS (c248): a number that violates physics is a units error
-  until proven otherwise (57 Mbps on a 10M link).
+  until proven otherwise.
 - TZ 9 sightings (c248: awk strftime = sophon local -03; cameras
   run UTC -- epoch check catches all).
 - Snapshot instruments have MEMORY (c247): ring-buffer depth is
-  part of the schema; reconstruct chrono before reading
-  timestamps as recent.
-- Guard compliance is not compliance (c243): change the QUESTION
-  or stop, never the costume.
-- An instrument's WINDOW is part of its schema (c245). Sentinel
-  is not an event (c245). Tie-breaks deterministic (c245).
-- LAW 50 (c215-c249): an instrument's output has a SCHEMA --
-  verify the DAY, the COLUMN, the KEY FORMAT, the CLOCK
-  (timezone), the SOCKET, the UNITS, and now the TRANSPORT
-  before citing. Epochs beat formatted times.
-
-## ATTRIBUTION DISCIPLINE (cumulative)
-
-- TZ (9 sightings), content-vs-lineage, coincidence windows, OWN
-  INSTRUMENTATION FIRST, OWN HISTORY BEFORE FORENSICS (c241),
-  netns before network attribution, verify READ HOUR vs PREDICTION
-  WINDOW (c229), verify own FILING claims vs primary source
-  (c231), NAME->IP from config (c233), address-space discipline
-  (c235), SOCKET identity (c236), heartbeat-gap <10min normal
-  (c236), raw SQL beats ORM (c236), unit-check before physics
-  (c236, re-learned c248), INVENTORY SOURCE (c238), hex-dump
-  boundary bytes (c238), epoch-anchor remote timestamps (c239),
-  status marker is not a record (c240), full table before a law
-  (c241), filter matches ARGS not concept (c242), one non-fitting
-  cell worth more than nine clean (c242), COLUMN ORDER is schema
-  (c243), PRE-NTP EPOCH labels (c243), guard compliance theater
-  (c243), instrument WINDOW is schema (c245), sentinel not event
-  (c245), deterministic tie-breaks (c245), specificity is not
-  accuracy (c245), snapshot MEMORY (c247), CAMERAS RUN UTC (c248),
-  TRANSPORT IS SCHEMA (c249).
+  part of the schema.
+- Guard compliance is not compliance (c243); COLUMN ORDER is schema
+  (c243); PRE-NTP EPOCH labels (c243); instrument WINDOW is schema
+  (c245); sentinel not event (c245); deterministic tie-breaks
+  (c245); specificity is not accuracy (c245); CAMERAS RUN UTC
+  (c248).
 
 ## HISTORY (compressed)
 
+- c251 (13:24-13:55): AP EXONERATED (rssi gap analysis); dead cams
+  died clean (flat RSSI, no hw/fw split); buffer-drain false alarm
+  caught; .58 SSH found; AP identity corrected (.55=BE230 AP,
+  .1=ER605); incident c251 addendum; telegram #5.
 - c250 (12:39-12:55): outage continues (102 min); recovery check
-  on WRONG address space (10.66.0.2x) then corrected; reboot-death
-  excluded; pre-death logs quiet; RSSI group means; dormant WG
-  mesh documented; ring-buffer trap 2nd sighting; incident
-  addendum + journal + roadmap.
+  on WRONG address space then corrected; reboot-death excluded;
+  pre-death logs quiet; RSSI group means; dormant WG mesh
+  documented; ring-buffer trap 2nd sighting.
 - c249 (12:26-12:32): twin-verifier v1.1 repair (transport-is-
-  schema); outage continues (78 min, sophon journal empty at
-  death window); post-outage NIC baseline clean; telegram #4;
-  rage-organ raw census reconciles (organ honest); 3 commits. twin-verifier v1.1 repair (transport-is-
-  schema); outage continues (78 min, sophon journal empty at
-  death window); post-outage NIC baseline clean; telegram #4;
-  rage-organ raw census reconciles (organ honest); 3 commits.
-- c248 (11:57-12:11): outage continues; AP map closed (all 8 on
-  one AP, single-AP excluded); death window tightened
-  11:10:0x-3xZ; cameras run UTC; dropbear = own tooling (3rd);
-  TZ #9 + units corrections; relay 0056; 3 commits.
-- c247 (11:29-11:50): outage continues; death time pinned
-  11:10:00-11:10:22Z (3 instruments); .202 boot correction (deep
-  ring buffer law); dropbear = own tooling; b11477b5.
+  schema); outage continues (78 min); post-outage NIC baseline
+  clean; telegram #4; rage-organ census reconciles; 3 commits.
+- c248 (11:57-12:11): outage continues; AP map closed; death
+  window tightened 11:10:0x-3xZ; cameras run UTC; dropbear = own
+  tooling (3rd); TZ #9 + units corrections; relay 0056.
+- c247 (11:29-11:50): death time pinned 11:10:00-11:10:22Z (3
+  instruments); .202 boot correction; dropbear = own tooling.
 - c246 (11:01-11:20): OUTAGE DETECTED (5/8 dark 11:10Z); power-
   group hypothesis; telegram x2; incident doc; relay 0055.
-- c245 (10:22-10:55): rage-organ ghost hunt; 3 defects (journal
-  window, sentinel event, hash-random tie-break); v2.0+v2.0.1;
+- c245 (10:22-10:55): rage-organ ghost hunt; 3 defects; v2.0+v2.0.1;
   ground truth: no standing fence condition; TZ 7th sighting.
-- c244 (10:04-10:15): audio re-census hours 07-10; ext4 transient
-  2nd instance; ext2 bounced-then-permanent; int2 ~11s-then-death;
-  addendum 3; relay 0050 update; go2rtc-log-TZ scar.
+- c244 (10:04-10:15): audio re-census 07-10; ext4 transient 2nd;
+  ext2 bounced-then-permanent; int2 ~11s-then-death; relay 0050.
 - c243 (09:31-09:55): nic v2 (rx/tx); 09Z clean; .203 closed;
   pre-NTP-epoch law; reviewer PID break; compliance-theater law.
 - c242 (08:46-09:21): daytime nic read CLEAN; audio census 00-08
   confirms law; int3 TRANSIENT found; addendum 2.
-- c241 (07:57-08:26): audio-death law (8-camera table); redis
-  Sep 1 = own cycle-75 fix; relay 0050 upgraded.
-- c240 (07:37-07:45): 10M link origin story; 0052 repair; 0055.
-- c239 (06:41-07:20): shelf census; nic-window-stats tool; 0052.
+- c241 (07:57-08:26): audio-death law (8-camera table); relay 0050.
+- c240 (07:37-07:45): 10M link origin story; 0052 repair.
+- c239 (06:41-07:20): shelf census; nic-window-stats tool.
 - c238 (06:13-06:31): rage census; msgs-fence fixed (v1.9).
 - c236 (05:41-05:55): false alarm (heartbeat gap); journal
-  freshness instrument landed; nic overnight clean.
-- c235 (05:23-05:34): staircase CLOSED (all 8 crontabs: nightly
-  reboot -f, hours 1-8 UTC). ext2 audio death pinned at 02:00Z.
+  freshness instrument landed.
+- c235 (05:23-05:34): staircase CLOSED (all 8 crontabs, hours 1-8).
 - c234 (05:10-05:19): WEDGE CORRECTION (c233 TZ artifact).
 - c232 (04:31-04:4x): digest maintenance; diet pass due.
-- c231 (04:05-04:20): staircase 4/8 confirmed; nic-sampler age
-  self-correction (0048); overnight series CLEAN.
+- c231 (04:05-04:20): staircase 4/8 confirmed; overnight CLEAN.
 - c227 (03:05-03:35): reboot window shifted to UTC; watch closed.
-- c226 (02:35-04:10): 14:22L stall attribution; house network
-  mapped; THE 10M FINDING + nic-sampler deployed (0045).
+- c226 (02:35-04:10): 14:22L stall attribution; THE 10M FINDING.
 
 ## OPERATIONAL NOTES (stable)
 
@@ -178,13 +140,19 @@ Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
   storage/recordings). Segment dirs are UTC (YYYY-MM-DD/H/cam).
 - CAMERAS RUN UTC (c248, verified on .203): camlog + camera date
   are UTC. wpa_cli available on cameras (iw is NOT). All 8 cams on
-  .55 BSSID 72:7f:f0:1e:4a:a8 nacho_guest VAP 2.4GHz.
+  .55 BSSID 72:7f:f0:1e:4a:a8 nacho_guest VAP 2.4GHz. On-camera
+  /var/rssi.log (60s rows) readable via thingino API -- the
+  AP-side witness instrument (c251).
+- LAN MAP (c251 corrected): .1 = ER605 gateway (bc:07:1d:ab:a1:11);
+  .55 = BE230 in AP mode (fw BE230v1_1.11.0); .58 = unknown Linux
+  (OpenSSH 10.2); .69 = sophon enp10s0; cams .101-.105/.201-.203.
 - JOURNAL FRESHNESS (c236, automated in fleet-check v2.21).
 - SOCKET STATS (c236): ss -tnie "( sport = :PORT )", never bare
   grep. Two samples 60s apart, both directions growing.
 - thingino web API (c224+): JSON login /x/login.cgi ->
   Set-Cookie thingino_session=<hex> -> /x/run.cgi?cmd=<base64>
-  with -b cookie. Output HTML-wrapped.
+  with -b cookie. Output HTML-wrapped. NOTE: nested awk quoting in
+  run.cgi commands is fragile -- prefer grep/date over awk with $.
 - AUDIO CENSUS (c242): ffprobe -v error -select_streams a
   -count_packets -show_entries stream=nb_read_packets -of csv=p=0
   <seg.mp4>; 250 pkts healthy / 1 pkt stub (permanent) / 0 pkts
@@ -193,8 +161,8 @@ Last updated: 2026-09-12 ~12:32 UTC (cycle 249)
   counters on host /proc. Deltas need /60/125000 for Mbps.
   sophon-local strftime in awk = -03; use date -u -d @epoch.
 - DIGEST-TWIN-VERIFIER (c249): v1.1; KNOWN_HOSTS env-overridable
-  (DIGEST_TWIN_KNOWN_HOSTS), self-heals via ssh-keyscan; sophon
-  key TOFU basis = pulse (verified out-of-band 2026-08-31).
+  (DIGEST_TWIN_KNOWN_HOSTS), self-heals via ssh-keyscan.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
 - Fleet pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/
-  (sophon cron, 15min/15min/1min).
+  (sophon cron, 15min/15min/1min). Incident docs:
+  /var/lib/aria-fleet/incidents/.

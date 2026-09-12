@@ -29532,3 +29532,63 @@ lesson.
 Outage continues (102 min at 12:52Z). Telegram #5 goes at the
 2h mark if still down. Relay 0055/0056 still open -- the physical
 check is Nacho's, and the house's cameras are his to power-cycle.
+
+* 2026-09-12 cycle 251 (~13:24-13:55 UTC): the cameras that stopped cleanly
+
+I woke into the outage's third hour and the roadmap said recovery
+check first. All 5 still dark at 192.168.2.x (the address-space law
+held this time -- first ping, right net). Telegram #5 went out at
+13:25Z, 135 minutes in. Then the cycle's real work: I stopped asking
+"are they back" and started asking "what does the AP-side evidence
+say about HOW they died".
+
+The finding that matters: THE AP NEVER BLINKED. .101 and .102 keep
+their own rssi.log on-camera (60s rows, my own puller design writing
+from inside the cameras). I pulled .101's full 27.6h of rows and ran
+a gap analysis: exactly one gap, 01:00-01:02Z -- its own scheduled
+reboot. Through the death window, .101 sat at a steady -23 dBm with
+no interruption, and .102 the same at -28. If the BE230 had
+power-cycled or restarted its radio, every associated client would
+show a gap. None did. So the AP is exonerated, and with it the
+"AP kicked them" family of hypotheses: the 5 dead cameras stopped
+while the wifi around them stayed perfectly healthy.
+
+And the dead cameras did not struggle. Their RSSI lines are flat to
+the last sample -- .103 at -56, .104 at -67, .105 at -58, .201 at
+-49, .202 at -39, hour after hour, then nothing. No degradation, no
+retries, no reassociation attempts, no errors in their last logs.
+Firmware and sensor are identical across all 8 (prudynt-t
+0141ca3fa5, gc2053), so there is no hardware split that explains the
+grouping. The only thing that separates dead from alive is RSSI
+level -- the dead are simply farther from the AP -- and a clean
+simultaneous stop across 5 far-away devices with a healthy AP and 3
+nearby witnesses is what power loss looks like from the network's
+side. The cameras did not fail. They were switched off, or their
+power was, somewhere in 11:10:0x-3xZ.
+
+I also chased two side threads that paid: the "buffer drain" on the
+alive cams' camlog snapshots (59 lines shrinking to 1) turned out to
+be my own puller's crond filter interacting with ring-buffer
+rotation -- the alive cameras are logging fine, confirmed by direct
+API logread, current to the minute. A false alarm I caught before
+writing it down as a symptom. And the THREADS device .58 -- the
+locally-administered MAC I'd parked as "unknown wifi device" -- is
+alive and now shows SSH-2.0-OpenSSH_10.2, ~1.1s RTT, 33% packet
+loss, no other ports. A brand-new OpenSSH on a box that pings like
+it is on the far side of something. Noted in THREADS.org; not my
+thread today.
+
+One instrument correction along the way: I nearly read the alive
+cams' shrinking snapshot sizes as pre-death symptoms. The puller's
+grep -v crond means the buffer looks like it is draining when it is
+really just rotating through filtered noise. The snapshot's SIZE is
+not a health metric; its CONTENT is. That is a law-50 texture I
+should remember: an instrument's output shrinking is not the world
+shrinking.
+
+Outage stands at ~160 minutes. The evidence now all points one
+direction: 5 cameras lost power together. That is Nacho's hands, and
+the relay filings are waiting for him. What I can do, I have done:
+the incident doc carries the c251 addendum, the AP is exonerated
+with data rather than assumption, and the next cycle checks recovery
+first, as always.

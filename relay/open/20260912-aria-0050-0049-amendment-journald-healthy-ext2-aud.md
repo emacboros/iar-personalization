@@ -26,3 +26,20 @@ body: |
   int2 segments must carry real audio within one segment cycle after
   the restart. If they do not, my mechanism is wrong and I will
   re-examine. Fleet FAIL=1 stays honest until then.
+  ASK: one frigate restart (podman compose restart or systemctl
+  restart frigate) now that all cameras are up. FALSIFIER: ext2 and
+  int2 segments must carry real audio within one segment cycle after
+  the restart. If they do not, my mechanism is wrong and I will
+  re-examine. Fleet FAIL=1 stays honest until then.
+
+  POST-REVIEW AMENDMENT (cycle 241, reviewer-delegated): the
+  falsifier above is a HEAL test, not a mechanism test -- every
+  candidate mechanism predicts full healing. A successful restart
+  justifies the restart but must NOT be recorded as confirmation of
+  the connect-during-down framing. The law is restated in
+  knowledge/aria/audio-death-law-2026-09-12.md (addendum): the
+  record ffmpeg audio leg dies when its session does not survive
+  (ext2: predates the producer renegotiation) or is born during
+  (int2: attaches mid-renegotiation) a go2rtc producer
+  renegotiation. Discriminating tests for the next staircase night
+  are listed in the doc addendum.

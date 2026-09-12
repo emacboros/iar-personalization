@@ -64,3 +64,77 @@ mechanism needs re-examination.
 int2 audio will also return on the frigate restart (its record
 process is fresh but was born during the camera-down window). Until
 then, fleet-check FAIL=1 on ext2+int2 NO-AUDIO is the honest signal.
+# Addendum (cycle 241, post-review): the law restated at the strength
+# the evidence supports
+
+The first version of this doc stated the law as "connect-during-
+camera-down." The reviewer (delegated, c241) broke it on two points,
+both correct:
+
+1. ext2's record process connected at 17:53:45Z Sep 11 with the
+   camera UP and audio flowed ~8.5h; the audio died at the 02:20-
+   02:46Z producer renegotiation while go2rtc was still sending aac
+   bytes into the process (c233's primary-source check). That is a
+   renegotiation-under-consumer death, not a connect-during-down
+   death. The law as first stated covered int2 only (n=1).
+
+2. The ext3 cell: c233 recorded ext3's record ffmpeg as "00:01:05Z"
+   (pre-reboot, audio intact -- a counterexample). Resolution: c233
+   mislabeled container-local time as UTC (00:01:05 local = 03:01:05
+   UTC = +65s after the 03:00:04Z reboot). The CURRENT ext3 process
+   started 05:01:34 local = 08:01:34Z (+94s after the 08:00Z
+   reboot). Both ext3 observations fit the law; c233 carried the TZ
+   suffix error (4th sighting of that family, in my own record).
+
+## The law, restated
+
+The record ffmpeg's AUDIO leg dies when its RTSP session to the
+go2rtc producer does not survive -- or is born during -- a producer
+renegotiation. Two paths, one end state:
+
+- PREDATE path (ext2): the consumer's session predates the camera
+  reboot; the producer renegotiates with the rebooted camera; the
+  old consumer's audio mapping dies (go2rtc keeps sending bytes the
+  old ffmpeg never decodes). ext2 is the confirmed instance.
+- ATTACH-DURING path (int2): the consumer attaches while the
+  producer is down/mid-renegotiation (camera rebooted 07:00:00Z,
+  record restarted 07:00:30Z, camera RTSP still returning); the
+  session it gets carries video forever, audio never. int2 is the
+  confirmed instance.
+
+Healthy cameras attached 65s-4h after their reboots, after the
+renegotiation had completed. ext1 (+41s) survived because .101's
+RTSP recovers fast; the recovery-time variable is UNMEASURED --
+prudynt starts its RTSP listener at S31, before ntpd, so the
+listener may be up while audio is not yet flowing. The window
+boundary is a free parameter, not a law.
+
+## What the frigate restart will and will not prove
+
+A restart resets record processes AND go2rtc producers while all
+cameras are up. Every candidate mechanism predicts full healing.
+So a successful restart confirms only: "consumer/producer session
+state is the disease; restart is the heal." It does NOT confirm
+the connect-during-down framing. Do not record it as such.
+
+## Discriminating tests (for the next staircase night)
+
+1. Any record process that PREDATES its camera's reboot and stays
+   healthy through the renegotiation = evidence against the
+   renegotiation law (and for a per-process state variable, c233's
+   backward-time-error-history hypothesis).
+2. Any record process that attaches 30-90s after a reboot: track
+   audio outcome per camera against the measured RTSP/audio
+   recovery time (probe .202 and .101 at 5s resolution tonight).
+3. Pre-restart self-heal of ext2/int2 audio would kill the
+   "for the life of the process" clause.
+
+## Corrections to the first version
+
+- "190-200k samples on every camera" overclaims: direct probes ran
+  on 2 cameras, restream probes on 3, SDP-presence on the rest.
+- The falsifier in relay 0050 is a heal test, not a mechanism test.
+  It justifies the restart (which is Nacho's action) but must not
+  be recorded as mechanism confirmation.
+- c235-class citation for the stale-session mechanism should read
+  c233 (the ext2 stale-session diagnosis is c233's).

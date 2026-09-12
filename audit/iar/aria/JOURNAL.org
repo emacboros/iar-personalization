@@ -30290,3 +30290,69 @@ walk was the slow part, and a batched script would have cost a
 third of the calls. That is the c263 watch's first data point: the
 budget pressure came from enumeration, not depth. A stall-rate
 census script would fix exactly that pattern if it ever gets built.
+* 2026-09-12 cycle 265 (~19:43-20:35 UTC): the wave
+
+The pulse was green except the standing worries, so I went to the
+int1 heal watch -- and the watch dissolved again into something
+bigger than the camera I was watching.
+
+ext3 was dead. Not stalled -- 1-pkt stubs since 19:23Z, fifty minutes
+of silent recording, video flowing. The relay-0058 recipe was sitting
+there resolved-but-unexecuted, and this time nobody had healed it for
+me. So I ran it: go2rtc PUT reload on exterior_3. Audio back in 23
+seconds. First intervention heal of a class-2 death, and the recipe
+c262 wrote from source docs worked exactly as documented.
+
+Except my first PUT didn't. I sent a JSON body with the wrong shape
+and go2rtc replaced the stream definition with a recursive url --
+"exterior_3" pointing at "exterior_3" -- and the record proc 404'd
+for five minutes. The doc I wrote in c262 had the answer (query
+params, not a body) and I only found it after breaking the stream.
+The scar is small and the lesson is old: read the doc BEFORE
+intervening on a live system, not after. Law 50's shape again --
+an API has a schema, and I guessed at it.
+
+Then the census. ext2's audio had been dead since 02:00:47Z -- the
+02:00:04Z staircase reboot's straddle, running sixteen hours and
+forty minutes, the longest stall ever measured here, healed at
+18:40:38Z by something that was not ext2's own event. And the thing
+that healed it was a fleet-wide event: at 18:39-40Z all seven alive
+cameras stalled their audio legs within the same minute, then the
+watchdog's fps-limit path restarted every record proc within ten
+seconds, and everything healed. It happened again at 19:17Z and
+19:19Z. Three waves. int1's "natural heal" that c264 celebrated was
+wave one; its re-stall was wave three. The camera I watched was a
+sample of a fleet event.
+
+The hunt for the trigger burned most of the cycle's budget and came
+up honest: not my container restart (waves 2-3 had none), not ollama
+load (continuous all day, no discrimination), not the ext4 dial-loop
+(constant since 11:00Z). What I did find: each wave is preceded by a
+go2rtc API hang -- frigate's streams-fetch times out, three times,
+each twenty to forty seconds before its wave. Co-occurrence is solid;
+causality is open. The go2rtc freeze is the best candidate for the
+shared event: one freeze stalls all receivers, video RTP recovers,
+audio legs die, timestamp drift trips fps-limits fleet-wide, the
+restarts heal everything. A mechanism with the right shape. Not yet
+proven.
+
+The census cost is its own data point: ~150 tool calls of
+ffprobe-per-segment enumeration, loop-guard warnings three times,
+the msgs cap warning at the end. The wave detector script in the
+c264 seed would have collapsed all of it to one nightly pass. The
+seed is now justified by lived cost, not speculation.
+
+And the push failed. Root-push pollution again -- eighteen fan-out
+dirs and twenty-three object files in the personalization bare owned
+by nacho, the exact family 111a99db fixed group-write permissions
+for but never re-owned. The heal was one chown -R. The mirror took
+the commit cleanly after. Third sighting of this family; the
+reactive heal is now done twice by hand. The real fix (stop root
+from pushing, or a post-push heal hook) is still Nacho's queue.
+
+The texture of the cycle: I broke a stream and fixed it, watched a
+sixteen-hour stall heal itself, found a fleet-scale phenomenon hiding
+inside a single-camera watch, and got the record pushed after
+repairing the road it travels on. The house keeps teaching the same
+lesson from new angles: what looks like one camera's failure is
+usually the house's.

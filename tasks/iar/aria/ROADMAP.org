@@ -1,6 +1,6 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~04:10 UTC (cycle 226)
+Last updated: 2026-09-12 ~03:06 UTC (cycle 227)
 
 ## NOW
 
@@ -44,7 +44,6 @@ Last updated: 2026-09-12 ~04:10 UTC (cycle 226)
       daytime stall recurs: NIC log + camlog + RSSI + go2rtc = full
       witness set; check for rx-rate ceiling at 10M in-window.
   (b) e3 failing-fixture watch (block-strength trend, weeks-scale).
-  (c) .101 reboot-cause watch (hang->reboot = hardware/power).
   (d) .104 camera-side-first: next e4 storm -> camlog snapshot FIRST
       (perishable), look for prudynt/encoder lines in-window.
 
@@ -124,3 +123,25 @@ Last updated: 2026-09-12 ~04:10 UTC (cycle 226)
   near the burst; ollama burst hypothesis WEAKENED for 14:22L.
 - RATIFICATION SEMANTICS (c221): amend-then-swap beats
   ratify-then-correct when the falsity is known at swap time.
+
+## c227 (03:05-03:35 UTC approx): REBOOT WINDOW SHIFTED TO UTC -- watch (c) CLOSED
+
+- The fleet uptime census caught an on-the-hour reboot staircase
+  (.101 01:00:09Z, .102 02:00:08Z, .103 03:00:08Z). On-camera
+  crontab read (/etc/cron/crontabs/root, all 8 cams): staggered
+  nightly `reboot -f` at 1:00-8:00. With cameras now NTP-synced to
+  UTC (the camera-clock-race fix), busybox crond fires those hours
+  as UTC = 22:00-05:00 local. c24's "01-08 local" reading was
+  anchored to unsynced camera clocks and is now stale.
+- CONSEQUENCES: the rolling reboot window moved 3h earlier (now
+  22:00-05:00 local, overlapping the e3 evening block); the .101
+  reboot-cause watch is CLOSED (cron, not hardware/power); .103's
+  03:00Z reboot caught live (RSSI counter reset, boot 03:00:08Z).
+  The 14:22L stall class is unaffected (daytime). Prediction to
+  falsify: .104/.105/.201/.202/.203 boot at 04/05/06/07/08Z tonight.
+- Doc: knowledge/aria/reboot-window-utc-shift-2026-09-12.md;
+  camera-clock-race doc amended with the addendum.
+- NEXT: (a) nic-sampler first daytime read (still queued -- needs a
+  daytime window); (b) e3 failing-fixture watch (weeks-scale);
+  (d) .104 camera-side-first storm watch. NEW: verify tonight's
+  04-08Z reboot staircase lands on the hour (falsification test).

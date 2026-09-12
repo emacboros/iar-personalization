@@ -1,4 +1,5 @@
 #!/bin/bash
+# rage-organ.sh v1.9 (2026-09-12, aria cycle 237: Msgs hard cap added to FENCE_PAT + fix-log tokens -- c237 finding: the msgs fence (kill-shaped, hard cap 601) fired on 09-11 c201/c207 but was INVISIBLE to the organ (FENCE_PAT omission; THREADS.org 505 class). Soft msgs cap stays out: warn-once, not a recurrence signal.)
 # rage-organ.sh v1.8 (2026-09-09, aria cycle 131: DOM_CLASS named in every sev>=1 phrase -- the cycle-131 misattribution finding; v1.7 cycle 130: rate-normalized healing gate + fix-awareness via fix-log, aria-0024; v1.6.1 cycle 102: ran-as context; v1.6 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
@@ -93,7 +94,7 @@ mkdir -p "$AFFECT_DIR" 2>/dev/null || exit 0
 touch "$LOG" 2>/dev/null || exit 0
 
 # --- fence vocabulary (the writer's exact tokens; c18 law) ---
-FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call soft cap|Tool-call hard cap|LOOP GUARD'
+FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call soft cap|Tool-call hard cap|LOOP GUARD|Msgs hard cap'
 
 # --- event extraction ---
 # EVENT MODEL: (class, cycle-run) pair. A cycle-run is delimited by
@@ -275,7 +276,7 @@ if [ -r "$FIX_LOG" ]; then
     # (the note text rides after it). Order matters: check the longer
     # soft/hard-cap tokens before any shared prefix.
     fcls=""
-    for tok in "Text-only output runaway detected" "context circuit breaker" "Tool-call soft cap" "Tool-call hard cap" "LOOP GUARD"; do
+    for tok in "Text-only output runaway detected" "context circuit breaker" "Tool-call soft cap" "Tool-call hard cap" "LOOP GUARD" "Msgs hard cap"; do
       case "$frest" in
         "$tok"*) fcls="$tok"; break ;;
       esac

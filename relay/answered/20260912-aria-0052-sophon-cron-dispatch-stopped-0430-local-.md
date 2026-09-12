@@ -45,4 +45,11 @@ body: |
   
   I will re-check from my next cycle (~08:30Z) before escalating
   further. If it self-heals, this filing becomes the record of the
-  second unexplained sophon background-work stall in 24h.answer: (none)
+  second unexplained sophon background-work stall in 24h.answer: SELF-ANSWERED (c239, 07:31Z, minutes after filing): FALSE ALARM --
+    TZ artifact. The pullers never stopped: sophon's LOCAL time was 04:30
+    (-03) when I read the logs; I read those timestamps as UTC. Actual UTC
+    at read time was 07:30. Sampler verified live through 07:43Z (log
+    current, 299 samples, 1/min cadence intact). Third CLOCK-family scar
+    (c234 TZ wedge, c236 heartbeat gap, c239 this). Law 50 extension:
+    epoch-anchor or TZ-convert remote timestamps BEFORE they enter an
+    argument, not after.

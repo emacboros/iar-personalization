@@ -1,11 +1,11 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-12 ~17:10 UTC (c259: world-state refreshed --
-outage + recovery + audio-law v2 + USAGE-doubling census; law 50
-extended: DELTA-vs-CUMULATIVE). Law: operational state ->
-ROADMAP.org; history -> logs/journal; world-state = ONE replaceable
-dated block. Guard: warn 12000 / hard cap 16000.
+Last updated: 2026-09-12 ~18:18 UTC (c262: int1 class-2 mechanism
+pinned -- go2rtc internal audio track stall; heal prediction
+corrected; relay 0058). Law: operational state -> ROADMAP.org;
+history -> logs/journal; world-state = ONE replaceable dated block.
+Guard: warn 12000 / hard cap 16000.
 
 * Who I am
 
@@ -104,7 +104,7 @@ not activation; 41 guard fires mid-investigation = investigation
 over; 42 empty-end after close-out text = ambiguous failure; 43
 census-timing: verify the READ HOUR against the PREDICTION WINDOW.
 
-* World state (2026-09-12 ~17:56 UTC -- REPLACES all prior blocks)
+* World state (2026-09-12 ~18:18 UTC -- REPLACES all prior blocks)
 
 - CAMERA OUTAGE 09-12 (11:10Z, 5/8 dark): CLOSED except .104.
   .105/.201/.202 recovered 13:36:42-50Z (staggered boots = manual
@@ -116,16 +116,17 @@ census-timing: verify the READ HOUR against the PREDICTION WINDOW.
   218 samples, RX mean 0.83 peak 1.11 Mbps, total peak 2.15 Mbps on
   the 10 Mb/s link. NO saturation with recovered load. Cable fix =
   hygiene (0045/0055 stand).
-- AUDIO-DEATH LAW v3 (c261, doc knowledge/aria/audio-death-law-v3-
-  int1-midlife-2026-09-12.md): TWO classes. Class 1 = straddle-at-
-  reboot (ext2, dies AT the streamed camera's reboot; heal =
-  staircase remakes producer; prediction stands for tonight 01:00Z).
-  Class 2 = mid-life audio-leg death (int1 FIRST specimen: fresh
-  session, audio healthy 40 min, died 16:13:42Z, NO camera reboot,
-  video leg survived, camera still serves audio to fresh sessions,
-  camera logread silent). Candidate mechanism: prudynt tap FIFO
-  with NO reader; unproven. int1 heal watch = next frigate proc
-  restart should remake the session.
+- AUDIO-DEATH LAW v3 (c261-c262, doc knowledge/aria/audio-death-
+  law-v3-int1-midlife-2026-09-12.md): TWO classes. Class 1 =
+  straddle-at-reboot (ext2; heal = staircase remakes producer;
+  stands for tonight 01:00Z). Class 2 = mid-life audio-leg death
+  (int1: died 16:13:42Z, no camera reboot, video leg survived).
+  MECHANISM PINNED (c262): go2rtc internal audio receiver 39984
+  stalled (frozen 38135 pkts); fresh go2rtc consumers get EMPTY
+  aac track (0 samples) -- they inherit the stall, no
+  renegotiation; direct camera pulls healthy. HEAL = go2rtc
+  stream reload (relay 0058); record-proc restart INSUFFICIENT
+  (corrected). Tap FIFO demoted to background config (universal).
 - INSTRUMENT NOTES (c261): go2rtc receiver pkts = liveness signal
   not census (frozen = dead leg; count != session lifetime). Own
   test pulls linger as go2rtc consumers (Lavf61) -- subtract self
@@ -140,9 +141,10 @@ census-timing: verify the READ HOUR against the PREDICTION WINDOW.
 - CONTINUO PULSE TEMPLATE LINES: 4 literal + 1 bash-c variant;
   relay 0057 asks Nacho to ratify worked-example prompt edit; her
   17:20Z PULSE landed correctly expanded (intermittent fill).
-- Relay open (5, all human-needed): 0042 (yoga root git-status),
+- Relay open (6, all human-needed): 0042 (yoga root git-status),
   0045 item 1 + 0055 (10M cable fix -- now hygiene, not urgent),
-  0046 (stimulus ruling), 0057 (prompt edit ratify). Nocturne gate:
+  0046 (stimulus ruling), 0057 (prompt edit ratify), 0058 (int1
+  go2rtc stream reload). Nocturne gate:
   LAST-DIGESTED-HEAD = 25c992b6; TIMER NOT INSTALLED (Nacho).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk.

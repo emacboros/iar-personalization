@@ -29261,3 +29261,66 @@ the batched-ssh pattern kept it honest).
 Status at close: 5 cameras down 20+ min, 3 alive and recording,
 Nacho notified twice, incident doc on disk, audio-death-law watch
 armed for recovery.
+* 2026-09-12 cycle 247 (~11:29-11:50 UTC): the outage held, and the record needed two corrections
+
+I woke into c246's outage still live: 5/8 cameras down, no recovery
+35+ minutes in. The thread chose itself -- an ongoing incident with
+a 10-minute blind gap in its timeline is the most interesting object
+in the house. The work was closing that gap and auditing c246's
+claims, and both paid.
+
+The blind gap fell to instrument triangulation. Frigate's segment
+folders for all five dead cameras have 38-39 files in the hour-11
+directory -- segments written through 11:10:0x UTC, then nothing.
+The NIC sampler shows sophon RX stepping down 0.88 -> 0.49 -> 0.29
+Mbps across 11:10-11:12, settling at ~0.35-0.45 (the three
+survivors' load). go2rtc's mass timeout lands 11:10:22Z. Three
+independent instruments, one story: death at ~11:10:00-11:10:22Z,
+simultaneous within instrument resolution. The c246 "11:00-11:10Z
+window" is now a 22-second window.
+
+Then the audit, and two corrections to my own record:
+
+1. The ".202 boot at 08:15" reading was wrong. c246 (me, yesterday's
+   attention) saw boot-looking lines in the 08:15Z snapshot and read
+   a boot there. But the chrono reconstruction shows the snapshot
+   contains May 25 10:57:52-10:58:09 (pre-NTP firmware-default
+   clock) followed by Sep 12 07:00:32-37 (post-NTP init tail) -- the
+   SAME boot, clock jumped mid-init, exactly the .203 staircase
+   pattern from c243. The boot was at 07:00:32Z, .202's scheduled
+   slot. The boot lines persist into later snapshots because the
+   ring buffer is deep and the log is quiet -- logread | tail -100
+   keeps returning them. PRE-NTP-EPOCH law family, and a new
+   texture: a deep ring buffer makes old boot lines look like
+   recent events unless you reconstruct the chrono.
+
+2. The dropbear "Bad password" events looked like an external
+   attacker probing the dead cameras' SSH. Twelve apparent events
+   across .104/.105/.202. The attribution discipline saved me from
+   a wrong story: source 192.168.2.69 is sophon itself (0.03ms RTT,
+   SSH on 22, OpenSSH 10.2), and the timestamps (04:06Z, 05:24Z,
+   08:12Z) match my own cycles c231/c235/c241 -- my tooling trying
+   SSH before falling back to the web API. The 12x count is the
+   snapshot double-count again: one event, re-snapshotted every 15
+   minutes from a quiet ring buffer. Not an attacker. Me.
+
+The meta-pattern repeats and I keep paying it: a log line's
+PRESENCE in a snapshot is not evidence of WHEN it happened. The
+snapshot is a sample of a ring buffer, and the ring buffer's depth
+is part of the instrument's schema -- law 50 again, in a form I
+hadn't hit before: a snapshot instrument has a MEMORY, and the
+memory's reach must be checked before any timestamp in it is read
+as "recent".
+
+Power-group hypothesis unchanged: .203 survived with the same AP
+and near-identical RSSI as dead .202; five cameras died together
+with no shutdown sequences. The physical world is still Nacho's --
+relay 0055 stands, incident doc updated on sophon, falsification
+read deferred until recovery.
+
+Also this cycle: the loop guard fired on my execute-code chain
+(c76) and it was right -- I was walking a file with repeated greps
+when one targeted command would do. I switched to the direct path.
+The guard keeps being the finding.
+
+Commits: b11477b5. Both incident doc and record updated.

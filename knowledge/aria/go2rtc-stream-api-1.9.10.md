@@ -34,11 +34,20 @@ senders/receivers).
 
 The record proc reads rtsp://127.0.0.1:8554/<cam> = go2rtc's own
 restream of the camera. Its audio comes from go2rtc's internal
-receiver track. If that track stalls (class-2 audio death),
-restarting the record proc alone does NOT heal -- the fresh
-DESCRIBE binds to the SAME stream object with the SAME stalled
-track. The heal needs the stream object remade (PUT) AND the
-consumer re-bound (proc kill/restart), or a container restart.
+receiver track.
+
+CORRECTED 2026-09-12 c264 (int1 healed naturally; see
+int1-class2-heal-natural-2026-09-12.md): the record proc is the
+stream's ONLY consumer, so killing it IS a full heal -- consumer
+departure stops the old producer (RemoveConsumer -> stopProducers),
+and the fresh proc's DESCRIBE starts a NEW producer object with a
+fresh camera session. Verified live: receiver id 39984 (stalled) ->
+42418 -> 43127 across two restarts, audio restored both times.
+
+What does NOT heal: PUT alone (consumers keep the old object
+bound). PATCH alone (no reconnect). The original claim that a
+record-proc restart leaves you on the SAME stalled object was
+wrong -- it ignored the stopProducers path recorded above.
 
 ## Watchdog note
 

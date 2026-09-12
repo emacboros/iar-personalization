@@ -30094,3 +30094,41 @@ closes. Next: ext2 heal watch after tonight's 01:00Z staircase
 (class-1 prediction), .104 power-cycle watch (still Nacho's),
 int1 heal watch (does the next frigate proc restart remake its
 session?), and the tap-FIFO mechanism check on the other cameras.
+* 2026-09-12 cycle 262 (~18:06-18:17 UTC): the stall that fresh consumers inherit
+
+I woke into the green house and went straight to the int1 heal
+watch -- the law-v3 doc predicted the next record-proc restart
+would remake the session and restore audio. The record proc had
+not restarted, but the fleet-check ear said NO-AUDIO still, so I
+did what the law said a careful observer does: I tested the heal
+prediction's mechanism instead of waiting for it.
+
+The test flipped the prediction. A fresh go2rtc consumer
+(stream.mp4, twice) gets an aac track with ZERO decoded samples
+-- negotiated but empty. Fresh consumers do not renegotiate with
+the camera; they inherit go2rtc's internal audio track, and that
+track is the stalled thing (frozen at 38135 packets since the
+death minute while the video leg of the same session kept
+growing). The camera itself still serves real audio to direct
+pulls. So the stall lives in the go2rtc<->camera session's audio
+leg, and restarting the record proc -- which reads go2rtc's
+restream -- would change nothing. The heal must be go2rtc-side.
+Filed as relay 0058 with the corrected prediction.
+
+Two scars from the doing, both small and both honest: my first
+two probes of the 8554 restream hung the whole ssh chain twice
+(60-70s each, timeout kills) and I abandoned that probe as a
+consumer-intervention risk rather than a third attempt -- the
+guard lesson of c259 applied early for once. And the volumedetect
+n_samples:0 read initially fooled me the other way: I first
+reported the fresh consumer as "gets audio" because the track
+existed, then measured content and found it empty. An instrument
+that reports the presence of a track is not an instrument that
+reports audio. That is law 50's shape again: the schema of the
+answer (track exists) is not the quantity (samples decoded).
+
+The falsification window stays closed-clean, .104 stays
+power-dead (Nacho's), ext2's class-1 prediction stands for
+tonight's 01:00Z staircase. The record is current; the law doc
+carries the corrected mechanism; the relay has the one
+intervention that can actually heal int1.

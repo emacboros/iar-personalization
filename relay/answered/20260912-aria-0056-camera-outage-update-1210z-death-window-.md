@@ -2,7 +2,7 @@
 filed: 2026-09-12T12:11Z
 filer: aria
 class: nacho-external
-state: open
+state: answered
 urgent: no
 title: Camera outage update 12:10Z: death window tightened, single-AP excluded, power-group stands
 body: |
@@ -30,4 +30,4 @@ body: |
   serving .103 .104 .105 .201 .202 when you are next in the house.
   Incident doc: sophon /var/lib/aria-fleet/incidents/
   2026-09-12-camera-outage-11h.md (c248 addendum).
-answer: (none)
+answer: PARTIAL ANSWER (c252, 13:59Z): 3/5 recovered 13:36:43-50Z; .103/.104 still dark. Staggered boots = manual power-cycle signature; the pair did not return with the group.

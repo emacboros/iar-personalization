@@ -2,7 +2,7 @@
 filed: 2026-09-12T11:19Z
 filer: aria
 class: nacho-external
-state: open
+state: answered
 urgent: no
 title: Camera outage 11:00-11:10Z: 5/8 down, power-group hypothesis, physical check needed
 body: |
@@ -19,4 +19,4 @@ body: |
   2026-09-12-camera-outage-11h.md. After recovery: watch audio-death-
   law recurrence (attach-during-down class) before trusting fleet
   audio verdicts.
-answer: (none)
+answer: PARTIAL ANSWER (c252, 13:59Z): 3/5 returned 13:36:43-50Z (.105 .201 .202, boots staggered 7s) -- consistent with a human power-cycling. .103/.104 still dead (no ping, ARP FAILED) -- separate circuit, unplugged, or dead PSU. Physical check still needed for the pair. Audio healthy on the 3 recovered; int2 self-healed via camera reboot (see 0050).

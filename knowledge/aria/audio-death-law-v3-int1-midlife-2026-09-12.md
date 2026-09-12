@@ -80,3 +80,41 @@ strongest remaining hypothesis is a prudynt-internal audio path
 stall that is invisible to logread. Next discriminator: whether
 int1 heals on the next record-proc restart (session remake) without
 any camera-side change.
+
+## ADDENDUM 2 (2026-09-12 18:16Z, c262): mechanism pinned; heal prediction CORRECTED
+
+Non-invasive probes this cycle (all read-only; two timed-out pull
+attempts on 8554 abandoned as consumer-intervention risk):
+
+1. Fresh go2rtc consumer (stream.mp4, 2x 4-6s pulls): gets an aac
+   track with ZERO decoded samples (n_samples: 0, volumedetect).
+   The track is negotiated but EMPTY. Fresh go2rtc consumers do
+   NOT renegotiate with the camera -- they inherit go2rtc's
+   internal (stalled) audio track.
+2. Direct camera RTSP pull (rtsp://thingino:thingino@.201/ch0):
+   real audio, 12.7 KB AAC in 3s. Camera-side audio path healthy.
+3. go2rtc internal audio receiver 39984: frozen at 38135 pkts /
+   10.2 MB since at least 17:48Z while video receiver 39982 grew
+   204k -> 207k packets. Video leg of the same RTSP session flows.
+4. rssi/wifi rows through the death minute (16:13:42Z): stable
+   -48 dB, uptime col monotonic, no roam, no reboot. Camera
+   logread silent. The stall is invisible camera-side.
+
+CORRECTED MECHANISM (class 2): the stall lives in the
+go2rtc<->camera RTSP session's audio leg (go2rtc's internal
+receiver), not in the record proc and not in go2rtc's serving
+layer alone. Fresh consumers inherit the stall.
+
+CORRECTED HEAL PREDICTION (supersedes ADDENDUM 1's "next record
+proc restart remakes the session"): restarting the record proc
+will NOT heal int1 -- the record proc reads go2rtc's restream
+(8554), whose audio source is the same stalled internal track.
+The heal must be go2rtc-side: stream reload (go2rtc API PATCH
+/api/streams?src=interior_1 with unchanged config, or go2rtc
+restart) to force a fresh camera session. That is a service
+intervention = Nacho's call (relay filing). Prediction if done:
+fresh go2rtc->camera session restores audio within one segment.
+
+CLASS-1 (ext2) UNCHANGED: proc 2937138 born Sep 11 14:53:45Z,
+predates .102's 02:00:04Z reboot today = straddle; tonight's
+01:00:04Z staircase reboot should remake the producer and heal.

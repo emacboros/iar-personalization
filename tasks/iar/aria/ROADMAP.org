@@ -1,58 +1,47 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~00:46 UTC (cycle 219)
+Last updated: 2026-09-12 ~00:30 UTC (cycle 220)
 
 ## NOW
 
-- c218 (23:10-00:26Z): NOCTURNE FIRST-RUN FORENSICS + housekeeping.
-  (a) Forensics: 8 wrapper launches (Nacho's live tests, 18:59-20:11
-  -03), 6 reached emacs, last killed by OUTER timeout 590 at 20:20:50.
-  DIGEST.proposed.md EXISTS and is GOOD (added NOCTURNE section,
-  refreshed world state, caught a 7/8-vs-8/8 CONTRADICTION in my own
-  record; fence held; loop guard fired inside a one-shot and she
-  routed around it). GATE NEVER ADVANCED (state file absent -- killed
-  before step 5). DECISION: hold ratification until a complete
-  non-killed run advances the gate. Doc:
-  knowledge/aria/nocturne-first-run-forensics-2026-09-11.md.
-  (b) Two queued code fixes from the forensics: gptel-fork token-parse
-  warning storm (135x, deepseek chunk shape) + iar-request-log.el
-  full-dump crash on model-name string (json-value-p). Both small,
-  both i.ar code.
-  (c) Relay 0042 UPGRADED: yoga root actor ran a state-changing git op
-  on i.ar (ORIG_HEAD mtime 19:05:16 inside a 15-session burst
-  19:03-19:07 local). Quiet since 20:21 local.
-  (d) Housekeeping: doubled-path fossil tasks/iar/continuo/iar/
-  removed (untracked; tracked twins intact); 2 stranded USAGE commits
-  pushed; sophon-bare + rammstein verified synced.
-  c219 (23:34-00:46Z): TOKEN-PARSE STORM ROOT-CAUSED + FIXED.
-  NOT gptel-fork deepseek chunk shape (c218 attribution WRONG) --
-  iar--one-shot-make-state lacked :request-count; c39 burn mirror
-  cl-incf'd nil every request (one-shot-only). Differential evidence:
-  164 standalone warnings nocturne one-shot vs 0 standalone in
-  aria/continuo cycle logs. Fix fa0a000 (i.ar) + 3 regression tests,
-  suite 1246/1246, pushed + mirror verified. Forensics doc corrected
-  (cec5807c). Full-dump crash was ALREADY fixed (dab8e5c) -- c218's
-  checkout was stale; ghost fix, not queued.
+- c220 (23:54-00:30Z): NOCTURNE GATE ADVANCED + 0042 CORRECTION.
+  (a) Nacho's 20:56:07Z nohup run COMPLETED (00:11:06Z, one-shot
+  exit=0, proposal written, gate advanced to 25c992b6). The c218 hold
+  condition is MET. Proposal read in full: good (D-015 section,
+  corrected world state, pointers compressed, honest about its own
+  +3.2k growth). HELD one more cycle: 15.2k chars vs 12k warn (under
+  16k hard cap); ratify-or-diet decision next cycle.
+  (b) RELAY 0042 CORRECTION: c218's "root actor ran state-changing git
+  ops" RETRACTED. ORIG_HEAD mtime 19:05:16 was sophon LOCAL (= 22:05:16Z,
+  not inside the burst as placed); content = dab8e5c authored by MY OWN
+  c211 30s earlier. The 22:03-22:07Z root-ssh burst (18 sessions, real)
+  carries the aria@i.ar key (= emacboros_ed25519) and coincides with
+  Nacho's nocturne test window -- most probable actor: our own
+  interactive repo-health path. c207 core (root git-status re-poisons
+  index) STANDS; structural asks stand. CORRECTION 2 in forensics doc
+  + relay filing + THREADS.
+  (c) Nocturne burn: 8.5M tokens_in / 231k out, 88 requests for ONE
+  daily digest pass. Model-composition question (D-008: interactive-only).
   NEXT CYCLES (in order):
-  (1) post-reboot seam read: IF the reboot window has started
+  (1) Nocturne ratification decision: ratify 25c992b6 proposal
+      (deterministic swap DIGEST.proposed.md -> DIGEST.md, both audit
+      + top-level sync copies) OR diet it first. Check size after swap.
+  (2) yoga repo-health instrumentation: identify the recurring root
+      command pattern from sophon side (169 sessions since 18:00 local
+      -- continuous, not a burst) BEFORE asking Nacho; if ours, the fix
+      (--no-optional-locks or chown) may be ours too.
+  (3) post-reboot seam read: IF the reboot window has started
       (01:00-06:00 -03 = 04:00-09:00Z), run
       `ssh root@10.66.0.5 bash /tmp/seam-check.sh` -- ONE command.
       Persisted log -> CLOCKJUMP+SEAM no gap; tmpfs-wiped -> GAP +
       fresh uptimes. If seams found, verify camera-side first line
-      same cycle (perishable).
-  (2) storm watch: next ext4-storm window -> pull .104 series FIRST
+      same cycle (perishable). sophon itself did NOT reboot (up 10d).
+  (4) storm watch: next ext4-storm window -> pull .104 series FIRST
       (perishable), correlate vs c213 baseline.
-  (3) e3 failing-fixture watch: block-strength trend over weeks
+  (5) e3 failing-fixture watch: block-strength trend over weeks
       (one summary-API call; method in the longitudinal doc).
-  (4) token-parse + full-dump fixes (i.ar code; test suite before
-      push; never push red).
-  (5) continuo's next post-fix task-tree write must land flat
-      (doubled-path fix d09916a live test -- STILL untested; her
-      writes at 20:51Z predate the 20:55Z fix).
-  (6) Nocturne ratification: AFTER the gate advances on a complete
-      run (Nacho's timer install or one full-length manual run),
-      diff DIGEST.proposed.md vs DIGEST.md, ratify or discard,
-      deterministic swap. Do NOT ratify the killed-run proposal.
+  (6) continuo's next post-fix task-tree write must land flat
+      (doubled-path fix d09916a live test -- STILL untested).
 ## STANDING (verified, still true)
 
 - phantom-exit fix baf05d0; rage organ v1.8; fence panel 0 true
@@ -65,24 +54,23 @@ Last updated: 2026-09-12 ~00:46 UTC (cycle 219)
   puller (c209). Data: /var/lib/aria-fleet/rssi/<ip>.log. Doc:
   knowledge/aria/rssi-puller-live-2026-09-11.md. Seam scanner:
   knowledge/aria/bin/seam-check.sh (c216; sophon copy /tmp/seam-check.sh).
-- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c215 primary; Nocturne
-  caught the 7/8 stale line in my own world state -- she was right).
-  .103 network-dead chronic but still pulled (relay 0038). Frigate
-  stats recipe: machinectl shell nacho@ podman exec frigate wget
+- CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c215 primary). .103
+  network-dead chronic but still pulled (relay 0038). Frigate stats
+  recipe: machinectl shell nacho@ podman exec frigate wget
   (rootless store).
 - FULL-CAPTURE FLAG: standing tool, default nil. Arm = flip
   defcustom t (emacs.d/configs/tool-limits.el ~line 303), one
   cycle, verify REQ-*.json, revert. Verified live c212/c213.
-  NOTE: full-dump crashes on deepseek model-name string (c218
-  forensics) -- fix queued before next arm on that model.
-- Relay open: 0042 (yoga actor UPGRADED: state-changing git ops as
-  root, evidence in forensics doc), 0043 (puller visibility).
-  Verify against answered/ before citing older ids.
+- Relay open: 0042 (CORRECTED -- c207 core stands, threat framing
+  downgraded to our own interactive path; structural asks stand),
+  0043 (puller visibility). Verify against answered/ before citing
+  older ids.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 - Burn asymmetry STABLE 6-8x full-day. knowledge/aria/
-  burn-asymmetry-2026-09-11.md. Nocturne debug runs added ~8.9M
-  tokens tonight (gate would have made re-runs cheap -- verify gate
-  advance on run #1 when the timer lands).
+  burn-asymmetry-2026-09-11.md. Nocturne nightly cost now a line
+  item (8.5M in / 231k out for the daily pass).
+- DIGEST GUARDS: warn 12000 / hard cap 16000 (iar-prompt-assembly.el
+  ~147-154). Live digest 12.0k (over warn); Nocturne proposal 15.2k.
 
 ## RECIPES (hard-won, reuse them)
 
@@ -113,7 +101,9 @@ Last updated: 2026-09-12 ~00:46 UTC (cycle 219)
   working transport. Push to sophon-bare, checkout picks up at
   next cycle start.
 - Timezone discipline: sophon journal = LOCAL -03; my records = UTC.
-  Normalize before comparing (c186 law).
+  Normalize before comparing (c186 law). c220 addendum: FILE MTIMES
+  on sophon are LOCAL too -- 19:05 local is 22:05Z. Verify TZ before
+  timestamp-matching ANYTHING (law 50, extended twice now).
 - gptel fork in THIS container: /root/.emacs.d/gptel-fork (the
   /root/i.ar/emacs.d/gptel-fork path is an empty dir -- stale).
 - Zulip post key: aria-cycle.conf is an INI (key = line 4), not
@@ -124,3 +114,9 @@ Last updated: 2026-09-12 ~00:46 UTC (cycle 219)
   log: audit/iar/nocturne/oneshot-*.log. Nocturne's own audit tree:
   audit/nocturne/nocturne/ (note: NOT audit/iar/nocturne/ for
   REQUESTS/USAGE -- the doubled audit path is a separate finding).
+- ATTRIBUTION DISCIPLINE (c220): before attributing an artifact to an
+  actor, verify (a) the timestamp's TIMEZONE, (b) the file's CONTENT
+  against the attributed actor's lineage (ORIG_HEAD pointing at your
+  own commit is exculpatory), (c) coincidence windows against KNOWN
+  activity (test harnesses, your own cycles) before positing an
+  intruder.

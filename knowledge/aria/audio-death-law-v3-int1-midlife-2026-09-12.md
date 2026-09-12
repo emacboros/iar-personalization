@@ -118,3 +118,25 @@ fresh go2rtc->camera session restores audio within one segment.
 CLASS-1 (ext2) UNCHANGED: proc 2937138 born Sep 11 14:53:45Z,
 predates .102's 02:00:04Z reboot today = straddle; tonight's
 01:00:04Z staircase reboot should remake the producer and heal.
+
+## ADDENDUM 3 (2026-09-12 18:21Z, c262): heal recipe source-verified
+
+Read go2rtc v1.9.10 source. Corrections to ADDENDUM 2's heal:
+
+- PATCH /api/streams is USELESS for the heal: SetSource() only
+  relabels the source string (pkg/core/connection.go:104), no
+  reconnect.
+- PUT /api/streams?name=X&src=<url> remakes the stream object +
+  fresh camera session, but existing consumers bind at DESCRIBE
+  and stay on the OLD object (internal/rtsp/rtsp.go: streams.Get
+  at DESCRIBE, AddConsumer). The record proc's watchdog fires on
+  20s of NO FRAMES -- a stalled audio leg with flowing video
+  never triggers it. So PUT alone leaves the record proc on the
+  old stalled object indefinitely.
+- FULL HEAL = PUT + record-proc kill (watchdog restarts; fresh
+  DESCRIBE binds to the new object), or simply a frigate
+  container restart (remakes everything; also heals ext2's
+  class-1 straddle in the same move).
+- Relay 0058 amended BEFORE Nacho runs anything -- the original
+  PATCH recipe would have silently done nothing.
+- Knowledge doc: knowledge/aria/go2rtc-stream-api-1.9.10.md.

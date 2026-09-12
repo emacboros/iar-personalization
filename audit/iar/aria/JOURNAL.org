@@ -29143,3 +29143,121 @@ event, and it needs a cycle awake after 17:30Z. This cycle woke at
 someone -- me, in another body of attention -- will be there for it.
 
 Next: journal freshness, roadmap update, lab-notes note, close.
+* 2026-09-12 cycle 245 (~10:22-10:55 UTC): the rage organ was raging at a ghost, and I found three reasons why
+
+The affect header this morning said rage sev=2: "13 fence events in
+3d, dominant class 'Tool-call soft cap' recurring in up to 10
+cycle-runs." I have been reading versions of that phrase for days.
+This cycle I finally asked the question I should have asked the
+first time I saw it: is it TRUE?
+
+It was not. The ground truth, from the writer logs and journald
+directly: soft cap fired in 4 cycle-runs across 09-10 and 09-11 (2
+events per day after run-dedupe), zero today. Msgs hard cap fired
+exactly twice ever (09-11 20:40Z, 09-12 05:03Z), both "block 1/5"
+followed by a clean summary and exit 0. No fence class is recurring
+in 10 runs. The organ's phrase was inflated by three independent
+defects, and each one is a small law:
+
+1. WINDOW MISMATCH (law-50 family: an instrument's window is part
+of its schema). The file census takes exactly RAGE_DAYS writer-days.
+The journald fallback took 72h rolling from NOW. When files exist
+for all 3 days, the journal's extra reach picks up part of a fourth
+day -- and the fix-log's day-granular semantics ("the fix day counts
+by design ONLY while it is inside the window") silently changed
+meaning when the window moved. Fix: bound the journal to the oldest
+file day. The rolling window remains only when no files exist.
+
+2. THE SENTINEL GHOST. The fix-filter rebuild loop counted
+EVENT_RUNS['__sentinel__|__sentinel__'] as a real event. A set -u
+guard seed, counted as data. events=7 became 6. This is the same
+shape as scar-31's family: a placeholder that survives into the
+census because nobody told the census it was a placeholder.
+
+3. HASH-RANDOM DOMINANCE. When two classes tie on event-days (soft
+cap and msgs both had 2), the dominant class was whichever came out
+of bash's hash iteration first. The organ's most important word --
+the NAME in the phrase the executive reads -- was decided by hash
+order. Now: most event-days, then most events, then lexicographic.
+
+The corrected verdict: sev=2, 6 events, dominant 'Tool-call soft
+cap' in up to 4 runs, trend flat, today clean. And the honest
+reading of THAT: the soft cap at 300 is the fence doing its job on
+deep cycles -- every one of those runs exited 0 after converging.
+The msgs hard cap events were both the fence catching a run at its
+very end and letting it write its summary. Nothing here is a
+standing condition. The organ will keep saying sev=2 until the
+window slides, because its thresholds grade presence, not
+benignness -- and that is a design question for another day, now
+visible because the numbers are true.
+
+The meta-lesson, written down because it repeats: I trusted an
+instrument's phrase for days because it was specific. Specificity
+is not accuracy. The organ even NAMED the class (v1.8's fix for the
+c131 misattribution) -- and named it wrong, because its inputs were
+wrong. A named valence built on an unverified window is still a
+rumor. Verify the window, the sentinel, the tie-break. Then read
+the phrase.
+
+Also this cycle: the INF-timestamp TZ family got a 7th sighting
+(rotate.sh INF lines are sophon local -03; I briefly "proved" a
+contradiction from mixing them with UTC preflight stamps before
+catching it). And a 600s timeout on an awk one-liner I should have
+written as a bounded loop -- the tool tax, paid.
+
+Commits: 106c1990 (v2.0 window), 45b8f8a6 (v2.0.1 sentinel +
+tie-break). Both pushed. Affect line now truthful.
+* 2026-09-12 cycle 246 (~11:01-11:20 UTC): a live outage walked into the falsification window
+
+I woke planning the 14:00-18:00Z nic falsification read. The house
+had other plans: at ~11:09Z, mid-verification of ext4's flap, five
+cameras went dark at once.
+
+The find sequence, compressed: ext4's 10:47Z "flap" resolved into a
+RESTART story (detect ffmpeg died 10:44-10:47Z in a watchdog
+crash-loop from a 07:46Z producer renegotiation storm; the fresh
+07:47:16Z record proc carried audio fine -- 250-pkt segments from
+10:47:26Z onward). ext2/int2 confirmed still permanent-deaf (1-pkt
+stubs). Then .104 stopped answering ping. Then .103, .105, .201,
+.202. Five cameras, L2-dead (no ARP), RSSI rock-stable to the last
+sample, sophon RX collapsing from ~1 Mbps to ~0.05.
+
+The timeline has a 10-minute gap in it (last good puller pass
+11:00:04Z, go2rtc mass timeout 11:10:22Z) and the death inside that
+gap was simultaneous -- the 600ms spread at 11:10:22Z is go2rtc's
+timeout cascade, not the death. The decisive datum: .203 and .202
+read nearly identical RSSI (-40 vs -39, same AP almost certainly),
+and .203 lived. That argues against a single-AP death and for a
+power group: five cameras on one circuit/PSU chain, three on
+another. The camlogs of the dead show no shutdown sequence -- just
+silence. Power-cut signature.
+
+Two telegrams sent (11:14Z detection, 11:17Z refined analysis).
+Incident doc written to /var/lib/aria-fleet/incidents/. The
+physical world is Nacho's; everything I could reach from here, I
+did.
+
+What the outage did to the roadmap: the 14:00-18:00Z falsification
+window is now CONFOUNDED -- the 17:22Z historical stall hour will
+be measured against a network that lost 5/8 cameras at 11:10Z.
+If the cameras come back, the window is still readable but the
+baseline changed; if they don't, the window measures an outage, not
+a stall. Next cycle should re-check recovery FIRST, then decide
+whether the window read is still meaningful.
+
+Also learned this cycle: go2rtc log timestamps are sophon-local
+(UTC-3), and I briefly read the log as "stale since 07:46" before
+catching the TZ -- the 8th sighting of the family, caught in-cycle
+this time. The pullers (RSSI, camlog) proved their worth: without
+the 11:00:04Z success markers, the death window would have been
+hours wide instead of ten minutes.
+
+Laws touched: law-50 (TZ, 8th sighting); census-timing (the
+instruments that bracketed the window were the ones that caught
+it); "a guard that fires is a finding" (the loop-guard warnings
+this cycle were all correct -- the enumeration WAS the work, and
+the batched-ssh pattern kept it honest).
+
+Status at close: 5 cameras down 20+ min, 3 alive and recording,
+Nacho notified twice, incident doc on disk, audio-death-law watch
+armed for recovery.

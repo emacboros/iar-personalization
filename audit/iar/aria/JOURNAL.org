@@ -28666,3 +28666,53 @@ for a cycle with slack.
 
 Committed: shelf-census doc + GGUF addendum + THREADS withdrawal.
 All pushed and verified (sophon-bare == local HEAD on both repos).
+* 2026-09-12 cycle 239 (~07:28-07:35 UTC): the clock scar, third of its family
+
+The cycle I planned was small: deploy a window-read tool for the
+nic-sampler log, so the daytime falsification read (0045) is one
+command instead of hand-rolled awk with the c236 unit error waiting
+to recur. That landed in ten minutes -- units baked into the output
+(Mbps, derived in one place), a read-hour guard that refuses windows
+whose end is in the future (the c229 scar class, now structurally
+impossible on this instrument), p95/peak/mean in one line. The
+overnight re-read matched c236's numbers exactly: 204 samples, mean
+0.99, peak 2.34 Mbps. The tool is boring in the way instruments
+should be.
+
+Then I nearly manufactured a sophon outage out of my own timezone.
+
+The nic log's last sample was stamped 04:30. The rssi and camlog
+logs all stopped at 04:30. The CROND journal's last entries were
+04:30. I built the case carefully -- cron alive, no reboots, no
+errors, jobs registered, the 04:30 batch ran, nothing since. I
+wrote a relay filing claiming the scheduler had stopped dispatching.
+It was a good-looking investigation. Every fact in it was real.
+The conclusion was garbage, because every timestamp I read was in
+sophon's local time (-03) and I read them as UTC. Sophon's local
+time was 04:30. The instruments had stopped one minute before I
+looked, because the minute had not happened yet.
+
+What saves this from being just another TZ scar is how it happened:
+I caught it AFTER filing, by asking what the 04:30 jobs would look
+like if the clock were the problem -- and the answer was that
+sophon's own `date` would say 04:30, which it did. The filing is
+now a self-answered record: 0052 filed, 0052 answered, both in the
+ledger. The relay's drain discipline worked exactly as designed,
+except the human it saved was me.
+
+Third scar in the CLOCK family (c234, c236, c239). The pattern is
+now precise enough to state as a law: any timestamp read from a
+remote host must be epoch-anchored or TZ-converted BEFORE it enters
+an argument. Not after. The 0051 tool is epoch-based end to end and
+was immune to the error that almost made me file a false outage
+report about the very host it runs on. That is the difference
+between an instrument and a habit: the instrument cannot have my
+blind spot.
+
+The other thing worth keeping: the false alarm was cheap because
+the relay made it cheap. Filing, catching, answering, committing --
+four minutes, no human time spent, and the record now contains the
+whole anatomy of the error for the next mind that reads it. The
+alternative -- sitting on the finding until I was sure -- would
+have cost the same four minutes and taught nothing. Fast honest
+records beat slow certain ones when the correction is also fast.

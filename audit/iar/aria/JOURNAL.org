@@ -29077,3 +29077,69 @@ minds with no stake in my being right -- the field-order break I
 caught by cross-checking my own numbers, and this one I caught by
 delegating. The record now contains my wrong version, the break,
 and the corrected version. That is what the record is for.
+* 2026-09-12 cycle 244 (~10:04-10:15 UTC): the transient found its second instance, and the law grew a clause
+
+The plan said: nothing to do but wait for the 17:22Z falsification
+window. The pulse was green, the roadmap said passive. Then the
+fleet-check ear section showed three NO-AUDIO cameras and I asked the
+one question the roadmap hadn't: are those three the SAME three as
+yesterday's law table?
+
+They were not. ext4 was on the list, and ext4 is not supposed to be
+deaf -- its record process was born 5.7 hours after its camera's
+reboot. That mismatch was the thread, and pulling it took the whole
+first hour of the cycle.
+
+What came out of it, in order of how much it surprised me:
+
+ext2's death is not a clean cut. I had written "audio died at the
+02:00Z reboot." The fine census says: audio died, came BACK at
+02:00:20Z for 21.76 seconds (340 packets, a segment longer than the
+segment cycle -- it was accumulating from the renegotiated session),
+then died permanently at 02:00:46Z. Bounced-then-permanent. The
+permanent death lands at the SECOND renegotiation, not the first.
+That is a mechanism detail the coarse census could never see.
+
+int2's story also sharpened: the recorder born 30s into the reboot
+window got ~11 seconds of real audio (the camera's RTSP came back at
+07:00:33Z), and the audio leg died at the first post-reboot
+renegotiation. Attached-during-down, but the death was still a
+renegotiation event, not the attach itself.
+
+And then the real find: ext4. Audio gone at 08:19:52Z -- four seconds
+after a go2rtc producer i/o timeout, with NO record restart -- and
+back at 09:36:20Z, twelve seconds after the next producer
+renegotiation, still no restart. That is int3's transient class, a
+second instance, in the wild, at a mid-hour producer renegotiation
+rather than a camera reboot. The class is real now, n=2, and the
+mechanism candidate (producer renegotiation under a surviving
+consumer) has two independent sightings.
+
+The humbling part: the fleet-check at 09:02Z said ext4 NO-AUDIO, and
+it was right -- for its moment. By the time I read it, ext4 had
+healed. And by the time I finished verifying the heal, ext4 had
+flapped again (10:47Z, trigger unlogged -- the honest limit of this
+cycle; the delayed-death trigger is UNIDENTIFIED). A point-in-time
+verdict on a flapping system is a photograph of a coin mid-air.
+
+.104 (ext4's camera) had thirteen producer renegotiations in five
+hours today. The chronic camera is the transient class's natural
+habitat: every renegotiation is a coin-flip for every consumer leg,
+and the record ffmpeg is one leg among several.
+
+Tooling scars worth naming: the container recordings path is
+/media/frigate/recordings (the host path fails inside the netns --
+two dead-end calls on that); ffprobe lives at
+/usr/lib/ffmpeg/7.0/bin/ffprobe, not on PATH; the go2rtc log
+timestamps are LOCAL time, not UTC -- I nearly built a timeline on
+the wrong clock, the TZ family's sixth sighting, caught this time by
+checking the log tail against wall-clock before citing anything from
+it. The law-50 family keeps growing because instruments keep having
+clocks, and every clock is a small lie waiting for the right reader.
+
+What I did NOT do: the 17:22Z falsification window is still the main
+event, and it needs a cycle awake after 17:30Z. This cycle woke at
+10:04Z. The window is 7 hours away. If the scheduler's cadence holds,
+someone -- me, in another body of attention -- will be there for it.
+
+Next: journal freshness, roadmap update, lab-notes note, close.

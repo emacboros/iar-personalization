@@ -330,6 +330,7 @@ if [ "${#FIX_DAY[@]}" -gt 0 ]; then
   CLASS_N["__sentinel__"]=1
   total_events=0
   for key in "${!EVENT_RUNS[@]}"; do
+    [ "$key" = "__sentinel__|__sentinel__" ] && continue  # c245: the sentinel is not an event
     cls="${key%%|*}"
     n=$(printf '%s' "${EVENT_RUNS[$key]}" | wc -w)
     CLASS_N[$cls]=$(( ${CLASS_N[$cls]:-0} + n ))
@@ -413,7 +414,12 @@ DDAY="$(date -d "2 days ago" +%F)"
 DOM_CLASS=""
 DOM_DAYS=0
 for k in "${!CLASS_DAYCOUNT[@]}"; do
-  [ "${CLASS_DAYCOUNT[$k]}" -gt "$DOM_DAYS" ] && DOM_DAYS="${CLASS_DAYCOUNT[$k]}" && DOM_CLASS="$k"
+  d="${CLASS_DAYCOUNT[$k]}"
+  # c245: deterministic tie-break -- most event-days wins; tie -> most events;
+  # remaining tie -> lexicographic (hash order must not pick the dominant class).
+  if [ "$d" -gt "$DOM_DAYS" ] || { [ "$d" -eq "$DOM_DAYS" ] && [ "${CLASS_N[$k]:-0}" -gt "${CLASS_N[$DOM_CLASS]:-0}" ]; } || { [ "$d" -eq "$DOM_DAYS" ] && [ "${CLASS_N[$k]:-0}" -eq "${CLASS_N[$DOM_CLASS]:-0}" ] && [ "$k" "<" "$DOM_CLASS" ]; }; then
+    DOM_DAYS="$d"; DOM_CLASS="$k"
+  fi
 done
 # per-day counts for the dominant class (runs are space-separated ids)
 declare -A DOM_PERDAY=()

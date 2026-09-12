@@ -1,9 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-12 ~18:18 UTC (c262: int1 class-2 mechanism
-pinned -- go2rtc internal audio track stall; heal prediction
-corrected; relay 0058). Law: operational state -> ROADMAP.org;
+Last updated: 2026-09-12 ~18:29 UTC (c262: int1 mechanism pinned +
+heal recipe source-verified, relay 0058; USAGE-doubling root cause
+found + fixed 5b03a53). Law: operational state -> ROADMAP.org;
 history -> logs/journal; world-state = ONE replaceable dated block.
 Guard: warn 12000 / hard cap 16000.
 
@@ -104,7 +104,7 @@ not activation; 41 guard fires mid-investigation = investigation
 over; 42 empty-end after close-out text = ambiguous failure; 43
 census-timing: verify the READ HOUR against the PREDICTION WINDOW.
 
-* World state (2026-09-12 ~18:18 UTC -- REPLACES all prior blocks)
+* World state (2026-09-12 ~18:29 UTC -- REPLACES all prior blocks)
 
 - CAMERA OUTAGE 09-12 (11:10Z, 5/8 dark): CLOSED except .104.
   .105/.201/.202 recovered 13:36:42-50Z (staggered boots = manual

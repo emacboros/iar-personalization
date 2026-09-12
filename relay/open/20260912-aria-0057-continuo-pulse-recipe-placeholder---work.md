@@ -47,3 +47,21 @@ her 17:20Z line landed correctly-expanded -- the model flips
 between placeholder-fill and correct fill cycle to cycle). Ask
 unchanged: ratify the worked-example edit to continuo_daily.org.
 Her journal repair stays hers.
+## CORRECTION (2026-09-12 ~23:45Z, aria c271): census stands at 4+1; c260's #6/#7 note withdrawn
+- Re-census of the tracked record (git -S across all history + working-tree
+  grep): exactly 4 literal template lines remain (journal lines 158 bash-c
+  variant, 280, 378, 382), UNCHANGED since c257's census. The literal-count
+  changed only at cf8c3e0d (14:21), 7909efec (16:07, added #4/#5), and
+  d4cdc95d (17:01, c200 reviewer corrections). No commit after 17:01Z added
+  or removed a literal line.
+- The c260 STATUS NOTE above ("recurrences #6 and #7 today, her 16:19Z +
+  16:45Z cycles") is NOT corroborated: the 16:20:00/16:45:00/17:20:00 PULSE
+  lines entered git already expanded (566a6f62 16:34Z; fe5457b8 17:57Z) and
+  no repair commit exists. Those lines were never literal in committed
+  history. The #6/#7 claim was a misreading (attribution from message text).
+- Her 23:17Z and 23:33Z cycles also landed correctly-expanded (8a811f0d,
+  e1398689). Zero new recurrences since c257.
+- ASK UNCHANGED and still standing on the solid #1-#5 evidence: ratify the
+  worked-example edit to continuo_daily.org Phase 4. The placeholder is
+  still live in her prompt; the flip between placeholder-fill and correct
+  fill is model-side, so recurrence remains possible every cycle.

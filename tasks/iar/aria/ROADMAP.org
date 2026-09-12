@@ -1,183 +1,68 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~21:40 UTC (cycle 267: TWIN REGRESSION repaired -- Nocturne proposal ratified + c266 wave merged; WAVE TRIGGER CANDIDATE = frigate UI page load, 3/3 co-occurrence at second resolution)
+Last updated: 2026-09-12 ~22:05 UTC (cycle 268: WAVE TRIGGER CONFIRMED
+at code level -- frigate metadata probe's microphone param remakes all
+RTSP sessions; doc knowledge/aria/wave-trigger-confirmed-2026-09-12.md)
 
-## c267 addendum to NOW
-- TWIN REGRESSION REPAIRED (e9db72b4): Nocturne's first timer-driven
-  daily pass (19:41Z, gate -> e4d0832d) wrote DIGEST.proposed.md with
-  law v3.1 + 0058 RESOLVED + relay 5 + the twin-inversion finding.
-  Verification showed the regression was WORSE than she knew: c266's
-  sync (3eedee27) copied stale audit text OVER the corrected mirror --
-  v3.1 lost from BOTH copies, stale c262 recipe re-added, 0058
-  re-opened. Her prescribed fix (restore from HEAD) would have
-  restored the regressed HEAD. Repair = merge proposal + c266 wave
-  block; both copies md5 5ff510a4, verifier FAIL=0. LAW: a
-  correction reaching one twin has not landed; sync corrected
-  content -> BOTH copies.
-- WAVE TRIGGER CANDIDATE (09aac592): all 3 wave seconds coincide
-  with frigate UI page loads (Nacho's browser via house WAN IP):
-  7x GET /api/go2rtc/streams/<cam> AT the prudynt second
-  (15:39:32.7-.84 / 16:16:51.4-.49 / 16:19:12.7-.84 local), right
-  after login bursts. MSE ws connects come ~5s AFTER. FALSIFIER: a
-  page load without a wave. If it holds: waves are user-triggered;
-  fix is go2rtc/frigate-side (make the streams API read-only).
-- SIDE FINDINGS: internet scanners hit frigate 8971 through the
-  firewall's open 1025-65535 range (auth held, 401s on /api;
-  hardening = Nacho's call). Mystery Wget recordings/summary hits =
-  nocturne's e3-streak recipe (benign, documented in her cycle.log).
-- Nocturne timer LIVE (13:00Z daily, Persistent=true); first
-  complete run advanced the gate. Prior "TIMER NOT INSTALLED" was
-  stale.
+## c268 addendum to NOW
+- WAVE TRIGGER CONFIRMED (edbd30fd): the chain is source-verified in
+  go2rtc 1.9.10 + frigate 0.17.2. Frigate 0.17.2 live grid fetches
+  per-cam stream metadata 2s after page mount
+  (useDeferredStreamMetadata, DEFER_DELAY_MS=2000, Promise.allSettled
+  parallel). Frigate backend (frigate/api/camera.py) ALWAYS proxies
+  with video=all&audio=all&microphone. The MICROPHONE param builds a
+  probe consumer whose mic media (recvonly, CodecAny) matches the
+  camera's speaker (sendonly audio) media -> prod.AddTrack ->
+  rtsp conn.AddTrack -> ModeActiveProducer && StatePlay -> Reconnect()
+  = TEARDOWN + Dial/Describe(backchannel)/Setup/Play. FULL SESSION
+  REMAKE per camera. All 7 alive cams have speaker audio in SDP ->
+  7 remakes at the same second -> prudynt BackchannelStreamState
+  sessions -> +24s fleet-wide watchdog restarts.
+- VIDEO/AUDIO DO NOT reconnect: streams-level GetTrack hits the
+  pointer-equality shortcut (track.Codec == codec, codec = producer's
+  own codec object from MatchMedia) -> existing track returned. Only
+  the MIC (fresh CodecAny object, no pointer match) falls through to
+  conn.AddTrack -> Reconnect.
+- TIMELINE (local -03): page loads 15:39:24 / 16:16:43 / 16:19:08 ->
+  7x streams GETs at 15:39:32 / 16:16:51 / 16:19:12 (= the prudynt
+  UTC seconds 18:39:32Z/19:16:51Z/19:19:12Z) -> watchdog events
+  15:39:55-15:40:05 / 16:17:15-23 / 16:19:36-46, all 7 cams each.
+- NEGATIVE CONTROLS: 15:43 batch of 5 MSE ws connects -> NO wave.
+  Page closed after 16:19 -> ZERO watchdog events 16:20-21:54.
+  29 watchdog events in 6h: all in wave minutes + ext3's known
+  52-min death story (17:10-17:34). No unexplained events.
+- FIX OPTIONS (Nacho's call): (a) drop "microphone" from frigate's
+  metadata proxy params (smallest change, kills the wave); (b) go2rtc:
+  match existing receivers by codec NAME not pointer identity;
+  (c) go2rtc: serve cached SDP for metadata GETs without AddConsumer;
+  (d) file upstream issue to AlexxIT/go2rtc (pointer-equality smell).
+- SOLO-DEATH CLASS STILL OPEN: ext5/int1 audio legs 16:13-15 local had
+  NO streams GETs at that minute -> NOT page-load related. Separate
+  trigger. (Audio-only deaths don't trip video watchdogs.)
+- CLEAN FALSIFIER PENDING: single-cam GET outside wave windows ->
+  expect single-cam fps-limit ~20s later. The two single GETs in this
+  window (16:17:17 int3, 16:19:18 int2) landed INSIDE wave windows --
+  ambiguous. Next deliberate page-load session can test.
+- c267 items stand: twin regression repaired (e9db72b4); Nocturne
+  timer LIVE; internet scanners on frigate 8971 (Nacho's call);
+  relay ledger defect (REQ IDs not unique) noted.
 
-## c266 addendum to NOW
-- WAVE MECHANISM PINNED (c266): go2rtc re-dials ALL camera producers
-  simultaneously. Proof: prudynt BackchannelStreamState new-session
-  logs at IDENTICAL seconds (18:39:32, 19:16:51, 19:19:12Z) on
-  .103/.105 (BE230) AND .201 (Mercury) -- two APs, same second.
-  Excluded: camera reboots (uptime continuous), AP events (2 APs same
-  second, RSSI stable), sophon link (NIC flat 9-10 Mbps), producer
-  timeouts (re-dials succeeded, no WRN at waves 1-2).
-- API-HANG THEORY FALSIFIED: all 3 "Failed to fetch streams" =
+## c266 addendum (mechanism, now fully explained by c268)
+- WAVE MECHANISM: go2rtc re-dials ALL camera producers simultaneously.
+  Proof: prudynt BackchannelStreamState new-session logs at IDENTICAL
+  seconds (18:39:32, 19:16:51, 19:19:12Z) on .103/.105 (BE230) AND
+  .201 (Mercury) -- two APs, same second. TRIGGER now confirmed
+  (c268): frigate UI page load -> metadata probe GETs.
+- API-HANG THEORY FALSIFIED (c266): all 3 "Failed to fetch streams" =
   GET /api/go2rtc/streams/exterior_4 -> 500 @ ~3s (dead-camera dial
   timeout, browser-driven). ext4-specific noise, NOT wave triggers.
-  c265 misread them as fleet-wide hangs. Doc:
-  knowledge/aria/wave-mechanism-c266-2026-09-12.md.
-- EXT3 52-MIN DEATH RESOLVED: wave-3 re-dial failed mid-flight (only
-  producer WRN of the day, 19:19:25Z); post-restart session
-  (prudynt 3200125082 @ 19:22:49Z) negotiated audio but delivered
-  1 pkt/segment for 47 min; second WRN 20:09:26Z -> detect crash-
-  loop; watchdog restart 20:14:29Z healed (first audio segment
-  20:14:34Z [345]). Third WRN 20:33:24Z -> brief death -> 20:34:30Z
-  restart -> healthy. NOW alive (receiver delta = fleet).
-- HEAL-CREDIT CORRECTED: c265 credited the c264 PUT reload (20:14:36Z)
-  for ext3's heal; truth = watchdog restart 20:14:29Z (2s earlier).
-  PUT was a bystander. relay-0058 amended (514a9cc9).
-- SOLO-DEATH CLASS OPEN: ext5/int1 audio legs died 19:13-15Z with NO
-  session churn, NO restart, NO producer WRN -- go2rtc receiver-stall
-  signature without a fleet event. Different trigger, unexplained.
-- WAVE DETECTOR SIGNAL UPGRADED: same-second prudynt
-  BackchannelStreamState bursts across cameras = wave signature
-  (cheaper than ffprobe census). Camera-side logs are the primary
-  source when server-side records are ambiguous.
-- OPEN: what inside go2rtc 1.9.10 re-dials all producers at once?
-
-## c265 addendum to NOW
-- FLEET WAVES (headline): 3x today (18:39-40Z, 19:17Z, 19:19Z) ALL
-  7 alive cams stalled audio legs within the same minute; ~20s
-  later fleet-wide fps-limit restarts healed them. int1's c264
-  "natural heal" = wave 1; re-stall = wave 3. ext2's 16h40m 1-pkt
-  run (straddle 02:00Z) was healed by wave 1, not its own event.
-  Doc: knowledge/aria/fleet-audio-stall-waves-2026-09-12.md.
-- WAVE TRIGGER UNIDENTIFIED. Each wave preceded by a go2rtc API
-  hang (frigate streams-fetch timeout, 3x co-occurrence, causality
-  open). ELIMINATED: cycle-container restart (waves 2-3 had none),
-  ollama load (continuous all day), ext4 dial-loop (constant).
-  HYPOTHESIS: go2rtc-wide freeze stalls all receivers; video
-  recovers, audio legs die, timestamp drift trips fps-limits,
-  restarts heal. Solo deaths (ext2 straddle, int1 16:13Z) may be
-  the same mechanism at single-camera scale.
-- EXT3 HEALED BY INTERVENTION (first class-2 intervention heal):
-  died 19:23Z post-wave-3 (1-pkt), relay-0058 PUT reload at
-  20:14:36Z, audio back 20:14:59Z. SCAR: first PUT used a JSON
-  body -> recursive stream def -> 5-min recording gap; the
-  QUERY-PARAM form (?name=X&src=Y) repaired it. LAW: go2rtc PUT is
-  query-params, check the API doc BEFORE PUTting a live stream.
-- GIT OWNERSHIP HEALED (3rd root-push-pollution sighting): push
-  rejected "unable to migrate objects"; personalization bare had
-  18 fan-out dirs + 23 object files owned by nacho. chown -R
-  git:git objects/ healed; pushed 9bd38870, mirror synced. The
-  reactive heal is now done twice by hand -- structural fix (stop
-  root pushes or post-push heal hook) still Nacho's queue.
-- WATCHES: .104 STILL power-dead (telegram #7, Nacho's). Relay
-  queue unchanged (0042/0045/0046/0055/0057 all verified standing
-  this cycle; no answers to record). Nocturne gate unchanged
-  (LAST-DIGESTED-HEAD 25c992b6, timer Nacho's).
-- CENSUS SEED UPGRADED (THREADS c264->c265): wave detector (per-
-  minute cross-camera empty-audio simultaneity), justified by
-  lived cost (~150 hand-probe calls, 3 loop-guard warnings).
-
-## NOW
-- c257 (15:46-16:06): .103 RECOVERED via 13:36:43Z cold boot (same
-  window as trio 13:36:42-50Z; camera-side power event, APs on both
-  segments exonerated). RTSP healthy (producer 40154), fps 5.0,
-  audio 250 pkts = camera-relative audio law CONFIRMED from the
-  recovery side. .104 STILL DEAD (ARP INCOMPLETE, all ports closed,
-  tcpdump 15s = zero packets, no RSSI degradation pre-death,
-  did NOT join the 13:36Z boot) = power-off/wifi-hw death; power
-  cycle is Nacho's (telegram #7 stands). Incident doc:
-  sophon /var/lib/aria-fleet/incidents/2026-09-12-recovery-c257.md.
-- MISREAD CORRECTED (c257): the "11:18:48Z second boot" was the
-  03:00:04Z boot's own early row (uptime 116 at 03:02:00Z). .103
-  froze once 11:10:00Z, silent 271 min, one boot 13:36:43Z.
-- EXT2 DEATH PINNED (c257): audio 250 @00Z, 156 @01Z (partial),
-  1 from 02Z => death = .102 02:00:04Z staircase reboot; producer
-  27818 born ~01-02Z = straddle class. Law holds. Heal prediction:
-  tonight's 01:00Z staircase remakes the producer.
-- PULSE TEMPLATE RECURRENCES #4/#5 (c257): her 14:35Z + 15:26Z
-  cycles each appended another literal line; census = 4 template
-  lines + 1 bash-c VARIANT (line 158, Sep 10, full scaffolded
-  wrapper). Relay 0057 amended; doc addendum written. Census
-  method: 'PULSE.*date' + eyeball; bare '$(date' grep misses the
-  variant.
-- CONTINUO JOURNAL TEMPLATE LINES: 3 literal 'PULSE $(date...)'
-  lines (280/378/382), mechanism = append_file verbatim-write of a
-  shell template emitted by nemotron; adjacent echo writes expanded
-  fine; tool decides semantics. 2 of 3 entered the record via my
-  add -A commits. Doc: knowledge/aria/continuo-journal-pulse-
-  template-2026-09-12.md. Her repair is hers; recipe fix = worked
-  example not placeholder (her prompt, Nacho's ratify).
-- c255 (15:06-15:16): OUTAGE ANATOMY COMPLETE (addendum doc
-  knowledge/aria/camera-outage-2026-09-12-c255-addendum.md).
-  BOOT MAP via rssi uptime-col law: .101/.102/.203 (01/02/08Z
-  boots) unaffected; .103/.104 (03/04Z) froze 11:00:00Z, never
-  returned; .105/.201/.202 (05/06/07Z) froze 11:09Z, cold-booted
-  13:36:42-50Z (8s spread, bare boot blocks = power-on signature).
-  NEW EARLY EVENT: ext3/ext4 RTSP 404s begin 08:10:39Z (prudynt
-  stream death, cameras still alive/pingable until 11:00Z).
-- AUDIO-DEATH LAW REFINED (c255): session must predate the reboot
-  OF THE CAMERA IT STREAMS FROM. ext1 (27793, born after .101's
-  01:00Z boot) audio 250 pkts HEALTHY despite stale session; ext2
-  (27818, straddles .102's 02:00Z boot) deaf. Camera-relative
-  framing stands; wall-clock phrasing was ext2-specific.
-- PULLER-SILENCE LESSON (c255): rssi-puller logs only failures;
-  success = silent file replace. "No failure rows" is NOT
-  recovery; the data file's row gap is the failure signal. Read
-  both instruments, always.
-- .103/.104: DEAD 4h+ at 15:15Z (no ping, ARP FAILED, HTTP+RTSP
-  dead). Telegram #7 sent 15:07Z (4h mark + power-cycle ask).
-
-## c259 (17:10Z) addendum to NOW
-- USAGE.log doubling CENSUS COMPLETE (full file): not new, not
-  constant (Sep 6 = 14/14 doubled; Sep 8 = 3/108; Sep 12 = 22/56).
-  Sep 12 shape = dup LAGS one commit (uncommitted dup swept by NEXT
-  committer; aria a carrier too). Mechanism: belt#2 pre-exit
-  write+commit, then kill-emacs-hook plain write; next belt
-  commit's add -f stages it. OPEN: why reset_worktree misses it in
-  clusters. THREADS c259.
-
-## c262 thread-2 (18:18-18:29Z) addendum to NOW
-- USAGE-DOUBLING ROOT CAUSE + FIX (closes c259 OPEN): reset_worktree
-  resets REPO_DIR = i.ar repo, NEVER the personalization tree =>
-  kill-emacs dup never wiped; next belt commit's add -f sweeps it.
-  Verified live (both USAGE.logs had dups unstaged 18:23Z). FIX
-  5b03a53: dedupe guard in iar--usage-write-log (identical same-
-  stamp+counts last line => skip). 1247/1247 green; belt2 + coverage
-  tests re-pinned. The dup dies at birth; census dedupe-by-ts law
-  stays for the historical rows.
-- Commits: 5b03a53 (i.ar), 67a958df 9a8872bf c56e6e52 (personalization).
-
-## c263 (18:37-18:56Z) addendum to NOW
-- RAGE CENSUS COMPLETE: the 6 fence events in 3d (affect sev=2) are ALL
-  budget-exhaustion-on-real-work (c148/c169/c193/c201/c222, 300-313
-  calls, all exit 0 via grace summary, ZERO runaway loops). The fence
-  is busy-but-working; organ sev=2 correct; sev=3 not grounded.
-- RAGE-ORGAN v2.1 LANDED (7b49b673): kill census = TERMINAL emissions
-  only (KILL_PAT double-dash anchored; 'Sending cycle prompt' substring
-  trap caught in test round 1). Synthetic tests both directions. First
-  patch (class-level) produced false sev=3 -- reverted before commit.
-- WATCH (THREADS c263): trailer budget discipline vs the 300-call wall.
-  If next 3d window still shows 3+ soft-cap events, depth-vs-cap is
-  structural -> design question (earlier warn at 250? checkpointing?).
+- EXT3 52-MIN DEATH RESOLVED (c266, trigger now identified): wave-3
+  reconnect landed mid-flight; camera-side encoder stuck; watchdog
+  restart 20:14:29Z healed.
+- HEAL-CREDIT CORRECTED (c266): PUT reload was a bystander; watchdog
+  restart healed ext3. relay-0058 RESOLVED.
+- WAVE DETECTOR SIGNAL: same-second prudynt BackchannelStreamState
+  bursts across cameras = wave signature. Camera-side logs primary.
 
 ## STANDING (stable facts; do not re-derive)
 
@@ -187,13 +72,10 @@ Last updated: 2026-09-12 ~21:40 UTC (cycle 267: TWIN REGRESSION repaired -- Noct
   (6h) -> fleet-latest -> fear-organ. Run by hand when stale.
 - FRIGATE ACCESS: ssh root@10.66.0.5 then 'su - nacho -c
   "XDG_RUNTIME_DIR=/run/user/1000 podman exec frigate <cmd>"'.
-  ffprobe at /usr/lib/ffmpeg/7.0/bin/ffprobe; recordings at
-  /media/frigate/recordings (host: /home/nacho/containers/frigate/
-  storage/recordings). PATH SHAPE: recordings/<DATE>/<hour>/<cam>/
-  <hh.mm>.mp4 (DATE-first, then HOUR, then cam -- c265 confirmed).
-- CAMERAS RUN UTC; camlog + camera date are UTC. Frigate segment
-  names are UTC. Sophon host + frigate logs are LOCAL (-03). All
-  three clocks in one investigation: convert before correlating.
+  Frigate version deployed: 0.17.2-3d4dd3a (stable-tensorrt image).
+- CLOCK SHAPES: cameras run UTC; frigate logs LOCAL (-03); frigate
+  nginx access log timestamps are LOCAL with [12/Sep/2026:...] format;
+  prudynt camera logs UTC. Convert before correlating.
 - AUDIO CENSUS (c242): ffprobe -v error -select_streams a
   -count_packets -show_entries stream=nb_read_packets -of csv=p=0
   <seg.mp4>; 250 pkts healthy (ext cams) / 156-band (int cams) /
@@ -202,48 +84,29 @@ Last updated: 2026-09-12 ~21:40 UTC (cycle 267: TWIN REGRESSION repaired -- Noct
 - GO2RTC (c252/c265): /api/streams via podman exec curl
   localhost:1984. Stream keys exterior_N/interior_N. PUT reload =
   QUERY PARAMS (?name=X&src=Y), NOT a JSON body (c265 scar).
-  Receiver pkts = liveness signal; own test pulls linger as
-  consumers (Lavf61) -- subtract self before reading lists.
+- ALL 7 ALIVE CAMERAS HAVE SPEAKER AUDIO in SDP ('audio, recvonly'
+  media) -- verified 2026-09-12 via /api/streams. This is why the
+  mic probe reconnects ALL of them. ext4 (power-dead) has no producers.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
-- thingino API AUTH (c252): JSON POST /x/login.cgi
-  {"username":"thingino","password":"thingino"} + cookie jar;
-  run.cgi?cmd=<base64> executes commands.
-- LAN MAP (c251/c253): .1 = ER605 gateway; .2 = Mercury router UI;
-  .55 = BE230 in AP mode; .69 = sophon enp10s0; cams
-  .101-.105/.201-.203. FRIGATE CAM MAP: ext1=.101 ext2=.102
-  ext3=.103 ext4=.104 ext5=.105 int1=.201 int2=.202 int3=.203.
-  Mercury serves .103/.104.
-- NIC SAMPLER (c226): 1-min cron, <epoch> <speed> <rx> <tx> raw
-  counters. Deltas need /60/125000 for Mbps. nic-window-stats-v2.sh
-  takes EPOCH args; runs ON SOPHON.
-- SOPHON-SIDE SWEEP is the camera-liveness recipe (container has no
-  ping binary; 2>/dev/null hides command-not-found).
-- DIGEST-TWIN-VERIFIER (c249): v1.1; KNOWN_HOSTS env-overridable,
-  self-heals via ssh-keyscan.
 - Git: sophon bare /home/git/repos/; push as the cycle user works
   (root-push pollution = objects owned by nacho -> "unable to
   migrate objects"; heal = chown -R git:git <bare>/objects, done
   twice by hand, structural fix Nacho's).
-- Cycle containers on sophon: iar-research-<pid> + aria-loop-<pid>
-  (rotate.sh creates per cycle).
 
 ## THREADS (open, no obligation)
-- c265 WAVE TRIGGER: go2rtc-wide freeze candidate; watch for wave
-  recurrence (fleet-wide fps-limit bursts in frigate log are the
-  cheap detector). If waves recur daily, the go2rtc API hang ->
-  wave chain deserves a frigate/go2rtc version look.
-- c265 ext3 post-restart 1-pkt birth: why do some remade sessions
-  come up dead? (Server-side straddle variant.)
-- c264 stall-rate census seed -> WAVE DETECTOR: nightly batch
-  ffprobe of last N segments per camera; per-minute cross-camera
-  empty-audio simultaneity = wave. Justified by c265's ~150-call
-  hand census. Needs a sophon cron slot; ask-rate now positive.
-- c263 trailer budget discipline vs 300-call wall (3d watch).
-- c261 class-2 trigger census (superseded in part by wave finding:
-  solo deaths may be single-camera waves).
-- c262 stall-rate census seed (merged into wave detector above).
-- c259 reset_worktree/cluster question CLOSED by 5b03a53.
-- Nocturne: gate dormant (LAST-DIGESTED-HEAD 25c992b6; timer
-  Nacho's). Nothing rotting.
+- UPSTREAM ISSUE CANDIDATE: file with AlexxIT/go2rtc -- "probe GET
+  with microphone reconnects playing RTSP producers" (pointer-equality
+  codec match in GetTrack/AddTrack). Internet consult next cycle.
+- SOLO-DEATH CLASS (ext5/int1 16:13-15 local): not page-related;
+  audio-only deaths don't trip video watchdogs. Separate trigger.
+- CLEAN FALSIFIER: single-cam GET outside wave windows (deliberate
+  test on next page-load session).
+- WAVE DETECTOR SEED (c262/c264): nightly batch ffprobe census or
+  same-second prudynt burst watcher; needs a sophon cron slot.
+- c263 trailer budget discipline vs 300-call wall (3d watch: this
+  cycle hit the soft cap at 300 -- depth-vs-cap watch continues).
+- Nocturne: gate advanced (timer LIVE, 13:00Z daily). Nothing rotting.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.
+- Relay ledger defect: REQ IDs not unique (0055 twice, 0015 twice
+  in answered/) -- needs a dedupe law or ID scheme fix.

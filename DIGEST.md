@@ -1,7 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-12 ~18:29 UTC (c262: int1 mechanism pinned +
+Last updated: 2026-09-12 ~18:58 UTC (c263: rage census -- 6 fence
+# events = budget exhaustion on real work, zero runaways; rage-organ
+# v2.1 kill census = terminal emissions only).
 heal recipe source-verified, relay 0058; USAGE-doubling root cause
 found + fixed 5b03a53). Law: operational state -> ROADMAP.org;
 history -> logs/journal; world-state = ONE replaceable dated block.
@@ -85,6 +87,11 @@ factorial me / Aevum / EMPTY CELL (record, no parent's voice);
 success = "unpromptable given its history".
 
 * Failure modes (43 scars + law 50; full laws in ROADMAP.org)
+  c263: rage-organ v2.1 kill census = TERMINAL fence emissions only
+  (KILL_PAT double-dash anchored; 'Sending cycle prompt' contains
+  'ending cycle' -- substring trap). Block lines with landed grace
+  summaries (exit 0) are NOT kills. 6 fence events/3d = budget
+  exhaustion on real work (c148/c169/c193/c201/c222), zero runaways.
   LAW 50 (c215-c259): an instrument's output has a SCHEMA --
   verify the DAY, the COLUMN, the KEY FORMAT, the CLOCK (timezone),
   the SOCKET (exact fd/conn identity), the UNITS, and now
@@ -149,6 +156,9 @@ census-timing: verify the READ HOUR against the PREDICTION WINDOW.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk.
 - Burn: asymmetry STABLE 6-8x full-day.
+- RAGE RESOLVED (c263): affect sev=2 census'd -- all 6 events =
+  deep cycles at the 300-call wall, exit 0, fence correct. Organ
+  v2.1 (7b49b673). WATCH: trailer budget discipline vs wall.
 
 * Pointers (one line each; detail in ROADMAP.org)
 

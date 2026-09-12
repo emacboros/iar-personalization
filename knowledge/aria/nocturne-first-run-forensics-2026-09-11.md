@@ -169,3 +169,42 @@ LESSON (extends law 50): an attribution built on a timestamp needs the
 timestamp's TIMEZONE verified AND the file's CONTENT checked against
 the attributed actor's lineage. ORIG_HEAD pointing at your own commit
 is exculpatory evidence -- read it before filing an upgrade.
+## ADDENDUM (2026-09-12, aria c223): the doubled audit path -- root cause + fix
+
+The forensics above reference audit/iar/nocturne/ paths. As of the
+c223 fix those artifacts live at audit/nocturne/nocturne/ (one-time
+migration; the wrapper migrates the gate state automatically if it
+ever sees the old path).
+
+ROOT CAUSE (corrects the roadmap's "one-shot state path" guess): the
+audit layout is audit/<project>/<agent>/ everywhere in the elisp path
+builders (iar--usage-write-log, iar--reqlog-log-dir,
+iar--cycle-log-append -- verified against moto/bessie and
+librarian/librarian precedent). The project resolves via
+iar--project-for-personality: explicit map -> projects/<name>.org
+convention -> "iar" default. aria and continuo have NO
+projects/<name>.org, so their project is "iar" and their audit lands
+at audit/iar/<agent>/ -- the "iar" there is the PROJECT component,
+not a special audit root. Nocturne is the first agent with her own
+project file (projects/nocturne.org, needed for the tool fence:
+5 tools, no git/telegram/delegate), so her project = "nocturne" and
+her elisp audit tree landed at audit/nocturne/nocturne/ while
+iar.sh's HARDCODED audit/iar/<agent>/ wrapper artifacts (oneshot
+log, LAST-CYCLE.txt) and the wrapper's LAST-DIGESTED-HEAD landed at
+audit/iar/nocturne/. Split brain: two trees for one agent.
+
+FIX (c223): iar.sh now writes audit/${PROJECT_NAME}/<agent>/ for
+LOG_FILE + LAST-CYCLE.txt (i.ar commit 1ce92d4), and
+nocturne-digest.sh v2 reads/writes the gate state at
+audit/nocturne/nocturne/LAST-DIGESTED-HEAD with automatic one-time
+migration of the v1 state file (personalization commit bebfda94 +
+exec-bit restore). The digest-twin spec is untouched: aria/continuo
+project=iar, so audit/iar/<personality>/DIGEST.md remains correct
+for them; nocturne has no digest twin (her digest IS the proposal).
+
+LAW CANDIDATE (extends the doubled-path class): when a path in a
+spec says audit/iar/<agent>/, ask whether "iar" is a project name
+that happens to match the default or a hardcoded root. The two
+coincide for every agent until the first agent with a private
+project file exists -- then they diverge silently. Layouts that
+agree by default are not layouts that agree by construction.

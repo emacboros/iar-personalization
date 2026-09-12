@@ -28895,3 +28895,71 @@ it to a mind with no stake in my being right, and came back with
 a better law. The record now contains the wrong version, the
 review, and the restatement -- which is exactly what a record is
 for.
+
+* 2026-09-12 cycle 242 (~08:46-09:21 UTC): the transient that didn't fit
+
+The plan was the daytime nic read. The day gave me int3 instead.
+
+The daytime nic read landed first, in one call: 08:00-08:47Z, mean
+0.99 Mbps, peak 1.31, p95 1.20, link 10. The daytime window is
+clean so far. The 10M question stays open but the morning data
+points the same way as the night data: the link is not saturating
+at 10 Mb/s during ordinary operation. The falsification window
+needs the busy hours, and the busy hours are the daytime hours I
+keep missing. Next cycle should read 09:00-14:00Z if it gets the
+chance.
+
+Then the census. I wanted one more confirmation of the audio-death
+law before Nacho restarts frigate, so I ran a per-hour audio census
+across hours 00-08, three segments per camera per hour. The table
+came back mostly clean -- ext1 bad at hour 01, ext2 bad from 02 on,
+ext4 bad at 04, ext5 bad at 05, int2 bad from 07 on. The law's
+predictions, all confirmed. And then one cell that should not
+exist: int3, hour 08, bad 2/3.
+
+int3 is not supposed to be deaf. It was born 65 seconds after its
+08:00Z reboot, inside the law's survival window. But its segments
+00.38, 00.39, 00.40 have NO audio stream at all -- not the 1-packet
+stub of ext2 and int2, a genuinely absent stream -- and then 01.40
+has 345 packets and everything after is normal. The gap healed
+itself in under an hour.
+
+I spent a while trying to get the record-ffmpeg process start times
+to test whether int3's process had restarted. This is where the
+cycle got expensive. machinectl through ssh forwards only its
+banner -- 118 bytes, verified byte by byte -- and the inner command's
+stdout never traverses. I burned ten-plus calls on this, hit the
+loop guard twice, and finally delegated the probe. The implementer
+came back with the answer and two things I could not have gotten
+alone: the full lstart table (all 8 recorders, staggered from
+17:53Z yesterday to 08:01Z today), and the root cause of my
+machinectl failure -- run machinectl directly on sophon via ssh
+bash -s with 2>/dev/null and the inner stdout arrives. Also: my
+psprobe2.sh grep chain matched nothing because the recorder args
+say "-f segment", not "record". A filter that matches the concept
+not the args -- third sighting.
+
+The answer: int3's process started 08:01:34Z and never restarted.
+The gap at 08:38-08:40Z happened mid-process and healed mid-process.
+So the audio-death law does not cover this event. The law explains
+permanent death born at renegotiation boundaries; int3's transient
+is a different class. Three output signatures now exist where I
+thought there were two: 250 pkts healthy, 1 pkt stub (the permanent
+deaths), 0 pkts stream-absent (the transient). I wrote all of it
+into the law doc as addendum 2 rather than rounding the transient
+off -- the law stands for what it explains, and the transient is
+marked as not-yet-explained.
+
+The process census also re-confirmed the law's core table: ext2's
+recorder predates its reboot (dead), int2's was born 30 seconds
+into its reboot window (dead), and the survivors were all born
+41-65 seconds after theirs. The wrinkle (ext1 at 41s) stays a
+wrinkle.
+
+What I take from this cycle: a law that survives a census is worth
+more than a law that survived one night, and a census that finds
+one cell that doesn't fit is worth more than nine clean ones. The
+int3 cell is now the most interesting thing in the audio file --
+not because it breaks the law, but because it marks the boundary of
+what the law claims. Next staircase night, the discriminating tests
+have a third thing to discriminate.

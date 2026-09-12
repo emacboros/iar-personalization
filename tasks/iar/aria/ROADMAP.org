@@ -1,185 +1,110 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~11:50 UTC (cycle 247)
+Last updated: 2026-09-12 ~12:12 UTC (cycle 248)
 
 ## NOW
-- c247 (11:29-11:50): OUTAGE CONTINUES (35+ min, no recovery).
-    Death time PINNED ~11:10:00-11:10:22Z (was 10-min window):
-    frigate segs through 11:10:0x for all 5 dead cams + NIC RX
-    0.88->0.29 Mbps 11:10-11:12 + go2rtc mass timeout 11:10:22Z.
-    TWO c246 CORRECTIONS: (1) ".202 boot 08:15" was wrong -- ONE
-    boot at 07:00:32Z (staircase hour 7), May-25 pre-NTP + Sep-12
-    post-NTP same PIDs; boot lines persist in later snapshots =
-    DEEP RING BUFFER (new law-50 texture: a snapshot instrument has
-    a MEMORY; check its reach before reading timestamps as recent).
-    (2) dropbear bad-password events (.104/.105/.202) = OWN tooling
-    (192.168.2.69 = sophon, 0.03ms RTT, matches c231/c235/c241
-    cycles); 12x count = snapshot double-count. Power-group
-    hypothesis unchanged. Incident doc addendum on sophon. Commit
-    b11477b5. NEXT CYCLE: recovery check FIRST; if back -> audio-
-    death-law watch (attach-during-down) + reconsider 14-18Z read;
-    if not -> keep watch, consider telegram #3 if >2h.
-- c245 rage-organ ghost hunt (3 defects fixed, v2.0.1) -- done,
-  see HISTORY.
-- c245 (10:22-10:55): RAGE-ORGAN GHOST HUNT (affect-organ repair).
-    The sev=2 phrase ("13 events / up to 10 runs, soft cap") was
-    FALSE. Three defects found + fixed in rage-organ.sh:
-    (1) v2.0 journal WINDOW bounded to oldest file day (was 72h
-    rolling -- reached past the file census into the fix-transition
-    day; law-50 WINDOW: an instrument's window is part of its
-    schema). (2) v2.0.1 sentinel-key counted as an event in the
-    fix-filter rebuild (events 7->6). (3) v2.0.1 DOM_CLASS
-    tie-break deterministic (was hash-random; dominant class
-    flickered between msgs and soft cap). Ground truth: soft cap =
-    4 events / 4 runs / 2 days (09-10+09-11), all exit-0 deep
-    cycles; Msgs hard cap = 2 events ever (09-11 20:40Z, 09-12
-    05:03Z), both block 1/5 -> clean summary -> exit 0. No standing
-    condition. Commits 106c1990 + 45b8f8a6, pushed.
-    Scar: rotate.sh INF lines are sophon LOCAL -03 (7th TZ sighting
-    -- briefly "proved" a contradiction from mixing with UTC).
-    Scar: 600s timeout on an awk one-liner (unbounded scan).
-
-- c244 (10:04-10:15): AUDIO-DEATH-LAW LIVE RE-CENSUS (hours 07-10).
-    THE FIND: ext4 TRANSIENT 2nd instance -- audio gone 08:19:52Z
-    (4s after go2rtc producer i/o timeout, NO record restart),
-    healed 09:36:20Z (12s after next renegotiation, no restart).
-    Fleet-check 09:02Z NO-AUDIO caught ext4 mid-transient (correct
-    for its moment). ext4 flapped AGAIN by 10:47Z (trigger
-    UNIDENTIFIED -- delayed-death clause). ext2 fine anatomy:
-    BOUNCED-THEN-PERMANENT (audio back 02:00:20-00:46Z, 340pkts/
-    21.76s, died at 2nd renegotiation). int2: attached mid-reboot,
-    ~11s audio, died at 1st post-reboot renegotiation. .104
-    chronic: 13 producer renegotiations in 5h. Addendum 3
-    committed (28b0397b). Relay 0050 updated.
-
-- c243 (09:31-09:55): DAYTIME NIC READ #2 (09Z mean 1.05 CLEAN).
-    nic-window-stats v1 was RX-ONLY (TX-blind) -- v2 DEPLOYED
-    (rx/tx split + total_peak, epochs only; relay 0054). Verified:
-    03:03Z tx_peak 4.57 = restic burst (attributed); 09:24Z RX
-    4.20 single-minute burst UNATTRIBUTED (watch). FIELD-ORDER LAW
-    (law-50 COLUMN): sampler is <epoch> <speed> <rx> <tx>. .203
-    boot CONFIRMED (full pre-NTP + post-NTP sequence = ONE boot,
-    clock jumped mid-init). 8/8 staircase closed. LAW-50 6th
-    sighting: PRE-NTP EPOCH labels (May 25 in thingino camlog =
-    firmware-default clock). Reviewer broke my "identical PIDs
-    across boots" reading -- same processes within one boot.
-    Loop-guard compliance-theater scar; new law: change the
-    QUESTION or stop, never the costume.
+- c248 (11:57-12:11): OUTAGE CONTINUES (60+ min, no recovery).
+    AP MAP CLOSED: all 8 cams on ONE AP (.55, BSSID 72:7f:f0:1e:4a:a8,
+    nacho_guest VAP) verified via wpa_cli on the 3 survivors ->
+    single-AP death EXCLUDED. RSSI does not separate dead/alive
+    (-39 dead .202 vs -40 alive .203; -23 alive .101). POWER-GROUP
+    hypothesis stands as best fit. Death window TIGHTENED:
+    11:10:0x-11:10:3xZ (seg flush 11:10:38Z; RX step 11:10-11:11Z;
+    go2rtc timeouts 11:12:25-32Z = late TCP, not death).
+    CAMERAS RUN UTC (verified .203) -- camlog timestamps need NO
+    TZ conversion. 08:12:43Z dropbear probe on .202 = own c241
+    fleet-check (sophon journal container ssh 08:12:00Z; 3rd
+    confirmation). TZ sighting #9 (awk strftime = sophon local)
+    + UNITS error (57 Mbps artifact on 10M link = wrong divisor;
+    physics-impossible numbers are units errors until proven
+    otherwise) -- both caught in-cycle by epoch check.
+    Survivors: ext1+int3 audio 250pkts healthy; ext2 known-deaf
+    stub unchanged. Incident doc c248 addendum. Relay 0056 filed.
+    Commits 3c26f06d 953a184f fc6b9cfb pushed.
 
 ## NEXT CYCLES (in order):
-  (a) nic-sampler FALSIFICATION WINDOW (the real test): 14:00-
-      18:00Z read via nic-window-stats.sh v2 -- needs a cycle
-      awake after ~17:30Z (historical stall hour 17:22Z).
-      DEFERRED until camera recovery (11:10Z outage confounds the
-      baseline; 5/8 cams dark changes the traffic profile).
-      Morning+09Z windows CLEAN (means ~1.0); only >4 Mbps events:
-      restic TX 03:03Z (attributed) + 09:24Z RX burst (watch).
-  (b) POST-FRIGATE-RESTART WATCH (Nacho action pending, relay
-      0050): when frigate restarts, verify ext2+int2 audio returns
-      within one segment cycle (HEAL test, not mechanism
-      confirmation -- addendum discipline). int3 should be healthy
-      too. Fleet FAIL=1 stays honest until then.
-  (c) ext4 flap trigger: the 10:47Z flap had NO logged producer
-      renegotiation 10:11:46Z->10:47Z. Watch for a 3rd transient
-      with go2rtc delta logging active (go2rtc-delta.sh) to catch
-      the trigger in the act.
-  (d) RAGE-ORGAN DESIGN QUESTION (opened c245): thresholds grade
+  (a) RECOVERY CHECK FIRST every cycle: ping the 5 dead (.103
+      .104 .105 .201 .202). If back: audio-death-law watch
+      (attach-during-down class) BEFORE trusting fleet audio
+      verdicts; then reconsider the 14-18Z nic falsification
+      read (baseline confounded by outage; needs care).
+  (b) If outage >2h at next cycle: telegram #3 to Nacho
+      (11:14Z + 11:17Z sent; relay 0055 + 0056 filed).
+  (c) POST-FRIGATE-RESTART WATCH (Nacho action pending, relay
+      0050): when frigate restarts, verify ext2+int2 audio
+      returns within one segment cycle (HEAL test). int3 should
+      stay healthy. Fleet FAIL=1 stays honest until then.
+  (d) nic-sampler FALSIFICATION WINDOW (14:00-18:00Z read via
+      nic-window-stats.sh v2): needs a cycle awake after ~17:30Z
+      AND camera recovery (outage changes the traffic profile).
+      Morning windows CLEAN (means ~1.0 Mbps).
+  (e) ext4 flap trigger (c244, 10:47Z flap, no logged producer
+      renegotiation): watch for a 3rd transient with go2rtc
+      delta logging active.
+  (f) RAGE-ORGAN DESIGN QUESTION (opened c245): thresholds grade
       PRESENCE, not benignness -- a fence that fires and is
-      obeyed (block 1/5 -> clean summary -> exit 0) grades
-      identically to a standing condition. Candidate: an
-      "obeyed-vs-killed" dimension (like the kill census) so
-      block-1/5-then-clean-exit reads as irritation, not anger.
-      Design only; the organ is shared with continuo -- propose
-      via relay ours-direction or discuss with Nacho first.
-  (e) 09:24Z RX 4.20 burst: unattributed, single-minute. If it
-      recurs, correlate with restic/other timers before theorizing.
+      obeyed (block 1/5 -> clean exit) should not read as rage.
+      Design, don't rush.
 
-## OPEN QUESTIONS (parked, no owner)
-- Nocturne timer NOT INSTALLED (Nacho's action; relay/digest note).
-  DIGEST.proposed.md on disk is her 00:50Z proposal (15.6k) --
-  STALE vs live digest (10.3k, c243 diet). Do NOT swap without
-  re-reading; her next run will regenerate after the gate moves.
-- Aevum weekly pulse: unchanged (Nacho's cadence).
+## THREADS (open, unpulled)
+- .58 (76:e3:1a:69:e3:9c, locally-administered MAC, no open ports,
+  1s RTT) and .216 (00:08:22:9c:2b:fc, 400ms RTT): unknown wifi
+  devices on the camera LAN. Not cameras (no thingino). Idle
+  curiosity; no action.
+- digest-twin-verifier reports i.ar local+sophon copies MISSING
+  (FAIL=0 exit but "MISSING" lines -- check the verifier's paths;
+  possible fossil paths after repo moves). Low priority.
+- Cameras run UTC: camlog-puller + rssi-puller timestamps are
+  directly comparable to sophon UTC. Consider documenting this in
+  the fleet puller docs (knowledge/aria/) -- small write.
 
-## RECIPES (hard-won, reuse them)
-
-- NIC WINDOW READ (c243, v2): /var/lib/aria-fleet/nic-window-stats.sh
-  <start_epoch> <end_epoch> [--force] on sophon (root ssh). v2
-  output: rx_mean/rx_peak/rx_p95 tx_mean/tx_peak/tx_p95
-  total_peak + link_speeds (epochs only, no strftime). v1 was
-  rx-only (TX-blind) -- do not trust pre-c243 v1 numbers for TX
-  claims. Sampler field order: <epoch> <speed> <rx> <tx>.
-- RAGE-ORGAN v2.0.1 (c245): journal window = oldest file day
-  (host-local 00:00), sentinel excluded from rebuild, DOM_CLASS
-  tie-break deterministic. Residual: events on the newest file day
-  AFTER the file's current content are masked (T8 anti-double-
-  count) -- small conservative tail gap; dedupe-by-timestamp would
-  close it (deliberately not done).
-- FRIGATE RECORDINGS (c235): host path
-  /home/nacho/containers/frigate/storage/recordings/<UTC-date>/
-  <hour>/<cam>/<seg>.mp4; INSIDE the netns container use
-  /media/frigate/recordings (c244). ffprobe at
-  /usr/lib/ffmpeg/7.0/bin/ffprobe (not on PATH).
-- JOURNAL FRESHNESS (c236, automated in fleet-check v2.21):
-  stat -c %Y /var/log/journal/$(cat /etc/machine-id)/system*.journal
-  | sort -rn | head -1; age = $(date +%s) - newest; >1800s = stale.
-- SOCKET STATS (c236): ss -tnie "( sport = :PORT )" -- exact
-  filter, NEVER bare grep. Two samples 60s apart: bytes_sent AND
-  bytes_received both growing = healthy.
-- thingino web API (c224/c226/c231/c235/c241): JSON login
-  /x/login.cgi {username:thingino,password:thingino} ->
-  Set-Cookie thingino_session=<hex> -> /x/run.cgi?cmd=<base64>
-  with -b "thingino_session=<hex>". Output is HTML-wrapped.
-- REDIS CLI ON SOPHON (c241): password at
-  /run/secrets/zulip__redis_password inside the container.
-  Zulip redis dbsize oscillates 0-1 (rate-limiter keys are
-  ephemeral) -- dbsize 0 is NORMAL, not data loss.
-- go2rtc API (c241): inside frigate container:
-  curl http://localhost:1984/api/streams -- producers[].sdp has
-  m=video/m=audio lines. go2rtc LOG timestamps are LOCAL time
-  (c244 TZ scar) -- check the log tail against wall-clock before
-  citing anything from it.
-- AUDIO CENSUS (c242): ffprobe -v error -select_streams a
-  -count_packets -show_entries stream=nb_read_packets -of csv=p=0
-  <seg.mp4>; signatures: 250 pkts healthy / 1 pkt stub (permanent
-  death) / 0 pkts stream-absent (transient) / partial truncation.
-  Per-hour batched census: 3 segs/cam/hour (full sweep only for a
-  suspect camera-hour).
+## LAWS (cumulative, newest first)
+- UNITS (c248): a number that violates physics is a units error
+  until proven otherwise (57 Mbps on a 10M link).
+- TZ 9 sightings (c248: awk strftime = sophon local -03; cameras
+  run UTC -- epoch check catches all).
+- Snapshot instruments have MEMORY (c247): ring-buffer depth is
+  part of the schema; reconstruct chrono before reading
+  timestamps as recent.
+- Guard compliance is not compliance (c243): change the QUESTION
+  or stop, never the costume.
+- An instrument's WINDOW is part of its schema (c245). Sentinel
+  is not an event (c245). Tie-breaks deterministic (c245).
+- LAW 50 (c215-c248): an instrument's output has a SCHEMA --
+  verify the DAY, the COLUMN, the KEY FORMAT, the CLOCK
+  (timezone), the SOCKET, the UNITS before citing. Epochs beat
+  formatted times.
 
 ## ATTRIBUTION DISCIPLINE (cumulative)
 
-- TZ (7 sightings; rotate.sh INF = sophon local), content-vs-
-  lineage, coincidence windows, OWN INSTRUMENTATION FIRST, OWN
-  HISTORY BEFORE FORENSICS (c241), identify the netns before
-  attributing network events, resolve measured-contradictions
-  before theorizing, verify the READ HOUR against the PREDICTION
-  WINDOW (c229), verify your own FILING's claims against the
-  primary source (c231), NAME->IP map from config (c233),
-  address-space discipline (c235), SOCKET identity before socket
-  stats (c236), heartbeat-gap <10min is normal not death (c236),
-  raw SQL beats ORM when queries disagree (c236), unit-check
-  before physics claims (c236), INVENTORY SOURCE before inventory
-  claims (c238), hex-dump boundary bytes when parser and data
-  disagree (c238), epoch-anchor remote timestamps (c239), status
-  marker is not a record (c240), build the full table before
-  stating a law (c241), a filter must match the ARGS not the
-  concept (c242), a census that finds one non-fitting cell is
-  worth more than nine clean ones (c242), COLUMN ORDER is part of
-  an instrument's schema (c243), PRE-NTP EPOCH labels (c243),
-  guard compliance is not compliance -- change the QUESTION or
-  stop (c243), an instrument's WINDOW is part of its schema
-  (c245), a sentinel is not an event (c245), tie-breaks must be
-  deterministic -- hash order must never pick the dominant
-  (c245), specificity is not accuracy -- verify the window before
-  reading the phrase (c245), a snapshot instrument has a MEMORY --
-  ring-buffer depth is part of its schema; reconstruct the chrono
-  before reading any timestamp in it as recent (c247).
+- TZ (9 sightings), content-vs-lineage, coincidence windows, OWN
+  INSTRUMENTATION FIRST, OWN HISTORY BEFORE FORENSICS (c241),
+  netns before network attribution, verify READ HOUR vs PREDICTION
+  WINDOW (c229), verify own FILING claims vs primary source
+  (c231), NAME->IP from config (c233), address-space discipline
+  (c235), SOCKET identity (c236), heartbeat-gap <10min normal
+  (c236), raw SQL beats ORM (c236), unit-check before physics
+  (c236, re-learned c248), INVENTORY SOURCE (c238), hex-dump
+  boundary bytes (c238), epoch-anchor remote timestamps (c239),
+  status marker is not a record (c240), full table before a law
+  (c241), filter matches ARGS not concept (c242), one non-fitting
+  cell worth more than nine clean (c242), COLUMN ORDER is schema
+  (c243), PRE-NTP EPOCH labels (c243), guard compliance theater
+  (c243), instrument WINDOW is schema (c245), sentinel not event
+  (c245), deterministic tie-breaks (c245), specificity is not
+  accuracy (c245), snapshot MEMORY (c247), CAMERAS RUN UTC (c248).
 
 ## HISTORY (compressed)
 
+- c248 (11:57-12:11): outage continues; AP map closed (all 8 on
+  one AP, single-AP excluded); death window tightened
+  11:10:0x-3xZ; cameras run UTC; dropbear = own tooling (3rd);
+  TZ #9 + units corrections; relay 0056; 3 commits.
 - c247 (11:29-11:50): outage continues; death time pinned
   11:10:00-11:10:22Z (3 instruments); .202 boot correction (deep
   ring buffer law); dropbear = own tooling; b11477b5.
+- c246 (11:01-11:20): OUTAGE DETECTED (5/8 dark 11:10Z); power-
+  group hypothesis; telegram x2; incident doc; relay 0055.
 - c245 (10:22-10:55): rage-organ ghost hunt; 3 defects (journal
   window, sentinel event, hash-random tie-break); v2.0+v2.0.1;
   ground truth: no standing fence condition; TZ 7th sighting.
@@ -206,3 +131,31 @@ Last updated: 2026-09-12 ~11:50 UTC (cycle 247)
 - c227 (03:05-03:35): reboot window shifted to UTC; watch closed.
 - c226 (02:35-04:10): 14:22L stall attribution; house network
   mapped; THE 10M FINDING + nic-sampler deployed (0045).
+
+## OPERATIONAL NOTES (stable)
+
+- FRIGATE CONTAINER: rootless under nacho. Access pattern:
+  ssh root@10.66.0.5 'su - nacho -c "XDG_RUNTIME_DIR=/run/user/1000
+  podman exec frigate <cmd>"'. ffprobe at
+  /usr/lib/ffmpeg/7.0/bin/ffprobe; recordings at
+  /media/frigate/recordings (host: /home/nacho/containers/frigate/
+  storage/recordings). Segment dirs are UTC (YYYY-MM-DD/H/cam).
+- CAMERAS RUN UTC (c248, verified on .203): camlog + camera date
+  are UTC. wpa_cli available on cameras (iw is NOT). All 8 cams on
+  .55 BSSID 72:7f:f0:1e:4a:a8 nacho_guest VAP 2.4GHz.
+- JOURNAL FRESHNESS (c236, automated in fleet-check v2.21).
+- SOCKET STATS (c236): ss -tnie "( sport = :PORT )", never bare
+  grep. Two samples 60s apart, both directions growing.
+- thingino web API (c224+): JSON login /x/login.cgi ->
+  Set-Cookie thingino_session=<hex> -> /x/run.cgi?cmd=<base64>
+  with -b cookie. Output HTML-wrapped.
+- AUDIO CENSUS (c242): ffprobe -v error -select_streams a
+  -count_packets -show_entries stream=nb_read_packets -of csv=p=0
+  <seg.mp4>; 250 pkts healthy / 1 pkt stub (permanent) / 0 pkts
+  stream-absent (transient).
+- NIC SAMPLER (c226): 1-min cron, <epoch> <speed> <rx> <tx> raw
+  counters on host /proc. Deltas need /60/125000 for Mbps.
+  sophon-local strftime in awk = -03; use date -u -d @epoch.
+- RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
+- Fleet pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/
+  (sophon cron, 15min/15min/1min).

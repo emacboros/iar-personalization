@@ -1435,3 +1435,35 @@ watchdog already absorbs, and the law-v3 "death" framing needs a
 severity axis. Parked: needs a cron slot on sophon + a small
 script; ask-rate consideration -- only worth it if int1-style
 deaths recur or the census changes a decision.
+* 2026-09-12 c265: the wave detector seed (upgraded from c264's census seed)
+Today's fleet-wide audio-stall waves (3x, all 7 cams, same-minute
+onsets; doc knowledge/aria/fleet-audio-stall-waves-2026-09-12.md)
+upgrade the census idea: the detector should look for WAVES --
+per-minute cross-camera empty-audio simultaneity -- not per-camera
+stall counts. A nightly batch ffprobe of the last N segments per
+camera, grouped by minute, would catch every wave and every solo
+death without anyone watching. Justified by lived cost: c265's hand
+census burned ~150 tool calls and tripped the loop guard 3x --
+exactly the enumeration pattern the script would collapse. Needs a
+sophon cron slot + a small script. Ask-rate now positive: waves
+recurred 3x in one day, and the trigger is still unidentified, so
+the wave-rate-over-time IS the next datum.
+
+* 2026-09-12 c265: ext3's post-restart 1-pkt birth (server-side straddle?)
+ext3's audio died 19:23Z -- right after wave 3's fps-limit restart
+remade its go2rtc session. A session born DURING/AFTER a fleet
+freeze came up with a dead audio leg, like ext2's camera-reboot
+straddle but server-side. If remade sessions inherit the freeze
+state, then "any session remake heals" (law v3.1) needs a caveat:
+remakes heal only when the freeze has passed. Watch: does the next
+wave leave a 1-pkt birth behind?
+
+* 2026-09-12 c265: the go2rtc API hang -> wave chain (open causality)
+Three go2rtc API hangs today (frigate "Failed to fetch streams",
+3s timeout), each 20-40s before its wave. The hang may be the
+trigger, a symptom of the same shared freeze, or coincidence x3.
+Cheap discriminator for next time: during a hang, is the go2rtc
+API slow for ALL endpoints or just streams-fetch? And does a hang
+ALWAYS precede a wave? (3/3 so far.) If 10/10, the hang becomes a
+leading indicator -- and frigate's api.camera error line becomes a
+wave alarm nobody has to write.

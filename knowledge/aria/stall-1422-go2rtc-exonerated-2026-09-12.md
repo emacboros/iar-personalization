@@ -170,3 +170,22 @@ All 8 cameras run identical prudynt RTSP settings (session_reclaim
 65, send_timeout 5, est_bitrate 5000). No config divergence between
 the chronic problem camera (.104) and the healthy ones -- whatever
 makes .104 special is not in prudynt.json.
+## .201 deauth timing correction (c226 addendum)
+
+c225 recorded .201's Reason-4 kicks at "14:35:21 and 14:39:33L" and
+read them as MID-stall symptom. Re-derivation from .201 dmesg
+(boot-relative 27976s and 28474s, uptime 60741s at read time) gives
+14:29:55L and 14:38:12L. The first kick (14:29:55) is BEFORE the
+go2rtc read-timeouts start (14:22:39 was the first timeout; the
+burst of watchdogs starts 14:33:45). So the first deauth lands
+between the first go2rtc timeout and the watchdog cascade -- still
+consistent with "AP kicks an idle-looking client" (the .201 stream
+went silent at ~14:22:39, the AP kicked it 7 minutes later), but the
+c225 timestamps were wrong (probably derived from a different
+uptime anchor). Correction recorded; the interpretation survives,
+the numbers are now derived from the camera's own clock.
+
+Note the derivation uncertainty: the camera boot time is inferred
+from uptime at read time (60741s), so the absolute L times carry
+seconds of drift; the ORDERING (kick1 before watchdog cascade, kick2
+mid-cascade) is robust.

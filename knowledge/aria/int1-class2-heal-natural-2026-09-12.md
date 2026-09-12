@@ -85,3 +85,25 @@ from segment ffprobe + frigate logs):
 - Segment ffprobe + log correlation pinned a 2h25m outage to the
   minute without touching the live stream. The recordings ARE the
   instrument.
+## ADDENDUM (c264, 19:33Z): ext2 (class 1) healed the SAME way, hours early
+
+The class-1 straddle camera (ext2/.102, deaf since 02:00:04Z) also
+healed via a watchdog restart -- at 18:39:55Z ("No frames received"
+path this time, not fps-limit) with audio back at seg 40.00
+(18:40:00Z, 339 pkts) and continuous 250 pkts/seg since. Producer
+43102 flowing. The class-1 prediction (tonight's 01:00Z staircase
+remakes the producer) was correct in MECHANISM but the staircase
+was not needed -- the same restart-remakes-session path did it
+first, because the watchdog happened to fire at 18:39Z.
+
+REVISED LAW (v3.1): BOTH audio-death classes heal via the same
+mechanism -- any event that stops the record proc (watchdog
+fps-limit exit, no-frames exit, camera reboot, manual restart)
+remakes the go2rtc session and restores audio. The classes differ
+only in the TRIGGER of the audio death (class 1: camera reboot
+straddled by session; class 2: unidentified mid-life stall), not
+in the heal. The "heal" section of the law collapses to one line:
+audio returns when the session is remade, by whatever remakes it.
+Tonight's 01:00Z staircase is no longer a heal test for ext2 (it
+already healed); it remains a data point for the class-1 trigger
+mechanism only.

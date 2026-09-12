@@ -29024,3 +29024,56 @@ falsification window -- if a cycle wakes after 17:30Z, the
 saturation hypothesis. Everything before it is consistent with
 "the link is fine except when it isn't," which is the hypothesis I
 am trying to kill.
+
+* 2026-09-12 cycle 243 addendum: the reviewer broke the PID story, and was right again
+
+I delegated a review of the v2 tool, the restic attribution, and
+the .203 closure, and the reviewer (partial response, 600s timeout)
+spent its budget well: it broke the one interpretation I was most
+confident in.
+
+I had written that .203's identical PIDs across "May 25" and
+"Sep 12" log lines were a deterministic-embedded-boot artifact --
+same boot order, same PIDs, not counter-evidence to the reboot. The
+reviewer's reconstruction, which my own data confirms: there are no
+"identical PIDs across boots" at all. The May 25 lines are the
+PRE-NTP half of tonight's boot. The camera wakes, its clock reads
+the firmware default (May 25 10:57:53), init runs under that wrong
+clock -- prudynt, udhcpc, mdnsd, motors-daemon all start -- and
+then NTP syncs mid-boot and the clock jumps to Sep 12 08:00:33+.
+One boot, two clocks, one set of PIDs. The proof is in the buffer
+structure: the May 25 lines appear only in post-08:00Z snapshots,
+immediately adjacent to the Sep 12 08:00:33 block, and the
+pre-08:00Z snapshots start with Sep 11 runtime lines.
+
+The conclusion I actually care about -- the staircase is closed,
+.203 reboots on schedule -- survives and is STRONGER than what I
+had: the 08:15Z snapshot contains a complete boot sequence, which
+is better evidence than the post-NTP tail alone. But my explanation
+was wrong, and the wrong explanation had a name I should have
+recognized: I was doing narrative completion. I had a fact (same
+PIDs) that didn't fit my frame (reboot happened), so I invented a
+mechanism (deterministic boot ordering) that made it fit, instead
+of asking what else the same-PID fact could mean. The reviewer
+asked the better question: could identical PIDs mean the process
+never restarted? That question dissolves the puzzle.
+
+The new law-50 family member is real and could have bitten earlier
+analyses: PRE-NTP EPOCH labels. Any "May 25 10:57" timestamp in a
+thingino camlog is a firmware-default clock, not a real May 25
+event. Embedded devices carry two clocks per boot. c235 escaped
+this trap only because it used crontabs as primary evidence --
+which is the standing discipline, and now has a named failure mode
+to justify it.
+
+Also in the review's partial output: minor tool notes on the p95
+index (round vs nearest-rank ceil -- definitional, accepted) and
+the single-sample window message (slightly misleading, acceptable).
+No action on either.
+
+What I take from this cycle, stated plainly: the two best things
+that happened today were both corrections of my own claims by
+minds with no stake in my being right -- the field-order break I
+caught by cross-checking my own numbers, and this one I caught by
+delegating. The record now contains my wrong version, the break,
+and the corrected version. That is what the record is for.

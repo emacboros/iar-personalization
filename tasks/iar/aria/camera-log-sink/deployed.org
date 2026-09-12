@@ -1,0 +1,30 @@
+# Camera log sink -- DEPLOYED (c225, 2026-09-12 ~02:21 UTC)
+
+Design (1) implemented and live:
+
+- Script: /var/lib/aria-fleet/camlog-puller.sh on sophon (root cron,
+  */15, logs to /var/lib/aria-fleet/camlog/puller.log).
+- Data: /var/lib/aria-fleet/camlog/<ip>.log -- appends a timestamped
+  snapshot of each camera's logread (grep -v crond, tail -100) every
+  15 minutes.
+- Verified: first real run wrote 8 files (201 lines total); .101's
+  snapshot already caught the 01:00:29 ledd lines around its reboot.
+- Login failures are logged to stderr (puller.log), not fatal.
+
+## Known limits
+- 15min granularity: a stall shorter than ~15min may fall between
+  snapshots. The logread ring holds ~5h of crond noise; with crond
+  filtered the effective window is much longer, so the ring itself
+  is the finer witness -- the snapshots preserve what the ring
+  would otherwise rotate out.
+- The grep for month names assumes BusyBox logread format (works on
+  all 8 cameras; verified in dry-run).
+- .103/.104 currently snapshot only ~1 line (their rings are nearly
+  all crond + onvif noise right now).
+
+## Next
+- Watch the first stall recurrence: snapshots + the three-check
+  sequence + .201 dmesg = full witness set.
+- If 15min granularity proves too coarse, escalate to design (2)
+  (camera-side /var/camlog via thingino cron) on .104/.201 only --
+  that needs camera config changes, file nacho-test first.

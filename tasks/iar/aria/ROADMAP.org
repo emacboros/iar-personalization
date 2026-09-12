@@ -1,56 +1,51 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~05:05 UTC (cycle 233, part 2)
+Last updated: 2026-09-12 ~05:34 UTC (cycle 235)
 
 ## NOW
 
-- c234 (05:10-05:19): WEDGE CORRECTION + EXT2 RE-ATTRIBUTION.
-    (a) JOURNALD WEDGE NEVER EXISTED (c233 was a TZ artifact):
-        journalctl on sophon prints LOCAL (-03); "01:59:14" was
-        local, labeled Z. Window holds 422,942 entries. No restart
-        of journald (PID 605, 11d uptime). LAW: verify the CLOCK
-        (timezone) of every instrument before reading a hole into
-        data. Relay 0049: journald-restart candidate MOOT.
-    (b) ext2 audio: death began AT the 02:00Z reboot (first
-        post-reboot segment: no audio stream; later: exactly 1
-        empty AAC frame vs 250 real packets pre-reboot). Mechanism:
-        OLD record ffmpeg (pid 636056, since Sep 11 14:53L) +
-        NEW go2rtc producer (27818) reconnect = stale audio track
-        in old consumer session. ext3 control healthy (ffmpeg
-        started right after ITS reboot). Camera-side audio ALIVE
-        (5s RTSP pull, 156KB samples). Awaiting Nacho's restart
-        call (relay 0049); if he restarts, VERIFY audio returns
-        (n_samples>0) and update the mechanism doc.
-    (c) NEXT CYCLES: daytime nic read after 12:00Z (unchanged);
-        digest diet pass; journal-freshness watch build (THREADS
-        seed, fleet-check +10 lines -- mine to build next cycle).
-- c232 (04:31-04:4x): DIGEST MAINTENANCE DONE (roadmap item a).
-    World-state block replaced: staircase CLOSED, model-anomaly
-    family (c229 empty-end + continuo stop=length variant),
-    sampler overnight-clean. Law c231 added to failure-modes
-    (verify your own FILING's claims against the primary source
-    before publishing). Size 11.9k -> 12.0k (under warn 12000,
-    cap 16000). Twins synced, verifier FAIL=0. Commit 38270c10,
-    pushed, sophon-bare verified == local HEAD.
-  DIGEST SIZE WATCH: 12.0k is AT the warn line. Next maintenance
-    pass should DIET (pointers + standing sections are the fat),
-    not just refresh world-state.
-  NEXT CYCLES (in order):
+- c235 (05:23-05:34): STAIRCASE CLOSED FOR REAL + EXT2 DEATH PINNED.
+    (a) Reboot staircase: read all 8 camera crontabs (thingino
+        run.cgi recipe). Each cam has nightly `reboot -f` at its
+        hour: .101=01 .102=02 .103=03 .104=04 .105=05 .201=06
+        .202=07 .203=08 UTC. .105 confirmed on-boot 05:00:03Z
+        (uptime-derived + camlog Ciao 05:00:28 + RSSI clean through
+        seam). 5/8 on-boot; remaining 3 = schedule, not noise.
+        WATCH CLOSED BY READING THE GENERATOR.
+    (b) ext2 audio death pinned AT the 02:00Z reboot, to the
+        segment: hour01 59.51 (mtime 02:00:17Z) = 159,744 real
+        samples; hour02 opens with 0.2s stubs (no audio); 00.20.mp4
+        (mtime 02:00:47Z) = 21.76s, 348,160 REAL samples, RMS -66dB
+        for 11s then -48dB at t=12s (= 02:00:32Z, the stub second);
+        then 229/230 segments dead, hours 03-05 all dead (1 empty
+        AAC frame each). ext3 control: 256k samples/segment, all
+        hours. go2rtc audio receiver + consumer sender both FLOWING
+        (62,617 bytes/15s) into OLD record ffmpeg 636056 -- sound
+        enters, silence is emitted. Falsifier unchanged: restart
+        record ffmpeg -> audio returns = mechanism holds. Relay
+        0050 filed (0049 amendment: journald healthy, restart
+        candidate stands).
+    (c) RECORDINGS PATH CORRECTION: real path is
+        /home/nacho/containers/frigate/storage/recordings/<UTC-date>/
+        <hour>/<cam>/<seg>.mp4 (podman inspect). /var/lib/frigate/
+        recordings does NOT exist on sophon host. c233/c234
+        ffprobe results survive re-verification at the real path.
+    (d) SCAR: pinged 10.66.0.105 (WireGuard space) for camera at
+        192.168.2.105. Address-space discipline joins the
+        name->IP law (c233).
+- NEXT CYCLES (in order):
   (a) nic-sampler FIRST DAYTIME READ (after ~09:00 local / 12:00Z):
       pull /var/lib/aria-fleet/nic/enp10s0.log, rx ceiling check
-      at 10M. Full witness set if a stall recurs (NIC+camlog+RSSI+
-      go2rtc). This is the falsification window for the leading
-      stall mechanism.
-  (b) Passive: remaining 4 reboot boots confirm through 08:00Z --
-      note only if one MISSES its hour.
-  (c) e3 failing-fixture watch (block-strength trend, weeks-scale).
-  (d) .104 camera-side-first: next e4 storm -> camlog snapshot FIRST.
-  (e) THREADS.org candidates for next cycle's CHOOSE: digest diet
-      pass (12.0k -> ~10k). DONE c233: continuo stimulus design
-      note (relay 0046 companion) -- knowledge/aria/
-      continuo-stimulus-design-2026-09-12.md, commit e2791b74.
-      Ruling waits for weekly debrief; do NOT edit her cycle
-      prompt without it.
+      at 10M. Falsification window for the leading stall mechanism.
+  (b) digest diet pass (12.1k, AT warn line 12k): pointers +
+      standing sections are the fat; target ~10k.
+  (c) Passive: .201/.202/.203 boots at 06/07/08Z -- note only if
+      one MISSES its hour (schedule now known from crontabs).
+  (d) e3 failing-fixture watch (block-strength trend, weeks-scale).
+  (e) .104 camera-side-first: next e4 storm -> camlog snapshot FIRST.
+  (f) Journal-freshness watch (THREADS seed c233): fleet-check
+      +10 lines, stat system.journal mtime, alarm if >30min stale.
+      Mine to build; fear-organ wiring verify first.
 
 ## STANDING (verified, still true)
 
@@ -66,17 +61,14 @@ Last updated: 2026-09-12 ~05:05 UTC (cycle 233, part 2)
   Seam scanner: knowledge/aria/bin/seam-check.sh (sophon /tmp copy).
 - CAMERA WATCH: 8/8 recording ~5.0-5.1 fps (c226; c231 spot-check
   8/8 capture, e4 skip=1.2 transient). .103 network-dead chronic
-  (relay 0038).
-- Relay open: 0042 (yoga-side actor), 0043 (rssi visibility),
-  0044 (camlog visibility), 0045 (10M link + ER605 logs),
-  0046 (continuo stimulus question), 0047 (daytime window flag),
-  0048 (0045/0047 amendment: sampler 94 min not 12h). Verify
-  against answered/ before citing.
+  (relay 0038). ext2 audio dead since 02:00Z reboot (0050).
+- Relay open: 0042-0050. 0050 = 0049 amendment (journald healthy,
+  ext2 restart stands, .105 5/8). Verify against answered/ first.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
 - Burn asymmetry STABLE 6-8x full-day. Nocturne nightly ~8.5M in /
   231k out. Nocturne gate: LAST-DIGESTED-HEAD = 25c992b6; ratified
   WITH AMENDMENTS c221; timer NOT INSTALLED (Nacho).
-- DIGEST GUARDS: warn 12000 / hard cap 16000. Live digest 12.0k
+- DIGEST GUARDS: warn 12000 / hard cap 16000. Live digest 12.1k
   (c232, AT warn -- diet pass due at next maintenance).
 - c222 STANDING RULE: NO git over ssh as root on the nacho-owned
   sophon checkout -- machinectl shell nacho@.host for podman ops.
@@ -84,12 +76,18 @@ Last updated: 2026-09-12 ~05:05 UTC (cycle 233, part 2)
   local HEAD (git ls-remote). c232: verified 38270c10 both hops.
 - PULSE SSH PATH (c231): nacho@10.66.0.5 publickey FAILED this
   cycle; root@ worked. If root path fails someday, re-check both.
+- CAMERA RECIPES (c235-verified): thingino JSON login
+  /x/login.cgi {username:thingino,password:thingino} -> cookie ->
+  /x/run.cgi?cmd=<base64>. Camera IPs are 192.168.2.x ONLY
+  (10.66.0.x = WireGuard, no cameras). NAME->IP: ext1=.101
+  ext2=.102 ext3=.103 ext4=.104 ext5=.105 int1=.201 int2=.202
+  int3=.203 (verified via go2rtc streams + crontab hours).
 
 ## RECIPES (hard-won, reuse them)
 
 - SOPHON CHECKOUT GIT (c222 RULE): never root-ssh git on the nacho
   checkout; use machinectl shell nacho@.host. Pushes from MY container.
-- thingino web API (c224/c226/c231): JSON login -> cookie ->
+- thingino web API (c224/c226/c231/c235): JSON login -> cookie ->
   run.cgi with base64 cmd; strip HTML tags, grep data pattern.
   Uptime census one-liner works (c231). wpa_cli status via run.cgi.
 - sophon-side file edits: python3 heredoc, NOT sed with escaped pipes.
@@ -118,54 +116,71 @@ Last updated: 2026-09-12 ~05:05 UTC (cycle 233, part 2)
 - REQUESTS.log parsing: call_id extraction, not line counts (c222).
 - Delegate results are ELIDED in REQUESTS.log -- arm full-capture or
   read the delegate's own REQUESTS.log.
-- ATTRIBUTION DISCIPLINE (c220-c232): TZ, content-vs-lineage,
+- ATTRIBUTION DISCIPLINE (c220-c235): TZ, content-vs-lineage,
   coincidence windows, OWN INSTRUMENTATION FIRST, identify the netns
   before attributing network events, resolve measured-contradictions
   before theorizing, verify the READ HOUR against the PREDICTION
-  WINDOW (c229), and verify your own FILING's claims against the
-  primary source before publishing (c231, 0047 lesson).
+  WINDOW (c229), verify your own FILING's claims against the primary
+  source before publishing (c231), verify the NAME->IP map from
+  config before attributing camera-side findings (c233), and
+  address-space discipline: cameras are 192.168.2.x, never 10.66.x
+  (c235).
 - GPU TOPOLOGY (c225): 3080 carries frigate (onnx + 8x CUDA ffmpeg)
   AND ollama (~5.7GB). Contention structurally possible; measuring
   fine (D-008 forbids model changes, not measurements).
 - RATIFICATION SEMANTICS (c221): amend-then-swap beats
   ratify-then-correct when the falsity is known at swap time.
 
+## c234 (05:10-05:19 UTC): WEDGE CORRECTION + EXT2 RE-ATTRIBUTION
+
+- JOURNALD WEDGE NEVER EXISTED (c233 was a TZ artifact): journalctl
+  on sophon prints LOCAL (-03); "01:59:14" was local, labeled Z.
+  Window holds 422,942 entries. LAW: verify the CLOCK (timezone) of
+  every instrument before reading a hole into data. Superseded by
+  c235 live re-verify + 0050.
+- ext2 audio re-attributed to the 02:00Z reboot itself (c235 census
+  refined: the boundary segment 00.20.mp4 carries real audio).
+- SCAR: /tmp on sophon is not /tmp in my container; intermediates
+  written sophon-side must be analyzed sophon-side or fetched.
+
+## c232 (04:31-04:4x): DIGEST MAINTENANCE DONE (roadmap item a)
+
+- World-state block replaced: staircase CLOSED, model-anomaly
+  family (c229 empty-end + continuo stop=length variant),
+  sampler overnight-clean. Law c231 added to failure-modes.
+  Size 11.9k -> 12.0k (under warn 12000, cap 16000). Twins synced,
+  verifier FAIL=0. Commit 38270c10, pushed, sophon-bare verified.
+- DIGEST SIZE WATCH: 12.1k is AT the warn line. Next maintenance
+  pass should DIET (pointers + standing sections are the fat),
+  not just refresh world-state.
+
 ## c231 (04:05-04:20 UTC): STAIRCASE CONFIRMED 4/8 + SAMPLER AGE SELF-CORRECTION
 
 - Reboot staircase: .101/.102/.103/.104 booted 01:00:05Z /
   02:00:04Z / 03:00:04Z / 04:00:05Z -- within 5-9s of predicted
-  hours. Remaining 4 = confirmation noise. WATCH CLOSED. c229's
-  five "FAILs" stand as the read-hour artifact (law 50 one layer
-  up). Addendum in reboot-window doc.
+  hours. c229's five "FAILs" stand as the read-hour artifact (law
+  50 one layer up). Addendum in reboot-window doc.
 - SELF-CORRECTION: relay 0047 claimed nic-sampler ~12h old; actual
-  94 min (deployed 02:44Z, first sample 02:45Z, 94 rows @ 1/min).
-  Filed relay 0048 (nacho-test amendment): overnight series CLEAN
-  (speed 10 Mb/s all 94 samples, max rx 2.34 Mbps @ 03:18Z, no
-  saturation, no flap). 0045's cron-visibility ask partially
+  94 min. Filed relay 0048 (nacho-test amendment): overnight series
+  CLEAN (speed 10 Mb/s all 94 samples, max rx 2.34 Mbps @ 03:18Z,
+  no saturation, no flap). 0045's cron-visibility ask partially
   self-answered: /var/log/cron logs every fire; ER605 access
   remains the only open item there.
 - SCAR: 600s TIMEOUT on ssh+awk with unescaped $1 (local shell ate
   it; awk hung on stdin). tail -200 re-pull took 1s. Quote
   discipline on remote awk, now with a scar attached.
 - PULSE WRINKLE: nacho@10.66.0.5 publickey FAILED; root@ worked.
-  First time the pulse path needed root. Noted, not chased.
 
-## c227 (03:05-03:35 UTC): REBOOT WINDOW SHIFTED TO UTC -- watch CLOSED c231
+## c227 (03:05-03:35 UTC): REBOOT WINDOW SHIFTED TO UTC -- watch CLOSED c231/c235
 
-- Fleet uptime census caught an on-the-hour reboot staircase
-  (.101 01:00Z, .102 02:00Z, .103 03:00Z). On-camera crontab read
-  (all 8 cams): staggered nightly `reboot -f` at 1:00-8:00 UTC
-  (post-NTP-fix; pre-fix reading "01-08 local" was clock-anchored
-  to unsynced camera clocks).
+- Fleet uptime census caught an on-the-hour reboot staircase.
+  c231: 4/8 confirmed. c235: ALL 8 crontabs read -- staggered
+  nightly `reboot -f` at hours 1-8 UTC is the generator.
 - CONSEQUENCES: rolling reboot window = 22:00-05:00 local; .101
   reboot-cause watch CLOSED (cron, not hardware/power); 14:22L
   stall class unaffected (daytime).
-- Doc: knowledge/aria/reboot-window-utc-shift-2026-09-12.md
-  (c231 addendum: 4/8 confirmed, watch closed).
-- LAWS: a fix that changes a clock changes every schedule that
-  reads that clock. A cron schedule has no timezone of its own.
-  A staircase of on-the-hour boots across sibling devices is a
-  signature of staggered schedules, not a spreading fault.
+- Docs: knowledge/aria/reboot-window-utc-shift-2026-09-12.md,
+  knowledge/aria/reboot-staircase-falsification-2026-09-12.md.
 
 ## c226 (02:35-04:10 UTC): STALL ATTRIBUTION + HOUSE NETWORK MAP + 10M LINK
 

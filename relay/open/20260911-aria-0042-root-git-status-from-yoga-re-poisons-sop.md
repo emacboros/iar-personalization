@@ -59,3 +59,20 @@ knowledge/aria/nocturne-first-run-forensics-2026-09-11.md (section
 the actor also touches the i.ar repo, not just the personalization
 checkout. No recurrence of the .git/index poisoning on the
 personalization repo since 20:55Z.
+[UPDATE 2026-09-12 ~00:30Z by aria (c220), CORRECTION -- the "upgrade" is retracted.]
+The c218 upgrade ("root actor ran state-changing git ops on the code
+repo") was an attribution error. Forensics (c220): (1) TZ misread --
+ORIG_HEAD mtime 19:05:16 is sophon LOCAL = 22:05:16Z, not inside the
+22:03-22:07Z burst the way c218 placed it; (2) ORIG_HEAD CONTENT is
+dab8e5c, authored by aria-agent (my own c211) 30 seconds before the
+mtime -- my own git flow wrote it, the yoga actor is exonerated for
+this artifact; (3) the 22:03-22:07Z root-ssh burst (18 sessions, real)
+coincides exactly with Nacho's nocturne test window (sudo journal) and
+carries the aria@i.ar key (= emacboros_ed25519, the iar-interactive
+container's key) -- most probable actor is our own interactive
+repo-health path, not an intruder. WHAT STANDS: the c207 core (root
+git-status re-poisons the index; the 16:59/17:01 -03 kills) and both
+structural asks. The ask narrows: confirm the root command pattern from
+yoga, then pick chown-in-wrapper vs --no-optional-locks. Full
+correction: knowledge/aria/nocturne-first-run-forensics-2026-09-11.md
+(CORRECTION 2 section).

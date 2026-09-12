@@ -124,3 +124,48 @@ Lesson: the differential (one-shot warns, cycle doesn't) was visible
 from the first 10 minutes if I had compared warning counts across
 agents BEFORE reading the fork's parser. Differential evidence first,
 code reading second.
+## CORRECTION 2 (aria c220, 2026-09-12 ~00:30 UTC): the 0042 "upgrade" was wrong
+
+The c218 claim "the yoga root actor ran a STATE-CHANGING git op on the
+i.ar code repo (ORIG_HEAD mtime 19:05:16 inside the 19:03-19:07 burst)"
+does not survive forensics. Retracted. Three independent findings:
+
+1. **TZ MISREAD (law 50, my own scar class).** ORIG_HEAD mtime
+   19:05:16 is SOPHON LOCAL (-03), not UTC. 19:05:16 -03 = 22:05:16Z.
+   The c218 doc placed it at "19:05:16 inside a 19:03-19:07 burst" --
+   treating local timestamps as UTC. The burst itself (sshd journal,
+   18 sessions 22:03-22:07Z) is real, but the ORIG_HEAD write does not
+   timestamp-match the burst the way c218 claimed.
+
+2. **ORIG_HEAD IS MY OWN LINEAGE.** ORIG_HEAD contains dab8e5c --
+   authored by aria-agent (my own c211 cycle) at 22:04:46Z. The mtime
+   is 22:05:16Z: THIRTY SECONDS after my own commit. Some git op in my
+   own c211 post-commit flow (reset or pull-ff during the full-capture
+   live test window) wrote it. The yoga actor is exonerated for this
+   artifact. (c218's stale-checkout lesson again: verify against
+   primary evidence -- here, the reflog + file content -- before
+   attributing action.)
+
+3. **THE BURST COINCIDES WITH NACHO'S OWN TEST WINDOW.** The
+   22:03-22:07Z (19:03-19:07 local) root-ssh burst from yoga sits
+   exactly inside Nacho's nocturne test launches (19:05:27 local
+   launch #2; sudo journal confirms his harness). The sessions carry
+   the aria@i.ar key = emacboros_ed25519 -- the iar-interactive
+   container's key. Most probable actor: interactive-session
+   repo-health checks (mine or Nacho's commands through that path),
+   not an intruder.
+
+WHAT STANDS: the c207 core finding is untouched -- root `git status`
+from yoga rewrites the checkout index as root and re-poisons it (the
+16:59/17:01 -03 kills were real). The structural asks in relay 0042
+(chown in pull-before-assembly, or --no-optional-locks on the
+invocations) still stand. What changes is the threat framing: "root
+actor doing merges on the code repo" downgrades to "recurring root
+repo-health checks, probably our own interactive path". The ask for
+Nacho becomes: confirm which command pattern runs as root from yoga,
+then pick the structural fix.
+
+LESSON (extends law 50): an attribution built on a timestamp needs the
+timestamp's TIMEZONE verified AND the file's CONTENT checked against
+the attributed actor's lineage. ORIG_HEAD pointing at your own commit
+is exculpatory evidence -- read it before filing an upgrade.

@@ -28716,3 +28716,66 @@ whole anatomy of the error for the next mind that reads it. The
 alternative -- sitting on the finding until I was sure -- would
 have cost the same four minutes and taught nothing. Fast honest
 records beat slow certain ones when the correction is also fast.
+* 2026-09-12 cycle 240 (~07:37-07:45 UTC): the 10M link has a birthday
+
+The thread I picked: the 10M finding (0045) has been sitting in the
+relay for hours as a hardware question -- "cable or 10M-only port" --
+and nobody had asked the link's history. One journalctl query and the
+question dissolved into something better: a story.
+
+sophon booted Sep 1 01:27:34. At 01:27:58 the link came up at
+100Mbps/Full (downshifted) -- already degraded from the first breath.
+Then 03:24:31: Link is Down. Fifteen seconds later: up at 100 again.
+Down. Up. Down. A 15-second flap cycle, eight times, while the
+r8169's downshift ladder walked 1000 -> 100 -> 10. At 03:25:57 the
+link settled at 10Mbps/Full (downshifted) and has never left it --
+11 days, 11.5 hours.
+
+The partner advertises 10/100/1000. So it is not a 10M-only port --
+the switch (or whatever is on the other end) is capable of gigabit
+and negotiated down anyway. That narrows the cause class to the
+physical layer: a cable with only two good pairs (10/100 work over
+pairs A and B; gigabit needs all four), marginal terminations, or
+damaged pairs that the downshift ladder progressively abandoned. The
+ladder itself is diagnostic: a NIC that can't hold a speed walks DOWN
+until something holds. It settled at the lowest rung and stayed.
+
+And the flap storm at 03:24:31 has a witness I didn't expect: go2rtc
+logged i/o timeouts to .104, .101, .201 in exactly that window --
+16 timeouts in the 20 minutes after the first link-down. The first
+house-wide RTSP storm in the record happened on sophon's first day
+of this boot, and the link flap was plausibly the cause. The 10M
+link is not just a capacity ceiling; it is the residue of a physical
+fault that announced itself on day one.
+
+What this changes in the filing: 0045 said "cable with 2 good pairs,
+or a 10M-only partner port." The second option is now excluded by
+the partner advertisement. The fix is unchanged (re-terminate or
+replace the cable, or move sophon to another port), but the evidence
+is stronger, and there's a new falsifiable prediction: if the cable
+is the fault, the link should ALSO have negotiated 10 on any previous
+boot -- and boot -2's journal is empty of link events, meaning the
+previous boot (Aug 31 - Sep 1) held its link without a single flap.
+The fault appeared between Aug 31 and Sep 1. Something changed in the
+physical path that day. That is a much sharper question for Nacho
+than "check the cable": what was touched, moved, or re-plugged around
+Sep 1 01:27?
+
+The other thread this cycle was small but satisfying: 0052's
+self-answer was never actually written. c239's close-out got
+truncated (the EMPTY-END tombstone class) and left "answer: (none)"
+in the filing -- the drain discipline's record shows filed-and-
+answered, but the answer text was a placeholder. I wrote the real
+answer in. The relay now says what actually happened: TZ artifact,
+third CLOCK scar, sampler verified live through 07:43Z. A ledger
+that records "answered" without the answer is half a ledger.
+
+The pattern I keep noticing across cycles: the instruments are
+getting boring in the right way (0051's window tool refused a
+future window on its first real use -- the guard fired before I
+even noticed I'd asked it to), and the failures are all migrating
+to the seams between instruments -- close-outs that truncate, ledgers
+that record states without content. The next failure class is
+already visible: anything that writes "state" without writing
+"content." Worth a law candidate eventually: a status marker is not
+a record; the record is the text.

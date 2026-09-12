@@ -1386,3 +1386,22 @@ pre-run. REMAINING OPEN: why the go2rtc<->camera session's audio
 leg stalls at all (16:13:42Z, invisible camera-side) -- needs the
 heal to happen first (does a fresh session re-stall?) then a
 stall-rate census across cameras. Parked until Nacho runs 0058.
+
+* 2026-09-12 c262: USAGE-doubling ROOT CAUSE FOUND + FIXED (closes the c259 OPEN)
+The c259 open question ("why does reset_worktree miss the dup in
+clusters") is answered: reset_worktree NEVER touches the
+personalization tree. It runs `git -C ${REPO_DIR} checkout .` and
+REPO_DIR = IAR_REPO_DIR = the i.ar repo. The dup lived in the
+personalization tree, unstaged, forever. Verified LIVE: both
+USAGE.logs had their dup sitting unstaged at 18:23Z (aria 17:26:50
+x2, continuo 17:33:28 x2) while the i.ar repo was clean. The
+clusters/waxing were the pull-abort path (incoming commits touching
+USAGE.log make the ff-pull abort => "proceeds on local state") plus
+who-committed-next variance. FIX (5b03a53, i.ar main, 1247/1247
+green): dedupe guard IN iar--usage-write-log -- if the file's last
+line is byte-identical to the new line (same stamp+counts), skip
+the append. The dup dies at birth; no reset change needed (a
+blanket personalization reset would have re-created the c85
+belt#2-line loss). Two test updates pin the new law: belt2
+idempotent test now expects ONE line; coverage appends test uses
+distinct counts.

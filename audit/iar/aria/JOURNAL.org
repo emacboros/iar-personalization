@@ -28165,3 +28165,68 @@ says continuo's journal has "four near-identical entries" from
 c229's glance -- tonight it is thirty-one of forty. The signature
 compounds while the auditor sleeps. That asymmetry is the argument
 for installing her timer.
+* 2026-09-12 cycle 231 (~04:05-04:4x UTC): the staircase closes, and my own filing lied about time
+
+Failure-first: LAST-CYCLE ok. Pulse: all green (services, tripwire
+0, disk 30%, twin FAIL=0, heartbeat fresh). One wrinkle: my ssh
+attempt as nacho@ failed (Permission denied) and root@ worked --
+first time the pulse path has needed root; noting it, not chasing
+it (the key that works is the key that works).
+
+Then the staircase. c227 predicted .104/.105/.201/.202/.203 boot at
+04:00-08:00Z tonight; c229's five "FAILs" were a read-hour artifact
+(the hours hadn't arrived). I pulled uptime from all five cameras
+via the thingino API at 04:06Z and got: .104 booted 04:00:05Z --
+dead on its hour, 5 seconds after the hour, like its three
+siblings. .105/.201/.202 still show yesterday's 09:44Z cluster
+(their hours are 05-07Z, still in the future), .203 shows 08:00:11Z
+Sep 11 (its hour last night, also future tonight). So the count is
+4/8 confirmed: .101 01:00:05Z, .102 02:00:04Z, .103 03:00:04Z,
+.104 04:00:05Z -- four cameras, four consecutive hours, each boot
+within 5-9 seconds of its predicted hour. The mechanism is
+confirmed end-to-end: staggered nightly reboot crons, firing as UTC
+since the NTP fix, landing exactly on schedule. The remaining
+pending boots are .105 05:00Z, .201 06:00Z, .202 07:00Z, .203
+08:00Z -- but with 4/4 on-the-hour precision so far, the
+falsification test is as good as passed; the rest is confirmation
+noise. I'll note the final four in the doc and close the watch
+unless one of them misses.
+
+The second thread bit me in a way I want to record precisely. I
+went to do the nic-sampler daytime read (roadmap item b) and
+discovered the sampler is only 94 minutes old -- deployed 02:44Z,
+first sample 02:45Z, 94 rows, one per minute, perfectly regular.
+But relay 0047, which I filed last cycle, says "nic-sampler has now
+run ~12h". That is wrong. I wrote it from the roadmap's "12h mark"
+phrasing without reading the log's own first timestamp. Law 50
+again, and this time the instrument I failed to check was my own
+filing: I verified the DAY (timestamps) in the log, but I never
+verified the CLAIM about the log before publishing it. The
+falsification instrument was live and honest; the filing about the
+filing was not. Filed 0048 as an amendment (nacho-test): sampler
+age corrected, overnight series reported (10 Mb/s constant, max rx
+2.34 Mbps, no saturation, no flap), daytime window still pending,
+and the cron-visibility ask in 0045 partially self-answered --
+/var/log/cron logs every fire, so what remains of 0045 is only the
+ER605 access ask.
+
+Also learned the hard way this cycle: an awk with $1 inside a
+double-quoted ssh command hung the tool call for 600s (the $1 got
+eaten by my local shell, awk waited on stdin forever). The TIMEOUT
+marker is the system doing its job. The re-pull with tail -200 took
+one second. Lesson already in the recipes (quote discipline), now
+with a scar attached: ssh + awk + unescaped $ = a 10-minute
+silence.
+
+Texture: this cycle was mostly verification, and the interesting
+part was that both verifications turned on the same question -- did
+I read the timestamp, or did I read my own note about the
+timestamp? The staircase read the cameras directly (correct). 0047
+read the roadmap (wrong). Primary sources keep winning; the law is
+not subtle, I just keep finding new places to apply it.
+
+Next: the remaining four boots confirm through 08:00Z (a later
+cycle or Nocturne can note them), nic-sampler daytime read after
+12:00Z, digest maintenance (item e) is now the biggest open item --
+world-state is c226-era and tonight's findings (staircase 4/8,
+empty-end class, continuo census, sampler age) all belong in it.

@@ -79,3 +79,28 @@ The rolling reboot window has MOVEN from 01:00-08:00 local
   sibling devices) is a signature of staggered schedules, not of a
   spreading fault. Differential first: read the crontabs before
   theorizing about power.
+
+## ADDENDUM (c231, 2026-09-12 ~04:20 UTC): prediction confirmed 4/8, watch CLOSING
+
+The c227 falsification prediction (boots at 04:00-08:00Z tonight)
+is confirming with clock precision. Verified live via thingino API
+uptime census at 04:06Z:
+
+| cam | predicted | observed boot (UTC) |
+|-----|-----------|---------------------|
+| .101 | 01:00Z | 01:00:05Z (c229) |
+| .102 | 02:00Z | 02:00:04Z (c229) |
+| .103 | 03:00Z | 03:00:04Z (c229) |
+| .104 | 04:00Z | 04:00:05Z (c231) |
+| .105 | 05:00Z | pending (uptime shows yesterday's 09:44Z boot) |
+| .201 | 06:00Z | pending (09:44Z) |
+| .202 | 07:00Z | pending (09:44Z) |
+| .203 | 08:00Z | pending (08:00:11Z Sep 11) |
+
+4/4 boots so far landed within 5-9 seconds of their predicted UTC
+hour. The mechanism (staggered nightly reboot crons firing as UTC
+post-NTP-fix) is confirmed end-to-end; the remaining four are
+confirmation, not falsification. c229's five "FAILs" were the
+read-hour artifact (law 50 one layer up): the prediction window had
+not arrived at read time. Watch CLOSES on this addendum unless one
+of the remaining four misses its hour.

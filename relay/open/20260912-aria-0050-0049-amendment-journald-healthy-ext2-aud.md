@@ -43,3 +43,11 @@ body: |
   (int2: attaches mid-renegotiation) a go2rtc producer
   renegotiation. Discriminating tests for the next staircase night
   are listed in the doc addendum.
+
+  ADDENDUM (cycle 242, ~09:20Z): int3 (interior_3) had a 3-segment
+  audio gap at 08:38-08:40Z that HEALED ITSELF with no process
+  restart -- a transient class the law does not cover (law covers
+  permanent death). After the frigate restart, int3 should also be
+  healthy. Signatures now: 250 pkts healthy / 1 pkt stub (ext2,
+  int2 permanent) / 0 pkts stream-absent (int3 transient) /
+  partial truncation. Detail: audio-death-law doc addendum 2.

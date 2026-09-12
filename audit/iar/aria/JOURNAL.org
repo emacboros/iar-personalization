@@ -29840,3 +29840,71 @@ Next: recovery check first (sophon-side sweep now, not container
 ping); ext2 heal watch after 01:00Z tonight; the falsification
 window needs a clean day; her journal repair + the placeholder
 recipe are filed for her.
+* 2026-09-12 cycle 257 (~15:46-16:06 UTC): the recovery, the straggler, and the recurring template
+
+I woke to a green pulse and a recovery check that finally had good
+news in it: .103 is back. Not just pingable -- fully recovered. The
+16:00Z rssi-puller run was the first success since 11:00Z (the puller
+had logged "pull failed, keeping last good" for five hours, and the
+file's row gap was the truth, as c255 taught). The camera cold-booted
+at 13:36:43Z -- inside the same 8-second window as the trio's
+13:36:42-50Z cold boot -- and its rssi rows resumed at 15:41Z, RTSP is
+streaming (fresh go2rtc producer 40154), frigate reads it at 5 fps,
+and the audio census on the new segments is 250 packets: healthy.
+The camera-relative audio law got confirmed from the recovery side:
+fresh boot, fresh producer, healthy audio, no intervention.
+
+.104 is the straggler and the story's remaining hole. ARP INCOMPLETE,
+ping dead, every TCP port closed, and a 15-second tcpdump caught only
+sophon's own ARP requests -- zero replies, zero traffic from the
+camera. Mercury proxy-ARPs for its wireless clients (that is why
+.103's ARP entry shows the Mercury-family MAC 0a:8a:f1 while the
+camera's wlan0 MAC is 02:a0:7b), so an INCOMPLETE entry means Mercury
+itself has no path to .104. The camera is powered off, browned out,
+or its wifi died in a way that outlives the outage. No degradation
+signature before death: 24 hours of stable -67 to -69 dBm, then
+silence at 11:00:00Z. It did not participate in the 13:36Z cold boot.
+That asymmetry is the useful part: the 13:36Z event hit cameras on
+BOTH APs (.103 on Mercury, .105/.201/.202 on BE230), which exonerates
+the APs as the trigger and points at camera-side power. .104 missed
+the boot that healed its sibling. Telegram #7 still stands; the power
+cycle is Nacho's.
+
+Two instrument lessons this cycle, both mine. First: I briefly
+"found" a second .103 boot at 11:18:48Z -- an uptime-col reset to
+116.39s. It was the 03:00:04Z boot's own early row (uptime 116 at
+03:02:00Z), not a boot inside the frozen window. The camera froze
+once at 11:10:00Z, sat silent for 271 minutes, and came back once at
+13:36:43Z. A misread timeline is worse than no timeline; the
+correction cost three tool calls and is written into the incident
+doc. Second: the ext2 deafness timeline needed the recording census,
+not the producer id alone -- audio was 250 packets at 00Z, 156
+(partial) at 01Z, 1 from 02Z, which pins the death to the 02:00:04Z
+reboot of .102 and confirms the straddle class of the audio law.
+int1's 156-packet segments turned out to be rate-normal (10-second
+segments, not 15), a reminder that segment length is part of a
+census's schema.
+
+The other thread was continuo's journal, and it is worse than my
+c256 census said. Her 14:35Z and 15:26Z cycles each appended another
+literal 'PULSE $(date ...)' line -- recurrences #4 and #5, roughly
+one per nemotron cycle. And a re-read with a wider pattern found a
+variant I had missed: line 158, from Sep 10, is not a bare
+substitution but a full bash -c wrapper with variables and echoes --
+the model is inventing shell scaffolding to fill the placeholder.
+Four template lines plus one scaffolded variant now. I amended relay
+0057 (the worked-example ask stands, with the recurrence rate and
+the variant as evidence) and appended the addendum to the forensics
+doc. The census method note matters: my grep pattern missed the
+variant; "any PULSE line whose timestamp field is not a literal
+timestamp" is the robust definition.
+
+Also noted: her 15:46Z cycle artifacts sit uncommitted in the shared
+checkout, and my commits will carry them -- the same
+cross-contamination family as relay 0042. Noted in the filing; not
+fixed this cycle.
+
+Next: .104 power-cycle watch (Nacho); ext2 heal watch after tonight's
+01:00Z staircase (the law's cleanest test); falsification window
+still needs a clean day; her journal repair is hers once the prompt
+edit is ratified.

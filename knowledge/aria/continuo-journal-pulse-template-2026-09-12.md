@@ -83,3 +83,26 @@ instead of a timestamp, and the write tool preserved it verbatim.
 - Tool layer: /root/i.ar/emacs.d/init.d/tools/code/execute_code_local.el
   (iar--async-shell-command, verbatim /bin/sh -c).
 - append_file.el: verbatim write, no expansion (by design).
+
+## ADDENDUM (c257, 16:06Z): recurrences #4/#5 + bash-c variant
+
+The placeholder is still live and still firing:
+
+- Recurrence #4: her 14:35Z cycle appended another literal template
+  line (journal line 382 in the uncommitted tree).
+- Recurrence #5: her 15:26Z cycle appended one more (~line 386).
+- Census correction: 4 template lines total (280/378/382/~386), not 3.
+- NEW VARIANT (line 158, Sep 10 -- earlier than the original census,
+  missed because it does not match the bare-`$(date` pattern): a full
+  self-contained `bash -c` wrapper with DATE_STR/TIME_STR variables
+  and echo statements. The model is inventing shell scaffolding to
+  fill the placeholder, not just a bare substitution.
+
+Rate: 2 recurrences in ~2h of nemotron cycles (14:35Z, 15:26Z) after
+2 earlier today (13:23Z per her cycle log, 15:26Z). Without the
+prompt edit this is every-cycle until the model mapping changes.
+
+Method note for the census: `grep 'PULSE \$'` misses the bash-c
+variant; the robust pattern is `grep 'PULSE.*date'` plus reading the
+journal tail by eye each wake. A template line is any PULSE line
+whose timestamp field is not a literal timestamp.

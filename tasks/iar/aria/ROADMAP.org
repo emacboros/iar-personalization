@@ -1,9 +1,30 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~15:42 UTC (cycle 256)
+Last updated: 2026-09-12 ~16:07 UTC (cycle 257)
 
 ## NOW
-- c256 (15:28-15:45): RECOVERY-CHECK INSTRUMENT SCAR (mine): the
+- c257 (15:46-16:06): .103 RECOVERED via 13:36:43Z cold boot (same
+  window as trio 13:36:42-50Z; camera-side power event, APs on both
+  segments exonerated). RTSP healthy (producer 40154), fps 5.0,
+  audio 250 pkts = camera-relative audio law CONFIRMED from the
+  recovery side. .104 STILL DEAD (ARP INCOMPLETE, all ports closed,
+  tcpdump 15s = zero packets, no RSSI degradation pre-death,
+  did NOT join the 13:36Z boot) = power-off/wifi-hw death; power
+  cycle is Nacho's (telegram #7 stands). Incident doc:
+  sophon /var/lib/aria-fleet/incidents/2026-09-12-recovery-c257.md.
+- MISREAD CORRECTED (c257): the "11:18:48Z second boot" was the
+  03:00:04Z boot's own early row (uptime 116 at 03:02:00Z). .103
+  froze once 11:10:00Z, silent 271 min, one boot 13:36:43Z.
+- EXT2 DEATH PINNED (c257): audio 250 @00Z, 156 @01Z (partial),
+  1 from 02Z => death = .102 02:00:04Z staircase reboot; producer
+  27818 born ~01-02Z = straddle class. Law holds. Heal prediction:
+  tonight's 01:00Z staircase remakes the producer.
+- PULSE TEMPLATE RECURRENCES #4/#5 (c257): her 14:35Z + 15:26Z
+  cycles each appended another literal line; census = 4 template
+  lines + 1 bash-c VARIANT (line 158, Sep 10, full scaffolded
+  wrapper). Relay 0057 amended; doc addendum written. Census
+  method: 'PULSE.*date' + eyeball; bare '$(date' grep misses the
+  variant.
   container has NO ping binary; 2>/dev/null turned 'command not
   found' into uniform false negatives (whole subnet read as dead
   while frigate showed 6/8 at 5fps). SOPHON-SIDE SWEEP is the
@@ -38,17 +59,18 @@ Last updated: 2026-09-12 ~15:42 UTC (cycle 256)
   dead). Telegram #7 sent 15:07Z (4h mark + power-cycle ask).
 
 ## NEXT CYCLES (in order):
-  (a) RECOVERY CHECK FIRST every cycle: ping .103 .104 at
-      192.168.2.x ONLY. If they return: verify trio held, then
-      audio watch on the pair.
+  (a) RECOVERY CHECK FIRST every cycle (sophon-side sweep, NOT
+      container ping): .104 only now (.103 recovered). If .104
+      returns: verify audio + frigate fps on ext4.
   (b) EXT2 HEAL WATCH (highest-value falsifiable prediction):
       after 01:00Z TONIGHT (Sep 13 staircase), pull ext2 audio
       census + check go2rtc producer id for exterior_2. Heal =
       law refinement confirmed. No heal = law wrong again,
       frigate restart remains the only cure.
   (c) 13:36Z REBOOT TRIGGER (open): 8s spread, bare boot blocks,
-      .105/.201/.202 on .55/BE230 vs .103/.104 on Mercury --
-      leans shared power circuit. If another simultaneous multi-
+      hit cameras on BOTH APs (.103 Mercury + .105/.201/.202
+      BE230) => camera-side power event, APs exonerated (c257).
+      If another simultaneous multi-
       cam reboot happens, timestamp it precisely; correlate with
       any .58/.216/.2 LAN events.
   (d) 13:30Z BURST WATCH: no recurrence through 15:07Z. If

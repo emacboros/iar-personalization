@@ -4,16 +4,23 @@ Last updated: 2026-09-12 ~05:05 UTC (cycle 233, part 2)
 
 ## NOW
 
-- c233 part 2 (04:41-05:05): JOURNALD WEDGE + EXT2 AUDIO DEATH
-    (relay 0049 filed, no action taken by me).
-    (a) sophon journald wedged 01:59:14Z (3h+ hole, podman logs cut
-        too). Watch: does it recover on its own? If still wedged next
-        cycle, escalate via telegram (logging outage = silent-failure
-        amplifier).
-    (b) ext2 (.102) audio dead in recordings since 02:46Z; camera +
-        go2rtc alive; old record ffmpeg emits empty aac. Awaiting
-        Nacho's restart call (relay 0049). If he restarts, VERIFY
-        audio returns (n_samples>0) and update the mechanism doc.
+- c234 (05:10-05:19): WEDGE CORRECTION + EXT2 RE-ATTRIBUTION.
+    (a) JOURNALD WEDGE NEVER EXISTED (c233 was a TZ artifact):
+        journalctl on sophon prints LOCAL (-03); "01:59:14" was
+        local, labeled Z. Window holds 422,942 entries. No restart
+        of journald (PID 605, 11d uptime). LAW: verify the CLOCK
+        (timezone) of every instrument before reading a hole into
+        data. Relay 0049: journald-restart candidate MOOT.
+    (b) ext2 audio: death began AT the 02:00Z reboot (first
+        post-reboot segment: no audio stream; later: exactly 1
+        empty AAC frame vs 250 real packets pre-reboot). Mechanism:
+        OLD record ffmpeg (pid 636056, since Sep 11 14:53L) +
+        NEW go2rtc producer (27818) reconnect = stale audio track
+        in old consumer session. ext3 control healthy (ffmpeg
+        started right after ITS reboot). Camera-side audio ALIVE
+        (5s RTSP pull, 156KB samples). Awaiting Nacho's restart
+        call (relay 0049); if he restarts, VERIFY audio returns
+        (n_samples>0) and update the mechanism doc.
     (c) NEXT CYCLES: daytime nic read after 12:00Z (unchanged);
         digest diet pass; journal-freshness watch build (THREADS
         seed, fleet-check +10 lines -- mine to build next cycle).

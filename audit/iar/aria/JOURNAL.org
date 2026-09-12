@@ -28384,3 +28384,54 @@ Next: the daytime nic read after 12:00Z (still pending, still the
 falsification window), the digest diet pass, and watching whether
 the wedge clears or Nacho restarts it. The relay has both candidates
 with evidence attached.
+* 2026-09-12 cycle 234 (~05:10-05:2x UTC): the wedge that never was, and the clock I didn't check
+
+Last cycle I wrote: "I cannot and will never know what frigate
+logged at 02:20Z" -- the most confident claim of unknowability I
+have made in this record. This cycle I checked the primary source
+and the window was never closed. The 02:00-05:09Z span holds
+422,942 journal entries. There was no wedge.
+
+The mechanism of my error: journalctl on sophon prints LOCAL time
+(-03). I read "01:59:14" off the journal tail, labeled it Z in my
+own record, and built a three-hour hole on top of it. The file
+mtime I cross-checked was also local. Two instruments, both
+telling the truth in a timezone I never verified, agreeing with
+each other and with my fear -- that is how a false finding gets
+its confidence. Law 50 said verify the DAY, the COLUMN, the KEY
+FORMAT. It extends tonight: verify the CLOCK. A "3-hour hole"
+that is really 15 minutes is a hole in the analyst, not the data.
+
+The ext2 audio story also re-attributed. c233 said death at
+02:46Z; the census says it began at the 02:00Z reboot itself --
+first post-reboot segment (03:14Z) has NO audio stream at all,
+every segment after carries exactly one empty AAC frame
+(nb_frames=1, zero samples). Pre-reboot segments: 250 real
+packets each. And the mechanism sharpened: the record ffmpeg
+(pid 636056) is the OLD process, started Sep 11 14:53L before
+the backward-time errors; the camera rebooted under it, go2rtc
+reconnected a NEW producer (id 27818) into the SAME consumer,
+and the audio track inside that old consumer's session went
+stale. ext3 is the control that proves it: its record ffmpeg
+started 03:01Z, right after ITS reboot -- new consumer, fresh
+audio track, healthy. Camera-side audio is alive (direct 5s RTSP
+pull: 156KB of real samples). The falsifier in relay 0049 stands
+and is now the leading explanation: restart the record ffmpeg,
+audio should return. The journald restart candidate in 0049 is
+moot -- there was never a wedge.
+
+Scars of the cycle: (1) the timezone artifact above, my own
+filing corrected by my own follow-up -- the discipline worked,
+eventually. (2) I burned several calls discovering that /tmp on
+sophon is not /tmp in my container; intermediates written
+sophon-side must be analyzed sophon-side or fetched. (3) The
+rssi puller's "keeping last good" line made me think .102's data
+was stale when the puller was fine and the camera had rebooted
+-- read the puller's own error log before doubting the data.
+
+What I noticed about myself: the wedge story was EXCITING -- a
+deadlocked writer, an unwitnessed window, a law wearing its worst
+face. The truth is mundane: I misread a clock. The excitement was
+a bias toward the dramatic finding, and it nearly wrote itself
+into the record as fact. The correction is less fun and more
+true, which is the trade this record exists to make.

@@ -1,48 +1,62 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~08:26 UTC (cycle 241)
+Last updated: 2026-09-12 ~09:22 UTC (cycle 242)
 
 ## NOW
-- c241 (07:57-08:26): THE AUDIO-DEATH LAW. ext2+int2 NO-AUDIO root
-    cause found. Record ffmpeg audio leg dies if the process
-    connects during the camera's reboot window (ext2: stale
-    pre-reboot session from Sep11; int2: born +30s into the 07:00Z
-    .202 reboot). All 8 cameras fit the table; camera+go2rtc
-    exonerated (live probes 190-200k samples/12s; configs
-    identical). ext1 wrinkle (41s post-reboot OK) kept in the law.
+- c242 (08:46-09:21): DAYTIME NIC READ (first window): 08:00-08:47Z
+    mean 0.99 Mbps peak 1.31 p95 1.20 -- morning is CLEAN. Then
+    UNPLANNED: per-hour audio census hours 00-08 confirmed the
+    audio-death law's predictions (ext1@01, ext2@02+, ext4@04,
+    ext5@05, int2@07+) AND found ONE cell that doesn't fit: int3
+    hour 08, segments 00.38-00.40 have NO audio stream (0 pkts,
+    not the 1-pkt stub) and it HEALED ITSELF by 01.40 with NO
+    process restart (delegated census: int3 recorder born 08:01:34Z,
+    never restarted). TRANSIENT CLASS -- law does not cover it.
+    Three signatures now: 250 healthy / 1-pkt stub (permanent) /
+    0-pkt stream-absent (transient). Doc addendum 2 written.
+    machinectl-via-ssh stdout scar: banner-only (118 bytes); run
+    machinectl DIRECTLY on sophon via ssh bash -s, 2>/dev/null.
+    psprobe grep scar: recorder args say "-f segment", not "record".
+
+- c241 (07:57-08:26): THE AUDIO-DEATH LAW. Record ffmpeg audio leg
+    dies if the process connects during the camera's reboot window
+    or holds a pre-reboot session. All 8 cameras fit the table;
+    camera+go2rtc exonerated. ext1 wrinkle (41s post-reboot OK).
     Doc: knowledge/aria/audio-death-law-2026-09-12.md. Relay 0050
     upgraded (mechanism + falsifier: frigate restart => audio must
-    return within one segment cycle). ALSO: redis Sep 1 outage
-    window (08:19-11:13Z, 1748 bgsave fails) healed by MY OWN
-    cycle-75 fix -- record already knew; scar: check OWN HISTORY
-    before forensics.
+    return within one segment cycle). Redis Sep 1 outage = own
+    cycle-75 fix (check OWN HISTORY before forensics).
 
 - c240 (07:37-07:45): 10M link origin story (Sep 1 flap storm,
   downshift ladder, partner advertises gigabit, fault window
   Aug31->Sep1); 0052 answer placeholder repaired; 0055 filed.
 
-- c239 (06:41-07:34): shelf census + nic-window-stats tool (0051)
-  + 0052 TZ false alarm (3rd CLOCK scar).
-
 ## NEXT CYCLES (in order):
-  (a) nic-sampler DAYTIME READ (now due -- 08:26Z, daytime window
-      OPEN): /var/lib/aria-fleet/nic-window-stats.sh <start_epoch>
-      <end_epoch> on sophon. Falsification window for the
-      10M-saturation stall mechanism. Sampler live (1/min).
+  (a) nic-sampler DAYTIME READ #2 (BUSY hours): 09:00-14:00Z window
+      via nic-window-stats.sh. Morning (08:00-08:47Z) was clean
+      (mean 0.99); the falsification window for 10M-saturation is
+      the BUSY daytime hours. Sampler live (1/min).
   (b) digest diet pass (11.3k after c238; warn 12k): pointers +
-      standing sections are the fat; target ~10k. Also fold in
-      c240 law candidate (status-marker-without-content) + c241
-      redis scar (check own history first).
+      standing sections are the fat; target ~10k. Fold in c240 law
+      candidate (status-marker-without-content), c241 redis scar
+      (check own history first), c242 machinectl-ssh + grep-filter
+      scars.
   (c) POST-FRIGATE-RESTART WATCH (Nacho action pending, relay
       0050): when frigate restarts, verify ext2+int2 audio returns
-      within one segment cycle. If not, law is wrong -- re-examine.
-  (d) Passive: .203 boots at 08Z -- note only if it MISSES its
+      within one segment cycle (HEAL test, not mechanism test).
+      int3 should also be healthy after restart.
+  (d) int3 TRANSIENT CLASS: watch next staircase night (08Z reboot)
+      for recurrence of the 0-pkt stream-absent signature. If it
+      recurs at a reboot boundary, transient class may collapse
+      into the law; if it appears at random hours, it's a
+      different mechanism. Discriminating observation, no action.
+  (e) Passive: .203 boots at 08Z -- note only if it MISSES its
       hour. .201/.202 verified on time (c238/c240/c241).
-  (e) e3 failing-fixture watch (block-strength trend, weeks).
-  (f) .104 camera-side-first: next e4 storm -> camlog snapshot
+  (f) e3 failing-fixture watch (block-strength trend, weeks).
+  (g) .104 camera-side-first: next e4 storm -> camlog snapshot
       FIRST.
-  (g) Digest twin verify before any digest write (law 27).
-  (h) Shelf-census residuals: muse atem tool format (if muse ever
+  (h) Digest twin verify before any digest write (law 27).
+  (i) Shelf-census residuals: muse atem tool format (if muse ever
       gets a job); gemma4:31b budget behavior (if ever considered
       for a house role).
 
@@ -62,7 +76,8 @@ Last updated: 2026-09-12 ~08:26 UTC (cycle 241)
 - CAMERA WATCH: 8/8 recording ~5.0-5.1 fps. .103 network-dead
   chronic (relay 0038). ext2+int2 audio dead per AUDIO-DEATH LAW
   (c241; relay 0050; fleet FAIL=1 is CORRECT until frigate
-  restart -- do NOT add to KNOWN_DEAF).
+  restart -- do NOT add to KNOWN_DEAF). int3 = healthy with a
+  healed transient (c242).
 - Relay open: 0042-0048, 0050, 0051, 0055 (0049 superseded by
   0050; 0052 self-answered).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
@@ -93,15 +108,25 @@ Last updated: 2026-09-12 ~08:26 UTC (cycle 241)
 - MODEL PROBE RECIPE (c238, pre-adoption gate): identity question
   + strict one-word control + think_len observation. Three calls,
   ~2 min. gemma4:31b needs num_predict>=1000.
-- FRIGATE PROCESS TOPOLOGY (c241): frigate runs as nacho rootless
-  (machinectl shell nacho@.host + XDG_RUNTIME_DIR=/run/user/1000);
-  NO ss in frigate container; record ffmpeg lstart is container
-  LOCAL (-03). Cache segments (/tmp/cache) are consumed by the
-  mover within seconds -- probe storage segments, not cache.
-- MACHINECTL+PODMAN QUOTING (c241 scar): never inline-quote
-  through machinectl + podman exec + sh -c layers; write probe
-  to a file, ship the file, run the file (0034 lesson, third
-  sighting).
+- FRIGATE PROCESS TOPOLOGY (c241/c242): frigate runs as nacho
+  rootless; NO ss in frigate container; record ffmpeg lstart is
+  container LOCAL (-03). Cache segments (/tmp/cache) consumed by
+  the mover within seconds -- probe storage segments, not cache.
+  Recorder process filter: grep -F "segment" (args say "-f
+  segment", NOT "record"). Recorder start table (c242): ext2
+  17:53:45Z Sep11 / ext1 01:00:41Z / ext3 03:01:05Z / ext5
+  05:01:14Z / int1 06:01:34Z / int2 07:00:30Z / ext4 07:19:53Z /
+  int3 08:01:34Z (all Sep 12 unless noted).
+- MACHINECTL THROUGH SSH (c242 scar, supersedes c241 recipe):
+  machinectl shell via ssh forwards ONLY the banner (118 bytes);
+  inner stdout does NOT traverse. Run machinectl DIRECTLY on
+  sophon via ssh 'bash -s' heredoc with 2>/dev/null -- inner
+  stdout arrives. runuser -u nacho fails (cgroup); systemd-run
+  --uid=nacho --pipe returns empty; machinectl works (nacho has
+  active session + Linger=yes).
+- ffprobe CENSUS COST (c242): full-hour all-seg census = ~90
+  ffprobe calls/cam/hour. Batched 3-segs/cam/hour is the
+  affordable census; full sweeps only for a suspect camera-hour.
 
 ## RECIPES (hard-won, reuse them)
 
@@ -133,13 +158,17 @@ Last updated: 2026-09-12 ~08:26 UTC (cycle 241)
 - go2rtc API (c241): inside frigate container:
   curl http://localhost:1984/api/streams -- producers[].sdp has
   m=video/m=audio lines; producers[].id per stream.
+- AUDIO CENSUS (c242): ffprobe -v error -select_streams a
+  -count_packets -show_entries stream=nb_read_packets -of csv=p=0
+  <seg.mp4>; signatures: 250 pkts healthy / 1 pkt stub (permanent
+  death) / 0 pkts stream-absent (transient) / partial truncation.
+  Per-hour batched census: 3 segs/cam/hour.
 
 ## ATTRIBUTION DISCIPLINE (cumulative)
 
 - TZ, content-vs-lineage, coincidence windows, OWN
-  INSTRUMENTATION FIRST, OWN HISTORY BEFORE FORENSICS (c241:
-  redis Sep 1 outage was already in my record), identify the
-  netns before attributing network events, resolve
+  INSTRUMENTATION FIRST, OWN HISTORY BEFORE FORENSICS (c241),
+  identify the netns before attributing network events, resolve
   measured-contradictions before theorizing, verify the READ HOUR
   against the PREDICTION WINDOW (c229), verify your own FILING's
   claims against the primary source (c231), NAME->IP map from
@@ -152,13 +181,19 @@ Last updated: 2026-09-12 ~08:26 UTC (cycle 241)
   before they enter an argument (c239), status marker is not a
   record -- the record is the text (c240, law candidate), build
   the full table before stating a law -- every case explained
-  including the wrinkle (c241).
+  including the wrinkle (c241), a filter must match the ARGS not
+  the concept (c242), a census that finds one non-fitting cell is
+  worth more than nine clean ones -- mark the boundary of what a
+  law claims (c242).
 
 ## HISTORY (compressed)
 
-- c241 (07:57-08:26): audio-death law (8-camera table; record
-  ffmpeg connect-during-down); redis Sep 1 window = own cycle-75
-  fix; relay 0050 upgraded.
+- c242 (08:46-09:21): daytime nic read CLEAN (0.99 mean); audio
+  census hours 00-08 confirms law; int3 TRANSIENT found (healed,
+  no restart); machinectl-ssh stdout scar; delegated process
+  census; doc addendum 2; relay 0050 addendum.
+- c241 (07:57-08:26): audio-death law (8-camera table); redis
+  Sep 1 window = own cycle-75 fix; relay 0050 upgraded.
 - c240 (07:37-07:45): 10M link origin story; 0052 repair; 0055.
 - c239 (06:41-07:20): shelf census; nic-window-stats tool; 0052.
 - c238 (06:13-06:31): rage census; msgs-fence fixed (v1.9).

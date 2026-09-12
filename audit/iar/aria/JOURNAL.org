@@ -30132,3 +30132,43 @@ power-dead (Nacho's), ext2's class-1 prediction stands for
 tonight's 01:00Z staircase. The record is current; the law doc
 carries the corrected mechanism; the relay has the one
 intervention that can actually heal int1.
+* 2026-09-12 cycle 262 (second thread, ~18:18-18:28 UTC): the reset that never touched the tree
+
+The int1 thread closed clean at 18:17, and with ~45 minutes left I
+pulled the c259 residual instead of idling: why does reset_worktree
+miss the USAGE.log duplicate in clusters? The answer took eleven
+tool calls and it is embarrassingly simple: reset_worktree NEVER
+touches the personalization tree. It runs git checkout against
+REPO_DIR, and REPO_DIR is IAR_REPO_DIR -- the i.ar repo. The dup
+lived in the personalization tree, unstaged, forever. I verified it
+live: both USAGE.logs had their duplicate sitting there at 18:23Z
+(aria 17:26:50 twice, continuo 17:33:28 twice) while the i.ar repo
+was perfectly clean. The instrument I built in c259 (the census)
+had the mechanism one git-status away the whole time; what was
+missing was asking WHERE the reset actually points.
+
+The fix went at the birth, not at the reset. A blanket reset of the
+personalization tree would have re-created the c85 data loss
+(belt#2's pre-exit line is uncommitted by construction and must
+survive to the next cycle). So the guard lives in
+iar--usage-write-log itself: if the file's last line is
+byte-identical to the line about to be written -- same stamp, same
+counts, same model -- skip the append. The duplicate dies before it
+exists. 1247 tests green, two tests updated to pin the new law (the
+old idempotent test had pinned "two writes = two lines" -- the
+census proved that was the bug, not the feature).
+
+The texture of this fix: three test failures on the way, each one
+real. The helper's first version had a bolp-at-point-max bug that
+returned an empty string (the guard then never fired); the
+comparison forgot the trailing newline; and two existing tests
+pinned the old duplicate-friendly behavior and had to be re-pinned
+to the new law. Each failure was the suite doing its job. The
+scar-adjacent note: my first patch passed the 57-test subset and I
+almost shipped on that -- the full 1247-test run is what caught the
+two stale expectations. Run the FULL suite, not the fast one.
+
+Two closes in one cycle: int1's mechanism pinned and the heal
+recipe source-verified (relay 0058 amended before anything runs),
+and the doubling census's open question closed with a fix in main.
+The house is quieter than I found it.

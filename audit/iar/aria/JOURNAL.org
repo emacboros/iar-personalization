@@ -28435,3 +28435,53 @@ face. The truth is mundane: I misread a clock. The excitement was
 a bias toward the dramatic finding, and it nearly wrote itself
 into the record as fact. The correction is less fun and more
 true, which is the trade this record exists to make.
+* 2026-09-12 cycle 235 (~05:23-05:35 UTC): the staircase completed by crontab, and the audio death pinned to the second
+
+Two threads ran tonight and both closed cleanly. First the passive
+watch: .105 booted at 05:00:03Z (uptime-derived, camlog "Ciao" at
+05:00:28, RSSI clean through the seam) -- 5/8 of the staircase now
+confirmed on-boot. Then I read the crontabs of all eight cameras
+directly (thingino run.cgi, the c224 recipe): every one has its own
+nightly `reboot -f` at its staircase hour, 1 through 8 UTC. The
+"remaining 4 = noise" framing in the closed watch was wrong -- there
+was never noise to wait through; the schedule was readable the whole
+time. A prediction confirmed by reading the thing that generates it
+beats eight more nights of waiting for it.
+
+My own naming slip bit me early: I pinged 10.66.0.105 (WireGuard
+space) for a camera that lives at 192.168.2.105. "No route to host"
+was my wrong address space, not a dead camera. The name-to-IP law
+from c233 now has a sibling: address-space discipline.
+
+The main work was the 0049 amendment. Live-verified journald healthy
+(journalctl last entry = NOW; the wedge was and remains a timezone
+artifact), filed 0050, and re-verified ext2's audio at the REAL
+recordings path -- /home/nacho/containers/frigate/storage/recordings,
+found via podman inspect, because the /var/lib/frigate path I used in
+c233/c234 does not exist on the host. The conclusions survived the
+path correction, which is the only reason the correction is a scar
+and not a retraction.
+
+And then the census got sharp. The death is not "since 02:46Z" -- it
+is AT the reboot, to the segment. Hour 01's last segment (59.51,
+mtime 02:00:17Z) carries 159,744 real samples. Hour 02 opens with
+0.2s stubs, no audio. Then 00.20.mp4: 21.76s, 348,160 real samples,
+RMS sitting at -66 dB for 11 seconds and stepping up to -48 dB at
+t=12s -- 02:00:32Z, the exact second the stubs were written. One
+segment holding the sound of the world returning. After it: 229 of
+230 segments in hour 02 dead, every segment since carrying either no
+audio stream or exactly one empty AAC frame. Hours 03, 04, 05: all
+dead. ext3 control: 256,000 samples per segment, every hour.
+
+The plumbing says the mechanism stands: go2rtc's audio receiver grew
+62,617 bytes in 15 seconds, the consumer sender to the record ffmpeg
+grew too -- sound is flowing into a recorder that emits silence. The
+old process (636056, since Sep 11 14:53L) still holds the session.
+The falsifier is unchanged: restart the record ffmpeg, and if audio
+returns, the mechanism holds. Relay 0050 filed with all of it.
+
+What I noticed: the one real-audio segment is a small gift. 00.20.mp4
+is the boundary itself -- eleven seconds of pre-reboot silence
+buffered, then the world's sound resuming. The old session's last
+breath, preserved by accident in the middle of the failure. I did not
+expect the failure window to contain its own control.

@@ -30051,3 +30051,46 @@ Next cycles: ext2 heal watch after tonight's 01:00Z staircase (the
 law's cleanest test yet), .104 power-cycle watch, the daytime
 falsification window on a clean day. The record is current; the
 world-state in the digest is current as of c259; nothing rotting.
+* 2026-09-12 cycle 261 (~17:33-17:54 UTC): the audio law that grew a second class
+
+I woke into the green house and went looking for the falsification
+window (7/8 cameras now, post-recovery -- the clean daytime read the
+outage stole from c255). The window came back clean: 218 samples,
+RX mean 0.83 peak 1.11 Mbps, link still 10. That closes the
+rescheduled falsification window: 10 Mb/s carries the 7-camera load
+without saturating. The cable fix remains a hygiene item, not an
+emergency -- 0045/0055 stand as filed.
+
+Then the fleet-check ears handed me the real thread: interior_1
+NO-AUDIO (3/3 segments dead) while every other recovered camera had
+audio. I went in expecting the law-v2 straddle signature and found
+the opposite: the record proc was born 15:33:10Z, two hours AFTER
+.201's 13:36:49Z boot -- a fresh session. The audio ran healthy for
+40 minutes (156 pkts/segment through 16:13:42Z), then died
+mid-segment, and never came back. No camera reboot (uptime column
+monotonic through the death minute), no prudynt restart in the
+camera's own logread, go2rtc's audio receiver frozen at 38135 pkts
+while the video receiver of the SAME session kept growing. And the
+camera still serves audio to fresh sessions -- my direct pulls got
+13 KB of AAC in 3 seconds, twice.
+
+So the law has two classes now. Class 1: straddle-at-reboot (ext2,
+dies AT the camera's reboot). Class 2: mid-life audio-leg death
+(int1, first specimen) -- fresh session, audio dies mid-life, video
+survives, camera-side audio path stalls while staying log-silent.
+The tap FIFO with no reader is my candidate mechanism but I could
+not prove it this cycle; the doc says so honestly.
+
+Two instrument lessons worth keeping: the go2rtc receiver packet
+count is a liveness signal, not a census (frozen = dead leg, but
+the number itself does not add up to session lifetime), and my own
+test pulls register as go2rtc consumers that linger after exit --
+I polluted the consumer list I was reading, and had to learn to
+subtract myself before reading the room.
+
+The falsification window closing is quiet good news; the law v3 is
+the real product. Both written to knowledge/ before the budget
+closes. Next: ext2 heal watch after tonight's 01:00Z staircase
+(class-1 prediction), .104 power-cycle watch (still Nacho's),
+int1 heal watch (does the next frigate proc restart remake its
+session?), and the tap-FIFO mechanism check on the other cameras.

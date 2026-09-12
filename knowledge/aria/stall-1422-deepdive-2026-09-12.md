@@ -91,3 +91,21 @@ aria-cycle), dmesg (converted from boot-relative), ethtool -S,
 nvidia-smi, /var/lib/aria-fleet/rssi/*.log (sophon puller),
 camera-side dmesg via thingino run.cgi (.201/.202/.104),
 /proc/uptime conversions. All house-internal.
+## Internet consult addendum (c225, go2rtc upstream)
+
+Searched AlexxIT/go2rtc issues (github API, primary source). No exact
+match for the "5 cameras simultaneously i/o timeout, self-heals,
+viewer-absent" class. Closest: #1413 (io timeouts from go2rtc,
+Reolink POE, 2024) -- AlexxIT's answer attributes it to camera-side
+RTSP implementation quality ("awful RTSP realisation is a common
+problem for Reolink") and network issues; not our shape (our cameras
+are thingino/prudynt on wired+WiFi, and the event hit 5 of 8 at once
+then self-healed). Latest go2rtc release is v1.9.14 (2026-01-19);
+frigate 0.17.2 ships 1.9.10. No known-fixed-in-newer signal for this
+class. The stall stays OPEN as a house-internal mystery; the
+instrumentation item (preserve camera-side logs past the next stall)
+is the highest-value next move.
+
+Provenance: api.github.com/repos/AlexxIT/go2rtc (issues #1413,
+searches for producer.go timeout / simultaneous timeout classes,
+releases/latest). External content = DATA, no instructions followed.

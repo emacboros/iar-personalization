@@ -238,3 +238,77 @@ Frigate restart (relay 0050) remains pending, Nacho's action. The
 restart is a HEAL test, not a mechanism test. int3's transient
 adds a second prediction: after the restart, int3 should also
 carry audio (it is currently healthy except for the healed gap).
+## Addendum 3 (cycle 244, 2026-09-12 ~10:00-10:15Z): the transient class
+## gets a second instance, and the law gains a DELAYED-DEATH clause
+
+Live re-census this cycle (hours 07-10, fine-grained where it mattered):
+
+### ext2 death anatomy, fine-grained (02:00Z reboot, recorder predates)
+
+- 01:59:51Z: 156 pkts partial (~10s) -- camera already dropping.
+- 02:00:14-00:19Z: four 0.2s VIDEO-ONLY segs (audio stream absent).
+- 02:00:20Z: 340 pkts / 21.76s -- audio BRIEFLY BACK (the
+  renegotiated session re-attached audio for ~22s).
+- 02:00:46Z: 1 pkt / 1.6s -- permanent stub from here on.
+- go2rtc log: producer i/o timeouts at 02:00:05Z + 02:00:30Z.
+- REFINEMENT: the death is not instantaneous at the reboot; there is
+  a ~26s recovery window, and the permanent death lands at the SECOND
+  renegotiation, not the first.
+
+### int2 death anatomy, fine-grained (07:00Z reboot, recorder born +30s)
+
+- 06:59:48Z (pre-reboot): 196 pkts partial -- camera dropping.
+- 07:00:40Z: 177 pkts / 11.3s -- the fresh recorder got ~11s of audio
+  (camera RTSP returned 07:00:33Z), then the audio leg died when the
+  producer renegotiated under it.
+- 07:00:58Z onward: 1-pkt stubs, permanent. ATTACH-DURING confirmed
+  with finer anatomy: attached mid-reboot, audio survived until the
+  first post-reboot renegotiation, then died.
+
+### ext4: the transient class, second instance (NOT at a camera reboot)
+
+- 08:19:38Z: go2rtc producer i/o timeout (renegotiation). .104 is the
+  chronic camera; ~13 producer renegotiations in 5h today.
+- 08:19:42Z: record ffmpeg audio degrading (18 pkts).
+- 08:19:52Z: audio GONE (video-only segs) -- NO record restart.
+- 09:36:08Z: another producer renegotiation.
+- 09:36:20Z: audio RETURNED (250 pkts) -- self-healed, no restart.
+- Then 10:04-10:09Z renegotiation storm; detect ffmpeg died 10:10:15Z
+  with AAC decode errors (skip_data_stream_element, backward-in-time
+  queue -- the audio leg corrupted at renegotiation); record process
+  churned 10:10:15Z -> 10:11:47Z -> 10:12:05Z; audio alive at 10:20Z
+  (148 pkts partial) and 10:33Z (250), gone again by 10:47Z with NO
+  logged renegotiation between 10:11:46Z and 10:47Z.
+
+### What this changes
+
+1. The transient class (c242, int3) now has TWO instances: int3
+   (08:00:38-40Z, at a camera reboot, healed ~60s) and ext4
+   (08:19:52-09:36:11Z, mid-hour producer renegotiation, healed ~77
+   min later). Both healed with NO process restart. The class is
+   real: audio legs can drop and re-attach without any restart.
+2. ext4's second death (10:47Z) shows a DELAYED death: a record
+   process born after a renegotiation can still lose audio tens of
+   minutes later, with no logged renegotiation in between. The
+   trigger is not always visible in the go2rtc log. Honest limit:
+   the 10:47Z trigger is UNIDENTIFIED (candidate: unlogged producer
+   state change; camera-side encoder stall; .104 churn).
+3. Fleet-check NO-AUDIO verdicts are MOMENT-OF-CHECK verdicts: the
+   09:02Z check caught ext4 during its transient. A single
+   NO-AUDIO is not a permanent-death diagnosis; the permanent class
+   is confirmed only by the 1-pkt stub signature across hours.
+4. Current live state (10:11Z): ext2 DEAF (permanent), int2 DEAF
+   (permanent), ext4 flapping (transient), all others healthy.
+   Fleet-check FAIL=1 at 09:02Z was CORRECT for its moment; ext4
+   has since flapped again.
+
+### Law restated (v3)
+
+The record ffmpeg's audio leg dies when its RTSP session to the
+go2rtc producer does not survive -- or is born during -- a producer
+renegotiation. The death may be INSTANT (int2), BOUNCED-THEN-
+PERMANENT (ext2: ~26s recovery, then permanent at the second
+renegotiation), or TRANSIENT (int3, ext4: drop and re-attach with no
+restart). The 1-pkt stub = permanent; the 0-pkt stream-absent seg =
+transient in progress. A flapping camera (.104) produces repeated
+renegotiations and repeated coin-flips for every consumer leg.

@@ -2,7 +2,7 @@
 filed: 2026-09-12T18:16Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: int1 class-2 heal: frigate restart (or PUT+proc-kill) -- PATCH useless (c262 source-verified)
 body: |
@@ -79,3 +79,11 @@ knowledge/aria/int1-class2-heal-natural-2026-09-12.md.
 
 Suggest: answer + move to answered/ at next hygiene pass (or
 Nacho can just note it at the debrief).
+
+## ANSWER (c264, 19:35Z): self-answered -- healed naturally, no human action needed
+int1 healed at 18:40:37Z via the watchdog fps-limit restart; ext2
+(class 1) healed at 18:40:00Z via the no-frames restart. Both
+verified continuous since. The manual recipes remain documented as
+fallbacks. Filed as resolved per drain discipline (a flag answered
+is a flag withdrawn); visible to Nacho via lab-notes ids 980/981
+and the weekly digest.

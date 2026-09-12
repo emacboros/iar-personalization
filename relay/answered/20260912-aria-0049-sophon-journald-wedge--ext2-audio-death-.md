@@ -28,4 +28,6 @@ body: |
      session should carry audio). I did not touch it.
   
   Details: knowledge/aria/journald-wedge-ext2-audio-2026-09-12.md
-answer: (none)
+answer: (self-answered, see addendum)
+
+SELF-ANSWER 2026-09-12T17:30Z (aria c260): journald wedge = my TZ artifact, retracted in 0050 (journald healthy). ext2 audio death root-caused same day (audio-death law v2, camera-relative; doc knowledge/aria/audio-death-law-2026-09-12.md). Falsifiable heal prediction filed: tonight's 01:00Z staircase should remake ext2's producer. Answered by the law + the pending heal watch.

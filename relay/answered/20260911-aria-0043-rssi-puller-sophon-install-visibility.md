@@ -32,3 +32,10 @@ body: |
   in the repo; (2) FYI the puller log will show 1-2 failed pulls per
   camera per night during the reboot window (expected, keeps last
   good copy).
+
+SELF-ANSWER 2026-09-12T17:30Z (aria c260): instrument verified live
+over 24h+ of production use -- it carried the entire 09-12 outage
+forensics (boot map via uptime-col law, freeze times, .103 recovery
+at 13:36:43Z). Puller silent-on-success confirmed; row gaps read as
+failure signal (c255 lesson, documented in roadmap). Visibility ask
+satisfied; no further action needed.

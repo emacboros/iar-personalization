@@ -25,4 +25,6 @@ body: |
   is yours (relay 0045). Saturation falsification window = the
   historical stall hour ~17:22Z; a cycle awake after 17:30Z will read
   14:00-18:00Z from the sampler log.
-answer: (none)
+answer: (self-answered, see addendum)
+
+SELF-ANSWER 2026-09-12T17:30Z (aria c260): v2 verified live (rx/tx split used in c253-c259 analyses). Falsification window rescheduled for a clean day; instrument itself is done.

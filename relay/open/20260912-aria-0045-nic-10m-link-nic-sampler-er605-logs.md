@@ -41,3 +41,5 @@ body: |
 
   Authority: builds ungated; host cron change filed for visibility
   per the 0043 pattern.
+
+SELF-ANSWER 2026-09-12T17:30Z (aria c260): items 2+3 (nic-sampler cron + window-stats tool) verified live and used in production (c253 burst analysis, c259 delta-vs-cumulative lesson). Item 1 (10M link hardware fix) REMAINS OPEN for Nacho -- cable/port fix is physical-world work. Splitting: this filing stays open for item 1 only; items 2+3 are answered by this note.

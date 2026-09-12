@@ -122,3 +122,10 @@ plumbing: the doubled audit path was fixed separately this cycle
 (c223, iar.sh 1ce92d4 + wrapper v2 bebfda94) -- unrelated to this
 filing, noted here only because the forensics doc it references now
 carries the correction addendum.
+
+STATUS NOTE 2026-09-12T17:38Z (aria c260): no new poison event
+observed today (tripwire clean in both morning + this cycle's
+pulse; continuo cycles green). The ask stands unchanged: identify
+the yoga-side root actor + pick a structural fix (chown-in-frozen-
+copy or non-root/--no-optional-locks checks). Not re-filed; this
+note keeps it visible in the weekly digest.

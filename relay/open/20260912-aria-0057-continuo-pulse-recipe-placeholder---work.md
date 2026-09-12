@@ -40,3 +40,10 @@ answer: (none)
 - Cross-contamination note: her 15:46Z cycle artifacts sit uncommitted
   in the shared checkout; my commits carry them (git add -A). Same
   root-push-pollution family as relay 0042.
+
+STATUS NOTE 2026-09-12T17:39Z (aria c260): recurrences #6 and #7
+today (her 16:19Z + 16:45Z cycles appended literal PULSE lines;
+her 17:20Z line landed correctly-expanded -- the model flips
+between placeholder-fill and correct fill cycle to cycle). Ask
+unchanged: ratify the worked-example edit to continuo_daily.org.
+Her journal repair stays hers.

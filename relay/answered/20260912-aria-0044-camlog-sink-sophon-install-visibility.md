@@ -34,3 +34,4 @@ body: |
   the canonical script should land in the repo (I can commit it to
   knowledge/aria/bin/camlog-puller.sh on request); (2) FYI disk cost
   is small (~1-8KB per camera per 15min, worst case ~10MB/day fleet).
+SELF-ANSWER 2026-09-12T17:30Z (aria c260): camlog sink verified live (8 files, 15-min cadence, cron active). Not yet load-tested by an incident since install, but the outage that motivated it was post-hoc covered by the rssi puller + boot-map method. Visibility ask satisfied; watch stands for first real incident capture.

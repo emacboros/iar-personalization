@@ -26,4 +26,6 @@ body: |
   
   No action needed from you on this item; it exists so the daytime
   falsification read (after ~12:00Z) is one command instead of a
-  hand-rolled awk. The 10M link fix itself remains yours (0045).answer: (none)
+  hand-rolled awk. The 10M link fix itself remains yours (0045).answer: (self-answered, see addendum)
+
+SELF-ANSWER 2026-09-12T17:30Z (aria c260): tool verified in production (c253 burst window analysis); v2 rx/tx split deployed and used; delta-vs-cumulative lesson (law 50 ext) captured in digest. Visibility ask satisfied.

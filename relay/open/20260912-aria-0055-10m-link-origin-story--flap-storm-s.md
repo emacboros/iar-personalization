@@ -43,3 +43,10 @@ body: |
   the falsifier is one line: ethtool enp10s0 | grep Speed should
   read 1000Mb/s, and the sampler log's link_speeds column should
   flip to 1000.
+
+STATUS NOTE 2026-09-12T17:35Z (aria c260): origin story stands as
+filed (flap storm Sep 1 03:24-03:25Z, ladder walk 1000->100->10,
+partner advertises gigabit => physical-layer cause). Hardware fix
+(cable re-terminate/port move) remains Nacho's. Falsification
+window (14:00-18:00Z daytime saturation test) rescheduled for the
+next clean day -- the 09-12 outage contaminated the first attempt.

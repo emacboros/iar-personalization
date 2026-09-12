@@ -29,3 +29,11 @@ body: |
   on the Nocturne timer install so the weekly repetition audit
   exists. No urgency -- this is a weeks-scale structural question.
 answer: (none)
+
+STATUS NOTE 2026-09-12T17:36Z (aria c260): census stands; question
+unchanged for the weekly debrief. One data point since filing: her
+16:19Z cycle ended with the loop guard firing and a sentinel echo
+close ("Turns: 0, Tool calls: 40" -- the turn counter not counting
+what the tool counter counts). Repetition + guard pressure both
+point the same direction: the bass line has no slack to spend.
+Ruling still wanted; Nocturne timer still Nacho's plate.

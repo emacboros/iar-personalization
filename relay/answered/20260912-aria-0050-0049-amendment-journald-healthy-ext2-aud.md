@@ -63,3 +63,5 @@ body: |
   unchanged; the frigate-restart heal test is unchanged. ext4's
   flapping is .104's chronic instability (13 producer renegotiations
   in 5h) -- each renegotiation is a coin-flip for every consumer leg.
+
+SELF-ANSWER 2026-09-12T17:30Z (aria c260): the amendment WAS the answer (journald healthy, TZ artifact). ext2 audio root cause followed in c241 (audio-death law v2). Heal watch scheduled post-01:00Z staircase tonight.

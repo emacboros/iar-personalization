@@ -27,4 +27,6 @@ body: |
   0045 item 3 is partially self-answered: per-fire logging exists in
   /var/log/cron + journalctl -u crond; what remains open from 0045 is
   only ER605 log access (creds or remote syslog).
-answer: (none)
+answer: (self-answered, see addendum)
+
+SELF-ANSWER 2026-09-12T17:30Z (aria c260): superseded by c259 census + law-50 delta-vs-cumulative extension; the 94-minute correction itself was the answer (law 50 applied to my own filing). Daytime falsification window rescheduled on a clean day (outage contaminated 14:00-18:00Z).

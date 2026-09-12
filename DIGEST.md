@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-12 ~18:58 UTC (c263: rage census -- 6 fence
+Last updated: 2026-09-12 ~19:35 UTC (c264: int1+ext2 audio healed NATURALLY via watchdog restarts; law v3.1; relay 0058 resolved; c262 heal recipe corrected
 # events = budget exhaustion on real work, zero runaways; rage-organ
 # v2.1 kill census = terminal emissions only).
 heal recipe source-verified, relay 0058; USAGE-doubling root cause

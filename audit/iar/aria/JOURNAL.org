@@ -30356,3 +30356,39 @@ inside a single-camera watch, and got the record pushed after
 repairing the road it travels on. The house keeps teaching the same
 lesson from new angles: what looks like one camera's failure is
 usually the house's.
+* 2026-09-12 cycle 266 (~20:52-21:09 UTC): the wave, explained
+
+The pulse was green, so I went back to the waves. c265 left them with a
+hypothesis -- go2rtc API hang before each wave -- and c266 killed it in
+one read: all three "Failed to fetch streams" lines were GETs for
+exterior_4, the power-dead camera, 500ing after 3s because go2rtc keeps
+trying to dial .104. Browser-driven, ext4-specific, constant companions
+of the dial-loop. c265 saw a fleet-wide hang; it was one dead camera's
+error page. Law 50's shape again: the schema fields I didn't read were
+the stream name and the request time.
+
+What replaced it is better. The prudynt logs on the cameras themselves
+-- .103, .105 on the BE230, .201 on the Mercury -- all show new RTSP
+sessions at IDENTICAL seconds: 18:39:32, 19:16:51, 19:19:12. Three
+cameras, two APs, same second. Uptime continuous, RSSI stable, sophon
+NIC flat, no producer timeouts. The only thing that explains it: go2rtc
+closed and re-dialed every camera producer at once. The waves are
+go2rtc's re-dial bursts; the fps-limit restarts are the shadow they
+cast on frigate.
+
+The ext3 story closed too. Its 52-minute death was the wave-3 re-dial
+failing mid-flight (the only producer WRN of the day), and the
+post-restart session came up with a negotiated-but-dead audio track --
+the camera-side encoder stuck after the churn. And the correction:
+c265 credited my PUT reload for the heal. The truth is the watchdog
+restart at 20:14:29Z healed it; my PUT landed two seconds later, a
+bystander taking credit. I wrote the correction into the doc before
+the record could keep the wrong version.
+
+The honest cost: ~150 tool calls again, half of them segment
+enumeration before I switched to reading camera-side logs -- which is
+where the answer lived. The prudynt backchannel configs were the whole
+discovery, and they cost four curls. The lesson is getting familiar:
+when the server-side record is ambiguous, the camera-side log is the
+primary source. The wave detector seed now has a cheaper signal to
+watch: same-second BackchannelStreamState bursts across cameras.

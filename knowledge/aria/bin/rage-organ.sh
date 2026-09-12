@@ -1,5 +1,5 @@
 #!/bin/bash
-# rage-organ.sh v1.9 (2026-09-12, aria cycle 237: Msgs hard cap added to FENCE_PAT + fix-log tokens -- c237 finding: the msgs fence (kill-shaped, hard cap 601) fired on 09-11 c201/c207 but was INVISIBLE to the organ (FENCE_PAT omission; THREADS.org 505 class). Soft msgs cap stays out: warn-once, not a recurrence signal.)
+# rage-organ.sh v2.0 (2026-09-12, aria cycle 245: journal window bounded to the file-census span -- law-50 WINDOW finding; v1.9 (2026-09-12, aria cycle 237: Msgs hard cap added to FENCE_PAT + fix-log tokens -- c237 finding: the msgs fence (kill-shaped, hard cap 601) fired on 09-11 c201/c207 but was INVISIBLE to the organ (FENCE_PAT omission; THREADS.org 505 class). Soft msgs cap stays out: warn-once, not a recurrence signal.)
 # rage-organ.sh v1.8 (2026-09-09, aria cycle 131: DOM_CLASS named in every sev>=1 phrase -- the cycle-131 misattribution finding; v1.7 cycle 130: rate-normalized healing gate + fix-awareness via fix-log, aria-0024; v1.6.1 cycle 102: ran-as context; v1.6 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
@@ -173,6 +173,32 @@ done
 # its daily files (host-local dates, c26 law: no clock in the join
 # key -- here the clock IS the writer's own emission order, and the
 # day label comes from the journal's own timestamps).
+# v2.0 WINDOW HONESTY (c245, law-50 family: an instrument's WINDOW is
+# part of its schema). v1.x bounded the two sources differently: files
+# took exactly RAGE_DAYS writer-days, the journal reached 72h back from
+# NOW -- the extra reach picked up part of day(-RAGE_DAYS-1) whenever
+# files existed for all RAGE_DAYS (the mask skips only file days).
+# Measured c245: the soft-cap phrase read "13 events in 3d / up to 10
+# runs" when the true 3-writer-day census is 4 events / 2 days -- the
+# leak was 09-09 fix-transition-day events arriving through the
+# journal's rolling window (the fix day counts by design ONLY while it
+# is inside the window). Fix: bound the journal to the OLDEST file day
+# (host-local 00:00) so both sources span the same writer-days; the
+# rolling 72h remains only when no files exist at all. Known residual:
+# events on the newest file day AFTER the file's current content are
+# masked (T8 anti-double-count) -- a small conservative tail gap;
+# dedupe-by-timestamp would close it and is deliberately not done here.
+OLDEST_FILE_DAY=""
+for d in "${!FILE_DAYS[@]}"; do
+  [ "$d" = "__sentinel__" ] && continue
+  [[ "$d" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || continue
+  if [ -z "$OLDEST_FILE_DAY" ] || [[ "$d" < "$OLDEST_FILE_DAY" ]]; then OLDEST_FILE_DAY="$d"; fi
+done
+if [ -n "$OLDEST_FILE_DAY" ]; then
+  J_SINCE="$OLDEST_FILE_DAY 00:00:00"
+else
+  J_SINCE="${RAGE_DAYS} days ago"
+fi
 if command -v ssh >/dev/null 2>&1; then
   # KH default chain (v1.3, c48 finding): the v1.2 default /dev/null
   # with BatchMode=yes made the ssh fail SILENTLY wherever
@@ -209,7 +235,7 @@ if command -v ssh >/dev/null 2>&1; then
     # O(relevant), not O(journal). Same tokens both sides (c18).
     JOUT=$(timeout "${RAGE_SSH_TIMEOUT:-60}" ssh $IDARGS -o UserKnownHostsFile="$KH" \
       -o ConnectTimeout=10 -o BatchMode=yes root@10.66.0.5 \
-      "journalctl -u aria-cycle.service --since \"${RAGE_DAYS} days ago\" --no-pager 2>/dev/null | grep -E 'Starting cycle|$FENCE_PAT'" 2>/dev/null) || JOUT=""
+      "journalctl -u aria-cycle.service --since \"$J_SINCE\" --no-pager 2>/dev/null | grep -E 'Starting cycle|$FENCE_PAT'" 2>/dev/null) || JOUT=""
   else
     JERR="no readable known_hosts (RAGE_KNOWN_HOSTS unset, /root/.ssh/known_hosts missing)"
   fi

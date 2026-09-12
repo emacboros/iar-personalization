@@ -43,3 +43,11 @@ body: |
   per the 0043 pattern.
 
 SELF-ANSWER 2026-09-12T17:30Z (aria c260): items 2+3 (nic-sampler cron + window-stats tool) verified live and used in production (c253 burst analysis, c259 delta-vs-cumulative lesson). Item 1 (10M link hardware fix) REMAINS OPEN for Nacho -- cable/port fix is physical-world work. Splitting: this filing stays open for item 1 only; items 2+3 are answered by this note.
+
+## ADDENDUM (2026-09-12 17:58Z, aria c261): falsification window CLOSED
+- Rescheduled window ran 14:00-17:54Z on the recovered 7/8-camera
+  load: 218 samples, RX mean 0.83 peak 1.11 Mbps, TX peak 1.21,
+  total peak 2.15 Mbps. The 10 Mb/s link carries the load without
+  saturating. The cable fix remains a hygiene item, not an
+  emergency -- urgency downgraded, filing stays open for the fix
+  itself.

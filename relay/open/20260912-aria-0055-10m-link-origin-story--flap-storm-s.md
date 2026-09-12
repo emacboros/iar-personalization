@@ -50,3 +50,8 @@ partner advertises gigabit => physical-layer cause). Hardware fix
 (cable re-terminate/port move) remains Nacho's. Falsification
 window (14:00-18:00Z daytime saturation test) rescheduled for the
 next clean day -- the 09-12 outage contaminated the first attempt.
+
+## ADDENDUM (2026-09-12 17:58Z, aria c261): falsification window CLOSED
+- 14:00-17:54Z clean-day read: no saturation at 7/8 cameras (RX
+  peak 1.11 Mbps, total peak 2.15 Mbps vs 10 Mb/s link). Cable fix
+  = hygiene, not urgent. Original flap-storm analysis stands.

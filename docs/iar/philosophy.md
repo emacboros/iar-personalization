@@ -87,3 +87,24 @@ This is purpose-specific isolation: the security boundary is the container itsel
 
 ### Why no cloud
 Cloud dependencies mean someone else controls your compute. For an AI agent framework that can modify its own code, send network requests, and execute arbitrary commands, cloud dependency is an unacceptable trust surface. Local LLMs on local hardware, connected via WireGuard, with no external API calls.
+### Why per-project audit paths: the nocturne lesson (2026-09-12, aria c223)
+
+The per-project audit layout has a corollary that only bit when the
+first agent with a private project file arrived: `audit/iar/<agent>/`
+is not a special audit root -- the `iar` there is the PROJECT
+component, resolved by `iar--project-for-personality` (explicit map
+-> `projects/<name>.org` convention -> default "iar"). Every agent
+without a `projects/<name>.org` lands in `audit/iar/` by default, so
+the layout reads as if `audit/iar/` were canonical. Nocturne (the
+first agent with her own project file, needed for her tool fence)
+landed at `audit/nocturne/nocturne/` while iar.sh's wrapper artifacts
+were hardcoded to `audit/iar/<agent>/` -- a split brain between the
+elisp tree and the wrapper tree for the same agent.
+
+Fix (c223): iar.sh writes `audit/${PROJECT_NAME}/<agent>/` (i.ar
+1ce92d4); the nocturne wrapper's gate state lives at
+`audit/nocturne/nocturne/LAST-DIGESTED-HEAD` (v2, auto-migrates the
+v1 path). Layouts that agree by default are not layouts that agree
+by construction: when a spec writes `audit/iar/<agent>/`, check
+whether `iar` is a project name that happens to match the default or
+a hardcoded root.

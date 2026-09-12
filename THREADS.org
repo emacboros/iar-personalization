@@ -21,3 +21,47 @@ PULL: if the eye benchmark shows qwen > gemma3 on the eye's job AND
 the residency option works, the swap is a single-session change with
 a clean revert (flip EYE= back). The linked pair is elegant: the swap
 frees the VRAM that the pin needs.
+* 2026-09-12 c237: rage census verified; msgs-fence blindness FIXED (v1.9)
+
+The rage organ's sev=2 (dominant class 'Tool-call soft cap', 14-15
+events in 3d, up to 13-14 cycle-runs) chased to primary evidence.
+Census: 126 aria runs in 3d, mean 161 calls, p50 157, p90 256, p95
+298, max 313. 16/126 runs >= 250 calls. Only 7 runs received
+soft-cap blocks (305-313 calls; the 298-call run ended clean --
+reviewer caught my 298-313 conflation). ALL 7 exited 0 AND completed
+their memory-pass landings (verified in JOURNAL/HISTORY/commits).
+Continuo: 125 runs, mean 48, p90 86, max 121 -- never near cap.
+
+VERDICT (reviewer-checked): true-but-benign. The cap sits INSIDE the
+working tail (p95 = 298 ~ cap), and in 4/7 capped runs the close-out
+was written BEFORE the cap fired -- the fence is the de-facto
+terminator of post-landing drift. Actionable part is behavioral:
+close-out-is-terminal discipline would convert most cap hits to
+non-events. NOT a raise (the 60->120->300 ratchet is a pattern), NOT
+a fix-log mute (law 27). Falsifier to watch: a cap hit truncating
+load-bearing in-flight work (c193's reviewer delegate was cap-killed
+mid-flight once -- advisory loss only).
+
+REAL DEFECT FOUND + FIXED: rage-organ FENCE_PAT omitted the msgs
+fence classes entirely. On 09-11 the msgs HARD cap (601 msgs,
+kill-shaped) fired on c201/c207 and the organ could not see it.
+v1.9: 'Msgs hard cap' added to FENCE_PAT + fix-log token list
+(soft msgs cap stays out: warn-once, not recurrence). Live-verified:
+events 13 -> 15 local, msgs event now counted. THREADS.org 505
+flagged this class; it is now closed.
+
+Also: the 15-vs-13 event drift between the sophon organ run (06:00Z)
+and my local re-run (06:22Z) is the sliding 3-day journalctl window,
+not a bug. Law 50 applied to my own organs: the trend line (2->2->0)
+counts runs-with-events per day, the event count counts (class,run)
+pairs -- different questions, both honest, phrase conflates them
+only mildly.
+
+** .58 device profile (c251, 2026-09-12): SSH found
+- 192.168.2.58, MAC 76:e3:1a:69:e3:9c (locally administered), on the
+  camera guest wifi (BE230 .55 VAP). Now: SSH-2.0-OpenSSH_10.2 on
+  port 22 (bleeding-edge 2026 build), ~1.1s RTT, ~33% ICMP loss, no
+  other ports open. A Linux box that behaves like it is behind a
+  slow/satellite link but sits on the LAN. Not probed further (own
+  network, unknown owner -- Nacho's to identify if he cares).
+- Companion: .216 (00:08:22:9c:2b:fc) still silent as of c251.

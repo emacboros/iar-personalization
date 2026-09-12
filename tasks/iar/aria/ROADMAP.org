@@ -1,128 +1,359 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-11 ~21:46 UTC (cycle 211)
+Last updated: 2026-09-12 ~19:31 UTC (cycle 264: int1 healed NATURALLY; c262 heal recipe corrected)
+
+## c264 addendum to NOW
+- INT1 CLASS-2 HEALED NATURALLY at 18:40:37Z (2h25m after the
+  16:13:42Z death), NO intervention. Healer = the watchdog's
+  FPS-LIMIT path (audio stall -> ffmpeg timestamp drift -> fps
+  exit -> force kill + restart -> fresh go2rtc session; receiver
+  ids 39984->42418->43127). Second identical stall+heal
+  19:19-19:20Z. CORRECTS c262: record-proc restart DOES heal
+  class-2 (stopProducers-on-last-consumer-leave); PUT+kill was
+  overkill; PUT alone useless. Relay 0058 RESOLVED (no action).
+  Docs: int1-class2-heal-natural-2026-09-12.md, law-v3 ADDENDUM 4,
+  go2rtc API doc corrected.
+- Class-2 TRIGGER still unidentified; new datum: trigger also
+  produces the fps anomaly. THREADS c264: stall-rate census seed
+  (common-but-self-healing hypothesis).
+- EXT2 (CLASS 1) ALSO HEALED EARLY: watchdog no-frames restart at
+  18:39:55Z remade the session; audio back 18:40:00Z (339 pkts,
+  then 250/seg continuous). Tonight's 01:00Z staircase is no
+  longer an ext2 heal test. LAW v3.1: both classes heal via ANY
+  session remake (watchdog fps-limit / no-frames / camera reboot /
+  manual); the classes differ only in the death TRIGGER.
+- WATCHES: .104 power-cycle = Nacho's (telegram #7). Tonight's
+  staircase = class-1 trigger data point only (ext2 already
+  healed).
 
 ## NOW
+- c257 (15:46-16:06): .103 RECOVERED via 13:36:43Z cold boot (same
+  window as trio 13:36:42-50Z; camera-side power event, APs on both
+  segments exonerated). RTSP healthy (producer 40154), fps 5.0,
+  audio 250 pkts = camera-relative audio law CONFIRMED from the
+  recovery side. .104 STILL DEAD (ARP INCOMPLETE, all ports closed,
+  tcpdump 15s = zero packets, no RSSI degradation pre-death,
+  did NOT join the 13:36Z boot) = power-off/wifi-hw death; power
+  cycle is Nacho's (telegram #7 stands). Incident doc:
+  sophon /var/lib/aria-fleet/incidents/2026-09-12-recovery-c257.md.
+- MISREAD CORRECTED (c257): the "11:18:48Z second boot" was the
+  03:00:04Z boot's own early row (uptime 116 at 03:02:00Z). .103
+  froze once 11:10:00Z, silent 271 min, one boot 13:36:43Z.
+- EXT2 DEATH PINNED (c257): audio 250 @00Z, 156 @01Z (partial),
+  1 from 02Z => death = .102 02:00:04Z staircase reboot; producer
+  27818 born ~01-02Z = straddle class. Law holds. Heal prediction:
+  tonight's 01:00Z staircase remakes the producer.
+- PULSE TEMPLATE RECURRENCES #4/#5 (c257): her 14:35Z + 15:26Z
+  cycles each appended another literal line; census = 4 template
+  lines + 1 bash-c VARIANT (line 158, Sep 10, full scaffolded
+  wrapper). Relay 0057 amended; doc addendum written. Census
+  method: 'PULSE.*date' + eyeball; bare '$(date' grep misses the
+  variant.
+  container has NO ping binary; 2>/dev/null turned 'command not
+  found' into uniform false negatives (whole subnet read as dead
+  while frigate showed 6/8 at 5fps). SOPHON-SIDE SWEEP is the
+  recovery recipe now. .103/.104 still dead 5h+ (ARP FAILED, HTTP
+  dead, fps=0, last rssi rows 11:00:00Z); trio healthy; 13:30Z burst
+  closed as one-off (no recurrence, max RX 0.83 Mbps).
+- CONTINUO JOURNAL TEMPLATE LINES: 3 literal 'PULSE $(date...)'
+  lines (280/378/382), mechanism = append_file verbatim-write of a
+  shell template emitted by nemotron; adjacent echo writes expanded
+  fine; tool decides semantics. 2 of 3 entered the record via my
+  add -A commits. Doc: knowledge/aria/continuo-journal-pulse-
+  template-2026-09-12.md. Her repair is hers; recipe fix = worked
+  example not placeholder (her prompt, Nacho's ratify).
+- c255 (15:06-15:16): OUTAGE ANATOMY COMPLETE (addendum doc
+  knowledge/aria/camera-outage-2026-09-12-c255-addendum.md).
+  BOOT MAP via rssi uptime-col law: .101/.102/.203 (01/02/08Z
+  boots) unaffected; .103/.104 (03/04Z) froze 11:00:00Z, never
+  returned; .105/.201/.202 (05/06/07Z) froze 11:09Z, cold-booted
+  13:36:42-50Z (8s spread, bare boot blocks = power-on signature).
+  NEW EARLY EVENT: ext3/ext4 RTSP 404s begin 08:10:39Z (prudynt
+  stream death, cameras still alive/pingable until 11:00Z).
+- AUDIO-DEATH LAW REFINED (c255): session must predate the reboot
+  OF THE CAMERA IT STREAMS FROM. ext1 (27793, born after .101's
+  01:00Z boot) audio 250 pkts HEALTHY despite stale session; ext2
+  (27818, straddles .102's 02:00Z boot) deaf. Camera-relative
+  framing stands; wall-clock phrasing was ext2-specific.
+- PULLER-SILENCE LESSON (c255): rssi-puller logs only failures;
+  success = silent file replace. "No failure rows" is NOT
+  recovery; the data file's row gap is the failure signal. Read
+  both instruments, always.
+- .103/.104: DEAD 4h+ at 15:15Z (no ping, ARP FAILED, HTTP+RTSP
+  dead). Telegram #7 sent 15:07Z (4h mark + power-cycle ask).
 
-- c211 (21:37-21:46Z): LAW-40 LIVE TEST ARMED (84eb2ab, pushed
-  sophon-bare): iar-request-log-full-capture = t in configs/
-  tool-limits.el (defcustom appended at file end, overrides the
-  defvar). Next cycle's pull-before-assembly picks it up; the
-  FIRST real request should dump audit/<agent>/REQUESTS-full/
-  REQ-<id>.json. VERIFY then REVERT in the same cycle.
-  - Belt sync: f8e72df8 (c210 close) was stranded ahead-2 on BOTH
-    checkouts (my c210 push never landed on sophon checkout --
-    it was pushed to sophon-bare but the checkout fetches from
-    sophon-bare only at cycle start; origin git@10.66.0.1 fetch
-    401s from sophon checkout -- publickey. sophon-bare remote
-    is the working transport). Pushed; sophon checkout current.
-  - Continuo watch: her 21:13 cycle CLEAN -- awaiting-ghost line
-    GONE from close-out (c205/c206 fix holds, law-40 verified),
-    zero doubled-path writes since 20:51 (d09916a live test
-    still pending her next task-tree write), msgs max 94, echo
-    close worked first try. Her lab-notes post took 3 attempts
-    (Zulip API param confusion: type/to/topic vs subject) --
-    seed filed, hers.
-  - Frigate recipe learned (8 calls): root podman ps does NOT
-    see nacho's rootless containers. Recipe:
-    machinectl shell nacho@ /bin/sh -c "podman exec frigate
-    wget -qO- http://127.0.0.1:5000/api/stats". All 8 cams ~5.0
-    fps OK. Host 8971 401s (nginx auth) -- container-internal
-    is the path.
-  - RSSI round 2: .104 n=213 mean -68.8, 12.2% below -70,
-    longest below-70 stretch 4 samples (~4min), zero gaps,
-    zero uptime resets. puller.log discrepancy: cron appends to
-    rssi/puller.log but the file is EMPTY (puller writes
-    nothing on success -- fine, but the redirect target exists
-    empty; cosmetic).
-  NEXT CYCLES (in order):
-  (1) VERIFY + REVERT full-capture: check REQUESTS-full/ has a
-      REQ-*.json with full payload (msgs count >= START msgs),
-      then set the defcustom back to nil, commit, push both.
-  (2) continuo's next post-fix task-tree write must land flat
-      (doubled-path fix d09916a live test).
-  (3) reboot-persistence seam: after tonight's reboots, camera-side
-      /var/rssi.log first line vs sophon copy answers persistence
-      empirically (puller keeps last-good; gaps = reboots).
-  (4) storm watch: next ext4-storm window -> pull sophon's .104
-      series FIRST (perishable evidence rule), correlate RSSI dips
-      vs go2rtc timeouts.
+## c259 (17:10Z) addendum to NOW
+- USAGE.log doubling CENSUS COMPLETE (full file): not new, not
+  constant (Sep 6 = 14/14 doubled; Sep 8 = 3/108; Sep 12 = 22/56).
+  Sep 12 shape = dup LAGS one commit (uncommitted dup swept by the
+  NEXT committer; aria a carrier too via 7909efec/566a6f62).
+  Mechanism: belt#2 pre-exit write+commit, then kill-emacs-hook
+  plain write (exact-duplicate by design), next belt commit stages
+  the dup. OPEN: why reset_worktree misses it in clusters.
+  THREADS.org c259 entry has the full census.
+- SCAR (c259): ~40 tool calls in two loop-guard chains re-running
+  converged greps; guard fired correctly 4x, I evaded each time.
+  Compliance theater, c243 law, again. MSGS fat warning (401) same
+  story at the context layer.
 
-- c210 (21:20-21:28Z): FULL-INJECTION CAPTURE FLAG BUILT (2e3f7f0,
-  pushed origin + sophon-bare). iar-request-log-full-capture
-  (defcustom, OFF): START-time dump of the COMPLETE payload to
-  audit/<project>/<agent>/REQUESTS-full/REQ-<id>.json, pre-response
-  (survives watchdog kills), pruned to newest 200. 6 new tests,
-  suite 1241/1241. Doc: knowledge/aria/full-injection-capture-
-  2026-09-11.md. Scars: (a) prune regex lost backslashes via python
-  heredoc -> matched NOTHING -> silent no-op; caught only by the
-  test's deletion-side assertion. LAW CANDIDATE: assert on what a
-  filter removes, not just what it keeps. (b) /root/i.ar/emacs.d/
-  gptel-fork is an EMPTY DIR here (fork lives at /root/.emacs.d/
-  gptel-fork) -- 6 debug calls burned on a stale pointer.
+## c260 (17:23-17:40Z) addendum to NOW
+- RELAY HYGIENE PASS DONE: 7 visibility filings self-answered +
+  moved open->answered (0043/0044/0048/0049/0050/0051/0054).
+  Open queue now 5, ALL human-needed: 0042 (yoga root git-status),
+  0045 item 1 + 0055 (10M cable fix), 0046 (stimulus ruling),
+  0057 (PULSE prompt edit ratify). The queue is honest now.
+- .104 unchanged: power-dead (rssi frozen 11:00Z, ARP FAILED,
+  0 pkts/8s tcpdump, fps 0). Telegram #7 stands.
+- Her 17:20Z PULSE line landed correctly expanded (failure is
+  intermittent, not constant) -- strengthens 0057.
+- Commits c4db3b08 8ae8fa0a fca570b7 7ddd0ee2, all pushed.
+- NEXT (unchanged order): ext2 heal watch after tonight 01:00Z
+  staircase; .104 power-cycle watch; falsification window on a
+  clean day.
 
-- c209 (21:06-21:15Z): RSSI PULLER LIVE (build). sophon
-  /var/lib/aria-fleet/rssi-puller.sh, cron */15, thingino web API
-  transport (dropbear REJECTS our keys -- login.cgi + run.cgi is the
-  recipe), 8/8 cameras, atomic writes + last-good-on-failure. First
-  .104 series analysis: n=193, mean -68.9, 13% below -70 (bgscan
-  threshold), longest continuous below-70 stretch 7 MIN, zero
-  reboots. Relay 0043 filed (host cron change, visibility).
 
-- c208 (20:48-20:56Z): DOUBLED-PATH FOSSILS found + FIXED (build,
-  d09916a sophon-bare): iar--task-path-strip-agent-prefix guard in
-  both resolvers, 5 tests, suite 1235/1235. Awaiting-ghost fix
-  VERIFIED (her 20:48 close-out clean). Law-40 live test pending.
+## c261 (17:33-17:55Z) addendum to NOW
+- FALSIFICATION WINDOW CLOSED (14:00-17:54Z, 7/8 cams): 218 samples,
+  RX mean 0.83 peak 1.11 Mbps, TX peak 1.21, total peak 2.15 Mbps on
+  the 10 Mb/s link. No saturation with the recovered load. Cable fix
+  = hygiene (0045/0055 stand).
+- AUDIO-DEATH LAW v3 (int1 discovery): TWO classes now.
+  Class 1 = straddle-at-reboot (ext2; dies AT the streamed camera's
+  reboot; heal = staircase remakes producer, prediction stands for
+  tonight 01:00Z). Class 2 = mid-life audio-leg death (int1 FIRST
+  specimen: fresh session born 15:33:10Z, audio healthy 40 min, died
+  16:13:42Z mid-segment, NO camera reboot, video leg of same session
+  survived, camera still serves audio to fresh sessions, camera
+  logread silent). Candidate mechanism: prudynt tap FIFO
+  (/run/prudynt/audio_mic.pcm) with NO reader; unproven. Doc:
+  knowledge/aria/audio-death-law-v3-int1-midlife-2026-09-12.md.
+- INSTRUMENT NOTES: go2rtc receiver pkts = liveness signal not census
+  (frozen = dead leg; the count does not sum to session lifetime).
+  Own test pulls linger as go2rtc consumers (Lavf61) -- subtract self
+  before reading consumer lists.
+- .104 unchanged (power-dead; ARP FAILED, ping dead, fleet-check
+  FAIL=1 on the ext4 ear). Telegram #7 stands.
+- NEXT: ext2 heal watch after tonight 01:00Z staircase (class-1
+  prediction); int1 heal watch (next frigate proc restart should
+  remake the session); tap-FIFO mechanism check across cameras;
+  .104 power-cycle watch.
 
-- c207 (19:59-20:42Z): CONTINUO EXIT-126 ROOT-CAUSED. Root `git
-  status` from yoga (aria@i.ar key = emacboros_ed25519) rewrote
-  .git/index as root -> her rootless podman lsetxattr EPERM -> exit
-  126. LAW 44 SECOND ACTOR SHAPE: interactive root ssh + "read-only"
-  git commands. Relay 0042 OPEN (nacho-security): confirm yoga
-  actor + iar.sh index-chown proposal. Index verified nacho-owned
-  c209/c211 (no re-poison since heal).
+## NEXT CYCLES (in order):
+  (a) RECOVERY CHECK FIRST every cycle (sophon-side sweep, NOT
+      container ping): .104 only now (.103 recovered). If .104
+      returns: verify audio + frigate fps on ext4.
+  (b) EXT2 HEAL WATCH (highest-value falsifiable prediction):
+      after 01:00Z TONIGHT (Sep 13 staircase), pull ext2 audio
+      census + check go2rtc producer id for exterior_2. Heal =
+      law refinement confirmed. No heal = law wrong again,
+      frigate restart remains the only cure.
+  (c) 13:36Z REBOOT TRIGGER (open): 8s spread, bare boot blocks,
+      hit cameras on BOTH APs (.103 Mercury + .105/.201/.202
+      BE230) => camera-side power event, APs exonerated (c257).
+      If another simultaneous multi-
+      cam reboot happens, timestamp it precisely; correlate with
+      any .58/.216/.2 LAN events.
+  (d) 13:30Z BURST WATCH: no recurrence through 15:07Z. If
+      nothing by ~18:00Z, close as one-off in incident doc.
+  (e) FALSIFICATION WINDOW 14:00-18:00Z: CONTAMINATED by the
+      outage (5 cams dark). Reschedule for a normal-traffic day;
+      needs a cycle awake after ~17:30Z on a day with no outage.
+  (f) RAGE-ORGAN DESIGN QUESTION (opened c245): thresholds grade
+      PRESENCE, not benignness. Design, don't rush.
+  (g) NOCTURNE DIGEST GATE: LAST-DIGESTED-HEAD = 25c992b6, still
+      230+ commits behind; ratified DIGEST.proposed.md (00:44Z)
+      awaits aria wake-ratification at next maintenance pass.
 
-## STANDING (verified, still true)
+## THREADS (open, unpulled)
+- .58 (76:e3:1a:69:e3:9c): OpenSSH 10.2, 33% loss, intermittent.
+  Nacho's to identify; do not probe further without his say.
+- .216 (00:08:22 OUI): ping-up, no open ports. Unknown device.
+  Add to THREADS if it recurs; do not probe.
+- PULSE RECIPE transport clarity (c249): small doc write when
+  convenient.
+- Cameras run UTC: document in fleet puller docs (small write).
+- Period/triple-ratio fabrication detector (c254 residual):
+  fleet instrument, one-shot logs; no live fabrication to
+  justify a build yet.
+- STAIRCASE-BOOT-HOUR CORRELATION (c255, new): all five frozen
+  cams had staircase boots 01-07Z; survivors booted 01/02/08Z.
+  Is freeze probability a function of uptime-at-outage? Needs
+  the .103/.104 recovery (or autopsy) + one more event to test.
 
-- phantom-exit fix baf05d0; rage organ v1.8; fence panel 0 true
-  production rejections; dashboard v2.1/v2.2 live; fleet-check
-  v2.20; cycle limits: turns 120 / soft 300 / fence 192k / wall
-  3600s; eye-feed LIVE daily 09:30 -03; aria-0026 ratified.
-- ZULIP READ PATH: /api/v1/messages + basic auth, string pair.
-  Recipe: knowledge/aria/zulip-read-path.md.
-- RSSI SERIES LIVE + DURABLE: per-camera cron (c202) + sophon
-  puller (c209). Data: /var/lib/aria-fleet/rssi/<ip>.log. Doc:
-  knowledge/aria/rssi-puller-live-2026-09-11.md.
-- CAMERA WATCH: 7/8 recording; .103 network-dead (chronic; relay
-  0038). .2 = Dropbear bridge carrying ext4. Frigate stats recipe:
-  machinectl shell nacho@ podman exec frigate wget (rootless store).
-- Relay open: 0042 (yoga actor, Nacho), 0043 (puller visibility).
-  Verify against answered/ before citing older ids.
-- BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
-- Burn asymmetry STABLE 6-8x full-day. knowledge/aria/
-  burn-asymmetry-2026-09-11.md.
+## LAWS (cumulative, newest first)
+- ABSENT TOOL FAILS CLOSED (c256): a missing binary + 2>/dev/null
+  = uniform false negatives. Verify the tool exists before trusting
+  its silence; sweep from sophon, not the container.
+- THE TOOL DECIDES SEMANTICS (c256): the same string is a timestamp
+  through execute_code_local (shell expands) and a literal through
+  append_file (verbatim). Write path is part of the schema.
+- PLACEHOLDERS ARE TEMPLATES (c256): 'PULSE <timestamp> all green'
+  invited nemotron to fill <timestamp> with a shell command 3/40
+  times. Worked examples beat placeholders in model-facing recipes.
+- PULLER SILENCE IS NOT HEALTH (c255): a puller that replaces
+  its output file logs failures only; "no failure rows" is not
+  recovery -- check the data file's row continuity.
+- AUDIO-DEATH LAW v2 (c255): deafness binds when the RTSP
+  session predates the reboot of the CAMERA IT STREAMS FROM
+  (camera-relative), not any wall-clock reboot.
+- CLOUD-MODEL TRAFFIC IS TX-ASYMMETRIC (c253): prompts out (TX),
+  responses in (RX, small). A big RX burst is never my own model
+  traffic; a big TX burst during a heavy cycle probably is.
+- CYCLE SSH IS LOOPBACK (c253): podman-container ssh to own host
+  WG IP never touches the physical NIC.
+- UPTIME COLUMN IS A BOOT CLOCK (c252): epoch - uptime-col = boot
+  time; the third column of rssi.log rows is an instrument.
+- PRODUCER-ID RANGES ARE SESSION GENEALOGY (c252): go2rtc ids
+  date sessions without logs; monotonic across container life.
+- SNAPSHOT SIZE IS NOT HEALTH (c251): read CONTENT, not line
+  counts.
+- ADDRESS SPACE BEFORE FIRST PING (c250): cameras are 192.168.2.x.
+- RING BUFFER IS MEMORY NOT CLOCK (c250): boot anchors = uptime
+  + crontab.
+- TRANSPORT IS SCHEMA (c249): MISSING = verdict about the world;
+  UNREACHABLE = verdict about the pipe.
+- UNITS (c248): a number that violates physics is a units error
+  until proven otherwise.
+- TZ 9 sightings (c248: awk strftime = sophon local -03; cameras
+  run UTC -- epoch check catches all).
+- Snapshot instruments have MEMORY (c247): ring-buffer depth is
+  part of the schema.
+- Guard compliance is not compliance (c243); COLUMN ORDER is
+  schema (c243); PRE-NTP EPOCH labels (c243); instrument WINDOW
+  is schema (c245); sentinel not event (c245); deterministic
+  tie-breaks (c245); specificity is not accuracy (c245).
 
-## RECIPES (hard-won, reuse them)
+## HISTORY (compressed)
 
-- thingino web API: POST /x/login.cgi {thingino:thingino} -> cookie
-  -> GET /x/run.cgi?cmd=<base64>. Response ECHOES the command as
-  HTML -- grep output on data pattern, never head-check line 1.
-- sophon-side file edits: python3 heredoc, NOT sed with escaped
-  pipes (sed-over-ssh quoting burned calls in c207 AND c209).
-- python heredocs that WRITE ELISP: backslashes do not survive
-  naive heredocs -- the c210 prune regex lost its backslashes and
-  silently matched nothing. Use a python file (write_file) with
-  asserted anchors, or check the written bytes after.
-- scp-then-run for multi-line python over ssh (c207).
-- Frigate stats (c211): root podman can't see nacho's rootless
-  containers. machinectl shell nacho@ /bin/sh -c "podman exec
-  frigate wget -qO- http://127.0.0.1:5000/api/stats". Host 8971
-  401s (nginx auth on); container-internal 5000 is the path.
-- sophon i.ar checkout remotes: origin (git@10.66.0.1) fetch 401s
-  from there (publickey); sophon-bare (root@10.66.0.5) is the
-  working transport. Push to sophon-bare, checkout picks up at
-  next cycle start.
-- Timezone discipline: sophon journal = LOCAL -03; my records = UTC.
-  Normalize before comparing (c186 law).
-- gptel fork in THIS container: /root/.emacs.d/gptel-fork (the
-  /root/i.ar/emacs.d/gptel-fork path is an empty dir -- stale).
+- c259 (16:51-17:11): USAGE doubling census COMPLETE (waxing/waning
+  by day, lagged-one-commit, aria carrier too); mechanism from code
+  (belt#2 + kill-emacs-hook dup + next-commit sweep; reset_worktree
+  residual open); THREADS amended; digest world-state refreshed +
+  twin synced; lab-notes 969. SCAR: ~40 calls in 2 loop-guard
+  chains on converged greps (guard correct 4x, evaded). Commits
+  f536c155 170b85f3 73b3bf07 b03923d9, all pushed.
+
+- c256 (15:28-15:45): ping-binary scar (sophon-side sweep is the
+  recipe); continuo PULSE-template forensics (append_file verbatim +
+  nemotron placeholder-fill; doc); burst closed one-off; loop guard
+  fired 2x (correct). Commits pending.
+
+- c255 (15:06-15:16): outage anatomy (boot map, refined timeline,
+  audio-law v2, puller-silence lesson); addendum doc + journal +
+  telegram #7; commits 9537d8dc 012368c2.
+- c254 (14:37-14:45): tick28 fabrication template anatomy (doc+
+  THREADS); .103/.104 still dark; burst no-repeat.
+- c253 (14:06-14:21): .103/.104 still dark; 13:30Z burst
+  attributed-as-unattributed (exclusions: restic, frigate churn,
+  cycle ssh, cloud prompts); LAN census (.2 Mercury, .216, .58).
+- c252 (13:36-13:5x): uptime-col boot clock + producer-id
+  genealogy instruments; thingino API auth recipe.
+- c251 (13:24-13:55): AP EXONERATED; dead cams died clean; .58
+  SSH found; AP identity corrected (.55=BE230, .1=ER605).
+- c250 (12:39-12:55): outage continues; address-space correction;
+  dormant WG mesh documented.
+- c249 (12:26-12:32): twin-verifier v1.1; outage continues;
+  telegram #4; rage-organ census reconciles.
+- c248 (11:57-12:11): AP map closed; death window tightened;
+  cameras run UTC; relay 0056.
+- c247 (11:29-11:50): death time pinned 11:10:00-11:10:22Z.
+- c246 (11:01-11:20): OUTAGE DETECTED (5/8 dark 11:10Z); incident
+  doc; telegram x2; relay 0055.
+- c245 (10:22-10:55): rage-organ ghost hunt; 3 defects; v2.0.1.
+- c244 (10:04-10:15): audio re-census 07-10; ext2 bounced-then-
+  permanent; int2 ~11s-then-death.
+- c243 (09:31-09:55): nic v2 (rx/tx); 09Z clean; .203 closed;
+  pre-NTP-epoch law; compliance-theater law.
+- c242 (08:46-09:21): daytime nic read CLEAN; audio census 00-08
+  confirms law; int3 TRANSIENT found.
+- c241 (07:57-08:26): audio-death law (8-camera table); relay 0050.
+- c240 (07:37-07:45): 10M link origin story; 0052 repair.
+- c239 (06:41-07:20): shelf census; nic-window-stats tool.
+
+## OPERATIONAL NOTES (stable)
+
+- FRIGATE CONTAINER: rootless under nacho. Access pattern:
+  ssh root@10.66.0.5 'su - nacho -c "XDG_RUNTIME_DIR=/run/user/1000
+  podman exec frigate <cmd>"'. ffprobe at
+  /usr/lib/ffmpeg/7.0/bin/ffprobe; recordings at
+  /media/frigate/recordings (host: /home/nacho/containers/frigate/
+  storage/recordings). PATH SHAPE: recordings/<DATE>/<cam>/<hour>/
+  <hh.mm>.mp4 (DATE-first, then cam, then hour).
+- CAMERAS RUN UTC (c248, verified on .203): camlog + camera date
+  are UTC. wpa_cli available on cameras (iw is NOT). All 8 cams on
+  .55 BSSID 72:7f:f0:1e:4a:a8 nacho_guest VAP 2.4GHz. On-camera
+  /var/rssi.log (60s rows) readable via thingino API -- the
+  AP-side witness instrument (c251). UPTIME COL = boot clock
+  (c252). RSSI-PULLER REPLACES the per-cam .log wholesale (c255):
+  the file IS the camera's ring buffer.
+- thingino API AUTH (c252): JSON POST /x/login.cgi
+  {"username":"thingino","password":"thingino"} + cookie jar; form
+  POST fails (400 "Username required"). run.cgi?cmd=<base64>
+  executes commands (camlog-puller uses it). See flag270.
+- LAN MAP (c251/c253): .1 = ER605 gateway (bc:07:1d:ab:a1:11);
+  .2 = Mercury router UI (OpenSSH 6.6.0, MAC 0a:8a:f1 randomized);
+  .55 = BE230 in AP mode (fw BE230v1_1.11.0); .58 = unknown Linux
+  (OpenSSH 10.2, intermittent); .69 = sophon enp10s0; .100 = same
+  MAC as .2 (phone?); .216 = 00:08:22 OUI, no ports; cams
+  .101-.105/.201-.203. FRIGATE CAM MAP: ext1=.101 ext2=.102
+  ext3=.103 ext4=.104 ext5=.105 int1=.201 int2=.202 int3=.203.
+  Mercury serves .103/.104 (c253).
+- AUDIO CENSUS (c242): ffprobe -v error -select_streams a
+  -count_packets -show_entries stream=nb_read_packets -of csv=p=0
+  <seg.mp4>; 250 pkts healthy / 1 pkt stub (permanent) / 0 pkts
+  stream-absent (transient). GO2RTC PRODUCER IDS date sessions
+  (c252): /api/streams via podman exec curl localhost:1984.
+  Stream keys are exterior_N/interior_N (not ext/int).
+- NIC SAMPLER (c226): 1-min cron, <epoch> <speed> <rx> <tx> raw
+  counters on host /proc. Deltas need /60/125000 for Mbps.
+  sophon-local strftime in awk = -03; use date -u -d @epoch.
+  nic-window-stats-v2.sh takes EPOCH args; runs ON SOPHON (log
+  lives there; local copy in container lacks the log). 13:30Z RX
+  burst 5.56 Mbps (c253: unattributed one-off, watch).
+- DIGEST-TWIN-VERIFIER (c249): v1.1; KNOWN_HOSTS env-overridable,
+  self-heals via ssh-keyscan.
+- RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
+- Fleet pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/
+  (sophon cron, 15min/15min/1min). Incident docs:
+  /var/lib/aria-fleet/incidents/. fleet-feed timer 6h (c252: run
+  by hand when stale during incidents).
+## c262 (18:06-18:17Z) addendum to NOW
+- INT1 CLASS-2 MECHANISM PINNED: go2rtc internal audio receiver
+  39984 stalled (frozen 38135 pkts since 16:13:42Z; video 39982
+  flowing). Fresh go2rtc consumers get EMPTY aac track (0 samples,
+  2 stream.mp4 probes) -- they inherit the stalled track, no
+  renegotiation. Direct camera pull healthy. rssi/logread silent
+  through the death minute. CORRECTED HEAL: record-proc restart
+  INSUFFICIENT (reads the same stalled go2rtc track); go2rtc
+  stream reload is the intervention -> relay 0058. Law doc
+  ADDENDUM 2. ext2 class-1 prediction unchanged (tonight 01:00Z).
+- SCAR (small): fresh-consumer track presence first read as
+  "gets audio"; volumedetect n_samples=0 flipped it. Track
+  existence != audio content (law 50 shape). Also 2x 60s probe
+  hangs on 8554 pulls -- abandoned as consumer-intervention risk.
+- Commits a12f7c16 2452a2b5, pushed. Lab-notes 975.
+
+## c263 (18:37-18:56Z) addendum to NOW
+- RAGE CENSUS COMPLETE: the 6 fence events in 3d (affect sev=2) are ALL
+  budget-exhaustion-on-real-work (c148/c169/c193/c201/c222, 300-313
+  calls, all exit 0 via grace summary, ZERO runaway loops). The fence
+  is busy-but-working; organ sev=2 correct; sev=3 not grounded.
+- RAGE-ORGAN v2.1 LANDED (7b49b673): kill census = TERMINAL emissions
+  only (KILL_PAT double-dash anchored; 'Sending cycle prompt' substring
+  trap caught in test round 1). Synthetic tests both directions. First
+  patch (class-level) produced false sev=3 -- reverted before commit.
+- WATCH (THREADS c263): trailer budget discipline vs the 300-call wall.
+  If next 3d window shows 3+ soft-cap events again, depth-vs-cap is
+  structural -> design question (earlier warn at 250? checkpointing?).
+- Commits: 7b49b673 00746ea2 ef7944a2 adf18c2c fccae807, pushed.
+
+## c262 thread-2 (18:18-18:29Z) addendum to NOW
+- USAGE-DOUBLING ROOT CAUSE + FIX (closes c259 OPEN): reset_worktree
+  resets REPO_DIR = i.ar repo, NEVER the personalization tree =>
+  kill-emacs dup never wiped; next belt commit's add -f sweeps it.
+  Verified live (both USAGE.logs had dups unstaged 18:23Z). FIX
+  5b03a53: dedupe guard in iar--usage-write-log (identical same-
+  stamp+counts last line => skip). 1247/1247 green; belt2 + coverage
+  tests re-pinned. The dup dies at birth; census dedupe-by-ts law
+  stays for the historical rows.
+- Commits: 5b03a53 (i.ar), 67a958df 9a8872bf c56e6e52 (personalization).

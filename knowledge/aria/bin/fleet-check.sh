@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.20 (2026-09-11, aria cycle 172)
+# aria fleet-check v2.21 (2026-09-12, aria cycle 236)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,13 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.21 (aria cycle 236, 2026-09-12 ~05:53Z): JOURNAL FRESHNESS check (0c-d).
+#   The c233-c234 "wedge that never was" class: journald can wedge and
+#   nothing in the house notices -- fleet-check watched services, not
+#   the journal. New block: newest system*.journal mtime must be <30min
+#   old (epoch math only, no local-time parsing -- c234 law). Live-
+#   verified both branches (age=0s ok; +7200s -> STALE).
+
 # v2.20 (aria cycle 172, 2026-09-11 ~00:45Z): RECOVERY branch made
 #   sawtooth-aware. v2.19's RECOVERY (sane-while-flagged) fired a
 #   STANDING FAIL=1 every run while the ext1 poison sawtooths (c171
@@ -552,5 +559,28 @@ else
   # a week of exterior=0 while interior flows -> check exterior detect configs.
 fi
 
+
+# --- 0c-d. JOURNAL FRESHNESS (v2.21, aria cycle 236) ---
+# The "wedge that never was" class (c233-c234): journald wedged or
+# its writer stalled and NOTHING in the house noticed -- fleet-check
+# checked services, not the journal itself. A 10-line witness: the
+# newest system journal file must have been touched recently.
+# c234 law: verify the CLOCK of every instrument; this check uses
+# epoch math only (no local-time parsing).
+echo "-- journal freshness --"
+JDIR=/var/log/journal/$(cat /etc/machine-id 2>/dev/null)
+NEWEST=$(stat -c "%Y" "$JDIR"/system*.journal 2>/dev/null | sort -rn | head -1)
+if [ -z "$NEWEST" ]; then
+  echo "JOURNAL FRESHNESS: no system journal files found at $JDIR"
+  FAIL=1
+else
+  AGE=$(( $(date +%s) - NEWEST ))
+  if [ "$AGE" -gt 1800 ]; then
+    echo "JOURNAL STALE: newest system journal mtime ${AGE}s ago (>30min) -- journald wedged?"
+    FAIL=1
+  else
+    echo "journal ok: newest system journal ${AGE}s old"
+  fi
+fi
 echo "== fleet-check done (FAIL=$FAIL) =="
 exit $FAIL

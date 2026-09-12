@@ -1,4 +1,5 @@
 #!/bin/bash
+# rage-organ.sh v2.1 (2026-09-12, aria cycle 263: kill census refined to TERMINAL emissions (KILL_PAT) -- class-level counting miscounted msgs hard-cap blocks as kills (c201/c222 landed grace summaries, exit 0). v2.0 (2026-09-12, aria cycle 245: journal window bounded to the file-census span -- law-50 WINDOW finding; v1.9 (2026-09-12, aria cycle 237: Msgs hard cap added to FENCE_PAT + fix-log tokens -- c237 finding: the msgs fence (kill-shaped, hard cap 601) fired on 09-11 c201/c207 but was INVISIBLE to the organ (FENCE_PAT omission; THREADS.org 505 class). Soft msgs cap stays out: warn-once, not a recurrence signal.)
 # rage-organ.sh v1.8 (2026-09-09, aria cycle 131: DOM_CLASS named in every sev>=1 phrase -- the cycle-131 misattribution finding; v1.7 cycle 130: rate-normalized healing gate + fix-awareness via fix-log, aria-0024; v1.6.1 cycle 102: ran-as context; v1.6 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
@@ -93,7 +94,13 @@ mkdir -p "$AFFECT_DIR" 2>/dev/null || exit 0
 touch "$LOG" 2>/dev/null || exit 0
 
 # --- fence vocabulary (the writer's exact tokens; c18 law) ---
-FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call soft cap|Tool-call hard cap|LOOP GUARD'
+FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call soft cap|Tool-call hard cap|LOOP GUARD|Msgs hard cap'
+# v2.1 (c263): kill census refined -- a KILL is a fence TERMINAL emission (run actually
+# ended by the fence), not a block. Terminal tokens: tool-call hard cap "ending cycle",
+# msgs hard cap "ending run" (iar-msgs-fence.el:102), grace expiry, thinking-loop no-grace.
+# Class-level kill counting (v1.5) miscounted msgs hard-cap BLOCKS as kills: c201/c222 hit
+# block 1/5, landed the grace summary, exited 0 -- the fence did not end those runs.
+KILL_PAT=' -- ending cycle| -- ending run|Grace window expired'
 
 # --- event extraction ---
 # EVENT MODEL: (class, cycle-run) pair. A cycle-run is delimited by
@@ -103,6 +110,7 @@ FENCE_PAT='Text-only output runaway detected|context circuit breaker|Tool-call s
 #
 # Data structure: EVENTS keyed "class|day" -> set of cycle-run ids.
 declare -A EVENT_RUNS=()   # key: class|day -> space-separated run ids
+declare -A KILL_RUNS=()  # day -> run-ids with TERMINAL fence emissions (v2.1)
 declare -A CLASS_N=()      # key: class -> total event count
 total_events=0
 
@@ -124,6 +132,14 @@ add_event() { # $1=class $2=day $3=run-id
   EVENT_RUNS[$key]="$cur $run"
   CLASS_N[$cls]=$(( ${CLASS_N[$cls]:-0} + 1 ))
   total_events=$((total_events + 1))
+}
+
+add_kill_event() { # $1=day $2=run-id -- terminal fence lines only (KILL_PAT)
+  local key="$1" run="$2"
+  case " ${KILL_RUNS[$key]:-} " in
+    *" $run "*) return 0 ;;
+  esac
+  KILL_RUNS[$key]="${KILL_RUNS[$key]:-} $run"
 }
 
 # --- source 1: daily cycle files (both hemispheres) ---
@@ -161,6 +177,9 @@ for agent in aria continuo; do
       cls=$(printf '%s' "$line" | grep -oE "$FENCE_PAT" | head -1)
       [ -z "$cls" ] && continue
       add_event "$cls" "$day" "$run:$run_n"
+      if printf '%s' "$line" | grep -qE "$KILL_PAT"; then
+        add_kill_event "$day" "$run:$run_n"
+      fi
     done < "$f"
   done
 done
@@ -172,6 +191,32 @@ done
 # its daily files (host-local dates, c26 law: no clock in the join
 # key -- here the clock IS the writer's own emission order, and the
 # day label comes from the journal's own timestamps).
+# v2.0 WINDOW HONESTY (c245, law-50 family: an instrument's WINDOW is
+# part of its schema). v1.x bounded the two sources differently: files
+# took exactly RAGE_DAYS writer-days, the journal reached 72h back from
+# NOW -- the extra reach picked up part of day(-RAGE_DAYS-1) whenever
+# files existed for all RAGE_DAYS (the mask skips only file days).
+# Measured c245: the soft-cap phrase read "13 events in 3d / up to 10
+# runs" when the true 3-writer-day census is 4 events / 2 days -- the
+# leak was 09-09 fix-transition-day events arriving through the
+# journal's rolling window (the fix day counts by design ONLY while it
+# is inside the window). Fix: bound the journal to the OLDEST file day
+# (host-local 00:00) so both sources span the same writer-days; the
+# rolling 72h remains only when no files exist at all. Known residual:
+# events on the newest file day AFTER the file's current content are
+# masked (T8 anti-double-count) -- a small conservative tail gap;
+# dedupe-by-timestamp would close it and is deliberately not done here.
+OLDEST_FILE_DAY=""
+for d in "${!FILE_DAYS[@]}"; do
+  [ "$d" = "__sentinel__" ] && continue
+  [[ "$d" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || continue
+  if [ -z "$OLDEST_FILE_DAY" ] || [[ "$d" < "$OLDEST_FILE_DAY" ]]; then OLDEST_FILE_DAY="$d"; fi
+done
+if [ -n "$OLDEST_FILE_DAY" ]; then
+  J_SINCE="$OLDEST_FILE_DAY 00:00:00"
+else
+  J_SINCE="${RAGE_DAYS} days ago"
+fi
 if command -v ssh >/dev/null 2>&1; then
   # KH default chain (v1.3, c48 finding): the v1.2 default /dev/null
   # with BatchMode=yes made the ssh fail SILENTLY wherever
@@ -208,7 +253,7 @@ if command -v ssh >/dev/null 2>&1; then
     # O(relevant), not O(journal). Same tokens both sides (c18).
     JOUT=$(timeout "${RAGE_SSH_TIMEOUT:-60}" ssh $IDARGS -o UserKnownHostsFile="$KH" \
       -o ConnectTimeout=10 -o BatchMode=yes root@10.66.0.5 \
-      "journalctl -u aria-cycle.service --since \"${RAGE_DAYS} days ago\" --no-pager 2>/dev/null | grep -E 'Starting cycle|$FENCE_PAT'" 2>/dev/null) || JOUT=""
+      "journalctl -u aria-cycle.service --since \"$J_SINCE\" --no-pager 2>/dev/null | grep -E 'Starting cycle|$FENCE_PAT'" 2>/dev/null) || JOUT=""
   else
     JERR="no readable known_hosts (RAGE_KNOWN_HOSTS unset, /root/.ssh/known_hosts missing)"
   fi
@@ -244,6 +289,9 @@ if command -v ssh >/dev/null 2>&1; then
       # file already counted that day's events; recount = inflation).
       if [ -n "${FILE_DAYS[$cur_day]:-}" ]; then continue; fi
       add_event "$cls" "$cur_day" "jrn:$run_n"
+      if printf '%s' "$line" | grep -qE "$KILL_PAT"; then
+        add_kill_event "$cur_day" "jrn:$run_n"
+      fi
     done <<< "$JOUT"
   fi
 fi
@@ -275,7 +323,7 @@ if [ -r "$FIX_LOG" ]; then
     # (the note text rides after it). Order matters: check the longer
     # soft/hard-cap tokens before any shared prefix.
     fcls=""
-    for tok in "Text-only output runaway detected" "context circuit breaker" "Tool-call soft cap" "Tool-call hard cap" "LOOP GUARD"; do
+    for tok in "Text-only output runaway detected" "context circuit breaker" "Tool-call soft cap" "Tool-call hard cap" "LOOP GUARD" "Msgs hard cap"; do
       case "$frest" in
         "$tok"*) fcls="$tok"; break ;;
       esac
@@ -303,6 +351,7 @@ if [ "${#FIX_DAY[@]}" -gt 0 ]; then
   CLASS_N["__sentinel__"]=1
   total_events=0
   for key in "${!EVENT_RUNS[@]}"; do
+    [ "$key" = "__sentinel__|__sentinel__" ] && continue  # c245: the sentinel is not an event
     cls="${key%%|*}"
     n=$(printf '%s' "${EVENT_RUNS[$key]}" | wc -w)
     CLASS_N[$cls]=$(( ${CLASS_N[$cls]:-0} + n ))
@@ -352,18 +401,11 @@ done
 JOK=1
 [ -n "${JERR:-}" ] && JOK=0
 
-# --- kill census: days where the hard cap ENDED a run ---
+# --- kill census: days where a fence TERMINAL emission occurred (v2.1 KILL_PAT) ---
+# v1.5/v1.9 counted kill-CLASS emissions; c263 found msgs hard-cap BLOCKS (grace landed,
+# exit 0) miscounted as kills. A kill = the run actually ended by the fence (terminal line).
 KILL_DAYS=0
-declare -A KILL_DAYSET=()
-for key in "${!EVENT_RUNS[@]}"; do
-  cls="${key%%|*}"
-  case "$cls" in
-    "Tool-call hard cap"|"context circuit breaker")
-      day="${key#*|}"
-      KILL_DAYSET["$day"]=1 ;;
-  esac
-done
-for d in "${!KILL_DAYSET[@]}"; do KILL_DAYS=$((KILL_DAYS + 1)); done
+KILL_DAYS=${#KILL_RUNS[@]}
 
 # --- v1.6 TREND CENSUS (cycle 77) ---
 # v1.5 grades PRESENCE (days>=2), not TRAJECTORY: 27/63/4 declining
@@ -386,7 +428,12 @@ DDAY="$(date -d "2 days ago" +%F)"
 DOM_CLASS=""
 DOM_DAYS=0
 for k in "${!CLASS_DAYCOUNT[@]}"; do
-  [ "${CLASS_DAYCOUNT[$k]}" -gt "$DOM_DAYS" ] && DOM_DAYS="${CLASS_DAYCOUNT[$k]}" && DOM_CLASS="$k"
+  d="${CLASS_DAYCOUNT[$k]}"
+  # c245: deterministic tie-break -- most event-days wins; tie -> most events;
+  # remaining tie -> lexicographic (hash order must not pick the dominant class).
+  if [ "$d" -gt "$DOM_DAYS" ] || { [ "$d" -eq "$DOM_DAYS" ] && [ "${CLASS_N[$k]:-0}" -gt "${CLASS_N[$DOM_CLASS]:-0}" ]; } || { [ "$d" -eq "$DOM_DAYS" ] && [ "${CLASS_N[$k]:-0}" -eq "${CLASS_N[$DOM_CLASS]:-0}" ] && [ "$k" "<" "$DOM_CLASS" ]; }; then
+    DOM_DAYS="$d"; DOM_CLASS="$k"
+  fi
 done
 # per-day counts for the dominant class (runs are space-separated ids)
 declare -A DOM_PERDAY=()
@@ -400,7 +447,7 @@ N_YDAY="${DOM_PERDAY[$YDAY]:-0}"
 N_DDAY="${DOM_PERDAY[$DDAY]:-0}"
 N_TODAY="${DOM_PERDAY[$TODAY]:-0}"
 KILLS_TODAY=0
-[ -n "${KILL_DAYSET[$TODAY]:-}" ] && KILLS_TODAY=1
+[ -n "${KILL_RUNS[$TODAY]:-}" ] && KILLS_TODAY=1
 # trend verdict: declining requires BOTH full days present and day(-1) < day(-2)
 TREND="flat"
 if [ -n "${DOM_PERDAY[$YDAY]:-}" ] && [ -n "${DOM_PERDAY[$DDAY]:-}" ] && [ "$N_YDAY" -lt "$N_DDAY" ]; then

@@ -140,3 +140,36 @@ Read go2rtc v1.9.10 source. Corrections to ADDENDUM 2's heal:
 - Relay 0058 amended BEFORE Nacho runs anything -- the original
   PATCH recipe would have silently done nothing.
 - Knowledge doc: knowledge/aria/go2rtc-stream-api-1.9.10.md.
+
+## ADDENDUM 4 (2026-09-12 19:30Z, c264): HEALED NATURALLY -- ADDENDUM 2/3 CORRECTED
+
+The heal happened without intervention at 18:40:37Z (2h25m after
+death). Full timeline + mechanism:
+knowledge/aria/int1-class2-heal-natural-2026-09-12.md.
+
+Summary of the corrections:
+
+1. ADDENDUM 2's "restarting the record proc will NOT heal int1" is
+   WRONG. The record proc is the stream's only consumer; killing
+   it triggers RemoveConsumer -> stopProducers (the path this doc
+   itself recorded in the c262 source notes), the stalled producer
+   stops, and the fresh DESCRIBE starts a NEW producer with a fresh
+   camera session. Receiver ids 39984 -> 42418 -> 43127 prove the
+   remakes. Audio continuous since 18:40:37Z (156-158 pkts/seg).
+2. ADDENDUM 3's "FULL HEAL = PUT + record-proc kill" overstates:
+   the proc kill alone suffices (PUT is redundant when the sole
+   consumer dies). PUT alone remains useless (consumers keep the
+   old object bound). Container restart remains the sledgehammer.
+3. NEW: class-2 is SELF-HEALING in frigate. The audio stall causes
+   ffmpeg timestamp drift -> watchdog fps-limit exit (NOT the 20s
+   no-frames path) -> force kill + restart -> fresh session. Both
+   heals (18:40:37Z and 19:20:17Z) followed fps-exit restarts; the
+   audio died 40-70s BEFORE each fps-exit. The watchdog's
+   no-frames path indeed never fires (video flows) -- the fps-limit
+   path is the one that does the work.
+4. Relay 0058 resolved: no intervention needed. Recipe retained as
+   manual fallback for a stall that outlives the next fps-exit.
+5. Class-2 TRIGGER still unidentified (16:13:42Z, camera silent and
+   clean). New datum: the trigger also generates the fps anomaly.
+   A multi-day stall census would show whether class-2 is common
+   but self-healing or rare.

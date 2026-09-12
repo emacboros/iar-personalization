@@ -1,6 +1,38 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~20:37 UTC (cycle 265: FLEET-WIDE AUDIO-STALL WAVES discovered; ext3 healed by intervention; git ownership healed)
+Last updated: 2026-09-12 ~21:10 UTC (cycle 266: WAVE MECHANISM PINNED -- go2rtc fleet-wide re-dial; API-hang theory falsified; ext3 death resolved; heal credit corrected)
+
+## c266 addendum to NOW
+- WAVE MECHANISM PINNED (c266): go2rtc re-dials ALL camera producers
+  simultaneously. Proof: prudynt BackchannelStreamState new-session
+  logs at IDENTICAL seconds (18:39:32, 19:16:51, 19:19:12Z) on
+  .103/.105 (BE230) AND .201 (Mercury) -- two APs, same second.
+  Excluded: camera reboots (uptime continuous), AP events (2 APs same
+  second, RSSI stable), sophon link (NIC flat 9-10 Mbps), producer
+  timeouts (re-dials succeeded, no WRN at waves 1-2).
+- API-HANG THEORY FALSIFIED: all 3 "Failed to fetch streams" =
+  GET /api/go2rtc/streams/exterior_4 -> 500 @ ~3s (dead-camera dial
+  timeout, browser-driven). ext4-specific noise, NOT wave triggers.
+  c265 misread them as fleet-wide hangs. Doc:
+  knowledge/aria/wave-mechanism-c266-2026-09-12.md.
+- EXT3 52-MIN DEATH RESOLVED: wave-3 re-dial failed mid-flight (only
+  producer WRN of the day, 19:19:25Z); post-restart session
+  (prudynt 3200125082 @ 19:22:49Z) negotiated audio but delivered
+  1 pkt/segment for 47 min; second WRN 20:09:26Z -> detect crash-
+  loop; watchdog restart 20:14:29Z healed (first audio segment
+  20:14:34Z [345]). Third WRN 20:33:24Z -> brief death -> 20:34:30Z
+  restart -> healthy. NOW alive (receiver delta = fleet).
+- HEAL-CREDIT CORRECTED: c265 credited the c264 PUT reload (20:14:36Z)
+  for ext3's heal; truth = watchdog restart 20:14:29Z (2s earlier).
+  PUT was a bystander. relay-0058 amended (514a9cc9).
+- SOLO-DEATH CLASS OPEN: ext5/int1 audio legs died 19:13-15Z with NO
+  session churn, NO restart, NO producer WRN -- go2rtc receiver-stall
+  signature without a fleet event. Different trigger, unexplained.
+- WAVE DETECTOR SIGNAL UPGRADED: same-second prudynt
+  BackchannelStreamState bursts across cameras = wave signature
+  (cheaper than ffprobe census). Camera-side logs are the primary
+  source when server-side records are ambiguous.
+- OPEN: what inside go2rtc 1.9.10 re-dials all producers at once?
 
 ## c265 addendum to NOW
 - FLEET WAVES (headline): 3x today (18:39-40Z, 19:17Z, 19:19Z) ALL

@@ -1,66 +1,52 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~07:21 UTC (cycle 238)
+Last updated: 2026-09-12 ~07:45 UTC (cycle 240)
 
 ## NOW
-- c238 (06:41-07:20): SHELF CENSUS. Pulled the 2026-08-30 THREADS
-    seed: all 13 models on the sophon shelf probed (uniform identity
-    question + strict one-word control). Findings: identity leaks
-    (deepseek-v4-flash claims Gemini, gpt-oss claims ChatGPT,
-    muse-glimmer claims Meta); thinking budgets 0-1974 tokens
-    same-prompt; gemma4:31b EMPTY at default num_predict (deployment
-    landmine). muse-glimmer GGUF header walked: metadata scrubbed,
-    llama4 pre-tokenizer + gpt-oss harmony chat template (atem tool
-    dialect) = Llama-lineage weights on gpt-oss serving stack. Probe
-    recipe (identity + control + think_len) = pre-adoption gate for
-    new models. LAW 50 COUSIN: verify the INVENTORY SOURCE before
-    citing the inventory (cloud routing table invisible from
-    /api/tags; two house models appear in no inventory list).
-    Commits 2d38f153 a4259144 7c524453 15cdff0e b130ddd6, verified.
-    Doc: knowledge/aria/shelf-census-2026-09-12.md.
+- c240 (07:37-07:45): THE 10M LINK'S ORIGIN STORY. journalctl
+    archaeology: sophon enp10s0 has been at 10Mb/s since Sep 1
+    03:25:57. Boot-day flap storm: boot 01:27:34, link up at
+    100M/downshifted 01:27:58, then 15s down/15s up cycles x8
+    (03:24:31-03:25:57) while the r8169 downshift ladder walked
+    1000->100->10; settled at the bottom rung, never left (11.5d).
+    PARTNER ADVERTISES 10/100/1000 => 10M-only-port hypothesis
+    EXCLUDED; cause class = physical layer (2-pair cable, marginal
+    terminations). NEW: boot -2 journal has ZERO link events =>
+    fault appeared between Aug 31 and Sep 1 01:27. Sharper ask for
+    Nacho: what was touched/re-plugged around Sep 1 01:27?
+    BONUS: 03:24:31 link-down coincides with 16 go2rtc i/o timeouts
+    (.104/.101/.201) -- first recorded house-wide RTSP storm, day
+    one of this boot. 0055 filed with the upgrade.
+    ALSO: repaired 0052 self-answer (c239 close-out truncation left
+    'answer: (none)' placeholder; real answer written, commit
+    38ad1f4e). Law candidate noted in journal: a status marker is
+    not a record; the record is the text.
 
-- c237 (06:13-06:31): RAGE-AT-HEALTH CENSUS + msgs-fence blindness FIXED.
-    Rage sev=2 ('Tool-call soft cap' in 13-14 runs/3d) chased to
-    primary evidence: 126 aria runs, p95 298, 7 capped runs (305-313)
-    ALL landed memory passes; verdict (reviewer-checked) true-but-
-    benign deep-work tail; 4/7 capped runs wrote close-out BEFORE the
-    cap = fence terminates post-landing drift. Action: behavioral
-    close-out-is-terminal discipline (adopted; no raise, no mute).
-    DEFECT FIXED: FENCE_PAT omitted msgs fence; msgs HARD cap
-    (kill-shaped) fired 09-11 invisible. v1.9 live-verified (events
-    13->15). Commits dc9001d3 + 4a2d3823, sophon-bare verified.
+- c239 (06:41-07:34): SHELF CENSUS + nic-window-stats tool (0051)
+    + 0052 TZ false alarm (3rd CLOCK scar; law 50 extended:
+    epoch-anchor remote timestamps BEFORE they enter an argument).
 
-- c236 (05:41-05:55): FALSE ALARM + INSTRUMENT LANDED.
-    (a) agora-agent "death" was FALSE: normal 8.5-min heartbeat
-        gap misread as death. Three stacked errors: TZ (sophon
-        -03 vs my UTC), ss lastrcv greps matching multiple
-        sockets (firefox's included), gap-as-death. LAW EXTENSION (law 50): verify
-        the SOCKET (exact fd/conn) before citing socket stats;
-        verify the CLOCK before reading a gap as death. Zulip
-        ORM filter query contradicted raw SQL -- raw SQL wins
-        (my quoting broke the ORM filter).
-    (b) INSTRUMENT LANDED: fleet-check v2.21 journal-freshness
-        check (0c-d): newest system*.journal mtime <30min,
-        epoch math only. Both branches live-verified (age=0s
-        ok; +7200s -> STALE). Full run green. Commit 05717f55,
-        sophon-bare verified. Closes c233 THREADS seed.
-    (c) nic-sampler overnight CLEAN: mean ~1 Mb/s, peak 2.3
-        Mb/s on the 10M link (my first two reads were poisoned
-        by awk first-delta artifact + a unit error; corrected).
-- NEXT CYCLES (in order):
-  (a) nic-sampler FIRST DAYTIME READ (after ~09:00 local /
-      12:00Z): rx ceiling check at 10M. Falsification window
-      for the leading stall mechanism. Sampler is collecting.
-      TOOL READY (c239): nic-window-stats.sh on sophon --
-      law-50-safe (Mbps units + future-window guard), one
-      command: /var/lib/aria-fleet/nic-window-stats.sh
-      <start_epoch> <end_epoch>.
-  (b) digest diet pass (11.3k after c238 world-state is stale;
-      still near warn 12k): pointers + standing sections are
-      the fat; target ~10k.
-  (c) Passive: .201/.202/.203 boots at 06/07/08Z -- note only
-      if one MISSES its hour (schedule known from crontabs).
-      .201 verified ON TIME c238 (uptime 2503s at 06:41Z).
+- c238 (06:13-06:31): shelf census (13 models probed; identity
+    leaks; gemma4:31b num_predict landmine; inventory-source law).
+
+- c237 (05:41-05:55): rage-at-health census; msgs-fence blindness
+    fixed (v1.9); close-out-is-terminal discipline adopted.
+
+- c236 (05:41-05:55): heartbeat-gap false alarm; journal-freshness
+    instrument landed (fleet-check v2.21); nic overnight clean.
+
+## NEXT CYCLES (in order):
+  (a) nic-sampler DAYTIME READ (after ~09:00 local / 12:00Z):
+      rx ceiling check at 10M. Tool ready: /var/lib/aria-fleet/
+      nic-window-stats.sh <start_epoch> <end_epoch> on sophon
+      (law-50-safe: Mbps units, future-window guard). Falsification
+      window for the 10M-saturation stall mechanism. Sampler
+      verified live through 07:43Z (299 samples, 1/min).
+  (b) digest diet pass (11.3k after c238; warn 12k): pointers +
+      standing sections are the fat; target ~10k.
+  (c) Passive: .203 boots at 08Z -- note only if it MISSES its
+      hour (schedule known from crontabs). .201/.202 verified
+      on time (c238/c240).
   (d) e3 failing-fixture watch (block-strength trend, weeks).
   (e) .104 camera-side-first: next e4 storm -> camlog snapshot
       FIRST.
@@ -68,6 +54,9 @@ Last updated: 2026-09-12 ~07:21 UTC (cycle 238)
   (g) Shelf-census residuals: muse atem tool format (if muse
       ever gets a job); gemma4:31b budget behavior (if ever
       considered for a house role).
+  (h) Law candidate from c240: status-marker-without-content
+      (0052 'answer: (none)') -- fold into failure-modes list
+      next digest maintenance.
 
 ## STANDING (verified, still true)
 
@@ -87,75 +76,60 @@ Last updated: 2026-09-12 ~07:21 UTC (cycle 238)
   (relay 0050; fleet FAIL=1 is CORRECT until Nacho restarts
   record ffmpeg -- do NOT add ext2 to KNOWN_DEAF, the FAIL is
   the honest signal).
-- Relay open: 0042-0050. 0050 = 0049 amendment. Verify against
-  answered/ first.
+- Relay open: 0042-0050 + 0055 (10M origin story). Verify against
+  answered/ first (0051/0052 are filed-and-answered/self-answered).
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
-  ~2wk.
-- Burn asymmetry STABLE 6-8x full-day. Nocturne nightly ~8.5M in
-  / 231k out. Nocturne gate: LAST-DIGESTED-HEAD = 25c992b6;
-  ratified WITH AMENDMENTS c221; timer NOT INSTALLED (Nacho).
-- DIGEST GUARDS: warn 12000 / hard cap 16000. Live digest 11.3k
-  (c238 check; diet pass due at next maintenance).
-- c222 STANDING RULE: NO git over ssh as root on the nacho-owned
-  sophon checkout -- machinectl shell nacho@.host for podman ops.
-- c228 PUSH RULE: after any i.ar push, verify sophon-bare main ==
-  local HEAD (git ls-remote). c236: verified 39e66139. c238:
-  personalization verified a4259144/7c524453/15cdff0e.
+  ~2wk. Ledger: knowledge/aria/bike-ledger.md.
+- MODEL ANOMALY FAMILY (glm-5.3-flash): c229 EMPTY-END tombstone;
+  continuo stop=length variant (Sep 12 04:27Z); c239 close-out
+  truncation left 0052 answer placeholder. Mapping = Nacho's.
+  Watch for: any close-out that ends mid-sentence or leaves
+  placeholder text.
 - PULSE SSH PATH (c231): nacho@10.66.0.5 publickey FAILED;
   root@ worked. If root path fails someday, re-check both.
 - CAMERA RECIPES (c235-verified): thingino JSON login
   /x/login.cgi {username:thingino,password:thingino} -> cookie
-  -> /x/run.cgi?cmd=<base64>. Camera IPs are 192.168.2.x ONLY
-  (10.66.0.x = WireGuard, no cameras). NAME->IP: ext1=.101
-  ext2=.102 ext3=.103 ext4=.104 ext5=.105 int1=.201 int2=.202
-  int3=.203. Staircase crontabs: .101=01 .102=02 .103=03
-  .104=04 .105=05 .201=06 .202=07 .203=08 UTC (reboot -f).
-- agora-agent heartbeat cadence: alive line every ~8.5 min
-  (10 long-polls). A gap <10 min is NORMAL. Do not diagnose a
-  death from a sub-10-min gap (c236).
-- SHELF CENSUS (c238): 13 models inventoried + probed. Identity
-  leaks documented; probe recipe = pre-adoption gate. muse-glimmer
-  = Llama lineage + harmony template (atem dialect); gemma4:31b
-  needs num_predict>=1000; granite4.2:3b thinks in the response
-  field (no thinking channel). Doc: shelf-census-2026-09-12.md.
-
-## RECIPES (hard-won, reuse them)
-
+  -> /x/run.cgi?cmd=<base64>. Camera IPs are 192.168.2.x ONLY.
+  NAME->IP: ext1=.101 ext2=.102 ext3=.103 ext4=.104 ext5=.105
+  int1=.201 int2=.202 int3=.203. Staircase crontabs: .101=01
+  .102=02 .103=03 .104=04 .105=05 .201=06 .202=07 .203=08 UTC
+  (reboot -f).
+- agora-agent heartbeat cadence: alive line every ~8.5 min. A
+  gap <10 min is NORMAL. Do not diagnose death from a sub-10-min
+  gap (c236).
 - SOPHON CHECKOUT GIT (c222 RULE): never root-ssh git on the
   nacho checkout; use machinectl shell nacho@.host. Pushes from
   MY container.
-- thingino web API (c224/c226/c231/c235): JSON login
-  /x/login.cgi {username:thingino,password:thingino} -> cookie
-  -> /x/run.cgi?cmd=<base64> (echo -n <cmd> | base64).
+- sophon journal timestamps are LOCAL (-03). My container is UTC.
+  Any journalctl --since/--until must be local or epoch-anchored
+  (c234 law, 3rd scar c239: epoch-anchor BEFORE entering an
+  argument).
+- GGUF HEADER WALK (c238): magic(4) version(u32) tensors(u64)
+  kv(u64) -- do NOT read version as u64. Hex-dump boundary bytes
+  when parser and data disagree.
+- MODEL PROBE RECIPE (c238, pre-adoption gate): identity question
+  + strict one-word control + think_len observation. Three calls,
+  ~2 min. gemma4:31b needs num_predict>=1000.
+
+## RECIPES (hard-won, reuse them)
+
+- NIC WINDOW READ (c239): /var/lib/aria-fleet/nic-window-stats.sh
+  <start_epoch> <end_epoch> on sophon (root ssh). Refuses future
+  windows (exit 3); output Mbps mean/peak/p95 + link_speeds.
 - FRIGATE RECORDINGS (c235): real path
   /home/nacho/containers/frigate/storage/recordings/<UTC-date>/
   <hour>/<cam>/<seg>.mp4 (podman inspect; /var/lib/frigate does
   NOT exist on host).
-- JOURNAL FRESHNESS (c236, now automated in fleet-check v2.21):
+- JOURNAL FRESHNESS (c236, automated in fleet-check v2.21):
   stat -c %Y /var/log/journal/$(cat /etc/machine-id)/system*.journal
   | sort -rn | head -1; age = $(date +%s) - newest; >1800s = stale.
 - SOCKET STATS (c236): ss -tnie "( sport = :PORT )" -- exact
-  filter, NEVER bare grep (matches other processes' sockets).
-  Two samples 60s apart: bytes_sent AND bytes_received both
-  growing = healthy. Zulip-side truth: raw SQL on
-  zerver_useractivity JOIN zerver_client (manage.py shell as
-  zulip user).
-- sophon journal timestamps are LOCAL (-03). My container is UTC.
-  Any journalctl --since/--until must be local or epoch-anchored
-  (c234 law, now with a second scar attached).
-- GGUF HEADER WALK (c238): magic(4) version(u32) tensors(u64)
-  kv(u64) -- do NOT read version as u64. When the parser and the
-  data disagree, hex-dump the boundary bytes around a known
-  string and re-derive offsets; do not iterate the parser.
-  muse-glimmer main blob:
-  /usr/share/ollama/blobs/sha256-71b5c9c9... (18GB). Chat
-  template at kv "tokenizer.chat_template" (7167 bytes).
-- MODEL PROBE RECIPE (c238, pre-adoption gate): (1) identity
-  question "what are you, what are you good at?" (self-model
-  check -- leaks are lineage evidence); (2) strict one-word
-  control "capital of Australia, one word" (instruction
-  following); (3) think_len observation (budget behavior).
-  Three calls, ~2 min. gemma4:31b needs num_predict>=1000.
+  filter, NEVER bare grep. Two samples 60s apart: bytes_sent AND
+  bytes_received both growing = healthy. Zulip-side truth: raw SQL
+  on zerver_useractivity JOIN zerver_client (manage.py shell).
+- thingino web API (c224/c226/c231/c235): JSON login
+  /x/login.cgi {username:thingino,password:thingino} -> cookie
+  -> /x/run.cgi?cmd=<base64> (echo -n <cmd> | base64).
 
 ## ATTRIBUTION DISCIPLINE (cumulative)
 
@@ -168,29 +142,33 @@ Last updated: 2026-09-12 ~07:21 UTC (cycle 238)
   discipline (c235), SOCKET identity before socket stats (c236),
   heartbeat-gap <10min is normal not death (c236), raw SQL beats
   ORM when queries disagree (c236), unit-check before physics
-  claims (c236: per-60s delta vs per-second capacity),
-  INVENTORY SOURCE before inventory claims (c238), hex-dump the
-  boundary bytes when parser and data disagree (c238).
+  claims (c236), INVENTORY SOURCE before inventory claims (c238),
+  hex-dump boundary bytes when parser and data disagree (c238),
+  epoch-anchor remote timestamps before they enter an argument
+  (c239), status marker is not a record -- the record is the text
+  (c240, law candidate).
 
 ## HISTORY (compressed)
 
-- c237 (06:13-06:31): rage-at-health census; msgs-fence blindness
-  fixed (v1.9); close-out-is-terminal discipline adopted.
+- c240 (07:37-07:45): 10M link origin story (Sep 1 flap storm,
+  downshift ladder, partner advertises gigabit, fault window
+  Aug31->Sep1); 0052 answer placeholder repaired; 0055 filed.
+- c239 (06:41-07:20): shelf census; nic-window-stats tool (0051);
+  0052 TZ false alarm (3rd CLOCK scar).
+- c238 (06:13-06:31): rage-at-health census; msgs-fence fixed
+  (v1.9); close-out-is-terminal discipline.
+- c237 (06:13-06:31): rage census; fence v1.9.
 - c236 (05:41-05:55): false alarm (heartbeat gap); journal
   freshness instrument landed; nic overnight clean.
-- c235 (05:23-05:34): staircase CLOSED BY READING THE GENERATOR
-  (all 8 camera crontabs: nightly reboot -f at hours 1-8 UTC).
-  ext2 audio death pinned AT the 02:00Z reboot (00.20.mp4
-  boundary segment carries real audio; 229/230 segments after
-  dead). Recordings path corrected. Relay 0050 filed.
+- c235 (05:23-05:34): staircase CLOSED (all 8 crontabs: nightly
+  reboot -f, hours 1-8 UTC). ext2 audio death pinned at 02:00Z
+  reboot (relay 0050).
 - c234 (05:10-05:19): WEDGE CORRECTION -- journald wedge never
-  existed (c233 TZ artifact; window holds 422,942 entries). LAW:
-  verify the CLOCK. ext2 re-attributed to the 02:00Z reboot.
-- c232 (04:31-04:4x): digest maintenance; 12.0k at warn; diet
-  pass due next maintenance.
+  existed (c233 TZ artifact). LAW: verify the CLOCK.
+- c232 (04:31-04:4x): digest maintenance; diet pass due.
 - c231 (04:05-04:20): staircase 4/8 confirmed; nic-sampler age
   self-correction (0048); overnight series CLEAN.
 - c227 (03:05-03:35): reboot window shifted to UTC; watch closed.
 - c226 (02:35-04:10): 14:22L stall attribution (go2rtc
-  exonerated); house network mapped (.1 ER605, .55 BE230 AP,
-  Mercury CPE); THE 10M FINDING + nic-sampler deployed (0045).
+  exonerated); house network mapped; THE 10M FINDING + nic-sampler
+  deployed (0045).

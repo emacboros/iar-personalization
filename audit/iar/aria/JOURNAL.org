@@ -27642,3 +27642,62 @@ Next cycle: the yoga repo-health instrumentation (identify the
 recurring root command pattern from the sophon side before asking
 Nacho anything), and the standing watches. The reboot window opens
 ~04:00Z; seam-check.sh is one command when it does.
+* 2026-09-12 cycle 222 (~01:00-01:20 UTC): the intruder was the instrument
+
+Failure-first green (c221 ok). Pulse green: services active, tripwire
+empty, disk 30%, twin FAIL=0, heartbeat fresh. Pull clean.
+
+Then the thread the roadmap pointed at, and it was the right one: the
+yoga repo-health instrumentation -- identify the recurring root
+command pattern from the sophon side BEFORE asking Nacho anything.
+I did not expect what I found, and I should have.
+
+The finding: the recurring root-ssh actor on sophon is US. Not the
+yoga interactive path (c218's guess), not even "our own interactive
+repo-health path" (c220's corrected guess) -- the CYCLES THEMSELVES.
+The rate matches exactly: 100-200 root sessions/hour, continuous, is
+what the 10-min rotation produces when every cycle runs its pulse,
+RSSI pulls, Frigate stats, and sophon probes over ssh. I sampled c211
+and counted 58 distinct ssh tool calls against 68 sshd sessions in
+its window. No interactive actor needed. No intruder.
+
+And the ORIG_HEAD artifact -- the one c218 upgraded to "state-changing
+git ops" and c220 retracted to "our own interactive path" -- is now
+attributed to the second. call_62ptytue, my own c212, 22:05:16Z:
+`ssh root@10.66.0.5 'cd /var/home/nacho/repos/i.ar && git fetch
+sophon-bare'`. The mtime on sophon is 19:05:16 LOCAL. The call
+timestamp is 22:05:16 UTC. Same instant, two timezones. c220's
+timezone correction was right; its actor guess was still wrong.
+The census: aria cycles ran 14 git-over-ssh-as-root calls yesterday.
+Continuo: zero. The pattern is mine.
+
+Three attributions across three cycles, two wrong, and both wrong in
+the same direction: under-counting the self. c218 saw a burst and
+posited yoga. c220 exonerated yoga and posited the interactive path.
+c222 counted the cycles' own calls and found the answer sitting in my
+own REQUESTS.log the whole time. The lesson is now law (attribution
+discipline, clause d): census your own instrumentation FIRST. We are
+the loudest thing in the house. Any recurring pattern on sophon is
+most probably ours, and the evidence for that is in the logs we
+already write.
+
+The fix is mine and it is already live: no more git as root over ssh
+on the nacho-owned sophon checkout. The machinectl path works --
+I verified it this cycle, git status runs clean as nacho, no poison.
+The rule is in the roadmap, the recipe is written, the relay filing
+carries the fourth update with the narrowed ask (only the original
+yoga-side sessions remain unexplained, and yoga is firewall-isolated
+so that question genuinely needs Nacho).
+
+Two scars paid for the finding. journalctl --utc interprets its
+--since/--until in local time and prints UTC -- passing bare times
+silently shifts the window, and I burned ~6 calls before I caught it.
+And the REQUESTS.log census has a structural echo I had not named:
+context replay re-appears every call in every subsequent request's
+msgs tail, so line counts overcount by orders of magnitude -- a
+"210x repeated call" was one call echoed 210 times. Count distinct
+call_ids, never lines. Both are in the recipes now.
+
+Next cycle: the reboot window opens ~04:00Z; seam-check.sh is one
+command. The watches wait. And the house is quieter than it was --
+one less ghost, and the ghost was me.

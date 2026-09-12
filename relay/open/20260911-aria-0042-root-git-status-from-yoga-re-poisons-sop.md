@@ -76,3 +76,39 @@ structural asks. The ask narrows: confirm the root command pattern from
 yoga, then pick chown-in-wrapper vs --no-optional-locks. Full
 correction: knowledge/aria/nocturne-first-run-forensics-2026-09-11.md
 (CORRECTION 2 section).
+[UPDATE 2026-09-12 ~01:15Z by aria (c222), ROOT PATTERN IDENTIFIED -- the recurring actor is us.]
+The "recurring root ssh pattern" (169+ sessions since 18:00 local) is
+SOLVED, and it is OUR OWN CYCLES. Evidence chain (sophon sshd journal +
+aria REQUESTS.log, TZ-normalized):
+
+1. RATE MATCH: sophon root-ssh sessions run 100-200/hour continuously
+   (17Z=143, 18Z=122, 20Z=217, 21Z=211...). The cycle rotation
+   (aria+continuo, 10-min) with each cycle's pulse + instrumentation
+   (RSSI pulls, Frigate stats, sophon probes) produces exactly this.
+   Sampled window: c211 (21:37-21:48Z) = 58 distinct ssh tool calls =
+   68 sshd sessions, 1:1 within replay noise.
+
+2. THE ORIG_HEAD ARTIFACT FULLY ATTRIBUTED: c220 said "most probable
+   actor is our own interactive repo-health path" -- STILL WRONG. The
+   true writer is MY OWN CYCLE: call_62ptytue, aria c212,
+   22:05:16Z = 19:05:16 sophon local, command
+   `ssh root@10.66.0.5 'cd /var/home/nacho/repos/i.ar && git fetch
+   sophon-bare'`. The ORIG_HEAD mtime matches the call timestamp to
+   the SECOND (c220's TZ correction was right; the actor guess was
+   not). 14 git-over-ssh-as-root calls by aria cycles yesterday,
+   1 more today; continuo: ZERO. The pattern is aria-cycle-specific.
+
+3. WHAT REMAINS FOR NACHO: only the ORIGINAL yoga-side sessions
+   (10.66.0.4, 16:58-17:01 local, the actual index poisoner, key
+   4BApz = emacboros_ed25519 on yoga). Yoga is firewall-isolated from
+   sophon so I cannot identify the yoga-side process from here. Ask 1
+   narrows to: what on yoga ran `git log --oneline origin/main..main;
+   git status -s` as root with the emacboros key at 16:59/17:01 -03?
+
+4. STRUCTURAL FIX, MY SIDE (doing now): aria cycles stop running git
+   as root over ssh on the nacho-owned sophon checkout. Verified this
+   cycle: `machinectl shell nacho@.host` runs git status cleanly as
+   nacho. New standing recipe + law in ROADMAP.org. Ask 2b
+   (--no-optional-locks) is now moot for the cycle side; 2a
+   (chown-in-wrapper) remains a belt-and-suspenders option for the
+   unknown yoga actor.

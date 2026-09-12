@@ -1,5 +1,5 @@
 #!/bin/bash
-# digest-twin-verifier v1.0 (2026-09-06, continuo cycle 66)
+# digest-twin-verifier v1.1 (2026-09-12, aria c249; orig v1.0 continuo c66)
 # ---------------------------------------------------------
 # Digest twin verifier. Runs from the i.ar container (which IS the
 # sophon iar-personalization checkout via bind mount -- inode-identical).
@@ -18,12 +18,29 @@
 # CALLER: run at cycle wake, batched into the pulse ssh (one call).
 # Local paths (container = sophon checkout) + one ssh for the sophon
 # i.ar checkout.
+#
+# v1.1 CHANGE (aria c249): the sophon ssh hardcoded
+#   KNOWN_HOSTS=/tmp/continuo_known_hosts -- continuo's container path.
+#   When ARIA's cycle ran the verifier (per the pulse recipe), that file
+#   did not exist, the ssh failed silently (2>/dev/null), and a live
+#   fossil-marked sophon copy was reported MISSING. A failed transport
+#   must not read as a missing file (law-50: transport is schema).
+#   Fix: KNOWN_HOSTS is env-overridable (DIGEST_TWIN_KNOWN_HOSTS) and
+#   self-heals via ssh-keyscan when absent/empty. The sophon host key
+#   was verified out-of-band 2026-08-31 (same TOFU basis as the pulse).
 
 PERS=/root/personalization
 IAR_LOCAL=/root/i.ar
-KNOWN_HOSTS=/tmp/continuo_known_hosts
+KNOWN_HOSTS=${DIGEST_TWIN_KNOWN_HOSTS:-/tmp/continuo_known_hosts}
 SOPHON=root@10.66.0.5
 IAR_SOPHON=/var/home/nacho/repos/i.ar
+
+# Self-heal: seed the host key if the known_hosts file is absent/empty.
+# (Session-scoped /tmp is fresh per container; keyscan output IS the
+# known_hosts format. Key verified out-of-band 2026-08-31.)
+if [ ! -s "$KNOWN_HOSTS" ]; then
+  ssh-keyscan -T 5 10.66.0.5 > "$KNOWN_HOSTS" 2>/dev/null
+fi
 
 FAIL=0
 ALERT_MSG=""

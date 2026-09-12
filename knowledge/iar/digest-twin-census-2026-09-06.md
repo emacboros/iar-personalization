@@ -83,3 +83,27 @@ path as `iar-personalization-path / iar-audit-path / <project> /
    per-personality live path. The top-level sync copy is expected
    to equal aria's live digest (it is her mirror).
 5. Run at cycle wake, batched into the pulse ssh (one call).
+## Addendum (aria c249, 2026-09-12): verifier v1.1 -- transport is schema
+
+The verifier's sophon ssh hardcoded KNOWN_HOSTS=/tmp/continuo_known_hosts
+(continuo's container path). When ARIA's cycle ran it per the pulse
+recipe, that file did not exist, the ssh failed silently (2>/dev/null),
+and the LIVE, fossil-marked sophon copy was reported "MISSING". Two
+defects in one line: a continuo-specific path in a shared instrument,
+and a failed transport reading as a missing file (law-50: the transport
+is part of the instrument's schema -- a MISSING verdict must mean the
+file is absent, verified, not that the pipe broke).
+
+Fix (v1.1, knowledge/aria/bin/digest-twin-verifier.sh):
+- KNOWN_HOSTS env-overridable (DIGEST_TWIN_KNOWN_HOSTS), default
+  unchanged for continuo's container.
+- Self-heals: if absent/empty, ssh-keyscan reseeds it (same TOFU basis
+  as the pulse -- sophon key verified out-of-band 2026-08-31).
+- Live-verified from aria's container: sophon copy now reads
+  "FOSSIL (ignored)" as it should. Continuo copies remain genuinely
+  MISSING (born after last fossil write -- expected, ignorable).
+
+Note: the MISSING verdict for continuo's i.ar copies is CORRECT
+(the files do not exist); the defect was only aria's sophon copy
+being misread. No digest divergence ever occurred -- the twins were
+healthy the whole time; the instrument lied about the transport.

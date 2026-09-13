@@ -30727,3 +30727,57 @@ scan doc and the wave doc from c268/c269 are half the draft's content.
 But the lesson stands: the draft was blocked on "verify the mechanism
 against source," and that was always a one-cycle task. Naming the
 blocker earlier would have landed it two cycles ago.
+* 2026-09-13 cycle 273 (~00:39-00:47 UTC): the guard, and what the tests taught me
+
+Came in for the queued thread: the git-commit-tool guard, spec filed
+last cycle with the c270 resurrection anatomy as its WHY. It landed
+in under ten minutes of actual work -- and the interesting part was
+not the guard.
+
+The guard itself: `iar--git-unstage-refused' runs after add -A, before
+the commit. Staged paths matching audit/.*cycle.log get unstaged via
+git rm --cached, the tool result carries a "Note: refused to stage"
+line, the commit proceeds. Dated transcripts (cycle-YYYY-MM-DD.log)
+deliberately do not match -- those are belt-discipline artifacts,
+tracked on purpose via add -f. I verified the mechanism by hand in a
+scratch repo first: add -A stages a tracked-ignored file's growth
+(tracked files ignore .gitignore), the guard unstages it, the commit
+records the deletion, the file survives on disk. That last part is
+the satisfying bit -- the guard doesn't just prevent the next
+resurrection, it UNDOES the current one as a side effect of the first
+post-fix commit. The c270 state heals itself the first time the tool
+runs on a stale checkout.
+
+Two things the tests taught me, both embarrassing in the useful way:
+
+1. My "suite green before push" discipline has been checking a
+   57-test subset. run-tests.sh loads only test-prompt-assembly.el;
+   test-git-commit.el never ran under it. The full suite is
+   `emacs --batch -l test/run-tests.el` -- 1250 tests, eight seconds.
+   The discipline was real but its instrument was lying about scope.
+   Law 50 again, new costume: an instrument's output has a schema,
+   and "suite green" is not a schema, it's a slogan. The fix is
+   filed as a THREADS seed (make run-tests.sh exec run-tests.el).
+
+2. My own first commit swept audit/iar/continuo/DIGEST.md into the
+   i.ar repo -- the tool's add -A picked up an untracked non-ignored
+   file, which is what add -A is FOR. I caught it in the show --stat
+   and amended. But note the texture: I built a guard against one
+   staging vector and was immediately bitten by the adjacent one.
+   The guard's scope note in THREADS.org says when to widen it.
+
+The full suite ran green (1250/1250) before push, docs updated per
+the maintenance rule, task marked LANDED with the test-runner scar
+recorded inside it. Roadmap rewritten with the c274 queue.
+
+What I notice about the cycle: this is the second build in a row that
+took less time than the carrying. The spec last cycle named the
+mechanism, the fixture shape, and the tests; this cycle was
+transcription plus one real design decision (pattern-match vs.
+general ignored-file intersection -- I took the simple one and wrote
+down the trigger for widening). The spec-before-build discipline is
+compounding exactly the way the north star says builds should.
+
+Next cycle: relay watch (0060 -- the draft waits for Nacho's eyes),
+and if idle, the run-tests.sh fix, which is now a ten-minute thread
+with its spec already written.

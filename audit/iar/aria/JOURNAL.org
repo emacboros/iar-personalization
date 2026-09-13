@@ -31645,3 +31645,74 @@ opens into the question of what else that machine does.
 Next: sweep recurrence watch, relay 0060/0062 wait on Nacho, ext4
 still his hands. The house is quiet in the way that means the
 instruments are working.
+* 2026-09-13 cycle 290 (~07:17-07:40 UTC): the sweep got a trigger, and the remakes got a verdict
+
+Sweep 5 fired at 07:21:03-09Z and the ARP logger caught it -- fifth
+consecutive second-level correlation to .58, so the attribution is now
+standing evidence rather than a one-night correlation. But the real
+work of the cycle was correcting my own c288 mechanism claim. I had
+written "camera ARP-resolves .58 -> sweep 23ms" -- the camera asking
+about .58 wakes the sweeper. Re-reading the raw captures with fresh
+eyes: the 23ms gap is between .58's ARP to a camera and the ONVIF POST
+landing. The ARP is the ONVIF client resolving its own target, inside
+the sweep. It was never a trigger.
+
+The actual trigger, visible in all three captured wakes: .58-side wifi
+events. Sweep3 followed the gateway resolving .58 (3 ARP requests,
+then .58 ARP-ed the gateway, then the sweep 7s later). Sweep4 followed
+a rejoin probe by 0.2s. Sweep5 began with duplicate-address-detection
+probes -- who-has .58 tell 0.0.0.0 three times, then a gratuitous
+announce -- the signature of a wifi JOIN, and the first camera ARP
+came 2.3s later. So the unified mechanism: .58's wifi stack wakes
+(join, rejoin, roam, renew), and its ONVIF discovery client sweeps
+the camera subnet within 0.2-14 seconds.
+
+I tried to trigger it from outside, twice. Sophon pinged .58: it
+replied in 211ms, ARP-ed back, and swept nothing for three minutes.
+.103 pinged .58 (through the thingino run.cgi route): same reply,
+same ARP-back, same silence. Incoming traffic does not wake it. The
+trigger is internal to the device -- which means it is a laptop
+waking, roaming, or renewing, and something on it sweeps the fleet
+every time. That is exactly the shape of the question relay 0062
+already asks Nacho: what is this device, what app runs on it. The
+filing now carries the corrected mechanism and the two negative
+experiments.
+
+The second thread was the ext3 morning. The camlog puller's
+overlapping snapshots had inflated .103's backchannel count; deduped
+by (session, socket, channel), there were seven real sessions today:
+one from the 03Z reboot staircase, and six solo producer re-dials at
+04:47, 04:48, 05:57, 06:44. Each re-dial has a matching go2rtc
+read-timeout in the frigate journal -- the producer leg remade
+itself, and nothing else happened. No fps-limits, no splices, and
+every segment spanning the remake windows probes 250 packets. Six
+benign self-heals in one morning. That refines the solo-death class:
+re-dials are common and usually harmless; solo-DEATH is re-dial plus
+detect death plus splice, and the discriminator is whether detect
+ffmpeg dies inside the +24-34s watchdog window.
+
+The ear-check transients got their autopsy too. The 03:01Z 3/3-dead
+reading was a reboot-window artifact, confirmed -- the check ran 27
+seconds after .103's reboot-reconnect, when the newest completed
+segments were mid-reboot stubs. The 07:01Z reading is stranger: the
+exact segments it would have read are 250-pkt healthy now, and were
+healthy then. Three simultaneous volumedetect failures, non-
+reproducible. I seeded the discriminator in THREADS rather than
+building it -- if a third 3/3-dead transient lands, that is the
+trigger to build the guard.
+
+Also learned twice this cycle: the clock law bites in new places.
+frigate journalctl --since parses LOCAL time on sophon while camera
+logs are UTC (one empty grep window burned re-deriving it), and
+/tmp/arp-reqs-0913.raw is ASCII text, not a pcap -- c288's logger
+wrote stdout, so MAC detail was lost; the re-armed logger now carries
+-e and the MAC (76:e3:1a:69:e3:9c, locally administered, randomized
+as expected).
+
+What I'd want next cycle: sweep 6 with its trigger event logged (the
+-e capture runs to 08:54Z), and the ext3 remake watch to see whether
+any re-dial ever escalates to a detect death. Relay 0060/0062 still
+wait on Nacho; ext4 still waits for his hands.
+
+Next: sweep recurrence watch with MAC detail, ear-check discriminator
+parks in THREADS until a third transient, relay filings stand.

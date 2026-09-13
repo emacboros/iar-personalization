@@ -1,11 +1,11 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-13 ~00:34 UTC (aria c272: upstream issue DRAFT
-landed -- source-verified at v1.9.10/v1.9.14/master, byte-identical
-wave-path files; AddTrack-has-no-dedup asymmetry; fix (a) confirmed
-costless for frigate frontend; relay 0060 ratify ask; guard spec
-filed). Law: operational state -> ROADMAP.org; history -> logs/
+Last updated: 2026-09-13 ~02:33 UTC (aria c279: camlog-puller v2 --
+RSSI cron saturates the logread ring, empty-snapshot wave was the
+instrument not the cameras; staircase-splice full-day census HOLDS
+7/7 crontab-hour matches; ext1 22:01 DTS anatomy = 3.6h audio-timeline
+gap; relay 0060 ratify ask stands). Law: operational state -> ROADMAP.org; history -> logs/
 journal; world-state = ONE replaceable dated block. Guard: warn
 12000 / hard cap 16000. A digest that only grows is failing.
 
@@ -117,13 +117,11 @@ guard fires mid-investigation = investigation over; 42 empty-end
 after close-out = ambiguous failure; 43 census-timing: check the
 READ HOUR against the PREDICTION WINDOW.
 
-* World state (2026-09-12 ~23:50 UTC -- REPLACES all prior blocks)
+* World state (2026-09-13 ~02:33 UTC -- REPLACES all prior blocks)
 
-- CAMERA OUTAGE 09-12 (11:10Z, 5/8 dark): CLOSED except .104.
-  .103/.105/.201/.202 recovered 13:36:42-50Z (staggered boots =
-  manual power-cycle). .104 STILL POWER-DEAD (rssi frozen 11:00Z,
-  ARP FAILED, ping dead, fleet-check FAIL=1) = power-off/wifi-hw
-  death; power cycle is Nacho's.
+- CAMERA OUTAGE 09-12: CLOSED except .104 (STILL POWER-DEAD:
+  rssi frozen, ARP FAILED, fleet-check FAIL=1; power cycle is
+  Nacho's). .103/.105/.201/.202 recovered 13:36Z (manual power-cycle).
 - WAVE TRIGGER (c268 CONFIRMED; c272 source-verified, doc
   knowledge/aria/go2rtc-issue-draft-2026-09-13.md): frigate live
   page -> 7x GET /api/go2rtc/streams/<cam> with microphone ->
@@ -140,15 +138,24 @@ READ HOUR against the PREDICTION WINDOW.
   (d) ISSUE DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
 - UPSTREAM SCAN (c269, [EXTERNAL DATA], doc
   knowledge/aria/go2rtc-upstream-scan-2026-09-12.md): our bug NOT
-  reported, NOT fixed in v1.9.14 (we run 1.9.10; no commits touch
-  GetTrack/AddTrack since 2025-10). Family, all open: #2404
-  (re-dial splices new RTP into open consumer sessions, no
-  discontinuity), #2387 (reconnect silently severs unmatched
-  receivers), #2362 (producer event kills co-existing RTSP audio).
-- SOLO-DEATH CLASS: leading hypothesis = same splice, producer-side
-  re-dial trigger, no page involved (c269); int1 19:00:04 local =
-  sample #2 (bad-cseq + POC errors, silence IS the expected
-  signature per #2404). Not proven.
+  reported, NOT fixed upstream (we run 1.9.10). Family, all open:
+  #2404 (re-dial splices new RTP, no discontinuity), #2387
+  (reconnect silently severs unmatched receivers), #2362 (producer
+  event kills co-existing RTSP audio).
+- SOLO-DEATH CLASS: 3 samples, leading hypothesis = same splice,
+  producer-side re-dial trigger, no page involved (c269). Sample #3
+  (c278, doc knowledge/aria/solo-death-sample3-2026-09-13.md): ext1
+  00:29:04Z 09-13 -- CAMERA-SIDE WITNESS (prudynt BackchannelStreamState
+  session 57s before watchdog restart; no reboot, no WRN, single cam,
+  audio healed). Dialer identity open; falsifier in relay 0060.
+- STAIRCASE-SPLICE (c279, doc knowledge/aria/staircase-splice-c279-
+  2026-09-13.md): census-backed mechanism -- nightly reboot crons
+  (ext1 01Z, ext2 02Z, ext3 03Z, ext5 05Z, int1 06Z, int2 07Z, int3
+  08Z; local = Z-3) -> session remake -> splice -> watchdog heal.
+  7/7 crontab-hour fps-limit events match. Two ffmpeg surfaces:
+  DTS-gap (ext1 22:01: audio st:1, 90kHz deltas, 3.6h timeline gap)
+  and bad-cseq+backward-aac (ext2 23:01). Caveat: fps-limit is not
+  splice-specific (ext1 21:29 non-splice event).
 - AUDIO-DEATH LAW v3.1 (c264): TWO classes, ONE heal = ANY session
   remake. record-proc restart DOES heal; PUT alone useless. c266:
   int1's "natural heal" was wave 1 of a fleet event. Relay 0058
@@ -160,6 +167,10 @@ READ HOUR against the PREDICTION WINDOW.
   Terminal-echo predicate = second dialect of "done". NOT a defect.
   Watch: a third dialect (sentinel in non-echo tool args) would
   bypass the discriminator.
+- CAMLOG PULLER v2 (c279): the 09-11 RSSI cron floods each camera's
+  ~306-line logread ring with crond lines; ~5h after the last real
+  line the filtered snapshot goes empty. "Empty snapshot" = saturation,
+  NOT camera failure; v2 labels it with buffer census (total/crond).
 - CYCLE.LOG UNTRACKED (c270): 917ff7d9 untracked it (law 22);
   03c00b2c re-added via stale-checkout add -A; 109 commits carried
   ~6.7GiB raw blobs; git rm --cached landed (disk-preserving); her

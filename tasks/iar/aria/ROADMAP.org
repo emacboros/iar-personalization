@@ -1,34 +1,53 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~02:46 UTC (cycle 280: WAVE MECHANISM
-PRODUCTION-CONFIRMED -- 3 waves, +24s fingerprint, camera-side
-backchannel witnesses at every hop; sample #3 reclassified;
-08:10:22Z fleet RTP stall = new class; belt swept, all pushed)
+Last updated: 2026-09-13 ~03:29 UTC (cycle 281: CAMERA SYSLOG SINK
+LIVE -- 7 cams -> sophon udp514 -> cameras.log; firewall trap found
+(514 < 1025); persistence check pending tomorrow's reboots)
 
-## c281 QUEUE (in order)
-1. INT1 SPLICE WATCH: int1's crontab is 06:00Z = 03:00 local -- the
-   next predicted staircase splice lands ~03:00 local (c280 is
-   23:43 local, so likely during c281/c282). Check frigate journal
-   for "exceeded fps limit" on interior_1 ~03:00 local + splice
-   markers (bad cseq / invalid dropping st:1 / backward aac).
-   Prediction: one splice per camera per night at its crontab hour.
-2. RELAY WATCH: 0060 (go2rtc issue draft ratify + clean-falsifier
-   ask; amended twice). If Nacho rules, post the draft to AlexxIT/
-   go2rtc (or he posts; his call). Do not post without his eyes.
-   NOTE: c280 STRENGTHENS the case -- fix (a) would have prevented
-   all three observed waves.
-3. PULLER v2 VERIFICATION: after one night of operation, confirm
-   census labels behave (105/202 should log "N N" saturation labels;
-   real log lines reappear at each camera's reboot).
-4. WAVE DETECTOR: the trigger is now precise (c280): fleet-wide
-   BackchannelStreamState sessions in camlog + +24-34s fps-limits.
-   A nightly batch check or a sophon cron slot would automate it --
-   THREADS seed, build if it pulls.
-5. FLEET RTP STALL WATCH (NEW c280): 08:10:22Z class -- 5 producers
-   read-timeout, re-dial refused ~40s, self-healed, no other
-   fingerprint. If it recurs, correlate nic 1-min log + camlog.
-6. RAGE-ORGAN v2.2 WATCH: affect layer truthfulness (depth events ->
-   sev=1 depth-watch, dead -> sev=2+).
+## c282 QUEUE (in order)
+1. INT1 SPLICE WATCH: int1's crontab 06:00Z = 03:00 local -- lands
+   ~mid-c282. Check frigate journal for "exceeded fps limit" on
+   interior_1 ~06:00Z + splice markers. Prediction: one splice per
+   camera per night at its crontab hour (census-backed 7/7).
+2. SINK PERSISTENCE CHECK (NEW c281, CRITICAL): do the jct writes to
+   /etc/thingino.json survive the nightly crontab reboots? ext1 reboots
+   01Z, ext2 02Z, ext3 03Z, ext5 05Z, int1 06Z, int2 07Z, int3 08Z.
+   CHECK: /var/log/cameras.log should show boot lines from each camera
+   at its hour. A camera with no boot lines = config reverted = fix
+   belongs in camera boot script (relay to Nacho). If ALL revert, the
+   sink survives only until tonight -- file relay immediately.
+3. SINK NOISE FILTER (small): cameras.log gets ~1 crond line/min/cam
+   (RSSI cron). Optional rsyslog filter `if $msg contains "cmd {"
+   then stop` or logrotate. Not urgent (disk 30%).
+4. PULLER v2 VERIFICATION: after one night, confirm census labels
+   behave (real log lines reappear at each camera's reboot).
+5. RELAY WATCH: 0060 (go2rtc issue draft ratify; c280 strengthens the
+   case). If Nacho rules, post draft to AlexxIT/go2rtc. Do not post
+   without his eyes.
+6. WAVE DETECTOR BUILD: trigger precise (fleet backchannel sessions +
+   +24-34s fps-limits). NOW BETTER: cameras.log is a continuous
+   witness source (no ring loss). Build when it pulls.
+7. FLEET RTP STALL WATCH: 08:10:22Z class. If recurs, correlate nic
+   1-min log + camlog + NOW cameras.log (second witness).
+
+## c281 addendum (2026-09-13 ~03:29 UTC)
+- CAMERA SYSLOG SINK LIVE (doc knowledge/aria/camera-syslog-sink-c281-
+  2026-09-13.md): all 7 alive thingino cameras forward syslog udp514
+  to sophon 192.168.2.69 -> /var/log/cameras.log. Chain: jct set
+  rsyslog.{enabled,host,port,local} -> S01syslogd restart -> syslogd
+  runs with -R. sophon: /etc/rsyslog.d/30-cameras.conf (imudp bound
+  LAN IP, $fromhost-ip 192.168.2.* -> cameras.log & stop).
+- THE TRAP (25min to find): firewalld FedoraWorkstation zone accepts
+  udp 1025-65535; 514 is BELOW 1025. tcpdump saw packets arrive;
+  rsyslog received nothing; local logger tests landed fine. Fix:
+  rich rule source 192.168.2.0/24 udp 514 accept (PERMANENT, verified
+  in nft ruleset). Law-50 texture: verify the path TO the socket.
+- Verified live: logger tests from .102/.103/.105/.201/.202/.203 all
+  landed; 103 crond lines flowing; .104 power-dead absent (expected).
+- Splice watch: no new fps-limit events in the 4h window checked
+  (20:00-00:00 local); int1 06:00Z prediction intact.
+- Belt: 86e95081 (sink doc), 3b22c72e (history), 1b308d57 (journal).
+- Instrument tax: predicted ~30min, actual ~40min (firewall trap).
 
 ## c280 addendum (2026-09-13 ~02:46 UTC)
 - WAVE MECHANISM CONFIRMED IN PRODUCTION (doc knowledge/aria/
@@ -36,94 +55,25 @@ backchannel witnesses at every hop; sample #3 reclassified;
   16:17, 16:19 local), all one viewer IP (181.28.154.180), all
   matching c268: login -> 7 paramless /api/go2rtc/streams/<cam>
   GETs -> +24-34s fps-limits fleet-wide -> splice markers -> heal.
-  The 16:17-16:19 "biggest wave of the day" (c279) = waves 2+3 of
-  one session; the 15:39 wave found by pulling the journal window
-  back further. GETs are paramless -- mic-probe is inside the
-  frigate proxy handler, not the URL (zero "microphone" strings).
+  GETs are paramless -- mic-probe is inside the frigate proxy handler
+  (CodecAny match), NOT visible in the URL.
 - CAMERA-SIDE WITNESSES: all 7 alive cameras logged new
   BackchannelStreamState sessions at exactly the GET times (UTC
-  18:39:32Z / 19:16:51Z / 19:19:12Z). The mic-probe chain is now
-  observed at EVERY hop: page -> proxy GET -> AddTrack -> camera
-  backchannel session -> Reconnect -> fps-limit -> splice -> heal.
-- SAMPLE #3 RECLASSIFIED: ext1 21:29:31 fps-limit has a backchannel
-  witness at 21:29:04 local (+27s, same fingerprint) and NO page
-  traffic (only a scanner probe 21:25). = mic-probe remake WITHOUT
-  page load. Dialer identity still open (relay 0060 falsifier).
-  DTS gap 14.5G us = 4.0h audio timeline. The c279 "non-splice
-  caveat" event was actually this.
-- NEW CLASS -- FLEET RTP STALL: 08:10:22Z, 5 producers (ext3/int1/
-  int2/ext5/ext4) read-timeout simultaneously on ESTABLISHED conns,
-  re-dials connection-refused ~40s (08:10:41-08:11:02), then all
-  recovered. NO fps-limits, NO splice markers, NO page traffic, NO
-  camera reboots (staircase boots were 05Z/06Z/07Z, hours earlier),
-  NIC stayed 10M no 60s-granularity flap. Cause unknown. NOT
-  solo-death (that requires detect death + splice + heal).
-- +24s CONSTANT: first fps-limit lands +24s after the GET batch in
-  all three waves (go2rtc watchdog interval). Spread 24-34s =
-  per-camera detect timing. Any fps-limit +24-34s after a
-  backchannel session = session-remake class fingerprint.
-- Belt: swept with exclude recipe; pushed dfa54cc0 (wave doc),
-  4302720d (continuo artifacts), 69b018f4 (journal+history).
-- Lab-notes id 1009 (thread/wave-mechanism-confirmed).
-- SCAR: loop guard fired once (c103, same-tool warning on ssh-grep
-  iteration) -- correct; batched after. Prediction note: predicted
-  ~30min for splice-watch + close; actual ~70min because the wave
-  decode expanded. The pull-sideways was worth it.
-
-## c279 addendum (2026-09-13 ~02:32 UTC)
-- CAMLOG-PULLER v2 LANDED (sophon /var/lib/aria-fleet/camlog-puller.sh,
-  md5 5f0866fb): root cause of the 00:30Z+ "empty snapshot" wave =
-  the 09-11 RSSI cron (1/min) floods the ~306-line logread ring with
-  crond lines; ~5h after the last real log line the filtered snapshot
-  is empty. NOT camera failures. v2 empty branch records buffer census
-  (logread total/crond): "N N" = all-crond saturation (camera fine),
-  "0 0" = genuinely empty, "N 0" = month-grep ate non-crond lines
-  (format regression). Verified live: .105 = 305/305, uptime 12:49,
-  healthy. Instrument collision scar: the RSSI puller quietly degraded
-  the camlog puller's signal by filling its shared input with noise.
-- STAIRCASE-SPLICE CENSUS HOLDS (doc knowledge/aria/
-  staircase-splice-c279-2026-09-13.md): full-day fps-limit census vs
-  crontab map (verified live per camera): 7/7 crontab-hour events
-  match (ext3 00:00, ext5 02:00, int1 03:00, int3 05:00, ext1 22:00,
-  ext2 23:00 local). Mechanism now census-backed.
-- EXT1 22:01 DTS ANATOMY: all 100 invalid-dropping lines st:1 (AUDIO),
-  DTS deltas ~1290us (90kHz audio clock), next-pointer 14.5M us ahead
-  = detect's audio timeline outran the camera's post-reboot stream by
-  3.6h of audio time. ext2's splice = the other face (bad cseq +
-  backward aac queue). Same session-remake mechanism, two surfaces.
-- CAVEAT (SUPERSEDED c280): ext1 21:29:31 fps-limit "no splice
-  markers" -- c280 found its backchannel witness; it was a mic-probe
-  remake, not a staircase event.
-- 16:17-16:19 = 14-event 8-camera wave burst (c279) -- now decoded
-  (see c280 addendum).
-- SCAR: loop guard fired twice (10-chain, 11-chain) on frigate journal
-  grep windows; both correct -- one batched pull to /tmp answered
-  everything. Pattern: pull once, grep locally.
-- Belt: swept with exclude recipe; pushed 0fb2cae0 (census doc),
-  e70d2c9d (continuo artifacts), b47e853e (journal), a66d62f6 (history).
-
-## c278 addendum (2026-09-13 ~02:18 UTC)
-- DIGEST TWIN SYNC at wake: verifier FAIL=1 -- audit-path twin missed
-  c277's pointer update (top-level had it). cp + commit 43fce769.
-  Law 27 catch working as designed.
-- RAGE-ORGAN v2.2 LANDED (6586ae3c): the standing sev=2 was a FALSE
-  VALENCE -- full 3-day census showed all 7 fence events were
-  CONVERGED runs (Exit: 0, grace summary, work preserved). Zero dead
-  events. v2.2 adds the converged/dead classifier: severity grades
-  DEAD recurrence only; converged events report as "depth watch" sev=1.
-  Drill matrix verified. Fear organ refreshed: sev=0 (fleet-check
-  FAIL=1 = standing .104 power-dead, honest).
-- SCAR owned: first awk census misattributed run6's fence lines
-  (msgs-hard, not tool-soft); corrected before building on it.
-- SOLO-DEATH SAMPLE #3 CONFIRMED (doc
-  knowledge/aria/solo-death-sample3-2026-09-13.md): ext1 (.101)
-  00:29:04Z -- camera's OWN prudynt logged new BackchannelStreamState
-  TCP session (session 4179292464) 57s before frigate watchdog
-  restart (00:30:01Z, no-frames). No reboot, no go2rtc WRN (silent
-  splice per #2404), single camera (not a wave), audio healed 250pkts.
-  First CAMERA-SIDE witness of the class. (c280 REFINEMENT: the
-  backchannel session is mic-probe-class; the event = mic-probe remake
-  without page load; solo-death family samples #1/#2 remain open.)
+  18:39:32Z / 19:16:51Z / 19:19:12Z). Chain observed at EVERY hop:
+  page -> proxy GET -> AddTrack -> camera backchannel session ->
+  Reconnect -> fps-limit -> splice -> heal.
+- SAMPLE #3 RECLASSIFIED: ext1 21:29:31 fps-limit has backchannel
+  witness at 21:29:04 local (+27s) and NO page traffic = mic-probe
+  remake WITHOUT page load. Dialer identity open (relay 0060
+  falsifier). DTS gap 4.0h audio timeline.
+- NEW CLASS -- FLEET RTP STALL: 08:10:22Z, 5 producers read-timeout
+  simultaneously on ESTABLISHED conns, re-dials refused ~40s, all
+  recovered. NO fps-limits/splice/page-traffic/reboots/NIC-flap.
+  Cause unknown. Watch for recurrence.
+- +24s CONSTANT: first fps-limit lands +24s after GET batch (go2rtc
+  watchdog interval); spread 24-34s = per-camera detect timing.
+- Belt: dfa54cc0 (wave doc), 4302720d (continuo artifacts),
+  69b018f4 (journal+history). Lab-notes id 1009.
 
 ## STANDING (stable facts; do not re-derive)
 
@@ -135,7 +85,6 @@ backchannel witnesses at every hop; sample #3 reclassified;
   frigate.service (system unit, root-readable); podman exec via
   'su - nacho -c "XDG_RUNTIME_DIR=/run/user/1000 podman exec frigate
   <cmd>"'. Frigate version deployed: 0.17.2-3d4dd3a (stable-tensorrt).
-  journalctl --user does NOT see frigate (system unit).
 - CLOCK SHAPES: cameras UTC; frigate logs LOCAL (-03); frigate nginx
   access log LOCAL [12/Sep/2026:...]; prudynt UTC. Convert first.
   Camera crontab reboots: ext1 01Z, ext2 02Z, ext3 03Z, ext5 05Z,
@@ -150,8 +99,12 @@ backchannel witnesses at every hop; sample #3 reclassified;
 - ALL 7 ALIVE CAMERAS HAVE SPEAKER AUDIO in SDP -- mic probe
   reconnects ALL of them. ext4 (power-dead) has no producers.
 - PRODUCER ID MAP (c275 baseline): ext1 47382, ext2 43102, ext3 44120
-  (c277: ext3 producers[0] is a placeholder; filter by id presence),
+  (ext3 producers[0] is a placeholder; filter by id presence),
   ext5 43133, int1 45183, int2 43108, int3 43121; ext4 none.
+- CAMERA SYSLOG SINK (c281 NEW): /var/log/cameras.log on sophon; all
+  7 alive cams forward udp514; firewalld rich rule LAN-only;
+  rsyslog.d/30-cameras.conf. PERSISTENCE UNVERIFIED (jct write vs
+  nightly reboots). Camlog puller = backup witness now.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
   IDs max-seq+1 per filer (2eaf00b7).
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
@@ -159,8 +112,6 @@ backchannel witnesses at every hop; sample #3 reclassified;
   BEFORE my own writes (git add -f; audit/* is gitignored), push
   before new threads. THE RECIPE (c277 VERIFIED):
     git add -f -- 'audit/iar/continuo' ':(exclude)audit/iar/continuo/cycle.log'
-  The exclude pathspec IS the fix -- never run the bare directory
-  sweep again.
 - TEST SUITE: full suite = emacs --batch -l test/run-tests.el (1250
   tests, ~8s) = run-tests.sh. Filter: run-tests.sh "regexp".
 - .AR TRAP (c274): paths ending .ar get tramp-archive file-name
@@ -177,21 +128,23 @@ backchannel witnesses at every hop; sample #3 reclassified;
 - ZULIP POST KEY: aria-cycle.conf is an ini file -- key line is
   "key = ..." (grep ^key, cut -d= -f2, strip quotes). First-line
   head -1 grab fails (Malformed API key, c280).
+- ausearch HANGS (c281): ausearch on sophon blocked >600s twice --
+  do not run it in a cycle; use journalctl for AVCs if needed.
 
 ## THREADS (open, no obligation)
-- WAVE DETECTOR BUILD (c280 UPGRADED): trigger now precise -- fleet
-  backchannel sessions (camlog) + +24-34s fps-limits (frigate).
-  Nightly batch or cron slot. Earned its place.
-- FLEET RTP STALL (c280 NEW): 08:10:22Z class, cause unknown. Watch
-  for recurrence; correlate nic 1-min + camlog when it repeats.
+- WAVE DETECTOR BUILD: trigger precise (fleet backchannel + +24-34s
+  fps-limits); cameras.log = continuous witness. Build when it pulls.
+- FLEET RTP STALL (c280): cause unknown. Watch for recurrence;
+  correlate nic 1-min + camlog + cameras.log when it repeats.
 - SOLO-DEATH CLASS: samples #1/#2 (int1 19:00:04, ext5 19:13-15
   09-12) still lack camera-side witnesses; sample #3 reclassified
-  OUT of the family (c280). Leading hypothesis = silent producer-side
-  re-dial (c269). Dialer identity open -- falsifier in relay 0060.
-- STAIRCASE-SPLICE MECHANISM: census-backed (c279). int1 03:00 local
-  is the next predicted event (c281 watch).
+  OUT (c280). Leading hypothesis = silent producer-side re-dial
+  (c269). Dialer identity open -- falsifier in relay 0060.
+- STAIRCASE-SPLICE MECHANISM: census-backed (c279). int1 06:00Z is
+  the next predicted event (c282 watch).
+- SINK PERSISTENCE (c281): jct vs nightly reboots -- tomorrow tells.
 - CLEAN FALSIFIER: ask folded into relay 0060.
-- MSGS-FENCE WATCH: 401/401/403 + c272-c280 clean. Watch continues.
+- MSGS-FENCE WATCH: 401/401/403 + c272-c281 clean. Watch continues.
 - Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.

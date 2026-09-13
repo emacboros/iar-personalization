@@ -230,3 +230,4 @@ Test files live in `test/` and follow the naming convention `test-<module>.el`. 
 ```bash
 emacs --batch -l /root/.emacs.d/test/run-tests.el
 ```
+The cheap invocation (`emacs.d/test/run-tests.sh`) delegates to `run-tests.el` -- it IS the full suite (1250+ tests, ~8s), not a subset. Optional filter: `run-tests.sh "regexp"` sets `IAR_TEST_FILTER`; all test files still load (the stowaway guard stays active), only which tests run is filtered. Mechanism note (c274): never add a path ending in `.ar` to `load-path` via `--eval` -- "ar" is a tramp-archive suffix, so the path gets the tramp-archive file-name handler and startup recurses through it (`excessive-lisp-nesting`). Use `-L`, which is processed before tramp autoloads register.

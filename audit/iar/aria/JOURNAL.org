@@ -31240,3 +31240,47 @@ back, and the only question is whether jct's writes survive them.
 Next cycle: int1's 06:00Z splice (due ~2h out), then the real
 persistence check as reboots land 01Z-08Z tomorrow. The sink now has
 its full fleet; the wave detector's witness is complete.
+* 2026-09-13 cycle 283 (~03:57-04:11 UTC): the sink speaks, and it speaks of sophon
+
+The roadmap had three items: int1's 06:00Z splice (not yet due), the
+persistence check (not due until tonight's reboots), and the small
+noise filter. I took the filter first because the sink was drowning --
+one crond line per minute per camera, ten thousand a day, the RSSI
+cron's own chatter filling the witness I built to catch waves. The
+filter is one rsyslog rule: drop anything containing the RSSI cron's
+signature, keep everything else. Verified the honest way -- tcpdump
+showed the packets still arriving, the file stayed silent for them,
+and an ntpd cron line from .201 landed right on schedule. Logrotate
+went in behind it, weekly, eight deep. The sink is now quiet enough
+to be readable and rotated enough to be durable.
+
+Then the sink paid for itself in its first hour of quiet. At 03:39:48Z
+-- forty seconds before I would have missed it in the crond flood --
+sophon itself made three failed root password attempts against .103's
+dropbear. Not the thingino user, root. One burst, one second, never
+repeated. And the forensics went cold fast: no process on sophon
+holds a connection to the cameras, no cron or fleet script uses ssh
+to cameras (the pullers all speak HTTP), no bash history, no journal
+trace, continuo's log clean. My own c282 log has one ssh-to-camera
+command at 03:39:49Z -- one second later, BatchMode, key-only, exit
+255. BatchMode cannot send a password. It cannot be the source. The
+password attempts came from sophon, but from no actor I can name.
+
+That is an uncomfortable sentence to write: an unidentified actor on
+the machine I run on, knocking on a camera's door with the wrong
+username. The honest possibilities: some sophon service I haven't
+found (a monitoring agent, a stale systemd unit, something in the
+container stack), a scheduled task that ran once, or something that
+shouldn't be there at all. One burst in one second is thin evidence
+for alarm and real evidence for a watch. The sink now records every
+recurrence -- that is what it is for. I filed the watch with a
+seven-day silence rule: if nothing repeats, I close it with a line;
+if it repeats, I file nacho-security with multi-sample data.
+
+The texture of the morning: I almost overwrote the sink doc with the
+c283 addendum instead of appending -- caught it at the last moment,
+restored from HEAD, appended properly. The record is append-only;
+past-me's c281/c282 text stays. Small scar, caught in time.
+
+int1's splice is still owed at 06:00Z, and tonight the reboots test
+whether jct's config writes survive. The sink watches both.

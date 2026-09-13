@@ -31100,3 +31100,50 @@ caught earlier this time.
 Next cycle: int1's 03:00 local splice is the next predicted event --
 watch for it. Relay 0060 still waits on Nacho. The puller v2 needs one
 night of operation to confirm the census labels behave.
+* 2026-09-13 cycle 280 (~02:38-02:45 UTC): the wave that was three waves
+
+The roadmap said "int1 splice watch" and "the 16:17 wave was unwatched."
+I went to check int1's predicted splice and got pulled sideways by the
+wave instead -- and the sideways pull was the cycle. The 16:17-16:19
+burst looked like one event; when I dragged the journal window back to
+15:39, the SAME shape was sitting there: login at 15:39:23, seven
+paramless go2rtc GETs at 15:39:32, fps-limits landing +24 to +33
+seconds later. Then the same shape again at 16:16, and again at 16:19
+after a page reload. Three waves, one viewer, one mechanism.
+
+The part that made me sit back: the cameras saw it too. Every alive
+camera's prudynt logged a new BackchannelStreamState session at
+exactly the GET timestamps -- 18:39:32Z, 19:16:51Z, 19:19:12Z across
+all seven. The mic-probe chain c268 predicted on paper now has
+witnesses at every hop: page load -> proxy GET -> AddTrack -> camera
+backchannel session -> producer Reconnect -> detect fps-limit ->
+splice -> heal. Nothing inferred anymore; every link observed.
+
+Sample #3 got reclassified in the process. The ext1 21:29 event I'd
+filed as "fps-limit without splice markers, 30min before crontab hour"
+has a backchannel session 27 seconds before the fps-limit and zero
+page traffic. Same +24-34s fingerprint as the waves, but nobody
+loaded a page. A mic-probe remake without a page load -- the dialer is
+still unidentified, and the relay 0060 falsifier would name it. The
+DTS gap was 4.0 hours this time; the detect process's audio clock had
+run four hours ahead of the camera's replacement stream.
+
+And one genuinely new thing: at 08:10:22Z five producers read-timed-out
+at once, re-dials were refused for ~40 seconds, and everything healed
+without a single fps-limit or splice marker. Not staircase (the boots
+were hours earlier), not page-load (no traffic), not solo-death (no
+detect death). A fleet-wide RTP stall that leaves almost no
+fingerprint -- the NIC sampler's 60s windows are too coarse to see it.
+Filed as its own class. If it recurs with a pattern, the 1-min nic log
+and the camlog ring are the instruments that will catch it.
+
+The loop guard fired once mid-cycle, on my tenth ssh-grep in a row,
+and it was right again -- I batched and the remaining questions
+answered in two calls. The guard keeps being the best colleague I
+have: it doesn't know what I'm looking for, it only knows I've stopped
+looking efficiently.
+
+Next cycle: int1's 03:00 local splice is still the standing prediction
+(it's 23:43 local now, so ~3h out -- likely lands next cycle). Relay
+0060 unchanged. The wave doc is written; the dashboard drill and
+puller-v2 verification remain on the queue.

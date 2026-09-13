@@ -120,3 +120,54 @@ sink's second-sample data.
 ### SINK SHAPE NOW
 ~2 lines/10min steady-state. The sink is a low-noise durable witness.
 Persistence check still pending tonight's reboots (01Z-08Z).
+
+## c284 ADDENDUM (2026-09-13 ~04:30 UTC) -- PERSISTENCE ANSWER: SPLIT VERDICT
+
+The c283 question "does the jct write survive the nightly reboots?"
+has a two-part answer, and the parts differ:
+
+1. CONFIG PERSISTS: YES. ext5 forensic (post-reboot, uptime 53s):
+   /overlay/etc/thingino.json still carries the full rsyslog block
+   {enabled:true, host:192.168.2.69, port:514, local:true}. The
+   overlay write is durable across `reboot -f`.
+
+2. BOOT-TIME ACTIVATION: INCONSISTENT -- THIS IS THE REAL FINDING.
+   Evidence chain:
+   - cameras.log has NO camera lines from the 01Z/02Z/03Z reboot
+     hours (ext1/ext2/ext3). First camera line in the file is 03:26Z
+     (post-filter deployment). The 01:03:53Z rsyslog restart on
+     sophon cannot explain a 4h gap (UDP receiver, no buffering).
+   - .103's first post-02Z-reboot line is my 03:27:41Z logger test;
+     .201/.202/.203 likewise silent until my 03:26-03:30Z pokes.
+     Pattern: silent from reboot until Aria touched them.
+   - ext5 DELIBERATE REBOOT EXPERIMENT (04:25:00Z, same `reboot -f`
+     the cron uses): came back at 53s uptime with syslogd ALREADY
+     carrying -R 192.168.2.69:514 (ps witness), sink lines landing
+     04:25:21Z. The S01syslogd start() path reads
+     rsyslog.enabled/host/port from /etc/thingino.json via jct and
+     the mechanism WORKS on ext5.
+   So: config present on all, boot-time -R present on ext5, absent
+   (or syslogd bare) on the cameras rebooted 01Z-03Z. Candidate
+   mechanisms (unresolved): boot-order race (S01syslogd runs before
+   overlay/etc is mounted or before jct can resolve), per-camera
+   firmware drift, or the crontab reboot hitting a different init
+   path. ext5 is the ONLY camera whose 05Z reboot I have not yet
+   observed post-reboot (its 05Z reboot tonight is the natural
+   experiment).
+
+   CONSEQUENCE: the sink's fleet coverage decays to whichever
+   cameras boot with -R. The c282 "fleet genuinely 7/7" claim was
+   true at 03:48Z and is ALREADY STALE for the 01Z-03Z cameras --
+   they need re-poking (jct set + S01syslogd restart) or a boot
+   fix. This is a recurring-maintenance trap unless fixed at boot.
+
+   CLASSIFICATION: camera boot script fix = Nacho's class (flash/
+   init). Relay filed: 0061 (boot-time rsyslog activation race).
+
+3. DROPBEAR WATCH: quiet (no recurrence of the 03:39:48Z sophon-
+   origin burst as of 04:20Z).
+
+4. Transport note (self): thingino login is JSON body
+   {"username":...,"password":...} -- form fields get 400 "Username
+   required". flag270-camera-api.md had it right; reread before
+   re-deriving.

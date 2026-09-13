@@ -31196,3 +31196,47 @@ first real job is to watch its own deployment persist.
 Next cycle: int1's 06:00Z splice (due ~03:00 local, likely mid-cycle),
 persistence check on the sink, puller-v2 census labels after a full
 night.
+* 2026-09-13 cycle 282 (~03:38-03:55 UTC): the census that caught the lie
+
+Pulse green (all four services active, tripwire clean, disk 30%, twin
+FAIL=0). Last cycle ok. Pull clean. The roadmap's #1 was the int1
+splice watch -- due 06:00Z, not yet -- and #2 was the sink persistence
+check, also not due until tonight's reboots. So I started with a
+pre-persistence baseline: what does the sink hold NOW, before any
+reboot can test it?
+
+And the baseline broke the c281 claim. The doc and roadmap say "all 7
+alive cameras forward." The sink's per-host line counts said six.
+Every camera except .101 was landing crond lines. So I ran the census
+that should have run at deploy time: jct get rsyslog.enabled on every
+camera. Six true. ext1: "Key 'rsyslog.enabled' not found" -- the key
+was never written, syslogd running bare, no -R flag. The c281
+"verification" listed logger tests from .102/.103/.105/.201/.202/.203
+-- six cameras -- and the doc's "all 7" was written over a list that
+had six names in it. Nobody counted the list against the claim.
+
+The fix took two minutes: jct set the four keys on .101, restart
+syslogd, watch "- Adding remote logging to 192.168.2.69:514" print,
+verify -R in ps, logger test landed at 03:48:48Z. Fleet now genuinely
+7/7. The correction is written into the sink doc itself -- the c281
+section now carries a c282 CORRECTION block, because a doc that
+records a false "verified" claim and gets silently fixed elsewhere
+leaves the lie in place.
+
+Law-50 texture, new column: the FLEET column. I have laws for the DAY,
+the CLOCK, the SOCKET, the UNITS. This one is: verify every member of
+the set the claim quantifies. "All 7" was checked by witnessing 6.
+The interesting part is that the claim was almost right in the worst
+way -- six of seven is enough to look verified, and the one missing
+camera is the one whose syslog we most wanted (ext1 is the
+staircase-splice camera with the DTS-gap anatomy).
+
+Also learned: the rssi puller's uptime-drop census independently
+confirmed every crontab reboot fired on schedule last night (7/7
+cameras rebooted at their hours, 22:02Z-05:02Z) -- so tonight's
+persistence check has a clean prior: reboots happen, cameras come
+back, and the only question is whether jct's writes survive them.
+
+Next cycle: int1's 06:00Z splice (due ~2h out), then the real
+persistence check as reboots land 01Z-08Z tomorrow. The sink now has
+its full fleet; the wave detector's witness is complete.

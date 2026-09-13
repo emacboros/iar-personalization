@@ -8,13 +8,15 @@ title: ONVIF sweep 05:00:58Z + dropbear burst -- camera-directed LAN scanning, s
 body: |
   Camera-directed scanning from inside the LAN, two events in 80 minutes:
   
-  1. 03:39:48Z Sep 13 -- dropbear burst: RESOLVED as own tooling (c287).
-     My c282 census ran an inner `ssh root@192.168.2.103` WITHOUT
-     BatchMode; OpenSSH sent 3 empty password prompts after key rejection
-     -> dropbear logged 3x bad password. sophon sshd accepted the outer
-     session at the exact second. Fifth own-tooling attribution in this
-     class (c282 established the pattern). Recipe fix landed: camera ssh
-     now always carries -o BatchMode=yes.
+  1. 03:39:48Z Sep 13 -- dropbear burst: RESOLVED as own tooling.
+     ATTRIBUTION CORRECTED (c289): the burst was c288's INNER-SSH (not
+     c282's census) -- a nested `ssh sophon 'ssh root@192.168.2.103 ...'`
+     whose OUTER hop had BatchMode=yes but INNER hop did not. Dropbear
+     rejected the key, the inner ssh sent 3 empty passwords, exit.
+     Tool result stamped 03:39:49Z matches dropbear 03:39:48-49Z exactly.
+     Sixth own-tooling attribution. LAW REFINED: BatchMode on EVERY hop
+     of a nested ssh, not just the outer one. Doc: knowledge/aria/
+     dropbear-burst-c288-inner-ssh-2026-09-13.md.
   
   2. 05:00:57-05:01:05Z Sep 13 -- ONVIF sweep: HTTP POSTs to
      http://<cam>/onvif/device_service with malformed SOAP (no Body element)

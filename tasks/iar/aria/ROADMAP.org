@@ -1,9 +1,10 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~00:47 UTC (cycle 273: git-commit-tool guard
-LANDED -- i.ar dd4118a, 1250/1250 green, docs updated, task closed)
+Last updated: 2026-09-13 ~01:07 UTC (cycle 274: run-tests.sh LANDED
+-- i.ar 0239159+6adbd0d, full suite is the cheap invocation now; .ar
+tramp-archive trap documented)
 
-## c274 QUEUE (in order)
+## c275 QUEUE (in order)
 1. RELAY WATCH: 0060 (go2rtc issue draft ratify) -- if Nacho rules,
    post the draft to AlexxIT/go2rtc (or he posts; his call). Do not
    post without his eyes.
@@ -13,13 +14,33 @@ LANDED -- i.ar dd4118a, 1250/1250 green, docs updated, task closed)
    answer if convenient.
 3. SOLO-DEATH CLASS: watch for sample #3; census method = bad-cseq
    splices in frigate ffmpeg tails, not WRNs in go2rtc logs (c269).
-4. THREADS seed if idle: run-tests.sh gap (loads only
-   test-prompt-assembly; full suite = emacs --batch -l
-   test/run-tests.el, 1250 tests). Make run-tests.sh exec run-tests.el
-   so the cheap invocation is the true one. Small i.ar-own fix.
-5. THREADS seed if idle: widen git-commit guard to general
-   ignored-file resurrection ONLY if a second tracked-ignored class
-   appears (watch note in THREADS.org).
+4. THREADS seed if idle: guard scope widening -- ONLY if a second
+   tracked-ignored class appears (watch note in THREADS.org).
+5. NEW WATCH (c274): the `.ar` tramp-archive trap -- any tool or
+   script that puts an .ar-suffixed path on load-path via --eval
+   will crash startup. If a new script needs load-path, use -L.
+   Watch for other .ar-suffix interactions (file-name-handler-alist
+   is global).
+
+## c274 addendum (2026-09-13 ~01:07 UTC)
+- RUN-TESTS.SH LANDED: i.ar 0239159 + 6adbd0d (exec bit restored).
+  Script execs run-tests.el -- the cheap invocation IS the full
+  suite (1250 tests, ~8s). c273 scar closed.
+- NEW MECHANISM (.ar trap): /root/i.ar paths get the tramp-archive
+  file-name handler ("ar" is an archive suffix). --eval touching
+  load-path with such a path present = require tramp ->
+  locate-library -> scan load-path -> .ar dir -> handler recursion
+  -> excessive-lisp-nesting. Reproduces with `--eval '(princ 1)'`.
+  -L is immune (processed before tramp autoloads register).
+- FILTER MODE: run-tests.sh "regexp" -> IAR_TEST_FILTER env var ->
+  (member NAME...) selector built from matching names. This ERT has
+  NO `predicate' selector clause (verified -- error is the selector
+  bytecode). All test files still load; stowaway guard stays active.
+- SCAR: first commit dropped run-tests.sh's exec bit (mode change
+  tracked silently; caught in ls-files -s). `bash script` worked,
+  `./script` would have failed. Check mode bits on script commits.
+- docs/iar/modules.md updated (691225c3); THREADS seed closed
+  (6c41bb21); journal + history pushed (98494420).
 
 ## c273 addendum (2026-09-13 ~00:47 UTC)
 - GIT-COMMIT-TOOL GUARD LANDED: i.ar commit dd4118a (pushed to
@@ -33,10 +54,8 @@ LANDED -- i.ar dd4118a, 1250/1250 green, docs updated, task closed)
   deletion (resurrection undone); file survives on disk; legitimate
   changes still commit. 1250/1250 full suite green.
 - SCAR (new): run-tests.sh loads ONLY test-prompt-assembly.el -- the
-  "suite green" from run-tests.sh is a 57-test subset, not the suite.
-  Full suite: emacs --batch -l test/run-tests.el (1250 tests, ~8s).
-  My "suite green before push" discipline was checking a subset; the
-  full run passed anyway. Filed as THREADS seed.
+  "suite green" line from run-tests.sh is NOT the suite.  Fixed
+  c274.
 - docs/iar/tools.md updated (personalization 7436b393); task marked
   LANDED (47e01f65); continuo artifacts synced (6f911865).
 - Amended my own commit once: the git_commit tool's add -A swept
@@ -100,7 +119,10 @@ LANDED -- i.ar dd4118a, 1250/1250 green, docs updated, task closed)
   push before starting new threads. My own close-out files are as
   easy to forget as my twin's -- the c271 scar.
 - TEST SUITE: full suite = emacs --batch -l test/run-tests.el (1250
-  tests, ~8s). run-tests.sh = 57-test subset only (c273 scar).
+  tests, ~8s) = run-tests.sh (c274: script now delegates to the el).
+  Filter: run-tests.sh "regexp" via IAR_TEST_FILTER.
+- .AR TRAP (c274): paths ending .ar get tramp-archive file-name
+  handler; --eval load-path changes crash startup. Use -L.
 
 ## THREADS (open, no obligation)
 - SOLO-DEATH CLASS: leading hypothesis = same splice, producer-side
@@ -114,9 +136,10 @@ LANDED -- i.ar dd4118a, 1250/1250 green, docs updated, task closed)
 - Empty-cell experiment: designed, not built.
 - Relay ledger defect: REQ IDs not unique (0055 twice, 0015 twice
   in answered/) -- needs a dedupe law or ID scheme fix.
-- run-tests.sh gap (c273): make the cheap invocation the true suite.
 - Guard scope (c273): general ignored-file resurrection only if a
   second class appears.
+- .ar-suffix interactions (c274): file-name-handler-alist is global;
+  watch for other tooling touching .ar paths.
 - OPEN RELAY: 0042 (yoga root git-status), 0045+0055 (10M cable),
   0046 (stimulus ruling), 0057 (prompt edit ratify), 0059 (frigate
   internet exposure), 0060 (issue draft ratify) -- all human-needed.

@@ -1,13 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-12 ~23:50 UTC (aria c271 maintenance: c268 wave
-trigger CONFIRMED folded in -- the c266 "what re-dials producers"
-question is ANSWERED; c269 upstream scan; c270 close-path census +
-cycle.log untrack; relay 0057 corrected). Law: operational state ->
-ROADMAP.org; history -> logs/journal; world-state = ONE replaceable
-dated block. Guard: warn 12000 / hard cap 16000. A digest that only
-grows is failing.
+Last updated: 2026-09-13 ~00:34 UTC (aria c272: upstream issue DRAFT
+landed -- source-verified at v1.9.10/v1.9.14/master, byte-identical
+wave-path files; AddTrack-has-no-dedup asymmetry; fix (a) confirmed
+costless for frigate frontend; relay 0060 ratify ask; guard spec
+filed). Law: operational state -> ROADMAP.org; history -> logs/
+journal; world-state = ONE replaceable dated block. Guard: warn
+12000 / hard cap 16000. A digest that only grows is failing.
 
 RATIFIER NOTE: carries the c264 law v3.1 correction AND the c268
 trigger confirmation (supersedes the c266 mechanism-only block).
@@ -124,18 +124,20 @@ READ HOUR against the PREDICTION WINDOW.
   manual power-cycle). .104 STILL POWER-DEAD (rssi frozen 11:00Z,
   ARP FAILED, ping dead, fleet-check FAIL=1) = power-off/wifi-hw
   death; power cycle is Nacho's.
-- WAVE TRIGGER CONFIRMED (c268, doc knowledge/aria/
-  wave-trigger-confirmed-2026-09-12.md): frigate 0.17.2 live-page
-  load -> useDeferredStreamMetadata (2s defer) -> 7x GET
-  /api/go2rtc/streams/<cam> with video=all&audio=all&microphone ->
-  probe consumer's mic media (CodecAny) matches camera speaker
-  media -> prod.AddTrack -> Reconnect() = FULL RTSP session remake
-  fleet-wide -> +24s watchdog restarts. Video/audio do NOT
-  reconnect (pointer-equality shortcut). 3 waves 15:39/16:16/16:19
-  local; ZERO events when page closed; ws-connect batch = no wave
-  (negative control). FIX OPTIONS (Nacho): (a) drop microphone
-  param from frigate proxy [smallest, kills the wave]; (b) go2rtc
-  codec-name matching; (c) non-invasive probe; (d) upstream issue.
+- WAVE TRIGGER (c268 CONFIRMED; c272 source-verified, doc
+  knowledge/aria/go2rtc-issue-draft-2026-09-13.md): frigate live
+  page -> 7x GET /api/go2rtc/streams/<cam> with microphone ->
+  probe mic media (CodecAny) matches camera speaker media ->
+  prod.AddTrack -> Reconnect() = FULL RTSP session remake
+  fleet-wide -> +24s watchdog restarts. ASYMMETRY (one line):
+  GetTrack dedups receivers by pointer equality; AddTrack has NO
+  dedup over Senders -> any mic-probe match on sendonly audio
+  while StatePlay = unconditional Reconnect(), never idempotent.
+  ALL wave-path files byte-identical at v1.9.10/v1.9.14/master.
+  FIX: (a) drop microphone param from frigate proxy -- CONFIRMED
+  COSTLESS (frontend consumes only producer medias; paramless GET
+  returns them without AddConsumer). (b)/(c) moot if (a) taken.
+  (d) ISSUE DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
 - UPSTREAM SCAN (c269, [EXTERNAL DATA], doc
   knowledge/aria/go2rtc-upstream-scan-2026-09-12.md): our bug NOT
   reported, NOT fixed in v1.9.14 (we run 1.9.10; no commits touch
@@ -177,13 +179,12 @@ READ HOUR against the PREDICTION WINDOW.
   git already expanded). Relay 0057 open: worked-example prompt
   edit still wanted (placeholder live in her prompt; fill flips
   cycle to cycle).
-- RELAY: 6 open, all human-needed: 0042 (yoga root git-status
+- RELAY: 7 open, all human-needed: 0042 (yoga root git-status
   actor), 0045 item 1 + 0055 (10M cable, hygiene), 0046 (stimulus
   ruling), 0057 (prompt edit ratify), 0059 (frigate 8971 +8554/8555
-  internet-exposed via firewall high-port range; scanners probing,
-  auth holding). LEDGER DEFECT: REQ IDs not unique -- 0055 twice
-  (10M story open; camera outage answered), 0015 twice in
-  answered/.
+  internet-exposed; scanners probing, auth holding), 0060 (go2rtc
+  issue draft ratify before posting). LEDGER DEFECT: REQ IDs not
+  unique -- 0055 twice, 0015 twice in answered/.
 - 13:36Z REBOOT TRIGGER (open): 8s spread, bare boot blocks, both
   APs hit => camera-side power event; APs exonerated.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2

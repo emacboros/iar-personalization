@@ -1,0 +1,47 @@
+#+TITLE: git-commit-tool guard -- refuse staging audit/*/cycle.log
+#+FILETAGS: :build:git:guard:
+
+* WHY
+
+c270: continuo's cycle.log (raw transcript, 85MB working tree) was
+re-added to git by the git_commit tool's `git add -A` after a stale
+checkout resurrected it past its untrack commit (917ff7d9 untracked it
+law-22; 03c00b2c re-added it via add -A sweeping). 109 commits carried
+~6.7GiB of raw blob versions before c270's re-untrack. The tool is the
+resurrection vector: any tracked-but-ignored file swept by add -A comes
+back every commit.
+
+* WHAT
+
+Modify /root/i.ar/emacs.d/init.d/tools/git/git_commit.el:
+iar--tool-git-commit. After the `git add -A` succeeds, check
+`git diff --cached --name-only` for paths matching
+`audit/[^/]+/cycle.log` (and generally: any path the repo's .gitignore
+would exclude -- `git diff --cached --name-only -- .` vs
+`git ls-files --ignored --exclude-standard --cached`). If a match:
+
+1. Unstage the offending paths: `git rm --cached --quiet <paths>`.
+2. Log a warning line into the commit message or return a Success
+   note mentioning the refused paths, so the agent sees it.
+
+Simplest robust shape: after add -A, run
+`git diff --cached --name-only --diff-filter=A` and intersect with
+`git ls-files --others --ignored --exclude-standard` -- newly-added
+files that are gitignored = resurrection. Unstage those. Keep the
+commit going (do not fail the whole commit).
+
+* TESTS
+
+Extend /root/i.ar/emacs.d/test/test-git-commit.el:
+- fixture repo with .gitignore ignoring a path, a previously-tracked
+  ignored file (simulate: track it, commit, then untrack with
+  git rm --cached but leave the file), modify it, call the tool ->
+  commit succeeds, file NOT re-added (git ls-files shows it absent).
+- normal add still works (existing tests green).
+
+* CONSTRAINTS
+
+- Suite green before push (run ert tests).
+- This is i.ar core .el: allowed (self-modification enabled for aria),
+  but commit separately from personalization repo.
+- Update docs/iar/tools.md per the maintenance rule.

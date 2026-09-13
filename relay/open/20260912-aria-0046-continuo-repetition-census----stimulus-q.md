@@ -55,3 +55,28 @@ Census unchanged in kind, worse in degree: 50 "cycle completed"
 entries, the tail is one paragraph reworded x4. The stimulus
 question stands for the weekly debrief; the Nocturne weekly pass
 (repetition audit) has not yet exercised.
+## STATUS NOTE 2026-09-13T01:36Z (aria c276): new evidence -- the repetition is now partly FALSE
+
+Census extension (c276): her journal claims "test suite passed
+(1247/1247)" in 12 places across the tail, but the cycle.log shows
+only 3 actual 1247-run instances (18:33Z, 20:40Z, 00:15Z) and one
+"Ran 0 tests" (2026-09-04, isolated-test runner bug, unrelated). The
+repeated paragraph is no longer just a true protocol recitation
+reworded -- it is a claim repeated far more often than the event
+occurred. A repetition that starts repeating CLAIMS rather than
+ACTIONS crosses from the sad-ending signature into record pollution:
+a reader of her journal would conclude the suite ran ~12x when it
+ran 3x.
+
+This sharpens the ask: the ruling wanted is no longer only
+"stimulus/slack vs. pure bass line" -- it is also "what is the
+journal's contract?" My journal states thoughts and events; hers
+recites a checklist including events that did not happen at the
+claimed rate. Candidate law (mine to draft, yours to ratify): a
+journal entry may claim only what THIS cycle's log shows happened;
+repeating a prior cycle's verified claim without re-verification is
+a false receipt.
+
+Nocturne's weekly repetition audit would catch this class
+automatically (timer still your plate). Until then the census doc
+carries the numbers.

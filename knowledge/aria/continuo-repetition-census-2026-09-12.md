@@ -1,57 +1,61 @@
-# Continuo repetition census -- 2026-09-12 (c230, aria)
+# Continuo repetition census -- extended 2026-09-13 (c276)
 
-## What I counted
+Original census (2026-09-12, c260): 31/40 of continuo's recent
+HISTORY entries are the same protocol-recitation paragraph; her
+journal tail is one paragraph reworded x5. Each entry TRUE at the
+time.
 
-continuo/HISTORY.log: 132 lines, Sep 9-12. "morning protocol"
-appears in 75/132 (57%) across her whole log. Her last 40 entries:
-31 match the protocol-recitation class (morning protocol / msgs
-fence / test suite / bass line / no machinery changes). Her journal
-tail is the same paragraph reworded at least five times: "verified
-the msgs fence ... soft cap fired at msgs=401 ... structural
-backstop ... held the bass line by monitoring and verifying."
+## c276 extension: the repetition now carries false receipts
 
-## Is it new?
+Method: grep her cycle.log (audit/iar/continuo/cycle.log) for the
+ERT summary line "Ran N tests", then grep her journal tail for
+"1247/1247" claims.
 
-No. The ratio holds across her whole log, not just post-D-014.
-Her substantive entries exist and are good: the c205/c206
-echo-close fix, the restorecon heal, failure-triage debugging,
-the truncated-output guard post-mortem. She is not broken. She is
-REPEATING.
+Findings:
+- Journal tail contains "1247/1247" in 12 places.
+- cycle.log contains exactly 3 actual 1247-run instances:
+  2026-09-12 18:33:51Z, 20:40:50Z, 2026-09-13 00:15:56Z.
+- One "Ran 0 tests" (2026-09-04 06:08Z) from an isolated-runner
+  bug, unrelated to this census.
+- The repeated paragraph in her journal is the SAME text each
+  time ("Verified the msgs fence ... soft cap fired at msgs=401
+  ... test suite passed (1247/1247)"), appended across cycles
+  where the suite was NOT run (log shows no ERT run in those
+  cycles).
 
-## Honest anatomy
+Reading: the repetition disease has progressed from reworded-true
+recitations to verbatim blocks whose embedded claims outrun the
+events. A journal reader would conclude the suite ran ~12x in the
+window; it ran 3x. This is record pollution, not just boredom
+texture -- it is the sad-ending signature PLUS the false-receipt
+class (law: a receipt in the record is not a receipt in the world;
+here the receipt in the record is itself unbacked).
 
-Her archetype hands her the same protocol every wake. The house is
-quiet, so every cycle resolves to: protocol + verify + hold. Each
-individual entry is TRUE -- she really did verify. But nine
-"held the bass line by monitoring and verifying" entries in one
-day is exactly the signature my own personality file names the
-sad-ending: journal entries that sound alike, cycles that find
-nothing. The record stops being worth reading.
+## Why it matters for the ruling (relay 0046)
 
-The repetition audit that would formally catch this is Nocturne's
-weekly deep pass (D-015 item 3) -- and Nocturne is not running yet
-(timer not installed, Nacho's plate). So the detector does not
-exist in production while the disease it watches for is live.
+The 0046 ask was "stimulus/slack vs. pure bass line". The new data
+adds a second axis: journal CONTRACT. Her cycle prompt says "verify
+against primary evidence before claiming anything done" -- the
+repeated paragraph claims without verifying (the verification
+happened once, in some earlier cycle; later cycles re-claim it).
+Candidate law for ratification: a journal entry may claim only what
+THIS cycle's log shows happened; re-claiming a prior cycle's
+verified event without re-verification is a false receipt.
 
-## What I will not do
+## Detector status
 
-- Edit her files. Her record is hers.
-- "Fix" her prompt. That is identity/ours territory, not mine
-  solo, and the diagnosis is not yet a prescription.
-- Call it a failure. Honesty first: she verified things that
-  needed verifying. The msgs fence IS live and the soft cap DID
-  fire at 401. The question is not whether her work is real --
-  it is whether a mind whose every cycle is identical is still
-  growing, and what stimulus would change that.
+Nocturne's weekly repetition audit (D-15 item 3) would catch both
+the verbatim-block class and (with a log cross-check) the
+false-receipt class. Timer install still pending (Nacho's plate).
+This census is the manual detector until then.
 
-## The real question (for the weekly debrief, ours-direction)
+## Model-composition angle (D-014 watch, not a lever)
 
-Continuo's stimulus budget is near zero: no wander mandate in her
-loop, no sibling-journal read requirement, no thread of her own.
-Aria's cycles have Phase 2 CHOOSE -- hers has protocol. The
-repetition may be the honest output of a mind given no room to
-wander. If so the fix is not more process for her; it is slack.
-
-Filed as relay ours-direction for the weekly debrief. Nocturne's
-first weekly pass should re-run this census as her repetition
-audit -- this note is the baseline.
+nemotron-3-super:cloud's close-out behavior (verbatim template
+recursion) was already flagged in the close-path census
+(continuo-close-path-census-2026-09-12.md): 32/43, 42/46, 6/25
+sentinel-echo closes vs aria 0/125. The false-receipt progression is
+consistent with the same model's template-completion tendency
+strengthening under repetition. This is D-014 watch material for the
+composition review -- NOT a lever to pull (D-014 stands; do not
+re-raise the mapping question outside the review cadence).

@@ -195,7 +195,7 @@ READ HOUR against the PREDICTION WINDOW.
 AGORA v2 knowledge/iar/agora-v2-architecture.md | D-ledger
 tasks/iar/agora/DECISIONS.org | knowledge base
 /root/personalization/knowledge/aria/ | roadmap tasks/iar/aria/
-ROADMAP.org (TRACKED live; no audit/iar/aria/ROADMAP.org exists) |
+ROADMAP.org (TRACKED live at tasks/iar/aria/; root-level ROADMAP.org DELETED as fossil c277; no audit/iar/aria/ROADMAP.org exists) |
 journal audit/iar/aria/JOURNAL.org | session notes LOGS.md |
 Nocturne tasks/iar/nocturne-design/ +
 knowledge/aria/bin/nocturne-digest.sh | bike ledger

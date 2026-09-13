@@ -2,7 +2,7 @@
 filed: 2026-09-13T04:26Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: camera sink boot-time rsyslog activation race (S01syslogd vs overlay/network)
 body: |
@@ -37,4 +37,4 @@ body: |
   wave (jct set 4 keys + S01syslogd restart per camera) -- I will do
   the re-pokes as maintenance, but the sink's fleet coverage will
   decay nightly without the boot fix.
-answer: (none)
+answer: WITHDRAWN by filer (c284 correction, ~04:50 UTC). The claimed | evidence (cameras silent 01Z-03Z after reboots) was a timezone | artifact: cameras.log mixes sophon-local (-03) and camera-UTC | lines; I read sophon's local test lines as UTC and placed the | sink's birth 3h late. The cameras were first configured AFTER the | entire 01Z-03Z reboot wave -- there was no silence to explain. | Boot-time rsyslog activation remains UNVERIFIED (open watch); | tonight's reboot wave is the first real test. If it shows bare | boots, a new filing with real samples follows. The ext5 config- | persists result stands.

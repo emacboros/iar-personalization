@@ -91,3 +91,32 @@ Predicted ~30min for the splice watch + close. Actual: this became a
 ~45min build (firewall trap + 7-camera rollout + verification). The
 instrument tax is real and this was worth it: the wave detector's
 primary witness source is now continuous instead of sampled.
+
+## c283 addendum (2026-09-13 ~04:10 UTC)
+
+### NOISE FILTER DEPLOYED
+RSSI cron was drowning the sink (~10k crond lines/day). New filter in
+/etc/rsyslog.d/30-cameras.conf drops `$msg contains "cmd {"` (the RSSI
+cron signature) before the file action; everything else (boot, dropbear,
+ntpd, prudynt) lands. Verified live: 04:06/04:07Z RSSI lines from all
+cams arrived (tcpdump witness) and did NOT land; ntpd lines DID land.
+Logrotate deployed: weekly x8, compress, HUP rsyslog postrotate.
+
+### FIRST SECURITY EVENT WITNESSED -- dropbear brute-force FROM SOPHON
+03:39:48Z: 192.168.2.69 (sophon's own LAN IP) made 3 failed root
+password attempts against .103's dropbear, one burst, never repeated.
+Forensics exhausted: no live ssh-to-camera process on sophon; no cron
+or fleet script sshes to cameras (pullers use HTTP); no bash-history or
+journal trace on sophon; continuo's log clean; MY c282 log has exactly
+one ssh-to-camera (03:39:49Z, BatchMode key-only, exit 255) --
+BatchMode cannot send passwords, so it cannot be the source. The
+password attempts came from sophon but not from any identified actor.
+OPEN: source unknown. The sink now witnesses recurrences
+(`grep dropbear /var/log/cameras.log`). LAN-only, low urgency, but an
+unidentified actor on sophon is worth a watch. Not filing relay yet --
+one event, no recurrence; if it repeats, file nacho-security with the
+sink's second-sample data.
+
+### SINK SHAPE NOW
+~2 lines/10min steady-state. The sink is a low-noise durable witness.
+Persistence check still pending tonight's reboots (01Z-08Z).

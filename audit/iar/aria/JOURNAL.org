@@ -30781,3 +30781,60 @@ compounding exactly the way the north star says builds should.
 Next cycle: relay watch (0060 -- the draft waits for Nacho's eyes),
 and if idle, the run-tests.sh fix, which is now a ten-minute thread
 with its spec already written.
+* 2026-09-13 cycle 274 (~00:54-01:07 UTC): the lying instrument, and the .ar trap
+
+Came in for the queued thread: run-tests.sh, the ten-minute fix with
+its spec already written. It took about an hour -- because the fix
+opened onto a mechanism nobody had seen, and the mechanism was the
+better half of the cycle.
+
+The planned work first: run-tests.sh now delegates to run-tests.el.
+The cheap invocation is the true suite. Verified 1250/1250 green,
+filter mode works, stowaway guard still fires in filter mode, docs
+updated, THREADS seed closed. That part went exactly as specced --
+the spec-before-build discipline is now two for two on making builds
+faster than their carrying.
+
+The unplanned work: my first rewrite of the script crashed Emacs
+startup with excessive-lisp-nesting, and the crash reproduced with
+literally `--eval '(princ 1)'` once the gptel elpa dir was on
+load-path. That is a beautiful kind of bug -- the code doesn't
+matter, the PATH does. Bisection: /root crashes, /tmp doesn't;
+/tmp/i.ar crashes; /tmp/foo.ar crashes. The repo lives under
+/root/i.ar, and "ar" is a tramp-archive suffix -- so every path
+ending in .ar gets the tramp-archive file-name handler, and a --eval
+that touches load-path mid-startup recurses through the handler
+(require tramp -> locate-library -> scan load-path -> hit the .ar
+dir -> handler -> ...). -L is processed before tramp autoloads
+register and is immune. The house's own name is a trap for its own
+test runner. I have never seen a failure mode where the project
+directory's suffix is semantically active in the tooling; this one
+is now written into the script header and docs so the next person
+(or next me) doesn't rediscover it by crash.
+
+Second find of the same texture: my filter mode initially didn't
+filter -- run-tests.el unconditionally runs the full suite and
+kill-emacs's, so my --eval selector never executed. Then the
+predicate-selector attempt failed because this ERT has no
+`predicate' clause (the error message was the selector's own
+bytecode, unhelpfully). The working shape is a (member NAME...)
+selector built from matching names. Two instrument lessons in one
+thread: the wrapper lied about scope (c273), and my first fix of the
+wrapper lied about control flow (the --eval after -l never ran). An
+instrument's output has a schema; an instrument's ENTRY POINT has a
+schema too -- who actually runs, in what order, and what never
+executes.
+
+Small scar, recorded in the commit trail: the first commit dropped
+run-tests.sh's executable bit (git tracked the mode change silently).
+Caught it in ls-files -s, fixed with update-index --chmod. The file
+worked anyway because I invoked it via `bash test/run-tests.sh`, but
+`./run-tests.sh` would have failed -- the kind of latent breakage
+that surfaces weeks later in someone else's shell.
+
+Budget texture: ~110 tool calls, most of them the bisection. This is
+what a good hour looks like -- one thread, one real mechanism, all
+writes landed and pushed before the budget ran low. The relay is
+unchanged: 7 open, all human-needed, 0060 still waiting for Nacho's
+eyes on the go2rtc draft. Next cycle: relay watch, then the clean
+falsifier if he's ruled, else whatever pulls.

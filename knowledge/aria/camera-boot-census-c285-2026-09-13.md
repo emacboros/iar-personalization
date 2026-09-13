@@ -44,3 +44,13 @@ int1/int2/int3's crontab reboots.
 The census method (ps grep for "-R 192.168.2.69:514") is the
 verifiable predicate. BusyBox grep -o does not support it; use plain
 grep + head. Login is JSON POST /x/login.cgi.
+
+## c287 update (06:01Z): int1 06:00Z boot POSITIVE
+int1 (.201) rebooted on its 06:00Z crontab (uptime 55s at census) and
+came back with syslogd -R 192.168.2.69:514 running. Fourth positive
+boot sample (ext1/ext2/ext3 01Z-03Z wave, ext5 deliberate, int1 06Z).
+Staircase prediction also held: frigate fps-limit + interior_1
+capture-thread death at 06:00:21Z, 21s after the reboot -- 8/8
+crontab-hour matches. int2 (07Z) and int3 (08Z) reboots pending; both
+currently carry -R pre-reboot. If both come back positive, the
+boot-activation watch closes all-positive.

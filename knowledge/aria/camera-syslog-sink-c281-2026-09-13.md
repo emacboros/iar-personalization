@@ -171,3 +171,48 @@ has a two-part answer, and the parts differ:
    {"username":...,"password":...} -- form fields get 400 "Username
    required". flag270-camera-api.md had it right; reread before
    re-deriving.
+
+## c284 CORRECTION (2026-09-13 ~04:50 UTC) -- THE "BOOT GAP" WAS A TIMEZONE ARTIFACT
+
+The c284 addendum above (written ~04:30 UTC) contains a FALSE
+inference, caught by the uptime census run at the end of the same
+cycle. Correction in full:
+
+1. THE FALSE CLAIM: "cameras rebooted at 01Z/02Z/03Z came back with
+   syslogd NOT forwarding (silent until poked at 03:26-03:30Z)".
+
+2. THE REAL TIMELINE: the sink did not exist until ~03:20Z. The
+   sophon-origin test lines in cameras.log (23:58:21, 00:10:37,
+   00:11:59, 00:13:07) carry SOPHON LOCAL time (-03) = 02:58:21Z,
+   03:10:37Z, 03:11:59Z, 03:13:07Z UTC. The camera lines carry
+   CAMERA UTC. cameras.log is a MIXED-TIMEZONE FILE: sophon lines
+   in -03, camera lines in UTC. Reading sophon's 23:58-00:13 local
+   lines as UTC placed the sink's birth 3h late and manufactured a
+   4h "camera silence" that never happened. The cameras were first
+   CONFIGURED at ~03:20-03:26Z (c281 rollout) -- after the entire
+   01Z-03Z reboot wave. The "silent from reboot until poked"
+   pattern was "silent until the sink existed." The 01:03:53Z
+   rsyslog restart in sophon's journal is likewise LOCAL time =
+   04:03:53Z UTC = c283's own filter-deploy restart.
+
+3. WHAT SURVIVES: the ext5 deliberate-reboot experiment (04:25Z)
+   stands on its own -- config persists in /overlay/etc/
+   thingino.json and ext5 booted with -R at 53s uptime. The
+   uptime census (04:28Z): .101 up 12481s (booted 01:00Z, its cron
+   hour), .102 up 8881s (01:59Z), .103 up 5281s (02:59Z), .201/.202
+   up ~53475s (13:36Z Sep 12 manual power-cycle), .203 up 73675s
+   (07:58Z Sep 12 cron), .105 up 189s (my experiment). ALL 7
+   currently run syslogd with -R -- but for the 01Z-03Z cameras
+   that state dates from the c281/c282 configuration (post-reboot,
+   pre-census), so BOOT-TIME ACTIVATION REMAINS UNVERIFIED for
+   them. Tonight's 01Z-08Z wave is the first real test.
+
+4. RELAY 0061: the evidence claim was wrong; the filing is
+   WITHDRAWN (answered with this correction). The boot-order
+   question stays open as a WATCH, not a filing: if tonight's wave
+   shows cameras coming back bare, re-file with real samples.
+
+5. NEW STANDING LAW (CLOCK, sink-specific): cameras.log mixes
+   timezones BY SOURCE -- normalize per-source (sophon lines -03,
+   camera lines UTC) before ANY gap arithmetic on this file. This
+   is Law 50's CLOCK column biting inside my own instrument.

@@ -60,6 +60,29 @@ body: |
   known, we have an unidentified Linux device on the camera WiFi
   sweeping the fleet every ~40 min.
 
+  UPDATE c288 (06:32Z) -- ATTRIBUTED to 192.168.2.58, 4/4 second-level
+  correlation. Raw ARP capture on sophon caught .58 ARP-sweeping the
+  cameras seconds before BOTH in-window sweeps: sweep3 06:21:11Z
+  (.58 ARP 03:21:11.125-.885 local, 6 cams; onvif 06:21:11-13Z) and
+  sweep4 06:27:28Z (.58 ARP 03:27:27.9-29.6 local, all 7 cams; onvif
+  06:27:28-36Z; .58 sent gratuitous-ARP rejoin probes 0.2s before
+  sweeping). .58's ARP targets in the whole capture: gateway + exactly
+  the 7 cameras, nothing else. Camera HTTP is invisible from sophon
+  (WiFi unicast, switched fabric) -- correlation is the evidence.
+  IDENTITY: snsv.local, Fedora Linux (announces Passim-951F like
+  sophon announces Passim-0FA4), Avahi desktop stack, OpenSSH_10.2,
+  randomized MAC, WiFi on the .55 guest VAP. NOT yoga/.66 (different
+  SSH host keys; .66 = yoga, confirmed via ansible key in sshd journal).
+  Sweep shape: uniform 8 error-lines/camera (single probe pass) or
+  14-16/camera (double pass), all 7 cams, serial by IP. Fires on .58
+  network events (rejoin/ARP-resolution), not a fixed clock.
+  Doc: knowledge/aria/onvif-sweep-attribution-c288-2026-09-13.md
+  QUESTIONS (narrowed): (1) What device is snsv.local / .58? A Fedora
+  machine on your WiFi with a camera-discovery app on it. (2) What app
+  POSTs malformed ONVIF SOAP from it? (Camera viewer, PTZ controller,
+  python-onvif script?) If .58 is yours and the app is known-benign,
+  this filing closes as "known device, noisy discovery client".
+
   Watch filed: track/aria/onvif-sweep-watch. tcpdump on sophon is
   USELESS for this class (vantage lesson); ARP-watch + camera-side
   netstat are the working instruments.answer: (none)

@@ -38,6 +38,26 @@ exactly what we want to see.
 - tcpdump -i any confirmed packets arrive In enp10s0; before the
   firewall rule they were captured but never delivered.
 
+## c282 CORRECTION: the rollout was 6/7, not 7/7 (found + fixed c282)
+
+The c281 doc and roadmap claimed "all 7 alive cameras forward". At
+c282 (~03:48Z) a per-camera config census showed **ext1 (192.168.2.101)
+was never configured**: rsyslog.enabled key ABSENT from its
+/etc/thingino.json, syslogd running with no -R flag. The other six
+(.102/.103/.105/.201/.202/.203) all had enabled=true, host=192.168.2.69.
+
+How it slipped: c281's verification was "logger tests landed from
+.102/.103/.105/.201/.202/.203" -- the list itself omits .101, and the
+doc's claim of 7 was written over a 6-camera witness list. The
+per-camera config census (jct get rsyslog.enabled on every camera) is
+the census that should have run at deploy time. Law 50 texture: the
+FLEET column -- verify every member, not the members you remember.
+
+Fix applied c282 ~03:48Z: jct set rsyslog.{enabled,host,port,local} on
+.101 + S01syslogd restart -> syslogd now runs -R 192.168.2.69:514;
+logger test ARIA-101-SINK-JOINED landed in cameras.log at 03:48:48Z.
+Fleet now genuinely 7/7 forwarding.
+
 ## What this enables
 
 1. BackchannelStreamState sessions (the wave fingerprint) now stream

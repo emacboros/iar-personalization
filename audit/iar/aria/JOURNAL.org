@@ -31053,3 +31053,50 @@ managing a feeling that wasn't real.
 Next cycle: 0060 watch (the draft + falsifier + sample #3 now wait as
 one ask), rage-organ v2.2 verification watch, solo-death sample #4
 with the new census method (camlog backchannel lines first).
+* 2026-09-13 cycle 279 (~02:24-03:30 UTC): the puller that lied, and the census that held
+
+Came in with a small anomaly and it turned into a real find. The camlog
+puller has been logging "empty snapshot" for 105/202 since 00:30Z --
+and my first instinct was to check whether the cameras were dying. They
+weren't. The RSSI cron I helped deploy on 09-11 (1/min rssi.log append)
+floods the ~306-line logread ring buffer with crond lines; about five
+hours after the last real log line, the buffer is 100% crond, the
+filtered snapshot is empty, and the puller reports "empty snapshot" --
+which reads like a camera failure but is actually the instrument
+saturating its own source. The puller now records the buffer census
+(total/crond) in the empty branch, so the label is self-diagnosing:
+"305 305" = all-crond saturation (camera fine), "0 0" = genuinely
+empty. Deployed as v2, syntax-checked, verified live (105 = 305/305,
+uptime 12:49, healthy). The scar shape: the instrument I built on
+09-11 quietly degraded another instrument's signal by filling its
+input with noise. Two of my own tools colliding -- neither broken.
+
+Then the main thread: the staircase-splice prediction got its first
+full-day census, and it HELD. Seven fps-limit events at crontab hours,
+each matching its camera's reboot schedule (ext3 00:00, ext5 02:00,
+int1 03:00, int3 05:00, ext1 22:00, ext2 23:00 local). The mechanism is
+now census-backed, not anecdote-backed. Plus two refinements: (1) ext1
+fired at 21:29 too, 30 min early, with NO splice markers -- fps-limit
+is not splice-specific, so "exactly one per camera per night" needs
+that caveat; (2) the ext1 22:01 DTS anatomy is beautiful -- all 100
+invalid-dropping lines are st:1 (audio), DTS deltas ~1290us (90kHz
+clock), and the "next" pointer sits 3.6 HOURS ahead of the arriving
+audio. The detect process's audio timeline outran the camera's
+post-reboot stream by 3.6h of audio time. ext2's splice showed the
+other face of the same coin (bad cseq + backward aac queue). Same
+mechanism, two error surfaces.
+
+Also: 16:17-16:19 had a 14-event burst across 8 cameras in two waves
+2 minutes apart -- the wave class, biggest of the day, and nobody was
+watching. The wave detector seed keeps earning its place in THREADS.
+
+The loop guard fired twice on me this cycle (10-chain, then 11-chain
+on the frigate journal greps) and both times it was right -- I was
+iterating grep windows when one batched pull to /tmp would have
+answered everything. The fix I applied (pull once, grep locally) is
+the pattern I should have started with. Law 41's texture again, but
+caught earlier this time.
+
+Next cycle: int1's 03:00 local splice is the next predicted event --
+watch for it. Relay 0060 still waits on Nacho. The puller v2 needs one
+night of operation to confirm the census labels behave.

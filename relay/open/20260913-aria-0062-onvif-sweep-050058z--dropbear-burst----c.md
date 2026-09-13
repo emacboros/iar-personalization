@@ -88,3 +88,24 @@ body: |
   Watch filed: track/aria/onvif-sweep-watch. tcpdump on sophon is
   USELESS for this class (vantage lesson); ARP-watch + camera-side
   netstat are the working instruments.answer: (none)
+  UPDATE c290 (07:32Z) -- SWEEP5 caught by the -e ARP logger; 5/5
+  correlation now (sweeps 05:00, 05:43, 06:21, 06:27, 07:21Z all
+  match .58 ARP bursts at second resolution). Sweep5: .58 ARP-ed all
+  7 alive cameras 04:21:03.59-05.85 local; onvif errors 07:21:03-09Z;
+  .104 (power-dead) skipped. Per-camera POST census 6-8 (distinct
+  onvif_simple_server PIDs). TRIGGER MECHANISM CORRECTED (c288
+  amendment): the "camera ARP-resolves .58 -> sweep 23ms" detail was
+  wrong -- the 23ms gap is .58-ARP-to-camera -> onvif POST (the ARP
+  is the ONVIF client resolving its target INSIDE the sweep). Real
+  trigger = .58-side wifi events: sweep3 = gateway resolving .58 3x
+  then sweep 7s later; sweep4 = rejoin probe, sweep 0.2s; sweep5 =
+  DAD probes + gratuitous announce (a JOIN), sweep 2.3s. FALSIFIED
+  EXPERIMENTS (both negative): sophon pinged .58 (replied, no sweep,
+  3min watch); .103 pinged .58 via run.cgi (replied + ARP-ed back,
+  no sweep, 3min watch). Incoming ARP/ping does NOT trigger; trigger
+  is internal to .58. MAC confirmed 76:e3:1a:69:e3:9c (locally
+  administered = randomized). Idle behavior: gateway ARP ~2min
+  cadence, nothing else. Doc:
+  knowledge/aria/sweep5-trigger-mechanism-c290-2026-09-13.md
+  QUESTIONS UNCHANGED: (1) what device is snsv.local/.58, (2) what
+  app on it POSTs malformed ONVIF SOAP at the fleet.

@@ -27,3 +27,28 @@ body: |
   thingino:thingino in URLs; they were NOT observed being probed today,
   but the surface exists).
 answer: (none)
+## ADDENDUM (2026-09-13 01:27Z, aria c275): scanner activity continues; auth holding
+
+Fresh 6h read of frigate nginx access (via podman logs, 18:00-22:19
+local window): the exposure is still live and still being probed.
+
+- 18:00:49 local: GET /.env -> 200 (2655 bytes = SPA index; benign
+  static-serve, no leak) from a Chrome-UA scanner.
+- 19:28:45 local: GET / from Palo Alto Networks Cortex XSOAR scanner
+  (self-identified; documented scan).
+- 21:25:19 local: GET /.git/config -> 200 (SPA index again) from
+  172.86.81.82.
+- 22:19:27-36 local: metabase-cve-2026-72898-detect/1.0 from
+  2a01:4f8:1c1a:9a65::1 + 91.99.239.28 -- GET /api/session/properties
+  and POST /api/session/reset_password x3. ALL /api paths -> 401.
+  Auth held; no breach. Notably these arrived VIA
+  camaras.randazzo.ar (Caddy proxy), i.e. the public domain path, not
+  only the direct 8971 route.
+
+Pattern unchanged since filing: scanners get 200s on static SPA
+paths and 401s on /api. The ask stands (bind 8971 WG-only, or
+firewalld restrict, or accept). New data point: the Caddy-proxied
+public path (camaras.randazzo.ar) is ALSO being probed -- so option
+1 (WG-only bind) alone would not close the public surface; the
+Caddy route would still expose it. If you want the surface closed,
+the firewalld/Caddy-layer decision matters too.

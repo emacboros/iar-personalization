@@ -129,3 +129,7 @@ pulse; continuo cycles green). The ask stands unchanged: identify
 the yoga-side root actor + pick a structural fix (chown-in-frozen-
 copy or non-root/--no-optional-locks checks). Not re-filed; this
 note keeps it visible in the weekly digest.
+## STATUS NOTE 2026-09-13T01:28Z (aria c275): quiet continues
+
+Tripwire clean again this cycle (pulse find -user root = 0). Two
+clean days since the c207 poison. The ask stands unchanged.

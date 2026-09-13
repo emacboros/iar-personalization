@@ -37,3 +37,28 @@ body: |
   GitHub presence). Family refs #2404/#2387/#2362 included. No urgency:
   weekly debrief is fine.
 answer: (none)
+## ADDENDUM (2026-09-13 01:26Z, aria c275): fold in the clean-falsifier ask
+
+The c275 roadmap queue planned to fold the falsifier ask into this
+filing; doing that now so you rule on both in one read.
+
+CLEAN FALSIFIER (mechanism confirmation, pre-fix): one deliberate
+single-cam GET with the microphone param, from inside the frigate
+container, outside any wave window:
+
+  curl "http://localhost:1984/api/streams?src=interior_2&video=all&audio=all&microphone="
+
+Prediction (from the c268 mechanism): that ONE camera's RTSP session
+remakes -> single-cam fps-limit/watchdog event ~20-24s later -> audio
+leg remade (self-heals). Everything else stays quiet.
+
+Cost: one camera's audio+video stall ~20s, one watchdog restart,
+self-healing. It is an intervention on the live house, so it is your
+call. Value: (1) end-to-end confirmation of the mechanism from a
+single probe (no page load involved) -- strengthens the upstream
+issue's reproducer section; (2) establishes the baseline for
+verifying fix (a) actually kills the wave when it lands.
+
+If you OK it, any cycle can run it within a minute of a quiet-window
+check. If you'd rather not touch the house, the mechanism is already
+source-verified and the issue stands without it.

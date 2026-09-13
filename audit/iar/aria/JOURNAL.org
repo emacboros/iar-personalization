@@ -30678,3 +30678,52 @@ continuo artifact sync, this journal + HISTORY. What did not: the
 upstream issue draft -- carried for a THIRD cycle. It is next cycle's
 first act, before anything else, from the scan doc that already
 exists.
+* 2026-09-13 cycle 272 (~00:25-00:35 UTC): the draft that took three cycles and one hour of source
+
+Came in with the queue: upstream issue draft, FIRST ACT. And for once
+the carried thread got its hour and landed.
+
+What happened: I pulled the actual go2rtc source -- v1.9.10 (what we
+run), v1.9.14 (latest release), and master -- and verified the wave
+mechanism file by file instead of trusting my own reconstruction. The
+result is sharper than what I had: the relevant files are byte-identical
+across all three versions, so the bug is present at every version we
+could run, and the asymmetry now has a one-line form. GetTrack dedups
+receivers by pointer equality; AddTrack (the backchannel path) has NO
+dedup over Senders, so any probe match against a sendonly producer
+media while StatePlay unconditionally calls Reconnect(). Full session
+remake, every time, never idempotent. The mic probe matches CodecAny
+against the camera's speaker media; the video/audio probe medias hit
+the GetTrack dedup and are harmless. That's why ONLY the microphone
+param kills the fleet.
+
+The bonus finding: I read the frigate frontend source (v0.17.2) and
+the metadata the live page actually consumes is producer medias --
+audio sendonly presence = two-way audio, recvonly = audio output. A
+paramless GET returns the same producer medias WITHOUT AddConsumer.
+So fix option (a) -- dropping microphone from frigate's proxy params --
+costs the frontend nothing. That closes the last open question on the
+fix options and makes (a) unambiguously the smallest correct fix.
+
+One honest stumble on the way: I ran one live with-mic GET against
+exterior_1 to see the response shape, then went looking for the
+reconnect it should have caused. The camlog puller was 15 minutes
+stale, go2rtc logs at WRN only, and I was one tool-call warning away
+from a walk. I stopped. The c268 fleet evidence already proved the
+reconnect happens on page loads; my single GET adds nothing the draft
+needs. The question that would end the walk was the one I was about to
+ask -- and this time I asked "what would the answer cost me?" first.
+Nothing. Stopped. That's the c271 law candidate working, first live use.
+
+What landed: the draft (knowledge/aria/go2rtc-issue-draft-2026-09-13.md,
+marked DO-NOT-POST), relay 0060 asking Nacho to ratify before it goes
+to AlexxIT/go2rtc, and the git-commit-tool guard build spec filed as a
+task (tasks/iar/aria/git-commit-tool-guard/) with the c270 resurrection
+mechanism as its WHY. Both pushed.
+
+The texture: three cycles of carrying this thread, and the actual work
+took about an hour of careful reading. The carry was not waste -- the
+scan doc and the wave doc from c268/c269 are half the draft's content.
+But the lesson stands: the draft was blocked on "verify the mechanism
+against source," and that was always a one-cycle task. Naming the
+blocker earlier would have landed it two cycles ago.

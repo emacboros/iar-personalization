@@ -1,33 +1,65 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~02:18 UTC (cycle 278: rage-organ v2.2
-landed -- converged/dead classifier, affect layer now honest;
-solo-death sample #3 CONFIRMED with camera-side witness; two
-staircase-splice decoys excluded; belt swept, all pushed)
+Last updated: 2026-09-13 ~02:32 UTC (cycle 279: camlog-puller v2
+landed -- crond-saturation self-diagnosis; staircase-splice full-day
+census PREDICTION HOLDS 7/7; ext1 22:01 DTS anatomy; belt swept,
+all pushed)
 
-## c279 QUEUE (in order)
-1. RELAY WATCH: 0060 (go2rtc issue draft ratify + clean-falsifier
-   ask, one filing; amended twice -- c275 falsifier, c278 sample #3).
-   If Nacho rules, post the draft to AlexxIT/go2rtc (or he posts;
-   his call). Do not post without his eyes. If he OKs the falsifier,
-   run it in a quiet window: one single-cam mic-probe GET from inside
-   the frigate container -> expect single-cam fps-limit ~20-24s later,
-   self-heals. The falsifier would also settle the dialer question
-   (sample #3's open question).
-2. RAGE-ORGAN v2.2 WATCH: next few cycles, verify the affect layer
-   stays truthful -- depth events -> sev=1 depth-watch, dead events
-   -> sev=2+. If a real dead event lands, the organ should fire.
-3. SOLO-DEATH CLASS: watch for sample #4; census method = bad-cseq/
+## c280 QUEUE (in order)
+1. INT1 SPLICE WATCH: int1's crontab is 06:00Z = 03:00 local -- the
+   next predicted staircase splice. Check frigate journal for
+   "exceeded fps limit" on interior_1 ~03:00 local, confirm splice
+   markers (bad cseq / invalid dropping st:1 / backward aac queue).
+   Prediction: one splice per camera per night at its crontab hour
+   (local = crontab Z - 3).
+2. RELAY WATCH: 0060 (go2rtc issue draft ratify + clean-falsifier
+   ask; amended twice -- c275 falsifier, c278 sample #3). If Nacho
+   rules, post the draft to AlexxIT/go2rtc (or he posts; his call).
+   Do not post without his eyes.
+3. PULLER v2 VERIFICATION: after one night of operation, confirm the
+   census labels behave (105/202 should log "N N" saturation labels
+   instead of bare "empty snapshot" once their buffers re-saturate;
+   real log lines should reappear at each camera's reboot).
+4. RAGE-ORGAN v2.2 WATCH: verify the affect layer stays truthful --
+   depth events -> sev=1 depth-watch, dead events -> sev=2+.
+5. SOLO-DEATH CLASS: watch for sample #4; census method = bad-cseq/
    garbage ffmpeg tails + prudynt BackchannelStreamState lines in
-   camlog (the camera-side witness is now the primary source -- it
-   caught what go2rtc's log could not), NOT WRNs in go2rtc logs.
-   Distinguish from staircase splices (reboot lines in camlog = the
-   predicted nightly mechanism, not solo-death).
-4. THREADS seed if idle: guard scope widening -- ONLY if a second
+   camlog (camera-side witness = primary source). Distinguish from
+   staircase splices (reboot lines in camlog = predicted mechanism).
+6. THREADS seed if idle: guard scope widening -- ONLY if a second
    tracked-ignored class appears (watch note in THREADS.org).
-5. NEW WATCH (c274): the `.ar` tramp-archive trap -- any tool or
-   script that puts an .ar-suffixed path on load-path via --eval
-   will crash startup. If a new script needs load-path, use -L.
+
+## c279 addendum (2026-09-13 ~02:32 UTC)
+- CAMLOG-PULLER v2 LANDED (sophon /var/lib/aria-fleet/camlog-puller.sh,
+  md5 5f0866fb): root cause of the 00:30Z+ "empty snapshot" wave =
+  the 09-11 RSSI cron (1/min) floods the ~306-line logread ring with
+  crond lines; ~5h after the last real log line the filtered snapshot
+  is empty. NOT camera failures. v2 empty branch records buffer census
+  (logread total/crond): "N N" = all-crond saturation (camera fine),
+  "0 0" = genuinely empty, "N 0" = month-grep ate non-crond lines
+  (format regression). Verified live: .105 = 305/305, uptime 12:49,
+  healthy. Instrument collision scar: the RSSI puller quietly degraded
+  the camlog puller's signal by filling its shared input with noise.
+- STAIRCASE-SPLICE CENSUS HOLDS (doc knowledge/aria/
+  staircase-splice-c279-2026-09-13.md): full-day fps-limit census vs
+  crontab map (verified live per camera): 7/7 crontab-hour events
+  match (ext3 00:00, ext5 02:00, int1 03:00, int3 05:00, ext1 22:00,
+  ext2 23:00 local). Mechanism now census-backed.
+- EXT1 22:01 DTS ANATOMY: all 100 invalid-dropping lines st:1 (AUDIO),
+  DTS deltas ~1290us (90kHz audio clock), next-pointer 14.5M us ahead
+  = detect's audio timeline outran the camera's post-reboot stream by
+  3.6h of audio time. ext2's splice = the other face (bad cseq +
+  backward aac queue). Same session-remake mechanism, two surfaces.
+- CAVEAT: ext1 21:29:31 fps-limit had NO splice markers (30min before
+  its crontab hour) -- fps-limit is not splice-specific; "exactly one
+  per camera per night" needs the caveat. 16:17-16:19 = 14-event
+  8-camera wave burst (biggest of the day, unwatched). Wave detector
+  seed keeps earning its THREADS place.
+- SCAR: loop guard fired twice (10-chain, 11-chain) on frigate journal
+  grep windows; both correct -- one batched pull to /tmp answered
+  everything. Pattern: pull once, grep locally.
+- Belt: swept with exclude recipe; pushed 0fb2cae0 (census doc),
+  e70d2c9d (continuo artifacts), b47e853e (journal), a66d62f6 (history).
 
 ## c278 addendum (2026-09-13 ~02:18 UTC)
 - DIGEST TWIN SYNC at wake: verifier FAIL=1 -- audit-path twin missed
@@ -35,36 +67,27 @@ staircase-splice decoys excluded; belt swept, all pushed)
   Law 27 catch working as designed.
 - RAGE-ORGAN v2.2 LANDED (6586ae3c): the standing sev=2 was a FALSE
   VALENCE -- full 3-day census showed all 7 fence events were
-  CONVERGED runs (Exit: 0, grace summary, work preserved: c146 eye
-  swap, c169 close-out, c193/194 relay-0040, c201 STATE.md anatomy,
-  c225 stall dive, c265 wave discovery). Zero dead events. v2.2 adds
-  the converged/dead classifier: severity grades DEAD recurrence only
-  (Exit: 1 or no completion line = dead by default); converged events
-  report as "depth watch" sev=1. Drill matrix verified (depth-only ->
-  sev=1; 3+ dead or 2+ dead days -> sev=2; kills 2+ days -> sev=3
-  preserved; truncated file -> dead). Real-repo verdict now: sev=1
-  depth watch, 7 depth events, 0 dead. Fear organ refreshed: sev=0
-  (fleet-check FAIL=1 = standing .104 power-dead, honest).
-- SCAR owned: my first awk census misattributed run6's fence lines
-  (msgs-hard, not tool-soft); the organ's own trend line was right
-  and my quick census was wrong -- corrected before building on it.
+  CONVERGED runs (Exit: 0, grace summary, work preserved). Zero dead
+  events. v2.2 adds the converged/dead classifier: severity grades
+  DEAD recurrence only; converged events report as "depth watch" sev=1.
+  Drill matrix verified. Fear organ refreshed: sev=0 (fleet-check
+  FAIL=1 = standing .104 power-dead, honest).
+- SCAR owned: first awk census misattributed run6's fence lines
+  (msgs-hard, not tool-soft); corrected before building on it.
 - SOLO-DEATH SAMPLE #3 CONFIRMED (doc
   knowledge/aria/solo-death-sample3-2026-09-13.md): ext1 (.101)
   00:29:04Z -- camera's OWN prudynt logged new BackchannelStreamState
   TCP session (session 4179292464) 57s before frigate watchdog
   restart (00:30:01Z, no-frames). No reboot, no go2rtc WRN (silent
   splice per #2404), single camera (not a wave), audio healed 250pkts.
-  First CAMERA-SIDE witness of the class (samples #1/#2 lacked it).
+  First CAMERA-SIDE witness of the class.
 - TWO DECOYS EXCLUDED: ext2 02:01:09Z splice = scheduled staircase
-  reboot (.102 crontab 02:00Z; boot lines 02:00:28; second
-  consecutive night PASS); ext1 01:01:11Z = its own staircase hour.
-  Staircase-splice (reboot -> session remake -> splice -> watchdog
-  heal) = THIRD named mechanism, predicted, self-healing. Solo-death
-  class survives untouched (splice WITHOUT reboot).
-- Relay: 0060 amended twice (falsifier c275, sample #3 c278). 7 open,
-  all human-needed. .104 still power-dead (telegram #7 stands).
-- Belt: swept with the c277 recipe (0c40782d); all commits pushed
-  (43fce769, 0c40782d, 6586ae3c, 37d38e43).
+  reboot (second consecutive night PASS); ext1 01:01:11Z = its own
+  staircase hour. Staircase-splice = THIRD named mechanism, predicted,
+  self-healing. Solo-death class survives untouched (splice WITHOUT
+  reboot).
+- Relay: 0060 amended twice. 7 open, all human-needed. .104 still
+  power-dead (telegram #7 stands).
 
 ## c277 addendum (2026-09-13 ~01:55 UTC)
 - BELT RECIPE FIX VERIFIED: the exclude pathspec works --
@@ -79,46 +102,21 @@ staircase-splice decoys excluded; belt swept, all pushed)
   down is not the law followed; only the pathspec carries the
   exclusion. Roadmap-knowledge vs habit-knowledge.
 
-## c276 addendum (2026-09-13 ~01:40 UTC)
-- RELAY DUP-ID FIXED: root cause = cmd_file derived id from FILE
-  COUNT across states (not max-seq+1); stale checkouts re-used seqs.
-  continuo's max-id fix (9df82c4f 09-08) was lost same-day in
-  slice-merge churn. Fix 2eaf00b7: max-seq+1 per filer at BOTH count
-  sites; drill-verified. Historical dup pairs remain (0015x2, 0055x2).
-- 0046 FALSE RECEIPTS: her journal claims 1247/1247 in 12 places;
-  cycle.log shows 3 actual runs. Filing amended (journal contract
-  question added); census doc extended with D-014-watch framing.
-
-## c275 addendum (2026-09-13 ~01:28 UTC)
-- RELAY HYGIENE PASS: 0060 amended (falsifier ask folded in), 0059
-  amended (Caddy-path probing -- WG-only bind would NOT close the
-  public surface), 0046 amended, 0042 quiet note.
-
-## c274 addendum (2026-09-13 ~01:07 UTC)
-- RUN-TESTS.SH LANDED (i.ar 0239159 + 6adbd0d): script execs
-  run-tests.el -- cheap invocation IS the full suite (1250, ~8s).
-- .AR TRAP: /root/i.ar paths get tramp-archive handler; --eval
-  load-path changes crash startup. -L immune.
-- SCAR: first commit dropped run-tests.sh exec bit. Check mode bits
-  on script commits.
-
-## c273 addendum (2026-09-13 ~00:47 UTC)
-- GIT-COMMIT-TOOL GUARD LANDED (i.ar dd4118a): audit/.*cycle.log
-  unstaged post-add; refusal noted; commit never fails. 1250/1250.
-- NOTE: guard does not catch non-ignored audit files swept by add -A
-  (DIGEST.md class) -- i.ar repo hygiene = keep audit/ out by hand.
-
 ## STANDING (stable facts; do not re-derive)
 
 - PULSE: run in ONE batched ssh (keyscan re-pin first). Fleet
-  pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/ (sophon
-  cron 15min/15min/1min). fleet-check v2.21 via aria-fleet-feed.timer
-  (6h) -> fleet-latest -> fear-organ. Run by hand when stale.
-- FRIGATE ACCESS: ssh root@10.66.0.5 then 'su - nacho -c
-  "XDG_RUNTIME_DIR=/run/user/1000 podman exec frigate <cmd>"'.
-  Frigate version deployed: 0.17.2-3d4dd3a (stable-tensorrt image).
+  pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/ (sophon cron
+  15min/15min/1min). fleet-check v2.21 via aria-fleet-feed.timer (6h)
+  -> fleet-latest -> fear-organ. Run by hand when stale.
+- FRIGATE ACCESS: ssh root@10.66.0.5 then journalctl -u
+  frigate.service (system unit, root-readable); podman exec via
+  'su - nacho -c "XDG_RUNTIME_DIR=/run/user/1000 podman exec frigate
+  <cmd>"'. Frigate version deployed: 0.17.2-3d4dd3a (stable-tensorrt).
+  journalctl --user does NOT see frigate (system unit).
 - CLOCK SHAPES: cameras UTC; frigate logs LOCAL (-03); frigate nginx
   access log LOCAL [12/Sep/2026:...]; prudynt UTC. Convert first.
+  Camera crontab reboots: ext1 01Z, ext2 02Z, ext3 03Z, ext5 05Z,
+  int1 06Z, int2 07Z, int3 08Z (local = Z - 3).
 - AUDIO CENSUS (c242): ffprobe -v error -select_streams a
   -count_packets -show_entries stream=nb_read_packets -of csv=p=0
   <seg.mp4>; 250 pkts healthy (ext) / 156-band (int) / 1 pkt stub /
@@ -128,10 +126,11 @@ staircase-splice decoys excluded; belt swept, all pushed)
   PUT reload = QUERY PARAMS (?name=X&src=Y), NOT a JSON body (c265).
 - ALL 7 ALIVE CAMERAS HAVE SPEAKER AUDIO in SDP -- mic probe
   reconnects ALL of them. ext4 (power-dead) has no producers.
-- PRODUCER ID MAP (c275 baseline): ext1 47382, ext2 43102, ext3 44120 (NOTE c277: ext3 producers[0] is a placeholder {"url":...}; real producer = entries WITH "id" -- census must filter by id presence, p[0] is not always real),
+- PRODUCER ID MAP (c275 baseline): ext1 47382, ext2 43102, ext3 44120
+  (c277: ext3 producers[0] is a placeholder; filter by id presence),
   ext5 43133, int1 45183, int2 43108, int3 43121; ext4 none.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
-  IDs now max-seq+1 per filer (2eaf00b7).
+  IDs max-seq+1 per filer (2eaf00b7).
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
 - BELT DISCIPLINE: pull first, commit continuo's uncommitted artifacts
   BEFORE my own writes (git add -f; audit/* is gitignored), push
@@ -149,20 +148,24 @@ staircase-splice decoys excluded; belt swept, all pushed)
 - RAGE-ORGAN v2.2 (c278): converged/dead classifier. Depth events
   (Exit: 0) = sev=1 depth-watch; dead events (Exit: 1 / no completion
   line) drive severity. Do not regress to class-level counting.
+- FRIGATE LOG PATTERN (c279): batched pull journalctl -u
+  frigate.service --since "-6h" to /tmp, grep locally. Loop guard
+  fires at 10 same-tool calls -- do not iterate ssh greps.
 
 ## THREADS (open, no obligation)
+- STAIRCASE-SPLICE MECHANISM (c279 CENSUS-BACKED): nightly reboot
+  crons -> session remake -> splice -> watchdog heal. 7/7 crontab-hour
+  events match. Two ffmpeg surfaces (DTS-gap / bad-cseq). Caveat:
+  fps-limit is not splice-specific (ext1 21:29 non-splice event).
 - SOLO-DEATH CLASS: 3 samples (int1 19:00:04, ext5 19:13-15 09-12;
   ext1 00:29:04 09-13 w/ camera-side witness). Leading hypothesis =
   silent producer-side re-dial (c269). Dialer identity open --
   falsifier in relay 0060 would settle it.
-- STAIRCASE-SPLICE MECHANISM (c278, named): nightly reboot crons
-  (01:00-08:00Z staggered) -> session remake -> splice -> watchdog
-  heal. Predicted, self-healing, NOT solo-death. Expect one per
-  camera per night at its crontab hour.
+- WAVE DETECTOR SEED: 16:17-16:19 14-event 8-camera burst (c279) =
+  biggest wave of the day, unwatched. Nightly batch ffprobe census or
+  same-second prudynt burst watcher; needs a sophon cron slot.
 - CLEAN FALSIFIER: ask folded into relay 0060.
-- WAVE DETECTOR SEED: nightly batch ffprobe census or same-second
-  prudynt burst watcher; needs a sophon cron slot.
-- MSGS-FENCE WATCH: 401/401/403 + c272-c278 clean. Watch continues.
+- MSGS-FENCE WATCH: 401/401/403 + c272-c279 clean. Watch continues.
 - Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.

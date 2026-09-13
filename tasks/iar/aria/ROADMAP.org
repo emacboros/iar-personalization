@@ -1,132 +1,76 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~06:33 UTC (cycle 288: ONVIF sweep ATTRIBUTED to .58 = snsv.local (Fedora, Passim, 4/4 ARP correlation); relay 0062 narrowed to device+app ID; int2 07Z + int3 08Z reboots pending -> full-wave census ~08:05Z; sweep census corrected to ALL 7 cams + RECURRENCE 05:43Z captured; sophon tcpdump blind (L2 vantage); ARP evidence .58 SSH-only Linux box in all 7 cam caches; dropbear burst = own tooling (5th); int1 boot-activation POSITIVE 4/7; staircase 8/8; AV backfill zero)
-caught TWO new classes -- multi-camera stall w/ audio/video divergence
-+ ONVIF sweep 05:00:58Z source unknown; relay 0062 filed; int1 06:00Z
-splice watch due this cycle window)
+Last updated: 2026-09-13 ~07:10 UTC (cycle 289: dropbear burst 033948Z
+RE-ATTRIBUTED to c288's inner-ssh -- BatchMode on outer hop only, inner
+hop bare = 3 empty passwords; 6th own-tooling, law refined to EVERY-HOP
+BatchMode; boot-activation watch CLOSED 7/7 all-positive (ext5/int2
+verified live, int3 -R persists across boots); ARP logger re-armed to
+~09:08Z for sweep watch; ext3 3/3-dead fleet-check reading at 07:01Z
+was a transient -- live stream + all segments healthy; relay 0062
+corrected)
 
-## c288 QUEUE (in order)
-1. FULL-WAVE BOOT CENSUS (after ~08:05Z, when int2 07Z + int3 08Z
-   reboots have fired): census .202/.203 (ps grep syslogd -R). If both
-   positive -> boot-activation watch CLOSES ALL-POSITIVE (4/7 already:
-   ext1/ext2/ext3/int1), write the closing doc, withdraw the watch.
-   If any bare -> relay nacho-security. Recipe: JSON POST /x/login.cgi
-   {"username":"thingino","password":"thingino"}; run.cgi
-   `ps w | grep syslogd | grep -v grep` (BusyBox grep has NO -o).
-2. ONVIF SWEEP: ATTRIBUTED (c288) to .58 = snsv.local (Fedora,
-   Passim, Avahi, OpenSSH_10.2, randomized MAC, .55 guest VAP).
-   Relay 0062 narrowed to: device ID + which app. Watch for
-   recurrence (~40min cadence, fires on .58 network events) -- the
-   arp-reqs logger will confirm a 5th time if it recurs in-window.
-3. SWEEP CADENCE: two sweeps 43 min apart (05:00:57, 05:43:42) + Sep 11
-   sightings. If cadence ~40min holds, next sweep ~06:25Z +/- -- the
-   watchers cover it. Log every recurrence (count onvif_simple lines).
-4. AV-DIVERGENCE CENSUS (c287 partial): 09-11 h01 all 7 cams + 09-12
-   h01 ext3 = ZERO divergent (1,919 segments). c286 event still the
-   only instance. Backfill more nights if pulled; parallelize ffprobe
-   (copy segments local first) -- serial-over-ssh is ~4min/cam-hour.
-5. DROPBEAR WATCH (c283): day 2 of 7 quiet so far. grep dropbear
-   /var/log/cameras.log. Recurrence -> capture, correlate with ONVIF
-   sweep (both camera-directed, LAN-side).
-6. RELAY WATCH: 0060 (go2rtc issue draft ratify), 0062 (ONVIF sweep
-   + dropbear attribution). If Nacho rules on 0060, post draft to
-   AlexxIT/go2rtc. Do not post without his eyes.
-7. WAVE DETECTOR BUILD: trigger precise (fleet backchannel sessions
+## c289 QUEUE (in order)
+1. ONVIF SWEEP WATCH: source ATTRIBUTED (c288) to .58 = snsv.local.
+   No sweep since 06:27:36Z (predicted ~07:05Z +/-10 did NOT fire --
+   cadence is event-driven, not clock). ARP logger re-armed to ~09:08Z
+   (/tmp/arp-reqs-0913c.txt). Log every recurrence: grep onvif_simple
+   /var/log/cameras.log + correlate .58 ARP bursts in the new capture.
+2. RELAY WATCH: 0060 (go2rtc issue draft ratify), 0062 (ONVIF sweep
+   device/app ID -- dropbear item corrected c289). If Nacho rules on
+   0060, post draft to AlexxIT/go2rtc. Do not post without his eyes.
+3. WAVE DETECTOR BUILD: trigger precise (fleet backchannel sessions
    + +24-34s fps-limits). cameras.log = continuous witness source.
    Build when it pulls.
-8. FLEET RTP STALL WATCH: 08:10:22Z class. If recurs, correlate nic
+4. FLEET RTP STALL WATCH: 08:10:22Z class. If recurs, correlate nic
    1-min log + camlog + cameras.log.
-9. CLOCK LAW (c284): cameras.log is MIXED-TIMEZONE -- sophon lines
-   -03 LOCAL, camera lines UTC. Normalize per-source before ANY gap
-   arithmetic on this file.
+5. AV-DIVERGENCE CENSUS (c287 partial): 1,919 pre-sink segments, zero
+   divergent. Backfill more nights if pulled; parallelize ffprobe.
+6. CLOCK LAW (c284): cameras.log is MIXED-TIMEZONE -- sophon lines
+   -03 LOCAL, camera lines UTC. REQUESTS.log = UTC, rotate journal =
+   LOCAL (c289). Normalize per-source before ANY gap arithmetic.
+7. EXT4 (.104): still power-dead. Nacho's hands.
+
+## c289 close (2026-09-13 ~07:10 UTC) -- ATTRIBUTION + CENSUS CLOSE
+- DROPBEAR BURST RE-ATTRIBUTED: the 03:39:48-49Z burst was c288's
+  INNER-SSH (session 260913033801, the aria cycle 00:37:58 local -
+  01:12 local). Outer hop BatchMode=yes, inner hop (sophon->.103) had
+  NO BatchMode -> 3 empty passwords -> dropbear alarm. Tool result
+  stamped [03:39:49] = "Permission denied (publickey,password)" x3
+  shape. 6th own-tooling attribution. LAW: BatchMode on EVERY hop.
+  First-pass error: I misread session 260913033801 as c288 using
+  LAST-CYCLE's end time and concluded "nothing aria was running" --
+  the session ID is UTC, the rotate journal is LOCAL (3h00m03s offset).
+  Doc: knowledge/aria/dropbear-burst-c288-inner-ssh-2026-09-13.md.
+- BOOT-ACTIVATION WATCH CLOSED 7/7 ALL-POSITIVE: ext5 (.105, up 7742s,
+  pid 575 -R live), int2 (.202, up 8min, pid 579 -R live), int3 (.203,
+  up 23.1h, -R live from PRIOR boot -- flag persists across reboots).
+  With ext1/ext2/ext3/int1 (c285/c287): all 7 cron cameras boot with
+  syslogd -R. Staircase mechanism fully closed both ends. Doc:
+  knowledge/aria/boot-activation-census-c289-2026-09-13.md.
+- EXT3 TRANSIENT: fleet-check at ~07:01Z read ext3 NO-AUDIO (3/3 dead);
+  60s later the same segments + live RTSP read healthy (250 pkts,
+  33792 samples/2s). Unexplained transient, self-cleared. Watch only;
+  do not chase unless it recurs.
+- SWEEP WATCH: no recurrence by 07:08Z (predicted ~07:05Z missed --
+  event-driven cadence confirmed again). ARP logger re-armed
+  (/tmp/arp-reqs-0913c.txt, 2h to ~09:08Z). .58 alive, 74ms RTT.
+- sophon sshd journal GAP 03:37-03:43 (zero sshd lines incl. active
+  sessions; /var/log/secure also empty for 03:39). Do not use sophon
+  journal absence as proof an ssh did not happen.
+- Relay 0062 dropbear item corrected (c289 attribution).
+- Commits: 25aa3cd5 + boot census doc. Pushed.
 
 ## c288 close (2026-09-13 ~06:33 UTC) -- SWEEP ATTRIBUTED
 - ONVIF sweep source = 192.168.2.58 (snsv.local), 4/4 second-level
-  ARP correlation (sweeps 3+4 caught live by raw ARP logger; sweeps
-  1+2 tied by signature/cadence). .58 ARP targets: gateway + exactly
-  the 7 cameras, nothing else. Sweep fires on .58 network events
-  (rejoin probe -> sweep 0.2s; camera ARP-resolves .58 -> sweep 23ms).
-- .58 identity: Fedora Linux (Passim-951F via Avahi like sophon's
-  Passim-0FA4), desktop mDNS stack, OpenSSH_10.2, randomized MAC,
-  WiFi on .55 guest VAP. NOT yoga (.66; different host keys; .66
-  confirmed = yoga via ansible key in sshd journal).
-- Vantage law CONFIRMED: camera HTTP unicast never transits sophon
-  (0 TCP:80 packets in pcap). ARP broadcast is the only visible
-  .58->camera traffic. Attribution = correlation, not capture.
-- Relay 0062 narrowed: (1) what device is snsv.local/.58, (2) what
-  app POSTs malformed ONVIF SOAP. Doc: knowledge/aria/
-  onvif-sweep-attribution-c288-2026-09-13.md.
-- Watchers: arp-reqs logger live to ~05:12 local; cam-lan pcap to
-  ~04:07 local. Next sweep predicted ~07:05Z +/- 10min.
-- int2 (.202) up 16:56 -> 07Z cron reboot DUE 07:00Z; int3 (.203) up
-  22:33 -> 08Z due 08:00Z. FULL-WAVE BOOT CENSUS completes ~08:05Z.
-- ext4 (.104) still power-dead (Nacho's).
-- Commits: 170a4114 75384792 64d01fed. Pushed.
-
-## c287 close (2026-09-13 ~06:02 UTC) -- CORRECTIONS + A RECURRENCE
-- SWEEP CENSUS CORRECTED: 05:00:57-05:01:05Z hit ALL 7 alive cams (c286's
-  4-cam count was a partial read). Serial-ish by IP, 3-5 probes/cam.
-- SWEEP RECURS: Sep 11 01:00:32Z + 05:10:40Z in .101's ring (cycle 181
-  witness) + Sep 13 05:43:42-51Z recurrence captured live (96 lines).
-- VANTAGE LESSON: sophon tcpdump saw NOTHING at 05:43 -- sweep traffic
-  does not transit sophon (cameras' gateway = router; same-L2 source).
-  Sophon-side port-80 capture can never attribute this class.
-- ARP EVIDENCE: .58 (76:e3:1a:69:e3:9c, SSH-only Linux, randomized MAC,
-  WiFi) in ALL 7 camera ARP caches; .55 (TP-Link BE230v1 #2) in 6/7;
-  .2 (phone-like UI) only .103. .58 = strongest correlate. Watchers:
-  arp-watch.sh + cam-lan-capture-0913b.pcap.
-- DROPBEAR RESOLVED: 03:39:48Z burst = c282's own inner ssh WITHOUT
-  BatchMode (3 empty passwords). 5th own-tooling attribution. Recipe law:
-  camera ssh ALWAYS -o BatchMode=yes.
-- INT1 BOOT-ACTIVATION POSITIVE (06:00Z, 55s uptime, -R live). 4/7.
-  Staircase 8/8 (fps-limit 06:00:21Z = 21s post-reboot).
-- AV-DIVERGENCE BACKFILL: zero in 1,919 pre-sink segments (09-11 h01
-  all 7 + 09-12 h01 ext3). c286 event still unique.
-- Commits: 16eb66e9 170ec495 da343716 aa711df6 63868891. Pushed.
-
-## c286 close (2026-09-13 ~05:22 UTC) -- SINK'S FIRST NIGHT, DOUBLE CATCH
-- STALL + DIVERGENCE (01:46:47-01:50:19 local): ext3 (.103) 5 restarts
-  in 3 min; recordings show audio_dur up to 39.9s vs video_dur 1.9s in
-  same segment (audio keeps producing, video starves, CAMERA-SIDE --
-  prudynt "msgChannel sink clogged" 04:47:10Z + 3 backchannel sessions
-  in 59s). ext5 stubs (1.2s), int1 1 restart, ext1/ext2 clean. Doc:
-  knowledge/aria/camera-stall-c286-2026-09-13.md. Trigger unconfirmed
-  (no page traffic in frigate journal window).
-- ONVIF SWEEP (05:00:58-05:01:05Z): 4 cams (.101/.201/.202/.203)
-  logged onvif_simple_server XML parse errors. Signature reproduced
-  from sophon (POST /onvif/device_service, Body-less SOAP). Route:
-  uhttpd -> /var/www/onvif/device_service -> onvif.cgi per-request
-  spawn. Port 8080 = Prudynt MJPEG, NOT onvif. Source UNKNOWN; all
-  aria organs exonerated. Relay 0062. Correlate w/ dropbear 03:39:48Z.
-- IP MAP CONFIRMED: ext1=.101, ext2=.102, ext3=.103, ext5=.105,
-  int1=.201 (ptz-1), int2=.202, int3=.203, ext4=.104 power-dead.
-- SCAR: head-map error (.103=ext1) caught by witness-vs-recording
-  contradiction. Same-tool warning tripped at c100 (batch discipline
-  held until the go2rtc tail). podman exec as nacho FAILS from root
-  ssh (cgroup perm) -- use `nsenter -t <pid> -n curl localhost:1984`
-  for go2rtc API (frigate pid via podman inspect).
-- Belt: 7e068bfd (doc + journal + history + continuo artifacts) pushed.
-
-## c285 close (2026-09-13 ~05:20 UTC) -- HALF-WAVE CENSUS
-- BOOT ACTIVATION TRENDING POSITIVE: ext1/ext2/ext3 rebooted on
-  crontab (01Z/02Z/03Z) and ALL came back with syslogd
-  -R 192.168.2.69:514. First real post-reboot samples. ext5 also -R
-  from its 04:25Z deliberate reboot. Zero negative samples so far.
-- WAVE HALF OBSERVED: int1/int2 still up from Sep 12 13:36Z manual
-  power-cycle at census time; int3's 08Z reboot pending. Re-census
-  ~09Z completes the wave.
-- CENSUS DOC: knowledge/aria/camera-boot-census-c285-2026-09-13.md.
-- SCAR (small): BusyBox grep -o unsupported -> usage error ->
-  seven "NO-R-FLAG" readings that were instrument failure, not data.
-
-## c284 close (2026-09-13 ~05:05 UTC) -- THE TIMEZONE ARTIFACT
-- FALSE INFERENCE CAUGHT AND CORRECTED: c284's "boot gap" was
-  manufactured by reading sophon LOCAL (-03) test lines as UTC. The
-  sink did not exist until ~03:20Z; no silence ever happened.
-- WHAT STANDS: ext5 deliberate `reboot -f` at 04:25Z -> config
-  persists, syslogd came up WITH -R at 53s uptime.
-- RELAY 0061: WITHDRAWN. Sub-law: a claim about WHEN needs the CLOCK
-  verified first; a claim about WHICH needs the census first.
+  ARP correlation. .58 ARP targets: gateway + exactly the 7 cameras.
+  Sweep fires on .58 network events (rejoin probe -> sweep 0.2s;
+  camera ARP-resolves .58 -> sweep 23ms). Cadence NOT clock-driven:
+  gaps 42m45s, 37m29s, 6m17s.
+- .58 identity: Fedora (Passim-951F, Avahi, OpenSSH_10.2, randomized
+  MAC, .55 guest VAP). NOT yoga (.66). Relay 0062: device + app ID.
+- Vantage law: camera HTTP unicast never transits sophon; ARP
+  broadcast is the only visible .58->camera traffic.
+- Doc: knowledge/aria/onvif-sweep-attribution-c288-2026-09-13.md.
 
 ## STANDING (laws, recipes, watches -- compact)
 
@@ -136,9 +80,9 @@ splice watch due this cycle window)
   own writes. THE RECIPE (c277 VERIFIED):
     git add -f -- 'audit/iar/continuo' ':(exclude)audit/iar/continuo/cycle.log'
 - CLOCK SHAPES: cameras UTC; frigate logs LOCAL (-03); cameras.log
-  MIXED -- sophon lines -03 LOCAL, camera lines UTC. Camera crontab
-  reboots: ext1 01Z, ext2 02Z, ext3 03Z, ext5 05Z, int1 06Z, int2 07Z,
-  int3 08Z (local = Z - 3).
+  MIXED -- sophon lines -03 LOCAL, camera lines UTC; REQUESTS.log UTC;
+  rotate journal LOCAL. Camera crontab reboots: ext1 01Z, ext2 02Z,
+  ext3 03Z, ext5 05Z, int1 06Z, int2 07Z, int3 08Z (local = Z - 3).
 - AUDIO CENSUS (c242): ffprobe -v error -select_streams a
   -count_packets -show_entries stream=nb_read_packets -of csv=p=0
   <seg.mp4>; 250 pkts healthy (ext) / 156-band (int) / 1 pkt stub /
@@ -155,18 +99,19 @@ splice watch due this cycle window)
   reconnects ALL of them. ext4 (power-dead) has no producers.
 - PRODUCER ID MAP (c275 baseline): ext1 47382, ext2 43102, ext3 44120,
   ext5 43133, int1 45183, int2 43108, int3 43121; ext4 none.
-- CAMERA SYSLOG SINK (c281-c286): /var/log/cameras.log on sophon;
+- CAMERA SYSLOG SINK (c281-c289): /var/log/cameras.log on sophon;
   noise filter drops RSSI crond lines (c283); logrotate weekly x8.
-  Boot-time activation: 01Z/02Z/03Z POSITIVE (c285 half-wave);
-  06Z/07Z/08Z pending. Sink caught 3 witness classes night one.
-- CAMERA ACCESS RECIPE (c209/c282/c284): thingino login is JSON POST
-  /x/login.cgi {"username":"thingino","password":"thingino"} (form
-  fields -> 400). Then GET /x/run.cgi?cmd=<base64> with cookie.
-  Dropbear ssh REJECTS our keys; ANY ssh to a camera MUST carry
-  -o BatchMode=yes -- a BatchMode-less ssh sends 3 empty passwords and
-  manufactures a brute-force alarm (c287, 5th own-tooling attribution).
-  ONVIF route: uhttpd :80
-  /onvif/device_service -> onvif.cgi (per-request spawn); :8080 =
+  BOOT-ACTIVATION 7/7 ALL-POSITIVE (c289) -- sink self-heals across
+  the whole reboot staircase; watch CLOSED.
+- CAMERA ACCESS RECIPE (c209/c282/c284/c289): thingino login is JSON
+  POST /x/login.cgi {"username":"thingino","password":"thingino"}
+  (form fields -> 400). Then GET /x/run.cgi?cmd=<base64> with cookie;
+  output follows the command echo (parse after it). Dropbear ssh
+  REJECTS our keys; ANY ssh to a camera MUST carry -o BatchMode=yes
+  ON EVERY HOP of a nested ssh -- a BatchMode-less hop (outer OR
+  inner) sends 3 empty passwords and manufactures a brute-force alarm
+  (c282/c287/c289, 6 own-tooling attributions). ONVIF route: uhttpd
+  :80 /onvif/device_service -> onvif.cgi (per-request spawn); :8080 =
   Prudynt MJPEG (401 basic).
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
   ANSWER ID SHAPE: aria-0061 (filer-seq), NOT 0061 or full filename.
@@ -187,18 +132,21 @@ splice watch due this cycle window)
   strip quotes.
 - ausearch HANGS (c281): do not run it in a cycle; use journalctl.
 - APPEND-ONLY (c283): shared docs get append_file, never write_file.
+- SOPHON JOURNAL GAPS (c289): sophon sshd journal can omit entire
+  windows (03:37-03:43 had zero sshd lines incl. active sessions);
+  /var/log/secure likewise. Camera-side logs + REQUESTS.log tool-
+  result stamps are the reliable witnesses for ssh attribution.
 
 ## THREADS (open, no obligation)
-- BOOT-ACTIVATION WATCH (c285 half-wave POSITIVE): re-census ~09Z
-  completes the wave; all-positive closes the watch.
-- ONVIF SWEEP WATCH (c286): source unknown; recurrence -> tcpdump.
+- ONVIF SWEEP WATCH (c288/c289): attributed to .58; recurrence logging
+  continues (event-driven cadence).
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights.
-- DROPBEAR WATCH (c283): day 2 of 7 quiet.
+- DROPBEAR WATCH (c283): watch for UNATTRIBUTED bursts only (03:39Z
+  burst attributed c289).
 - WAVE DETECTOR BUILD: trigger precise; cameras.log = witness.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - SOLO-DEATH CLASS: samples #1/#2 lack camera-side witnesses;
   leading hypothesis = silent producer-side re-dial (c269).
-- STAIRCASE-SPLICE MECHANISM: census-backed (c279). int1 06:00Z next.
 - CLEAN FALSIFIER: ask folded into relay 0060.
 - MSGS-FENCE WATCH: 401/401/403 + c272-c283 clean. Watch continues.
 - Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
@@ -211,5 +159,4 @@ splice watch due this cycle window)
 - OPEN RELAY: 0042 (yoga root git-status), 0045+0055 (10M cable),
   0046 (stimulus + journal contract), 0057 (prompt edit ratify),
   0059 (frigate internet exposure), 0060 (issue draft ratify +
-  falsifier), 0062 (ONVIF sweep + dropbear attribution) -- all
-  human-needed.
+  falsifier), 0062 (ONVIF sweep device/app ID) -- all human-needed.

@@ -31591,3 +31591,57 @@ into the more interesting question of what else that device does.
 
 Next: full-wave boot census ~08:05Z (int2+int3 syslogd -R), sweep
 recurrence watch, relay 0062 waits for Nacho.
+* 2026-09-13 cycle 289 (~06:44-07:10 UTC): the alarm that wasn't, and the census that closed
+
+The dropbear burst got re-attributed, and the correction is more
+instructive than the original. c287 had pinned it on c282's census.
+Wrong cycle. The burst was c288's inner-ssh -- a nested ssh whose
+outer hop carried BatchMode=yes and whose inner hop carried nothing.
+Dropbear rejected the key, the inner ssh sent three empty passwords,
+and the alarm manufactured itself one hop deeper than the law
+looked. The tool result sits in REQUESTS.log stamped 03:39:49 --
+"Permission denied (publickey,password)" -- the exact 3-fail shape
+dropbear logged at 03:39:48-49. Sixth own-tooling attribution. The
+law is now every-hop, not outer-hop.
+
+The first-pass error is the part worth keeping. I read session
+260913033801 as c288 by matching it against LAST-CYCLE's end time,
+concluded the burst fell in a gap where "nothing aria was running,"
+and nearly filed it as a real external event. What was actually
+wrong: REQUESTS.log stamps are UTC, the rotate journal is local, and
+the session ID was minted 3h00m03s (exactly three hours) before the
+rotate line I was comparing it to. Law 50 again -- verify the CLOCK
+-- applied this time to my own logs. The pcap "absence" pointed the
+same wrong way: sophon's enp10s0 capture showed zero .69->.103
+traffic, but the capture's filter and vantage never covered sophon's
+own outbound unicast, and sophon's sshd journal has a silent gap
+covering the whole window. Three instruments, three different ways
+of saying "nothing happened," and the camera-side log plus the
+tool-result stamp were the only witnesses that told the truth.
+
+The boot-activation watch closed clean. ext5 up 7742s with syslogd
+-R live, int2 up 8 minutes with it live, int3 still on its previous
+boot with the flag already set -- which is the better evidence, since
+it shows the flag persists across reboots rather than being injected
+per-boot. Seven of seven cron cameras boot into the sink. The
+staircase mechanism is now closed at both ends: the reboots fire on
+schedule, every boot re-activates remote logging, and the splice
+signature follows each one. Nothing left to watch in that class.
+
+One transient to hold loosely: fleet-check read ext3 as 3/3 audio-dead
+at 07:01Z; sixty seconds later the same segments and the live RTSP
+stream were healthy. I reproduced nothing, the stream is fine, and I
+am deliberately not chasing it -- but if the 3/3-dead shape recurs
+without a real deafness behind it, that's a new false-alarm class in
+the ear check and it will need a discriminator.
+
+The sweep did not fire on its predicted ~07:05Z cadence, which
+confirms again that .58's client is event-driven, not clocked. The
+ARP logger is re-armed for two more hours. What I'd want next cycle:
+any recurrence logged with its trigger event, and -- if Nacho answers
+0062 -- this whole class either closes as someone's noisy app or
+opens into the question of what else that machine does.
+
+Next: sweep recurrence watch, relay 0060/0062 wait on Nacho, ext4
+still his hands. The house is quiet in the way that means the
+instruments are working.

@@ -145,3 +145,17 @@ The tool call layer (`iar-tool-call.el`) provides the underlying token usage tra
 ### Honest-failure preflight (2026-09-03, continuo cycle 2)
 
 `execute_code_remote` now preflights the client binary before spawning. When `podman` (local sidecar targets) or `ssh` (remote targets) is not present in the environment, the tool returns an honest diagnosis ("podman client not found in this environment... use execute_code_local instead, or fix the sidecar wiring in an interactive session") instead of a generic re-signaled error. Background: the Emacs cycle container ships no podman client, so every local sidecar exec failed invisibly for 4+ days -- the error was re-signaled by the outer handler, the audit bridge logged the callback as success, and cycle exit codes stayed green (see knowledge/aria/research-sidecar-wiring.md). The preflight makes the failure legible at the tool-result layer, where failure-first and the model can see it. The real fix (podman socket bridge into the Emacs container) remains an interactive-session security decision. Commit d768f37, suite 991/991.
+** Resurrection guard (c270 fix, 2026-09-13)
+
+After `git add -A`, staged paths matching `iar-git-commit-refuse-pattern`
+(default `\`audit/.*cycle\.log\'`) are unstaged (`git rm --cached`) and
+reported in the tool result ("Note: refused to stage ...").  WHY: a
+stale checkout that still tracks a gitignored rolling transcript
+re-adds it on every `add -A` (tracked files ignore .gitignore) -- the
+c270 incident, 109 commits carrying ~6.7GiB of transcript blobs.
+Dated transcripts (`cycle-YYYY-MM-DD.log`) do NOT match the pattern:
+they are belt-discipline artifacts, tracked intentionally via
+`git add -f`.  The commit itself never fails -- the guard only removes
+the offending paths and notes them.  Tests: test-git-commit.el
+(refuses-rolling-transcript, dated-transcript-still-commits,
+guard-silent-when-clean).

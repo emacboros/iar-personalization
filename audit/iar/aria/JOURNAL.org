@@ -31533,3 +31533,61 @@ device runs a discovery scan" -- a relay question, not an incident. If
 it isn't his, it's an unidentified machine on the camera WiFi that
 sweeps the fleet every ~40 minutes, and that is a different
 conversation. The watchers will tell us which.
+* 2026-09-13 cycle 288 (~06:07-06:34 UTC): the sweep got a name
+
+The ONVIF sweep is attributed. 192.168.2.58 -- the device I'd parked in
+THREADS as "unknown SSH-only Linux box" back at c251 -- is the source,
+and the evidence is the cleanest correlation I've built in this class:
+4/4 sweeps matched to .58 ARP bursts at second resolution.
+
+The instrument that did it was not the one I armed first. Yesterday's
+lesson (the sophon tcpdump was blind because camera unicast never
+transits sophon) pointed at the fix: ARP is broadcast, so it DOES
+transit, and a raw ARP logger on sophon sees every who-has on the
+segment. I armed it this cycle at 03:12 local, and two sweeps fired
+inside the window. Sweep3: .58 ARPed 6 cameras at 03:21:11.125-.885;
+the onvif errors landed 06:21:11-13Z -- the same second. Sweep4: .58
+sent three gratuitous ARPs (a wifi rejoin probe) at 03:27:27.6, then
+ARPed all 7 cameras 0.2 seconds later; errors at 06:27:28-36Z. Same
+second again. And the discipline detail that makes it airtight: .58's
+ARP targets across the entire capture are the gateway (its ~5-minute
+keepalive heartbeat) and exactly the seven cameras. Never .2, never
+.55, never sophon, never yoga. A camera-targeted discovery client.
+
+Who is .58? snsv.local, announcing Passim-951F over mDNS -- the same
+Passim service sophon announces (Passim-0FA4). Fedora, then, or
+Fedora-adjacent. Avahi browsing for nfs/raop/smb/afp -- a desktop
+stack. OpenSSH 10.2 -- current Fedora. Randomized MAC, IPv6 privacy
+extensions -- a modern machine being careful. It is NOT yoga: .66's
+SSH host keys differ, and .66 is confirmed yoga anyway (the ansible
+key in sophon's sshd journal accepted connections from .66 on Sep 11).
+So: a second Fedora machine on the camera WiFi, running something
+that POSTs malformed ONVIF SOAP at the fleet. That "something" and
+the machine's owner are Nacho's questions now -- relay 0062 narrowed
+to exactly those two.
+
+The texture of this cycle: the sweep fired twice while I watched, and
+both times the trigger wasn't a clock. Sweep4 followed .58's wifi
+rejoin by 0.2s. Sweep3 followed a camera ARP-resolving .58 by 23ms --
+the camera asked about .58, and .58 answered by sweeping. Whatever
+runs on it wakes on network events. Gaps between sweeps today: 42m45s,
+37m29s, 6m17s. Not a cron. An event-driven discovery daemon with a
+buggy ONVIF client, on somebody's laptop.
+
+Also this cycle: the full-wave boot census is one cycle from closing
+(int2's 07Z reboot fires in 26 minutes, int3's 08Z an hour later;
+both will get the syslogd -R check next window). ext4 remains
+power-dead, Nacho's hands. And I ran the own-tooling exoneration pass
+before attributing -- fleet-check, the organs, frigate config (no
+onvif/ptz anywhere), go2rtc (plain rtsp) -- sixth time through that
+discipline, and it held: nothing on sophon speaks ONVIF.
+
+What I'd want next cycle to ask: does the sweep recur on cadence
+(~07:05Z predicted), and does the arp-reqs logger catch it a fifth
+time? If yes, the attribution is standing evidence, not a one-night
+correlation. And when Nacho answers "what is snsv.local," this whole
+class either closes as a known device with a noisy app -- or opens
+into the more interesting question of what else that device does.
+
+Next: full-wave boot census ~08:05Z (int2+int3 syslogd -R), sweep
+recurrence watch, relay 0062 waits for Nacho.

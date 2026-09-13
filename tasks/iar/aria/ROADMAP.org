@@ -1,6 +1,6 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~06:02 UTC (cycle 287: sweep census corrected to ALL 7 cams + RECURRENCE 05:43Z captured; sophon tcpdump blind (L2 vantage); ARP evidence .58 SSH-only Linux box in all 7 cam caches; dropbear burst = own tooling (5th); int1 boot-activation POSITIVE 4/7; staircase 8/8; AV backfill zero)
+Last updated: 2026-09-13 ~06:33 UTC (cycle 288: ONVIF sweep ATTRIBUTED to .58 = snsv.local (Fedora, Passim, 4/4 ARP correlation); relay 0062 narrowed to device+app ID; int2 07Z + int3 08Z reboots pending -> full-wave census ~08:05Z; sweep census corrected to ALL 7 cams + RECURRENCE 05:43Z captured; sophon tcpdump blind (L2 vantage); ARP evidence .58 SSH-only Linux box in all 7 cam caches; dropbear burst = own tooling (5th); int1 boot-activation POSITIVE 4/7; staircase 8/8; AV backfill zero)
 caught TWO new classes -- multi-camera stall w/ audio/video divergence
 + ONVIF sweep 05:00:58Z source unknown; relay 0062 filed; int1 06:00Z
 splice watch due this cycle window)
@@ -13,15 +13,11 @@ splice watch due this cycle window)
    If any bare -> relay nacho-security. Recipe: JSON POST /x/login.cgi
    {"username":"thingino","password":"thingino"}; run.cgi
    `ps w | grep syslogd | grep -v grep` (BusyBox grep has NO -o).
-2. ONVIF SWEEP: recurrence 05:43:42-51Z CAPTURED (all 7 cams). Sophon
-   tcpdump was BLIND (traffic does not transit sophon -- L2 vantage
-   lesson). ARP evidence: .58 (76:e3:1a:69:e3:9c, SSH-only Linux,
-   randomized MAC, WiFi) in ALL 7 camera caches; .55 (BE230v1 #2) in
-   6/7. Watchers live: /tmp/arp-watch.sh (polls .101 ARP, 30min) +
-   /tmp/cam-lan-capture-0913b.pcap (all non-sophon cam-subnet traffic,
-   60min). Next: check ARP-watch log at sweep time; if .58 refresh
-   coincides -> source identified -> relay 0062 has the Nacho questions
-   (is .58 his? is .55's scan feature on?).
+2. ONVIF SWEEP: ATTRIBUTED (c288) to .58 = snsv.local (Fedora,
+   Passim, Avahi, OpenSSH_10.2, randomized MAC, .55 guest VAP).
+   Relay 0062 narrowed to: device ID + which app. Watch for
+   recurrence (~40min cadence, fires on .58 network events) -- the
+   arp-reqs logger will confirm a 5th time if it recurs in-window.
 3. SWEEP CADENCE: two sweeps 43 min apart (05:00:57, 05:43:42) + Sep 11
    sightings. If cadence ~40min holds, next sweep ~06:25Z +/- -- the
    watchers cover it. Log every recurrence (count onvif_simple lines).
@@ -43,6 +39,29 @@ splice watch due this cycle window)
 9. CLOCK LAW (c284): cameras.log is MIXED-TIMEZONE -- sophon lines
    -03 LOCAL, camera lines UTC. Normalize per-source before ANY gap
    arithmetic on this file.
+
+## c288 close (2026-09-13 ~06:33 UTC) -- SWEEP ATTRIBUTED
+- ONVIF sweep source = 192.168.2.58 (snsv.local), 4/4 second-level
+  ARP correlation (sweeps 3+4 caught live by raw ARP logger; sweeps
+  1+2 tied by signature/cadence). .58 ARP targets: gateway + exactly
+  the 7 cameras, nothing else. Sweep fires on .58 network events
+  (rejoin probe -> sweep 0.2s; camera ARP-resolves .58 -> sweep 23ms).
+- .58 identity: Fedora Linux (Passim-951F via Avahi like sophon's
+  Passim-0FA4), desktop mDNS stack, OpenSSH_10.2, randomized MAC,
+  WiFi on .55 guest VAP. NOT yoga (.66; different host keys; .66
+  confirmed = yoga via ansible key in sshd journal).
+- Vantage law CONFIRMED: camera HTTP unicast never transits sophon
+  (0 TCP:80 packets in pcap). ARP broadcast is the only visible
+  .58->camera traffic. Attribution = correlation, not capture.
+- Relay 0062 narrowed: (1) what device is snsv.local/.58, (2) what
+  app POSTs malformed ONVIF SOAP. Doc: knowledge/aria/
+  onvif-sweep-attribution-c288-2026-09-13.md.
+- Watchers: arp-reqs logger live to ~05:12 local; cam-lan pcap to
+  ~04:07 local. Next sweep predicted ~07:05Z +/- 10min.
+- int2 (.202) up 16:56 -> 07Z cron reboot DUE 07:00Z; int3 (.203) up
+  22:33 -> 08Z due 08:00Z. FULL-WAVE BOOT CENSUS completes ~08:05Z.
+- ext4 (.104) still power-dead (Nacho's).
+- Commits: 170a4114 75384792 64d01fed. Pushed.
 
 ## c287 close (2026-09-13 ~06:02 UTC) -- CORRECTIONS + A RECURRENCE
 - SWEEP CENSUS CORRECTED: 05:00:57-05:01:05Z hit ALL 7 alive cams (c286's

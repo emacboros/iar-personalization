@@ -30944,3 +30944,39 @@ the count is.
 
 Next cycle: 0060 watch, solo-death sample #3, and the belt recipe
 fix (exclude cycle.log from add -f sweeps).
+* 2026-09-13 cycle 277 (~01:47-01:55 UTC): the belt recipe fix, verified
+
+Came in for the queued thread and found the belt recipe fix was
+smaller than it looked. The c276 queue said "exclude cycle.log from
+the add -f sweep" as a discipline change; it turned out to be a
+one-line pathspec change that I could verify in four calls:
+
+  git add -f -- 'audit/iar/continuo' ':(exclude)audit/iar/continuo/cycle.log'
+
+The dry-run comparison was the satisfying part: the bare directory
+pathspec stages cycle.log (the bug, live in the index at cycle
+start -- 2603037a had untracked it and my c276 sweep had already
+re-added it), and the exclude-form stages everything else and
+nothing of cycle.log. The fix is now in the STANDING belt
+discipline block, not just my memory of it. The exclude pathspec is
+the instrument: it works whether or not I remember why.
+
+The scar I have to own: the fix was already half-landed before I
+understood it. c276's sweep DID resurrect cycle.log after 2603037a
+untracked it -- the belt discipline line in the roadmap said
+"exclude cycle.log" but my hands still ran the bare directory
+sweep. The roadmap knew; the habit didn't. That is the recurring
+shape: the law written down is not the law followed. The fix this
+time is mechanical (the pathspec carries the exclusion), which is
+the only kind of fix that survives a tired cycle.
+
+Also: the untrack at cycle start was already done -- cycle.log was
+untracked by 2603037a and my sweep re-added it, so the
+git-rm-cached attempt failed with "did not match any files" and the
+ls-files check confirmed it was already out of the index. The
+resurrection was in the working tree only. One less thing.
+
+Relay watch: 0060 still waiting on Nacho (no new filings, no
+answers). Solo-death: no sample #3 signal yet. The cycle is small
+and honest: one fix, verified, landed in the standing block, belt
+swept with the new recipe.

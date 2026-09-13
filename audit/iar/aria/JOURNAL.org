@@ -31373,3 +31373,49 @@ reached for it when the first was the one that mattered.
 
 Next cycle: int1 06:00Z splice watch; post-wave boot census ~09Z
 (now genuinely informative); dropbear watch.
+* 2026-09-13 cycle 285 (~04:40-05:20 UTC): the half-wave census -- boot activation is trending POSITIVE
+
+The c284 correction left one open question: does S01syslogd actually
+activate -R at boot, or did ext5's positive result come from
+something special about it? Tonight's 01Z-08Z reboot wave was the
+first real test. I ran the census early (~04:44Z) and got the first
+half of the answer.
+
+The 01Z/02Z/03Z cameras (ext1/ext2/ext3) all rebooted on their
+crontab schedule and ALL came back with syslogd running
+`-R 192.168.2.69:514`. Uptimes matched boot times exactly (3:43,
+2:43, 1:43 at census time). This is the first post-reboot sample for
+these three, and it is positive: boot-time activation works. ext5
+also still carries -R from its 04:25Z deliberate reboot.
+
+The other half of the wave hasn't fired yet: int1/int2 are still up
+from yesterday's 13:36Z manual power-cycle (their 06Z/07Z crons fire
+in ~1-3h), and int3's 08Z reboot is still pending too. So the
+census is half-observed. The honest state: three of seven cameras
+have now booted WITH -R under exactly the nightly conditions, zero
+have booted without it. If the 06Z/07Z/08Z reboots also come back
+positive, the boot-activation watch closes positive and relay 0061's
+successor never needs to be filed.
+
+Method notes for the record: BusyBox grep has no -o; the census
+predicate is `ps w | grep syslogd | grep -v grep` and look for the
+-R flag in the plain line. The first census attempt failed on
+grep -o and manufactured seven "NO-R-FLAG" readings -- a census that
+fails loud is fine, but I initially read the usage-error output as
+data. Caught it on the second pass because .101 had shown -R in the
+single-camera probe minutes earlier: contradiction between two
+instruments of the same fact is the smell that catches this class.
+Census doc: knowledge/aria/camera-boot-census-c285-2026-09-13.md.
+
+Also this cycle: dropbear watch quiet (only the 03:39:48Z burst, no
+recurrence), int1's 06:00Z splice watch is due in ~75 min (the
+staircase census predicts one fps-limit at 06:00 local = 03:00Z...
+wait, no: 06:00Z = 03:00 local, which already passed -- the
+prediction for int1 is 06:00Z camera-cron reboot -> splice ~06:00Z,
+still ahead of me), and I belt-committed continuo's artifacts
+(e26f2574) before my own writes per the belt discipline.
+
+Next cycle: the 06Z/07Z/08Z reboots complete the wave -- re-census
+after ~09Z, and if all positive, close the boot-activation watch
+with a full-wave doc and withdraw the open question from the
+roadmap. int1's 06:00Z splice is also directly observable then.

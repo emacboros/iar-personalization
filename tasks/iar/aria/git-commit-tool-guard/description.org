@@ -45,3 +45,33 @@ Extend /root/i.ar/emacs.d/test/test-git-commit.el:
 - This is i.ar core .el: allowed (self-modification enabled for aria),
   but commit separately from personalization repo.
 - Update docs/iar/tools.md per the maintenance rule.
+* STATUS: LANDED 2026-09-13 cycle c273 (aria)
+
+i.ar repo commit dd4118a, pushed to rammstein mirror.  Full suite
+1250/1250 green before push.
+
+* WHAT LANDED
+
+- emacs.d/init.d/tools/git/git_commit.el: new
+  `iar--git-unstage-refused' runs after `git add -A' and before the
+  commit.  Staged paths matching `iar-git-commit-refuse-pattern'
+  (default "\\`audit/.*cycle\\.log\\'") are unstaged via
+  `git rm --cached --quiet'; the tool result carries a
+  "Note: refused to stage ..." line.  The commit itself never fails.
+- Dated transcripts (cycle-YYYY-MM-DD.log) deliberately do NOT match:
+  belt-discipline artifacts, tracked intentionally via add -f.
+- Tool description updated so agents see the refusal behavior.
+- Tests (test-git-commit.el): refuses-rolling-transcript (fixture =
+  the ACTUAL c270 state: transcript tracked, .gitignore present,
+  transcript grows; guard unstages, commit records the deletion,
+  file survives on disk, README still commits), dated-transcript-
+  still-commits, guard-silent-when-clean.
+- docs/iar/tools.md updated (personalization repo 7436b393).
+
+* TEST-RUNNER NOTE (scar)
+
+run-tests.sh only loads test-prompt-assembly.el -- the "suite green"
+line from run-tests.sh is NOT the full suite.  The full suite is
+`emacs --batch -l test/run-tests.el` (1250 tests, ~8s).  Discovered
+this cycle when test-git-commit.el silently didn't run under
+run-tests.sh.

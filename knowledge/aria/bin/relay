@@ -62,8 +62,16 @@ cmd_file() {
   local id
   local filer="${RELAY_FILER:-aria}"
   local n
-  # anchored: 8-char date, dash, filer token, dash -- not substring matching
-  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-????.md" -o -name "????????-${filer}-????-*.md" 2>/dev/null | wc -l)
+  # Sequence = max existing seq for THIS filer + 1, NOT the file count.
+  # Count collides across stale checkouts (c276: two aria-0055 same day
+  # -- a checkout missing one file counted n-1 and re-used the seq; the
+  # belt#2 loop only catches exact-filename collisions, not seq reuse).
+  # Max-seq is monotonic under count drift, deletions, and stale clones.
+  # 2026-09-13 aria c276: restores continuo's 9df82c4f fix (lost in the
+  # 725a18ef/8f8e0023 slice-merge churn) in per-filer form.
+  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-????.md" -o -name "????????-${filer}-????-*.md" 2>/dev/null | sed -E 's/.*-'${filer}'-([0-9]{4})-.*/\1/' | sort -n | tail -1)
+  n=${n:-0}
+  n=$((10#$n + 1))
   id="$(date -u +%Y%m%d)-${filer}-$(printf '%04d' "$n")"
   local slug
   slug="$(echo "$title" | tr '[:upper:] ' '[:lower:]-' | tr -cd '[:lower:][:digit:]-' | cut -c1-40)"
@@ -80,8 +88,10 @@ cmd_file() {
     sleep 0.1; waited=$((waited+1))
   done
   trap 'rmdir "$lock" 2>/dev/null' EXIT
-  # re-count under lock (another filer may have taken the id we computed)
-  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-????.md" -o -name "????????-${filer}-????-*.md" 2>/dev/null | wc -l)
+  # re-max under lock (another filer may have taken the id we computed)
+  n=$(find "$ROOT/open" "$ROOT/relayed" "$ROOT/answered" "$ROOT/held" "$ROOT/dropped" -name "????????-${filer}-????.md" -o -name "????????-${filer}-????-*.md" 2>/dev/null | sed -E 's/.*-'${filer}'-([0-9]{4})-.*/\1/' | sort -n | tail -1)
+  n=${n:-0}
+  n=$((10#$n + 1))
   id="$(date -u +%Y%m%d)-${filer}-$(printf '%04d' "$n")"
   f="$ROOT/open/$id-$slug.md"
   # belt #2: if id still collides (race inside lock window), bump until free

@@ -1,30 +1,30 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~03:55 UTC (cycle 282: SINK ROLLOUT WAS 6/7
--- ext1 never configured; found via config census, fixed + verified
-7/7; persistence check still pending tonight's reboots)
+Last updated: 2026-09-13 ~04:11 UTC (cycle 283: sink noise filter +
+logrotate deployed; dropbear brute-force FROM SOPHON witnessed 03:39Z,
+source unidentified, watch filed; int1 splice still pending 06:00Z)
 
-## c283 QUEUE (in order)
-1. INT1 SPLICE WATCH: int1's crontab 06:00Z = 03:00 local -- lands
-   ~mid-c283/c284. Check frigate journal for "exceeded fps limit" on
-   interior_1 ~06:00Z + splice markers. Prediction: one splice per
-   camera per night at its crontab hour (census-backed 7/7). NOW
-   BETTER: cameras.log should also show int1's boot lines live.
+## c284 QUEUE (in order)
+1. INT1 SPLICE WATCH: int1's crontab 06:00Z = 03:00 local. Check
+   frigate journal for "exceeded fps limit" on interior_1 ~06:00Z +
+   splice markers. Prediction: one splice per camera per night at its
+   crontab hour (census-backed 7/7). cameras.log should show int1's
+   boot lines live at 06:00Z (post-filter, boot lines survive).
 2. SINK PERSISTENCE CHECK (CRITICAL, tonight): do the jct writes to
    /etc/thingino.json survive the nightly crontab reboots? ext1 01Z,
    ext2 02Z, ext3 03Z, ext5 05Z, int1 06Z, int2 07Z, int3 08Z.
    CHECK: cameras.log boot lines from each camera at its hour + a
-   post-reboot jct get rsyslog.enabled census (the c282 census --
-   rerun it after the reboot wave). A camera that reboots and then
-   goes silent in cameras.log = config reverted = fix belongs in
-   camera boot script (relay to Nacho). If ALL revert, the sink
-   survives only until tonight -- file relay immediately.
-   NOTE: ext1's config was set ~03:48Z c282, so ext1 01Z reboot is
-   the FIRST persistence test for the newest member.
-3. SINK NOISE FILTER (small): cameras.log gets ~1 crond line/min/cam
-   (RSSI cron). Optional rsyslog filter `if $msg contains "cmd {"
-   then stop` or logrotate. Not urgent (disk 30%).
-4. PULLER v2 VERIFICATION: after one night, confirm census labels
+   post-reboot jct get rsyslog.enabled census (rerun the c282 census
+   after the reboot wave). A camera that reboots and then goes silent
+   in cameras.log = config reverted = fix belongs in camera boot
+   script (relay to Nacho). If ALL revert, the sink survives only
+   until tonight -- file relay immediately.
+3. DROPBEAR WATCH (new, c283): grep dropbear /var/log/cameras.log.
+   03:39:48Z sophon-origin 3x failed root pw vs .103, source
+   UNIDENTIFIED (forensics in sink doc c283 addendum). Recurrence ->
+   capture samples, file relay nacho-security. 7 days silent -> close
+   watch. Details: tasks/iar/aria/sink-watch/.
+4. PULLER v2 VERIFICATION: after tonight, confirm census labels
    behave (real log lines reappear at each camera's reboot).
 5. RELAY WATCH: 0060 (go2rtc issue draft ratify; c280 strengthens the
    case). If Nacho rules, post draft to AlexxIT/go2rtc. Do not post
@@ -35,10 +35,33 @@ Last updated: 2026-09-13 ~03:55 UTC (cycle 282: SINK ROLLOUT WAS 6/7
 7. FLEET RTP STALL WATCH: 08:10:22Z class. If recurs, correlate nic
    1-min log + camlog + cameras.log (second witness).
 
+## c283 addendum (2026-09-13 ~04:11 UTC)
+- SINK NOISE FILTER LIVE: /etc/rsyslog.d/30-cameras.conf drops
+  `$msg contains "cmd {"` (RSSI cron signature) before the file
+  action; verified live (tcpdump + absence/presence: RSSI lines
+  arrived and did not land, ntpd line landed). Logrotate weekly x8
+  deployed (/etc/logrotate.d/cameras.log, HUP postrotate). Sink
+  steady-state now ~2 lines/10min.
+- DROPBEAR BRUTE-FORCE FROM SOPHON (03:39:48Z, first sink security
+  witness): 192.168.2.69 -> .103 dropbear, 3 failed root password
+  attempts, single 1s burst. Source on sophon UNIDENTIFIED: no
+  process/cron/script/journal/history trace; continuo clean; my c282
+  ssh-to-camera at 03:39:49Z is BatchMode key-only (cannot send
+  passwords) and exited 255 one second AFTER the attempts. Watch
+  filed: tasks/iar/aria/sink-watch/dropbear-watch-and-persistence.
+  Recurrence -> relay nacho-security with multi-sample data.
+- SCAR (caught in time): nearly overwrote the sink doc with the c283
+  addendum (write_file vs append_file); restored from HEAD, appended
+  properly. Append-only discipline held by one reflex.
+- Belt: 6eb3b535 (continuo artifacts + affect), ca753981 (sink doc),
+  1c304c0c (journal+history).
+- Instrument tax: predicted ~30min, actual ~14min (filter was small;
+  the dropbear forensics were the unplanned depth -- worth it).
+
 ## c282 addendum (2026-09-13 ~03:55 UTC)
-- SINK ROLLOUT CORRECTION: c281's "all 7 alive cameras forward" was
-  FALSE -- ext1 (192.168.2.101) was never configured (rsyslog.enabled
-  key absent, syslogd bare). c281's logger-test witness list had six
+- SINK ROLLOUT CORRECTION: c281's "all 7 cameras forward" was FALSE --
+  ext1 (192.168.2.101) was never configured (rsyslog.enabled key
+  absent, syslogd bare). c281's logger-test witness list had six
   names; the doc's claim said seven; nobody counted. Fixed c282
   ~03:48Z: jct set 4 keys + S01syslogd restart -> -R flag live ->
   ARIA-101-SINK-JOINed landed 03:48:48Z. Fleet genuinely 7/7 now.
@@ -53,7 +76,6 @@ Last updated: 2026-09-13 ~03:55 UTC (cycle 282: SINK ROLLOUT WAS 6/7
 - rssi puller uptime census: all 7 crontab reboots fired on schedule
   last night (22:02Z-05:02Z) -- persistence check has a clean prior.
 - Belt: d1dbd5c0 (continuo artifacts), 821a92b7 (sink doc correction).
-- Instrument tax: predicted ~15min, actual ~17min. Accurate for once.
 
 ## c281 addendum (2026-09-13 ~03:29 UTC)
 - CAMERA SYSLOG SINK LIVE (doc knowledge/aria/camera-syslog-sink-c281-
@@ -67,49 +89,17 @@ Last updated: 2026-09-13 ~03:55 UTC (cycle 282: SINK ROLLOUT WAS 6/7
   rsyslog received nothing; local logger tests landed fine. Fix:
   rich rule source 192.168.2.0/24 udp 514 accept (PERMANENT, verified
   in nft ruleset). Law-50 texture: verify the path TO the socket.
-- Verified live: logger tests from 6 cams landed; 103 crond lines
-  flowing; .104 power-dead absent (expected). [c282: 6/7 -- ext1
-  missed; see c282 addendum.]
 - Splice watch: no new fps-limit events in the 4h window checked
   (20:00-00:00 local); int1 06:00Z prediction intact.
-- Belt: 86e95081 (sink doc), 3b22c72e (history), 1b308d57 (journal).
 
-## c280 addendum (2026-09-13 ~02:46 UTC)
-- WAVE MECHANISM CONFIRMED IN PRODUCTION (doc knowledge/aria/
-  wave-mechanism-c280-2026-09-13.md): three waves 09-12 (15:39,
-  16:17, 16:19 local), all one viewer IP (181.28.154.180), all
-  matching c268: login -> 7 paramless /api/go2rtc/streams/<cam>
-  GETs -> +24-34s fps-limits fleet-wide -> splice markers -> heal.
-  GETs are paramless -- mic-probe is inside the frigate proxy handler
-  (CodecAny match), NOT visible in the URL.
-- CAMERA-SIDE WITNESSES: all 7 alive cameras logged new
-  BackchannelStreamState sessions at exactly the GET times (UTC
-  18:39:32Z / 19:16:51Z / 19:19:12Z). Chain observed at EVERY hop:
-  page -> proxy GET -> AddTrack -> camera backchannel session ->
-  Reconnect -> fps-limit -> splice -> heal.
-- SAMPLE #3 RECLASSIFIED: ext1 21:29:31 fps-limit has backchannel
-  witness at 21:29:04 local (+27s) and NO page traffic = mic-probe
-  remake WITHOUT page load. Dialer identity open (relay 0060
-  falsifier). DTS gap 4.0h audio timeline.
-- NEW CLASS -- FLEET RTP STALL: 08:10:22Z, 5 producers read-timeout
-  simultaneously on ESTABLISHED conns, re-dials refused ~40s, all
-  recovered. NO fps-limits/splice/page-traffic/reboots/NIC-flap.
-  Cause unknown. Watch for recurrence.
-- +24s CONSTANT: first fps-limit lands +24s after GET batch (go2rtc
-  watchdog interval); spread 24-34s = per-camera detect timing.
-- Belt: dfa54cc0 (wave doc), 4302720d (continuo artifacts),
-  69b018f4 (journal+history). Lab-notes id 1009.
+## OPERATIONAL RECIPES (standing)
 
-## STANDING (stable facts; do not re-derive)
-
-- PULSE: run in ONE batched ssh (keyscan re-pin first). Fleet
-  pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/ (sophon cron
-  15min/15min/1min). fleet-check v2.21 via aria-fleet-feed.timer (6h)
-  -> fleet-latest -> fear-organ. Run by hand when stale.
-- FRIGATE ACCESS: ssh root@10.66.0.5 then journalctl -u
-  frigate.service (system unit, root-readable); podman exec via
-  'su - nacho -c "XDG_RUNTIME_DIR=/run/user/1000 podman exec frigate
-  <cmd>"'. Frigate version deployed: 0.17.2-3d4dd3a (stable-tensorrt).
+- FAILURE-FIRST: read LAST-CYCLE.txt first every cycle.
+- PULL-BEFORE-WRITE: git pull --ff-only before ANY shared-file write;
+  if pull fails, no shared writes this cycle.
+- BELT DISCIPLINE: commit continuo's uncommitted artifacts BEFORE my
+  own writes. THE RECIPE (c277 VERIFIED):
+    git add -f -- 'audit/iar/continuo' ':(exclude)audit/iar/continuo/cycle.log'
 - CLOCK SHAPES: cameras UTC; frigate logs LOCAL (-03); frigate nginx
   access log LOCAL [12/Sep/2026:...]; prudynt UTC. Convert first.
   Camera crontab reboots: ext1 01Z, ext2 02Z, ext3 03Z, ext5 05Z,
@@ -126,22 +116,16 @@ Last updated: 2026-09-13 ~03:55 UTC (cycle 282: SINK ROLLOUT WAS 6/7
 - PRODUCER ID MAP (c275 baseline): ext1 47382, ext2 43102, ext3 44120
   (ext3 producers[0] is a placeholder; filter by id presence),
   ext5 43133, int1 45183, int2 43108, int3 43121; ext4 none.
-- CAMERA SYSLOG SINK (c281, corrected c282): /var/log/cameras.log on
-  sophon; all 7 alive cams forward udp514 (ext1 joined c282 03:48Z);
-  firewalld rich rule LAN-only; rsyslog.d/30-cameras.conf.
-  PERSISTENCE UNVERIFIED (jct write vs nightly reboots -- tonight).
-  Camlog puller = backup witness now.
+- CAMERA SYSLOG SINK (c281-c283): /var/log/cameras.log on sophon; all
+  7 alive cams forward udp514; noise filter drops RSSI crond lines
+  (c283); logrotate weekly x8 (c283). PERSISTENCE UNVERIFIED (jct
+  write vs nightly reboots -- tonight). Camlog puller = backup witness.
 - CAMERA ACCESS RECIPE (c209/c282): dropbear ssh REJECTS our keys;
   transport = curl login (POST /x/login.cgi thingino:thingino ->
   cookie) + GET /x/run.cgi?cmd=<base64>. jct reads/writes
   /etc/thingino.json keys. Census pattern: loop jct get over all IPs.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
-  IDs max-seq+1 per filer (2eaf00b7).
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
-- BELT DISCIPLINE: pull first, commit continuo's uncommitted artifacts
-  BEFORE my own writes (git add -f; audit/* is gitignored), push
-  before new threads. THE RECIPE (c277 VERIFIED):
-    git add -f -- 'audit/iar/continuo' ':(exclude)audit/iar/continuo/cycle.log'
 - TEST SUITE: full suite = emacs --batch -l test/run-tests.el (1250
   tests, ~8s) = run-tests.sh. Filter: run-tests.sh "regexp".
 - .AR TRAP (c274): paths ending .ar get tramp-archive file-name
@@ -160,8 +144,12 @@ Last updated: 2026-09-13 ~03:55 UTC (cycle 282: SINK ROLLOUT WAS 6/7
   head -1 grab fails (Malformed API key, c280).
 - ausearch HANGS (c281): ausearch on sophon blocked >600s twice --
   do not run it in a cycle; use journalctl for AVCs if needed.
+- APPEND-ONLY (c283): shared docs get append_file, never write_file;
+  a write_file on an existing doc erases the record's history.
 
 ## THREADS (open, no obligation)
+- DROPBEAR WATCH (c283): sophon-origin brute-force, source unknown.
+  Recurrence -> nacho-security relay. 7d silent -> close.
 - WAVE DETECTOR BUILD: trigger precise (fleet backchannel + +24-34s
   fps-limits); cameras.log = continuous witness. Build when it pulls.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence;
@@ -171,11 +159,11 @@ Last updated: 2026-09-13 ~03:55 UTC (cycle 282: SINK ROLLOUT WAS 6/7
   OUT (c280). Leading hypothesis = silent producer-side re-dial
   (c269). Dialer identity open -- falsifier in relay 0060.
 - STAIRCASE-SPLICE MECHANISM: census-backed (c279). int1 06:00Z is
-  the next predicted event (c283 watch).
+  the next predicted event (c284 watch).
 - SINK PERSISTENCE (c281/c282): jct vs nightly reboots -- tonight
   tells. ext1 is the newest member (set 03:48Z c282).
 - CLEAN FALSIFIER: ask folded into relay 0060.
-- MSGS-FENCE WATCH: 401/401/403 + c272-c282 clean. Watch continues.
+- MSGS-FENCE WATCH: 401/401/403 + c272-c283 clean. Watch continues.
 - Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.

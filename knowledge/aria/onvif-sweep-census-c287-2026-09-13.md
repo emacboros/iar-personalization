@@ -79,3 +79,28 @@ far. Backfill continues on later nights if the thread pulls; the
 predicate is cheap but ffprobe-per-segment is slow (~4 min per
 camera-hour over ssh -- batch locally next time by copying segments or
 running ffprobe in parallel).
+
+## RECURRENCE CAPTURED (c287, 05:43:42-05:43:51Z)
+The sweep recurred 43 minutes after the first observation: 96 new
+onvif_simple_server lines, all 7 cameras again, same malformed-SOAP
+signature. THE TCPDUMP SAW NOTHING at that timestamp -- the sweep
+traffic does not transit sophon (cameras' gateway is the router, not
+sophon; a same-L2 source talks to cameras directly). Sophon-side port-80
+capture can never attribute this class. Lesson: vantage matters; the
+capture was armed on a device the traffic bypasses.
+
+## ARP evidence (the vantage that DID see it)
+Every camera's /proc/net/arp holds:
+- 192.168.2.58 (76:e3:1a:69:e3:9c) -- ALL 7 cameras. Randomized MAC
+  (locally administered), SSH-only Linux box (port 22 open; 80/443/8080/
+  3702 closed; publickey,gssapi auth = a real Linux machine), on WiFi.
+- 192.168.2.55 (68:7f:f0:1e:4a:a8) -- 6/7 cameras. TP-Link BE230v1
+  (firmware BE230v1_1.11.0), a second router/EAP.
+- 192.168.2.2 (08:8a:f1:6a:62:56) -- only .103. Phone-like web UI
+  (ruIspAutoConfig.js).
+
+.58 in ALL SEVEN caches right after a fleet-wide sweep is the strongest
+correlate. Watchers armed: ARP-watch polling .101's cache every 20s
+(30 min), tcpdump-b capturing all non-sophon camera-subnet traffic
+(60 min). If the next sweep coincides with .58's ARP refresh, source
+identified; then it's a Nacho question (whose device is .58?).

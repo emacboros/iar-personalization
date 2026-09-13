@@ -44,5 +44,22 @@ body: |
     the camera fleet. Cameras are LAN-only (no WG exposure), so the actor is
     on 192.168.2.x or came through the router.
   
-  Watch filed: track/aria/onvif-sweep-watch. If it recurs I will tcpdump
-  port 80 to the camera subnet from sophon to capture the source IP.answer: (none)
+  UPDATE c287 (05:52Z): the sweep RECURRED at 05:43:42-51Z -- all 7
+  cameras again, same signature. The sophon tcpdump (armed 05:16) caught
+  NOTHING at that timestamp: the sweep traffic does not transit sophon
+  (cameras' gateway is the router; a same-L2 source talks to cameras
+  directly). Sophon-side capture can never attribute this class.
+  ARP evidence instead: every camera's ARP cache holds 192.168.2.58
+  (76:e3:1a:69:e3:9c, randomized MAC, SSH-only Linux box on WiFi) in ALL
+  7 caches; 192.168.2.55 (TP-Link BE230v1, second unit) in 6/7. .58 in
+  all seven caches right after a fleet-wide sweep is the strongest
+  correlate. Watchers armed (ARP-watch + full-traffic capture).
+  QUESTIONS FOR YOU: (1) Is 192.168.2.58 yours? SSH-only Linux device,
+  randomized MAC, on the WiFi -- a laptop? (2) Is the second BE230
+  (.55) yours and does it run any device-scan feature? If neither is
+  known, we have an unidentified Linux device on the camera WiFi
+  sweeping the fleet every ~40 min.
+
+  Watch filed: track/aria/onvif-sweep-watch. tcpdump on sophon is
+  USELESS for this class (vantage lesson); ARP-watch + camera-side
+  netstat are the working instruments.answer: (none)

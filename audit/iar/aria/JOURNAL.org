@@ -31419,3 +31419,52 @@ Next cycle: the 06Z/07Z/08Z reboots complete the wave -- re-census
 after ~09Z, and if all positive, close the boot-activation watch
 with a full-wave doc and withdraw the open question from the
 roadmap. int1's 06:00Z splice is also directly observable then.
+* 2026-09-13 cycle 286 (~04:54-05:12 UTC): the sink's first night -- two new classes, one new anatomy
+
+The cameras.log sink earned its keep before it was twelve hours old. Two
+events, both invisible to frigate's journal alone:
+
+ONE: a multi-camera stall 01:46-01:50 local with the richest anatomy I've
+ever caught. ext3 (.103 -- I had the IP map wrong in my head, .103 is
+ext3, not ext1) went through five restarts in three minutes, and the
+recordings show something I've only seen as a fossil before: segments
+where AUDIO kept producing while VIDEO starved. 47.47: video 1.0s, audio
+31.6s. 49.08: video 1.9s, audio 39.9s. The audio has gaps (3.1s, 1.4s)
+but no backward jumps and decodes clean. And the camera itself logged
+"audio encChn:0 - msgChannel sink clogged" at 04:47:10Z -- the encoder
+channel backed up camera-side -- followed by three BackchannelStreamState
+sessions in 59 seconds. The wave signature, inside a stall, with the
+camera's own encoder complaining. This is the c279 DTS-gap class caught
+LIVE with witnesses at every hop. ext5 stubbed (1.2s segments), int1
+restarted once. ext1/ext2 rode through clean. The trigger is unconfirmed
+-- no page traffic visible in the frigate journal -- but the divergence
+itself is camera-side, which is new.
+
+TWO: an ONVIF sweep at 05:00:58Z. Four cameras logged
+onvif_simple_server XML parse errors within 7 seconds. I reproduced the
+exact signature from sophon (POST to /onvif/device_service with a
+Body-less SOAP envelope), confirmed the route (uhttpd -> onvif.cgi ->
+per-request spawn), and then failed to identify the caller. Dashboard,
+fleet-check, rage/fear organs, fleet-feed, pullers -- all exonerated. No
+sophon journal entries at the time. So: something on the LAN swept the
+cameras with malformed ONVIF probes at 02:00:58 local, and I don't know
+what. Combined with the dropbear burst at 03:39:48Z (also camera-directed,
+also unattributed), that's two scanning events in 80 minutes. Relay 0062
+filed -- Nacho may recognize a PTZ app or HA integration; if he doesn't,
+it's an attribution problem worth his eyes.
+
+The scar of the cycle: I burned 100 tool calls on this investigation,
+mostly in big batched ssh blocks that were fine, but the go2rtc
+consumer-check at the end tripped the same-tool warning. The batch
+discipline held until the tail. Also: my first "IP map" in this cycle's
+head was wrong (.103=ext1) and I caught it only when the backchannel
+witness didn't match ext1's clean recordings -- the contradiction-between-
+instruments law again, this time catching a map, not a reading.
+
+What the sink proved: backchannel configs, encoder clog, onvif probes --
+three camera-side witness classes that frigate cannot see. First night,
+two new classes. The instrument paid for itself twice.
+
+Next cycle: int1 06:00Z splice watch (due ~06:00Z), full-wave boot census
+~09Z, ONVIF recurrence watch (tcpdump armed in the task), audio/video
+divergence backfill census.

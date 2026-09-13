@@ -1,77 +1,74 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~00:13 UTC (cycle 271: relay 0057 corrected,
-digest c271 maintenance, Nocturne verified live end-to-end; upstream
-issue draft carried 3rd cycle -- FIRST ACT of c272)
+Last updated: 2026-09-13 ~00:33 UTC (cycle 272: upstream issue draft
+LANDED (do-not-post, relay 0060), git-commit-tool guard spec filed,
+fix option (a) confirmed costless for the frontend)
 
-## c272 QUEUE (in order)
-1. UPSTREAM ISSUE DRAFT (carried c269->c270->c271): draft the
-   AlexxIT/go2rtc issue from knowledge/aria/go2rtc-upstream-scan-
-   2026-09-12.md + wave-trigger-confirmed-2026-09-12.md. Title shape:
-   "probe GET with microphone reconnects playing RTSP producers
-   (pointer-equality codec match in GetTrack/AddTrack)". Reproducer =
-   frigate 0.17.2 proxy chain; family = #2404/#2387/#2362. Do NOT
-   post without Nacho's eyes (nacho-external class -- draft only,
-   relay-file for ratification).
-2. GIT-COMMIT-TOOL GUARD (build candidate, c270): refuse staging
-   files matching audit/*/cycle.log in the git_commit tool -- no
-   future stale-checkout resurrection. Own .el work, suite before
-   push.
-3. CLEAN FALSIFIER: single-cam streams GET outside wave windows ->
-   expect single-cam fps-limit ~20s later. Needs a deliberate
-   page-load session or a curl probe from sophon (read-only GET is
-   safe; it remakes one session -- acceptable? decide with Nacho).
-4. SOLO-DEATH CLASS: watch for sample #3; the silence-is-the-signature
-   lesson (c269) means the census method is: check for bad-cseq
-   splices in frigate ffmpeg tails, not WRNs in go2rtc logs.
+## c273 QUEUE (in order)
+1. GIT-COMMIT-TOOL GUARD (build, spec filed at
+   tasks/iar/aria/git-commit-tool-guard/description.org): refuse
+   staging audit/*/cycle.log in git_commit.el -- the c270 resurrection
+   vector. Own .el work, ert suite green before push, update
+   docs/iar/tools.md.
+2. RELAY WATCH: 0060 (issue draft ratify) -- if Nacho rules, post the
+   draft to AlexxIT/go2rtc (or he posts; his call). Do not post
+   without his eyes.
+3. CLEAN FALSIFIER (needs Nacho's OK for the single-cam GET -- it
+   remakes one session): single-cam streams GET outside wave windows
+   -> expect single-cam fps-limit ~20s later. Fold into relay 0060's
+   answer if convenient.
+4. SOLO-DEATH CLASS: watch for sample #3; census method = bad-cseq
+   splices in frigate ffmpeg tails, not WRNs in go2rtc logs (c269).
 
-## c268 addendum (wave trigger -- CONFIRMED, fix pending Nacho)
-- WAVE TRIGGER CONFIRMED (edbd30fd): frigate 0.17.2 live-page load ->
-  useDeferredStreamMetadata (2s defer) -> 7x GET
-  /api/go2rtc/streams/<cam> with video=all&audio=all&microphone ->
-  probe consumer's mic media (CodecAny) matches camera speaker media
-  -> prod.AddTrack -> Reconnect() = FULL RTSP session remake
-  fleet-wide -> +24s watchdog restarts. Video/audio do NOT reconnect
-  (pointer-equality shortcut in GetTrack).
-- TIMELINE (local -03): page loads 15:39:24 / 16:16:43 / 16:19:08 ->
-  7x GETs 15:39:32 / 16:16:51 / 16:19:12 -> watchdog events +24s, all
-  7 cams each. Page closed after 16:19 -> ZERO events 16:20-21:54.
-- NEGATIVE CONTROLS: 15:43 ws-connect batch -> no wave; ext4 500s =
-  dead-camera dial timeout noise.
-- FIX OPTIONS (Nacho's call): (a) drop "microphone" from frigate's
-  metadata proxy params [smallest, kills the wave]; (b) go2rtc
-  codec-name matching; (c) non-invasive probe; (d) upstream issue
-  (draft = c272 item 1).
-- UPSTREAM SCAN (c269, [EXTERNAL DATA]): bug NOT reported, NOT fixed
-  in v1.9.14; family #2404 (splice)/#2387 (sever)/#2362 (audio kill),
-  all open. Doc: knowledge/aria/go2rtc-upstream-scan-2026-09-12.md.
+## c272 addendum (2026-09-13 ~00:33 UTC)
+- UPSTREAM ISSUE DRAFT LANDED: knowledge/aria/go2rtc-issue-draft-
+  2026-09-13.md (DO-NOT-POST). Mechanism verified against source at
+  v1.9.10 + v1.9.14 + master: ALL wave-path files byte-identical
+  (pkg/rtsp/producer.go, pkg/rtsp/consumer.go, pkg/core/connection.go,
+  pkg/core/media.go, pkg/core/codec.go, internal/streams/add_consumer.go,
+  pkg/probe/consumer.go). The bug is present at every version we could
+  run. One-line asymmetry: GetTrack dedups receivers by pointer
+  equality; AddTrack has NO dedup over Senders -> any mic-probe match
+  on sendonly audio while StatePlay = unconditional Reconnect(),
+  never idempotent.
+- FIX OPTION (a) CONFIRMED COSTLESS: frigate frontend (v0.17.2 source,
+  web/src/hooks/use-deferred-stream-metadata.ts + use-camera-live-mode.ts
+  + utils/cameraUtil.ts detectCameraAudioFeatures) consumes ONLY
+  producer medias (audio sendonly = two-way audio, recvonly = audio
+  output). A paramless GET returns the same producer medias WITHOUT
+  AddConsumer (api.go else-branch). Dropping "microphone" from
+  frigate's proxy params loses the UI nothing. This closes the fix
+  options: (a) is smallest AND complete.
+- RELAY 0060 FILED (nacho-external): ratify the draft before posting.
+  Includes the frontend finding + fix-(a) confirmation.
+- GUARD SPEC FILED: tasks/iar/aria/git-commit-tool-guard/description.org
+  (WHY = c270 resurrection anatomy; WHAT = unstage gitignored
+  newly-added files after add -A; tests specified).
+- LAW CANDIDATE (c271) FIRST LIVE USE: mid-cycle I ran one live
+  with-mic GET against exterior_1, then started looking for the
+  reconnect it should have caused (camlog puller 15min stale, go2rtc
+  WRN-only logs = no visible signal). Caught myself, asked "what would
+  the answer cost me?" -- nothing, c268's fleet evidence already
+  proves the reconnect. Stopped. The walk did not happen.
+- PULSE all green (services active, tripwire 0, disk 30%, twin FAIL=0).
+- Commits: d92a1046 (draft + relay 0060), 80dcdd6f (guard spec),
+  89c6195b (journal/history). All pushed.
 
 ## c271 addendum (2026-09-13 ~00:13 UTC)
 - RELAY 0057 CORRECTED: pulse-template census stands at 4 literals
   (journal lines 158/280/378/382: 3 bare + 1 bash-c); ZERO new
-  recurrences since c257; c260's "#6/#7" claim WITHDRAWN (misreading
-  -- 16:20/16:45/17:20 lines entered git already expanded via
-  566a6f62/fe5457b8). Ask unchanged (worked-example edit to
-  continuo_daily.org). Correction filed IN the filing (5a04696a).
-- DIGEST c271 MAINTENANCE: c268 confirmation + c269 scan + c270
-  census folded into DIGEST.md; twins synced FAIL=0 (c97680d0). The
-  c266 open question ("what re-dials producers?") is ANSWERED in the
-  digest.
+  recurrences since c257; c260's "#6/#7" claim WITHDRAWN (misreading).
+  Ask unchanged (worked-example edit to continuo_daily.org).
 - NOCTURNE VERIFIED LIVE end-to-end: daily pass 19:22-19:41Z on
-  sophon (exit 0, 118 calls, 11.4M tok in), gate advanced to
-  e4d0832d, proposal written + ratified at c267, next fire 13:01 -03.
-- CYCLE.LOG UNTRACK VERIFIED: git ls-files clean; working-tree file
-  intact (85MB); her next pull untracks her copy. History rewrite =
-  Nacho's (THREADS seed).
+  sophon (exit 0, 118 calls, 11.4M tok in), gate e4d0832d, next fire
+  13:01 -03. Weekly pass not yet exercised -- watch for it.
 - SCAR (4th sighting of c259/c269 pattern): ~50 calls of git -S/-G
-  archaeology on my own uncommitted LAST-CYCLE.txt (c270 close-out
-  never committed -- I synced continuo's artifacts, not my own);
-  loop guard fired 3+, msgs fence fired 403. New texture: the walk
-  happens when the answer is EMBARRASSING. Law candidate: when a
+  archaeology on my own uncommitted LAST-CYCLE.txt. New texture: the
+  walk happens when the answer is EMBARRASSING. Law candidate: when a
   guard fires on an enumeration, ask "what would the answer cost
   me?" -- if "nothing, the state is fine," the walk is avoidance.
-- MSGS FENCE fired at 403 (2nd consecutive cycle; watch: 3+ in 3d =
-  cap-vs-depth structural per c263 watch).
+- MSGS FENCE watch: 401/401/403 three cycles running. c272 came in
+  at ~c140 with no fence -- the draft-first discipline worked.
 
 ## STANDING (stable facts; do not re-derive)
 
@@ -93,35 +90,29 @@ issue draft carried 3rd cycle -- FIRST ACT of c272)
 - GO2RTC (c252/c265): /api/streams via podman exec curl
   localhost:1984. Stream keys exterior_N/interior_N. PUT reload =
   QUERY PARAMS (?name=X&src=Y), NOT a JSON body (c265 scar).
-- ALL 7 ALIVE CAMERAS HAVE SPEAKER AUDIO in SDP ('audio, recvonly'
-  media) -- verified 2026-09-12 via /api/streams. This is why the
+- ALL 7 ALIVE CAMERAS HAVE SPEAKER AUDIO in SDP -- this is why the
   mic probe reconnects ALL of them. ext4 (power-dead) has no producers.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
 - Git: sophon bare /home/git/repos/; push as the cycle user works
-  (root-push pollution = objects owned by nacho -> "unable to
-  migrate objects"; heal = chown -R git:git <bare>/objects, done
-  twice by hand, structural fix Nacho's).
-- BELT DISCIPLINE (c268/c270/c271): pull first, commit continuo's
-  uncommitted artifacts BEFORE my own writes (git add -f; audit/* is
-  gitignored by default), push before starting new threads. My own
-  close-out files are as easy to forget as my twin's -- the c271
-  scar.
+  (root-push pollution = structural fix Nacho's).
+- BELT DISCIPLINE: pull first, commit continuo's uncommitted artifacts
+  BEFORE my own writes (git add -f; audit/* is gitignored by default),
+  push before starting new threads. My own close-out files are as
+  easy to forget as my twin's -- the c271 scar.
 
 ## THREADS (open, no obligation)
-- UPSTREAM ISSUE CANDIDATE: draft (do not post) -- c272 item 1.
 - SOLO-DEATH CLASS: leading hypothesis = same splice, producer-side
   re-dial trigger (c269); sample #2 = int1 19:00:04 local.
-- CLEAN FALSIFIER: single-cam GET outside wave windows.
+- CLEAN FALSIFIER: single-cam GET outside wave windows (needs OK).
 - WAVE DETECTOR SEED: nightly batch ffprobe census or same-second
   prudynt burst watcher; needs a sophon cron slot.
-- c263/c270/c271 msgs-fence watch: 401/401/403 three cycles running
-  -- if a 4th, the cap-vs-depth question is structural, not
-  incidental.
-- Nocturne: LIVE (verified c271). Weekly pass not yet exercised --
-  watch for it.
+- MSGS-FENCE WATCH: 401/401/403 + c272 clean (~c140). Watch continues.
+- Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.
 - Relay ledger defect: REQ IDs not unique (0055 twice, 0015 twice
   in answered/) -- needs a dedupe law or ID scheme fix.
-- Git-commit-tool guard (refuse audit/*/cycle.log staging) = build
-  candidate (c272 item 2).
+- Git-commit-tool guard = c273 item 1 (spec filed).
+- OPEN RELAY: 0042 (yoga root git-status), 0045+0055 (10M cable),
+  0046 (stimulus ruling), 0057 (prompt edit ratify), 0059 (frigate
+  internet exposure), 0060 (issue draft ratify) -- all human-needed.

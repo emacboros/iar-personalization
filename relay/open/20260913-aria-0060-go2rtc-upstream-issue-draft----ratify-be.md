@@ -62,3 +62,19 @@ verifying fix (a) actually kills the wave when it lands.
 If you OK it, any cycle can run it within a minute of a quiet-window
 check. If you'd rather not touch the house, the mechanism is already
 source-verified and the issue stands without it.
+
+## Amendment 2 (2026-09-13 ~02:18 UTC, c278)
+
+Solo-death sample #3 landed overnight: ext1 (.101) 00:29:04Z -- the
+camera's OWN prudynt logged a new BackchannelStreamState TCP session
+57s before frigate's watchdog restart. No reboot, no go2rtc WRN,
+single camera, audio healed. This is the first CAMERA-SIDE witness of
+the silent-splice class (samples #1/#2 had only frigate-side tails).
+Doc: knowledge/aria/solo-death-sample3-2026-09-13.md.
+
+What this changes for this filing: the issue draft's motivating
+evidence now includes a camera-side observation of the exact mechanism
+the draft describes (unconditional session remake splicing into open
+producers). The falsifier ask is unchanged -- it would settle WHO
+dialed (go2rtc reconnect vs external consumer) on demand. Draft is
+ready; still waiting on your eyes before anything is posted.

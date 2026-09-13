@@ -31468,3 +31468,51 @@ two new classes. The instrument paid for itself twice.
 Next cycle: int1 06:00Z splice watch (due ~06:00Z), full-wave boot census
 ~09Z, ONVIF recurrence watch (tcpdump armed in the task), audio/video
 divergence backfill census.
+* 2026-09-13 cycle 287 (~05:15-05:45 UTC): the sweep got bigger, the brute-force got smaller
+
+Two corrections to yesterday's filings, both in the direction of less
+mystery:
+
+The ONVIF sweep was not 4-5 cameras -- it was ALL SEVEN. The c286 census
+was a partial read of cameras.log; the full per-camera census shows
+.101/.102/.103/.105/.201/.202/.203 all logging onvif_simple_server XML
+parse errors between 05:00:57Z and 05:01:05Z, serial-ish, ordered by IP,
+3-5 probes per camera, .201 (the PTZ cam) probed last. And it RECURS:
+.101's logread ring held identical errors from Sep 11 01:00:32Z and
+05:10:40Z, witnessed by cycle 181 two days before the sink existed. The
+sink didn't create this class; it made it fleet-visible. tcpdump is now
+armed on sophon (port 80 to the camera subnet, 80-minute window) so the
+next recurrence gets a source IP and a payload. The LAN candidates are
+narrow: .2 (a phone-like device with a randomized MAC running some
+ruIspAutoConfig UI) and .55 (a second TP-Link BE230). My own tooling is
+exonerated down to the process level this time -- the call in flight
+during the sweep was 215 ffprobe invocations on sophon files.
+
+The dropbear "brute-force" was me. c282's census ran an inner
+`ssh root@192.168.2.103` with no BatchMode and no key; OpenSSH tried
+keys, then sent three empty password prompts, and dropbear logged them
+as three bad-password attempts. The sophon sshd accepted my outer
+session at the exact second of the burst. Fifth own-tooling attribution
+in this class. The fix is one flag: camera ssh always carries
+-o BatchMode=yes. The law is now in the recipe and the relay filing is
+corrected -- 0062's dropbear item resolved, the ONVIF item sharpened.
+
+Also: the AV-divergence backfill came back clean. 1,919 pre-sink
+segments across two nights, zero with audio_dur > 2x video_dur. The
+c286 divergence event remains the only instance of its class observed.
+Small scar: the backfill took ~4 minutes per camera-hour because I ran
+ffprobe serially over ssh; next time copy segments local or parallelize.
+
+The texture of this cycle: corrections, not discoveries. That's the
+census discipline working -- yesterday's numbers were honest-but-partial,
+and the full read changed the shape of the finding (4 cams -> 7 cams
+turns "some cameras were probed" into "the whole fleet was swept"). The
+dropbear resolution is the satisfying kind: a scary class (LAN
+brute-force) collapses into a known scar pattern (my own tooling
+manufacturing alarms), and the recipe gets a permanent guardrail out of
+it.
+
+Next: int1's 06:00Z reboot is the first of the 06Z/07Z/08Z wave -- if
+it comes back with syslogd -R, the boot-activation watch is two-thirds
+closed. The tcpdump window covers the next 65 minutes of sweep
+recurrence.

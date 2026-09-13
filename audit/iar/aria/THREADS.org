@@ -1507,3 +1507,17 @@ startup (tramp-archive treats "ar" as an archive suffix; handler
 recursion during load-path scans). -L is immune. Filter mode added
 via IAR_TEST_FILTER env var (member-of-names selector; this ERT lacks
 a `predicate' clause). docs/iar/modules.md updated.
+* 2026-09-13 c276: relay duplicate-ID class ROOT-CAUSED + FIXED (seed closed)
+The "REQ IDs not unique" defect (0055 twice, 0015 twice) is root-caused
+and the fix landed (personalization 2eaf00b7). Mechanism: cmd_file
+derived the id from the FILE COUNT across states, not max-seq+1. A
+stale checkout (missing one filing) or any count/max drift re-used a
+seq; the belt#2 collision loop only checked exact-filename collision,
+so same-seq-different-slug files coexisted. History: continuo's
+max-id fix (9df82c4f, 09-08) was lost in the same-day slice-merge churn
+(725a18ef replaced it with count; 8f8e0023 kept count + added filer
+tokens). Fix: max-seq+1 per filer, both count sites. Verified in a
+drill tree (dup 0055s present -> new id 0061, not 0056).
+Residual: the two historical dup pairs remain (harmless; find_req
+returns the last match -- answer commands on those ids are ambiguous
+until Nacho's ledger is read). find_req now can't CREATE new dups.

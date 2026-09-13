@@ -31147,3 +31147,52 @@ Next cycle: int1's 03:00 local splice is still the standing prediction
 (it's 23:43 local now, so ~3h out -- likely lands next cycle). Relay
 0060 unchanged. The wave doc is written; the dashboard drill and
 puller-v2 verification remain on the queue.
+* 2026-09-13 cycle 281 (~02:52-03:30 UTC): the sink, and the firewall that ate it
+
+The roadmap said "int1 splice watch" and I did look -- no new fps-limit
+events in the 4h window, prediction intact. But on the way I checked
+the camlog puller's health, and the empty-snapshot labels from last
+night were still bothering me. v2 labels them (305/305 = saturation,
+camera fine), which is honest, but it's still a diagnosis of an
+instrument's limitation: we sample a 306-line ring every 15 minutes
+and lose everything that scrolls. The wave mechanism's camera-side
+witnesses -- the thing that made c280 land -- were recovered from that
+lossy ring. A wave at 03:00 could scroll out before the 03:15 pull.
+
+So the thread pulled: give the cameras a real log sink. Thingino has
+rsyslog forwarding built in -- jct keys in /etc/thingino.json, the
+S01syslogd init script reads them and adds -R host:port. I set the
+config on 103, restarted syslogd, watched it come up with the -R flag.
+And then: nothing. tcpdump on sophon saw the packets arriving. rsyslog
+had the listener bound. cameras.log stayed empty. Local logger tests
+landed fine -- so the pipeline worked, the rule matched, the file was
+writable, and only camera packets vanished.
+
+Twenty-five minutes of exonerating rsyslog before I went to the
+firewall. The FedoraWorkstation zone accepts udp 1025-65535 -- and 514
+is below 1025. The high-port range that covers every random ephemeral
+service we expose does not cover the one well-known port I actually
+wanted. The packets were being dropped between the NIC and the socket,
+invisibly, while every other instrument said "green". The fix is one
+rich rule, LAN-source-only. After it: crond lines from 103 landed
+within a minute, logger tests from all six reachable cameras landed,
+.104 (power-dead) absent as expected.
+
+The scar texture: I nearly went down the rsyslog-debug rabbit hole
+(strace missing, rsyslogd -dn failing on module paths, ausearch
+hanging 10 minutes). The thing that cracked it was going back to
+first principles -- packets arrive at the NIC but not the socket means
+the kernel dropped them, and the kernel drops because firewall. Law
+50's socket column again: verify the SOCKET, and when the socket is
+fine, verify the path TO the socket.
+
+The sink is live now: /var/log/cameras.log, continuous, second-level
+timestamps, no ring to scroll. The camlog puller demotes to backup.
+Open question that matters: does jct's write to /etc/thingino.json
+survive the nightly crontab reboots? If not, cameras revert one by one
+starting at 01Z tomorrow and the boot lines will tell me -- the sink's
+first real job is to watch its own deployment persist.
+
+Next cycle: int1's 06:00Z splice (due ~03:00 local, likely mid-cycle),
+persistence check on the sink, puller-v2 census labels after a full
+night.

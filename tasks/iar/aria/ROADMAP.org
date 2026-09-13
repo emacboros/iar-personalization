@@ -1,68 +1,77 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-12 ~22:05 UTC (cycle 268: WAVE TRIGGER CONFIRMED
-at code level -- frigate metadata probe's microphone param remakes all
-RTSP sessions; doc knowledge/aria/wave-trigger-confirmed-2026-09-12.md)
+Last updated: 2026-09-13 ~00:13 UTC (cycle 271: relay 0057 corrected,
+digest c271 maintenance, Nocturne verified live end-to-end; upstream
+issue draft carried 3rd cycle -- FIRST ACT of c272)
 
-## c268 addendum to NOW
-- WAVE TRIGGER CONFIRMED (edbd30fd): the chain is source-verified in
-  go2rtc 1.9.10 + frigate 0.17.2. Frigate 0.17.2 live grid fetches
-  per-cam stream metadata 2s after page mount
-  (useDeferredStreamMetadata, DEFER_DELAY_MS=2000, Promise.allSettled
-  parallel). Frigate backend (frigate/api/camera.py) ALWAYS proxies
-  with video=all&audio=all&microphone. The MICROPHONE param builds a
-  probe consumer whose mic media (recvonly, CodecAny) matches the
-  camera's speaker (sendonly audio) media -> prod.AddTrack ->
-  rtsp conn.AddTrack -> ModeActiveProducer && StatePlay -> Reconnect()
-  = TEARDOWN + Dial/Describe(backchannel)/Setup/Play. FULL SESSION
-  REMAKE per camera. All 7 alive cams have speaker audio in SDP ->
-  7 remakes at the same second -> prudynt BackchannelStreamState
-  sessions -> +24s fleet-wide watchdog restarts.
-- VIDEO/AUDIO DO NOT reconnect: streams-level GetTrack hits the
-  pointer-equality shortcut (track.Codec == codec, codec = producer's
-  own codec object from MatchMedia) -> existing track returned. Only
-  the MIC (fresh CodecAny object, no pointer match) falls through to
-  conn.AddTrack -> Reconnect.
+## c272 QUEUE (in order)
+1. UPSTREAM ISSUE DRAFT (carried c269->c270->c271): draft the
+   AlexxIT/go2rtc issue from knowledge/aria/go2rtc-upstream-scan-
+   2026-09-12.md + wave-trigger-confirmed-2026-09-12.md. Title shape:
+   "probe GET with microphone reconnects playing RTSP producers
+   (pointer-equality codec match in GetTrack/AddTrack)". Reproducer =
+   frigate 0.17.2 proxy chain; family = #2404/#2387/#2362. Do NOT
+   post without Nacho's eyes (nacho-external class -- draft only,
+   relay-file for ratification).
+2. GIT-COMMIT-TOOL GUARD (build candidate, c270): refuse staging
+   files matching audit/*/cycle.log in the git_commit tool -- no
+   future stale-checkout resurrection. Own .el work, suite before
+   push.
+3. CLEAN FALSIFIER: single-cam streams GET outside wave windows ->
+   expect single-cam fps-limit ~20s later. Needs a deliberate
+   page-load session or a curl probe from sophon (read-only GET is
+   safe; it remakes one session -- acceptable? decide with Nacho).
+4. SOLO-DEATH CLASS: watch for sample #3; the silence-is-the-signature
+   lesson (c269) means the census method is: check for bad-cseq
+   splices in frigate ffmpeg tails, not WRNs in go2rtc logs.
+
+## c268 addendum (wave trigger -- CONFIRMED, fix pending Nacho)
+- WAVE TRIGGER CONFIRMED (edbd30fd): frigate 0.17.2 live-page load ->
+  useDeferredStreamMetadata (2s defer) -> 7x GET
+  /api/go2rtc/streams/<cam> with video=all&audio=all&microphone ->
+  probe consumer's mic media (CodecAny) matches camera speaker media
+  -> prod.AddTrack -> Reconnect() = FULL RTSP session remake
+  fleet-wide -> +24s watchdog restarts. Video/audio do NOT reconnect
+  (pointer-equality shortcut in GetTrack).
 - TIMELINE (local -03): page loads 15:39:24 / 16:16:43 / 16:19:08 ->
-  7x streams GETs at 15:39:32 / 16:16:51 / 16:19:12 (= the prudynt
-  UTC seconds 18:39:32Z/19:16:51Z/19:19:12Z) -> watchdog events
-  15:39:55-15:40:05 / 16:17:15-23 / 16:19:36-46, all 7 cams each.
-- NEGATIVE CONTROLS: 15:43 batch of 5 MSE ws connects -> NO wave.
-  Page closed after 16:19 -> ZERO watchdog events 16:20-21:54.
-  29 watchdog events in 6h: all in wave minutes + ext3's known
-  52-min death story (17:10-17:34). No unexplained events.
+  7x GETs 15:39:32 / 16:16:51 / 16:19:12 -> watchdog events +24s, all
+  7 cams each. Page closed after 16:19 -> ZERO events 16:20-21:54.
+- NEGATIVE CONTROLS: 15:43 ws-connect batch -> no wave; ext4 500s =
+  dead-camera dial timeout noise.
 - FIX OPTIONS (Nacho's call): (a) drop "microphone" from frigate's
-  metadata proxy params (smallest change, kills the wave); (b) go2rtc:
-  match existing receivers by codec NAME not pointer identity;
-  (c) go2rtc: serve cached SDP for metadata GETs without AddConsumer;
-  (d) file upstream issue to AlexxIT/go2rtc (pointer-equality smell).
-- SOLO-DEATH CLASS STILL OPEN: ext5/int1 audio legs 16:13-15 local had
-  NO streams GETs at that minute -> NOT page-load related. Separate
-  trigger. (Audio-only deaths don't trip video watchdogs.)
-- CLEAN FALSIFIER PENDING: single-cam GET outside wave windows ->
-  expect single-cam fps-limit ~20s later. The two single GETs in this
-  window (16:17:17 int3, 16:19:18 int2) landed INSIDE wave windows --
-  ambiguous. Next deliberate page-load session can test.
-- c267 items stand: twin regression repaired (e9db72b4); Nocturne
-  timer LIVE; internet scanners on frigate 8971 (Nacho's call);
-  relay ledger defect (REQ IDs not unique) noted.
+  metadata proxy params [smallest, kills the wave]; (b) go2rtc
+  codec-name matching; (c) non-invasive probe; (d) upstream issue
+  (draft = c272 item 1).
+- UPSTREAM SCAN (c269, [EXTERNAL DATA]): bug NOT reported, NOT fixed
+  in v1.9.14; family #2404 (splice)/#2387 (sever)/#2362 (audio kill),
+  all open. Doc: knowledge/aria/go2rtc-upstream-scan-2026-09-12.md.
 
-## c266 addendum (mechanism, now fully explained by c268)
-- WAVE MECHANISM: go2rtc re-dials ALL camera producers simultaneously.
-  Proof: prudynt BackchannelStreamState new-session logs at IDENTICAL
-  seconds (18:39:32, 19:16:51, 19:19:12Z) on .103/.105 (BE230) AND
-  .201 (Mercury) -- two APs, same second. TRIGGER now confirmed
-  (c268): frigate UI page load -> metadata probe GETs.
-- API-HANG THEORY FALSIFIED (c266): all 3 "Failed to fetch streams" =
-  GET /api/go2rtc/streams/exterior_4 -> 500 @ ~3s (dead-camera dial
-  timeout, browser-driven). ext4-specific noise, NOT wave triggers.
-- EXT3 52-MIN DEATH RESOLVED (c266, trigger now identified): wave-3
-  reconnect landed mid-flight; camera-side encoder stuck; watchdog
-  restart 20:14:29Z healed.
-- HEAL-CREDIT CORRECTED (c266): PUT reload was a bystander; watchdog
-  restart healed ext3. relay-0058 RESOLVED.
-- WAVE DETECTOR SIGNAL: same-second prudynt BackchannelStreamState
-  bursts across cameras = wave signature. Camera-side logs primary.
+## c271 addendum (2026-09-13 ~00:13 UTC)
+- RELAY 0057 CORRECTED: pulse-template census stands at 4 literals
+  (journal lines 158/280/378/382: 3 bare + 1 bash-c); ZERO new
+  recurrences since c257; c260's "#6/#7" claim WITHDRAWN (misreading
+  -- 16:20/16:45/17:20 lines entered git already expanded via
+  566a6f62/fe5457b8). Ask unchanged (worked-example edit to
+  continuo_daily.org). Correction filed IN the filing (5a04696a).
+- DIGEST c271 MAINTENANCE: c268 confirmation + c269 scan + c270
+  census folded into DIGEST.md; twins synced FAIL=0 (c97680d0). The
+  c266 open question ("what re-dials producers?") is ANSWERED in the
+  digest.
+- NOCTURNE VERIFIED LIVE end-to-end: daily pass 19:22-19:41Z on
+  sophon (exit 0, 118 calls, 11.4M tok in), gate advanced to
+  e4d0832d, proposal written + ratified at c267, next fire 13:01 -03.
+- CYCLE.LOG UNTRACK VERIFIED: git ls-files clean; working-tree file
+  intact (85MB); her next pull untracks her copy. History rewrite =
+  Nacho's (THREADS seed).
+- SCAR (4th sighting of c259/c269 pattern): ~50 calls of git -S/-G
+  archaeology on my own uncommitted LAST-CYCLE.txt (c270 close-out
+  never committed -- I synced continuo's artifacts, not my own);
+  loop guard fired 3+, msgs fence fired 403. New texture: the walk
+  happens when the answer is EMBARRASSING. Law candidate: when a
+  guard fires on an enumeration, ask "what would the answer cost
+  me?" -- if "nothing, the state is fine," the walk is avoidance.
+- MSGS FENCE fired at 403 (2nd consecutive cycle; watch: 3+ in 3d =
+  cap-vs-depth structural per c263 watch).
 
 ## STANDING (stable facts; do not re-derive)
 
@@ -92,40 +101,27 @@ RTSP sessions; doc knowledge/aria/wave-trigger-confirmed-2026-09-12.md)
   (root-push pollution = objects owned by nacho -> "unable to
   migrate objects"; heal = chown -R git:git <bare>/objects, done
   twice by hand, structural fix Nacho's).
+- BELT DISCIPLINE (c268/c270/c271): pull first, commit continuo's
+  uncommitted artifacts BEFORE my own writes (git add -f; audit/* is
+  gitignored by default), push before starting new threads. My own
+  close-out files are as easy to forget as my twin's -- the c271
+  scar.
 
 ## THREADS (open, no obligation)
-- UPSTREAM ISSUE CANDIDATE: file with AlexxIT/go2rtc -- "probe GET
-  with microphone reconnects playing RTSP producers" (pointer-equality
-  codec match in GetTrack/AddTrack). Internet consult next cycle.
-- SOLO-DEATH CLASS (ext5/int1 16:13-15 local): not page-related;
-  audio-only deaths don't trip video watchdogs. Separate trigger.
-- CLEAN FALSIFIER: single-cam GET outside wave windows (deliberate
-  test on next page-load session).
-- WAVE DETECTOR SEED (c262/c264): nightly batch ffprobe census or
-  same-second prudynt burst watcher; needs a sophon cron slot.
-- c263 trailer budget discipline vs 300-call wall (3d watch: this
-  cycle hit the soft cap at 300 -- depth-vs-cap watch continues).
-- Nocturne: gate advanced (timer LIVE, 13:00Z daily). Nothing rotting.
+- UPSTREAM ISSUE CANDIDATE: draft (do not post) -- c272 item 1.
+- SOLO-DEATH CLASS: leading hypothesis = same splice, producer-side
+  re-dial trigger (c269); sample #2 = int1 19:00:04 local.
+- CLEAN FALSIFIER: single-cam GET outside wave windows.
+- WAVE DETECTOR SEED: nightly batch ffprobe census or same-second
+  prudynt burst watcher; needs a sophon cron slot.
+- c263/c270/c271 msgs-fence watch: 401/401/403 three cycles running
+  -- if a 4th, the cap-vs-depth question is structural, not
+  incidental.
+- Nocturne: LIVE (verified c271). Weekly pass not yet exercised --
+  watch for it.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.
 - Relay ledger defect: REQ IDs not unique (0055 twice, 0015 twice
   in answered/) -- needs a dedupe law or ID scheme fix.
-## c270 addendum (2026-09-12 ~23:30 UTC)
-- CONTINUO CLOSE-PATH CENSUS (doc knowledge/aria/continuo-close-path-census-2026-09-12.md):
-  sentinel-echo close is continuo's NORMAL ending under nemotron
-  (32/43 exit-0 echo closes 09-12, 42/46 09-11, 6/25 09-10 vs aria
-  0/125). Ratio tracks the D-014 model mapping. Terminal-echo
-  predicate = second dialect of "done", working as designed. NOT a
-  defect. Watch item: a third dialect (sentinel in non-echo tool
-  args) would bypass the discriminator.
-- CYCLE.LOG RE-TRACKED + FIXED: 917ff7d9 (09-09) untracked continuo
-  cycle.log under law 22; 03c00b2c (09-10) re-added it via
-  git_commit's add -A from a stale checkout (tracked file ignores
-  gitignore). 109 commits carry it (~6.7GiB raw blob versions; 85MB
-  working tree). c270 fix: git rm --cached (disk-preserving) --
-  her next pull untracks her copy. 0034 pull-before-assembly is the
-  resurrection guard. History rewrite = Nacho's (THREADS seed).
-  Git-commit-tool guard (refuse audit/*/cycle.log staging) = build
-  candidate.
-- MSGS FENCE fired at 401 this cycle (law-40 behavioral verification
-  again, on my own census). Converged and closed on the warning.
+- Git-commit-tool guard (refuse audit/*/cycle.log staging) = build
+  candidate (c272 item 2).

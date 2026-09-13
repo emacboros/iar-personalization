@@ -1,101 +1,72 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~01:28 UTC (cycle 275: relay hygiene pass
--- 0060 falsifier ask folded in, 0059 scanner addendum, 0046
-repetition status, 0042 quiet note; belt swept f337df7f)
+Last updated: 2026-09-13 ~01:40 UTC (cycle 276: relay dup-ID defect
+ROOT-CAUSED + FIXED (2eaf00b7 max-seq+1, continuo's lost 9df82c4f
+restored); 0046 amended -- false receipts found (12 claims vs 3 runs);
+belt swept e14d0c45)
 
-## c276 QUEUE (in order)
+## c277 QUEUE (in order)
 1. RELAY WATCH: 0060 (go2rtc issue draft ratify + clean-falsifier
-   ask, both in one filing now) -- if Nacho rules, post the draft to
-   AlexxIT/go2rtc (or he posts; his call). Do not post without his
-   eyes. If he OKs the falsifier, run it in a quiet window: one
-   single-cam mic-probe GET from inside the frigate container ->
-   expect single-cam fps-limit ~20-24s later, self-heals.
+   ask, one filing) -- if Nacho rules, post the draft to AlexxIT/
+   go2rtc (or he posts; his call). Do not post without his eyes. If
+   he OKs the falsifier, run it in a quiet window: one single-cam
+   mic-probe GET from inside the frigate container -> expect
+   single-cam fps-limit ~20-24s later, self-heals.
 2. SOLO-DEATH CLASS: watch for sample #3; census method = bad-cseq
    splices in frigate ffmpeg tails, not WRNs in go2rtc logs (c269).
-3. THREADS seed if idle: guard scope widening -- ONLY if a second
+3. BELT RECIPE FIX (new, c276): my add -f directory sweep resurrects
+   audit/iar/continuo/cycle.log every cycle (c270 class, third
+   sighting). Fix = exclude cycle.log from the sweep: add -f the
+   named artifacts, never the directory. One-line discipline change.
+4. THREADS seed if idle: guard scope widening -- ONLY if a second
    tracked-ignored class appears (watch note in THREADS.org).
-4. NEW WATCH (c274): the `.ar` tramp-archive trap -- any tool or
+5. NEW WATCH (c274): the `.ar` tramp-archive trap -- any tool or
    script that puts an .ar-suffixed path on load-path via --eval
    will crash startup. If a new script needs load-path, use -L.
-   Watch for other .ar-suffix interactions (file-name-handler-alist
-   is global).
+
+## c276 addendum (2026-09-13 ~01:40 UTC)
+- RELAY DUP-ID FIXED: root cause = cmd_file derived id from FILE
+  COUNT across states (not max-seq+1); stale checkouts re-used seqs;
+  belt#2 loop caught filename collisions only, not seq reuse.
+  continuo's max-id fix (9df82c4f 09-08) was lost same-day in
+  slice-merge churn (725a18ef -> count; 8f8e0023 kept count). Fix
+  2eaf00b7: max-seq+1 per filer at BOTH count sites; drill-verified
+  (dup 0055s in tree -> new id 0061). Historical dup pairs remain
+  (0015x2, 0055x2) -- harmless, find_req ambiguity noted.
+- 0046 FALSE RECEIPTS: her journal claims 1247/1247 in 12 places;
+  cycle.log shows 3 actual runs (18:33Z/20:40Z/00:15Z). Verbatim
+  paragraph re-claims without re-verifying. Filing amended (journal
+  contract question added to the ruling ask); census doc extended
+  (knowledge/aria/continuo-repetition-census-2026-09-12.md) with
+  D-014-watch framing (nemotron template-completion tendency --
+  composition review material, NOT a lever; D-014 stands).
+- SOLO-DEATH: no sample #3 (int1 19:00:04 tail only, 5h window).
+- Belt swept: 07fb4b36 (continuo artifacts), 2603037a (cycle.log
+  untrack AGAIN -- see queue item 3), 84b47eac/2eaf00b7/7f418361/
+  e14d0c45 (census + fix + threads + close).
 
 ## c275 addendum (2026-09-13 ~01:28 UTC)
-- RELAY HYGIENE PASS (the queued thread): 0060 amended -- the clean
-  falsifier ask folded in (single-cam mic-probe GET, cost = one
-  ~20s self-healing stall, value = end-to-end confirmation +
-  fix-(a) baseline). 0059 amended -- 6h scanner census: /.env and
-  /.git/config probes (SPA-index 200s), Palo Alto Cortex scan,
-  metabase-CVE probes via the CADDY path (camaras.randazzo.ar) --
-  new fact: WG-only bind alone would NOT close the public surface;
-  Caddy-layer decision matters too. 0046 amended -- her repetition
-  is worse in degree: last 4 entries same paragraph, one VERBATIM
-  repeat, duplicate PULSE timestamps in single cycles. 0042
-  amended -- second clean day, ask stands.
-- EXT2 AUDIO: healthy 250 pkts from 18:40Z Sep 12 through now
-  (healed by watchdog restart, c264; staircase demoted to data
-  point). Census across 16-23h + 00-01h all 250.
-- .104 STILL POWER-DEAD (ARP FAILED, no rssi rows since 11:00Z
-  Sep 12). Telegram #7 stands; power cycle = Nacho.
-- PULSE green: 4 services active, tripwire 0, disk 30%, twin
-  FAIL=0, fleet-check FAIL=1 (ext4 ear = the known .104 death).
+- RELAY HYGIENE PASS: 0060 amended (falsifier ask folded in), 0059
+  amended (Caddy-path probing -- WG-only bind would NOT close the
+  public surface), 0046 amended, 0042 quiet note.
+- EXT2 AUDIO healthy (250 pkts); .104 still power-dead (telegram #7
+  stands; power cycle = Nacho).
 
 ## c274 addendum (2026-09-13 ~01:07 UTC)
-- RUN-TESTS.SH LANDED: i.ar 0239159 + 6adbd0d (exec bit restored).
-  Script execs run-tests.el -- the cheap invocation IS the full
-  suite (1250 tests, ~8s). c273 scar closed.
-- NEW MECHANISM (.ar trap): /root/i.ar paths get the tramp-archive
-  file-name handler ("ar" is an archive suffix). --eval touching
-  load-path with such a path present = require tramp ->
-  locate-library -> scan load-path -> .ar dir -> handler recursion
-  -> excessive-lisp-nesting. Reproduces with `--eval '(princ 1)'`.
-  -L is immune (processed before tramp autoloads register).
-- FILTER MODE: run-tests.sh "regexp" -> IAR_TEST_FILTER env var ->
-  (member NAME...) selector built from matching names. This ERT has
-  NO `predicate' selector clause (verified -- error is the selector
-  bytecode). All test files still load; stowaway guard stays active.
-- SCAR: first commit dropped run-tests.sh's exec bit (mode change
-  tracked silently; caught in ls-files -s). `bash script` worked,
-  `./script` would have failed. Check mode bits on script commits.
-- docs/iar/modules.md updated (691225c3); THREADS seed closed
-  (6c41bb21); journal + history pushed (98494420).
+- RUN-TESTS.SH LANDED (i.ar 0239159 + 6adbd0d): script execs
+  run-tests.el -- cheap invocation IS the full suite (1250, ~8s).
+- .AR TRAP: /root/i.ar paths get tramp-archive handler; --eval
+  load-path changes crash startup. -L immune.
+- FILTER MODE: run-tests.sh "regexp" -> IAR_TEST_FILTER -> member
+  selector. No `predicate' clause in this ERT.
+- SCAR: first commit dropped run-tests.sh exec bit. Check mode bits
+  on script commits.
 
 ## c273 addendum (2026-09-13 ~00:47 UTC)
-- GIT-COMMIT-TOOL GUARD LANDED: i.ar commit dd4118a (pushed to
-  rammstein mirror). `iar--git-unstage-refused' runs after add -A:
-  staged paths matching `iar-git-commit-refuse-pattern'
-  (audit/.*cycle.log) unstaged via `git rm --cached --quiet', refusal
-  noted in tool result, commit never fails. Dated transcripts
-  (cycle-*.log) exempt -- belt discipline via add -f stays possible.
-- TESTS: fixture = ACTUAL c270 state (transcript tracked, gitignore
-  present, transcript grows). Guard unstages; commit records the
-  deletion (resurrection undone); file survives on disk; legitimate
-  changes still commit. 1250/1250 full suite green.
-- SCAR (new): run-tests.sh loads ONLY test-prompt-assembly.el -- the
-  "suite green" line from run-tests.sh is NOT the suite.  Fixed
-  c274.
-- docs/iar/tools.md updated (personalization 7436b393); task marked
-  LANDED (47e01f65); continuo artifacts synced (6f911865).
-- Amended my own commit once: the git_commit tool's add -A swept
-  audit/iar/continuo/DIGEST.md (untracked non-ignored files ARE
-  legitimately swept). Removed via rm --cached + --amend. NOTE: the
-  guard does not catch this class (DIGEST.md is not ignored in
-  i.ar); i.ar repo hygiene = keep audit/ dirs out of i.ar commits
-  by hand. Watch this.
-
-## c272 addendum (2026-09-13 ~00:33 UTC)
-- UPSTREAM ISSUE DRAFT LANDED: knowledge/aria/go2rtc-issue-draft-
-  2026-09-13.md (DO-NOT-POST). Mechanism verified against source at
-  v1.9.10 + v1.9.14 + master: ALL wave-path files byte-identical.
-  One-line asymmetry: GetTrack dedups receivers by pointer equality;
-  AddTrack has NO dedup over Senders -> any mic-probe match on
-  sendonly audio while StatePlay = unconditional Reconnect().
-- FIX OPTION (a) CONFIRMED COSTLESS: frigate frontend consumes ONLY
-  producer medias; paramless GET returns them WITHOUT AddConsumer.
-  Dropping "microphone" from frigate's proxy params loses the UI
-  nothing. (a) is smallest AND complete.
-- RELAY 0060 FILED (nacho-external): ratify the draft before posting.
+- GIT-COMMIT-TOOL GUARD LANDED (i.ar dd4118a): audit/.*cycle.log
+  unstaged post-add; refusal noted; commit never fails. 1250/1250.
+- NOTE: guard does not catch non-ignored audit files swept by add -A
+  (DIGEST.md class) -- i.ar repo hygiene = keep audit/ out by hand.
 
 ## STANDING (stable facts; do not re-derive)
 
@@ -106,53 +77,47 @@ repetition status, 0042 quiet note; belt swept f337df7f)
 - FRIGATE ACCESS: ssh root@10.66.0.5 then 'su - nacho -c
   "XDG_RUNTIME_DIR=/run/user/1000 podman exec frigate <cmd>"'.
   Frigate version deployed: 0.17.2-3d4dd3a (stable-tensorrt image).
-- CLOCK SHAPES: cameras run UTC; frigate logs LOCAL (-03); frigate
-  nginx access log timestamps are LOCAL with [12/Sep/2026:...] format;
-  prudynt camera logs UTC. Convert before correlating.
+- CLOCK SHAPES: cameras UTC; frigate logs LOCAL (-03); frigate nginx
+  access log LOCAL [12/Sep/2026:...]; prudynt UTC. Convert first.
 - AUDIO CENSUS (c242): ffprobe -v error -select_streams a
   -count_packets -show_entries stream=nb_read_packets -of csv=p=0
-  <seg.mp4>; 250 pkts healthy (ext cams) / 156-band (int cams) /
-  1 pkt stub (permanent) / 0 pkts stream-absent (transient) / EMPTY
-  output = audio track absent (video-only segment). ffprobe PATH
-  inside frigate container = /usr/lib/ffmpeg/7.0/bin/ffprobe (bare
-  ffprobe NOT in PATH -- c275 re-learned).
-- GO2RTC (c252/c265): /api/streams via podman exec curl
-  localhost:1984. Stream keys exterior_N/interior_N. PUT reload =
-  QUERY PARAMS (?name=X&src=Y), NOT a JSON body (c265 scar).
-- ALL 7 ALIVE CAMERAS HAVE SPEAKER AUDIO in SDP -- this is why the
-  mic probe reconnects ALL of them. ext4 (power-dead) has no producers.
+  <seg.mp4>; 250 pkts healthy (ext) / 156-band (int) / 1 pkt stub /
+  0 pkts stream-absent / EMPTY = audio track absent. ffprobe PATH in
+  frigate container = /usr/lib/ffmpeg/7.0/bin/ffprobe (c275).
+- GO2RTC (c252/c265): /api/streams via podman exec curl localhost:1984.
+  PUT reload = QUERY PARAMS (?name=X&src=Y), NOT a JSON body (c265).
+- ALL 7 ALIVE CAMERAS HAVE SPEAKER AUDIO in SDP -- mic probe
+  reconnects ALL of them. ext4 (power-dead) has no producers.
 - PRODUCER ID MAP (c275 baseline): ext1 47382, ext2 43102, ext3
   44120, ext5 43133, int1 45183, int2 43108, int3 43121; ext4 none.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
+  IDs now max-seq+1 per filer (2eaf00b7).
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
 - BELT DISCIPLINE: pull first, commit continuo's uncommitted artifacts
-  BEFORE my own writes (git add -f; audit/* is gitignored by default),
-  push before starting new threads. My own close-out files are as
-  easy to forget as my twin's -- the c271 scar.
+  BEFORE my own writes (git add -f; audit/* is gitignored), push
+  before new threads. EXCLUDE cycle.log from directory sweeps (c276
+  queue item 3).
 - TEST SUITE: full suite = emacs --batch -l test/run-tests.el (1250
-  tests, ~8s) = run-tests.sh (c274: script now delegates to the el).
-  Filter: run-tests.sh "regexp" via IAR_TEST_FILTER.
+  tests, ~8s) = run-tests.sh. Filter: run-tests.sh "regexp".
 - .AR TRAP (c274): paths ending .ar get tramp-archive file-name
   handler; --eval load-path changes crash startup. Use -L.
 
 ## THREADS (open, no obligation)
 - SOLO-DEATH CLASS: leading hypothesis = same splice, producer-side
   re-dial trigger (c269); sample #2 = int1 19:00:04 local.
-- CLEAN FALSIFIER: single-cam GET outside wave windows -- ask now
-  folded into relay 0060 (one filing, one ruling).
+- CLEAN FALSIFIER: ask folded into relay 0060.
 - WAVE DETECTOR SEED: nightly batch ffprobe census or same-second
   prudynt burst watcher; needs a sophon cron slot.
-- MSGS-FENCE WATCH: 401/401/403 + c272/c273/c274 clean. Watch continues.
+- MSGS-FENCE WATCH: 401/401/403 + c272-c276 clean. Watch continues.
 - Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.
-- Relay ledger defect: REQ IDs not unique (0055 twice, 0015 twice
-  in answered/) -- needs a dedupe law or ID scheme fix.
+- Relay ledger: dup-ID class FIXED (c276); historical pairs remain.
 - Guard scope (c273): general ignored-file resurrection only if a
   second class appears.
 - .ar-suffix interactions (c274): file-name-handler-alist is global;
   watch for other tooling touching .ar paths.
 - OPEN RELAY: 0042 (yoga root git-status), 0045+0055 (10M cable),
-  0046 (stimulus ruling), 0057 (prompt edit ratify), 0059 (frigate
-  internet exposure), 0060 (issue draft ratify + falsifier) -- all
-  human-needed.
+  0046 (stimulus + journal contract), 0057 (prompt edit ratify),
+  0059 (frigate internet exposure), 0060 (issue draft ratify +
+  falsifier) -- all human-needed.

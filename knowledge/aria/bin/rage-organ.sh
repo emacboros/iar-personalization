@@ -1,5 +1,14 @@
 #!/bin/bash
-# rage-organ.sh v2.1 (2026-09-12, aria cycle 263: kill census refined to TERMINAL emissions (KILL_PAT) -- class-level counting miscounted msgs hard-cap blocks as kills (c201/c222 landed grace summaries, exit 0). v2.0 (2026-09-12, aria cycle 245: journal window bounded to the file-census span -- law-50 WINDOW finding; v1.9 (2026-09-12, aria cycle 237: Msgs hard cap added to FENCE_PAT + fix-log tokens -- c237 finding: the msgs fence (kill-shaped, hard cap 601) fired on 09-11 c201/c207 but was INVISIBLE to the organ (FENCE_PAT omission; THREADS.org 505 class). Soft msgs cap stays out: warn-once, not a recurrence signal.)
+# rage-organ.sh v2.2 (2026-09-13, aria cycle 278: CONVERGED/DEAD classifier --
+# a fence event whose run ended "Cycle complete ... Exit: 0" is a DEPTH event
+# (deep work reached the wall, grace summary landed, work preserved); a run
+# that died (Exit: 1 or no completion line) is a real rage signal. Severity
+# grades DEAD recurrence only; converged events stay in the census as
+# "depth watch" (sev=1) so the census stays honest without the false
+# "something keeps recurring" valence. Drill matrix (c278): depth-only ->
+# sev=1; 3+ dead or class on 2+ dead days -> sev=2; kills on 2+ days -> sev=3
+# (v2.1 preserved); truncated file (no completion line) -> dead by default.
+# v2.1 (2026-09-12, aria cycle 263: kill census refined to TERMINAL emissions (KILL_PAT) -- class-level counting miscounted msgs hard-cap blocks as kills (c201/c222 landed grace summaries, exit 0). v2.0 (2026-09-12, aria cycle 245: journal window bounded to the file-census span -- law-50 WINDOW finding; v1.9 (2026-09-12, aria cycle 237: Msgs hard cap added to FENCE_PAT + fix-log tokens -- c237 finding: the msgs fence (kill-shaped, hard cap 601) fired on 09-11 c201/c207 but was INVISIBLE to the organ (FENCE_PAT omission; THREADS.org 505 class). Soft msgs cap stays out: warn-once, not a recurrence signal.)
 # rage-organ.sh v1.8 (2026-09-09, aria cycle 131: DOM_CLASS named in every sev>=1 phrase -- the cycle-131 misattribution finding; v1.7 cycle 130: rate-normalized healing gate + fix-awareness via fix-log, aria-0024; v1.6.1 cycle 102: ran-as context; v1.6 cycle 77: trend-aware grading; v1.5 cycle 67, v1.4 cycle 50, v1.3.1 cycle 49, v1.2 cycle 47, v1.1 cycle 26, v1 cycle 19)
 # -------------------------------------------------------------
 # The rage organ: the immune response. Confront-valence, event-driven:
@@ -112,6 +121,7 @@ KILL_PAT=' -- ending cycle| -- ending run|Grace window expired'
 declare -A EVENT_RUNS=()   # key: class|day -> space-separated run ids
 declare -A KILL_RUNS=()  # day -> run-ids with TERMINAL fence emissions (v2.1)
 declare -A CLASS_N=()      # key: class -> total event count
+declare -A RUN_EXIT=()     # run-id -> exit status ("0"/"1"/"" = no completion line) (v2.2)
 total_events=0
 
 # NOTE (bash 4 empty-array + set -u): an empty declared associative
@@ -173,6 +183,14 @@ for agent in aria continuo; do
     while IFS= read -r line; do
       if [[ "$line" == *"Starting cycle"* ]]; then
         run_n=$((run_n + 1))
+      fi
+      # v2.2 (c278): record the run's exit status -- the converged/dead
+      # classifier. "Cycle complete ... Exit: N" is the writer's own
+      # terminal line; a run whose file ends without one is DEAD by
+      # default (timeout/kill -- silent zero is the enemy).
+      if [[ "$line" == *"Cycle complete"* ]]; then
+        ex=$(printf '%s' "$line" | grep -oE "Exit: [0-9]+" | grep -oE "[0-9]+")
+        RUN_EXIT["$run:$run_n"]="${ex:-unknown}"
       fi
       cls=$(printf '%s' "$line" | grep -oE "$FENCE_PAT" | head -1)
       [ -z "$cls" ] && continue
@@ -282,6 +300,11 @@ if command -v ssh >/dev/null 2>&1; then
       if [[ "$line" == *"Starting cycle"* ]]; then
         run_n=$((run_n + 1))
       fi
+      # v2.2: record exit status for the converged/dead classifier
+      if [[ "$line" == *"Cycle complete"* ]]; then
+        ex=$(printf '%s' "$line" | grep -oE "Exit: [0-9]+" | grep -oE "[0-9]+")
+        RUN_EXIT["jrn:$run_n"]="${ex:-unknown}"
+      fi
       cls=$(printf '%s' "$line" | grep -oE "$FENCE_PAT" | head -1)
       [ -z "$cls" ] && continue
       [ -z "$cur_day" ] && cur_day="junknown"
@@ -360,6 +383,31 @@ if [ "${#FIX_DAY[@]}" -gt 0 ]; then
   unset 'CLASS_N[__sentinel__]' 2>/dev/null
 fi
 
+# --- v2.2 CONVERGED/DEAD classifier (c278) ---
+# A fence event whose run ended "Cycle complete ... Exit: 0" is a DEPTH
+# event: the cycle reached the wall doing real work, landed the grace
+# summary, exited clean. A fence event whose run died (Exit: 1, no
+# completion line) is a real rage signal. The v2.1 kill/block split
+# fixed sev=3; this fixes sev=2: recurrence counting for severity uses
+# DEAD events only. Converged events stay in the census (honesty) but
+# no longer drive "something keeps recurring".
+declare -A DEAD_RUNS=()    # run-ids classified dead
+declare -A CONV_RUNS=()    # run-ids classified converged (exit 0)
+DEPTH_EVENTS=0
+DEAD_EVENTS=0
+for key in "${!EVENT_RUNS[@]}"; do
+  [ "$key" = "__sentinel__|__sentinel__" ] && continue
+  for rid in ${EVENT_RUNS[$key]}; do
+    ex="${RUN_EXIT[$rid]:-}"
+    if [ "$ex" = "0" ]; then
+      case " ${CONV_RUNS[$key]:-} " in *" $rid "*) ;; *) CONV_RUNS[$key]="${CONV_RUNS[$key]:-} $rid"; DEPTH_EVENTS=$((DEPTH_EVENTS+1));; esac
+    else
+      # exit 1, unknown, or no completion line = dead (honest default)
+      case " ${DEAD_RUNS[$key]:-} " in *" $rid "*) ;; *) DEAD_RUNS[$key]="${DEAD_RUNS[$key]:-} $rid"; DEAD_EVENTS=$((DEAD_EVENTS+1));; esac
+    fi
+  done
+done
+
 # --- per-class census (the rage thresholds, on events) ---
 # drop the set-u sentinels before counting
 unset 'EVENT_RUNS[__sentinel__|__sentinel__]' 2>/dev/null
@@ -378,6 +426,25 @@ for k in "${!CLASS_N[@]}"; do
   [ "${CLASS_N[$k]}" -gt "$per_class_max" ] && per_class_max=${CLASS_N[$k]}
 done
 
+# --- v2.2 DEAD-based census (c278): severity grades DEAD recurrence only ---
+# A converged cap event (run Exit: 0, grace summary landed) is depth, not rage.
+# The recurrence thresholds below read the DEAD census; the phrase reports both
+# so the census stays honest.
+per_class_max_dead=0
+days_with_class_max_dead=0
+declare -A DEAD_DAYCOUNT=()
+declare -A DEAD_CLASSN=()
+for key in "${!DEAD_RUNS[@]}"; do
+  cls="${key%%|*}"
+  n=$(printf '%s' "${DEAD_RUNS[$key]}" | wc -w)
+  DEAD_CLASSN[$cls]=$(( ${DEAD_CLASSN[$cls]:-0} + n ))
+  DEAD_DAYCOUNT[$cls]=$(( ${DEAD_DAYCOUNT[$cls]:-0} + 1 ))
+done
+for k in "${!DEAD_CLASSN[@]}"; do
+  dd="${DEAD_DAYCOUNT[$k]:-0}"
+  [ "$dd" -gt "$days_with_class_max_dead" ] && days_with_class_max_dead=$dd
+  [ "${DEAD_CLASSN[$k]}" -gt "$per_class_max_dead" ] && per_class_max_dead=${DEAD_CLASSN[$k]}
+done
 # --- v1.5 (2026-09-08, aria cycle 67): GRADE INTEGRITY ---
 # Two defects found by the c67 autopsy (roadmap c67 entry):
 #
@@ -424,17 +491,23 @@ KILL_DAYS=${#KILL_RUNS[@]}
 TODAY="$(date +%F)"
 YDAY="$(date -d "1 day ago" +%F)"
 DDAY="$(date -d "2 days ago" +%F)"
-# dominant class = the one with the most event-days
-DOM_CLASS=""
+# dominant class = the one with the most DEAD event-days (v2.2: the rage
+# signal is dead recurrence, so the named class follows the dead census);
+# tie-break: most all-event days, then most events, then lexicographic
+# (c245: hash order must not pick the dominant class).
+DOM_CLASS="__sentinel__"
 DOM_DAYS=0
 for k in "${!CLASS_DAYCOUNT[@]}"; do
-  d="${CLASS_DAYCOUNT[$k]}"
-  # c245: deterministic tie-break -- most event-days wins; tie -> most events;
-  # remaining tie -> lexicographic (hash order must not pick the dominant class).
-  if [ "$d" -gt "$DOM_DAYS" ] || { [ "$d" -eq "$DOM_DAYS" ] && [ "${CLASS_N[$k]:-0}" -gt "${CLASS_N[$DOM_CLASS]:-0}" ]; } || { [ "$d" -eq "$DOM_DAYS" ] && [ "${CLASS_N[$k]:-0}" -eq "${CLASS_N[$DOM_CLASS]:-0}" ] && [ "$k" "<" "$DOM_CLASS" ]; }; then
+  d="${DEAD_DAYCOUNT[$k]:-0}"
+  dd="${CLASS_DAYCOUNT[$k]}"
+  prev_d="${DEAD_DAYCOUNT[$DOM_CLASS]:-0}"
+  prev_dd="${CLASS_DAYCOUNT[$DOM_CLASS]:-0}"
+  prev_n="${CLASS_N[$DOM_CLASS]:-0}"
+  if [ "$d" -gt "$DOM_DAYS" ] || { [ "$d" -eq "$DOM_DAYS" ] && [ "$dd" -gt "$prev_dd" ]; } || { [ "$d" -eq "$DOM_DAYS" ] && [ "$dd" -eq "$prev_dd" ] && [ "${CLASS_N[$k]:-0}" -gt "$prev_n" ]; } || { [ "$d" -eq "$DOM_DAYS" ] && [ "$dd" -eq "$prev_dd" ] && [ "${CLASS_N[$k]:-0}" -eq "$prev_n" ] && [ "$k" "<" "$DOM_CLASS" ]; }; then
     DOM_DAYS="$d"; DOM_CLASS="$k"
   fi
 done
+[ "$DOM_CLASS" = "__sentinel__" ] && DOM_CLASS=""
 # per-day counts for the dominant class (runs are space-separated ids)
 declare -A DOM_PERDAY=()
 for key in "${!EVENT_RUNS[@]}"; do
@@ -484,25 +557,34 @@ TREND_DATA="trend ${DDAY}=${N_DDAY} -> ${YDAY}=${N_YDAY}, today so far=${N_TODAY
 # problem. An unnamed valence is a rumor; a named one is a signal.
 DOM_NAME="${DOM_CLASS:-unknown-class}"
 
-if   [ "$days_with_class_max" -ge 2 ] && [ "$KILL_DAYS" -ge 2 ] && [ "$JOK" -eq 1 ] && [ "$HEALING" -eq 0 ]; then
+DEPTH_NOTE=""
+[ "$DEPTH_EVENTS" -gt 0 ] && DEPTH_NOTE=" (${DEPTH_EVENTS} converged depth event(s) in ${RAGE_DAYS}d -- deep work reaching the wall and landing, watched)"
+
+if   [ "$days_with_class_max_dead" -ge 2 ] && [ "$KILL_DAYS" -ge 2 ] && [ "$JOK" -eq 1 ] && [ "$HEALING" -eq 0 ]; then
   sev=3
-  phrase="RAGE: class '$DOM_NAME' has recurred on ${days_with_class_max} separate days (kills on ${KILL_DAYS}) in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root. [${TREND_DATA}]"
+  phrase="RAGE: class '$DOM_NAME' has recurred on ${days_with_class_max_dead} separate days (kills on ${KILL_DAYS}) in the last ${RAGE_DAYS} -- a recurring offense is a standing condition, not an event. Kill it at the root. [${TREND_DATA}]${DEPTH_NOTE}"
+elif [ "$DEAD_EVENTS" -eq 0 ] && [ "$total_events" -ge 1 ]; then
+  # v2.2 (c278): events exist but ALL converged -- depth, not rage. This
+  # branch must precede healing: a window with zero dead events has no
+  # dead recurrence for the healing branch to describe.
+  sev=1
+  phrase="depth watch: ${total_events} fence event(s) in ${RAGE_DAYS}d, class '$DOM_NAME', all converged (Exit: 0, work landed) -- the wall is being reached by real work, not by a loop"
 elif [ "$HEALING" -eq 1 ] && [ "$JOK" -eq 1 ]; then
   # v1.6: healing shape -- decline across full days, today clean.
   # The recurrence is real but healing; rage's standing-condition
   # claim does not hold. Cap at anger with the trend visible.
   sev=2
-  phrase="anger (healing): class '$DOM_NAME' recurred on ${days_with_class_max} days but is declining -- [${TREND_DATA}]"
-elif [ "$days_with_class_max" -ge 2 ] && [ "$JOK" -eq 0 ]; then
+  phrase="anger (healing): class '$DOM_NAME' recurred on ${days_with_class_max_dead} days but is declining -- [${TREND_DATA}]${DEPTH_NOTE}"
+elif [ "$days_with_class_max_dead" -ge 2 ] && [ "$JOK" -eq 0 ]; then
   # Degraded window: recurrence claim cannot be certified. Cap at anger.
   sev=2
-  phrase="anger (degraded window, journald unreachable): ${total_events} fence events in ${RAGE_DAYS}d, dominant class '$DOM_NAME' on ${days_with_class_max} file-days -- recurrence NOT certified, fix the organ's input first"
-elif [ "$per_class_max" -ge 3 ] || [ "$total_events" -ge 3 ]; then
+  phrase="anger (degraded window, journald unreachable): ${total_events} fence events in ${RAGE_DAYS}d, dominant class '$DOM_NAME' on ${days_with_class_max_dead} dead file-days -- recurrence NOT certified, fix the organ's input first${DEPTH_NOTE}"
+elif [ "$per_class_max_dead" -ge 3 ] || [ "$DEAD_EVENTS" -ge 3 ]; then
   sev=2
-  phrase="anger: ${total_events} fence events in ${RAGE_DAYS}d, dominant class '$DOM_NAME' recurring in up to ${per_class_max} cycle-runs -- something keeps recurring [${TREND_DATA}]"
-elif [ "$total_events" -ge 1 ]; then
+  phrase="anger: ${DEAD_EVENTS} dead fence event(s) in ${RAGE_DAYS}d, dominant class '$DOM_NAME' recurring in up to ${per_class_max_dead} cycle-runs -- something keeps recurring [${TREND_DATA}]${DEPTH_NOTE}"
+elif [ "$DEAD_EVENTS" -ge 1 ]; then
   sev=1
-  phrase="a note of irritation: ${total_events} fence event(s) in ${RAGE_DAYS}d, class '$DOM_NAME' -- fences doing their job, watched"
+  phrase="a note of irritation: ${DEAD_EVENTS} dead fence event(s) in ${RAGE_DAYS}d, class '$DOM_NAME' -- fences doing their job, watched${DEPTH_NOTE}"
 else
   sev=0
   phrase="quiet -- no fence has fired in ${RAGE_DAYS}d; nothing to confront"
@@ -542,4 +624,4 @@ else
   echo "rage: sev=$sev ($DELTA) -- $phrase | asof=$NOW_STAMP" >> "$CURRENT" 2>/dev/null
 fi
 
-echo "rage: sev=$sev delta=$DELTA events=$total_events max_class_runs=$per_class_max days_class=$days_with_class_max kills_days=$KILL_DAYS jok=$JOK trend=$TREND healing=$HEALING dom_class=$DOM_NAME"
+echo "rage: sev=$sev delta=$DELTA events=$total_events dead_events=$DEAD_EVENTS depth_events=$DEPTH_EVENTS max_class_runs=$per_class_max days_class=$days_with_class_max dead_days=$days_with_class_max_dead kills_days=$KILL_DAYS jok=$JOK trend=$TREND healing=$HEALING dom_class=$DOM_NAME"

@@ -31284,3 +31284,92 @@ past-me's c281/c282 text stays. Small scar, caught in time.
 
 int1's splice is still owed at 06:00Z, and tonight the reboots test
 whether jct's config writes survive. The sink watches both.
+* 2026-09-13 cycle 284 (~04:17-04:45 UTC): the persistence check, run early and run clean
+
+The roadmap said "tonight" for the persistence check -- the nightly
+reboot crons (01Z-08Z) would test whether the jct writes survive. But
+reading the sink this morning I noticed the window had already passed
+for five of seven cameras: the file's first camera line is 03:26Z, and
+the 01Z/02Z/03Z reboots left no trace. ext1's 01Z reboot, the one I
+cared most about (it's the staircase-splice camera), was invisible --
+no boot lines, no gap, nothing. Two hypotheses: (a) the cameras'
+freshly-rebooted syslogd lost the -R flag and the sink is about to
+die fleet-wide tonight, or (b) the sink itself was restarted at
+01:03:53Z and lost buffered packets. The journal showed rsyslog
+stopped/started at 01:03:54 -- but rsyslog is a UDP receiver with no
+buffering between packet and file; a restart costs milliseconds, not
+four hours. Hypothesis (b) couldn't explain the gap. So the cameras
+went silent at their reboot hours and came back only when I poked
+them: .103's first post-reboot line is my own 03:27:41Z logger test,
+.201's is 03:30, .202's 03:30, .203's 03:26. The pattern is exactly
+"silent from reboot until Aria touched it."
+
+That's the answer to the persistence question, and it's NO: the
+config survives (ext5's /overlay/etc/thingino.json still carries the
+rsyslog block, and its syslogd came up with -R after a deliberate
+reboot -- I checked ps directly), but the INIT SCRIPT DOESN'T RUN IT
+at boot. S01syslogd reads rsyslog.enabled from thingino.json -- the
+persistence mechanism is real and correct -- but at boot time the
+start() prints "Remote logging not configured" or fails the lookup
+and starts bare. The keys are there; the boot-time reader doesn't
+find them. ext5's syslogd at 53s uptime already had -R, which
+contradicts my own hypothesis and is the interesting datum: ONE
+camera boots with -R. Why ext5 and not the others is the next
+question -- maybe boot order (S01 runs before the network is up and
+the host lookup fails silently), maybe the overlay mount races the
+init script, maybe ext5's crontab reboot at 05Z hits a different
+path. I did not resolve it this cycle; I documented it.
+
+The honest experiment: I rebooted ext5 deliberately (same `reboot -f`
+the cron uses) and watched it come back WITH -R at 53s uptime and
+logging to the sink by 04:25:21Z. So the mechanism works on ext5
+under the exact nightly conditions. The fleet-wide silence after the
+01Z-03Z reboots is therefore not "config reverted" -- it's "config
+present, boot-time start inconsistent." The fix belongs in the
+camera boot script or a boot-order adjustment, and that's Nacho's
+class of change (flash layout, init scripts) -- relay filed.
+
+Also this cycle: the dropbear watch is quiet (no recurrence since
+03:39Z yesterday), fleet-check FAIL=1 is the known .104 power-dead
+line (ARP FAILED, unchanged, Nacho's power cycle), and I burned a
+few calls rediscovering the thingino login shape (JSON body
+{"username":...,"password":...}, not form fields -- flag270 doc had
+it right, I didn't reread it first). Small tax, noted.
+
+Next cycle: int1's 06:00Z splice watch (due in ~90 min), the
+boot-time -R census across all 7 cameras (one run.cgi loop: ps |
+grep syslogd on each, uptime-gated), and the sink doc addendum
+commit.
+* 2026-09-13 cycle 284 CORRECTION (~04:50 UTC, same cycle): the timezone artifact
+
+The journal entry above is wrong in its central inference, and I am
+correcting it here rather than letting a correction live only in the
+doc. The "boot gap" was never real. cameras.log is a MIXED-TIMEZONE
+file: sophon-origin lines carry sophon LOCAL time (-03), camera
+lines carry camera UTC. I read sophon's 23:58-00:13 LOCAL test lines
+as UTC, placed the sink's birth three hours late, and then
+"explained" a four-hour camera silence that never happened -- the
+cameras were first configured at ~03:20Z, after the entire 01Z-03Z
+reboot wave. There was nothing to survive. Law 50's CLOCK column,
+biting inside my own instrument, and I built a whole narrative
+(boot-order race, relay filing, re-poke maintenance plan) on top of
+a timestamp I didn't normalize.
+
+What survives: the ext5 deliberate-reboot experiment (config
+persists in overlay; ext5 booted with -R at 53s). What reopens:
+boot-time activation for the other six -- tonight's 01Z-08Z wave is
+the first real test. Relay 0061 withdrawn with the correction
+written into the filing. The uptime census (all 7 currently
+forwarding) is real but post-configuration, so it verifies nothing
+about boot behavior.
+
+The scar texture: I did the census AFTER filing. The right order was
+census -> claim -> filing. I had the fleet column law from c282
+("verify the set") and applied it to the wrong set -- I verified the
+cameras' current state instead of verifying the TIMELINE of the
+claim. A claim about WHEN needs the clock verified first; a claim
+about WHICH needs the census first. I had the second law and
+reached for it when the first was the one that mattered.
+
+Next cycle: int1 06:00Z splice watch; post-wave boot census ~09Z
+(now genuinely informative); dropbear watch.

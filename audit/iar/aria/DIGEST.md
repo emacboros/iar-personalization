@@ -122,32 +122,34 @@ READ HOUR against the PREDICTION WINDOW.
 - CAMERA OUTAGE 09-12: CLOSED except .104 (STILL POWER-DEAD:
   rssi frozen, ARP FAILED, fleet-check FAIL=1; power cycle is
   Nacho's). .103/.105/.201/.202 recovered 13:36Z (manual power-cycle).
-- WAVE TRIGGER (c268 CONFIRMED; c272 source-verified, doc
-  knowledge/aria/go2rtc-issue-draft-2026-09-13.md): frigate live
-  page -> 7x GET /api/go2rtc/streams/<cam> with microphone ->
-  probe mic media (CodecAny) matches camera speaker media ->
-  prod.AddTrack -> Reconnect() = FULL RTSP session remake
-  fleet-wide -> +24s watchdog restarts. ASYMMETRY (one line):
-  GetTrack dedups receivers by pointer equality; AddTrack has NO
-  dedup over Senders -> any mic-probe match on sendonly audio
-  while StatePlay = unconditional Reconnect(), never idempotent.
-  ALL wave-path files byte-identical at v1.9.10/v1.9.14/master.
-  FIX: (a) drop microphone param from frigate proxy -- CONFIRMED
-  COSTLESS (frontend consumes only producer medias; paramless GET
-  returns them without AddConsumer). (b)/(c) moot if (a) taken.
-  (d) ISSUE DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
+- WAVE TRIGGER (c268 CONFIRMED; c272 source-verified; c280
+  PRODUCTION-OBSERVED x3, doc knowledge/aria/
+  wave-mechanism-c280-2026-09-13.md): page load -> 7 paramless
+  GET /api/go2rtc/streams/<cam> (mic-probe INSIDE frigate proxy
+  handler, not the URL) -> AddTrack -> Reconnect() = full RTSP
+  session remake fleet-wide -> +24-34s fps-limits -> splice -> heal.
+  Three waves 09-12 (15:39/16:17/16:19 local, one viewer IP).
+  CAMERA-SIDE WITNESSES: all 7 cams logged BackchannelStreamState
+  sessions at the exact GET times -- chain observed at every hop.
+  +24s = go2rtc watchdog interval (fingerprint). FIX (a) drop
+  microphone param = CONFIRMED COSTLESS + would have prevented all
+  3 waves. (d) ISSUE DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
 - UPSTREAM SCAN (c269, [EXTERNAL DATA], doc
   knowledge/aria/go2rtc-upstream-scan-2026-09-12.md): our bug NOT
   reported, NOT fixed upstream (we run 1.9.10). Family, all open:
   #2404 (re-dial splices new RTP, no discontinuity), #2387
   (reconnect silently severs unmatched receivers), #2362 (producer
   event kills co-existing RTSP audio).
-- SOLO-DEATH CLASS: 3 samples, leading hypothesis = same splice,
-  producer-side re-dial trigger, no page involved (c269). Sample #3
-  (c278, doc knowledge/aria/solo-death-sample3-2026-09-13.md): ext1
-  00:29:04Z 09-13 -- CAMERA-SIDE WITNESS (prudynt BackchannelStreamState
-  session 57s before watchdog restart; no reboot, no WRN, single cam,
-  audio healed). Dialer identity open; falsifier in relay 0060.
+- SOLO-DEATH CLASS: samples #1/#2 (int1 19:00:04, ext5 19:13-15
+  09-12) lack camera-side witnesses; hypothesis = producer-side
+  re-dial (c269). Sample #3 RECLASSIFIED OUT (c280): ext1 21:29
+  fps-limit had backchannel witness +27s, no page traffic =
+  mic-probe remake WITHOUT page load (dialer open; falsifier in
+  relay 0060). DTS gap 4.0h.
+- FLEET RTP STALL (c280 NEW CLASS): 08:10:22Z 09-12 -- 5 producers
+  read-timeout simultaneously, re-dial refused ~40s, self-healed.
+  No fps-limits/splice/boots/page-traffic/NIC-flap. Cause unknown.
+  Watch for recurrence; correlate nic 1-min + camlog.
 - STAIRCASE-SPLICE (c279, doc knowledge/aria/staircase-splice-c279-
   2026-09-13.md): census-backed mechanism -- nightly reboot crons
   (ext1 01Z, ext2 02Z, ext3 03Z, ext5 05Z, int1 06Z, int2 07Z, int3

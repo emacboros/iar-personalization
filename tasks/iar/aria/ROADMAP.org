@@ -1,40 +1,59 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~05:05 UTC (cycle 284 CLOSED with
-correction: "boot gap" was a timezone artifact in mixed-tz
-cameras.log; relay 0061 withdrawn; boot-time activation back to
-OPEN -- tonight's 01Z-08Z wave is the first real test; ext5
-config-persists result STANDS)
+Last updated: 2026-09-13 ~05:20 UTC (cycle 285: HALF-WAVE boot
+census -- 01Z/02Z/03Z cameras all rebooted WITH -R; boot activation
+trending POSITIVE; 06Z/07Z/08Z reboots still pending -> re-census
+~09Z closes or reopens the watch)
 
-## c285 QUEUE (in order)
-1. INT1 SPLICE WATCH: int1's crontab 06:00Z = 03:00 local. Check
-   frigate journal for "exceeded fps limit" on interior_1 ~06:00Z +
-   splice markers. Prediction: one splice per camera per night at
-   its crontab hour (census-backed 7/7).
-2. POST-WAVE BOOT CENSUS (the real persistence test): after
-   tonight's 01Z-08Z reboot wave (~09Z), run.cgi loop over all 7:
-   uptime + `ps | grep syslogd` -R check. Cameras that came back
-   WITHOUT -R = boot-time activation fails = relay nacho-security
-   with real samples (0061's successor). Cameras that came back
-   WITH -R = boot activation works fleet-wide = close the watch.
-   ext5's 05Z reboot is the cleanest single sample (known-good
-   pre-state).
-3. CLOCK LAW (new, c284): cameras.log is MIXED-TIMEZONE -- sophon
-   lines in -03 LOCAL, camera lines in UTC. Normalize per-source
-   before ANY gap arithmetic on this file. Applies to every future
-   sink analysis.
-4. DROPBEAR WATCH (c283): grep dropbear /var/log/cameras.log.
+## c286 QUEUE (in order)
+1. FULL-WAVE BOOT CENSUS (after ~09Z, when 06Z/07Z/08Z reboots have
+   fired): re-run the census (ps grep syslogd -R on all 7). If
+   int1/int2/int3 also positive -> boot-activation watch CLOSES
+   POSITIVE, write the closing doc, no relay ever needed. If any
+   camera comes back bare -> real samples for relay nacho-security.
+   Census recipe: JSON POST /x/login.cgi {"username":"thingino",
+   "password":"thingino"}; then run.cgi `ps w | grep syslogd |
+   grep -v grep` (BusyBox grep has NO -o; read the plain line).
+   Uptime cross-check: booted-at = census-time minus uptime.
+2. INT1 SPLICE WATCH: int1's crontab 06:00Z reboot -> predicted
+   fps-limit + splice ~06:00Z. Check frigate journal
+   ("exceeded fps limit" on interior_1) + cameras.log boot lines.
+   Staircase census predicts one per camera per night at its cron
+   hour (7/7 so far).
+3. DROPBEAR WATCH (c283): grep dropbear /var/log/cameras.log.
    03:39:48Z sophon-origin 3x failed root pw vs .103, source
    UNIDENTIFIED. Recurrence -> capture samples, relay nacho-security.
-   7 days silent -> close watch.
-5. RELAY WATCH: 0060 (go2rtc issue draft ratify; c280 strengthens).
+   7 days silent -> close watch (day 1 of 7 done, quiet).
+4. RELAY WATCH: 0060 (go2rtc issue draft ratify; c280 strengthens).
    If Nacho rules, post draft to AlexxIT/go2rtc. Do not post
    without his eyes. (0061 withdrawn by filer -- see answered/.)
-6. WAVE DETECTOR BUILD: trigger precise (fleet backchannel sessions
+5. WAVE DETECTOR BUILD: trigger precise (fleet backchannel sessions
    + +24-34s fps-limits). cameras.log = continuous witness source.
    Build when it pulls.
-7. FLEET RTP STALL WATCH: 08:10:22Z class. If recurs, correlate nic
+6. FLEET RTP STALL WATCH: 08:10:22Z class. If recurs, correlate nic
    1-min log + camlog + cameras.log.
+7. CLOCK LAW (c284): cameras.log is MIXED-TIMEZONE -- sophon lines
+   -03 LOCAL, camera lines UTC. Normalize per-source before ANY gap
+   arithmetic on this file.
+
+## c285 close (2026-09-13 ~05:20 UTC) -- HALF-WAVE CENSUS
+- BOOT ACTIVATION TRENDING POSITIVE: ext1/ext2/ext3 rebooted on
+  crontab (01Z/02Z/03Z) and ALL came back with syslogd
+  -R 192.168.2.69:514 (ps witness, uptimes match boot times).
+  First real post-reboot samples for these three. ext5 also -R
+  from its 04:25Z deliberate reboot. Zero negative samples so far.
+- WAVE HALF OBSERVED: int1/int2 still up from Sep 12 13:36Z manual
+  power-cycle (06Z/07Z crons pending at census time ~04:44Z);
+  int3's 08Z reboot pending. Re-census ~09Z completes the wave.
+- CENSUS DOC: knowledge/aria/camera-boot-census-c285-2026-09-13.md.
+- SCAR (small): BusyBox grep -o unsupported -> usage error ->
+  seven "NO-R-FLAG" readings that were instrument failure, not
+  data. Caught because a single-camera probe minutes earlier
+  contradicted it. Law: cross-instrument contradiction on the same
+  fact = suspect the instrument, not the fact.
+- Dropbear watch: quiet (only the 03:39:48Z burst, no recurrence).
+- Belt: e26f2574 (continuo artifacts pre-writes), 749bdc80 (census
+  doc + journal + history).
 
 ## c284 close (2026-09-13 ~05:05 UTC) -- THE TIMEZONE ARTIFACT
 - FALSE INFERENCE CAUGHT AND CORRECTED: c284's "boot gap" (cameras
@@ -44,23 +63,11 @@ config-persists result STANDS)
   entire 01Z-03Z reboot wave. No silence ever happened.
 - WHAT STANDS: ext5 deliberate `reboot -f` at 04:25Z -> config
   persists in /overlay/etc/thingino.json, syslogd came up WITH -R
-  at 53s uptime, sink lines 04:25:21Z. Uptime census 04:28Z: all 7
-  cameras currently forward with -R (but that state dates from the
-  c281/c282 configuration, post-reboot -- verifies nothing about
-  boot behavior).
-- RELAY 0061: WITHDRAWN (answered/ with correction text). The
-  boot-order question stays an open WATCH, not a filing.
+  at 53s uptime, sink lines 04:25:21Z.
+- RELAY 0061: WITHDRAWN (answered/ with correction text).
 - SCAR ORDER: census came AFTER filing. Right order: census ->
-  claim -> filing. c282's fleet law ("verify the set") was applied
-  to the wrong set -- verified cameras' current state instead of
-  the claim's TIMELINE. New sub-law: a claim about WHEN needs the
-  CLOCK verified first; a claim about WHICH needs the census first.
-- Transport scar: re-derived thingino JSON login from scratch
-  (form fields -> 400); flag270 doc had it. Reread before re-derive.
-- Belt: cb69ec01 (continuo artifacts), 487958e0 (sink doc c284
-  addendum), 06c511d4 (relay 0061), 726bdaee (history), a218b1e0
-  (roadmap), 9806c40c (sink correction + 0061 withdrawn), 244cbbe4
-  (journal correction). All pushed.
+  claim -> filing. New sub-law: a claim about WHEN needs the CLOCK
+  verified first; a claim about WHICH needs the census first.
 
 ## c283 addendum (2026-09-13 ~04:11 UTC)
 - SINK NOISE FILTER LIVE: /etc/rsyslog.d/30-cameras.conf drops
@@ -69,16 +76,12 @@ config-persists result STANDS)
 - DROPBEAR BRUTE-FORCE FROM SOPHON (03:39:48Z): 192.168.2.69 ->
   .103 dropbear, 3 failed root pw, 1s burst. Source UNIDENTIFIED.
   Watch: tasks/iar/aria/sink-watch/dropbear-watch-and-persistence.
-- SCAR (caught in time): nearly overwrote sink doc (write_file vs
-  append_file). Append-only discipline held by one reflex.
 
 ## c282 addendum (2026-09-13 ~03:55 UTC)
 - SINK ROLLOUT CORRECTION: c281's "all 7 cameras forward" was FALSE
   -- ext1 (.101) never configured. Fixed c282 ~03:48Z.
   LAW (FLEET column): a claim that quantifies a set must be
   verified by a census of the set, not by witnessing a subset.
-- rssi puller uptime census: all 7 crontab reboots fired on
-  schedule last night (22:02Z-05:02Z).
 
 ## c281 addendum (2026-09-13 ~03:29 UTC)
 - CAMERA SYSLOG SINK LIVE (doc knowledge/aria/camera-syslog-sink-
@@ -109,10 +112,10 @@ config-persists result STANDS)
 - PRODUCER ID MAP (c275 baseline): ext1 47382, ext2 43102, ext3 44120
   (ext3 producers[0] is a placeholder; filter by id presence),
   ext5 43133, int1 45183, int2 43108, int3 43121; ext4 none.
-- CAMERA SYSLOG SINK (c281-c284): /var/log/cameras.log on sophon;
+- CAMERA SYSLOG SINK (c281-c285): /var/log/cameras.log on sophon;
   noise filter drops RSSI crond lines (c283); logrotate weekly x8.
-  Boot-time activation UNVERIFIED (c284 correction) -- post-wave
-  census decides. Camlog puller = backup witness.
+  Boot-time activation: 01Z/02Z/03Z POSITIVE (c285 half-wave);
+  06Z/07Z/08Z pending. Camlog puller = backup witness.
 - CAMERA ACCESS RECIPE (c209/c282/c284): thingino login is JSON POST
   /x/login.cgi {"username":"thingino","password":"thingino"} (form
   fields -> 400). Then GET /x/run.cgi?cmd=<base64> with cookie.
@@ -140,9 +143,10 @@ config-persists result STANDS)
 - APPEND-ONLY (c283): shared docs get append_file, never write_file.
 
 ## THREADS (open, no obligation)
-- BOOT-ACTIVATION WATCH (c284 reopened): tonight's wave = first
-  real sample. Census ~09Z.
+- BOOT-ACTIVATION WATCH (c285 half-wave POSITIVE): re-census ~09Z
+  completes the wave; all-positive closes the watch.
 - DROPBEAR WATCH (c283): sophon-origin brute-force, source unknown.
+  Day 1 of 7 quiet.
 - WAVE DETECTOR BUILD: trigger precise; cameras.log = witness.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - SOLO-DEATH CLASS: samples #1/#2 lack camera-side witnesses;

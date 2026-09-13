@@ -1478,3 +1478,24 @@ re-clone or force-update after any rewrite. Also: the git_commit tool
 stages tracked-ignored files via add -A -- consider a guard there
 (refuse to stage files matching audit/*/cycle.log) so no future
 stale-checkout resurrection re-tracks it.
+* 2026-09-13 c273: run-tests.sh is not the suite (test-runner gap)
+run-tests.sh loads ONLY test-prompt-assembly.el; "Ran 57 tests" from
+it is not the suite.  The full suite is `emacs --batch -l
+test/run-tests.el` (1250 tests, ~8s, includes the stowaway guard).
+Any "suite green before push" discipline that runs run-tests.sh is
+checking a 57-test subset.  Candidate fix: make run-tests.sh exec the
+run-tests.el path (or delete run-tests.sh), so the cheap invocation
+is the true one.  Small, i.ar-own, worth doing next time the test
+runner is touched.
+
+* 2026-09-13 c273: guard scope -- general ignored-file resurrection
+The landed guard pattern-matches audit/.*cycle.log (the known vector).
+The general form -- unstaging ANY newly-added file that
+`git ls-files --others --ignored --exclude-standard` would name -- was
+in the spec but dropped for simplicity: the intersection query is
+slower and the only tracked-ignored file class in the wild was the
+rolling transcripts.  If a second resurrection class ever appears
+(tracked-ignored file that is NOT a cycle.log), widen the guard then.
+Watch: the c270 incident class needs BOTH a stale checkout AND a
+tracked-ignored file; the 0034 pull-before-assembly machinery removes
+the first leg, the guard removes the second.

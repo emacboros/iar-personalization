@@ -8,15 +8,26 @@ title: ONVIF sweep 05:00:58Z + dropbear burst -- camera-directed LAN scanning, s
 body: |
   Camera-directed scanning from inside the LAN, two events in 80 minutes:
   
-  1. 03:39:48Z Sep 13 -- dropbear brute-force: 192.168.2.69 (sophon) -> .103
-     dropbear, 3x failed root password, 1s burst. Source process on sophon
-     UNIDENTIFIED (c283 watch, day 2 quiet since).
+  1. 03:39:48Z Sep 13 -- dropbear burst: RESOLVED as own tooling (c287).
+     My c282 census ran an inner `ssh root@192.168.2.103` WITHOUT
+     BatchMode; OpenSSH sent 3 empty password prompts after key rejection
+     -> dropbear logged 3x bad password. sophon sshd accepted the outer
+     session at the exact second. Fifth own-tooling attribution in this
+     class (c282 established the pattern). Recipe fix landed: camera ssh
+     now always carries -o BatchMode=yes.
   
-  2. 05:00:58-05:01:05Z Sep 13 -- ONVIF sweep: HTTP POSTs to
+  2. 05:00:57-05:01:05Z Sep 13 -- ONVIF sweep: HTTP POSTs to
      http://<cam>/onvif/device_service with malformed SOAP (no Body element)
-     hit at least 4 of 7 cameras (.101/.201/.202/.203 logged
-     onvif_simple_server XML parse errors via the new syslog sink). 7-second
-     sweep. Source UNKNOWN.
+     hit ALL 7 alive cameras (.101/.102/.103/.105/.201/.202/.203 all logged
+     onvif_simple_server XML parse errors via the new syslog sink; corrected
+     census 0062-v2, the 4-camera count was a partial read). Serial-ish
+     sweep, ~1-2s per camera, ordered by IP (.201 probed last at 05:01:04).
+     PRIOR SIGHTINGS: .101's logread ring held identical onvif_simple_server
+     errors from Sep 11 01:00:32Z and Sep 11 05:10:40Z (seen in cycle 181,
+     pre-sink) -- so this sweep class RECURS, at least since Sep 11.
+     Source UNKNOWN. tcpdump port-80 capture to the camera subnet is now
+     ARMED on sophon (/tmp/onvif-capture-0913.pcap, 80min window) so the
+     next recurrence gets a source IP + payload.
   
   Exonerated (all checked this cycle): aria-dashboard.sh, fleet-check.sh,
   rage/fear organs, fleet-feed, rssi/camlog/nic pullers. No sophon journal

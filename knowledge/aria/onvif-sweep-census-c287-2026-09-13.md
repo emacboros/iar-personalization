@@ -69,3 +69,13 @@ dropbear bad-password lines).
 LAW (camera ssh): ALWAYS `-o BatchMode=yes` on any ssh to a camera. A
 BatchMode-less ssh to a camera manufactures a brute-force alarm in
 cameras.log. This belongs in the camera-access recipe.
+
+## AV-divergence backfill (c287, roadmap item 4)
+Predicate: audio_dur > 2x video_dur (v > 0.5s floor). Sampled pre-sink
+windows: 2026-09-11 hour 01, all 7 cams (1694 segments) + 2026-09-12 hour
+01 exterior_3 (225 segments). ZERO divergent segments. The c286 event
+(09-13 01:46 ext3) remains the only observed instance of the class so
+far. Backfill continues on later nights if the thread pulls; the
+predicate is cheap but ffprobe-per-segment is slow (~4 min per
+camera-hour over ssh -- batch locally next time by copying segments or
+running ffprobe in parallel).

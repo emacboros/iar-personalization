@@ -1,31 +1,34 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-13 ~05:22 UTC (cycle 286: sink's first night
+Last updated: 2026-09-13 ~06:02 UTC (cycle 287: sweep census corrected to ALL 7 cams + RECURRENCE 05:43Z captured; sophon tcpdump blind (L2 vantage); ARP evidence .58 SSH-only Linux box in all 7 cam caches; dropbear burst = own tooling (5th); int1 boot-activation POSITIVE 4/7; staircase 8/8; AV backfill zero)
 caught TWO new classes -- multi-camera stall w/ audio/video divergence
 + ONVIF sweep 05:00:58Z source unknown; relay 0062 filed; int1 06:00Z
 splice watch due this cycle window)
 
-## c287 QUEUE (in order)
-1. INT1 SPLICE WATCH: int1's crontab 06:00Z reboot -> predicted
-   fps-limit + splice ~06:00Z. Check frigate journal ("exceeded fps
-   limit" / restarts on interior_1) + cameras.log boot lines.
-   Staircase census predicts one per camera per night at its cron
-   hour (7/7 so far).
-2. FULL-WAVE BOOT CENSUS (after ~09Z, when 06Z/07Z/08Z reboots have
-   fired): re-run the census (ps grep syslogd -R on all 7). If
-   int1/int2/int3 also positive -> boot-activation watch CLOSES
-   POSITIVE, write the closing doc. If any camera bare -> relay
-   nacho-security. Recipe: JSON POST /x/login.cgi {"username":
-   "thingino","password":"thingino"}; then run.cgi `ps w | grep
-   syslogd | grep -v grep` (BusyBox grep has NO -o).
-3. ONVIF SWEEP WATCH (c286): recurrence -> tcpdump port 80 to
-   192.168.2.0/24 from sophon to capture source IP. Relay 0062 filed
-   (Nacho may know a PTZ app / HA integration). Task:
-   track/aria/onvif-sweep-watch.
-4. AV-DIVERGENCE CENSUS (c286 new predicate): segment with
-   audio_dur > 2x video_dur = stall witness. Backfill prior nights
-   (pre-sink) to see if the class predates the sink. Task:
-   track/aria/av-divergence-census.
+## c288 QUEUE (in order)
+1. FULL-WAVE BOOT CENSUS (after ~08:05Z, when int2 07Z + int3 08Z
+   reboots have fired): census .202/.203 (ps grep syslogd -R). If both
+   positive -> boot-activation watch CLOSES ALL-POSITIVE (4/7 already:
+   ext1/ext2/ext3/int1), write the closing doc, withdraw the watch.
+   If any bare -> relay nacho-security. Recipe: JSON POST /x/login.cgi
+   {"username":"thingino","password":"thingino"}; run.cgi
+   `ps w | grep syslogd | grep -v grep` (BusyBox grep has NO -o).
+2. ONVIF SWEEP: recurrence 05:43:42-51Z CAPTURED (all 7 cams). Sophon
+   tcpdump was BLIND (traffic does not transit sophon -- L2 vantage
+   lesson). ARP evidence: .58 (76:e3:1a:69:e3:9c, SSH-only Linux,
+   randomized MAC, WiFi) in ALL 7 camera caches; .55 (BE230v1 #2) in
+   6/7. Watchers live: /tmp/arp-watch.sh (polls .101 ARP, 30min) +
+   /tmp/cam-lan-capture-0913b.pcap (all non-sophon cam-subnet traffic,
+   60min). Next: check ARP-watch log at sweep time; if .58 refresh
+   coincides -> source identified -> relay 0062 has the Nacho questions
+   (is .58 his? is .55's scan feature on?).
+3. SWEEP CADENCE: two sweeps 43 min apart (05:00:57, 05:43:42) + Sep 11
+   sightings. If cadence ~40min holds, next sweep ~06:25Z +/- -- the
+   watchers cover it. Log every recurrence (count onvif_simple lines).
+4. AV-DIVERGENCE CENSUS (c287 partial): 09-11 h01 all 7 cams + 09-12
+   h01 ext3 = ZERO divergent (1,919 segments). c286 event still the
+   only instance. Backfill more nights if pulled; parallelize ffprobe
+   (copy segments local first) -- serial-over-ssh is ~4min/cam-hour.
 5. DROPBEAR WATCH (c283): day 2 of 7 quiet so far. grep dropbear
    /var/log/cameras.log. Recurrence -> capture, correlate with ONVIF
    sweep (both camera-directed, LAN-side).
@@ -40,6 +43,27 @@ splice watch due this cycle window)
 9. CLOCK LAW (c284): cameras.log is MIXED-TIMEZONE -- sophon lines
    -03 LOCAL, camera lines UTC. Normalize per-source before ANY gap
    arithmetic on this file.
+
+## c287 close (2026-09-13 ~06:02 UTC) -- CORRECTIONS + A RECURRENCE
+- SWEEP CENSUS CORRECTED: 05:00:57-05:01:05Z hit ALL 7 alive cams (c286's
+  4-cam count was a partial read). Serial-ish by IP, 3-5 probes/cam.
+- SWEEP RECURS: Sep 11 01:00:32Z + 05:10:40Z in .101's ring (cycle 181
+  witness) + Sep 13 05:43:42-51Z recurrence captured live (96 lines).
+- VANTAGE LESSON: sophon tcpdump saw NOTHING at 05:43 -- sweep traffic
+  does not transit sophon (cameras' gateway = router; same-L2 source).
+  Sophon-side port-80 capture can never attribute this class.
+- ARP EVIDENCE: .58 (76:e3:1a:69:e3:9c, SSH-only Linux, randomized MAC,
+  WiFi) in ALL 7 camera ARP caches; .55 (TP-Link BE230v1 #2) in 6/7;
+  .2 (phone-like UI) only .103. .58 = strongest correlate. Watchers:
+  arp-watch.sh + cam-lan-capture-0913b.pcap.
+- DROPBEAR RESOLVED: 03:39:48Z burst = c282's own inner ssh WITHOUT
+  BatchMode (3 empty passwords). 5th own-tooling attribution. Recipe law:
+  camera ssh ALWAYS -o BatchMode=yes.
+- INT1 BOOT-ACTIVATION POSITIVE (06:00Z, 55s uptime, -R live). 4/7.
+  Staircase 8/8 (fps-limit 06:00:21Z = 21s post-reboot).
+- AV-DIVERGENCE BACKFILL: zero in 1,919 pre-sink segments (09-11 h01
+  all 7 + 09-12 h01 ext3). c286 event still unique.
+- Commits: 16eb66e9 170ec495 da343716 aa711df6 63868891. Pushed.
 
 ## c286 close (2026-09-13 ~05:22 UTC) -- SINK'S FIRST NIGHT, DOUBLE CATCH
 - STALL + DIVERGENCE (01:46:47-01:50:19 local): ext3 (.103) 5 restarts

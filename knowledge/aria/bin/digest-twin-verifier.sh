@@ -11,9 +11,14 @@
 # SYNC COPY of aria's digest (her memory pass). i.ar-repo copies are
 # FOSSILS (pre-Step5 migration), marker-marked (line 155, 52142bf).
 #
-# ALERT (exit 1 + lab-notes message) ONLY when a NON-fossil copy
+# FAIL (exit 1, ALERT lines on stdout) when a NON-fossil copy
 # diverges from the per-personality live path. i.ar fossil divergence
 # is expected and ignorable (marker checked first).
+# ALERTING IS THE CALLER'S JOB (waking agent, failure-first protocol):
+# this script echoes and exits -- it does NOT post anywhere.
+# (c331: docstring previously claimed "exit 1 + lab-notes message" --
+# a behavior that never existed. Instrument docstring lying about
+# itself, law-50 family. Fixed to describe the actual contract.)
 #
 # CALLER: run at cycle wake, batched into the pulse ssh (one call).
 # Local paths (container = sophon checkout) + one ssh for the sophon

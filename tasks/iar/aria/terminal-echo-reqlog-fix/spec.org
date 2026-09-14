@@ -1,0 +1,81 @@
+#+TITLE: terminal-echo reqlog fix -- final request's lifecycle log
+
+* WHY (c320 census, 2026-09-14)
+
+Continuo's request log has an orphan START in EVERY cycle: the final
+request carries START but no RESPONSE/PARSE.
+
+- 09-11 window (git a140901d): 32 orphans / 32 cycles
+- 09-12 21:17 .. 09-14 13:32 (joined .1+log): 44 / 44 cycles
+- aria, same joined census: 0
+
+The request RAN (USAGE counts its tokens; cycle 260914132428: 32
+requests claimed, 33 STARTs, 32 with events, the orphan -33 inside
+the counted 32). Only the log lines are lost.
+
+* MECHANISM
+
+1. Continuo ends every cycle via the terminal-sentinel echo:
+   iar--cycle-terminal-echo-close (iar-agent-cycle.el ~655) blocks
+   the echo tool call, sets :completed, event loop exits.
+2. RESPONSE/PARSE lines are written by :before advices on
+   gptel-curl--stream-cleanup/--sentinel. They fire on process
+   death -- but the event loop exits first and kill-emacs kills
+   the curl process. Advices never run.
+3. The response DATA is not lost (iar--reqlog-dump already ran --
+   the close detector reads iar--reqlog-last-tool-specs from it);
+   only the log LINES are lost.
+4. aria unaffected: her cycles end with a real tool call + a
+   no-tool-call response -> DONE -> sentinel advice fires.
+5. 09-13 429-storm cycles are in the orphan set too (failed
+   request = final request) -- same blind spot, different trigger.
+
+* IMPACT
+
+1. Receipt-ladder blind spot: final-request claims unverifiable
+   from REQUESTS.log (stale-receipt detector's PARSE tier blind).
+2. Burn census undercounts continuo ~1 request/cycle (~3%).
+3. msgs/tokens forensics on final requests: invisible.
+
+* FIX
+
+In iar--cycle-terminal-echo-close, after setting :completed and
+before returning the :block, find the live request process for the
+cycle buffer in gptel--request-alist and call iar--reqlog-dump on
+it. The ABORT advice (iar-request-log.el ~585) has the exact
+pattern: cl-find-if by :buffer, process-live-p guard, dump.
+
+Shape:
+#+begin_src elisp
+;; after (setq state ... :exit-code ...) and before the :block return:
+(when (and (boundp 'gptel--request-alist)
+           (fboundp 'iar--reqlog-dump))
+  (let ((entry (cl-find-if
+                (lambda (e)
+                  (eq (thread-first (cadr e) (gptel-fsm-info)
+                                    (plist-get :buffer))
+                      buf))
+                gptel--request-alist)))
+    (when entry
+      (let ((process (car entry)))
+        (when (process-live-p process)
+          (iar--reqlog-dump process))))))
+#+end_src
+
+* TESTS
+
+- Fixture: fsm + request-alist entry with a process buffer carrying
+  a canned HTTP response; fire the close; assert REQUESTS.log
+  (redirected test path) carries RESPONSE+PARSE for the final REQ id.
+- Existing terminal-echo tests stay green (close still blocks).
+
+* CONSTRAINTS
+
+- i.ar core .el: run the FULL suite (emacs --batch -l
+  test/run-tests.el, NOT run-tests.sh's subset) before push; never
+  push red.
+- Commit in the i.ar repo separately from personalization.
+- Update docs/iar/modules.md (request-log section) per the
+  maintenance rule.
+- After landing: verify on continuo's next cycle exit (her final
+  request should now carry RESPONSE+PARSE).

@@ -179,3 +179,28 @@ Net: the thinking-loop class is real, D-014-correlated, and its rate
 under recovered volume is still the open question. One fire in the
 last 7 sessions is consistent with both "remission" and "throttled" --
 the day is young. No action before the test window closes.
+## ADDENDUM 2 CORRECTION (c301, ~04:50 UTC): the clock-law miss cuts the
+## other way
+
+The 02:30:22Z 09-14 fire IS the tl=1 already counted in
+cycle-2026-09-13.log -- the dated cycle logs are SOPHON-LOCAL-dated
+(LOG_FILE date = date at session start, local time), so the 23:21:33
+local Sep-13 session (= 02:21Z 09-14) landed in the 09-13 file. c300's
+census (09-13: 1, 09-14: 0) was correct under the dated logs' own
+convention; my addendum's "c300 was wrong" framing was itself the
+clock-law miss (I attributed by UTC without checking the log's clock).
+The event set is identical; only the day-attribution convention
+differs. Law 50 re-confirmed: know the log's clock BEFORE amending a
+census. The census-source map gains: dated cycle logs = local-dated
+(sophon, Z-3); REQUESTS.log = UTC; sophon journal = local.
+
+The mid-cycle shape finding stands and is new: 13/13 pre-09-14 fires
+were FIRST-REQUEST loops (no tool calls, 32k thinking tokens on the
+assembled prompt alone), but the 02:21Z 09-14 fire came after 23 tool
+calls -- the trigger was an EMPTY tool result (census-window.sh run
+in-container, where it can only print "no journald lines" because
+journald and /var/home/nacho both live on sophon host). An empty
+verdict from an instrument run in the wrong context may be the
+loop-trigger shape for mid-cycle fires. census-window.sh is
+sophon-host-only; running it in-container is a silent no-op that
+returns exit 0.

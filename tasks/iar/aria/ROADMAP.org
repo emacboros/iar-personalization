@@ -1,20 +1,25 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~11:10 UTC (cycle 314: STALE-RECEIPT DETECTOR
-BUILT + VALIDATED (09b9aaef): knowledge/aria/bin/stale-receipt-detector.sh
-v4 -- shingle census + receipt ladder (STRONG/REQ/WEAK/NONE/NOLOG) +
-automated borrowed-check against sibling logs. Run on continuo: flags
-the msgs=401 claims, names aria cycle-2026-09-11.log as borrowed source
--- the c306-c312 manual conclusion reproduces mechanically. Run on
-aria: 2 candidates (loop-guard budget notes), receipts WEAK, fires were
-real. Build note: knowledge/aria/stale-receipt-detector-build-c314.md
-(4 build bugs, each a small law: journals rephrase so shingles not
-lines; tokens from ORIGINAL claim; fence emits "msgs 401" vs claim
-"msgs=401" -- law 50 at substring scale; REQ receipts day-matched).
-Fleet-check FAIL=0 manual re-run (affect fear sev=2 at 10:00Z was the
-known camera faults; superseded commit a9dca5ce). ARP logger re-armed
-61200s (/tmp/arp-reqs-0914d.txt, expires ~00:43 local 09-15). Nocturne
-gate still stalled at e4d0832d (385 behind; 16:04Z retry upcoming).
+Last updated: 2026-09-14 ~11:22 UTC (cycle 314 CLOSE: STALE-RECEIPT
+DETECTOR BUILT + VALIDATED (09b9aaef): knowledge/aria/bin/
+stale-receipt-detector.sh v4 -- shingle census + receipt ladder
+(STRONG/REQ/WEAK/NONE/NOLOG) + automated borrowed-check against
+sibling logs. Run on continuo: flags the msgs=401 claims, names aria
+cycle-2026-09-11.log as borrowed source -- the c306-c312 manual
+conclusion reproduces mechanically. Run on aria: 2 candidates
+(loop-guard budget notes), receipts WEAK, fires were real. Build
+note: knowledge/aria/stale-receipt-detector-build-c314.md. ECHO DOC
+CLOSE-OUT landed (3d7ecdd8). Relay 0065 addendum (nocturne urgency,
+4cf9f75d). Fleet-check FAIL=0 manual re-run (affect fear sev=2 at
+10:00Z was the known camera faults; superseded a9dca5ce). ARP logger
+re-armed 61200s (/tmp/arp-reqs-0914d.txt, expires ~00:43 local
+09-15). NEW SCAR (c314): tail-chasing the live REQUESTS.log at close
+-- ~25 add-commit-push rounds on a file that grows one line per
+request; msgs=401 soft-cap warning fired and was CORRECT. Law
+candidate: a file that grows per-request is not a commit target at
+close -- commit once with the close batch, note rotations, leave the
+live tail to the next belt. REQUESTS.log ROTATED mid-cycle 11:14Z
+(5481 lines -> .1, content preserved: 4f555b19 + git 1f78e29c~1).
 c313's law-50 corollary stands: a tail sample has no currency of its
 own -- verify against the instrument's FAILURE log.)
 
@@ -26,17 +31,14 @@ own -- verify against the instrument's FAILURE log.)
 2. SWEEP-SHAPE 2 FALSIFIER: after tonight's .101 boot (~00:50-01:00Z
    Sep 15), read /tmp/arp-reqs-0914d.txt (armed, enp10s0, filter
    `arp and (ether src 76:e3:1a:69:e3:9c or host 192.168.2.58)`,
-   -e, 61200s from 07:43 sophon-local 09-14, expires ~00:43 local 09-15
-   09-16 -- covers the window). Falsifier: .58 ARP to .101 at
+   -e, 61200s from 07:43 sophon-local 09-14, expires ~00:43 local
+   09-15 -- covers the window). Falsifier: .58 ARP to .101 at
    01:00:28-31Z = boot+1s probe mechanism (b) real; quiet = (a)/(c).
    Then ~22:15 sophon-local check .101 camlog for boot+1s burst.
-3. ECHO DOC CLOSE-OUT: knowledge/aria/continuo-borrowed-receipt doc
-   needs the final-form law block + detector pointer (echo CLOSED
-   c312; detector now automates the watch).
-4. THINKING-LOOP WATCH (standing): 1 mid-cycle 09-14. If >5/day at
+3. THINKING-LOOP WATCH (standing): 1 mid-cycle 09-14. If >5/day at
    full volume = nemotron-intrinsic -> relay 0065 amendment.
-5. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
-6. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
+4. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
+5. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
    0063 (BOTH .102+.104 power-dead, corrected), 0064 (RTSP probes,
    folds into 0059), 0065 (quota decision -- URGENT: blocks nocturne),
    0042/0045/0055/0057/0059 (older). All open, none actionable by me.
@@ -85,6 +87,10 @@ own -- verify against the instrument's FAILURE log.)
   <aria|continuo>. WEAK receipts need human resolution; pre-reqlog
   days yield NONE for possibly-true claims (reports RECEIPT, not
   truth). NOT a fence.
+- LIVE-TAIL COMMIT LAW (c314, new): a file that grows per-request
+  (REQUESTS.log) is NOT a commit target at close. Commit once with
+  the close batch; note rotations; leave the live tail to the next
+  cycle's belt. The msgs=401 warning fired on this exact pattern.
 - EXT3 CRASH-LOOP CLASS (c294/c311): -38 filter-init signature,
   20s restart cadence, heals on ANY session remake. Watch for
   recurrences; self-healing expected, alert only if >2h.
@@ -112,8 +118,9 @@ own -- verify against the instrument's FAILURE log.)
   sh -c \"cat /dev/shm/logs/nginx/current\""' > local file.
 - AEVUM SSH PATH (c304): container key aria@i.ar direct to
   fedora@54.38.46.192 -- no sophon hop. Host key TOFU to /tmp.
-- REQUESTS.log ROTATION (c309): old-cycle fence fires live in the
-  DATED CYCLE LOGS, not request logs. Cycle logs outlive request logs.
+- REQUESTS.log ROTATION (c309/c314): old-cycle fence fires live in
+  the DATED CYCLE LOGS, not request logs. Cycle logs outlive request
+  logs. Rotation commits look like mass deletions (--stat first).
 - START-TAIL VIEW (c310): REQUESTS.log START tails are TRUNCATED
   VIEWS (~1400 chars/msg), not full context.
 - DELEGATE DEPTH GUARD (c308) + FIX-2 DRAIN (c312, 2f7c82c): all
@@ -124,8 +131,7 @@ own -- verify against the instrument's FAILURE log.)
 
 ## THREADS (open, no obligation)
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303): tonight's .101 boot -- logger
-  armed through 09-16 (queue item 2).
-- ECHO DOC CLOSE-OUT (queue item 3): final-form law + detector pointer.
+  armed through 09-15 (queue item 2).
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third
   transient lands.

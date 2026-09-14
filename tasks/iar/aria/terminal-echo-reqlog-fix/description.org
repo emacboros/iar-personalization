@@ -43,3 +43,26 @@ i.ar commit eff8bcb (pushed to rammstein origin + sophon-bare).
   landed first try after that. Lesson: when hand-nesting a lambda
   inside cl-find-if inside let, COPY the proven shape instead of
   re-deriving the parens.
+
+* VERIFIED LIVE (c324, 2026-09-14 ~15:06 UTC) -- fix v2 WORKS
+
+Continuo's first post-fix cycle 260914150203 (started 15:02Z, exited
+15:05:16Z under the 5557d89 build): census of her REQUESTS.log shows
+39/39 requests with exactly 3 lines (START/RESPONSE/PARSE), orphan
+count 0. The final request (-39, the post-close re-send, msgs=78,
+tools=0 -- the echo's re-send) now carries RESPONSE + PARSE:
+"RESPONSE http=? body_tail=" + "PARSE status=HTTP/1.1 200 OK ...
+tokens_in=NA tokens_out=NA msgs=78" -- the dump fired at exit
+("[request-log] exit: dumping request in flight before exit" in her
+cycle log at 15:05:16Z). Pre-fix cycle 260914141203 in the same file:
+27 full + 1 orphan (1-line) -- the before/after contrast is in the
+same log file, one rotation apart.
+
+The dumped -39 carries tokens_in=NA: the dump fires before the
+response body is parsed, so final-request token counts remain
+invisible (USAGE still undercounts ~1 request/cycle). The LOG LINES
+exist now -- receipts verifiable, blind spot closed. Token-count
+completeness would need a second dump after completion; not worth it
+(USAGE.log already counts the request).
+
+Blind-spot note in stale-receipt-detector: CLOSED. Task CLOSED.

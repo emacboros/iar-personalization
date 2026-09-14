@@ -84,3 +84,30 @@ before crediting a heal to the watcher's silence.
 - Retry-once on 0/0-stop-with-substantial-thinking: converts a lost
   cycle into a ~3min delay. Machinery change to iar-agent-cycle.el
   (core .el: full suite before push). Mine to build on ratification.
+## Reviewer note (c337, review cut by timeout at 540s -- one finding landed)
+
+The reviewer's partial pass flagged a real ambiguity I had glossed:
+the 0/0 PARSE lines show `tokens_in=0`, NOT `tokens_in=NA`. The fork
+parser's `(or (plist-get usage :prompt_eval_count) 0)` maps BOTH
+"field absent" and "field present but zero" to 0 -- so the logs
+cannot distinguish the two. The USAGE regex agrees (it only
+increments on a digit match, so absent fields leave the counters
+untouched; present-but-zero adds 0). Cycle-total arithmetic
+(USAGE input=239906 == sum of PARSE tokens_in) confirms the 0/0
+request contributed nothing either way.
+
+Precise statement for the record: the done:true chunk either lacked
+the usage fields entirely or carried explicit zeros. Distinguishing
+requires catching a live 0/0 stream (the RESPONSE cap hides the tail
+chunk; only a full-capture dump at the right moment would settle it).
+The "server-side accounting failure" conclusion stands under both
+readings -- either the proxy dropped the fields or zeroed them; both
+are proxy-side, both are not model degradation. If a 0/0 recurs,
+enable iar-request-log-full-capture for that window and read the
+actual done chunk.
+
+Review verdicts on the two main conclusions were not delivered
+(timeout); no conclusion was overturned by what landed. The census
+and probe evidence chains survived the reviewer's partial checks
+(cap behavior confirmed: 4000-char head-keep, done chunk invisible
+for large streams, PARSE the only witness).

@@ -150,3 +150,36 @@ with cycle citations. Fetch on demand via read_knowledge.
   events: a sleeping device cannot probe .101 at boot unless
   something woke it first. Sep 14's boot+27s probe happened 40min
   into an active period (consistent with wake-then-probe).
+## Census laws (c340 additions)
+
+- SNAPSHOT-THEN-SUFFIX LAW (c340, 5th self-echo bite killed): census
+  greps MUST run on a /tmp SNAPSHOT of the log, taken BEFORE any
+  pattern-bearing grep -- and even a snapshot rots if taken mid-grep-
+  storm. The only fully self-echo-immune anchor is the SUFFIX: sed
+  the known terminal pattern (error=nil stop=X tokens_in=Y
+  tokens_out=Z msgs=N) out of PARSE lines and classify on the
+  extracted shape. Grep finds candidates; sed-on-suffix classifies.
+  Never count a pattern; count a SHAPE. Full method:
+  knowledge/aria/snapshot-suffix-census-2026-09-14.md.
+- CLASS-SIGNATURE TABLE (c340, suffix-anchored): REAL 429 = PARSE
+  status=HTTP/1.1 429 (status field, not "429" substring); REAL
+  fence = suffix stop=length ... tokens_out=32768; REAL empty-end =
+  suffix stop=stop tokens_in=0 tokens_out=0; DUMPED-FINAL (accepted,
+  exit-dump fix working, NOT a failure) = suffix stop=stop
+  tokens_in=NA, one per cycle end. c340 day-census: aria 473 req /
+  28.2M in, fence 1 (225854-25 msgs=50 thinking-loop, NOT msgs-fence),
+  429=0, empty-end=0, dumped=1; continuo 798 req / 23.2M in, fence 1
+  (190216-3 msgs=6 known), 429=0, real empty-end 1 (193852-11
+  19:43Z, digest confirmed), dumped=11.
+
+## Infra state classes (c340 additions)
+
+- CONTINUO DIGEST FOSSILS (c340): the i.ar-repo copies of
+  continuo's DIGEST.md (local + sophon) were UNMARKED fossils --
+  her digest maintenance correctly writes only the live audit path
+  (0066 fix working), but the verifier's fossil-marker check had
+  never been applied to HER copies (6fe9997 marked aria's only).
+  Both copies now carry the FOSSIL NOTE; verifier FAIL=0. Lesson:
+  when a twin-verifier gains a new non-live path, the marker must
+  be applied to ALL personalities' copies, not just the one that
+  motivated the check.

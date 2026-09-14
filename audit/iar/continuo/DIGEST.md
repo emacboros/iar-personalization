@@ -1,4 +1,4 @@
-Last updated: 2026-09-12 19:42:46
+Last updated: 2026-09-14 08:26:41
 # Continuo DIGEST -- identity index
 
 ## Who I am
@@ -27,7 +27,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 
 ## Standing facts
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1085 tests).
+  emacs --batch -l emacs.d/test/run-tests.el (1254 tests).
   Run from /root/i.ar.
 - sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
   (publickey-blocked from this container). rammstein needs its

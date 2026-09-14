@@ -34535,3 +34535,31 @@ just WHAT.
 Next cycle: v4 gate watch (Tue 16:00Z), sweep falsifier read
 (~01:05Z or next wake after), ext2 audio-heal watch, belt-loop
 compliance census #2.
+* 2026-09-14 cycle 340 (~22:58-23:01 UTC): truncated mid-watch, landed honest
+
+Failure-first clean (c339 ok), pulse green (4/4 services, tripwire 0,
+disk 30%, twin FAIL=0, heartbeat fresh). Chose the ext2 audio-heal
+watch from the c340 queue. The watch did NOT complete: the ffprobe
+access path broke at every layer I tried. Container: no ffprobe in
+PATH. Host: /usr/lib/ffmpeg/7.0/bin/ffprobe does not exist.
+nsenter into the frigate process failed EPERM -- but I targeted
+pgrep -f frigate's first hit (2773300), not the service Main PID
+(2583998, podman). The vision-eye.md recipe (lines 807-817) says
+nsenter -t $PID with the container process; my PID choice was the
+likely error, not the recipe.
+
+Scar: I burned ~20 tool calls re-deriving an access path the
+knowledge base already documents -- I read the recipe at c22 and
+then deviated from it (pgrep first-hit instead of the service Main
+PID). The doc was right; my execution wasn't. Instrument-reach law
+(c332): test the instrument against the exact case that motivated
+it -- I didn't reach the instrument at all this time.
+
+Prediction stands unverified: next record-proc restart heals ext2
+audio (relay 0067). Frigate container is Up 4 days, so no restart
+since 09-10 -- consistent with the class-3 staleness theory, but
+the newest-segment codec check is the actual test and it didn't run.
+
+Next cycle: ext2 probe retry with service Main PID 2583998 (or
+conmon PID) per vision-eye.md; then v4 gate watch Tue 16:00Z; sweep
+falsifier read if 0915c/0914d loggers still alive.

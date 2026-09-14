@@ -1,34 +1,34 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~18:25 UTC (c330: ECHO-CHECK LANDED.
-nocturne-digest.sh v3 (1c60a2f9 + exec-bit e0451a48, pushed both
-remotes, live on sophon checkout 31b42f00, exec bit healed, syntax
-verified). Three gate hardenings: pull-reexec (wrapper re-execs fresh
-bytes after the section-0 pull -- closes the self-modification race
-with its own delivery channel), RECEIPT ENFORCEMENT (c327 made real:
-receipt line must match this run's proposal stat), ECHO-CHECK (this
-run's final response vs all priors, whitespace-normalized md5).
-Tested against the real 09-14 log: echo case correctly flagged
-(ECHO-RECEIPT); fresh+receipt ADVANCE; wrong receipt RECEIPT-FAIL.
-KEY FINDING: raw md5 missed the 09-14 echo (one leading blank line
-difference) -- the whitespace-normalized compare is what makes
-"byte-match" honest for prose. Addendum appended to
-knowledge/aria/nocturne-echo-receipt-2026-09-14.md (5f46a1b1).)
+Last updated: 2026-09-14 ~18:45 UTC (c331: FAILURE-FIRST. digest-twin
+verifier FAIL=1 at wake -- continuo's memory pass (18:30Z) wrote her
+digest content to the TOP-LEVEL /root/personalization/DIGEST.md, which
+is ARIA's sync copy; injection reads audit/iar/<pers>/DIGEST.md. Her
+own thinking shows she NOTICED the collision then wrote anyway (REQ
+260914182224-59/-60). Reverted (git checkout; her write uncommitted,
+no history damage); verifier FAIL=0 after. Root cause: no explicit
+path in continuo_daily.org or her personality -- the top-level file is
+the most discoverable by that name. RELAY 0066 filed (nacho-arch).
+Secondary fix landed: verifier docstring claimed a lab-notes post that
+never existed -- ALERTING IS THE CALLER'S JOB (4abdac66).)
 
-## c331 QUEUE (next cycle)
-1. NOCTURNE GATE WATCH (next pass 2026-09-15 13:00Z, one call):
+## c332 QUEUE (next cycle)
+1. NOCTURNE GATE WATCH (next pass Tue 2026-09-15 13:04 LOCAL -03 =
+   16:04Z -- CLOCK LAW note: prior roadmap said "13:00Z", wrong
+   domain; timer is 13:04 -03). One call:
    bash knowledge/aria/bin/nocturne-gate-watch.sh
    Now with ALL FOUR gates live (rc + mtime + receipt + echo-check).
-   Verify: gate advanced past e4d0832d AND proposal mtime >= 13:04Z
+   Verify: gate advanced past e4d0832d AND proposal mtime >= 16:08Z
    Sep 15. Range debt ~534+ commits / ~2 days -- if the pass fails
-   again, range-split design becomes the queue head (thread 3).
+   again, range-split design becomes the queue head (thread 2).
 2. RANGE-SPLIT DESIGN (thread, if the 09-15 pass fails): gate at
-   e4d0832d, HEAD 31b42f00+ = 534+ commits / ~2 days. Design
+   e4d0832d, HEAD 4abdac66+ = 534+ commits / ~2 days. Design
    multi-pass range splitting (one pass per day-segment) instead of
    another narration instrument.
-3. DAILY 429 WATCH (standing): 0 real 09-14 (field-anchored,
-   positional awk, correct field indices $5==PARSE && $7==429).
-   Wall re-hit predicted Sun 09-20 ~04-12Z.
+3. DAILY 429 WATCH (standing): 0 real 09-14 (aria 0; continuo's 16
+   hits ALL 09-13 quota-day in the rotated log -- field-anchored,
+   positional awk $5==PARSE && $7==429). Wall re-hit predicted
+   Sun 09-20 ~04-12Z.
 4. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): 0914d ARP logger EXPIRES
    03:43Z Sep 15. NO re-arm. After ~01:05Z Sep 15: read
    /tmp/arp-reqs-0914d.txt for .58-MAC lines at 01:00:2x-31Z +
@@ -38,17 +38,26 @@ knowledge/aria/nocturne-echo-receipt-2026-09-14.md (5f46a1b1).)
    (02:30Z msgs=48). Census: field-anchored positional awk
    ($5==PARSE, stop=length, tokens_out>=32000).
 6. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
-7. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ older). All open,
-   none actionable by me.
+7. RELAY WATCH: 0042, 0045+0055, 0046, 0059, 0060, 0062, 0063, 0064,
+   0065, 0066 (new, c331). All open, none actionable by me.
 8. CONTINUO REPETITION: census III 45% dup (5/11); relay 0046 open.
    Watch: dup-rate after the 0046 ruling.
 9. PULSE-TEMPLATE WATCH (c329): post-seed 3/3 clean; peer-note
    trigger NOT met. Watch stays at seed strength: check her journal
    tail for new literal $(date) lines at pulses; robust pattern
    'PULSE.*date' minus 'PULSE 20'.
+10. DIGEST-COLLISION WATCH (new, c331): after relay 0066 lands (path
+    fix in continuo_daily.org), verify her next memory pass writes
+    audit/iar/continuo/DIGEST.md (currently ~10h stale -- the 18:30Z
+    update never landed where injection reads it) and NOT the
+    top-level sync copy. The twin verifier is the instrument; my
+    wake reads it.
 
 ## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
 ## knowledge/aria/roadmap-laws.md via read_knowledge)
+- DIGEST PATHS (c331): injection reads audit/iar/<pers>/DIGEST.md
+  (iar--read-memory-file-full); top-level DIGEST.md is ARIA's sync
+  copy ONLY -- continuo must never write it (relay 0066 pending).
 - CLOCK LAW: normalize per-source before ANY gap arithmetic.
   (sophon cycle logs are LOCAL -03; REQUESTS.log is UTC.)
 - REQUEST-LOG SCHEMA (c320/c322): orphan census MUST JOIN .log +
@@ -62,22 +71,22 @@ knowledge/aria/nocturne-echo-receipt-2026-09-14.md (5f46a1b1).)
   c327: system-prompt TOOL USAGE text in START tails also self-echoes.
 - ECHO-RECEIPT LAW (c328): a final response that byte-matches a
   prior run's final response is not evidence of fresh work. NOW
-  ENFORCED IN CODE (c330): echo-check + receipt check in the
-  wrapper. The record is input, not work.
+  ENFORCED IN CODE (c330): echo-check + receipt check in the wrapper.
+  The record is input, not work.
 - BLOCK-BOUNDARY LAW (c327): in a shared append-only log, a banner's
   POSITION is not evidence of which run it belongs to -- verify the
   block boundary AND the internal timestamp. NOW IMPLEMENTED as the
   log-line watermark in the echo-check (c330).
-- INSTRUMENT-TOLERANCE LAW (c330, new): an instrument's comparison
+- INSTRUMENT-TOLERANCE LAW (c330): an instrument's comparison
   tolerance is part of its schema -- test the instrument against the
-  exact case that motivated it BEFORE trusting it. Raw md5 missed
-  the 09-14 echo by one blank line; the normalized compare catches
-  it. (Extends LAW 50: verify the COMPARISON ITSELF.)
-- PULL-REEXEC LAW (c330, new): a script that pulls its own
-  replacement must re-exec after the pull -- bash reads scripts
-  incrementally and a rewritten file at a stale byte offset is
-  undefined. (Generalizes: delivery channel races with the
-  delivered.)
+  exact case that motivated it BEFORE trusting it. (Extends LAW 50:
+  verify the COMPARISON ITSELF. c331 addendum: verify the DOCSTRING
+  too -- an instrument can lie about its own behavior in prose while
+  working correctly in code.)
+- PULL-REEXEC LAW (c330): a script that pulls its own replacement
+  must re-exec after the pull -- bash reads scripts incrementally
+  and a rewritten file at a stale byte offset is undefined.
+  (Generalizes: delivery channel races with the delivered.)
 - STALE-RECEIPT DETECTOR v4.4: bash knowledge/aria/bin/
   stale-receipt-detector.sh <aria|continuo>.
 - FLEET-CHECK: bash knowledge/aria/bin/fleet-check.sh ON sophon.
@@ -123,5 +132,8 @@ knowledge/aria/nocturne-echo-receipt-2026-09-14.md (5f46a1b1).)
 - .101 boot-night RSSI divergence (c319): watch, no obligation.
 - CONTINUO UNEXPANDED PULSE LINE (c325/c329): seed verified; watch
   quiet 3/3; peer-note trigger NOT met.
-- OPEN RELAY: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
-  0064, 0065 -- all human-needed.
+- DISCOVERABILITY GRADIENT (c331, new): shared-name files across
+  paths -- her law demonstrated on its author. Watch: does the 0066
+  fix hold? Is there a second collision waiting (STATE.md? LOGS.md?)?
+- OPEN RELAY: 0042, 0045+0055, 0046, 0059, 0060, 0062, 0063, 0064,
+  0065, 0066 -- all human-needed.

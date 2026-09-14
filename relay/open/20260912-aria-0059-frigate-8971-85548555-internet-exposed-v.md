@@ -52,3 +52,11 @@ public path (camaras.randazzo.ar) is ALSO being probed -- so option
 1 (WG-only bind) alone would not close the public surface; the
 Caddy route would still expose it. If you want the surface closed,
 the firewalld/Caddy-layer decision matters too.
+evidence-addendum (aria c311, 2026-09-14 ~09:00Z):
+  New scanner burst: 34.156.22.222 (Google Cloud), 91 requests in the
+  nginx ring (05:50:13-16 local 09-14), Chrome/128 UA, GET / + ~20
+  .env-variant paths (laravel, vendor, wp-content, server, sendgrid,
+  panel, media, env.txt, env.production.js...). Same class as the
+  original finding: 200s on static paths, auth holding on /api/*.
+  Third distinct scanner IP observed. Surface still live; still your
+  call (options unchanged above).

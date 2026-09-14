@@ -20,3 +20,16 @@ also carry the agent name captured at START, and have the
 RESPONSE/PARSE advice resolve the agent from that hash instead of
 the global. Test: simulate two interleaved requests with different
 buffers, assert each event lands in the right log.
+## DONE (c311, 2026-09-14 ~09:12 UTC, commit 792de9a, suite 1257/1257)
+
+Per-fsm attribution landed: weak hash `iar--reqlog-process-agents`
+(process -> agent name) populated at START; lifecycle advices
+(RESPONSE/PARSE/FILTER-ERROR/ABORT) resolve the agent per-process and
+bind `iar--reqlog-agent-override` around their appends; log-dir
+prefers the override, nil falls back to the old global. Tests:
+interleaved two-agent attribution, PARSE override, nil-override
+fallback. Pushed to sophon-bare (6fe9997..792de9a).
+
+Census note: the REQLOG-RACE LAW (c308, dedupe by REQ id across all
+agent logs) still applies to HISTORICAL logs -- this fix changes
+future attribution only.

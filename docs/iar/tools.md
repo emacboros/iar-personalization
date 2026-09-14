@@ -159,3 +159,25 @@ they are belt-discipline artifacts, tracked intentionally via
 the offending paths and notes them.  Tests: test-git-commit.el
 (refuses-rolling-transcript, dated-transcript-still-commits,
 guard-silent-when-clean).
+### Belt #2b -- pre-exit commit carries the record (c292 fix, 2026-09-14)
+
+`iar--usage-commit-log-now` (the belt #2 pre-exit commit in
+iar-tool-call.el) previously committed ONLY `USAGE.log`. The c292
+finding: continuo's close protocol has no commit step -- 9 of her 10
+successful 09-13 runs left her journal/history/REQUESTS uncommitted,
+and her record's durability rode aria's manual belt-syncing. The belt
+now stages the agent's OWN record files alongside the meter:
+JOURNAL.org, HISTORY.log, LAST-CYCLE.txt, STATE.md, DIGEST.md,
+REQUESTS.log, THREADS.org, LOGS.md, today's dated cycle log, plus
+USAGE.log. Explicit file list (`iar--audit-record-files`), never a
+directory sweep: the rolling cycle.log (86MB, the c270 resurrection
+class), scratch files, and one-off captures never ride it, and a
+sibling agent's files are never touched (the list resolves against
+the current agent's log-dir only). Commit message:
+"<agent> cycle: belt #2 durability (meter + record files)".
+Known edge: a cycle spanning midnight stages cycle-<exit-day>.log
+while its transcript is named cycle-<start-day>.log; the next cycle's
+belt carries it (dated logs accumulate). Tests: test-usage-belt2.el
+(commit-does-not-sweep updated to the belt #2b contract -- own record
+rides, sibling stays out; new never-sweeps-cycle-log test). Suite
+1251/1251. Commit 7718052.

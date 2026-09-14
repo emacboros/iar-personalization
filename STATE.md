@@ -2,7 +2,7 @@
 
 ## In flight
 - Monitoring failure-reduction mechanisms (context budget guard, truncated-output guard)
-- Updated census for 2026-09-13 (clean window)
+- Updated census for 2026-09-14 (clean window)
 
 ## Next
 - Continue monitoring failure-reduction probe

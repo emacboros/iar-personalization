@@ -14,7 +14,7 @@
 #   old (epoch math only, no local-time parsing -- c234 law). Live-
 #   verified both branches (age=0s ok; +7200s -> STALE).
 
-# v2.22 (aria cycle 294, 2026-09-14): KNOWN_FAULT_EXT4_SEG -- ext4
+# v2.23 (aria cycle 295, 2026-09-14): KNOWN_FAULT_EXT2_SEG -- ext2
 #   (.104) power-dead since 09-12 ~10:00Z holds ear-check FAIL=1
 #   standing (NO-SEGMENT) while frigate watchdog crash-loops on it
 #   every 10s (~14k crashes/2d, 111k journal lines/day vs 40k
@@ -332,6 +332,14 @@ KNOWN_FAULT_EXT1_SEG="exterior_1"
 #   segments reappear = RECOVERY event, FAIL loudly (withdraw the
 #   flag by emptying KNOWN_FAULT_EXT4_SEG after verification).
 KNOWN_FAULT_EXT4_SEG="exterior_4"
+# v2.23 (aria cycle 295, 2026-09-14): ext2 (.102) POWER-DEAD since
+# 2026-09-14 ~02:00Z (camera-side rssi.log stopped 01:45:00Z, last
+# recording segment 01:59:52Z written 02:00:21Z, first pull failure
+# 02:00:18Z; relay 0063 filed, power cycle = Nacho's hands). Same
+# contract as KNOWN_FAULT_EXT4_SEG: known-fault + STALE/NO-SEGMENT =
+# watch state; segments fresh again = RECOVERY, FAIL loudly (withdraw
+# by emptying KNOWN_FAULT_EXT2_SEG after verification).
+KNOWN_FAULT_EXT2_SEG="exterior_2"
 for cam in $CAMERAS; do
   # v2.16: newest 3 COMPLETED segments (tail -4 | head -3: skip the
   # in-progress newest, which frigate is still writing -- a partial
@@ -341,7 +349,8 @@ for cam in $CAMERAS; do
     # v2.22: known power-dead camera = watch state, not FAIL (same
     # contract as KNOWN_DEAF). Segments reappearing = RECOVERY, FAIL
     # loudly so the flag gets withdrawn.
-    if [ -n "$KNOWN_FAULT_EXT4_SEG" ] && echo " $KNOWN_FAULT_EXT4_SEG " | grep -q " $cam "; then
+    KNOWN_SEG="$KNOWN_FAULT_EXT4_SEG $KNOWN_FAULT_EXT2_SEG"
+    if echo " $KNOWN_SEG " | grep -q " $cam "; then
       echo "$cam NO-SEGMENT (known-fault power-dead, watch state; power cycle pending)"
     else
       echo "$cam NO-SEGMENT"; FAIL=1
@@ -350,7 +359,16 @@ for cam in $CAMERAS; do
   fi
   n=$(echo "$segs" | tail -1)
   age=$(( $(date +%s) - $(stat -c %Y "$n") ))
-  if [ "$age" -gt 120 ]; then echo "$cam STALE(${age}s)"; FAIL=1; fi
+  if [ "$age" -gt 120 ]; then
+    # v2.23: known power-dead camera with old-but-present segments =
+    # watch state (same contract as the NO-SEGMENT branch above).
+    KNOWN_SEG="$KNOWN_FAULT_EXT4_SEG $KNOWN_FAULT_EXT2_SEG"
+    if echo " $KNOWN_SEG " | grep -q " $cam "; then
+      echo "$cam STALE(${age}s) (known-fault power-dead, watch state; power cycle pending)"
+    else
+      echo "$cam STALE(${age}s)"; FAIL=1
+    fi
+  fi
   # v2.16 audio verdict: probe the 3-segment window. noaudio counts
   # segments with NO audio stream OR zero decoded samples (both are
   # "no usable audio"). FAIL only if ALL 3 are dead -- a single stub

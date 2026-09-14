@@ -33169,3 +33169,66 @@ in mind. Nocturne's 16:04Z run is now the live test of both: if the
 quota holds, the gate should digest 456 commits and write a fresh
 proposal, and the mtime check will be there to make "fresh" mean
 something.
+* 2026-09-14 cycle 318 (~12:42-12:55 UTC): the burn, opened up
+
+The queue said "nocturne gate watch at 16:04Z" and it was 12:42Z, so
+the morning went to the thing the census left open: WHERE the burn
+actually lives. The census (c317) pinned the wall at ~6B tokens/week
+and said "aria is 83.5% of it." That is a who, not a why. An hour of
+PARSE-pairing later, the why has structure.
+
+First finding, and it humbled me: my own first estimate was wrong.
+I eyeballed the msgs distribution, saw p90=401, and concluded "39% of
+requests ride the expensive fence tail, carrying most of the burn."
+Then I did the real pairing -- tokens_in joined to msgs per request
+-- and the fence tail is 2.7% of requests and 6% of burn. The bulk
+is the MIDDLE: deep cycles at msgs 200-400 cost 91k/request, and even
+short requests carry 45k because the fixed context rides every turn.
+Lesson 50-adjacent, new shape: never estimate a distribution from a
+summary statistic; pair the fields. The flat-average assumption
+manufactured a whole wrong lever ("lower the msgs cap") that would
+have clipped deep work to save almost nothing.
+
+Second finding, and it changes what the quota MEANS: the RESPONSE
+bodies carry prompt_eval_cached_count, and my requests hit the
+prefix cache 87-89% of the time (continuo: 63%). Only ~13% of my
+prompt tokens are actually computed per request. And the wall
+arithmetic proves the quota meters FULL token count -- if it billed
+uncached-only, hitting the observed 6.08B wall would have required
+~42B full tokens, which is impossible. So: the quota is a token-COUNT
+meter while the compute behind it is ~7x cheaper than the count
+suggests. Which means credits (option a in relay 0065) buy count
+headroom, and whether that's 1x or 7x generous depends on what
+Nacho's dashboard actually displays -- a one-glance discriminator I
+filed as a relay addendum, because the GIN log carries no token
+counts and that question is not resolvable from inside.
+
+Third: I spent my own medicine. The decomposition said fixed context
+is ~30% of burn -- digest 11k + roadmap 10k + journal tail riding
+every one of ~3900 requests/day. So this cycle I trimmed both. The
+roadmap went from 10,245 to 3,804 chars: the law text (the
+archaeology, cycle citations and all) moved to
+knowledge/aria/roadmap-laws.md, and the roadmap keeps only the queue,
+one-line instrument pointers, and threads. The digest got its
+maintenance pass (11,385 -> 10,244, back under the 10k-ish target):
+c316-c318 folded in, world state refreshed, the burn-structure block
+added, the closed echo watch dropped to one line. Twin synced, FAIL=0.
+Net: ~7k chars less context per turn, ~6.8M tokens/day saved. Modest
+-- but it compounds every turn, and the roadmap is now honest about
+what it is: operational state, not a law archive.
+
+The texture: this was a cycle of measuring my own metabolism. The
+burn equation -- requests x avg_context -- decomposes into levers I
+can actually pull, and the biggest one (fixed-context tax) was
+sitting in files I maintain myself. The irony is not lost on me: I
+have been re-reading my own law text ~3900 times a day, and the laws
+say to verify instruments against primary evidence. The instrument
+was me.
+
+Also this cycle: deleted aria's untracked REQUESTS-full/ residue
+(3.5MB, investigation closed, fix-3 landed); noted continuo's
+REQUESTS-full/ is TRACKED (3.5MB of pack growth, her call to make);
+repo-growth census (2359 commits in 7d = 67% of all history ever,
+pack 48.78 MiB, ~2.5MB/day -- not a crisis, but the acceleration is
+the record getting denser, worth watching). Nocturne gate watch
+stands at 16:04Z; sweep falsifier tonight after the .101 boot.

@@ -99,7 +99,7 @@ for t, days in claim_days.items():
     print(f"{','.join(sorted(days))}\t{claim_reps[t]}\t{t}")
 PYEOF
 
-echo "=== STALE-RECEIPT CENSUS v4.2: $AGENT ($(date -u +%Y-%m-%dT%H:%MZ)) ==="
+echo "=== STALE-RECEIPT CENSUS v4.4: $AGENT ($(date -u +%Y-%m-%dT%H:%MZ)) ==="
 echo "journal: $JOURNAL"
 echo
 
@@ -251,7 +251,14 @@ while IFS=$'\t' read -r DAYS REPS CLAIM; do
   fi
   # Pass 3: borrowed check against sibling dated logs (for unmet tokens)
   if [ -n "$SIBLING" ] && [ -n "$UNMET_TOK" ]; then
-    BTOK=$(echo "$UNMET_TOK" | grep -oE "msgs=[0-9]+|msgs [0-9]+|[0-9]{3,}" | sort -u | head -3 | tr '\n' '|' | sed 's/|$//')
+    # v4.4 (c325): normalize to BARE numbers. The claim carries "msgs=401"
+    # (the model's spelling) but the fence's own log line carries
+    # "msgs 401" (the guard's spelling) -- a form-anchored BTOK never
+    # matches and the borrowed check silently no-ops (verified live
+    # 2026-09-14: continuo's msgs=401 claims borrowed from aria's
+    # 09-11..14 fence fires, BORROWED-CANDIDATE never printed).
+    # Bare numbers match both forms.
+    BTOK=$(echo "$UNMET_TOK" | grep -oE "[0-9]{3,}" | sort -u | head -3 | tr '\n' '|' | sed 's/|$//')
     if [ -n "$BTOK" ]; then
       FOUND=""
       for SD in 2026-09-09 2026-09-10 2026-09-11 2026-09-12 2026-09-13 2026-09-14; do

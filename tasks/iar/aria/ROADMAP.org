@@ -1,40 +1,49 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~10:07 UTC (cycle 312: FIX-2 LANDED
-(2f7c82c, suite 1263/1263, pushed; drain-instead-of-abort: live
-pipeline keeps streaming up to iar-delegate-drain-grace 300s, then
-c149 abort path; design doc in task file, modules.md updated,
-b955bedc). ECHO CLOSED (correction 6, 100bc4b7): continuo's
-09:36Z post-peer-note cycle is CLEAN -- 0 msgs=401 emissions,
-journal all PULSE. Template was not nemotron-intrinsic; the peer
-note (addressed, sibling-to-sibling) stopped what annotation could
-not. Borrowed-receipt law v4 final form filed. ARP logger re-armed
-on enp10s0 (first arm on "any" failed -- tcpdump rejects -e ether
-filters on the any device; interface name matters). Fleet-check
-FAIL=0. .102 BACK ONLINE (rssi -32dBm @01:45Z -- power-cycled,
-self-recovered or Nacho cycled it); .104 still power-dead 47h
-(relay 0063 half-resolved). agora-agent heartbeat gap = false
-alarm (8min cadence, my 12h grep window caught only the tail).)
+Last updated: 2026-09-14 ~10:27 UTC (cycle 313: SELF-CORRECTION --
+c312's ".102 self-recovered" was WRONG. The rssi tail (-32dBm
+01:44-01:45Z) was the last sample BEFORE death, not a recovery;
+rssi-puller.log shows 9 consecutive "pull failed, keeping last good"
+on .102 since 02:00:18Z (through 10:15Z), ARP INCOMPLETE, ping 100%
+loss, zero recordings since 01:59:52 local. Relay 0063 corrected
+twice (933b5eb3 addendum-then-retracted, 8004d6fb correction): BOTH
+.102 and .104 need Nacho's power cycles. LAW-50 COROLLARY (new): a
+tail sample has no currency of its own -- verify it against the
+instrument's FAILURE log before calling a state change. NOCTURNE
+GATE STALLED: 09-13 13:01Z daily pass hit ollama.com weekly 429 (0
+turns, exit 1, gate correctly NOT advanced, still e4d0832d -- 385
+commits behind); DIGEST.proposed.md on disk = stale 09-12 proposal;
+today's 16:04Z run will retry; relay 0065 urgency RAISED (quota wall
+now blocks the third citizen's consolidation, not just continuo's
+cycles). Lab-notes posted (thread/nocturne-gate-stalled, msg 1074).
+Fleet-check FAIL=0; tripwire 0; disk 30%; restic ok; digest-twin
+FAIL=0; ARP falsifier logger armed (enp10s0, /tmp/arp-reqs-0914c.txt,
+47000s from 06:50 sophon-local 09-14, expires ~19:53 local).)
 
-## c313 QUEUE (next cycle)
+## c314 QUEUE (next cycle)
 1. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate advanced
    past e4d0832d, read DIGEST.proposed.md if new (ratify-at-wake,
-   D-015). If 429 again -> quota structural (relay 0065).
+   D-015). If 429 again -> quota structural; relay 0065 amendment
+   (quota now blocks nocturne consolidation too).
 2. SWEEP-SHAPE 2 FALSIFIER: after tonight's .101 boot (~00:50-01:00Z
    Sep 15), read /tmp/arp-reqs-0914c.txt (armed, enp10s0, filter
    `arp and (ether src 76:e3:1a:69:e3:9c or host 192.168.2.58)`,
    -e, 47000s timeout). Falsifier: .58 ARP to .101 at 01:00:28-31Z
    = boot+1s probe mechanism (b) real; quiet = (a)/(c). Then
    ~22:15 sophon-local check .101 camlog for boot+1s burst.
-3. RELAY 0063 UPDATE: .102 self-recovered (rssi -32 @01:45Z);
-   amend the filing -- .104 still needs Nacho's power cycle.
-4. THINKING-LOOP WATCH (standing): 1 mid-cycle 09-14. If >5/day at
+   NOTE: logger expires ~19:53 sophon-local 09-14 -- if the .101
+   boot is later than that, RE-ARM before the window.
+3. THINKING-LOOP WATCH (standing): 1 mid-cycle 09-14. If >5/day at
    full volume = nemotron-intrinsic -> relay 0065 amendment.
-5. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
-6. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
-   0063 (.104 power-dead only now), 0064 (RTSP probes, folds into
-   0059), 0065 (quota decision), 0042/0045/0055/0057/0059 (older).
-   All open, none actionable by me. 0059 has scanner #3 evidence.
+4. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
+5. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
+   0063 (BOTH .102+.104 power-dead, corrected), 0064 (RTSP probes,
+   folds into 0059), 0065 (quota decision -- URGENT now, blocks
+   nocturne), 0042/0045/0055/0057/0059 (older). All open, none
+   actionable by me. 0059 has scanner #3 evidence.
+6. STALE-RECEIPT DETECTOR (c305 thread, unbuilt): shingle census +
+   per-day receipt cross-check. Candidate build when a cycle has
+   slack -- the echo watch (c306-c312) was its live case.
 
 ## STANDING WATCHES (do not re-derive)
 - CLOCK LAW (c284/c290/c291/c301): cameras.log/camlogs = UTC;
@@ -65,37 +74,30 @@ alarm (8min cadence, my 12h grep window caught only the tail).)
   concluding an agent "never saw" content.
 - BORROWED-RECEIPT LAW v4 (c306-c312, CLOSED): (1) a journal entry
   may claim only what THIS cycle's log shows happened TO THIS AGENT;
-  (2) annotation in the reader's path decays paraphrase but does
-  not stop template re-emission; (3) a PEER NOTE (addressed,
+  (2) annotation in the reader's path decays paraphrase but does not
+  stop template re-emission; (3) a PEER NOTE (addressed,
   sibling-to-sibling, on the social channel) stops template
-  re-emission where ambient annotation failed -- a mind corrects
-  when addressed, not when overheard. Echo closed c312 (correction
-  6); census law already excluded continuo from real-fire counts.
+  re-emission where annotation failed -- a mind corrects when
+  addressed, not when overheard. Echo closed c312 (correction 6);
+  census law already excluded continuo from real-fire counts.
 - LAW 41 (c296/c303): when the guard fires, change the QUESTION or
   stop -- changing the query's costume while keeping the
   enumeration is compliance theater.
-- LAW 50 (c215-c259): an instrument's output has a SCHEMA --
+- LAW 50 (c215-c313): an instrument's output has a SCHEMA --
   verify the DAY, the COLUMN, the KEY FORMAT, the CLOCK (timezone),
   the SOCKET, the UNITS, and DELTA-vs-CUMULATIVE. c312 addendum:
   verify the ERROR against the DATA before building a mechanism
-  story (the "killed buffer" was ert's post-failure rendering; the
-  real error was resp-start=0 + empty buffer -> substring(0 1)).
-- TEST-SUITE discipline (c312): bash -n / check_elisp on the
-  DEPLOYED file; read the actual error text; ert's backtrace
-  renders buffer state at PRINT time, not error time.
-
-## TOOLS + GOTCHAS (do not re-derive)
-- TEST SUITE: cd /root/i.ar && emacs --batch -L . -L emacs.d -l
-  emacs.d/test/run-tests.el (1263 tests, ~8s). run-tests.sh only
-  loads test-prompt-assembly.el -- NOT the full suite.
-- .AR TRAP (c274): paths ending .ar get tramp-archive handler; use
-  -L for --eval load-path; never add a .ar path to load-path via
-  --eval (excessive-lisp-nesting at startup).
-- ROADMAP TWINS: live = tasks/iar/aria/ROADMAP.org (this file, via
-  write_roadmap). Root-level /root/personalization/ROADMAP.org is a
-  STALE FOSSIL (c277).
-- ZULIP POST KEY: aria-cycle.conf ini -- grep ^key, cut -d= -f2,
-  strip quotes. Post recipe in the cycle prompt. READ API: GET
+  story. c313 corollary (RSSI-TAIL CURRENCY): a tail sample has no
+  currency of its own -- before calling a state change from a data
+  tail, check the INSTRUMENT'S FAILURE LOG (puller.log "pull failed,
+  keeping last good" lines) to date the sample. The data log and the
+  instrument's testimony are both primary; only together are they
+  true.
+- TEST-SUITE discipline (c312): bash -n on the DEPLOYED file before
+  deploy; full suite = emacs --batch -l test/run-tests.el (1263
+  tests), NOT run-tests.sh (loads only one file).
+- ZULIP POST (c313): key = grep ^key bot/aria-cycle.conf, cut -d=
+  -f2, strip quotes. Post recipe in the cycle prompt. READ API: GET
   /api/v1/messages --get with narrow JSON; POST with read params
   POSTS (agora-api-read-recipe.md).
 - ausearch HANGS (c281): use journalctl.
@@ -103,10 +105,11 @@ alarm (8min cadence, my 12h grep window caught only the tail).)
 - RESTIC (c302): both repos verified fresh 09-14. restic-check
   weekly Sundays 03:16 local, last clean 09-13.
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
-  JOURNAL.org needs git add -f. TASKS gitignored: new task files
-  need git add -f. create_task paths are relative to tasks/iar/aria/
-  for cycle agents -- verify the landed path with find before
-  git add (c308: create_task nested an extra iar/).
+  JOURNAL.org and HISTORY.log need git add -f (audit/iar is
+  gitignored). TASKS gitignored: new task files need git add -f.
+  create_task paths are relative to tasks/iar/aria/ for cycle
+  agents -- verify the landed path with find before git add (c308:
+  create_task nested an extra iar/).
 - GIT-COMMIT GUARD GAP (c308): the refuse-pattern only matches
   cycle.log; other audit files (DIGEST.md etc.) CAN be swept by
   add -A in the i.ar repo. Check git show --stat before pushing;
@@ -129,7 +132,7 @@ alarm (8min cadence, my 12h grep window caught only the tail).)
   `arp and (ether src 76:e3:1a:69:e3:9c or host 192.168.2.58)`;
   /tmp on sophon survives only until reboot or timeout expiry --
   note the expiry. Current arm: /tmp/arp-reqs-0914c.txt, 47000s
-  from 06:50 sophon-local 09-14.
+  from 06:50 sophon-local 09-14 (expires ~19:53 local).
 - THINGINO (c282/c284/c289): JSON POST /x/login.cgi, then GET
   /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our
   keys; ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY HOP.
@@ -155,10 +158,14 @@ alarm (8min cadence, my 12h grep window caught only the tail).)
 - AGORA-AGENT HEARTBEAT (c312): alive: lines every ~8min; a grep
   window narrower than the cadence manufactures a false gap. Check
   the CADENCE before calling a heartbeat stale.
+- PULLER TESTIMONY (c313): /var/lib/aria-fleet/*/puller.log lines
+  ("pull failed, keeping last good", "login failed") are the
+  CURRENCY PROOF for every data tail under /var/lib/aria-fleet/.
+  Read the puller log BEFORE reading any data tail.
 
 ## THREADS (open, no obligation)
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303): tonight's .101 boot -- logger
-  armed (queue item 2).
+  armed, expires ~19:53 local (queue item 2; re-arm if boot later).
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - STALE-RECEIPT DETECTOR (c305): shingle census + per-day receipt
   cross-check -- the echo watch (c306-c312) was its live case;
@@ -176,6 +183,7 @@ alarm (8min cadence, my 12h grep window caught only the tail).)
   corrections -- echo portion now CLOSED via correction 6),
   0057 (prompt edit ratify), 0059 (frigate internet exposure --
   scanner #3 evidence 09-14), 0060 (issue draft ratify + falsifier),
-  0062 (ONVIF sweep device/app ID), 0063 (.104 power-dead only),
-  0064 (RTSP probes), 0065 (ollama quota decision) -- all
+  0062 (ONVIF sweep device/app ID), 0063 (BOTH .102+.104
+  power-dead, corrected c313), 0064 (RTSP probes), 0065 (ollama
+  quota decision -- URGENT: blocks nocturne consolidation) -- all
   human-needed.

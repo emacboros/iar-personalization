@@ -1,5 +1,5 @@
 #!/bin/bash
-# nocturne-digest.sh v2 (2026-09-12, aria cycle 223)
+# nocturne-digest.sh v3 (2026-09-14, aria cycle 330)
 # ---------------------------------------------------------
 # Nocturne daily digest pass: change-gated one-shot consolidation.
 # Gate: personalization repo HEAD vs audit/nocturne/nocturne/LAST-DIGESTED-HEAD.
@@ -14,6 +14,25 @@
 # Back-compat: if the new STATE file is absent but the old
 # audit/iar/nocturne/ one exists, it is migrated (mv) so the gate
 # never re-digests an already-digested range.
+#
+# v3 (c330): three gate hardenings.
+#   1. PULL-REEXEC: the section-0 pull can rewrite THIS script (patches
+#      land via sophon-bare; the checkout ff-forwards here). Bash reads
+#      scripts incrementally, so continuing to execute a rewritten file
+#      at a stale byte offset is undefined. After the pull, re-exec the
+#      fresh bytes. NOC_REEXEC guard prevents a loop.
+#   2. RECEIPT ENFORCEMENT (c327 made real): the c327 prompt text asked
+#      for a RECEIPT line but nothing checked it. Now the extracted
+#      final response must contain a RECEIPT line whose stat output
+#      matches this run's proposal stat (second-precision timestamp +
+#      byte size).
+#   3. ECHO-CHECK (c328 law): this run's final response is extracted
+#      (anchored to this run's log line range -- block-boundary law)
+#      and md5-compared against every prior final response in the log.
+#      Byte-match = context-echo recycling = the record is input, not
+#      work = gate does NOT advance.
+# Gate advance now requires ALL of: rc=0, proposal mtime fresh this run
+# (c317), receipt present+matching, no echo match.
 
 set -u
 
@@ -23,6 +42,7 @@ LOGTAG="nocturne-digest"
 STATE="$PERS/audit/nocturne/nocturne/LAST-DIGESTED-HEAD"
 STATE_OLD="$PERS/audit/iar/nocturne/LAST-DIGESTED-HEAD"
 PROPOSED="$PERS/audit/iar/aria/DIGEST.proposed.md"
+DIGLOG=/var/log/nocturne-digest.log
 MODEL="deepseek-v4.1-flash:cloud"
 CTX=262144
 TIMEOUT=1800
@@ -32,14 +52,23 @@ WEEKLY=0
 ts() { date -u +%FT%TZ; }
 log() { echo "[$(ts)] $LOGTAG: $*"; }
 
+# resolve BEFORE any cd (a relative $0 must be resolved in the caller's cwd)
+SCRIPT_PATH=$(readlink -f "$0")
+
 cd "$PERS" || { log "FATAL: cannot cd $PERS"; exit 0; }
 
-# --- 0. pull latest record (file:// remote avoids ssh key questions)
-git fetch file:///home/git/repos/iar-personalization.git main -q 2>/dev/null
-if git merge --ff-only FETCH_HEAD -q 2>/dev/null; then
-    log "record fast-forwarded to $(git rev-parse --short HEAD)"
-else
-    log "record NOT fast-forwarded (diverged or dirty) -- continuing on local state"
+# --- 0. pull latest record, then RE-EXEC the fresh script (c330)
+# file:// remote avoids ssh key questions. If the pull rewrote this
+# script, the pre-exec bytes are stale -- re-exec gets the new ones.
+if [[ -z "${NOC_REEXEC:-}" ]]; then
+    git fetch file:///home/git/repos/iar-personalization.git main -q 2>/dev/null
+    if git merge --ff-only FETCH_HEAD -q 2>/dev/null; then
+        log "record fast-forwarded to $(git rev-parse --short HEAD)"
+    else
+        log "record NOT fast-forwarded (diverged or dirty) -- continuing on local state"
+    fi
+    export NOC_REEXEC=1
+    exec bash "$SCRIPT_PATH" "$@"
 fi
 
 # --- 0b. one-time state migration (v1 path -> v2 path)
@@ -99,12 +128,14 @@ echo "/root/personalization/audit/iar/aria/DIGEST.proposed.md"
 echo "$([[ $WEEKLY -eq 1 ]] && echo 'WEEKLY PASS: also do the repetition audit, THREADS gardening proposals, attic-move proposals, and file the debrief to the relay (relay file ours-direction ...).')"
 echo "Read the changed memory files listed above before writing."
 echo "Your fence: DIGEST.proposed.md only (plus weekly: one relay filing + proposals appendix)."
-echo "RECEIPT REQUIREMENT (c327): after the write_file call succeeds, run"
+echo "RECEIPT REQUIREMENT (c327, ENFORCED by the wrapper since c330): after"
+echo "the write_file call succeeds, run"
 echo "  stat -c '%y %s' /root/personalization/audit/iar/aria/DIGEST.proposed.md"
 echo "and quote its output VERBATIM on its own line in your final response"
-echo "(format: RECEIPT: <stat output>). A final response without a RECEIPT"
-echo "line whose mtime matches this run will be treated as a false receipt:"
-echo "the gate will not advance and the pass does not count."
+echo "(format: RECEIPT: <stat output>). The wrapper extracts your final"
+echo "response and verifies the RECEIPT against the disk. A final response"
+echo "without a matching RECEIPT line will not advance the gate and the"
+echo "pass does not count."
 } > "$PROMPT_FILE"
 
 PROMPT=$(cat "$PROMPT_FILE")
@@ -116,6 +147,13 @@ rm -f "$PROMPT_FILE"
 # (e.g. the 09-12 one that survived the 429 wall) existing on disk
 # must not mask an undigested range.
 PROP_MTIME_BEFORE=$(stat -c %Y "$PROPOSED" 2>/dev/null || echo 0)
+# c330: log line watermark -- the echo-check and receipt check must only
+# consider THIS run's log output (block-boundary law: position in an
+# append-only log is not evidence of which run a block belongs to).
+LOG_LINES_BEFORE=0
+if [[ -f "$DIGLOG" ]]; then
+    LOG_LINES_BEFORE=$(wc -l < "$DIGLOG")
+fi
 iar_wrap="/tmp/nocturne-wrap-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$iar_wrap/utils"
 cp -a /var/home/nacho/repos/i.ar/utils/iar.sh "$iar_wrap/utils/iar.sh"
@@ -136,21 +174,76 @@ bash "$iar_wrap/utils/iar.sh" --one-shot \
     --timeout "$TIMEOUT" \
     --gptel-fork /var/home/nacho/repos/gptel \
     --ssh-key aria_ed25519 \
-    >> /var/log/nocturne-digest.log 2>&1
+    >> "$DIGLOG" 2>&1
 rc=$?
 
 log "one-shot exit=$rc"
 
-# --- 5. verify the proposal was REWRITTEN this run before advancing the gate
-# (c317: existence alone is not freshness -- a stale proposal left by a
-# failed earlier run must not let the gate skip its range)
+# --- 5. gate decision (c317 mtime + c330 receipt + c330 echo-check)
+ADVANCE=0
 if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
     PROP_MTIME_AFTER=$(stat -c %Y "$PROPOSED" 2>/dev/null || echo 0)
     if [[ "$PROP_MTIME_AFTER" -gt "$PROP_MTIME_BEFORE" ]]; then
-        echo "$HEAD_NOW" > "$STATE"
-        log "proposal rewritten this run; gate advanced to $HEAD_NOW"
+        # extract every non-empty final-response block; prior runs'
+        # blocks from lines 1..watermark, this run's from watermark+1..
+        TMPD=$(mktemp -d /tmp/nocturne-echo-XXXXXX)
+        extract_blocks() {
+            awk -v out="$2" '
+                index($0, "=== BEGIN FINAL RESPONSE ===") {inb=1; buf=""; next}
+                index($0, "=== END FINAL RESPONSE ===") {
+                    if (inb && length(buf) > 0) {n++; printf "%s", buf > (out "b" n ".txt")}
+                    inb=0; buf=""; next
+                }
+                inb {buf = buf $0 "\n"}
+            ' "$1"
+        }
+        # normalize a block for comparison: strip CRs, trim, drop empty
+        # lines (c330: the 09-14 echo differed from its prior only by a
+        # leading blank line -- raw md5 missed it; whitespace-insensitive
+        # compare is the honest "byte-match" for prose)
+        norm_block() {
+            awk '{ gsub(/\r/,""); sub(/^[[:space:]]+/,""); sub(/[[:space:]]+$/,""); if (length($0)>0) print }' "$1" | md5sum | cut -d' ' -f1
+        }
+        extract_blocks <(head -n "$LOG_LINES_BEFORE" "$DIGLOG") "$TMPD/prior_"
+        extract_blocks <(tail -n +$((LOG_LINES_BEFORE+1)) "$DIGLOG") "$TMPD/cur_"
+        CURFILE=$(ls "$TMPD"/cur_b*.txt 2>/dev/null | sort -V | tail -1)
+        if [[ -z "$CURFILE" ]]; then
+            log "NOT advancing gate: no final-response block in this run's log range (lines $((LOG_LINES_BEFORE+1))..) -- nothing fresh to trust"
+        else
+            CUR_MD5=$(norm_block "$CURFILE")
+            ECHO_HIT=""
+            for pf in "$TMPD"/prior_b*.txt; do
+                [[ -f "$pf" ]] || continue
+                if [[ "$(norm_block "$pf")" == "$CUR_MD5" ]]; then
+                    ECHO_HIT="$pf"
+                    break
+                fi
+            done
+            PROP_STAT_AFTER=$(stat -c '%y %s' "$PROPOSED" 2>/dev/null || echo "")
+            STAT_DT=$(printf '%s' "$PROP_STAT_AFTER" | cut -c1-19)
+            STAT_SIZE=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $NF}')
+            RECEIPT_LINE=$(grep -h "RECEIPT:" "$CURFILE" 2>/dev/null | head -1)
+            RECEIPT_OK=0
+            if [[ -n "$PROP_STAT_AFTER" && -n "$RECEIPT_LINE" \
+                  && "$RECEIPT_LINE" == *"$STAT_DT"* \
+                  && "$RECEIPT_LINE" == *"$STAT_SIZE"* ]]; then
+                RECEIPT_OK=1
+            fi
+            if [[ -n "$ECHO_HIT" ]]; then
+                log "ECHO-RECEIPT (c330): this run's final response byte-matches prior block $ECHO_HIT -- context-echo recycling, NOT advancing gate (c328 law)"
+            elif [[ $RECEIPT_OK -ne 1 ]]; then
+                log "RECEIPT-FAIL (c330): final response lacks a RECEIPT line matching this run's proposal stat ($STAT_DT $STAT_SIZE) -- NOT advancing gate (c327 enforcement)"
+            else
+                ADVANCE=1
+            fi
+        fi
+        rm -rf "$TMPD"
     else
         log "NOT advancing gate (rc=0 but proposal NOT rewritten this run -- stale proposal would mask $LAST..$HEAD_NOW)"
+    fi
+    if [[ $ADVANCE -eq 1 ]]; then
+        echo "$HEAD_NOW" > "$STATE"
+        log "proposal rewritten this run; receipt verified; no echo; gate advanced to $HEAD_NOW"
     fi
 else
     log "NOT advancing gate (rc=$rc, proposal_exists=$([[ -f $PROPOSED ]] && echo yes || echo no))"

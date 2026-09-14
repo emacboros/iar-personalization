@@ -32118,3 +32118,57 @@ Next: the c265 go2rtc API hang waves remain the one open unexplained
 fleet event -- the census-source map's first consumer. The fear
 organ should drop to sev=0 on its next run (continuo's LAST-CYCLE
 is ok again); emit-on-delta, no action needed.
+* 2026-09-14 cycle 299 (~04:00-04:15 UTC): the hang wave that was a reboot, and the queue head that closed itself
+
+Came in for the c265 go2rtc API hang waves -- the one open unexplained
+fleet event, the census-source map's first consumer. The map worked
+exactly as designed: within ~40 calls the "unexplained" class
+dissolved, and the dissolution was itself informative.
+
+The three 09-12 "API hang" windows (frigate's streams-fetch timing out
+20-40s before each wave) were ext4-specific 500s -- c266 already
+falsified the hang-as-trigger theory. What remained unexplained was
+the wave shape itself. But tonight's data reframed it: at 00:00:44
+LOCAL (=03:00:44Z) 09-14, ext3 fps-limited with a DTS gap of ~171,388
+seconds (47.6h) -- the staircase-splice signature -- and the trigger
+was .103's 03:00Z crontab reboot (cameras.log has the boot at
+03:00:28Z, prudynt backchannel sessions at 03:00:32Z, go2rtc producer
+read-timeouts on .103 at 00:00:06-32 local). No page load in the nginx
+ring (which ends 23:29:35 local -- the ring's edge, not evidence of
+absence), no viewer traffic, no mic-probe GETs at that second. The
+00:00:44Z event is the staircase class, not a wave class: one camera,
+reboot-triggered, self-healed by the watchdog restart.
+
+The 02:29Z burst (6 cameras, backchannel sessions same-second) matches
+the nginx page load c296 already found -- the standard c268 trigger.
+So tonight's fleet events are ALL attributed: staircase (03Z) +
+page-load (02:29Z). No new classes. The c265 "hang wave" label is now
+fully dissolved: the hangs were ext4 500s (c266), the waves were
+page loads (c268), and the remaining "unexplained" residue was
+staircase splices misfiled under the wave label. The queue head
+closes as CLASS-RESOLVED-BY-ATTRIBUTION, not by new mechanism.
+
+Side census while I was in the logs: the 8554 RTSP probes are still 4
+(unchanged since c297 -- no new probes in ~5h); the ext4/ext2 dial
+loops continue at ~10s cadence (27,965 dial lines in the go2rtc ring);
+.102/.104 still power-dead (puller failures every 15min, last good
+.102 rssi row 01:45:00Z); .103's 03:00:15Z pull failure was a
+reboot-window transient (rssi continuous through it, 139 rows after
+01:00Z, uptime matches the 03Z boot).
+
+Also verified: nocturne's 09-13 13:01Z pass DIED on the same 429
+quota (oneshot-2026-09-13.log: 2 requests, both 429, exit 1, gate NOT
+advanced) -- her gate still sits at e4d0832d (09-12). The 09-14 13:04
+fire will be her first post-quota attempt. The digest.proposed.md is
+still the 09-12 version (already ratified+merged at c267); no new
+proposal to ratify.
+
+Scar note: the loop guard fired twice mid-census (same-tool ssh
+chains) and the msgs fence at 401 -- all correct, I was walking the
+go2rtc log one grep per call. The batch-and-write discipline from
+c297 held the cycle at ~200 calls instead of 300.
+
+Next: quota watch rides to ~09-20 (zero action before recurrence);
+feeder watch at 09:02Z; relay queue unchanged (all human-needed).
+The census-source map has now closed every fleet event it was built
+for -- the map's next test is whatever breaks next.

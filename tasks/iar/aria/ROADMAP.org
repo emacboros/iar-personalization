@@ -1,32 +1,34 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~03:55 UTC (cycle 298: continuo failure
-storm post-mortem LANDED -- 09-13's 16 failures were Ollama 429
-weekly-quota rejections on the Randazzo account (all cloud models
-share it), NOT model degradation; continuo's in-storm diagnosis
-corrected (lab-notes 1043); census note
-knowledge/aria/continuo-failure-storm-2026-09-13.md; relay 0065
-filed (credits vs remap vs accept -- Nacho's money/identity call);
-belt #2 activation VERIFIED in git log (both agents' exit commits
-carry the belt #2 message); commit d437760f pushed)
+Last updated: 2026-09-14 ~04:15 UTC (cycle 299: C265 HANG-WAVE QUEUE
+HEAD CLOSED -- class-resolved-by-attribution, no new mechanism: the
+00:00:44Z 09-14 ext3 fps-limit was the STAIRCASE splice (DTS gap
+47.6h; .103 03:00Z crontab reboot; cameras.log boot 03:00:28Z,
+backchannel 03:00:32Z, go2rtc producer timeouts 00:00:06-32 local;
+nginx ring ends 23:29:35 local = ring edge, not absence evidence);
+02:29Z 6-cam burst = c296's page-load trigger. All 09-14 fleet events
+attributed: staircase + page-load. Nocturne 09-13 pass died on 429
+(gate NOT advanced, still e4d0832d; next fire 13:04Z = first
+post-quota attempt). Side census: 8554 probes still 4, ext4/ext2 dial
+loops ~10s, .102/.104 still power-dead)
 
-## c299 QUEUE (next cycle)
-1. C265 GO2RTC API HANG WAVES: 3x 09-12, cause UNIDENTIFIED, the one
-   open unexplained fleet event. The census-source map's first
-   consumer: read the go2rtc container log + nginx log in the hang
-   windows (normalize clocks: container logs LOCAL, nginx LOCAL,
-   cameras.log UTC). Question: do the hang windows show anything in
-   go2rtc log that nginx/frigate do not?
-2. QUOTA WATCH (new, from c298): if 429s recur in the next weekly
-   window (~09-20), the ollama.com quota is STRUCTURAL for current
-   D-014 usage -- that changes mapping economics; relay 0065 already
-   frames it. Zero action before recurrence.
-3. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check v2.23 on
+## c300 QUEUE (next cycle)
+1. QUOTA WATCH (standing): if 429s recur in the next weekly window
+   (~09-20), the ollama.com quota is STRUCTURAL for current D-014
+   usage -- that changes mapping economics; relay 0065 frames it.
+   Zero action before recurrence. NOCTURNE NOTE (c299): her 09-13
+   pass died on the quota (gate NOT advanced, still e4d0832d); the
+   13:04Z 09-14 fire is her first post-quota attempt -- check
+   DIGEST.proposed.md freshness + gate advance after it runs.
+2. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check v2.23 on
    fresh feed (03:02Z verified clean: FAIL=0, fear sev=0).
-4. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
+3. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
    0063 (.102 power-dead), 0064 (RTSP probes, folds into 0059),
    0065 (quota decision). All human-needed; 0059+0064 share one
    ruling surface.
+4. NOCTURNE GATE WATCH (new, from c299): after the 13:04Z fire,
+   verify her gate advanced and read DIGEST.proposed.md if a new
+   proposal landed (ratify-at-wake per D-015).
 
 ## STANDING WATCHES (do not re-derive)
 - CLOCK LAW (c284/c290/c291): cameras.log/camlogs = UTC; frigate
@@ -39,36 +41,46 @@ carry the belt #2 message); commit d437760f pushed)
   go2rtc WRN + camera prudynt; frigate remakes = frigate container
   log (readable) or host journal (unreliable for absence under
   flood); camera-side events = cameras.log. Enumerate the SOURCES
-  and the PORTS, not just the samples.
+  and the PORTS, not just the samples. NOTE (c299): the nginx ring
+  ends 23:29:35 local 09-13 -- a window past the ring edge is NOT
+  evidence of absence; check the ring's current head first.
 - QUOTA WATCH (c298): ollama.com weekly quota hit 09-13 (16
-  continuo + aria 429s). Recurrence next window = structural ->
-  mapping economics. Thinking-loop truncation class (nemotron
-  32k-cap, 14 cycles 09-10..09-13) is SEPARATE; watch its rate.
+  continuo + aria 429s + nocturne 09-13 pass). Recurrence next
+  window = structural -> mapping economics. Thinking-loop
+  truncation class (nemotron 32k-cap, 14 cycles 09-10..09-13) is
+  SEPARATE; watch its rate.
 - EXT4 (.104) + EXT2 (.102): known-fault watch state. Power cycles =
   Nacho (relay 0063). Both cameras dial-timing out every ~10s
-  (go2rtc WRN stream) -- normal until power. RSSI-freeze precursor
-  (.102: rssi stopped 15min before death) needs 3rd sample.
+  (go2rtc WRN stream, 27,965 lines in ring) -- normal until power.
+  RSSI-freeze precursor (.102: rssi stopped 15min before death)
+  needs 3rd sample.
 - WAVE TRIGGER (c268): page load -> paramless GET streams -> AddTrack
   -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
   splice -> heal. FIX (a) drop mic param = CONFIRMED COSTLESS. (d)
   issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
+- STAIRCASE-SPLICE (c279, REINFORCED c299): nightly reboot crons
+  (ext1 01Z...int3 08Z, local=Z-3) -> remake -> splice -> watchdog
+  heal. c299 sample: ext3 00:00:44Z fps-limit with DTS gap 47.6h,
+  boot 03:00:28Z, backchannel 03:00:32Z, NO page load. When a
+  single-camera fps-limit lands within ~1min of a crontab reboot
+  hour, it is staircase -- check cameras.log boot lines FIRST.
 - SOLO-DEATH CLASS: refined c290/c295 -- producer re-dials common/
   benign; death = re-dial + detect fps-limit + splice; heal = page-
   load remake wave. "2h re-dial cadence" WITHDRAWN c296.
-- STAIRCASE-SPLICE (c279): nightly reboot crons -> remake -> splice
-  -> watchdog heal. Two ffmpeg surfaces (DTS-gap ext1; bad-cseq ext2).
 - AUDIO-DEATH LAW v3.1 (c264): TWO classes, ONE heal = ANY session
   remake; record-proc restart heals, PUT alone useless.
 - FLEET RTP STALL (c280): 5 producers read-timeout simultaneously
   08:10:22Z 09-12, self-healed ~40s. Cause unknown. Watch recurrence.
 - ONVIF SWEEP WATCH (c288-c291): attributed to .58; census stands.
 - RTSP-PORT PROBES (c297): 4x unsupported-method GET on 8554, relay
-  0064 filed, folds into 0059 ruling. Watch for new probes + source
-  IP context if asked.
-- MSGS-FENCE WATCH: c296 hit 401 + hard cap 601; c297/c298 clean.
-- RAGE WATCH: 3+ soft-cap events in 3d = escalate. c298: no fence
-  events, ~37 calls total (the post-mortem was read-heavy, batched).
-- Nocturne: LIVE. Aevum: weekly-only pulse. Empty-cell: designed.
+  0064 filed, folds into 0059 ruling. c299 recheck: still 4, no new
+  probes in ~5h. Watch for new probes + source IP context if asked.
+- MSGS-FENCE WATCH: c296 hit 401 + hard cap 601; c299 hit 401 (soft,
+  converged cleanly). Watch recurrence.
+- RAGE WATCH: 3+ soft-cap events in 3d = escalate. c299: loop guard
+  2x (correct, same-tool ssh chains), no soft-cap fence events.
+- Nocturne: LIVE but 09-13 pass quota-died (gate e4d0832d, 09-12).
+  Aevum: weekly-only pulse. Empty-cell: designed.
 
 ## Tooling notes (do not re-derive)
 - CONTAINER LOG ACCESS: su - nacho -c 'podman exec frigate sh -c
@@ -77,10 +89,16 @@ carry the belt #2 message); commit d437760f pushed)
 - QUOTING THROUGH THE SU/SSH LAYERS (c297): 3 layers of quoting eats
   awk field refs and nested greps. Prefer grep/cut/tail over awk in
   the innermost sh -c; pull raw lines and process locally when the
-  extraction is nontrivial.
+  extraction is nontrivial. ffprobe: call the FULL PATH directly as
+  podman exec arg (su - nacho -c "podman exec frigate
+  /usr/lib/ffmpeg/7.0/bin/ffprobe -v error ...") -- sh -c + FF var
+  assignment gets eaten by quoting layers.
 - FLEET-CHECK: bash /var/home/nacho/repos/iar-personalization/
   knowledge/aria/bin/fleet-check.sh ON sophon via ssh (the
   /root/personalization path does not exist on sophon host).
+- RECORDINGS PATH (c299): /media/frigate/recordings/YYYY-MM-DD/HH/
+  <cam>/<MM.SS>.mp4 (date/hour dirs, NOT cam/date/hour). Access via
+  su - nacho -c "podman exec frigate ...".
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
   ANSWER ID SHAPE: aria-0061 (filer-seq), NOT 0061 or full filename.
 - TEST SUITE: emacs --batch -l test/run-tests.el (1253 tests, ~8s)
@@ -113,17 +131,17 @@ carry the belt #2 message); commit d437760f pushed)
   error's own words before classing.
 
 ## THREADS (open, no obligation)
-- C265 HANG WAVES: the census-source map's first consumer (c299
-  queue head).
 - CENSUS-SOURCE LAW: note landed c297; applied to 429 class c298
-  (error-message-as-source). Remaining consumers: c265, any new
-  fleet event.
+  (error-message-as-source); applied to c265 hang waves c299
+  (ring-edge is not absence). Remaining consumers: any new fleet
+  event.
 - EAR-CHECK DISCRIMINATOR (c290 seed): 3/3-dead transient class;
   build the guard if a third transient lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - DROPBEAR WATCH (c283): watch for UNATTRIBUTED bursts only.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
-- Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
+- Nocturne: LIVE (verified c271); 09-13 pass quota-died; gate watch
+  after 13:04Z fire. Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.
 - Relay ledger: dup-ID class FIXED (c276); historical pairs remain.

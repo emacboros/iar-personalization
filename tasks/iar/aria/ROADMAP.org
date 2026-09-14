@@ -1,38 +1,40 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~13:16 UTC (c319: boot+1s falsifier verified
--- probe RECURRED at Sep 14 boot, 1/3 boots, boot+27s, mechanism
-visible; .102 died AT its 02:00Z reboot cron; 604f11d2 pushed).
+Last updated: 2026-09-14 ~13:47 UTC (c320: terminal-echo orphan
+census -- continuo's final request has START but no RESPONSE/PARSE in
+76/76 cycles 09-11..14, aria 0; mechanism = close exits before curl
+sentinel advices fire; fix spec filed, BUILD next cycle; c826fa9b pushed).
 
-## c319 QUEUE (next cycle)
-1. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate advanced
-   past e4d0832d (469 commits behind at c319) AND proposal mtime fresh
-   (>= 16:04Z). Read DIGEST.proposed.md if new (ratify-at-wake,
-   D-015). If 429: relay 0065 carries the numbers.
-2. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): the 0914d ARP logger
-   (armed 10:43Z, timeout 61200s) EXPIRES 03:43Z Sep 15 -- it COVERS
-   the Sep 15 01:00Z boot. NO re-arm needed. After ~01:05Z Sep 15:
-   read /tmp/arp-reqs-0914d.txt for .58-MAC lines at 01:00:2x-31Z +
-   cameras.log for .101 onvif lines. Probe recurs = boot-watcher
-   pattern (2/4 boots); quiet = pool stays 1/3, (b) survives.
-   Full state: knowledge/aria/boot-falsifier-early-c319-2026-09-14.md.
-3. THINKING-LOOP WATCH (standing): 0 today. If >5/day at full volume
+## c321 QUEUE (next cycle)
+1. BUILD terminal-echo-reqlog-fix (tasks/iar/aria/terminal-echo-reqlog-fix/):
+   in iar--cycle-terminal-echo-close, after :completed, dump the live
+   request process (ABORT-advice pattern, iar-request-log.el ~585).
+   FULL suite before push (emacs --batch -l test/run-tests.el).
+   Verify on continuo's next cycle exit.
+2. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate advanced
+   past e4d0832d (469 commits behind at c320) AND proposal mtime fresh
+   (>= 16:04Z). Read DIGEST.proposed.md if new (ratify-at-wake, D-015).
+   If 429: relay 0065 carries the numbers.
+3. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): 0914d ARP logger EXPIRES
+   03:43Z Sep 15 -- covers the Sep 15 01:00Z boot. NO re-arm. After
+   ~01:05Z Sep 15: read /tmp/arp-reqs-0914d.txt for .58-MAC lines at
+   01:00:2x-31Z + cameras.log for .101 onvif lines. Recurs = 2/4 boots.
+4. THINKING-LOOP WATCH (standing): 0 today. If >5/day at full volume
    = nemotron-intrinsic -> relay 0065 amendment.
-4. DAILY 429 WATCH (standing): journalctl -u ollama for '| 429 |'.
-   0 today (last: Sep 13 20:33Z pre-reset). Wall re-hit predicted
-   Sun 09-20 ~04-12Z if week shape repeats.
-5. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
-6. RELAY WATCH: 0060, 0062, 0063 (amended: died AT reboot cron),
-   0064, 0065 (+ 0042/0045/0055/0057/0059 older). All open, none
-   actionable by me. 0065 carries burn decomposition + cache
-   discriminator (dashboard units).
+5. DAILY 429 WATCH (standing): journalctl -u ollama '| 429 |'. 0 today.
+   Wall re-hit predicted Sun 09-20 ~04-12Z if week shape repeats.
+6. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
+7. RELAY WATCH: 0060, 0062, 0063 (died AT reboot cron), 0064, 0065
+   (+ 0042/0045/0055/0057/0059 older). All open, none actionable by me.
 
 ## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
 ## knowledge/aria/roadmap-laws.md via read_knowledge)
 - CLOCK LAW: normalize per-source before ANY gap arithmetic (UTC vs
   sophon-LOCAL vs container-LOCAL). Camera reboot minute: RSSI
-  uptime arithmetic is the precise clock (ring lines can lag boot
-  by ~25s of init time).
+  uptime arithmetic is the precise clock.
+- REQUEST-LOG SCHEMA (c320): orphan census MUST JOIN .log + .log.1
+  (rotation splits ids); real request = exactly 3 lines
+  (START/RESPONSE/PARSE); other counts = echo-polluted or truncated.
 - CENSUS-SOURCE MAP + CLAIM-ANCHOR + DATED-LOG CONTENT: census
   evidence lives in REQUESTS.log(.1) PARSE lines, HISTORY.log, git
   commits -- NEVER in dated cycle logs (wrapper output).
@@ -41,10 +43,10 @@ visible; .102 died AT its 02:00Z reboot cron; 604f11d2 pushed).
   target; commit once with the close batch.
 - STALE-RECEIPT DETECTOR v4.3: bash knowledge/aria/bin/
   stale-receipt-detector.sh <aria|continuo>; validate against known
-  positive (continuo msgs=401) before trusting.
+  positive (continuo msgs=401) before trusting. KNOWN BLIND SPOT
+  (c320): final-request claims -- fix in terminal-echo-reqlog-fix.
 - FLEET-CHECK: bash knowledge/aria/bin/fleet-check.sh ON sophon.
-- ARP LOGGER: arm with -e ON enp10s0; 0914d live until 03:43Z
-  Sep 15 (covers Sep 15 boot).
+- ARP LOGGER: arm with -e ON enp10s0; 0914d live until 03:43Z Sep 15.
 - THINGINO: login.cgi POST + run.cgi GET with cookie; BatchMode=yes
   on every ssh hop.
 - GIT HYGIENE: add -f for audit/tasks files; git show --stat before
@@ -57,7 +59,7 @@ visible; .102 died AT its 02:00Z reboot cron; 604f11d2 pushed).
   any session remake; alert only if >2h.
 - HEARTBEAT: alive: every ~8min; check cadence before calling stale.
 - CAMERA OUTAGE: .104 power-dead (09-12, 50h+); .102 power-dead AT
-  its 02:00Z reboot (relay 0063 amended; watch tonight's reboot as
+  its 02:00Z reboot (relay 0063 amended; tonight's reboot = PSU
   recurrence test). Both need Nacho.
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z; aria 83.5%; burn
   decomposition: fence tail 6%, fixed-context tax ~30%, 87% prefix
@@ -65,6 +67,7 @@ visible; .102 died AT its 02:00Z reboot cron; 604f11d2 pushed).
   knowledge/aria/.
 
 ## THREADS (open, no obligation)
+- TERMINAL-ECHO ORPHAN (c320): fix spec filed; build = c321 queue #1.
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): Sep 15 01:00Z boot.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third

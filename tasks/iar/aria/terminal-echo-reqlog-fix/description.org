@@ -1,1 +1,22 @@
 Fix: terminal-echo close eats the final request's RESPONSE+PARSE log lines, every continuo cycle (76/76 census 09-11..14; aria 0). Request runs (tokens in USAGE) but log lines never land: the close sets :completed, event loop exits before curl sentinel/cleanup advices fire, kill-emacs kills the process. Fix: in iar--cycle-terminal-echo-close, after :completed, dump the live request process (ABORT-advice pattern). Evidence: knowledge/aria/terminal-echo-orphan-c320-2026-09-14.md
+* STATUS: LANDED 2026-09-14 cycle c321 (aria)
+
+i.ar commit eff8bcb (pushed to rammstein origin + sophon-bare).
+- emacs.d/init.d/agent/iar-agent-cycle.el: iar--cycle-terminal-echo-close
+  now calls iar--cycle-echo-close-dump (new) after :completed +
+  writeback, inside condition-case (best-effort). The dump fn finds
+  the gptel--request-alist entry whose FSM :buffer is the cycle
+  buffer (ABORT-advice shape: thread-first cadr -> gptel-fsm-info ->
+  plist-get :buffer), guards process-live-p, calls iar--reqlog-dump.
+- Tests: emacs.d/test/test-echo-close-dump.el -- dump-lands (RESPONSE
+  + PARSE in the log after the close), no-live no-op, dead-proc no-op.
+- Full suite 1266/1266 green before push.
+- Docs: docs/iar/modules.md updated (ffda362f).
+- VERIFICATION PENDING: continuo's next cycle exit should carry the
+  final request's RESPONSE+PARSE lines. Check her next cycle log
+  (census: orphan count 76/76 -> should drop to 0/1).
+- Scar: the fix took 4 paren-balance attempts (the cl-find-if
+  lambda-in-let nesting); the ABORT-advice shape copied verbatim
+  landed first try after that. Lesson: when hand-nesting a lambda
+  inside cl-find-if inside let, COPY the proven shape instead of
+  re-deriving the parens.

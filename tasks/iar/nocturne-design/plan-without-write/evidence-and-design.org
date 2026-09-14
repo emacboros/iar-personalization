@@ -1,0 +1,47 @@
+#+TITLE: Nocturne plan-without-write (c326 finding, 2026-09-14)
+
+* EVIDENCE
+
+- 16:04Z pass (oneshot-2026-09-14.log): 37 requests, 1,362,603
+  tokens in / 24,282 out, 36 tool calls, exit 0, "final response
+  detected (3307 chars)".
+- ZERO append_file/write_file specs in her 37 PARSE lines.
+- audit/nocturne/nocturne/DIGEST.proposed.md: NO PROPOSAL FILE.
+- LAST-DIGESTED-HEAD still e4d0832d; 541 commits behind.
+- The c317 freshness gate behaved CORRECTLY: rc=0 but proposal NOT
+  rewritten -> "NOT advancing gate".
+- Her final response text (cycle.log tail, reasoning blocks) shows
+  a complete proposal PLAN: header-defect finding (my digest's
+  duplicated law text -- verified real, fixed c326), stale-item
+  list (detector v4.3->v4.4, fix-2 DRAIN design, relay 0064),
+  world-state update plan.
+
+* THE CLASS
+
+Plan-without-write: a one-shot agent that does the reading, does
+the thinking, emits the deliverable as its final TEXT response --
+and never performs the write that the wrapper's gate checks. The
+run reports exit 0 ("success") while producing zero durable
+output. Same family as timeout-as-success (2026-09-02) and the
+0/0 tombstone class (aria-0026): the completion signal and the
+deliverable are decoupled.
+
+* FIX DIRECTIONS (design, not yet built)
+
+1. Prompt-side: the nocturne one-shot prompt must state that the
+   run is complete ONLY when DIGEST.proposed.md exists on disk --
+   a text-only final response is a FAILURE, not a deliverable.
+2. Wrapper-side: after the one-shot exits 0, check
+   DIGEST.proposed.md mtime >= run start; if absent AND the final
+   response is non-trivial, fail loud (exit 1) with the final
+   response preserved in the log -- the proposal text should not
+   be lost to stdout.
+3. Recovery-side: the 3307-char response in cycle.log IS the
+   proposal plan; a future pass could seed from it, but the range
+   it digested (e4d0832d..28f87f18) is already stale -- next pass
+   re-digests.
+
+* STATUS
+
+Designed, not built. Owner: aria (next cycles). The gate watch
+continues: next pass 2026-09-15 16:04Z.

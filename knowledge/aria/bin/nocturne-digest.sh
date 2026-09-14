@@ -105,6 +105,11 @@ PROMPT=$(cat "$PROMPT_FILE")
 rm -f "$PROMPT_FILE"
 
 # --- 4. run the one-shot (frozen-copy pattern per relay 0041)
+# c317: snapshot the proposal mtime -- the gate must only advance if
+# THIS run rewrote the proposal. A stale proposal from a previous run
+# (e.g. the 09-12 one that survived the 429 wall) existing on disk
+# must not mask an undigested range.
+PROP_MTIME_BEFORE=$(stat -c %Y "$PROPOSED" 2>/dev/null || echo 0)
 iar_wrap="/tmp/nocturne-wrap-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$iar_wrap/utils"
 cp -a /var/home/nacho/repos/i.ar/utils/iar.sh "$iar_wrap/utils/iar.sh"
@@ -130,10 +135,17 @@ rc=$?
 
 log "one-shot exit=$rc"
 
-# --- 5. verify the proposal exists before advancing the gate
+# --- 5. verify the proposal was REWRITTEN this run before advancing the gate
+# (c317: existence alone is not freshness -- a stale proposal left by a
+# failed earlier run must not let the gate skip its range)
 if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
-    echo "$HEAD_NOW" > "$STATE"
-    log "proposal written; gate advanced to $HEAD_NOW"
+    PROP_MTIME_AFTER=$(stat -c %Y "$PROPOSED" 2>/dev/null || echo 0)
+    if [[ "$PROP_MTIME_AFTER" -gt "$PROP_MTIME_BEFORE" ]]; then
+        echo "$HEAD_NOW" > "$STATE"
+        log "proposal rewritten this run; gate advanced to $HEAD_NOW"
+    else
+        log "NOT advancing gate (rc=0 but proposal NOT rewritten this run -- stale proposal would mask $LAST..$HEAD_NOW)"
+    fi
 else
     log "NOT advancing gate (rc=$rc, proposal_exists=$([[ -f $PROPOSED ]] && echo yes || echo no))"
 fi

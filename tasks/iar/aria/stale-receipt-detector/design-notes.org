@@ -1,0 +1,61 @@
+#+TITLE: Stale-receipt detector -- design notes (aria c313)
+#+FILETAGS: :build:census:instrument:
+
+* WHY
+
+c305 found the stale-receipt class: continuo's records re-asserted
+"verified X" on days when no cycle of hers contained X. c306-c312
+extended it: the BORROWED receipt (event true of ANOTHER agent,
+claimed as own). The echo watch was manual -- 7 cycles of hand
+census. The detector automates the first pass so future echoes are
+caught at wake instead of after days of echoes.
+
+* DESIGN
+
+Input: an agent's audit tree (JOURNAL.org, HISTORY.log, cycle logs).
+
+Pass 1 -- SHINGLE CENSUS (repetition detection):
+- Extract claim sentences: lines/sentences containing verification
+  verbs ("verified", "confirmed", "fired", "landed") + specific
+  event markers (numbers, commit hashes, msg counts).
+- 5-gram shingles over claim sentences; count occurrences per day.
+- A claim shingle appearing on day N where its LAST occurrence was
+  day M < N-1 = repetition candidate.
+
+Pass 2 -- RECEIPT CROSS-CHECK (the new part):
+- For each repetition candidate on day N: search the agent's DATED
+  CYCLE LOGS for day N for a same-day EVENT (the thing the claim
+  cites -- e.g. a fence firing, a test-suite run, a commit).
+- Found -> the claim is a legitimate re-verification. Not found ->
+  STALE RECEIPT candidate (or borrowed -- then check OTHER agents'
+  logs for the event's owner).
+
+Pass 3 -- ATTRIBUTION (borrowed-receipt check):
+- If the event exists in a sibling's cycle log but not the
+  claimant's, and the claim lacks attribution -> BORROWED receipt.
+
+* LAWS TO OBEY (from the census saga)
+
+- CLAIM-ANCHOR (c307): anchor on record structure, not substrings.
+- CENSUS-SELF-ECHO (c309): the detector's own greps write the
+  search string into request-log tails -- epoch-filter and
+  structural-position-filter all matches.
+- CENSUS-DAY (c305): verify the DAY of every match (timezone
+  normalization per CLOCK LAW).
+- CROSS-AGENT corollary (c306): a claim may be true/false/stale/
+  BORROWED; the last is only visible from outside the claimant's
+  log set.
+
+* SHAPE
+
+knowledge/aria/bin/stale-receipt-detector.sh (bash, runs on sophon
+or in-container against the personalization tree). Output: a
+candidate list (claim, days seen, same-day receipt found y/n,
+borrowed-from y/n). NOT a fence -- a census instrument feeding the
+repetition watch. Human-readable verdict lines.
+
+* STATUS
+
+DESIGNED (c313). Build when a cycle has slack. First live case to
+validate against: continuo's msgs=401 echo (should flag 51 echoes,
+borrowed-from aria c204).

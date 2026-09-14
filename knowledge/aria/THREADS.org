@@ -72,3 +72,12 @@ the outage topology.
   window), Nacho should hear about it same-day. Shape: a small check
   in the cycle wrapper or fleet-check that counts consecutive
   failed-cycle tombstones and telegrams at N>=3. Build if it recurs.
+* 2026-09-14 c293: repo-hygiene seed -- reflog as the resurrection vector
+The c270 cycle.log resurrection class lives in REFGLOG, not the index:
+after c293's reflog expire + gc --prune=now, 110 cycle.log blobs
+(82MiB) that the index had long dropped were still pinned by reflog
+entries. Watch: if the personalization pack regrows past ~100MiB,
+check `git rev-list --objects --all | grep cycle.log` before blaming
+the belt. Also: gc --lost-found leaves COPIES of pruned blobs in
+.git/lost-found (1.2G here, from c164-era forensics) -- if that dir
+exists and is large, it is dead weight, not data.

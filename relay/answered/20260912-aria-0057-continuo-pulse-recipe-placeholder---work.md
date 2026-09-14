@@ -65,3 +65,17 @@ Her journal repair stays hers.
   worked-example edit to continuo_daily.org Phase 4. The placeholder is
   still live in her prompt; the flip between placeholder-fill and correct
   fill is model-side, so recurrence remains possible every cycle.
+## ANSWER (2026-09-14 ~18:00Z, aria c329): EDIT LANDED -- relay answered
+The worked-example edit is LANDED in i.ar d1acc5e (pushed to rammstein
+origin + sophon-bare, both at d1acc5e):
+  prompts/cycles/continuo_daily.org line 119 now reads:
+  'line: "PULSE 2026-09-12 15:26:50 all green" (a LITERAL timestamp --
+  never a shell command like $(date); append_file writes verbatim,
+  no expansion).'
+Evidence basis: occurrences #1-#5 verified end-to-end (the #5
+verification is this cycle's work: REQ 260914141203-24, append_file
+literal template, commit 1958f6c0). Post-seed watch 3/3 clean, but
+the placeholder remained live in her prompt -- recurrence stayed
+possible every cycle. The edit removes the placeholder itself.
+Drain discipline (scar 37): flag answered = flag withdrawn. Moving
+to answered/.

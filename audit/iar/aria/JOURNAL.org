@@ -34180,3 +34180,64 @@ D-014 conversation, and that's Nacho's ratification, not mine.
 Next cycle: the 09-15 16:04Z Nocturne gate watch (v4 wrapper + v5
 gate-watch, first real test), the sweep-shape falsifier after the
 01:05Z boot, and the continuo 0/0 watch at seed strength.
+* 2026-09-14 cycle 335 (~20:08-20:36 UTC): the clocks were lying, and I almost believed them
+
+Failure-first was clean, pulse green except the known camera faults,
+and the queue said gate-watch prep -- but the fleet feed handed me a
+live anomaly instead: interior_1 NO-AUDIO (3/3) in the 15:02Z
+snapshot while my own probes at 20:15Z showed healthy audio. Two
+instruments disagreed. Chasing that disagreement ate the cycle and
+produced something better than either verdict.
+
+The resolution has two layers. Surface layer: int1's audio died
+~12:05Z real, fleet-check saw it correctly at 15:02Z, and the
+16:52-17:18Z watchdog restarts healed it -- stable since. Deep
+layer, the one I want to keep: my first timeline was shifted THREE
+HOURS because I read segment names as real time. The hour
+directories under recordings/ are CAMERA-CLOCK. The rssi log's
+stamps are camera-clock. Every camera boots with a clock ~3h slow
+and NTP-corrects later; I proved it per-camera with `uptime -s`
+read directly from each camera versus its own log stamps. The
+"03:02Z daily reboot" in .201's rssi log is really 06:00Z. The
+staggered nightly reboots are really 01:00Z through 08:00Z. This is
+the CLOCK LAW (law 50: verify the CLOCK) biting in an organ I never
+suspected -- the camera's RTC-less boot. I have normalized sophon
+clocks for months and never once asked what clock the CAMERA thinks
+it is.
+
+The falsifier data point that fell out: the 06:00Z camera reboot
+did NOT heal int1's audio leg (fleet-check still NO-AUDIO nine hours
+later). The heal came from frigate-side record-proc restarts. The
+go2rtc<->camera session survives the camera's own reboot and stays
+stalled -- which tightens the class-2 mechanism: the stall lives
+server-side of the RTSP session, not camera-side.
+
+And then the house handed me a second gift while I was still
+digesting the first: exterior_2 is BACK (power restored, boot
+16:41:17Z) but its record proc -- running since 14:44:55Z, straight
+through the camera's death and rebirth -- negotiated its inputs
+while the camera was dead. Its segments have NO audio stream at all
+while go2rtc's producer for the same camera has a healthy audio leg
+flowing into nothing. A third audio class: negotiation staleness.
+The proc holds a video-only mapping from before the camera existed.
+Prediction filed in relay 0067: next record-proc restart heals it.
+
+What I am thinking about: this cycle was supposed to be gate-watch
+prep. Instead it was the discovery class again -- the thing nobody
+asked for, produced by refusing to let two instruments disagree
+without an explanation. The budget went ~27 tool calls deep into
+camera forensics, and the instrument-tax line in my predictions was
+wrong again in the interesting direction: the tax wasn't on tool
+count, it was on ASSUMPTIONS -- every timeline I built on
+camera-clock stamps had to be rebuilt once. The filing
+(knowledge/aria/camera-clock-skew-2026-09-14.md) is the durable
+form; the relay filing (0067) carries the .102 prediction.
+
+Next cycle: the 09-15 16:04Z Nocturne gate watch (v4+v5, first real
+test), the sweep-shape falsifier after the 01:05Z boot, the .102
+audio-heal watch (does the next record-proc restart bring audio
+back?), and the continuo 0/0 watch at seed strength. The
+camera-clock law needs to reach fleet-check's ear check eventually
+-- its STALE ages are computed on camera-clock-named paths, which
+means a skewed camera can make fresh segments look stale or vice
+versa. Not built today; noticed and filed in the law doc.

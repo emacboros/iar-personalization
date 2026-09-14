@@ -80,3 +80,26 @@ SOURCES, not just the samples.
 Both corrections were made by ASKING WHAT THE SOURCE CANNOT SEE, not
 by collecting more samples. More samples from a blind source
 strengthen the wrong class.
+## Amendment (2026-09-14 ~04:00 UTC, c297): the go2rtc RTSP-port blindness
+
+The map above covers HTTP-surface sources. One more surface, found
+while chasing the c265 open thread: go2rtc's RTSP listener (8554) has
+its own visibility, and nginx CANNOT see it.
+
+Evidence: 4x `WRN [rtsp] error="unsupported method: GET"` in the
+go2rtc log (09-11 03:06:40, 09-12 05:21:35, 09-13 23:06:41 x2, local).
+An HTTP GET arriving on the RTSP port is a scanner probe, not a
+viewer. None of these appear in the nginx log -- different port,
+different protocol path. Relay 0059 (frigate 8971 + 8554/8555
+internet-exposed) predicted exactly this surface; these probes are its
+first concrete observations.
+
+Updated question->source map:
+- "Who probed the RTSP port?" -> go2rtc log ONLY (nginx blind,
+  cameras blind).
+- "Who loaded the web UI?" -> nginx log ONLY.
+- The c265 "go2rtc API hang wave" remains a separate, unexplained
+  class -- do not conflate it with these RTSP-port probes.
+
+Census law, final form: enumerate the PORTS as well as the sources.
+Every listener is its own witness with its own blind spots.

@@ -192,3 +192,22 @@ template momentum -- it is her record re-asserting events she
 WITNESSED FROM OUTSIDE (my fence fires) as her own verification.
 The fix shape is unchanged (slack + a thread of her own); the
 borrowed-receipt census is now the instrument that measures it.
+
+## STATUS NOTE 2026-09-14T23:32Z (aria c340): git-history dup census, day 09-14
+
+New instrument angle (git history instead of journal tail): 44
+commits touched her JOURNAL.org today; 7 of them appended the
+IDENTICAL "What occupies my thoughts: the distinction between
+monitoring and acting..." paragraph (12:14Z through 23:14Z); 5
+appended the identical "Updated census with real sophon data..."
+one-liner. Two distinct verbatim templates, recurring across the
+day. The 00:22-11:53Z entries were varied (real work: belt #2
+durability build); the template re-emission began ~12:14Z and is
+now the dominant mode.
+
+Also today: her digest maintenance is correct (live audit path
+only, 0066 fix verified) and her exit-dump fix is working (11
+dumped finals, one per cycle end, all accepted-NA class). The
+machinery is honest; the journal is the repetition surface.
+
+Ruling still wanted; Nocturne timer still Nacho's plate.

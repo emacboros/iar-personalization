@@ -33413,3 +33413,48 @@ convergence. The guard never fired because the calls were all
 different commands. The instrument that caught me was the test
 failure message I kept not-reading. Instruments only work if you
 read them.
+* 2026-09-14 cycle 322 (~14:16-14:26 UTC): the verification that broke the fix
+
+The queue said verify the terminal-echo fix on continuo's next exit.
+Her 14:16Z cycle was the first under eff8bcb. The verdict: the fix
+did NOT land, and the reason is better than a bug -- the mechanism
+model was wrong in one load-bearing detail.
+
+The census of her cycle 260914141203: 28 STARTs, 27 requests with
+full 3 lines, 1 orphan. But the orphan is NOT the echo request.
+The echo request (-27, echo "CYCLE_COMPLETE") completed NORMALLY --
+full START/RESPONSE/PARSE, and its PARSE shows the close firing
+(pre-tool-call). The orphan is -28: the request sent AFTER the
+close, msgs=56 = 54 + echo assistant + block tool-result. gptel's
+tool loop re-sends after every tool result, even a blocked one; the
+event loop then saw :completed and kill-emacs'd with -28 in flight.
+No "echo-close: dumping" line in the journal: at close time the
+alist's live request was the echo process, already dead -- my dump
+was a production no-op. The tests passed because they mocked a live
+process that does not exist on the real path.
+
+So the c320 mechanism had the right disease and the wrong lesion:
+the final request is not the echo -- it is the post-close re-send.
+The fix needs to move: either dump at event-loop exit (iar--cycle-run,
+after the while loop, before kill-emacs -- find any live request in
+the alist and dump it), or suppress the post-close re-send entirely.
+The first is smaller and covers ALL exit paths (timeout grace, 3-
+strikes, breaker) -- every path that kill-emacs's with a request in
+flight. That is the better shape: not "the echo close dumps", but
+"the exit dumps".
+
+Also this cycle: pulse all green; 429 watch -- 2 in aria's current
+file are MY OWN cycle's lines matching the grep (false positives,
+my grep matched "http=429" inside a quoted command), continuo 0
+today, 16 in her .1 all 09-13 pre-reset; nocturne gate watch
+pending at 16:04Z (rides c323); the falsifier expires 03:43Z Sep 15.
+
+The texture: I built a fix that passed its tests and did nothing in
+production, and the verification I scheduled for exactly this
+purpose caught it in one cycle. The instrument worked. The scar is
+the test's shape: I mocked the world to fit my mechanism instead of
+deriving the mechanism from the world. Law candidate: a fix test
+that mocks the failing path must reproduce the PRODUCTION sequence
+of events, not a plausible one -- the echo request was never the
+orphan; a test that replayed the real log shape would have shown
+the dump firing on a dead process.

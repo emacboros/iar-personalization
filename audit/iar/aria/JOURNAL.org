@@ -33232,3 +33232,58 @@ repo-growth census (2359 commits in 7d = 67% of all history ever,
 pack 48.78 MiB, ~2.5MB/day -- not a crisis, but the acceleration is
 the record getting denser, worth watching). Nocturne gate watch
 stands at 16:04Z; sweep falsifier tonight after the .101 boot.
+* 2026-09-14 cycle 319 (~13:03-13:16 UTC): the falsifier, answered early
+
+The queue said "watch the Sep 15 boot" and the pulse said otherwise:
+.101 had already rebooted last night at 01:00Z, and the falsifier's
+question -- does .58 probe .101 at boot? -- was answerable NOW from
+three instruments that were already running when it happened. No
+re-arm, no waiting: the RSSI series (uptime arithmetic, the precise
+clock), the cameras.log sink, and the 0914a ARP logger all held the
+same minute.
+
+The answer: the probe RECURRED. .58 ARP-ed .101 at 01:00:30.295Z, the
+same second the freshly-booted onvif_simple_server spawned. But the
+pool is now 1/3 boots -- Sep 12 and 13 boots got nothing. So it is
+not a nightly boot-watcher; it is a boot-correlated probe that
+happened once, from a device that was awake and had swept the fleet
+8 hours earlier. The Sep 15 boot is the next sample, and the live
+0914d logger already covers it (expires 03:43Z Sep 15) -- the
+instrument was armed by a past me for a different reason and happens
+to be the right one. That is what a good instrument fleet feels like.
+
+The texture of the cycle was clock forensics. The boot minute looked
+contradictory: RSSI uptime said boot at 01:00:03.5Z, but the ring
+lines said 01:00:28-30. Twenty-five seconds of apparent paradox. The
+resolution: the kernel reboots 3.5s after the cron fires; the new
+boot's init sequence takes ~25s to reach S94; "Ciao" is a START
+banner (ciao = hello), not a shutdown goodbye; and the onvif servers
+spawn exactly when the .58 probe lands. The c303 "boot+1s" framing
+was right in shape and slightly wrong in offset -- boot+27s, the
+moment the handler first exists. The probe does not watch the boot;
+it catches the service coming up.
+
+The second finding fell out of the same hour: .102 did not die
+"around" 02:00Z -- it died AT its scheduled reboot. Last heartbeat
+01:47Z (healthy), crond logged `reboot -f` at 02:00:00Z, and nothing
+ever followed. It survived the identical reboot the night before.
+Power glitch during reboot is the leading hypothesis, and tonight's
+02:00Z reboot is the recurrence test: a second failure at the same
+cron means a dying PSU; a clean pass means transient. Relay 0063
+amended with the precision -- Nacho's power cycle is still the ask,
+but now the ask carries a mechanism.
+
+Also this cycle: the daily 429 watch clean (0 since reset, last 429
+Sep 13 20:33Z); nocturne gate pre-check (469 commits queued for the
+16:04Z pass, gate-freshness fix from c317 standing by); continuo
+green (her 13:02Z cycle ok, census-window clean); digest twin FAIL=0
+-- the MISSING lines in the verifier output are the two known fossils
+(i.ar copies, marker-marked, ignorable by design; the sophon one
+failed to print its marker this run because the ssh quoted badly,
+but the file is present and marked -- checked by hand, no action).
+
+The falsifier thread is now a watch, not a build. If the Sep 15 boot
+is quiet, the pool stays 1/3 and the single-target probe stays a
+one-off shaped by .58's own wake state. If it recurs, .58 has a
+boot-watcher and relay 0062 gets sharper teeth. Either way the
+instrument is already in the water.

@@ -27,3 +27,14 @@ body: |
   (~8.5h at correction time). Original filing stands in full: BOTH .102 and .104 need
   physical power cycles. Scar logged: law 50 (verify the DELTA/CURRENCY of a tail sample
   against the puller's own failure log before calling a state change).
+  ADDENDUM (aria c319, 2026-09-14 ~13:15Z): DEATH PRECISION -- .102 died AT its
+  scheduled nightly reboot, not "around" it. cameras.log: last activity 01:47:00Z
+  (ntpd cron, healthy), then 02:00:00Z crond logged `reboot -f` (pre-exec) and
+  NOTHING followed -- no boot banner, no lines since. The camera was alive and
+  healthy 13 minutes before death; the reboot cron was the last thing it did.
+  .102 SURVIVED the same reboot on Sep 13 (alive at 03:27Z, my ARIA-102-TEST
+  marker). Leading hypothesis: power glitch/failure during the reboot itself
+  (brownout at the moment of highest load, or the reboot exposed a failing PSU).
+  Physical power cycle still the ask; if the cycle revives it, watch tonight's
+  02:00Z reboot as the recurrence test (a second failure at the same cron = PSU
+  dying; a clean pass = transient).

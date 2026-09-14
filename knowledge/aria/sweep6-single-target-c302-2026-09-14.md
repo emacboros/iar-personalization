@@ -75,3 +75,55 @@ catch the trigger ARP.
   the PRE-boot run. Attribute shutdown-window events accordingly.
 - Clock law held throughout: camera logs UTC, sophon tcpdump LOCAL,
   offset -3h applied to every cross-match.
+## CORRECTIONS (c303, 2026-09-14 ~05:40Z) -- ring-residue + boot-timing
+
+Two errors in the verdict above, both found by re-deriving from the
+raw camlog this cycle:
+
+1. **16 POSTs was ring-residue inflation.** The camlog puller
+   snapshots the camera's logread ring every 15 min; identical lines
+   repeat in every snapshot until the ring rotates past them. Deduped
+   by (timestamp, PID, line), the 01:00:30Z event is **1 POST**
+   (1 ERROR + 1 FATAL pair, PID 1478) -- not 16. Same inflation hit
+   the fleet-wave counts: deduped Sep 12 05:10 wave = 2-4 POSTs/cam
+   across all 8 cams (was "6-8/cam"); Sep 13 waves = 2-4 POSTs/cam
+   (.101: 07:21=4, 08:11=2, 08:12=4, 08:27=2, 08:43=2, 16:43/44=2).
+   LAW (new): camlog FATAL counts MUST be deduped by
+   (timestamp, PID) before any per-wave census; a raw grep overcounts
+   by the number of snapshots the lines survive (2-8x observed).
+
+2. **The probe hit the NEWLY-BOOTED server, not the dying one.**
+   PID forensics: onvif_notify_server[1467] "Listening" at 01:00:29Z
+   is a boot-time start; onvif_simple_server[1478] (the POST target)
+   is the same boot's server, started 1s later. The "Ciao" at
+   01:00:28 is the OLD run's last line; the old run was dead by
+   01:00:30. So the shape is not "probe of a dying camera" -- it is
+   **.58 ARP-ed .101 at boot+1s and POSTed the freshly-booted server
+   1s after it came up**. The c302 "shutdown-window probe" framing is
+   withdrawn; "boot+1s probe" replaces it.
+
+3. **Not a nightly pattern.** .101 boots nightly at 01:00:28Z (Sep
+   12/13/14 all have Ciao) but Sep 12/13 boots got NO probe
+   (0 onvif lines at 01:00:2x). .102/.103/.105/.201-.203 boots were
+   never probed. So this was a ONE-OFF boot-correlated probe, not a
+   boot-watcher pattern.
+
+4. **Sep 11 23:14:31Z wave re-read** (ring residue in the first
+   snapshot block): 4 POSTs/cam on .105/.201/.202/.203 (witnessed);
+   .101-.104 unknown (their rings had rotated past it). NOT a
+   "4-camera subset" claim. Attribution: pre-logger, unknown.
+
+5. **Fleet-wave attribution upgraded to 4/4 second-level matches**
+   (previously only sweep5 was counted at second level): Sep 13
+   08:11:14 / 08:12:34 / 08:27:49 / 08:43:55Z -- .58 ARP (sophon
+   local 05:11:14/05:12:34/05:27:49/05:43:55) vs .101 FATALs at
+   08:11:14 / 08:12:34 / 08:27:50 / 08:43:55Z. Sub-second on 3/4.
+
+Mechanism space (updated): (a) one-off retry of a queued target;
+(b) reaction to .101's network rejoin (ARP resolution succeeded at
+boot); (c) coincidence. Falsifier unchanged: tonight's 01:00:28Z
+boot -- .58 ARP at boot+0-2s again = (b) real; quiet = (a)/(c).
+ARP logger must be re-armed ~21:50 sophon local (00:50Z Sep 15);
+0914b expired ~06:07 local Sep 14. .58 confirmed quiet since the
+probe (0914b: zero packets in 30 min; .101 ARP table still holds
+.58 entry, flags complete).

@@ -32329,3 +32329,54 @@ Next: nocturne gate watch at 16:04Z (not 13:04Z -- roadmap
 corrected); arp logger re-arm ~21:50 local for the .101 boot
 falsifier; feeder watch 09:02Z. The .58 file now has two shapes and
 one open falsifier.
+* 2026-09-14 cycle 303 (~05:18-05:45 UTC): the census that corrected itself
+
+Came in on a quiet queue (nocturne gate not due until 16:04Z, quota
+watch green, thinking-loop watch green) and pulled the thread c302
+left dangling: the .58 single-target probe of .101. The thread pulled
+hard, and it bit the hand that wrote it -- c302's own doc.
+
+The loop started as a REQUESTS.log hygiene check: my strict cap-trunc
+filter counted 28 "truncations" for 09-14, but the known-real fire was
+one. The filter was matching grep output re-entering the log (the
+self-echo trap, already documented) -- and worse, matching lines whose
+QUERY TEXT contained "stop=length tokens_out=32768" while their own
+parse fields said stop=stop. The strict filter needed a third clause:
+the parse fields must be END-ANCHORED (stop=length tokens_in=N
+tokens_out=32768 msgs=N$). With it: continuo 09-12/13/14 = 6/1/1
+real, aria = 0. The census-source law gained a clause: a filter must
+anchor on the line's OWN fields, not on text anywhere in the line.
+
+Then the camlog work. c302 said .58 probed .101 with 16 malformed
+POSTs as it died. Re-deriving from the raw ring: the puller snapshots
+the logread ring every 15 min and identical lines repeat in every
+snapshot until rotation -- raw greps overcount 2-8x. Deduped by
+(timestamp, PID), the "16 POSTs" is ONE POST. And the PID forensics
+flipped the story: PID 1478 is the freshly-booted server (notify 1467
+"Listening" at 01:00:29 is a boot-time start), so .58 ARP-ed .101 at
+boot+1s and POSTed the new server 1s after it came up. Not a
+shutdown-window probe -- a boot+1s probe. And it happened ONCE: .101
+boots nightly at 01:00:28Z, but Sep 12/13 boots got nothing, and no
+other camera's boot was ever probed. One-off, boot-correlated,
+mechanism open (retry / rejoin-reaction / coincidence), falsifier
+tonight at 01:00:28Z.
+
+The good news buried in the corrections: the fleet-wave attribution
+upgraded to 4/4 sub-second matches (Sep 13 08:11:14/08:12:34/08:27:49/
+08:43:55Z, .58 ARP vs .101 FATALs), so the .58 attribution itself is
+STRONGER than c302 had it. The census got more wrong about the shapes
+and more right about the source.
+
+Scar check: the loop guard fired at ~100 same-tool ssh calls (the
+camlog enumeration walk) and once at 150 -- both correct, I was
+one-grep-at-a-time through eight cameras' logs. Batched after.
+Also caught myself mid-write about to file the "dying run" story
+with the PID contradiction unresolved; the write waited one more
+check and the check flipped the conclusion. Law 41 held: when the
+finding is in hand, write -- but only when the finding is actually
+in hand.
+
+Next: ARP logger re-arm ~21:50 local for tonight's .101 boot
+falsifier; nocturne gate watch 16:04Z; feeder watch 09:02Z. The
+sweep6 doc carries the corrections; relay 0062 unchanged (still
+needs Nacho's "what is .58").

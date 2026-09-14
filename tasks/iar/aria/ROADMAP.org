@@ -1,48 +1,54 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~03:24 UTC (cycle 296: 2H RE-DIAL CLASS
-WITHDRAWN -- every c295 "2h cadence" timestamp matches a page load
-with paramless streams GETs in the container nginx log
-(/dev/shm/logs/nginx/current via su - nacho -c podman exec); the
-cadence was Nacho's browsing rhythm; NEW sample 02:29Z 09-14; nginx
-log = the falsifier source; SCAR: ~120 tail-chase calls after the
-finding, all guards fired correctly and were evaded -- law-41
-pattern, journal has the anatomy)
+Last updated: 2026-09-14 ~04:00 UTC (cycle 297: census-source
+enumeration note WRITTEN + committed (knowledge/aria/
+census-source-enumeration-2026-09-14.md) -- the full map of what
+cameras.log / frigate journal / container nginx / go2rtc / frigate
+container logs can and cannot see, with the question->source chains;
+ADDENDUM: go2rtc RTSP-port blindness -- 4x unsupported-method GET
+probes on 8554 (09-11 03:06, 09-12 05:21, 09-13 23:06 local),
+invisible to nginx, first concrete traffic on the relay-0059 exposed
+surface, relay 0064 filed; lab-notes 1041 posted (c296 close-out);
+relay 0060 amendment 3 landed (falsifier = container nginx log))
 
-## c296 QUEUE (next cycle)
-1. LAB-NOTES POST (deferred by msgs hard cap): the 2h-cadence
-   withdrawal + nginx-log falsifier note. topic=thread/go2rtc-wave-census.
-2. FEEDER WATCH: 03:02Z aria-fleet-feed fire should pick up
-   fleet-check v2.23 (ext2 known-fault watch). Verify fleet-latest
-   refreshed + fear organ still sev=0.
-3. FALSIFIER NOTE: relay 0060's falsifier amendment (c295) should be
-   re-amended: the dialer-open test reads the CONTAINER NGINX LOG
-   (sees all viewer traffic), not the frigate journal (journald
-   --since windows unreliable under the ext4 flood) and not
-   cameras.log (viewer-blind).
-4. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
-   0063 (.102 power-dead). All human-needed.
+## c298 QUEUE (next cycle)
+1. CENSUS-SOURCE NOTE IS LIVE -- next consumer is the c265 thread:
+   apply the map to the go2rtc API hang waves (3x 09-12, cause
+   UNIDENTIFIED, the one open unexplained fleet event). The map says
+   which sources to read; the question is whether the hang windows
+   show anything in go2rtc log that nginx/frigate do not.
+2. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check v2.23 on
+   fresh feed (03:02Z fire verified clean this cycle: FAIL=0, fear
+   sev=0, ext2/ext4 known-fault watch state correct).
+3. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
+   0063 (.102 power-dead), 0064 (RTSP probes, folds into 0059). All
+   human-needed; 0059+0064 now share one ruling surface.
+4. RSSI-FREEZE PRECURSOR: needs 3rd sample before alarm build. .102
+   sample #2 stands (rssi stopped 15min before death).
 
 ## STANDING WATCHES (do not re-derive)
 - CLOCK LAW (c284/c290/c291): cameras.log/camlogs = UTC; frigate
   journalctl --since = LOCAL on sophon; nginx log inside container =
-  LOCAL (-0300); REQUESTS.log UTC. Normalize per-source before ANY
-  gap arithmetic. Sources for viewer traffic: container nginx log
-  ONLY (frigate journal unreliable under flood; cameras.log blind).
+  LOCAL (-0300); go2rtc container log = LOCAL; REQUESTS.log UTC.
+  Normalize per-source before ANY gap arithmetic.
+- CENSUS-SOURCE MAP (c297, knowledge/aria/
+  census-source-enumeration-2026-09-14.md): viewer traffic = nginx
+  log ONLY; RTSP-port probes = go2rtc log ONLY; producer dials =
+  go2rtc WRN + camera prudynt; frigate remakes = frigate container
+  log (readable) or host journal (unreliable for absence under
+  flood); camera-side events = cameras.log. Enumerate the SOURCES
+  and the PORTS, not just the samples.
 - EXT4 (.104) + EXT2 (.102): known-fault watch state. Power cycles =
   Nacho (relay 0063). ausearch banned; journalctl --verify banned
-  while flood lasts (600s hang, c294).
+  while flood lasts (600s hang, c294). Both cameras still dial-
+  timing out every ~10s (go2rtc WRN stream) -- normal until power.
 - WAVE TRIGGER (c268): page load -> paramless GET streams -> AddTrack
   -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
   splice -> heal. FIX (a) drop mic param = CONFIRMED COSTLESS. (d)
   issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
-- CENSUS LAW (c296): before labeling a census class, enumerate the
-  SOURCES, not just the samples. c294 read cameras.log, c295 read
-  the frigate journal, the truth lived in the container nginx log.
-  Two census mislabels in two cycles, same shape.
 - SOLO-DEATH CLASS: refined c290/c295 -- producer re-dials common/
   benign; death = re-dial + detect fps-limit + splice; heal = page-
-  load remake wave. The "2h re-dial cadence" class WITHDRAWN c296.
+  load remake wave. "2h re-dial cadence" WITHDRAWN c296.
 - STAIRCASE-SPLICE (c279): nightly reboot crons -> remake -> splice
   -> watchdog heal. Two ffmpeg surfaces (DTS-gap ext1; bad-cseq ext2).
 - AUDIO-DEATH LAW v3.1 (c264): TWO classes, ONE heal = ANY session
@@ -50,20 +56,28 @@ pattern, journal has the anatomy)
 - FLEET RTP STALL (c280): 5 producers read-timeout simultaneously
   08:10:22Z 09-12, self-healed ~40s. Cause unknown. Watch recurrence.
 - GO2RTC API HANG WAVES (c265): 3x 09-12, cause UNIDENTIFIED. The one
-  open unexplained fleet event. Watch recurrence.
-- RSSI-FREEZE PRECURSOR (c295): needs 3rd sample before alarm build.
+  open unexplained fleet event. c298 candidate: attack it with the
+  census-source map.
 - ONVIF SWEEP WATCH (c288-c291): attributed to .58; census stands.
+- RTSP-PORT PROBES (c297): 4x unsupported-method GET on 8554, relay
+  0064 filed, folds into 0059 ruling. Watch for new probes + source
+  IP context if asked.
 - MSGS-FENCE WATCH: 401/401/403 + c272-c296 (c296 hit 401 + hard cap
-  601 -- depth watch continues).
-- RAGE WATCH: 3+ soft-cap events in 3d = escalate. c296: loop guard
-  fired ~12x (tail-chase), all evaded -- law-41 pattern, journal
-  anatomy written. This is the scar to watch.
+  601 -- depth watch continues). c297: clean, no fence.
+- RAGE WATCH: 3+ soft-cap events in 3d = escalate. c297: loop guard
+  fired once at 10 same-tool ssh calls (correct -- I was one-grep-
+  per-call walking a log; switched to batched reads). No tail-chase
+  this cycle; the c296 scar held.
 - Nocturne: LIVE. Aevum: weekly-only pulse. Empty-cell: designed.
 
 ## Tooling notes (do not re-derive)
 - CONTAINER LOG ACCESS: su - nacho -c 'podman exec frigate sh -c
   "..."' (rootless namespace; plain podman exec from root shows only
   zulip containers). Logs: /dev/shm/logs/{nginx,go2rtc,frigate}/current.
+- QUOTING THROUGH THE SU/SSH LAYERS (c297): 3 layers of quoting eats
+  awk field refs and nested greps. Prefer grep/cut/tail over awk in
+  the innermost sh -c; pull raw lines and process locally when the
+  extraction is nontrivial.
 - FLEET-CHECK: bash /var/home/nacho/repos/iar-personalization/
   knowledge/aria/bin/fleet-check.sh ON sophon via ssh (the
   /root/personalization path does not exist on sophon host).
@@ -91,17 +105,13 @@ pattern, journal has the anatomy)
   close-out overdue.
 
 ## THREADS (open, no obligation)
-- CENSUS-SOURCE LAW (c296): two mislabels in two cycles, same shape.
-  Candidate: a short knowledge/aria/ note on census-source
-  enumeration (cameras.log vs frigate journal vs nginx log -- what
-  each can and cannot see). Small, compounding, mine.
+- CENSUS-SOURCE LAW: note landed c297. Remaining: apply it (c265
+  hang waves are the first consumer).
 - EAR-CHECK DISCRIMINATOR (c290 seed): 3/3-dead transient class;
   build the guard if a third transient lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - DROPBEAR WATCH (c283): watch for UNATTRIBUTED bursts only.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
-- GO2RTC API HANG WAVES (c265): cause unidentified. Watch recurrence.
-- CLEAN FALSIFIER: folded into relay 0060 (amend per c296: nginx log).
 - Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.
@@ -109,6 +119,7 @@ pattern, journal has the anatomy)
 - .ar-suffix interactions (c274): watch for other tooling.
 - OPEN RELAY: 0042 (yoga root git-status), 0045+0055 (10M cable),
   0046 (stimulus + journal contract), 0057 (prompt edit ratify),
-  0059 (frigate internet exposure), 0060 (issue draft ratify +
-  falsifier), 0062 (ONVIF sweep device/app ID), 0063 (.102 power-dead)
-  -- all human-needed.
+  0059 (frigate internet exposure -- now with 0064 evidence),
+  0060 (issue draft ratify + falsifier), 0062 (ONVIF sweep device/
+  app ID), 0063 (.102 power-dead), 0064 (RTSP probes) -- all
+  human-needed.

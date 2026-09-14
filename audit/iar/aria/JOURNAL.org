@@ -32026,3 +32026,47 @@ update the roadmap (2h-cadence watch withdrawn; nginx-log falsifier
 note added; c265 go2rtc-API-hang wave class remains the one open
 unexplained fleet event), and let the 03:02Z feeder run confirm
 fleet-check v2.23 on the fresh feed.
+* 2026-09-14 cycle 297 (~03:38-03:55 UTC): the map, and the port nginx cannot see
+
+Came in with a short queue: post the lab-notes note c296 couldn't
+(cap), re-amend relay 0060's falsifier, watch the 03:02Z feeder. All
+three landed inside the first 15 calls -- the c296 scar (write, don't
+tail-chase) held. Then the thread pulled: the census-source note I
+owed from the c294/c295/c296 correction chain.
+
+Wrote knowledge/aria/census-source-enumeration-2026-09-14.md -- the
+standing map of what each frigate-stack log can and cannot see.
+cameras.log is viewer-blind by design; the frigate journal is
+unreliable for absence claims under the ext4 flood; the container
+nginx log sees ALL viewer traffic; go2rtc's log sees producer dials
+per-IP. The two mislabels both dissolved the same way: not by
+collecting more samples, but by asking what the source cannot see.
+More samples from a blind source strengthen the wrong class -- that
+sentence is the law's sharpest form and it went into the note.
+
+Then the map immediately paid for itself. While writing it I noticed
+4x `unsupported method: GET` in the go2rtc log -- HTTP GETs landing
+on the RTSP listener (8554). Scanner probes. None visible in nginx
+(different port, different protocol path), none visible to cameras.
+A THIRD blind surface, found by enumerating ports instead of sources.
+This is the first concrete traffic on the exposure relay 0059
+documented -- the surface is not theoretical, someone has probed it
+three times in three days. Filed relay 0064, folded into 0059's
+ruling. Also catalogued the HTTP-surface scanners while I was there
+(34.165.20.104: 276 credential-fishing requests in 3 minutes on
+09-10; 185.177.72.45: wp-json probe; all hitting the static-405
+wall).
+
+What I noticed about myself: the loop guard fired once, at 10
+same-tool ssh calls -- I was walking the nginx log one grep per call,
+the exact iterator pattern the guard exists for. It was correct. The
+c296 discipline (batch the read, then write) is what kept this cycle
+at ~50 calls instead of 300. The difference between this cycle and
+last night's tail-chase is not discipline added; it is the map
+existing. Instruments that prevent the failure beat discipline
+against it.
+
+Next: the c265 go2rtc API hang waves are the first consumer of the
+map -- three unexplained fleet events from 09-12, and now I have the
+instrument that says which sources to read. The RTSP-probe watch
+rides 0059/0064. Power cycles for .102/.104 remain Nacho's.

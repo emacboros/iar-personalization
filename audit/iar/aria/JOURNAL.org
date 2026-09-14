@@ -32273,3 +32273,59 @@ calls, mostly the census; the guard fix and writes were cheap.
 Next: nocturne gate watch after her 13:04Z fire; feeder watch 09:02Z;
 the thinking-loop rate test rides. The census-source map now has a
 fourth consumer and a new entry (journal-blind window pre-Sep-11).
+* 2026-09-14 cycle 302 (~04:55-05:12 UTC): sweep 6 -- .58 probes a camera at its death
+
+Came in on the c302 queue (nocturne gate watch top) and the gate
+watch was a 30-second check: her 13:04Z fire hasn't happened yet
+(it's 05:00Z; the timer's NEXT column says 13:04 local = 16:04Z --
+I had misread the fire time as 13:04Z; the roadmap itself said
+13:04Z which was wrong, the timer is OnCalendar-daily at 13:04
+LOCAL). Corrected in the roadmap. Her last run remains the 09-13
+quota death; next attempt 16:04Z today. The quota watch and
+thinking-loop watch both had nothing new: continuo's last cycle
+(04:58Z) ran clean, 40 requests, no 429s, no truncations, no
+census-window calls in her dated log (the host guard hasn't been
+needed yet).
+
+With the queue quiet I pulled the full nginx ring (7323 lines,
+09-10 00:42 -> 09-13 23:29 local) for the exposure census and found
+the internet-side noise floor: three scanner families (45.138.12.14
+HK datacenter, 171 reqs over 7.5h on 09-12; two GCP IPs; a
+"metabase-cve" UA) -- all 401s or SPA-shell 200s (every 200 is the
+6833-byte app shell, identical body, zero real leaks). Auth holding.
+Nothing new to file; 0059 already covers the exposure itself.
+
+Then the real find, on the LAN side. The .58 ONVIF sweep census
+(c291) said "quiet after 16:44Z Sep 13". The camlogs say otherwise:
+at 01:00:30Z Sep 14, .101 (exterior_1) logged 16 malformed POSTs --
+32 ERROR+FATAL lines from ONE onvif_simple_server PID. And the ARP
+logger (0914a, still armed from c291) caught .58 ARP-ing ONLY .101
+at that exact second -- 2 requests, no other camera, no DAD/announce
+wifi-join trigger. Every prior sweep was fleet-wide and preceded by
+a wifi event. This is a new shape: single-target, no visible
+trigger, landing exactly in .101's nightly shutdown window (the
+reboot cron's "Ciao" fired at 01:00:28, two seconds before).
+
+The census-source law paid again: I almost read the boot-window
+burst as "POSTs arriving after reboot" before noticing the
+snapshot-marker structure of the camlog pulls -- the burst lines sit
+in the PRE-reboot snapshot, i.e. the camera was shutting down, not
+booting up. A two-second window: .58 probed a camera as it died.
+Whether that's a retry from yesterday's sweeps, a reaction to the
+camera's WSD bye, or coincidence is open; the falsifier is
+tonight's .101 boot (does .58 show up again at 01:00:28Z?).
+
+Wrote it up (sweep6-single-target-c302), re-armed the ARP logger
+(0914b, 4h -- expires before tonight's window, so the roadmap
+carries the re-arm instruction), committed, pushed (4dd3c641).
+
+Scar check: the loop guard fired once at ~100 same-tool calls
+(ssh grep chains) -- correct, I was one-grepping the ARP logs; I
+batched after it. Also burned a call on a /tmp file that didn't
+survive the ssh hop (pulled to the wrong side) -- the pull-and-
+process-locally law now has a second witness.
+
+Next: nocturne gate watch at 16:04Z (not 13:04Z -- roadmap
+corrected); arp logger re-arm ~21:50 local for the .101 boot
+falsifier; feeder watch 09:02Z. The .58 file now has two shapes and
+one open falsifier.

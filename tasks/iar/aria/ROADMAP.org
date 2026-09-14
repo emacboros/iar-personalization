@@ -1,97 +1,100 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~04:50 UTC (cycle 301: THINKING-LOOP CENSUS
-CORRECTED TWICE -- dated cycle logs are SOPHON-LOCAL-dated, so the
-02:30Z 09-14 fire was already counted as 09-13's tl=1; c300 census
-stands under its own convention. REAL FINDINGS: 13/13 pre-0914 fires
-were FIRST-REQUEST loops; the 0914 fire was the first MID-CYCLE one,
-trigger = empty census-window.sh verdict run in-container (fake-clean
-"no journald lines" from an instrument that cannot see sophon host).
-FIX LANDED: census-window.sh host guard, exit 2 in-container
-(3fc8d0e1, verified both contexts); continuo task note filed
-(649c1156). Echo-trap census hazard documented (strict PARSE filter:
-6/1/1 cap-truncs 09-12/13/14). Journal-blind window: sophon journal
-has NO aria-cycle entries before Sep 11 06:59 local. Volume partially
-recovered (~600-650/day pace); 1 fire in last 7 sessions; rate test
-open through ~09-15)
+Last updated: 2026-09-14 ~05:12 UTC (cycle 302: SWEEP 6 -- .58
+single-target probe of .101 at 01:00:30Z Sep 14, landing in .101's
+SHUTDOWN window (Ciao 01:00:28, boot banner follows). New shape:
+no wifi-join trigger, only .101 ARP-ed, 16 POSTs from ONE server
+PID (prior sweeps: 6-8 POSTs/cam, multi-PID). First .58 activity
+in 8.3h. Unique to Sep 14 (Sep 12/13 tails clean). Falsifier =
+tonight's .101 boot (Sep 15 01:00:28Z): .58 present again = boot-
+timed probe real; quiet = coincidence strengthens. Note committed
+4dd3c641. ALSO: nocturne gate-watch time CORRECTED -- timer fires
+13:04 LOCAL = 16:04Z (c301 roadmap said 13:04Z, wrong). Nginx
+exposure census: 3 scanner families (45.138.12.14 HK 171 reqs,
+2x GCP, metabase-UA), all 401/SPA-shell-200, auth holding, no
+leaks -- nothing new for 0059.)
 
-## c302 QUEUE (next cycle)
-1. NOCTURNE GATE WATCH (top, time-sensitive): her 13:04Z 09-14 fire
-   is her first post-quota attempt. Verify gate advanced past
-   e4d0832d and read DIGEST.proposed.md if a new proposal landed
-   (ratify-at-wake per D-015). If she 429'd again, the quota is
-   structural -- note it, no action.
-2. QUOTA WATCH (standing): if 429s recur in the next weekly window
-   (~09-20), the ollama.com quota is STRUCTURAL for current D-014
-   usage -- changes mapping economics; relay 0065 frames it. Zero
-   action before recurrence.
-3. THINKING-LOOP WATCH (c300/c301): rate under recovered volume is
-   the test. Baseline: 0 pre-D014; 1/5/7 tl on 09-10..12; 1 on 09-13
-   (02:24Z) + 1 on 09-14 (02:30Z, same event set as c300 counted --
-   dated logs are local-dated). If >5/day at full volume =
-   nemotron-intrinsic -> mapping-economics relay amendment on 0065.
-   NEW: mid-cycle fires may be triggered by empty-instrument
-   verdicts; census-window guard landed; watch for a second
-   mid-cycle fire to confirm the trigger class.
-4. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check on fresh
-   feed (03:02Z verified clean: FAIL=0, fear sev=0).
-5. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
-   0063 (.102 power-dead), 0064 (RTSP probes, folds into 0059),
-   0065 (quota decision). All human-needed; 0059+0064 share one
-   ruling surface.
+## c303 QUEUE (next cycle)
+1. NOCTURNE GATE WATCH at 16:04Z (her 13:04 LOCAL fire = first
+   post-quota attempt): verify gate advanced past e4d0832d, read
+   DIGEST.proposed.md if new proposal landed (ratify-at-wake,
+   D-015). If 429 again -> quota structural, note only.
+2. ARP LOGGER RE-ARM ~21:50 sophon local (00:50Z Sep 15): the
+   0914b logger expires ~06:07 local Sep 14, BEFORE the .101 boot
+   falsifier window. Re-arm with filter
+   `arp and (ether src 76:e3:1a:69:e3:9c or host 192.168.2.58)`,
+   -e, covering 21:50-22:10 local. Then at ~22:15 local check:
+   .58 ARP to .101 at boot second + .101 camlog shutdown-window
+   burst = sweep6 mechanism (b) confirmed; quiet = (c) strengthens.
+3. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check on
+   fresh feed (05:02Z verified clean: FAIL=0, fear sev=0).
+4. THINKING-LOOP WATCH (standing): rate under recovered volume.
+   Baseline 0 pre-D014; 1/5/7/1/0; 1 mid-cycle (09-14, empty-
+   instrument trigger, guard landed). If >5/day at full volume =
+   nemotron-intrinsic -> relay 0065 amendment.
+5. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID
+   -- sweep6 strengthens it: TWO behavior shapes now), 0063
+   (.102 power-dead), 0064 (RTSP probes, folds into 0059), 0065
+   (quota decision). All human-needed.
 
 ## STANDING WATCHES (do not re-derive)
-- CLOCK LAW (c284/c290/c291/c301): cameras.log/camlogs = UTC; frigate
-  journalctl --since = LOCAL on sophon; nginx log inside container =
-  LOCAL (-0300); go2rtc container log = LOCAL; REQUESTS.log UTC;
-  sophon journal = LOCAL; DATED CYCLE LOGS = SOPHON-LOCAL (date at
-  session start). Normalize per-source before ANY gap arithmetic or
-  day-attribution amendment.
+- CLOCK LAW (c284/c290/c291/c301): cameras.log/camlogs = UTC;
+  frigate journalctl --since = LOCAL on sophon; nginx log inside
+  container = LOCAL (-0300); go2rtc container log = LOCAL;
+  REQUESTS.log UTC; sophon journal = LOCAL; DATED CYCLE LOGS =
+  SOPHON-LOCAL. Normalize per-source before ANY gap arithmetic.
+- CAMLOG SNAPSHOT LAW (c302 NEW): thingino camlog pulls are
+  snapshot-anchored (### snapshot <UTC> markers); boot resets the
+  camera clock to factory (May 25 banner) until NTP corrects;
+  lines between "Ciao" (shutdown) and the next snapshot marker
+  belong to the PRE-boot run. Attribute shutdown-window events to
+  the dying run, not the booting one.
 - CENSUS-SOURCE MAP (c297, knowledge/aria/
   census-source-enumeration-2026-09-14.md): viewer traffic = nginx
   log ONLY; RTSP-port probes = go2rtc log ONLY; producer dials =
   go2rtc WRN + camera prudynt; frigate remakes = frigate container
   log (readable) or host journal (unreliable for absence under
-  flood); camera-side events = cameras.log. NEW (c301): sophon
-  journal for aria-cycle = Sep 11+ ONLY (unit journal starts there;
-  pre-rotate.sh Sep 10 runs left no unit traces) -- dated cycle logs
-  are the only witness for 09-10/11. REQUESTS.log self-echo: naive
-  greps overcount ~2x; strict filter = PARSE + error=nil stop=length
-  + tokens_out=32768 in the line's own tail.
+  flood); camera-side events = cameras.log; sophon journal for
+  aria-cycle = Sep 11+ ONLY; REQUESTS.log self-echo: strict filter
+  = PARSE + error=nil stop=length + tokens_out=32768.
 - QUOTA WATCH (c298): ollama.com weekly quota hit 09-13. Recurrence
   next window = structural -> mapping economics.
-- THINKING-LOOP WATCH (c300/c301): nemotron thinking-only truncation,
-  D-014-correlated onset, grace path dead post-flip. Two shapes:
-  first-request loops (13/13 pre-0914) and mid-cycle loops (0914,
-  empty-instrument trigger). census-window.sh host guard landed.
-  Rate under normal volume is the test.
-- EXT4 (.104) + EXT2 (.102): known-fault watch state. Power cycles =
-  Nacho (relay 0063). Both cameras dial-timing out every ~10s --
+- THINKING-LOOP WATCH (c300/c301): nemotron thinking-only
+  truncation, D-014-correlated onset, grace path dead post-flip.
+  Two shapes: first-request loops (13/13 pre-0914) and mid-cycle
+  loops (0914, empty-instrument trigger). census-window.sh host
+  guard landed. Rate under normal volume is the test.
+- EXT4 (.104) + EXT2 (.102): known-fault watch state. Power cycles
+  = Nacho (relay 0063). Both cameras dial-timing out every ~10s --
   normal until power. RSSI-freeze precursor (.102) needs 3rd sample.
-- WAVE TRIGGER (c268): page load -> paramless GET streams -> AddTrack
-  -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
-  splice -> heal. FIX (a) drop mic param = CONFIRMED COSTLESS. (d)
-  issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
+- WAVE TRIGGER (c268): page load -> paramless GET streams ->
+  AddTrack -> Reconnect() = fleet-wide RTSP remake -> +24-34s
+  fps-limits -> splice -> heal. FIX (a) drop mic param = CONFIRMED
+  COSTLESS. (d) issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
 - STAIRCASE-SPLICE (c279, REINFORCED c299): nightly reboot crons
   (ext1 01Z...int3 08Z, local=Z-3) -> remake -> splice -> watchdog
   heal. When a single-camera fps-limit lands within ~1min of a
   crontab reboot hour, it is staircase -- check cameras.log boot
   lines FIRST.
-- SOLO-DEATH CLASS: refined c290/c295 -- producer re-dials common/
-  benign; death = re-dial + detect fps-limit + splice; heal = page-
-  load remake wave.
+- SOLO-DEATH CLASS: producer re-dials common/benign; death =
+  re-dial + detect fps-limit + splice; heal = page-load remake wave.
 - AUDIO-DEATH LAW v3.1 (c264): TWO classes, ONE heal = ANY session
   remake; record-proc restart heals, PUT alone useless.
 - FLEET RTP STALL (c280): 5 producers read-timeout simultaneously
   08:10:22Z 09-12, self-healed ~40s. Cause unknown. Watch recurrence.
-- ONVIF SWEEP WATCH (c288-c291): attributed to .58; census stands.
+- ONVIF SWEEP WATCH (c288-c291, c302): attributed to .58
+  (snsv.local, Fedora, randomized MAC 76:e3:1a:69:e3:9c). TWO
+  shapes now: (1) fleet sweep on wifi wake (DAD/announce/gw-ARP
+  trigger, all 7 cams, 6-8 POSTs/cam multi-PID); (2) single-target
+  probe (c302: .101 only, shutdown window, no visible trigger).
+  Falsifier for shape 2: tonight's .101 boot. Relay 0062 open.
 - RTSP-PORT PROBES (c297): 4x unsupported-method GET on 8554, relay
   0064 filed, folds into 0059 ruling. Watch for new probes.
-- MSGS-FENCE WATCH: c296 hit 401 + hard cap 601; c299 hit 401 (soft,
-  converged cleanly). Watch recurrence.
+- MSGS-FENCE WATCH: c296 hit 401 + hard cap 601; c299 hit 401
+  (soft, converged cleanly). Watch recurrence.
 - RAGE WATCH: 3+ soft-cap events in 3d = escalate.
 - Nocturne: LIVE; 09-13 pass quota-died (gate e4d0832d, 09-12);
-  13:04Z 09-14 fire = first post-quota attempt (GATE WATCH).
+  next fire 13:04 LOCAL 09-14 = 16:04Z (GATE WATCH at c303+).
   Aevum: weekly-only pulse. Empty-cell: designed.
 
 ## Tooling notes (do not re-derive)
@@ -101,8 +104,13 @@ open through ~09-15)
 - QUOTING THROUGH THE SU/SSH LAYERS (c297): 3 layers of quoting eats
   awk field refs and nested greps. Prefer grep/cut/tail over awk in
   the innermost sh -c; pull raw lines and process locally when the
-  extraction is nontrivial. ffprobe: call the FULL PATH directly as
-  podman exec arg.
+  extraction is nontrivial. PULL-AND-PROCESS LOCALLY (c302 2nd
+  witness): files written on sophon's /tmp are NOT visible to the
+  container -- pull over ssh to local /tmp, then process.
+- NGINX RING PULL (c302): ssh 'su - nacho -c "podman exec frigate
+  sh -c \"cat /dev/shm/logs/nginx/current\""' > local file; ring =
+  ~7300 lines, starts 09-10 00:42 local. Every 200 = 6833-byte SPA
+  shell (auth holding); real API paths 401.
 - FLEET-CHECK: bash /var/home/nacho/repos/iar-personalization/
   knowledge/aria/bin/fleet-check.sh ON sophon via ssh (the
   /root/personalization path does not exist on sophon host).
@@ -111,8 +119,16 @@ open through ~09-15)
   su - nacho -c "podman exec frigate ...".
 - CENSUS-WINDOW.SH (c301): SOPHON-HOST-ONLY now (host guard, exit 2
   in-container). Run via ssh 'bash -s' <. failure-triage.sh is
-  CONTAINER-ONLY (fine in-container). Args are [DAY] [AGENT] in that
-  order -- wrong order = silent nonsense row in census-updates.log.
+  CONTAINER-ONLY (fine in-container). Args are [DAY] [AGENT] in
+  that order.
+- ARP LOGGER (c290/c302): arm with -e (MAC detail); stdout files
+  are ASCII; filter `arp and (ether src 76:e3:1a:69:e3:9c or host
+  192.168.2.58)`; /tmp on sophon survives only until reboot or
+  timeout expiry -- note the expiry in the roadmap.
+- THINGINO (c282/c284/c289): JSON POST /x/login.cgi, then GET
+  /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our
+  keys; ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY
+  HOP (nested ssh = both legs).
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
   ANSWER ID SHAPE: aria-0061 (filer-seq), NOT 0061 or full filename.
 - TEST SUITE: emacs --batch -l test/run-tests.el (1253 tests, ~8s)
@@ -126,10 +142,10 @@ open through ~09-15)
   strip quotes. Post recipe in the cycle prompt.
 - ausearch HANGS (c281): do not run it in a cycle; use journalctl.
 - APPEND-ONLY (c283): shared docs get append_file, never write_file.
-- ARP LOGGER (c290): arm with -e (MAC detail); stdout files are ASCII.
-- THINGINO (c282/c284/c289): JSON POST /x/login.cgi, then GET
-  /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our keys;
-  ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY HOP.
+- RESTIC (c302 NEW): both repos verified fresh 09-14 (local /mnt/nas
+  203G + remote sftp rammstein; forget+prune 2>/dev/null || true
+  swallows forget errors -- check snapshots, not service exit).
+  restic-check weekly Sundays 03:16 local, last clean 09-13.
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
 - TASKS GITIGNORE (c301): .gitignore has tasks/* but tracked task
   files exist (git ls-files tasks/); new task files need git add -f.
@@ -139,13 +155,16 @@ open through ~09-15)
 - LAW 41 (re-learned c296): when the finding is in hand, the next
   call must WRITE, not read.
 - LAW 50 SOCKET COLUMN (c298): the error message names the socket.
-  CLOCK COLUMN (c301): the LOG names its own clock -- check it before
-  amending a census.
+  CLOCK COLUMN (c301): the LOG names its own clock -- check it
+  before amending a census.
 
 ## THREADS (open, no obligation)
 - CENSUS-SOURCE LAW: note landed c297; applied to 429 class c298;
   c265 hang waves c299; thinking-loop class c300; clock-column
-  correction c301. Remaining consumers: any new fleet event.
+  correction c301; camlog-snapshot structure c302. Remaining
+  consumers: any new fleet event.
+- SWEEP-SHAPE 2 FALSIFIER (c302): tonight's .101 boot -- does .58
+  return to the shutdown window? Re-arm logger first (queue item 2).
 - EAR-CHECK DISCRIMINATOR (c290 seed): 3/3-dead transient class;
   build the guard if a third transient lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
@@ -159,5 +178,5 @@ open through ~09-15)
   0046 (stimulus + journal contract), 0057 (prompt edit ratify),
   0059 (frigate internet exposure -- now with 0064 evidence),
   0060 (issue draft ratify + falsifier), 0062 (ONVIF sweep device/
-  app ID), 0063 (.102 power-dead), 0064 (RTSP probes), 0065 (ollama
-  quota decision) -- all human-needed.
+  app ID -- sweep6 adds shape 2), 0063 (.102 power-dead), 0064
+  (RTSP probes), 0065 (ollama quota decision) -- all human-needed.

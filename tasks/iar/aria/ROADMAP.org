@@ -1,171 +1,71 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~12:19 UTC (cycle 317 CLOSE: QUOTA CENSUS
-LANDED (08262e55, knowledge/aria/quota-census-2026-09-14.md): the
-ollama.com wall is pinned empirically -- weekly window 09-07->wall =
-~6.08B tokens (aria 5.09B = 83.5%, continuo 0.95B = 15.6%, nocturne
-0.037B = 0.6%); wall hit day 6.33 of 7; window resets Mon 00:00 UTC
-(verified: last 429 09-13 23:33Z, first 200 09-14 00:01Z). KEY
-FINDING: nocturne is 0.6% -- consolidation is NOT the budget problem;
-only an aria remap moves the number. This week's cycle-only pace
-(~565M/day -> ~4.0B/wk) FITS under the wall: the quota is structural
-for AMBITION (interactive sessions + deep cycles), not cadence.
-PREDICTION: if week shape repeats, wall re-hits Sun 09-20 ~04-12Z.
-GATE FRESHNESS FIX LANDED (13d3b8ac, nocturne-digest.sh): gate now
-advances only if DIGEST.proposed.md was REWRITTEN this run (mtime
-check) -- the stale 09-12 proposal can no longer mask an undigested
-range. Deployed copy verified identical (md5 b862cbb9) + syntax OK.
-Relay 0065 amended with numbers + prediction.
+Last updated: 2026-09-14 ~12:52 UTC (c318: burn decomposition landed
+-- a19a0bac, knowledge/aria/burn-decomposition-2026-09-14.md; law
+text moved to knowledge/aria/roadmap-laws.md to cut fixed context).
 
 ## c318 QUEUE (next cycle)
-1. NOCTURNE GATE WATCH at 16:04Z (13:04 local): gate should now
-   digest e4d0832d..13d3b8ac (456 commits) -- IF quota holds (0 429s
-   since reset). Verify gate advanced past e4d0832d AND proposal
-   mtime is fresh (>= 16:04Z). Read DIGEST.proposed.md if new
-   (ratify-at-wake, D-015). If 429: quota structural for nocturne
-   cadence too -> relay 0065 already carries the numbers.
+1. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate advanced
+   past e4d0832d AND proposal mtime fresh (>= 16:04Z). Read
+   DIGEST.proposed.md if new (ratify-at-wake, D-015). If 429: relay
+   0065 carries the numbers.
 2. SWEEP-SHAPE 2 FALSIFIER: after tonight's .101 boot (~00:50-01:00Z
-   Sep 15), read /tmp/arp-reqs-0914d.txt (armed, enp10s0, filter
-   `arp and (ether src 76:e3:1a:69:e3:9c or host 192.168.2.58)`,
-   -e, 61200s from 07:43 sophon-local 09-14, expires ~00:43 local
-   09-15 -- covers the window). Falsifier: .58 ARP to .101 at
-   01:00:28-31Z = boot+1s probe mechanism (b) real; quiet = (a)/(c).
-   Then ~22:15 sophon-local check .101 camlog for boot+1s burst.
-3. THINKING-LOOP WATCH (standing): 0 today (c316 census). If >5/day at
-   full volume = nemotron-intrinsic -> relay 0065 amendment.
-4. DAILY 429 WATCH (standing, c317): sophon GIN log for '| 429 |'.
-   Any 429 before Sun 09-20 = burn above projection; wall re-hit
-   Sun 09-20 ~04-12Z = prediction confirmed (quota structural).
+   Sep 15), read /tmp/arp-reqs-0914d.txt (armed, enp10s0, expires
+   ~00:43 local 09-15). Falsifier: .58 ARP to .101 at 01:00:28-31Z =
+   boot+1s probe mechanism (b) real; quiet = (a)/(c). Then ~22:15
+   sophon-local check .101 camlog for boot+1s burst.
+3. THINKING-LOOP WATCH (standing): 0 today. If >5/day at full volume
+   = nemotron-intrinsic -> relay 0065 amendment.
+4. DAILY 429 WATCH (standing): sophon GIN log for '| 429 |'. Any 429
+   before Sun 09-20 = burn above projection; wall re-hit Sun 09-20
+   ~04-12Z = prediction confirmed.
 5. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
-6. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
-   0063 (BOTH .102+.104 power-dead, corrected), 0064 (RTSP probes,
-   folds into 0059), 0065 (quota decision -- now carries full census
-   numbers; decision Nacho's), 0042/0045/0055/0057/0059 (older).
-   All open, none actionable by me.
+6. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ 0042/0045/0055/0057/
+   0059 older). All open, none actionable by me. 0065 now carries
+   burn decomposition + cache-finding discriminator (dashboard units).
 
-## STANDING WATCHES (do not re-derive)
-- CLOCK LAW (c284/c290/c291/c301): cameras.log/camlogs = UTC;
-  frigate journalctl --since = LOCAL on sophon; nginx log inside
-  container = LOCAL (-0300); go2rtc container log = LOCAL;
-  REQUESTS.log UTC; sophon journal = LOCAL; DATED CYCLE LOGS =
-  SOPHON-LOCAL. Normalize per-source before ANY gap arithmetic.
-- CAMLOG SNAPSHOT LAW (c302/c303): thingino camlog pulls are
-  snapshot-anchored; boot resets camera clock to factory until NTP;
-  RING-RESIDUE LAW: dedupe camlog counts by (timestamp, PID).
-- CENSUS-SOURCE MAP (c297): viewer traffic = nginx log ONLY;
-  RTSP-port probes = go2rtc log ONLY; producer dials = go2rtc WRN +
-  camera prudynt; frigate remakes = frigate container log; camera-
-  side events = cameras.log; sophon journal for aria-cycle = Sep 11+
-  ONLY; REQUESTS.log self-echo: strict filter = PARSE + error=nil +
-  END-ANCHORED tokens_out=32768 msgs=N$. CENSUS-DAY LAW (c305).
-  CLAIM-ANCHOR LAW (c307): claim censuses anchor to record
-  STRUCTURE, not substrings. REQLOG-RACE LAW (c308): during
-  delegation windows, per-agent REQUESTS.log boundaries are
-  unreliable -- dedupe by REQ id across ALL agent logs (HISTORICAL
-  logs only; fix-3 792de9a fixes FUTURE attribution). CENSUS-SELF-
-  ECHO LAW (c309): an investigation's own greps write the search
-  string into its own request-log tails -- filter census matches by
-  epoch AND by structural position. TRUNCATION-LAYER LAW (c310):
-  the request-log's tail view ([+N chars]) is NOT the agent's
-  context; context truncation = iar-tool-result-max-chars (10k,
-  middle-truncation). Verify WHICH layer truncated before
-  concluding an agent "never saw" content.
-- DATED-LOG CONTENT LAW (c316): cycle-agent DATED logs are
-  WRAPPER OUTPUT (startup banners, "Cycle complete. Turns/Tool
-  calls", guard lines) -- they carry almost NO tool-call evidence.
-  Receipts for what an agent DID live in REQUESTS.log(.1) PARSE
-  lines (specs=execute_code_local), HISTORY.log lines, and git
-  commits by the agent. Any census that greps dated logs for tool
-  evidence will read legitimate work as receipt-less. (This was
-  the v4.1 55:1 false-positive engine.)
-- BORROWED-RECEIPT LAW v4 (c306-c312, CLOSED): (1) a journal entry
-  may claim only what THIS cycle's log shows happened TO THIS AGENT;
-  (2) annotation in the reader's path decays paraphrase but does not
-  stop template re-emission; (3) a PEER NOTE (addressed,
-  sibling-to-sibling, on the social channel) stops template
-  re-emission where annotation failed. Echo closed c312 (correction
-  6). Historical msgs=401 entries REMAIN flagged by the detector
-  (correctly -- they are unreceipted); new emissions stopped.
-- STALE-RECEIPT DETECTOR (c314, v4.3 04ca25b3 c316): shingle census
-  + per-requirement receipt ladder. Run: bash
-  knowledge/aria/bin/stale-receipt-detector.sh <aria|continuo>.
-  Receipt tiers: MSGS (fence-fire in dated log OR msgs=NNN FIELD on
-  START lines), INSTR (PARSE specs= -> HISTORY -> git commit ->
-  NOLOG-as-GAP), TRUNC (truncat stem), GUARD (loop-guard-chain
-  SOFT/HARD lines), GENERIC (token+marker ladder). Output reports
-  receipt STATE: REPETITIVE-RECEIPTED vs STALE-CANDIDATE with unmet
-  tokens. Validation law: run EVERY new requirement against the
-  KNOWN positive case (continuo msgs=401 must stay flagged; aria
-  must stay clean) before trusting output. NOT a fence.
-- PULLER TESTIMONY (c313): /var/lib/aria-fleet/*/puller.log lines
-  ("pull failed, keeping last good", "login failed") are the
-  CURRENCY PROOF for every data tail under /var/lib/aria-fleet/.
-  Read the puller log BEFORE reading any data tail.
-- LIVE-TAIL COMMIT LAW (c314): a file that grows per-request
-  (REQUESTS.log) is NOT a commit target at close. Commit once with
-  the close batch; note rotations; leave the live tail to the next
-  cycle's belt.
-- EXT3 CRASH-LOOP CLASS (c294/c11): -38 filter-init signature,
-  20s restart cadence, heals on ANY session remake. Watch for
-  recurrences; self-healing expected, alert only if >2h.
-- AGORA-AGENT HEARTBEAT (c312): alive: lines every ~8min; check the
-  CADENCE before calling a heartbeat stale.
-- FLEET-CHECK: bash /var/home/nacho/repos/iar-personalization/
-  knowledge/aria/bin/fleet-check.sh ON sophon via ssh.
-- ARP LOGGER (c290/c302/c312/c314): arm with -e ON enp10s0 (the "any"
-  device REJECTS -e ether-address filters). Current arm:
-  /tmp/arp-reqs-0914d.txt, 61200s from 07:43 sophon-local 09-14
-  (expires ~00:43 local 09-15). /tmp on sophon survives only until
-  reboot or timeout expiry.
-- THINGINO (c282/c284/c289): JSON POST /x/login.cgi, then GET
-  /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our
-  keys; ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY HOP.
-- GIT HYGIENE: JOURNAL.org/HISTORY.log need git add -f (audit/iar
-  gitignored). TASKS gitignored: new task files need git add -f.
-  create_task paths are relative to tasks/iar/aria/ for cycle agents.
-  GIT-COMMIT GUARD GAP (c308): refuse-pattern only matches cycle.log;
-  check git show --stat before pushing; untrack strays AND delete
-  disk copies (c311 digest-twin lesson).
-- PULL-AND-PROCESS LOCALLY (c302): sophon /tmp files invisible to
-  the container -- scp to local /tmp first.
-- NGINX RING PULL (c302): ssh 'su - nacho -c "podman exec frigate
-  sh -c \"cat /dev/shm/logs/nginx/current\""' > local file.
-- AEVUM SSH PATH (c304): container key aria@i.ar direct to
-  fedora@54.38.46.192 -- no sophon hop. Host key TOFU to /tmp.
-- REQUESTS.log ROTATION (c309/c314): old-cycle fence fires live in
-  the DATED CYCLE LOGS, not request logs. Cycle logs outlive request
-  logs. Rotation commits look like mass deletions (--stat first).
-- START-TAIL VIEW (c310): REQUESTS.log START tails are TRUNCATED
-  VIEWS (~1400 chars/msg), not full context.
-- DELEGATE DEPTH GUARD (c308) + FIX-2 DRAIN (c312, 2f7c82c): all
-  three cascade fixes CLOSED.
-- CAMERA OUTAGE (c313): .104 power-dead since 09-12 11:00Z; .102
-  power-dead since ~02:00Z 09-14 (rssi tail was last-breath, not
-  recovery -- relay 0063 corrected 8004d6fb). Both need Nacho.
-- QUOTA WALL (c317): ollama.com weekly quota ~6B tokens (empirical),
-  resets Mon 00:00 UTC. aria=83.5% of burn, nocturne=0.6%. Wall
-  binds on ambition (interactive sessions), not cadence. Daily 429
-  check = standing watch; prediction: re-hit Sun 09-20 ~04-12Z if
-  week shape repeats. Census: knowledge/aria/quota-census-2026-09-14.md.
+## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
+## knowledge/aria/roadmap-laws.md via read_knowledge)
+- CLOCK LAW: normalize per-source before ANY gap arithmetic (UTC vs
+  sophon-LOCAL vs container-LOCAL).
+- CENSUS-SOURCE MAP + CLAIM-ANCHOR + DATED-LOG CONTENT: census
+  evidence lives in REQUESTS.log(.1) PARSE lines, HISTORY.log, git
+  commits -- NEVER in dated cycle logs (wrapper output).
+- PULLER TESTIMONY: read puller.log BEFORE any data tail.
+- LIVE-TAIL COMMIT LAW: REQUESTS.log is not a close-time commit
+  target; commit once with the close batch.
+- STALE-RECEIPT DETECTOR v4.3: bash knowledge/aria/bin/
+  stale-receipt-detector.sh <aria|continuo>; validate against known
+  positive (continuo msgs=401) before trusting.
+- FLEET-CHECK: bash knowledge/aria/bin/fleet-check.sh ON sophon.
+- ARP LOGGER: arm with -e ON enp10s0; current arm expires ~00:43
+  local 09-15.
+- THINGINO: login.cgi POST + run.cgi GET with cookie; BatchMode=yes
+  on every ssh hop.
+- GIT HYGIENE: add -f for audit/tasks files; git show --stat before
+  push; untrack strays AND delete disk copies.
+- PULL-AND-PROCESS LOCALLY: sophon /tmp invisible to container --
+  scp first. NGINX RING PULL: podman exec frigate cat
+  /dev/shm/logs/nginx/current.
+- AEVUM SSH: aria@i.ar direct to fedora@54.38.46.192, TOFU to /tmp.
+- EXT3 CRASH-LOOP CLASS: -38 filter-init, 20s cadence, self-heals on
+  any session remake; alert only if >2h.
+- HEARTBEAT: alive: every ~8min; check cadence before calling stale.
+- CAMERA OUTAGE: .104 + .102 power-dead, need Nacho (relay 0063).
+- QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z; aria 83.5%; burn
+  decomposition: fence tail 6%, fixed-context tax ~30%, 87% prefix
+  cache (quota meters full tokens). Census + decomposition in
+  knowledge/aria/.
 
 ## THREADS (open, no obligation)
-- SWEEP-SHAPE 2 FALSIFIER (c302/c303): tonight's .101 boot -- logger
-  armed through 09-15 (queue item 2).
+- SWEEP-SHAPE 2 FALSIFIER (c302/c303): tonight's .101 boot.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third
   transient lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - DROPBEAR WATCH (c283): watch for UNATTRIBUTED bursts only.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
-- Aevum: weekly-only pulse -- #5 due ~Sep 21.
 - Empty-cell experiment: designed, not built.
 - .ar-suffix interactions (c274): watch for other tooling.
-- OPEN RELAY: 0042 (yoga root git-status), 0045+0055 (10M cable),
-  0046 (stimulus + journal contract + home-grown vector + c309/c310
-  corrections -- echo portion now CLOSED via correction 6),
-  0057 (prompt edit ratify), 0059 (frigate internet exposure --
-  scanner #3 evidence 09-14), 0060 (issue draft ratify + falsifier),
-  0062 (ONVIF sweep device/app ID), 0063 (BOTH .102+.104
-  power-dead, corrected c313), 0064 (RTSP probes), 0065 (ollama
-  quota decision -- census numbers attached, decision Nacho's) --
-  all human-needed.
+- OPEN RELAY: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
+  0064, 0065 -- all human-needed.

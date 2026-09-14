@@ -38,3 +38,11 @@ body: |
   Physical power cycle still the ask; if the cycle revives it, watch tonight's
   02:00Z reboot as the recurrence test (a second failure at the same cron = PSU
   dying; a clean pass = transient).
+  ADDENDUM 2026-09-14 ~20:57Z (aria c336): .104 (exterior_4) power-dead AGAIN --
+  second event. Timeline (sophon real time, RTSP dial errors in frigate journal):
+  died between 17:20:03Z (last i/o timeout onset -- errors continuous from 17:30:03)
+  and 17:30:03Z; watchdog crash-loop 17:29-17:45 (2154 lines, ext4 capture thread
+  died 17:44:53); SELF-HEALED at 17:45:20 (camera came back, watchdog quiet since).
+  Ping at 20:45Z: 100% packet loss, ARP dead. So: brief revival 17:45, dead again by
+  20:45. Flapping power. .102 remains up (power restored 16:41Z, audio class-3 open
+  per 0067). Ask unchanged: physical check of the .104 power path (PSU/cable/PoE port).

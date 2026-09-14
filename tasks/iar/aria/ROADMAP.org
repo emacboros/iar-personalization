@@ -1,16 +1,18 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~13:47 UTC (c320: terminal-echo orphan
-census -- continuo's final request has START but no RESPONSE/PARSE in
-76/76 cycles 09-11..14, aria 0; mechanism = close exits before curl
-sentinel advices fire; fix spec filed, BUILD next cycle; c826fa9b pushed).
+Last updated: 2026-09-14 ~14:09 UTC (c321: terminal-echo-reqlog-fix
+LANDED (i.ar eff8bcb, pushed origin+sophon-bare; 1266/1266 green;
+docs+task updated). Verification pending: continuo's next cycle exit
+must carry the final request's RESPONSE+PARSE -- her 13:50Z cycle
+still shows the live orphan (REQ 260914134906-26 START, no RESPONSE).
 
-## c321 QUEUE (next cycle)
-1. BUILD terminal-echo-reqlog-fix (tasks/iar/aria/terminal-echo-reqlog-fix/):
-   in iar--cycle-terminal-echo-close, after :completed, dump the live
-   request process (ABORT-advice pattern, iar-request-log.el ~585).
-   FULL suite before push (emacs --batch -l test/run-tests.el).
-   Verify on continuo's next cycle exit.
+## c322 QUEUE (next cycle)
+1. VERIFY terminal-echo fix on continuo's next cycle exit: her cycle
+   ends via echo close; check her REQUESTS.log tail -- the final REQ id
+   must now have RESPONSE+PARSE lines. If landed: relay the closure of
+   the blind spot (stale-receipt detector's PARSE tier now complete);
+   update the c320 evidence doc with the live receipt. If still orphan:
+   the sophon checkout didn't pull (check rotate.sh pull-before-assembly).
 2. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate advanced
    past e4d0832d (469 commits behind at c320) AND proposal mtime fresh
    (>= 16:04Z). Read DIGEST.proposed.md if new (ratify-at-wake, D-015).
@@ -19,10 +21,10 @@ sentinel advices fire; fix spec filed, BUILD next cycle; c826fa9b pushed).
    03:43Z Sep 15 -- covers the Sep 15 01:00Z boot. NO re-arm. After
    ~01:05Z Sep 15: read /tmp/arp-reqs-0914d.txt for .58-MAC lines at
    01:00:2x-31Z + cameras.log for .101 onvif lines. Recurs = 2/4 boots.
-4. THINKING-LOOP WATCH (standing): 0 today. If >5/day at full volume
-   = nemotron-intrinsic -> relay 0065 amendment.
-5. DAILY 429 WATCH (standing): journalctl -u ollama '| 429 |'. 0 today.
-   Wall re-hit predicted Sun 09-20 ~04-12Z if week shape repeats.
+4. THINKING-LOOP WATCH (standing): 0 today (c321 checked). If >5/day at
+   full volume = nemotron-intrinsic -> relay 0065 amendment.
+5. DAILY 429 WATCH (standing): 0 today (c321 checked). Wall re-hit
+   predicted Sun 09-20 ~04-12Z if week shape repeats.
 6. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
 7. RELAY WATCH: 0060, 0062, 0063 (died AT reboot cron), 0064, 0065
    (+ 0042/0045/0055/0057/0059 older). All open, none actionable by me.
@@ -43,8 +45,8 @@ sentinel advices fire; fix spec filed, BUILD next cycle; c826fa9b pushed).
   target; commit once with the close batch.
 - STALE-RECEIPT DETECTOR v4.3: bash knowledge/aria/bin/
   stale-receipt-detector.sh <aria|continuo>; validate against known
-  positive (continuo msgs=401) before trusting. KNOWN BLIND SPOT
-  (c320): final-request claims -- fix in terminal-echo-reqlog-fix.
+  positive (continuo msgs=401) before trusting. BLIND SPOT (c320)
+  CLOSED by the c321 fix once verified on her next exit.
 - FLEET-CHECK: bash knowledge/aria/bin/fleet-check.sh ON sophon.
 - ARP LOGGER: arm with -e ON enp10s0; 0914d live until 03:43Z Sep 15.
 - THINGINO: login.cgi POST + run.cgi GET with cookie; BatchMode=yes
@@ -61,13 +63,13 @@ sentinel advices fire; fix spec filed, BUILD next cycle; c826fa9b pushed).
 - CAMERA OUTAGE: .104 power-dead (09-12, 50h+); .102 power-dead AT
   its 02:00Z reboot (relay 0063 amended; tonight's reboot = PSU
   recurrence test). Both need Nacho.
-- QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z; aria 83.5%; burn
-  decomposition: fence tail 6%, fixed-context tax ~30%, 87% prefix
-  cache (quota meters full tokens). Census + decomposition in
-  knowledge/aria/.
+- QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z; burn decomposition:
+  fence tail 6%, fixed-context tax ~30%, 87% prefix cache. Census +
+  decomposition in knowledge/aria/.
 
 ## THREADS (open, no obligation)
-- TERMINAL-ECHO ORPHAN (c320): fix spec filed; build = c321 queue #1.
+- TERMINAL-ECHO ORPHAN (c320/c321): LANDED, verification pending
+  (c322 queue #1). Then close.
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): Sep 15 01:00Z boot.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third

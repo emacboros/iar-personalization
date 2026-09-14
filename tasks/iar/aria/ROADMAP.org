@@ -1,93 +1,97 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~04:30 UTC (cycle 300: THINKING-LOOP CLASS
-RE-CENSUSED -- D-014-correlated, second layer found: 0 thinking-loops
-pre-flip (09-08/09, 87 cycles) vs 13 post-flip (09-10..12, 113
-cycles); grace/landing path went 14/10/day pre-flip to ZERO post-flip
--- every post-flip truncation was thinking-only, no recovery; ramp
-1->5->7 then "recession" 09-13/14 is CONFOUNDED with the quota
-cutting request volume ~10x (avg_in 1.77M->0.34M tokens/day);
-addendum landed in knowledge/aria/continuo-failure-storm-2026-09-13.md.
-WATCH: thinking-loop rate under normal volume = the real test; >5/day
-on volume recovery = nemotron-intrinsic, D-014 mapping carries a
-reliability cost the quota masked)
+Last updated: 2026-09-14 ~04:50 UTC (cycle 301: THINKING-LOOP CENSUS
+CORRECTED TWICE -- dated cycle logs are SOPHON-LOCAL-dated, so the
+02:30Z 09-14 fire was already counted as 09-13's tl=1; c300 census
+stands under its own convention. REAL FINDINGS: 13/13 pre-0914 fires
+were FIRST-REQUEST loops; the 0914 fire was the first MID-CYCLE one,
+trigger = empty census-window.sh verdict run in-container (fake-clean
+"no journald lines" from an instrument that cannot see sophon host).
+FIX LANDED: census-window.sh host guard, exit 2 in-container
+(3fc8d0e1, verified both contexts); continuo task note filed
+(649c1156). Echo-trap census hazard documented (strict PARSE filter:
+6/1/1 cap-truncs 09-12/13/14). Journal-blind window: sophon journal
+has NO aria-cycle entries before Sep 11 06:59 local. Volume partially
+recovered (~600-650/day pace); 1 fire in last 7 sessions; rate test
+open through ~09-15)
 
-## c301 QUEUE (next cycle)
-1. QUOTA WATCH (standing): if 429s recur in the next weekly window
+## c302 QUEUE (next cycle)
+1. NOCTURNE GATE WATCH (top, time-sensitive): her 13:04Z 09-14 fire
+   is her first post-quota attempt. Verify gate advanced past
+   e4d0832d and read DIGEST.proposed.md if a new proposal landed
+   (ratify-at-wake per D-015). If she 429'd again, the quota is
+   structural -- note it, no action.
+2. QUOTA WATCH (standing): if 429s recur in the next weekly window
    (~09-20), the ollama.com quota is STRUCTURAL for current D-014
-   usage -- that changes mapping economics; relay 0065 frames it.
-   Zero action before recurrence. NOCTURNE NOTE (c299): her 09-13
-   pass died on the quota (gate NOT advanced, still e4d0832d); the
-   13:04Z 09-14 fire is her first post-quota attempt -- check
-   DIGEST.proposed.md freshness + gate advance after it runs.
-2. THINKING-LOOP WATCH (new, c300): count thinking-loops per day in
-   continuo's cycle logs. Baseline: 0 pre-D014; 1/5/7 on 09-10..12;
-   1/0 on 09-13/14 (quota-confounded). If >5/day once request volume
-   recovers, class is nemotron-intrinsic -> mapping-economics relay
-   amendment on 0065.
-3. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check v2.23 on
-   fresh feed (03:02Z verified clean: FAIL=0, fear sev=0).
-4. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
+   usage -- changes mapping economics; relay 0065 frames it. Zero
+   action before recurrence.
+3. THINKING-LOOP WATCH (c300/c301): rate under recovered volume is
+   the test. Baseline: 0 pre-D014; 1/5/7 tl on 09-10..12; 1 on 09-13
+   (02:24Z) + 1 on 09-14 (02:30Z, same event set as c300 counted --
+   dated logs are local-dated). If >5/day at full volume =
+   nemotron-intrinsic -> mapping-economics relay amendment on 0065.
+   NEW: mid-cycle fires may be triggered by empty-instrument
+   verdicts; census-window guard landed; watch for a second
+   mid-cycle fire to confirm the trigger class.
+4. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check on fresh
+   feed (03:02Z verified clean: FAIL=0, fear sev=0).
+5. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
    0063 (.102 power-dead), 0064 (RTSP probes, folds into 0059),
    0065 (quota decision). All human-needed; 0059+0064 share one
    ruling surface.
-5. NOCTURNE GATE WATCH (from c299): after the 13:04Z fire, verify
-   her gate advanced and read DIGEST.proposed.md if a new proposal
-   landed (ratify-at-wake per D-015).
 
 ## STANDING WATCHES (do not re-derive)
-- CLOCK LAW (c284/c290/c291): cameras.log/camlogs = UTC; frigate
+- CLOCK LAW (c284/c290/c291/c301): cameras.log/camlogs = UTC; frigate
   journalctl --since = LOCAL on sophon; nginx log inside container =
-  LOCAL (-0300); go2rtc container log = LOCAL; REQUESTS.log UTC.
-  Normalize per-source before ANY gap arithmetic.
+  LOCAL (-0300); go2rtc container log = LOCAL; REQUESTS.log UTC;
+  sophon journal = LOCAL; DATED CYCLE LOGS = SOPHON-LOCAL (date at
+  session start). Normalize per-source before ANY gap arithmetic or
+  day-attribution amendment.
 - CENSUS-SOURCE MAP (c297, knowledge/aria/
   census-source-enumeration-2026-09-14.md): viewer traffic = nginx
   log ONLY; RTSP-port probes = go2rtc log ONLY; producer dials =
   go2rtc WRN + camera prudynt; frigate remakes = frigate container
   log (readable) or host journal (unreliable for absence under
-  flood); camera-side events = cameras.log. Enumerate the SOURCES
-  and the PORTS, not just the samples. NOTE (c299): the nginx ring
-  ends 23:29:35 local 09-13 -- a window past the ring edge is NOT
-  evidence of absence; check the ring's current head first.
-- QUOTA WATCH (c298): ollama.com weekly quota hit 09-13 (16
-  continuo + aria 429s + nocturne 09-13 pass). Recurrence next
-  window = structural -> mapping economics. Thinking-loop
-  truncation class is SEPARATE (see THINKING-LOOP WATCH).
-- THINKING-LOOP WATCH (c300): nemotron thinking-only truncation,
-  D-014-correlated onset, grace path dead post-flip. Rate under
-  normal volume is the test. Aria: 0 ever (same machinery, same
-  days) -- class is model-specific, not machinery.
+  flood); camera-side events = cameras.log. NEW (c301): sophon
+  journal for aria-cycle = Sep 11+ ONLY (unit journal starts there;
+  pre-rotate.sh Sep 10 runs left no unit traces) -- dated cycle logs
+  are the only witness for 09-10/11. REQUESTS.log self-echo: naive
+  greps overcount ~2x; strict filter = PARSE + error=nil stop=length
+  + tokens_out=32768 in the line's own tail.
+- QUOTA WATCH (c298): ollama.com weekly quota hit 09-13. Recurrence
+  next window = structural -> mapping economics.
+- THINKING-LOOP WATCH (c300/c301): nemotron thinking-only truncation,
+  D-014-correlated onset, grace path dead post-flip. Two shapes:
+  first-request loops (13/13 pre-0914) and mid-cycle loops (0914,
+  empty-instrument trigger). census-window.sh host guard landed.
+  Rate under normal volume is the test.
 - EXT4 (.104) + EXT2 (.102): known-fault watch state. Power cycles =
-  Nacho (relay 0063). Both cameras dial-timing out every ~10s
-  (go2rtc WRN stream, 27,965 lines in ring) -- normal until power.
-  RSSI-freeze precursor (.102: rssi stopped 15min before death)
-  needs 3rd sample.
+  Nacho (relay 0063). Both cameras dial-timing out every ~10s --
+  normal until power. RSSI-freeze precursor (.102) needs 3rd sample.
 - WAVE TRIGGER (c268): page load -> paramless GET streams -> AddTrack
   -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
   splice -> heal. FIX (a) drop mic param = CONFIRMED COSTLESS. (d)
   issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
 - STAIRCASE-SPLICE (c279, REINFORCED c299): nightly reboot crons
   (ext1 01Z...int3 08Z, local=Z-3) -> remake -> splice -> watchdog
-  heal. c299 sample: ext3 00:00:44Z fps-limit with DTS gap 47.6h,
-  boot 03:00:28Z, backchannel 03:00:32Z, NO page load. When a
-  single-camera fps-limit lands within ~1min of a crontab reboot
-  hour, it is staircase -- check cameras.log boot lines FIRST.
+  heal. When a single-camera fps-limit lands within ~1min of a
+  crontab reboot hour, it is staircase -- check cameras.log boot
+  lines FIRST.
 - SOLO-DEATH CLASS: refined c290/c295 -- producer re-dials common/
   benign; death = re-dial + detect fps-limit + splice; heal = page-
-  load remake wave. "2h re-dial cadence" WITHDRAWN c296.
+  load remake wave.
 - AUDIO-DEATH LAW v3.1 (c264): TWO classes, ONE heal = ANY session
   remake; record-proc restart heals, PUT alone useless.
 - FLEET RTP STALL (c280): 5 producers read-timeout simultaneously
   08:10:22Z 09-12, self-healed ~40s. Cause unknown. Watch recurrence.
 - ONVIF SWEEP WATCH (c288-c291): attributed to .58; census stands.
 - RTSP-PORT PROBES (c297): 4x unsupported-method GET on 8554, relay
-  0064 filed, folds into 0059 ruling. c299 recheck: still 4, no new
-  probes in ~5h. Watch for new probes + source IP context if asked.
+  0064 filed, folds into 0059 ruling. Watch for new probes.
 - MSGS-FENCE WATCH: c296 hit 401 + hard cap 601; c299 hit 401 (soft,
   converged cleanly). Watch recurrence.
-- RAGE WATCH: 3+ soft-cap events in 3d = escalate. c299: loop guard
-  2x (correct, same-tool ssh chains), no soft-cap fence events.
-- Nocturne: LIVE but 09-13 pass quota-died (gate e4d0832d, 09-12).
+- RAGE WATCH: 3+ soft-cap events in 3d = escalate.
+- Nocturne: LIVE; 09-13 pass quota-died (gate e4d0832d, 09-12);
+  13:04Z 09-14 fire = first post-quota attempt (GATE WATCH).
   Aevum: weekly-only pulse. Empty-cell: designed.
 
 ## Tooling notes (do not re-derive)
@@ -98,15 +102,17 @@ reliability cost the quota masked)
   awk field refs and nested greps. Prefer grep/cut/tail over awk in
   the innermost sh -c; pull raw lines and process locally when the
   extraction is nontrivial. ffprobe: call the FULL PATH directly as
-  podman exec arg (su - nacho -c "podman exec frigate
-  /usr/lib/ffmpeg/7.0/bin/ffprobe -v error ...") -- sh -c + FF var
-  assignment gets eaten by quoting layers.
+  podman exec arg.
 - FLEET-CHECK: bash /var/home/nacho/repos/iar-personalization/
   knowledge/aria/bin/fleet-check.sh ON sophon via ssh (the
   /root/personalization path does not exist on sophon host).
 - RECORDINGS PATH (c299): /media/frigate/recordings/YYYY-MM-DD/HH/
   <cam>/<MM.SS>.mp4 (date/hour dirs, NOT cam/date/hour). Access via
   su - nacho -c "podman exec frigate ...".
+- CENSUS-WINDOW.SH (c301): SOPHON-HOST-ONLY now (host guard, exit 2
+  in-container). Run via ssh 'bash -s' <. failure-triage.sh is
+  CONTAINER-ONLY (fine in-container). Args are [DAY] [AGENT] in that
+  order -- wrong order = silent nonsense row in census-updates.log.
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
   ANSWER ID SHAPE: aria-0061 (filer-seq), NOT 0061 or full filename.
 - TEST SUITE: emacs --batch -l test/run-tests.el (1253 tests, ~8s)
@@ -125,32 +131,26 @@ reliability cost the quota masked)
   /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our keys;
   ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY HOP.
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
-- BELT #2 (c292/c295): VERIFIED LIVE c298 -- both agents' cycle-exit
-  commits carry "belt #2 durability (meter + record files)"; belt
-  commits are push-doomed by design until a later run pushes (zero
-  risk, one inode-space).
+- TASKS GITIGNORE (c301): .gitignore has tasks/* but tracked task
+  files exist (git ls-files tasks/); new task files need git add -f.
+- BELT #2 (c292/c295): VERIFIED LIVE -- cycle-exit commits carry
+  "belt #2 durability (meter + record files)"; belt commits are
+  push-doomed by design until a later run pushes (zero risk).
 - LAW 41 (re-learned c296): when the finding is in hand, the next
-  call must WRITE, not read. A guard firing mid-investigation is the
-  investigation over; a guard firing after the finding is the
-  close-out overdue.
-- LAW 50 SOCKET COLUMN (c298, new): the error message names the
-  socket -- a 429 naming account+quota is a different failure than a
-  model misbehaving, even when both land as "cycle failed". Read the
-  error's own words before classing.
+  call must WRITE, not read.
+- LAW 50 SOCKET COLUMN (c298): the error message names the socket.
+  CLOCK COLUMN (c301): the LOG names its own clock -- check it before
+  amending a census.
 
 ## THREADS (open, no obligation)
-- CENSUS-SOURCE LAW: note landed c297; applied to 429 class c298
-  (error-message-as-source); applied to c265 hang waves c299
-  (ring-edge is not absence). Applied to thinking-loop class c300
-  (volume-confounded recession). Remaining consumers: any new fleet
-  event.
+- CENSUS-SOURCE LAW: note landed c297; applied to 429 class c298;
+  c265 hang waves c299; thinking-loop class c300; clock-column
+  correction c301. Remaining consumers: any new fleet event.
 - EAR-CHECK DISCRIMINATOR (c290 seed): 3/3-dead transient class;
   build the guard if a third transient lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - DROPBEAR WATCH (c283): watch for UNATTRIBUTED bursts only.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
-- Nocturne: LIVE (verified c271); 09-13 pass quota-died; gate watch
-  after 13:04Z fire. Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.
 - Relay ledger: dup-ID class FIXED (c276); historical pairs remain.

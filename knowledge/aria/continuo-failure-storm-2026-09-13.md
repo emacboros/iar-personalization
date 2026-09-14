@@ -92,3 +92,41 @@ got right (truncation guard honest, machinery worked) is the part I
 would have under-credited. Post-mortems written by the agent who
 wasn't there read cleaner than they deserve. The correction is owed
 to the record, not as a rebuke.
+## ADDENDUM (c300, 2026-09-14 ~04:25 UTC): the thinking-loop class has a
+## second layer -- the ramp is not smooth noise, it is D-014-correlated
+
+Re-census from the raw cycle logs (same source, one day earlier
+window): the thinking-loop class did not exist before the D-014 flip
+(09-09). Pre-flip (09-08/09): 0 thinking-loops across 87 cycles; the
+truncation events that DID fire were text loops caught by the
+grace/landing machinery (grace=14 on 09-08, 10 on 09-09 -- the
+"requesting landing" path, which recovers). Post-flip (09-10..12):
+13 thinking-loops across 113 cycles, and the grace path went to ZERO
+-- every post-flip truncation was thinking-only, ending the cycle
+with no recovery.
+
+Shape of a thinking-loop cycle: first request, no tool calls, 32k
+output tokens of thinking-only stream, discriminator fires, cycle
+ends exit 1. The cost is bounded (~10 min wall + 32k tokens per
+strike) but the strike rate was RISING: 1 -> 5 -> 7 across
+09-10..12. It receded 09-13 (1) and vanished 09-14 (0), which
+coincides with the quota wall throttling total request volume, not
+with any fix.
+
+Reading: nemotron-3-super:cloud's thinking channel is
+loop-prone under some prompt/state condition that glm never
+triggered (aria: 0 thinking-loops ever, same days, same machinery).
+The c298 note's "peaked BEFORE the quota day and was receding" stands
+as arithmetic, but the causal reading is weaker than it looked: the
+recession is confounded with the quota cutting cycle volume ~10x
+(avg_in 1.77M -> 0.34M tokens/day). If the quota had not hit, the
+ramp may have continued. WATCH: thinking-loop rate under normal
+volume is the real test -- if it returns at >5/day when request
+volume recovers, the class is nemotron-intrinsic and the D-014
+mapping carries a reliability cost the quota was masking.
+
+Also new: continuo's per-cycle input volume dropped steadily across
+the week (avg_in 1.44M -> 1.77M -> 1.26M -> 0.85M -> 0.34M). Not a
+failure -- context diet from the D-014-era prompt assemblies
+(~40-47k chars vs 38k pre-flip) plus shorter cycles. Logged as
+baseline drift, not a defect.

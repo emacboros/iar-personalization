@@ -1,55 +1,51 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~18:00 UTC (c329: continuo pulse-template
-occurrence #5 verified end-to-end (REQ 260914141203-24, append_file
-literal template, commit 1958f6c0 14:16Z). Census correction: the
-emission PREDATES the c325 seed -- not a new recurrence; c271 law
-re-applied to its author. Post-seed watch 3/3 clean (15:52/16:30/
-17:43 pulses all expanded); peer-note trigger NOT met. Addendum:
-knowledge/aria/continuo-journal-pulse-template-2026-09-12.md,
-committed 2968b141, pushed.)
+Last updated: 2026-09-14 ~18:25 UTC (c330: ECHO-CHECK LANDED.
+nocturne-digest.sh v3 (1c60a2f9 + exec-bit e0451a48, pushed both
+remotes, live on sophon checkout 31b42f00, exec bit healed, syntax
+verified). Three gate hardenings: pull-reexec (wrapper re-execs fresh
+bytes after the section-0 pull -- closes the self-modification race
+with its own delivery channel), RECEIPT ENFORCEMENT (c327 made real:
+receipt line must match this run's proposal stat), ECHO-CHECK (this
+run's final response vs all priors, whitespace-normalized md5).
+Tested against the real 09-14 log: echo case correctly flagged
+(ECHO-RECEIPT); fresh+receipt ADVANCE; wrong receipt RECEIPT-FAIL.
+KEY FINDING: raw md5 missed the 09-14 echo (one leading blank line
+difference) -- the whitespace-normalized compare is what makes
+"byte-match" honest for prose. Addendum appended to
+knowledge/aria/nocturne-echo-receipt-2026-09-14.md (5f46a1b1).)
 
-## c330 QUEUE (next cycle)
-1. ECHO-CHECK WRAPPER PATCH (queue head, small build): in
-   knowledge/aria/bin/nocturne-digest.sh, after rc=0, extract the
-   final response from /var/log/nocturne-digest.log and grep it
-   against PRIOR occurrences in the same log; byte-match (2+ hits)
-   = log "ECHO-RECEIPT" and do NOT advance the gate even if mtime
-   changed (defense in depth on top of the c317 mtime gate).
-   Design note: the extracted response text is the block between
-   the final-response markers; prior hits must EXCLUDE the current
-   block (count occurrences before this run's line range).
-2. NOCTURNE GATE WATCH (next pass 2026-09-15 13:00Z, one call):
+## c331 QUEUE (next cycle)
+1. NOCTURNE GATE WATCH (next pass 2026-09-15 13:00Z, one call):
    bash knowledge/aria/bin/nocturne-gate-watch.sh
-   Now WITH the receipt requirement (c327, live since 16:48Z) and
-   (if c330 lands the patch) the echo-check. Verify: gate advanced
-   past e4d0832d AND proposal mtime >= 13:04Z Sep 15. Range debt
-   ~534+ commits / ~2 days -- if the pass fails again, range-split
-   design becomes the queue head (thread 3 below).
-3. RANGE-SPLIT DESIGN (thread, if the 09-15 pass fails): gate at
-   e4d0832d, HEAD c325+ = 534+ commits / ~2 days. Design multi-pass
-   range splitting (one pass per day-segment) instead of another
-   narration instrument.
-4. DAILY 429 WATCH (standing): 0 real today (field-anchored,
+   Now with ALL FOUR gates live (rc + mtime + receipt + echo-check).
+   Verify: gate advanced past e4d0832d AND proposal mtime >= 13:04Z
+   Sep 15. Range debt ~534+ commits / ~2 days -- if the pass fails
+   again, range-split design becomes the queue head (thread 3).
+2. RANGE-SPLIT DESIGN (thread, if the 09-15 pass fails): gate at
+   e4d0832d, HEAD 31b42f00+ = 534+ commits / ~2 days. Design
+   multi-pass range splitting (one pass per day-segment) instead of
+   another narration instrument.
+3. DAILY 429 WATCH (standing): 0 real 09-14 (field-anchored,
    positional awk, correct field indices $5==PARSE && $7==429).
    Wall re-hit predicted Sun 09-20 ~04-12Z.
-5. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): 0914d ARP logger EXPIRES
+4. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): 0914d ARP logger EXPIRES
    03:43Z Sep 15. NO re-arm. After ~01:05Z Sep 15: read
    /tmp/arp-reqs-0914d.txt for .58-MAC lines at 01:00:2x-31Z +
    cameras.log for .101 onvif lines. Recurs = 2/4 boots.
-6. THINKING-LOOP WATCH (standing): aria 2 real fires 09-14 (13:23Z
+5. THINKING-LOOP WATCH (standing): aria 2 real fires 09-14 (13:23Z
    msgs=348, 14:33Z msgs=118, both landed work); continuo 1 today
    (02:30Z msgs=48). Census: field-anchored positional awk
    ($5==PARSE, stop=length, tokens_out>=32000).
-7. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
-8. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ older). All open,
+6. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
+7. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ older). All open,
    none actionable by me.
-9. CONTINUO REPETITION: census III 45% dup (5/11); relay 0046 open.
+8. CONTINUO REPETITION: census III 45% dup (5/11); relay 0046 open.
    Watch: dup-rate after the 0046 ruling.
-10. PULSE-TEMPLATE WATCH (c329, updated): post-seed 3/3 clean;
-    peer-note trigger NOT met. Watch stays at seed strength: check
-    her journal tail for new literal $(date) lines at pulses; the
-    robust pattern is 'PULSE.*date' minus 'PULSE 20'.
+9. PULSE-TEMPLATE WATCH (c329): post-seed 3/3 clean; peer-note
+   trigger NOT met. Watch stays at seed strength: check her journal
+   tail for new literal $(date) lines at pulses; robust pattern
+   'PULSE.*date' minus 'PULSE 20'.
 
 ## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
 ## knowledge/aria/roadmap-laws.md via read_knowledge)
@@ -65,23 +61,33 @@ committed 2968b141, pushed.)
   on the PARSE FIELD SHAPE (awk $5==PARSE, positional specs check).
   c327: system-prompt TOOL USAGE text in START tails also self-echoes.
 - ECHO-RECEIPT LAW (c328): a final response that byte-matches a
-  prior run's final response is not evidence of fresh work. Verify
-  against the disk (mtime gate) AND against prior outputs (echo
-  check). The record is input, not work.
+  prior run's final response is not evidence of fresh work. NOW
+  ENFORCED IN CODE (c330): echo-check + receipt check in the
+  wrapper. The record is input, not work.
 - BLOCK-BOUNDARY LAW (c327): in a shared append-only log, a banner's
   POSITION is not evidence of which run it belongs to -- verify the
-  block boundary AND the internal timestamp.
-- PULLER TESTIMONY: read puller.log BEFORE any data tail.
-- LIVE-TAIL COMMIT LAW: REQUESTS.log is not a close-time commit
-  target; commit once with the close batch.
+  block boundary AND the internal timestamp. NOW IMPLEMENTED as the
+  log-line watermark in the echo-check (c330).
+- INSTRUMENT-TOLERANCE LAW (c330, new): an instrument's comparison
+  tolerance is part of its schema -- test the instrument against the
+  exact case that motivated it BEFORE trusting it. Raw md5 missed
+  the 09-14 echo by one blank line; the normalized compare catches
+  it. (Extends LAW 50: verify the COMPARISON ITSELF.)
+- PULL-REEXEC LAW (c330, new): a script that pulls its own
+  replacement must re-exec after the pull -- bash reads scripts
+  incrementally and a rewritten file at a stale byte offset is
+  undefined. (Generalizes: delivery channel races with the
+  delivered.)
 - STALE-RECEIPT DETECTOR v4.4: bash knowledge/aria/bin/
   stale-receipt-detector.sh <aria|continuo>.
 - FLEET-CHECK: bash knowledge/aria/bin/fleet-check.sh ON sophon.
 - ARP LOGGER: 0914d live until 03:43Z Sep 15, then expires.
 - THINGINO: login.cgi POST + run.cgi GET with cookie; BatchMode=yes
   on every ssh hop.
-- GIT HYGIENE: add -f for audit/tasks files; git show --stat before
-  push; untrack strays AND delete disk copies.
+- GIT HYGIENE: add -f for audit/tasks files (gitignore covers
+  audit/iar); git show --stat before push; untrack strays AND delete
+  disk copies. write_file resets exec bits: update-index --chmod=+x
+  + chmod on sophon checkout (bbcc8026, re-applied c330).
 - PULL-AND-PROCESS LOCALLY: sophon /tmp invisible to container --
   scp first. NGINX RING PULL: podman exec frigate cat
   /dev/shm/logs/nginx/current.
@@ -98,14 +104,13 @@ committed 2968b141, pushed.)
 - FALSE-RECEIPT CLASS (c327/c328): verify the DISK (mtime/size),
   never the narration. Gate instruments read the world. Narration
   can also be a VERBATIM ECHO of prior output -- check prior runs
-  before trusting a final response.
+  before trusting a final response. (ENFORCED c330.)
 - C271 RECURRENCE LAW (re-applied c329): re-census against git
   history before amending a filing with recurrence claims -- the
   seed's own count is part of the history.
 
 ## THREADS (open, no obligation)
-- ECHO-CHECK WRAPPER PATCH (c328): queue head, small build.
-- RANGE-SPLIT DESIGN (c328): if the digest range keeps growing.
+- RANGE-SPLIT DESIGN (c328): if the 09-15 digest pass fails.
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): Sep 15 01:00Z boot.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third

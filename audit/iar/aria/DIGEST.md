@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-13 ~02:33 UTC (aria c279: camlog-puller v2 --
+Last updated: 2026-09-14 ~01:12 UTC (aria c292: continuo commit-gap
 RSSI cron saturates the logread ring, empty-snapshot wave was the
 instrument not the cameras; staircase-splice full-day census HOLDS
 7/7 crontab-hour matches; ext1 22:01 DTS anatomy = 3.6h audio-timeline
@@ -117,89 +117,64 @@ guard fires mid-investigation = investigation over; 42 empty-end
 after close-out = ambiguous failure; 43 census-timing: check the
 READ HOUR against the PREDICTION WINDOW.
 
-* World state (2026-09-13 ~02:33 UTC -- REPLACES all prior blocks)
+* World state (2026-09-14 ~01:12 UTC -- REPLACES all prior blocks)
 
+- CONTINUO COMMIT-GAP (c292, doc knowledge/aria/
+  continuo-commit-gap-c292-2026-09-14.md): her close protocol has NO
+  commit/push step; 9/10 of her successful 09-13 runs committed
+  nothing; she has NEVER pushed (0 in all logs ever) -- her record's
+  durability rode aria's belt-syncing. Belt-synced her 00:27
+  artifacts (ce05a608). FIX BUILT: belt #2b (i.ar 7718052, suite
+  1251) -- pre-exit commit carries the agent's OWN record files
+  (explicit list, never a sweep, never a sibling's). VERIFY
+  activation: next two cycle-exit commit messages should read "belt
+  #2 durability (meter + record files)". Belt#2 commits are
+  push-doomed by design until a later run pushes (new variant of the
+  stranded-commit class; zero risk, one inode-space).
 - CAMERA OUTAGE 09-12: CLOSED except .104 (STILL POWER-DEAD:
   rssi frozen, ARP FAILED, fleet-check FAIL=1; power cycle is
   Nacho's). .103/.105/.201/.202 recovered 13:36Z (manual power-cycle).
-- WAVE TRIGGER (c268 CONFIRMED; c272 source-verified; c280
-  PRODUCTION-OBSERVED x3, doc knowledge/aria/
-  wave-mechanism-c280-2026-09-13.md): page load -> 7 paramless
-  GET /api/go2rtc/streams/<cam> (mic-probe INSIDE frigate proxy
-  handler, not the URL) -> AddTrack -> Reconnect() = full RTSP
-  session remake fleet-wide -> +24-34s fps-limits -> splice -> heal.
-  Three waves 09-12 (15:39/16:17/16:19 local, one viewer IP).
-  CAMERA-SIDE WITNESSES: all 7 cams logged BackchannelStreamState
-  sessions at the exact GET times -- chain observed at every hop.
-  +24s = go2rtc watchdog interval (fingerprint). FIX (a) drop
-  microphone param = CONFIRMED COSTLESS + would have prevented all
-  3 waves. (d) ISSUE DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
-- UPSTREAM SCAN (c269, [EXTERNAL DATA], doc
-  knowledge/aria/go2rtc-upstream-scan-2026-09-12.md): our bug NOT
-  reported, NOT fixed upstream (we run 1.9.10). Family, all open:
-  #2404 (re-dial splices new RTP, no discontinuity), #2387
-  (reconnect silently severs unmatched receivers), #2362 (producer
-  event kills co-existing RTSP audio).
+- WAVE TRIGGER (c268/c272/c280, doc wave-mechanism-c280): page load
+  -> 7 paramless GET streams (mic-probe in frigate proxy) -> AddTrack
+  -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
+  splice -> heal. Camera-side witnesses at every hop; +24s = go2rtc
+  watchdog (fingerprint). FIX (a) drop mic param = CONFIRMED
+  COSTLESS. (d) issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
+- UPSTREAM SCAN (c269, [EXTERNAL DATA]): bug NOT reported/fixed
+  upstream (we run 1.9.10). Open family: #2404, #2387, #2362.
 - SOLO-DEATH CLASS: samples #1/#2 (int1 19:00:04, ext5 19:13-15
   09-12) lack camera-side witnesses; hypothesis = producer-side
   re-dial (c269). Sample #3 RECLASSIFIED OUT (c280): ext1 21:29
   fps-limit had backchannel witness +27s, no page traffic =
   mic-probe remake WITHOUT page load (dialer open; falsifier in
   relay 0060). DTS gap 4.0h.
-- FLEET RTP STALL (c280 NEW CLASS): 08:10:22Z 09-12 -- 5 producers
-  read-timeout simultaneously, re-dial refused ~40s, self-healed.
-  No fps-limits/splice/boots/page-traffic/NIC-flap. Cause unknown.
-  Watch for recurrence; correlate nic 1-min + camlog.
-- STAIRCASE-SPLICE (c279, doc knowledge/aria/staircase-splice-c279-
-  2026-09-13.md): census-backed mechanism -- nightly reboot crons
-  (ext1 01Z, ext2 02Z, ext3 03Z, ext5 05Z, int1 06Z, int2 07Z, int3
-  08Z; local = Z-3) -> session remake -> splice -> watchdog heal.
-  7/7 crontab-hour fps-limit events match. Two ffmpeg surfaces:
-  DTS-gap (ext1 22:01: audio st:1, 90kHz deltas, 3.6h timeline gap)
-  and bad-cseq+backward-aac (ext2 23:01). Caveat: fps-limit is not
-  splice-specific (ext1 21:29 non-splice event).
+- FLEET RTP STALL (c280): 5 producers read-timeout simultaneously
+  08:10:22Z 09-12, self-healed ~40s. Cause unknown. Watch recurrence.
+- STAIRCASE-SPLICE (c279): nightly reboot crons (ext1 01Z...int3 08Z,
+  local=Z-3) -> remake -> splice -> watchdog heal; 7/7 crontab-hour
+  matches. Two ffmpeg surfaces (DTS-gap ext1 22:01; bad-cseq ext2
+  23:01). Caveat: fps-limit is not splice-specific.
 - AUDIO-DEATH LAW v3.1 (c264): TWO classes, ONE heal = ANY session
-  remake. record-proc restart DOES heal; PUT alone useless. c266:
-  int1's "natural heal" was wave 1 of a fleet event. Relay 0058
-  RESOLVED.
-- CLOSE-PATH CENSUS (c270, doc knowledge/aria/
-  continuo-close-path-census-2026-09-12.md): continuo's
-  sentinel-echo close = her NORMAL ending under nemotron (32/43,
-  42/46, 6/25 vs aria 0/125; ratio tracks the D-014 mapping).
-  Terminal-echo predicate = second dialect of "done". NOT a defect.
-  Watch: a third dialect (sentinel in non-echo tool args) would
-  bypass the discriminator.
-- CAMLOG PULLER v2 (c279): the 09-11 RSSI cron floods each camera's
-  ~306-line logread ring with crond lines; ~5h after the last real
-  line the filtered snapshot goes empty. "Empty snapshot" = saturation,
-  NOT camera failure; v2 labels it with buffer census (total/crond).
-- CYCLE.LOG UNTRACKED (c270): 917ff7d9 untracked it (law 22);
-  03c00b2c re-added via stale-checkout add -A; 109 commits carried
-  ~6.7GiB raw blobs; git rm --cached landed (disk-preserving); her
-  next pull untracks her copy; 0034 pull-before-assembly is the
-  resurrection guard. History rewrite = Nacho's (THREADS seed).
-- USAGE-LOG DOUBLING: CLOSED (c262). reset_worktree resets
-  REPO_DIR = the i.ar repo; kill-emacs dup swept by next add -f.
-  Fix 5b03a53: dedupe at birth; 1247/1247 green.
-- RAGE (c263): sev=2 is HONEST -- fence events are deep cycles at
-  the 300-call wall, exit 0 via grace, zero runaways. Organ v2.1
-  (7b49b673). WATCH: trailer [cNN/CAP] discipline; 3+ soft-cap
-  events in 3d = cap-vs-depth structural.
-- CONTINUO PULSE TEMPLATE (c271 CORRECTION): committed journal
-  carries exactly 4 literal lines (3 bare + 1 bash-c variant;
-  journal lines 158/280/378/382); NO new recurrences since c257;
-  c260's "#6/#7" claim WITHDRAWN (misreading -- those lines entered
-  git already expanded). Relay 0057 open: worked-example prompt
-  edit still wanted (placeholder live in her prompt; fill flips
-  cycle to cycle).
-- RELAY: 7 open, all human-needed: 0042 (yoga root git-status
-  actor), 0045 item 1 + 0055 (10M cable, hygiene), 0046 (stimulus
-  ruling), 0057 (prompt edit ratify), 0059 (frigate 8971 +8554/8555
-  internet-exposed; scanners probing, auth holding), 0060 (go2rtc
-  issue draft ratify before posting). LEDGER DEFECT: REQ IDs not
-  unique -- 0055 twice, 0015 twice in answered/.
-- 13:36Z REBOOT TRIGGER (open): 8s spread, bare boot blocks, both
-  APs hit => camera-side power event; APs exonerated.
+  remake; record-proc restart heals, PUT alone useless.
+- CLOSE-PATH CENSUS (c270): continuo's sentinel-echo close = NORMAL
+  under nemotron (ratio tracks D-014 mapping). NOT a defect. Watch:
+  a third dialect would bypass the discriminator.
+- CAMLOG PULLER v2 (c279): empty snapshot = logread-ring saturation
+  (crond flood), NOT camera failure; v2 labels with buffer census.
+- CYCLE.LOG UNTRACKED (c270): 109 commits carried ~6.7GiB blobs;
+  git rm --cached landed; resurrection guard = git_commit tool
+  refuse-pattern + 0034 pull-before-assembly. History rewrite = Nacho's.
+- USAGE-LOG DOUBLING: CLOSED (c262, dedupe at birth 5b03a53).
+- RAGE (c263): fence events = deep cycles at the 300-call wall,
+  exit 0 via grace, zero runaways. WATCH: 3+ soft-cap events in 3d.
+- CONTINUO PULSE TEMPLATE (c271): 4 literal lines committed, no new
+  recurrences since c257. Relay 0057 open: worked-example prompt edit.
+- RELAY: 7 open, all human-needed: 0042 (yoga root git-status),
+  0045+0055 (10M cable), 0046 (stimulus ruling), 0057 (prompt edit
+  ratify), 0059 (frigate internet-exposed, auth holding), 0060
+  (go2rtc issue ratify), 0062 (sweep device ID). Ledger dup-ID
+  defect FIXED c276 (historical pairs remain).
+- 13:36Z REBOOT TRIGGER (open): camera-side power event; APs exonerated.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk. Burn asymmetry STABLE 6-8x.
 

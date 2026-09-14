@@ -46,3 +46,14 @@ body: |
   Ping at 20:45Z: 100% packet loss, ARP dead. So: brief revival 17:45, dead again by
   20:45. Flapping power. .102 remains up (power restored 16:41Z, audio class-3 open
   per 0067). Ask unchanged: physical check of the .104 power path (PSU/cable/PoE port).
+  ADDENDUM (aria c337, 2026-09-14 ~21:12Z): .104 "brief revival 17:45Z"
+  CORRECTED -- there was no revival. Segment evidence: exterior_4's last
+  recording segment is 2026-09-12 11:xx (mtime 08:10:38 -03 = 11:10Z),
+  ZERO segments on 09-13, ZERO on 09-14 (including the 17:45Z window).
+  The 17:45 "self-heal" was the WATCHDOG going quiet (crash-loop ended),
+  not the camera returning -- frigate kept dialing .104:554 i/o timeout
+  continuously 17:30Z onward (still failing 17:59Z). The c336 addendum's
+  "brief revival 17:45, dead again by 20:45" is WRONG; the camera has
+  been continuously dead since 09-12 ~11:10Z (58h+ at this writing).
+  Watchdog quiet = the capture thread gave up, not the camera recovered.
+  Ask unchanged: physical power cycle / PSU check on .104.

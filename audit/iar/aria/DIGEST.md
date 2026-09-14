@@ -1,11 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-14 ~01:57 UTC (aria c294: ext4 standing
-alarm ROOT-CAUSED = frigate watchdog crash-loop on power-dead .104
-(14k crashes/2d, journal flood 111k lines/day); fleet-check v2.22
-KNOWN_FAULT_EXT4_SEG landed+E2E verified (FAIL=0, fear sev=0); ext3
-3.4h silent stall healed by no-page-load fleet wave 21:43:43Z). Law: operational state -> ROADMAP.org; history -> logs/
+Last updated: 2026-09-14 ~02:20 UTC (aria c295: belt#2b E2E VERIFIED (continuo ae1ae451); c294 CORRECTED x2 -- 21:43:43Z wave HAD page load (frigate journal Chrome+7x mic-probe GETs = standard c268 trigger; cameras.log viewer-blind), no-page-load class WITHDRAWN; ext3 crash-looped 166x 15:22-18:43Z then silent, healed by remake; NEW: ~2h fleet-wide go2rtc producer re-dial class; NEW incident: .102 (ext2) power-dead ~02:00Z (rssi stopped 15min prior = precursor candidate; relay 0063); doc knowledge/aria/c294-corrections-c295-2026-09-14.md). Law: operational state -> ROADMAP.org; history -> logs/
 journal; world-state = ONE replaceable dated block. Guard: warn
 12000 / hard cap 16000. A digest that only grows is failing.
 
@@ -131,9 +127,11 @@ READ HOUR against the PREDICTION WINDOW.
   #2 durability (meter + record files)". Belt#2 commits are
   push-doomed by design until a later run pushes (new variant of the
   stranded-commit class; zero risk, one inode-space).
-- CAMERA OUTAGE 09-12: CLOSED except .104 (STILL POWER-DEAD:
-  rssi frozen, ARP FAILED; power cycle is Nacho's). .103/.105/
-  .201/.202 recovered 13:36Z (manual power-cycle). c294: .104's
+- CAMERA OUTAGE: .104 STILL POWER-DEAD (since 09-12 11:00Z) AND
+  .102 NEW power-dead ~02:00Z 09-14 (rssi stopped 01:45Z = 15min
+  precursor candidate; last segment 01:59:52Z; relay 0063). Both
+  need power cycles (Nacho). Fleet-check FAIL=1 correct (ext2 STALE
+  new fault + ext4 known-fault). c294: .104's
   death is NOT quiet -- frigate watchdog crash-loops every 10s
   (~14k crashes/2d, journal flood 111k lines/day vs 40k); fleet-
   check v2.22 KNOWN_FAULT_EXT4_SEG = watch state, FAIL=0, fear
@@ -142,19 +140,19 @@ READ HOUR against the PREDICTION WINDOW.
 - WAVE TRIGGER (c268/c272/c280, doc wave-mechanism-c280): page load
   -> 7 paramless GET streams (mic-probe in frigate proxy) -> AddTrack
   -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
-  splice -> heal. Camera-side witnesses at every hop; +24s = go2rtc
-  watchdog (fingerprint). FIX (a) drop mic param = CONFIRMED
-  COSTLESS. (d) issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
-  c294 NEW SAMPLE: 21:43:43Z 09-13 fleet remake with NO page load
-  and NO mic-probe (cameras.log witness, 7 cams same-second) --
-  trigger unknown, new census class.
+  splice -> heal. FIX (a) drop mic param = CONFIRMED COSTLESS. (d)
+  issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask (amended c295:
+  falsifier reads FRIGATE JOURNAL, not cameras.log). c295: c294's
+  "no-page-load wave" WITHDRAWN -- 21:43:43Z HAD a page load
+  (Chrome/153 181.28.154.180); cameras.log is viewer-blind.
 - UPSTREAM SCAN (c269, [EXTERNAL DATA]): bug NOT reported/fixed
   upstream (we run 1.9.10). Open family: #2404, #2387, #2362.
 - SOLO-DEATH CLASS: samples #1/#2 (int1 19:00:04, ext5 19:13-15
   09-12) lack camera-side witnesses; hypothesis = producer-side
-  re-dial (c269). c294 refinement: ext3 3.4h stall (17:30-21:43Z
-  09-13) -- 2 re-dials (17:47/19:41) did NOT heal; full session
-  remake (fleet wave 21:43:43Z) did. Re-dial alone insufficient. Sample #3 RECLASSIFIED OUT (c280): ext1 21:29
+  re-dial (c269). c295 refinement: ext3 crash-looped 166x 15:22-18:43Z
+  (NOT silent as c294 claimed), healed only by 21:43:43Z remake. NEW
+  class: ~2h fleet-wide go2rtc producer re-dials (15:23/17:16/17:47/
+  19:41Z), independent of frigate restarts, do NOT heal stalls. Sample #3 RECLASSIFIED OUT (c280): ext1 21:29
   fps-limit had backchannel witness +27s, no page traffic =
   mic-probe remake WITHOUT page load (dialer open; falsifier in
   relay 0060). DTS gap 4.0h.
@@ -179,11 +177,11 @@ READ HOUR against the PREDICTION WINDOW.
   exit 0 via grace, zero runaways. WATCH: 3+ soft-cap events in 3d.
 - CONTINUO PULSE TEMPLATE (c271): 4 literal lines committed, no new
   recurrences since c257. Relay 0057 open: worked-example prompt edit.
-- RELAY: 7 open, all human-needed: 0042 (yoga root git-status),
+- RELAY: 8 open, all human-needed: 0042 (yoga root git-status),
   0045+0055 (10M cable), 0046 (stimulus ruling), 0057 (prompt edit
   ratify), 0059 (frigate internet-exposed, auth holding), 0060
-  (go2rtc issue ratify), 0062 (sweep device ID). Ledger dup-ID
-  defect FIXED c276 (historical pairs remain).
+  (go2rtc issue ratify), 0062 (sweep device ID), 0063 (.102
+  power-dead). Ledger dup-ID defect FIXED c276.
 - 13:36Z REBOOT TRIGGER (open): camera-side power event; APs exonerated.
 - BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2
   ~2wk. Burn asymmetry STABLE 6-8x.

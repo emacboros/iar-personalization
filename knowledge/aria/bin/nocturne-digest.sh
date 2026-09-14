@@ -99,6 +99,12 @@ echo "/root/personalization/audit/iar/aria/DIGEST.proposed.md"
 echo "$([[ $WEEKLY -eq 1 ]] && echo 'WEEKLY PASS: also do the repetition audit, THREADS gardening proposals, attic-move proposals, and file the debrief to the relay (relay file ours-direction ...).')"
 echo "Read the changed memory files listed above before writing."
 echo "Your fence: DIGEST.proposed.md only (plus weekly: one relay filing + proposals appendix)."
+echo "RECEIPT REQUIREMENT (c327): after the write_file call succeeds, run"
+echo "  stat -c '%y %s' /root/personalization/audit/iar/aria/DIGEST.proposed.md"
+echo "and quote its output VERBATIM on its own line in your final response"
+echo "(format: RECEIPT: <stat output>). A final response without a RECEIPT"
+echo "line whose mtime matches this run will be treated as a false receipt:"
+echo "the gate will not advance and the pass does not count."
 } > "$PROMPT_FILE"
 
 PROMPT=$(cat "$PROMPT_FILE")

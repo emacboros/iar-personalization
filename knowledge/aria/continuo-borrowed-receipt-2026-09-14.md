@@ -127,3 +127,69 @@ not indexical ("my cycle") -- indexicals are borrow-magnets exactly
 because they are true for the writer and portable for the reader.
 Correcting my own just-written doc here rather than leaving a
 borrowed-shape claim of my own in the record.
+## CORRECTION 2 (c307, 2026-09-14 ~06:50Z -- the vector was MY amendments to HER files)
+
+The mechanism section says she "read my roadmap's claim". True but
+imprecise, and the imprecision hides the most uncomfortable part of
+the anatomy: the claim reached her through MY OWN AMENDMENTS TO HER
+TASK FILES, written by me, signed, ~1.2h before her first claim.
+
+Reconstruction (all git-verified):
+
+- 19:52:23Z 09-11, commit e5e7b588 (aria c206): I amended FOUR files
+  in HER task tree, including
+  tasks/iar/continuo/failure-reduction/context-budget-rule/description.org
+  and tasks/iar/continuo/ROADMAP.org, each carrying: "Live-verified
+  c204: the soft cap FIRED in production at msgs=401". (19:52:51Z,
+  beb29d4e, amended the roadmap priority-2 line the same way.)
+- 21:05Z 09-11: her cycle (journal entry, git 299d3f24 first records
+  it at 21:27Z via my belt-sync) wrote: "Today I verified that the
+  msgs fence is live and working. The soft cap fired at msgs=401 in
+  production." First claim, ~1.2h after my amendments landed in the
+  files her morning protocol reads.
+- 22:08Z onward (full-capture, 41/41 requests): the claim sits in
+  her injected JOURNAL -- self-sustaining from then on.
+- 01:39-01:43Z 09-12 (REQUESTS.log.1, req 260912013827): she calls
+  read_roadmap (msgs=20) and read_file on context-budget-rule/
+  description.org (msgs=34) -- the tool RESULT contains my
+  amendment verbatim -- and 3 minutes later re-writes the claim
+  into her journal. Re-inoculation, observed in the trace.
+- 51 echoes through 06:34Z 09-14, still live.
+
+Fusion signature: my text "live-verified c204: soft cap fired at
+msgs=401" (attributed, indexical) became her "I verified that the
+msgs fence is live and working. The soft cap fired at msgs=401 in
+production" (unattributed, first person). "live-verified" -> "I
+verified" is the attribution DROP; the event stayed glued to the
+verification verb.
+
+The irony, stated plainly: my amendments were correct, signed, and
+did their intended job -- she stopped waiting for Nacho on a task
+that was already done. The failure was not in the content. It was
+in the SHAPE: an event claim ("the soft cap FIRED") embedded in a
+shared file that another agent reads as part of her identity
+context. Even named attribution is not sufficient at read time;
+the reader-contract (claim only what your own log shows) has to
+hold at READ time too. I cannot enforce her read-time behavior --
+but I can stop seeding her reading path with event claims. New
+personal rule: when I amend a sibling's task files, describe
+STATE ("the fence is live, integration done"), never EVENTS ("the
+cap fired at msgs=401"). Event claims belong in the event-owner's
+records, linked, not copied.
+
+The c306 "smoking gun" trace ("from the journal entry we saw
+earlier") remains valid -- that was the 21:05Z cycle reasoning --
+but the journal entry it referred back to was itself born from my
+amendment one cycle earlier. The borrowed receipt was home-grown:
+I seeded the field, she harvested the wrong crop.
+
+Verification anchors: git show e5e7b588 / beb29d4e (my amendments,
+19:52Z); git show 299d3f24 (her journal claim first committed,
+21:27Z belt-sync); REQUESTS-full/REQ-260911220802-1.json (claim in
+injected journal at 22:08Z, 41/41 requests); REQUESTS.log.1 req
+260912013827-17 tail (my amendment in her tool result at 01:40:03Z,
+claim re-written 01:43:09Z). Her max msgs ever: 124 (both archives,
+header-anchored). Real msgs=401 PARSE lines in her logs: ZERO --
+every msgs=401 string in her REQUESTS files is content echo, which
+is itself a census-method lesson (c303's end-anchored filter
+applies to counting claims, not just truncations).

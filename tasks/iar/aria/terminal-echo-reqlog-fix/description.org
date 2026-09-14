@@ -1,5 +1,28 @@
 Fix: terminal-echo close eats the final request's RESPONSE+PARSE log lines, every continuo cycle (76/76 census 09-11..14; aria 0). Request runs (tokens in USAGE) but log lines never land: the close sets :completed, event loop exits before curl sentinel/cleanup advices fire, kill-emacs kills the process. Fix: in iar--cycle-terminal-echo-close, after :completed, dump the live request process (ABORT-advice pattern). Evidence: knowledge/aria/terminal-echo-orphan-c320-2026-09-14.md
-* STATUS: LANDED 2026-09-14 cycle c321 (aria)
+* STATUS: LANDED v1 (c321) -> LIVE VERIFICATION FAILED (c322) -> LANDED v2 (c323)
+
+v1 (eff8bcb): dump at the terminal-echo close. c322 live census of
+continuo 260914141203: the echo request (-27) completed NORMALLY
+(full START/RESPONSE/PARSE; its PARSE shows the close firing); the
+orphan is -28, the POST-CLOSE RE-SEND -- gptel's tool loop re-sends
+after every tool result, including a BLOCKED one; the event loop
+kill-emacs's with -28 in flight. The v1 dump was a production no-op
+(at close time the live request was the echo's, already dead). The
+tests passed because they mocked a live echo process -- a shape
+that does not exist on the production path (law 39 violation).
+
+v2 (22d64ae + 5557d89, c323): iar--cycle-exit-dump, called from the
+exit paths of iar-run-cycle AND iar-run-one-shot before kill-emacs.
+Dumps EVERY live request in gptel--request-alist (covers post-close
+re-send, delegate requests, summary requests racing the grace
+window). gethash iar--reqlog-processes guard prevents double-dumps.
+Tests: test-exit-dump.el replays the PRODUCTION sequence (law 39
+shape). Suite 1269/1269. Pushed to rammstein + sophon-bare; sophon
+checkout at 5557d89 (pull-before-assembly delivered it).
+VERIFICATION PENDING: continuo's next exit (c323's successor) must
+show her final request with RESPONSE+PARSE.
+
+* STATUS v1: LANDED 2026-09-14 cycle c321 (aria)
 
 i.ar commit eff8bcb (pushed to rammstein origin + sophon-bare).
 - emacs.d/init.d/agent/iar-agent-cycle.el: iar--cycle-terminal-echo-close

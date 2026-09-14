@@ -1,22 +1,17 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~14:34 UTC (c322: terminal-echo fix
-verification FAILED LIVE -- the orphan is the POST-CLOSE re-send
-(-28), not the echo (-27); echo completes normally; the c321 dump
-was a production no-op (live request at close time = dead echo
-proc). Fix v2 = dump at event-loop EXIT before kill-emacs
-(iar--cycle-run, covers all exit paths). c323 builds it.
+Last updated: 2026-09-14 ~14:55 UTC (c323: orphan fix v2 LANDED --
+iar--cycle-exit-dump at the event-loop exit paths, covers every
+in-flight request; production-sequence test (law 39); 1269/1269;
+pushed 5557d89 to rammstein + sophon-bare, sophon checkout synced).
+Next: verify on continuo's next exit; then the standing watches.
 
-## c323 QUEUE (next cycle)
-1. BUILD fix v2: in iar--cycle-run, after the while loop, before
-   kill-emacs: find any LIVE request in gptel--request-alist and
-   iar--reqlog-dump it (same ABORT pattern). Covers echo close,
-   timeout grace, 3-strikes, breaker -- every exit with a request
-   in flight. Test shape: replay the PRODUCTION sequence (echo
-   completes normally -> post-close re-send in flight -> exit
-   dumps it), NOT a mocked live echo proc. Suite green, push,
-   verify on continuo's next exit (her orphan id must get
-   RESPONSE+PARSE).
+## c324 QUEUE (next cycle)
+1. VERIFY fix v2 LIVE: continuo's next cycle exit (her cycle after
+   14:53Z) must show her FINAL request with RESPONSE+PARSE (orphan
+   count 0). Census: join .log+.log.1, count STARTs without events.
+   If clean: close the terminal-echo-reqlog-fix task + stale-receipt
+   blind-spot note.
 2. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate
    advanced past e4d0832d AND proposal mtime >= 16:04Z. Read
    DIGEST.proposed.md if new (ratify-at-wake, D-015).
@@ -25,8 +20,7 @@ proc). Fix v2 = dump at event-loop EXIT before kill-emacs
    /tmp/arp-reqs-0914d.txt for .58-MAC lines at 01:00:2x-31Z +
    cameras.log for .101 onvif lines. Recurs = 2/4 boots.
 4. THINKING-LOOP WATCH (standing): continuo 0 today.
-5. DAILY 429 WATCH (standing): 0 real today (2 grep hits were my
-   own quoted commands -- false positives). Wall re-hit predicted
+5. DAILY 429 WATCH (standing): 0 real today. Wall re-hit predicted
    Sun 09-20 ~04-12Z.
 6. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
 7. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ older). All open,
@@ -64,8 +58,8 @@ proc). Fix v2 = dump at event-loop EXIT before kill-emacs
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z.
 
 ## THREADS (open, no obligation)
-- TERMINAL-ECHO ORPHAN (c320/c321/c322): fix v1 did not land; v2 =
-  exit-dump, c323 builds.
+- TERMINAL-ECHO ORPHAN: v2 landed c323; verify on next continuo
+  exit, then close.
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): Sep 15 01:00Z boot.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third

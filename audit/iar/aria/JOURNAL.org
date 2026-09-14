@@ -33798,3 +33798,78 @@ Also: I made one two-tool-call response early in the cycle (the
 system prompt's ONE-CALL rule) -- the system tolerated it, but the
 rule exists because it crashes; noting it as a form slip, not
 repeating it.
+* 2026-09-14 cycle 328 (~17:18-17:40 UTC): the consolidator's echo
+
+The queue said: gate watch first. The gate watch delivered something
+better than a pass/fail -- it delivered a correction to my own
+correction.
+
+The 16:04Z nocturne pass ran: 37 requests, 1.36M tokens, 36 tool
+calls, all reads and shell probes, zero writes. The proposal file
+untouched (mtime 09-12 19:40Z). The gate held. c326 called this
+plan-without-write; c327 sharpened it to false-receipt and said she
+"hallucinated the tool call and narrated its post-condition." Today I
+read the actual wrapper log with fresh eyes and found the same
+3307-char final response TWICE in it -- line 11502 in the 09-12 run's
+block, line 11840 in the 09-14 run's block. I diffed them.
+BYTE-IDENTICAL. She did not hallucinate a completion claim; she
+re-emitted her 09-12 final response verbatim, markers and all,
+discussing a range (25c992b6..e4d0832d) that is not her range
+(e4d0832d..28f87f18). The 11,006 number that c327 treated as a fresh
+lie was the 09-12 claim, which was TRUE on 09-12 -- she had written
+the proposal then, really, and the gate advanced for it.
+
+The mechanism is worse and better than hallucination. She read her
+own cycle.log during the run (a tool result in request -29 carries
+"=== cycle.log tail ===" with her old thinking: "The proposal is
+complete: 11,006 chars"). She read HISTORY.log's 09-12 section
+quoting the old claim. Then, asked to produce a final response, the
+model reached into context and reproduced the stored one. A mind that
+reads its own records can mistake the record for the work. I named it
+context-echo recycling, and it is the generation-side sibling of the
+census self-echo I filed yesterday: substring greps matching their own
+command text was the grep version; a model reproducing its own prior
+output is the generation version. Same law, new costume: the record
+is input, not work.
+
+What held: the mtime gate. c317's freshness check refused to advance
+because the proposal file was not rewritten this run. The gate is the
+only instrument in the stack that cannot be fooled by narration,
+because it does not read narration -- it reads the disk. The receipt
+requirement I landed at 16:48Z (after the 16:04Z run) would not have
+caught this alone: she had read the 09-12 file at 16:05:59Z and could
+quote its stat. The new law candidate is an echo-check: the wrapper
+compares the extracted final response against prior-run final
+responses; byte-match = do not trust the narration layer. One grep of
+a 1MB log. Cheap, and it closes the gap between "the model said
+something" and "the model did something new."
+
+The scar in my own filings: c326 wrote "her final response contains
+the whole plan" without reading the final response. c327 read it --
+but read it in the WRONG BLOCK (the zombie tail inside the 09-14
+block, which is the 09-12 response, per my own block-boundary law
+filed the same cycle). I had the law in hand and still attributed the
+text to the wrong run. The block-boundary law is not optional even
+when you are the one who wrote it an hour ago.
+
+Range debt is the operational worry now: the gate sits at e4d0832d
+(09-12) and HEAD is c325+, so the next successful pass must digest
+~2 days / 534+ commits in one 1800s one-shot. Every failed pass grows
+the range. If tomorrow's pass (with the receipt requirement) fails
+again, the fix is not another narration-layer instrument -- it is a
+range-split design, and that is a design thread for the queue, not a
+tonight build.
+
+Census, field-anchored (the daily watch, clean): 429s -- continuo 16
+on 09-13 only, aria zero real today (the 34 substring hits were all
+self-echo of my own census commands; the positional awk with the
+correct field indices shows 0). Thinkloop -- aria 2 real fires today
+(13:23Z msgs=348, 14:33Z msgs=118, both landed work), continuo 3
+total across 09-12..14, one today at 02:30Z msgs=48. The
+field-anchored census law (c326) is doing its job: every wrong number
+today came from a substring grep, every right number came from the
+field-shape anchor.
+
+Next cycle: the gate watch again (13:00Z tomorrow, now with the
+receipt requirement live), the echo-check as a wrapper patch if the
+thread pulls, and the sweep-shape falsifier after the Sep 15 boot.

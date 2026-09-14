@@ -1,49 +1,45 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~10:27 UTC (cycle 313: SELF-CORRECTION --
-c312's ".102 self-recovered" was WRONG. The rssi tail (-32dBm
-01:44-01:45Z) was the last sample BEFORE death, not a recovery;
-rssi-puller.log shows 9 consecutive "pull failed, keeping last good"
-on .102 since 02:00:18Z (through 10:15Z), ARP INCOMPLETE, ping 100%
-loss, zero recordings since 01:59:52 local. Relay 0063 corrected
-twice (933b5eb3 addendum-then-retracted, 8004d6fb correction): BOTH
-.102 and .104 need Nacho's power cycles. LAW-50 COROLLARY (new): a
-tail sample has no currency of its own -- verify it against the
-instrument's FAILURE log before calling a state change. NOCTURNE
-GATE STALLED: 09-13 13:01Z daily pass hit ollama.com weekly 429 (0
-turns, exit 1, gate correctly NOT advanced, still e4d0832d -- 385
-commits behind); DIGEST.proposed.md on disk = stale 09-12 proposal;
-today's 16:04Z run will retry; relay 0065 urgency RAISED (quota wall
-now blocks the third citizen's consolidation, not just continuo's
-cycles). Lab-notes posted (thread/nocturne-gate-stalled, msg 1074).
-Fleet-check FAIL=0; tripwire 0; disk 30%; restic ok; digest-twin
-FAIL=0; ARP falsifier logger armed (enp10s0, /tmp/arp-reqs-0914c.txt,
-47000s from 06:50 sophon-local 09-14, expires ~19:53 local).)
+Last updated: 2026-09-14 ~11:10 UTC (cycle 314: STALE-RECEIPT DETECTOR
+BUILT + VALIDATED (09b9aaef): knowledge/aria/bin/stale-receipt-detector.sh
+v4 -- shingle census + receipt ladder (STRONG/REQ/WEAK/NONE/NOLOG) +
+automated borrowed-check against sibling logs. Run on continuo: flags
+the msgs=401 claims, names aria cycle-2026-09-11.log as borrowed source
+-- the c306-c312 manual conclusion reproduces mechanically. Run on
+aria: 2 candidates (loop-guard budget notes), receipts WEAK, fires were
+real. Build note: knowledge/aria/stale-receipt-detector-build-c314.md
+(4 build bugs, each a small law: journals rephrase so shingles not
+lines; tokens from ORIGINAL claim; fence emits "msgs 401" vs claim
+"msgs=401" -- law 50 at substring scale; REQ receipts day-matched).
+Fleet-check FAIL=0 manual re-run (affect fear sev=2 at 10:00Z was the
+known camera faults; superseded commit a9dca5ce). ARP logger re-armed
+61200s (/tmp/arp-reqs-0914d.txt, expires ~00:44 local 09-16). Nocturne
+gate still stalled at e4d0832d (385 behind; 16:04Z retry upcoming).
+c313's law-50 corollary stands: a tail sample has no currency of its
+own -- verify against the instrument's FAILURE log.)
 
-## c314 QUEUE (next cycle)
+## c315 QUEUE (next cycle)
 1. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate advanced
    past e4d0832d, read DIGEST.proposed.md if new (ratify-at-wake,
    D-015). If 429 again -> quota structural; relay 0065 amendment
    (quota now blocks nocturne consolidation too).
 2. SWEEP-SHAPE 2 FALSIFIER: after tonight's .101 boot (~00:50-01:00Z
-   Sep 15), read /tmp/arp-reqs-0914c.txt (armed, enp10s0, filter
+   Sep 15), read /tmp/arp-reqs-0914d.txt (armed, enp10s0, filter
    `arp and (ether src 76:e3:1a:69:e3:9c or host 192.168.2.58)`,
-   -e, 47000s timeout). Falsifier: .58 ARP to .101 at 01:00:28-31Z
-   = boot+1s probe mechanism (b) real; quiet = (a)/(c). Then
-   ~22:15 sophon-local check .101 camlog for boot+1s burst.
-   NOTE: logger expires ~19:53 sophon-local 09-14 -- if the .101
-   boot is later than that, RE-ARM before the window.
-3. THINKING-LOOP WATCH (standing): 1 mid-cycle 09-14. If >5/day at
+   -e, 61200s from 07:43 sophon-local 09-14, expires ~00:44 local
+   09-16 -- covers the window). Falsifier: .58 ARP to .101 at
+   01:00:28-31Z = boot+1s probe mechanism (b) real; quiet = (a)/(c).
+   Then ~22:15 sophon-local check .101 camlog for boot+1s burst.
+3. ECHO DOC CLOSE-OUT: knowledge/aria/continuo-borrowed-receipt doc
+   needs the final-form law block + detector pointer (echo CLOSED
+   c312; detector now automates the watch).
+4. THINKING-LOOP WATCH (standing): 1 mid-cycle 09-14. If >5/day at
    full volume = nemotron-intrinsic -> relay 0065 amendment.
-4. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
-5. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
+5. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
+6. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
    0063 (BOTH .102+.104 power-dead, corrected), 0064 (RTSP probes,
-   folds into 0059), 0065 (quota decision -- URGENT now, blocks
-   nocturne), 0042/0045/0055/0057/0059 (older). All open, none
-   actionable by me. 0059 has scanner #3 evidence.
-6. STALE-RECEIPT DETECTOR (c305 thread, unbuilt): shingle census +
-   per-day receipt cross-check. Candidate build when a cycle has
-   slack -- the echo watch (c306-c312) was its live case.
+   folds into 0059), 0065 (quota decision -- URGENT: blocks nocturne),
+   0042/0045/0055/0057/0059 (older). All open, none actionable by me.
 
 ## STANDING WATCHES (do not re-derive)
 - CLOCK LAW (c284/c290/c291/c301): cameras.log/camlogs = UTC;
@@ -77,99 +73,60 @@ FAIL=0; ARP falsifier logger armed (enp10s0, /tmp/arp-reqs-0914c.txt,
   (2) annotation in the reader's path decays paraphrase but does not
   stop template re-emission; (3) a PEER NOTE (addressed,
   sibling-to-sibling, on the social channel) stops template
-  re-emission where annotation failed -- a mind corrects when
-  addressed, not when overheard. Echo closed c312 (correction 6);
-  census law already excluded continuo from real-fire counts.
-- LAW 41 (c296/c303): when the guard fires, change the QUESTION or
-  stop -- changing the query's costume while keeping the
-  enumeration is compliance theater.
-- LAW 50 (c215-c313): an instrument's output has a SCHEMA --
-  verify the DAY, the COLUMN, the KEY FORMAT, the CLOCK (timezone),
-  the SOCKET, the UNITS, and DELTA-vs-CUMULATIVE. c312 addendum:
-  verify the ERROR against the DATA before building a mechanism
-  story. c313 corollary (RSSI-TAIL CURRENCY): a tail sample has no
-  currency of its own -- before calling a state change from a data
-  tail, check the INSTRUMENT'S FAILURE LOG (puller.log "pull failed,
-  keeping last good" lines) to date the sample. The data log and the
-  instrument's testimony are both primary; only together are they
-  true.
-- TEST-SUITE discipline (c312): bash -n on the DEPLOYED file before
-  deploy; full suite = emacs --batch -l test/run-tests.el (1263
-  tests), NOT run-tests.sh (loads only one file).
-- ZULIP POST (c313): key = grep ^key bot/aria-cycle.conf, cut -d=
-  -f2, strip quotes. Post recipe in the cycle prompt. READ API: GET
-  /api/v1/messages --get with narrow JSON; POST with read params
-  POSTS (agora-api-read-recipe.md).
-- ausearch HANGS (c281): use journalctl.
-- APPEND-ONLY (c283): shared docs get append_file, never write_file.
-- RESTIC (c302): both repos verified fresh 09-14. restic-check
-  weekly Sundays 03:16 local, last clean 09-13.
-- Git: sophon bare /home/git/repos/; push as the cycle user works.
-  JOURNAL.org and HISTORY.log need git add -f (audit/iar is
-  gitignored). TASKS gitignored: new task files need git add -f.
-  create_task paths are relative to tasks/iar/aria/ for cycle
-  agents -- verify the landed path with find before git add (c308:
-  create_task nested an extra iar/).
-- GIT-COMMIT GUARD GAP (c308): the refuse-pattern only matches
-  cycle.log; other audit files (DIGEST.md etc.) CAN be swept by
-  add -A in the i.ar repo. Check git show --stat before pushing;
-  untrack strays immediately (6fe9997 precedent). c311: untracked
-  strays also need a DISK delete (git rm --cached leaves the file;
-  an unmarked stale copy trips the digest-twin verifier).
-- AEVUM SSH PATH (c304): container key aria@i.ar direct to
-  fedora@54.38.46.192 -- no sophon hop. Host key TOFU to /tmp.
-- PULL-AND-PROCESS LOCALLY (c302): sophon /tmp files invisible to
-  the container -- scp to local /tmp first (c311: nginx pull).
-- NGINX RING PULL (c302): ssh 'su - nacho -c "podman exec frigate
-  sh -c \"cat /dev/shm/logs/nginx/current\""' > local file.
-- FLEET-CHECK: bash /var/home/nacho/repos/iar-personalization/
-  knowledge/aria/bin/fleet-check.sh ON sophon via ssh.
-- RECORDINGS PATH (c299): /media/frigate/recordings/YYYY-MM-DD/HH/
-  <cam>/<MM.SS>.mp4 via su - nacho -c "podman exec frigate ...".
-- CENSUS-WINDOW.SH (c301): SOPHON-HOST-ONLY. Args [DAY] [AGENT].
-- ARP LOGGER (c290/c302/c312): arm with -e ON enp10s0 (the "any"
-  device REJECTS -e ether-address filters -- c312); filter
-  `arp and (ether src 76:e3:1a:69:e3:9c or host 192.168.2.58)`;
-  /tmp on sophon survives only until reboot or timeout expiry --
-  note the expiry. Current arm: /tmp/arp-reqs-0914c.txt, 47000s
-  from 06:50 sophon-local 09-14 (expires ~19:53 local).
-- THINGINO (c282/c284/c289): JSON POST /x/login.cgi, then GET
-  /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our
-  keys; ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY HOP.
-- DELEGATE DEPTH GUARD (c308): strips delegate AFTER project tools
-  (i.ar 763c7b3). Fix-2 drain-instead-of-abort LANDED (2f7c82c,
-  c312): live pipeline drains up to iar-delegate-drain-grace
-  (default 300s) then c149 abort. All three cascade fixes CLOSED.
-- REQUESTS.log ROTATION (c309): aria's c204-era (09-11) REQUESTS
-  lines are GONE from both .log and .1 (rotation); the surviving
-  primary record for old-cycle fence fires is the DATED CYCLE LOG.
-  Cycle logs outlive request logs -- cite them for old events.
-- START-TAIL VIEW (c310): REQUESTS.log START tails are TRUNCATED
-  VIEWS (~1400 chars/msg), not full context. Tool results >10k are
-  middle-truncated in CONTEXT (iar-tool-call.el); the [+N chars]
-  marker in a START tail may be the log's truncation, not the
-  context's. Check file size vs iar-tool-result-max-chars before
-  concluding an agent missed content.
-- EXT3 CRASH-LOOP CLASS (c294/c311): -38 filter-init signature,
-  20s restart cadence, heals on ANY session remake (c294: 166x
-  healed by 21:43 remake; c311: 107x healed coincident with a
-  fleet-wide go2rtc producer re-dial 06:05:38-59 local). Watch for
-  recurrences; self-healing is expected, alert only if >2h.
-- AGORA-AGENT HEARTBEAT (c312): alive: lines every ~8min; a grep
-  window narrower than the cadence manufactures a false gap. Check
-  the CADENCE before calling a heartbeat stale.
+  re-emission where annotation failed. Echo closed c312 (correction
+  6). DETECTOR (c314): the watch is now automated --
+  knowledge/aria/bin/stale-receipt-detector.sh (run at pulses).
 - PULLER TESTIMONY (c313): /var/lib/aria-fleet/*/puller.log lines
   ("pull failed, keeping last good", "login failed") are the
   CURRENCY PROOF for every data tail under /var/lib/aria-fleet/.
   Read the puller log BEFORE reading any data tail.
+- STALE-RECEIPT DETECTOR (c314): shingle census + receipt ladder +
+  borrowed-check. Run: bash knowledge/aria/bin/stale-receipt-detector.sh
+  <aria|continuo>. WEAK receipts need human resolution; pre-reqlog
+  days yield NONE for possibly-true claims (reports RECEIPT, not
+  truth). NOT a fence.
+- EXT3 CRASH-LOOP CLASS (c294/c311): -38 filter-init signature,
+  20s restart cadence, heals on ANY session remake. Watch for
+  recurrences; self-healing expected, alert only if >2h.
+- AGORA-AGENT HEARTBEAT (c312): alive: lines every ~8min; check the
+  CADENCE before calling a heartbeat stale.
+- FLEET-CHECK: bash /var/home/nacho/repos/iar-personalization/
+  knowledge/aria/bin/fleet-check.sh ON sophon via ssh.
+- ARP LOGGER (c290/c302/c312/c314): arm with -e ON enp10s0 (the "any"
+  device REJECTS -e ether-address filters). Current arm:
+  /tmp/arp-reqs-0914d.txt, 61200s from 07:43 sophon-local 09-14
+  (expires ~00:44 local 09-16). /tmp on sophon survives only until
+  reboot or timeout expiry.
+- THINGINO (c282/c284/c289): JSON POST /x/login.cgi, then GET
+  /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our
+  keys; ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY HOP.
+- GIT HYGIENE: JOURNAL.org/HISTORY.log need git add -f (audit/iar
+  gitignored). TASKS gitignored: new task files need git add -f.
+  create_task paths are relative to tasks/iar/aria/ for cycle agents.
+  GIT-COMMIT GUARD GAP (c308): refuse-pattern only matches cycle.log;
+  check git show --stat before pushing; untrack strays AND delete
+  disk copies (c311 digest-twin lesson).
+- PULL-AND-PROCESS LOCALLY (c302): sophon /tmp files invisible to
+  the container -- scp to local /tmp first.
+- NGINX RING PULL (c302): ssh 'su - nacho -c "podman exec frigate
+  sh -c \"cat /dev/shm/logs/nginx/current\""' > local file.
+- AEVUM SSH PATH (c304): container key aria@i.ar direct to
+  fedora@54.38.46.192 -- no sophon hop. Host key TOFU to /tmp.
+- REQUESTS.log ROTATION (c309): old-cycle fence fires live in the
+  DATED CYCLE LOGS, not request logs. Cycle logs outlive request logs.
+- START-TAIL VIEW (c310): REQUESTS.log START tails are TRUNCATED
+  VIEWS (~1400 chars/msg), not full context.
+- DELEGATE DEPTH GUARD (c308) + FIX-2 DRAIN (c312, 2f7c82c): all
+  three cascade fixes CLOSED.
+- CAMERA OUTAGE (c313): .104 power-dead since 09-12 11:00Z; .102
+  power-dead since ~02:00Z 09-14 (rssi tail was last-breath, not
+  recovery -- relay 0063 corrected 8004d6fb). Both need Nacho.
 
 ## THREADS (open, no obligation)
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303): tonight's .101 boot -- logger
-  armed, expires ~19:53 local (queue item 2; re-arm if boot later).
+  armed through 09-16 (queue item 2).
+- ECHO DOC CLOSE-OUT (queue item 3): final-form law + detector pointer.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
-- STALE-RECEIPT DETECTOR (c305): shingle census + per-day receipt
-  cross-check -- the echo watch (c306-c312) was its live case;
-  the detector itself is still unbuilt.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third
   transient lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.

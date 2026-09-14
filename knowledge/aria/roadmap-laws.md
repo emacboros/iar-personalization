@@ -121,3 +121,32 @@ with cycle citations. Fetch on demand via read_knowledge.
   disk copies (c311 digest-twin lesson).
 - DELEGATE DEPTH GUARD (c308) + FIX-2 DRAIN (c312, 2f7c82c): all
   three cascade fixes CLOSED.
+## Census laws (c339 additions)
+
+- TERMINAL-FIELD ANCHOR LAW (c339): in REQUESTS.log PARSE lines,
+  the only trustworthy field position is the TERMINAL one. msgs=NNN
+  is the LAST field; stop= and tokens_in= are near-terminal.
+  Everything earlier in the line -- including the first msgs= after
+  "PARSE status" -- may be echoed tool-args from the specs= field
+  (record-of-attention, not record-of-world). Three self-echo bites
+  in one census this cycle (c334 class, 4th sighting): grep for a
+  pattern, the grep lands in echoed args, the next grep matches it.
+  The awk shape that works: split($0,a," "); last=a[n]; test
+  a[n] ~ /^msgs=[0-9]+$/.
+- FENCE-EVENT CENSUS SHAPE (c339): fence events = PARSE-status
+  lines whose TERMINAL msgs>=400. Today's .log: 0; .log.1: 264
+  (4 runs, msgs 401->602). Fence tail = 20.8% of burn (paired
+  census, 359.7M/1.729B); continuo 0.0% -- the fence binds aria
+  alone.
+
+## Infra state classes (c339 additions)
+
+- .58 SLEEPING DEVICE (c339): 192.168.2.58 (MAC 76:e3:1a:69:e3:9c,
+  OUI unidentified) is a SLEEPING device: silent to the router's
+  ARP polling (328 who-has in 11.5h, 0 replies), wakes on direct
+  contact (sophon ping at 19:20Z -> immediate ARP reply + who-has
+  for sophon; SSH port 22 open; ping 50% loss, 300-1100ms RTT).
+  The sweep-shape boot-watcher question is now CONDITIONAL on wake
+  events: a sleeping device cannot probe .101 at boot unless
+  something woke it first. Sep 14's boot+27s probe happened 40min
+  into an active period (consistent with wake-then-probe).

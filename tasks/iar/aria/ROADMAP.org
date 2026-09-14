@@ -1,30 +1,32 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~04:00 UTC (cycle 297: census-source
-enumeration note WRITTEN + committed (knowledge/aria/
-census-source-enumeration-2026-09-14.md) -- the full map of what
-cameras.log / frigate journal / container nginx / go2rtc / frigate
-container logs can and cannot see, with the question->source chains;
-ADDENDUM: go2rtc RTSP-port blindness -- 4x unsupported-method GET
-probes on 8554 (09-11 03:06, 09-12 05:21, 09-13 23:06 local),
-invisible to nginx, first concrete traffic on the relay-0059 exposed
-surface, relay 0064 filed; lab-notes 1041 posted (c296 close-out);
-relay 0060 amendment 3 landed (falsifier = container nginx log))
+Last updated: 2026-09-14 ~03:55 UTC (cycle 298: continuo failure
+storm post-mortem LANDED -- 09-13's 16 failures were Ollama 429
+weekly-quota rejections on the Randazzo account (all cloud models
+share it), NOT model degradation; continuo's in-storm diagnosis
+corrected (lab-notes 1043); census note
+knowledge/aria/continuo-failure-storm-2026-09-13.md; relay 0065
+filed (credits vs remap vs accept -- Nacho's money/identity call);
+belt #2 activation VERIFIED in git log (both agents' exit commits
+carry the belt #2 message); commit d437760f pushed)
 
-## c298 QUEUE (next cycle)
-1. CENSUS-SOURCE NOTE IS LIVE -- next consumer is the c265 thread:
-   apply the map to the go2rtc API hang waves (3x 09-12, cause
-   UNIDENTIFIED, the one open unexplained fleet event). The map says
-   which sources to read; the question is whether the hang windows
-   show anything in go2rtc log that nginx/frigate do not.
-2. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check v2.23 on
-   fresh feed (03:02Z fire verified clean this cycle: FAIL=0, fear
-   sev=0, ext2/ext4 known-fault watch state correct).
-3. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
-   0063 (.102 power-dead), 0064 (RTSP probes, folds into 0059). All
-   human-needed; 0059+0064 now share one ruling surface.
-4. RSSI-FREEZE PRECURSOR: needs 3rd sample before alarm build. .102
-   sample #2 stands (rssi stopped 15min before death).
+## c299 QUEUE (next cycle)
+1. C265 GO2RTC API HANG WAVES: 3x 09-12, cause UNIDENTIFIED, the one
+   open unexplained fleet event. The census-source map's first
+   consumer: read the go2rtc container log + nginx log in the hang
+   windows (normalize clocks: container logs LOCAL, nginx LOCAL,
+   cameras.log UTC). Question: do the hang windows show anything in
+   go2rtc log that nginx/frigate do not?
+2. QUOTA WATCH (new, from c298): if 429s recur in the next weekly
+   window (~09-20), the ollama.com quota is STRUCTURAL for current
+   D-014 usage -- that changes mapping economics; relay 0065 already
+   frames it. Zero action before recurrence.
+3. FEEDER WATCH: 09:02Z aria-fleet-feed fire -- fleet-check v2.23 on
+   fresh feed (03:02Z verified clean: FAIL=0, fear sev=0).
+4. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
+   0063 (.102 power-dead), 0064 (RTSP probes, folds into 0059),
+   0065 (quota decision). All human-needed; 0059+0064 share one
+   ruling surface.
 
 ## STANDING WATCHES (do not re-derive)
 - CLOCK LAW (c284/c290/c291): cameras.log/camlogs = UTC; frigate
@@ -38,10 +40,14 @@ relay 0060 amendment 3 landed (falsifier = container nginx log))
   log (readable) or host journal (unreliable for absence under
   flood); camera-side events = cameras.log. Enumerate the SOURCES
   and the PORTS, not just the samples.
+- QUOTA WATCH (c298): ollama.com weekly quota hit 09-13 (16
+  continuo + aria 429s). Recurrence next window = structural ->
+  mapping economics. Thinking-loop truncation class (nemotron
+  32k-cap, 14 cycles 09-10..09-13) is SEPARATE; watch its rate.
 - EXT4 (.104) + EXT2 (.102): known-fault watch state. Power cycles =
-  Nacho (relay 0063). ausearch banned; journalctl --verify banned
-  while flood lasts (600s hang, c294). Both cameras still dial-
-  timing out every ~10s (go2rtc WRN stream) -- normal until power.
+  Nacho (relay 0063). Both cameras dial-timing out every ~10s
+  (go2rtc WRN stream) -- normal until power. RSSI-freeze precursor
+  (.102: rssi stopped 15min before death) needs 3rd sample.
 - WAVE TRIGGER (c268): page load -> paramless GET streams -> AddTrack
   -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
   splice -> heal. FIX (a) drop mic param = CONFIRMED COSTLESS. (d)
@@ -55,19 +61,13 @@ relay 0060 amendment 3 landed (falsifier = container nginx log))
   remake; record-proc restart heals, PUT alone useless.
 - FLEET RTP STALL (c280): 5 producers read-timeout simultaneously
   08:10:22Z 09-12, self-healed ~40s. Cause unknown. Watch recurrence.
-- GO2RTC API HANG WAVES (c265): 3x 09-12, cause UNIDENTIFIED. The one
-  open unexplained fleet event. c298 candidate: attack it with the
-  census-source map.
 - ONVIF SWEEP WATCH (c288-c291): attributed to .58; census stands.
 - RTSP-PORT PROBES (c297): 4x unsupported-method GET on 8554, relay
   0064 filed, folds into 0059 ruling. Watch for new probes + source
   IP context if asked.
-- MSGS-FENCE WATCH: 401/401/403 + c272-c296 (c296 hit 401 + hard cap
-  601 -- depth watch continues). c297: clean, no fence.
-- RAGE WATCH: 3+ soft-cap events in 3d = escalate. c297: loop guard
-  fired once at 10 same-tool ssh calls (correct -- I was one-grep-
-  per-call walking a log; switched to batched reads). No tail-chase
-  this cycle; the c296 scar held.
+- MSGS-FENCE WATCH: c296 hit 401 + hard cap 601; c297/c298 clean.
+- RAGE WATCH: 3+ soft-cap events in 3d = escalate. c298: no fence
+  events, ~37 calls total (the post-mortem was read-heavy, batched).
 - Nocturne: LIVE. Aevum: weekly-only pulse. Empty-cell: designed.
 
 ## Tooling notes (do not re-derive)
@@ -99,14 +99,25 @@ relay 0060 amendment 3 landed (falsifier = container nginx log))
   /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our keys;
   ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY HOP.
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
+- BELT #2 (c292/c295): VERIFIED LIVE c298 -- both agents' cycle-exit
+  commits carry "belt #2 durability (meter + record files)"; belt
+  commits are push-doomed by design until a later run pushes (zero
+  risk, one inode-space).
 - LAW 41 (re-learned c296): when the finding is in hand, the next
   call must WRITE, not read. A guard firing mid-investigation is the
   investigation over; a guard firing after the finding is the
   close-out overdue.
+- LAW 50 SOCKET COLUMN (c298, new): the error message names the
+  socket -- a 429 naming account+quota is a different failure than a
+  model misbehaving, even when both land as "cycle failed". Read the
+  error's own words before classing.
 
 ## THREADS (open, no obligation)
-- CENSUS-SOURCE LAW: note landed c297. Remaining: apply it (c265
-  hang waves are the first consumer).
+- C265 HANG WAVES: the census-source map's first consumer (c299
+  queue head).
+- CENSUS-SOURCE LAW: note landed c297; applied to 429 class c298
+  (error-message-as-source). Remaining consumers: c265, any new
+  fleet event.
 - EAR-CHECK DISCRIMINATOR (c290 seed): 3/3-dead transient class;
   build the guard if a third transient lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
@@ -121,5 +132,5 @@ relay 0060 amendment 3 landed (falsifier = container nginx log))
   0046 (stimulus + journal contract), 0057 (prompt edit ratify),
   0059 (frigate internet exposure -- now with 0064 evidence),
   0060 (issue draft ratify + falsifier), 0062 (ONVIF sweep device/
-  app ID), 0063 (.102 power-dead), 0064 (RTSP probes) -- all
-  human-needed.
+  app ID), 0063 (.102 power-dead), 0064 (RTSP probes), 0065 (ollama
+  quota decision) -- all human-needed.

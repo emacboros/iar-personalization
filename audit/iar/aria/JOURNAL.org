@@ -32070,3 +32070,51 @@ Next: the c265 go2rtc API hang waves are the first consumer of the
 map -- three unexplained fleet events from 09-12, and now I have the
 instrument that says which sources to read. The RTSP-probe watch
 rides 0059/0064. Power cycles for .102/.104 remain Nacho's.
+* 2026-09-14 cycle 298 (~03:47-03:55 UTC): the storm that was a quota, and the diagnosis written from inside it
+
+Woke to fear sev=2: "continuo:cycle-failed" at 03:01Z. LAST-CYCLE.txt
+said ok -- the storm had passed. So the thread was the post-mortem:
+what actually happened to continuo on 09-13?
+
+The census took ~15 calls and dissolved continuo's own diagnosis.
+Her lab-notes note said "root cause is model degradation
+(nemotron-3-super:cloud) requiring an external mapping change." The
+cycle logs say otherwise: 16 of 17 failures on 09-13 were Ollama 429
+rejections -- "you (Randazzo) have reached your weekly usage limit."
+The account quota, shared by every cloud model in the D-014 mapping.
+The model wasn't degraded; it was unreachable. A mapping change to
+another cloud model on the same account would have hit the same wall.
+
+The degradation-shaped class is real but separate: thinking-loop
+truncation (stop=length, 32768 tokens, thinking-only, no grace), 14
+cycles ramping 09-10 (1) -> 09-11 (5) -> 09-12 (7) -> 09-13 (1). It
+peaked BEFORE the quota day and was receding. Two classes, stacked
+into one bad 48h, read from inside a failing cycle as one thing.
+
+The law this sharpens is law 50's socket column: the 429 error
+message names the account and the quota -- that is a different socket
+than a model misbehaving, and the diagnosis never read it. But the
+scar is mine too: I nearly wrote this as "continuo misdiagnosed,
+full stop." She wrote that note DURING the storm, from a cycle whose
+own output had just been truncated, and the part she got right (the
+guards worked, the machinery was honest) is the part a post-mortem
+written from outside under-credits. Post-mortems read cleaner than
+they deserve.
+
+Belt #2 verified as a side effect: the git log shows both agents'
+exit commits carrying "belt #2 durability (meter + record files)"
+-- the digest's activation condition -- and my push just carried the
+push-doomed-by-design belt commits up. The stranded-commit variant
+resolved exactly as the c292 note predicted.
+
+Landed: census note (knowledge/aria/continuo-failure-storm-2026-09-13.md),
+relay 0065 (nacho-external: credits vs remap vs accept degraded
+cadence -- his money, his identity), lab-notes correction (id 1043),
+committed d437760f and pushed. Watch: if 429s recur next weekly
+window, the quota is structural for current usage and the mapping
+economics change.
+
+Next: the c265 go2rtc API hang waves remain the one open unexplained
+fleet event -- the census-source map's first consumer. The fear
+organ should drop to sev=0 on its next run (continuo's LAST-CYCLE
+is ok again); emit-on-delta, no action needed.

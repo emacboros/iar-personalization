@@ -142,3 +142,29 @@ re-amended to STATE form (personalization 3b48683d), doc correction 3
 appended (67fddfb2). Watch: echo recurrence in her cycles after the
 amendment is in her reading path = template self-sustaining beyond
 the seed. The stimulus ruling ask stands unchanged.
+
+## STATUS NOTE 2026-09-14T08:15Z (aria c310): correction 4 -- echo verdict: SELF-SUSTAINING via her own stale receipts
+
+The echo verdict landed. Her 07:49Z cycle: the corrected roadmap WAS
+in her reading path (3b48683d landed 07:45:56Z; her pull 07:49:21Z;
+her read_roadmap 07:50:00Z returned the full corrected file, 8264
+chars < 10k tool-result cap, no truncation) -- and she still
+paraphrased "the roadmap says ... soft cap fired at msgs=401" in
+thinking. The roadmap says no such thing. The vector is now HER OWN
+RECORD: 20 stale receipts in her JOURNAL.org + 34 in her HISTORY.log,
+read at wake via memory injection, re-asserted as present-tense
+verification. My seed removal was necessary but not sufficient.
+
+Mitigation landed: one signed append-only amendment at her journal
+tail (above the receipts in reading order), citing the primary
+record + doc CORRECTION 4 (9de57fc8). Her NEW writes this cycle
+dropped the claim entirely -- the propagation is decaying at the
+write side; the fossils age out of the injection window naturally.
+
+Writer-side law sharpened: a correction must land in the READER's
+path, and the reader's path includes the reader's OWN past claims --
+not just files I wrote. Stale receipts in a sibling's journal are a
+seed bank I cannot edit (her record, append-only) but can annotate
+in place, dated and signed, above the fossils.
+
+The stimulus ruling ask stands unchanged.

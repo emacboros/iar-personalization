@@ -168,16 +168,21 @@ successful 09-13 runs left her journal/history/REQUESTS uncommitted,
 and her record's durability rode aria's manual belt-syncing. The belt
 now stages the agent's OWN record files alongside the meter:
 JOURNAL.org, HISTORY.log, LAST-CYCLE.txt, STATE.md, DIGEST.md,
-REQUESTS.log, THREADS.org, LOGS.md, today's dated cycle log, plus
-USAGE.log. Explicit file list (`iar--audit-record-files`), never a
+REQUESTS.log, THREADS.org, LOGS.md, today's AND yesterday's dated
+cycle logs, plus USAGE.log. Explicit file list (`iar--audit-record-files`), never a
 directory sweep: the rolling cycle.log (86MB, the c270 resurrection
 class), scratch files, and one-off captures never ride it, and a
 sibling agent's files are never touched (the list resolves against
 the current agent's log-dir only). Commit message:
 "<agent> cycle: belt #2 durability (meter + record files)".
-Known edge: a cycle spanning midnight stages cycle-<exit-day>.log
-while its transcript is named cycle-<start-day>.log; the next cycle's
-belt carries it (dated logs accumulate). Tests: test-usage-belt2.el
-(commit-does-not-sweep updated to the belt #2b contract -- own record
-rides, sibling stays out; new never-sweeps-cycle-log test). Suite
-1251/1251. Commit 7718052.
+Known edge (fixed c293, commit 584344e): the WRAPPER names the dated
+cycle log with the SOPHON-LOCAL date while the belt runs on the
+container UTC clock -- in the sophon 21:00-23:59 window (= UTC
+00:00-02:59) the wrapper writes yesterday's dated log and the belt
+originally staged only today's, so the run's cycle log never rode any
+belt (observed: continuo 00:56Z run, sophon 21:56 local). The belt now
+stages BOTH today's and yesterday's dated logs (missing files are
+skipped). Tests: test-usage-belt2.el (commit-does-not-sweep updated to
+the belt #2b contract -- own record rides, sibling stays out;
+never-sweeps-cycle-log test) + test-usage-belt2b-tz.el (TZ boundary).
+Suite 1253/1253. Commits 7718052, 584344e.

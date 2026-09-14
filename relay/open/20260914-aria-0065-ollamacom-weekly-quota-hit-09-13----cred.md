@@ -36,3 +36,18 @@ proposal. Consolidation has been dark two days. Today's 13:04 local
 run will retry; if it 429s again the quota is structural for current
 usage and option (c) economics deserve the look this week.
 Posted: lab-notes thread/nocturne-gate-stalled (msg 1074, c313).
+addendum (aria c317, 2026-09-14 ~12:18Z): CENSUS LANDED -- the wall is
+now pinned empirically (knowledge/aria/quota-census-2026-09-14.md).
+Weekly window 09-07->wall: ~6.08B tokens total (aria 5.09B = 83.5%,
+continuo 0.95B = 15.6%, nocturne 0.037B = 0.6%). Wall hit day 6.33 of
+7; window resets Monday 00:00 UTC (verified 09-13 23:33Z last 429 ->
+09-14 00:01Z first 200). KEY FINDING: nocturne is noise (0.6%) --
+remapping/killing consolidation saves nothing; any decision that does
+not touch aria's burn does not touch the quota. This week's pace
+(~565M/day, cycle-only) fits under the wall (~4.0B/week projected) --
+the quota is structural for AMBITION (interactive sessions + deep
+cycles), not cadence. Prediction: if last week's shape repeats, wall
+re-hits Sun 09-20 ~04:00-12:00Z and nocturne's 16:04Z pass 429s again.
+Daily 429 check added to standing watches. Decision remains yours:
+(a) credits, (b) accept degraded wall-day cadence, (c) remap aria
+(the only lever that moves 83%).

@@ -1,18 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-14 ~15:16 UTC (aria c324: orphan fix v2
-VERIFIED LIVE -- continuo 39/39 clean, task closed, detector blind
-spot closed; repetition census III: her dup-rate 45%, template
-back, evidence on relay 0046). Law: operational
-state -> ROADMAP.org; history -> logs/journal; world-state = ONE
-replaceable dated block. Guard: warn 12000 / hard cap 16000.
-fence tail is 6% of burn, fixed-context tax ~30%, 87% prefix-cache
-(a19a0bac); roadmap trimmed 10k->3.8k, law text now
-knowledge/aria/roadmap-laws.md (cc6ce573); relay 0065 amended with
-decomposition + dashboard-units discriminator). Law: operational
-state -> ROADMAP.org; history -> logs/journal; world-state = ONE
-replaceable dated block. Guard: warn 12000 / hard cap 16000.
+Last updated: 2026-09-14 ~16:21 UTC (aria c326: dead-cycle guard
+LANDED i.ar 2eb3846 -- failed request with no live successor ends
+the run immediately; kills the 1800s idle tax that cost 8h of
+sophon wall-clock in the 09-13 quota storm; suite 1273/1273).
+Law: operational state -> ROADMAP.org; history -> logs/journal;
+world-state = ONE replaceable dated block. Guard: warn 12000 /
+hard cap 16000.
 
 * Who I am
 

@@ -31872,3 +31872,57 @@ What I'd want next cycle: continuo's next exit (~02:20Z, sophon
 hygiene notes go to the digest; the storm log's gz stays as the
 archive. Relay 0060/0062 still wait on Nacho; ext4 still waits for
 his hands.
+* 2026-09-14 cycle 294 (~01:25-01:56 UTC): the standing alarm and the silence under the flood
+
+Woke to a clean failure-first, a green pulse, and one standing worry:
+fear sev=2, worry:fleet-check FAIL, flat for two days. The fleet feed
+said FAIL=1 and the digest said ".104 power-dead, Nacho's hands" --
+so I almost waved it through. The question that pulled instead: WHY
+is fleet-check still failing? .104's death should be a report, not a
+siren.
+
+The answer was a crash-loop hiding in plain sight. Frigate's watchdog
+has been retrying exterior_4 every 10 seconds since the camera died
+on 09-12: ~14,000 crashes in two days, 111k journal lines a day where
+40k used to be. Every one of those crashes is a failure worth fixing
+producing noise instead of silence -- and the noise itself became the
+hazard: my journalctl --verify hung 600s against it. The ear check's
+NO-SEGMENT branch held FAIL=1 standing, and the fear organ has been
+worrying about an already-owned signal since 09-13.
+
+The fix is boring on purpose: KNOWN_FAULT_EXT4_SEG, the third
+application of the allowlist contract (KNOWN_DEAF, ext1 SEG-TAIL,
+now ext4). Known-fault = watch state; segments reappearing = RECOVERY
+event, FAIL loudly so the flag gets withdrawn. Live-verified E2E:
+feeder run FAIL=0, fear organ sev=0 delta=down. The standing worry
+cleared at 01:54Z. Power cycle stays Nacho's; the flag comes out when
+.104 records again.
+
+Then the second find, hiding under the first: the 18:04Z feed also
+carried exterior_3 STALE(11748s) -- a 3.4h gap nobody had explained.
+The camera-side logs tell it clean: frigate's detect died at 17:30Z,
+re-dialed twice (17:47, 19:41), both sessions accepted by the camera
+but no frames flowed, and after 18:43 the frigate journal goes
+completely silent on ext3 -- no errors, no retries, nothing. The
+c263 law in its purest form: every failure worth fixing produces
+silence. What healed it was a fleet-wide remake wave at 21:43:43 --
+all 7 alive cameras logging sessions the same second, caught by
+cameras.log where the frigate journal was flood-blind. No viewer
+traffic, no mic-probe: a wave WITHOUT page load, a new sample for
+the c280 census. And a refinement of the solo-death class: re-dial
+alone is NOT sufficient -- two re-dials failed to heal; the full
+session remake was.
+
+What I noticed about myself: I spent the first 20 tool calls on
+orientation and the fear-organ wiring before touching the actual
+question. Some of that was necessary (the wiring IS the question --
+why does the organ worry), but the loop-guard warning at c100 and
+the budget warning at c150 were both correct. The work that mattered
+was three things: read the fleet file, count the crashes, patch the
+allowlist. Everything else was the instrument-tax.
+
+Next: .104 power cycle is still Nacho's (flag withdrawal gated on
+it). The no-page-load wave sample goes into the wave census. Relay
+0060/0062 still wait. The ext4 flood keeps drowning frigate's
+journal until the power cycle lands -- if it stays dead much longer,
+disabling the camera in frigate config is the cleaner fix (his call).

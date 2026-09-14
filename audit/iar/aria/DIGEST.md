@@ -1,11 +1,11 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-14 ~01:12 UTC (aria c292: continuo commit-gap
-RSSI cron saturates the logread ring, empty-snapshot wave was the
-instrument not the cameras; staircase-splice full-day census HOLDS
-7/7 crontab-hour matches; ext1 22:01 DTS anatomy = 3.6h audio-timeline
-gap; relay 0060 ratify ask stands). Law: operational state -> ROADMAP.org; history -> logs/
+Last updated: 2026-09-14 ~01:57 UTC (aria c294: ext4 standing
+alarm ROOT-CAUSED = frigate watchdog crash-loop on power-dead .104
+(14k crashes/2d, journal flood 111k lines/day); fleet-check v2.22
+KNOWN_FAULT_EXT4_SEG landed+E2E verified (FAIL=0, fear sev=0); ext3
+3.4h silent stall healed by no-page-load fleet wave 21:43:43Z). Law: operational state -> ROADMAP.org; history -> logs/
 journal; world-state = ONE replaceable dated block. Guard: warn
 12000 / hard cap 16000. A digest that only grows is failing.
 
@@ -117,7 +117,7 @@ guard fires mid-investigation = investigation over; 42 empty-end
 after close-out = ambiguous failure; 43 census-timing: check the
 READ HOUR against the PREDICTION WINDOW.
 
-* World state (2026-09-14 ~01:12 UTC -- REPLACES all prior blocks)
+* World state (2026-09-14 ~01:57 UTC -- REPLACES all prior blocks)
 
 - CONTINUO COMMIT-GAP (c292, doc knowledge/aria/
   continuo-commit-gap-c292-2026-09-14.md): her close protocol has NO
@@ -132,19 +132,29 @@ READ HOUR against the PREDICTION WINDOW.
   push-doomed by design until a later run pushes (new variant of the
   stranded-commit class; zero risk, one inode-space).
 - CAMERA OUTAGE 09-12: CLOSED except .104 (STILL POWER-DEAD:
-  rssi frozen, ARP FAILED, fleet-check FAIL=1; power cycle is
-  Nacho's). .103/.105/.201/.202 recovered 13:36Z (manual power-cycle).
+  rssi frozen, ARP FAILED; power cycle is Nacho's). .103/.105/
+  .201/.202 recovered 13:36Z (manual power-cycle). c294: .104's
+  death is NOT quiet -- frigate watchdog crash-loops every 10s
+  (~14k crashes/2d, journal flood 111k lines/day vs 40k); fleet-
+  check v2.22 KNOWN_FAULT_EXT4_SEG = watch state, FAIL=0, fear
+  sev=0 (flag withdrawal when .104 records again). If still dead
+  ~3d, propose frigate-config disable (Nacho's call).
 - WAVE TRIGGER (c268/c272/c280, doc wave-mechanism-c280): page load
   -> 7 paramless GET streams (mic-probe in frigate proxy) -> AddTrack
   -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
   splice -> heal. Camera-side witnesses at every hop; +24s = go2rtc
   watchdog (fingerprint). FIX (a) drop mic param = CONFIRMED
   COSTLESS. (d) issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
+  c294 NEW SAMPLE: 21:43:43Z 09-13 fleet remake with NO page load
+  and NO mic-probe (cameras.log witness, 7 cams same-second) --
+  trigger unknown, new census class.
 - UPSTREAM SCAN (c269, [EXTERNAL DATA]): bug NOT reported/fixed
   upstream (we run 1.9.10). Open family: #2404, #2387, #2362.
 - SOLO-DEATH CLASS: samples #1/#2 (int1 19:00:04, ext5 19:13-15
   09-12) lack camera-side witnesses; hypothesis = producer-side
-  re-dial (c269). Sample #3 RECLASSIFIED OUT (c280): ext1 21:29
+  re-dial (c269). c294 refinement: ext3 3.4h stall (17:30-21:43Z
+  09-13) -- 2 re-dials (17:47/19:41) did NOT heal; full session
+  remake (fleet wave 21:43:43Z) did. Re-dial alone insufficient. Sample #3 RECLASSIFIED OUT (c280): ext1 21:29
   fps-limit had backchannel witness +27s, no page traffic =
   mic-probe remake WITHOUT page load (dialer open; falsifier in
   relay 0060). DTS gap 4.0h.

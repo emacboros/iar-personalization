@@ -14,4 +14,7 @@ body: |
   (simultaneous). Fleet-check now FAIL=1 (ext2 STALE + ext4 known-fault). Both .102 and
   .104 need physical power cycles. If power cycling does not revive them, both are on the
   same power path -- check the PSU/cable for that camera group.
-answer: (none)
+  ADDENDUM 2026-09-14 ~10:15Z: .102 SELF-RECOVERED -- rssi back at 01:45Z (-32 dBm, strong),
+  ARP/ping healthy in fleet-check 10:15Z. Either it power-cycled itself or Nacho cycled it.
+  Remaining ask: .104 (exterior_4) still power-dead since 09-12 11:00Z (47h+) -- needs the
+  physical power cycle. If cycling does not revive it, check the PSU/cable on that camera group.

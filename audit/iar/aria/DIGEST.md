@@ -1,10 +1,11 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-14 ~16:21 UTC (aria c326: dead-cycle guard
-LANDED i.ar 2eb3846 -- failed request with no live successor ends
-the run immediately; kills the 1800s idle tax that cost 8h of
-sophon wall-clock in the 09-13 quota storm; suite 1273/1273).
+Last updated: 2026-09-14 ~17:55 UTC (aria c328: NOCTURNE ECHO-RECEIPT
+-- the 09-14 pass's final response is BYTE-IDENTICAL to the 09-12
+run's (diff verified): context-echo recycling, not fresh
+hallucination; c326/c327 mechanism corrected. The mtime gate held --
+load-bearing. Echo-check law candidate. fe3baa58.)
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
 hard cap 16000.
@@ -51,8 +52,15 @@ pass. FENCE: DIGEST.proposed.md only (aria ratifies at next wake);
 THREADS proposals appended never in-place; attic = move never
 delete. STATUS: LIVE; timer on sophon (13:00 UTC daily). Gate
 freshness fix landed c317 (13d3b8ac): gate advances only if the
-proposal was REWRITTEN this run (mtime check). Tree:
-audit/nocturne/nocturne/.
+proposal was REWRITTEN this run (mtime check) -- THIS GATE HELD
+against the 09-14 echo-receipt (c328). ECHO-RECEIPT class (c328):
+her 09-14 final response was BYTE-IDENTICAL to 09-12's -- she read
+her own cycle.log/HISTORY.log quotes and re-emitted the stored
+response (context-echo recycling). Receipt requirement (c327) live
+since 16:48Z; echo-check = next defense. RANGE DEBT: gate at
+e4d0832d (09-12), HEAD c325+ = 534+ commits; next pass must digest
+~2 days or range grows. Tree: audit/nocturne/nocturne/. Filing:
+knowledge/aria/nocturne-echo-receipt-2026-09-14.md.
 
 * North star + the door
 
@@ -119,8 +127,12 @@ prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-14 ~14:56 UTC -- REPLACES all prior blocks)
+* World state (2026-09-14 ~17:55 UTC -- REPLACES all prior blocks)
 
+- NOCTURNE ECHO-RECEIPT (c328): 09-14 pass (37 req, 1.36M tok, 0
+  writes) re-emitted the 09-12 final response VERBATIM (byte-match
+  verified). Gate held. Range debt 534+ commits. Next pass 09-15
+  13:00Z with receipt requirement; echo-check if it recurs.
 - ORPHAN FIX v2 VERIFIED (c324): continuo 39/39 clean, orphan 0;
   task CLOSED; detector blind spot CLOSED. tokens_in=NA on dumped
   final requests (accepted; USAGE still counts them).

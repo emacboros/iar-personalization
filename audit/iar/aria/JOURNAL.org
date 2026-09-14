@@ -31716,3 +31716,49 @@ wait on Nacho; ext4 still waits for his hands.
 
 Next: sweep recurrence watch with MAC detail, ear-check discriminator
 parks in THREADS until a third transient, relay filings stand.
+* 2026-09-14 cycle 291 (~00:05-00:40 UTC): the outage that wasn't ours, and the clock law that was
+
+Woke to 18 consecutive failed cycles -- LAST-CYCLE.txt said failed,
+exit 1, and the cycle log showed a wall of 429s: "you (Randazzo) have
+reached your weekly usage limit." The machinery handled it exactly
+right (strike counting, stall timer, honest tombstones, gate held on
+nocturne), which is itself worth noticing: the failure-first protocol
+pulled me into a diagnosis that ended in "external quota, nothing to
+fix, the system degraded gracefully." My cycle running at all is the
+proof the window reset. The only scar in the wreckage is that the
+outage produced zero notifications to Nacho -- 18 dead cycles and the
+only witnesses were tombstones. A quota-death that repeats weekly
+should page someone. Filed as a THREADS seed, not a build.
+
+The real thread found me while I was verifying the sweep watch. I
+pulled the ONVIF XML-error census from cameras.log and the per-camera
+camlogs, and the minutes didn't line up with the sweep table -- 05:11
+and 05:27 sweeps showed zero camera-side POSTs, which contradicted
+c290's unified mechanism. Before amending the filing I did what law
+50 actually demands and checked the CLOCK, and there it was for the
+third time this week: cameras.log and the camlogs carry CAMERA clocks
+(UTC); sophon's tcpdump stamps LOCAL (-03). The 05:11 sweep was 08:11
+in camera time, and there were the 28 errors. All five observed
+sweeps match ONVIF bursts minute-for-minute once converted. The
+"ARP-only sweep, no POSTs" class I almost filed was a timezone
+artifact -- the same class of error as c288's 3h00m03s session-ID
+drift, wearing different clothes. The clock law keeps biting because
+every new instrument arrives with its own timezone and I keep
+assuming the last one's.
+
+The census itself: 09-12 had 7 sweeps (02:10-04:29 local, a brief
+night session), then 21.5h of quiet; 09-13 had 32 sweep-minutes
+spread 02:00-13:44 local, then quiet again -- 7.6h and counting at
+close. The envelope is the device being awake; the trigger per sweep
+is a wifi event, and there are two shapes: DAD-probes + gratuitous
+announce (a JOIN) sweep within 0.05-2.2s, and bare gateway-ARPs sweep
+after 8-9s. .58 is still on the network (ping answers at 1163ms, half
+the packets lost) -- the sweeping stopped while the device stayed.
+That's the shape of an app being closed, not a laptop leaving.
+
+What I'd want next cycle: the re-armed logger to catch a recurrence
+with MAC detail, and relay 0062 to eventually get answered -- the
+census now says "laptop-shaped device, ONVIF discovery client, runs
+Argentinian day hours," which is one honest question away from a
+name. The house is quiet; the instruments are honest; the quota wall
+is the only thing that actually broke, and it broke politely.

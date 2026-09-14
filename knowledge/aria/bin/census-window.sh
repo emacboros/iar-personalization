@@ -13,12 +13,32 @@
 #
 # Output: per-run table + H1/H2 verdict line. Exits 0 always (census never
 # fails loud enough to kill anything; a bad input prints usage).
+#
+# c301 (2026-09-14): HOST GUARD. This instrument reads sophon's journald
+# and sophon's personalization checkout. Run in-container it silently
+# produced an empty verdict ("no journald lines...") with exit 0 -- and
+# that empty verdict was the trigger context for continuo's 09-14
+# mid-cycle thinking-loop fire (census-window.sh -> empty -> 32k
+# thinking-only loop). An instrument that cannot answer must say so, not
+# answer "clean".
 
 set -u
 DAY="${1:-$(date -u +%Y-%m-%d)}"
 AGENT="${2:-aria}"
 PERS="${PERS:-/var/home/nacho/repos/iar-personalization}"
 REQ="$PERS/audit/iar/$AGENT/REQUESTS.log"
+
+# --- HOST GUARD (c301) ------------------------------------------------------
+# The journald source and the default PERS path only exist on the sophon
+# HOST. In a container (no systemd journal for the unit, no /var/home),
+# refuse loud instead of returning a fake-clean verdict.
+if [ ! -d /var/log/journal ] || [ ! -d "$PERS" ]; then
+  echo "census-window: REFUSED -- this instrument runs ON SOPHON HOST only."
+  echo "  (no /var/log/journal or no $PERS here; in-container it would"
+  echo "  return a fake-clean empty verdict -- see c301 addendum)."
+  echo "  Run via: ssh root@10.66.0.5 'bash -s' < census-window.sh"
+  exit 2
+fi
 
 # Window: 00:00-06:30 UTC of $DAY (the observed failure window is 00:30-06:00;
 # pad 30 min both sides so run boundaries are visible).

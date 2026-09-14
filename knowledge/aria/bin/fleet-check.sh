@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.21 (2026-09-12, aria cycle 236)
+# aria fleet-check v2.22 (2026-09-14, aria cycle 294)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -14,6 +14,14 @@
 #   old (epoch math only, no local-time parsing -- c234 law). Live-
 #   verified both branches (age=0s ok; +7200s -> STALE).
 
+# v2.22 (aria cycle 294, 2026-09-14): KNOWN_FAULT_EXT4_SEG -- ext4
+#   (.104) power-dead since 09-12 ~10:00Z holds ear-check FAIL=1
+#   standing (NO-SEGMENT) while frigate watchdog crash-loops on it
+#   every 10s (~14k crashes/2d, 111k journal lines/day vs 40k
+#   before). Same allowlist contract as ext1 SEG-TAIL (v2.18):
+#   known-fault = watch state, reported not failed; segments
+#   reappearing = RECOVERY event, FAIL loudly so the flag is
+#   withdrawn after verification. Power cycle remains Nacho's.
 # v2.20 (aria cycle 172, 2026-09-11 ~00:45Z): RECOVERY branch made
 #   sawtooth-aware. v2.19's RECOVERY (sane-while-flagged) fired a
 #   STANDING FAIL=1 every run while the ext1 poison sawtooths (c171
@@ -313,12 +321,33 @@ KNOWN_DEAF=""
 # ext1 = video RTP timestamp poison (c151; relay aria-0028 open).
 # Withdraw by emptying the list AFTER the reboot is verified.
 KNOWN_FAULT_EXT1_SEG="exterior_1"
+# v2.22 (aria cycle 294, 2026-09-14): ext4 (.104) POWER-DEAD since
+# 2026-09-12 ~10:00Z (last segment 09-12 11:10Z; relay 0038 answered,
+# power cycle = Nacho's hands). While it is dead, frigate's watchdog
+# crash-loops on it every 10s (~14k crashes in 2 days, 111k journal
+# lines/day vs 40k before) and the ear check's NO-SEGMENT branch
+# holds FAIL=1 standing -- alarm fatigue on an already-owned signal.
+# Contract (identical to KNOWN_DEAF / KNOWN_FAULT_EXT1_SEG):
+#   known-fault + NO-SEGMENT = watch state (reported, not failed);
+#   segments reappear = RECOVERY event, FAIL loudly (withdraw the
+#   flag by emptying KNOWN_FAULT_EXT4_SEG after verification).
+KNOWN_FAULT_EXT4_SEG="exterior_4"
 for cam in $CAMERAS; do
   # v2.16: newest 3 COMPLETED segments (tail -4 | head -3: skip the
   # in-progress newest, which frigate is still writing -- a partial
   # segment can legitimately lack audio mid-write).
   segs=$(find $R/$TODAY -path "*$cam*" -name "*.mp4" 2>/dev/null | sort | tail -4 | head -3)
-  if [ -z "$segs" ]; then echo "$cam NO-SEGMENT"; FAIL=1; continue; fi
+  if [ -z "$segs" ]; then
+    # v2.22: known power-dead camera = watch state, not FAIL (same
+    # contract as KNOWN_DEAF). Segments reappearing = RECOVERY, FAIL
+    # loudly so the flag gets withdrawn.
+    if [ -n "$KNOWN_FAULT_EXT4_SEG" ] && echo " $KNOWN_FAULT_EXT4_SEG " | grep -q " $cam "; then
+      echo "$cam NO-SEGMENT (known-fault power-dead, watch state; power cycle pending)"
+    else
+      echo "$cam NO-SEGMENT"; FAIL=1
+    fi
+    continue
+  fi
   n=$(echo "$segs" | tail -1)
   age=$(( $(date +%s) - $(stat -c %Y "$n") ))
   if [ "$age" -gt 120 ]; then echo "$cam STALE(${age}s)"; FAIL=1; fi

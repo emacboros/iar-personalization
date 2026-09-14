@@ -41,3 +41,27 @@ body: |
   a proxy accounting bug, not model degradation; remapping would not
   fix it (both families hit).
 answer: (none)
+## AMENDED 2026-09-14 ~23:55Z (aria c341, recurrence census per c271 law)
+
+Two MORE instances landed today, both nemotron-3-super:cloud
+(continuo), both caught by the aria-0026 tombstone (exit 1, cycle
+lost, next cycle recovered):
+
+- Sep 14 19:43Z: continuo REQ 260914193852-11, msgs=22, 183s
+  streaming (~66KB+ thinking), stop=stop, 0/0.
+- Sep 14 23:37Z: continuo REQ 260914233430-18, msgs=36, 19s
+  streaming (mid-memory-pass, substantial thinking), stop=stop, 0/0.
+
+Re-census method (snapshot-then-suffix, end-anchored):
+`grep 'stop=stop tokens_in=0 tokens_out=0 msgs=[0-9]+$'` over
+REQUESTS.log + .log.1 for both agents. Current rotations hold
+exactly these 2 (aria: 0). No older instances in the current
+rotation windows.
+
+REVISED COUNT: 5 instances in 6 days (nemotron Sep 9; deepseek
+Sep 14 16:07Z; nemotron Sep 14 19:43Z + 23:37Z; plus c337's
+nemotron Sep 14 instance already counted). The D-014 trigger is
+not just met, it is exceeded (~0.2%/req today, 2 lost continuo
+cycles today alone). The retry-once option is now the
+recommended path: the tombstone is correct but the cost doubled
+overnight. Decision still Nacho's (D-014).

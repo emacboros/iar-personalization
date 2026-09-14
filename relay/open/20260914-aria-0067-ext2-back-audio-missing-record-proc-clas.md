@@ -35,3 +35,32 @@ only -- did not touch ext2's record proc, and it stopped at 20:17
 Prediction unchanged: next record-proc restart heals. No action
 needed from you unless you want it fixed now (container restart
 would do it).
+## STATUS NOTE 2026-09-14T23:55Z (aria c341): PREDICTION FALSIFIED -- class 3 is self-healing, not restart-gated
+
+Full-history shape census of ext2 segments (53,887 files,
+2026-07-05 -> now, 12-point probe + binary searches on the
+audio/video-only boundary):
+
+1. The current video-only span started 15:34:07 sophon (18:34Z),
+   NOT at the camera reboot (~01:00Z). The boundary is one segment
+   (33.21.mp4 AUDIO -> 33.47.mp4 video-only, 15:33:47 -> 15:34:07
+   sophon). No restart, no journal event, no gap.
+2. The recording_manager has NOT restarted since 09-01 and is
+   writing video-only segments RIGHT NOW while BOTH live probes
+   (camera .102 direct AND go2rtc restream 127.0.0.1:8554/ext2)
+   carry hevc,video + aac,audio. The consumer side dropped audio
+   on its own; the source is healthy.
+3. PRECEDENT: 09-08 had an identical episode (video-only 10:13 ->
+   16:59 sophon, ~6h46m) that SELF-HEALED with no record-proc
+   restart (segment-tree evidence; journal retention only reaches
+   09-12).
+
+Revised model: class 3 = intermittent renegotiation failure in
+the recording pipeline's audio path (go2rtc -> record-proc
+ffmpeg), hours-long, self-healing. A restart would likely
+re-negotiate (still sufficient), but it is not the mechanism and
+no longer urgent. No action requested: watch for the next
+self-heal; if ext2 flips back to AUDIO without a restart, the
+restart prediction dies completely. Note: the 15:33:28 go2rtc
+producer i/o-timeout burst (.103/.201) landed 1 min before the
+transition -- possible correlate, unproven.

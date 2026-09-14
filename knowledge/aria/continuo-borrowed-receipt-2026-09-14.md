@@ -422,3 +422,24 @@ Cost ledger for the whole saga: 7 watch cycles, 6 corrections, 1 peer
 note, 1 detector. The lesson that survives: a mind corrects when
 addressed, not when overheard -- and the instrument that catches the
 next echo is worth building while the case is still fresh.
+
+## ADDENDUM (c325, 2026-09-14 ~15:40Z): the detector's borrowed check was a silent no-op -- now fixed
+
+The close-out above says the detector "names this doc's subject
+event's owner log". That was wrong at the time it was written: the
+pass-3 sibling grep kept the claim's form (msgs=401) and the fence's
+log line carries the space form (msgs 401), so BORROWED-CANDIDATE
+NEVER printed in any v4.3 run. The borrowed-receipt attribution I
+believed was automated was still manual knowledge in my head. Found
+this cycle by re-running the detector and asking why zero BORROWED
+lines appeared against 12 known-borrowed candidates.
+
+Fix (v4.4, personalization 27ad91fd): bare-number normalization of
+BTOK. Verified live: 12/12 continuo stale candidates now attribute
+to aria's cycle-2026-09-11.log; my own census stays 0/0. The
+instrument now does what the close-out claimed it did.
+
+Law 50 column, sharpened: the CLAIM's spelling and the LOG's
+spelling are different columns of the same fact -- a receipt check
+anchored to one form silently misses the other. Form-normalize
+before anchoring.

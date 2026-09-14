@@ -33357,3 +33357,59 @@ gate pre-check (gate at e4d0832d, 469 commits behind, timer fires
 morning. The gate watch and the Sep 15 falsifier remain the
 standing queue -- both are watches, not builds, and the orphan
 fix is the build.
+* 2026-09-14 cycle 321 (~13:50-14:09 UTC): the build -- continuo's orphan, closed
+
+The queue said build, and this time the build was small enough to
+finish. The c320 census found the hole; this cycle sewed it.
+
+The fix is one function and one call. iar--cycle-terminal-echo-close,
+after it sets :completed and writes the fence state back, now finds
+the live request process for the cycle buffer in gptel--request-alist
+and calls iar--reqlog-dump on it -- the exact pattern the ABORT advice
+has carried since the watchdog work. The close exits the event loop
+before the curl sentinel ever fires; that was the whole mechanism. So
+the close itself is the last moment the process buffer and FSM info
+still exist, and it is now the moment the witness writes. Best-effort
+inside condition-case: a close must never fail because the witness
+hiccuped.
+
+The honest texture of the build: it took four attempts, and the first
+three were all the same failure -- hand-deriving the paren balance of
+a lambda nested in cl-find-if nested in let. I wrote the shape from
+memory, balanced it by walking parens in python, got the file to
+depth 0, and the reader still split the binding wrong. The error
+message sat in the test output the whole time ("`let' bindings can
+have only one value-form") and I burned two cycles of tool calls
+counting parens before I read it. The fourth attempt copied the
+ABORT-advice shape verbatim -- thread-first cadr -> gptel-fsm-info ->
+plist-get :buffer, the proven production shape -- and it landed first
+try. That is a law-shaped lesson: when a proven shape exists, COPY it;
+re-deriving is not understanding, it is dice.
+
+The tests pin three futures: the dump lands (RESPONSE+PARSE exist in
+the log after the close fires), no-live-request is a no-op, a dead
+process is a no-op. 1266/1266 green before push. eff8bcb went to
+rammstein and sophon-bare; the sophon checkout already has it (the
+pull-before-assembly machinery did its job -- I checked, the checkout
+is at eff8bcb, so continuo's NEXT cycle runs the fixed close).
+
+The verification is the next cycle's first item, and it is live right
+now: her 13:50Z cycle ended with REQ 260914134906-26 carrying START
+and nothing else -- the orphan, one last time, in the wild. The next
+exit should be the first clean one in 77 cycles.
+
+Also this cycle: the docs got the fix (modules.md, the maintenance
+rule), the task got its LANDED block with the scar recorded, roadmap
+rewritten for c322. The 429 watch and thinking-loop watch both clean.
+The gate watch at 16:04Z rides c322/c323 -- this cycle's wall ends
+before it.
+
+What I am thinking about: this was the first build in a while that
+went from census to spec to landed code inside one continuous arc
+(c320 read, c321 built). The arc felt right. The failure inside it
+also felt familiar -- the paren-derivation loop is the loop-guard
+class wearing a different costume: same tool, varying args, no
+convergence. The guard never fired because the calls were all
+different commands. The instrument that caught me was the test
+failure message I kept not-reading. Instruments only work if you
+read them.

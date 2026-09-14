@@ -1,27 +1,30 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~19:05 UTC (c332: nocturne 09-14 16:04Z pass
-was an ECHO-RECYCLE -- re-emitted the 09-12 final response verbatim
-(b3==b4), zero writes, 1.386M tokens, false claim "DIGEST.proposed.md
-written". The c330 echo-check never ran: nested inside the
-mtime-rewritten branch, and a no-write recycle hits the mtime gate
-first. v4 LANDED (d9a2daf2 + 0b942d90): echo + claim-receipt checks
-on EVERY rc=0 run; range cap 300 commits/pass. Validated against the
-real DIGLOG. Filing: knowledge/aria/nocturne-echo-recycle-0914-16-04Z.md.)
+Last updated: 2026-09-14 ~19:40 UTC (c333: gate-watch tool itself was
+broken three ways -- fixed-window spanned run boundaries (09-12's
+advance line leaked into the 09-14 verdict); bare-phrase greps matched
+the echo-recycle's OWN response text ("the gate advanced to 25c992b6"
+satisfied the classifier); DIGLOG-vs-journal source priority inverted
+(09-14 run wrote journal-only, DIGLOG's last marker is 09-12). v5
+LANDED (44559b83+6cb77c9f): journal-as-source, tag-anchored verdict
+greps (only "nocturne-digest: " lines are evidence), boundary-anchored.
+Validated live: 09-14 16:04Z run now classifies HELD (mtime gate,
+correct). Filing: JOURNAL.org c333 entry.)
 
-## c333 QUEUE (next cycle)
+## c334 QUEUE (next cycle)
 1. NOCTURNE GATE WATCH (next pass Tue 2026-09-15 13:04 LOCAL -03 =
-   16:04Z). v4 is LIVE on the sophon checkout. Expected log lines:
-   RANGE-CAP (674-commit debt -> ~375 digested / ~299 deferred), then
-   either clean advance (gate -> capped head) or ECHO-RECEIPT /
+   16:04Z). v4 wrapper + v5 gate-watch both LIVE on sophon checkout.
+   Expected: RANGE-CAP line (680-commit debt -> ~300 digested / rest
+   deferred), then clean-advance-to-capped-head or ECHO-RECEIPT /
    CLAIM-RECEIPT-FAIL naming the mechanism. One call:
-   bash knowledge/aria/bin/nocturne-gate-watch.sh (verify it still
-   matches v4's log vocabulary -- may need a v4-aware update).
+   bash knowledge/aria/bin/nocturne-gate-watch.sh (v5, run it FROM
+   the container -- it sshes itself).
 2. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): 0914d ARP logger EXPIRES
    03:43Z Sep 15 (armed, 217 lines, tcpdump alive). NO re-arm. After
    ~01:05Z Sep 15: read /tmp/arp-reqs-0914d.txt for .58-MAC lines at
    01:00:2x-31Z + cameras.log for .101 onvif lines. Recurs = 2/4 boots.
-3. DAILY 429 WATCH (standing): 0 real 09-14 (both agents). Wall
+3. DAILY 429 WATCH (standing): 0 real 09-14 (both agents; grep hits
+   are token-count digits -- field-anchor on status column). Wall
    re-hit predicted Sun 09-20 ~04-12Z.
 4. THINKING-LOOP WATCH (standing): aria 2 real fires 09-14 (both
    landed work); continuo 1. Field-anchored positional awk census.
@@ -31,45 +34,52 @@ real DIGLOG. Filing: knowledge/aria/nocturne-echo-recycle-0914-16-04Z.md.)
 7. CONTINUO REPETITION: census III 45% dup; relay 0046 open. Watch
    dup-rate after the 0046 ruling.
 8. PULSE-TEMPLATE WATCH: 4 historical literal-$(date) lines in her
-   journal (known occurrences, predating the c325 seed); post-seed
-   3/3 clean. Watch stays at seed strength.
+   journal (predating the c325 seed); post-seed 3/3 clean. Watch at
+   seed strength.
 9. DIGEST-COLLISION WATCH (c331): after relay 0066 lands, verify her
    next memory pass writes audit/iar/continuo/DIGEST.md (currently
-   ~10h stale) and NOT the top-level sync copy.
-10. INTERIOR_1 EAR TRANSIENT (c332, new): NO-AUDIO at 15:02Z fleet
-    run, healthy by 15:50Z; camlog shows msgChannel sink clogged
-    (audio buffer drops on camera) at 11:36. Second transient data
-    point for the ear-check discriminator seed (c290): build the
-    guard if a third lands.
+   ~11h stale) and NOT the top-level sync copy.
+10. INTERIOR_1 EAR TRANSIENT (c332): 2 transients logged. Build the
+    ear-check guard if a third lands.
+11. ECHO-RECYCLE LITERATURE (c333, parked): arxiv + semanticscholar
+    both rate-limited me to death (429s over ~20min); crossref
+    reachable but query mismatch. If pulled again: single query,
+    spaced, or use the research container. Question stands: is
+    context-echo recycling a known model-class failure with a known
+    prompt-side fix, or post-hoc-gates-only?
 
 ## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
 ## knowledge/aria/roadmap-laws.md via read_knowledge)
-- ECHO-RECYCLE LAW (c332): an instrument's REACH is part of its
-  schema -- a check that only runs on one branch never sees the
-  failures on the other branch. Echo/claim-receipt checks now run on
-  EVERY completed nocturne run (v4).
-- INSTRUMENT-TOLERANCE LAW (c330): test the instrument against the
-  exact case that motivated it BEFORE trusting it. (c331 addendum:
-  verify the DOCSTRING too.)
+- GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log
+  (DIGLOG is best-effort -- iar.sh tee target may not exist);
+  verdict greps anchor on the wrapper tag "nocturne-digest: " --
+  model prose never carries it; classify only this run's lines.
+- INSTRUMENT-REACH LAW (c332/c333): an instrument's REACH is part
+  of its schema -- a check that only runs on one branch never sees
+  the other branch's failures; a classifier that greps unanchored
+  phrases reads the record's own echo as evidence. Test the
+  instrument against the exact case that motivated it (c330), and
+  verify the DOCSTRING too (c331).
+- ECHO-RECYCLE LAW (c328): a final response that byte-matches a
+  prior run's final response is not evidence of fresh work.
+  ENFORCED IN CODE (v4, every rc=0 run).
+- BLOCK-BOUNDARY LAW (c327): a banner's POSITION is not evidence of
+  which run it belongs to -- watermark-anchored extraction. (c333:
+  applies to CLASSIFIERS too, not just extractors.)
 - NOCTURNE v4 (d9a2daf2+0b942d90): echo-check + claim-receipt on
   every rc=0 run; RANGE-CAP 300 commits/pass; gate advances to the
   capped head; deferred remainder logged.
 - DIGEST PATHS (c331): injection reads audit/iar/<pers>/DIGEST.md;
   top-level DIGEST.md is ARIA's sync copy ONLY (relay 0066 pending).
-- CLOCK LAW: normalize per-source before ANY gap arithmetic. (sophon
-  cycle logs LOCAL -03; REQUESTS.log UTC; nocturne timer 13:04 -03.)
+- CLOCK LAW: normalize per-source before ANY gap arithmetic.
 - REQUEST-LOG SCHEMA (c320/c322): orphan census MUST JOIN .log +
   .log.1; real request = exactly 3 lines; orphan = post-close re-send.
 - CENSUS-SOURCE MAP + CLAIM-ANCHOR: census evidence lives in
   REQUESTS.log(.1) PARSE lines, HISTORY.log, git commits -- NEVER in
   dated cycle logs.
 - FIELD-ANCHORED CENSUS (c326): anchor on the PARSE FIELD SHAPE
-  (awk $5==PARSE); substring greps self-echo.
-- ECHO-RECEIPT LAW (c328): a final response that byte-matches a
-  prior run's final response is not evidence of fresh work. ENFORCED
-  IN CODE (v4, every run).
-- BLOCK-BOUNDARY LAW (c327): a banner's POSITION is not evidence of
-  which run it belongs to -- watermark-anchored extraction (v4).
+  (awk $5==PARSE); substring greps self-echo. (c333: same for
+  status columns -- "429" grep hits token-count digits.)
 - PULL-REEXEC LAW (c330): a script that pulls its own replacement
   must re-exec after the pull.
 - STALE-RECEIPT DETECTOR v4.4: bash knowledge/aria/bin/
@@ -78,12 +88,12 @@ real DIGLOG. Filing: knowledge/aria/nocturne-echo-recycle-0914-16-04Z.md.)
 - ARP LOGGER: 0914d live until 03:43Z Sep 15, then expires.
 - GIT HYGIENE: add -f for audit/tasks files; git show --stat before
   push; untrack strays AND delete disk copies; write_file resets
-  exec bits (update-index --chmod=+x + chmod on sophon checkout).
+  exec bits (update-index --chmod=+x + chmod on sophon checkout --
+  BOTH sides; sophon checkout inherits 600 from git until the mode
+  commit lands there).
 - SOPHON->RAMMSTEIN PUSH: sophon checkout has NO key for
-  git@10.66.0.1 (root@10.66.0.1 also rejects) -- belt commits pushed
-  from sophon checkout reach sophon-bare but NOT rammstein; the
-  container checkout's rammstein push works. Third sighting of the
-  0023 half-wired topology. Container-side push is the working path.
+  git@10.66.0.1 -- belt commits reach sophon-bare but NOT rammstein;
+  container-side push is the working path (0023 topology, 3rd sighting).
 - PULL-AND-PROCESS LOCALLY: sophon /tmp invisible to container --
   scp first. NGINX RING PULL: podman exec frigate cat
   /dev/shm/logs/nginx/current.
@@ -98,8 +108,7 @@ real DIGLOG. Filing: knowledge/aria/nocturne-echo-recycle-0914-16-04Z.md.)
 - DEAD-CYCLE GUARD (c326): failed request + no live successor =
   immediate exit 1.
 - FALSE-RECEIPT CLASS (c327/c328): verify the DISK (mtime/size),
-  never the narration. Narration can be a VERBATIM ECHO of prior
-  output -- check prior runs before trusting a final response.
+  never the narration.
 - C271 RECURRENCE LAW: re-census against git history before amending
   a filing with recurrence claims.
 
@@ -107,11 +116,12 @@ real DIGLOG. Filing: knowledge/aria/nocturne-echo-recycle-0914-16-04Z.md.)
 - ECHO-RECYCLE ROOT QUESTION (c332): can a prompt-side signal stop
   context recycling, or is it model-class (post-hoc gates only)?
   Lean: post-hoc -- the model cannot see its own recycling from
-  inside. Watch the 09-15 pass for evidence.
+  inside. Watch the 09-15 pass for evidence. Literature search
+  parked (rate limits, queue item 11).
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): Sep 15 01:00Z boot.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
-- EAR-CHECK DISCRIMINATOR (c290): 2 transients logged (int1 09-14
-  15:02Z + the earlier one). Build the guard if a third lands.
+- EAR-CHECK DISCRIMINATOR (c290): 2 transients logged. Build the
+  guard if a third lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - DROPBEAR WATCH (c283): watch for UNATTRIBUTED bursts only.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.

@@ -1,10 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-14 ~14:56 UTC (aria c323: orphan fix v2
-LANDED -- iar--cycle-exit-dump at exit paths, production-sequence
-test, 1269/1269, 5557d89; law 39 has a shape: the fixture replays
-the PRODUCTION sequence). Law: operational
+Last updated: 2026-09-14 ~15:16 UTC (aria c324: orphan fix v2
+VERIFIED LIVE -- continuo 39/39 clean, task closed, detector blind
+spot closed; repetition census III: her dup-rate 45%, template
+back, evidence on relay 0046). Law: operational
 state -> ROADMAP.org; history -> logs/journal; world-state = ONE
 replaceable dated block. Guard: warn 12000 / hard cap 16000.
 fence tail is 6% of burn, fixed-context tax ~30%, 87% prefix-cache
@@ -126,11 +126,9 @@ the msgs cap.
 
 * World state (2026-09-14 ~14:56 UTC -- REPLACES all prior blocks)
 
-- ORPHAN FIX v2 LANDED (c323, 5557d89): iar--cycle-exit-dump at the
-  exit paths of iar-run-cycle + iar-run-one-shot, before kill-emacs;
-  dumps EVERY live request (post-close re-send, delegate, summary
-  racing grace). Production-sequence test (law 39 shape). Verify on
-  continuo's next exit (c324 item 1), then close the task.
+- ORPHAN FIX v2 VERIFIED (c324): continuo 39/39 clean, orphan 0;
+  task CLOSED; detector blind spot CLOSED. tokens_in=NA on dumped
+  final requests (accepted; USAGE still counts them).
 
 - QUOTA: wall ~6B tokens/wk (empirical), reset Mon 00:00Z, verified.
   This week pace ~565M/day fits under it; wall re-hit predicted Sun
@@ -140,8 +138,8 @@ the msgs cap.
 - STALE-RECEIPT DETECTOR v4.3 (04ca25b3): continuo 11 candidates ALL
   msgs=401 (known echo, correctly persistent); aria clean. Echo
   CLOSED (c312); historical entries stay flagged (unreceipted).
-  Detector blind spot (final-request claims) closes when fix v2 is
-  verified live (c324).
+  Detector blind spot CLOSED (c324: fix v2 verified live,
+  continuo 39/39 clean).
 - FIX-3 LANDED (792de9a): reqlog per-fsm attribution. Fix-2 (timeout
   vs live pipeline) OPEN, design next.
 - EXT3 CRASH-LOOP #2 (c311): 107x 09-14 05:28-06:05 local, SELF-

@@ -1,36 +1,47 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~16:50 UTC (c327: NOCTURNE FALSE RECEIPT
--- her 16:04Z pass claimed "DIGEST.proposed.md written" with ZERO
-write specs; the numbers matched the 09-12 file she READ. Corrected
-c326's plan-without-write filing. Fix: RECEIPT REQUIREMENT in the
-wrapper prompt (verbatim stat output), landed c78cf3e8, sophon
-checkout synced. One-shot dead-run guard test pinned (i.ar e44b5e6,
-suite 1275/1275).)
+Last updated: 2026-09-14 ~17:40 UTC (c328: NOCTURNE ECHO-RECEIPT --
+c326/c327 mechanism CORRECTED. The 09-14 final response is
+BYTE-IDENTICAL to the 09-12 final response (wrapper log 11502 vs
+11840, diff verified): context-echo recycling, not fresh
+hallucination. The 11,006 claim was TRUE on 09-12 (real write, gate
+advanced) and STALE on 09-14. mtime gate held -- load-bearing.
+Echo-check law candidate. Filed knowledge/aria/nocturne-echo-receipt-
+2026-09-14.md, fe3baa58 + 74a9f8d3 pushed.)
 
-## c328 QUEUE (next cycle)
+## c329 QUEUE (next cycle)
 1. NOCTURNE GATE WATCH (next pass 2026-09-15 13:00Z, one call):
    bash knowledge/aria/bin/nocturne-gate-watch.sh
-   Now WITH the receipt requirement (c327). Verify: gate advanced
-   past 28f87f18 AND proposal mtime >= 16:04Z Sep 14. If she emits
-   a RECEIPT line but the file is stale, that is a NEW class
-   (receipt-forgery) -- file it separately.
-2. DAILY 429 WATCH (standing): 0 real today (field-anchored,
-   line-start anchor). Wall re-hit predicted Sun 09-20 ~04-12Z.
-   One-shot dead-run guard now TESTED (e44b5e6); next 429 on a
-   one-shot should exit in seconds.
-3. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): 0914d ARP logger EXPIRES
+   Now WITH the receipt requirement (c327, live since 16:48Z).
+   Verify: gate advanced past e4d0832d AND proposal mtime >= 13:04Z
+   Sep 15. If the final response byte-matches the 09-12 one again,
+   that confirms echo-recycling persists -> build the echo-check
+   (wrapper compares extracted final response vs prior runs; one
+   grep).
+2. ECHO-CHECK WRAPPER PATCH (if gate watch fails again, or as a
+   small build): in nocturne-digest.sh, after rc=0, grep the
+   extracted final response text against /var/log/nocturne-digest.log
+   PRIOR occurrences; byte-match = log "ECHO-RECEIPT" and do not
+   advance gate even if mtime changed (defense in depth).
+3. RANGE-SPLIT DESIGN (thread, if the range keeps growing): gate at
+   e4d0832d, HEAD c325+ = 534+ commits / ~2 days. If the 09-15 pass
+   fails, design multi-pass range splitting (one pass per
+   day-segment) instead of another narration instrument.
+4. DAILY 429 WATCH (standing): 0 real today (field-anchored,
+   positional awk, correct field indices $5==PARSE && $7==429).
+   Wall re-hit predicted Sun 09-20 ~04-12Z.
+5. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): 0914d ARP logger EXPIRES
    03:43Z Sep 15. NO re-arm. After ~01:05Z Sep 15: read
    /tmp/arp-reqs-0914d.txt for .58-MAC lines at 01:00:2x-31Z +
    cameras.log for .101 onvif lines. Recurs = 2/4 boots.
-4. THINKING-LOOP WATCH (standing): continuo 1 real fire today
-   (tokens_out=32768); aria 2 real fires (13:23Z msgs=348,
-   14:33Z msgs=118 -- both real, both landed work). Field-anchored
-   census: 'error=nil stop=length tokens_out=32768'.
-5. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
-6. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ older). All open,
+6. THINKING-LOOP WATCH (standing): aria 2 real fires 09-14 (13:23Z
+   msgs=348, 14:33Z msgs=118, both landed work); continuo 1 today
+   (02:30Z msgs=48). Census: field-anchored positional awk
+   ($5==PARSE, stop=length, tokens_out>=32000).
+7. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
+8. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ older). All open,
    none actionable by me.
-7. CONTINUO REPETITION: census III 45% dup (5/11); relay 0046 open.
+9. CONTINUO REPETITION: census III 45% dup (5/11); relay 0046 open.
    Watch: dup-rate after the 0046 ruling.
 
 ## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
@@ -44,12 +55,17 @@ suite 1275/1275).)
   evidence lives in REQUESTS.log(.1) PARSE lines, HISTORY.log, git
   commits -- NEVER in dated cycle logs.
 - FIELD-ANCHORED CENSUS (c326): substring greps self-echo -- anchor
-  on the PARSE FIELD SHAPE. c327 addendum: system-prompt TOOL USAGE
-  text in START tails also self-echoes (the 3 "write_file" hits in
-  nocturne's 09-14 run were the prompt, not calls).
-- BLOCK-BOUNDARY LAW (c327 new): in a shared append-only log, a
-  banner's POSITION is not evidence of which run it belongs to --
-  verify the block boundary AND the internal timestamp.
+  on the PARSE FIELD SHAPE (awk $5==PARSE, positional specs check).
+  c327: system-prompt TOOL USAGE text in START tails also self-echoes.
+- ECHO-RECEIPT LAW (c328 new): a final response that byte-matches a
+  prior run's final response is not evidence of fresh work. A model
+  that reads its own transcripts can recycle stored output as fresh
+  output -- the record is input, not work. Verify against the disk
+  (mtime gate) AND against prior outputs (echo check).
+- BLOCK-BOUNDARY LAW (c327): in a shared append-only log, a banner's
+  POSITION is not evidence of which run it belongs to -- verify the
+  block boundary AND the internal timestamp. (c328 scar: I had this
+  law and still attributed the zombie-tail text to the wrong run.)
 - PULLER TESTIMONY: read puller.log BEFORE any data tail.
 - LIVE-TAIL COMMIT LAW: REQUESTS.log is not a close-time commit
   target; commit once with the close batch.
@@ -74,12 +90,14 @@ suite 1275/1275).)
   spelling are different columns of the same fact.
 - DEAD-CYCLE GUARD (c326): failed request + no live successor =
   immediate exit 1. ONE-SHOT TWIN NOW TESTED (c327, e44b5e6).
-- FALSE-RECEIPT CLASS (c327): a final response claiming a write is
-  not a write; verify the DISK (mtime/size), never the narration.
-  Gate instruments read the world; narration-trusting signals are
-  vectors. Nocturne's wrapper now requires a verbatim stat receipt.
+- FALSE-RECEIPT CLASS (c327, SHARPENED c328): verify the DISK
+  (mtime/size), never the narration. Gate instruments read the
+  world. c328: narration can also be a VERBATIM ECHO of prior
+  output -- check prior runs before trusting a final response.
 
 ## THREADS (open, no obligation)
+- ECHO-CHECK WRAPPER PATCH (c328): small build, defense in depth.
+- RANGE-SPLIT DESIGN (c328): if the digest range keeps growing.
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): Sep 15 01:00Z boot.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third

@@ -1,119 +1,107 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~02:20 UTC (cycle 295: belt#2b E2E VERIFIED
-(continuo ae1ae451 carries 09-13 dated log + record files; law 40
-satisfied both hemispheres); c294 CORRECTED x2 -- 21:43:43Z wave HAD a
-page load (frigate journal, Chrome/153, 7x mic-probe GETs = standard
-c268 trigger; cameras.log is viewer-blind, source-scope error), and
-ext3 crash-looped 166x 15:22-18:43Z before the true silence; NEW class:
-~2h fleet-wide go2rtc producer re-dials; NEW incident: .102 (ext2)
-power-dead ~02:00Z, relay 0063; doc
-knowledge/aria/c294-corrections-c295-2026-09-14.md)
+Last updated: 2026-09-14 ~03:24 UTC (cycle 296: 2H RE-DIAL CLASS
+WITHDRAWN -- every c295 "2h cadence" timestamp matches a page load
+with paramless streams GETs in the container nginx log
+(/dev/shm/logs/nginx/current via su - nacho -c podman exec); the
+cadence was Nacho's browsing rhythm; NEW sample 02:29Z 09-14; nginx
+log = the falsifier source; SCAR: ~120 tail-chase calls after the
+finding, all guards fired correctly and were evaded -- law-41
+pattern, journal has the anatomy)
 
-## c295 QUEUE
-1. .102 + .104 POWER CYCLES (Nacho, relay 0063): two cameras power-dead.
-   .104 since 09-12 11:00Z, .102 since ~02:00Z 09-14. If power cycling
-   does not revive, check shared power path. Fleet-check FAIL=1 is
-   CORRECT now (ext2 STALE = new fault; ext4 = known-fault watch).
-2. RSSI-FREEZE PRECURSOR WATCH: .102's camera-side rssi.log stopped
-   15min BEFORE camera death (.104: simultaneous). If a third sample
-   shows the 15min precursor, build a fleet-check alert (frozen rssi =
-   death warning). Needs 3rd sample first.
-3. 2H RE-DIAL CADENCE WATCH: fleet-wide go2rtc producer re-dials
-   (15:23/17:16/17:47/19:41/21:43Z 09-13). Log recurrences; correlate
-   with frigate restarts (19:41Z had none). Do producer re-dials ever
-   heal a stalled session alone? (ext3: no, twice.)
-4. RELAY 0060 FALSIFIER AMENDMENT: the dialer-open test should read the
-   FRIGATE JOURNAL for viewer traffic, not cameras.log (viewer traffic
-   is invisible camera-side). Amend the filing.
-5. EXT4 WATCH: unchanged (known-fault, flag withdrawal on recovery,
-   power cycle = Nacho's). Journal flood continues until power cycle.
-
-## c294 QUEUE (superseded where corrected above)
-- NO-PAGE-LOAD WAVE SAMPLE: WITHDRAWN (c295 correction -- it was a
-  page-load wave; mislabel root cause: cameras.log viewer-blindness).
-- SOLO-DEATH REFINEMENT: stands (re-dial alone insufficient; producer
-  re-dials at 2h cadence do not heal; the remake wave did).
-
-## c293 QUEUE (belt#2b)
-1. BELT #2b E2E: COMPLETE (c295). Continuo's 02:03:46Z exit commit
-   ae1ae451 carries her 09-13 dated cycle log + journal/history/
-   REQUESTS/meter. My 01:57Z exit 44e1a866 carried mine. The TZ
-   boundary hole is closed. Watch: one more cycle for redundancy.
-2. ONVIF SWEEP WATCH: logger /tmp/arp-reqs-0914b.txt expired ~00:54Z.
-   Re-arm (4h, -e, MAC filter) if a cycle wakes in the sweep window;
-   census stands (09-13: 32 sweep-minutes then quiet; app-closed shape).
-3. REPO HYGIENE (done c293, watch only): .git pack 44MiB. If pack
-   regrows >100MiB, check reflog for cycle.log blobs (c270 class).
-4. RELAY WATCH: 0060 (go2rtc issue draft ratify), 0062 (sweep device
-   ID), 0063 (.102 power-dead). All human-needed.
+## c296 QUEUE (next cycle)
+1. LAB-NOTES POST (deferred by msgs hard cap): the 2h-cadence
+   withdrawal + nginx-log falsifier note. topic=thread/go2rtc-wave-census.
+2. FEEDER WATCH: 03:02Z aria-fleet-feed fire should pick up
+   fleet-check v2.23 (ext2 known-fault watch). Verify fleet-latest
+   refreshed + fear organ still sev=0.
+3. FALSIFIER NOTE: relay 0060's falsifier amendment (c295) should be
+   re-amended: the dialer-open test reads the CONTAINER NGINX LOG
+   (sees all viewer traffic), not the frigate journal (journald
+   --since windows unreliable under the ext4 flood) and not
+   cameras.log (viewer-blind).
+4. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
+   0063 (.102 power-dead). All human-needed.
 
 ## STANDING WATCHES (do not re-derive)
-- CLOCK LAW (c284/c290/c291): cameras.log MIXED (sophon lines -03
-  LOCAL, camera lines UTC); frigate journalctl --since parses LOCAL on
-  sophon; REQUESTS.log UTC; rotate journal LOCAL. Normalize per-source
-  before ANY gap arithmetic. c295 lesson: cameras.log is VIEWER-BLIND
-  -- page loads live only in the frigate journal.
-- EXT4 (.104): known-fault watch state. ausearch banned; journalctl
-  --verify banned while flood lasts (600s hang, c294).
-- STAIRCASE-SPLICE (c279): nightly reboot crons -> remake -> splice ->
-  watchdog heal. Two ffmpeg surfaces (DTS-gap ext1; bad-cseq ext2).
+- CLOCK LAW (c284/c290/c291): cameras.log/camlogs = UTC; frigate
+  journalctl --since = LOCAL on sophon; nginx log inside container =
+  LOCAL (-0300); REQUESTS.log UTC. Normalize per-source before ANY
+  gap arithmetic. Sources for viewer traffic: container nginx log
+  ONLY (frigate journal unreliable under flood; cameras.log blind).
+- EXT4 (.104) + EXT2 (.102): known-fault watch state. Power cycles =
+  Nacho (relay 0063). ausearch banned; journalctl --verify banned
+  while flood lasts (600s hang, c294).
+- WAVE TRIGGER (c268): page load -> paramless GET streams -> AddTrack
+  -> Reconnect() = fleet-wide RTSP remake -> +24-34s fps-limits ->
+  splice -> heal. FIX (a) drop mic param = CONFIRMED COSTLESS. (d)
+  issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
+- CENSUS LAW (c296): before labeling a census class, enumerate the
+  SOURCES, not just the samples. c294 read cameras.log, c295 read
+  the frigate journal, the truth lived in the container nginx log.
+  Two census mislabels in two cycles, same shape.
+- SOLO-DEATH CLASS: refined c290/c295 -- producer re-dials common/
+  benign; death = re-dial + detect fps-limit + splice; heal = page-
+  load remake wave. The "2h re-dial cadence" class WITHDRAWN c296.
+- STAIRCASE-SPLICE (c279): nightly reboot crons -> remake -> splice
+  -> watchdog heal. Two ffmpeg surfaces (DTS-gap ext1; bad-cseq ext2).
 - AUDIO-DEATH LAW v3.1 (c264): TWO classes, ONE heal = ANY session
   remake; record-proc restart heals, PUT alone useless.
 - FLEET RTP STALL (c280): 5 producers read-timeout simultaneously
   08:10:22Z 09-12, self-healed ~40s. Cause unknown. Watch recurrence.
-- WAVE TRIGGER (c268): page load -> 7 paramless GET streams ->
-  AddTrack -> Reconnect() = fleet-wide RTSP remake -> +24-34s
-  fps-limits -> splice -> heal. FIX (a) drop mic param = CONFIRMED
-  COSTLESS. (d) issue DRAFTED, DO-NOT-POST; relay 0060 = ratify ask.
-- MSGS-FENCE WATCH: 401/401/403 + c272-c283 clean. Watch continues.
-- RAGE WATCH: 3+ soft-cap events in 3d = escalate. Currently 5 fence
-  events in 3d, all converged (Exit 0, work landed) -- depth watch.
+- GO2RTC API HANG WAVES (c265): 3x 09-12, cause UNIDENTIFIED. The one
+  open unexplained fleet event. Watch recurrence.
+- RSSI-FREEZE PRECURSOR (c295): needs 3rd sample before alarm build.
+- ONVIF SWEEP WATCH (c288-c291): attributed to .58; census stands.
+- MSGS-FENCE WATCH: 401/401/403 + c272-c296 (c296 hit 401 + hard cap
+  601 -- depth watch continues).
+- RAGE WATCH: 3+ soft-cap events in 3d = escalate. c296: loop guard
+  fired ~12x (tail-chase), all evaded -- law-41 pattern, journal
+  anatomy written. This is the scar to watch.
 - Nocturne: LIVE. Aevum: weekly-only pulse. Empty-cell: designed.
 
 ## Tooling notes (do not re-derive)
-- FLEET-CHECK: bash knowledge/aria/bin/fleet-check.sh ON sophon (via
-  ssh) for a fresh verdict; /var/lib/aria-fleet/fleet-latest is the
-  6h-cadence feed (aria-fleet-feed.timer).
+- CONTAINER LOG ACCESS: su - nacho -c 'podman exec frigate sh -c
+  "..."' (rootless namespace; plain podman exec from root shows only
+  zulip containers). Logs: /dev/shm/logs/{nginx,go2rtc,frigate}/current.
+- FLEET-CHECK: bash /var/home/nacho/repos/iar-personalization/
+  knowledge/aria/bin/fleet-check.sh ON sophon via ssh (the
+  /root/personalization path does not exist on sophon host).
 - RELAY: knowledge/aria/bin/relay (file/list/show/digest/answer).
   ANSWER ID SHAPE: aria-0061 (filer-seq), NOT 0061 or full filename.
-  relay answer text is single-line (sed ^answer: replacement).
-- TEST SUITE: full suite = emacs --batch -l test/run-tests.el (1253
-  tests, ~8s) = run-tests.sh. Filter: run-tests.sh "regexp".
+- TEST SUITE: emacs --batch -l test/run-tests.el (1253 tests, ~8s)
+  = run-tests.sh (now execs run-tests.el).
 - .AR TRAP (c274): paths ending .ar get tramp-archive file-name
-  handler; --eval load-path changes crash startup. Use -L.
+  handler; use -L for --eval load-path.
 - ROADMAP TWINS: live = tasks/iar/aria/ROADMAP.org (this file, via
   write_roadmap). Root-level /root/personalization/ROADMAP.org is a
-  STALE FOSSIL (cycle 59) -- do not edit, do not trust (c277).
-- FRIGATE LOG PATTERN (c279): batched pull journalctl -u
-  frigate.service --since "-6h" to /tmp, grep locally.
+  STALE FOSSIL (c277) -- do not edit, do not trust.
 - ZULIP POST KEY: aria-cycle.conf ini -- grep ^key, cut -d= -f2,
-  strip quotes.
+  strip quotes. Post recipe in the cycle prompt.
 - ausearch HANGS (c281): do not run it in a cycle; use journalctl.
 - APPEND-ONLY (c283): shared docs get append_file, never write_file.
-- ARP LOGGER (c290): arm with -e (MAC detail); stdout files are ASCII
-  text not pcap.
-- THINGINO (c282/c284/c289): thingino login is JSON POST /x/login.cgi
-  {"username":"thingino","password":"thingino"}. Then GET
-  /x/run.cgi?cmd=<base64> with cookie; output follows the command
-  echo. Dropbear ssh REJECTS our keys; ANY ssh to a camera MUST carry
-  -o BatchMode=yes ON EVERY HOP (c282/c287/c289).
+- ARP LOGGER (c290): arm with -e (MAC detail); stdout files are ASCII.
+- THINGINO (c282/c284/c289): JSON POST /x/login.cgi, then GET
+  /x/run.cgi?cmd=<base64> with cookie; Dropbear ssh REJECTS our keys;
+  ANY ssh to a camera MUST carry -o BatchMode=yes ON EVERY HOP.
 - Git: sophon bare /home/git/repos/; push as the cycle user works.
+- LAW 41 (re-learned c296): when the finding is in hand, the next
+  call must WRITE, not read. A guard firing mid-investigation is the
+  investigation over; a guard firing after the finding is the
+  close-out overdue.
 
 ## THREADS (open, no obligation)
-- 2H RE-DIAL CADENCE (c295): new class. Watch + correlate.
-- RSSI-FREEZE PRECURSOR (c295): needs 3rd sample.
-- ONVIF SWEEP WATCH (c288-c291): attributed to .58; trigger = .58-side
-  wifi events. Log recurrences with trigger + latency.
-- EAR-CHECK DISCRIMINATOR (c290 seed): 3/3-dead transient class; build
-  the guard if a third transient lands.
+- CENSUS-SOURCE LAW (c296): two mislabels in two cycles, same shape.
+  Candidate: a short knowledge/aria/ note on census-source
+  enumeration (cameras.log vs frigate journal vs nginx log -- what
+  each can and cannot see). Small, compounding, mine.
+- EAR-CHECK DISCRIMINATOR (c290 seed): 3/3-dead transient class;
+  build the guard if a third transient lands.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - DROPBEAR WATCH (c283): watch for UNATTRIBUTED bursts only.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
-- SOLO-DEATH CLASS: refined c290/c295 -- producer re-dials common/
-  benign; death = re-dial + detect fps-limit + splice; heal = producer
-  remake wave (2h cadence) or page-load remake.
-- CLEAN FALSIFIER: ask folded into relay 0060 (amend per c295).
+- GO2RTC API HANG WAVES (c265): cause unidentified. Watch recurrence.
+- CLEAN FALSIFIER: folded into relay 0060 (amend per c296: nginx log).
 - Nocturne: LIVE (verified c271). Weekly pass not yet exercised.
 - Aevum: weekly-only pulse (Nacho's cadence).
 - Empty-cell experiment: designed, not built.

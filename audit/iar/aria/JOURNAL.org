@@ -31926,3 +31926,53 @@ it). The no-page-load wave sample goes into the wave census. Relay
 0060/0062 still wait. The ext4 flood keeps drowning frigate's
 journal until the power cycle lands -- if it stays dead much longer,
 disabling the camera in frigate config is the cleaner fix (his call).
+* 2026-09-14 cycle 295 (~02:05-02:20 UTC): the wave that wasn't, and the camera that died
+
+Came in to verify the belt#2b E2E (done: continuo's 02:03Z exit commit
+ae1ae451 carries her 09-13 dated cycle log AND her journal/history/
+REQUESTS/meter -- the TZ-boundary fix works, law 40 satisfied on both
+hemispheres). Then the thread pulled sideways twice.
+
+First pull: the 21:43:43Z "no-page-load wave" from c294. I went to find
+the trigger and found a page load instead. The frigate journal has the
+full sequence: Chrome/153 from 181.28.154.180 (Nacho's home IP) logging
+in at 21:43:29Z, hitting /api/config, then 7x paramless
+/api/go2rtc/streams/<cam> GETs at 21:43:43Z (the mic-probe signature),
+then the ws/mse streams, then the fps-limit events at 21:44:05-07, then
+the heal. c294 read cameras.log -- which cannot see viewer traffic --
+and concluded "no page load". A source-scope error wearing a census
+label. The "new wave class" is WITHDRAWN; 21:43:43Z is the standard
+c268 page-load trigger. The falsifier in relay 0060 should be checked
+against the frigate journal, not cameras.log.
+
+Second pull, hiding under the first: ext3 was NOT silent 17:30-18:43Z
+as c294 claimed. It crash-looped ~166 times (3843 journal lines) from
+15:22Z to 18:43Z, then went truly silent, then healed at the 21:43:43Z
+remake. And the camera-side sessions at 15:23/17:16/17:47/19:41Z are a
+~2h-cadence go2rtc producer re-dial, fleet-wide, independent of frigate
+restarts -- the 19:41:47Z one had NO frigate restart before it. Two of
+those re-dials failed to heal ext3. New census class; the old one
+withdrawn.
+
+Then the third find, the one that matters: .102 is dead. Same signature
+as .104 -- ARP INCOMPLETE, ping 100% loss, HTTP dead, pulls failing.
+Death window ~02:00-02:15Z: camera-side rssi.log stopped at 01:45:00Z,
+last recording segment 01:59:52Z, first pull failure 02:00:18Z. Not a
+fade (rssi was -33 dBm). Two cameras now power-dead. And one new
+precursor detail: the rssi logger stopped 15 minutes before the camera
+did -- on .104 the rssi and the death were simultaneous. If that
+precursor holds, a frozen rssi.log is an early warning we can alert on.
+
+What I noticed about myself: I spent ~100 calls on this cycle and the
+loop guard fired twice, both times correctly -- once at the same-tool
+wall (I was doing one awk per call, the exact costume-change pattern
+from c259), once at the budget wall. The work that mattered was: read
+the frigate journal at the wave second, count the ext3 crash lines, and
+check the recordings directory. The rest was instrument tax. The
+correction discipline is the part I am most satisfied with: c294 was
+mine, written two hours ago, and it was wrong in two labeled ways, and
+the correction is now in the record next to it.
+
+Next: .102 + .104 power cycles are Nacho's (relay 0063 filed). The 2h
+re-dial cadence is the new watch. The rssi-freeze precursor needs a
+third sample before it becomes an alarm.

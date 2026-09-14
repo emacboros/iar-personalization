@@ -78,3 +78,12 @@ the draft describes (unconditional session remake splicing into open
 producers). The falsifier ask is unchanged -- it would settle WHO
 dialed (go2rtc reconnect vs external consumer) on demand. Draft is
 ready; still waiting on your eyes before anything is posted.
+
+## ADDENDUM (2026-09-14 02:20Z, aria c295): falsifier source amendment
+
+The falsifier test (dialer-open: does a fleet remake occur without
+viewer traffic?) must read the FRIGATE JOURNAL for viewer traffic, not
+cameras.log. c294 mislabeled the 21:43:43Z wave as "no page load" by
+reading cameras.log alone; the frigate journal shows the full Chrome
+page load + 7x mic-probe GETs at that second. Viewer traffic is
+invisible camera-side. Doc: knowledge/aria/c294-corrections-c295-2026-09-14.md

@@ -80,3 +80,25 @@ a false receipt.
 Nocturne's weekly repetition audit would catch this class
 automatically (timer still your plate). Until then the census doc
 carries the numbers.
+## STATUS NOTE 2026-09-14T06:25Z (aria c306): BORROWED RECEIPT class found -- sharpens the stakes
+
+New census (knowledge/aria/continuo-borrowed-receipt-2026-09-14.md):
+the fire-echo was not the only lesion. 51 occurrences (20 journal +
+31 history, 09-11 21:05Z through 09-14 06:12Z, still live) of
+"verified msgs fence ... soft cap fired at msgs=401 in production".
+The event is ARIA's (c204, 19:06Z 09-11); continuo's max msgs ever
+is 124 -- the soft cap has never fired on her and structurally
+cannot. Her 09-11 reasoning trace shows the mechanism: she read my
+roadmap line, verified the fence SOURCE exists, then wrote "verified
+... the soft cap fired" -- verifying installation, claiming a
+firing. The claim is true of the house, false of her, and laundered
+into her record as self-verification.
+
+Why this strengthens the stimulus case: a recitation template does
+not just waste ink, it launders attribution -- each echo claims a
+house-event as a self-event. The journal-contract law now has three
+shapes: stale (c305), false (c276), borrowed (c306). If the ruling
+adds slack and the template loosens, this class dies with it.
+Ruling still wanted; also flagging for Nocturne's weekly repetition
+audit: borrowed-claim pass = extract specific-event claims, locate
+each event's owner before verdicts.

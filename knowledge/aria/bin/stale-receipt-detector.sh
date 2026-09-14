@@ -1,8 +1,8 @@
 #!/bin/bash
-# stale-receipt-detector.sh v4 -- aria c314 (2026-09-14)
+# stale-receipt-detector.sh v4.3 -- aria c316 (2026-09-14)
 # Census instrument: catches claims in an agent's journal that re-assert
-# events without a same-day trigger in that agent's cycle logs, and
-# automates the borrowed-receipt check against the sibling's logs.
+# events without a same-day receipt in that agent's logs, and automates
+# the borrowed-receipt check against the sibling's logs.
 # NOT a fence -- a census feeding the repetition watch.
 #
 # Design: tasks/iar/aria/stale-receipt-detector/design-notes.org (c313)
@@ -13,19 +13,29 @@
 #
 # Usage: stale-receipt-detector.sh <agent> [personalization-root]
 #
-# Method (v4 -- shingle-based; v3's whole-line normalization never
-#   matched across days because real journals rephrase, not copy):
-#   Pass 1: claim lines from JOURNAL.org (verification verb + digit),
-#   day-attributed via "* 2026-MM-DD" headers (python pre-pass).
-#   8-word normalized shingles per claim; a shingle on >=2 distinct
-#   days = repetition candidate.
-#   Pass 2: for each candidate's source claim(s) and days, receipt
-#   strength in the agent's DATED cycle log:
-#     STRONG = a numeric token of the claim co-occurs on one log line
-#              with an event marker (fired|warning|blocked|Ran|ERR|...).
-#     WEAK   = token appears anywhere (may be coincidence).
-#     NONE   = no token. NOLOG = no cycle log for that day.
-#   Pass 3: if no day has a STRONG receipt, grep the SIBLING's logs for
+# Method:
+#   Pass 1 (python): claim lines from JOURNAL.org (verification verb +
+#   digit), day-attributed via "* 2026-MM-DD" headers. 8-word normalized
+#   shingles; a shingle on >=2 distinct days makes its CLAIM a repetition
+#   candidate. Claims deduped by text (one row per template, not per
+#   shingle -- v4.1 emitted 110 rows for ~10 templates).
+#   Pass 2: per claim, per day, requirements evaluated independently:
+#     MSGS   = claim asserts "msgs=NNN" (a fence EVENT). Receipt: fence-
+#              fire marker + token in the DATED log, OR msgs=NNN FIELD on
+#              a START line in the request logs (field-anchored; reading
+#              your own journal echo is not a receipt -- c309/c315).
+#     INSTR  = claim names an instrument (lexicon below). Receipt: a PARSE
+#              specs=execute_code_local line naming that instrument in the
+#              request logs dated that day. v4.2 finding: cycle-agent
+#              DATED logs are wrapper output (startup + "Cycle complete")
+#              and carry almost no tool-call evidence; the receipts live
+#              in REQUESTS.log(.1). Without this tier the detector cried
+#              wolf 55:1 on legitimate recurring census/suite claims.
+#     GENERIC = bare numeric tokens. Receipt: token + event marker in the
+#              dated log (STRONG), msgs=NNN FIELD (REQ), token alone
+#              (WEAK), nothing (NONE).
+#   A claim is STALE if ANY requirement is UNMET on ANY day.
+#   Pass 3: for unmet requirements, grep the SIBLING's dated logs for
 #   tokens + event markers -> BORROWED candidate (name sibling + log).
 
 set -u
@@ -50,8 +60,9 @@ trap 'rm -f "$TMP" "$TMP.sh"' EXIT
 python3 - "$JOURNAL" > "$TMP.sh" <<'PYEOF'
 import re, sys, collections
 cur = 'unknown'
-sh = collections.defaultdict(set)          # shingle -> days
-src = collections.defaultdict(list)        # shingle -> example claims
+sh_days = collections.defaultdict(set)     # shingle -> days
+claim_days = collections.defaultdict(set)  # claim text -> days (union)
+claim_reps = collections.Counter()         # claim text -> shingles repeated
 for ln in open(sys.argv[1]):
     m = re.match(r'^\*\s+(2026-\d\d-\d\d)', ln)
     if m:
@@ -60,7 +71,7 @@ for ln in open(sys.argv[1]):
     low = ln.lower()
     if any(v in low for v in ('verified','confirmed','fired','landed','passed')) \
        and re.search(r'\d', ln):
-        t = ln.strip()[:300]
+        t = ln.strip()[:600]
         if not t or 'pulse' in low:
             continue
         # c315 fix: strip boilerplate suffixes instead of killing the whole
@@ -72,81 +83,194 @@ for ln in open(sys.argv[1]):
             continue
         norm = re.sub(r'\d+', 'N', t)
         words = norm.split()
+        repeated = False
         for i in range(len(words) - 7):
             s = ' '.join(words[i:i+8])
-            sh[s].add(cur)
-            if t not in src[s]:
-                src[s].append(t)
-for s, days in sh.items():
-    if len(days) >= 2:
-        print(f"{','.join(sorted(days))}\t{src[s][0]}")
+            sh_days[s].add(cur)
+        # after collecting all shingles, mark which repeated
+        for i in range(len(words) - 7):
+            s = ' '.join(words[i:i+8])
+            if len(sh_days[s]) >= 2:
+                repeated = True
+        if repeated:
+            claim_days[t].add(cur)
+            claim_reps[t] += 1
+for t, days in claim_days.items():
+    print(f"{','.join(sorted(days))}\t{claim_reps[t]}\t{t}")
 PYEOF
 
-echo "=== STALE-RECEIPT CENSUS v4: $AGENT ($(date -u +%Y-%m-%dT%H:%MZ)) ==="
+echo "=== STALE-RECEIPT CENSUS v4.2: $AGENT ($(date -u +%Y-%m-%dT%H:%MZ)) ==="
 echo "journal: $JOURNAL"
 echo
 
 CAND=0; LEGIT=0
-while IFS=$'\t' read -r DAYS CLAIM; do
+while IFS=$'\t' read -r DAYS REPS CLAIM; do
   [ -n "$DAYS" ] || continue
-  # numeric tokens from the ORIGINAL claim (msgs=NNN + space-form,
-  # NNN/NNN ratios, bare 3+ digits)
-  TOKENS=$(echo "$CLAIM" | grep -oE "msgs=[0-9]+|[0-9]{3,}(/[0-9]{3,})?|[0-9]{1,2}/[0-9]{1,2}" | sort -u | head -5 | tr '\n' '|' | sed 's/|$//')
-  ALT=$(echo "$CLAIM" | grep -oE "msgs=[0-9]+" | sed 's/msgs=/msgs /' | tr '\n' '|' | sed 's/|$//')
-  [ -n "$ALT" ] && TOKENS="${TOKENS:+${TOKENS}|}${ALT%?}"
-  # c315: field-anchored form for REQ receipts (msgs=NNN roles=)
-  ALT_FIELD=$(echo "$CLAIM" | grep -oE "msgs=[0-9]+" | sed 's/msgs=/msgs=[0-9]* roles=/;s/$/|/' | tr -d '\n' | sed 's/|$//')
-  [ -z "$TOKENS" ] && continue
+  # --- requirements -------------------------------------------------------
+  # MSGS: fence-event assertion "msgs=NNN"
+  MSGSTOK=$(echo "$CLAIM" | grep -oE "msgs=[0-9]+" | head -1)
+  MSGSN=""
+  [ -n "$MSGSTOK" ] && MSGSN=$(echo "$MSGSTOK" | grep -oE "[0-9]+")
+  # INSTR: instrument lexicon (claim phrase -> receipt anchor in request logs)
+  INSTR=""
+  echo "$CLAIM" | grep -qE "census-window|census window|updated (the )?census|ran census" && INSTR="${INSTR:+${INSTR}|}census-window\.sh"
+  echo "$CLAIM" | grep -qE "test suite|suite passed|suite green|suite [0-9]" && INSTR="${INSTR:+${INSTR}|}run-tests\.el"
+  echo "$CLAIM" | grep -qE "failure-triage|triage" && INSTR="${INSTR}|failure-triage\.sh"
+  echo "$CLAIM" | grep -q "fleet-check" && INSTR="${INSTR}|fleet-check\.sh"
+  echo "$CLAIM" | grep -q "digest twin" && INSTR="${INSTR}|digest-twin-verifier\.sh"
+  echo "$CLAIM" | grep -q "stale-receipt" && INSTR="${INSTR}|stale-receipt-detector\.sh"
+  # morning protocol = instrument bundle (any of the core four that day)
+  echo "$CLAIM" | grep -q "morning protocol" && INSTR="${INSTR}|census-window\.sh|failure-triage\.sh|run-tests\.el|digest-twin-verifier\.sh"
+  # FENCE family: "msgs fence is live" -> load line receipt; truncated-output
+  # guard -> [+N chars] truncation markers in request logs
+  FENCE_LOAD=no; TRUNC=no; GUARD=no
+  echo "$CLAIM" | grep -qE "msgs fence|msgs-fence|context budget guard" && FENCE_LOAD=yes
+  echo "$CLAIM" | grep -qE "truncated-output|truncated output" && TRUNC=yes
+  # v4.3 (c316): "the loop guard fired" claims -> receipt = loop-guard-chain
+  # SOFT BLOCK / HARD STOP lines in the dated log (the guard's own witness)
+  echo "$CLAIM" | grep -qE "loop guard|loop-guard" && GUARD=yes
+  # GENERIC tokens (only when no msgs=/instrument requirement exists)
+  TOKENS=""
+  if [ -z "$MSGSTOK" ] && [ -z "$INSTR" ] && [ "$FENCE_LOAD" = no ] && [ "$TRUNC" = no ] && [ "$GUARD" = no ]; then
+    TOKENS=$(echo "$CLAIM" | grep -oE "[0-9]{3,}(/[0-9]{3,})?|[0-9]{1,2}/[0-9]{1,2}" | sort -u | head -5 | tr '\n' '|' | sed 's/|$//')
+  fi
+  [ -n "$MSGSTOK" ] || [ -n "$INSTR" ] || [ "$FENCE_LOAD" = yes ] || [ "$TRUNC" = yes ] || [ "$GUARD" = yes ] || [ -n "$TOKENS" ] || continue
 
-  DETAILS=""; STALE=no; ANY_STRONG=no
+  DETAILS=""; STALE=no; UNMET_TOK=""
   for D in $(echo "$DAYS" | tr ',' ' '); do
     LOG="$AUDIT/cycle-$D.log"
-    if [ ! -f "$LOG" ]; then
-      DETAILS="$DETAILS $D:NOLOG"; STALE=yes; continue
-    fi
     REQ="$AUDIT/REQUESTS.log"
-    if grep -q -E "(${TOKENS}).*(fired|warning|blocked|Ran|ERR|error|commit|pushed)|((fired|warning|blocked|Ran|ERR|error|commit|pushed)).*(${TOKENS})" "$LOG" 2>/dev/null; then
-      DETAILS="$DETAILS $D:STRONG"; ANY_STRONG=yes
-    elif [ -f "$REQ" ] && grep -q -E "^\[${D}.*\] REQ .*(${ALT_FIELD})" "$REQ" 2>/dev/null; then
-      # receipt in the request log: the msgs= FIELD on a START line (the
-      # request itself carried that many messages). c315 fix: anchored to
-      # the field position (msgs=NNN roles=) -- a bare token grep also
-      # matches the agent READING its own journal echo, which is the
-      # census-self-echo law (c309) at the receipt layer, not a receipt.
-      DETAILS="$DETAILS $D:REQ"; ANY_STRONG=yes
-    elif grep -q -E "${TOKENS}" "$LOG" 2>/dev/null; then
-      DETAILS="$DETAILS $D:WEAK"; STALE=yes
-    else
-      DETAILS="$DETAILS $D:NONE"; STALE=yes
+    REQ1="$AUDIT/REQUESTS.log.1"
+    DD=""
+    # MSGS requirement
+    if [ -n "$MSGSTOK" ]; then
+      ok=no
+      if [ -f "$LOG" ] && grep -q -E "(${MSGSTOK}|msgs ${MSGSN}).*(fired|warning|blocked)|((fired|warning|blocked)).*(${MSGSTOK}|msgs ${MSGSN})" "$LOG" 2>/dev/null; then
+        ok=yes; DD="${DD}msgs:STRONG"
+      fi
+      if [ "$ok" = no ] && { [ -f "$REQ1" ] && grep -q -E "^\[${D}.*REQ .*START.*msgs=${MSGSN} roles=" "$REQ1" 2>/dev/null; } || { [ "$ok" = no ] && [ -f "$REQ" ] && grep -q -E "^\[${D}.*REQ .*START.*msgs=${MSGSN} roles=" "$REQ" 2>/dev/null; }; then
+        ok=yes; DD="${DD}msgs:REQFIELD"
+      fi
+      [ "$ok" = no ] && { DD="${DD}msgs:UNMET"; STALE=yes; UNMET_TOK="${UNMET_TOK}${MSGSTOK} "; }
     fi
+    # INSTR requirement. Receipt ladder (v4.3, c316):
+    #   a. PARSE specs=execute_code_local naming the instrument (request logs)
+    #   b. HISTORY.log line dated D naming the instrument (the self-written
+    #      audit line -- weaker than a, but it is the agent's own witness)
+    #   c. a git commit by this agent dated D touching the instrument file
+    #      (a fix/land claim is receipted by the commit itself)
+    #   d. NOLOG: request logs do not cover day D (blind-witness gaps,
+    #      c187 class) -> reported as GAP, not UNMET -- absence of
+    #      evidence in a known-blind window is not evidence of absence.
+    if [ -n "$INSTR" ]; then
+      ok=no; how=""
+      if [ -f "$REQ1" ] && grep -q -E "^\[${D}.*PARSE.*specs=execute_code_local.*(${INSTR})" "$REQ1" 2>/dev/null; then
+        ok=yes; how="parse"
+      elif [ -f "$REQ" ] && grep -q -E "^\[${D}.*PARSE.*specs=execute_code_local.*(${INSTR})" "$REQ" 2>/dev/null; then
+        ok=yes; how="parse"
+      elif [ -f "$AUDIT/HISTORY.log" ] && grep -q -E "^\[${D}.*(${INSTR})" "$AUDIT/HISTORY.log" 2>/dev/null; then
+        ok=yes; how="history"
+      else
+        # commit receipt: any commit by this agent on day D touching the
+        # instrument's file (strip .el/.sh suffix for the path grep)
+        for F in $(echo "$INSTR" | tr '|' ' ' | sed 's/\\.//g; s/\.sh$//; s/\.el$//'); do
+          if git -C "$ROOT" log --format="%ai" --since="${D} 00:00" --until="${D} 23:59" --author="${AGENT}-agent" -- "knowledge/aria/bin/${F}*" 2>/dev/null | grep -q "^${D}"; then
+            ok=yes; how="commit"; break
+          fi
+        done
+      fi
+      if [ "$ok" = yes ]; then DD="${DD}instr:MET(${how})"; else
+        # blind-witness check: do the request logs cover day D at all?
+        if { [ -f "$REQ1" ] && grep -q -E "^\[${D}" "$REQ1" 2>/dev/null; } || { [ -f "$REQ" ] && grep -q -E "^\[${D}" "$REQ" 2>/dev/null; }; then
+          DD="${DD}instr:UNMET"; STALE=yes; UNMET_TOK="${UNMET_TOK}instrument(${INSTR}) "
+        else
+          DD="${DD}instr:NOLOG"; STALE=yes; UNMET_TOK="${UNMET_TOK}instrument(${INSTR},log-blind) "
+        fi
+      fi
+    fi
+    # FENCE_LOAD requirement ("the msgs fence is live" -> it loaded that day)
+    if [ "$FENCE_LOAD" = yes ]; then
+      ok=no
+      if [ -f "$LOG" ] && grep -q "iar-msgs-fence.el" "$LOG" 2>/dev/null; then
+        ok=yes
+      elif { [ -f "$REQ1" ] && grep -q -E "^\[${D}.*(Msgs soft cap|msgs-fence).*(fired|warning|blocked)" "$REQ1" 2>/dev/null; } || { [ -f "$REQ" ] && grep -q -E "^\[${D}.*(Msgs soft cap|msgs-fence).*(fired|warning|blocked)" "$REQ" 2>/dev/null; }; then
+        ok=yes
+      fi
+      if [ "$ok" = yes ]; then DD="${DD}fence:MET"; else DD="${DD}fence:UNMET"; STALE=yes; UNMET_TOK="${UNMET_TOK}msgs-fence "; fi
+    fi
+    # TRUNC requirement (truncated-output guard fired = [+N chars] markers)
+    if [ "$TRUNC" = yes ]; then
+      ok=no
+      if { [ -f "$REQ1" ] && grep -q -E "^\[${D}.*\[\+[0-9]+ chars\]" "$REQ1" 2>/dev/null; } || { [ -f "$REQ" ] && grep -q -E "^\[${D}.*\[\+[0-9]+ chars\]" "$REQ" 2>/dev/null; }; then
+        ok=yes
+      elif [ -f "$LOG" ] && grep -q -iE "truncat" "$LOG" 2>/dev/null; then
+        ok=yes
+      fi
+      if [ "$ok" = yes ]; then DD="${DD}trunc:MET"; else DD="${DD}trunc:UNMET"; STALE=yes; UNMET_TOK="${UNMET_TOK}truncated-guard "; fi
+    fi
+    # GUARD requirement (loop-guard fire receipt)
+    if [ "$GUARD" = yes ]; then
+      ok=no
+      if [ -f "$LOG" ] && grep -q -E "loop-guard-chain. (SOFT BLOCK|HARD STOP)" "$LOG" 2>/dev/null; then
+        ok=yes
+      elif [ -f "$LOG" ] && grep -q -E "Loop guard|loop guard" "$LOG" 2>/dev/null; then
+        ok=yes
+      fi
+      if [ "$ok" = yes ]; then DD="${DD}guard:MET"; else DD="${DD}guard:UNMET"; STALE=yes; UNMET_TOK="${UNMET_TOK}loop-guard "; fi
+    fi
+    # GENERIC ladder
+    if [ -n "$TOKENS" ]; then
+      if [ ! -f "$LOG" ]; then
+        DD="${DD}gen:NOLOG"; STALE=yes; UNMET_TOK="${UNMET_TOK}tokens "
+      elif grep -q -E "(${TOKENS}).*(fired|warning|blocked|Ran|ERR|error|commit|pushed)|((fired|warning|blocked|Ran|ERR|error|commit|pushed)).*(${TOKENS})" "$LOG" 2>/dev/null; then
+        DD="${DD}gen:STRONG"
+      elif [ -f "$REQ" ] && grep -q -E "^\[${D}.*\] REQ .*msgs=[0-9]+ roles=" "$REQ" 2>/dev/null && echo "$CLAIM" | grep -qE "msgs [0-9]+|msgs=[0-9]+"; then
+        DD="${DD}gen:REQ"
+      elif grep -q -E "${TOKENS}" "$LOG" 2>/dev/null; then
+        DD="${DD}gen:WEAK"; STALE=yes; UNMET_TOK="${UNMET_TOK}weak-tokens "
+      else
+        DD="${DD}gen:NONE"; STALE=yes; UNMET_TOK="${UNMET_TOK}tokens "
+      fi
+    fi
+    DETAILS="$DETAILS $D[$DD]"
   done
 
   if [ "$STALE" = no ]; then
-    LEGIT=$((LEGIT+1)); continue
+    LEGIT=$((LEGIT+1))
+    echo "REPETITIVE-RECEIPTED (days:$DAYS reps:$REPS) -- template repeats, work receipted"
+    echo "  claim: ${CLAIM:0:160}"
+    echo
+    continue
   fi
 
   CAND=$((CAND+1))
-  echo "STALE-CANDIDATE #$CAND (days:$DAYS receipts:$DETAILS)"
+  echo "STALE-CANDIDATE #$CAND (days:$DAYS reps:$REPS receipts:$DETAILS)"
   echo "  claim: ${CLAIM:0:220}"
-  # Pass 3: borrowed check against sibling logs
-  if [ -n "$SIBLING" ] && [ "$ANY_STRONG" = no ]; then
-    FOUND=""
-    for SD in 2026-09-09 2026-09-10 2026-09-11 2026-09-12 2026-09-13 2026-09-14; do
-      SLOG="$ROOT/audit/iar/$SIBLING/cycle-$SD.log"
-      [ -f "$SLOG" ] || continue
-      if grep -q -E "(${TOKENS}).*(fired|warning|blocked|ERR|error)|((fired|warning|blocked|ERR|error)).*(${TOKENS})" "$SLOG" 2>/dev/null; then
-        FOUND="$SLOG"
-        break
+  if [ -n "$UNMET_TOK" ]; then
+    echo "  unmet: ${UNMET_TOK%% }"
+  fi
+  # Pass 3: borrowed check against sibling dated logs (for unmet tokens)
+  if [ -n "$SIBLING" ] && [ -n "$UNMET_TOK" ]; then
+    BTOK=$(echo "$UNMET_TOK" | grep -oE "msgs=[0-9]+|msgs [0-9]+|[0-9]{3,}" | sort -u | head -3 | tr '\n' '|' | sed 's/|$//')
+    if [ -n "$BTOK" ]; then
+      FOUND=""
+      for SD in 2026-09-09 2026-09-10 2026-09-11 2026-09-12 2026-09-13 2026-09-14; do
+        SLOG="$ROOT/audit/iar/$SIBLING/cycle-$SD.log"
+        [ -f "$SLOG" ] || continue
+        if grep -q -E "(${BTOK}).*(fired|warning|blocked|ERR|error)|((fired|warning|blocked|ERR|error)).*(${BTOK})" "$SLOG" 2>/dev/null; then
+          FOUND="$SLOG"
+          break
+        fi
+      done
+      if [ -n "$FOUND" ]; then
+        echo "  BORROWED-CANDIDATE: unmet tokens + event markers found in sibling"
+        echo "    $SIBLING's log: $FOUND"
+        echo "    -> claim likely describes the SIBLING's event, re-asserted as own."
       fi
-    done
-    if [ -n "$FOUND" ]; then
-      echo "  BORROWED-CANDIDATE: event tokens + markers found in sibling"
-      echo "    $SIBLING's log: $FOUND"
-      echo "    -> claim likely describes the SIBLING's event, re-asserted as own."
     fi
   fi
   echo
 done < "$TMP.sh"
 
-echo "=== done: $CAND stale candidates, $LEGIT legitimate recurring claims ==="
+echo "=== done: $CAND stale candidates, $LEGIT repetitive-but-receipted claims ==="
 exit 0

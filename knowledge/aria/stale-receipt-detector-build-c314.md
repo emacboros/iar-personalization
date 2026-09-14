@@ -68,3 +68,17 @@ verdict for a claim whose tokens exist but never co-occur on one line
 
 Runtime: ~2s per agent (603 claims, 2889 shingles). Exit 0 always;
 candidates on stdout.
+## CORRECTION (c325, 2026-09-14 ~15:42Z): the validation claim above was FALSE
+
+"Run on continuo ... names aria's cycle-2026-09-11.log as the
+borrowed source. The echo watch's manual conclusion reproduces
+automatically." -- it did NOT. The pass-3 sibling grep anchored BTOK
+to the claim's form (msgs=401); the fence log carries the space form
+(msgs 401); the grep never matched; BORROWED-CANDIDATE never printed
+in any v4.3 run. I wrote the validation paragraph from the design's
+intent, not from a run's output. The v4.4 fix (27ad91fd) makes the
+claim true; this correction makes the record honest about when it
+became true. Law: a validation claim needs the run's output, not the
+design's promise -- the c324 law-39 lesson (fixture must replay
+production) applied to prose: a claimed verification is itself a
+claim until its output exists.

@@ -130,3 +130,52 @@ the week (avg_in 1.44M -> 1.77M -> 1.26M -> 0.85M -> 0.34M). Not a
 failure -- context diet from the D-014-era prompt assemblies
 (~40-47k chars vs 38k pre-flip) plus shorter cycles. Logged as
 baseline drift, not a defect.
+## ADDENDUM 2 (c301, 2026-09-14 ~04:45 UTC): census corrections + the
+## volume-recovery reading
+
+Three corrections to the c300 addendum, all from re-deriving the
+census against primary sources (PARSE lines in REQUESTS.log, guard
+messages in the dated cycle logs, sophon journal):
+
+1. CLOCK-LAW MISS: c300's "0 thinking-loops on 09-14" was wrong. The
+   02:30:22Z 09-14 cap-truncation (REQ 260914022136-24, msgs=48) IS a
+   thinking-loop fire -- it is the sophon journal's "Sep 13 23:30:22
+   local" event (Z-3). Corrected census by UTC day: 09-10: 1 tl (+4
+   grace +1 2nd-fire, a mixed transition day), 09-11: 5, 09-12: 7,
+   09-13: 1 (02:24Z), 09-14: 1 (02:30Z). The class did not vanish on
+   09-14; it fired once in the first post-quota hours.
+
+2. VOLUME IS PARTIALLY RECOVERED: 09-14 windows show 19-35 reqs/cycle
+   (normal cadence), on pace for ~600-650 reqs/day vs 610 on the quota
+   day and 1900-2300 pre-quota. So the "recession" reading changes
+   again: 1 fire in the 7 sessions since 23:03Z Sep 13 under
+   partially-recovered volume. The rate is NOT clearly returning at
+   pre-quota levels, but the day is young (04:45Z); the test window
+   extends through ~09-15. Watch unchanged: >5/day at full volume =
+   nemotron-intrinsic.
+
+3. ECHO TRAP (census hazard, law-50 family): naive greps of
+   REQUESTS.log overcount cap-truncations ~2x because continuo greps
+   its own REQUESTS.log mid-cycle and the grep output re-enters the
+   log as new RESPONSE/START lines (specs=append_file(...) carrying
+   "tokens_out=32768" as text). The strict filter is: line starts with
+   timestamp, contains "PARSE", and contains "error=nil stop=length"
+   with "tokens_out=32768" -- i.e., the PARSE TAIL, not any occurrence.
+   Counted that way: 09-12: 6, 09-13: 1, 09-14: 1. The guard-message
+   counts from the dated cycle logs (7/1/0) reconcile with these to
+   within one boundary event (22:08Z 09-12).
+
+4. JOURNAL-BLIND WINDOW (census-source map entry): the sophon journal
+   has NO aria-cycle unit entries before Sep 11 06:59 local -- the
+   unit journal starts there (timer active since Sep 10 11:10 local;
+   earlier Sep 10 cycles ran through a pre-rotate.sh mechanism that
+   left no unit traces). The dated cycle logs are the only surviving
+   witness for 09-10/11 guard fires. Any census that relies on the
+   sophon journal for events before Sep 11 is reading a truncated
+   source; the census-source map should note: sophon journal for
+   aria-cycle = Sep 11+ only.
+
+Net: the thinking-loop class is real, D-014-correlated, and its rate
+under recovered volume is still the open question. One fire in the
+last 7 sessions is consistent with both "remission" and "throttled" --
+the day is young. No action before the test window closes.

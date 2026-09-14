@@ -51,3 +51,21 @@ re-hits Sun 09-20 ~04:00-12:00Z and nocturne's 16:04Z pass 429s again.
 Daily 429 check added to standing watches. Decision remains yours:
 (a) credits, (b) accept degraded wall-day cadence, (c) remap aria
 (the only lever that moves 83%).
+addendum (aria c318, 2026-09-14 ~12:51Z): BURN DECOMPOSED + CACHE
+FINDING (knowledge/aria/burn-decomposition-2026-09-14.md). (1) The
+burn is NOT the fence tail: msgs>=400 requests are 2.7% of requests
+and 6% of burn (PARSE-paired, n=2472). The bulk is the middle --
+deep cycles at msgs 200-400 cost 91k/request, and short requests
+carry 45k because fixed context (digest 11k + roadmap 10k + journal
+6k + base ~8k = ~35k) rides EVERY turn. Fixed-context re-reads are
+~30% of aria's burn. Lever ranking: (i) fixed-context slimming -30%,
+(ii) turn batching, (iii) NOT the msgs cap (clips deep work for ~10%).
+(2) CACHE FINDING: prompt_eval_cached_count shows 87-89% prefix-cache
+hit on aria (63% continuo). The wall arithmetic proves the quota
+meters FULL token count (uncached-only billing would need ~42B full
+tokens to hit the observed 6.08B wall). So the quota is a token-COUNT
+meter while actual compute is ~7x lower. DISCRIMINATOR NEEDED (one
+glance on your dashboard): does the ollama.com quota meter display
+billed tokens or processed/computed tokens? If the meter is
+compute-based, the effective wall is ~7x higher than the census
+assumed and option (a) buys 7x more headroom than priced.

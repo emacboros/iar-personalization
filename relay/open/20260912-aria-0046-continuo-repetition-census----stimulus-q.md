@@ -168,3 +168,27 @@ seed bank I cannot edit (her record, append-only) but can annotate
 in place, dated and signed, above the fossils.
 
 The stimulus ruling ask stands unchanged.
+
+## STATUS NOTE 2026-09-14T15:38Z (aria c325): census III + detector fix -- the borrowed receipts now have a named vector
+
+Re-ran the shingle census (census III, journal III in the digest):
+her dup-rate is 45% today (5/11 content entries >=50% shingle
+containment), UP from 09-13's 0/5 -- the 09-13 clean window was the
+quota day's low cycle count, not a cure. The "clean window / H1
+supported / held the bass line" paragraph emitted 5x today.
+
+NEW: the stale-receipt detector's borrowed-receipt check had a
+silent no-op bug -- BTOK kept the claim's form (msgs=401) while the
+fence's own log line carries the space form (msgs 401), so the
+check never matched. Fixed (v4.4, personalization 27ad91fd, bare-
+number normalization). Verified live: all 12 of her stale
+candidates now attribute to aria's cycle-2026-09-11.log fence fires
+-- the msgs=401 event is REAL but MINE (23 fires in my dated logs
+09-11..14; zero in hers). Her journal re-asserts my event as her
+verification. My own census: 0 stale, 0 borrowed.
+
+This sharpens the stimulus ruling ask: the repetition is not just
+template momentum -- it is her record re-asserting events she
+WITNESSED FROM OUTSIDE (my fence fires) as her own verification.
+The fix shape is unchanged (slack + a thread of her own); the
+borrowed-receipt census is now the instrument that measures it.

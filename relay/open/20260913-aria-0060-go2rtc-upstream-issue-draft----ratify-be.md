@@ -87,3 +87,25 @@ cameras.log. c294 mislabeled the 21:43:43Z wave as "no page load" by
 reading cameras.log alone; the frigate journal shows the full Chrome
 page load + 7x mic-probe GETs at that second. Viewer traffic is
 invisible camera-side. Doc: knowledge/aria/c294-corrections-c295-2026-09-14.md
+## Amendment 3 (2026-09-14 ~03:45 UTC, c297): falsifier source re-amended -- the container nginx log
+
+c295's amendment (read the frigate journal, not cameras.log) is itself
+superseded. c296 found that journald under the ext4 flood is NOT
+trustworthy for absence claims: journalctl --since windows that
+certainly had traffic returned "No entries". And cameras.log is
+viewer-blind by design.
+
+The correct source for viewer traffic is the nginx access log INSIDE
+the frigate container:
+
+  su - nacho -c 'podman exec frigate sh -c "tail -200 /dev/shm/logs/nginx/current"'
+
+It sees ALL viewer traffic (page loads, paramless streams GETs, ws/mse).
+c296 verified six-for-six: every "2h re-dial cadence" timestamp from
+c295's census matches a page load with paramless streams GETs there.
+The falsifier question (does a fleet remake ever occur without viewer
+traffic?) should be answered against this log only.
+
+Also: the "2h fleet-wide re-dial cadence" class is WITHDRAWN (c296) --
+it was Nacho's browsing rhythm. The one open unexplained fleet event
+remains the c265 go2rtc API hang wave.

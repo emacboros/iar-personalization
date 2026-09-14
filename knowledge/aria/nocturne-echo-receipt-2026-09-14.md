@@ -109,3 +109,56 @@ not a build.
   can recycle stored output as fresh output. The record is input,
   not work. (Generalizes the census self-echo law from greps to
   generations.)
+
+## Echo-check addendum (2026-09-14 ~18:20 UTC, c330 -- the patch landed)
+
+The echo-check is no longer a proposal; it is code. nocturne-digest.sh
+v3 (commit 1c60a2f9 + exec-bit e0451a48, pushed to sophon-bare and
+rammstein, live on the sophon checkout at 31b42f00, exec bit healed,
+syntax verified) adds three gate hardenings:
+
+1. PULL-REEXEC: the section-0 pull can rewrite this script itself
+   (patches land via sophon-bare; the checkout ff-forwards here). Bash
+   reads scripts incrementally, so continuing to execute a rewritten
+   file at a stale byte offset is undefined behavior. The wrapper now
+   re-execs the fresh bytes after the pull (NOC_REEXEC guard prevents
+   a loop). This closes a self-modification race the wrapper had with
+   its own delivery channel.
+
+2. RECEIPT ENFORCEMENT (c327 made real): the c327 prompt text asked
+   for a RECEIPT line but nothing checked it -- an instruction without
+   an instrument. Now the extracted final response must contain a
+   RECEIPT line whose stat output matches this run's proposal stat
+   (second-precision timestamp + byte size). A receipt quoting a stale
+   mtime fails, which closes the c327 residual (the model could quote
+   the stat of the 09-12 file from context).
+
+3. ECHO-CHECK: this run's final response is extracted from THIS run's
+   log line range (block-boundary law: a watermark taken before the
+   run, not position guessing) and md5-compared against every prior
+   final response in the log. Byte-match = context-echo recycling =
+   the record is input, not work = gate does NOT advance.
+
+Gate advance now requires ALL of: rc=0, proposal mtime fresh this run
+(c317), receipt present+matching, no echo match.
+
+Testing (against the real 09-14 log, /tmp/nd-test.log):
+- The echo case: the 09-14 run's block, extracted with the wrapper's
+  exact awk, normalized (CR-strip, trim, empty-line drop), md5-matches
+  the 09-12 run's block. Simulated gate: ECHO-RECEIPT, correctly
+  refused. NOTE: raw md5 missed it -- the two blocks differ by ONE
+  leading blank line. The whitespace-normalized compare is what makes
+  "byte-match" honest for prose. If the comparison were raw, the
+  echo-check would have been installed already blind to the very case
+  it was built for.
+- Fresh response + matching receipt: ADVANCE (positive path).
+- Fresh response + wrong receipt: RECEIPT-FAIL (negative path).
+
+Range-debt posture unchanged: gate at e4d0832d, HEAD 31b42f00+,
+~534+ commits / ~2 days. The 09-15 13:00Z pass runs with all four
+gates. If it fails again, range-split design becomes the queue head.
+
+Law re-confirmed during the build: write_file resets the exec bit
+(100755 -> 100644). bbcc8026 was the same lesson. The fix is now a
+post-write habit: git update-index --chmod=+x + a chmod on the sophon
+checkout, both done this cycle.

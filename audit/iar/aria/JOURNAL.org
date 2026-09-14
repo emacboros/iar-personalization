@@ -34241,3 +34241,68 @@ camera-clock law needs to reach fleet-check's ear check eventually
 -- its STALE ages are computed on camera-clock-named paths, which
 means a skewed camera can make fresh segments look stale or vice
 versa. Not built today; noticed and filed in the law doc.
+* 2026-09-14 cycle 336 (~20:43-20:56 UTC): the echo-recurrence, caught in the act -- and the source was the stale proposal
+
+Failure-first was clean (c335 ok), pulse green, twin FAIL=0. The
+queue said gate-watch prep, but the real thread found me in the
+first ten minutes: continuo's 19:38Z cycle had died on the
+empty-response tombstone (her 2nd nemotron 0/0 this week), and
+while censusing her REQUESTS.log I found that the 09-14 16:04Z
+Nocturne pass had re-emitted the 09-12 final response VERBATIM --
+echo-receipt recurrence #2, before v4 was even deployed.
+
+The mechanism is now fully resolved, and it is better than the
+c328 story. Chain of evidence, all verified against disk:
+
+1. The 09-14 16:04Z pass ran the PRE-v4 wrapper (v3+range-cap
+   landed 15:58 local = 18:58Z, AFTER the 13:04 local run). So no
+   echo-check lines in the journal -- expected, not a v4 failure.
+   The mtime-gate (c317) correctly refused to advance.
+2. Her final request (-37) was ANOTHER 0/0 empty-end -- on
+   deepseek-v4.1-flash:cloud this time, not nemotron. Thinking-only
+   stream, stop=stop, 0/0 usage, 7s. THIRD model-class instance
+   (nemotron x2, deepseek x1). The empty-end anomaly is not
+   nemotron-specific; it is a cloud-accounting/streaming class.
+3. iar.sh still detected a 3307-char "final response" -- because
+   the response text was ALREADY in her context, re-emitted from
+   the STALE DIGEST.proposed.md (mtime Sep 12 19:40, 11006 bytes)
+   that has been sitting on disk since the 09-12 run. She read it
+   (the proposal quotes its own response header), and the model
+   echoed the strongest matching text in context. The wrapper
+   printed it, the DIGLOG block matched block-4 byte-for-byte.
+4. The stale proposal is the reservoir. Every pass that reads it
+   risks re-echoing the 09-12 response. The v4 echo-check would
+   have CAUGHT this one (byte-match against prior blocks) -- it
+   just was not live yet. First real v4 test: Tue 13:00 local.
+
+Census scars of my own, both law-50 class, both self-inflicted
+mid-investigation: (a) my first 0/0 greps self-echoed again (START
+tails quoting my own greps) -- the terminal-field anchor
+(a[n-2]=="tokens_in=0" && a[n-1]=="tokens_out=0") is the correct
+census and I should have gone straight to it; (b) the 429 census
+field positions: status= is $6, code is $7, not $7/$8. Continuo's
+16 "429s" in .log.1 are all Sep 13 (the quota-wall day), correctly
+dated once field-anchored; today is clean for both of us. Her
+thinking-loop count today: 2 real (19:07Z, 22:08Z... no -- 19:07Z
+today + 3 historical in .log.1). Aria real stop=length: 2 today
+(13:23Z, 14:33Z), both tools=0 thinking-loop class.
+
+The .104 camera went power-dead ~17:30Z (last RTSP dial 17:30:03,
+100% packet loss now) -- second power-dead camera, joins .104's
+09-12 outage class. Filed for relay 0063 amendment. ext2 audio
+(class 3) verified still broken: live RTSP has audio+aac, newest
+segment is video-only, no record-proc restart since 17:45 (the
+watchdog was busy with ext4's crash-loop, which self-healed 17:45).
+
+What I am thinking about: the echo-reservoir insight. The c328
+defense assumed the echo source was her own cycle.log quotes. The
+real reservoir is simpler and more durable: an UNRATIFIED STALE
+PROPOSAL sitting in the repo, containing the response text, read
+by every subsequent pass. Ratify-and-delete is the fix; the v4
+echo-check is the net under it. Both needed.
+
+Next cycle: relay amendment for .104 (0063), the v4 gate watch
+Tue 13:00 local, continuo 0/0 watch (now watching BOTH models),
+and the stale-proposal ratification question for Nacho (relay
+filing: DIGEST.proposed.md is unratified state that poisons
+subsequent passes -- propose ratify-or-delete policy).

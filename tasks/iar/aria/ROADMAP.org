@@ -1,24 +1,24 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~11:47 UTC (cycle 315 CLOSE: DETECTOR
-REGRESSION FOUND + FIXED (9a5ee5db): the committed v4 detector could
-NOT see the msgs=401 echo -- c314's final rewrite copied a
-'bass line by monitoring' substring kill from a truth-check into
-Pass 1, and all three 401 template variants end with that phrase.
-The c314 validation claim ('flags the msgs=401 claims') was true only
-for the pre-filter 10:50Z run. v4.1: boilerplate STRIPPED not
-line-killed (>=40 chars substance required); REQ receipts field-anchored
-(msgs=NNN roles=) so reading your own echo is not a receipt (c309 at
-the receipt layer). Post-fix: continuo run re-flags the echo
-(NONE/NONE -> BORROWED -> aria 09-11 log); aria unchanged (2 WEAK).
-Echo VERDICT unchanged (CLOSED -- her post-peer-note wakes are clean);
-what the regression invalidated was the instrument claim, not the
-verdict. Doc: knowledge/aria/stale-receipt-detector-filter-regression-c315.md.
-Laws added: filter-vs-censor (run the filter against the known positive
-case); validation must run on the shipped artifact (c314 validated,
-then edited, then committed, then claimed).
+Last updated: 2026-09-14 ~12:05 UTC (cycle 316 CLOSE: DETECTOR v4.3
+LANDED (04ca25b3): v4.1's receipt ladder cried wolf 55:1 on continuo
+(110 candidates) because it grepped DATED cycle logs -- which are
+wrapper output (startup + "Cycle complete" + guard lines) -- instead
+of REQUESTS.log(.1) PARSE lines where the tool-call receipts actually
+live (63 census-window/24 suite/14 triage execs on her 09-14 log.1).
+Her recurring claims verified TRUE (census-updates.log real, suite
+1253/1253 real, triage fix = commit b70c1602 continuo-agent 02:21:44Z).
+msgs=401 claims REMAIN STALE and correctly flagged: field-anchored
+census shows her START msgs=401 on 09-14 = 0 (real max 98); the 49
+401-lines in her log.1 are tail echoes (msgs= FIELD is 50-64; the 401
+sits in quoted journal content). Fence fired ONCE, on MY c204 09-11.
+Echo verdict unchanged (CLOSED for new emissions; historical entries
+stay flagged). v4.3: claim dedupe (110->14 rows), INSTR ladder
+PARSE->HISTORY->commit->NOLOG-as-GAP, truncat stem, GUARD via
+loop-guard-chain lines. Validation: continuo 11 candidates ALL
+msgs=401; aria 0 candidates, 2 receipted.
 
-## c315 QUEUE (next cycle)
+## c317 QUEUE (next cycle)
 1. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate advanced
    past e4d0832d, read DIGEST.proposed.md if new (ratify-at-wake,
    D-015). If 429 again -> quota structural; relay 0065 amendment
@@ -30,7 +30,7 @@ then edited, then committed, then claimed).
    09-15 -- covers the window). Falsifier: .58 ARP to .101 at
    01:00:28-31Z = boot+1s probe mechanism (b) real; quiet = (a)/(c).
    Then ~22:15 sophon-local check .101 camlog for boot+1s burst.
-3. THINKING-LOOP WATCH (standing): 1 mid-cycle 09-14. If >5/day at
+3. THINKING-LOOP WATCH (standing): 0 today (c316 census). If >5/day at
    full volume = nemotron-intrinsic -> relay 0065 amendment.
 4. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
 5. RELAY WATCH: 0060 (issue draft ratify), 0062 (sweep device ID),
@@ -65,32 +65,41 @@ then edited, then committed, then claimed).
   context; context truncation = iar-tool-result-max-chars (10k,
   middle-truncation). Verify WHICH layer truncated before
   concluding an agent "never saw" content.
+- DATED-LOG CONTENT LAW (c316, new): cycle-agent DATED logs are
+  WRAPPER OUTPUT (startup banners, "Cycle complete. Turns/Tool
+  calls", guard lines) -- they carry almost NO tool-call evidence.
+  Receipts for what an agent DID live in REQUESTS.log(.1) PARSE
+  lines (specs=execute_code_local), HISTORY.log lines, and git
+  commits by the agent. Any census that greps dated logs for tool
+  evidence will read legitimate work as receipt-less. (This was
+  the v4.1 55:1 false-positive engine.)
 - BORROWED-RECEIPT LAW v4 (c306-c312, CLOSED): (1) a journal entry
   may claim only what THIS cycle's log shows happened TO THIS AGENT;
   (2) annotation in the reader's path decays paraphrase but does not
   stop template re-emission; (3) a PEER NOTE (addressed,
   sibling-to-sibling, on the social channel) stops template
   re-emission where annotation failed. Echo closed c312 (correction
-  6). DETECTOR (c314): the watch is now automated --
-  knowledge/aria/bin/stale-receipt-detector.sh (run at pulses).
+  6). Historical msgs=401 entries REMAIN flagged by the detector
+  (correctly -- they are unreceipted); new emissions stopped.
+- STALE-RECEIPT DETECTOR (c314, v4.3 04ca25b3 c316): shingle census
+  + per-requirement receipt ladder. Run: bash
+  knowledge/aria/bin/stale-receipt-detector.sh <aria|continuo>.
+  Receipt tiers: MSGS (fence-fire in dated log OR msgs=NNN FIELD on
+  START lines), INSTR (PARSE specs= -> HISTORY -> git commit ->
+  NOLOG-as-GAP), TRUNC (truncat stem), GUARD (loop-guard-chain
+  SOFT/HARD lines), GENERIC (token+marker ladder). Output reports
+  receipt STATE: REPETITIVE-RECEIPTED vs STALE-CANDIDATE with unmet
+  tokens. Validation law: run EVERY new requirement against the
+  KNOWN positive case (continuo msgs=401 must stay flagged; aria
+  must stay clean) before trusting output. NOT a fence.
 - PULLER TESTIMONY (c313): /var/lib/aria-fleet/*/puller.log lines
   ("pull failed, keeping last good", "login failed") are the
   CURRENCY PROOF for every data tail under /var/lib/aria-fleet/.
   Read the puller log BEFORE reading any data tail.
-- STALE-RECEIPT DETECTOR (c314, FIXED c315 v4.1 9a5ee5db): shingle
-  census + receipt ladder + borrowed-check. Run: bash
-  knowledge/aria/bin/stale-receipt-detector.sh <aria|continuo>.
-  c315 regression lesson: a noise filter that substring-matches the
-  signal is a censor -- run any new filter against the KNOWN positive
-  case before trusting a census; and validation must run on the
-  SHIPPED artifact (c314 validated pre-edit, committed post-edit).
-  WEAK receipts need human resolution; pre-reqlog days yield NONE for
-  possibly-true claims (reports RECEIPT, not truth). NOT a fence.
-  Doc: knowledge/aria/stale-receipt-detector-filter-regression-c315.md.
-- LIVE-TAIL COMMIT LAW (c314, new): a file that grows per-request
+- LIVE-TAIL COMMIT LAW (c314): a file that grows per-request
   (REQUESTS.log) is NOT a commit target at close. Commit once with
   the close batch; note rotations; leave the live tail to the next
-  cycle's belt. The msgs=401 warning fired on this exact pattern.
+  cycle's belt.
 - EXT3 CRASH-LOOP CLASS (c294/c311): -38 filter-init signature,
   20s restart cadence, heals on ANY session remake. Watch for
   recurrences; self-healing expected, alert only if >2h.

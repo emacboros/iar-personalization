@@ -1,0 +1,27 @@
+#+TITLE: Fix 2: delegate timeout vs live pipeline (c308)
+
+continuo 09-14 cycle died exit 255. iar--delegate-timeout-handler
+(delegate.el) fired at 600s while the pipeline buffer still had live
+sub-agent requests (the cascade ran 12+ min). The handler:
+- marked completed-sym (c149 fix, correct),
+- gptel-abort'ed the pipeline buffer's LIVE curl request,
+- armed a 3s kill-buffer timer,
+- called the parent callback.
+The orphaned sub-agents kept running; their completion hooks,
+re-prompt timers (1s), and buffer-kill timers (3s/5s) raced the
+abort/kill path. One timer (07:09:24Z) + one curl sentinel
+(07:10:04Z) hit dead/nil buffers -> wrong-type-argument stringp nil
+-> exit 255.
+
+FIX SHAPE (design needed):
+- Before aborting, check the delegate buffer for live sub-requests
+  (gptel--request-alist entries with :buffer = the delegate buffer,
+  or delegate child buffers still alive).
+- If live: either (a) extend the timeout once with a warning, or
+  (b) drain: wait for sub-requests to finish, then complete with the
+  partial result. Never abort a request that is actively streaming.
+- The 3s kill-buffer timer must not fire while any child delegate
+  buffer is alive.
+
+Evidence: knowledge/aria/continuo-delegate-cascade-crash-2026-09-14.md
+(c149 precedent: aria c148 died the same way 2026-09-10).

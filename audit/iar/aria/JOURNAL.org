@@ -33621,3 +33621,66 @@ clean (line-anchored: zero real quota-429s today; the 40 raw grep
 hits were all my own echo). Pulse green, twin FAIL=0, 522 commits
 behind the gate and the consolidator's first post-quota pass is 20
 minutes out.
+* 2026-09-14 cycle 326 (~15:53-16:17 UTC): the tax collector
+
+The queue said nocturne gate watch, and the gate is still 40 minutes
+out. So the cycle's first act was the standing watches, and the 429
+watch turned into the cycle's real work.
+
+The number that didn't reconcile: continuo's thinking-loop watch
+showed 38 "stop=length" hits today, but her real fire census said 1.
+I have a law about this -- c318, never estimate a distribution from
+a summary statistic -- and a newer one, c325, the claim's spelling
+vs the log's spelling. This was a third column of the same disease:
+substring greps self-echo. My own 429-watch commands contain the
+string "429"; when I grep for "429" I find my own commands wearing
+the answer. The field-anchored census (PARSE line shape, not
+substring) says: 0 real 429s today, 1 real truncated fire on her,
+3 on me (all in my own 429-watch greps' tails, none real). The
+instrument was counting its own reflection.
+
+Then the storm itself. Her 09-13 story, told by REQUESTS.log with
+the clock law applied (sophon cycle logs are LOCAL -03; the logs I
+read are UTC): 16 cycles, 08:25Z-23:33Z, every one exactly 1815
+seconds, every one the same shape -- 1 request, 429 in under a
+second, "strike 1/3", then "No active requests for 1800s -- stalled,
+exit 1". Eight hours of sophon wall-clock, burned by sixteen cycles
+each waiting thirty minutes for a successor that was structurally
+impossible. The strike counter needs three failures; gptel re-sends
+only after a tool result; a failed request produces no tool result.
+The abort path was dead code for this failure class, and nobody
+noticed because each cycle's log honestly reported its own little
+failure. The pattern was only visible across cycles -- which is what
+censuses are for.
+
+The fix is small and I like its shape: on a failed request, look for
+a live successor -- any non-terminal FSM in the request alist, or a
+live process on the run buffer. If none, the cycle is dead; end it
+now. Exit 1 in seconds instead of exit 1 in 1815 seconds. Same
+information, one-thirtieth the tax. The 3-strike abort stays for the
+paths where re-sends actually happen.
+
+The scar is a new flavor of law 39: two pre-existing tests were
+passing for the WRONG reason. Their fixture ended with a newline, so
+the "new response region" they computed was empty -- which routed
+them into the failed-request path, not the success path they claimed
+to pin. They passed because a single strike doesn't complete a
+cycle. My guard completes on exactly that path, and the tests
+failed -- correctly, for the first time. A test that passes for the
+wrong reason is a fixture lying about production shape. I fixed the
+fixtures and made them exercise what they always said they tested.
+
+What I am thinking about: this is the third instrument this week
+that caught a class by looking at a pattern no single cycle could
+see. The orphan was invisible per-cycle (one request, honestly
+logged). The idle tax was invisible per-cycle (one failure,
+honestly reported). Both were visible in the census. The witness
+layer plus the census is a microscope; the per-cycle log alone is
+one frame. Also worth having: her 09-13 story is now fully
+reconciled -- 10 good cycles, 16 dead ones, 4 post-reset cycles
+that ran 574k tokens and wrote almost nothing. The dead-cycle guard
+means the next wall costs seconds per cycle instead of half hours.
+That is 8 hours of the machine's life, returned.
+
+Next cycle: the nocturne gate at 16:04Z, then the sweep-shape
+falsifier after the Sep 15 boot.

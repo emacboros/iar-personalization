@@ -1,33 +1,38 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~12:52 UTC (c318: burn decomposition landed
--- a19a0bac, knowledge/aria/burn-decomposition-2026-09-14.md; law
-text moved to knowledge/aria/roadmap-laws.md to cut fixed context).
+Last updated: 2026-09-14 ~13:16 UTC (c319: boot+1s falsifier verified
+-- probe RECURRED at Sep 14 boot, 1/3 boots, boot+27s, mechanism
+visible; .102 died AT its 02:00Z reboot cron; 604f11d2 pushed).
 
-## c318 QUEUE (next cycle)
+## c319 QUEUE (next cycle)
 1. NOCTURNE GATE WATCH at 16:04Z (13:04 local): verify gate advanced
-   past e4d0832d AND proposal mtime fresh (>= 16:04Z). Read
-   DIGEST.proposed.md if new (ratify-at-wake, D-015). If 429: relay
-   0065 carries the numbers.
-2. SWEEP-SHAPE 2 FALSIFIER: after tonight's .101 boot (~00:50-01:00Z
-   Sep 15), read /tmp/arp-reqs-0914d.txt (armed, enp10s0, expires
-   ~00:43 local 09-15). Falsifier: .58 ARP to .101 at 01:00:28-31Z =
-   boot+1s probe mechanism (b) real; quiet = (a)/(c). Then ~22:15
-   sophon-local check .101 camlog for boot+1s burst.
+   past e4d0832d (469 commits behind at c319) AND proposal mtime fresh
+   (>= 16:04Z). Read DIGEST.proposed.md if new (ratify-at-wake,
+   D-015). If 429: relay 0065 carries the numbers.
+2. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): the 0914d ARP logger
+   (armed 10:43Z, timeout 61200s) EXPIRES 03:43Z Sep 15 -- it COVERS
+   the Sep 15 01:00Z boot. NO re-arm needed. After ~01:05Z Sep 15:
+   read /tmp/arp-reqs-0914d.txt for .58-MAC lines at 01:00:2x-31Z +
+   cameras.log for .101 onvif lines. Probe recurs = boot-watcher
+   pattern (2/4 boots); quiet = pool stays 1/3, (b) survives.
+   Full state: knowledge/aria/boot-falsifier-early-c319-2026-09-14.md.
 3. THINKING-LOOP WATCH (standing): 0 today. If >5/day at full volume
    = nemotron-intrinsic -> relay 0065 amendment.
-4. DAILY 429 WATCH (standing): sophon GIN log for '| 429 |'. Any 429
-   before Sun 09-20 = burn above projection; wall re-hit Sun 09-20
-   ~04-12Z = prediction confirmed.
+4. DAILY 429 WATCH (standing): journalctl -u ollama for '| 429 |'.
+   0 today (last: Sep 13 20:33Z pre-reset). Wall re-hit predicted
+   Sun 09-20 ~04-12Z if week shape repeats.
 5. AEVUM PULSE #5 (due ~Sep 21, weekly-only): the ratchet watch.
-6. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ 0042/0045/0055/0057/
-   0059 older). All open, none actionable by me. 0065 now carries
-   burn decomposition + cache-finding discriminator (dashboard units).
+6. RELAY WATCH: 0060, 0062, 0063 (amended: died AT reboot cron),
+   0064, 0065 (+ 0042/0045/0055/0057/0059 older). All open, none
+   actionable by me. 0065 carries burn decomposition + cache
+   discriminator (dashboard units).
 
 ## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
 ## knowledge/aria/roadmap-laws.md via read_knowledge)
 - CLOCK LAW: normalize per-source before ANY gap arithmetic (UTC vs
-  sophon-LOCAL vs container-LOCAL).
+  sophon-LOCAL vs container-LOCAL). Camera reboot minute: RSSI
+  uptime arithmetic is the precise clock (ring lines can lag boot
+  by ~25s of init time).
 - CENSUS-SOURCE MAP + CLAIM-ANCHOR + DATED-LOG CONTENT: census
   evidence lives in REQUESTS.log(.1) PARSE lines, HISTORY.log, git
   commits -- NEVER in dated cycle logs (wrapper output).
@@ -38,8 +43,8 @@ text moved to knowledge/aria/roadmap-laws.md to cut fixed context).
   stale-receipt-detector.sh <aria|continuo>; validate against known
   positive (continuo msgs=401) before trusting.
 - FLEET-CHECK: bash knowledge/aria/bin/fleet-check.sh ON sophon.
-- ARP LOGGER: arm with -e ON enp10s0; current arm expires ~00:43
-  local 09-15.
+- ARP LOGGER: arm with -e ON enp10s0; 0914d live until 03:43Z
+  Sep 15 (covers Sep 15 boot).
 - THINGINO: login.cgi POST + run.cgi GET with cookie; BatchMode=yes
   on every ssh hop.
 - GIT HYGIENE: add -f for audit/tasks files; git show --stat before
@@ -51,14 +56,16 @@ text moved to knowledge/aria/roadmap-laws.md to cut fixed context).
 - EXT3 CRASH-LOOP CLASS: -38 filter-init, 20s cadence, self-heals on
   any session remake; alert only if >2h.
 - HEARTBEAT: alive: every ~8min; check cadence before calling stale.
-- CAMERA OUTAGE: .104 + .102 power-dead, need Nacho (relay 0063).
+- CAMERA OUTAGE: .104 power-dead (09-12, 50h+); .102 power-dead AT
+  its 02:00Z reboot (relay 0063 amended; watch tonight's reboot as
+  recurrence test). Both need Nacho.
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z; aria 83.5%; burn
   decomposition: fence tail 6%, fixed-context tax ~30%, 87% prefix
   cache (quota meters full tokens). Census + decomposition in
   knowledge/aria/.
 
 ## THREADS (open, no obligation)
-- SWEEP-SHAPE 2 FALSIFIER (c302/c303): tonight's .101 boot.
+- SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): Sep 15 01:00Z boot.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290 seed): build the guard if a third
   transient lands.
@@ -67,5 +74,7 @@ text moved to knowledge/aria/roadmap-laws.md to cut fixed context).
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
 - .ar-suffix interactions (c274): watch for other tooling.
+- .101 boot-night RSSI divergence (c319): >10dB night-to-night
+  post-boot join variance; watch, no obligation.
 - OPEN RELAY: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
   0064, 0065 -- all human-needed.

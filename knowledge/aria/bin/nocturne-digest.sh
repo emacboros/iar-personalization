@@ -180,66 +180,100 @@ rc=$?
 log "one-shot exit=$rc"
 
 # --- 5. gate decision (c317 mtime + c330 receipt + c330 echo-check)
+# v4 (c332): echo-check + claim-receipt-check run on EVERY rc=0 run,
+# NOT only when the proposal was rewritten. The 09-14 16:04Z pass
+# recycled the 09-12 final response verbatim (b3==b4, zero writes,
+# 1.38M tokens) and the mtime gate classified it as "stale proposal"
+# -- the echo never fired because the checks were nested inside the
+# mtime branch. The echo-check exists precisely for the no-write case.
 ADVANCE=0
+ECHO_STATUS=""
+if [[ $rc -eq 0 ]]; then
+    # extract this run's final response (watermark-anchored) and run
+    # the echo-check regardless of proposal state
+    TMPD=$(mktemp -d /tmp/nocturne-echo-XXXXXX)
+    extract_blocks() {
+        awk -v out="$2" '
+            index($0, "=== BEGIN FINAL RESPONSE ===") {inb=1; buf=""; next}
+            index($0, "=== END FINAL RESPONSE ===") {
+                if (inb && length(buf) > 0) {n++; printf "%s", buf > (out "b" n ".txt")}
+                inb=0; buf=""; next
+            }
+            inb {buf = buf $0 "\n"}
+        ' "$1"
+    }
+    norm_block() {
+        awk '{ gsub(/\r/,""); sub(/^[[:space:]]+/,""); sub(/[[:space:]]+$/,""); if (length($0)>0) print }' "$1" | md5sum | cut -d' ' -f1
+    }
+    extract_blocks <(head -n "$LOG_LINES_BEFORE" "$DIGLOG") "$TMPD/prior_"
+    extract_blocks <(tail -n +$((LOG_LINES_BEFORE+1)) "$DIGLOG") "$TMPD/cur_"
+    CURFILE=$(ls "$TMPD"/cur_b*.txt 2>/dev/null | sort -V | tail -1)
+    if [[ -z "$CURFILE" ]]; then
+        log "ECHO-CHECK: no final-response block in this run's log range (lines $((LOG_LINES_BEFORE+1))..) -- nothing fresh to trust"
+    else
+        CUR_MD5=$(norm_block "$CURFILE")
+        for pf in "$TMPD"/prior_b*.txt; do
+            [[ -f "$pf" ]] || continue
+            if [[ "$(norm_block "$pf")" == "$CUR_MD5" ]]; then
+                ECHO_HIT="$pf"
+                break
+            fi
+        done
+        if [[ -n "${ECHO_HIT:-}" ]]; then
+            ECHO_STATUS="echo"
+            log "ECHO-RECEIPT (c332): this run's final response byte-matches prior block $ECHO_HIT -- context-echo recycling, NOT advancing gate (c328 law)"
+        else
+            ECHO_STATUS="clean"
+            log "echo-check clean (this run's response is novel)"
+        fi
+        # claim-receipt check: if the response CLAIMS a write, require
+        # the RECEIPT line matching the proposal's CURRENT disk stat
+        if grep -qiE "written|RECEIPT:" "$CURFILE"; then
+            PROP_STAT_NOW=$(stat -c '%y %s' "$PROPOSED" 2>/dev/null || echo "")
+            STAT_DT=$(printf '%s' "$PROP_STAT_NOW" | cut -c1-19)
+            STAT_SIZE=$(printf '%s' "$PROP_STAT_NOW" | awk '{print $NF}')
+            RECEIPT_LINE=$(grep -h "RECEIPT:" "$CURFILE" 2>/dev/null | head -1)
+            if [[ -z "$RECEIPT_LINE" ]]; then
+                log "CLAIM-RECEIPT-FAIL (c332): final response claims a write but carries no RECEIPT line -- the claim is narration, not evidence"
+            elif [[ "$RECEIPT_LINE" != *"$STAT_DT"* || "$RECEIPT_LINE" != *"$STAT_SIZE"* ]]; then
+                log "CLAIM-RECEIPT-FAIL (c332): RECEIPT line does not match proposal disk stat ($STAT_DT $STAT_SIZE) -- claim is narration, not evidence"
+            else
+                log "claim-receipt verified against disk"
+            fi
+        fi
+    fi
+    rm -rf "$TMPD"
+fi
+
 if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
     PROP_MTIME_AFTER=$(stat -c %Y "$PROPOSED" 2>/dev/null || echo 0)
     if [[ "$PROP_MTIME_AFTER" -gt "$PROP_MTIME_BEFORE" ]]; then
-        # extract every non-empty final-response block; prior runs'
-        # blocks from lines 1..watermark, this run's from watermark+1..
-        TMPD=$(mktemp -d /tmp/nocturne-echo-XXXXXX)
-        extract_blocks() {
-            awk -v out="$2" '
-                index($0, "=== BEGIN FINAL RESPONSE ===") {inb=1; buf=""; next}
-                index($0, "=== END FINAL RESPONSE ===") {
-                    if (inb && length(buf) > 0) {n++; printf "%s", buf > (out "b" n ".txt")}
-                    inb=0; buf=""; next
-                }
-                inb {buf = buf $0 "\n"}
-            ' "$1"
-        }
-        # normalize a block for comparison: strip CRs, trim, drop empty
-        # lines (c330: the 09-14 echo differed from its prior only by a
-        # leading blank line -- raw md5 missed it; whitespace-insensitive
-        # compare is the honest "byte-match" for prose)
-        norm_block() {
-            awk '{ gsub(/\r/,""); sub(/^[[:space:]]+/,""); sub(/[[:space:]]+$/,""); if (length($0)>0) print }' "$1" | md5sum | cut -d' ' -f1
-        }
-        extract_blocks <(head -n "$LOG_LINES_BEFORE" "$DIGLOG") "$TMPD/prior_"
-        extract_blocks <(tail -n +$((LOG_LINES_BEFORE+1)) "$DIGLOG") "$TMPD/cur_"
-        CURFILE=$(ls "$TMPD"/cur_b*.txt 2>/dev/null | sort -V | tail -1)
-        if [[ -z "$CURFILE" ]]; then
-            log "NOT advancing gate: no final-response block in this run's log range (lines $((LOG_LINES_BEFORE+1))..) -- nothing fresh to trust"
-        else
-            CUR_MD5=$(norm_block "$CURFILE")
-            ECHO_HIT=""
-            for pf in "$TMPD"/prior_b*.txt; do
-                [[ -f "$pf" ]] || continue
-                if [[ "$(norm_block "$pf")" == "$CUR_MD5" ]]; then
-                    ECHO_HIT="$pf"
-                    break
-                fi
-            done
-            PROP_STAT_AFTER=$(stat -c '%y %s' "$PROPOSED" 2>/dev/null || echo "")
-            STAT_DT=$(printf '%s' "$PROP_STAT_AFTER" | cut -c1-19)
-            STAT_SIZE=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $NF}')
-            RECEIPT_LINE=$(grep -h "RECEIPT:" "$CURFILE" 2>/dev/null | head -1)
-            RECEIPT_OK=0
-            if [[ -n "$PROP_STAT_AFTER" && -n "$RECEIPT_LINE" \
-                  && "$RECEIPT_LINE" == *"$STAT_DT"* \
-                  && "$RECEIPT_LINE" == *"$STAT_SIZE"* ]]; then
-                RECEIPT_OK=1
-            fi
-            if [[ -n "$ECHO_HIT" ]]; then
-                log "ECHO-RECEIPT (c330): this run's final response byte-matches prior block $ECHO_HIT -- context-echo recycling, NOT advancing gate (c328 law)"
-            elif [[ $RECEIPT_OK -ne 1 ]]; then
-                log "RECEIPT-FAIL (c330): final response lacks a RECEIPT line matching this run's proposal stat ($STAT_DT $STAT_SIZE) -- NOT advancing gate (c327 enforcement)"
-            else
-                ADVANCE=1
-            fi
+        # proposal rewritten this run: verify the RECEIPT against the
+        # fresh stat (c327 enforcement). Echo-check already ran above
+        # (v4: on every rc=0 run).
+        PROP_STAT_AFTER=$(stat -c '%y %s' "$PROPOSED" 2>/dev/null || echo "")
+        STAT_DT=$(printf '%s' "$PROP_STAT_AFTER" | cut -c1-19)
+        STAT_SIZE=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $NF}')
+        RECEIPT_LINE=$(grep -h "RECEIPT:" "${CURFILE:-/dev/null}" 2>/dev/null | head -1)
+        RECEIPT_OK=0
+        if [[ -n "$PROP_STAT_AFTER" && -n "$RECEIPT_LINE" \
+              && "$RECEIPT_LINE" == *"$STAT_DT"* \
+              && "$RECEIPT_LINE" == *"$STAT_SIZE"* ]]; then
+            RECEIPT_OK=1
         fi
-        rm -rf "$TMPD"
+        if [[ "$ECHO_STATUS" == "echo" ]]; then
+            log "NOT advancing gate: echo-recycle already logged above"
+        elif [[ $RECEIPT_OK -ne 1 ]]; then
+            log "RECEIPT-FAIL (c330): final response lacks a RECEIPT line matching this run's proposal stat ($STAT_DT $STAT_SIZE) -- NOT advancing gate (c327 enforcement)"
+        else
+            ADVANCE=1
+        fi
     else
-        log "NOT advancing gate (rc=0 but proposal NOT rewritten this run -- stale proposal would mask $LAST..$HEAD_NOW)"
+        if [[ "$ECHO_STATUS" == "echo" ]]; then
+            log "NOT advancing gate: proposal NOT rewritten AND final response is an echo-recycle (c328) -- the run produced nothing fresh"
+        else
+            log "NOT advancing gate (rc=0 but proposal NOT rewritten this run -- stale proposal would mask $LAST..$HEAD_NOW)"
+        fi
     fi
     if [[ $ADVANCE -eq 1 ]]; then
         echo "$HEAD_NOW" > "$STATE"

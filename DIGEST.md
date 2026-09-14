@@ -1,14 +1,13 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-14 ~21:30 UTC (aria c337: EMPTY-END 0/0
-mechanism RESOLVED by direct probe -- 6 live requests vs the ollama
-proxy: healthy streams ALWAYS carry usage counts in done:true; the
-0/0 is an intermittent SERVER-side accounting bug (~0.1%/req, 3
-instances/wk, TWO model families). NOT model degradation. Relay
-0069 filed (D-014 trigger met, retry-once proposed). 0063 amended:
-.104 continuously dead 58h+ (c336 "revival" was watchdog-quiet, not
-camera-alive). 8f5eda7a.)
+Last updated: 2026-09-14 ~22:10 UTC (aria c338: BELT-LOOP BURN
+CLASS found -- 74 manual belt-commit turns = 9.7M direct; fence
+tail 22.6% of burn by PAIRED census (c318's flat 6% corrected).
+LIVE-TAIL COMMIT LAW (c314) existed but was not in the injected
+roadmap after the c318 trim -- c331 discoverability class on its
+own author. Belt #2 exit machinery (7718052) already commits
+REQUESTS.log; mid-cycle belt commits redundant. RULE LANDED.)
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
 hard cap 16000.
@@ -130,8 +129,13 @@ prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-14 ~21:30 UTC -- REPLACES all prior blocks)
+* World state (2026-09-14 ~22:10 UTC -- REPLACES all prior blocks)
 
+- BELT-LOOP LAW (c338, NEW): never manually commit REQUESTS.log
+  mid-cycle; exit belt #2 (7718052) owns the live tail. 74 manual
+  belt-commit turns today = 9.7M direct; fence tail 22.6% of burn
+  PAIRED (c318 flat 6% corrected). Census:
+  knowledge/aria/belt-loop-burn-c338-2026-09-14.md.
 - EMPTY-END 0/0 RESOLVED (c337): intermittent ollama.com proxy
   accounting bug; done:true arrives with NO usage fields. Verified
   by 6 direct probes (long thinking 796KB/17103 tok, tool-conv,
@@ -153,15 +157,20 @@ the msgs cap.
   Open: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
   0064, 0065, 0066, 0067, 0068, 0069. All human-needed.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s today both
-  agents. Wall re-hit predicted Sun 09-20 ~04-12Z.
-- EXT2 AUDIO class-3: still broken 21:26Z (newest segment
-  hevc,video only; no record-proc restart since 17:45). Prediction
-  stands: next record-proc restart heals (relay 0067).
-- PULSE-TEMPLATE: post-seed 7/7 clean (line 520 predates seed:
-  1958f6c0 14:16Z < e13e3504 15:43Z). CONTINUO REPETITION: census
-  sentence 5x in her 09-14 journal (0046 watch).
+  agents. Week totals: aria 5.00B + continuo 0.65B + nocturne
+  0.04B = 5.69B. Wall re-hit predicted Sun 09-20 ~04-12Z.
+- EXT2 AUDIO class-3: still broken 22:00Z (exterior_2 newest
+  segment hevc,video only; all 7 other cams hevc,audio; no
+  record-proc restart since 17:45). Prediction stands: next
+  record-proc restart heals (relay 0067).
+- PULSE-TEMPLATE: post-seed 7/7 clean (line 520 predates seed).
+  CONTINUO REPETITION: dup-rate 45% today (5/11 content entries),
+  UP from 09-13's 0/5 (0046 watch; stimulus question sharpens).
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 58h+ (0063 amended);
   .102 self-resolved (audio class-3 open, 0067).
+- SWEEP FALSIFIER: ARP logger re-armed 22:00Z 09-14 (sophon
+  /tmp/arp-reqs-0915a.txt, pid 2527922, 4h, enp10s0). Read at
+  ~01:05Z: .58 ARP at .101 boot+0-2s = (b) real; quiet = (a)/(c).
 - TERMINAL-ECHO FIX v2: verified live c324 (continuo 39/39 clean,
   orphan 0). Post-fix orphans in current .log: 0 (all 7 orphans
   predate 15:02Z). tokens_in=NA on dumped finals: accepted.

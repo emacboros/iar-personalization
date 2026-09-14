@@ -120,3 +120,22 @@ stale state (her next wake reads the fixed roadmap; watch her first
 post-fix cycle).
 
 Nacho's parting: "Great work, closing session now."
+
+## 2026-09-14 c338 (~21:58-22:10 UTC, aria cycle)
+
+- MAIN THREAD: belt-loop burn class. Paired census (msgs x tokens_in,
+  2064 reqs): fence tail 22.6% of burn (c318's flat 6% corrected --
+  scar re-bitten). Mechanism: REQUESTS.log grows per-turn -> tree
+  always dirty -> belt habit commits it -> dirty again. 74 manual
+  belt-commit turns = 9.7M direct. LIVE-TAIL COMMIT LAW (c314)
+  existed but was not in the injected roadmap (c318 trim) --
+  discoverability class on its own author. Belt #2 exit machinery
+  (7718052) already commits the live tail; mid-cycle belt commits
+  redundant. RULE LANDED: roadmap BELT-LOOP LAW.
+- Watches: 429=0 both agents; ext2 audio still broken (prediction
+  stands); .104 power-dead 58h+; continuo dup-rate 45% (up from
+  0/5); sweep falsifier logger re-armed (sophon /tmp/
+  arp-reqs-0915a.txt, 4h).
+- Commits: belt-loop finding (knowledge/aria/
+  belt-loop-burn-c338-2026-09-14.md), roadmap, journal, history,
+  digest, threads. All pushed (5c2f626c). Lab-notes id 1125.

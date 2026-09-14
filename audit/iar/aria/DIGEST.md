@@ -1,12 +1,14 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-14 ~18:00 UTC (aria c329: continuo
-pulse-template occurrence #5 verified end-to-end (REQ 260914141203-24,
-append_file literal template, commit 1958f6c0). Census correction:
-emission PREDATES the c325 seed -- not a new recurrence; c271 law
-re-applied to its author. Post-seed watch 3/3 clean; peer-note
-trigger NOT met. Echo-check stays queue head. 2968b141.)
+Last updated: 2026-09-14 ~21:30 UTC (aria c337: EMPTY-END 0/0
+mechanism RESOLVED by direct probe -- 6 live requests vs the ollama
+proxy: healthy streams ALWAYS carry usage counts in done:true; the
+0/0 is an intermittent SERVER-side accounting bug (~0.1%/req, 3
+instances/wk, TWO model families). NOT model degradation. Relay
+0069 filed (D-014 trigger met, retry-once proposed). 0063 amended:
+.104 continuously dead 58h+ (c336 "revival" was watchdog-quiet, not
+camera-alive). 8f5eda7a.)
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
 hard cap 16000.
@@ -128,59 +130,45 @@ prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-14 ~18:00 UTC -- REPLACES all prior blocks)
+* World state (2026-09-14 ~21:30 UTC -- REPLACES all prior blocks)
 
-- PULSE-TEMPLATE WATCH (c329): continuo occurrence #5 verified
-  end-to-end (REQ 260914141203-24, append_file literal $(date)
-  template, 1958f6c0 14:16Z). NOT a new recurrence (predates the
-  c325 seed). Post-seed 3/3 clean; peer-note trigger NOT met.
-  RELAY 0057 ANSWERED: worked-example edit landed in i.ar d1acc5e
-  (continuo_daily.org line 119); placeholder removed at source.
-- NOCTURNE ECHO-RECEIPT (c328): 09-14 pass (37 req, 1.36M tok, 0
-  writes) re-emitted the 09-12 final response VERBATIM (byte-match
-  verified). Gate held. Range debt 534+ commits. Next pass 09-15
-  13:00Z with receipt requirement; echo-check if it recurs.
-- ORPHAN FIX v2 VERIFIED (c324): continuo 39/39 clean, orphan 0;
-  task CLOSED; detector blind spot CLOSED. tokens_in=NA on dumped
-  final requests (accepted; USAGE still counts them).
-
-- QUOTA: wall ~6B tokens/wk (empirical), reset Mon 00:00Z, verified.
-  This week pace ~565M/day fits under it; wall re-hit predicted Sun
-  09-20 ~04-12Z if week shape repeats. Daily 429 watch standing.
-  0 429s since reset. Relay 0065: decision Nacho's; now carries
-  decomposition + dashboard-units discriminator.
-- STALE-RECEIPT DETECTOR v4.3 (04ca25b3): continuo 11 candidates ALL
-  msgs=401 (known echo, correctly persistent); aria clean. Echo
-  CLOSED (c312); historical entries stay flagged (unreceipted).
-  Detector blind spot CLOSED (c324: fix v2 verified live,
-  continuo 39/39 clean).
-- FIX-3 LANDED (792de9a): reqlog per-fsm attribution. Fix-2 (timeout
-  vs live pipeline) OPEN, design next.
-- EXT3 CRASH-LOOP #2 (c311): 107x 09-14 05:28-06:05 local, SELF-
-  HEALED coincident with fleet-wide go2rtc producer re-dial. Watch:
-  alert only if >2h.
-- FRIGATE EXPOSURE: scanner #3 (34.156.22.222, Google Cloud, 91
-  reqs, .env probes 05:50 local) -- relay 0059 addendum. Auth holding.
-- CAMERA OUTAGE: .104 power-dead since 09-12 11:00Z; .102 power-dead
-  ~02:00Z 09-14 (relay 0063). Both need power cycles (Nacho).
-- WAVE TRIGGER (c268/c272/c280): page load -> 7 mic-probe GETs ->
-  remake wave; fix (a) drop mic param CONFIRMED COSTLESS; issue
-  DRAFTED, DO-NOT-POST (relay 0060 ratify ask).
-- UPSTREAM SCAN (c269, [EXTERNAL DATA]): bug NOT reported/fixed
-  upstream (we run 1.9.10). Open family: #2404, #2387, #2362.
-- STAIRCASE-SPLICE (c279): nightly reboot crons -> remake -> splice
-  -> watchdog heal; 7/7 crontab-hour matches.
-- AUDIO-DEATH LAW v3.1 (c264): TWO classes, ONE heal = ANY session
-  remake; record-proc restart heals, PUT alone useless.
-- CAMLOG PULLER v2 (c279): empty snapshot = logread-ring saturation,
-  NOT camera failure.
-- CYCLE.LOG UNTRACKED (c270): resurrection guard = git_commit tool
-  refuse-pattern + 0034 pull-before-assembly.
-- RELAY: 11 open, all human-needed: 0042, 0045+0055, 0046, 0057,
-  0059, 0060, 0062, 0063, 0064, 0065. Ledger dup-ID defect FIXED.
-- 13:36Z REBOOT TRIGGER (open): camera-side power event; APs exonerated.
-- BIKE LEDGER OPEN: KLR650 presumptive, license next week. GO2 ~2wk.
-  Burn asymmetry STABLE 6-8x.
+- EMPTY-END 0/0 RESOLVED (c337): intermittent ollama.com proxy
+  accounting bug; done:true arrives with NO usage fields. Verified
+  by 6 direct probes (long thinking 796KB/17103 tok, tool-conv,
+  num_predict trunc, thinking-only-stop, 150KB ctx -- ALL healthy
+  with counts). NOT size/shape/overflow (nemotron 262k, deepseek
+  1M windows; both 0/0s fit). 3 instances/wk (nemotron Sep 9 +
+  Sep 14, deepseek Sep 14) = D-014 trigger MET. Guard aria-0026
+  tombstones correctly (exit 1, next cycle recovers); retry-once
+  proposed in relay 0069. WATCHDOG-QUIET LAW (c337): an instrument
+  going quiet is not the thing it watches getting better.
+- V4 GATE WATCH: first live run Tue 09-15 13:00 local (16:00Z).
+  Wrapper confirmed in place. Stale DIGEST.proposed.md (Sep 12,
+  11006 bytes) STILL on disk -- relay 0068 ratify-or-delete open.
+  Echo recurrence #3 would make the reservoir policy urgent.
+- RELAY: 0063 amended (c336 revival claim CORRECTED -- .104
+  continuously dead since 09-12 11:10Z, 58h+; zero ext4 segments
+  09-13/09-14; frigate dialing i/o timeout through the "heal"
+  window). 0069 FILED (empty-end D-014 + retry-once proposal).
+  Open: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
+  0064, 0065, 0066, 0067, 0068, 0069. All human-needed.
+- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s today both
+  agents. Wall re-hit predicted Sun 09-20 ~04-12Z.
+- EXT2 AUDIO class-3: still broken 21:26Z (newest segment
+  hevc,video only; no record-proc restart since 17:45). Prediction
+  stands: next record-proc restart heals (relay 0067).
+- PULSE-TEMPLATE: post-seed 7/7 clean (line 520 predates seed:
+  1958f6c0 14:16Z < e13e3504 15:43Z). CONTINUO REPETITION: census
+  sentence 5x in her 09-14 journal (0046 watch).
+- CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 58h+ (0063 amended);
+  .102 self-resolved (audio class-3 open, 0067).
+- TERMINAL-ECHO FIX v2: verified live c324 (continuo 39/39 clean,
+  orphan 0). Post-fix orphans in current .log: 0 (all 7 orphans
+  predate 15:02Z). tokens_in=NA on dumped finals: accepted.
+- FIX-3 LANDED (792de9a): reqlog per-fsm attribution. Fix-2 OPEN.
+- FRIGATE EXPOSURE: scanner #3 (34.156.222.222 Google Cloud, 91
+  reqs) -- relay 0059. Auth holding. WAVE TRIGGER fix (drop mic
+  param) CONFIRMED COSTLESS; issue DRAFTED, DO-NOT-POST (0060).
 
 * Pointers (detail in ROADMAP.org)
 

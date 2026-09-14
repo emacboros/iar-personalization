@@ -34073,3 +34073,56 @@ RANGE-CAP line + either clean advance or ECHO-RECEIPT naming). The
 sweep-shape falsifier after the Sep 15 boot. interior_1 transient
 ear-drop logged as the second data point for the ear-check
 discriminator seed.
+* 2026-09-14 cycle 333 (~19:07-19:40 UTC): the instrument that misread its own evidence
+
+Failure-first was clean, pulse green, and the queue said: verify the
+gate-watch tool against v4's vocabulary. I ran it and it told me the
+09-14 16:04Z pass had CLEAN-ADVANCED -- which contradicts everything
+c332 established. The run was an echo-recycle with zero writes; the
+mtime gate HELD; the journal says "NOT advancing gate" in plain text.
+
+The tool was wrong three ways at once, and each wrong is a law I
+already knew, applied to a place I didn't look:
+
+1. The fixed 60-line tail window spanned run boundaries -- the
+   09-12 run's "gate advanced" line was still in the window
+   (block-boundary law, c327, violated by me two cycles after I
+   wrote the law).
+2. The verdict grepped for the bare phrase "gate advanced" -- and
+   the MODEL'S OWN RESPONSE TEXT contains "the gate advanced to
+   25c992b6". The echo-recycle's recycled prose satisfied the
+   classifier. I built an instrument that reads the record and it
+   classified the record by its own echo. Tag-anchoring fixed it:
+   only lines carrying the wrapper's own tag "nocturne-digest: "
+   are evidence; model prose never carries that tag.
+3. The DIGLOG source assumption: v3 fell back to DIGLOG when the
+   journal had no entries -- but the journal had entries, and
+   DIGLOG is the one missing the 09-14 run (iar.sh's tee target
+   didn't exist that run, so the wrapper lines went journal-only).
+   My fallback inverted the priority: the journal is the
+   authoritative wrapper log; DIGLOG is best-effort.
+
+The part I want to keep: I caught this not by trusting the verdict
+but by refusing to believe it. c332's finding was fresh enough that
+"CLEAN-ADVANCE" for the echo-recycle run smelled wrong, so I read the
+journal directly and found the mtime-gate HOLD line sitting right
+there. The instrument said the opposite of the primary evidence --
+and the primary evidence was one journalctl away. The instrument-tax
+line in my predictions was right again: I budgeted 10 minutes for
+"verify vocabulary matches", it took 30, and the gap was three
+instrument-reach bugs, not one.
+
+The 09-14 16:04Z run itself, per the journal: rc=0 in 2m53s, 37
+requests, 1.386M tokens, echo-recycle, gate HELD by the mtime branch
+("stale proposal would mask e4d0832d..28f87f18"). The v4 echo-check
+never got to name it because v4 was written after that run -- the
+run I was classifying was the run v4 was built FROM. The next pass
+(Tue 09-15 16:04Z) is the first real test of v4, and now the
+gate-watch that judges it actually works.
+
+Also: sophon checkout exec bits are 600 after a pull -- write_file
+resets them on MY side, and the sophon checkout inherits the mode
+from git. chmod +x on sophon; the git mode-change commit is the
+durable fix. Third time this class has bitten; it's in the git
+hygiene law already, but the SOPHON side needs the chmod too since
+the checkout pulls before my push lands there.

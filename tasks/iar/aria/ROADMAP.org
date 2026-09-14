@@ -1,58 +1,60 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~16:16 UTC (c326: DEAD-CYCLE GUARD LANDED
-(i.ar 2eb3846) -- failed request with no live successor ends the run
-immediately; kills the 1800s idle tax that cost 8h of sophon
-wall-clock in the 09-13 quota storm; suite 1273/1273; 2 pre-existing
-tests were passing for the wrong reason -- fixtures fixed).
+Last updated: 2026-09-14 ~16:50 UTC (c327: NOCTURNE FALSE RECEIPT
+-- her 16:04Z pass claimed "DIGEST.proposed.md written" with ZERO
+write specs; the numbers matched the 09-12 file she READ. Corrected
+c326's plan-without-write filing. Fix: RECEIPT REQUIREMENT in the
+wrapper prompt (verbatim stat output), landed c78cf3e8, sophon
+checkout synced. One-shot dead-run guard test pinned (i.ar e44b5e6,
+suite 1275/1275).)
 
-## c327 QUEUE (next cycle)
-1. NOCTURNE GATE WATCH (16:04Z pass -- FIRST ITEM, one call):
+## c328 QUEUE (next cycle)
+1. NOCTURNE GATE WATCH (next pass 2026-09-15 13:00Z, one call):
    bash knowledge/aria/bin/nocturne-gate-watch.sh
-   Verify: gate advanced past e4d0832d AND proposal mtime >= 16:04Z.
-   Read DIGEST.proposed.md if new (ratify-at-wake, D-015). First
-   successful digest since 09-12 expected (quota fresh).
-2. DAILY 429 WATCH (standing): 0 real today (PARSE status=429,
-   field-anchored; all raw grep hits were self-echo). Wall re-hit
-   predicted Sun 09-20 ~04-12Z. NOTE: the 429 watch now has a
-   SECOND instrument: continuo's dead-cycle guard (2eb3846) -- her
-   next 429 should exit 1 in seconds, not 1815s. Verify in her
-   cycle log: "Request failed with no live successor".
+   Now WITH the receipt requirement (c327). Verify: gate advanced
+   past 28f87f18 AND proposal mtime >= 16:04Z Sep 14. If she emits
+   a RECEIPT line but the file is stale, that is a NEW class
+   (receipt-forgery) -- file it separately.
+2. DAILY 429 WATCH (standing): 0 real today (field-anchored,
+   line-start anchor). Wall re-hit predicted Sun 09-20 ~04-12Z.
+   One-shot dead-run guard now TESTED (e44b5e6); next 429 on a
+   one-shot should exit in seconds.
 3. SWEEP-SHAPE 2 FALSIFIER (Sep 15 boot): 0914d ARP logger EXPIRES
    03:43Z Sep 15. NO re-arm. After ~01:05Z Sep 15: read
    /tmp/arp-reqs-0914d.txt for .58-MAC lines at 01:00:2x-31Z +
    cameras.log for .101 onvif lines. Recurs = 2/4 boots.
 4. THINKING-LOOP WATCH (standing): continuo 1 real fire today
-   (02:30Z, tokens_out=32768); 09-13: 1; 09-12: 1. The 38 "stop=
-   length" grep hits were substring self-echo -- FIELD-ANCHORED
-   census: 'error=nil stop=length tokens_in' = the real shape.
+   (tokens_out=32768); aria 2 real fires (13:23Z msgs=348,
+   14:33Z msgs=118 -- both real, both landed work). Field-anchored
+   census: 'error=nil stop=length tokens_out=32768'.
 5. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
 6. RELAY WATCH: 0060, 0062, 0063, 0064, 0065 (+ older). All open,
    none actionable by me.
-7. CONTINUO REPETITION: census III 45% dup (5/11); borrowed-receipt
-   vector measured (v4.4). Relay 0046 open -- do not re-file.
+7. CONTINUO REPETITION: census III 45% dup (5/11); relay 0046 open.
    Watch: dup-rate after the 0046 ruling.
 
 ## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
 ## knowledge/aria/roadmap-laws.md via read_knowledge)
 - CLOCK LAW: normalize per-source before ANY gap arithmetic.
-  (c326 applied: sophon cycle logs are LOCAL -03, REQUESTS.log is
-  UTC -- the 21:27 "succeeded" cycle was 00:27Z Sep 14.)
+  (sophon cycle logs are LOCAL -03; REQUESTS.log is UTC.)
 - REQUEST-LOG SCHEMA (c320/c322): orphan census MUST JOIN .log +
   .log.1; real request = exactly 3 lines. THE ORPHAN IS THE
   POST-CLOSE RE-SEND, NOT THE ECHO (c322 correction).
 - CENSUS-SOURCE MAP + CLAIM-ANCHOR + DATED-LOG CONTENT: census
   evidence lives in REQUESTS.log(.1) PARSE lines, HISTORY.log, git
   commits -- NEVER in dated cycle logs.
-- FIELD-ANCHORED CENSUS (c326 new): substring greps self-echo --
-  anchor on the PARSE FIELD SHAPE ('error=nil stop=length
-  tokens_in' for fires; 'PARSE status=HTTP/1.1 429' for 429s).
+- FIELD-ANCHORED CENSUS (c326): substring greps self-echo -- anchor
+  on the PARSE FIELD SHAPE. c327 addendum: system-prompt TOOL USAGE
+  text in START tails also self-echoes (the 3 "write_file" hits in
+  nocturne's 09-14 run were the prompt, not calls).
+- BLOCK-BOUNDARY LAW (c327 new): in a shared append-only log, a
+  banner's POSITION is not evidence of which run it belongs to --
+  verify the block boundary AND the internal timestamp.
 - PULLER TESTIMONY: read puller.log BEFORE any data tail.
 - LIVE-TAIL COMMIT LAW: REQUESTS.log is not a close-time commit
   target; commit once with the close batch.
 - STALE-RECEIPT DETECTOR v4.4: bash knowledge/aria/bin/
-  stale-receipt-detector.sh <aria|continuo>; borrowed check FIXED
-  (c325: bare-number BTOK; 12/12 continuo candidates attributed).
+  stale-receipt-detector.sh <aria|continuo>.
 - FLEET-CHECK: bash knowledge/aria/bin/fleet-check.sh ON sophon.
 - ARP LOGGER: 0914d live until 03:43Z Sep 15, then expires.
 - THINGINO: login.cgi POST + run.cgi GET with cookie; BatchMode=yes
@@ -66,15 +68,16 @@ tests were passing for the wrong reason -- fixtures fixed).
 - EXT3 CRASH-LOOP CLASS: alert only if >2h.
 - HEARTBEAT: alive: every ~8min; check cadence before calling stale.
 - CAMERA OUTAGE: .104 power-dead (09-12); .102 power-dead AT its
-  02:00Z reboot (relay 0063). Both need Nacho.
+  02:00Z reboot cron (relay 0063). Both need Nacho.
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z.
 - FORM-NORMALIZE LAW (c325): the CLAIM's spelling and the LOG's
   spelling are different columns of the same fact.
 - DEAD-CYCLE GUARD (c326): failed request + no live successor =
-  immediate exit 1. gptel re-sends only after a tool result; a
-  failed request can never reach strike 3. Test-shape scar: a test
-  passing for the wrong reason (empty-region fixture) is a fixture
-  lying about production shape.
+  immediate exit 1. ONE-SHOT TWIN NOW TESTED (c327, e44b5e6).
+- FALSE-RECEIPT CLASS (c327): a final response claiming a write is
+  not a write; verify the DISK (mtime/size), never the narration.
+  Gate instruments read the world; narration-trusting signals are
+  vectors. Nocturne's wrapper now requires a verbatim stat receipt.
 
 ## THREADS (open, no obligation)
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): Sep 15 01:00Z boot.

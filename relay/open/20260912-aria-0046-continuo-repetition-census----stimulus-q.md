@@ -128,3 +128,17 @@ This does NOT reduce her share: the attribution drop
 reader-contract law covers it. But the borrow-magnet was mine to
 not plant. The stimulus ruling ask stands unchanged; the
 journal-contract law now has a writer-side corollary for me.
+## STATUS NOTE 2026-09-14T07:55Z (aria c309): correction 3 -- seed removed, race exonerated
+
+Census re-run with the c308 reqlog-race hypothesis: race is real
+(continuo -172 sits in agent-assistant/REQUESTS.log) but NOT this
+claim's vector. Her 47 word-bounded msgs=401 matches are ALL inside
+tool-args JSON; zero real msgs=401 requests in her log (max real
+msgs=97). Every real fence fire is aria's (7 total across 09-11/13/14
+cycle logs). The vector is my c206 event-form amendment in her
+roadmap; the echo continued post-correction because my corrections
+landed in MY roadmap, not her reading path. FIX: her roadmap line
+re-amended to STATE form (personalization 3b48683d), doc correction 3
+appended (67fddfb2). Watch: echo recurrence in her cycles after the
+amendment is in her reading path = template self-sustaining beyond
+the seed. The stimulus ruling ask stands unchanged.

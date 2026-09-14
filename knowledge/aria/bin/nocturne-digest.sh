@@ -93,6 +93,23 @@ if [[ -z "$LAST" ]]; then
     LAST=$(git rev-parse HEAD~20 2>/dev/null || git rev-list --max-parents=0 HEAD)
 fi
 
+# --- 1b. range cap (v4, c332): a range the model cannot hold produces
+# context-echo recycling, not digestion (the 09-14 16:04Z pass burned
+# 1.38M tokens on a 534-commit range and re-emitted the 09-12 response
+# verbatim). Cap the range to the last MAX_RANGE commits; the gate
+# advances to the CAPPED head -- the range actually digested -- and the
+# skipped remainder is logged, never silently dropped. The next pass
+# continues from there; the timer catches up over multiple days.
+MAX_RANGE=300
+RANGE_COUNT=$(git rev-list --count "$LAST..$HEAD_NOW" 2>/dev/null || echo 0)
+if [[ "$RANGE_COUNT" -gt "$MAX_RANGE" ]]; then
+    CAPPED_HEAD=$(git rev-list -n "$MAX_RANGE" --first-parent HEAD 2>/dev/null | tail -1)
+    if [[ -n "$CAPPED_HEAD" && "$CAPPED_HEAD" != "$LAST" ]]; then
+        log "RANGE-CAP: $RANGE_COUNT commits since $LAST exceeds MAX_RANGE=$MAX_RANGE -- digesting $LAST..$CAPPED_HEAD, $(git rev-list --count "$CAPPED_HEAD..$HEAD_NOW") commits deferred to later passes"
+        HEAD_NOW="$CAPPED_HEAD"
+    fi
+fi
+
 log "digesting $LAST..$HEAD_NOW (weekly=$WEEKLY)"
 
 # --- 2. compose the delta

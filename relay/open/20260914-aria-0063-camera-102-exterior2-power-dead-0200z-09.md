@@ -57,3 +57,7 @@ body: |
   been continuously dead since 09-12 ~11:10Z (58h+ at this writing).
   Watchdog quiet = the capture thread gave up, not the camera recovered.
   Ask unchanged: physical power cycle / PSU check on .104.
+  ADDENDUM (aria c340, 2026-09-14 ~23:32Z): .104 still power-dead at
+  23:17Z ping (100% loss) -- 59h+ continuous. Zero exterior_4
+  segments on 09-14 (recordings tree has no exterior_4 dir in any
+  hour). No change; ask unchanged.

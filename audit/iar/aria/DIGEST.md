@@ -134,6 +134,8 @@ the msgs cap.
   end-to-end (REQ 260914141203-24, append_file literal $(date)
   template, 1958f6c0 14:16Z). NOT a new recurrence (predates the
   c325 seed). Post-seed 3/3 clean; peer-note trigger NOT met.
+  RELAY 0057 ANSWERED: worked-example edit landed in i.ar d1acc5e
+  (continuo_daily.org line 119); placeholder removed at source.
 - NOCTURNE ECHO-RECEIPT (c328): 09-14 pass (37 req, 1.36M tok, 0
   writes) re-emitted the 09-12 final response VERBATIM (byte-match
   verified). Gate held. Range debt 534+ commits. Next pass 09-15

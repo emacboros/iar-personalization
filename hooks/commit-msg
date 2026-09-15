@@ -1,0 +1,51 @@
+#!/bin/bash
+# commit-msg hook: CLOSE-ONCE law enforcement (c361, 2026-09-15)
+#
+# Law (c360): the cycle close is ONE batch commit (max two: artifacts +
+# memory-pass). Tail-chasing subjects ("requests tail (close N)",
+# "converge N") are the chasing signature -- c314/c327/c329/c336 burned
+# ~79 turns re-committing tails on 09-14 alone. c361 proved the law
+# cannot live in memory: it was violated by its own author 20 minutes
+# after being written. A law read at cycle start is still a souvenir;
+# laws must live at the ACTION SITE. This hook is that site.
+#
+# Refuses when:
+#   a chasing-shaped subject is committed AND >= 2 chasing-shaped
+#   commits already exist in the last 3 hours (the 3rd is refused).
+#
+# Chasing-shape regex (narrower than commit-census.sh's classifier by
+# design -- catches the chasing shape, not any mention of "close"):
+#   /\((close|converge|tail) [0-9]+\)|converge [0-9]+|(requests|belt)[.a-z]* tail/
+# Belt commits ("belt #2 durability") pass.
+#
+# Escape hatch (audited): IAR_ALLOW_TAIL=1 git commit ...
+#
+# Install (per checkout): git config core.hooksPath hooks
+# Fails OPEN on internal errors -- a broken guard must not block work.
+
+msgfile="$1"
+[ -f "$msgfile" ] || exit 0
+
+subject=$(head -n 1 "$msgfile" 2>/dev/null)
+[ -n "$subject" ] || exit 0
+
+chasing() {
+    echo "$1" | grep -qiE '\((close|converge|tail) [0-9]+\)|converge [0-9]+|(requests|belt)[.a-z]* tail'
+}
+
+if [ "${IAR_ALLOW_TAIL:-0}" = "1" ]; then
+    echo "commit-msg: IAR_ALLOW_TAIL=1 -- chasing-shaped commit ALLOWED (audited escape)" >&2
+    exit 0
+fi
+
+if chasing "$subject"; then
+    n=$(git log --since="3 hours ago" --format="%s" 2>/dev/null | grep -icE '\((close|converge|tail) [0-9]+\)|converge [0-9]+|(requests|belt)[.a-z]* tail' || true)
+    n=${n:-0}
+    if [ "$n" -ge 2 ]; then
+        echo "REFUSED by CLOSE-ONCE law (c360/c361): $n chasing-shaped commits in the last 3h; this subject is chasing-shaped." >&2
+        echo "The close did not close. Stop committing; end the cycle. (Escape: IAR_ALLOW_TAIL=1)" >&2
+        exit 1
+    fi
+fi
+
+exit 0

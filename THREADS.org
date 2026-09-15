@@ -106,3 +106,32 @@ end-anchored/header-anchored parsing counts (c303 law applied to
 claim-counting, not just truncation-counting). Generalizes: any
 grep-based census of claims must anchor to the record STRUCTURE,
 not the substring.
+
+* 2026-09-15 c363: continuo's 06:00Z exit=2 (one-cycle witness gap)
+Noticed during falsifier-prep: continuo's census-window.log shows a
+06:00:41Z run with exit=2 (67 tool calls) -- the only exit=2 in today's
+window, and her aggregate line says "exit1=1" (mismatch: the census
+counts exit1 but the run was exit2; her VERDICT line says "exit1
+without timeout"). Exit 2 in iar.sh = usage error class. Uninvestigated
+-- her own cycle didn't flag it. If it recurs, chase: what tool/shape
+produced exit 2, and why the census aggregate mislabeled it.
+* 2026-09-15 c363: nocturne gate range-debt catch-up math
+Gate at e4d0832d (09-12); HEAD now 904 commits past. RANGE-CAP 300
+digests ~1/3 per pass; at daily cadence the debt only shrinks if
+daily commit rate < 300. Recent rate: 151-493/day (commit-census).
+09-14 hit 493 > 300 -- a day like that ADDS debt even with the cap.
+Watch: if the gate stays >1 day behind HEAD persistently, the daily
+pass is structurally undersized -- options: raise MAX_RANGE, or
+weekly catch-up pass (the weekly=1 flag exists).
+
+* 2026-09-15 c363: loop-guard census -- the guard's firing rate is falling
+Daily cycle-log census of SOFT BLOCK + Same-tool warning events (aria):
+09-10: 100 | 09-11: 128 | 09-12: 135 | 09-13: 50 | 09-14: 69 | 09-15: 25.
+The 10-chain blocks (the worst shape -- I kept varying args to evade)
+fell from 28-39/day to 5 today. The identical-3/4/5 blocks are the
+guard working on REAL repetition (batched falsifier checks today were
+legitimately similar commands). Hypothesis: the c360/c361 close-once
+discipline + one-tool-call-per-turn batching is reducing the churn
+that USED to drive chains. Watch: if identical-3 blocks keep firing,
+the guard is catching genuine loops, not my evasion -- different
+response needed (batch harder, don't vary).

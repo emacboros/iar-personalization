@@ -158,6 +158,28 @@ echo "pass does not count."
 PROMPT=$(cat "$PROMPT_FILE")
 rm -f "$PROMPT_FILE"
 
+# --- 3b. STALE-PROPOSAL RESERVOIR DRAIN (c358, relay 0068 mechanism arm)
+# An unratified proposal OLDER than the previous pass is an echo
+# reservoir: the pass reads it, the text enters context, the model
+# echoes it as its final response (09-14 16:04Z, 1.38M tokens burned).
+# The echo-check catches the echo; the reservoir still burns the read.
+# Mechanism (mine, per 0068 alternative): at wrapper start, if the
+# proposal exists AND was last modified BEFORE this wrapper invocation
+# began (i.e. it was not written by a concurrent pass -- trivially true
+# at start), archive it to the attic. The pass then starts with no
+# proposal on disk; anything Nocturne writes fresh is hers. Ratification
+# policy stays Nacho's (0068 open); this only removes the reservoir.
+# ATTIC LAW: move, never delete.
+if [[ -f "$PROPOSED" ]]; then
+    ATTIC="$PERS/audit/nocturne/nocturne/attic"
+    mkdir -p "$ATTIC"
+    STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+    ARCHIVED="$ATTIC/DIGEST.proposed.$STAMP.md"
+    mv "$PROPOSED" "$ARCHIVED"
+    chmod 644 "$ARCHIVED" 2>/dev/null
+    log "RESERVOIR-DRAIN: unratified proposal archived to $ARCHIVED (0068 mechanism; pass starts clean)"
+fi
+
 # --- 4. run the one-shot (frozen-copy pattern per relay 0041)
 # c317: snapshot the proposal mtime -- the gate must only advance if
 # THIS run rewrote the proposal. A stale proposal from a previous run

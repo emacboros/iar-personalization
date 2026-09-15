@@ -1,6 +1,6 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-15 ~02:15 UTC (c347: BOOT MECHANISM CONFIRMED
+Last updated: 2026-09-15 ~02:45 UTC (c348: EMPTY-END FIX LANDED (i.ar 9773222, pushed rammstein+sophon-bare): iar--cycle-suppress-post-close-wait :around gptel--handle-wait -- post-completion request never fires; 14/14 empty-ends verified as immediate post-echo re-sends (full population). Suite 1280/1280. req-census.sh built (durable c347 method, req-id dedupe). 401-BURST CAPTURE ARMED: cam80-0916a tcpdump on sophon (26h, /tmp/cam80-0916a.pcap) -- next 401 burst = source IP + auth shape. 0915e alive (mtime fresh, 1h17m elapsed of 5h). Census: aria 3662 200 / 1 x 503 (09-14) / 0 true 429; cont 2545 200 / 16 x 429 (09-13) / 14 empty-end (historical).
 3rd camera (.102 02:00Z boot CLEAN: factory window ~2min, first rssi
 row 02:02Z uptime=116s real). EXT2 AUDIO SELF-HEALED via nightly
 reboot (producer 95255->103534, audio climbing, 02Z segments carry
@@ -10,6 +10,37 @@ answers empty, tombstone kills a finished cycle. 3 new today (count
 8-in-7d); 0069 amended with reframed options. CENSUS GAP: c346's
 classifier lacked body_tail= shape -> confident zeros; law added:
 RESPONSE-class http= only, body_tail= = empty-end terminal.)
+
+## c348 QUEUE (next cycle)
+1. EMPTY-END FIX VERIFICATION (LANDED c348, i.ar 9773222): continuo's
+   next echo-close cycle must show NO empty-end -- the -N+1 request
+   should not exist; her final request = the echo itself with
+   RESPONSE+PARSE from the exit-dump. Check: bash
+   knowledge/aria/bin/req-census.sh -- continuo empty-end count must
+   FREEZE at 14 (historical) and stop growing. If the gate misfires
+   (a legitimate request suppressed), option 2 (classify-and-accept)
+   is the fallback -- 0069 documents both.
+2. 401-BURST CAPTURE (ARMED c348): tcpdump cam80-0916a on sophon
+   (pid 3797085, timeout 26h, rotate -C 20 -W 8, /tmp/cam80-0916a.pcap).
+   On next 401 burst: read the pcap for source IP + auth shape
+   (digest vs basic, username) -- closes 0062's open question. VERIFY
+   THE LOGGER IS WRITING before trusting (mtime-vs-NOW law).
+3. .201 06:00Z BOOT FALSIFIER: 0915e alive (c348: mtime fresh, 1h17m
+   elapsed of 5h). Boot = 06:00Z = 03:00 local. Read: (a) first
+   post-boot rssi epoch = factory (May 25) or ~06:01-06:02Z real,
+   NEVER 03:02; (b) .58 ARP at boot+0-2s = boot-timed behavior
+   (c302 was one-off, expect NO). rssi puller rows are 60s-granularity
+   epochs; the boot window is ~2min -- check for a GAP or factory-time
+   rows right after 06:00Z.
+4. V4 GATE WATCH (Tue 09-15 13:00 local = 16:00Z): first live run with
+   v4 (echo-check + claim-receipt every rc=0 + RANGE-CAP 300).
+   nocturne-gate-watch.sh is the one-shot verdict tool (c333, v2).
+5. DAILY FAILURE-CLASS CENSUS (standing, NOW DURABLE): bash
+   knowledge/aria/bin/req-census.sh (field-anchored $5/$6, req-id
+   dedupe, empty-end shape counted). No more /tmp rebuilds.
+6. DAILY 429 WATCH (standing): 0 true today both. Week reset Mon
+   09-15 00:00Z (fresh). Same burn (~5.7B/wk) predicts next wall
+   ~Sun 09-21.
 
 ## c347 QUEUE (next cycle)
 1. .102 02:00Z BOOT READ: DONE c347 -- CLEAN, mechanism CONFIRMED
@@ -34,27 +65,18 @@ RESPONSE-class http= only, body_tail= = empty-end terminal.)
    11006 bytes) still on disk -- 0068 open. RANGE DEBT: gate at
    e4d0832d, HEAD now ~780 commits ahead -> first pass digests ~5
    days (RANGE-CAP 300 caps it; remainder deferred).
-5. DAILY FAILURE-CLASS CENSUS (standing, c347 METHOD -- supersedes
-   c346): snapshot BOTH REQUESTS.log(.1) to /tmp FIRST. TRUE events =
-   RESPONSE-class lines' http= field ONLY (status= in PARSE/START
-   tails is echo-quote contamination -- 176 false 429s tonight).
-   Empty-end terminal shape: `RESPONSE http=? body_tail=$` (c346's
-   classifier lacked it -> confident zeros). c347: aria 1002 RESP/
-   969 200/3 503 (00:09 burst, recovered)/0 true 429; cont 293 RESP/
-   288 200/3 empty-ends. True 429 by day: 09-12: 2, 09-13: 30,
-   09-14: 22, 09-15: 0. Census script
-   pattern: /tmp/c346census.sh (rebuild per cycle; scp from container
-   or inline).
+5. DAILY FAILURE-CLASS CENSUS (standing, DURABLE c348): bash
+   knowledge/aria/bin/req-census.sh -- field-anchored ($5=class,
+   $6=http=), req-id dedupe, empty-end shape. Supersedes /tmp
+   rebuilds. c348: aria 3662 200 / 1 x 503 (09-14 21:26) / 0 true
+   429; cont 2545 200 / 16 x 429 (09-13) / 14 empty-end (historical).
 6. DAILY 429 WATCH (standing): 0 true today both. Week reset Mon
    09-15 00:00Z (fresh). Same burn (~5.7B/wk) predicts next wall
    ~Sun 09-21.
-7. EMPTY-END ANATOMY (0069 amended c347): every instance = request
-   AFTER CYCLE_COMPLETE echo tool call; runtime asks one extra turn,
-   model answers empty, tombstone kills a finished cycle. 3 new today
-   (8-in-7d). Reframed options in 0069: (a) suppress post-completion
-   request, (b) classify-and-accept. Both .el (interactive realm).
-   Census law: body_tail= = empty-end terminal shape (c346's census
-   missed 3 because her classifier lacked it).
+7. EMPTY-END ANATOMY (0069, RESOLVED-BUILD c348): full population
+   verified (14/14 = immediate post-echo re-send). Option (a) BUILT
+   + LANDED (9773222): post-close suppression gate. Option (b)
+   classify-and-accept = fallback. 0069 amended; ratification watch.
 8. INTERLOCUTOR RATIFICATION WATCH (c346 NEW): draft filed via 0069.
    If Nacho ratifies: (a) write prompts/personalities/interlocutor.org
    from the draft (identity = his ratification; the FILE write is

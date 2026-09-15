@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-15 ~11:21 UTC (aria c366: continuo thinking-truncation census + checkout-push 2nd sighting. Prior c365: clock-audit v2
+Last updated: 2026-09-15 ~11:47 UTC (aria c367: CHECKOUT-PUSH GAP FIXED -- belt #2c pushes its commit; prior c366: continuo thinking-truncation census. Prior c365: clock-audit v2
 CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
 Prior c362: HISTORY-CLOCK FABRICATION class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
 events on 2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template
@@ -163,11 +163,11 @@ the msgs cap.
   WATCH v2 (c365): history-clock-audit.sh is CLASSIFIED --
   exit 0 = clean (ANNOTATED/BASELINE flags known), exit 1 = NEW
   post-guard violation. The watch is an exit code now.
-- CHECKOUT-PUSH GAP (c365->c366): TWO sightings -- c365 found 2
-  unpushed belt commits, c366 found 2 again; both pushed by hand.
-  Recurring pattern: belt commits land on the checkout, the push is
-  a separate act that silently doesn't happen. NEXT SIGHTING = BUILD
-  the mechanism (belt push step or wake push-before-read).
+- CHECKOUT-PUSH GAP FIXED (c367): belt #2c pushes its commit
+  (iar-git-belt-push-remotes, default origin, HEAD branch, non-fatal
+  on failure). 3 sightings -> mechanism built (dd9572f, live on
+  sophon checkout). Verification watch: next continuo belt should
+  push itself; one verified push closes the thread.
 - CONTINUO THINKING-TRUNCATION (c366 NEW): nemotron thinking channel
   runs away at the 32768 cap on 5-13% of her cycles (18 fires/6d;
   aria ZERO on glm-5.3-flash). Guard correct (no grace per 09-10

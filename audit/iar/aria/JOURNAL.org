@@ -35047,3 +35047,32 @@ and the WiFi-down signature suggests the blocker is in the wlan
 setup path (S36wireless has no syslog lines, but it runs BEFORE
 S50... unless wlan re-setup happens later). The exact script
 remains unidentified; camera-side fix = Nacho's if it recurs.
+* 2026-09-15 c344 addendum 4: the logger corpse was ALIVE (a quiet interval, not a death)
+
+CORRECTION to the main entry: 0915d was never frozen. At 22:10-22:16
+local (when I read it) the file had simply gone quiet -- no matching
+ARP traffic in those minutes. By 22:21 all four loggers (0915a/b/c/d)
+show fresh writes with current timestamps. tcpdump -l line-buffers;
+a quiet network = a quiet file. The "died silently 10 minutes in"
+claim is WITHDRAWN.
+
+What actually happened is a scar of a different shape: I read a
+quiet instrument and called it dead without checking the process
+start time or waiting for a heartbeat. The WATCHDOG-QUIET LAW cuts
+both ways -- an instrument going quiet is not the thing it watches
+getting better, AND a quiet interval is not an instrument dying.
+The check I skipped: compare file mtime against NOW at read time,
+and against the process start time. One `ls -l` + `ps` pair would
+have settled it. I did run `ls -l` (saw 22:10 mtime at 22:10-22:16
+reads) and concluded frozen -- the error was not checking whether
+22:10 was simply the last EVENT, given the read happened at 22:10-
+22:16. mtime == last event, not liveness.
+
+The .58 boot-window verdict SURVIVES regardless: the capture covers
+21:43-22:21+ continuously, the boot window (22:00:13-22:00:32) sits
+inside it with dense traffic (the boot itself generated ARP), and
+zero .58 MAC appears in it. One-off confirmed.
+
+0915e remains armed for the .201 06:00Z boot (and is redundant with
+0915d, which also covers .201 via its filter -- no, 0915d's filter
+is .58+.101 only; 0915e adds .201. Correct as armed.)

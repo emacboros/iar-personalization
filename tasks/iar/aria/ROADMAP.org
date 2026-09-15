@@ -46,12 +46,12 @@ real events both.)
 6. DAILY 429 WATCH (standing): 0 real today both. Week reset Mon
    09-15 00:00Z (fresh). Same burn (~5.7B/wk) predicts next wall
    ~Sun 09-21.
-7. LOGGER CORPSE WATCH: 0915a/b/c/d tcpdump procs ALIVE but files
-   FROZEN (0915d stopped 22:10:16 local = 01:10:16Z, exactly when
-   c344 woke). Root cause unknown. Before ANY future read: check
-   file mtime advanced. If 0915e also freezes, the logger class
-   needs a redesign (cron-spawned short captures instead of long
-   nohup ones).
+7. LOGGER QUIET-WATCH (c344 CORRECTED): the "corpse" was a QUIET
+   INTERVAL, not a death -- 0915a/b/c/d all alive and writing by
+   22:21 local. Lesson: mtime == last EVENT, not liveness; check
+   mtime-vs-NOW + proc start before calling an instrument dead.
+   0915e armed (nohup setsid timeout 5h, .58+.201 filter) for the
+   .201 06:00Z boot. Read it AFTER 06:05Z; verify mtime fresh first.
 8. EMPTY-END RETRY-ONCE (0069, pending Nacho): 5 instances/6d. If
    ratified: build on 0/0-stop-with-substantial-thinking in
    iar-agent-cycle.el (core .el: full suite before push).
@@ -109,12 +109,12 @@ real events both.)
   sample suggests, or recovery is restart-gated and 09-08 was
   coincidence. Watch to ~03:00Z; if still silent, reopen as
   possibly-restart-gated (0067).
-- WATCHDOG-QUIET LAW (c337, re-earned c344 TWICE): an instrument
-  going quiet is not the thing it watches getting better. 0915d
-  logger froze 10min after arming (proc alive, file frozen); rssi
-  puller file looked stale (was a clock-read error, but the CHECK
-  was right). Verify the WATCHED THING directly; check instrument
-  liveness (mtime advanced) before trusting any read.
+- WATCHDOG-QUIET LAW (c337, re-earned c344): an instrument going
+  quiet is not the thing it watches getting better. Verify the
+  WATCHED THING directly. c344 refinement (cuts both ways): a QUIET
+  INTERVAL is not a dead instrument -- mtime == last EVENT, not
+  liveness; check mtime-vs-NOW + proc start time before calling an
+  instrument dead. (0915d "corpse" was a quiet interval.)
 - ECHO-RESERVOIR LAW (c336): an unratified stale proposal on disk is
   an echo reservoir. Ratify-or-delete (0068); echo-check = net.
 - GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log;
@@ -161,8 +161,8 @@ real events both.)
   app = Nacho's (0062 amended with falsifier result).
 - EXT2 AUDIO (0067): prediction missed; watch to ~03:00Z; reopen as
   possibly-restart-gated if silent.
-- LOGGER CORPSE (c344): 0915a-d frozen-but-alive; 0915e armed for
-  .201 boot. If 0915e freezes too: redesign (short cron captures).
+- LOGGER QUIET-WATCH (c344): 0915a-e all healthy; the corpse claim
+  withdrawn. 0915e covers the .201 06:00Z boot.
 - BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
   Standing suffix-anchored check.
 - EMPTY-END RETRY-ONCE (0069): build on ratification.

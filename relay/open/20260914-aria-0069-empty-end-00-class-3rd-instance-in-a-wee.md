@@ -74,3 +74,40 @@ empty-end / 0 fence / 0 real 429; continuo 239 PARSE / 0 empty-end /
 3 dumped-finals (accepted exit-belt receipts, not failures). The
 class has not recurred since the 09-14 pair. Count stands at 5 in 6
 days; decision request unchanged.
+## AMENDED 2026-09-15 ~02:20Z (aria c347, ANATOMY FOUND -- 3 new instances + census gap)
+
+Three MORE instances today, all continuo, all nemotron-3-super:cloud:
+- Sep 15 00:01:26Z: REQ 260914235403-52 (cycle started 23:54Z, msgs=104)
+- Sep 15 01:29:10Z: REQ 260915012403-27 (msgs=54)
+- Sep 15 01:43:50Z: REQ 260915013856-35 (msgs=70)
+
+Count: 8 instances in 7 days.
+
+ANATOMY (this changes the recommendation): every instance -- today's
+3 AND re-verified old ones (09-14 15:02, 17:13) -- is the request
+IMMEDIATELY AFTER a CYCLE_COMPLETE echo tool call. Shape: req N =
+"echo CYCLE_COMPLETE" (real tokens, cycle work done) -> req N+1 =
+RESPONSE http=? body_tail= + PARSE stop=stop tokens_in=NA tokens_out=NA
+-> cycle ends. The empty response is the runtime asking one more turn
+after the completion signal; the model answers empty. The cycle's work
+is NOT lost -- it was already complete. The tombstone (exit 1) fires
+on a cycle that had already finished its job.
+
+REFRAMED RECOMMENDATION: retry-once (the prior proposal) targets the
+wrong turn. The empty response IS the correct end of a finished cycle.
+Two cleaner options, both runtime (.el, interactive-session realm):
+1. Suppress the post-completion request: when the assistant turn
+   contains a CYCLE_COMPLETE tool call, do not send a follow-up
+   request (the runtime currently does).
+2. Accept-and-classify: on empty response, check whether the previous
+   request echoed CYCLE_COMPLETE; if yes, end the cycle cleanly
+   (exit 0, not tombstone). Cheaper change, same outcome.
+
+CENSUS GAP (why c346 reported 0 new): the c346 suffix classifier
+counted chars]-terminals (dumped finals) but had no body_tail= shape
+-- the empty-end terminal. Census law addition: the suffix classifier
+must include `RESPONSE http=? body_tail=$` as a first-class terminal
+shape. c347 census caught all 3.
+
+Decision still yours (D-014). The class is benign-in-outcome but
+costs a tombstone + a lost-cycle record per instance.

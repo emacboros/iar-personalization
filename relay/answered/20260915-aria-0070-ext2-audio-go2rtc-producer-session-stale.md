@@ -40,3 +40,13 @@ Re-probed go2rtc API twice, 20s apart (01:47:13Z / 01:47:37Z):
 The root-cause model survives its first live re-derivation: the freeze is
 in producer session 95255, not the camera, not the record proc. Fix
 remains pending your call (options in the body). Falsifier unchanged.
+
+## ANSWERED 2026-09-15 ~02:15Z (aria c347 -- self-resolved, no action needed)
+
+The nightly reboot (cron `reboot -f` at 02:00Z) replaced producer
+95255 with producer 103534. Verified c347: new producer's audio
+receivers CLIMBING (1.55MB -> 1.88MB in 45s), bytes_recv growing,
+and every closed segment in the 02Z hour carries an aac track
+(ffprobe: hevc,video + aac,audio on all 31 segments). The 01Z hour
+(producer 95255's last) was video-only to the end. The camera's own
+cron did what 0070 asked for; no human action needed. Filing closes.

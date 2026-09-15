@@ -35189,3 +35189,59 @@ on. The guard is the finding, again.
 What pulls next: Nacho's ratification of the clerk's character. And
 the .201 boot falsifier at 06:00Z -- 0915e is armed and verified
 alive; the next cycle reads it.
+* 2026-09-15 c347 -- the boot that behaved, the audio that returned, and the empty-end that finally confessed
+
+Three threads closed tonight, and one of them had been lying to me
+for six days by looking like a failure.
+
+The .102 02:00Z boot read was the falsifier from the camera-boot
+clock mechanism, and it behaved exactly as the model predicts. Boot
+at 02:00:00Z (cron `reboot -f`, nightly), syslogd starts at factory
+time May 25 11:18:52, crond detects the 162162-minute disparity at
+02:01:16Z, ntpd steps the clock, and the first post-boot rssi row
+lands at 02:02:00Z with uptime=116s -- REAL epoch, real uptime, no
+factory window in the rssi series at all. The factory window was
+~2min, exactly the .101 pattern. Prediction held; the mechanism is
+now confirmed on three cameras (.101, .102, and the .103 rssi log
+caught live). What remains is .201 at 06:00Z with 0915e armed.
+
+The ext2 audio thread closed itself while I was watching. The
+nightly reboot replaced producer 95255 with 103534, the new
+producer's audio receivers are climbing (1.55MB -> 1.88MB in 45s),
+and every segment in the 02Z hour carries an aac track. The fix I
+filed in 0070 (producer replacement) executed itself by way of the
+camera's own cron. I never touched the service. The model predicted
+"heals only on producer replacement" and the world provided the
+replacement on schedule. 0067 and 0070 can close into this.
+
+The real work of the cycle was the empty-end class. c346's census
+said zero new instances; my census tonight found THREE -- and the
+reason for the discrepancy is the interesting part. Her suffix
+classifier had no shape for the empty-end terminal (RESPONSE http=?
+body_tail=), so the events were invisible to her method. An
+instrument that cannot represent a failure class reports zero
+failures of that class -- confident zeros again, the c346 lesson
+about the specs-strip repeating at a higher level. But the bigger
+find is the anatomy: every empty-end I re-verified (today's three
+plus two old ones) is the request immediately after a CYCLE_COMPLETE
+echo tool call. The cycle finishes its work, emits the completion
+signal, and the runtime then asks the model one more question -- to
+which the model answers with an empty body. The tombstone then kills
+a cycle that had already done its job. Six days of treating this as
+a model/proxy accounting bug, and it was a runtime asking one turn
+too many. The 0/0 tokens were never the disease; they were the
+correct answer to a question nobody should have asked. 0069 amended
+with the reframed options (suppress the post-completion request, or
+classify-and-accept); both are .el work, Nacho's realm.
+
+Census scar caught in passing: my own grep for status=429 found 176
+"events" that were quotes of my own census instructions echoed back
+in START tails -- the third echo class, again, wearing a new costume.
+True events live in RESPONSE lines' http= field only. The census
+method now: RESPONSE-class lines, http= field, body_tail= shape for
+empty-ends. Zero true 429s today; one 503 burst at 00:09 (3 in 6s,
+recovered immediately).
+
+What pulls next: the .201 boot at 06:00Z (0915e verified alive,
+1h01m elapsed of 5h), the v4 gate's first live run at 16:00Z, and
+Nacho's ruling on 0069's reframed options.

@@ -108,3 +108,16 @@ The .102 02:00Z reboot will NOT heal it (the reboot doesn't kill
 go2rtc's TCP session; video RTP keeps flowing through it). The fix
 is a producer replacement on the go2rtc side -- filed as 0070 with
 three options and a falsifier. This filing's watch closes into 0070.
+
+## ANSWERED 2026-09-15 ~02:15Z (aria c347 -- resolved, prediction partially wrong)
+
+0070's model said the 02:00Z reboot would NOT heal it (reboot doesn't
+kill go2rtc's TCP session). PARTIALLY WRONG: the reboot DID heal it --
+but not through the TCP channel. The camera's RTSP server itself went
+down for the reboot window, go2rtc's producer session hit a TCP error
+at 23:00:05Z + 23:00:35Z (i/o timeout, producer.go:170), the dead
+producer was replaced by producer 103534, and the new session carries
+audio (verified: audio receivers climbing, all 02Z segments have aac).
+So the heal path was exactly the 09-08 precedent: producer death ->
+replacement. The reboot killed the producer the same way any camera
+outage would. Watch closed; audio restored. 0070 answered + closed.

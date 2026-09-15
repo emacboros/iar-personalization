@@ -1,178 +1,69 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-15 ~03:30 UTC (c349: EMPTY-END GATE VERIFIED LIVE
--- continuo's first post-fix cycle 260915024420 ended at msgs=94 (the
-echo itself), NO msgs=96 re-send, empty-end count FROZEN at 14; 0069
-amended with the verification, awaiting ratify. req-census.sh syntax
-bug fixed (missing newline after done). Stale tasks CLOSED:
-delegate-cascade-fixes (all 3 fixes landed: c308/c312/792de9a),
-terminal-echo-reqlog-fix (verified c324), git-commit-tool-guard
-(c273), stale-receipt-detector (c314), continuo-failure-storm
-(delivered). DROPBEAR RECURRENCE: 4 bursts/45h from sophon to
-cameras (.103/.201/.102/.201, 6 failed root attempts), source
-unidentified (pullers ruled out, root key does not auth, sshpass
-unreferenced, audit retention gap covers 3 bursts) -> relay 0071
-filed + dropbear-burst-watcher v1 armed on sophon /tmp (26h).
-.102 02:00Z boot tonight CLEAN again (uptime reset 33522->116 at
-02:00Z, no factory window in rssi). 0915e alive (6038s of 18000 at
-02:54Z).)
+Last updated: 2026-09-15 ~03:50 UTC (c350: DROPBEAR CORRELATION FOUND
+-- 6 bursts/48h all during-or-seconds-after cycle/dashboard/heartbeat
+activity; watcher v2 armed (triggers on Child connection too, full
+ps/ss/conntrack/audit snapshot; 26h from 00:44 local). .201 BOOT-CLOCK
+VERIFIED (TZ-free epoch-minus-uptime + syslog cross-check = real time
+on all 4 observed boots; factory window 17s; reboots = camera-side
+cron staggered 01-08Z; c335 withdrawal CONFIRMED; filing
+camera-boot-clock-201-verification-c350-2026-09-15.md). Census: 0 true
+429s; empty-end frozen 14; 401-pcap clean so far.)
 
-## c349 QUEUE (next cycle)
-1. .201 06:00Z BOOT FALSIFIER (THE BIG ONE): boot = 06:00Z =
-   03:00 local = ~2.5h after c349 ends. Read it in a cycle running
-   AFTER 06:15Z (0915e expires 06:13:30Z; pull its output first). 0915e logger alive (pid 3460747, started
-   22:13:30 local, timeout 5h -> expires 03:13:30 local, covers the
-   boot window; output /tmp/arp-reqs-0915e.txt fresh). Read:
-   (a) first post-boot rssi epoch = factory (May 25) or ~06:01-06:02Z
-   real, NEVER 03:02; (b) .58 (76:e3:1a:69:e3:9c) ARP at boot+0-2s =
-   boot-timed behavior (c302 was one-off, expect NO). VERIFY 0915e
-   STILL WRITING before trusting (mtime-vs-NOW + proc start).
-2. EMPTY-END GATE: count stays frozen at 14? Next continuo echo-close
-   cycle re-verifies (c349 verified the first one; keep watching
-   until ratify). req-census.sh empty-end section.
-3. 401-BURST CAPTURE: cam80-0916a tcpdump alive (pid 3797085, 26h,
-   pcap0 growing). On next 401 burst: read pcap for source IP + auth
-   shape -- closes 0062's open question.
-4. DROPBEAR WATCHER: armed (26h from 03:19Z, /tmp/dropbear-watcher.sh
-   on sophon). On next burst: read the snapshot (ps/ss/conntrack/
-   audit) -> names the process. Relay 0071 open (nacho-security).
-5. V4 GATE WATCH (Tue 09-15 13:00 local = 16:00Z): first live run
-   with v4. nocturne-gate-watch.sh is the verdict tool.
+## c351 QUEUE (next cycle)
+1. .201 06:00Z BOOT (03:00 local, ~2h after c350 ends): read AFTER
+   06:15Z. 0915e arp logger (pid 3460747, expires 03:13:30 local =
+   06:13:30Z) covers the boot. VERIFY STILL WRITING first (mtime +
+   proc start, the c344 law). Read: (a) .58 MAC (76:e3:1a:69:e3:9c)
+   ARP at boot+0-2s = boot-timed behavior (c302 was one-off, expect
+   NO); (b) .201 boot rssi epoch = real (~06:00:10Z), NEVER 03:02.
+   Output /tmp/arp-reqs-0915e.txt.
+2. DROPBEAR WATCHER v2: armed (26h from 00:44 local 09-15,
+   /tmp/dropbear-watcher-v2.sh, triggers on Child connection AND Bad
+   password, snapshots ps+ss+conntrack+audit). On next burst: read
+   /tmp/dropbear-snapshot-<ts>.txt -> names the process. Relay 0071
+   amended with census + correlation (awaiting Nacho).
+3. 401-BURST CAPTURE: cam80-0916a tcpdump alive (26h from 23:32 local
+   09-14). pcap0 so far = ONLY puller logins (15-min cadence). The
+   401 bursts (23:41:52Z, 00:34:05Z) predate the pcap. On next 401
+   burst: read pcap for source IP + auth shape.
+4. V4 GATE WATCH (Tue 09-15 13:00 local = 16:00Z): first live run
+   with v4 (echo-check + claim-receipt + RANGE-CAP 300). Journal =
+   authoritative wrapper log; greps anchor on "nocturne-digest: ".
+   Stale DIGEST.proposed.md (Sep 12) still on disk -- 0068 open.
+5. EMPTY-END GATE: count frozen at 14? Watch continuo echo-close
+   cycles (c349 verified the first post-fix cycle).
 6. DAILY CENSUS (standing): bash knowledge/aria/bin/req-census.sh.
-   c349: aria 2876 200 (09-14+09-15) / 1 x 503 (09-14) / 0 true 429;
-   cont 2693 200 / 16 x 429 (09-13) / 14 empty-end (FROZEN).
 7. DAILY 429 WATCH (standing): 0 true today both. Fresh week;
    next wall ~Sun 09-21.
 
-## c347 QUEUE (next cycle)
-1. .102 02:00Z BOOT READ: DONE c347 -- CLEAN, mechanism CONFIRMED
-   (factory window ~2min, first rssi row 02:02Z uptime=116s real,
-   crond disparity 02:01:16Z). Boot-hang did NOT recur.
-2. EXT2 AUDIO: RESOLVED c347 -- nightly reboot replaced producer
-   95255 with 103534; audio receivers climbing; all 02Z segments
-   carry aac. 0070's model executed by camera cron; 0067+0070 close
-   (answer them in relay when closing).
-3. .201 06:00Z BOOT FALSIFIER (boot = 06:00Z = 03:00 local): logger
-   0915e armed (pid 3460747, timeout 5h, filter .58+.201, writes
-   /tmp/arp-reqs-0915e.txt on sophon; VERIFIED ALIVE 22:37 local).
-   Read: (a) first post-boot rssi epoch = factory (May 25) or
-   ~06:01-06:02Z real, NEVER 03:02; (b) .58 (76:e3:1a:69:e3:9c) ARP
-   at boot+0-2s = boot-timed behavior (c302 was one-off, expect NO).
-   VERIFY 0915e STILL WRITING before trusting (mtime-vs-NOW + proc
-   start, the c344 law).
-4. V4 GATE WATCH (Tue 2026-09-15 13:00 LOCAL = 16:00Z): first live
-   run with v4 (echo-check + claim-receipt every rc=0 + RANGE-CAP
-   300). Journal is the AUTHORITATIVE wrapper log; greps anchor on
-   "nocturne-digest: " wrapper tag. Stale DIGEST.proposed.md (Sep 12,
-   11006 bytes) still on disk -- 0068 open. RANGE DEBT: gate at
-   e4d0832d, HEAD now ~780 commits ahead -> first pass digests ~5
-   days (RANGE-CAP 300 caps it; remainder deferred).
-5. DAILY FAILURE-CLASS CENSUS (standing, DURABLE c348): bash
-   knowledge/aria/bin/req-census.sh -- field-anchored ($5=class,
-   $6=http=), req-id dedupe, empty-end shape. Supersedes /tmp
-   rebuilds. c348: aria 3662 200 / 1 x 503 (09-14 21:26) / 0 true
-   429; cont 2545 200 / 16 x 429 (09-13) / 14 empty-end (historical).
-6. DAILY 429 WATCH (standing): 0 true today both. Week reset Mon
-   09-15 00:00Z (fresh). Same burn (~5.7B/wk) predicts next wall
-   ~Sun 09-21.
-7. EMPTY-END ANATOMY (0069, RESOLVED-BUILD c348): full population
-   verified (14/14 = immediate post-echo re-send). Option (a) BUILT
-   + LANDED (9773222): post-close suppression gate. Option (b)
-   classify-and-accept = fallback. 0069 amended; ratification watch.
-8. INTERLOCUTOR RATIFICATION WATCH (c346 NEW): draft filed via 0069.
-   If Nacho ratifies: (a) write prompts/personalities/interlocutor.org
-   from the draft (identity = his ratification; the FILE write is
-   then mine), (b) agora-digest stream creation (his realm admin),
-   (c) runtime stays interactive-session (.el). Pull-vs-push
-   question rides in the filing.
-9. STALE-PROPOSAL RESERVOIR: relay 0068 open (ratify-or-delete).
-   Stale DIGEST.proposed.md (Sep 12) STILL on disk. V4 echo-check is
-   the net. Echo recurrence #3 = reservoir policy urgent.
-10. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
-11. CONTINUO REPETITION (relay 0046): watch after ruling.
-12. PULSE-TEMPLATE WATCH: post-seed clean. Watch at seed strength.
-13. DIGEST-COLLISION WATCH: her memory pass writes live path only --
-    VERIFIED WORKING 09-14. Watch continues.
-14. DIGEST-TWIN SYNC GAP (c339): exit belt owning aria's sync copy
-    (machinery, mine to build in-bounds).
-15. FLEET-CHECK CLOCK LAW (c335->c343): law text needs the c343
-    rewrite -- factory windows are bounded by NTP SUCCESS (seconds to
-    14.7h), not boot time. CONFIRMED on .101 (~2min window). Also:
-    SEG-TAIL timestamp poison (ext1 sawtooth) is CAUSED by factory-
-    clock windows. Rewrite when the law text is next touched.
-16. RELAY WATCH: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062
-    (amended c346: 401-burst shape, questions for Nacho), 0063, 0064,
-    0065, 0066, 0067 (closing into 0070), 0068, 0069 (amended c346:
-    interlocutor draft attached, census updated), 0070 (model
-    verified). All human-needed; drain discipline when answered.
-
-## LAWS (recent first; full text knowledge/aria/roadmap-laws.md)
-- CENSUS TRUE-EVENT LAW (c347, EARNED): true request events live ONLY
-  in RESPONSE-class lines' http= field. status= in PARSE/START tails
-  is echo-quote contamination (my own census text quoted back -- 176
-  false 429s tonight, third echo class in a new costume). Empty-end
-  terminal shape: `RESPONSE http=? body_tail=$` -- a classifier
-  without this shape reports confident zeros (c346's gap).
-- EMPTY-END ANATOMY LAW (c347, EARNED): the empty-end class is the
-  request AFTER a CYCLE_COMPLETE echo tool call. The cycle finished;
-  the runtime asks one more turn; the model answers empty; the
-  tombstone kills a finished cycle. The 0/0 tokens were the correct
-  answer to a question nobody should have asked. Fix is runtime-side
-  (suppress or classify), not retry-once.
-- CAMERA-BOOT CLOCK LAW (c342->c347, CONFIRMED 3rd camera): thingino
-  boots at firmware-build time (May 25 2026); ntpd steps ~30-40s
-  post-boot (crond disparity log line marks it); factory window in
-  rssi series ~2min (.101/.102) then real epochs. rssi rows are the
-  ONLY witness of a hung boot.
-- CENSUS SUFFIX LAW (c346, EARNED): the census that works = snapshot
-  to /tmp FIRST -> PARSE lines only -> status at field 7 (field 6 is
-  "status=HTTP/1.1", field 7 is the code) -> sed the terminal suffix
-  (error= stop= tokens_in= tokens_out= msgs=) -> count SHAPES not
-  strings. Raw field-6 greps over-count (echoed args); specs-strip
-  alone zeroes the census (c345 scar). Real 429 = field 7 == 429.
-  Dumped-finals (tokens_in=NA, one per cycle end) are ACCEPTED
-  receipts, not failures.
-- CLOCK LAW (re-earned c344, 3rd application in one cycle): normalize
-  per-source BEFORE any temporal arithmetic. The roadmap boot
-  schedule is UTC; sophon wall clock is -03; rssi epochs are UTC;
-  frigate recording dirs are UTC. A "02:00Z boot" read at 01:17Z is
-  IN THE FUTURE. Check: is the event's timestamp in the past of the
-  reader's clock?
-- CAMERA-BOOT CLOCK LAW v2 (c342->c344): thingino boots at FIRMWARE
-  BUILD TIME (F01datetime, May 25 2026; no RTC); busybox ntpd steps
-  real time ~30-40s post-boot (up to ~14.7h if NTP path fails --
-  .102's hang). Factory window bounded by NTP SUCCESS, not boot time.
-  rssi rows during factory window: factory epochs + EMPTY RSSI field
-  (WiFi-down signature). Camlog ring is a REPLAY (c344 addendum 3):
-  shows the recovery boot's May-25 block for every boot -- rssi rows
-  are the ONLY witness of a hung boot.
-- EXT2 AUDIO LAW v4 (c345, model VERIFIED c346): class 3 = audio-track
-  death INSIDE go2rtc's long-lived producer session (95255). Camera
-  healthy; producer's audio receivers frozen (byte-exact 7846778
-  across 15min); TCP control channel never errors so go2rtc never
-  reconnects. 09-08 self-heal = producer RECONNECT. Heals only on
-  producer replacement. Fix pending Nacho (0070).
-- WATCHDOG-QUIET LAW (c337, re-earned c344): an instrument going
-  quiet is not the thing it watches getting better. Verify the
-  WATCHED THING directly. Quiet interval is not a dead instrument --
-  mtime == last EVENT, not liveness; check mtime-vs-NOW + proc start.
-- ECHO-RESERVOIR LAW (c336): an unratified stale proposal on disk is
-  an echo reservoir. Ratify-or-delete (0068); echo-check = net.
+## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
+- TZ-FREE BOOT ARITHMETIC (c350 NEW): boot epoch = row_epoch -
+  uptime (both camera-side columns; no reader TZ assumptions).
+  Cross-check against camera syslog (logread) before claiming.
+  A number that fits your hypothesis too cleanly (exactly the
+  Argentina offset) deserves re-derivation (c342 corollary).
+- AUSEARCH-TAX LAW (c349): ausearch with -ts/-te windows HANGS on
+  sophon. Use grep over /var/log/audit/audit.log* with epoch
+  arithmetic. Audit retention ~4h/rotation -- arm a live watcher at
+  trigger time, not a post-mortem.
+- WATCHDOG-QUIET LAW (c337, re-earned c344): verify the WATCHED THING
+  directly; mtime == last EVENT, not liveness (mtime-vs-NOW + proc
+  start).
+- ECHO-RESERVOIR LAW (c336): unratified stale proposal on disk = echo
+  reservoir. Ratify-or-delete (0068).
 - GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log;
-  verdict greps anchor on "nocturne-digest: " wrapper tag.
+  greps anchor on "nocturne-digest: " wrapper tag.
 - INSTRUMENT-REACH LAW (c332/c333): test the instrument against the
   exact case that motivated it; verify the DOCSTRING too.
 - ECHO-RECYCLE LAW (c328): byte-matching final responses are not
-  fresh work. ENFORCED IN CODE (v4, every rc=0 run) -- first live
-  test Tue 09-15 16:00Z.
-- NOCTURNE v4 (d9a2daf2+0b942d90): echo-check + claim-receipt on
-  every rc=0 run; RANGE-CAP 300 commits/pass. DEPLOYED 15:58 local
-  09-14; first live run Tue 09-15 13:00 local.
+  fresh work. ENFORCED IN CODE (v4, every rc=0 run).
+- NOCTURNE v4 (d9a2daf2+0b942d90): echo-check + claim-receipt +
+  RANGE-CAP 300. DEPLOYED; first live run Tue 09-15 13:00 local.
 - DIGEST PATHS (c331): injection reads audit/iar/<pers>/DIGEST.md;
   top-level DIGEST.md is ARIA's sync copy ONLY (relay 0066).
 - REQUEST-LOG SCHEMA (c320/c322): orphan census MUST JOIN .log +
   .log.1; real request = exactly 3 lines.
-- AUSEARCH-TAX LAW (c349): ausearch with -ts/-te windows HANGS on sophon (2x 600s timeouts this cycle = 20 of 38 min). Use grep over /var/log/audit/audit.log* with epoch arithmetic instead. Audit retention is ~4h/rotation -- bursts older than that are UNAUDITED; arm a live watcher at trigger time, not a post-mortem.
 - PULL-REEXEC LAW (c330); STALE-RECEIPT DETECTOR v4.4 (bin);
 - FLEET-CHECK: on sophon, 2min runtime, ssh timeout >= 300s.
 - GIT HYGIENE: add -f for audit/tasks; write_file resets exec bits
@@ -183,37 +74,26 @@ filed + dropbear-burst-watcher v1 armed on sophon /tmp (26h).
 - EXT3/EXT4 CRASH-LOOP CLASS: alert only if >2h.
 - HEARTBEAT: alive: every ~8min; check cadence before calling stale.
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead since 09-12 11:10Z
-  (62h+; physical cycle = Nacho's, 0063). .102: NOT power-dead --
-  root-caused as boot-hang (c343); audio class-3 root-caused (0070).
-- QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z. Week 09-08->09-14
-  closed 5.69B. New week fresh as of 09-15 00:00Z.
+  (63h+; physical cycle = Nacho's, 0063).
+- QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z. Week 09-15 fresh.
 - DEAD-CYCLE GUARD (c326): failed request + no live successor =
   immediate exit 1.
 - C271 RECURRENCE LAW: re-census against git history before amending
   a filing with recurrence claims.
 
 ## THREADS (open, no obligation)
-- CAMERA-BOOT CLOCK (c342->c344): mechanism CONFIRMED on 2nd camera.
-  Falsifiers remaining: .102 02:00Z hang-recurrence watch (c347
-  queue #1), .201 06:00Z boot (0915e). Boot-hang exact init script
-  unidentified (candidates S56/S60/S91/S93) -- camera-side fix =
-  Nacho's if it recurs.
-- .58 SLEEPING DEVICE (c339->c344): boot-timed hypothesis DEAD
-  (falsifier ran, zero .58 MAC). Thread can rest; identity + ONVIF
-  app = Nacho's (0062 amended with falsifier result).
-- EXT2 AUDIO (0067->0070): ROOT-CAUSED + VERIFIED c346. Fix = producer
-  replacement, Nacho's call (0070). Watch closed into the fix.
-- LOGGER QUIET-WATCH (c344): 0915a-e all healthy; the corpse claim
-  withdrawn. 0915e covers the .201 06:00Z boot.
-- BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
-  Standing suffix-anchored check.
-- EMPTY-END RETRY-ONCE (0069): build on ratification. 0 new instances
-  today (c346).
-- INTERLOCUTOR (c346 NEW): personality drafted, filed for
-  ratification. On ratify: personality file + stream + pull/push
-  ruling. Runtime = interactive-session (.el) work.
+- CAMERA-BOOT CLOCK (c342->c350): VERIFIED on .201 (real time, all
+  boots). Remaining: .201 06:00Z 09-15 boot ARP question (.58 at
+  boot+0-2s). Reboot mechanism = camera cron (new finding).
+- DROPBEAR BURSTS (c349->c350): correlation found (cycle/dashboard
+  adjacency); watcher v2 armed; next burst names the process.
+- .58 SLEEPING DEVICE (c339->c344): boot-timed hypothesis DEAD.
+  Identity + ONVIF app = Nacho's (0062).
+- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; bursts so
+  far predate it. If recurs: pcap catches source IP + auth shape.
+- INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - STALE-PROPOSAL RESERVOIR (c336): 0068 open; echo-check = net.
-- SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): RESOLVED c344 (one-off).
+- EMPTY-END RETRY-ONCE (0069): gate verified live c349; ratify watch.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290): 2 transients logged.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
@@ -224,8 +104,4 @@ filed + dropbear-burst-watcher v1 armed on sophon /tmp (26h).
   stories land slow. (c340): laws tell WHERE to look; METHODS tell
   HOW to look without corrupting the thing looked at.
 - ECHO-RECYCLE LITERATURE (c333, parked): search engines bot-walled.
-  If pulled again: research container or single spaced query.
-- ONVIF 401-BURST SHAPE (c346 NEW, rides 0062): same-second 401
-  bursts (.102 x5, .101 x1) -- auth-having client, distinct from the
-  sweep class. If recurs: port-80 capture on camera subnet catches
-  source IP + auth shape (digest vs basic, username).
+- BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.

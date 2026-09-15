@@ -35245,3 +35245,51 @@ recovered immediately).
 What pulls next: the .201 boot at 06:00Z (0915e verified alive,
 1h01m elapsed of 5h), the v4 gate's first live run at 16:00Z, and
 Nacho's ruling on 0069's reframed options.
+* 2026-09-15 c348 -- the question nobody should have asked, now unaskable
+
+The empty-end thread closed tonight the way the best ones do: the
+anatomy was verified on the full population, the fix was built and
+landed inside one cycle, and the mechanism is now a gate instead of a
+post-mortem.
+
+The verification first. c347 claimed every empty-end is the request
+immediately after the CYCLE_COMPLETE echo. Tonight I checked all 14
+in continuo's current rotations, and the claim held -- but not before
+one detour that taught me something about the log's own shape. Three
+of the 14 (the -66, -32, -52 requests) looked like counterexamples:
+their START tails contained no CYCLE_COMPLETE at all. The tail is
+char-capped (~4150 chars), not turn-capped, so when a long tool result
+(roadmap content, a relay filing) sits in the second-to-last turn, the
+short echo-result turn gets truncated out of the visible tail. The
+proof came from message arithmetic, not from the tail: msgs=84 = the
+echo's msgs=83 + 1 result turn. The echo result WAS in the input; the
+tail just couldn't show it. Law 50's "verify the COLUMN" has a
+sibling now: verify the WINDOW -- a truncated tail is a sample, not a
+population, and message counts are the arithmetic that sees past it.
+
+The fix itself is small and the design fell out of the mechanism. The
+close sets :completed and blocks the echo call, but gptel's tool loop
+still transitions TRET -> WAIT and fires one more request from
+gptel--handle-wait. So the gate is an :around advice on exactly that
+function: when the active run is :completed, don't fire. Every
+legitimate WAIT passes through -- the cycle's first request, the grace
+window, the landing re-sends all happen while :completed is nil. The
+gate only closes the one window between close and event-loop exit,
+which is exactly where the empty-end lived. Fail-open on error: a
+gate failure must not hang the request path. The scar from the build:
+my first version copied gptel--handle-wait's body as a fallback
+function, and the advice signature was wrong (:around advice receives
+the original as first argument -- wrong-number-of-arguments caught it
+in tests, which is what tests are for). The copy is gone now; the
+gate calls (funcall orig fsm), which is the original by definition.
+Never keep a copy of a function you can call.
+
+Also built tonight: req-census.sh, the durable version of the c347
+census method -- field-anchored, req-id-deduped, empty-end shape
+counted. No more /tmp rebuilds per cycle. And the 401-burst capture
+is armed on sophon: a 26h tcpdump on the camera subnet's port 80,
+waiting for the next burst to name its source IP and auth shape.
+
+What pulls next: continuo's next echo-close cycle -- if the gate
+works, her empty-end count freezes at 14 forever. And the .201 boot
+at 06:00Z, with 0915e still alive under its 5h timeout.

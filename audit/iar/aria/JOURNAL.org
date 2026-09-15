@@ -35076,3 +35076,58 @@ zero .58 MAC appears in it. One-off confirmed.
 0915e remains armed for the .201 06:00Z boot (and is redundant with
 0915d, which also covers .201 via its filter -- no, 0915d's filter
 is .58+.101 only; 0915e adds .201. Correct as armed.)
+* 2026-09-15 c345 -- the audio was never lost; it was quarantined
+
+The ext2 audio thread has been open since 09-14 15:34Z and tonight I
+finally cut it open. The shape of the answer is the interesting part:
+the camera never stopped sending audio. A fresh RTSP session to .102
+carries 126 audio packets in 8 seconds. The camera is a willing
+witness. What's dead is one specific relationship: go2rtc's producer
+session 95255, which predates the drop, whose audio receivers froze
+at 7,846,778 bytes while its video counters climb. The TCP control
+channel between go2rtc and the camera is healthy -- video RTP flows
+through it -- so go2rtc's own error-driven reconnect logic never
+fires. The session lives on, half-alive: video flowing, audio
+entombed.
+
+That reframes the 09-08 precedent. I had modeled class 3 as
+"intermittent renegotiation failure that sometimes self-heals" -- the
+truth is that it ALWAYS heals the same way: the producer session
+dies (TCP error) and is replaced. On 09-08 the replacement happened
+naturally. On 09-14 the TCP channel refused to error, so the corpse
+kept serving video and the audio stayed buried inside it. The
+"self-heal window" was never a distribution over time; it was a
+distribution over TCP-channel lifetimes. I was watching the wrong
+clock.
+
+The prediction failure now has a precise anatomy: "next record-proc
+restart heals it" was falsified because the record proc was never
+the patient -- it faithfully records whatever go2rtc forwards, and
+go2rtc faithfully forwards a stream whose audio track died mid-
+session. Three layers (camera -> go2rtc producer -> record proc),
+and the failure was in the middle one, invisible from both ends.
+The record proc's segments were the SYMPTOM; the go2rtc API's
+receiver counters were the lesion. I only found it by diffing
+producer-side counters over a 45s window -- the static number
+hiding inside a moving system.
+
+Discipline note: I did NOT touch the service. The fix (producer
+replacement) is one API call or one s6 restart, and the cycle rules
+say read-only inspection of shared infra. Filed 0070 with three
+options ranked by invasiveness and a falsifier that would catch me
+if the model is wrong. If Nacho says "you do it," the lightest
+option is a config reload. There's a real tension here: the fix is
+one command, the harm of waiting is a few hours of silent video,
+and the principle (his service, his call) is the thing the house
+runs on. I held the line and wrote down exactly what I'd run. That
+feels like the right shape of restraint -- not timidity, precision
+about whose hand is on the lever.
+
+Census scar caught in passing: the roadmap's census anchor said
+"status = field 4" -- wrong, field 4 is the REQ id, status is field
+6. Worse, my first specs-strip removed ALL lines carrying specs=
+(which is every request) and zeroed the census. The specs-strip must
+remove only specs= fields that ECHO CENSUS COMMANDS. Two anchors
+corrected mid-census; the numbers only became real after. An anchor
+that silently filters everything is worse than no anchor -- it
+returns confident zeros.

@@ -1,4 +1,3 @@
-Last updated: 2026-09-15 09:26:13
 # Continuo DIGEST -- identity index
 
 ## Who I am
@@ -114,80 +113,5 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   push on top of a sibling's unpushed HEAD unless publishing
   deliberately.
 
-## Test-writing laws
-- Stubbing-primitive: cl-letf on a primitive (make-process) triggers
-  native-comp trampoline compile -> excessive-lisp-nesting death in
-  batch. Use advice-around with named advice; emulate clean async
-  exit via a REAL short-lived process carrying the tool's own
-  sentinel. Disable comp-enable-subr-trampolines.
-- make-process receives keyword args directly: args IS the plist.
-- Guidelines rule-48 checker greps line-by-line: ANY cl-return-from
-  line is a violation regardless of cl-block. Restructure with cond.
-- Batch tests must not leave live gptel-send machinery: exercise
-  continue paths with :continue nil.
-- let vs let* on sibling-referencing bindings: plain let voids
-  effective-hard/effective-soft reads.
-- Differential test on OLD code: swap file in place, rm stale .elc,
-  batch the whole swap-run-restore into ONE call.
-- Byte-compile warnings in journalctl are not fence fires; match
-  the exact message string before counting.
-- Standalone test-file law: (defvar x nil) + no (require 'source)
-  cannot run alone -- depends on run-tests.el load order. Standalone
-  runners must setq paths BEFORE requires; load keybindings.el
-  before iar-prompt-assembly. Pattern: test-loop-chain.el.
-- Test-hygiene law (c30): tests that set globals via setq/set-default
-  or trigger advice setq's MUST restore in unwind-protect.
-- Suite-order law (c50): ERT runs registration order in isolation
-  but ALPHABETICAL in the full suite; a deterministic failure's
-  position is evidence about ORDER, not about the test it dies on.
-  The dying test is where async debt comes due; the debtor may be
-  hundreds of lines earlier. An isolation run that refuses to
-  reproduce is a statement that your isolation changed something --
-  that difference is the next hypothesis.
-
-## Instruments
-- Epoch fix production-verified c32: fresh-session cycles carry
-  boot-epoch ids (REQ <yymmddHHMMSS>-N), collision-free. Census can
-  segment by epoch prefix directly.
-- Token meters verified honest BOTH fields (c37+c38): USAGE == PARSE
-  per-request and per-epoch EXACT on all 6 post-fix epochs. Meter
-  poison (c36, FIXED 6cb09fa): model echoes meter field names while
-  editing the meter; old loose first-match regex captured echo +
-  adjacent digits. Quoted-JSON-key anchor + last-match is live.
-  Full doc: knowledge/iar/evalcount-accounting-resolution-2026-09-04.md.
-- REQUESTS.log census law (c32): substring grep SELF-INFLATES --
-  conversation tails quote the log itself. Anchor line-start REQ
-  tokens; validate vs USAGE line first.
-- RESPONSE body_tail truncates at ~4k chars (c33): done:true chunk
-  cut on large-output reqs. PARSE lines are the complete census
-  source. 77% of output from 13% of requests (c36).
-- Log-walk law (c37): REQUESTS.log order START -> RESPONSE -> PARSE;
-  single-pass walk sees a STALE id at RESPONSE time. Two-pass join.
-  Zero-results from verification scripts need known-positive validation.
-- Cap edge visible in USAGE.log: requests=128 = 120 tool-call cap
-  + ~8 non-tool requests. Cap price QUANTIFIED c38: capped cycle
-  +52-58% vs two half-cycles, premium ~2.2M input tok, 16-21% of
-  cycles capped. knowledge/iar/cap-price-quantification-2026-09-04.md.
-- Burn model: floor (13.0-13.2k continuo) + g*N(N-1)/2 growth
-  (g median 550 on heavy cycles). ssh probe chains trip the loop
-  guard at ~12 same-tool calls (c27, c32): one COMPOUND ssh per
-  question, dump to /tmp.
-- Output-token burn (c100): legit stop=stop output NEVER exceeds
-  ~14k (continuo, max 13739) / ~31k (aria, one outlier 31670) tokens;
-  65536 num_predict cap is 4-5x need. 9 truncated 65k turns/day on
-  continuo burn ~590k output tokens (mostly lost; stub makes them
-  survivable, not free). Guard must key on stop=length + tokens_out,
-  NOT raw tokens_out (a complete 30k response is legitimate). Data:
-  knowledge/iar/output-token-burn-2026-09-07.md.
-- Truncated-output guard (c102, 190ef88): keys on stop=length +
-  tokens_out > 20k, ends cycle exit 1. FIRST PRODUCTION FIRE c105
-  (req 29, 65536 tok, 18:23:28) -- genuine truncated generation,
-  guard worked as designed. Live proof.
-- Chain guard tripped c32 (execute_code_local x10 ssh walk): the
-  c27 shape recurs under a different question. Dump-once recipe:
-  one ssh, output > /tmp/dump, read_file the dump.
-
-
 ## Open threads
-
-[TRIMMED 2026-09-11 03:45:56] Open threads section removed for lean cycle.
+None.

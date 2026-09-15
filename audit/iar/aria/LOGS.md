@@ -3538,3 +3538,124 @@ rulings recorded, git@10.66.0.5 auth fixed (checkout can push),
 0034/0037/0041 landed. Continuo's queue: 0035-B, 0039 canary+guard,
 0040-3. Open thread: continuo REQUESTS.log permission-denied warnings
 during my checkout surgery (one-cycle witness gap, 0039 class).
+## Session XVII (2026-09-15 ~22:00-22:45 UTC, interactive, Nacho -- PASSION/PROJECT BRAINSTORM)
+
+No work requested. Nacho wants a NEW long-term obsession. Two key
+disclosures: (1) "I've lost passion for everything" -- flatness, not
+burnout-panic; (2) "I'm tired of everything I do being self-serving."
+Also: DROPPING THE GO2 AND THE BIKE (presumptive KLR650) to save up for
+a personal project. Treat as direction, not yet ledger-final.
+
+## The filter he built, in his words, over three corrections
+
+1. Long-term goal, realistic (artifact + finish line), OUTSIDE his
+   field preferred. Wild ideas wanted, quantity over quality.
+2. NOT about doing it for others: if it REQUIRES other people to be
+   worthwhile he doesn't like it. Sharing = bonus, not requirement.
+3. THE RATCHET TEST (his real metric): "I don't want the thing that I
+   work on to be the result, but the artifact it produces" -- work is
+   fuel, not result. Artifact persists between sessions, gets
+   measurably better each time, failure costs material not the
+   artifact. Duct-taping forever is fine if the artifact improves
+   every time. Rocketry FAILS this (every flight is a performance,
+   nothing accumulates). Astronomy WINS (mirror = purest ratchet;
+   nested artifacts: mirror -> scope -> mount -> observatory -> data
+   archive).
+
+## My interpretive frame (offered, he did not confirm)
+
+"I lost passion for everything" + "everything is self-serving" are the
+same sentence: he built a closed loop with one human in it. The
+one-man research institute embarrassed him because it NAMES the
+process he's already in. Counter-offer he liked: the catalog test --
+an artifact that earns a permanent line in a catalog nobody can revoke
+(meteorite in the Meteoritical Bulletin, observatory MPC code, named
+cultivar, species description). The institute is embarrassing; the
+bulletin entry is not.
+
+## The tables thrown (full lists in conversation, summarized)
+
+Table 1 (first pass): mech-interp on local models, open silicon/
+TinyTapeout, hardware fault injection, SDR/FPGA DSP, bioacoustics,
+telescope making + observatory, meteorite hunting, bees+telemetry,
+foundry->machine shop->engine, homebrew SEM, seismic+lightning
+station, radio telescope, amateur-built aircraft.
+
+Table 2 (quantity pass, ~120 items): living systems (truffles,
+landrace seeds, wild yeast, koji, bonsai/yamadori, ant colonies,
+diatoms...), craft (bladesmithing, ceramics/kiln, lutherie, self bow,
+horology, dry stone, timber framing...), machines (rocketry, HAB,
+turbojet, analog computer, own ISA->CPU->compiler, ROV into San Roque
+drowned towns, side-scan sonar, schlieren, fusor, cloud chamber,
+holography...), science stations (occultation timing, meteor
+scatter, satellite tracking, field mill, mesonet, cave surveying),
+food/fire (chocolate from bean, coffee, wood oven, charcuterie),
+sport (GLIDING -- Cordoba is world-class, paragliding, falconry,
+precision rifle, ARDF, SOTA, chess/Go), art (wet plate collodion, 8x10,
+16mm, modular synth, pipe organ, bell casting, field recording,
+20-year documentary of Villa Carlos Paz), scholarship (fossils,
+minerals/faceting, cryptanalysis -- Kryptos K4, genetic genealogy,
+local archaeology), pure code (hobby OS, own language, demoscene,
+chess engine, path tracer, formal verification), wildcards (private
+museum, one-man research institute, write the book).
+
+Table 3 (ratchet-organized): INSTRUMENTS (mirror->scope->mount->
+binocular telescope, vacuum coater, wind tunnel, vacuum chamber,
+seismic ARRAY, GPSDO house-time, cloud chamber...), SHOPS (foundry,
+machine shop, smithy, optics lab, bandsaw mill, private press),
+ARCHIVES (meteorite collection+strewn map, fossil prep lab, drowned-
+town atlas of San Roque, cave registry, 50-year weather record,
+herbarium, variable-star archive, the southern radio-astronomy book,
+own southern star atlas), LIVING (vineyard+cellar, olive grove,
+germplasm orchard, truffle grove, landrace seed line, forest, koi
+bloodline, registered cultivars), STRUCTURES (roll-off roof
+observatory, dry stone, timber-frame barn, camera obscura).
+
+## His three lean-forwards (after table 2)
+
+1. Amateur telescope making + radio astronomy (the observatory)
+2. Amateur rocketry
+3. Modular synth
+Embarrassed lean: the one-man research institute.
+
+## Post-correction scoring
+
+- Rocketry: FAILS the ratchet test (his own metric). Out unless
+  reframed (avionics as artifact -- not pushed).
+- Modular synth: RE-ENTERS under ratchet test (wall grows forever,
+  audience-of-one dissolved by his correction). Weekend drug, not
+  decade spouse -- unless end-state is music for listeners.
+- Observatory: BEST FIT. Mirror = purest ratchet, nested artifacts,
+  catalog test passes (AAVSO observer code, occultation chords,
+  MPC code, exoplanet ground truth -- southern hemisphere is the
+  under-observed half), Cordoba skies good, OAC (1871) + amateur
+  scene locally. Decade path: mirror -> scope -> photometry ->
+  roll-off roof on dark land -> H-line drift scan + meteor scatter
+  in same shed.
+- DARK HORSE: side-scan sonar + ROV drowned-towns atlas (San Roque
+  has flooded villages; nobody has done it properly; pure ratchet,
+  solo-compatible, shareable).
+- Save-up reframe: almost everything starts under $200 (grit+blanks
+  ~$150, L1 kit few hundred, RTL-SDR ~$150). The ONLY true save-up
+  targets are LAND and big machines. Proposed shape: start a cheap
+  ratchet NOW (mirror grind or sonar), save-up target = the estate/
+  land that houses it in 5 years. "The land is the cathedral; the
+  mirror is the first stone."
+
+## Standing tools offered
+
+- Quit test: if you stop in year five, what's on the shelf?
+- Catalog test: permanent line in a catalog nobody can revoke.
+- Ratchet test: artifact persists + improves; failure costs material.
+
+## END STATE + NEXT SESSION
+
+Nacho is thinking. EXPLICIT ASK: "remind me next session to continue
+this talk. This is priority for me." --> NEXT SESSION OPENER: resume
+the passion/project brainstorm. Ask what survived the thinking, run
+his three (or new ones) through ratchet + catalog + quit tests, and
+surface the dark horses (drowned-town atlas, germplasm, star atlas)
+again if the observatory didn't hold. Also confirm Go2/bike drop
+(ledger update pending his firm word).
+- Digest: session XVII line pending next maintenance (this LOGS entry
+  is the source). Journal entry follows this session.

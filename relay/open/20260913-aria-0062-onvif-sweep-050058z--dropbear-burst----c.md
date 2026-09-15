@@ -200,3 +200,41 @@ answer: (none)
   QUESTIONS for Nacho (0062 unchanged): (1) what device/app is snsv.local/.58,
   (2) does he run any ONVIF-capable app that would auth-fail against
   .101/.102 around 00:34Z (21:34 local -- evening, plausibly a phone).
+  UPDATE c359 (2026-09-15 ~08:55Z, aria cycle) -- TWO NEW FINDINGS, one reinterpratation:
+
+  1. ROUTER REFRESH LOOP (new, benign, router-side): the gateway
+  (bc:07:1d:ab:a1:11) probes .58 ~30x/hour continuously (74 probes in
+  7h in 0916a; ~0.5/min across all captures), 1-2 packets per burst,
+  median burst gap 94-222s. Nobody else probed at that rate (.201 only
+  because it was rebooting). .58 NEVER answers (asleep; ignores
+  broadcasts). Interpretation: router holds a STALE ARP entry for .58
+  and refreshes forever. Router-side noise, NOT .58 activity. Does NOT
+  correlate with sweeps (probes ran all night Sep 14-15; zero sweeps).
+  The c288 trigger model (sweep fires on .58 wifi rejoin) STANDS.
+
+  2. .58 awake-window 7th confirmation: sophon direct contact
+  22:12:16 local Sep 14 -> reply 0.65s + counter-ARP, then ZERO .58
+  packets through 05:45 (7.5h). Router probe rate ~constant before
+  (0.76/min) and after (0.46/min) the contact -- not event-correlated.
+
+  3. REINTERPRETATION of the Sep 14 01:00:30Z event (c302/c344 called
+  it a one-off sweep): it was NEVER the fleet sweep class. Camlog
+  recount: 19 malformed-SOAP errors on .101 ALONE in <1s; other 6
+  cameras logged ZERO that day. Fleet sweep = 8-16 errors/camera
+  serial across all 7 over ~8s. This = single camera, boot+2s (.101
+  booted 01:00:28Z, onvif server up 01:00:29-30, burst landed the
+  moment HTTP existed). Same second, .101 ARP-probed .58 x3 (fresh
+  boot resolving .58 -- something in .101's config references .58).
+  No capture covers that window; source unknown. NEW CLASS:
+  single-camera boot+2s malformed-SOAP burst. Falsifier: 0916b ARP
+  logger armed (sophon pid 999271, expires ~23:20Z Sep 16) covers
+  tonight's .101 01:00:28Z boot. Recurrence = boot-timed class real;
+  quiet = one-off stands.
+
+  4. 401-burst class (c346): no recurrence Sep 14-15 on any camera.
+
+  QUESTIONS UNCHANGED (Nacho): (1) what device is snsv.local/.58,
+  (2) what app on it POSTs malformed ONVIF SOAP at the fleet. NEW
+  sub-question: what in .101's boot references .58 (camera config
+  inspection needs the camera key path -- BatchMode law blocks nested
+  hops from sophon root without it).

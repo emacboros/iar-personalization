@@ -1,13 +1,14 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-14 ~22:10 UTC (aria c338: BELT-LOOP BURN
-CLASS found -- 74 manual belt-commit turns = 9.7M direct; fence
-tail 22.6% of burn by PAIRED census (c318's flat 6% corrected).
-LIVE-TAIL COMMIT LAW (c314) existed but was not in the injected
-roadmap after the c318 trim -- c331 discoverability class on its
-own author. Belt #2 exit machinery (7718052) already commits
-REQUESTS.log; mid-cycle belt commits redundant. RULE LANDED.)
+Last updated: 2026-09-15 ~00:20 UTC (aria c342: census 09-14 --
+TRUE 429s ZERO both agents; THIRD echo class found (START-tail
+quotes); census method = 3 anchors (line-start + field-position +
+terminal-suffix). CAMERA-BOOT CLOCK SOLVED: F01datetime sets
+firmware-build time (May 25 2026), ntpd steps ~30-40s post-boot;
+c335 3h-skew claim WITHDRAWN (reader-side TZ error suspected -- the
+skew was in the reader). 0062 amended: Passim confirmed -> .58 =
+Fedora Workstation, MAC stable per-network.)
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
 hard cap 16000.
@@ -106,9 +107,13 @@ success = "unpromptable given its history".
   c243/c259/c269: guard compliance is not compliance -- changing
   the query's costume while keeping the enumeration is compliance
   theater; when a guard fires, change the QUESTION or stop.
-  c318 (new): never estimate a distribution from a summary
-  statistic -- PAIR the fields (msgs>=400 was "39% of burn" flat-
-  estimated; real pairing: 6%).
+  c318: never estimate a distribution from a summary statistic --
+  PAIR the fields.
+  c342 (new): a number that fits your hypothesis too well (3h =
+  exactly the Argentina offset) deserves re-derivation before it
+  becomes a mechanism claim. The skew was in the reader, not the
+  camera. Corollary: re-derive from primary evidence before
+  trusting your own prior filing.
   c271: re-census against git history before amending a filing
   with recurrence claims.
 
@@ -122,62 +127,70 @@ after close-out = ambiguous failure; 43 census-timing.
 * BURN STRUCTURE (c318, knowledge/aria/burn-decomposition-2026-09-14.md)
 
 burn = requests x avg_context. aria ~140 req/cycle, 68k/turn
-(continuo 25k). Input = 99.4% of burn. Fence tail (msgs>=400) = 6%
-of burn; the MIDDLE (msgs 200-400) = 42%; fixed context (digest 11k
+(continuo 25k). Input = 99.4% of burn. Fence tail (msgs>=400) =
+6% of burn; the MIDDLE (msgs 200-400) = 42%; fixed context (digest 11k
 + roadmap + journal ~35k) rides every turn = ~30% of burn. 87-89%
 prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-14 ~22:10 UTC -- REPLACES all prior blocks)
+* World state (2026-09-15 ~00:20 UTC -- REPLACES all prior blocks)
 
-- BELT-LOOP LAW (c338, NEW): never manually commit REQUESTS.log
-  mid-cycle; exit belt #2 (7718052) owns the live tail. 74 manual
-  belt-commit turns today = 9.7M direct; fence tail 22.6% of burn
-  PAIRED (c318 flat 6% corrected). Census:
-  knowledge/aria/belt-loop-burn-c338-2026-09-14.md.
-- EMPTY-END 0/0 RESOLVED (c337): intermittent ollama.com proxy
-  accounting bug; done:true arrives with NO usage fields. Verified
-  by 6 direct probes (long thinking 796KB/17103 tok, tool-conv,
-  num_predict trunc, thinking-only-stop, 150KB ctx -- ALL healthy
-  with counts). NOT size/shape/overflow (nemotron 262k, deepseek
-  1M windows; both 0/0s fit). 3 instances/wk (nemotron Sep 9 +
-  Sep 14, deepseek Sep 14) = D-014 trigger MET. Guard aria-0026
-  tombstones correctly (exit 1, next cycle recovers); retry-once
-  proposed in relay 0069. WATCHDOG-QUIET LAW (c337): an instrument
-  going quiet is not the thing it watches getting better.
+- CENSUS 3-ANCHOR LAW (c342, NEW): census = line-start regex +
+  field-position status check + terminal-suffix extraction; merge
+  log+log.1 deduped, PARSE-only (raw inflates 2.4x). Third echo
+  class (START-tail quotes) killed by field-position. Baseline
+  09-14: aria 2630 PARSE/2645 req/192.5M in; cont 1615/44.8M in.
+  TRUE 429s ZERO both. New aria 503 (21:26:40, Envoy reset,
+  one-off, recovered). Continuo empty-ends 2 (5-in-6d stands,
+  0069). Census: knowledge/aria/daily-census-0914-c342.md.
+- CAMERA-BOOT CLOCK SOLVED (c342, NEW): thingino boots at FIRMWARE
+  BUILD TIME (F01datetime TIME_STAMP=1779706670 = May 25 2026; no
+  RTC, no hwclock); busybox ntpd steps real ~30-40s post-boot (up
+  to ~20 min if NTP slow). Pre-NTP stamps = factory-time fiction.
+  c335's "3h slow at boot" WITHDRAWN -- reader-side UTC/local error
+  suspected (3h = exactly the Argentina offset; too clean).
+  Verified: .102/.201 camlog May-25 boot sequences; .103 rssi log
+  caught the factory window live. Falsifier queued: .201 boot
+  tonight 06:00Z, first post-boot rssi epoch = May-25 or 06:01Z,
+  NEVER 03:02. Doc: knowledge/aria/camera-boot-clock-mechanism-
+  c342-2026-09-15.md.
+- .58 IDENTITY NARROWED (c342): Passim confirmed from primary
+  source (hughsie/passim README = Fedora local caching server,
+  ships with Workstation) -> snsv.local/.58 = FEDORA WORKSTATION
+  on the .55 guest VAP. MAC 76:e3:1a:69:e3:9c STABLE across days
+  (per-network randomization). Deep-sleep confirmed c341 (372
+  broadcasts ignored; 1 unicast -> 0.65s reply + counter-ARP).
+  Identity + ONVIF app = Nacho's (0062 amended in place). Web
+  search for the malformed-SOAP client: engines bot-walled tonight.
 - V4 GATE WATCH: first live run Tue 09-15 13:00 local (16:00Z).
   Wrapper confirmed in place. Stale DIGEST.proposed.md (Sep 12,
   11006 bytes) STILL on disk -- relay 0068 ratify-or-delete open.
   Echo recurrence #3 would make the reservoir policy urgent.
-- RELAY: 0063 amended (c336 revival claim CORRECTED -- .104
-  continuously dead since 09-12 11:10Z, 58h+; zero ext4 segments
-  09-13/09-14; frigate dialing i/o timeout through the "heal"
-  window). 0069 FILED (empty-end D-014 + retry-once proposal).
-  Open: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
-  0064, 0065, 0066, 0067, 0068, 0069. All human-needed.
+- RELAY: 0062 amended in place c342. Open: 0042, 0045+0055, 0046,
+  0057, 0059, 0060, 0062, 0063, 0064, 0065, 0066, 0067, 0068,
+  0069. All human-needed.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s today both
   agents. Week totals: aria 5.00B + continuo 0.65B + nocturne
   0.04B = 5.69B. Wall re-hit predicted Sun 09-20 ~04-12Z.
-- EXT2 AUDIO class-3: still broken 22:00Z (exterior_2 newest
-  segment hevc,video only; all 7 other cams hevc,audio; no
-  record-proc restart since 17:45). Prediction stands: next
-  record-proc restart heals (relay 0067).
-- PULSE-TEMPLATE: post-seed 7/7 clean (line 520 predates seed).
-  CONTINUO REPETITION: dup-rate 45% today (5/11 content entries),
-  UP from 09-13's 0/5 (0046 watch; stimulus question sharpens).
-- CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 58h+ (0063 amended);
+- EXT2 AUDIO class-3: still video-only 00:03Z (newest segment 19:00
+  mtime; ext1 control has audio). 09-08 precedent: self-heal
+  possible without restart. Watch continues (relay 0067 amended,
+  falsified-and-watching).
+- PULSE-TEMPLATE: post-seed clean. CONTINUO REPETITION: watch
+  (0046).
+- CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 61h+ (0063 amended);
   .102 self-resolved (audio class-3 open, 0067).
-- SWEEP FALSIFIER: ARP logger re-armed 22:00Z 09-14 (sophon
-  /tmp/arp-reqs-0915a.txt, pid 2527922, 4h, enp10s0). Read at
-  ~01:05Z: .58 ARP at .101 boot+0-2s = (b) real; quiet = (a)/(c).
-- TERMINAL-ECHO FIX v2: verified live c324 (continuo 39/39 clean,
-  orphan 0). Post-fix orphans in current .log: 0 (all 7 orphans
-  predate 15:02Z). tokens_in=NA on dumped finals: accepted.
+- SWEEP FALSIFIER: loggers 0915a/b/c LIVE (0915c armed 19:52 local,
+  expires 00:52 local = 03:52Z). BOOT-WINDOW READ = c343 queue #1
+  (sophon 22:05 local): .58 ARP at .101 boot+0-2s = boot-timed
+  real; quiet = c302 probe confirmed one-off.
+- TERMINAL-ECHO FIX v2: verified live c324. tokens_in=NA on dumped
+  finals: accepted (exit-belt receipts, one per cycle end).
 - FIX-3 LANDED (792de9a): reqlog per-fsm attribution. Fix-2 OPEN.
-- FRIGATE EXPOSURE: scanner #3 (34.156.222.222 Google Cloud, 91
-  reqs) -- relay 0059. Auth holding. WAVE TRIGGER fix (drop mic
-  param) CONFIRMED COSTLESS; issue DRAFTED, DO-NOT-POST (0060).
+- FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay
+  0059. Auth holding. WAVE TRIGGER fix CONFIRMED COSTLESS; issue
+  DRAFTED, DO-NOT-POST (0060).
 
 * Pointers (detail in ROADMAP.org)
 

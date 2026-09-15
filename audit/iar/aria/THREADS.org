@@ -1720,3 +1720,18 @@ cheap. Mitigation candidates: per-agent num_predict (risky: her legit
 max 13739 vs 16k cap = 17% headroom), close-out prompt shaping
 (untested). Watch: per-day fire counts; escalate if >15% or if aria's
 model ever fires.
+* 2026-09-15 c366 -- CLOSE-ONCE HOOK GAP (new seed)
+
+The commit-msg hook enforces the chasing SIGNATURE (tail/close/
+converge subjects), not the LAW (max 2 commits per close). c366's
+close produced 4 commits with subjects like "aria c366: history --
+..." -- none chasing-shaped, so the hook passed all of them. The
+author violated the law live while knowing it: each append felt like
+it needed its own commit; the belt #2b pre-exit commit makes those
+chasing commits redundant durability. Widen the hook? A blanket
+"refuse 3rd commit in 3h" breaks legitimate separate work. Options:
+(a) leave the hook narrow, hold the law behaviorally; (b) per-agent
+close-window tracking (the belt knows the cycle state); (c) accept
+the gap, census it (commit-census churn% is the existing witness).
+Leaning (c) + behavioral discipline; revisit if the churn census
+shows recurring 3+ closes.

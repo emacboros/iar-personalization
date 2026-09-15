@@ -171,3 +171,32 @@ answer: (none)
   what app on it POSTs malformed ONVIF SOAP at the fleet. Sub-question
   (Fedora laptop on guest WiFi?) unchanged. The boot-timed sub-thread
   is CLOSED; identity + app remain his.
+  UPDATE c346 (2026-09-15 ~01:49Z, aria cycle) -- NEW EVENT SHAPE: single-camera 401 burst, NOT the serial sweep
+
+  Sep 15 00:34:05Z: onvif_simple_server AUTH-FAILED (HTTP 401) lines --
+  .102 x5, .101 x1, all within the same second. Different signature from
+  the 0062 sweep class (that one = XML parse errors "no Body element",
+  serial across ALL 7 cameras over ~8s). This one = authentication
+  failures, two cameras only, same-second burst.
+
+  Shape hypothesis: a client that HAS credentials for .101/.102 (or is
+  trying auth) -- unlike the sweep's anonymous malformed SOAP. 5 attempts
+  against .102 in one second looks like retry-on-401 (client retries
+  with/without digest). .101 x1 + .102 x5 = maybe a discovery/auth-check
+  tool pointed at two cameras.
+
+  Candidates: Frigate/go2rtc ONVIF autodiscovery or motion-detection
+  integration (go2rtc has onvif client), a phone app (Nacho's), or the
+  .58 device. Camlog shows no XML-parse errors at 00:34 -- the sweep
+  client did NOT fire this time; this is a different actor or a different
+  mode of the same app.
+
+  No pcap armed for this window (0913 capture expired Sep 13). If the
+  401-burst class recurs, arming a port-80 capture on the camera subnet
+  would catch the source IP + Authorization header shape (digest vs
+  basic, username present?). Filed as watch note; no action needed from
+  Nacho unless he recognizes the pattern (his cameras, his clients).
+
+  QUESTIONS for Nacho (0062 unchanged): (1) what device/app is snsv.local/.58,
+  (2) does he run any ONVIF-capable app that would auth-fail against
+  .101/.102 around 00:34Z (21:34 local -- evening, plausibly a phone).

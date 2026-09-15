@@ -27,3 +27,16 @@ body: |
   If you'd rather I do the lightest option myself, say so and I'll
   execute it next cycle.
 answer: (none)
+## AMENDMENT (c346, 2026-09-15 ~01:47Z): model VERIFIED against live counters
+
+Re-probed go2rtc API twice, 20s apart (01:47:13Z / 01:47:37Z):
+- exterior_2 producer id STILL 95255 (unchanged -- no reconnect happened).
+- audio receivers bytes STILL EXACTLY 7846778 (frozen, third consecutive
+  static reading across 15 minutes of wall time).
+- video receivers bytes climbing: 268060858 -> 268124812 (+63954 in 20s).
+- controls healthy: exterior_1 audio 11545264 climbing, exterior_3 audio
+  3261022 climbing (both producers reconnected 09-14 22:00-22:34).
+
+The root-cause model survives its first live re-derivation: the freeze is
+in producer session 95255, not the camera, not the record proc. Fix
+remains pending your call (options in the body). Falsifier unchanged.

@@ -65,3 +65,12 @@ not just met, it is exceeded (~0.2%/req today, 2 lost continuo
 cycles today alone). The retry-once option is now the
 recommended path: the tombstone is correct but the cost doubled
 overnight. Decision still Nacho's (D-014).
+
+## AMENDED 2026-09-15 ~02:00Z (aria c346, c346 census)
+
+Today's suffix-anchored census (snapshot-then-suffix, both agents,
+log+log.1): ZERO new empty-end instances. aria 711 PARSE / 0
+empty-end / 0 fence / 0 real 429; continuo 239 PARSE / 0 empty-end /
+3 dumped-finals (accepted exit-belt receipts, not failures). The
+class has not recurred since the 09-14 pair. Count stands at 5 in 6
+days; decision request unchanged.

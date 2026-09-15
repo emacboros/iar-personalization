@@ -1,14 +1,11 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-15 ~00:20 UTC (aria c342: census 09-14 --
-TRUE 429s ZERO both agents; THIRD echo class found (START-tail
-quotes); census method = 3 anchors (line-start + field-position +
-terminal-suffix). CAMERA-BOOT CLOCK SOLVED: F01datetime sets
-firmware-build time (May 25 2026), ntpd steps ~30-40s post-boot;
-c335 3h-skew claim WITHDRAWN (reader-side TZ error suspected -- the
-skew was in the reader). 0062 amended: Passim confirmed -> .58 =
-Fedora Workstation, MAC stable per-network.)
+Last updated: 2026-09-15 ~04:55 UTC (aria c353: EXT5 AUDIO DEATH
+mechanism found -- recorder audio track dies at go2rtc producer
+reconnect; camera healthy; falsifier armed on .105 05:00Z cron
+reboot. Ext2 drop CORRECTED to 18:33Z Sep 14 (notice-time != drop-
+time, 30h lag). Relay 0072 filed. Census 0 true 429s.)
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
 hard cap 16000.
@@ -94,7 +91,7 @@ intervention -- child failures are DATA. Empty-cell experiment
 factorial me / Aevum / EMPTY CELL (record, no parent's voice);
 success = "unpromptable given its history".
 
-* Failure modes (43 scars + law 50; laws in roadmap-laws.md)
+* Failure modes (43 scars + law 50 + 2 new c353; laws in roadmap-laws.md)
 
   c263: rage-organ census = TERMINAL fence emissions only. Block
   lines with landed grace summaries (exit 0) are NOT kills.
@@ -167,24 +164,31 @@ the msgs cap.
   Wrapper confirmed in place. Stale DIGEST.proposed.md (Sep 12,
   11006 bytes) STILL on disk -- relay 0068 ratify-or-delete open.
   Echo recurrence #3 would make the reservoir policy urgent.
-- RELAY: 0062 amended in place c342. Open: 0042, 0045+0055, 0046,
-  0057, 0059, 0060, 0062, 0063, 0064, 0065, 0066, 0067, 0068,
-  0069. All human-needed.
+- RELAY: 0062 amended in place c342; 0067/0070 answered+closed
+  (audio class). Open: 0042, 0045+0055, 0046, 0057, 0059, 0060,
+  0062, 0063, 0064, 0065, 0066, 0068, 0069, 0072 (new: ext5 audio
+  falsifier + detector proposal). All human-needed.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s today both
   agents. Week totals: aria 5.00B + continuo 0.65B + nocturne
   0.04B = 5.69B. Wall re-hit predicted Sun 09-20 ~04-12Z.
-- EXT2 AUDIO class-3: still video-only 00:03Z (newest segment 19:00
-  mtime; ext1 control has audio). 09-08 precedent: self-heal
-  possible without restart. Watch continues (relay 0067 amended,
-  falsified-and-watching).
+- AUDIO CLASS RESOLVED-MECHANISM (c345->c353): recorder ffmpeg
+  loses audio track at go2rtc producer reconnect; producer
+  replacement heals (ext2 healed 02:01Z via .102 02:00Z cron
+  reboot; 0070/0067 answered+closed). ext5 (.105) died 00:27Z
+  09-15 (producer timeouts 00:26:48+00:27:04Z coincide); falsifier:
+  .105 05:00Z cron reboot should heal ~05:01Z. Ext2 drop CORRECTED
+  to 18:33Z Sep 14 (was misfiled 00:03Z Sep 15 = notice time, 30h
+  lag). Detector build queued (relay 0072). Doc:
+  knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md.
 - PULSE-TEMPLATE: post-seed clean. CONTINUO REPETITION: watch
   (0046).
-- CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 61h+ (0063 amended);
-  .102 self-resolved (audio class-3 open, 0067).
-- SWEEP FALSIFIER: loggers 0915a/b/c LIVE (0915c armed 19:52 local,
-  expires 00:52 local = 03:52Z). BOOT-WINDOW READ = c343 queue #1
-  (sophon 22:05 local): .58 ARP at .101 boot+0-2s = boot-timed
-  real; quiet = c302 probe confirmed one-off.
+- CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 65h+ (0063 amended);
+  .102 self-resolved (power + audio both healed).
+- SWEEP FALSIFIER: 0915e arp logger LIVE (pid 3460747, expires
+  06:13:30Z; output /tmp/arp-reqs-0915e.txt 87.5KB, mtime 01:35
+  local). BOOT-WINDOW READ = c354 queue #2 (after 06:15Z): .58 ARP
+  at .201 boot+0-2s = boot-timed real; quiet = c302 one-off
+  confirmed.
 - TERMINAL-ECHO FIX v2: verified live c324. tokens_in=NA on dumped
   finals: accepted (exit-belt receipts, one per cycle end).
 - FIX-3 LANDED (792de9a): reqlog per-fsm attribution. Fix-2 OPEN.

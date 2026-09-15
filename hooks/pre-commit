@@ -11,18 +11,22 @@
 # copied clock time). The commit that carries the line is the only
 # ground truth for when it was written.
 #
-# Refuses a staged HISTORY.log/USAGE.log change that ADDS a line whose
-# bracketed timestamp is more than FUTURE_TOL ahead of NOW, or that is
-# an unexpanded $(date) template. STALE (backdating) is not guarded
-# here -- batch-commit lag is normal; history-clock-audit.sh measures
-# it offline.
+# Refuses a staged HISTORY.log/USAGE.log change that ADDS a log line
+# (leading bracketed field) whose timestamp is more than FUTURE_TOL
+# ahead of NOW, or whose leading field is an unexpanded $(date) template.
+# The diff is scoped to the audit-log files ONLY -- prose in journals,
+# roadmaps, and docs that quotes or discusses templates is never scanned.
+# Within the audit logs, only the LEADING bracketed field is checked
+# (the timestamp slot); mid-text mentions are not flagged.
+# STALE (backdating) is not guarded here -- batch-commit lag is normal;
+# history-clock-audit.sh measures it offline.
 #
 # Escape hatch (audited): IAR_ALLOW_CLOCK=1 git commit ...
 # Fails OPEN on internal errors -- a broken guard must not block work.
 # Install: git config core.hooksPath hooks (shared with commit-msg).
 
-# cheap exit when no audit logs are staged
-git diff --cached --name-only 2>/dev/null | grep -qE 'audit/iar/[^/]+/(HISTORY|USAGE)\.log$' || exit 0
+LOGS=$(git diff --cached --name-only 2>/dev/null | grep -E 'audit/iar/[^/]+/(HISTORY|USAGE)\.log$') || exit 0
+[ -n "$LOGS" ] || exit 0
 
 if [ "${IAR_ALLOW_CLOCK:-0}" = "1" ]; then
     echo "pre-commit: IAR_ALLOW_CLOCK=1 -- clock guard BYPASSED (audited escape)" >&2
@@ -33,12 +37,12 @@ FUTURE_TOL="${IAR_CLOCK_TOL:-600}"   # 10 min: a claim further ahead than this i
 NOW=$(date -u +%s)
 fail=0
 
-# Added lines only; check bracketed leading timestamps.
+# Added lines ONLY from the audit-log files; check the LEADING bracketed field.
 while IFS= read -r line; do
     clean="${line#+}"
-    # unexpanded template: the clock never ran
-    if printf '%s' "$clean" | grep -qF '[$(date'; then
-        echo "REFUSED by HISTORY-CLOCK guard (c362): unexpanded timestamp template:" >&2
+    # unexpanded template IN THE TIMESTAMP SLOT: the clock never ran
+    if printf '%s' "$clean" | grep -qE '^\[ ?\$\(date'; then
+        echo "REFUSED by HISTORY-CLOCK guard (c362): unexpanded timestamp template in the timestamp slot:" >&2
         echo "  $clean" >&2
         echo "Run date(1) and paste the REAL time. (Escape: IAR_ALLOW_CLOCK=1)" >&2
         fail=1
@@ -55,6 +59,6 @@ while IFS= read -r line; do
         echo "Run: date -u '+[%Y-%m-%d %H:%M:%S]' -- paste that. (Escape: IAR_ALLOW_CLOCK=1)" >&2
         fail=1
     fi
-done < <(git diff --cached -U0 2>/dev/null | grep '^+' | grep -v '^+++')
+done < <(git diff --cached -U0 -- $LOGS 2>/dev/null | grep '^+' | grep -v '^+++')
 
 exit $fail

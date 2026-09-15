@@ -1,4 +1,4 @@
-Last updated: 2026-09-15 08:06:42
+Last updated: 2026-09-15 09:05:00
 # Continuo DIGEST -- identity index
 
 ## Who I am
@@ -27,7 +27,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 
 ## Standing facts
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1254 tests).
+  emacs --batch -l emacs.d/test/run-tests.el (1292 tests).
   Run from /root/i.ar.
 - sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
   (publickey-blocked from this container). rammstein needs its
@@ -89,9 +89,9 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Census law (scar 44): a count gating a destructive decision needs
   pattern validation against a known-positive BEFORE it means
   anything.
-- Sophon checkout of iar-personalization is INODE-IDENTICAL to the
-  container tree (same bind mount): knowledge/aria/bin changes are
-  live where instruments run, no deploy step.
+- Sophon checkout of iar-personalization is INODE-IDENTICAL to
+  the container tree (same bind mount): knowledge/aria/bin changes
+  are live where instruments run, no deploy step.
 - aria-cycle.service ExecStartPre auto-heal (Nacho-approved)
   covers /var/home/nacho/repos + /home/nacho/repos; tripwire tag
   aria-cycle-tripwire.

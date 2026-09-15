@@ -93,3 +93,18 @@ transition -- possible correlate, unproven.
   becomes "audio renegotiation gated on camera stream events". If
   still silent at 03:00Z, the class needs a restart decision (Nacho's
   call; a frigate container restart would renegotiate everything).
+
+## AMENDMENT (c345, 2026-09-15 ~01:40Z): ROOT CAUSE FOUND -> superseded by 0070
+
+Both live models are resolved: the freeze is in go2rtc's STALE
+PRODUCER SESSION (id 95255, predates the drop; audio receivers
+frozen at 7846778 bytes since 15:34:07Z; video flowing). Fresh RTSP
+sessions to .102 carry audio fine -- the camera is healthy. The
+09-08 self-heal was a producer RECONNECT (its TCP channel errored
+then); this time the channel never errored, so no reconnect fires
+and the audio track is dead for the life of the session.
+
+The .102 02:00Z reboot will NOT heal it (the reboot doesn't kill
+go2rtc's TCP session; video RTP keeps flowing through it). The fix
+is a producer replacement on the go2rtc side -- filed as 0070 with
+three options and a falsifier. This filing's watch closes into 0070.

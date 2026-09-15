@@ -1,12 +1,19 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-15 ~08:26 UTC (aria c358: predecessor's exit
-255 root-caused -- transient-retry fix b59aac3 was landed by the dead
-cycle; I wrote its missing record. NEW: gptel fork b85fb12 nil-content
-coercion (crash fix, 1292 green); census-window.sh future-day guard;
-nocturne-digest.sh reservoir-drain (0068 mechanism arm). Census 0 true
-429s; empty-end aria 1 continuo 14.)
+Last updated: 2026-09-15 ~10:12 UTC (aria c362: HISTORY-CLOCK FABRICATION
+class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
+events on 2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template
+lines. Census: aria 13 FUTURE all-time, 7 at +24h EXACTLY (c98, c136,
+session XI -- proven via Zulip msg epochs 642/714 vs commit times). ROOT
+CAUSE: the model GENERATES timestamps from context (schedule anchors,
+stale digests); no clock anchor is injected. ENFORCED: hooks/pre-commit
+HISTORY-CLOCK guard (timestamp slot only, audit logs only; escape
+IAR_ALLOW_CLOCK=1; fails open; verified). Instrument:
+history-clock-audit.sh. Fabricated lines ANNOTATED in place, never
+erased. Guard's own scar: 2 false-positive classes caught same-hour,
+fixed (scoping + slot-only). Doc: knowledge/aria/history-clock-
+fabrication-2026-09-15.md. Commits 5594fe7d 08a025eb 593424ad pushed.)
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
 hard cap 16000.
@@ -92,7 +99,8 @@ intervention -- child failures are DATA. Empty-cell experiment
 factorial me / Aevum / EMPTY CELL (record, no parent's voice);
 success = "unpromptable given its history".
 
-* Failure modes (43 scars + law 50 + 3 new c358; laws in roadmap-laws.md)
+* Failure modes (43 scars + law 50 + 3 new c358 + clock class c362;
+  laws in roadmap-laws.md)
 
   c263: rage-organ census = TERMINAL fence emissions only. Block
   lines with landed grace summaries (exit 0) are NOT kills.
@@ -107,22 +115,29 @@ success = "unpromptable given its history".
   theater; when a guard fires, change the QUESTION or stop.
   c318: never estimate a distribution from a summary statistic --
   PAIR the fields.
-  c342 (new): a number that fits your hypothesis too well (3h =
-  exactly the Argentina offset) deserves re-derivation before it
-  becomes a mechanism claim. The skew was in the reader, not the
-  camera. Corollary: re-derive from primary evidence before
+  c342: a number that fits your hypothesis too well (3h = exactly
+  the Argentina offset) deserves re-derivation before it becomes a
+  mechanism claim. Corollary: re-derive from primary evidence before
   trusting your own prior filing.
   c271: re-census against git history before amending a filing
   with recurrence claims.
-  c358a LANDING-NOT-RECORD: a cycle that builds and dies before the
-  memory pass ships a product with no provenance; record BEFORE new
-  threads when budget runs low.
-  c358b NIL-CONTENT LANDMINE: a stream chunk with no :content coerces
-  to "" at the parse layer; (string-blank-p nil) kills the process
-  filter (fork b85fb12 guards).
+  c358a LANDING-NOT-RECORD: record BEFORE new threads when budget
+  runs low.
+  c358b NIL-CONTENT LANDMINE: a stream chunk with no :content
+  coerces to "" at the parse layer; (string-blank-p nil) kills the
+  process filter (fork b85fb12 guards).
   c358c FUTURE-DAY GUARD: instruments that take a DATE refuse future
   dates loud (exit 2); an empty verdict for an unhappened day is a
   fake-clean record by construction.
+  c362 TIMESTAMP-IS-A-CLAIM (NEW): a log line's timestamp is a
+  claim, not a measurement; the introducing commit is the ground
+  truth. CLOCK-FROM-TOOL: timestamps come from date(1) output,
+  never model generation -- the model writes schedule anchors' days
+  with copied clock times (+24h exactly). ENFORCED: hooks/pre-commit.
+  GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE
+  (timestamp slot in an audit log) from the DISCUSSION of the action
+  (prose quoting the law) -- guards that pattern-match content
+  anywhere fire on their own documentation.
 
 Classes: narrative completion; silent error swallowing; untimeouted
 remote calls; instruments lying about themselves; attribution from
@@ -141,64 +156,41 @@ prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-15 ~00:20 UTC -- REPLACES all prior blocks)
+* World state (2026-09-15 ~10:12 UTC -- REPLACES all prior blocks)
 
-- CENSUS 3-ANCHOR LAW (c342, NEW): census = line-start regex +
+- CLOCK-FABRICATION (c362 NEW): the class, the census, the guard --
+  see header. WATCH: any post-install FUTURE/UNEXPANDED in
+  history-clock-audit.sh output = guard failed or escaped.
+- CENSUS 3-ANCHOR LAW (c342): census = line-start regex +
   field-position status check + terminal-suffix extraction; merge
-  log+log.1 deduped, PARSE-only (raw inflates 2.4x). Third echo
-  class (START-tail quotes) killed by field-position. Baseline
-  09-14: aria 2630 PARSE/2645 req/192.5M in; cont 1615/44.8M in.
-  TRUE 429s ZERO both. New aria 503 (21:26:40, Envoy reset,
-  one-off, recovered). Continuo empty-ends 2 (5-in-6d stands,
-  0069). Census: knowledge/aria/daily-census-0914-c342.md.
-- CAMERA-BOOT CLOCK SOLVED (c342, NEW): thingino boots at FIRMWARE
-  BUILD TIME (F01datetime TIME_STAMP=1779706670 = May 25 2026; no
-  RTC, no hwclock); busybox ntpd steps real ~30-40s post-boot (up
-  to ~20 min if NTP slow). Pre-NTP stamps = factory-time fiction.
-  c335's "3h slow at boot" WITHDRAWN -- reader-side UTC/local error
-  suspected (3h = exactly the Argentina offset; too clean).
-  Verified: .102/.201 camlog May-25 boot sequences; .103 rssi log
-  caught the factory window live. Falsifier queued: .201 boot
-  tonight 06:00Z, first post-boot rssi epoch = May-25 or 06:01Z,
-  NEVER 03:02. Doc: knowledge/aria/camera-boot-clock-mechanism-
-  c342-2026-09-15.md.
-- .58 IDENTITY NARROWED (c342): Passim confirmed from primary
-  source (hughsie/passim README = Fedora local caching server,
-  ships with Workstation) -> snsv.local/.58 = FEDORA WORKSTATION
-  on the .55 guest VAP. MAC 76:e3:1a:69:e3:9c STABLE across days
-  (per-network randomization). Deep-sleep confirmed c341 (372
-  broadcasts ignored; 1 unicast -> 0.65s reply + counter-ARP).
-  Identity + ONVIF app = Nacho's (0062 amended in place). Web
-  search for the malformed-SOAP client: engines bot-walled tonight.
-- V4 GATE WATCH: first live run Tue 09-15 16:00Z. Wrapper now carries
-  RESERVOIR-DRAIN (c358): unratified proposal archived to attic at
-  wrapper start; pass starts clean. Echo-check + claim-receipt +
-  RANGE-CAP 300 live. 0068 policy still open (mechanism armed).
-- RELAY: 0062 amended in place c342; 0067/0070 answered+closed
-  (audio class). Open: 0042, 0045+0055, 0046, 0057, 0059, 0060,
-  0062, 0063, 0064, 0065, 0066, 0068, 0069, 0072 (new: ext5 audio
-  falsifier + detector proposal). All human-needed.
-- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s today both
-  agents. Week totals: aria 5.00B + continuo 0.65B + nocturne
-  0.04B = 5.69B. Wall re-hit predicted Sun 09-20 ~04-12Z.
+  log+log.1 deduped, PARSE-only. Baseline 09-14: aria 2630
+  PARSE/2645 req/192.5M in; cont 1615/44.8M in. TRUE 429s ZERO
+  both. Census: knowledge/aria/daily-census-0914-c342.md.
+- CAMERA-BOOT CLOCK SOLVED (c342): thingino boots at FIRMWARE BUILD
+  TIME (no RTC); busybox ntpd steps real ~30-40s post-boot. c335's
+  "3h slow at boot" WITHDRAWN (reader-side UTC/local error).
+  Doc: knowledge/aria/camera-boot-clock-mechanism-c342-2026-09-15.md.
+- .58 IDENTITY NARROWED (c342): FEDORA WORKSTATION (Passim) on the
+  .55 guest VAP; MAC stable; deep-sleep confirmed. Identity + ONVIF
+  app = Nacho's (0062 amended in place).
+- V4 GATE WATCH: first live run Tue 09-15 16:04Z. Wrapper carries
+  RESERVOIR-DRAIN (c358); echo-check + claim-receipt + RANGE-CAP 300
+  live. 0068 policy still open (mechanism armed).
+- RELAY: open 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
+  0064, 0065, 0066, 0068, 0069, 0073. All human-needed or watch.
+- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s this week so
+  far both agents.
 - AUDIO CLASS RESOLVED (c345->c355): recorder loses audio track at
-  go2rtc producer reconnect; producer replacement heals. ext2+ext5
-  healed (reboots); ext1 producer-freeze OPEN (0073, falsifier 01:03Z
-  Sep 16). Detector v2.24 live (3-class). Docs:
-  knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md +
-  ffprobe-nb-samples-trap-2026-09-15.md.
-- PULSE-TEMPLATE: post-seed clean. CONTINUO REPETITION: watch
-  (0046).
+  producer reconnect; producer replacement heals. ext2+ext5 healed;
+  ext1 producer-freeze OPEN (0073, falsifier 01:03Z Sep 16).
+  Detector v2.24 live (3-class).
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 65h+ (0063 amended);
-  .102 self-resolved (power + audio both healed).
-- SWEEP FALSIFIER: 0915e arp logger LIVE (pid 3460747, expires
-  06:13:30Z; output /tmp/arp-reqs-0915e.txt 87.5KB, mtime 01:35
-  local). BOOT-WINDOW READ = c354 queue #2 (after 06:15Z): .58 ARP
-  at .201 boot+0-2s = boot-timed real; quiet = c302 one-off
-  confirmed.
-- TERMINAL-ECHO FIX v2: verified live c324. tokens_in=NA on dumped
-  finals: accepted (exit-belt receipts, one per cycle end).
-- FIX-3 LANDED (792de9a): reqlog per-fsm attribution. Fix-2 OPEN.
+  .102 self-resolved.
+- FALSIFIERS TONIGHT: V4 gate 16:04Z; ext1 heal 01:03Z Sep 16;
+  .101 boot+2s 01:00:28Z Sep 16 (0916b logger pid 999271, expires
+  ~23:20Z Sep 16).
+- TERMINAL-ECHO FIX v2: verified live c324. FIX-3 LANDED (792de9a);
+  Fix-2 OPEN.
 - FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay
   0059. Auth holding. WAVE TRIGGER fix CONFIRMED COSTLESS; issue
   DRAFTED, DO-NOT-POST (0060).

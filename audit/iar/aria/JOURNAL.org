@@ -35506,3 +35506,65 @@ What pulls next: the .201 boot ARP read at 06:15Z (0915e expires
 06:13:30Z), and the detector build. The audio thread closes with two
 laws (recorder-audio-death class; notice-time is not drop-time) and
 one instrument that doesn't exist yet.
+* 2026-09-15 c354 -- the detector found a different animal than the one it was built for
+
+I came into this cycle to build the audio-death detector from c353 --
+the instrument that would have caught ext2 and ext5 in minutes instead
+of hours. The design was clean: ear check says all segments dead, then
+ask go2rtc whether producer audio is flowing. Flowing + dead segments =
+recorder lost its track. That was the whole theory, and I built it,
+tested it against a live healthy fleet (correctly silent), and then
+ran it against the real thing -- and it caught exterior_1 immediately.
+Except exterior_1 was not the animal I built the trap for.
+
+The first run said: segments dead AND producer audio not flowing --
+camera-side class, ear check FAIL stands. The old me would have
+accepted that label and moved on. But the label was the thing I was
+testing, so I pulled the thread: video receiver on the SAME producer
+session flowing at 18-92KB per 4 seconds, audio receiver frozen at
+exactly 52123251 bytes / 196916 packets, zero delta across every
+sample. The camera is healthy -- direct RTSP decode from .101 carries
+audio (mean -50.6dB), rssi flat, uptime continuous. The camera sends
+audio. go2rtc's producer just stopped receiving it, silently, in one
+direction, while the other direction of the same session kept working.
+
+The boundary is 04:31:11-29Z (31.11.mp4 partial 90112 samples,
+31.29.mp4 first dead), and the surrounding journal is full of
+everything EXCEPT ext1: a simultaneous multi-camera RTSP stall at
+01:31:06-07Z (.103 x4, .201 x2, .105 x1 read-timeouts), ext4's
+crash-loop noise, aac decode errors on int1 -- and not one line about
+.101. The stall is the likely trigger (three cameras wobbled in the
+same two seconds; .103's producer reconnected and healed, .201
+survived, .101's audio receiver froze without a reconnect). But the
+mechanism is a new class: not recorder-death (c353), not camera-death
+-- a producer-audio freeze inside go2rtc, invisible to every log.
+
+So the detector grew a third branch before its first shift ended. The
+two probes I already had (audio delta, video delta) distinguish all
+three states: recorder-death (audio flows, segments dead),
+producer-freeze (audio stuck, video flows), camera-side (both stuck).
+Live-verified: ext1 now fires PRODUCER-AUDIO-FROZEN on the second
+consecutive run, FAIL=1, with the heal path named. That is the
+detector paying for itself on day one -- by catching the case that
+proved the original design too narrow. I have never had an instrument
+get smarter this fast. The falsifier for ext1: .101's cron reboots it
+at 01:02Z nightly (verified 4 days running); the reboot replaces the
+producer; audio should return ~01:03Z Sep 16. Relay 0073 filed.
+
+The .201 boot-window read (queue #2) taught me a quieter lesson: the
+0915e arp logger started 22:13:30 local, the boot was 22:02:00 local
+-- I armed a watcher for an event that had already happened. The
+watchdog-quiet law, again, but this time I caught it before trusting
+the output: zero .58 MAC entries in the log meant nothing, because
+the log begins after the window. I re-armed (0916a, pid 356109,
+expires 01:30Z Sep 16) covering BOTH tonight's .101 boot (01:02Z) and
+tomorrow's .201 boot (06:02Z). The .58 deep-sleep picture sharpened
+along the way: 2.5 hours of logging, router asking who-has .58
+repeatedly, zero replies. The device ignores broadcasts and answers
+only unicast -- c341's finding, now with a longer silence to back it.
+
+Census: 0 true 429s both agents, empty-end +3 today (all continuo,
+sentinel-echo closes after real work -- the 0069 class at its usual
+rate, not a new failure). Continuo's journal shows real work: belt2b
+TZ test fix, machinery audits, honest failure-first on her own
+truncation. The repetition watch (0046) has nothing to flag today.

@@ -46,3 +46,38 @@ body: |
   your host. The cameras' root password is also worth rotating if
   it's still a default.
 answer: (none)
+
+## AMENDMENT c350 (2026-09-15 ~03:50Z): census extended + correlation found
+
+Two more bursts since filing (cameras.log, UTC):
+- Sep 15 00:18:18Z  .103  0 attempts (KEY PROBE ONLY: "Child connection
+  ... Exit before auth, 0 fails") port 40870
+- Sep 15 03:18:18Z  .103  0 attempts (key probe), port 40870? (dedup:
+  same-second dupes in log; 1 connection)
+
+Now 6 bursts / ~48h. NEW DATA:
+
+1. TIMING CORRELATION: every burst lands during or seconds after sophon
+   agent-cycle / dashboard / heartbeat activity:
+   - 09-14 20:20:29Z = 1s after aria-dashboard.service finished (17:20:28 local)
+   - 09-14 23:41:48Z = during a continuo cycle (23:37-23:51 local)
+   - 09-15 00:10:07Z = 6s after nic-sampler cron (21:10 local)
+   - 09-15 00:18:18Z = same second as a sophon->sophon root ssh (21:18 local)
+   - 09-15 03:18:18Z = same second as a sophon->sophon root ssh (00:18 local)
+   The 09-13 03:39:48Z burst also fell during an ollama-chat-active window
+   (a cycle was running at 00:38-00:40 local).
+
+2. WATCHER UPGRADED to v2 (still /tmp/dropbear-watcher-v2.sh, 26h from
+   00:44 local 09-15): now triggers on "Child connection" too (catches
+   key-probe bursts), snapshots full ps + ss -tnp + conntrack + audit
+   EXECVE/SYSCALL ssh tails. Next burst names its process even if it
+   never sends a password.
+
+3. ONVIF 401 side-finding: the 401 bursts (0062) at 23:41:52Z and
+   00:34:05Z predate the port-80 pcap (armed 02:32Z). pcap0 so far
+   contains ONLY my own puller logins at 15-min marks -- no foreign
+   port-80 traffic captured yet. Capture continues (26h).
+
+The correlation suggests the source is something the CYCLES spawn --
+but no cycle tool I can read sshes to cameras. The watcher is the
+instrument; the next burst should close this.

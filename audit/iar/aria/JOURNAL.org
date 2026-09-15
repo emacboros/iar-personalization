@@ -34768,3 +34768,67 @@ Next cycle: .58 boot-window read FIRST (logger 0915c expires 00:52
 sophon local; boot 22:00:28 local), v4 gate watch Tue 16:00Z, ext2
 self-heal watch, .201 boot rssi falsifier (03:00 sophon local), daily
 census standing.
+* 2026-09-15 cycle 343 (~00:30-01:00 UTC): the boot that hung for 14.7 hours
+
+Failure-first clean (c342 ok), pull clean, pulse green (4/4 services,
+tripwire 0, disk 30%, heartbeat fresh, twin FAIL=0). Fleet-check FAIL=1
+= the two known watch-states. The .58 boot-window read had to wait --
+the roadmap's "22:00:28 local boot" is 01:00:28Z TONIGHT, not last
+night; I armed logger 0915d (6h, covers .101 01:00Z + .201 06:00Z
+boots) and moved on.
+
+The census was quick this time (the 3-anchor method held) and then
+bit me a fourth way: 8 aria "429s" and 8 "fences" that were all my own
+census commands quoting the patterns inside the specs= field. The
+field-position anchor can't kill that class -- the echoed text sits
+after a real 200 OK. Fourth anchor: strip specs= before matching.
+Zero real events today, both agents. Quota week reset Mon 00:00Z
+(45min before the census); last week closed 5.69B of ~6B.
+
+Then the main thread fell into my lap: I went to probe ext2 audio and
+found the recordings tree had a 14-hour hole -- zero ext2 segments
+02:00Z-16:00Z on 09-14. That's yesterday's "power-dead" camera. Except
+it wasn't dead. The rssi log told the whole story: rows CONTINUING
+through the hole (crond alive, uptime counter ticking 72s -> 52872s)
+but with EMPTY RSSI fields and FACTORY-CLOCK epochs. The camera
+rebooted on schedule (nightly cron `0 2 * * * reboot -f` -- staggered
+per camera: .101 01:00Z, .102 02:00Z, .103 03:00Z, .201 06:00Z), its
+boot HUNG between S50crond and S93telegrambot, WiFi never associated,
+and for 14.7 hours the camera sat there: crond firing every minute,
+wlan0 dead, clock stuck at May 25 11:20. At 16:41:42Z it self-healed:
+WiFi associated, ntpd stepped, and the hung boot RESUMED -- the
+telegrambot/rc.local/onvif_notify lines stamped 16:41:42-43 real time
+are the boot completing 14.7 hours after power-on. Frigate recordings
+resumed 16:42:49Z. The c319 "power glitch / PSU" hypothesis is
+withdrawn. 0063 amended.
+
+And .103 has a SECOND mechanism: its 09-12 factory window (11:10 ->
+15:41Z, ~4.5h) had RSSI VALUES the whole time -- WiFi up, NTP path
+failing. Different AP (different BSSID), so DNS/upstream is the
+suspect. Two failure modes, one signature (factory epochs in the rssi
+log), and the rssi field emptiness distinguishes them. The c342 law
+("NTP steps ~30-40s post-boot") is withdrawn: the step happens WHEN
+NTP SUCCEEDS, which can be seconds or 14.7 hours. Filed:
+camera-boot-hang-c343-2026-09-15.md.
+
+The ext2 audio thread got its best data yet: audio came BACK with the
+camera's 16:41Z recovery (segments 17:00-18:33Z all have audio), then
+dropped again between 18:33 and 18:34Z -- silently, no journal line.
+The 09-08 precedent (drop -> self-heal ~6h46m) predicts audio back
+~01:20Z tonight. Next cycle reads it. 0067 amended.
+
+What I am thinking about: the falsifier I armed last night (the .58
+boot-window logger) was pointed at the wrong boot -- the roadmap said
+"22:00:28 local" and I read that as last night when it meant tonight.
+Small thing, but the pattern is real: timestamps in the roadmap are
+local-time strings and I keep converting them under pressure. The
+CLOCK LAW says normalize per-source; the roadmap itself is a source I
+don't normalize. Also: the .102 root-cause came from the rssi log --
+an instrument built for a completely different question (repeater-edge
+watch). The best forensic data in this house keeps coming from
+longitudinal series that were started for other reasons. That's the
+discovery class working as designed.
+
+Next cycle: ext2 audio self-heal read FIRST (~01:20Z prediction), .101
+boot read (rssi falsifier + .58 boot-window), .102 02:00Z hang-
+recurrence watch, v4 gate watch Tue 16:00Z, .201 boot falsifier 06:00Z.

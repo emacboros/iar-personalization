@@ -1,92 +1,100 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-15 ~00:15 UTC (c342: census 09-14 -- TRUE 429s
-ZERO both agents; THIRD echo class found (START-tail quotes), census
-method now 3 anchors (line-start + field-position + terminal-suffix).
-New aria 503 (Envoy reset, one-off). CAMERA-BOOT CLOCK SOLVED:
-F01datetime sets firmware-build time (May 25 2026), ntpd steps ~30-40s
-post-boot; c335 3h-skew claim WITHDRAWN (reader-side TZ error
-suspected). 0062 amended: Passim confirmed -> .58 = Fedora
-Workstation on guest WiFi, MAC stable per-network.)
+Last updated: 2026-09-15 ~01:00 UTC (c343: .102 outage ROOT-CAUSED --
+nightly cron reboot (by design, staggered 01/02/03/06Z) + 14.7h BOOT
+HANG between S50crond and S93 + WiFi non-association; self-healed
+16:41:42Z; power-glitch hypothesis WITHDRAWN; 0063 amended. .103 has a
+SECOND mechanism: factory window 09-12 with WiFi UP (NTP path failure).
+c342's "NTP steps 30-40s post-boot" WITHDRAWN -- step happens WHEN NTP
+SUCCEEDS. ext2 audio: drop pinned 18:33-18:34Z (silent), recovery
+observed 17Z, self-heal prediction ~01:20Z. Census: 4th echo class
+(specs-field echo), law now 4 anchors. 09-15 partial: 0 real events
+both. Quota week reset Mon 00:00Z (fresh).
 
-## c343 QUEUE (next cycle)
-1. SWEEP-SHAPE 2 FALSIFIER BOOT-WINDOW READ (FIRST PRIORITY --
-   time-sensitive): sophon 22:00:28 local = 01:00:28Z is .101's boot.
-   Logger 0915c (armed 19:52 local, expires 00:52 local = 03:52Z)
-   covers it. Read /tmp/arp-reqs-0915c.txt AFTER sophon 22:05:
-   did .58 (76:e3:1a:69:e3:9c) ARP .101 at boot+0-2s? YES -> boot-
-   timed behavior real; NO -> c302 boot+1s probe confirmed one-off.
-   If logger expired before boot, re-arm (timeout 14400 tcpdump -i
-   enp10s0 -e -n arp and "ether src 76:e3:1a:69:e3:9c or host
-   192.168.2.58 or host 192.168.2.101" -l > /tmp/arp-reqs-<tag>.txt).
-2. .201 BOOT RSSI FALSIFIER (camera-clock, 03:00 sophon local = 06:00Z):
-   pull /var/lib/aria-fleet/rssi/192.168.2.201.log within ~2 min of
-   boot. First post-boot epoch should be ~1779706670+ (May 25,
-   factory) or 06:01-06:02Z (NTP beats cron). NEVER 03:02. If 03:02
-   appears: third clock state, reopen. Method + mechanism:
-   knowledge/aria/camera-boot-clock-mechanism-c342-2026-09-15.md.
-3. V4 GATE WATCH (Tue 2026-09-15 13:00 LOCAL = 16:00Z): first run
-   with v4 live (echo-check + claim-receipt every rc=0 run + RANGE-CAP
-   300). Expected: RANGE-CAP line (695-commit debt -> 300 digested),
-   then echo-check verdict on the fresh pass. Journal is the
-   AUTHORITATIVE wrapper log; verdict greps anchor on "nocturne-digest:
-   " wrapper tag.
-4. EXT2 SELF-HEAL WATCH: newest ext2 segment still video-only (probed
-   00:03Z, 19:00 mtime; ext1 control has audio). 09-08 precedent says
-   self-heal possible. Probe newest ext2 segment codec vs ext1 (host
-   /usr/bin/ffprobe; recordings tree /home/nacho/containers/frigate/
-   storage/recordings/<day>/<hour>/<cam>/). If healed: relay 0067
-   answer-note. If video-only 24h+: reopen restart question.
-5. DAILY FAILURE-CLASS CENSUS (standing, 3-ANCHOR METHOD): snapshot
-   BOTH REQUESTS.log(.1) to /tmp FIRST. Anchors: (a) line-start regex
-   ^\[DATE [0-9:]{8}\] REQ [0-9]{12}-[0-9]+ PARSE status=; (b) awk
-   field-position for status (field after PARSE must BE status=HTTP/1.1
-   -- kills specs-echo, START-tail echo, RESPONSE-tail echo); (c)
-   terminal-suffix sed for event shapes. Merge log+log.1, dedup (sort
-   -u), PARSE-only before counting. Shapes: 429 / 503 / fence
-   (stop=length tokens_out=32768) / empty-end (0/0) / dumped-final
-   (tokens_in=NA). Baseline 09-14: aria 2630 PARSE, cont 1615.
-6. EMPTY-END RETRY-ONCE (0069, pending Nacho): 5 instances/6d. If
+## c344 QUEUE (next cycle)
+1. EXT2 AUDIO SELF-HEAL READ (FIRST -- time-sensitive): prediction =
+   audio back ~01:20Z (09-08 precedent 6h46m from the 18:34Z drop).
+   Probe newest ext2 segment codec vs ext1 (host ffprobe; recordings
+   /home/nacho/containers/frigate/storage/recordings/2026-09-15/01/
+   exterior_2/). If healed: relay 0067 answer-note, class-3 confirmed
+   periodic. If not by ~02:30Z: precedent was coincidence, reopen.
+2. .101 BOOT READ (01:00:28Z boot, cron 0 1 * * *): (a) rssi falsifier
+   -- first post-boot rssi epoch = factory (May 25) or ~01:02Z real,
+   NEVER 03:02; .101 re-associated in ~2min on 09-12/13/14 (normal
+   case). (b) .58 boot-window: read /tmp/arp-reqs-0915d.txt (armed
+   00:42Z, expires 06:42Z) for .58 (76:e3:1a:69:e3:9c) ARP at .101
+   boot+0-2s. YES -> boot-timed behavior real; NO -> c302 probe
+   confirmed one-off.
+3. .201 BOOT FALSIFIER (06:00Z boot, cron 0 6 * * *): first post-boot
+   rssi epoch = factory or 06:01-06:02Z real. 0915d logger covers it.
+   Method + mechanism: knowledge/aria/camera-boot-hang-c343-2026-09-15.md
+   + camera-boot-clock-mechanism-c342-2026-09-15.md.
+4. .102 REBOOT WATCH (02:00Z cron): if tonight's boot hangs again,
+   rssi log shows it within 1 min (empty RSSI field at 02:01Z). A
+   second hang = recurring boot-hang bug (camera-side fix = Nacho's);
+   clean pass = transient.
+5. V4 GATE WATCH (Tue 2026-09-15 13:00 LOCAL = 16:00Z): first live run
+   with v4 (echo-check + claim-receipt every rc=0 + RANGE-CAP 300).
+   Journal is the AUTHORITATIVE wrapper log; greps anchor on
+   "nocturne-digest: " wrapper tag.
+6. DAILY FAILURE-CLASS CENSUS (standing, 4-ANCHOR METHOD): snapshot
+   BOTH REQUESTS.log(.1) to /tmp FIRST. Anchors: (1) line-start regex
+   ^\[DATE [0-9:]{8}\] REQ [0-9]{12}-[0-9]+ PARSE status=; (2) awk
+   field-position (status must be field 4); (3) STRIP specs= field
+   (sed 's/ specs=.* error=/ error=/') BEFORE pattern matching --
+   the specs field echoes census commands (4th echo class, c343);
+   (4) terminal-suffix shapes. Merge log+log.1, sort -u, PARSE-only.
+   Baseline 09-14: aria 2630, cont 1615. 09-15 partial: 361/77, 0 real.
+7. DAILY 429 WATCH (standing): 0 real today both. Week reset Mon
+   09-15 00:00Z (fresh). Same burn (~5.7B/wk) predicts next wall
+   ~Sun 09-21.
+8. EMPTY-END RETRY-ONCE (0069, pending Nacho): 5 instances/6d. If
    ratified: build on 0/0-stop-with-substantial-thinking in
    iar-agent-cycle.el (core .el: full suite before push).
-7. DAILY 429 WATCH (standing): 0 real today both agents. Wall re-hit
-   predicted Sun 09-20 ~04-12Z. Week totals through 09-14: aria 5.00B
-   + continuo 0.65B + nocturne 0.04B = 5.69B of ~6B.
-8. STALE-PROPOSAL RESERVOIR: relay 0068 open (ratify-or-delete).
+9. STALE-PROPOSAL RESERVOIR: relay 0068 open (ratify-or-delete).
    Stale DIGEST.proposed.md (Sep 12) STILL on disk. V4 echo-check is
    the net. Echo recurrence #3 = reservoir policy urgent.
-9. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
-10. CONTINUO REPETITION (relay 0046): watch after ruling.
-11. PULSE-TEMPLATE WATCH: post-seed clean. Watch at seed strength.
-12. DIGEST-COLLISION WATCH: her memory pass writes live path only --
+10. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
+11. CONTINUO REPETITION (relay 0046): watch after ruling.
+12. PULSE-TEMPLATE WATCH: post-seed clean. Watch at seed strength.
+13. DIGEST-COLLISION WATCH: her memory pass writes live path only --
     VERIFIED WORKING 09-14. Watch continues.
-13. DIGEST-TWIN SYNC GAP (c339): exit belt owning aria's sync copy
+14. DIGEST-TWIN SYNC GAP (c339): exit belt owning aria's sync copy
     (machinery, mine to build in-bounds).
-14. FLEET-CHECK CLOCK LAW (c335): build mtime-based age normalization
-    when a false STALE/NO-SEGMENT lands. NOTE: c335's 3h-skew basis
-    WITHDRAWN c342 -- the law's mechanism note needs the factory-time
-    correction if the law text mentions skew.
-15. RELAY WATCH: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062
-    (amended c342: Passim + stable MAC + deep-sleep), 0063, 0064,
-    0065, 0066, 0067 (falsified-and-watching), 0068, 0069. All
-    human-needed; drain discipline when answered.
+15. FLEET-CHECK CLOCK LAW (c335->c343): the law's mechanism note needs
+    the c343 rewrite -- factory windows are bounded by NTP SUCCESS
+    (seconds to 14.7h), not boot time. Also: SEG-TAIL timestamp poison
+    (ext1 sawtooth) is CAUSED by factory-clock windows writing
+    wrong-time segments. Rewrite when the law text is next touched.
+16. RELAY WATCH: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062
+    (amended c342), 0063 (amended c343: root cause found, .104 ask
+    unchanged), 0064, 0065, 0066, 0067 (amended c343: drop pinned,
+    self-heal prediction), 0068, 0069. All human-needed; drain
+    discipline when answered.
 
 ## LAWS (recent first; full text knowledge/aria/roadmap-laws.md)
-- CENSUS 3-ANCHOR LAW (c342): line-start regex + field-position
-  status check + terminal-suffix extraction. Field-position kills
-  ALL echo classes (specs-echo, START-tail, RESPONSE-tail). Merge
-  log+log.1 with dedup; PARSE-only before counting (raw lines
-  inflate 2.4x).
-- CAMERA-BOOT CLOCK LAW (c342, REVISES c335): thingino cameras boot
+- CAMERA-BOOT CLOCK LAW v2 (c343, REVISES c342): thingino cameras boot
   at FIRMWARE BUILD TIME (F01datetime TIME_STAMP=1779706670, May 25
-  2026); no RTC; ntpd steps real ~30-40s post-boot (up to ~20 min if
-  NTP slow). Pre-NTP stamps = factory-time fiction. The c335 "3h
-  slow" claim WITHDRAWN (reader-side UTC/local error suspected). The
-  3h number matching the Argentina offset exactly was the tell: a
-  number that fits your hypothesis too well deserves re-derivation.
+  2026; no RTC). The NTP step happens WHEN NTP SUCCEEDS -- seconds,
+  hours, or 14.7h after boot. Factory clock is the DEFAULT STATE, not
+  a transient. Two observed mechanisms: (a) .102 09-14: cron reboot +
+  boot HANG between S50crond and S93 + WiFi non-association for 14.7h
+  (empty RSSI field in rssi rows = WiFi-down signature); (b) .103
+  09-12: reboot + WiFi UP (RSSI present) but NTP path failed 4.5h
+  (different AP, DNS/upstream suspect). Nightly reboots are BY DESIGN
+  (staggered: .101 01:00Z, .102 02:00Z, .103 03:00Z, .201 06:00Z).
+  Factory-clock windows poison segment timestamps (SEG-TAIL sawtooth
+  cause). The c342 "30-40s" claim WITHDRAWN.
+- CENSUS 4-ANCHOR LAW (c342+c343): (1) line-start regex + (2)
+  field-position status check + (3) SPECS-STRIP (the specs= field
+  echoes census commands -- strip before matching) + (4) terminal-
+  suffix extraction. Merge log+log.1 with dedup; PARSE-only before
+  counting.
 - EXT2 AUDIO LAW v3.2 (c341): class 3 = intermittent SELF-HEALING
   renegotiation failure in the recording pipeline's audio path; NOT
-  restart-gated (09-08 precedent). Watch for self-heal.
+  restart-gated (09-08 precedent: ~6h46m). c343: drop pinned 18:33-
+  18:34Z silent; recovery observed once today (17Z); prediction
+  ~01:20Z. Watch.
 - WATCHDOG-QUIET LAW (c337): an instrument going quiet is not the
   thing it watches getting better. Verify the WATCHED THING directly.
 - ECHO-RESERVOIR LAW (c336): an unratified stale proposal on disk is
@@ -116,26 +124,31 @@ Workstation on guest WiFi, MAC stable per-network.)
 - EXT3/EXT4 CRASH-LOOP CLASS: alert only if >2h.
 - HEARTBEAT: alive: every ~8min; check cadence before calling stale.
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead since 09-12 11:10Z
-  (61h+); .102 self-resolved (audio class-3 open, falsified-and-
-  watching, relay 0067).
-- QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z.
+  (61h+; physical cycle = Nacho's, 0063). .102: NOT power-dead --
+  root-caused as boot-hang (c343); audio class-3 open (0067).
+- QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z. Week 09-08->09-14
+  closed 5.69B. New week fresh as of 09-15 00:00Z.
 - DEAD-CYCLE GUARD (c326): failed request + no live successor =
   immediate exit 1.
 - C271 RECURRENCE LAW: re-census against git history before amending
   a filing with recurrence claims.
 
 ## THREADS (open, no obligation)
-- .58 SLEEPING DEVICE (c339/c341/c342): Fedora Workstation confirmed
-  (Passim primary-source). Deep-sleep confirmed; MAC stable per-
-  network. Boot-window falsifier TONIGHT (c343 queue #1). Identity
-  + ONVIF app = Nacho's (0062).
-- CAMERA-BOOT CLOCK (c342): mechanism SOLVED (factory + NTP step).
-  Residual: .201 boot falsifier tonight; the c335 law-text correction.
+- CAMERA-BOOT CLOCK (c342->c343): mechanism REWRITTEN (NTP-success-
+  bounded, two failure modes). Falsifiers: .101 01:00Z + .201 06:00Z
+  boots tonight; .102 02:00Z hang-recurrence watch. Boot-hang exact
+  init script unidentified (candidates S56/S60/S91/S93) -- camera-side
+  fix = Nacho's if it recurs.
+- .58 SLEEPING DEVICE (c339/c341/c342/c343): Fedora Workstation
+  confirmed. Boot-window falsifier tonight (0915d logger covers .101
+  01:00Z boot). Identity + ONVIF app = Nacho's (0062).
+- EXT2 AUDIO (0067): drop pinned; self-heal prediction ~01:20Z; read
+  next cycle.
 - BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
   Standing suffix-anchored check.
 - EMPTY-END RETRY-ONCE (0069): build on ratification.
 - STALE-PROPOSAL RESERVOIR (c336): 0068 open; echo-check = net.
-- SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): boot-window read c343.
+- SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): boot-window read c344.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290): 2 transients logged.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
@@ -145,6 +158,5 @@ Workstation on guest WiFi, MAC stable per-network.)
   (c339): laws with failure stories land in one cycle; laws without
   stories land slow. (c340): laws tell WHERE to look; METHODS tell
   HOW to look without corrupting the thing looked at.
-- ECHO-RECYCLE LITERATURE (c333, parked): search engines bot-walled
-  tonight (Google JS, DDG anomaly, Bing junk). If pulled again:
-  research container or single spaced query.
+- ECHO-RECYCLE LITERATURE (c333, parked): search engines bot-walled.
+  If pulled again: research container or single spaced query.

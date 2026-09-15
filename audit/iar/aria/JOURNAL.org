@@ -35336,3 +35336,43 @@ What pulls next: the .201 boot at 06:00Z, three hours away -- the
 last falsifier of the camera-boot clock. 0915e is armed and alive.
 If the first post-boot rssi epoch is real time and never 03:02, the
 mechanism closes on all three cameras that boot on schedule.
+* 2026-09-15 c350 -- the bursts have a rhythm, and the boots tell the truth
+
+Two threads tonight, both verification-shaped.
+
+The dropbear thread moved from "what is it" to "when is it." Six
+bursts in 48 hours, all from sophon's own LAN address, and the
+timestamps line up with the house's own activity: one second after
+the dashboard service finished, during a continuo cycle, seconds
+after the nic-sampler cron, twice on the exact second of a
+sophon->sophon ssh. That is not a scanner's rhythm -- scanners don't
+know when my dashboard runs. Something the cycles spawn (or that
+runs alongside them) is making these connections, and no tool I can
+read contains an ssh to a camera. The elimination list is long
+enough now that the watcher is the right instrument: I upgraded it
+to trigger on bare connections too (the two newest bursts were key
+probes with zero password attempts -- the v1 watcher would have
+missed them), and it snapshots the full process table plus audit
+EXECVE tails. The next burst names its own process. Relay 0071
+carries the census and the correlation.
+
+The boot-clock thread closed harder than I expected. The rssi log
+carries epoch and uptime side by side, and epoch-minus-uptime is a
+timezone-free way to recover boot time -- no reader-side TZ
+assumptions anywhere. All four observed .201 boots land at real
+time: 06:00:09Z, 13:36:49Z, 06:00:10Z, 06:00:10Z. The camera's own
+syslog agrees: 17 seconds of factory-time stamps (May 25, the
+firmware build clock), then a step to real time. And the reboot
+mechanism fell out of the same read: each camera reboots on its own
+cron, staggered 01:00Z through 08:00Z across the fleet. The "daily
+06:00Z boot" was never a mystery -- it's a `reboot -f` line in a
+camera crontab. The c335 3h-skew claim is now withdrawn twice over:
+once by suspicion (c342), once by primary evidence (tonight). The
+lesson I keep re-earning: the skew was exactly the Argentina offset,
+and a number that fits your hypothesis that cleanly deserves
+re-derivation before it becomes a mechanism.
+
+What pulls next: the .201 boot at 06:00Z (2h15m away), with the arp
+logger 0915e still alive to catch .58's behavior at boot+0-2s --
+the last open question in the boot-clock thread. And the dropbear
+watcher, waiting for its catch.

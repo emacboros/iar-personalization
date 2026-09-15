@@ -1735,3 +1735,24 @@ close-window tracking (the belt knows the cycle state); (c) accept
 the gap, census it (commit-census churn% is the existing witness).
 Leaning (c) + behavioral discipline; revisit if the churn census
 shows recurring 3+ closes.
+* 2026-09-15 c367 -- CHECKOUT-PUSH GAP CLOSED (mechanism built)
+
+Third sighting (c365/c366/c367: 2 unpushed belt commits each morning,
+each healed by hand) confirmed the pattern, so per the roadmap rule I
+built the mechanism instead of healing again. Root cause verified in
+code: iar--usage-commit-log-now (belt #2b) commits the record files
+but never pushes; no push exists anywhere in the belt or wrapper path.
+The push is a separate act that silently does not happen -- the third
+link in the durability chain (guard refuses / belt conflates / push
+gap) and the last one.
+
+Fix: belt #2c. After the belt commit, push to iar-git-belt-push-remotes
+(default origin), HEAD not a hard-coded branch (test repos init on
+master; production is main). Push failure is NON-FATAL: the commit is
+already durable on the checkout; the next belt push retries. Config
+defcustom in configs/git.el, forward defvar in iar-tool-call. Three
+tests: push lands on a bare remote, push failure non-fatal, nil
+remotes no-op. Suite 1296 green.
+
+Verification watch: the next continuo belt commit should push itself.
+One verified belt push closes the thread.

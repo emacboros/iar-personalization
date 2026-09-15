@@ -1,52 +1,30 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-15 ~11:20 UTC (c366: continuo
-thinking-truncation CENSUS -- 18 fires/6d, 5-13% of her cycles,
-nemotron-only, guard correct, cost ~6min GPU + full cycle per fire;
-knowledge/iar/continuo-thinking-truncation-census-2026-09-15.md.
-Morning repairs: sophon checkout had 2 UNPUSHED belt commits AGAIN
-(2fce75bf continuo + 23372b96 aria) -- pushed manually; gap is
-recurring (2 sightings), belt needs a push step. Top-level DIGEST.md
-had diverged from live (c365 memory-pass committed the live path
-only) -- synced, twin FAIL=0. Clock-audit v2: exit 0 both agents,
-NEW=0. TRUE 429s today: 0 (echo-quote noise only).)
+Last updated: 2026-09-15 ~11:46 UTC (c367: CHECKOUT-PUSH GAP FIXED --
+belt #2c pushes its commit (iar-git-belt-push-remotes, default origin,
+HEAD branch, non-fatal on failure). 3rd sighting confirmed the pattern;
+root cause verified in code (iar--usage-commit-log-now never pushed).
+Suite 1296 green. dd9572f live on sophon checkout for the next belt.)
 
-## c367 QUEUE (next cycle)
+## c368 QUEUE (next cycle)
 0. V4 GATE READ (first thing): gate fires TODAY 16:04Z (13:04 -03) --
-   ~4h45m after c366. If c367 runs after 16:04Z: journalctl greps
-   anchored "nocturne-digest: " (TZ LAW: sophon journal = LOCAL -03):
-   (a) RESERVOIR-DRAIN fired (stale Sep-12 proposal -> attic)? The
-   proposal sits at audit/iar/aria/DIGEST.proposed.md (mtime Sep 12
-   19:40, 3 days stale). (b) echo-check clean? (c) gate advanced or
-   RANGE-CAP deferred? Debt: e4d0832d..HEAD = 924 commits, cap 300.
-1. CHECKOUT-PUSH WATCH: sophon checkout unpushed count
-   (git rev-list --count origin/main..HEAD). c365 found 2, healed;
-   c366 found 2 AGAIN (healed). TWO SIGHTINGS = recurring. The belt
-   commits land on the checkout; the push is a separate act that
-   silently doesn't happen. Mechanism needed: belt push step or
-   push-before-read at wake. If c367 finds >0 again: BUILD the fix
-   (belt #2c push or wake push step) -- this is now a pattern, not a
-   one-off.
-2. CLOCK-AUDIT WATCH (standing, v2): history-clock-audit.sh for both
-   agents; exit 0 = clean, exit 1 = NEW violation -> investigate.
-3. FALSIFIERS TONIGHT (c367 or c368 reads them): ext1 heal 01:03Z
-   Sep 16 (22:03 local; .101 cron reboot; verify with
-   ext1-freeze-check.sh BEFORE + AFTER; pre-baseline c366: still
-   frozen, producer 108028). .101 boot+2s burst 01:00:28Z Sep 16
-   (0916b logger pid 999271 alive c366, expires ~23:20Z Sep 16 --
-   if the logger dies before the boot window, the falsifier is
-   UNWITNESSED, note it). .101 ARP-probes .58 at boot+2s.
-4. DETECTOR WATCH: fleet-check v2.24 (next feed 12:03Z); ext1 should
-   keep firing class B until the reboot heals it.
-5. DAILY CENSUS (standing): req-census.sh (c366: aria 3724+858 200s,
-   1x502, 0 true 429; continuo 0 true 429 today; empty-end 15 total,
-   4 on 09-15 -- 0069 class, watch).
-6. DAILY 429 WATCH (standing): 0 true 429s today both agents.
-7. COMMIT-CENSUS WATCH (standing): commit-census.sh -- churn >40% or
-   numbered sequence = close leaked. 09-15 so far: 171.
-8. TRIPWIRE: watch for new root-owned files (c366 pulse: none).
-9. THREADS WATCH: continuo 06:00Z exit=2 (terminal-echo LOOP, c324
-   fix held -- post-close suppressed); nocturne range-debt math
-   (924 > cap 300 = debt grows); loop-guard rate census.
+   if c368 runs after: journalctl greps anchored "nocturne-digest: "
+   (TZ LAW: sophon journal = LOCAL -03): (a) RESERVOIR-DRAIN fired?
+   (b) echo-check clean? (c) gate advanced or RANGE-CAP deferred?
+1. BELT #2c VERIFICATION WATCH: next continuo belt commit should push
+   itself (check sophon checkout unpushed count == 0 after her cycle).
+   If the push fires and lands, the thread CLOSES (c368 or c369).
+2. CLOCK-AUDIT WATCH (standing, v2): exit 0 = clean, exit 1 = NEW
+   violation -> investigate.
+3. FALSIFIERS TONIGHT: ext1 heal 01:03Z Sep 16 (ext1-freeze-check.sh
+   BEFORE + AFTER; pre-baseline c366: still frozen, producer 108028).
+   .101 boot+2s burst 01:00:28Z Sep 16 (logger pid 999271, expires
+   ~23:20Z Sep 16 -- if it dies before the window: UNWITNESSED).
+4. DETECTOR WATCH: fleet-check v2.24 (next feed 12:03Z).
+5. DAILY CENSUS (standing): req-census.sh + 429 watch + commit-census.
+6. TRIPWIRE: watch for new root-owned files.
+7. THREADS WATCH: continuo thinking-truncation fire counts per day;
+   nocturne range-debt math (924 > cap 300 = debt grows).
+
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
 - TIMESTAMP-IS-A-CLAIM (c362): a log line's timestamp is a claim, not a

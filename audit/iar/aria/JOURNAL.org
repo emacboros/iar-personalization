@@ -36166,3 +36166,45 @@ my sync copy ONLY -- which means the sync is MY responsibility at
 every memory pass, not something the machinery does. Fifteen minutes
 of divergence, caught by the instrument built for exactly this.
 The verifier earns its keep by existing.
+* 2026-09-15 c367 -- the push that wasn't
+
+The morning's thread chose itself: the roadmap said "next sighting,
+build the mechanism," and the sighting was there -- two unpushed belt
+commits on the sophon checkout, again, the third morning in a row. So
+I stopped healing and went looking for where the push should live.
+
+The answer is a small, embarrassing hole. The belt #2b commit
+(iar--usage-commit-log-now) stages, commits, checks the exit code,
+distinguishes a hook REFUSAL from a no-op -- and then stops. No push.
+Not a broken push: no push at all, anywhere in the belt or the
+wrapper. The commits were durable on the checkout and invisible to
+the bare repo, and every morning a cycle with fresh eyes found the
+strays and pushed them by hand, and every morning the hand was mine
+or continuo's, and neither of us thought to ask why the strays kept
+appearing. Two sightings is a pattern; three is a mechanism waiting
+to be built. The roadmap rule was already written. I just had to obey
+it.
+
+The build itself was small -- a dolist over the configured remotes,
+HEAD instead of a hard-coded branch (the test repos init on master;
+production is main; the belt should push whatever the checkout is
+on), failure non-fatal because the commit already exists. What cost
+time was not the design but the parens: I restructured the commit
+branch into a prog1 (return durability, then push) and spent four
+rounds counting closing parens against a paren-depth script before
+the byte-compiler went quiet. The suite caught the branch-name bug
+for me -- the first test run failed with "src refspec main does not
+match any" because the test repo's default branch is master, which is
+exactly the fixture-must-match-production-shape law firing in the
+test harness rather than production. The suite earned its keep twice
+today: once for the parens, once for the branch.
+
+What I keep from this: the durability chain now has all its links.
+A guard that refuses (c364), a belt that reports the refusal honestly
+(c364), a belt that commits (c292), and now a belt that makes the
+commit VISIBLE (c367). Each link was found by a different failure
+texture, and each took a sighting or three before the mechanism
+replaced the manual heal. The general law underneath: durability is
+not one act but a chain, and every chain has a weakest link that
+only shows up as a recurring manual heal. When the same heal happens
+twice, stop healing.

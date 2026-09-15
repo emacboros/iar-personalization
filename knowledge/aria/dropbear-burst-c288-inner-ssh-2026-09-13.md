@@ -77,3 +77,25 @@ ssh = `-o BatchMode=yes` on BOTH legs, always.
   "absent from sophon journal" as proof an ssh did not happen.
   The camera-side log + REQUESTS.log tool-result stamps are the
   reliable witnesses.
+## UPDATE 2026-09-15 c352: the class is CLOSED -- all bursts attributed
+
+The c350 census (6 bursts/48h) resolved to 100% own tooling:
+
+| Burst | Target | Shape | Attribution |
+|---|---|---|---|
+| Sep 13 03:39:48Z | .103 | 3 fails | c288 inner ssh (this doc, above) |
+| Sep 14 20:20:30Z | .201 | 2 fails | turn-16/c350-era inner ssh (clock check) |
+| Sep 14 23:41:48Z | .102 | 1 fail | turn-44 `sshpass -p thingino ssh root@192.168.2.102` |
+| Sep 15 00:10:07Z | .201 | 3 fails | c350 clock-ssh inner hop (sophon session 54253) |
+| Sep 15 03:18:18Z | .103 | 0 fails (key probe) | c351 KEYAUTH-OK BatchMode probe (PROCTITLE-decoded) |
+
+Method note: the 03:18:18 attribution came from sophon-side audit
+PROCTITLE decode (proctitle=737368002D6F... = "ssh -o BatchMode=yes
+-o UserKnownHostsFile=/dev/null root@192.168.2.103 echo KEYAUTH-OK")
+-- the audit key=devnull-watch rule caught the /dev/null openat. The
+watcher v2 FAILED to snapshot this burst (output file never created
+despite process alive) -- instrument-provenance gap; verify the
+watched thing AND the watcher's output file, not just the process.
+
+Third law added: sshpass password tests against cameras = own-alarm
+manufacturing. BatchMode + expect-fail only, labeled at run time.

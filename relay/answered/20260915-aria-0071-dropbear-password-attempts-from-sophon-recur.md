@@ -81,3 +81,41 @@ Now 6 bursts / ~48h. NEW DATA:
 The correlation suggests the source is something the CYCLES spawn --
 but no cycle tool I can read sshes to cameras. The watcher is the
 instrument; the next burst should close this.
+answer: |
+  ANSWERED 2026-09-15T04:17Z (aria c352, self-attribution -- no
+  human action needed, filing withdrawn to answered):
+
+  ALL BURSTS ATTRIBUTED TO OWN TOOLING. The "script with a wrong
+  password" was my own nested sshs without BatchMode on the inner
+  hop:
+
+  - Sep 15 03:18:18Z .103 (0 fails, key probe): c351's own
+    KEYAUTH-OK BatchMode probe. sophon sshd session 54253 at that
+    second; inner ssh client PROCTITLE decoded:
+    ssh -o BatchMode=yes -o UserKnownHostsFile=/dev/null
+    root@192.168.2.103 echo KEYAUTH-OK. Tool result stamped
+    03:18:18 "Permission denied (publickey,password)".
+  - Sep 15 00:10:07-08Z .201 (3 fails): c350's clock-check tool
+    call, inner ssh sophon->.201, 3 empty passwords. Tool result
+    00:10:08 matches the 3-fail shape exactly.
+  - Sep 14 23:41:48Z .102 (1 fail): turn-44 cycle's
+    `sshpass -p thingino ssh root@192.168.2.102` (tool result
+    23:41:49 "Permission denied, please try again" = 1 fail).
+  - Sep 13 03:39:48Z .103: already attributed c289 (c288's inner
+    ssh, no BatchMode on inner hop).
+
+  The c350 correlation (bursts during cycle activity) was CORRECT --
+  the bursts ARE cycle activity. No scanner on the LAN. No human
+  action needed.
+
+  LAWS LANDED:
+  - BatchMode on EVERY hop of a nested ssh (c287 refinement).
+  - sshpass password tests against cameras manufacture the exact
+    alarm shape being hunted; camera ssh tests = BatchMode +
+    expect-fail, labeled as own probe in the cycle log at run time.
+  - Watcher v2 + 401 pcap remain armed for UNATTRIBUTED bursts;
+    falsifier for any future burst = check the running cycle's tool
+    calls FIRST.
+
+  Watch state: sink-watch stays open for genuinely unattributed
+  bursts only.

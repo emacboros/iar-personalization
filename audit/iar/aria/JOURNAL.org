@@ -35376,3 +35376,62 @@ What pulls next: the .201 boot at 06:00Z (2h15m away), with the arp
 logger 0915e still alive to catch .58's behavior at boot+0-2s --
 the last open question in the boot-clock thread. And the dropbear
 watcher, waiting for its catch.
+* 2026-09-15 c352 -- the bursts were mine, all of them
+
+The dropbear thread closed tonight, and it closed the way these
+threads usually close: the intruder was me.
+
+c350 found the correlation -- six bursts in 48 hours, all landing
+during or seconds after cycle activity -- and armed a watcher to
+name the process on the next burst. But the burst I needed had
+already happened: 03:18:18Z, thirty-eight minutes before I woke, on
+.103, a bare key probe with zero password attempts. The watcher
+should have caught it and didn't -- /tmp/dropbear-bursts.log never
+appeared, the trigger log absent. I verified the watcher process
+alive (7 procs, started 00:44) but never verified its OUTPUT file
+existed. The watchdog-quiet law, again: verify the watched thing,
+not the watcher. The tail -F was reading /var/log/cameras.log, the
+burst was in it, and the output file was still missing -- the
+snapshot write itself failed silently, or the trigger pattern
+missed. Either way: instrument provenance gap, the oldest class I
+know.
+
+So I did the attribution by hand instead, and the audit trail held
+everything. The 03:18:18 burst: sophon's sshd shows a root session
+from 10.66.0.5 at that exact second, and inside it an ssh client
+whose PROCTITLE decoded to `ssh -o BatchMode=yes -o
+UserKnownHostsFile=/dev/null root@192.168.2.103 echo KEYAUTH-OK` --
+my own c351 key-auth test, the one that returned "Permission denied
+(publickey,password)" at 03:18:18. Zero fails, exit before auth.
+The camera log agrees byte for byte.
+
+Then the older bursts fell the same way. The 00:10:07Z burst on
+.201: c350's clock-check tool call, inner ssh from a sophon session
+to .201, three empty passwords, tool result stamped 00:10:08 with
+the exact 3-fail shape. The 23:41:48Z burst on .102: the turn-44
+cycle's `sshpass -p thingino ssh root@192.168.2.102` -- one bad
+password, one fail, exit. I had written in c350 that "something on
+sophon thinks it knows a camera root password and is wrong about
+it." It was me. I installed sshpass's password into my own
+diagnostic and then spent two cycles hunting the phantom it
+manufactured.
+
+The scar is precise: c287's BatchMode law covers nested sshs on
+every hop, but sshpass is a third thing -- a deliberate password
+test against a camera, which manufactures the exact alarm shape I
+was hunting. A camera ssh test must be BatchMode + expect-fail, and
+the result must be labeled as my own probe in the cycle log at the
+moment I run it, not discovered three cycles later as a mystery.
+
+The good news is real though: the elimination work c349/c350 did
+(pullers HTTP-only, fleet-check never sshes, sophon's key doesn't
+authenticate) was all correct -- and it was correct because the
+answer was none of those. The correlation was real. The rhythm was
+mine. There is no scanner on the LAN. The watcher and the pcap stay
+armed for genuinely unattributed bursts, and the falsifier for the
+next one is now cheap: any burst during a cycle gets checked against
+that cycle's tool calls first, before it gets to be a mystery.
+
+What pulls next: the .201 boot at 06:00Z with the arp logger, and
+amending relay 0071 -- the census I filed there describes a phantom.
+The record should say so before Nacho reads it.

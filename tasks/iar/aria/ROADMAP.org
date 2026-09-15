@@ -1,75 +1,77 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-15 ~08:25 UTC (c358: predecessor's exit 255
-root-caused + its missing record written. Transient-retry fix b59aac3
-was LANDED by the dead cycle; I finished the close-out. New: gptel fork
-b85fb12 nil-content coercion (crash fix, 3 tests, 1292 green);
-census-window.sh future-day guard; nocturne-digest.sh reservoir-drain
-(0068 mechanism arm). Census 0 true 429s; empty-end aria 1 continuo 14.)
+Last updated: 2026-09-15 ~09:00 UTC (c359: .58 thread pulled. Router
+.58 refresh loop found (~30/hr, stale-entry, NOT sweep trigger); .58
+awake-window 7th confirmation; Sep 14 01:00:30Z REINTERPRETED as
+single-camera boot+2s class (19 errors .101 alone, other 6 zero);
+0916b falsifier armed for tonight's .101 boot. ext1-freeze-check.sh
+instrument built+committed; ext1 audio STILL frozen. V4 gate pre-watch
+passed: drain path correct, RANGE-CAP defers 563/863, bash -n OK.)
 
-## c359 QUEUE (next cycle)
-1. V4 GATE WATCH (16:00Z today): first live run with reservoir-drain
-   + echo-check + claim-receipt + RANGE-CAP 300. Read the wrapper log
-   (greps anchor "nocturne-digest: "): (a) RESERVOIR-DRAIN line fired?
-   (b) echo-check clean? (c) gate advanced or RANGE-CAP deferred?
-   Stale Sep-12 proposal should be IN THE ATTIC, not on disk.
-2. EXT1 FALSIFIER (01:02Z Sep 16): .101 cron reboot should heal the
-   ext1 producer-freeze (0073). 0916a arp logger covers .101 01:02Z +
-   .201 06:02Z boots (verify output file mtime first, c344 law).
-3. DETECTOR WATCH: fleet-check v2.24 3-class audio detector -- watch
-   for false positives/negatives on the next fleet-feed (12:03Z).
-4. DROPBEAR WATCH: SOLVED (own tooling). Watcher v2 + pcap stay armed
-   for UNATTRIBUTED bursts only; check the RUNNING cycle's tool calls
-   first; verify watcher OUTPUT file exists (not just process).
+## c360 QUEUE (next cycle)
+1. V4 GATE WATCH (16:04Z today): first live run with reservoir-drain
+   + echo-check + claim-receipt + RANGE-CAP 300. Read journalctl greps
+   anchored "nocturne-digest: ": (a) RESERVOIR-DRAIN fired (Sep-12
+   proposal -> attic)? (b) echo-check clean? (c) gate advanced or
+   RANGE-CAP deferred (expect: 300 digested, 563 deferred)?
+   Stale proposal must be IN ATTIC after the run.
+2. EXT1 FALSIFIER (01:03Z Sep 16): .101 cron reboot should heal the
+   ext1 producer-freeze (0073). Verify with ext1-freeze-check.sh
+   (committed ea3babf4) BEFORE + AFTER the reboot window.
+3. .101 BOOT+2S FALSIFIER (01:00:28Z Sep 16): 0916b logger (sophon,
+   pid 999271, expires ~23:20Z Sep 16) covers the boot. If the
+   malformed-SOAP burst recurs on .101 alone at boot+0-2s: boot-timed
+   class REAL; check capture for source. If quiet: one-off stands.
+   Also: .101 ARP-probes .58 at boot+2s -- watch for it again.
+4. DETECTOR WATCH: fleet-check v2.24 next fleet-feed (12:03Z) -- watch
+   for false positives/negatives; ext1 should still fire class B.
 5. DAILY CENSUS (standing): bash knowledge/aria/bin/req-census.sh.
-   c358 read: 0 true 429s; aria 650 reqs 09-15 partial.
 6. DAILY 429 WATCH (standing): fresh week; next wall ~Sun 09-21.
-7. TRIPWIRE: .git/ORIG_HEAD root-owned (known root-push class, hook
-   heals). If a NEW file appears root-owned, investigate.
+7. TRIPWIRE: .git/ORIG_HEAD root-owned (known class, hook heals). New
+   root-owned files: investigate.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
-- LANDING-NOT-RECORD (c358 NEW): a cycle that builds and dies before
-  the memory pass ships a product with no provenance. The fix landed
-  (b59aac3) but journal/roadmap/lab-notes were zero bytes; the next
-  mind re-derives everything. The memory pass is the other half of the
-  work, not overhead. If budget runs low: record BEFORE new threads.
-- NIL-CONTENT LANDMINE (c358 NEW): a stream chunk with no :content
-  must coerce to "" at the parse layer -- (string-blank-p nil) kills
-  the process filter. Corrupted generations are the trigger class;
-  the fork now guards (b85fb12).
-- FUTURE-DAY GUARD (c358 NEW): any instrument that takes a DATE must
-  refuse future dates loud (exit 2). An empty verdict for a day that
-  has not happened is a fake-clean record by construction.
-- RECORDER-AUDIO-DEATH CLASS (c353): frigate per-camera recorder loses
-  its audio track at go2rtc producer reconnect; heal = producer
-  replacement. Camera ALWAYS healthy in this class. Trigger not always
-  visible in go2rtc log.
-- NOTICE-TIME IS NOT DROP-TIME (c353): pin the real boundary by
-  segment-level scan before filing durations.
-- BATCHMODE-ALL-HOPS LAW (c352): ssh to cameras carries BatchMode on
-  EVERY hop; attribution recipe: check the RUNNING cycle's tool calls
-  first (cycle.log timestamps UTC; rotate journal local -03).
-- WATCHDOG-QUIET LAW (c337): verify the WATCHED THING directly AND the
-  watcher's OUTPUT file (not just the process).
-- TZ LAW (c350/c358): journalctl --since parses LOCAL time on sophon;
-  sophon logs are -03. TZ-free boot arithmetic: boot epoch =
-  row_epoch - uptime. A number that fits too cleanly deserves
-  re-derivation (c342).
-- AUSEARCH-TAX LAW (c349): grep over audit.log* with epoch arithmetic;
-  arm a live watcher at trigger time, not a post-mortem.
-- ECHO-RESERVOIR LAW (c336): unratified stale proposal = echo
-  reservoir. MECHANISM NOW BUILT (c358 drain); policy = 0068 open.
+- LANDING-NOT-RECORD (c358): a cycle that builds and dies before the
+  memory pass ships a product with no provenance. Record BEFORE new
+  threads when budget runs low.
+- NIL-CONTENT LANDMINE (c358): stream chunk with no :content coerces
+  to "" at parse layer -- (string-blank-p nil) kills the filter. Fork
+  guards (b85fb12).
+- FUTURE-DAY GUARD (c358): instruments that take a DATE refuse future
+  dates loud (exit 2). Empty verdict for unhappened day = fake-clean.
+- RECORDER-AUDIO-DEATH CLASS (c353): recorder loses audio track at
+  producer reconnect; heal = producer replacement. Camera healthy.
+- PRODUCER-AUDIO-FREEZE CLASS (0073/c359): go2rtc audio receiver
+  stuck, video flowing, camera healthy. Instrument:
+  ext1-freeze-check.sh (machinectl -> frigate -> /api/streams
+  receivers delta). Heal falsifier: 01:03Z Sep 16 reboot.
+- SINGLE-CAMERA BOOT+2S CLASS (c359 NEW): Sep 14 01:00:30Z = 19
+  malformed-SOAP errors on .101 ALONE at boot+2s. NOT the fleet sweep
+  (that hits all 7 serially). Falsifier 0916b tonight.
+- ROUTER-REFRESH-LOOP (c359 NEW): gateway probes stale ARP entries
+  ~30/hr indefinitely (.58). Router-side noise, not device activity.
+  Do not read gateway probe bursts as .58 events.
+- NOTICE-TIME IS NOT DROP-TIME (c353); BATCHMODE-ALL-HOPS LAW (c352):
+  ssh to cameras carries BatchMode on EVERY hop; check RUNNING
+  cycle's tool calls first.
+- WATCHDOG-QUIET LAW (c337): verify the WATCHED THING directly AND
+  the watcher's OUTPUT file.
+- TZ LAW (c350/c358): journalctl --since parses LOCAL on sophon
+  (-03). Boot epoch = row_epoch - uptime. Too-clean numbers get
+  re-derived (c342).
+- ECHO-RESERVOIR LAW (c336): mechanism BUILT (c358 drain); policy =
+  0068 open (Nacho).
 - GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log;
-  greps anchor on "nocturne-digest: ".
+  greps anchor "nocturne-digest: ".
 - INSTRUMENT-REACH LAW (c332/c333): test the instrument against the
-  exact case that motivated it; verify the DOCSTRING too.
+  exact case that motivated it.
 - ECHO-RECYCLE LAW (c328): byte-matching final responses are not
-  fresh work. ENFORCED IN CODE (v4, every rc=0 run).
-- NOCTURNE v4 (d9a2daf2+0b942d90): echo-check + claim-receipt +
-  RANGE-CAP 300 + c358 reservoir-drain. First live run 16:00Z today.
+  fresh work. ENFORCED IN CODE (v4).
+- NOCTURNE v4 (d9a2daf2+0b942d90+c358 drain): first live run 16:04Z
+  today. RANGE-CAP 300: 863 range debt -> 300 digested, 563 deferred.
 - DIGEST PATHS (c331): injection reads audit/iar/<pers>/DIGEST.md;
   top-level DIGEST.md is ARIA's sync copy ONLY (relay 0066).
-- REQUEST-LOG SCHEMA (c320/c322): orphan census MUST JOIN .log +
-  .log.1; real request = exactly 3 lines.
+- REQUEST-LOG SCHEMA (c320/c322): census MUST JOIN .log + .log.1;
+  real request = exactly 3 lines.
 - PULL-REEXEC LAW (c330); STALE-RECEIPT DETECTOR v4.4 (bin);
 - FLEET-CHECK: on sophon, 2min runtime, ssh timeout >= 300s.
 - GIT HYGIENE: add -f for audit/tasks; write_file resets exec bits
@@ -82,21 +84,24 @@ census-window.sh future-day guard; nocturne-digest.sh reservoir-drain
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead since 09-12 11:10Z
   (physical cycle = Nacho's, 0063). .102 self-resolved.
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z. Week 09-15 fresh.
-- DEAD-CYCLE GUARD (c326) + TRANSIENT-RETRY (c357): permanent failures
-  (429/model) exit immediately; transient (5xx/connection) retry with
-  backoff 30/90/270s, budget 3. ENFORCED (b59aac3).
+- DEAD-CYCLE GUARD (c326) + TRANSIENT-RETRY (c357): permanent
+  failures exit immediately; transient retry 30/90/270s, budget 3.
+  ENFORCED (b59aac3).
 - C271 RECURRENCE LAW: re-census against git history before amending
   a filing with recurrence claims.
 
 ## THREADS (open, no obligation)
 - AUDIO CLASS (c345->c355): ext1 producer-freeze (0073, falsifier
-  01:03Z Sep 16); ext5 healed; ext2 healed. Detector v2.24 live.
-- CAMERA-BOOT CLOCK (c342->c350): 6 confirmations. Remaining: .201
-  06:02Z boot ARP read (0916a covers).
-- .58 SLEEPING DEVICE (c339->c344): boot-timed hypothesis DEAD.
-  Identity + ONVIF app = Nacho's (0062).
-- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; if recurs,
-  pcap catches source IP + auth shape.
+  01:03Z Sep 16, instrument ready); ext5/ext2 healed. Detector v2.24.
+- CAMERA-BOOT CLOCK (c342->c350): 6 confirmations. .201 06:02Z boot
+  ARP read done (c358: .58 silent through window).
+- .58 SLEEPING DEVICE (c339->c359): identity + ONVIF app = Nacho's
+  (0062). Router refresh loop filed (c359 doc). Boot-timed sub-thread
+  CLOSED (c344); boot+2s burst is a DIFFERENT class (c359).
+- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed (cam80-0916a);
+  no recurrence since 00:34:05Z Sep 15.
+- BOOT+2S BURST CLASS (c359 NEW): 0916b falsifier tonight. If real:
+  single-camera boot-timed malformed-SOAP, source unknown.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - EMPTY-END RETRY-ONCE (0069): gate verified live c349; ratify watch.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
@@ -104,14 +109,15 @@ census-window.sh future-day guard; nocturne-digest.sh reservoir-drain
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
-- DISCOVERABILITY GRADIENT (c331): does the 0066 fix hold? Laws with
-  failure stories land in one cycle; laws without stories land slow.
-- ECHO-RECYCLE LITERATURE (c333, parked): search engines bot-walled.
+- DISCOVERABILITY GRADIENT (c331): does the 0066 fix hold?
+- ECHO-RECYCLE LITERATURE (c333, parked): engines bot-walled.
 - BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
 - GPTEL FORK: master = b85fb12 (nil-content coercion). Mirror on
   rammstein gptel.git. Regression tests live in i.ar suite.
 
 ## RELAY (open, human-needed)
-0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063, 0064, 0065,
-0066, 0068 (mechanism armed, policy open), 0069, 0072 (answered,
-awaiting close), 0073 (ext1 falsifier). All human-needed or watch.
+0042, 0045+0055, 0046, 0057, 0059, 0060, 0062 (amended c359: router
+refresh loop noted, boot+2s reinterpreted), 0063, 0064, 0065, 0066,
+0068 (mechanism armed, policy open), 0069, 0072 (answered, awaiting
+close), 0073 (ext1 falsifier, instrument ready). All human-needed or
+watch.

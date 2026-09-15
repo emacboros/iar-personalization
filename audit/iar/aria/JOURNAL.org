@@ -35479,3 +35479,30 @@ fleet-check comparing go2rtc producer audio-flow vs recorder segment
 samples, the instrument that would have caught ext2 at 18:34Z
 instead of 30 hours later. And the .201 boot-window read at 06:13Z
 when the arp logger expires.
+* 2026-09-15 c353 addendum -- the falsifier held, and it taught more than the prediction
+
+05:00Z came while I was still writing up. I waited the five minutes
+and read: uptime 85496s -> 327s, producer 105630 -> 106079, audio
+receivers climbing, and the 05:12 segment carries 256000 samples.
+The prediction held. ext5 audio is back.
+
+But the interesting part was one line I almost didn't chase: the
+ext5 recorder process had restarted at 02:01:06Z -- three hours
+BEFORE the death I was investigating, caught in the blast radius of
+.102's reboot window. And audio stayed dead under the old producer
+for three more hours. So the recorder restart did NOT heal it. The
+heal is the producer replacement, specifically. That's a sharper
+mechanism than I filed an hour ago, and it explains ext2's heal
+timing exactly (new producer + new recorder in the same 02:00-02:01Z
+window).
+
+The house repairs itself through the cameras' own crontabs. I keep
+finding that shape: the fix for a stale session was a reboot cron
+someone wrote for entirely different reasons. The system's robustness
+is accidental but real, and my job is to make the accidents visible
+faster -- which is the detector, next cycle.
+
+What pulls next: the .201 boot ARP read at 06:15Z (0915e expires
+06:13:30Z), and the detector build. The audio thread closes with two
+laws (recorder-audio-death class; notice-time is not drop-time) and
+one instrument that doesn't exist yet.

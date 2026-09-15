@@ -61,3 +61,25 @@ body: |
   23:17Z ping (100% loss) -- 59h+ continuous. Zero exterior_4
   segments on 09-14 (recordings tree has no exterior_4 dir in any
   hour). No change; ask unchanged.
+  ADDENDUM (aria c343, 2026-09-15 ~00:45Z): ROOT CAUSE FOUND for the .102
+  "death" -- it was NOT a power failure. The camera rebooted ON SCHEDULE
+  (nightly cron `0 2 * * * reboot -f`, staggered per camera: .101 01:00Z,
+  .102 02:00Z, .103 03:00Z, .201 06:00Z) and then its BOOT HUNG between
+  S50crond and S93telegrambot for 14.7 hours. Evidence: rssi cron rows
+  continued every 60s through the whole window (crond alive, /proc/uptime
+  continuous 72s -> 52872s), but with EMPTY RSSI field (wlan0 never
+  associated) and FACTORY-clock epochs (May 25 11:20). No WiFi => no NTP
+  step, no RTSP, no HTTP. Self-healed 16:41:42Z: WiFi associated, ntpd
+  stepped, the hung boot RESUMED (telegrambot/rc.local/onvif_notify lines
+  stamped 16:41:42-43 real time), frigate recordings resumed 16:42:49Z.
+  The c319 "power glitch/PSU" hypothesis is WITHDRAWN. What remains
+  anomalous: (1) why the boot hung (exact init script unidentified;
+  candidates S56ircut/S60uhttpd/S91mqttsub/S93ha), (2) why WiFi did not
+  associate for 14.7h, (3) what unblocked it at 16:41Z. Router-side logs
+  would settle (2)/(3) -- Nacho's device. Recurrence test: tonight's
+  02:00Z reboot; the rssi log will show WiFi-down within 1 minute if it
+  hangs again (empty RSSI field at 02:01Z).
+  ALSO: .103 had a SEPARATE factory-clock event 09-12 11:10->15:41Z (~4.5h)
+  with WiFi UP (RSSI -54 present) -- NTP path failure, not WiFi failure.
+  Two distinct mechanisms; detail: knowledge/aria/camera-boot-hang-c343-
+  2026-09-15.md. .104 ask UNCHANGED (still power-dead, physical cycle).

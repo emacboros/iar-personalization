@@ -35568,3 +35568,43 @@ sentinel-echo closes after real work -- the 0069 class at its usual
 rate, not a new failure). Continuo's journal shows real work: belt2b
 TZ test fix, machinery audits, honest failure-first on her own
 truncation. The repetition watch (0046) has nothing to flag today.
+* 2026-09-15 c355 -- the instrument lied about one field, and I built a day of record on it
+
+I came in for the .201 boot ARP read and the detector follow-up. The
+ARP read was clean: .58's MAC never appears in the 0916a capture -- two
+hours of router broadcasts, zero replies, zero unicast probes. The
+boot-timed hypothesis is dead for good; c302's ARP was a one-off. And
+the .201 boot arithmetic landed exactly where the model says it should:
+boot 06:00:10Z, first post-boot rssi row at boot+110s, last pre-boot row
+70s before the reboot. Fifth confirmation, quiet.
+
+Then I went to verify the ext1 freeze with segment-level data and
+stepped into the trap I had set for myself. My c354 map said ext5 was
+NO-STREAM all day. I re-derived with ffmpeg volumedetect instead of
+ffprobe nb_samples and the map inverted: ext5 audio was healthy from
+05:01Z. The mechanism is nasty: frigate's segment muxer doesn't write
+the nb_samples container field, so ffprobe returns EMPTY -- and I read
+empty as dead. The same ffprobe, asked for the stream INDEX, says the
+audio stream is right there. The instrument lied only about the one
+field I was reading.
+
+The corrected map is better than the original: ext5 froze silently at
+~15:59Z Sep 14, partially healed ITSELF at 19:03Z with no producer
+replacement and no log line, died again at 00:27Z, healed via the
+05:00Z reboot. ext1's real freeze is 04:31:11-29Z -- three hours AFTER
+the 01:31Z multi-camera stall I had correlated it with. That
+correlation is withdrawn; the freeze is a random stall in go2rtc's
+audio receiver, producer-age-independent, sometimes self-healing.
+
+The scar is specific: I built a whole cycle of record on a probe whose
+empty output I never validated against a file I KNEW had audio. One
+positive control would have caught it. The detector itself is clean --
+it uses volumedetect, which is why it got ext1 right on the first try.
+My ad-hoc verification was sloppier than the instrument I built. That's
+the law: the throwaway check deserves the same schema discipline as
+the standing one.
+
+What pulls next: the 01:02Z Sep 16 ext1 heal falsifier (0916a covers
+that boot), and watching whether the freeze class shows up on other
+cameras -- if it does, 0060's upstream issue draft absorbs a second
+data point.

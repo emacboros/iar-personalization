@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.22 (2026-09-14, aria cycle 294)
+# aria fleet-check v2.24 (2026-09-15, aria cycle 354)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,25 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.24 (aria cycle 354, 2026-09-15): RECORDER-AUDIO-DEATH DETECTOR
+#   (block 1b) + KNOWN_FAULT_EXT2_SEG withdrawn (.102 self-resolved:
+#   power + audio both healed, live-verified c353 02:01:13Z first
+#   audio segment; contract said withdraw after verification). The
+#   detector closes the class from c353/ext5 + 0070/ext2: frigate's
+#   per-camera recorder ffmpeg loses its audio track when go2rtc's
+#   camera-side producer reconnects; video survives; audio returns
+#   only when the PRODUCER is replaced (recorder restart alone does
+#   NOT heal -- ext5 stayed dead under the old producer 02:01-05:00Z;
+#   camera cron reboots are the natural healer). The stream stays
+#   healthy throughout -- the death is in the recorder. The two
+#   instruments answer different questions; the GAP is the fault:
+#     go2rtc producer audio bytes delta > 0  (audio flowing in)
+#     AND ear check found all sampled segments dead
+#   2 consecutive runs -> RECORDER-AUDIO-DEAD, FAIL loudly; first
+#   run -> watch line + state file. Would have caught ext2 at
+#   18:34Z Sep 14 and ext5 at 00:27Z Sep 15 instead of 30h/4h later.
+#   Mechanism doc: knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md
+#   (also fixes header drift: content was v2.23, header said v2.22).
 # v2.21 (aria cycle 236, 2026-09-12 ~05:53Z): JOURNAL FRESHNESS check (0c-d).
 #   The c233-c234 "wedge that never was" class: journald can wedge and
 #   nothing in the house notices -- fleet-check watched services, not
@@ -339,7 +358,11 @@ KNOWN_FAULT_EXT4_SEG="exterior_4"
 # contract as KNOWN_FAULT_EXT4_SEG: known-fault + STALE/NO-SEGMENT =
 # watch state; segments fresh again = RECOVERY, FAIL loudly (withdraw
 # by emptying KNOWN_FAULT_EXT2_SEG after verification).
-KNOWN_FAULT_EXT2_SEG="exterior_2"
+# v2.24 (aria cycle 354): ext2 WITHDRAWN -- .102 self-resolved
+# (power + audio both healed, live-verified c353; first audio
+# segment 02:01:13Z Sep 15). Flag mechanism stays for future use.
+KNOWN_FAULT_EXT2_SEG=""
+DEAD_AUDIO=""  # v2.24: cameras whose sampled segments are ALL dead (feeds the 1b detector)
 for cam in $CAMERAS; do
   # v2.16: newest 3 COMPLETED segments (tail -4 | head -3: skip the
   # in-progress newest, which frigate is still writing -- a partial
@@ -390,6 +413,7 @@ for cam in $CAMERAS; do
     echo "$cam age=${age}s PROBE-EMPTY (segs list empty)"; FAIL=1
   elif [ "$noaudio" -eq "$nprobe" ]; then
     # ALL sampled segments lack audio = real deafness (or known-deaf)
+    DEAD_AUDIO="$DEAD_AUDIO $cam"  # v2.24: feed the 1b detector
     if echo " $KNOWN_DEAF " | grep -q " $cam "; then
       echo "$cam age=${age}s NO-AUDIO (known-deaf, watch state; $noaudio/$nprobe dead)"
     else
@@ -411,6 +435,92 @@ for cam in $CAMERAS; do
     echo "$cam age=${age}s VOLUME-UNPARSED (samples>0, no mean_volume)"; FAIL=1
   fi
 done
+
+# --- 1b. RECORDER-AUDIO-DEATH DETECTOR (v2.24, aria c354) ---
+# Class (c353): recorder ffmpeg loses its audio track on go2rtc
+# producer reconnect; the stream stays healthy -- the GAP between
+# "producer audio flowing" and "recorder segments have 0 samples"
+# IS the fault. 2 consecutive runs -> RECORDER-AUDIO-DEAD (FAIL).
+# First run -> watch line + state file. Healed cams leave the state
+# (CLEARED info line; the heal = producer replacement, worth seeing).
+echo "-- recorder audio-death detector --"
+RA_STATE=/var/lib/aria-fleet/recorder-audio-dead.state
+touch "$RA_STATE" 2>/dev/null || RA_STATE=/tmp/recorder-audio-dead.state
+declare -A PREV_RUNS
+while read -r c n; do [ -n "$c" ] && PREV_RUNS[$c]=$n; done < "$RA_STATE" 2>/dev/null
+NEW_DEAD=""
+if [ -n "$(echo $DEAD_AUDIO)" ]; then
+  grab_stream_deltas() {
+    # one probe: audio + video byte totals per stream, twice, 4s apart
+    $P exec frigate sh -c "timeout 10 curl -s http://127.0.0.1:1984/api/streams" 2>/dev/null | python3 -c '
+import json,sys
+out={}
+try:
+    d=json.load(sys.stdin)
+    for name,s in d.items():
+        a=v=0
+        for p in s.get("producers",[]):
+            if not isinstance(p,dict) or "receivers" not in p: continue
+            for r in p.get("receivers",[]):
+                ct=r.get("codec",{}).get("codec_type")
+                if ct=="audio": a+=r.get("bytes",0)
+                elif ct=="video": v+=r.get("bytes",0)
+        out[name]={"a":a,"v":v}
+except Exception:
+    pass
+print(json.dumps(out))'
+  }
+  A1=$(grab_stream_deltas); sleep 4; A2=$(grab_stream_deltas)
+  if [ -z "$A1" ] || [ -z "$A2" ] || [ "$A1" = "{}" ] || [ "$A2" = "{}" ]; then
+    echo "go2rtc /api/streams unreadable -- detector skipped (ear check already covers the deafness)"
+  else
+    for cam in $DEAD_AUDIO; do
+      if echo " $KNOWN_DEAF " | grep -q " $cam "; then continue; fi
+      s1=$(printf '%s' "$A1" | python3 -c "import json,sys; d=json.load(sys.stdin).get('$cam',{}); print(d.get('a',0), d.get('v',0))" 2>/dev/null)
+      s2=$(printf '%s' "$A2" | python3 -c "import json,sys; d=json.load(sys.stdin).get('$cam',{}); print(d.get('a',0), d.get('v',0))" 2>/dev/null)
+      b1=$(echo "$s1" | cut -d' ' -f1); v1=$(echo "$s1" | cut -d' ' -f2)
+      b2=$(echo "$s2" | cut -d' ' -f1); v2=$(echo "$s2" | cut -d' ' -f2)
+      if [ -z "$b1" ] || [ -z "$b2" ] || [ -z "$v1" ] || [ -z "$v2" ]; then
+        echo "$cam detector probe failed (go2rtc json missing $cam) -- skipped"
+        continue
+      fi
+      adelta=$((b2-b1)); vdelta=$((v2-v1))
+      if [ "$adelta" -gt 0 ]; then
+        # CLASS A: producer audio flowing, recorder segments dead -> recorder lost its track
+        NEW_DEAD="$NEW_DEAD $cam"; runs=${PREV_RUNS[$cam]:-0}
+        if [ "$runs" -ge 1 ]; then
+          echo "$cam RECORDER-AUDIO-DEAD ($((runs+1)) consecutive): producer audio FLOWING (delta=${adelta}B/4s, video ${vdelta}B) but recorder segments have 0 samples -- recorder lost its audio track; heal = producer replacement (camera cron reboot) or go2rtc restart. See knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md"; FAIL=1
+        else
+          echo "$cam recorder-audio-death WATCH (run 1): producer audio flowing (delta=${adelta}B/4s), recorder segments 0 samples -- 2nd consecutive run = RECORDER-AUDIO-DEAD"
+        fi
+      elif [ "$vdelta" -gt 0 ]; then
+        # CLASS B (ext1, c354): producer audio FROZEN, video flowing, camera healthy
+        # -> the producer's audio receiver stalled inside go2rtc; camera is fine
+        # (rssi puller still gets rows). Heal = producer replacement too.
+        NEW_DEAD="$NEW_DEAD $cam"; runs=${PREV_RUNS[$cam]:-0}
+        if [ "$runs" -ge 1 ]; then
+          echo "$cam PRODUCER-AUDIO-FROZEN ($((runs+1)) consecutive): producer audio STUCK (delta=${adelta}B/4s) while video flows (${vdelta}B) -- go2rtc producer audio receiver froze; camera healthy; heal = producer replacement (camera cron reboot) or go2rtc restart. See knowledge/aria/ext1-producer-audio-freeze-2026-09-15.md"; FAIL=1
+        else
+          echo "$cam producer-audio-freeze WATCH (run 1): producer audio stuck (delta=${adelta}B/4s), video flowing (${vdelta}B), recorder segments 0 samples -- 2nd consecutive run = PRODUCER-AUDIO-FROZEN"
+        fi
+      else
+        echo "$cam segments dead AND producer audio+video not flowing (audio ${adelta}B, video ${vdelta}B) -- camera/go2rtc-side class, not recorder-death (ear check FAIL stands)"
+      fi
+    done
+  fi
+fi
+for cam in "${!PREV_RUNS[@]}"; do
+  if ! echo " $NEW_DEAD " | grep -q " $cam "; then
+    echo "$cam recorder-audio-death CLEARED (segments carry audio again, or class changed)"
+  fi
+done
+# state file: "cam runs" pairs -- runs = consecutive runs this cam has been dead
+: > "$RA_STATE.tmp" 2>/dev/null
+for cam in $NEW_DEAD; do
+  runs=${PREV_RUNS[$cam]:-0}
+  echo "$cam $((runs+1))" >> "$RA_STATE.tmp"
+done
+mv "$RA_STATE.tmp" "$RA_STATE" 2>/dev/null
 
 # --- 2. IDENTITY WATCH (pixels, not metadata) ---
 echo "-- identity watch --"

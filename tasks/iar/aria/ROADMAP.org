@@ -1,35 +1,44 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-15 ~09:00 UTC (c359: .58 thread pulled. Router
-.58 refresh loop found (~30/hr, stale-entry, NOT sweep trigger); .58
-awake-window 7th confirmation; Sep 14 01:00:30Z REINTERPRETED as
-single-camera boot+2s class (19 errors .101 alone, other 6 zero);
-0916b falsifier armed for tonight's .101 boot. ext1-freeze-check.sh
-instrument built+committed; ext1 audio STILL frozen. V4 gate pre-watch
-passed: drain path correct, RANGE-CAP defers 563/863, bash -n OK.)
+Last updated: 2026-09-15 ~09:20 UTC (c359b: ollama chat-burst
+investigated ~100 calls -> NON-EVENT root-caused (TZ law misapplied:
+sophon journal timestamps are LOCAL -03, I read them against UTC;
+burst = cycle agents' own turn traffic, verified 142 POSTs = c142
+tool calls). Doc: knowledge/aria/ollama-burst-anatomy-2026-09-15.md.
+Heartbeat alarm was false (cadence ~8.3min, heard 0s ago at every
+beat). 0916b logger verified alive. Falsifier watches unchanged.)
 
 ## c360 QUEUE (next cycle)
 1. V4 GATE WATCH (16:04Z today): first live run with reservoir-drain
    + echo-check + claim-receipt + RANGE-CAP 300. Read journalctl greps
-   anchored "nocturne-digest: ": (a) RESERVOIR-DRAIN fired (Sep-12
-   proposal -> attic)? (b) echo-check clean? (c) gate advanced or
-   RANGE-CAP deferred (expect: 300 digested, 563 deferred)?
-   Stale proposal must be IN ATTIC after the run.
-2. EXT1 FALSIFIER (01:03Z Sep 16): .101 cron reboot should heal the
-   ext1 producer-freeze (0073). Verify with ext1-freeze-check.sh
-   (committed ea3babf4) BEFORE + AFTER the reboot window.
+   anchored "nocturne-digest: " (TZ LAW: sophon journal = LOCAL -03;
+   16:04Z = 13:04 local): (a) RESERVOIR-DRAIN fired (Sep-12 proposal
+   -> attic)? (b) echo-check clean? (c) gate advanced or RANGE-CAP
+   deferred (expect: 300 digested, 563 deferred)? Stale proposal must
+   be IN ATTIC after the run.
+2. EXT1 FALSIFIER (01:03Z Sep 16 = 22:03 local Sep 15): .101 cron
+   reboot should heal the ext1 producer-freeze (0073). Verify with
+   ext1-freeze-check.sh BEFORE + AFTER the reboot window.
 3. .101 BOOT+2S FALSIFIER (01:00:28Z Sep 16): 0916b logger (sophon,
-   pid 999271, expires ~23:20Z Sep 16) covers the boot. If the
-   malformed-SOAP burst recurs on .101 alone at boot+0-2s: boot-timed
-   class REAL; check capture for source. If quiet: one-off stands.
-   Also: .101 ARP-probes .58 at boot+2s -- watch for it again.
-4. DETECTOR WATCH: fleet-check v2.24 next fleet-feed (12:03Z) -- watch
-   for false positives/negatives; ext1 should still fire class B.
+   pid 999271, verified alive c359b, expires ~23:20Z Sep 16) covers
+   the boot. If the malformed-SOAP burst recurs on .101 alone at
+   boot+0-2s: boot-timed class REAL; check capture for source. If
+   quiet: one-off stands. Also: .101 ARP-probes .58 at boot+2s.
+4. DETECTOR WATCH: fleet-check v2.24 next fleet-feed (12:03Z local
+   09:03Z) -- watch for false positives/negatives; ext1 should still
+   fire class B.
 5. DAILY CENSUS (standing): bash knowledge/aria/bin/req-census.sh.
 6. DAILY 429 WATCH (standing): fresh week; next wall ~Sun 09-21.
 7. TRIPWIRE: .git/ORIG_HEAD root-owned (known class, hook heals). New
    root-owned files: investigate.
+8. THREADS SEED (c359b): agora-agent MCP children (exec/server.py,
+   kb/server.py) not visible as processes at check time -- does
+   langchain hold or respawn them? One look someday.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
+- TZ LAW SHARPENED (c359b): sophon JOURNAL timestamps are LOCAL -03.
+  A "3h stale" number that equals the Argentina offset is the
+  c342 too-clean-number class: unit-check the CLOCK before it gets
+  a mechanism. The law must fire on READ, not on recall.
 - LANDING-NOT-RECORD (c358): a cycle that builds and dies before the
   memory pass ships a product with no provenance. Record BEFORE new
   threads when budget runs low.
@@ -47,12 +56,10 @@ passed: drain path correct, RANGE-CAP defers 563/863, bash -n OK.)
 - SINGLE-CAMERA BOOT+2S CLASS (c359 NEW): Sep 14 01:00:30Z = 19
   malformed-SOAP errors on .101 ALONE at boot+2s. NOT the fleet sweep
   (that hits all 7 serially). Falsifier 0916b tonight.
-- ROUTER-REFRESH-LOOP (c359 NEW): gateway probes stale ARP entries
+- ROUTER-REFRESH-LOOP (c359): gateway probes stale ARP entries
   ~30/hr indefinitely (.58). Router-side noise, not device activity.
   Do not read gateway probe bursts as .58 events.
-- NOTICE-TIME IS NOT DROP-TIME (c353); BATCHMODE-ALL-HOPS LAW (c352):
-  ssh to cameras carries BatchMode on EVERY hop; check RUNNING
-  cycle's tool calls first.
+- NOTICE-TIME IS NOT DROP-TIME (c353); BATCHMODE-ALL-HOPS LAW (c352).
 - WATCHDOG-QUIET LAW (c337): verify the WATCHED THING directly AND
   the watcher's OUTPUT file.
 - TZ LAW (c350/c358): journalctl --since parses LOCAL on sophon
@@ -71,7 +78,8 @@ passed: drain path correct, RANGE-CAP defers 563/863, bash -n OK.)
 - DIGEST PATHS (c331): injection reads audit/iar/<pers>/DIGEST.md;
   top-level DIGEST.md is ARIA's sync copy ONLY (relay 0066).
 - REQUEST-LOG SCHEMA (c320/c322): census MUST JOIN .log + .log.1;
-  real request = exactly 3 lines.
+  real request = exactly 3 lines. Census timestamps are UTC (my
+  logs) -- sophon journals are LOCAL; never cross-match clocks.
 - PULL-REEXEC LAW (c330); STALE-RECEIPT DETECTOR v4.4 (bin);
 - FLEET-CHECK: on sophon, 2min runtime, ssh timeout >= 300s.
 - GIT HYGIENE: add -f for audit/tasks; write_file resets exec bits
@@ -80,7 +88,8 @@ passed: drain path correct, RANGE-CAP defers 563/863, bash -n OK.)
 - PULL-AND-PROCESS LOCALLY: sophon /tmp invisible to container.
 - AEVUM SSH: aria@i.ar direct to fedora@54.38.46.192, TOFU to /tmp.
 - EXT3/EXT4 CRASH-LOOP CLASS: alert only if >2h.
-- HEARTBEAT: alive: every ~8min; check cadence before calling stale.
+- HEARTBEAT: alive: every ~8min (10 long-polls); cadence check
+  BEFORE calling stale -- and check the CLOCK ZONE first (c359b).
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead since 09-12 11:10Z
   (physical cycle = Nacho's, 0063). .102 self-resolved.
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z. Week 09-15 fresh.
@@ -100,7 +109,7 @@ passed: drain path correct, RANGE-CAP defers 563/863, bash -n OK.)
   CLOSED (c344); boot+2s burst is a DIFFERENT class (c359).
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed (cam80-0916a);
   no recurrence since 00:34:05Z Sep 15.
-- BOOT+2S BURST CLASS (c359 NEW): 0916b falsifier tonight. If real:
+- BOOT+2S BURST CLASS (c359): 0916b falsifier tonight. If real:
   single-camera boot-timed malformed-SOAP, source unknown.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - EMPTY-END RETRY-ONCE (0069): gate verified live c349; ratify watch.
@@ -114,10 +123,13 @@ passed: drain path correct, RANGE-CAP defers 563/863, bash -n OK.)
 - BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
 - GPTEL FORK: master = b85fb12 (nil-content coercion). Mirror on
   rammstein gptel.git. Regression tests live in i.ar suite.
+- OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census
+  of all agent turn traffic (no attribution). Rate questions ->
+  journal; attribution -> known-window correlation. tcpdump-on-lo
+  for localhost API traffic = dead end (documented).
 
 ## RELAY (open, human-needed)
-0042, 0045+0055, 0046, 0057, 0059, 0060, 0062 (amended c359: router
-refresh loop noted, boot+2s reinterpreted), 0063, 0064, 0065, 0066,
-0068 (mechanism armed, policy open), 0069, 0072 (answered, awaiting
-close), 0073 (ext1 falsifier, instrument ready). All human-needed or
-watch.
+0042, 0045+0055, 0046, 0057, 0059, 0060, 0062 (amended c359), 0063,
+0064, 0065, 0066, 0068 (mechanism armed, policy open), 0069, 0072
+(answered -- roadmap line was stale, filing IS in answered/), 0073
+(ext1 falsifier, instrument ready). All human-needed or watch.

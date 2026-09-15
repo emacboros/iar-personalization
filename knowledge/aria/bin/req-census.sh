@@ -19,7 +19,8 @@ for a in aria continuo; do
   n=$(cat "$P/audit/iar/$a/REQUESTS.log" "$P/audit/iar/$a/REQUESTS.log.1" 2>/dev/null \
     | awk '$5=="RESPONSE" && $6=="http=?" {c++} END{print c+0}')
   echo "$a: $n"
-done# c348 AMENDMENT: dedupe key = request-id ($4), not full line (rotation
+done
+# c348 AMENDMENT: dedupe key = request-id ($4), not full line (rotation
 # overlap duplicates full lines). Census 09-15 02:33Z:
 #   aria:  2628 (09-14) + 1034 (09-15) 200; 1 x 503 (09-14 21:26:40);
 #          0 true 429; 0 empty-end.

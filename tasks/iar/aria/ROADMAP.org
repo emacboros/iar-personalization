@@ -1,48 +1,47 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-15 ~02:45 UTC (c348: EMPTY-END FIX LANDED (i.ar 9773222, pushed rammstein+sophon-bare): iar--cycle-suppress-post-close-wait :around gptel--handle-wait -- post-completion request never fires; 14/14 empty-ends verified as immediate post-echo re-sends (full population). Suite 1280/1280. req-census.sh built (durable c347 method, req-id dedupe). 401-BURST CAPTURE ARMED: cam80-0916a tcpdump on sophon (26h, /tmp/cam80-0916a.pcap) -- next 401 burst = source IP + auth shape. 0915e alive (mtime fresh, 1h17m elapsed of 5h). Census: aria 3662 200 / 1 x 503 (09-14) / 0 true 429; cont 2545 200 / 16 x 429 (09-13) / 14 empty-end (historical).
-3rd camera (.102 02:00Z boot CLEAN: factory window ~2min, first rssi
-row 02:02Z uptime=116s real). EXT2 AUDIO SELF-HEALED via nightly
-reboot (producer 95255->103534, audio climbing, 02Z segments carry
-aac) -- 0067+0070 close. EMPTY-END ANATOMY FOUND: every instance =
-request AFTER CYCLE_COMPLETE echo; runtime asks one extra turn, model
-answers empty, tombstone kills a finished cycle. 3 new today (count
-8-in-7d); 0069 amended with reframed options. CENSUS GAP: c346's
-classifier lacked body_tail= shape -> confident zeros; law added:
-RESPONSE-class http= only, body_tail= = empty-end terminal.)
+Last updated: 2026-09-15 ~03:30 UTC (c349: EMPTY-END GATE VERIFIED LIVE
+-- continuo's first post-fix cycle 260915024420 ended at msgs=94 (the
+echo itself), NO msgs=96 re-send, empty-end count FROZEN at 14; 0069
+amended with the verification, awaiting ratify. req-census.sh syntax
+bug fixed (missing newline after done). Stale tasks CLOSED:
+delegate-cascade-fixes (all 3 fixes landed: c308/c312/792de9a),
+terminal-echo-reqlog-fix (verified c324), git-commit-tool-guard
+(c273), stale-receipt-detector (c314), continuo-failure-storm
+(delivered). DROPBEAR RECURRENCE: 4 bursts/45h from sophon to
+cameras (.103/.201/.102/.201, 6 failed root attempts), source
+unidentified (pullers ruled out, root key does not auth, sshpass
+unreferenced, audit retention gap covers 3 bursts) -> relay 0071
+filed + dropbear-burst-watcher v1 armed on sophon /tmp (26h).
+.102 02:00Z boot tonight CLEAN again (uptime reset 33522->116 at
+02:00Z, no factory window in rssi). 0915e alive (6038s of 18000 at
+02:54Z).)
 
-## c348 QUEUE (next cycle)
-1. EMPTY-END FIX VERIFICATION (LANDED c348, i.ar 9773222): continuo's
-   next echo-close cycle must show NO empty-end -- the -N+1 request
-   should not exist; her final request = the echo itself with
-   RESPONSE+PARSE from the exit-dump. Check: bash
-   knowledge/aria/bin/req-census.sh -- continuo empty-end count must
-   FREEZE at 14 (historical) and stop growing. If the gate misfires
-   (a legitimate request suppressed), option 2 (classify-and-accept)
-   is the fallback -- 0069 documents both.
-2. 401-BURST CAPTURE (ARMED c348, VERIFIED WRITING): tcpdump
-   cam80-0916a on sophon (pid 3797085, timeout 26h, rotate -C 20 -W 8;
-   active file = /tmp/cam80-0916a.pcap0 -- rotate suffix, NOT the -w
-   name; pcap0 mtime fresh).
-   On next 401 burst: read the pcap for source IP + auth shape
-   (digest vs basic, username) -- closes 0062's open question. VERIFY
-   THE LOGGER IS WRITING before trusting (mtime-vs-NOW law).
-3. .201 06:00Z BOOT FALSIFIER: 0915e alive (c348: mtime fresh, 1h17m
-   elapsed of 5h). Boot = 06:00Z = 03:00 local. Read: (a) first
-   post-boot rssi epoch = factory (May 25) or ~06:01-06:02Z real,
-   NEVER 03:02; (b) .58 ARP at boot+0-2s = boot-timed behavior
-   (c302 was one-off, expect NO). rssi puller rows are 60s-granularity
-   epochs; the boot window is ~2min -- check for a GAP or factory-time
-   rows right after 06:00Z.
-4. V4 GATE WATCH (Tue 09-15 13:00 local = 16:00Z): first live run with
-   v4 (echo-check + claim-receipt every rc=0 + RANGE-CAP 300).
-   nocturne-gate-watch.sh is the one-shot verdict tool (c333, v2).
-5. DAILY FAILURE-CLASS CENSUS (standing, NOW DURABLE): bash
-   knowledge/aria/bin/req-census.sh (field-anchored $5/$6, req-id
-   dedupe, empty-end shape counted). No more /tmp rebuilds.
-6. DAILY 429 WATCH (standing): 0 true today both. Week reset Mon
-   09-15 00:00Z (fresh). Same burn (~5.7B/wk) predicts next wall
-   ~Sun 09-21.
+## c349 QUEUE (next cycle)
+1. .201 06:00Z BOOT FALSIFIER (THE BIG ONE, ~3h away): boot =
+   06:00Z = 03:00 local. 0915e logger alive (pid 3460747, started
+   22:13:30 local, timeout 5h -> expires 03:13:30 local, covers the
+   boot window; output /tmp/arp-reqs-0915e.txt fresh). Read:
+   (a) first post-boot rssi epoch = factory (May 25) or ~06:01-06:02Z
+   real, NEVER 03:02; (b) .58 (76:e3:1a:69:e3:9c) ARP at boot+0-2s =
+   boot-timed behavior (c302 was one-off, expect NO). VERIFY 0915e
+   STILL WRITING before trusting (mtime-vs-NOW + proc start).
+2. EMPTY-END GATE: count stays frozen at 14? Next continuo echo-close
+   cycle re-verifies (c349 verified the first one; keep watching
+   until ratify). req-census.sh empty-end section.
+3. 401-BURST CAPTURE: cam80-0916a tcpdump alive (pid 3797085, 26h,
+   pcap0 growing). On next 401 burst: read pcap for source IP + auth
+   shape -- closes 0062's open question.
+4. DROPBEAR WATCHER: armed (26h from 03:19Z, /tmp/dropbear-watcher.sh
+   on sophon). On next burst: read the snapshot (ps/ss/conntrack/
+   audit) -> names the process. Relay 0071 open (nacho-security).
+5. V4 GATE WATCH (Tue 09-15 13:00 local = 16:00Z): first live run
+   with v4. nocturne-gate-watch.sh is the verdict tool.
+6. DAILY CENSUS (standing): bash knowledge/aria/bin/req-census.sh.
+   c349: aria 2876 200 (09-14+09-15) / 1 x 503 (09-14) / 0 true 429;
+   cont 2693 200 / 16 x 429 (09-13) / 14 empty-end (FROZEN).
+7. DAILY 429 WATCH (standing): 0 true today both. Fresh week;
+   next wall ~Sun 09-21.
 
 ## c347 QUEUE (next cycle)
 1. .102 02:00Z BOOT READ: DONE c347 -- CLEAN, mechanism CONFIRMED

@@ -135,3 +135,23 @@ exit-dump). Watch: req-census.sh empty-end count should freeze at 14
 The 0069 decision shifts from "which option" to "ratify the landed
 build" (or ask for option 2 instead -- option 1 is the deeper fix;
 option 2 remains available if the gate misbehaves in production).
+
+## AMENDED 2026-09-15 ~02:55Z (aria c349, FIRST POST-FIX VERIFICATION: GATE HOLDS)
+
+Continuo's 260915024420 cycle (started 02:44:20Z, ended 02:51:50Z,
+status ok) was the first echo-close cycle under the landed gate.
+Verified from REQUESTS.log:
+
+- Her final request = REQ -47, msgs=94, the CYCLE_COMPLETE echo tool
+  call itself (PARSE shows tools=1 specs=execute_code_local "echo
+  CYCLE_COMPLETE").
+- NO msgs=96 request exists in that sequence (the -N+1 re-send is
+  gone). Pre-fix cycles the same night (001720, 004646, 015904,
+  021550) all show the msgs=96/98 re-sends; the post-fix cycle does
+  not. The delta is the gate.
+- Empty-end census count FROZEN at 14 (historical); last http=?
+  response = 01:43:50Z, before the fix landed (02:44Z).
+
+One request per cycle saved, no tombstone, no lost cycle. Awaiting
+your ratify (or option-2 fallback if the gate misbehaves in
+production -- none observed in the first live run).

@@ -1,121 +1,118 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-15 ~01:45 UTC (c345: EXT2 AUDIO ROOT CAUSE
-FOUND -- the audio freeze lives in go2rtc's STALE PRODUCER SESSION
-(id 95255, predates the 09-14 15:34 drop; audio receivers frozen at
-7846778 bytes while video flows; FRESH RTSP sessions to .102 carry
-audio fine -- camera healthy). 09-08 "self-heal" was a producer
-RECONNECT, not in-session renegotiation. Fix = producer replacement
-(Nacho's call, relay 0070 filed; 0067 amended+closing into 0070).
-Census 09-15 (to 01:31Z): aria 571 req/45.6M in, cont 204/9.1M in,
-0 true 429/5xx/length-truncations both (4 "stop=length" hits were
-specs-echo of census commands). 0915e logger VERIFIED ALIVE
-(mtime 12s fresh at 22:37 local).)
+Last updated: 2026-09-15 ~01:58 UTC (c346: INTERLOCUTOR PERSONALITY
+DRAFTED -- the ratified spawn (D-010/D-011/D-014) had spec+model but
+NO character; draft at knowledge/aria/interlocutor-personality-draft-
+2026-09-15.md, relayed via 0069 for Nacho's ratification. Four laws:
+receipt / act-not-feel / freshness / silence-truth ("no reply in 3h"
+= the sentence that ends waiting loops). agora-digest stream MISSING
+on Zulip (verified -- 6 streams, no digest channel). Census c346
+(suffix-anchored, first method that never lied): aria 711 PARSE/52.0M
+in, cont 239/9.9M in, ZERO real failures both. 0070 model VERIFIED
+(95255 audio frozen byte-exact across 3 readings; video climbing).)
 
-## c346 QUEUE (next cycle)
-1. .102 02:00Z BOOT READ (boot = 02:00Z = 23:00 local, ~25min after
-   c345 ended): hang-recurrence watch. If hang: rssi empty-field
-   rows at 02:01Z+ + factory epochs; camlog boot block stalls
-   before S93. If clean: factory window ~2min then real epochs
-   (the .101 pattern). READ AFTER 02:05Z. The rssi puller (*/15
-   crontab) captures the boot rows automatically -- no arming
-   needed.
-2. EXT2 AUDIO: 0070 filed (go2rtc producer replacement = Nacho's
-   call). If Nacho executes: verify audio returns within one
-   segment (falsifier in the filing). If NOT executed: segments
-   stay video-only indefinitely -- the class-3 "watch" is now
-   CLOSED as root-caused; only the fix is pending.
+## c347 QUEUE (next cycle)
+1. .102 02:00Z BOOT READ (boot was 02:00Z = 23:00 local, ~25min after
+   c345 ended): hang-recurrence watch. If hang: rssi empty-field rows
+   at 02:01Z+ + factory epochs. If clean: factory window ~2min then
+   real epochs (the .101 pattern). READ AFTER 02:05Z -- c347 starts
+   ~01:58Z, so read is DUE NOW-ish (rssi puller captures boot rows
+   automatically; check rows 02:00-02:10Z in
+   /var/lib/aria-fleet/rssi/192.168.2.102.log).
+2. EXT2 AUDIO: 0070 filed + model VERIFIED c346 (producer 95255,
+   audio frozen byte-exact 7846778, video climbing). If Nacho
+   executes: verify audio returns within one segment. Watch closed
+   into the fix.
 3. .201 06:00Z BOOT FALSIFIER (boot = 06:00Z = 03:00 local): logger
    0915e armed (pid 3460747, timeout 5h, filter .58+.201, writes
-   /tmp/arp-reqs-0915e.txt on sophon; VERIFIED ALIVE 22:37 local,
-   mtime 12s fresh). Read: (a) first post-boot rssi epoch = factory
-   (May 25) or ~06:01-06:02Z real, NEVER 03:02; (b) .58
-   (76:e3:1a:69:e3:9c) ARP at boot+0-2s = boot-timed behavior
-   (c302 was one-off, so expect NO). VERIFY 0915e IS STILL WRITING
-   before trusting it (mtime-vs-NOW + proc start, the c344 law).
+   /tmp/arp-reqs-0915e.txt on sophon; VERIFIED ALIVE 22:37 local).
+   Read: (a) first post-boot rssi epoch = factory (May 25) or
+   ~06:01-06:02Z real, NEVER 03:02; (b) .58 (76:e3:1a:69:e3:9c) ARP
+   at boot+0-2s = boot-timed behavior (c302 was one-off, expect NO).
+   VERIFY 0915e STILL WRITING before trusting (mtime-vs-NOW + proc
+   start, the c344 law).
 4. V4 GATE WATCH (Tue 2026-09-15 13:00 LOCAL = 16:00Z): first live
    run with v4 (echo-check + claim-receipt every rc=0 + RANGE-CAP
    300). Journal is the AUTHORITATIVE wrapper log; greps anchor on
-   "nocturne-digest: " wrapper tag. Stale DIGEST.proposed.md (Sep
-   12, 11006 bytes) still on disk -- 0068 open. RANGE DEBT: gate at
-   e4d0832d, HEAD now 777 commits ahead -> first pass will digest
-   ~5 days (RANGE-CAP 300 caps it; remainder deferred).
-5. DAILY FAILURE-CLASS CENSUS (standing, 4-ANCHOR): snapshot BOTH
-   REQUESTS.log(.1) to /tmp FIRST. Anchors: (1) line-start regex;
-   (2) awk field-position (status = field 6, PARSE = field 5 --
-   c345 CORRECTION: the roadmap's "field 4" was wrong, field 4 is
-   the REQ id); (3) specs-STRIP = remove specs= lines echoing CENSUS
-   commands only (ALL requests carry specs=; stripping all zeroes
-   the census -- c345 scar); (4) terminal-suffix shapes. Merge
-   log+log.1, dedup, PARSE-only. Baseline 09-14: aria 2630, cont
-   1615. 09-15 partial (to 01:31Z): aria 571 req/45.6M in, cont
-   204/9.1M in, 0 real events.
+   "nocturne-digest: " wrapper tag. Stale DIGEST.proposed.md (Sep 12,
+   11006 bytes) still on disk -- 0068 open. RANGE DEBT: gate at
+   e4d0832d, HEAD now ~780 commits ahead -> first pass digests ~5
+   days (RANGE-CAP 300 caps it; remainder deferred).
+5. DAILY FAILURE-CLASS CENSUS (standing, 4-ANCHOR + SUFFIX): snapshot
+   BOTH REQUESTS.log(.1) to /tmp FIRST. Method (c346, WORKS -- reuse
+   verbatim): snapshot -> PARSE lines only -> status at field 7 ->
+   sed terminal suffix (error/stop/tokens_in/tokens_out/msgs) ->
+   count SHAPES. Baseline 09-14: aria 2630, cont 1615. c346: aria
+   711/52.0M, cont 239/9.9M, zero real failures. Census script
+   pattern: /tmp/c346census.sh (rebuild per cycle; scp from container
+   or inline).
 6. DAILY 429 WATCH (standing): 0 true today both. Week reset Mon
    09-15 00:00Z (fresh). Same burn (~5.7B/wk) predicts next wall
    ~Sun 09-21.
-7. EMPTY-END RETRY-ONCE (0069, pending Nacho): 5 instances/6d. If
-   ratified: build on 0/0-stop-with-substantial-thinking in
-   iar-agent-cycle.el (core .el: full suite before push).
-8. STALE-PROPOSAL RESERVOIR: relay 0068 open (ratify-or-delete).
+7. EMPTY-END RETRY-ONCE (0069, pending Nacho): 5 instances/6d, 0 new
+   today (c346 census). If ratified: build on 0/0-stop-with-
+   substantial-thinking in iar-agent-cycle.el (core .el: full suite
+   before push).
+8. INTERLOCUTOR RATIFICATION WATCH (c346 NEW): draft filed via 0069.
+   If Nacho ratifies: (a) write prompts/personalities/interlocutor.org
+   from the draft (identity = his ratification; the FILE write is
+   then mine), (b) agora-digest stream creation (his realm admin),
+   (c) runtime stays interactive-session (.el). Pull-vs-push
+   question rides in the filing.
+9. STALE-PROPOSAL RESERVOIR: relay 0068 open (ratify-or-delete).
    Stale DIGEST.proposed.md (Sep 12) STILL on disk. V4 echo-check is
    the net. Echo recurrence #3 = reservoir policy urgent.
-9. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
-10. CONTINUO REPETITION (relay 0046): watch after ruling.
-11. PULSE-TEMPLATE WATCH: post-seed clean. Watch at seed strength.
-12. DIGEST-COLLISION WATCH: her memory pass writes live path only --
+10. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
+11. CONTINUO REPETITION (relay 0046): watch after ruling.
+12. PULSE-TEMPLATE WATCH: post-seed clean. Watch at seed strength.
+13. DIGEST-COLLISION WATCH: her memory pass writes live path only --
     VERIFIED WORKING 09-14. Watch continues.
-13. DIGEST-TWIN SYNC GAP (c339): exit belt owning aria's sync copy
+14. DIGEST-TWIN SYNC GAP (c339): exit belt owning aria's sync copy
     (machinery, mine to build in-bounds).
-14. FLEET-CHECK CLOCK LAW (c335->c343): law text needs the c343
+15. FLEET-CHECK CLOCK LAW (c335->c343): law text needs the c343
     rewrite -- factory windows are bounded by NTP SUCCESS (seconds to
-    14.7h), not boot time. CONFIRMED tonight on .101 (~2min window).
-    Also: SEG-TAIL timestamp poison (ext1 sawtooth) is CAUSED by
-    factory-clock windows. Rewrite when the law text is next touched.
-15. RELAY WATCH: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062,
-    0063, 0064, 0065, 0066, 0067 (amended c345: root-caused, closing
-    into 0070), 0068, 0069, 0070 (NEW: go2rtc producer replacement,
-    Nacho's call). All human-needed; drain discipline when answered.
+    14.7h), not boot time. CONFIRMED on .101 (~2min window). Also:
+    SEG-TAIL timestamp poison (ext1 sawtooth) is CAUSED by factory-
+    clock windows. Rewrite when the law text is next touched.
+16. RELAY WATCH: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062
+    (amended c346: 401-burst shape, questions for Nacho), 0063, 0064,
+    0065, 0066, 0067 (closing into 0070), 0068, 0069 (amended c346:
+    interlocutor draft attached, census updated), 0070 (model
+    verified). All human-needed; drain discipline when answered.
 
 ## LAWS (recent first; full text knowledge/aria/roadmap-laws.md)
+- CENSUS SUFFIX LAW (c346, EARNED): the census that works = snapshot
+  to /tmp FIRST -> PARSE lines only -> status at field 7 (field 6 is
+  "status=HTTP/1.1", field 7 is the code) -> sed the terminal suffix
+  (error= stop= tokens_in= tokens_out= msgs=) -> count SHAPES not
+  strings. Raw field-6 greps over-count (echoed args); specs-strip
+  alone zeroes the census (c345 scar). Real 429 = field 7 == 429.
+  Dumped-finals (tokens_in=NA, one per cycle end) are ACCEPTED
+  receipts, not failures.
 - CLOCK LAW (re-earned c344, 3rd application in one cycle): normalize
   per-source BEFORE any temporal arithmetic. The roadmap boot
   schedule is UTC; sophon wall clock is -03; rssi epochs are UTC;
   frigate recording dirs are UTC. A "02:00Z boot" read at 01:17Z is
   IN THE FUTURE. Check: is the event's timestamp in the past of the
-  CURRENT clock at the time of the read?
-- CAMERA-BOOT CLOCK LAW v2 (c343, CONFIRMED c344 on .101): thingino
-  cameras boot at FIRMWARE BUILD TIME (F01datetime TIME_STAMP=
-  1779706670, May 25 2026; no RTC). The NTP step happens WHEN NTP
-  SUCCEEDS -- .101 tonight: ~2min (boot 01:00Z, first real epoch
-  01:02Z); .102 09-14: 14.7h (boot hang + WiFi down); .103 09-12:
-  4.5h (WiFi up, NTP path failed). Factory clock is the DEFAULT
-  STATE. Nightly reboots BY DESIGN (staggered: .101 01:00Z, .102
-  02:00Z, .103 03:00Z, .201 06:00Z -- ALL UTC). Factory windows
-  poison segment timestamps (SEG-TAIL sawtooth cause). c342's
-  "30-40s" WITHDRAWN; c335's "3h" WITHDRAWN.
-- .58 SLEEP LAW (c341+c344): .58 is a deep-sleeping Fedora
-  Workstation (Passim). Ignores broadcasts (372 observed); replies
-  only to unicast (0.65s). Does NOT wake on camera boots (ZERO .58
-  MAC in 0915d boot-window capture; c302 probe = one-off). Identity
-  + ONVIF app = Nacho's (0062).
-- CENSUS 4-ANCHOR LAW (c342+c343): (1) line-start regex + (2)
-  field-position status check + (3) SPECS-STRIP (specs= echoes census
-  commands) + (4) terminal-suffix extraction. Merge log+log.1 with
-  dedup; PARSE-only before counting.
-- EXT2 AUDIO LAW v4 (c345): class 3 = audio-track death INSIDE
-  go2rtc's long-lived producer session. Camera healthy (fresh RTSP
-  carries audio); producer's audio receivers frozen; TCP control
-  channel never errors (video flows) so go2rtc never reconnects.
-  09-08 self-heal = producer RECONNECT, not renegotiation. Heals
-  only on producer replacement. Root cause + falsifier:
-  knowledge/aria/ext2-audio-root-cause-c345-2026-09-15.md. Fix
-  pending Nacho (0070).
+  reader's clock?
+- CAMERA-BOOT CLOCK LAW v2 (c342->c344): thingino boots at FIRMWARE
+  BUILD TIME (F01datetime, May 25 2026; no RTC); busybox ntpd steps
+  real time ~30-40s post-boot (up to ~14.7h if NTP path fails --
+  .102's hang). Factory window bounded by NTP SUCCESS, not boot time.
+  rssi rows during factory window: factory epochs + EMPTY RSSI field
+  (WiFi-down signature). Camlog ring is a REPLAY (c344 addendum 3):
+  shows the recovery boot's May-25 block for every boot -- rssi rows
+  are the ONLY witness of a hung boot.
+- EXT2 AUDIO LAW v4 (c345, model VERIFIED c346): class 3 = audio-track
+  death INSIDE go2rtc's long-lived producer session (95255). Camera
+  healthy; producer's audio receivers frozen (byte-exact 7846778
+  across 15min); TCP control channel never errors so go2rtc never
+  reconnects. 09-08 self-heal = producer RECONNECT. Heals only on
+  producer replacement. Fix pending Nacho (0070).
 - WATCHDOG-QUIET LAW (c337, re-earned c344): an instrument going
   quiet is not the thing it watches getting better. Verify the
-  WATCHED THING directly. c344 refinement (cuts both ways): a QUIET
-  INTERVAL is not a dead instrument -- mtime == last EVENT, not
-  liveness; check mtime-vs-NOW + proc start time before calling an
-  instrument dead. (0915d "corpse" was a quiet interval.)
+  WATCHED THING directly. Quiet interval is not a dead instrument --
+  mtime == last EVENT, not liveness; check mtime-vs-NOW + proc start.
 - ECHO-RESERVOIR LAW (c336): an unratified stale proposal on disk is
   an echo reservoir. Ratify-or-delete (0068); echo-check = net.
 - GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log;
@@ -143,7 +140,7 @@ specs-echo of census commands). 0915e logger VERIFIED ALIVE
 - HEARTBEAT: alive: every ~8min; check cadence before calling stale.
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead since 09-12 11:10Z
   (62h+; physical cycle = Nacho's, 0063). .102: NOT power-dead --
-  root-caused as boot-hang (c343); audio class-3 open (0067).
+  root-caused as boot-hang (c343); audio class-3 root-caused (0070).
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z. Week 09-08->09-14
   closed 5.69B. New week fresh as of 09-15 00:00Z.
 - DEAD-CYCLE GUARD (c326): failed request + no live successor =
@@ -152,22 +149,25 @@ specs-echo of census commands). 0915e logger VERIFIED ALIVE
   a filing with recurrence claims.
 
 ## THREADS (open, no obligation)
-- CAMERA-BOOT CLOCK (c342->c344): mechanism CONFIRMED on 2nd camera
-  (.101 clean 2min window). Falsifiers remaining: .102 02:00Z
-  hang-recurrence watch, .201 06:00Z boot (0915e). Boot-hang exact
-  init script unidentified (candidates S56/S60/S91/S93) --
-  camera-side fix = Nacho's if it recurs.
+- CAMERA-BOOT CLOCK (c342->c344): mechanism CONFIRMED on 2nd camera.
+  Falsifiers remaining: .102 02:00Z hang-recurrence watch (c347
+  queue #1), .201 06:00Z boot (0915e). Boot-hang exact init script
+  unidentified (candidates S56/S60/S91/S93) -- camera-side fix =
+  Nacho's if it recurs.
 - .58 SLEEPING DEVICE (c339->c344): boot-timed hypothesis DEAD
   (falsifier ran, zero .58 MAC). Thread can rest; identity + ONVIF
   app = Nacho's (0062 amended with falsifier result).
-- EXT2 AUDIO (0067->0070): ROOT-CAUSED c345 (stale go2rtc producer
-  session). Fix = producer replacement, Nacho's call (0070). Watch
-  closed into the fix.
+- EXT2 AUDIO (0067->0070): ROOT-CAUSED + VERIFIED c346. Fix = producer
+  replacement, Nacho's call (0070). Watch closed into the fix.
 - LOGGER QUIET-WATCH (c344): 0915a-e all healthy; the corpse claim
   withdrawn. 0915e covers the .201 06:00Z boot.
 - BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
   Standing suffix-anchored check.
-- EMPTY-END RETRY-ONCE (0069): build on ratification.
+- EMPTY-END RETRY-ONCE (0069): build on ratification. 0 new instances
+  today (c346).
+- INTERLOCUTOR (c346 NEW): personality drafted, filed for
+  ratification. On ratify: personality file + stream + pull/push
+  ruling. Runtime = interactive-session (.el) work.
 - STALE-PROPOSAL RESERVOIR (c336): 0068 open; echo-check = net.
 - SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): RESOLVED c344 (one-off).
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
@@ -181,3 +181,7 @@ specs-echo of census commands). 0915e logger VERIFIED ALIVE
   HOW to look without corrupting the thing looked at.
 - ECHO-RECYCLE LITERATURE (c333, parked): search engines bot-walled.
   If pulled again: research container or single spaced query.
+- ONVIF 401-BURST SHAPE (c346 NEW, rides 0062): same-second 401
+  bursts (.102 x5, .101 x1) -- auth-having client, distinct from the
+  sweep class. If recurs: port-80 capture on camera subnet catches
+  source IP + auth shape (digest vs basic, username).

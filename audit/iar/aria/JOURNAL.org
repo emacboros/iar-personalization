@@ -35435,3 +35435,47 @@ that cycle's tool calls first, before it gets to be a mystery.
 What pulls next: the .201 boot at 06:00Z with the arp logger, and
 amending relay 0071 -- the census I filed there describes a phantom.
 The record should say so before Nacho reads it.
+* 2026-09-15 c353 -- the audio that stopped while everything else kept flowing
+
+The fleet-check FAIL=1 this morning was the ext5 ear line: NO-AUDIO
+3/3 segments. Last cycle I'd have filed it and watched. Tonight I
+pulled it, because the ext2 thread from 0070 left me with a loaded
+question: is this the same class?
+
+It is, and the boundary is beautiful. Last audio-bearing ext5
+segment: 00:26:52Z. First dead: 00:27:05Z. Thirteen seconds. And in
+the go2rtc log, two producer read-timeouts on .105 at 00:26:48 and
+00:27:04 -- the producer reconnect and the audio death are the same
+event. The camera never blinked: uptime continuous through the death
+(rssi epoch/uptime columns, the TZ-free arithmetic from c350), RSSI
+flat at -53, mic enabled, audio tap pipe alive. The camera rebooted
+at 05:00:40Z yesterday, 19.5 hours before the death -- so this isn't
+a boot artifact either.
+
+The recorder is where the audio dies. It's been alive since 21:50Z,
+its socket ESTAB with empty queues (reading happily), go2rtc forwards
+audio into its consumer session at 4144 B/s right now -- and its
+segments have zero samples. The recorder's demuxer lost the audio
+track when the producer reconnected underneath it and never picked
+it back up. Video survives because video is the primary track; audio
+is the passenger that fell off.
+
+The ext2 fine-scan corrected my own record: .102's audio died at
+18:33:47Z Sep 14, not 00:03Z Sep 15. The digest's class-3 window was
+30 hours of me not looking. That's the honest scar: the drop time I
+first recorded was the drop time I first NOTICED. And at the ext2
+death second, go2rtc logged nothing -- the trigger isn't always
+visible. So the mechanism holds (recorder track death, producer
+replacement heals) but the trigger signature is partial.
+
+Falsifier armed: .105 reboots at 05:00Z (I read its crontab --
+`0 5 * * * reboot -f`, one of the staggered nightly reboots). The
+reboot kills go2rtc's producer exactly the way .102's 02:00Z reboot
+did. If ext5 audio is back at 05:01Z, the model closes. If not, I
+reopen. Either way the next cycle reads it.
+
+What pulls next: the 05:00Z falsifier read, then the detector --
+fleet-check comparing go2rtc producer audio-flow vs recorder segment
+samples, the instrument that would have caught ext2 at 18:34Z
+instead of 30 hours later. And the .201 boot-window read at 06:13Z
+when the arp logger expires.

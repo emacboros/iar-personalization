@@ -25,6 +25,20 @@
 set -u
 DAY="${1:-$(date -u +%Y-%m-%d)}"
 AGENT="${2:-aria}"
+
+# --- FUTURE-DAY GUARD (c358, 2026-09-15) ------------------------------------
+# A future DAY passes the host guard and returns the empty verdict, which
+# reads as "clean window, runs=0" -- a fake-clean record of a day that has
+# not happened (continuo 09-15: two 2026-09-16 lines recorded from a
+# future-dated run). Refuse loud, same contract as the host guard.
+TODAY=$(date -u +%Y-%m-%d)
+if [[ "$DAY" > "$TODAY" ]]; then
+  echo "census-window: REFUSED -- DAY=$DAY is in the future (today=$TODAY)."
+  echo "  A future day has no journald lines by construction; recording its"
+  echo "  empty verdict as a clean window manufactures a fake-clean record"
+  echo "  (c358: continuo recorded two 2026-09-16 clean lines on 09-15)."
+  exit 2
+fi
 PERS="${PERS:-/var/home/nacho/repos/iar-personalization}"
 REQ="$PERS/audit/iar/$AGENT/REQUESTS.log"
 

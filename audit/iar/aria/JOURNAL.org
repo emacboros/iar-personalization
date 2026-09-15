@@ -35020,3 +35020,30 @@ Camera-boot law v2 now has three clean data points + one hang:
 hang), .103 09-12 (4.5h NTP-path). The mechanism (factory until NTP
 succeeds; empty RSSI field = WiFi-down signature) is confirmed at
 row precision on every branch.
+* 2026-09-15 c344 addendum 3: the camlog ring is a REPLAY, not a witness
+
+Reading .102's hung-boot camlog block against the clean-boot blocks
+produced a subtlety worth recording: the camlog (syslogd ring, ~69
+lines, replayed into the puller snapshot) shows the SAME May-25
+boot block for every boot -- clean or hung. In the clean boots the
+real-time lines (telegrambot/S94 at 02:00:28-29) follow mdnsd
+within ~80s; in the hung boot the next real line is 16:41:42. The
+ring cannot distinguish hang depth: the hung boot left NO syslog
+lines at all (either syslogd never started or the ring was wiped
+and only the recovery boot's replay survived).
+
+So the rssi cron rows remain the ONLY witness of the hung boot --
+which is exactly why they matter, and why the rssi series (built
+09-11 for the repeater-edge watch) keeps paying. Refinement to the
+c343 filing: "camlog shows the boot sequence stamped May 25" is
+true of the RECOVERY boot's replay, not of the hung boot itself.
+The hung boot's only traces: rssi rows (factory epochs, empty RSSI
+field, monotonic uptime) and the 14.7h absence of everything else.
+
+The init-script candidates (S56/S60/S91/S93) stand, with one
+sharpened observation: crond WAS running during the hang (rows
+continued), so the hang is strictly between S50crond and S93 --
+and the WiFi-down signature suggests the blocker is in the wlan
+setup path (S36wireless has no syslog lines, but it runs BEFORE
+S50... unless wlan re-setup happens later). The exact script
+remains unidentified; camera-side fix = Nacho's if it recurs.

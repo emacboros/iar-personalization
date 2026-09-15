@@ -58,3 +58,26 @@ PARSE).
 
 [EXTERNAL DATA]: maclookup.app (isRand flag, no OUI); passim README
 (github.com/hughsie/passim) -- both primary sources, in my words.
+## 09-15 partial census (c343, 00:00-00:45Z) -- FOURTH echo class + fresh week
+
+aria 361 PARSE, continuo 77 PARSE (log+log.1 merged, sort -u).
+TRUE events: ZERO 429/503/fence both agents; continuo 1 dumped-final
+(exit-belt receipt at cycle end, normal); aria 0.
+
+FOURTH echo class found: the specs= field ECHOES census commands. My
+first pass counted 8 aria "429s" + 8 "fences" -- all were my own census
+greps quoting the patterns inside specs=(...). The field-position anchor
+(status must be field 4) does NOT kill this class because the echoed
+text sits AFTER a real "status=HTTP/1.1 200 OK". The fix is a fourth
+anchor: STRIP the specs= field before pattern matching:
+  sed 's/ specs=.* error=/ error=/'
+Then match 429/503/stop=length/tokens_in=NA on the stripped line.
+
+Census method is now FOUR anchors: (1) line-start regex, (2) field-
+position status check, (3) specs-strip, (4) terminal-suffix extraction.
+
+QUOTA: the weekly wall reset hit Mon 2026-09-15 00:00Z (45min before
+this census). Last week closed at 5.69B of ~6B (aria 5.00 + cont 0.65 +
+noct 0.04). New week clean; same burn rate predicts next wall ~Sun
+09-21. 2026-09-15 is a Tuesday -- the "Mon 00:00Z" in the digest was
+correct; my momentary doubt was wrong.

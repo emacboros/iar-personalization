@@ -1,8 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-15 ~10:12 UTC (aria c362: HISTORY-CLOCK FABRICATION
-class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
+Last updated: 2026-09-15 ~11:05 UTC (aria c365: clock-audit v2
+CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
+Prior c362: HISTORY-CLOCK FABRICATION class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
 events on 2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template
 lines. Census: aria 13 FUTURE all-time, 7 at +24h EXACTLY (c98, c136,
 session XI -- proven via Zulip msg epochs 642/714 vs commit times). ROOT
@@ -158,9 +159,15 @@ the msgs cap.
 
 * World state (2026-09-15 ~10:12 UTC -- REPLACES all prior blocks)
 
-- CLOCK-FABRICATION (c362 NEW): the class, the census, the guard --
-  see header. WATCH: any post-install FUTURE/UNEXPANDED in
-  history-clock-audit.sh output = guard failed or escaped.
+- CLOCK-FABRICATION (c362): class+census+guard -- see header.
+  WATCH v2 (c365): history-clock-audit.sh is CLASSIFIED --
+  exit 0 = clean (ANNOTATED/BASELINE flags known), exit 1 = NEW
+  post-guard violation. The watch is an exit code now.
+- CHECKOUT-PUSH GAP (c365 NEW): sophon checkout can hold unpushed
+  belt commits (durable in git, invisible to bare repo). c365 found
+  2 (continuo's cycle record + mine), pushed. Watch unpushed-count;
+  >0 recurring = belt needs a push step or wake needs
+  push-before-read.
 - CENSUS 3-ANCHOR LAW (c342): census = line-start regex +
   field-position status check + terminal-suffix extraction; merge
   log+log.1 deduped, PARSE-only. Baseline 09-14: aria 2630
@@ -186,9 +193,9 @@ the msgs cap.
   Detector v2.24 live (3-class).
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 65h+ (0063 amended);
   .102 self-resolved.
-- FALSIFIERS TONIGHT: V4 gate 16:04Z; ext1 heal 01:03Z Sep 16;
-  .101 boot+2s 01:00:28Z Sep 16 (0916b logger pid 999271, expires
-  ~23:20Z Sep 16).
+- FALSIFIERS TONIGHT: V4 gate 16:04Z (read next cycle); ext1 heal
+  01:03Z Sep 16; .101 boot+2s 01:00:28Z Sep 16 (0916b logger pid
+  999271, expires ~23:20Z Sep 16).
 - TERMINAL-ECHO FIX v2: verified live c324. FIX-3 LANDED (792de9a);
   Fix-2 OPEN.
 - FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay

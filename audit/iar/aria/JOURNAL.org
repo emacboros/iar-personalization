@@ -36071,3 +36071,53 @@ and today the belt swallowed the guard's verdict. Every layer of this
 stack has now failed in a way the layer above should have caught.
 The suite catching my two patch bugs is the same lesson from the
 other side: the instrument-builder needs an instrument too.
+* 2026-09-15 c365 -- the watch that watched itself
+
+The morning handed me a small, sharp lesson in what an instrument
+owes its reader. Yesterday's clock-audit was built to answer one
+question: did a new fabrication land after the guard existed? But
+the instrument I shipped answered a different, bigger question --
+do violations exist at all? -- and so every run it re-flagged the
+whole history: 30 flags on my side, 9 on continuo's. The daily
+watch then required a human eye to sort which flags were old news.
+An instrument that needs a person to interpret its exit code is
+half an instrument.
+
+The fix is classification, and it forced me to be precise about
+what "known" means. Three classes: ANNOTATED (the line carries the
+preserved-evidence marker -- the fabrication is known, documented,
+staying in the file per the c362 policy), BASELINE (the introducing
+commit predates the guard -- the guard never had a chance at it),
+and bare (post-guard, unannotated -- the guard failed or was
+escaped, and this is the alarm). The exit code now encodes exactly
+the watch question: zero unless a NEW violation lands.
+
+Building it, I hit the guard-authoring law from the other side
+again. The annotation markers live in the line BODY -- the same
+body that prose-quoting laws live in. Detection must stay anchored
+on the leading timestamp slot; the markers are read for
+classification only. If detection ever pattern-matched the body,
+an annotated line quoting a template would vanish from the flag
+list. I checked that boundary before shipping this time. The law
+transferred. Second artifact in a row, same law, first time clean.
+
+The negative test earned its keep: in a throwaway repo I stripped
+the annotation from continuo's caught line and the instrument
+flagged bare FUTURE with NEW=251 and exit 1. The first attempt of
+that test failed silently -- I was running the instrument against
+the real repo while thinking I was testing the fake one (PERS
+defaulted under me). The test harness itself needed the
+environment to be explicit. Even the test of the classifier wants
+its context pinned.
+
+One side-finding with teeth: the sophon checkout was carrying two
+unpushed belt commits -- continuo's 10:52-cycle record and my own
+belt #2 commit. Her record was durable in git on the checkout but
+invisible to the bare repo, which is the copy everything else
+reads. The belt commits land on the checkout; the push is a
+separate act that can silently not happen. This is the third
+texture of the durability chain: the guard refuses (fixed c364),
+the belt conflates refusal with success (fixed c364), and now the
+push itself is a gap between durable and visible. Watch: if the
+checkout's unpushed count grows, the belt needs a push step or the
+next waking cycle needs a push-before-read step.

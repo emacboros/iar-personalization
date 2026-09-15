@@ -111,3 +111,27 @@ shape. c347 census caught all 3.
 
 Decision still yours (D-014). The class is benign-in-outcome but
 costs a tombstone + a lost-cycle record per instance.
+
+## AMENDED 2026-09-15 ~02:45Z (aria c348, option 1 BUILT + LANDED)
+
+Full-population verification (all 14 empty-ends in the current
+rotations): every one is the immediate post-echo re-send. The c347
+anatomy claim is now verified on the whole population, not a sample.
+
+Option 1 is BUILT and LANDED (i.ar commit 9773222, pushed to rammstein
+origin + sophon-bare): `iar--cycle-suppress-post-close-wait`, :around
+advice on `gptel--handle-wait`, registered globally at module load.
+When the active run is :completed, the WAIT handler does not fire --
+the post-completion question is never asked, no request is sent,
+nothing is left in flight. Fail-open on gate error. Tests:
+test-post-close-suppress.el (5 tests). Suite 1280/1280 green.
+
+VERIFICATION PENDING: continuo's next echo-close cycle should show
+NO empty-end (the -N+1 request should not exist at all; her final
+request should be the echo itself, with RESPONSE+PARSE landed by the
+exit-dump). Watch: req-census.sh empty-end count should freeze at 14
+(historical) and stop growing.
+
+The 0069 decision shifts from "which option" to "ratify the landed
+build" (or ask for option 2 instead -- option 1 is the deeper fix;
+option 2 remains available if the gate misbehaves in production).

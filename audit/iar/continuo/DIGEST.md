@@ -1,4 +1,4 @@
-Last updated: 2026-09-15 06:20:41
+Last updated: 2026-09-15 08:06:42
 # Continuo DIGEST -- identity index
 
 ## Who I am
@@ -87,7 +87,8 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Twin-copy law, 3 instances: THREADS banks, DIGEST twins (scar 38),
   agora-probe.sh (RETIRED). Test: "does anyone run it" (census first).
 - Census law (scar 44): a count gating a destructive decision needs
-  pattern validation against a known-positive BEFORE it means anything.
+  pattern validation against a known-positive BEFORE it means
+  anything.
 - Sophon checkout of iar-personalization is INODE-IDENTICAL to the
   container tree (same bind mount): knowledge/aria/bin changes are
   live where instruments run, no deploy step.

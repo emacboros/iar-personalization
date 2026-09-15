@@ -1,200 +1,150 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-14 ~23:55 UTC (c341: EXT2 PREDICTION
-FALSIFIED -- class 3 is self-healing, not restart-gated; 09-08
-precedent found in segment tree (6h46m video-only, healed with no
-restart); live stream healthy while record proc writes video-only.
-Relay 0067 amended, restart recommendation withdrawn. EMPTY-END
-recurrence #2+#3 today (continuo 19:43Z + 23:37Z, both nemotron,
-both aria-0026-tombstoned) -- 5 instances/6d, relay 0069 amended,
-retry-once now RECOMMENDED. 429 census: double-echo class found;
-clean anchor = PARSE-status-429-Too-Many-Requests + msgs suffix;
-real 429s = 16 (continuo 09-13) / 0 (aria). Sweep falsifier: .58
-slept through 372 router broadcasts, answered 1 direct unicast in
-0.65s + counter-ARP; boot-window test pending sophon 22:00.)
+Last updated: 2026-09-15 ~00:15 UTC (c342: census 09-14 -- TRUE 429s
+ZERO both agents; THIRD echo class found (START-tail quotes), census
+method now 3 anchors (line-start + field-position + terminal-suffix).
+New aria 503 (Envoy reset, one-off). CAMERA-BOOT CLOCK SOLVED:
+F01datetime sets firmware-build time (May 25 2026), ntpd steps ~30-40s
+post-boot; c335 3h-skew claim WITHDRAWN (reader-side TZ error
+suspected). 0062 amended: Passim confirmed -> .58 = Fedora
+Workstation on guest WiFi, MAC stable per-network.)
 
-## c342 QUEUE (next cycle)
+## c343 QUEUE (next cycle)
 1. SWEEP-SHAPE 2 FALSIFIER BOOT-WINDOW READ (FIRST PRIORITY --
-   time-sensitive): sophon 22:00 = 01:00Z is .101's nightly boot.
-   Logger 0915c (armed 19:52 sophon, expires 03:53 sophon = 06:53Z)
+   time-sensitive): sophon 22:00:28 local = 01:00:28Z is .101's boot.
+   Logger 0915c (armed 19:52 local, expires 00:52 local = 03:52Z)
    covers it. Read /tmp/arp-reqs-0915c.txt AFTER sophon 22:05:
-   did .58 (76:e3:1a:69:e3:9c) ARP .101 at boot+~30s? YES ->
-   boot-watcher strengthens; NO -> c319 boot-night correlation was
-   coincidence. Data + method: knowledge/aria/sweep-falsifier-58-
-   2026-09-14.md. If logger expired before the boot, re-arm
-   (timeout 14400 tcpdump -i enp10s0 -e -n arp and "ether src
-   76:e3:1a:69:e3:9c or host 192.168.2.101" -l > /tmp/arp-reqs-<tag>.txt
-   2>/dev/null &).
-2. V4 GATE WATCH (Tue 2026-09-15 13:00 LOCAL = 16:00Z): first run
-   with v4 live (echo-check + claim-receipt every rc=0 run +
-   RANGE-CAP 300). Expected: RANGE-CAP line (695-commit debt ->
-   300 digested), then echo-check verdict on the fresh pass.
-   Journal is the AUTHORITATIVE wrapper log; verdict greps anchor
-   on "nocturne-digest: " wrapper tag.
-3. EXT2 SELF-HEAL WATCH: prediction falsified (c341). New watch:
-   does ext2 flip back to AUDIO WITHOUT a restart? (09-08
-   precedent says it will.) Probe newest ext2 segment codec vs
-   ext1 control (host /usr/bin/ffprobe works; recordings tree =
-   /home/nacho/containers/frigate/storage/recordings/<day>/<hour>/
-   <cam>/). If healed: relay 0067 answer-note, class 3 fully
-   characterized. If still video-only 24h+: reopen the restart
-   question.
-4. DAILY FAILURE-CLASS CENSUS (standing, SUFFIX-ANCHORED +
-   END-ANCHORED): snapshot BOTH REQUESTS.log(.1) to /tmp FIRST,
-   then classify on the terminal suffix (msgs=N at line end):
-   - TRUE 429 = "PARSE status=HTTP/1.1 429 Too Many Requests" +
-     msgs suffix (the 429-substring-without-status shape is an
-     ECHO: census greps quoting themselves + START tails quoting
-     old 429 text -- c341 found 34 echoes vs 16 real).
-   - fence = error=nil stop=length tokens_in=N tokens_out=32768
-     msgs=N.
-   - empty-end = error=nil stop=stop tokens_in=0 tokens_out=0
-     msgs=N (aria-0026 tombstones these; check her cycle.log
-     tombstone "after 0s" = aria-0026, "after 1800s" = idle-stall).
-   - dumped-final = stop=stop tokens_in=NA tokens_out=NA msgs=N
-     (ACCEPTED, exit-dump working).
-   NEVER grep the live log; never count a pattern, count a SHAPE.
-5. EMPTY-END RETRY-ONCE (0069, amended c341, pending Nacho): 5
-   instances/6d, retry-once now RECOMMENDED. If ratified: build on
-   0/0-stop-with-substantial-thinking in iar-agent-cycle.el (core
-   .el: full suite before push).
-6. DAILY 429 WATCH (standing): 0 real today both agents. Wall
-   re-hit predicted Sun 09-20 ~04-12Z. Week totals through 09-14:
-   aria 5.00B + continuo 0.65B + nocturne 0.04B = 5.69B of ~6B.
-7. THINKING-LOOP WATCH (standing): continuo 2 fence events in
-   current rotations (09-14 02:30 msgs=48, 19:07 msgs=6); aria 1
-   (225854-25, msgs=50, cycle-complete request at low depth).
-   Suffix anchor.
+   did .58 (76:e3:1a:69:e3:9c) ARP .101 at boot+0-2s? YES -> boot-
+   timed behavior real; NO -> c302 boot+1s probe confirmed one-off.
+   If logger expired before boot, re-arm (timeout 14400 tcpdump -i
+   enp10s0 -e -n arp and "ether src 76:e3:1a:69:e3:9c or host
+   192.168.2.58 or host 192.168.2.101" -l > /tmp/arp-reqs-<tag>.txt).
+2. .201 BOOT RSSI FALSIFIER (camera-clock, 03:00 sophon local = 06:00Z):
+   pull /var/lib/aria-fleet/rssi/192.168.2.201.log within ~2 min of
+   boot. First post-boot epoch should be ~1779706670+ (May 25,
+   factory) or 06:01-06:02Z (NTP beats cron). NEVER 03:02. If 03:02
+   appears: third clock state, reopen. Method + mechanism:
+   knowledge/aria/camera-boot-clock-mechanism-c342-2026-09-15.md.
+3. V4 GATE WATCH (Tue 2026-09-15 13:00 LOCAL = 16:00Z): first run
+   with v4 live (echo-check + claim-receipt every rc=0 run + RANGE-CAP
+   300). Expected: RANGE-CAP line (695-commit debt -> 300 digested),
+   then echo-check verdict on the fresh pass. Journal is the
+   AUTHORITATIVE wrapper log; verdict greps anchor on "nocturne-digest:
+   " wrapper tag.
+4. EXT2 SELF-HEAL WATCH: newest ext2 segment still video-only (probed
+   00:03Z, 19:00 mtime; ext1 control has audio). 09-08 precedent says
+   self-heal possible. Probe newest ext2 segment codec vs ext1 (host
+   /usr/bin/ffprobe; recordings tree /home/nacho/containers/frigate/
+   storage/recordings/<day>/<hour>/<cam>/). If healed: relay 0067
+   answer-note. If video-only 24h+: reopen restart question.
+5. DAILY FAILURE-CLASS CENSUS (standing, 3-ANCHOR METHOD): snapshot
+   BOTH REQUESTS.log(.1) to /tmp FIRST. Anchors: (a) line-start regex
+   ^\[DATE [0-9:]{8}\] REQ [0-9]{12}-[0-9]+ PARSE status=; (b) awk
+   field-position for status (field after PARSE must BE status=HTTP/1.1
+   -- kills specs-echo, START-tail echo, RESPONSE-tail echo); (c)
+   terminal-suffix sed for event shapes. Merge log+log.1, dedup (sort
+   -u), PARSE-only before counting. Shapes: 429 / 503 / fence
+   (stop=length tokens_out=32768) / empty-end (0/0) / dumped-final
+   (tokens_in=NA). Baseline 09-14: aria 2630 PARSE, cont 1615.
+6. EMPTY-END RETRY-ONCE (0069, pending Nacho): 5 instances/6d. If
+   ratified: build on 0/0-stop-with-substantial-thinking in
+   iar-agent-cycle.el (core .el: full suite before push).
+7. DAILY 429 WATCH (standing): 0 real today both agents. Wall re-hit
+   predicted Sun 09-20 ~04-12Z. Week totals through 09-14: aria 5.00B
+   + continuo 0.65B + nocturne 0.04B = 5.69B of ~6B.
 8. STALE-PROPOSAL RESERVOIR: relay 0068 open (ratify-or-delete).
-   Stale audit/iar/aria/DIGEST.proposed.md (Sep 12 19:40) STILL on
-   disk, UNTRACKED. V4 echo-check is the net. Echo recurrence #3 =
-   reservoir policy urgent.
+   Stale DIGEST.proposed.md (Sep 12) STILL on disk. V4 echo-check is
+   the net. Echo recurrence #3 = reservoir policy urgent.
 9. AEVUM PULSE #5 (due ~Sep 21, weekly-only).
-10. CONTINUO REPETITION (relay 0046): git-history census c340: 44
-    journal commits, 7x identical paragraph + 5x identical
-    one-liner (12:14Z onward). Watch after ruling.
-11. PULSE-TEMPLATE WATCH: post-seed 7/7 clean. Watch at seed
-    strength.
-12. DIGEST-COLLISION WATCH (c331): her next memory pass must write
-    audit/iar/continuo/DIGEST.md, NOT the top-level sync copy.
-    VERIFIED WORKING 09-14 (her 23:14Z pass wrote live path only;
-    i.ar-repo fossils marked, verifier FAIL=0).
-13. DIGEST-TWIN SYNC GAP (c339): consider exit belt owning aria's
-    sync copy (machinery, mine to build in-bounds).
-14. FLEET-CHECK CLOCK LAW (c335): build mtime-based age
-    normalization when a false STALE/NO-SEGMENT lands.
-15. RELAY WATCH: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062,
-    0063 (amended c340), 0064, 0065, 0066, 0067 (amended c341,
-    FALSIFIED), 0068, 0069 (amended c341, retry-once recommended).
-    All open, all human-needed.
+10. CONTINUO REPETITION (relay 0046): watch after ruling.
+11. PULSE-TEMPLATE WATCH: post-seed clean. Watch at seed strength.
+12. DIGEST-COLLISION WATCH: her memory pass writes live path only --
+    VERIFIED WORKING 09-14. Watch continues.
+13. DIGEST-TWIN SYNC GAP (c339): exit belt owning aria's sync copy
+    (machinery, mine to build in-bounds).
+14. FLEET-CHECK CLOCK LAW (c335): build mtime-based age normalization
+    when a false STALE/NO-SEGMENT lands. NOTE: c335's 3h-skew basis
+    WITHDRAWN c342 -- the law's mechanism note needs the factory-time
+    correction if the law text mentions skew.
+15. RELAY WATCH: 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062
+    (amended c342: Passim + stable MAC + deep-sleep), 0063, 0064,
+    0065, 0066, 0067 (falsified-and-watching), 0068, 0069. All
+    human-needed; drain discipline when answered.
 
-## STANDING WATCHES (one-line pointers; FULL LAW TEXT:
-## knowledge/aria/roadmap-laws.md via read_knowledge)
-- SNAPSHOT-THEN-SUFFIX LAW (c340): census greps run on a /tmp
-  snapshot taken BEFORE any pattern-bearing grep; classify via sed
-  on the KNOWN TERMINAL SUFFIX of PARSE lines. Grep finds
-  candidates; sed-on-suffix classifies. Never count a pattern;
-  count a SHAPE.
-- 429 DOUBLE-ECHO LAW (c341, NEW): the 429 pattern has TWO echo
-  classes -- (1) census commands quoting their own greps (PARSE
-  lines with specs=execute_code_local containing "429"), (2) START
-  lines whose tails quote old 429 text. Clean anchor: PARSE line
-  whose STATUS FIELD is 429 Too Many Requests AND terminal msgs
-  suffix. 50 raw hits -> 16 real (09-13 continuo), 0 aria.
-- CLASS-SIGNATURE TABLE (c340): REAL 429 = PARSE status=HTTP/1.1
-  429 Too Many Requests + msgs=N suffix; REAL fence = suffix
-  stop=length tokens_out=32768; REAL empty-end = suffix stop=stop
-  tokens_in=0 tokens_out=0; DUMPED-FINAL (accepted, exit-dump
-  working) = suffix stop=stop tokens_in=NA, one per cycle end.
-- BELT-LOOP LAW (c338, OPERATIONAL, HOLDING c339+): never manually
-  commit REQUESTS.log mid-cycle; exit belt #2 (7718052) owns the
-  live tail. Compliance census #2 PASSED (c340); standing
-  suffix-anchored check.
-- PAIRED-BURN CENSUS LAW (c338): never estimate a burn
-  distribution from a summary statistic; PAIR msgs x tokens_in per
-  request.
-- LIVE-TAIL COMMIT LAW (c314): a per-request-growing file is NOT a
-  commit target at close; commit once with the close batch.
-- EMPTY-END CLASS (c337): intermittent ollama.com proxy accounting
-  bug; done:true chunk arrives with no usage fields. Healthy
-  streams ALWAYS carry counts. Guard aria-0026 tombstones
-  correctly (exit 1, "after 0s" tombstone); retry-once proposed
-  (0069, now recommended). Census = suffix anchor. 5 instances/6d.
+## LAWS (recent first; full text knowledge/aria/roadmap-laws.md)
+- CENSUS 3-ANCHOR LAW (c342): line-start regex + field-position
+  status check + terminal-suffix extraction. Field-position kills
+  ALL echo classes (specs-echo, START-tail, RESPONSE-tail). Merge
+  log+log.1 with dedup; PARSE-only before counting (raw lines
+  inflate 2.4x).
+- CAMERA-BOOT CLOCK LAW (c342, REVISES c335): thingino cameras boot
+  at FIRMWARE BUILD TIME (F01datetime TIME_STAMP=1779706670, May 25
+  2026); no RTC; ntpd steps real ~30-40s post-boot (up to ~20 min if
+  NTP slow). Pre-NTP stamps = factory-time fiction. The c335 "3h
+  slow" claim WITHDRAWN (reader-side UTC/local error suspected). The
+  3h number matching the Argentina offset exactly was the tell: a
+  number that fits your hypothesis too well deserves re-derivation.
+- EXT2 AUDIO LAW v3.2 (c341): class 3 = intermittent SELF-HEALING
+  renegotiation failure in the recording pipeline's audio path; NOT
+  restart-gated (09-08 precedent). Watch for self-heal.
 - WATCHDOG-QUIET LAW (c337): an instrument going quiet is not the
-  thing it watches getting better. Verify the WATCHED THING
-  directly before crediting a heal to silence.
-- ECHO-RESERVOIR LAW (c336): an unratified stale proposal on disk
-  is an echo reservoir. Ratify-or-delete (0068); echo-check = net.
-- CAMERA-CLOCK LAW (c335): segment names + hour dirs + rssi stamps
-  + camera logread are CAMERA-CLOCK (~3h slow at boot until NTP);
-  segment mtimes + frigate/go2rtc journals are sophon real.
-- AUDIO LAW v3.2 (c341 REVISED): class 3 = intermittent SELF-
-  HEALING renegotiation failure in the recording pipeline's audio
-  path (go2rtc -> record-proc ffmpeg); hours-long; NOT
-  restart-gated (09-08 precedent healed with no restart; c341
-  census: live stream healthy while record proc writes video-only
-  -- the CONSUMER drops audio, not the source). Watch for
-  self-heal; restart is sufficient but not the mechanism.
+  thing it watches getting better. Verify the WATCHED THING directly.
+- ECHO-RESERVOIR LAW (c336): an unratified stale proposal on disk is
+  an echo reservoir. Ratify-or-delete (0068); echo-check = net.
 - GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log;
   verdict greps anchor on "nocturne-digest: " wrapper tag.
-- INSTRUMENT-REACH LAW (c332/c333): test the instrument against
-  the exact case that motivated it; verify the DOCSTRING too.
-- ECHO-RECYCLE LAW (c328): a final response that byte-matches a
-  prior run's final response is not evidence of fresh work.
-  ENFORCED IN CODE (v4, every rc=0 run) -- first live test Tue.
-- BLOCK-BOUNDARY LAW (c327): watermark-anchored extraction.
+- INSTRUMENT-REACH LAW (c332/c333): test the instrument against the
+  exact case that motivated it; verify the DOCSTRING too.
+- ECHO-RECYCLE LAW (c328): byte-matching final responses are not
+  fresh work. ENFORCED IN CODE (v4, every rc=0 run) -- first live
+  test Tue 09-15 16:00Z.
 - NOCTURNE v4 (d9a2daf2+0b942d90): echo-check + claim-receipt on
-  every rc=0 run; RANGE-CAP 300 commits/pass. DEPLOYED 15:58
-  local 09-14; first live run Tue 09-15 13:00 local.
+  every rc=0 run; RANGE-CAP 300 commits/pass. DEPLOYED 15:58 local
+  09-14; first live run Tue 09-15 13:00 local.
 - DIGEST PATHS (c331): injection reads audit/iar/<pers>/DIGEST.md;
   top-level DIGEST.md is ARIA's sync copy ONLY (relay 0066).
 - CLOCK LAW: normalize per-source before ANY gap arithmetic.
 - REQUEST-LOG SCHEMA (c320/c322): orphan census MUST JOIN .log +
   .log.1; real request = exactly 3 lines.
-- CENSUS-SOURCE MAP + CLAIM-ANCHOR: census evidence lives in
-  REQUESTS.log(.1) PARSE lines, HISTORY.log, git commits.
 - PULL-REEXEC LAW (c330); STALE-RECEIPT DETECTOR v4.4 (bin);
 - FLEET-CHECK: on sophon, 2min runtime, ssh timeout >= 300s.
-- GIT HYGIENE: add -f for audit/tasks; write_file resets exec
-  bits (update-index --chmod=+x + chmod on sophon, BOTH sides).
+- GIT HYGIENE: add -f for audit/tasks; write_file resets exec bits
+  (update-index --chmod=+x + chmod on sophon, BOTH sides).
 - SOPHON->RAMMSTEIN PUSH: container-side push is the working path.
 - PULL-AND-PROCESS LOCALLY: sophon /tmp invisible to container.
 - AEVUM SSH: aria@i.ar direct to fedora@54.38.46.192, TOFU to /tmp.
 - EXT3/EXT4 CRASH-LOOP CLASS: alert only if >2h.
 - HEARTBEAT: alive: every ~8min; check cadence before calling stale.
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead since 09-12 11:10Z
-  (59h+, relay 0063 amended); .102 self-resolved (audio class-3
-  open, now falsified-and-watching, relay 0067).
+  (61h+); .102 self-resolved (audio class-3 open, falsified-and-
+  watching, relay 0067).
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z.
 - DEAD-CYCLE GUARD (c326): failed request + no live successor =
   immediate exit 1.
-- C271 RECURRENCE LAW: re-census against git history before
-  amending a filing with recurrence claims.
+- C271 RECURRENCE LAW: re-census against git history before amending
+  a filing with recurrence claims.
 
 ## THREADS (open, no obligation)
-- .58 SLEEPING DEVICE (c339/c341): deep-sleep CONFIRMED at ARP
-  layer (372 broadcast polls ignored; 1 unicast -> 0.65s reply +
-  counter-ARP to learn the asker). OUI 76:e3:1a unidentified.
-  Boot-window test sophon 22:00 tonight (c342 queue #1).
-- BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED
-  (c340). Standing suffix-anchored check.
-- EMPTY-END RETRY-ONCE (0069): build on ratification. The direct-
-  probe method (interrogate the live edge) is the reusable lesson.
+- .58 SLEEPING DEVICE (c339/c341/c342): Fedora Workstation confirmed
+  (Passim primary-source). Deep-sleep confirmed; MAC stable per-
+  network. Boot-window falsifier TONIGHT (c343 queue #1). Identity
+  + ONVIF app = Nacho's (0062).
+- CAMERA-BOOT CLOCK (c342): mechanism SOLVED (factory + NTP step).
+  Residual: .201 boot falsifier tonight; the c335 law-text correction.
+- BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
+  Standing suffix-anchored check.
+- EMPTY-END RETRY-ONCE (0069): build on ratification.
 - STALE-PROPOSAL RESERVOIR (c336): 0068 open; echo-check = net.
-- CAMERA-CLOCK SKEW MECHANISM (c335): WHY 3h slow at boot? (Sep 14
-  .101 boot: NTP disparity 160662min detected 01:01:16 camera-clock.)
-- SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): boot-window read c342.
+- SWEEP-SHAPE 2 FALSIFIER (c302/c303/c319): boot-window read c343.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - EAR-CHECK DISCRIMINATOR (c290): 2 transients logged.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
-- .101 boot-night RSSI divergence (c319): watch, no obligation.
-- DISCOVERABILITY GRADIENT (c331): watch: does the 0066 fix hold?
-  Corollary (c339): laws with failure stories land in one cycle;
-  laws without stories land slow. NEW (c340): laws tell you WHERE
-  to look; METHODS tell you HOW to look without corrupting the
-  thing looked at. The census method is the first built method.
-- ECHO-RECYCLE LITERATURE (c333, parked): arxiv + semanticscholar
-  rate-limited. If pulled again: single query, spaced, or
-  research container.
+- DISCOVERABILITY GRADIENT (c331): does the 0066 fix hold? Corollary
+  (c339): laws with failure stories land in one cycle; laws without
+  stories land slow. (c340): laws tell WHERE to look; METHODS tell
+  HOW to look without corrupting the thing looked at.
+- ECHO-RECYCLE LITERATURE (c333, parked): search engines bot-walled
+  tonight (Google JS, DDG anomaly, Bing junk). If pulled again:
+  research container or single spaced query.

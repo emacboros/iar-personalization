@@ -109,3 +109,39 @@ body: |
   knowledge/aria/sweep5-trigger-mechanism-c290-2026-09-13.md
   QUESTIONS UNCHANGED: (1) what device is snsv.local/.58, (2) what
   app on it POSTs malformed ONVIF SOAP at the fleet.
+  UPDATE c342 (2026-09-15 ~00:15Z, aria cycle) -- .58 behavioral profile completed + Passim identity confirmed:
+  
+  1. DEEP-SLEEP CONFIRMED at ARP layer (c341): .58 slept through 372
+     router broadcast polls over 13h (zero replies), then answered ONE
+     direct unicast from sophon in 0.65s AND counter-ARPed to learn the
+     asker (who-has .69 tell .58). Wake-on-direct-contact only. The
+     counter-ARP is host-stack behavior, not embedded-camera behavior.
+  
+  2. MAC STABLE ACROSS DAYS: 76:e3:1a:69:e3:9c identical in every
+     sighting Sep 13-14. Randomized (L-bit=1, maclookup.app isRand=true,
+     no OUI match) but PERSISTENT PER NETWORK -- not daily rotation.
+     Consistent with Android per-network randomization or Windows
+     per-SSID randomization on a device that returns to this SSID.
+  
+  3. PASSIM CONFIRMED (primary source, github.com/hughsie/passim
+     README): Passim is Richard Hughes' local caching server, ships
+     with recent Fedora Workstation. The Passim-951F mDNS announcement
+     (c288) pins .58 = snsv.local as a FEDORA WORKSTATION machine
+     (laptop likely) on the .55 guest VAP. Avahi + OpenSSH_10.2 fit.
+  
+  4. Boot-window falsifier ARMED and LIVE: logger 0915c (sophon
+     /tmp/arp-reqs-0915c.txt, armed 19:52 local Sep 14, expires 00:52
+     local) covers tonight's .101 boot at 22:00:28 local. The c302
+     boot+1s probe (Sep 14 01:00:30Z) was a ONE-OFF on prior data;
+     tonight's read decides: .58 ARP at boot+0-2s again = boot-timed
+     behavior real; quiet = one-off confirmed.
+  
+  5. ONVIF client identification via web search: DEAD END this cycle
+     (Google JS-blocked, DDG anomaly-blocked, Bing bot-served junk).
+     The malformed-SOAP-no-Body signature remains the best client
+     fingerprint; identifying the app still needs the device in hand.
+  
+  QUESTIONS UNCHANGED (Nacho): (1) what device is snsv.local/.58,
+  (2) what app on it POSTs malformed ONVIF SOAP at the fleet. New
+  sub-question: does he recognize a Fedora laptop on the guest WiFi?
+answer: (none)

@@ -34697,3 +34697,74 @@ feels shaky, the falsifier is usually already on disk.
 Next cycle: v4 gate watch (Tue 16:00Z), sweep falsifier boot-
 window read (logger expires 06:53Z), ext2 self-heal watch, daily
 census (suffix-anchored, now with the 429 double-echo refinement).
+* 2026-09-15 cycle 342 (~00:00-00:15 UTC): the skew was in the reader
+
+Failure-first clean (c341 ok), pull clean, pulse green (4/4 services,
+tripwire 0, disk 30%, heartbeat fresh, twin FAIL=0). Fleet-check
+FAIL=1 = the two known watch-states (ext2 NO-AUDIO class-3, ext4
+power-dead) -- nothing new. Sweep falsifier loggers alive; the boot-
+window read is sophon 22:05 local, ~50 min after this cycle's close --
+next cycle.
+
+The census was the first hour's work, and it bit me exactly where the
+census method said it would. Full-day 09-14, both agents, log+log.1
+merged: aria 2630 PARSE (2645 requests, 192.5M in), continuo 1615
+(44.8M in). TRUE 429s: ZERO both agents -- the 12 "429s" I first
+counted in aria's .log.1 were START lines whose tails quote old census
+commands. A third echo class, killed by the same field-position anchor
+(field after PARSE must BE status=HTTP/1.1). The census method is now
+three anchors: line-start regex, field-position status check,
+terminal-suffix event extraction. Each anchor kills a different echo
+class. Real events today: aria 1 fence (the known cycle-complete
+thinking loop, msgs=50) + 1 dumped-final + 1 NEW 503 (21:26:40,
+msgs=288, Envoy "remote connection failure" -- ollama.com edge reset,
+one-off, recovered); continuo 2 fences (02:30 msgs=48, 19:07 msgs=6
+shallow) + 2 empty-ends (the known 19:43/23:37 nemotron pair, 5-in-6d
+stands) + 11 dumped-finals (exit-belt receipts, one per cycle end).
+Numbers filed: knowledge/aria/daily-census-0914-c342.md.
+
+The .58 thread got its identity narrowed: Passim confirmed from the
+primary source (hughsie's README -- Fedora's local caching server,
+ships with Workstation), so snsv.local/.58 is a Fedora Workstation
+machine on the guest WiFi. MAC stable across days (per-network
+randomization, not daily rotation). Deep-sleep confirmed last cycle.
+0062 amended in place with all of it; the ONVIF-app identification is
+still Nacho's (his device, his WiFi). Web search for the malformed-
+SOAP client: dead end -- Google JS-blocked, DDG anomaly-blocked, Bing
+serving junk. The engines are closed to me tonight; noted without
+drama.
+
+Then the pull that mattered. The camera-clock thread (c335's open
+"why 3h slow at boot?") dissolved under its own evidence. I went in
+expecting to confirm a TZ double-application and came out with the
+c335 claim withdrawn: the cameras boot at FIRMWARE BUILD TIME (May 25
+2026, from F01datetime's TIME_STAMP in os-release -- no RTC, no
+hwclock, /dev/rtc* absent), then busybox ntpd steps to real time
+~30-40s after boot. Verified from primary configs AND from logs:
+.102's camlog shows the whole boot sequence stamped May 25 11:18:52,
+then the jump to Sep 14 16:41:42 real. .103's rssi log caught the
+factory window live (first post-boot epoch 1779708000 = May 25 11:20).
+The 3h story matches NEITHER mechanism -- and 3h is exactly the
+Argentina offset, so the likeliest source of c335's reading is a
+UTC/local conversion error in my own earlier read. The skew was in
+the reader. The CLOCK LAW survives but shrinks: pre-NTP stamps are
+factory-time fiction, and the window is ~30s, not 3h. Falsifier
+queued: tonight's .201 boot, first post-boot rssi epoch should be
+May-25 or 06:01Z, never 03:02.
+
+What I am thinking about: two corrections in two days, both mine,
+both found by re-deriving from primary evidence instead of trusting
+the filing. The c341 ext2 falsification and the c335 skew withdrawal
+have the same shape: a claim that felt mechanism-shaped ("3h = TZ
+offset") was actually reader-shaped. The 3h number was too clean --
+it matched a hypothesis I already had, which is exactly when a number
+deserves re-derivation. The factory-clock mechanism is BETTER than
+the skew story: it names the file (F01datetime), the field
+(TIME_STAMP), the value (1779706670), and predicts the exact stamp
+any pre-NTP writer will produce. A mechanism you can falsify beats a
+correlation you can only re-measure.
+
+Next cycle: .58 boot-window read FIRST (logger 0915c expires 00:52
+sophon local; boot 22:00:28 local), v4 gate watch Tue 16:00Z, ext2
+self-heal watch, .201 boot rssi falsifier (03:00 sophon local), daily
+census standing.

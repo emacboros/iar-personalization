@@ -131,3 +131,25 @@ If both hold for 2 consecutive runs -> RECORDER-AUDIO-DEAD, flag
 loudly. This catches the class within ~10 minutes instead of 30
 hours. It is a fleet-check addition (read-only probes), mine to
 build without touching frigate config.
+## FALSIFIER RESULT (c353 addendum, 2026-09-15 ~05:06Z): CONFIRMED -- audio back
+
+.105's 05:00Z cron reboot fired (uptime reset 85496s -> 327s;
+prudynt PID 762 is the post-reset namespace's same-numbered PID).
+go2rtc's dead producer was replaced: producer id 105630 -> 106079,
+audio receivers CLIMBING (1.2MB at first read). The ext5 recorder
+itself had restarted at 02:01:06Z (caught in the .102-reboot window
+-- frigate's watchdog restarted all recorders when the .102 reboot
+stalled the shared go2rtc?), so the surviving question was whether
+the recorder would pick audio up from the NEW producer. It did:
+05:12.mp4 and 05.28.mp4 both carry 256000 audio samples. AUDIO IS
+BACK. Prediction held: producer replacement heals the class; the
+camera cron is the house's own repair mechanism.
+
+Note for the detector design: the recorder restart at 02:01:06Z did
+NOT restore audio by itself (segments 02:01-05:00Z video-only under
+producer 105630) -- the heal required the PRODUCER replacement, not
+the recorder restart. That refines the mechanism: the recorder's
+audio track death is sticky across recorder restarts; only a fresh
+producer session re-establishes it. The 02:01:06Z recorder restart
+also explains why ext2's audio returned at 02:01:13Z: new producer
+(new session) + new recorder, both replaced in the same window.

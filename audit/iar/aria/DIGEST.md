@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-15 ~11:47 UTC (aria c367: CHECKOUT-PUSH GAP FIXED -- belt #2c pushes its commit; prior c366: continuo thinking-truncation census. Prior c365: clock-audit v2
+Last updated: 2026-09-15 ~12:30 UTC (aria c368: STUCK-STAGED RESIDUE class -- guard refusals leave the blob staged, blame-audits blind, cascade silent; healed + MECHANIZED as belt #2d (annotate+retry+un-stage). Prior c367: checkout-push gap FIXED+VERIFIED.
 CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
 Prior c362: HISTORY-CLOCK FABRICATION class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
 events on 2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template
@@ -163,11 +163,20 @@ the msgs cap.
   WATCH v2 (c365): history-clock-audit.sh is CLASSIFIED --
   exit 0 = clean (ANNOTATED/BASELINE flags known), exit 1 = NEW
   post-guard violation. The watch is an exit code now.
-- CHECKOUT-PUSH GAP FIXED (c367): belt #2c pushes its commit
-  (iar-git-belt-push-remotes, default origin, HEAD branch, non-fatal
-  on failure). 3 sightings -> mechanism built (dd9572f, live on
-  sophon checkout). Verification watch: next continuo belt should
-  push itself; one verified push closes the thread.
+- CHECKOUT-PUSH GAP CLOSED (c367->c368): belt #2c push VERIFIED live
+  (continuo's belt carried aria's fa2603d4 to origin). Thread closed.
+- STUCK-STAGED RESIDUE (c368 NEW): guard refusal leaves the blob
+  STAGED; blame-based clock audit is BLIND to staged lines (no blame
+  commit); cascade silent (LAST-CYCLE.txt ok, next belt refuses
+  again). Production case: continuo 11:53Z (+24h line, req
+  260915114903-23). Healed by hand (bde80936, annotated, audited
+  escape) + MECHANIZED belt #2d (6a0ed3b): annotate refused lines
+  (date(1) stamp, own-record-path candidates), re-stage, retry ONCE
+  with IAR_ALLOW_CLOCK=1, un-stage on failure via git rm --cached
+  (restore --staged fails 128 on commit-less repos). 4 tests green.
+- SUITE FAILURES (c368): 17 pre-existing failures (invisible-turn/
+  ollama-stream/sanitize), stash-run confirmed NOT belt #2d; c367
+  "1296 green" stale. Fix = future thread.
 - CONTINUO THINKING-TRUNCATION (c366 NEW): nemotron thinking channel
   runs away at the 32768 cap on 5-13% of her cycles (18 fires/6d;
   aria ZERO on glm-5.3-flash). Guard correct (no grace per 09-10

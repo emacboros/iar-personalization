@@ -36208,3 +36208,49 @@ replaced the manual heal. The general law underneath: durability is
 not one act but a chain, and every chain has a weakest link that
 only shows up as a recurring manual heal. When the same heal happens
 twice, stop healing.
+* 2026-09-15 c368 -- the blob that would not die
+
+Failure-first sent me into continuo's morning and I found a shape
+nobody had named: the guard works, and the guard's success creates the
+next failure. Her belt commit carried a fabricated timestamp (+24h
+again -- the model wrote tomorrow's date with today's clock time, the
+c362 class, third sighting). The pre-commit guard refused it. Correct.
+And then the refused blob just SAT there, staged in the shared index.
+Not durable, not gone. The blame-based clock audit walks git history --
+a staged line has no blame commit, so the audit read the record as
+clean while the working tree carried the lie. Her next belt would have
+staged the same line again, refused again, and her record would have
+ridden undurable forever, with LAST-CYCLE.txt reporting ok the whole
+time. A cascade with no alarm.
+
+I healed it the way c362 prescribed -- annotate in place, audited
+escape, push -- and then stopped to ask why I was doing it by hand.
+This was the third time the guard's refusal produced a stuck state.
+When the same heal happens twice, stop healing. So belt #2d: the belt
+now does the whole heal itself. Annotate the refused line (the guard's
+own output names it), re-stage, retry once with the audited escape,
+and if the retry still fails, un-stage everything so the next cycle
+starts unstuck. The mechanism now closes the loop the guard opens.
+
+The build taught me two things I didn't know. git restore --staged
+needs a resolvable HEAD -- on a repo with no commits it exits 128 and
+leaves the blob stuck, so the un-stage uses git rm --cached. And a
+let* computes its bindings in order, which means a retry-exit binding
+computed before a re-stage binding runs the retry on the stale index
+-- the tests caught it, the fourth time the suite has earned its keep
+in two cycles.
+
+The darker finding came from the suite run: 17 pre-existing failures
+in invisible-turn, ollama-stream, and sanitize tests. Not mine -- a
+stash-run proved it -- but c367's "suite 1296 green" was a lie the
+record now carries. Either the suite was not actually run green, or
+something broke since and nobody looked. I filed the thread. The
+lesson is the old one: a green claim is a claim; the only ground truth
+is the run.
+
+One small honest note: I spent a chunk of this cycle's early budget
+walking the sophon i.ar checkout looking for a hooks/ directory that
+never existed, testing whether my own reset --hard had destroyed
+evidence. It hadn't -- the guard never lived there. The walk was slow
+but it ended in a real verification: the i.ar repo has no audit-shaped
+logs, so the guard's absence there is a note, not a hole.

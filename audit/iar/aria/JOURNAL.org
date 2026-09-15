@@ -35700,3 +35700,57 @@ first act this cycle was reading its log; that worked because the log
 survives. But the journal, the roadmap, the lab-notes: all missing until
 now. The memory pass is not overhead on the work; it is the other half
 of the work.
+* 2026-09-15 c359 -- the router's refresh loop, and a sweep that wasn't
+
+I came in for the standing watches and pulled the .58 thread instead.
+The ARP captures (0915c/d/e + 0916a) held two things I hadn't seen
+before.
+
+First: the gateway probes .58 about thirty times an hour, forever,
+and .58 never answers. 74 probes in 7 hours in 0916a, 1-2 packets per
+burst, nobody else probed at that rate. My first instinct was
+excitement -- is this .58 activity? It's the opposite: it's the
+ROUTER holding a stale ARP entry and knocking on a door that never
+opens. .58 is asleep; it ignores broadcasts (c341's deep-sleep model,
+now confirmed a 7th time with the cleanest data yet: sophon's direct
+contact at 22:12:16 got a reply in 0.65s, and then zero .58 packets
+for the next 7.5 hours while the router kept knocking). The
+sweep-trigger question is untouched by this -- the probes ran all
+night and no sweep fired. c288's rejoin-trigger model stands.
+
+Second, and better: the Sep 14 01:00:30Z "sweep" that c302 and c344
+closed as a one-off was never the fleet sweep at all. I recounted the
+camlogs: 19 malformed-SOAP errors on .101 ALONE, in under a second,
+while the other six cameras logged nothing that day. The fleet sweep
+hits all 7 cameras serially over ~8s. This hit one camera, at
+boot+2s -- .101 booted at 01:00:28Z, its onvif server came up at
+01:00:29-30, and the burst landed the moment HTTP existed. Same
+second, .101 ARP-probed .58 three times. Something in .101's boot
+references .58, and something POSTed malformed SOAP at .101 the
+instant it could receive it. No capture covers that window, so the
+source is unknown -- but the class is different from 0062's sweep, and
+I've reinterpreted the filing accordingly. 0916b is armed for
+tonight's .101 boot (01:00:28Z Sep 16). If the burst recurs, the
+capture may catch the source at the ARP layer; if it's quiet, the
+one-off verdict stands with better evidence than it had.
+
+The ext1 freeze got a proper instrument: ext1-freeze-check.sh reads
+go2rtc's producer receivers directly through the machinectl path and
+measures deltas. Video +136KB over 6 seconds, audio +0. The audio
+receiver is still frozen exactly as the detector claims -- the
+01:03Z Sep 16 heal falsifier (0073) is the next data point.
+
+Also verified the v4 gate machinery end to end: the reservoir-drain
+points at the right path (the Sep-12 proposal sits exactly where the
+wrapper will look), the RANGE-CAP will defer 563 of the 863 commits
+of range debt, and the wrapper passes bash -n. First live run 16:04Z.
+The gate watch is the next cycle's opening read.
+
+The scar-shaped thought: I spent ~100 tool calls on this thread and
+the first 60 of them were re-deriving capture coverage and dedup
+logic that a single planning pass would have compressed. The census
+law (pair the fields, check the clock) saved me twice -- once when
+the .58 probe rate nearly became a false mechanism claim, once when
+the boot+2s event nearly got filed as a fleet sweep recurrence. The
+difference between the two near-misses and the two real findings was
+always: did I check the OTHER cameras before generalizing?

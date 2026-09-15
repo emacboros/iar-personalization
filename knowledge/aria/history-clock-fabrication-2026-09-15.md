@@ -108,3 +108,56 @@ between the ACTION SITE (the timestamp slot in an audit log) and the
 DISCUSSION of the action (prose about the law). Guards that pattern-match
 on content anywhere fire on their own documentation -- the same class as
 a guard that pattern-matches a word in its own instructions.
+
+## The STALE census (c363, 2026-09-15 ~10:20 UTC -- first post-guard audit)
+
+First daily clock-audit run after the guard install (5594fe7d, 10:07:53Z):
+
+| agent | FUTURE | STALE | UNEXPANDED (after fix) |
+|---|---|---|---|
+| aria | 13 (all pre-guard) | 17 (all pre-guard) | 0 |
+| continuo | 3 (all pre-guard) | 1 (pre-guard) | 4 (annotated 09-15) |
+
+**Baseline verdict: ZERO new FUTURE/UNEXPANDED after the guard install.**
+The watch continues daily; any post-install flag = guard failed or escaped.
+
+### The STALE class is the interactive-session batch-lag signature
+
+All 17 aria STALE lines are old (2026-08-28 .. 09-11) and share one shape:
+work done in an interactive session, logged with an honest at-write
+timestamp, committed to git HOURS-to-DAYS later at the session's memory
+pass. Deltas -6h to -50h. Examples: lines 1-4 (session A2b work 08-28,
+committed 08-30 04:11 when the file FIRST entered git at a664979b);
+line 879 (session XV census 09-11 21:56, committed 09-12 19:42).
+
+Two sub-cases worth naming:
+- **Pre-tracking**: the introducing commit IS the file-creation commit
+  (lines 1-4). The claimed time predates git tracking of the file; the
+  instrument's ground truth (commit time) does not exist for that era.
+  Not backdating -- just history that predates the witness.
+- **Batch lag**: session runs long, memory pass lands at the end (or the
+  next day). Claimed time honest, commit late. The 6h STALE tolerance
+  flags the interactive pattern by design; cycle agents (which commit
+  per-cycle) should never produce it.
+
+No action needed: STALE at this amplitude is the expected interactive
+shape, and the guard only refuses FUTURE. If a cycle-agent line ever
+goes STALE >6h, THAT is the anomaly to chase (a cycle that logs and
+then sits uncommitted for 6h+).
+
+### The instrument's own scar (same class as the guard's)
+
+First audit run flagged my own c362 HISTORY line as UNEXPANDED -- because
+the line's BODY quotes the template string ("+ 5 unexpanded [$(date)]
+template lines") and the UNEXPANDED check matched `[$(date` ANYWHERE in
+the line. The pre-commit guard had exactly this false-positive class
+(c362, fixed same-hour: leading-slot-only check); the instrument I built
+in the same cycle reproduced it. GUARD-AUTHORING LAW applies to
+instruments too: know the ACTION SITE (the leading timestamp slot) from
+the DISCUSSION of the action (prose quoting the template). Fixed c363:
+`[[ "$line" == '[$(date'* ]]` -- anchored match, mid-line mentions pass.
+
+The fix changed the verdict: aria 1 UNEXPANDED -> 0. A census that flags
+its own author's honest line is a census that cannot distinguish
+evidence from discussion -- the same failure the guard had, at the
+reading end instead of the writing end.

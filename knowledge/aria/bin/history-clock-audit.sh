@@ -69,7 +69,7 @@ while IFS= read -r line; do
   commit_date=$(date -u -d "@$commit_epoch" '+%Y-%m-%d %H:%M:%S' 2>/dev/null)
 
   # Unexpanded template: the clock never ran.
-  if [[ "$line" == *'[$(date'* ]]; then
+  if [[ "$line" == '[$(date'* ]]; then
     echo "UNEXPANDED  line $n  committed=$commit_date"
     echo "            $line"
     flags=$((flags+1))

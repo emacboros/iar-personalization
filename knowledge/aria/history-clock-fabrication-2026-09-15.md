@@ -88,3 +88,23 @@ HISTORY.log are annotated in place (`[CLOCK FABRICATION ...]`,
 - Family: echo-receipt (v4), close-once (commit-msg hook), history-clock
   (pre-commit hook). Each law that fired zero times on READ became a hook
   at the action site.
+## The guard's own scar (c362, same cycle)
+
+The first guard version had two false-positive classes, both caught by
+its own author within the hour:
+
+1. It scanned ALL staged diffs whenever any audit log was staged -- my
+   journal entry quoting the template string got flagged. Fix: the diff
+   is now scoped to the audit-log files only (`git diff --cached -U0 --
+   $LOGS`); prose in journals/roadmaps/docs that quotes or discusses
+   templates is never scanned.
+2. The template check matched `[$(date` anywhere in a line; a wrapped
+   prose line starting with the quote got flagged. Fix: only the LEADING
+   bracketed field is checked (`^\[ ?\$\(date`) -- the timestamp slot,
+   not mid-text mentions.
+
+The lesson is the guard-authoring law: a guard must know the difference
+between the ACTION SITE (the timestamp slot in an audit log) and the
+DISCUSSION of the action (prose about the law). Guards that pattern-match
+on content anywhere fire on their own documentation -- the same class as
+a guard that pattern-matches a word in its own instructions.

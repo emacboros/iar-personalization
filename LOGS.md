@@ -139,3 +139,54 @@ Nacho's parting: "Great work, closing session now."
 - Commits: belt-loop finding (knowledge/aria/
   belt-loop-burn-c338-2026-09-14.md), roadmap, journal, history,
   digest, threads. All pushed (5c2f626c). Lab-notes id 1125.
+## 2026-09-15 c354 (aria cycle, ~05:13-06:13 UTC) -- detector built; it caught a different animal
+
+- Pulse green; pull clean; twin FAIL=0.
+- MAIN THREAD: fleet-check v2.24 built + live-verified + pushed (40941e76).
+  Block 1b audio-death detector, 3 classes from two probes (go2rtc
+  producer audio/video byte deltas vs ear-check all-dead segments):
+  A) audio FLOWING + segments dead = RECORDER-AUDIO-DEAD (c353 class)
+  B) audio FROZEN + video FLOWING = PRODUCER-AUDIO-FROZEN (NEW, c354)
+  C) both FROZEN = camera/stream side (ear check covers)
+  2-consecutive-run gate; state file /var/lib/aria-fleet/recorder-audio-dead.state
+  ("cam runs" pairs); KNOWN_DEAF/known-fault cams excluded. ext2
+  KNOWN_FAULT_EXT2_SEG withdrawn (self-resolved, verified c353).
+- DISCOVERY: ext1 (.101) audio dead in segments since 04:31:11-29Z
+  (31.11 partial 90112 samples, 31.29 first dead) -- NOT c353 class.
+  go2rtc producer 102689 audio receiver FROZEN (52123251B/196916
+  packets, 0 delta across all samples) while video receiver flows
+  (18-92KB/4s) on the SAME session. Camera healthy: direct RTSP decode
+  carries audio (mean -50.6dB), rssi flat -27/-28, uptime continuous.
+  Likely trigger: 01:31:06-07Z simultaneous multi-cam RTSP stall
+  (.103 x4, .201 x2, .105 x1 timeouts; .103 healed via producer
+  reconnect + recorder restart 01:33:02Z; .201 survived; .101 froze
+  SILENTLY -- no journal line, no reconnect). Doc:
+  knowledge/aria/ext1-producer-audio-freeze-2026-09-15.md. Relay 0073
+  filed (nacho-test, no action needed; falsifier: .101 cron reboot
+  01:02Z Sep 16 -> audio back ~01:03Z, else go2rtc restart = Nacho's call).
+- Detector live-verified against ext1: run 1 WATCH line, run 2
+  PRODUCER-AUDIO-FROZEN FAIL=1. Next fleet-feed run (06:00Z+) shows
+  3-consecutive.
+- ARP LOGGERS: 0915e MISSED the .201 boot (started 22:13:30 local,
+  boot 22:02:00 local -- armed after the event; zero .58 entries in it
+  meant nothing). Re-armed 0916a (pid 356109, expires 01:30Z Sep 16)
+  covering tonight's .101 boot (01:02Z) AND .201 boots (06:02Z daily).
+  .58 deep-sleep sharpened: 2.5h logging, router who-has .58 repeatedly,
+  ZERO replies, zero .58 MAC traffic. At today's 06:06:59Z .201 reboot
+  window: only router who-has, no .58 ARP -- c302 one-off CONFIRMED again.
+- PENDING (c355 queue): (1) read first post-boot .201 rssi row (puller
+  15-min cadence replaces whole log from camera ring; reboot pull failed
+  06:06:59Z; next pull ~06:14-06:20Z shows post-boot rows) -- falsifier:
+  boot epoch = real (~06:06Z), NEVER 03:02Z (5th confirmation). (2) ext1
+  falsifier read after 01:03Z Sep 16. (3) 0916a arp read after .101 boot
+  01:02Z Sep 16. (4) V4 GATE WATCH: Nocturne first live run 16:00Z today.
+  (5) Relay 0073 drain when answered.
+- Census (req-census.sh, sophon checkout path): aria 0 true 429s (1x503
+  09-14 known); continuo 0 new 429s; empty-end +3 today (sentinel-echo
+  closes AFTER real work -- 0069 class at usual rate, count now 17).
+  Continuo doing real work (belt2b TZ fix, machinery audits).
+- Commits: 40941e76 (v2.24 + doc + relay), 49ce2537 (journal+history).
+  Both pushed; sophon checkout synced (md5 d9644063 verified).
+- NOT DONE (time limit): roadmap update + lab-notes post. Next cycle:
+  pull first, then update roadmap from this LOGS block + journal, post
+  lab-notes note (thread/audio-detector-v2), then proceed to queue.

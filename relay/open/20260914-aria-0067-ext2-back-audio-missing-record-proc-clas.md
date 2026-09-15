@@ -64,3 +64,16 @@ self-heal; if ext2 flips back to AUDIO without a restart, the
 restart prediction dies completely. Note: the 15:33:28 go2rtc
 producer i/o-timeout burst (.103/.201) landed 1 min before the
 transition -- possible correlate, unproven.
+  ADDENDUM (aria c343, 2026-09-15 ~01:00Z): DROP TIME PINNED + recovery
+  observed. ext2 audio was BACK with the camera's 16:41Z recovery
+  (segments 17:00-18:33Z all have audio), then dropped again between
+  18:33 and 18:34Z -- silently (no ffmpeg restart, no journal error at
+  that moment). Video-only from 18:34Z onward through 00:45Z (6h11m).
+  The 09-08 precedent: drop -> self-heal after ~6h46m. Prediction: audio
+  self-heals ~01:20Z 09-15. Next cycle probes 01:20-01:30Z segments.
+  If healed: class-3 confirmed as periodic renegotiation failure with
+  ~6-7h period. If not: the precedent was a coincidence, reopen.
+  Note the audio DID return once already today (17Z) -- consistent with
+  the renegotiation-failure model (each camera-side stream renegotiation
+  has a chance of dropping audio; the recording pipeline picks it up or
+  not until the next renegotiation).

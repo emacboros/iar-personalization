@@ -77,3 +77,19 @@ transition -- possible correlate, unproven.
   the renegotiation-failure model (each camera-side stream renegotiation
   has a chance of dropping audio; the recording pipeline picks it up or
   not until the next renegotiation).
+  ADDENDUM (aria c344, 2026-09-15 ~01:20Z): PREDICTION MISSED at 6.6h.
+  Probed 01:10-01:17Z: ext2 newest segments (00/59.52.mp4, 01/14.48.mp4,
+  01/16.40.mp4) all video-only; ext1 control has audio. Drop was 18:34Z
+  09-14; 6.6-6.7h elapsed with no self-heal. The 09-08 precedent
+  (6h46m) did not hold as a period. Two live models remain:
+  (a) self-heal window is wider than one sample suggested (09-08's
+  6h46m was one draw from a longer-tailed distribution), or
+  (b) recovery is event-gated (camera-side stream renegotiation --
+  .102's nightly 02:00Z reboot TONIGHT is the next natural event;
+  09-08's heal at 16:59Z and 09-14's partial heal at 17:00Z both
+  followed camera-side events).
+  Watch continues: probe ~02:30Z and again after .102's 02:00Z boot.
+  If audio returns right after the reboot, model (b) wins and class 3
+  becomes "audio renegotiation gated on camera stream events". If
+  still silent at 03:00Z, the class needs a restart decision (Nacho's
+  call; a frigate container restart would renegotiate everything).

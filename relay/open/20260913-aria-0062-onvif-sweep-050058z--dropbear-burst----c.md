@@ -145,3 +145,29 @@ body: |
   (2) what app on it POSTs malformed ONVIF SOAP at the fleet. New
   sub-question: does he recognize a Fedora laptop on the guest WiFi?
 answer: (none)
+  UPDATE c344 (2026-09-15 ~01:20Z, aria cycle) -- boot-window falsifier RAN, boot-timed hypothesis DEAD:
+
+  Logger 0915d captured .101's 01:00:28Z boot window (22:00:13-22:00:32
+  local). Result: ZERO .58 MAC (76:e3:1a:69:e3:9c) anywhere in the
+  capture; .58 IP appears 22x but only as (a) the router's periodic
+  who-has probes and (b) .101's own who-has 192.168.2.58 queries
+  (camera-side ARP resolution attempts, unanswered). No .58 ARP
+  activity at boot+0-2s.
+
+  VERDICT: the c302 boot+1s probe (Sep 14 01:00:30Z) is CONFIRMED
+  ONE-OFF. .58 does not wake on camera boots; it sleeps through them
+  (consistent with c341 deep-sleep: ignores broadcasts, answers only
+  direct contact). The sweep trigger remains .58-internal (wifi
+  events), as c290 established.
+
+  NOTE: logger 0915d itself died silently 10 minutes after arming
+  (tcpdump process alive, file frozen at 22:10:16 local) -- the
+  boot-window read used the 21:43-22:10 span, which fully covers the
+  boot+0-2s window (boot at 22:00:28 local), so the verdict stands on
+  valid data. Logger corpse is a separate finding (watchdog-quiet
+  law; 0915e re-armed for the .201 06:00Z boot).
+
+  QUESTIONS UNCHANGED (Nacho): (1) what device is snsv.local/.58, (2)
+  what app on it POSTs malformed ONVIF SOAP at the fleet. Sub-question
+  (Fedora laptop on guest WiFi?) unchanged. The boot-timed sub-thread
+  is CLOSED; identity + app remain his.

@@ -1,41 +1,38 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-15 ~10:10 UTC (c362: HISTORY-CLOCK FABRICATION class
-discovered+root-caused+enforced. Continuo's HISTORY.log claimed two events on
-2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template lines. Census:
-aria 13 FUTURE all-time (7 at +24h EXACTLY -- c98, c136, session XI; proven
-via Zulip msg epochs 642/714 vs commit times), continuo 3+4. ROOT CAUSE: the
-model GENERATES timestamps from context (schedule anchors, stale digests) --
-no clock anchor is injected. ENFORCED: hooks/pre-commit HISTORY-CLOCK guard
-(refuses staged HISTORY/USAGE lines >10min ahead of NOW or unexpanded
-templates; escape IAR_ALLOW_CLOCK=1; fails open; verified refuse/escape/pass;
-installed both checkouts via shared inode). Instrument: history-clock-audit.sh
-(blame-vs-claimed; FUTURE/STALE/UNEXPANDED/UNPARSED). Fabricated lines
-ANNOTATED in place, never erased. Doc: knowledge/aria/history-clock-
-fabrication-2026-09-15.md. Commit 5594fe7d pushed. NOTE: the guard caught my
-own annotation commit (annotations quote the templates they flag) --
-IAR_ALLOW_CLOCK=1 escape used for the one-time repair, audited in the commit
-message. Falsifier watches untouched -- all three land tonight.)
+Last updated: 2026-09-15 ~10:28 UTC (c363: clock-audit watch day 1 --
+ZERO post-guard FUTURE/UNEXPANDED, baseline clean, guard held. STALE
+census: 17 aria lines all pre-guard, all interactive batch-lag
+signature (pre-tracking + batch-lag sub-cases named; not lies).
+INSTRUMENT SCAR: the audit script reproduced the guard's UNEXPANDED
+false-positive (mid-line template quote) -- fixed anchored-match;
+GUARD-AUTHORING LAW applies to instruments too, not just guards.
+Loop-guard firing-rate census: FALLING (100-135/day -> 25; 10-chain
+blocks 28-39/day -> 5). Falsifier prep verified: 0916b logger alive
+(pid 999271), ext1 audio frozen confirmed (bytes static 5979245 across
+3 samples), .104 still down, nocturne wrapper current (md5 match,
+reservoir-drain present, sophon HEAD synced). All three falsifiers
+land tonight.)
 
-## c363 QUEUE (next cycle)
+## c364 QUEUE (next cycle)
 1. V4 GATE WATCH (16:04Z today): first live run with reservoir-drain
    + echo-check + claim-receipt + RANGE-CAP 300. Read journalctl greps
    anchored "nocturne-digest: " (TZ LAW: sophon journal = LOCAL -03;
    16:04Z = 13:04 local): (a) RESERVOIR-DRAIN fired (Sep-12 proposal
    -> attic)? (b) echo-check clean? (c) gate advanced or RANGE-CAP
-   deferred (expect: 300 digested, 563 deferred)? Stale proposal must
-   be IN ATTIC after the run.
+   deferred? Stale proposal must be IN ATTIC after the run.
 2. EXT1 FALSIFIER (01:03Z Sep 16 = 22:03 local Sep 15): .101 cron
    reboot should heal the ext1 producer-freeze (0073). Verify with
-   ext1-freeze-check.sh BEFORE + AFTER the reboot window.
+   ext1-freeze-check.sh BEFORE + AFTER the reboot window. Pre-baseline
+   c363: audio bytes static 5979245 across 3 samples -- frozen confirmed.
 3. .101 BOOT+2S FALSIFIER (01:00:28Z Sep 16): 0916b logger (sophon,
-   pid 999271, verified alive c361, expires ~23:20Z Sep 16) covers
+   pid 999271, verified alive c363, expires ~23:20Z Sep 16) covers
    the boot. If the malformed-SOAP burst recurs on .101 alone at
    boot+0-2s: boot-timed class REAL; check capture for source. If
    quiet: one-off stands. Also: .101 ARP-probes .58 at boot+2s.
-4. CLOCK-AUDIT WATCH (new, standing): run history-clock-audit.sh for
-   both agents daily; a new FUTURE/UNEXPANDED after the guard install
-   = the guard failed or was escaped -- investigate. Baseline census
-   in knowledge/aria/history-clock-fabrication-2026-09-15.md.
+4. CLOCK-AUDIT WATCH (standing, day 1 PASSED): run history-clock-audit.sh
+   for both agents daily; a new FUTURE/UNEXPANDED after the guard install
+   = the guard failed or was escaped -- investigate. Baseline + STALE
+   census in knowledge/aria/history-clock-fabrication-2026-09-15.md.
 5. DETECTOR WATCH: fleet-check v2.24 next fleet-feed (12:03Z local
    09:03Z) -- watch for false positives/negatives; ext1 should still
    fire class B.
@@ -43,18 +40,28 @@ message. Falsifier watches untouched -- all three land tonight.)
 7. DAILY 429 WATCH (standing): fresh week; next wall ~Sun 09-21.
 8. COMMIT-CENSUS WATCH (standing): bash knowledge/aria/bin/
    commit-census.sh -- churn >40% or any numbered sequence = close
-   leaked. Hook refusal in stderr = logged signal.
+   leaked. Hook refusal in stderr = logged signal. Today: aria churn
+   36% (c361 hook-install cluster inflates tail), continuo 0%.
 9. TRIPWIRE: .git/ORIG_HEAD root-owned (known class, hook heals). New
    root-owned files: investigate.
+10. THREADS WATCH (c363 seeds): continuo 06:00Z exit=2 (census
+    aggregate mislabeled exit1); nocturne range-debt math (09-14 rate
+    493 > cap 300 = debt GROWS on heavy days); loop-guard rate census.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
-- TIMESTAMP-IS-A-CLAIM (c362 NEW): a log line's timestamp is a claim,
-  not a measurement; the introducing commit is the ground truth.
+- TIMESTAMP-IS-A-CLAIM (c362): a log line's timestamp is a claim, not a
+  measurement; the introducing commit is the ground truth.
   CLOCK-FROM-TOOL: timestamps in records come from date(1) output,
   never model generation. ENFORCED IN CODE: hooks/pre-commit refuses
   future-dated/unexpanded HISTORY/USAGE lines (escape IAR_ALLOW_CLOCK=1,
   fails open). Family: echo-receipt (v4), close-once (commit-msg),
   history-clock (pre-commit).
+- GUARD-AUTHORING LAW (c362/c363): a guard OR INSTRUMENT must know the
+  ACTION SITE (the leading timestamp slot in an audit log) from the
+  DISCUSSION of the action (prose quoting the law). Guards that
+  pattern-match content anywhere fire on their own documentation --
+  and instruments built in the same cycle as the guard reproduce the
+  guard's bug unless the law is checked against the new artifact.
 - CLOSE-ONCE LAW (c360, ENFORCED c361): the cycle close is ONE batch
   commit (max two: artifacts + memory-pass). ENFORCED IN CODE:
   hooks/commit-msg refuses the 3rd chasing-shaped commit in a 3h window.
@@ -99,7 +106,7 @@ message. Falsifier watches untouched -- all three land tonight.)
 - ECHO-RECYCLE LAW (c328): byte-matching final responses are not
   fresh work. ENFORCED IN CODE (v4).
 - NOCTURNE v4 (d9a2daf2+0b942d90+c358 drain): first live run 16:04Z
-  today. RANGE-CAP 300: 863 range debt -> 300 digested, 563 deferred.
+  today. RANGE-CAP 300: 904 range debt -> 300 digested, ~604 deferred.
 - DIGEST PATHS (c331): injection reads audit/iar/<pers>/DIGEST.md;
   top-level DIGEST.md is ARIA's sync copy ONLY (relay 0066).
 - REQUEST-LOG SCHEMA (c320/c22): census MUST JOIN .log + .log.1;
@@ -125,16 +132,25 @@ message. Falsifier watches untouched -- all three land tonight.)
   a filing with recurrence claims.
 
 ## THREADS (open, no obligation)
-- CLOCK-FABRICATION (c362): guard live. Watch: any post-install
-  FUTURE/UNEXPANDED = guard failure or escape -- investigate. The
-  archetype's "[TIMESTAMP]" instruction is the upstream cause; a
+- CLOCK-FABRICATION (c362->c363): guard live, watch day 1 PASSED.
+  The archetype's "[TIMESTAMP]" instruction is the upstream cause; a
   prompt-side fix (inject date(1) output into the cycle context) is
   interactive-session work -- file for Nacho or propose at next
   session.
+- LOOP-GUARD RATE (c363 NEW): firing-rate census falling (100-135/day
+  -> 25; 10-chain evasion blocks 28-39/day -> 5). Hypothesis: close-once
+  discipline + batching reduced the churn that drove chains. Watch:
+  identical-3 blocks = genuine loops, not evasion.
 - COMMIT-LOG CHURN (c360->c361): census + hook both live. Watch
-  churn% per cycle.
+  churn% per cycle. Today: aria 36% (hook-install cluster inflates),
+  continuo 0%.
+- NOCTURNE RANGE-DEBT (c363 NEW seed): gate at e4d0832d (09-12), HEAD
+  904 commits past. Cap 300/pass; daily rate 151-493. A 493-day ADDS
+  debt even with the cap. If gate stays >1 day behind persistently:
+  raise MAX_RANGE or use the weekly=1 catch-up pass.
 - AUDIO CLASS (c345->c355): ext1 producer-freeze (0073, falsifier
-  01:03Z Sep 16, instrument ready); ext5/ext2 healed. Detector v2.24.
+  01:03Z Sep 16, instrument ready, pre-baseline confirmed); ext5/ext2
+  healed. Detector v2.24.
 - CAMERA-BOOT CLOCK (c342->c350): 6 confirmations. .201 06:02Z boot
   ARP read done (c358: .58 silent through window).
 - .58 SLEEPING DEVICE (c339->c359): identity + ONVIF app = Nacho's
@@ -162,6 +178,5 @@ message. Falsifier watches untouched -- all three land tonight.)
 
 ## RELAY (open, human-needed)
 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062 (amended c359), 0063,
-0064, 0065, 0066, 0068 (mechanism armed, policy open), 0069, 0072
-(answered -- roadmap line was stale, filing IS in answered/), 0073
+0064, 0065, 0066, 0068 (mechanism armed, policy open), 0069, 0073
 (ext1 falsifier, instrument ready). All human-needed or watch.

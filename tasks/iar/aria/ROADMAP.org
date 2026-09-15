@@ -1,32 +1,29 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-15 ~03:50 UTC (c350: DROPBEAR CORRELATION FOUND
--- 6 bursts/48h all during-or-seconds-after cycle/dashboard/heartbeat
-activity; watcher v2 armed (triggers on Child connection too, full
-ps/ss/conntrack/audit snapshot; 26h from 00:44 local). .201 BOOT-CLOCK
-VERIFIED (TZ-free epoch-minus-uptime + syslog cross-check = real time
-on all 4 observed boots; factory window 17s; reboots = camera-side
-cron staggered 01-08Z; c335 withdrawal CONFIRMED; filing
-camera-boot-clock-201-verification-c350-2026-09-15.md). Census: 0 true
-429s; empty-end frozen 14; 401-pcap clean so far.)
+Last updated: 2026-09-15 ~04:17 UTC (c352: DROPBEAR THREAD SOLVED --
+all 5 recent bursts attributed to own tooling (nested ssh without
+BatchMode on inner hop; sshpass password test). Relay 0071 answered/
+withdrawn. Watcher v2 MISSED the burst it was armed for (output file
+never created despite process alive) -- instrument-provenance scar.
+Census: 0 true 429s; empty-end frozen 14.)
 
-## c351 QUEUE (next cycle)
-1. .201 06:00Z BOOT (03:00 local, ~2h after c350 ends): read AFTER
+## c353 QUEUE (next cycle)
+1. .201 06:00Z BOOT (03:00 local, ~1h45m after c352 ends): read AFTER
    06:15Z. 0915e arp logger (pid 3460747, expires 03:13:30 local =
    06:13:30Z) covers the boot. VERIFY STILL WRITING first (mtime +
    proc start, the c344 law). Read: (a) .58 MAC (76:e3:1a:69:e3:9c)
    ARP at boot+0-2s = boot-timed behavior (c302 was one-off, expect
-   NO); (b) .201 boot rssi epoch = real (~06:00:10Z), NEVER 03:02.
+   NO); (b) .201 boot rssi epoch = real (~06:00:10Z), NEVER 03:02
+   (already verified c350 for 4 boots; this is the 5th confirmation).
    Output /tmp/arp-reqs-0915e.txt.
-2. DROPBEAR WATCHER v2: armed (26h from 00:44 local 09-15,
-   /tmp/dropbear-watcher-v2.sh, triggers on Child connection AND Bad
-   password, snapshots ps+ss+conntrack+audit). On next burst: read
-   /tmp/dropbear-snapshot-<ts>.txt -> names the process. Relay 0071
-   amended with census + correlation (awaiting Nacho).
+2. DROPBEAR WATCH: thread SOLVED (all bursts = own tooling). Watcher
+   v2 + 401 pcap stay armed for UNATTRIBUTED bursts only. On next
+   burst: check the RUNNING cycle's tool calls FIRST (falsifier is
+   cheap now), then the snapshot. Watcher v2 scar: verify its OUTPUT
+   file exists (not just the process) -- watchdog-quiet law.
 3. 401-BURST CAPTURE: cam80-0916a tcpdump alive (26h from 23:32 local
-   09-14). pcap0 so far = ONLY puller logins (15-min cadence). The
-   401 bursts (23:41:52Z, 00:34:05Z) predate the pcap. On next 401
-   burst: read pcap for source IP + auth shape.
+   09-14). pcap0 = puller logins only. On next 401 burst: read pcap
+   for source IP + auth shape.
 4. V4 GATE WATCH (Tue 09-15 13:00 local = 16:00Z): first live run
    with v4 (echo-check + claim-receipt + RANGE-CAP 300). Journal =
    authoritative wrapper log; greps anchor on "nocturne-digest: ".
@@ -34,22 +31,32 @@ camera-boot-clock-201-verification-c350-2026-09-15.md). Census: 0 true
 5. EMPTY-END GATE: count frozen at 14? Watch continuo echo-close
    cycles (c349 verified the first post-fix cycle).
 6. DAILY CENSUS (standing): bash knowledge/aria/bin/req-census.sh.
+   c352 read: aria 1658 req 09-15 200s, 0 true 429s both agents.
 7. DAILY 429 WATCH (standing): 0 true today both. Fresh week;
    next wall ~Sun 09-21.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
-- TZ-FREE BOOT ARITHMETIC (c350 NEW): boot epoch = row_epoch -
-  uptime (both camera-side columns; no reader TZ assumptions).
-  Cross-check against camera syslog (logread) before claiming.
-  A number that fits your hypothesis too cleanly (exactly the
-  Argentina offset) deserves re-derivation (c342 corollary).
+- BATCHMODE-ALL-HOPS LAW (c352 NEW): any ssh to a camera carries
+  -o BatchMode=yes on EVERY hop of a nested ssh. sshpass password
+  tests against cameras manufacture the exact alarm shape being
+  hunted (own-alarm manufacturing); camera ssh tests = BatchMode +
+  expect-fail, labeled as own probe in the cycle log AT RUN TIME.
+  Attribution recipe: burst during a cycle -> check that cycle's
+  tool calls FIRST (cycle.log timestamps are UTC; rotate journal is
+  local -03).
+- WATCHDOG-QUIET LAW (c337, re-earned c344, re-earned c352): verify
+  the WATCHED THING directly AND the watcher's OUTPUT file (not just
+  the process). Watcher v2 missed the 03:18:18 burst it was armed
+  for: process alive, output file never created.
+- TZ-FREE BOOT ARITHMETIC (c350): boot epoch = row_epoch - uptime
+  (both camera-side columns; no reader TZ assumptions). Cross-check
+  against camera syslog (logread) before claiming. A number that
+  fits your hypothesis too cleanly deserves re-derivation (c342).
 - AUSEARCH-TAX LAW (c349): ausearch with -ts/-te windows HANGS on
   sophon. Use grep over /var/log/audit/audit.log* with epoch
   arithmetic. Audit retention ~4h/rotation -- arm a live watcher at
-  trigger time, not a post-mortem.
-- WATCHDOG-QUIET LAW (c337, re-earned c344): verify the WATCHED THING
-  directly; mtime == last EVENT, not liveness (mtime-vs-NOW + proc
-  start).
+  trigger time, not a post-mortem. PROCTITLE decode (audit.log
+  proctitle= hex) names the exact command of an ssh client.
 - ECHO-RESERVOIR LAW (c336): unratified stale proposal on disk = echo
   reservoir. Ratify-or-delete (0068).
 - GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log;
@@ -74,7 +81,7 @@ camera-boot-clock-201-verification-c350-2026-09-15.md). Census: 0 true
 - EXT3/EXT4 CRASH-LOOP CLASS: alert only if >2h.
 - HEARTBEAT: alive: every ~8min; check cadence before calling stale.
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead since 09-12 11:10Z
-  (63h+; physical cycle = Nacho's, 0063).
+  (65h+; physical cycle = Nacho's, 0063). .102 self-resolved.
 - QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z. Week 09-15 fresh.
 - DEAD-CYCLE GUARD (c326): failed request + no live successor =
   immediate exit 1.
@@ -85,8 +92,8 @@ camera-boot-clock-201-verification-c350-2026-09-15.md). Census: 0 true
 - CAMERA-BOOT CLOCK (c342->c350): VERIFIED on .201 (real time, all
   boots). Remaining: .201 06:00Z 09-15 boot ARP question (.58 at
   boot+0-2s). Reboot mechanism = camera cron (new finding).
-- DROPBEAR BURSTS (c349->c350): correlation found (cycle/dashboard
-  adjacency); watcher v2 armed; next burst names the process.
+- DROPBEAR BURSTS (c349->c352): SOLVED -- all own tooling. Watch
+  continues for unattributed bursts only.
 - .58 SLEEPING DEVICE (c339->c344): boot-timed hypothesis DEAD.
   Identity + ONVIF app = Nacho's (0062).
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; bursts so

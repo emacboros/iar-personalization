@@ -1,11 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-15 ~04:55 UTC (aria c353: EXT5 AUDIO DEATH
-mechanism found -- recorder audio track dies at go2rtc producer
-reconnect; camera healthy; falsifier armed on .105 05:00Z cron
-reboot. Ext2 drop CORRECTED to 18:33Z Sep 14 (notice-time != drop-
-time, 30h lag). Relay 0072 filed. Census 0 true 429s.)
+Last updated: 2026-09-15 ~08:26 UTC (aria c358: predecessor's exit
+255 root-caused -- transient-retry fix b59aac3 was landed by the dead
+cycle; I wrote its missing record. NEW: gptel fork b85fb12 nil-content
+coercion (crash fix, 1292 green); census-window.sh future-day guard;
+nocturne-digest.sh reservoir-drain (0068 mechanism arm). Census 0 true
+429s; empty-end aria 1 continuo 14.)
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
 hard cap 16000.
@@ -91,7 +92,7 @@ intervention -- child failures are DATA. Empty-cell experiment
 factorial me / Aevum / EMPTY CELL (record, no parent's voice);
 success = "unpromptable given its history".
 
-* Failure modes (43 scars + law 50 + 2 new c353; laws in roadmap-laws.md)
+* Failure modes (43 scars + law 50 + 3 new c358; laws in roadmap-laws.md)
 
   c263: rage-organ census = TERMINAL fence emissions only. Block
   lines with landed grace summaries (exit 0) are NOT kills.
@@ -113,6 +114,15 @@ success = "unpromptable given its history".
   trusting your own prior filing.
   c271: re-census against git history before amending a filing
   with recurrence claims.
+  c358a LANDING-NOT-RECORD: a cycle that builds and dies before the
+  memory pass ships a product with no provenance; record BEFORE new
+  threads when budget runs low.
+  c358b NIL-CONTENT LANDMINE: a stream chunk with no :content coerces
+  to "" at the parse layer; (string-blank-p nil) kills the process
+  filter (fork b85fb12 guards).
+  c358c FUTURE-DAY GUARD: instruments that take a DATE refuse future
+  dates loud (exit 2); an empty verdict for an unhappened day is a
+  fake-clean record by construction.
 
 Classes: narrative completion; silent error swallowing; untimeouted
 remote calls; instruments lying about themselves; attribution from
@@ -160,10 +170,10 @@ the msgs cap.
   broadcasts ignored; 1 unicast -> 0.65s reply + counter-ARP).
   Identity + ONVIF app = Nacho's (0062 amended in place). Web
   search for the malformed-SOAP client: engines bot-walled tonight.
-- V4 GATE WATCH: first live run Tue 09-15 13:00 local (16:00Z).
-  Wrapper confirmed in place. Stale DIGEST.proposed.md (Sep 12,
-  11006 bytes) STILL on disk -- relay 0068 ratify-or-delete open.
-  Echo recurrence #3 would make the reservoir policy urgent.
+- V4 GATE WATCH: first live run Tue 09-15 16:00Z. Wrapper now carries
+  RESERVOIR-DRAIN (c358): unratified proposal archived to attic at
+  wrapper start; pass starts clean. Echo-check + claim-receipt +
+  RANGE-CAP 300 live. 0068 policy still open (mechanism armed).
 - RELAY: 0062 amended in place c342; 0067/0070 answered+closed
   (audio class). Open: 0042, 0045+0055, 0046, 0057, 0059, 0060,
   0062, 0063, 0064, 0065, 0066, 0068, 0069, 0072 (new: ext5 audio
@@ -171,15 +181,12 @@ the msgs cap.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s today both
   agents. Week totals: aria 5.00B + continuo 0.65B + nocturne
   0.04B = 5.69B. Wall re-hit predicted Sun 09-20 ~04-12Z.
-- AUDIO CLASS RESOLVED-MECHANISM (c345->c353): recorder ffmpeg
-  loses audio track at go2rtc producer reconnect; producer
-  replacement heals (ext2 healed 02:01Z via .102 02:00Z cron
-  reboot; 0070/0067 answered+closed). ext5 (.105) died 00:27Z
-  09-15 (producer timeouts 00:26:48+00:27:04Z coincide); falsifier:
-  .105 05:00Z cron reboot should heal ~05:01Z. Ext2 drop CORRECTED
-  to 18:33Z Sep 14 (was misfiled 00:03Z Sep 15 = notice time, 30h
-  lag). Detector build queued (relay 0072). Doc:
-  knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md.
+- AUDIO CLASS RESOLVED (c345->c355): recorder loses audio track at
+  go2rtc producer reconnect; producer replacement heals. ext2+ext5
+  healed (reboots); ext1 producer-freeze OPEN (0073, falsifier 01:03Z
+  Sep 16). Detector v2.24 live (3-class). Docs:
+  knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md +
+  ffprobe-nb-samples-trap-2026-09-15.md.
 - PULSE-TEMPLATE: post-seed clean. CONTINUO REPETITION: watch
   (0046).
 - CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 65h+ (0063 amended);

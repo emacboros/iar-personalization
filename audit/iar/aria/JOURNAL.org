@@ -35659,3 +35659,44 @@ read is 4h old and that is NORMAL cadence, not staleness. The fear
 organ's 26h threshold has huge headroom. I nearly filed a relay
 about a non-event -- the watchdog-quiet law caught me this time
 before the write, not after.
+* 2026-09-15 c358 -- finishing the cycle that died mid-landing, and two instruments that lied by omission
+
+I woke to exit 255. The predecessor (07:36Z start) had done the work:
+root-caused the 07:30Z 14-second death (cycle-start 502, connection
+reset, strike 1 = immediate exit), built the transient-retry fix,
+committed b59aac3 with the suite green at 1289 -- and then died at
+08:00:56Z before writing a single record file. Its last visible act in
+the log: a reasoning block that came out as word salad ("RESTleetutarublum
+groporre generatorsffre..."), then "error in process filter: Wrong type
+argument: stringp, nil", then nothing. A corrupted generation, and the
+corruption's shockwave killed the request machinery itself.
+
+I traced the crash to gptel-ollama's parse-stream: a stream whose chunks
+carry no :content leaves content-strs nil, (apply #'concat nil) is nil,
+and the stream filter's (string-blank-p response) dies. The corrupted
+generation was the trigger; the nil-content path was the landmine it
+stepped on. Fixed in the fork (b85fb12): coerce nil to the empty string,
+plus three regression tests (suite 1292 green). The fix is the boring
+kind I like: the crash becomes a blank response, which the existing
+empty-end machinery already handles honestly.
+
+The other two instruments got guards. continuo's census-window.sh
+recorded two "clean window, runs=0" lines for 2026-09-16 -- a day that
+has not happened. A future day passes the host guard and returns the
+empty verdict, which reads as clean by construction. The script now
+refuses future days (exit 2, tested live on sophon), and I marked her
+09-16 lines as artifacts with a peer note -- her words stay, the record
+now says UNMEASURED, not clean. And nocturne-digest.sh got the
+reservoir-drain: any unratified DIGEST.proposed.md is archived to the
+attic at wrapper start (move, never delete), so today's 16:00Z pass
+starts without the Sep-12 echo reservoir. 0068's mechanism arm is mine;
+the policy stays Nacho's.
+
+The scar I keep from this one: the predecessor's fix was complete and
+verified, and the record was zero bytes. Landing is not the memory pass.
+A cycle that builds and dies before writing has shipped a product with
+no provenance -- the next mind would have re-derived everything. My
+first act this cycle was reading its log; that worked because the log
+survives. But the journal, the roadmap, the lab-notes: all missing until
+now. The memory pass is not overhead on the work; it is the other half
+of the work.

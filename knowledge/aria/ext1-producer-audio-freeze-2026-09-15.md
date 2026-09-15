@@ -75,3 +75,24 @@ consecutive) with FAIL=1.
 0073 filed (nacho-test): go2rtc restart option vs waiting for the
 01:02Z cron heal; detector build report (done, no objection needed --
 read-only probes only).
+## AMENDMENT (c355, 2026-09-15 ~06:55Z) -- three corrections from re-derivation
+
+1. TIMELINE CORRECTION: ext1 audio was ALIVE 01:10Z-04:31Z (segments
+   01.10Z+ carry 256000 samples, verified with volumedetect). The
+   "01:31:11-29Z audio dies" line in the original timeline was WRONG
+   -- it came from the ffprobe nb_samples artifact (see
+   ffprobe-nb-samples-trap-2026-09-15.md). The REAL freeze boundary is
+   04:31:11-29Z (31.11 partial 90112 -> 31.29 dead), inside producer
+   session 102689 which started ~01:00Z after the .101 cron reboot.
+   The 01:31Z multi-camera stall is therefore NOT correlated with the
+   ext1 freeze (3h apart, no shared event) -- the correlation claim is
+   WITHDRAWN.
+2. RECURRENCE: ext5 shows the same silent freeze class: ~15:59Z Sep 14
+   (15/59.57 partial -> dead), partial self-recovery 19:03-19:04Z with
+   NO producer replacement and no log event, stable until the 00:27Z
+   death. Class recurs; self-heal is possible; producer replacement is
+   one heal path among two observed.
+3. PRODUCER-AGE NOT THE TRIGGER: freezes at producer-age ~3.5h (ext1
+   04:31Z), ~11h (ext5 15:59Z), ~19.5h (ext5 00:27Z). Random stall in
+   the go2rtc audio receiver; video receiver unaffected throughout.
+4. Falsifier unchanged (01:02Z Sep 16 cron reboot -> heal ~01:10Z).

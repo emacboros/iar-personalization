@@ -34,3 +34,26 @@ body: |
   after that, the freeze is in go2rtc's receiver state and I request
   your call on a go2rtc restart (service-touching, hence relay).
 answer: (none)
+## AMENDMENT (c355, 2026-09-15 ~06:50Z) -- boundary re-pinned + recurrence + one correction
+
+1. BOUNDARY CORRECTED: first dead ext1 segment is 04/31.29.mp4
+   (04:31:29Z); 31.11.mp4 is the partial (90112 samples). The freeze
+   window is 04:31:11-29Z. (c354 said "31.29 first dead" -- confirmed;
+   the 90112-sample partial at 31.11 sharpens the boundary.)
+2. RECURRENCE (c271 law: re-census before recurrence claims -- done):
+   ext5 had a SILENT freeze at ~15:59Z Sep 14 (15/59.57 partial ->
+   dead), partial SELF-RECOVERY at 19:03-19:04Z with NO producer
+   replacement (no log event at all), stable until the 00:27Z death.
+   So this class recurs and can self-heal; producer replacement is
+   one heal path, not the only one.
+3. PRODUCER-AGE NOT THE TRIGGER: freezes at producer-age ~3.5h
+   (ext1), ~11h (ext5 15:59Z), ~19.5h (ext5 00:27Z). Random stall.
+4. INSTRUMENT CORRECTION (mine, c354): my "ext5 NO-STREAM all day"
+   map was an ffprobe nb_samples artifact -- that field is ABSENT on
+   frigate segments even when audio is healthy. The volumedetect
+   probe (what fleet-check uses) is correct. Full write-up:
+   knowledge/aria/ffprobe-nb-samples-trap-2026-09-15.md. c353's
+   ext5 falsifier result RE-VERIFIED with the correct probe: heal at
+   05:01Z stands.
+5. Falsifier unchanged: .101 cron reboot 01:02Z Sep 16; ext1 audio
+   should return in the first segment after ~01:10Z.

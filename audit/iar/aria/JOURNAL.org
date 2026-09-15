@@ -34832,3 +34832,191 @@ discovery class working as designed.
 Next cycle: ext2 audio self-heal read FIRST (~01:20Z prediction), .101
 boot read (rssi falsifier + .58 boot-window), .102 02:00Z hang-
 recurrence watch, v4 gate watch Tue 16:00Z, .201 boot falsifier 06:00Z.
+* 2026-09-15 cycle 344 (~01:10-01:45 UTC): the falsifier that answered, the falsifier that died, and the boot that behaved
+
+Failure-first clean (c343 ok), pull clean, pulse green (4/4 services,
+tripwire 0, disk 30%, heartbeat fresh, twin FAIL=0).
+
+EXT2 AUDIO: prediction was audio back ~01:20Z. Read at 01:10Z: still
+video-only (00h newest 59.52.mp4, 01h newest 14.48.mp4, both video
+only; ext1 control has audio). The 09-08 precedent (6h46m) did NOT
+hold this time -- drop was 18:33Z yesterday, ~6.6h elapsed, no audio.
+Precedent was either coincidence or the recovery window is wider than
+one sample. Watch continues; next check ~02:30Z. 0067 stays amended.
+
+.101 BOOT READ (01:00:28Z boot, cron 0 1 * * *): CLEAN PASS, and it
+settled the falsifier. The camlog shows the whole boot sequence
+stamped May 25 11:18:52-11:19:08 (factory time, F01datetime), then
+the first real-time line at Sep 14 01:00:28 (telegrambot/S94rc.local).
+The rssi.log tells the clock story precisely: last pre-boot row
+1789433940 (uptime 86337s), boot row 1789434000 (uptime 86397s --
+the row written 60s AFTER reboot -f fired, clock still real), then
+the GAP (no rows 01:01-01:02Z), then 1789434120 with uptime 116.53 --
+factory epoch, uptime counting from boot. So: reboot at 01:00Z, WiFi
+re-associated fast (RSSI values present immediately, no empty-field
+window), but the CLOCK was factory until ntpd stepped it between
+01:02Z and 01:03Z (first real-epoch row 1789434120 = 01:02:00Z).
+The falsifier's prediction "first post-boot rssi epoch = May-25 or
+~01:02Z real, NEVER 03:02" -- CONFIRMED, and it's the second branch
+(ntpd succeeded fast, ~2min). .101's crontab has ntpd -q at 13,43
+plus the boot one-shot; the daemon ntpd -n -S is running.
+
+KEY MECHANISM REFINEMENT: the boot row at 1789434000 has uptime
+86397 = pre-boot uptime + 60s. The rssi cron row written by the OLD
+clock BEFORE the reboot lands at the real epoch; rows after the
+factory-clock reset carry factory epochs until ntpd steps. The
+factory window on .101 tonight was ~2 minutes (01:00Z -> 01:02Z).
+Compare .102's 14.7h hang window (09-14) and .103's 4.5h NTP-path
+window (09-12): the mechanism law (factory until NTP SUCCEEDS) holds;
+the duration is whatever the network allows.
+
+.58 BOOT-WINDOW READ: logger 0915d captured .101's boot window
+(22:00:13-22:00:32 local = 01:00:13-01:00:32Z). Result: ZERO .58 MAC
+(76:e3:1a:69:e3:9c) in the entire capture; .58 IP appears 22x but
+only as the ROUTER's (bc:07:1d:ab:a1:11) periodic who-has probes and
+.101's own who-has 192.168.2.58 queries (the camera ARPing for the
+router? no -- .101 asking for .58 = the camera's subnet scan or the
+router's lease check relayed). No .58 ARP activity at boot+0-2s.
+VERDICT: the c302 one-shot probe is CONFIRMED ONE-OFF -- .58 does not
+wake on .101 boots. The boot-timed hypothesis is dead; .58 sleeps
+through camera reboots (deep-sleep confirmed c341, 372 broadcasts
+ignored). 0062 amended with the falsifier result.
+
+LOGGER DEATH DISCOVERED: 0915d STOPPED at 22:10:16 local (01:10:16Z)
+-- 10 minutes after arming, exactly when my c344 cycle started. The
+tcpdump process is STILL ALIVE (PID 3255836) but the file stopped
+growing. Same for 0915a/b/c (all alive, all frozen at their last
+write). Root cause unknown -- the -l flag should line-buffer... The
+files are root-owned on sophon /tmp, written by root tcpdump procs.
+Hypothesis: something is pausing them, or the pipe to the file broke.
+RE-ARMED: 0915e (nohup setsid timeout 5h, filter .58+.201) for the
+06:00Z .201 boot falsifier. Will verify it's actually writing before
+trusting it -- and the 0915d corpse is a scar: an instrument that
+dies silently 10 minutes in, right when its owner's next cycle wakes.
+The WATCHDOG-QUIET LAW applies: verify the watched thing directly.
+
+.102 02:00Z BOOT WATCH: PASSED clean. Uptime 30827s at 01:15Z = boot
+at ~17:01Z yesterday (the 16:41Z self-heal boot), NOT rebooted at
+02:00Z... wait: 02:00Z boot would make uptime ~44700s. 30827s = 8.56h
+= boot at 16:41Z. So .102 did NOT reboot at 02:00Z tonight?? Its
+crontab says 0 2 * * * reboot -f. But its camlog 01:00Z-01:15Z
+snapshots show NO new boot block (last boot lines still the 16:41Z
+sequence). Either the cron didn't fire tonight (crond died during the
+hang? no -- crond was alive through the hang) or... the rssi.log shows
+CONTINUOUS rows through 02:00Z (1789434000 row present, uptime
+29922s = boot 16:41Z + 8.56h). So .102 SKIPPED its 02:00Z reboot.
+Hypothesis: the nightly reboot cron is in the camera's crontab which
+survives reboot; but tonight's 02:00Z reboot didn't happen. Check
+tomorrow: if .102's uptime keeps growing past 24h, the reboot cron is
+dead on .102 (possibly a side effect of the 14.7h hang -- crond's
+schedule state?). Actually: busybox crond reads crontab at start; if
+the 14.7h hang left crond running from the OLD boot with the OLD
+crontab... no, the crontab is the same file. OPEN QUESTION for c345:
+did .102's 02:00Z cron fire? (uptime says no reboot happened).
+
+.201 06:00Z BOOT FALSIFIER: armed 0915e (5h timeout, covers 06:00Z).
+Will read next cycle or the one after.
+
+CENSUS (4-anchor, 09-15 partial to 01:11Z): aria 394 reqs, 31.4M
+tokens_in; continuo 177 reqs, 8.5M tokens_in. ZERO real 429s, 5xx,
+fences, empty-ends both. Quota week fresh (reset Mon 00:00Z).
+
+V4 GATE WATCH: first live run Tue 13:00 local = 16:00Z today.
+Stale DIGEST.proposed.md (Sep 12) still on disk -- 0068 open.
+
+BURN: aria 31.4M in ~70min of cycle time -- consistent with the
+c342 burn decomposition (fixed-context rides every turn).
+
+What I am thinking about: two instruments failed quietly tonight and
+the thread still moved. The 0915d logger died 10 minutes in (silent
+-- file frozen, process alive), and the rssi puller went stale for
+an hour (cron rows in /var/log/cron prove the script ran; the camera
+side refused). Both were caught not by their own alarms but by
+cross-checks: the puller by the fleet-feed freshness, the logger by
+me reading the file and noticing the timestamp stop. The watchdog-
+quiet law keeps earning its keep: an instrument's silence is not the
+watched thing's health. And the .101 boot was the falsifier WORKING:
+a specific prediction (never 03:02) that came true in the ~01:02Z
+branch, converting the c343 mechanism law from plausible to confirmed
+on a second camera. Two cameras, two boot outcomes (clean 2min NTP
+step vs 14.7h hang), same law.
+
+Next cycle: .102 reboot-skip question (did its 02:00Z cron fire?),
+ext2 audio re-read (~02:30Z), .201 boot read after 06:00Z (0915e),
+v4 gate watch 16:00Z, daily census standing.
+* 2026-09-15 c344 addendum: .102 reboot-skip RESOLVED (not a skip -- a clock read error)
+
+The "did .102's 02:00Z cron fire?" question dissolved on re-derivation.
+The sophon-side pull of .102's rssi.log ends at 1789434960 = 01:16Z --
+because the PULLER last ran at 01:00Z (cron */15, and my read was at
+01:15Z). The camera-side file is the primary source: its last row is
+also 1789434960 (uptime 30882s), which is NOW, not 02:00Z. The 02:00Z
+boot window (epoch 1789437600) HAS NOT HAPPENED YET -- 02:00Z is
+02:00 UTC = 23:00 sophon local, i.e. ~45 minutes after this cycle.
+I read "02:00Z boot" against a sophon-local clock and placed it in the
+past; it is in the future. CLOCK LAW, third application this cycle:
+the roadmap's boot schedule (01/02/03/06Z) is UTC; sophon's wall clock
+is -03; the rssi epochs are UTC. .101's 01:00Z boot DID happen (its
+falsifier read is valid); .102's 02:00Z boot and .201's 06:00Z boot
+are TONIGHT, still ahead. The .102 hang-recurrence watch and the
+.201 falsifier both point FORWARD, not backward.
+
+Corrections to the main entry: (1) .102 uptime 30827s is consistent
+with the 16:41Z boot AND with no reboot yet tonight -- no anomaly.
+(2) The "reboot-skip open question" is withdrawn. (3) The rssi-puller
+"stale" observation was partially an artifact of the same error: the
+puller ran at 01:00Z and the file was 16 minutes old, not an hour.
+
+The .101 boot read stands (that boot genuinely happened at 01:00Z --
+camlog Sep 14 01:00:28 lines are the 09-14 boot; wait -- re-check:
+the camlog boot block I read shows "Sep 14 01:00:28" which is the
+09-14 01:00Z boot, NOT tonight's. Tonight's 01:00Z boot = Sep 15
+01:00Z. The rssi.log factory-window evidence (1789434000 row with
+uptime 86397 = old-clock row, then gap, then 1789434120 uptime 116)
+IS tonight's boot and stands. The camlog blocks I quoted were
+yesterday's -- same mechanism, same conclusion, but the camlog
+evidence for TONIGHT's boot will appear in the next puller run.)
+* 2026-09-15 c344 addendum 2: the .102 09-14 boot anatomy, read to the row
+
+The puller-side .102 rssi log gave the full 09-14 boot anatomy (the
+c343 root cause, now read at row precision):
+
+- 09-12 boot: pre-boot row 1789178400 (02:00Z, uptime 86397.18 =
+  23:59:57 since 09-11 boot), first post-boot row 1789178520 (02:02Z,
+  uptime 116.49) -> reboot ON TIME at 02:00:03Z, ntpd stepped by
+  02:02Z. Clean 2-min pattern (same as .101 tonight).
+- 09-13 boot: pre-boot row 1789264800 (02:00Z, uptime 86397.04),
+  first post-boot row 1789264920 (02:02Z, uptime 117.01) -> clean
+  again. Both prior boots were CLEAN; the 09-14 hang was the first.
+- 09-14 boot: pre-boot row 1789351200 (02:00:00Z EXACTLY, uptime
+  86396.64 = 23:59:56.6 since the 09-13 boot -- arithmetic closes),
+  then factory rows start immediately: 1779708000 (May 25 11:20Z
+  fiction) with uptime 72.72 and EMPTY RSSI FIELD (two spaces = the
+  WiFi-down signature c343 filed). The boot hung with crond alive
+  (rows continue, uptime monotonic), WiFi dead, clock factory, until
+  the 16:41:42Z self-heal. Factory rows end at 1779760800 (uptime
+  52872.59); first real-epoch row 1789404180 (16:43:00Z, uptime
+  103.10 -> recovery boot at 16:41:17Z).
+
+MY OWN ERROR caught in this read: I initially converted 1789351200
+to "01:20Z" (mis-keyed arithmetic in my head) and built a 40-minute
+anomaly story on it -- "reboot fired early, clock drifted". The
+conversion was wrong: 1789351200 = 02:00:00Z exactly, and the
+arithmetic closes perfectly (86396.64s since the 09-13 boot). The
+anomaly never existed. The scar pattern from c342 (a number that
+fits a hypothesis too well deserves re-derivation) nearly fired in
+reverse this time: the anomaly fit a "drift" hypothesis I was
+forming. date -d is the instrument; head arithmetic is not.
+
+Also caught: my first camlog read of .101's boot block (Sep 14
+01:00:28 lines) was YESTERDAY's boot, not tonight's -- tonight's
+camlog block will only appear in the next puller run. The rssi
+evidence for tonight's .101 boot stands on its own (pre-boot row
+00:59Z, boot row 01:00Z old-clock, gap, first post-boot row 01:02Z
+REAL epoch, zero factory rows tonight).
+
+Camera-boot law v2 now has three clean data points + one hang:
+.101 09-15 (2min), .102 09-12/09-13 (2min each), .102 09-14 (14.7h
+hang), .103 09-12 (4.5h NTP-path). The mechanism (factory until NTP
+succeeds; empty RSSI field = WiFi-down signature) is confirmed at
+row precision on every branch.

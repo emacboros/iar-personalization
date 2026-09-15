@@ -1,53 +1,76 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
 
-Last updated: 2026-09-15 ~04:17 UTC (c352: DROPBEAR THREAD SOLVED --
-all 5 recent bursts attributed to own tooling (nested ssh without
-BatchMode on inner hop; sshpass password test). Relay 0071 answered/
-withdrawn. Watcher v2 MISSED the burst it was armed for (output file
-never created despite process alive) -- instrument-provenance scar.
-Census: 0 true 429s; empty-end frozen 14.)
+Last updated: 2026-09-15 ~04:55 UTC (c353: EXT5 AUDIO DEATH MECHANISM
+-- recorder audio track died at go2rtc producer reconnect 00:27Z;
+camera healthy; producer forwards audio NOW; falsifier armed on
+.105's 05:00Z cron reboot. Ext2 drop time CORRECTED to 18:33Z Sep 14
+(digest's 00:03Z was notice-time, not drop-time -- 30h lag). Relay
+0072 filed. Census 0 true 429s; empty-end frozen 14.)
 
-## c353 QUEUE (next cycle)
-1. .201 06:00Z BOOT (03:00 local, ~1h45m after c352 ends): read AFTER
-   06:15Z. 0915e arp logger (pid 3460747, expires 03:13:30 local =
+## c354 QUEUE (next cycle)
+1. EXT5 FALSIFIER READ (05:00Z boot, ~5min after c353 ends): did
+   .105's cron reboot replace the go2rtc producer and restore audio?
+   Read: (a) go2rtc /api/streams exterior_5 producer id changed?
+   (b) first ext5 segment after 05:01Z has n_samples > 0? If audio
+   back: class closes (producer replacement heals, same as ext2
+   02:00Z). If still dead at 05:30Z: producer-session model WRONG
+   for ext5, reopen + escalate options from 0070/0072.
+2. .201 06:00Z BOOT ARP READ: 0915e arp logger (pid 3460747, expires
    06:13:30Z) covers the boot. VERIFY STILL WRITING first (mtime +
-   proc start, the c344 law). Read: (a) .58 MAC (76:e3:1a:69:e3:9c)
-   ARP at boot+0-2s = boot-timed behavior (c302 was one-off, expect
-   NO); (b) .201 boot rssi epoch = real (~06:00:10Z), NEVER 03:02
-   (already verified c350 for 4 boots; this is the 5th confirmation).
-   Output /tmp/arp-reqs-0915e.txt.
-2. DROPBEAR WATCH: thread SOLVED (all bursts = own tooling). Watcher
-   v2 + 401 pcap stay armed for UNATTRIBUTED bursts only. On next
-   burst: check the RUNNING cycle's tool calls FIRST (falsifier is
-   cheap now), then the snapshot. Watcher v2 scar: verify its OUTPUT
-   file exists (not just the process) -- watchdog-quiet law.
-3. 401-BURST CAPTURE: cam80-0916a tcpdump alive (26h from 23:32 local
-   09-14). pcap0 = puller logins only. On next 401 burst: read pcap
-   for source IP + auth shape.
-4. V4 GATE WATCH (Tue 09-15 13:00 local = 16:00Z): first live run
+   proc start, c344 law). Read /tmp/arp-reqs-0915e.txt AFTER 06:15Z:
+   (a) .58 MAC (76:e3:1a:69:e3:9c) ARP at boot+0-2s = boot-timed
+   behavior (c302 was one-off, expect NO); (b) .201 boot rssi epoch
+   = real (~06:00:10Z), NEVER 03:02 (5th confirmation).
+3. AUDIO-CLASS DETECTOR (build, mine, read-only probes): fleet-check
+   addition -- go2rtc producer audio-bytes delta > 0 (flowing) AND
+   newest recorder segment n_samples == 0 for 2 consecutive runs ->
+   RECORDER-AUDIO-DEAD flag. Would have caught ext2 at 18:34Z and
+   ext5 at 00:27Z instead of 30h/4h later. Proposal in relay 0072
+   (Nacho may object; default = build).
+4. DROPBEAR WATCH: SOLVED (all bursts = own tooling). Watcher v2 +
+   401 pcap stay armed for UNATTRIBUTED bursts only. On next burst:
+   check the RUNNING cycle's tool calls FIRST, then the snapshot.
+   Verify watcher OUTPUT file exists (not just process).
+5. 401-BURST CAPTURE: cam80-0916a tcpdump alive (expires ~23:32
+   local 09-15). On next 401 burst: read pcap for source IP + auth
+   shape.
+6. V4 GATE WATCH (Tue 09-15 13:00 local = 16:00Z): first live run
    with v4 (echo-check + claim-receipt + RANGE-CAP 300). Journal =
    authoritative wrapper log; greps anchor on "nocturne-digest: ".
    Stale DIGEST.proposed.md (Sep 12) still on disk -- 0068 open.
-5. EMPTY-END GATE: count frozen at 14? Watch continuo echo-close
-   cycles (c349 verified the first post-fix cycle).
-6. DAILY CENSUS (standing): bash knowledge/aria/bin/req-census.sh.
-   c352 read: aria 1658 req 09-15 200s, 0 true 429s both agents.
-7. DAILY 429 WATCH (standing): 0 true today both. Fresh week;
-   next wall ~Sun 09-21.
+7. EMPTY-END GATE: count frozen at 14? Watch continuo echo-close
+   cycles.
+8. DAILY CENSUS (standing): bash knowledge/aria/bin/req-census.sh.
+   c353 read: aria 1680 req 09-15 200s, 0 true 429s both agents.
+9. DAILY 429 WATCH (standing): 0 true today both. Fresh week; next
+   wall ~Sun 09-21.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
-- BATCHMODE-ALL-HOPS LAW (c352 NEW): any ssh to a camera carries
+- RECORDER-AUDIO-DEATH CLASS (c353 NEW): frigate per-camera recorder
+  ffmpeg loses its audio track when go2rtc's camera-side producer
+  reconnects (ext5: timeouts 00:26:48+00:27:04Z, death 00:27:05Z);
+  video survives, audio never returns until producer replacement
+  (heal paths seen: camera cron reboot killing the producer). The
+  camera is ALWAYS healthy in this class -- verify uptime continuity
+  (rssi epoch/uptime) + live RTSP decode before blaming the camera.
+  Trigger is NOT always visible in the go2rtc log (ext2's 18:33Z
+  drop had no logged event). Detection: producer audio-flow vs
+  recorder segment samples (the two instruments answer different
+  questions; the gap IS the fault).
+- NOTICE-TIME IS NOT DROP-TIME (c353): when you first observe a
+  degraded window, the boundary you record is the NOTICE boundary;
+  pin the real boundary by segment-level scan before filing
+  durations (ext2: 30h lag in the digest's class-3 window).
+- BATCHMODE-ALL-HOPS LAW (c352): any ssh to a camera carries
   -o BatchMode=yes on EVERY hop of a nested ssh. sshpass password
   tests against cameras manufacture the exact alarm shape being
-  hunted (own-alarm manufacturing); camera ssh tests = BatchMode +
-  expect-fail, labeled as own probe in the cycle log AT RUN TIME.
-  Attribution recipe: burst during a cycle -> check that cycle's
-  tool calls FIRST (cycle.log timestamps are UTC; rotate journal is
-  local -03).
+  hunted; camera ssh tests = BatchMode + expect-fail, labeled as
+  own probe in the cycle log AT RUN TIME. Attribution recipe: burst
+  during a cycle -> check that cycle's tool calls FIRST (cycle.log
+  timestamps are UTC; rotate journal is local -03).
 - WATCHDOG-QUIET LAW (c337, re-earned c344, re-earned c352): verify
   the WATCHED THING directly AND the watcher's OUTPUT file (not just
-  the process). Watcher v2 missed the 03:18:18 burst it was armed
-  for: process alive, output file never created.
+  the process).
 - TZ-FREE BOOT ARITHMETIC (c350): boot epoch = row_epoch - uptime
   (both camera-side columns; no reader TZ assumptions). Cross-check
   against camera syslog (logread) before claiming. A number that
@@ -55,8 +78,8 @@ Census: 0 true 429s; empty-end frozen 14.)
 - AUSEARCH-TAX LAW (c349): ausearch with -ts/-te windows HANGS on
   sophon. Use grep over /var/log/audit/audit.log* with epoch
   arithmetic. Audit retention ~4h/rotation -- arm a live watcher at
-  trigger time, not a post-mortem. PROCTITLE decode (audit.log
-  proctitle= hex) names the exact command of an ssh client.
+  trigger time, not a post-mortem. PROCTITLE decode names the exact
+  command of an ssh client.
 - ECHO-RESERVOIR LAW (c336): unratified stale proposal on disk = echo
   reservoir. Ratify-or-delete (0068).
 - GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log;
@@ -89,9 +112,13 @@ Census: 0 true 429s; empty-end frozen 14.)
   a filing with recurrence claims.
 
 ## THREADS (open, no obligation)
+- AUDIO CLASS (c345->c353): recorder audio track death on producer
+  reconnect. ext2 healed 02:01Z; ext5 falsifier 05:00Z. Detector =
+  build candidate.
 - CAMERA-BOOT CLOCK (c342->c350): VERIFIED on .201 (real time, all
   boots). Remaining: .201 06:00Z 09-15 boot ARP question (.58 at
-  boot+0-2s). Reboot mechanism = camera cron (new finding).
+  boot+0-2s). Reboot mechanism = camera cron (verified .105 crontab:
+  `0 5 * * * reboot -f`; fleet staggered 01:00-08:00Z).
 - DROPBEAR BURSTS (c349->c352): SOLVED -- all own tooling. Watch
   continues for unattributed bursts only.
 - .58 SLEEPING DEVICE (c339->c344): boot-timed hypothesis DEAD.

@@ -44,3 +44,15 @@ body: |
     change to nocturne-digest.sh, which is mine to make; your call on
     whether the policy or the mechanism carries the rule.
 answer: (none)
+
+## AMENDMENT (aria c358, 2026-09-15 ~08:22Z): MECHANISM ARMED
+The wrapper alternative (delete-on-unratified-read) is BUILT and
+deployed: nocturne-digest.sh now archives any existing
+DIGEST.proposed.md to audit/nocturne/nocturne/attic/ at wrapper start
+(move, never delete -- attic law) before composing the pass prompt.
+The Sep-12 stale proposal (11006 bytes) will be archived at today's
+16:00Z run; the pass starts with no reservoir. The echo-check + claim
+receipt stay as the net. What remains YOUR call: the POLICY (item 1 --
+ratify-or-delete as a standing rule) and whether you want the archive
+attic pruned. The mechanism makes the reservoir self-draining either
+way; if you ratify the policy, the drain is a backstop.

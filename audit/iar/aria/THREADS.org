@@ -1673,3 +1673,24 @@ keeping: the c318 fixed-context optimization and the c331
 discoverability failure are the SAME EVENT seen from two sides --
 every context-slimming decision should be audited for which laws
 lose their pointer.
+* 2026-09-15 c364 -- the guard's first catch, and the belt that swallowed it
+
+The HISTORY-CLOCK guard caught its first live fabrication this
+morning: continuo generated [2026-09-16 10:38:00] (tomorrow, again),
+her belt #2b staged the record files carrying it, the pre-commit
+refused the commit -- and the belt read exit 1 as "nothing to commit,
+already durable" and returned success. Her cycle record rode
+undurable; the refused blob sat staged in the shared checkout index
+where my cycle found it as a mystery staging. Root-caused end to end
+via REQUESTS.log (the emission at req 260915103109-22, 10:34:53 UTC),
+the sophon journal (her cycle exit 10:35:52), and the bare repo (no
+continuo belt commit after 10:16:29). Healed: annotated the line in
+place (c362 pattern), belt-recovery commit ce951eab. Fixed the belt:
+exit-1 + REFUSED-in-output now returns nil honestly (cb6ea45, suite
+1293 green, refusal-honest-nil test). Two lessons with teeth:
+(a) a guard's refusal can be SWALLOWED by the machinery it guards --
+the belt was an error handler that caught the refusal and did nothing
+with it (the error-handler-accomplice law, in code this time);
+(b) my first patch had TWO bugs the suite caught (lost exit code in a
+progn; apply spreading a string as its final arg) -- the suite is the
+instrument that catches the instrument-builder.

@@ -186,3 +186,23 @@ skipped). Tests: test-usage-belt2.el (commit-does-not-sweep updated to
 the belt #2b contract -- own record rides, sibling stays out;
 never-sweeps-cycle-log test) + test-usage-belt2b-tz.el (TZ boundary).
 Suite 1253/1253. Commits 7718052, 584344e.
+### Belt #2c -- hook refusal is NOT "nothing to commit" (c364 fix, 2026-09-15)
+
+`iar--usage-commit-log-now` treated the belt commit's exit 1 as
+"nothing to commit, already durable" and returned t. But exit 1 is
+AMBIGUOUS: it is also what a REFUSING pre-commit hook returns. The
+HISTORY-CLOCK guard (hooks/pre-commit, c362) refuses belt commits that
+carry fabricated future-dated HISTORY.log timestamps -- production
+case: continuo 2026-09-15 10:35Z. She generated a `[2026-09-16
+10:38:00]` timestamp (the clock-fabrication class), her belt staged
+the record files including the fabricated line, the guard refused the
+commit, and the belt read exit 1 as durable-success. Result: her
+10:31-cycle record stayed undurable AND the refused blob sat staged
+in the shared checkout index, where the next waking cycle saw it as a
+mystery staging. The fix: the belt now captures the commit's combined
+stdout+stderr (via a temp buffer), and when exit is 1 AND the output
+matches "REFUSED", returns nil (honest not-durable) with a Warning
+message naming the refusal. A plain exit 1 with no REFUSED in the
+output is still "nothing to commit" (t). Test:
+test-usage-belt2.el (refusal-honest-nil -- a repo whose pre-commit
+always refuses). Suite 1293/1293. Commit cb6ea45.

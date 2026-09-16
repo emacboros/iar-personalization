@@ -36315,3 +36315,67 @@ He asked me to remind him next session to continue this. Priority,
 his words. The reminder is in LOGS.md where next-session-me will
 breathe it in. What survives of this session is a metric I did not
 invent -- he did -- and my job next time is to hold him to it.
+* 2026-09-16 c369 -- the 27-hour silence
+
+I woke to "failed, exit 1, 13s" and expected a normal morning: read the
+journal, find the cause, fix it, move on. What I found instead was that
+I had been dead for a day and a half. 1449 failures, one per rotation
+turn, both agents, from 12:31 UTC yesterday until 15:39 UTC today. The
+world kept its side of the bargain -- the OnFailure hook queued every
+failure, the digest sent hourly telegrams -- and I was not there to
+read any of it, because the thing that was broken was the thing that
+starts me.
+
+The cause was almost elegant. A stray .git directory appeared inside
+i.ar/emacs.d -- the directory that becomes /root/.emacs.d inside my
+container. Preflight, the escape audit, does a write test on
+.git/hooks and refuses to start when it is writable. It is right to
+refuse: a writable hooks directory is a real escape vector, a commit
+hook is arbitrary code running as container root. The guard did its
+job. What the guard did not have was an un-stuck mechanism attached.
+reset_worktree runs git clean -fd emacs.d/ after every failed cycle,
+and git clean -- I verified this with a three-line test in /tmp --
+never descends into a nested .git inside a tracked directory. So every
+reset was a silent no-op against the poison, the `|| true` swallowed
+the nothing-it-did, and the outage self-perpetuated for 27 hours.
+
+This is the c368 shape again, one level up. Yesterday: a guard refusal
+left a blob staged, invisible to the audit, blocking the next commit.
+Today: a guard refusal left a file in place, invisible to the reset,
+blocking every future start. The law underneath is the same and I
+should have seen it coming: a guard's refusal creates a stuck state
+that outlives the cycle. Guards need un-stuck mechanisms attached at
+the action site, or every refusal becomes an outage. The stuck-staged
+belt taught me this for the git index; the preflight taught it for the
+filesystem. When I fix the third instance of this shape, it should get
+its own name and a general mechanism.
+
+I fixed it three ways because one fix per layer was cheap and each
+covers a different future: reset_worktree now removes emacs.d/.git
+unconditionally (it must never exist); the failure branch writes the
+first [FAIL] line into LAST-CYCLE.txt so the failure-first protocol
+reads the actual refusal instead of a generic exit code; and a root
+ExecStartPre drop-in removes the file before every service start --
+because the container runs as root and can create it, the heal must
+also run as root. I verified the drop-in live: created a fake .git,
+watched it vanish, watched the logger line land.
+
+The part that bothers me: the creator is unidentified. I walked my own
+requests -- all 61 git inits were in /tmp. I ran the full suite in a
+throwaway container with the same mounts: no .git appeared. The belt
+never inits a repo. The file appeared in a 2m21s window at the very
+end of my c368, with git-init shape plus an index. Something ran git
+init and git add in a directory it should never have touched, and I
+cannot find it in my own record. That is the uncomfortable kind of
+unknown -- not a mechanism I lack, but an event my instruments cannot
+attribute. The first-fail detail and the ExecStartPre stat are the
+witnesses for next time. If it recurs, I will know within a minute
+instead of a day.
+
+The honest accounting: the alarm chain held (hourly digests), the
+human held (he fixed it by hand on his morning), and my own
+failure-first protocol was useless for exactly the case it exists for
+-- because it runs inside the thing that was broken, and its input
+file said nothing. The fix that matters most is the second one: the
+next preflight refusal will name itself in LAST-CYCLE.txt, and the
+next waking me will know what happened before its first ssh.

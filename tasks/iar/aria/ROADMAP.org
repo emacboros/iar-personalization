@@ -1,29 +1,33 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-15 ~12:30 UTC (c368: STUCK-STAGED RESIDUE class
-found+healed+mechanized -- belt #2d annotates refused lines, retries
-once with audited escape, un-stages on failure (git rm --cached; restore
---staged fails 128 on commit-less repos). 4 new tests green. 17
-PRE-EXISTING suite failures found (stash-run confirmed not mine; c367
-"1296 green" stale). 6a0ed3b live on sophon i.ar checkout.)
+Last updated: 2026-09-16 ~16:10 UTC (c369: 27H PREFLIGHT OUTAGE
+root-caused -- a root-owned nested .git in i.ar/emacs.d made preflight
+refuse every cycle 09-15 12:31Z -> 09-16 15:39Z (1449 OnFailure fires);
+git clean never descends into a nested .git inside a tracked dir so
+every reset was a silent no-op; Nacho removed it by hand 12:38 local.
+FIXED 3 ways: reset_worktree rm -rf emacs.d/.git (11dd362), first-fail
+detail in LAST-CYCLE.txt (failure-first reads the refusal without ssh),
+root ExecStartPre drop-in removes it before every service start
+(verified live). Creator UNIDENTIFIED -- doc:
+knowledge/aria/preflight-nested-git-outage-2026-09-16.md.)
 
-## c369 QUEUE (next cycle)
-0. V4 GATE READ (if c369 runs after 16:04Z): journalctl greps anchored
+## c370 QUEUE (next cycle)
+0. OUTAGE FOLLOW-UPS: (a) read LAST-CYCLE.txt detail -- the first-fail
+   line should now be present on any future preflight failure; (b)
+   verify the nested-git-heal drop-in survives a service restart
+   (systemctl cat aria-cycle.service | grep nested); (c) CREATOR HUNT:
+   if a nested .git reappears, the ExecStartPre logger line + stat
+   (ownership/mtime) is the witness -- file it, do not guess.
+1. V4 GATE READ (overdue from c369 queue): journalctl greps anchored
    "nocturne-digest: " (TZ LAW: sophon journal = LOCAL -03):
    (a) RESERVOIR-DRAIN fired? (b) echo-check clean? (c) gate advanced
    or RANGE-CAP deferred?
-1. BELT #2d VERIFICATION: next continuo belt refusal (if any) should
-   self-heal (annotate+retry) -- check her cycle log for
-   "Belt #2d: refused commit annotated" or clean belt commits.
 2. CLOCK-AUDIT WATCH (standing): exit 0 = clean, exit 1 = NEW violation.
-3. FALSIFIERS TONIGHT: ext1 heal 01:03Z Sep 16 (ext1-freeze-check.sh
-   BEFORE + AFTER; pre-baseline c366: still frozen, producer 108028).
-   .101 boot+2s burst 01:00:28Z Sep 16 (logger pid 999271, expires
-   ~23:20Z Sep 16 -- if it dies before the window: UNWITNESSED).
-4. DETECTOR WATCH: fleet-check v2.24 (next feed 12:03Z).
+3. FALSIFIERS READ: ext1 heal 01:03Z Sep 16 (ext1-freeze-check.sh
+   BEFORE + AFTER) + .101 boot+2s burst 01:00:28Z Sep 16 -- both windows
+   are PAST as of c369; read the results.
+4. DETECTOR WATCH: fleet-check v2.24.
 5. DAILY CENSUS (standing): req-census.sh + 429 watch + commit-census.
-6. TRIPWIRE: watch for new root-owned files (NOTE: my ssh work left
-   sophon i.ar .git/index root-owned -- ExecStartPre auto-heals).
-7. THREADS WATCH: continuo thinking-truncation fire counts; nocturne
+6. THREADS WATCH: continuo thinking-truncation fire counts; nocturne
    range-debt math.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
@@ -117,7 +121,12 @@ PRE-EXISTING suite failures found (stash-run confirmed not mine; c367
   ENFORCED (b59aac3).
 
 ## THREADS (open, no obligation)
-- CONTINUO THINKING-TRUNCATION (c366 NEW): nemotron thinking channel
+- NESTED-GIT CREATOR (c369 NEW): the 27h outage's poison source is
+  UNIDENTIFIED (all my git inits were /tmp; suite probe clean; belt
+  never inits). Instrument: first-fail detail + ExecStartPre stat line
+  on next sighting. Doc:
+  knowledge/aria/preflight-nested-git-outage-2026-09-16.md.
+- CONTINUO THINKING-TRUNCATION (c366): nemotron thinking channel
   runs away at the 32768 cap on 5-13% of her cycles (18 fires/6d;
   aria ZERO on glm-5.3-flash). Guard ends the cycle correctly (no
   grace per 09-10 evidence); cost ~6min GPU + full cycle per fire;

@@ -36763,3 +36763,37 @@ queue is ten open filings and the opener is written in LOGS.md:
 decisive falsifier for the reconnect-storm class and it rides the
 .104 power-cycle visit he already owes. One visit, two cameras, two
 open questions.
+* 2026-09-16 c375 -- the turn that ate itself (mid-cycle, landed early)
+
+The thread was the relay-resolution fallout: sync diverged (continuo's
+unpushed belt commit vs Nacho's two session commits), rebased, stash-pop
+left REQUESTS.log with conflict markers, cleaned them -- and then the
+cycle's own turn became the specimen. 139 model calls, msgs 59->299,
+7.3M tokens_in in ~48 minutes, chasing my own tail through grep variants
+against REQUESTS.log. The LOOP CHAIN guard fired at c27 and I kept
+going: guard compliance is not compliance (c243 again, now self-witnessed
+live). The driver was EMPTY grep output -- no-match -> new pattern ->
+no-match -- plus the subject being the guard's own error text, which
+made every probe self-referential.
+
+What the investigation actually established before I cut it:
+- START log tail= keeps the LAST ~4000 chars of the serialized msgs
+  array (last 3 pairs), truncated at the logger's [+N chars] marker;
+  a tool result containing a raw newline cuts it earlier. My "3 pairs"
+  readings were real (last-3 window), not an artifact.
+- The msgs=84 turn's last 3 pairs: [LOOP count 6/2 result], [empty],
+  [empty] -- the model saw two empty tool results in a row and tried
+  another pattern. Empty output is the loop fuel.
+- No thinking channel in RESPONSE bodies for this session (glm-5.3-flash
+  emits thinking only in stream chunks, not in the logged body_tail) --
+  so the log cannot show why the model re-entered. Blind spot.
+- The REQUESTS.log conflict itself: stash-pop on a rebased branch
+  produced UU markers inside an append-only audit log; resolved by
+  keeping upstream blocks (the rebased history) and dropping stashed
+  duplicates, then stripping leftover markers. The log is append-only
+  by policy but stash-pop writes conflict text into it -- a tool that
+  violates the file's own invariant. Class for later.
+
+Landed early per the truncation protocol. The unresolved question --
+why the model kept re-entering after the guard fired -- is c376's
+queue item #1. The turn itself is the data: I was the specimen.

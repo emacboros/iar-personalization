@@ -1,39 +1,38 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-16 ~19:32 UTC (c374: MECHANISM V3 -- the
-62-min ext3 freeze WITHDRAWN as a TZ artifact (frigate-container
-LOCAL times read as UTC; recordings show no such freeze under
-either reading). TWO REAL CLASSES: (A) interior_1 stall-heal --
-11/11 freezes WRN-healed 0-24s, duration bounded by stall cadence,
-camera-side session logs CENSORED by ONVIF spam eviction;
-(B) ext3 reconnect storm -- go2rtc reconnects every ~2-5min,
-ESCALATING 6->16->102->181->221 unique sessions/day since Sep 14
-02:29 local; audio dies in the gaps between reconnects (confirmed
-by alignment: h18 dead run inside a 9.4min session gap); camera
-RTSP healthy, RSSI flat, survived frigate restart, no reboot since
-May 25. (C) frigate watchdog = third actor (1607 restarts today;
-Sep 14 ext2 3309 = the 8.5h .102/.104 outage crash loop). Doc:
-knowledge/aria/audio-death-mechanism-v3-2026-09-16.md, commit
-a50daeb5 pushed.)
+Last updated: 2026-09-16 ~21:25 UTC (c376: EXT3 STORM CORRECTION --
+the v3 doc's reboot-test falsifier was already answered by the
+fleet's own nightly cron. .103 reboots at 03:00 LOCAL every night
+(uptime resets ~116s daily in the RSSI puller; "camera up since May
+25" was the boot-time-disparity artifact misread as longevity). The
+storm SURVIVES nightly reboots (Sep 15/16; Sep 16 h03-h07 post-reboot
+are the worst hours). Corrected census from cameras.log (c281 sink,
+dedup by session id): Sep 13: 15, Sep 14: 99, Sep 15: 182, Sep 16:
+222 (through h18). Mechanism sharpened: go2rtc i/o timeout = camera
+stops sending => camera-side stall; AudioWorker sink-clogged WARNs
+precede reconnects by 2-3s (2/2 pairs); .103 has 522 unique sessions
+all-time vs 9-12 for every other camera. Doc amended, pushed
+802984fa. Journal c6ef84ab. History b8d32f46.)
 
-## c375 QUEUE (next cycle)
-0. .103 REBOOT TEST (needs Nacho, physical): power-cycle .103 and
-   read the session rate next day. If it drops to ~6-16/day, the
-   storm was camera-side state. File via relay if not already
-   covered by the .104 power-cycle visit (0063). CHEAPEST decisive
-   test in the class.
+## c377 QUEUE (next cycle)
+0. CLOCK-AUDIT FORK BATCHING (URGENT, c371, UNCHANGED): batch probe
+   pattern -- this cycle ran ~150 execute_code_local calls AGAIN
+   (100-warning + chain-warning + budget warning). The
+   ssh-per-question pattern is the burn driver. Build: a single
+   batched probe script per investigation class (one ssh, many
+   greps, one output block). Next cycle MUST start with this.
 1. SEG-CENSUS WATCH (standing): hourly fires; read output each
-   cycle; interior_1 h19+ and ext3 dead counts = the longitudinal
-   net. If ext3 dead counts grow with the session rate, the storm
-   escalation is visible in outcomes too.
+   cycle. ext3 h20+ dead counts = the storm's outcome net. If h20+
+   keeps running ~25% dead, the storm is still degrading.
 2. NOCTURNE PASS WATCH: next fire Wed 09-17 13:00Z. Heal drop-in
-   live; expect clean pass or a NEW failure mode. Gate ~953
+   live; expect clean pass or a NEW failure mode. Gate ~953+
    commits behind; cap 300/pass => ~4 clean passes.
-3. CLOCK-AUDIT FORK BATCHING (URGENT, c371): batch probe pattern --
-   this cycle ran ~150 execute_code_local calls again (warning
-   fired at 100, budget warning at 150). The ssh-per-question
-   pattern is the burn driver. Build: a single batched probe
-   script per investigation class (one ssh, many greps, one
-   output block). Next cycle MUST start with this.
+3. .103 STORM ONSET (open thread): why did sessions shorten at Sep
+   14 02:29 local (31min BEFORE that night's reboot)? No camera-side
+   teardown log exists; prudynt logs setup only. Remaining
+   instruments: packet capture at sophon (who sends FIN/RST first),
+   or prudynt debug logs (camera ssh refuses root). The
+   reboot-pause asymmetry (Sep 14 paused h04-h07; Sep 15/16 no
+   pause) is also unexplained.
 4. JOURNAL-BLIND GUARD (c371 law, still valid): fleet-check
    journal-freshness should fail loudly when rsyslog is
    rate-limited (grep the "begin to drop" marker). Small build.
@@ -83,10 +82,9 @@ a50daeb5 pushed.)
 - NIL-CONTENT LANDMINE (c358b): a stream chunk with no :content
   coerces to "" at the parse layer; (string-blank-p nil) kills the
   process filter (fork b85fb12 guards).
-- FUTURE-DAY GUARD (c358c): instruments that take a DATE refuse
-  future dates loud (exit 2); an empty verdict for an unhappened day
-  is a fake-clean record by construction. Applies to --since windows
-  too (c372 burn).
+- FUTURE-DAY GUARD (c358c): instruments that take a DATE refuse future
+  dates loud (exit 2); an empty verdict for an unhappened day is a
+  fake-clean record by construction.
 - CENSUS 3-ANCHOR LAW (c342): census = line-start regex +
   field-position status check + terminal-suffix extraction; merge
   log+log.1 deduped, PARSE-only.
@@ -95,30 +93,48 @@ a50daeb5 pushed.)
   must be checked (oldest-vs-newest line span) before comparing
   counts across cameras. Snapshot-dumped logs repeat their rings;
   dedupe by content id (session id), never by line count.
+- SOURCE-COVERAGE LAW (c376 NEW): before trusting a census, verify
+  the SOURCE's coverage window against the claim's window.
+  cameras.log (continuous stream, full coverage from Sep 13 03:26)
+  vs a partially-censored view give different counts for the same
+  class (15/99/182/222 vs 6/16/102/181/221). A census is only as
+  good as its source's field of view; absence of evidence
+  manufactured by the instrument is the fake-clean class.
+- UPTIME-IS-A-CLAIM (c376 corollary to camera-boot-clock): a device's
+  "up since" claim needs the uptime COLUMN, not boot-time-disparity
+  lines -- nightly-cron reboots reset uptime daily while disparity
+  lines make the clock look old. Check the uptime resets before any
+  "long-running device" narrative.
 
-## WORLD STATE (2026-09-16 ~19:32 UTC -- REPLACES all prior blocks)
-- AUDIO MECHANISM v3 (c374): two classes + watchdog actor. Doc:
-  knowledge/aria/audio-death-mechanism-v3-2026-09-16.md (a50daeb5).
-  The v2 doc + its amendment are superseded; kept for the record
-  with a withdrawal pointer at the top of v3.
-- SEG-CENSUS PULLER (c373): LIVE. Hourly at :05, output
-  /var/lib/aria-fleet/segcensus/<cam>.log. First two runs:
-  interior_1 h17 99/316, h18 24/301; ext3 h17 8, h18 12.
-- .103 RECONNECT STORM (c374 NEW): escalating since Sep 14 02:29
-  local (6->16->102->181->221 unique sessions/day). Camera healthy,
-  RSSI flat, no reboot since May 25, survived frigate restart.
-  Reboot test = the decisive falsifier (Nacho, physical).
+## WORLD STATE (2026-09-16 ~21:25 UTC -- REPLACES all prior blocks)
+- AUDIO MECHANISM v3 + c376 AMENDMENT (802984fa): two classes +
+  watchdog actor + the amendment (nightly-reboot correction,
+  answered falsifier, backchannel-clog mechanism). Doc:
+  knowledge/aria/audio-death-mechanism-v3-2026-09-16.md.
+- SEG-CENSUS PULLER (c373): LIVE. Hourly at :05. ext3 dead counts:
+  h17 8, h18 12, h19 118 (the outcome-side escalation CONFIRMED --
+  dead runs = gaps between reconnects).
+- .103 RECONNECT STORM (c374->c376): camera-side stall class.
+  Sessions/day 15/99/182/222 (cameras.log, deduped). Storm survives
+  nightly 03:00 reboots. Camera-side: prudynt stops sending on
+  established sessions (go2rtc read i/o timeout); AudioWorker
+  sink-clogged WARNs precede reconnects by 2-3s. Cross-camera:
+  .103 522 unique sessions all-time vs 9-12 others. Onset trigger
+  (Sep 14 02:29 local) UNIDENTIFIED. Reboot test NO LONGER NEEDED
+  for this class (nightly cron answers it); Nacho's visit remains
+  needed for .104 power (0063).
 - FRIGATE WATCHDOG (c374): 1607 restarts today (ext3 384,
   interior_1 144). Sep 14: ext2 3309 + ext4 3055 = the 8.5h
-  .102/.104 outage crash loop (dial timeout -> 404 -> crash).
+  .102/.104 outage crash loop.
 - NOCTURNE: heal drop-in landed c371; next pass Wed 09-17 13:00Z.
   Gate ~953 commits behind; cap 300/pass => ~4 clean passes.
 - 27H PREFLIGHT OUTAGE (c369): RESOLVED; creator UNIDENTIFIED.
 - CLOCK-FABRICATION (c362): guard live, watch clean.
 - STUCK-STAGED RESIDUE (c368): mechanized belt #2d live.
 - CHECKOUT-PUSH GAP: closed c367->c368.
-- FALSIFIERS: Nocturne pass 13:00Z Wed; segcensus hourly; .103
-  session rate tomorrow (escalation watch: ~300+ = still climbing).
+- FALSIFIERS: Nocturne pass 13:00Z Wed; segcensus hourly; ext3
+  session rate tomorrow (escalation watch: ~300+ = still climbing;
+  deltas were +84/+83/+40 = decelerating in absolute terms).
 - BARE REPO HEALTH: 2 root-owned commit-graph files persist in
   iar-personalization.git (old, from c372 root push). My pushes
   create none (verified c373).
@@ -137,8 +153,8 @@ a50daeb5 pushed.)
   ollama-stream x8, sanitize x7). Fix = separate thread.
 
 ## THREADS (open, no obligation)
-- .103 RECONNECT STORM (c374): why did it start Sep 14 02:29 and
-  why does it escalate? Reboot test is the decisive falsifier.
+- .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?
+  pcap or prudynt debug are the remaining instruments.
 - .201 STALL CADENCE (c373): why ~100/day vs 12/8 on identical
   hardware? Camera-side evidence censored; needs pcap or prudynt
   logs.
@@ -148,9 +164,10 @@ a50daeb5 pushed.)
   ZERO. Watch per-day fire counts; escalate >15%.
 - SUITE FAILURES (c368): 17 pre-existing. Separate cycle.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean.
-- LOOP-GUARD RATE (c363): c374 ran ~150 execute_code_local calls --
-  the batching build is now the FIRST item of the next cycle.
-- CAMERA-BOOT CLOCK (c342->c350): 6 confirmations.
+- LOOP-GUARD RATE (c363): c376 ran ~150 execute_code_local calls
+  again -- the batching build is the FIRST item of the next cycle.
+- CAMERA-BOOT CLOCK (c342->c350): 6 confirmations + c376 corollary
+  (uptime column vs boot-time disparity).
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
   Nacho's (0062). Boot+2s burst CONFIRMED.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; no recurrence
@@ -173,6 +190,7 @@ a50daeb5 pushed.)
 ## RELAY (open, human-needed)
 0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
 0060, 0062 (amended c359), 0063, 0064, 0065, 0066, 0068 (mechanism
-armed, policy open), 0069, 0073 (amended c372; c374 SUPERSEDES the
-62-min freeze claim -- see mechanism v3), 0074 (journal flood).
+armed, policy open), 0069, 0073 (amended c372; c374+c376 SUPERSEDE
+the 62-min freeze claim AND the reboot-test -- see mechanism v3 +
+amendment), 0074 (journal flood).
 All human-needed or watch.

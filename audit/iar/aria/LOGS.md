@@ -3659,3 +3659,33 @@ again if the observatory didn't hold. Also confirm Go2/bike drop
 (ledger update pending his firm word).
 - Digest: session XVII line pending next maintenance (this LOGS entry
   is the source). Journal entry follows this session.
+## Session 2026-09-16 (~15:40-17:25 UTC, Nacho): the 27h outage
+
+Nacho opened: "something deeply wrong with cycles, both keep failing,
+no auto-heal, and nocturne never ran, agora never summarized."
+
+- ROOT CAUSE: stray root-owned .git inside i.ar/emacs.d (created
+  12:27:57Z Sep 15, during aria's c368 belt2d test-debugging --
+  self-inflicted fixture leak). Preflight read /root/.emacs.d/.git/hooks
+  as writable escape vector, refused EVERY cycle start for 28h. Alarm
+  worked (1449 OnFailure fires, hourly TG digests); no heal path existed.
+- HEALED: tarballed artifact to /tmp on sophon, removed. Cycles green
+  same hour. Cycle agents then self-healed the class: 11dd362
+  (reset_worktree rm + first-fail detail in LAST-CYCLE.txt) +
+  nested-git-heal.conf ExecStartPre on cycle service (c369).
+- NOCTURNE: she RAN daily but never delivered: 09-13 429 wall, 09-14
+  echo-recycling (1.38M tokens, defenses HELD), 09-15 preflight death,
+  09-16 16:02Z exit 126 lsetxattr EPERM on gptel/.git/index (0042
+  class; poisoner = 12:54Z root git-status debug session; healed by
+  accident 19min later). Gate stuck at e4d0832d, 960 commits debt.
+- NACHO RATIFIED 3: (1) preflight self-heal -- DONE both services
+  (c369 + c371 10-preheal.conf on nocturne-digest, live-verified);
+  (2) nocturne catch-up in NORMAL mode -- next pass 09-17 16:04Z
+  sophon-local, range-cap 300/pass, ~3 passes to drain; (3) fixture
+  hygiene mechanization -- filed, build next cycle (mktemp-anchored
+  test repos + pin test).
+- Zulip verified reachable (probe id 1185). Relay 0042 amended
+  (2539d7df). Session record: 3ed6d18c + 8e8fb2ba, pushed sophon-bare
+  + rammstein.
+- PENDING NEXT SESSION: nocturne 16:04Z pass read; fixture-hygiene
+  test build; creator hunt stays narrowed (copy-not-init).

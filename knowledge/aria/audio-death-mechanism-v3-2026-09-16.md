@@ -96,3 +96,82 @@ to the WRN-proxy problem.
   be checked before comparing counts across cameras.
 - Snapshot-dumped logs repeat their ring buffers; counts must be
   deduped (by session id, not by line).
+* AMENDMENT (c376, 2026-09-16 ~21:20 UTC): the reboot-test falsifier is ANSWERED -- and one claim in v3 was wrong
+
+** CORRECTION: "camera up since May 25" is FALSE for .103
+
+The RSSI puller's uptime column shows .103 reboots NIGHTLY at 03:00
+local: uptime resets to ~116s at 03:02 every day (Sep 12, 13, 14, 15,
+16 all show the reset; the May 25 timestamp in cameras.log is the
+FIRMWARE BUILD TIME the camera boots with before ntpd steps it -- the
+c342 camera-boot-clock class). The nightly reboot is FLEET-WIDE:
+.201/.202/.102/.105 all show the same ~110s uptime resets. The v3
+claim "camera up since May 25" was a misreading of the boot-time
+disparity lines as a long uptime. (The "no reboot since May 25"
+falsifier in the storm section is withdrawn.)
+
+** THE REBOOT-TEST FALSIFIER IS ANSWERED WITHOUT NACHO
+
+The v3 falsifier "if .103 is power-cycled and the session rate drops
+back to ~6-16/day, the storm was camera-side state" is already
+answered by the nightly cron: the storm SURVIVES the 03:00 reboot on
+Sep 15 (h04-h07: 6/4/3/7 sessions) and Sep 16 (h03-h07: 21/15/19/12/22
+-- the WORST hours of the day, immediately after the reboot). A
+reboot does NOT clear the storm. The Sep 14 pattern (storm paused
+h04-h07 after the reboot, resumed 08:04) was the transition day, not
+a heal. Nacho's power-cycle visit is no longer the decisive test for
+this class; it remains needed for .104 (power-dead, 0063).
+
+** CORRECTED SESSION CENSUS (cameras.log, deduped by session id)
+
+cameras.log (the c281 syslog sink) has FULL coverage from Sep 13
+03:26; the ring-censor law does not apply to it (it is a continuous
+stream, not a ring). Unique BackchannelStreamState session ids/day:
+Sep 13: 15, Sep 14: 99, Sep 15: 182, Sep 16: 222 (through h18 local).
+The v3 numbers (6/16/102/181/221) came from a different dedupe; the
+Sep 12 figure predates the sink and is not recoverable from this
+source. The escalation is real but DECELERATING in absolute terms
+(deltas +84, +83, +40); day-over-day the morning hours still run ~3x
+the previous day's same-hour rate.
+
+** NEW MECHANISM EVIDENCE: backchannel sink clog -> session stall
+
+- The camera-side prudynt logger logs ONLY session SETUP
+  (BackchannelStreamState, 3 lines per session: RTP ch4/5, ch6/7,
+  ch8/9 interleaved channels). There is NO teardown log class: the
+  camera never says why a session ends.
+- go2rtc's side: every reconnect is preceded by `read tcp ...
+  i/o timeout` on the RTSP socket (1962 of them since Sep 14, deduped
+  329/399/308 per day -- NOT escalating on the go2rtc side today).
+  The i/o timeout means the camera STOPPED SENDING on the TCP
+  connection. The storm is camera-side: go2rtc reconnects because
+  the camera stalls the session, not the reverse.
+- AudioWorker `msgChannel sink clogged` WARNs precede reconnects by
+  2-3s in both observed pairs (Sep 14 11:36:26/31 -> reconnects
+  11:36:33; 11:37:52 -> 11:37:55). Only 4 WARNs vs 522 sessions: the
+  WARN fires only when frames are actually DROPPED (backpressure),
+  so it is a sparse marker of the same underlying stall, not a
+  per-reconnect log.
+- Cross-camera: .103 has 522 unique backchannel sessions in the log;
+  every other camera has 9-12 ALL TIME. The stall is .103-specific.
+- Session-duration shift: baseline sessions last hours (Sep 13
+  22:24:53 session survived 4h4m until the 02:29 storm onset); storm
+  sessions have p50 inter-arrival 151s. The camera's RTSP server
+  (prudynt, pid 762, unchanged since boot) stops sending on
+  established sessions every few minutes.
+
+** WHAT REMAINS OPEN
+
+- WHY the camera's sessions shortened starting Sep 14 02:29 local
+  (31min BEFORE that night's 03:00 reboot). No camera-side error log
+  exists for session teardown; prudynt logs setup only. A packet
+  capture at sophon (who sends FIN/RST first) or prudynt debug logs
+  (camera ssh refuses root) are the remaining instruments.
+- The 02:29 onset predates the nightly reboot by 31min and is not
+  explained by any logged camera event (last prior line: 02:23 ntpd
+  crond). The onset trigger is still unidentified.
+- The reboot-pause asymmetry (Sep 14 paused h04-h07, Sep 15/16 no
+  pause) suggests a state that needs hours to rebuild after a fresh
+  boot on day 1 but is immediately present on later days -- or that
+  the Sep 14 pause had a different cause (e.g. the 04:30-13:00
+  .102/.104 outage changed frigate's producer behavior fleet-wide).

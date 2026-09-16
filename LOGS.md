@@ -190,3 +190,68 @@ Nacho's parting: "Great work, closing session now."
 - NOT DONE (time limit): roadmap update + lab-notes post. Next cycle:
   pull first, then update roadmap from this LOGS block + journal, post
   lab-notes note (thread/audio-detector-v2), then proceed to queue.
+## Session 2026-09-16 (~18:30-19:50 UTC, Nacho): relay queue resolution run
+
+Nacho opened: "resolve the open questions, pull sophon-bare first, lay
+them out one by one." Pulled (b7f6012..11dd362), enumerated 15 open
+filings -> 13 decisions, worked them in priority order.
+
+RESOLVED this session:
+- 0059+0064 (frigate exposure): option 1 -- 8971/8554/8555tcp/8555udp
+  bound to 10.66.0.5 WG-only; camaras.randazzo.ar STAYS public (caddy
+  -> WG path unaffected). KEY DISCOVERY: sophon had NO internet
+  exposure at all (router NAT, no port-forwards, verified from
+  rammstein) -- all scanner traffic arrived via camaras.randazzo.ar.
+  The surface actually closed = LAN-device access (cameras' subnet,
+  .58, compromised-camera scenarios). Live container recreated 18:48Z;
+  7/8 cams up (exterior_4 = known 0063 dead), detections flowing, MSE
+  live view unaffected (142 ws hits, zero webrtc-8555 consumers ever).
+  Ansible template + defaults updated (frigate_bind_addr, bd2b598,
+  pushed rammstein+sophon-bare; GITHUB PUSH FAILED -- deploy key issue,
+  loose end for Nacho). Pre-existing yoga.yml edit stashed, restored
+  unstaged (not mine).
+- 0065 (quota): option (b) ACCEPT. No credits, no remap. Heavy
+  interactive-session weeks may stop cycles ~Saturday; trade accepted.
+  Nacho's meter observation: ollama.com shows only a percentage; 6B
+  dishonest as compute measure (cache-heavy); sessions cost
+  disproportionately. Refreshed numbers first (USAGE.log meter):
+  this window ~1221M of ~6.08B (51% projected, fits cycle-only);
+  prior wall-re-hit prediction withdrawn for cycle-only weeks.
+  EN-ROUTE CENSUS CORRECTION: c342 "full day 09-14" was a 13h window
+  (2x undercount: true 5561 reqs/399M vs filed 2630/192.5M) --
+  knowledge/aria/census-window-correction-c342-2026-09-16.md; new
+  census law: a census claiming a day must verify its window covers
+  the day. Quota-census unaffected (USAGE.log-based).
+- 0042 (root-git poison): BOTH asks resolved. Ask 1: yoga actor
+  CONFIRMED by Nacho = his long-running nocturne-implementation
+  session (24h cycle polling, the token-outage session) running root
+  ssh repo-health checks (git status IS a write). Ask 2: option (a)
+  LANDED -- heal_git_poison() in iar.sh (20be99d, pushed
+  sophon-bare+rammstein): scans personalization/.git, i.ar/.git,
+  gptel-fork/.git for root-owned files before EVERY podman run
+  (run_cycle + run_one_shot), chowns via root or sudo -n path (nacho
+  NOPASSWD:ALL on sophon), chcon relabels, logs to iar-heal tag.
+  Live-tested: planted root-owned file healed in one pass. Defense
+  now 3 layers: ExecStartPre (start) + action-site heal (every run) +
+  reset_worktree (nested .git).
+
+OPEN / WHERE WE LEFT OFF:
+- 0074 (sophon journal blind) -- MID-DECISION. My recommendation
+  delivered: scope devnull-watch audit rule to WRITE opens
+  (O_WRONLY/O_RDWR on /dev/null) rather than drop; read-opens are
+  ~95% of volume, near-zero forensic value; write-opens are the real
+  tamper signal. Secondary question: raise rsyslogd rate limit or
+  leave as backstop. NACHO CLOSED THE SESSION BEFORE RULING. Next
+  session: resume HERE, get his ruling (scope/drop/other), execute,
+  then continue down the remaining queue: 0073 (go2rtc watchdog
+  decision), 0060 (upstream issue ratify + falsifier), 0062 (.58
+  identity), 0046 (continuo stimulus), 0066 (one-line path fix),
+  0068 (DIGEST.proposed policy), 0069 (ratify empty-end fix).
+- Remaining queue order proposed at session start (after 0074):
+  0073, 0060, 0062, 0046, 0066, 0068, 0069.
+- Also pending: github push for iar-infrastructure (deploy key), and
+  the pre-existing yoga.yml edit in iar-infrastructure worktree
+  (ansible_user: root change -- not mine, left unstaged for Nacho).
+
+Session record: personalization 9660a0e3 (pushed sophon-bare +
+rammstein); i.ar 20be99d; iar-infrastructure bd2b598.

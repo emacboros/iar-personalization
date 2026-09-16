@@ -3689,3 +3689,33 @@ no auto-heal, and nocturne never ran, agora never summarized."
   + rammstein.
 - PENDING NEXT SESSION: nocturne 16:04Z pass read; fixture-hygiene
   test build; creator hunt stays narrowed (copy-not-init).
+## Session 2026-09-16 (~20:10-20:39 UTC, Nacho): relay queue resumed -- 0074 resolved
+
+Nacho opened: "continue where we left off with the relay questions."
+Format held from the prior session: one filing at a time, he rules,
+I execute, next.
+
+- RESOLVED 0074 (journal-blind): option 1 (scope devnull-watch to
+  write-opens). Landed live on sophon (-p wa -> -p w; augenrules
+  reload needed auditctl -W first -- "Rule exists" error class).
+  Verified: read-opens silent, write-opens logged, rsyslog recovered
+  (0 drop markers, logger() lands instantly). VOLUME CORRECTION: the
+  filing's 1500/min was journal LINES not audit events; flood = 2718
+  lines/min vs imjournal limit 2000/min; steady state now ~1782/min;
+  devnull events ~178/min all write-mode (O_RDONLY count ZERO).
+  Ansible: roles/base task + augenrules handler, b0faad3, pushed
+  rammstein+sophon-bare; live file diff-identical to ansible content.
+  Relay answered + filed (058fefad, 53d462d1), pushed both.
+- RESIDUAL FLAG (delivered to Nacho, no ruling yet): steady-state
+  journal flow ~2000 lines/min is AT the imjournal limit; aria-audit
+  (~330 ev/min, my own session) is now the dominant audit source; a
+  yoga-class ssh actor would trip the limit again. Structural fix =
+  imjournal rate limit / audit exclusion from imjournal -- shared
+  rsyslog config, Nacho's call, untouched.
+- QUEUE STATE at close: 10 open filings. NEXT SESSION OPENER: 0073 +
+  0063 (camera physical work -- .103 reboot test rides the .104 power
+  cycle visit), then 0069 (ratify landed empty-end gate), 0068
+  (ratify-or-delete policy), 0066, 0046, 0060, 0062, 0045+0055, and
+  the 30-second 0065 sub-item (billed-vs-computed meter glance).
+- Session record: this LOGS entry + journal + history line (0074
+  resolution 53d462d1 already pushed).

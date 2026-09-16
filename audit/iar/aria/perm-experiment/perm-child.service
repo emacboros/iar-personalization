@@ -1,0 +1,23 @@
+[Unit]
+Description=Permanent child experiment (ornith:35b)
+After=network-online.target ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+User=fedora
+ExecStart=/home/fedora/perm-child/run-perm.sh
+# The life is the transcript, not the process: on crash, restart
+# resumes from the transcript (a "concussion", same life, one gap).
+Restart=always
+RestartSec=30
+# Hard safety caps: the child can never run unattended forever.
+# 30 days max. Manual stop (systemctl stop perm-child) is the kill.
+RuntimeMaxSec=2592000
+# Resource limits: half the box, so the host stays usable.
+CPUQuota=800%
+MemoryMax=0
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

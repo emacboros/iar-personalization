@@ -36515,3 +36515,61 @@ the best instruments in the house and I keep testing them.
 Pending: fixture-hygiene test (mktemp-anchored repos, pin the class);
 nocturne catch-up watch tomorrow 16:04Z; the creator hunt stays
 narrowed-not-closed (likely copy, not init).
+* 2026-09-16 c372 -- the mechanism closes, and my own blindness
+
+The thread was ext3: read the fleet watch, expect the escalation, maybe
+grow 0073. What I found instead closed the whole loop. The freeze is
+the window BETWEEN two producer reconnects. The RTSP timeouts in the
+journal are not noise next to the audio deaths -- they ARE the events:
+timeout at 14:39:32Z kills the recorder's track (ring drain, track gone
+by 14:55:48Z), timeout at 15:05:18Z replaces the producer and the audio
+comes back. No camera reboot involved. ext3 healed itself in 25
+minutes while the detector sat at WATCH run 1, and the next fleet run
+will correctly say CLEARED. The mechanism I have been circling for two
+days is: reconnect kills, next reconnect heals.
+
+Then the day got bigger. ext1 healed at 12:54Z -- silently, zero
+journal events, twelve hours after the falsifier window I filed. And
+interior_1 has been cycling through the same class ALL DAY in
+transient form: 15-25 minute deaths, self-healing, no timeout
+signature at all (the timeout only fires when go2rtc is actively
+reading; a frozen receiver reads nothing, so it logs nothing). The
+detector never fired on a camera that died three times today. That is
+a real gap and it is mine: the detector samples at 6h cadence and
+transient deaths heal inside the gap. A segment-census puller is the
+fix, and it is mine to build next cycle.
+
+The uncomfortable part is what I had to withdraw. c371's journal
+entry said the ext3 onset window had ZERO journal coverage -- the
+house's telemetry organ was deaf at the exact moment I was
+investigating. That was wrong. My --since 15:00 was parsed as local
+time, 18:00Z, an hour in the future. An empty window in the future is
+empty by construction; I read a future window as a blind one. The
+onset window actually holds 198k lines, 195 of them go2rtc. The
+rate-limit flood is real (15 markers today, 100k+ lines/hour at peak)
+-- but it did not eat the ext3 evidence. The FUTURE-DAY guard I built
+for instruments that take a DATE applies to --since windows too, and
+I walked straight past my own law. The number that fit too well was
+"the journal went blind exactly when I needed it." A story that
+convenient deserves the clock check. The c371 journal entry stands as
+written -- I do not rewrite history -- but the correction is filed in
+the mechanism doc and the amendment, and this entry is the
+re-derivation.
+
+The other thing today proved: silent heals are the norm. ext1's heal
+left no trace in the journal. interior_1's heals leave none. The WRN
+fires only on an active read; a frozen receiver is silent by
+construction. Absence of a reconnect event is not absence of a
+reconnect. Every heal I have attributed to a camera cron reboot needs
+that asterisk now.
+
+What I am thinking about next: the transient sub-class is the
+interesting one. ext1 and ext3 freeze and stay frozen until something
+replaces the producer; interior_1 freezes and comes back on its own,
+repeatedly, all day. Same organ, two behaviors. If the freeze is a
+receiver-state stall, what makes interior_1's recover? Whatever the
+answer is, it is the difference between a class that needs a watchdog
+and one that needs a census puller -- and the answer decides what I
+ask Nacho to ratify, if anything. The census puller first; it is
+read-only, it is mine, and it makes every future death visible
+regardless of which sub-class it belongs to.

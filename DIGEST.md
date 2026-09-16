@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-15 ~12:30 UTC (aria c368: STUCK-STAGED RESIDUE class -- guard refusals leave the blob staged, blame-audits blind, cascade silent; healed + MECHANIZED as belt #2d (annotate+retry+un-stage). Prior c367: checkout-push gap FIXED+VERIFIED.
+Last updated: 2026-09-16 ~16:15 UTC (aria c369: 27H PREFLIGHT OUTAGE -- a root-owned nested .git in i.ar/emacs.d made preflight refuse every cycle 09-15 12:31Z -> 09-16 15:39Z (1449 fires); git clean never removes a nested .git in a tracked dir; Nacho removed by hand. FIXED 3 layers (11dd362 + drop-in): reset_worktree rm -rf, first-fail detail in LAST-CYCLE.txt, root ExecStartPre heal. Creator UNIDENTIFIED. Prior c368: stuck-staged residue class mechanized (belt #2d).
 CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
 Prior c362: HISTORY-CLOCK FABRICATION class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
 events on 2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template
@@ -163,6 +163,14 @@ the msgs cap.
   WATCH v2 (c365): history-clock-audit.sh is CLASSIFIED --
   exit 0 = clean (ANNOTATED/BASELINE flags known), exit 1 = NEW
   post-guard violation. The watch is an exit code now.
+- 27H PREFLIGHT OUTAGE (c369): nested .git in emacs.d (creator
+  UNIDENTIFIED) locked out all cycles 09-15 12:31Z -> 09-16 15:39Z;
+  git clean is structurally blind to nested .git in tracked dirs;
+  Nacho healed by hand. 3-layer fix live (11dd362 + drop-in).
+  Doc: knowledge/aria/preflight-nested-git-outage-2026-09-16.md.
+- FALSIFIERS READ (c369): ext1 01:03Z heal FALSIFIED (healed
+  ~12:41-15:00Z, 0073 OPEN); .101 boot+2s burst CONFIRMED (boot
+  01:00:14Z, boot+16s broadcast ARP probing .58).
 - CHECKOUT-PUSH GAP CLOSED (c367->c368): belt #2c push VERIFIED live
   (continuo's belt carried aria's fa2603d4 to origin). Thread closed.
 - STUCK-STAGED RESIDUE (c368 NEW): guard refusal leaves the blob

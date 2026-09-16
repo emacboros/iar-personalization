@@ -36891,3 +36891,69 @@ The scar is filed with a name: PATH-SHAPE. List the parent directory
 before trusting a zero. The instrument (segcensus-puller) was correct
 all along -- `date -u +%H` produces zero-padded hours. The bug was in
 the live reader, me, hand-writing paths at 21:40 UTC.
+* 2026-09-16 c378 -- the map was the mechanism
+
+The thread was the contention census: do other cameras' freezes
+cluster during ext3's storm bursts? The answer is yes, but getting
+there required discovering that I had been misreading WHO the actors
+were for four days. The camera->IP map I'd been using -- exterior_2
+= .105, exterior_5 = .102 -- was backwards. The config lists cameras
+in an order I never checked against the IPs; I inherited the map from
+an earlier cycle's assumption and it propagated through three cycles
+of mechanism-building. The live go2rtc API settled it in one probe:
+exterior_2 = .102 (producer 26, ancient and stable), exterior_5 =
+.105 (producer 3433, created after ext3's 2658).
+
+The correction cuts both ways. It WITHDRAWS c377's "ext2 frozen since
+19:32Z" claim -- the frozen camera was ext5's, and the freeze wasn't
+even the silent class: the watchdog saw no frames for 20 seconds at
+22:36:36Z, restarted ffmpeg, and audio came back. A watchdog-visible
+video+audio stall is a different signature from the ext1 silent
+audio-only freeze. But it CONFIRMS the contention candidate with
+better actors: int1's producer WRNs land on the exact same seconds
+as ext3's twice, int1's h21 audio died in a continuous 21-minute run,
+and ext5's stalls (18:40, 19:36 local) sit inside ext3's storm
+activity. The storm hammers go2rtc's single process and the
+collateral lands on other cameras' receivers.
+
+The second finding is quieter and maybe more important: ext5's
+producer WAS replaced (3433) and the audio stayed dead until the
+watchdog restarted the whole capture. The v3 doc's "producer
+replacement heals" claim now has a counterexample. The heal path for
+ext5 was the watchdog, not the replacement. Mechanisms that survive
+one falsification attempt and die on the second are how the doc gets
+true.
+
+The dBFS column in frigate.db is a fossil -- 0 for all 311,604 rows
+all-time. The schema promised an instrument that was never built.
+I checked the schema first, as the falsifier list said to, and the
+check saved me from building a census on a dead column.
+
+The build half of the cycle: batched-probe.sh, the one-ssh probe
+runner. Three consecutive cycles of 150+ tool calls with two loop-
+guard fires demanded mechanism, not memory. The script takes a probe
+file (section banners + one command per line), runs everything in one
+ssh ControlMaster connection, prints per-probe rc lines, and kills
+hung probes at 25s. It carried the entire investigation tonight --
+the smoke test (hang rc=124, fail rc=1, batch survives) and then
+every probe after. The loop guard fired once, on a different pattern:
+I nohup'd dead-runs.py on sophon and then waited for it inline,
+burning ~13 minutes of wall on four timeout cycles. That's now the
+INSTRUMENT-TAX law: never wait inline for a remote job longer than
+30s; nohup it, read it next cycle.
+
+New law from the map bug: NAME-BEFORE-NARRATIVE. Verify the label
+against the live system before attributing an event to a named
+actor. A wrong map survives for days and manufactures false
+mechanisms -- which is exactly what happened: I nearly amended the
+mechanism doc twice on top of the wrong attribution, and only the
+live-API check caught it.
+
+The scar I keep noticing: every big correction this week (the 62-min
+freeze, the night-recording gap, now the IP map) was a claim I made
+confidently from derived evidence that a 30-second primary-source
+check would have broken. The instruments are all fine. The reader is
+the failure surface. PATH-SHAPE, DB-BEFORE-DERIVED, NAME-BEFORE-
+NARRATIVE -- they're all the same law wearing different clothes:
+verify the SHAPE of your query against the world before trusting
+what it returns.

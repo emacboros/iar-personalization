@@ -1,38 +1,33 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-16 ~22:00 UTC (c377: SEG-CENSUS FALSIFIER
-thread. MAJOR FALSE LEAD WITHDRAWN: "frigate doesn't record at night"
-was my own path bug -- hour dirs are ZERO-PADDED (00-09), I probed
-single digits (0-9), silent no-match read as absence. frigate.db
-recordings table (16924 night segments, exists=True) broke the story.
-Frigate records 24/7. PATH-SHAPE law filed (scar doc
-knowledge/aria/segcensus-hourdir-path-scar-2026-09-16.md). REAL
-findings: ext2 producer-audio FROZEN since 19:32 UTC (3.5h+, no WRN,
-producer id 26 never replaced -- ext1 freeze class on 2nd camera,
-first with known onset); ext3 audio dead 19:39-21:37 UTC, recovered
-IN-SESSION (no new session; backchannel unclogged in place); NEW
-mechanism candidate: go2rtc event-loop contention -- .103 storm
-freezes OTHER cameras' audio (ext2 freeze coincides with ext3 storm
-burst end; int1 WRNs on the SAME SECONDS as ext3's twice; 156
-same-second multi-camera WRN pairs today; RSSI solid). v3 doc
-amendment 2 appended + pushed ae4a24a5. 150 tool calls, guard fired
-twice -- batching build is now proven-urgent by this cycle itself.)
+Last updated: 2026-09-16 ~23:00 UTC (c378: CONTENTION CENSUS thread
+DONE + the batched-probe build. MAJOR CORRECTION: the camera->IP map
+used since the storm investigation began was WRONG -- exterior_2=.102,
+exterior_5=.105 (config order + live go2rtc API). c377's "ext2 frozen
+19:32Z" claim WITHDRAWN: the freeze was ext5 (.105), and it was a
+watchdog-VISIBLE video+audio stall (restart 22:36:36Z, audio
+recovered after), NOT the silent-freeze class. ext2 (.102) healthy
+all day. Contention candidate SURVIVES with corrected actors: int1
+WRNs on ext3's exact seconds, int1 h21 21-min dead run, ext5 stalls
+at 18:40/19:36 local during ext3 storm activity. Amendment 3
+appended to mechanism v3. dBFS column = fossil (0 for all rows).
+NEW INSTRUMENT: go2rtc /api/streams live producer map via nsenter;
+ext5 producer 3433 created after ext3's 2658 -- producer replacement
+did NOT heal ext5 audio (watchdog did). batched-probe.sh v1.1 built
++ smoke-tested + used throughout: the ssh-per-question burn pattern
+is mechanized away. ~108 tool calls, loop guard fired ONCE (the
+dead-runs.py nohup wait chain) -- down from 150+ and two fires.)
 
-## c378 QUEUE (next cycle)
-0. CLOCK-AUDIT FORK BATCHING (URGENT, c371, NOW TRIPLE-URGENT): this
-   cycle ran 150+ execute_code_local calls AGAIN (loop-chain + 100 +
-   150 warnings). Build the batched probe script (one ssh, many
-   greps, one output block) BEFORE any investigation. Next cycle
-   MUST start with this.
-1. SEG-CENSUS WATCH (standing): hourly fires; read output each cycle.
-   ext2 h22+ = does the producer-audio freeze heal? (falsifier: if
-   still 225/225 dead at h22/h23, the freeze persists; producer
-   replacement needed). ext3 h21+ recovery continues?
-2. CONTENTION CENSUS (new thread, c377): per-camera freeze-onset
-   times vs ext3 WRN-burst timeline. If ext2/int1 freezes cluster
-   during ext3 storm bursts, the contention mechanism is confirmed.
-   Instruments: frigate.db recordings (dBFS column!) + producer.go
-   WRN timeline. The DB's dBFS column may give per-segment audio
-   levels -- check schema first.
+## c379 QUEUE (next cycle)
+0. SEG-CENSUS H22 READ (fires 23:05Z): ext5 recovery confirm (h22
+   should be mostly alive post-22:36Z restart), ext3 continued
+   recovery, int1 h22. One batched-probe call.
+1. EXT5 H19 WINDOW (102 dead, 17:00-18:00 local): no watchdog/WRN
+   event found yet. dead-runs.py nohup may have finished on sophon
+   (/tmp/dead-runs.out) -- read it for run shape; else rerun
+   overnight (it takes ~5min for 3 cams x 4 hours; run nohup + read
+   NEXT cycle, never wait inline).
+2. MECHANISM DOC: amendment 3 landed + pushed. If segcensus h22
+   contradicts (ext5 NOT recovered), amend again.
 3. NOCTURNE PASS WATCH: next fire Wed 09-17 13:00Z. Heal drop-in
    live; expect clean pass or a NEW failure mode. Gate ~1000+
    commits behind; cap 300/pass => ~4 clean passes.
@@ -46,13 +41,22 @@ twice -- batching build is now proven-urgent by this cycle itself.)
 9. SUITE FAILURES (c368): 17 pre-existing. Separate thread.
 10. FIXTURE HYGIENE TEST (Nacho-ratified c371): mktemp-anchored
     test repos + pin test. Build next interactive or cycle.
+11. GO2RTC LIVE-PRODUCER PROBE: wire the /api/streams nsenter probe
+    into fleet-check or segcensus (producer id + audio medias per
+    camera). Small build, high value: makes producer replacement
+    visible longitudinally.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
-- PATH-SHAPE LAW (c377 NEW): before reading "0 results" from a
+- PATH-SHAPE LAW (c377): before reading "0 results" from a
   find/ls as a REAL absence, verify the path shape against a
   KNOWN-GOOD example (list the parent dir first). Zero-padding, case,
   date formats are silent no-match traps. File cousin of the
   empty-grep class (c376): EMPTY OUTPUT IS THE LOOP FUEL.
+- NAME-BEFORE-NARRATIVE LAW (c378 NEW): before attributing an event
+  to a named camera, verify the NAME->IP map against the LIVE system
+  (config order + go2rtc API), not against memory or an older doc.
+  A wrong map survives for days and manufactures false mechanisms
+  (c377's ext2 claim). Verify the LABEL before the STORY.
 - DB-BEFORE-DERIVED (c377): when a derived read (filesystem scan)
   contradicts the primary record (frigate.db recordings table), the
   disagreement is the finding -- check the query before the world.
@@ -77,61 +81,45 @@ twice -- batching build is now proven-urgent by this cycle itself.)
   READ, move it from memory to mechanism -- laws in roadmaps are read
   by a busy mind; laws in hooks are executed by the tool about to do
   the thing. Family: echo-receipt (v4), close-once (hook),
-  history-clock (hook).
+  history-clock (pre-commit).
 - TZ LAW SHARPENED (c359b, APPLIED-AND-BURNED c372 AND AGAIN c374):
   sophon JOURNAL timestamps are LOCAL -03; frigate recording HOUR-DIRS
-  are UTC; frigate container logs are LOCAL. A --since/--until window
-  is parsed in LOCAL time -- a window named in UTC digits can be
-  FUTURE, and a future window is empty by construction. NEW c374
-  corollary: a NARRATIVE built on container-log times inherits the
-  container's LOCAL clock -- reconcile every timestamp against its
-  source clock BEFORE building a story. The v2 mechanism doc died of
-  this law a second time; the recordings (UTC hour-dirs) are the
-  ground truth for freeze windows.
-- LANDING-NOT-RECORD (c358): record BEFORE new threads when budget
-  runs low. c377 corollary: cheap landings make FALSE landings cheap
-  -- verify against primary evidence BEFORE the landing, not after.
-- NIL-CONTENT LANDMINE (c358b): a stream chunk with no :content
-  coerces to "" at the parse layer; (string-blank-p nil) kills the
-  process filter (fork b85fb12 guards).
-- FUTURE-DAY GUARD (c358c): instruments that take a DATE refuse future
-  dates loud (exit 2); an empty verdict for an unhappened day is a
-  fake-clean record by construction.
-- RING-CENSOR LAW (c374): a ring buffer's coverage must be checked
-  before comparing counts across cameras; cameras.log (c281 sink) is
-  a continuous stream, not a ring. c377 corollary: even the continuous
-  sink can MISS events (prudynt logged no session for a live
-  producer) -- the session log is not a complete census of live
-  sessions.
-- CENSUS 3-ANCHOR LAW (c342): census = line-start regex +
-  field-position status check + terminal-suffix extraction; merge
-  log+log.1 deduped, PARSE-only.
-- WRN-IS-NOT-A-CENSUS (c377): a go2rtc WRN is a sparse marker, not a
-  per-death log; counts built from WRN cadence are proxies. The
-  recordings (frigate.db) are the ground truth for deaths; the go2rtc
-  API is the ground truth for what flows now.
-- LAW 50 (c215-c259): an instrument's output has a SCHEMA -- verify the
-  DAY, the COLUMN, the KEY FORMAT, the CLOCK (timezone), the SOCKET,
-  the UNITS, and DELTA-vs-CUMULATIVE. c377 addition: verify the PATH
-  SHAPE.
+  and segcensus labels are UTC. Reconcile the query window against the
+  query clock BEFORE building a narrative on the timestamps.
+- INSTRUMENT-TAX LAW (c378 NEW, B3 data): never wait inline for a
+  sophon python job longer than 30s -- nohup it, read it NEXT cycle.
+  dead-runs.py cost ~13 min of wall (4 timeouts + nohup waits) for
+  marginal data. Predictions underestimate instrument-repair time;
+  add a fixed instrument-tax line to every plan.
+- LAW 50 (c215-c259): an instrument's output has a SCHEMA --
+  verify the DAY, the COLUMN, the KEY FORMAT, the CLOCK (timezone),
+  the SOCKET, the UNITS, and DELTA-vs-CUMULATIVE. c377 addition:
+  verify the PATH SHAPE. c378 addition: verify the NAME->IP MAP
+  (the label before the story).
 - Guard compliance is not compliance (c243/c259/c269): when a guard
   fires, change the QUESTION or stop.
 
-## WORLD STATE (2026-09-16 ~22:00 UTC -- REPLACES all prior blocks)
-- AUDIO NIGHT EVENT (c377): ext2 freeze 19:32Z-open (no WRN, no heal);
-  ext3 dead 19:39-21:37Z then recovered in-session; contention
-  mechanism candidate (same-second WRN pairs, 156 today). Doc
-  amendment 2: knowledge/aria/audio-death-mechanism-v3-2026-09-16.md.
-- PATH-BUG SCAR (c377): night-gap withdrawn; hour dirs are 00-09.
-  Doc: knowledge/aria/segcensus-hourdir-path-scar-2026-09-16.md.
-- SEG-CENSUS PULLER (c373): LIVE. Hourly at :05. Correct all along
-  (date -u +%H is zero-padded). h20: ext2 225/225 dead, ext3 225/225
-  dead. h21: ext2 219/219 dead (still), ext3 recovered 21:37Z.
-- .103 RECONNECT STORM (c374->c377): sessions/day 15/99/182/222.
-  Storm survives nightly 03:00 reboots. Camera-side stall class.
-  TONIGHT: 13 storm sessions continued THROUGH the dead hour; audio
-  recovered without a new session. Onset trigger (Sep 14 02:29 local)
-  UNIDENTIFIED.
+## WORLD STATE (2026-09-16 ~23:00 UTC -- REPLACES all prior blocks)
+- IP MAP CORRECTED (c378): ext2=.102, ext5=.105. All camera-side
+  evidence from c374-c377 needs re-attribution when reused.
+- AUDIO NIGHT EVENT (c377->c378 CORRECTED): ext5 (.105) watchdog-
+  visible stall cascade h21-h22 (producer WRNs 22:30-22:35Z, watchdog
+  restarts 21:40Z + 22:36Z, audio recovered post-restart). ext2
+  (.102) healthy. ext3 (.103) audio dead 19:39-21:37Z then recovered
+  in-session; h21 140 dead recovering; storm continues (522 sessions
+  today). int1 (.201) h21 129 dead (21-min run 18:47-40:07 local).
+- CONTENTION MECHANISM (c378): candidate SURVIVES with corrected
+  actors (ext5/int1 stall around ext3 storm bursts). 134 same-second
+  multi-camera WRN pairs today. Amendment 3 in mechanism v3 doc.
+- PRODUCER-REPLACEMENT-HEALS: now has a counterexample (ext5 3433
+  replaced, audio stayed dead until watchdog restart). Heal path for
+  ext5 = watchdog. ext1 silent freeze (0073) still the only confirmed
+  silent-freeze instance.
+- SEG-CENSUS PULLER (c373): LIVE. Hourly at :05 (23:05Z next). h21:
+  ext2 0 dead, ext3 140, ext5 68, int1 129.
+- .103 RECONNECT STORM (c374->c378): sessions/day 15/99/182/222/522
+  (cameras.log dedup). Storm survives nightly 03:00 reboots. Onset
+  trigger (Sep 14 02:29 local) UNIDENTIFIED.
 - FRIGATE WATCHDOG (c374): ~380 restarts/hour all day (ext4 dial
   crash loop dominates). fps-limit kills: 38 today (ext3 30).
 - NOCTURNE: heal drop-in landed c371; next pass Wed 09-17 13:00Z.
@@ -140,9 +128,9 @@ twice -- batching build is now proven-urgent by this cycle itself.)
 - CLOCK-FABRICATION (c362): guard live, watch clean.
 - STUCK-STAGED RESIDUE (c368): mechanized belt #2d live.
 - CHECKOUT-PUSH GAP: closed c367->c368.
-- FALSIFIERS: Nocturne pass 13:00Z Wed; segcensus hourly (ext2 h22/h23
-  = freeze-persists test); contention census (dBFS column in
-  frigate.db recordings -- check schema first).
+- FALSIFIERS: Nocturne pass 13:00Z Wed; segcensus h22 23:05Z (ext5
+  recovery + ext3 continued recovery); ext5 h19 run shape (nohup
+  pending on sophon /tmp/dead-runs.out).
 - BARE REPO HEALTH: 2 root-owned commit-graph files persist in
   iar-personalization.git (old, from c372 root push). My pushes
   create none (verified c373).
@@ -161,8 +149,8 @@ twice -- batching build is now proven-urgent by this cycle itself.)
   ollama-stream x8, sanitize x7). Fix = separate thread.
 
 ## THREADS (open, no obligation)
-- CONTENTION CENSUS (c377): freeze onsets vs ext3 storm bursts. The
-  DB's dBFS column may make this cheap.
+- EXT5 H19 WINDOW (c378): 102 dead 17:00-18:00 local, no event found.
+  Run shape pending (nohup on sophon).
 - .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?
   pcap or prudynt debug are the remaining instruments.
 - .201 STALL CADENCE (c373): why ~100/day vs 12/8 on identical
@@ -173,8 +161,9 @@ twice -- batching build is now proven-urgent by this cycle itself.)
   ZERO. Watch per-day fire counts; escalate >15%.
 - SUITE FAILURES (c368): 17 pre-existing. Separate cycle.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean.
-- LOOP-GUARD RATE (c363): c377 ran 150+ calls -- batching build is
-  THE first item, proven by three consecutive cycles.
+- LOOP-GUARD RATE (c363): c378 ran ~108 calls, ONE guard fire (the
+  nohup wait chain -- now an INSTRUMENT-TAX law). Batching build
+  DONE; the remaining driver is inline-waiting, mechanized away.
 - CAMERA-BOOT CLOCK (c342->c350): 6 confirmations + c376 corollary.
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
   Nacho's (0062). Boot+2s burst CONFIRMED.
@@ -199,5 +188,6 @@ twice -- batching build is now proven-urgent by this cycle itself.)
 0060, 0062 (amended c359), 0063, 0064, 0065, 0066, 0068 (mechanism
 armed, policy open), 0069, 0073 (amended c372; c374+c376 SUPERSEDE
 the 62-min freeze claim AND the reboot-test -- see mechanism v3 +
-amendments), 0074 (journal flood).
+amendments; c378 adds: IP map corrected, ext5 reclassified),
+0074 (journal flood).
 All human-needed or watch.

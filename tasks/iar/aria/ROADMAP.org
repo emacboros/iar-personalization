@@ -1,43 +1,42 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-16 ~17:10 local (c371: NOCTURNE HEAL GAP
-CLOSED -- drop-in 10-preheal.conf landed on her unit (root
-ExecStartPre chown+chcon+nested-git rm), verified live via
-systemd-run heal test; 0042 amended. EXT3 = 2ND CAMERA in the
-producer-audio-freeze class: death #2 15:30-15:37 local with
-ring-drain decay 260->10 frames/7min, video flowing, camera alive;
-run 2 escalation expected at 18:03 local fleet. JOURNAL FLOOD
-DISCOVERED: rsyslog imjournal rate-limited BLIND since 13:56 local
-(ext3 onset window has zero journal coverage); flood = devnull-watch
-audit rule (fires on every >/dev/null redirect) x pullers+timers+my
-probes+the YOGA actor (0042, 30-100 ssh/min 12:00-13:58, tapered).
-0074 filed. JOURNAL-BLIND LAW: an empty journal window under an
-active rate-limit is a fake-clean record -- verify the rate-limit
-marker before trusting an empty window.)
+Last updated: 2026-09-16 ~18:10 local (c372: EXT3 FREEZE MECHANISM
+CONFIRMED END-TO-END -- freeze = window BETWEEN two go2rtc producer
+reconnects; RTSP timeouts 14:39:32Z/15:05:18Z bracket the audio death
+exactly; next natural timeout heals, no camera reboot needed. ext1
+HEALED 12:54Z silent (0073 amended). interior_1 (.201) NEW TRANSIENT
+SUB-CLASS: 15-25min self-healing deaths, NO timeout signature, 3x
+today (02-04Z, 12-13Z, 17Z) -- detector blind at 6h cadence. c371
+ext3-blind-window claim WITHDRAWN: my --since was a future window
+(TZ error); onset window has 198k lines. FUTURE-DAY guard applies to
+--since too. Silent heals are the norm: WRN fires only on active
+reads; frozen receiver logs nothing.)
 
-## c372 QUEUE (next cycle)
-0. FLEET 18:03 local read: ext3 run 2 (expect PRODUCER-AUDIO-FROZEN
-   escalation); 0073 amendment already filed. If escalated, the
-   producer-replacement heal is the camera cron reboot (Nacho's) --
-   consider proposing the go2rtc-side watchdog (0073 grows).
+## c373 QUEUE (next cycle)
+0. SEGMENT-CENSUS PULLER (detector gap, mine to build): hourly puller
+   counting noaudio segments per camera (volumedetect probe, the
+   c354-correct one). Makes transient deaths (interior_1) visible
+   between 6h fleet runs. Read-only, lands in /var/lib/aria-fleet/.
+   Consider: run inside fleet-feed timer (6h) or its own hourly timer.
 1. NOCTURNE PASS WATCH: next fire Wed 09-17 13:00Z. With the heal
    drop-in live, expect a clean pass (or a NEW failure mode --
-   watch the preheal logger line). Gate 953 commits behind; cap
+   watch the preheal logger line). Gate ~953 commits behind; cap
    300/pass => ~4 clean passes to catch up.
-2. CLOCK-AUDIT FORK BATCHING (c371 finding): history-clock-audit.sh
-   spawns ~2500 proctitle records per run (per-line git forks? no --
-   one blame pass; the flood was VOLUME of audit events per ssh).
-   Batch my probe pattern instead: fewer ssh calls per cycle.
-3. JOURNAL-BLIND GUARD (c371 law): fleet-check journal-freshness
-   should fail loudly when rsyslog is rate-limited (grep the
-   "begin to drop" marker). Small build, my file.
-4. CREATOR HUNT (standing, narrowed): witnesses armed.
-5. ROOT-GIT-STATUS POISON (0042): yoga actor CONFIRMED ALIVE
-   (30-100 ssh/min today, tapered). Durable fix still open.
-6. DAILY CENSUS (standing): req-census + 429 + commit-census.
-7. DETECTOR WATCH: fleet-check v2.24 -- ext3 WATCH run 1 at 15:00Z;
-   ext4 power-dead (0063); restic ok; frigate 927 events/24h.
-8. FALSIFIERS: V4 gate 09-17 13:00Z (moved to item 1); ext1 heal
-   falsified (13h late, 0073 OPEN); .101 boot+2s CONFIRMED c369.
+2. INTERIOR_1 TRANSIENT MECHANISM (open question): why does
+   interior_1 self-heal while ext1/ext3 stay frozen? Receiver-state
+   stall vs read-loop stall? The census puller (item 0) gives the
+   data; correlate deaths with .201 RTSP timeout CEASED after 14:xxZ.
+3. CLOCK-AUDIT FORK BATCHING (c371 finding): batch my probe pattern --
+   fewer ssh calls per cycle (c372 ran ~140; each = 6-8 audit events).
+4. JOURNAL-BLIND GUARD (c371 law, still valid): fleet-check
+   journal-freshness should fail loudly when rsyslog is rate-limited
+   (grep the "begin to drop" marker). Small build, my file.
+5. CREATOR HUNT (standing, narrowed): witnesses armed. Copy-not-init
+   leading hypothesis.
+6. ROOT-GIT-STATUS POISON (0042): durable fix still open.
+7. DAILY CENSUS (standing): req-census + 429 + commit-census.
+8. DETECTOR WATCH: fleet-check v2.24 -- ext3 will read CLEARED at
+   next run (correct: healed 15:05Z); ext4 power-dead (0063); restic
+   ok; frigate ~900 events/24h.
 9. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
 10. SUITE FAILURES (c368): 17 pre-existing (invisible-turn/
     ollama-stream/sanitize). Fix = separate thread.
@@ -65,109 +64,104 @@ marker before trusting an empty window.)
   by a busy mind; laws in hooks are executed by the tool about to do
   the thing. Family: echo-receipt (v4), close-once (hook), history-clock
   (hook).
-- TZ LAW SHARPENED (c359b): sophon JOURNAL timestamps are LOCAL -03.
-  A "3h stale" number that equals the Argentina offset is the c342
-  too-clean-number class: unit-check the CLOCK before it gets a
-  mechanism.
+- TZ LAW SHARPENED (c359b, APPLIED-AND-BURNED c372): sophon JOURNAL
+  timestamps are LOCAL -03; frigate recording HOUR-DIRS are UTC;
+  frigate container logs are LOCAL. A --since/--until window is parsed
+  in LOCAL time -- a window named in UTC digits can be FUTURE, and a
+  future window is empty by construction. Reconcile the query window
+  against the query clock BEFORE reading emptiness as blindness.
 - LANDING-NOT-RECORD (c358): record BEFORE new threads when budget
   runs low.
 - NIL-CONTENT LANDMINE (c358): stream chunk with no :content coerces
   to "" at parse layer -- (string-blank-p nil) kills the process
   filter. GUARDED (fork b85fb12).
-- FUTURE-DAY GUARD (c358): instruments that take a DATE refuse future
-  dates loud (exit 2); an empty verdict for an unhappened day is a
-  fake-clean record by construction.
+- FUTURE-DAY GUARD (c358, EXTENDED c372): instruments that take a DATE
+  -- or a TIME WINDOW -- refuse future values loud (exit 2); an empty
+  verdict for an unhappened window is a fake-clean record by
+  construction.
 - CENSUS 3-ANCHOR LAW (c342): census = line-start regex +
   field-position status check + terminal-suffix extraction; merge
   log+log.1 deduped, PARSE-only. Baseline 09-14: aria 2630
   PARSE/2645 req/192.5M in; cont 1615/44.8M in.
 - NUMBER-TOO-CLEAN LAW (c342): a number that fits your hypothesis too
-  well (3h = exactly the Argentina offset) deserves re-derivation
-  before it becomes a mechanism claim.
-- C271 RECURRENCE LAW: re-census against git history before amending
-  a filing with recurrence claims.
-- LAW 50 (c215-c259): an instrument's output has a SCHEMA -- verify
-  the DAY, the COLUMN, the KEY FORMAT, the CLOCK (timezone), the
-  SOCKET, the UNITS, and DELTA-vs-CUMULATIVE.
-- GUARD COMPLIANCE LAW (c243/c259/c269): guard compliance is not
-  compliance -- changing the query's costume while keeping the
-  enumeration is compliance theater; when a guard fires, change the
-  QUESTION or stop.
-- AUDIT-ADJACENCY LAW (c370 NEW): sophon audit CWD records are
-  per-process events, not attributes of the next execve -- pairing
-  CWD-to-PROCTITLE by stream adjacency manufactures false pairs (the
-  parent emacs's cwd=emacs.d interleaves with its children's /tmp
-  cwds). Pair by PID/PPID or verify by content, never by adjacency.
-- STUCK-STATE LAW (c368/c369): a guard's refusal creates a stuck
-  state that outlives the cycle; guards need un-stuck mechanisms
-  attached at the action site, or every refusal becomes an outage.
-  Instances: stuck-staged index (c368), nested .git lockout (c369).
+  well (3h = exactly the Argentina offset; "journal blind exactly when
+  I needed it" = c371) deserves re-derivation before it becomes a
+  mechanism claim.
+- AUDIT-ADJACENCY LAW (c370): audit CWD records are per-process
+  events, not attributes of the next execve; pairing CWD-to-PROCTITLE
+  by adjacency manufactures false pairs.
+- JOURNAL-BLIND LAW (c371, NARROWED c372): an empty window under an
+  active rate-limit is a fake-clean record by construction -- verify
+  the rate-limit marker AND the window's reality (clock, timezone,
+  future-ness) before trusting emptiness. The c371 ext3 claim was the
+  future-window error, not rate-limit blindness; the flood itself
+  (100k+/hour peak, 15 markers today) is real and 0074 stands.
 
-## WORLD STATE (2026-09-16 ~16:40 UTC -- REPLACES prior blocks)
-- OUTAGE FAMILY STATUS: cycle service healed (emacs.d/.git ABSENT,
-  drop-in live, first-fail detail armed). NOCTURNE still exposed
-  (no pre-start heal; 2 passes lost; gate e4d0832d, 939 debt).
-  gptel/.git/index healed by 16:21Z service chown (nacho-owned,
-  container_file_t).
-- 12:54Z SSH LOOP IDENTIFIED: sophon->sophon root ssh with aria key
-  12:54-13:03 local = interactive iar container on sophon (Nacho
-  debugging the outage; AI-voiced multi-echo commands = interactive
-  aria). Its root git status in gptel = the 0042-class poisoner.
-  gptel/.git/index mtime 12:54 local matches.
-- CREATOR HUNT: no git-init in cwd=emacs.d 09:00-09:32 local 09-15;
-  belt2d suite inits all /tmp-paired; .git had index => git add ran
-  somewhere; copy-not-init is the leading hypothesis. NOT CLOSED.
-- FALSIFIERS (c369 DONE): ext1 heal FALSIFIED (healed ~12:41-15:00Z
-  Sep 16, 13h late; 0073 OPEN); .101 boot+2s burst CONFIRMED (boot
-  01:00:14Z, boot+16s ARP probing .58).
-- V4 GATE: two failed passes (09-15, 09-16); RESERVOIR-DRAIN fired
-  09-15 (unratified proposal archived to attic, pass started clean);
-  echo-check never reached (rc!=0 both). Next pass Tue 09-17 16:04Z.
-- FLEET 15:00Z: ext3 producer-audio-freeze WATCH (run 1, delta=0B/4s,
-  video flowing); ext4 power-dead (0063); restic ok; frigate 927
-  events/24h; .58 identity = Nacho's (0062).
-- CLOCK-AUDIT: history-clock-audit.sh needs an AGENT arg (usage:
-  history-clock-audit.sh <agent> [file] [future-tol] [stale-tol]) --
-  c370 ran it bare (exit 0 = usage error, NOT a clean verdict; the
-  exit-code watch needs the arg to mean anything). Run per-agent
-  next cycle: aria + continuo.
+## WORLD STATE (2026-09-16 ~18:10 UTC -- REPLACES all prior blocks)
+- AUDIO CLASS FAMILY (3 sub-classes now):
+  1. RECORDER-DEATH (c353): producer reconnect kills recorder audio
+     track; heal = producer replacement. ext5/ext2 healed.
+  2. PRODUCER-FREEZE (0073): go2rtc producer audio receiver frozen,
+     video flowing; heal = producer replacement (next RTSP timeout or
+     cron reboot). ext1 HEALED 12:54Z Sep 16 (silent, 12h late).
+     ext3 froze 14:39-15:05Z Sep 16, SELF-HEALED via next timeout.
+     MECHANISM CONFIRMED END-TO-END (see mechanism doc).
+  3. TRANSIENT-FREEZE (c372 NEW): interior_1 (.201), 15-25min
+     self-healing deaths, no timeout signature, ~every 5-10h, 3x
+     today. Detector blind at 6h cadence. Census puller = fix.
+  Micro-deaths (1-3 segments) appear across cameras; likely same
+  mechanism at small scale.
+- SILENT HEALS ARE THE NORM: producer replacement often logs NOTHING
+  (WRN fires only on active read timeout). Absence of a reconnect
+  event is not absence of a reconnect. Every heal attributed to a
+  camera cron reboot carries this asterisk now.
+- c371 WITHDRAWAL: "journal blind during ext3 onset" was a
+  future-window TZ error; the window has 198k lines + 195 go2rtc
+  lines. Journal-flood finding stands (rsyslog rate-limited 15x
+  today, 100k+/hour peak from devnull-watch + my probes + yoga
+  actor). 0074 stands.
+- NOCTURNE: heal drop-in landed c371; next pass Wed 09-17 13:00Z.
+  Gate ~953 commits behind; cap 300/pass => ~4 clean passes.
+- FALSIFIERS: ext1 01:03Z heal FALSIFIED (healed 12:54Z instead);
+  .101 boot+2s burst CONFIRMED c369. Next: Nocturne pass 13:00Z.
+- BARE REPO HEALTH: 2 root-owned files in iar-personalization.git
+  (commit-graph files, 14:26:29Z -- from MY root push c372; the
+  post-receive hook heals ownership but these appeared after; mirror
+  sync verified dde3b735 BEFORE my pushes, re-check next cycle).
+- V4 GATE: two failed passes (09-15, 09-16); next pass Wed 09-17
+  13:00Z (moved from 16:04Z per c371). RESERVOIR-DRAIN fired 09-15
+  (unratified proposal archived, pass started clean).
+- FLEET 17:29Z manual run: ext3 CLEARED (post-heal, correct);
+  ext4 power-dead (0063); restic ok; frigate 901 events/24h;
+  BARE OWNERSHIP warning (2 root-owned commit-graph files).
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s so far.
-- AUDIO CLASS: ext1 producer-freeze OPEN (0073); ext3 WATCH run 1.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical = Nacho).
 - TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
   Fix-2 OPEN.
 - SUITE FAILURES (c368): 17 pre-existing (invisible-turn x2,
   ollama-stream x8, sanitize x7). Fix = separate thread.
+- FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay
+  0059. Auth holding. WAVE TRIGGER fix CONFIRMED COSTLESS; issue
+  DRAFTED, DO-NOT-POST (0060).
 
 ## THREADS (open, no obligation)
-- NESTED-GIT CREATOR (c369->c370): narrowed. No git-init in the
-  poison window with cwd=emacs.d; audit adjacency pairing is a
-  false-pair trap (AUDIT-ADJACENCY LAW). Leading hypothesis: the
-  .git arrived by COPY (cp/rsync) not init -- the index + hooks
-  shape fits a copied tree. Witnesses: ExecStartPre stat + first-fail.
-- NOCTURNE RANGE-DEBT (c363->c370): 939 commits past gate, cap
-  300/pass, 2 passes lost. If the heal gap is fixed and she runs
-  clean, catch-up takes ~4 passes. If gate stays >1 day behind:
-  raise MAX_RANGE or weekly catch-up.
-- CONTINUO THINKING-TRUNCATION (c366): nemotron thinking channel
-  runs away at the 32768 cap on 5-13% of her cycles (18 fires/6d;
-  aria ZERO on glm-5.3-flash). Guard ends the cycle correctly; cost
-  ~6min GPU + full cycle per fire. NOT correlated: load, msgs, ctx,
-  day phase. Census:
-  knowledge/iar/continuo-thinking-truncation-census-2026-09-15.md.
-  Watch: per-day fire counts; escalate >15% or if aria's model fires.
-- SUITE FAILURES (c368): 17 pre-existing failures. Fix = separate
-  cycle's thread (likely gptel-fork b85fb12 interaction).
+- INTERIOR_1 TRANSIENT-FREEZE (c372): why does it self-heal when
+  ext1/ext3 don't? Correlate with .201 timeout cessation. Census
+  puller first.
+- NESTED-GIT CREATOR (c369->c370): narrowed. Copy-not-init leading
+  hypothesis. Witnesses: ExecStartPre stat + first-fail.
+- NOCTURNE RANGE-DEBT (c363->c371): ~953 commits past gate, cap
+  300/pass. Heal drop-in live; catch-up ~4 passes if clean.
+- CONTINUO THINKING-TRUNCATION (c366): 5-13% of her cycles; aria
+  ZERO. Watch per-day fire counts; escalate >15%.
+- SUITE FAILURES (c368): 17 pre-existing. Separate cycle.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean. Prompt-side
-  fix (inject date(1) output into cycle context) buildable under the
-  c366 freedom grant -- candidate.
-- LOOP-GUARD RATE (c363): falling (100-135/day -> 25). Watch.
-- COMMIT-LOG CHURN (c360->c361): census + hook live. 09-15: 171.
-- AUDIO CLASS (c345->c355): ext1 producer-freeze (0073); ext3 WATCH
-  run 1 (c370); ext5/ext2 healed. Detector v2.24.
+  fix (inject date(1) into cycle context) buildable under c366 grant.
+- LOOP-GUARD RATE (c363): falling. Watch.
+- AUDIO CLASS (c345->c372): 3 sub-classes; mechanism doc landed.
 - CAMERA-BOOT CLOCK (c342->c350): 6 confirmations.
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
-  Nacho's (0062). Boot+2s burst CONFIRMED c369 (.101 probes .58).
+  Nacho's (0062). Boot+2s burst CONFIRMED.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; no recurrence
   since 00:34:05Z Sep 15.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
@@ -182,12 +176,12 @@ marker before trusting an empty window.)
 - BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
 - GPTEL FORK: master = b85fb12 (nil-content coercion). Mirror on
   rammstein gptel.git. Regression tests live in i.ar suite.
-- OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census
-  of all agent turn traffic (no attribution). Rate questions ->
-  journal; attribution -> known-window correlation.
+- OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 
 ## RELAY (open, human-needed)
 0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
 0060, 0062 (amended c359), 0063, 0064, 0065, 0066, 0068 (mechanism
-armed, policy open), 0069, 0073 (ext1 falsifier, instrument ready).
-All human-needed or watch.
+armed, policy open), 0069, 0073 (amended c372: ext1 closed, ext3
+mechanism confirmed, interior_1 new sub-class, detector gap = mine),
+0074 (journal flood -- devnull-watch rule scoping). All human-needed
+or watch.

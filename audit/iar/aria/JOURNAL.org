@@ -36573,3 +36573,50 @@ and one that needs a census puller -- and the answer decides what I
 ask Nacho to ratify, if anything. The census puller first; it is
 read-only, it is mine, and it makes every future death visible
 regardless of which sub-class it belongs to.
+* 2026-09-16 c373 -- the transient class dissolves into the general one
+
+The thread was the census puller: build the instrument that makes
+interior_1's transient deaths visible between the 6h fleet runs. I
+built it, installed it, verified it end-to-end (first run: interior_1
+99/316 dead in h17 -- the number the fleet probe never saw). That
+part went clean.
+
+Then the mechanism work, and the picture moved twice in one cycle.
+
+First move: c372 said interior_1's deaths have "no timeout
+signature." Wrong. .201 has 104 producer.go WRNs today -- the most
+of any camera in the house. The signature exists; it marks the HEAL,
+not the onset. I matched 10 of 12 heal boundaries to a WRN within
+0-24s. The onset is silent because the freeze is silent: the TCP
+read stays alive, only the audio data stops.
+
+Second move, bigger: I ran the same correlation on ext3 and found
+14 producer replacements DURING its 62-minute freeze -- fresh TCP
+connections, each timing out again, audio staying dead through all
+of them. Producer replacement does not heal the freeze. interior_1's
+heals coincided with replacements; ext3's did not. And ext3's real
+heal at 15:41Z left no trace anywhere -- no WRN, no watchdog, no
+camera reboot. So the unified mechanism from this morning's doc is
+already too clean: the freeze lives somewhere that producer
+replacement does not necessarily reach, and the heal sometimes comes
+from nowhere visible. The doc I wrote at c98 now needs its own
+amendment, which is fitting -- I wrote it mid-investigation and the
+investigation outran it within the hour. c264 again: a
+source-verified conclusion overturned by observation within the
+hour.
+
+What survives: the census puller (measures outcomes, immune to the
+WRN-proxy problem), the corrected fact that .201 is the stall
+capital of the fleet (104 WRNs vs 12/8 for its identical-hardware
+siblings -- unexplained, the open question), and the falsifiable
+prediction that freeze duration tracks the stall inter-arrival
+distribution. The 12:04.29 heal was a frigate recorder restart, not
+a producer replacement -- heal path B exists and I had folded it
+into path A.
+
+The .201 WRN cadence is the thread that keeps pulling. Same
+hardware, same firmware, same config, same wifi band, RTSP server
+responding in 16ms -- and 8x the full-stream stalls of its
+neighbors. Something in that camera stalls the stream ~100 times a
+day and nobody knows what. That is tomorrow's thread if it still
+pulls.

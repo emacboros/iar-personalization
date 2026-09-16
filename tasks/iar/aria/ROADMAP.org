@@ -1,46 +1,46 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-16 ~16:40 UTC (c370: V4 GATE READ -- Nocturne
-lost 2 passes to the outage family: 09-15 16:04Z exit=1 (preflight
-refuse, nested .git in place); 09-16 16:02Z exit=126 lsetxattr
-gptel/.git/index EPERM = the 0042 root-git-status class at a NEW
-site (gptel). POISONER IDENTIFIED: the 12:54Z outage-debug session
-(sophon->sophon ssh loop, aria key = interactive iar container on
-sophon, Nacho debugging) ran root git status in gptel 15:54Z;
-16:21Z aria-cycle ExecStartPre chown healed it. Nocturne has NO
-pre-start heal of her own; gate at e4d0832d, 939 commits range
-debt. CREATOR HUNT NARROWED: belt2d suite git-inits ALL pair with
-/tmp cwds; NO git-init with cwd=emacs.d in 09:00-09:32 local;
-audit CWD-to-PROCTITLE adjacency pairing is a FALSE-PAIR TRAP
-(parent-process CWD records interleave with child execves); the
-stray .git likely arrived by COPY not init. Witnesses armed.)
+Last updated: 2026-09-16 ~17:10 local (c371: NOCTURNE HEAL GAP
+CLOSED -- drop-in 10-preheal.conf landed on her unit (root
+ExecStartPre chown+chcon+nested-git rm), verified live via
+systemd-run heal test; 0042 amended. EXT3 = 2ND CAMERA in the
+producer-audio-freeze class: death #2 15:30-15:37 local with
+ring-drain decay 260->10 frames/7min, video flowing, camera alive;
+run 2 escalation expected at 18:03 local fleet. JOURNAL FLOOD
+DISCOVERED: rsyslog imjournal rate-limited BLIND since 13:56 local
+(ext3 onset window has zero journal coverage); flood = devnull-watch
+audit rule (fires on every >/dev/null redirect) x pullers+timers+my
+probes+the YOGA actor (0042, 30-100 ssh/min 12:00-13:58, tapered).
+0074 filed. JOURNAL-BLIND LAW: an empty journal window under an
+active rate-limit is a fake-clean record -- verify the rate-limit
+marker before trusting an empty window.)
 
-## c371 QUEUE (next cycle)
-0. NOCTURNE HEAL GAP (c370 NEW): she has no ExecStartPre chown --
-   every root-git poison in any mounted repo kills her next pass.
-   ASK (relay, nacho-arch): add the same root pre-start chown+chcon
-   to the nocturne timer unit (or a shared pre-heal unit both
-   services bind to). Also: her gate is 939 commits behind; two
-   passes lost; range debt grows while she is down.
-1. V4 GATE WATCH (standing): next pass Tue 09-17 16:04Z -- read
-   journalctl "nocturne-digest: " (TZ LAW: sophon journal LOCAL -03).
-   Expect: RANGE-CAP defers again (939 > 300); verify echo-check +
-   receipt paths still clean.
-2. CREATOR HUNT (narrowed c370): the stray .git had an INDEX but no
-   git-init ran in cwd=emacs.d in the window => likely arrived by
-   COPY (cp/rsync of a .git tree) not init. Next sighting: the
-   ExecStartPre stat line (ownership/mtime) + first-fail detail are
-   the witnesses. Do not guess.
-3. ROOT-GIT-STATUS POISON CLASS (0042, c370 recurrence): any root
-   git process touching a mounted checkout poisons it for the next
-   container. 0042 already asks for the durable fix (restorecon/
-   chown at a shared site). Amend 0042 with the gptel sighting
-   (12:54Z debug session -> Nocturne exit 126) rather than filing
-   new.
-4. CLOCK-AUDIT WATCH (standing): exit 0 = clean, exit 1 = NEW.
-5. DETECTOR WATCH: fleet-check v2.24 (ext3 producer-freeze WATCH
-   run 1 at 15:00Z fleet -- 2nd consecutive = PRODUCER-AUDIO-FROZEN;
-   read next fleet run).
-6. DAILY CENSUS (standing): req-census.sh + 429 watch + commit-census.
+## c372 QUEUE (next cycle)
+0. FLEET 18:03 local read: ext3 run 2 (expect PRODUCER-AUDIO-FROZEN
+   escalation); 0073 amendment already filed. If escalated, the
+   producer-replacement heal is the camera cron reboot (Nacho's) --
+   consider proposing the go2rtc-side watchdog (0073 grows).
+1. NOCTURNE PASS WATCH: next fire Wed 09-17 13:00Z. With the heal
+   drop-in live, expect a clean pass (or a NEW failure mode --
+   watch the preheal logger line). Gate 953 commits behind; cap
+   300/pass => ~4 clean passes to catch up.
+2. CLOCK-AUDIT FORK BATCHING (c371 finding): history-clock-audit.sh
+   spawns ~2500 proctitle records per run (per-line git forks? no --
+   one blame pass; the flood was VOLUME of audit events per ssh).
+   Batch my probe pattern instead: fewer ssh calls per cycle.
+3. JOURNAL-BLIND GUARD (c371 law): fleet-check journal-freshness
+   should fail loudly when rsyslog is rate-limited (grep the
+   "begin to drop" marker). Small build, my file.
+4. CREATOR HUNT (standing, narrowed): witnesses armed.
+5. ROOT-GIT-STATUS POISON (0042): yoga actor CONFIRMED ALIVE
+   (30-100 ssh/min today, tapered). Durable fix still open.
+6. DAILY CENSUS (standing): req-census + 429 + commit-census.
+7. DETECTOR WATCH: fleet-check v2.24 -- ext3 WATCH run 1 at 15:00Z;
+   ext4 power-dead (0063); restic ok; frigate 927 events/24h.
+8. FALSIFIERS: V4 gate 09-17 13:00Z (moved to item 1); ext1 heal
+   falsified (13h late, 0073 OPEN); .101 boot+2s CONFIRMED c369.
+9. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
+10. SUITE FAILURES (c368): 17 pre-existing (invisible-turn/
+    ollama-stream/sanitize). Fix = separate thread.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
 - TIMESTAMP-IS-A-CLAIM (c362): a log line's timestamp is a claim, not a

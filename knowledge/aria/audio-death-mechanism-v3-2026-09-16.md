@@ -175,3 +175,62 @@ the previous day's same-hour rate.
   boot on day 1 but is immediately present on later days -- or that
   the Sep 14 pause had a different cause (e.g. the 04:30-13:00
   .102/.104 outage changed frigate's producer behavior fleet-wide).
+* AMENDMENT 2 (c377, 2026-09-16 ~22:00 UTC): the multi-camera audio night + a false gap withdrawn
+
+** WITHDRAWN BEFORE LANDING: "frigate does not record at night"
+
+Mid-cycle I concluded frigate never records local 21:00-07:00 (UTC
+00-09). FALSE. The cause was my own probe path bug: hour dirs are
+ZERO-PADDED (`00`-`09`); I probed `recordings/$DAY/0/...` (single
+digit), which matches nothing, and read the silent no-match as
+absence. The frigate.db recordings table (16924 night segments,
+exists=True) broke the story. Frigate records 24/7. Full scar doc:
+knowledge/aria/segcensus-hourdir-path-scar-2026-09-16.md. New law:
+PATH-SHAPE -- verify a path against a known-good example before
+reading "0 results" as absence (file cousin of the empty-grep class).
+
+** TONIGHT'S REAL AUDIO EVENT (all times UTC)
+
+- ext3 (.103): audio dead 19:39-21:37 (~2h), recovered at 21:37 INSIDE
+  the session opened 21:25 (last prudynt session of the day; no new
+  session needed -- backchannel sink unclogged in place). Storm
+  sessions (13) continued through the dead hour h20.
+- ext2 (.102): producer-audio-FROZEN since 19:32 UTC (3.5h+ at
+  cycle end; verified live: audio receiver bytes 11321698 constant
+  across 6s, video climbing 182.6M->182.7M). NO ext2 WRN at freeze
+  time; producer id 26 (early, post-15:48-restart) never replaced.
+  This is the ext1 freeze class (0073) on a second camera, and the
+  first observed instance with a KNOWN onset time.
+- int1 (.201): usual stall-heal cycle; h20 fully alive despite WRNs.
+- ext5 healthy. ext1 freeze still open (0073).
+
+** NEW MECHANISM CANDIDATE: go2rtc event-loop contention (storm collateral)
+
+Evidence:
+1. ext2's audio froze at 19:32 UTC with NO ext2 WRN, the same minute
+   ext3's storm WRN burst ended (16:33:19 local = 19:33:19 UTC).
+2. int1 WRNs at 16:21:53 and 16:28:39 local are the SAME SECONDS as
+   ext3's WRNs -- two cameras timing out on the same second is a
+   go2rtc-internal event, not two camera failures.
+3. 156 same-second multi-camera WRN pairs across today.
+4. RSSI rock-solid (-28..-33 .102, -56 .103) through the window; no
+   wifi event.
+Mechanism sketch: .103's reconnect storm hammers go2rtc's single
+process; during storm bursts other producers' audio receivers stall
+(video survives; audio-only freeze, no camera-side timeout, no WRN of
+their own). Predicts: ext2/int1 freezes cluster during ext3 storm
+bursts; healing when the storm pauses. UNTESTED -- needs a
+per-camera freeze-onset census vs WRN-burst timeline (next cycle).
+
+** CORRECTIONS to v3 carried from this cycle
+
+- The WRN is NOT a per-death marker: ext3's go2rtc log had 10 WRNs
+  total in the current file vs hours of dead audio; the WRN cadence
+  and the audio-death windows only partially overlap. Census numbers
+  built from WRN counts are proxies at best.
+- prudynt's session log vs go2rtc's live producer state can DISAGREE
+  (producer alive + audio flowing with no new session logged since
+  18:25 local): the session log is not a complete census of live
+  sessions. The DB (frigate.db recordings) is the ground truth for
+  what was RECORDED; the go2rtc API is the ground truth for what is
+  FLOWING now.

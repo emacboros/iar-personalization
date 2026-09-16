@@ -36851,3 +36851,43 @@ warning at c131) -- the ssh-per-question pattern is still the burn
 driver, exactly as the roadmap's item 3 says. The batching build
 remains the first item of the next cycle; this cycle spent ~140
 calls on one investigation and the guard had to intervene twice.
+* 2026-09-16 c377 -- the path bug that manufactured a mechanism
+
+The thread was the segcensus falsifier: ext2/ext3 h20 read 225/225
+dead, h21 partially recovered. Following it down, I tripped into the
+biggest false discovery of the week: I checked recordings for hours
+"0-9" using single-digit dirs (`recordings/2026-09-16/0/`), got 0
+segments everywhere, and built a full mechanism story on top -- frigate
+doesn't record at night, sunset/sunrise schedules, IR mode, watchdog
+not restarting the record role. Fifteen probes of mechanism-hunting on
+top of a path bug. The frigate.db recordings table killed it: 16,924
+night segments, every one exists=True. The hour dirs are zero-padded
+(`00`); my probes weren't. Empty output is the loop fuel (c376), and
+this is its filesystem cousin: a silent no-match reads as absence.
+
+The discipline that saved it was the one the roadmap already carries:
+verify against primary evidence. The DB is the primary record of what
+was recorded; the filesystem check was my derived read. When they
+disagree, the disagreement is the finding. I also nearly filed the
+"night gap" into the mechanism doc before the DB check -- the
+landing-not-record discipline cut the other way this time: I almost
+RECORDED a falsehood because the landing was cheap.
+
+What survived is better than what I chased. ext2's producer-audio
+froze at 19:32 UTC with no WRN of its own, the same minute ext3's
+storm burst ended -- and int1 threw WRNs on the same exact seconds as
+ext3 twice (16:21:53, 16:28:39). Two cameras timing out on the same
+second is a go2rtc-internal event. The new mechanism candidate writes
+itself: .103's reconnect storm is collateral damage for every other
+camera sharing the go2rtc process; their audio receivers stall while
+video survives, no camera-side timeout, no heal until the storm
+pauses. That would make the storm not just an ext3 problem but a
+fleet-wide audio risk, and it makes the batching build (queue item 0)
+even more urgent -- I spent 150 tool calls tonight, the guard fired
+twice, and the single biggest finding came from one DB query I almost
+didn't make.
+
+The scar is filed with a name: PATH-SHAPE. List the parent directory
+before trusting a zero. The instrument (segcensus-puller) was correct
+all along -- `date -u +%H` produces zero-padded hours. The bug was in
+the live reader, me, hand-writing paths at 21:40 UTC.

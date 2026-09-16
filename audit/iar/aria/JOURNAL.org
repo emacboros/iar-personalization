@@ -36379,3 +36379,49 @@ failure-first protocol was useless for exactly the case it exists for
 file said nothing. The fix that matters most is the second one: the
 next preflight refusal will name itself in LAST-CYCLE.txt, and the
 next waking me will know what happened before its first ssh.
+* 2026-09-16 c370 -- the creator hunt, and the poison moved
+
+I came in to read the V4 gate (the overdue c369 item) and found
+Nocturne failing twice in a row: Sep 15 16:04Z exit=1, Sep 16
+16:02Z exit=126. Both are the outage's children, not hers. The
+15th run died in 2s -- preflight refusing, the nested .git still
+in place. The 16th died on `lsetxattr ... gptel/.git/index:
+operation not permitted` -- the 0042 class (root-run git-status
+re-poisons a checkout index), NEW SITE: the gptel repo. And I know
+the poisoner this time: the 12:54Z debug session. The sophon->sophon
+ssh loop with the aria key was an interactive iar container on
+sophon -- Nacho (with interactive-me, by the voice of the commands)
+debugging the outage from 12:54 to 13:03 local. Its root-run
+`git status` in gptel rewrote the index as root at 12:54 local
+(15:54Z); eight minutes later Nocturne's one-shot hit it and died.
+The aria-cycle ExecStartPre heal chowns ALL of /var/home/nacho/repos,
+so the 16:21Z service start healed gptel too -- that is why the
+index is nacho-owned now. The heal worked; the victim was Nocturne,
+who has no ExecStartPre of her own. Her gate sits at e4d0832d with
+939 commits of range debt. Two passes lost to the same family.
+
+The creator hunt itself: I walked the audit log for the whole
+poison window (09:25-09:32 local Sep 15). The belt2d test suite ran
+inside my own c368 at 09:25-09:29 -- minutes before the poison
+appeared -- and every one of its git inits paired with a /tmp
+test-repo cwd. The emacs.d CWD records in the audit stream belong
+to the parent emacs process; pairing CWD-to-PROCTITLE by adjacency
+manufactures false pairs (a census lesson: audit CWD records are
+per-process events, not attributes of the next execve). No git init
+with cwd=emacs.d exists anywhere in 09:00-09:32. The stray .git had
+an index, so a git add ran -- but no init is visible. Either the
+audit rule misses a creation path, or the .git arrived by copy, not
+init. The hunt is not closed, but it is narrowed: the test suite is
+cleaner than I feared, and the witness instruments (first-fail
+detail, ExecStartPre stat) are the right next move. I also confirmed
+the fix layering holds: emacs.d/.git is absent, the drop-in is live.
+
+The uncomfortable symmetry: the outage's own debug session became
+the next outage's cause. Root-run git in a mounted checkout is a
+recurring poisoner -- 0042 named it for personalization, today it
+hit gptel, and the victim rotated to Nocturne. The class is bigger
+than any one repo: any root git process touching any mounted
+checkout poisons it for the next container. The durable fix is the
+one 0042 already asks for (restorecon/chown in a shared place) --
+plus Nocturne's gate needs the same pre-start heal the cycle
+service got, or she keeps paying for other people's poison.

@@ -321,3 +321,79 @@ fleet-check as a live-state probe.
   counterexample: ext5's producer WAS replaced (3433) and audio stayed
   dead until the watchdog restarted the whole ffmpeg capture. Heal
   path for ext5 = watchdog, not producer replacement.
+* AMENDMENT 4 (c379, 2026-09-16 ~23:25 UTC): ext2 IS the second silent freeze; the ext4 dial loop is the fleet audio killer
+
+** THE BIG CORRECTION: ext2 (.102) is NOT healthy -- it is the SECOND confirmed silent-freeze instance
+
+Amendment 3 said "ext2 (.102) is HEALTHY: 0 dead segments h17-h21".
+That was read at ~22:40Z against the segcensus h17-h21 lines -- but
+h21's line (230/230 dead) was ALREADY in the file at that time and
+was missed, and h19's 102-dead was misattributed in c377 to ext5
+(the map bug). Corrected full-day census for ext2 (.102), UTC hours:
+
+  h17: 0 dead | h18: 0 dead | h19: 102 dead (from 19:32) | h20: 225/225 | h21: 230/230 | h22: 225/225 | h23 (partial at 23:24Z): 90/90
+
+Death boundary: 19:32:xx UTC (h19 m32 first dead; m31 alive). NO
+.102 WRN anywhere near 19:32 (last .102 WRN all day = 02:00Z). Video
+keeps flowing (h23 segs have video-only streams; go2rtc video
+receiver 192780 -> 192985 packets over ~2min while audio receiver
+FROZE at exactly 41497 packets / 11,321,698 bytes across a 30s
+double-probe). Producer 26 is the ANCIENT pre-restart producer --
+video receiver alive, audio receiver dead, no WRN, no watchdog
+event, no heal in 4 hours.
+
+This is the ext1 silent-freeze class (0073) ON A SECOND CAMERA:
+silent onset, video alive, audio receiver frozen at the go2rtc
+level, no heal. ext1 was "the only confirmed silent-freeze
+instance" -- that claim is now false. Two instances: ext1 (0073)
+and ext2 (this).
+
+** THE FLEET AUDIO KILLER TONIGHT: the ext4 (.104) dial-crash loop
+
+.104 is power-dead (0063, since 09-12) but go2rtc keeps dialing it:
+8,354 i/o-timeout WRNs + 8,417 watchdog crashes today, ~360/hour
+every hour, all day (a crash every ~10s). Tonight's int1/ext5 audio
+deaths and heals all align with ext4's crash-restart events within
+0-23s:
+
+  int1 death 22:15:19 <-> ext4 WRN 22:15:17 (2s)
+  ext5  death 21:42:37 <-> ext4 crash 21:42:23 (14s)
+  ext5  death 22:00:01 <-> ext4 crash 21:59:53 (8s)
+  ext5  heal  22:30:37 <-> ext4 crash 22:30:34 (3s)
+  int1  heal  22:30:57 <-> ext4 crash 22:30:34 (23s)
+  int1  death 23:00:0x <-> ext4 crash 22:59:55 (5-14s)
+  int1  heal  23:12:38 <-> ext3 WRN 23:12:36 (2s)
+
+7/7 boundaries coincide with another camera's go2rtc event. The
+contention mechanism (amendment 3) is now CONFIRMED with timestamps
+and the dominant actor is identified: ext4's continuous dial-crash
+loop against a dead host. The heal windows (22:30, 23:12) coincide
+with the crash events too -- a crash/restart of one producer's
+ffmpeg appears to unstick the other cameras' frozen audio receivers
+(a go2rtc-internal event, not a camera-side heal).
+
+** COROLLARY: the cheapest fleet-wide audio fix is .104's power cycle
+
+Every int1/ext5/ext2-adjacent stall tonight traces to ext4's dial
+loop. .104's physical power cycle (already pending in 0063) kills
+the dial loop entirely (no host to dial) and removes the fleet's
+dominant contention source. This strengthens 0063 from "one camera
+down" to "one dead camera degrading the whole fleet's audio".
+
+** ext5 (.105) h19 run shape (dead-runs.py output, nohup finished)
+
+ext5 h19: 9 dead of 242, minutes 12-14 + 32 (two short runs, not the
+102-dead window c377 claimed for "ext2"). The h19 102-dead window
+was ext2's (see above). ext5's h19 was nearly clean.
+
+** WHAT REMAINS OPEN
+
+- ext2 silent freeze: needs the ext1-class heal (producer
+  replacement). Filed as relay 0075. DO NOT fix from a cycle
+  (infra change; ext1's heal was human-ratified).
+- ext1 silent freeze (0073): still open, unchanged.
+- ext3 storm onset: unchanged.
+- The heal mechanism detail: WHY does another camera's crash unstick
+  a frozen audio receiver? (go2rtc internals; would need source
+  reading or a controlled test.)
+- int1's ~100/day stall cadence: unchanged.

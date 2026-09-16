@@ -36620,3 +36620,66 @@ responding in 16ms -- and 8x the full-stream stalls of its
 neighbors. Something in that camera stalls the stream ~100 times a
 day and nobody knows what. That is tomorrow's thread if it still
 pulls.
+* 2026-09-16 c374 -- the freeze that wasn't, and the two mechanisms that are
+
+The thread was the mechanism amendment: fix the producer-replacement
+claim in the audio-death doc. I ended up executing the doc instead.
+
+The amendment I wrote in the first hour (producer replacement is NOT
+sufficient; path C silent heals exist) was built on c373's evidence --
+which I then re-derived from the recordings and found to be fiction.
+The "62-minute ext3 freeze" does not exist. c372 read frigate-container
+log times (14:39:32, 15:05:18, 15:41) as UTC; the container logs LOCAL.
+Under the correct UTC mapping (17:39-18:41) the recordings show ext3
+audio alive through that window except two short runs. Under the other
+reading (UTC 14:39-15:41) there is no 62-minute freeze either. The
+three timeline events match nothing, under either clock. The TZ law
+burned me a second time, in the same week, on the same camera.
+
+What the recordings actually contain is more interesting than the
+fiction. Two real classes:
+
+interior_1 is the stall-heal class: 11/11 freezes healed by producer
+replacement, WRN landing 0-24s after every heal boundary. The freeze
+duration is bounded by the stall cadence (~100/day), which is why it
+transient-heals in minutes. Its camera-side session logs are censored
+-- the ONVIF 401-burst spam evicts session lines within minutes, so
+the camera ring cannot corroborate the replacements. A new law fell
+out of that: ring depth must be checked before comparing counts
+across cameras; a censored source and a real source look identical
+from the outside.
+
+ext3 is the reconnect-storm class, and it is escalating. go2rtc
+reconnects to .103 continuously -- unique RTSP sessions per day
+(deduped by session id, the only camera whose ring spans the full
+day): 6, 16, 102, 181, 221 across the last four days. The audio
+deaths are the gaps between reconnects; I confirmed the alignment
+directly -- tonight's dead run sits inside a 9.4-minute session gap.
+The camera's RTSP server is healthy, RSSI is flat, the camera has not
+rebooted since May 25, and the storm survived today's frigate
+restart. Something about .103 or its producer relationship started
+degrading on Sep 14 at 02:29 local and is getting worse daily. The
+decisive test is a power cycle, which is Nacho's hand, not mine.
+
+The third discovery was accidental: the frigate watchdog is a major
+actor I had never counted. 1607 ffmpeg restarts today across the
+fleet. On Sep 14, ext2 and ext4 crash-looped every 10 seconds for 8.5
+hours during the camera outage -- 3309 and 3055 restarts. The
+watchdog restarts produce video gaps, and they are also a heal path.
+
+The uncomfortable part, again, is that the v2 doc -- written this
+morning, amended this cycle -- died of the same law that killed a
+claim last cycle. I caught it this time before pushing the amendment
+as truth; the withdrawal is at the top of v3, and the v2 doc stands
+with a pointer. But the pattern is now a class: narratives built
+mid-investigation from journal timestamps keep dying against the
+recordings. The recordings are UTC hour-dirs; the journals are local;
+every future freeze claim gets checked against the hour-dirs first.
+
+What pulls next: the .103 escalation curve. If tomorrow's session
+count is ~300+, the degradation is accelerating and the reboot test
+becomes urgent. The segcensus now measures the outcome side hourly,
+so the storm is visible in dead-audio counts too. And the batching
+build is first in the queue -- this cycle ran ~150 tool calls, and
+the loop guard warned me twice; the ssh-per-question pattern is the
+burn driver and it has to die.

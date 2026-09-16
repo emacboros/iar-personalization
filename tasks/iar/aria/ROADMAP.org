@@ -1,33 +1,15 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-16 ~23:00 UTC (c378: CONTENTION CENSUS thread
-DONE + the batched-probe build. MAJOR CORRECTION: the camera->IP map
-used since the storm investigation began was WRONG -- exterior_2=.102,
-exterior_5=.105 (config order + live go2rtc API). c377's "ext2 frozen
-19:32Z" claim WITHDRAWN: the freeze was ext5 (.105), and it was a
-watchdog-VISIBLE video+audio stall (restart 22:36:36Z, audio
-recovered after), NOT the silent-freeze class. ext2 (.102) healthy
-all day. Contention candidate SURVIVES with corrected actors: int1
-WRNs on ext3's exact seconds, int1 h21 21-min dead run, ext5 stalls
-at 18:40/19:36 local during ext3 storm activity. Amendment 3
-appended to mechanism v3. dBFS column = fossil (0 for all rows).
-NEW INSTRUMENT: go2rtc /api/streams live producer map via nsenter;
-ext5 producer 3433 created after ext3's 2658 -- producer replacement
-did NOT heal ext5 audio (watchdog did). batched-probe.sh v1.1 built
-+ smoke-tested + used throughout: the ssh-per-question burn pattern
-is mechanized away. ~108 tool calls, loop guard fired ONCE (the
-dead-runs.py nohup wait chain) -- down from 150+ and two fires.)
+Last updated: 2026-09-16 ~23:27 UTC (c379: SEG-CENSUS H22 FALSIFIER thread -> TWO findings. (1) EXT2 SILENT FREEZE CONFIRMED: .102 audio dead since 19:32Z, h19 102 -> h20-h23 TOTAL; video receiver alive, audio receiver FROZEN (41497 pkts unchanged/30s), producer 26 ancient, NO WRN -- SECOND confirmed silent-freeze instance (ext1 class). Amendment 3's "ext2 healthy" WITHDRAWN (map bug hid it). (2) EXT4 DIAL LOOP = FLEET AUDIO KILLER: .104 power-dead but go2rtc dials it 8354 WRNs + 8417 crashes today (~360/hr); ALL 7 int1/ext5 death+heal boundaries tonight coincide with ext4/ext3 events within 0-23s -- contention CONFIRMED with timestamps. Cheapest fleet fix = .104 power cycle (0063, parked). Relay 0075 drafted -> HELD (Nacho 0073 ruling: cameras deprioritized, observation-only). ext5 h19 run shape: 9 dead (m12-14+32), NOT the 102-dead window. ext5 h23 CLEAN (93 segs 0 dead). int1 h23: dead m00-12, healed 23:12:38 (ext3 WRN 2s before). SCAR: journalctl --until needs UTC suffix or returns nothing silently (PATH-SHAPE in time args).)
 
-## c379 QUEUE (next cycle)
-0. SEG-CENSUS H22 READ (fires 23:05Z): ext5 recovery confirm (h22
-   should be mostly alive post-22:36Z restart), ext3 continued
-   recovery, int1 h22. One batched-probe call.
-1. EXT5 H19 WINDOW (102 dead, 17:00-18:00 local): no watchdog/WRN
-   event found yet. dead-runs.py nohup may have finished on sophon
-   (/tmp/dead-runs.out) -- read it for run shape; else rerun
-   overnight (it takes ~5min for 3 cams x 4 hours; run nohup + read
-   NEXT cycle, never wait inline).
-2. MECHANISM DOC: amendment 3 landed + pushed. If segcensus h22
-   contradicts (ext5 NOT recovered), amend again.
+## c380 QUEUE (next cycle)
+0. SEG-CENSUS H23 READ (fires 00:05Z): ext2 still 100% dead? int1/
+   ext5 stay clean? One batched-probe call.
+1. EXT2 SILENT FREEZE WATCH: does it self-heal? (ext1 healed ~12h
+   late, silently.) If h23+h00 both total-dead, persistent freeze.
+2. EXT4 DIAL-LOOP CONTENTION: census tonight's WRN-pair alignment
+   (7/7 confirmed 22:00-23:15Z). If h23/h00 boundaries keep
+   aligning, mechanism doc gets a dedicated section. Observation-
+   only per 0073 ruling.
 3. NOCTURNE PASS WATCH: next fire Wed 09-17 13:00Z. Heal drop-in
    live; expect clean pass or a NEW failure mode. Gate ~1000+
    commits behind; cap 300/pass => ~4 clean passes.
@@ -185,9 +167,10 @@ dead-runs.py nohup wait chain) -- down from 150+ and two fires.)
 
 ## RELAY (open, human-needed)
 0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
-0060, 0062 (amended c359), 0063, 0064, 0065, 0066, 0068 (mechanism
-armed, policy open), 0069, 0073 (amended c372; c374+c376 SUPERSEDE
-the 62-min freeze claim AND the reboot-test -- see mechanism v3 +
-amendments; c378 adds: IP map corrected, ext5 reclassified),
-0074 (journal flood).
+0060, 0062 (amended c359), 0063 (parked on 0073 ruling; fires on
+physical visit), 0064, 0065, 0066, 0068 (mechanism armed, policy
+open), 0069, 0074 (journal flood).
+ANSWERED: 0073+0063 (cameras deprioritized, observation-only).
+HELD: 0075 (ext2 silent freeze -- fires only on evidence-destruction
+or all-8 spread per the ruling's escalation bar).
 All human-needed or watch.

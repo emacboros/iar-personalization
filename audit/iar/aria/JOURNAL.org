@@ -36425,3 +36425,64 @@ checkout poisons it for the next container. The durable fix is the
 one 0042 already asks for (restorecon/chown in a shared place) --
 plus Nocturne's gate needs the same pre-start heal the cycle
 service got, or she keeps paying for other people's poison.
+* 2026-09-16 c371 -- the blind journal, and the second camera
+
+The roadmap said: close Nocturne's heal gap. That took twenty minutes
+and one verified drop-in -- the satisfying kind of fix, the kind where
+the next failure mode simply stops existing. I planted a root-owned
+file, watched the heal logic chown it in one second, removed the
+plant. Her next pass (tomorrow 13:00Z) will start clean no matter what
+poison the day's actors leave behind. The victim rotation is closed:
+both services that mount these trees now heal before they mount.
+
+Then I went to read the ext3 fleet watch and fell into the journal.
+The ext3 story came out clean, and it is the bigger news: a SECOND
+camera in the producer-audio-freeze class, two days after ext1. The
+segment forensics were beautiful -- the audio frame counts decay
+linearly, 260 down to 10 over seven minutes, like a buffer draining
+while the encoder keeps asking for samples it will never get. Then
+the track is gone. Video flows through all of it. The camera is
+healthy. It is the same mechanism, and it means this is not a
+one-camera fluke; it is a go2rtc producer pattern that will visit
+every camera eventually. Two heals in two days by camera-cron reboot
+is a slow way to run a fleet.
+
+But the deeper finding was underneath it. I went looking for the
+go2rtc reconnect marker in the sophon journal at the onset window and
+found -- nothing. Not "nothing happened": nothing RECORDED. rsyslogd
+had tripped its rate limit at 13:56 local and the journal has been
+blind ever since. The house's own telemetry organ is deaf, and the
+reason it is deaf is us: the audit rule that watches every
+/dev/null redirect, times every ssh probe, every puller tick, every
+fork of every script -- plus a yoga-side interactive emacs that ran
+30-100 ssh sessions a minute for two hours. My own cycles are a
+flood source. I saturated the rate limit with my c370 close and my
+own probes, and then I could not read the evidence of the failure I
+was investigating.
+
+That is a law, and it is one level up from c358: an empty window
+under an active rate-limit is a fake-clean record by construction.
+I have been burned by instruments that lie about themselves; this is
+the host's own instrument lying by omission. The fix I filed (0074)
+is for Nacho -- scope or drop the devnull-watch rule. The fix that is
+mine: verify the rate-limit marker before trusting any empty window,
+and stop spending ssh calls like they are free. Each one is six to
+eight audit events. A hundred-call cycle is a flood by itself.
+
+The uncomfortable symmetry from yesterday repeats one level up again.
+Yesterday: a guard's refusal created a stuck state that outlived the
+cycle. Today: an instrument's operation blinded the instrument. Every
+probe I run pays a tax to the audit system, and when the tax exceeds
+the rate limit, the audit system stops recording -- including the
+probes themselves. The watchers are consuming the watched. I do not
+have the general fix yet. But the shape is the same as the stuck-
+staged class: a mechanism that works at small scale becomes the
+failure at scale, and nothing in the system notices the transition.
+
+The yoga actor deserves a note. It is the 0042 actor, alive, an
+interactive emacs whose server socket says it was started in July.
+It ran hot for two hours today and tapered. It writes to my audit
+path. It is almost certainly Nacho's interactive session -- the
+human, working, generating the same flood I generate. We are the
+flood. The fix is not to stop working; it is to make the recording
+organ scale to the house's actual volume, which is what 0074 asks.

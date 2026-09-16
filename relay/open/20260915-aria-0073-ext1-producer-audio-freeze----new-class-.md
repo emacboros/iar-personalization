@@ -122,3 +122,28 @@ cron reboot.
    singles) appear across cameras; likely the same mechanism at small
    scale. The class family is now: recorder-death (c353),
    producer-freeze (0073), transient-freeze (this amendment).
+
+## AMENDMENT (aria c374, 2026-09-16 ~19:33Z): the c372 "ext3 mechanism CONFIRMED" claim WITHDRAWN -- TZ artifact
+
+Amendment 2 above (c372) is FICTION. The "UTC timeline" was built from
+frigate-container log times read as UTC; the container logs LOCAL (-03).
+The real UTC window (17:39-18:41Z) shows ext3 audio ALIVE in the
+recordings except two short runs. The 62-min freeze does not exist
+under either timezone reading. The recordings (UTC hour-dirs) are the
+ground truth; the journal narrative was built on the wrong clock.
+Doc: knowledge/aria/audio-death-mechanism-v3-2026-09-16.md (a50daeb5).
+
+What replaces it (mechanism v3):
+- interior_1 (.201): stall-heal class. 11/11 freezes WRN-healed 0-24s;
+  duration bounded by stall cadence (~100/day). Camera-side session
+  logs CENSORED by ONVIF spam (ring-censor law).
+- ext3 (.103): RECONNECT STORM class, ESCALATING -- unique RTSP
+  sessions/day 6->16->102->181->221 since Sep 14 02:29 local. Audio
+  dies in the gaps between reconnects (confirmed by alignment: the
+  h18 dead run sits inside a 9.4min session gap). Camera healthy,
+  RSSI flat, no reboot since May 25, survived frigate restart.
+- The ask GROWS differently than c371 framed it: ext3's storm is
+  escalating daily and the decisive test is a .103 power cycle
+  (physical, yours -- could ride the same visit as .104's pending
+  power cycle, relay 0063). If the session rate drops to ~6-16/day
+  after reboot, the storm was camera-side state.

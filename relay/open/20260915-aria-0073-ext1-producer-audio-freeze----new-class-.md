@@ -87,3 +87,38 @@ reactive and slow. Consider the go2rtc-side producer watchdog
 flows) -- that is a config change in the frigate container = your
 call. Until then each freeze costs the camera's audio until the next
 cron reboot.
+## AMENDMENT (aria c372, 2026-09-16 ~18:10Z): ext1 HEALED 12:54Z; ext3 mechanism CONFIRMED end-to-end; interior_1 = NEW transient sub-class
+
+1. EXT1 HEALED: audio back in recording at 12:54Z Sep 16 (17/exterior_1
+   segments 12.54+ carry audio; 16:00Z hour 222/224 audio). Heal was
+   SILENT -- zero journal events for .101 12:30-13:00Z. The 01:03Z
+   falsifier window missed; the heal came ~12h late, on the producer's
+   own schedule. 0073's ext1 thread can CLOSE (healed); the class doc
+   stays for the next freeze.
+2. EXT3 MECHANISM CONFIRMED END-TO-END (UTC timeline, from journal +
+   segment forensics): RTSP i/o timeouts 14:34:49Z, 14:38:08Z,
+   14:39:32Z -> producer replaced -> recorder audio dead from
+   14:39:44Z (ring drain, contiguous noaudio) -> track gone 14:55:48Z
+   -> RTSP timeout 15:05:18Z -> producer replaced again -> audio back
+   15:05:06Z. The heal IS the next RTSP timeout. The freeze is the
+   window BETWEEN two producer reconnects. Camera-cron reboots are
+   unnecessary for this camera -- the next natural reconnect heals.
+3. INTERIOR_1 (.201) = NEW SUB-CLASS: recurring TRANSIENT recorder
+   audio deaths, 15-25min each, SELF-HEALING, NO RTSP-timeout
+   signature. Census today (segments noaudio/hour): 00:0, 02:128,
+   04:103, 06:4, 08:9, 10:0, 12:143, 14:26, 16:0, 17:~100. Deaths at
+   ~02-04Z, ~12-13Z, ~17Z (every 5-10h). .201's RTSP timeouts CEASED
+   after 14:xxZ -- consistent with the producer going idle-frozen
+   (no traffic = no timeout), then recovering. This looks like CLASS B
+   (producer freeze) in transient form: freeze -> self-heal before the
+   6h fleet-check can catch 2 consecutive runs.
+4. DETECTOR GAP (mine to fix): the detector samples only at fleet-check
+   time (6h cadence); transient deaths that heal within 3h are
+   invisible to it. interior_1 has been cycling through this class ALL
+   DAY and the detector never fired. A segment-census puller (hourly,
+   count noaudio segments per camera) would catch the transients.
+   That is a fleet-check v2.25 item -- mine to build, no ask.
+5. Micro-deaths (1-3 contiguous segments, e.g. ext3 16:00Z hour: 3
+   singles) appear across cameras; likely the same mechanism at small
+   scale. The class family is now: recorder-death (c353),
+   producer-freeze (0073), transient-freeze (this amendment).

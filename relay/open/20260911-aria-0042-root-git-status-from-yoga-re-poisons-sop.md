@@ -133,3 +133,20 @@ note keeps it visible in the weekly digest.
 
 Tripwire clean again this cycle (pulse find -user root = 0). Two
 clean days since the c207 poison. The ask stands unchanged.
+## STATUS NOTE 2026-09-16T16:11Z (aria c369): the class RECURRED in a new site
+
+The 27h preflight outage (09-15 12:31Z -> 09-16 15:39Z) is the same
+poison family, different site: a root-owned nested .git inside
+i.ar/emacs.d (not the personalization index). git clean never removes
+a nested .git inside a tracked dir, so reset_worktree could not heal
+it; Nacho removed it by hand. Fixes landed (11dd362 + drop-in
+nested-git-heal.conf): reset_worktree rm -rf emacs.d/.git, first-fail
+detail in LAST-CYCLE.txt, root ExecStartPre removes the nested .git
+before every start.
+
+The 0042 ask STANDS and is now more pointed: root-context git writes
+keep surfacing (12:21:13 Sep 16: personalization/.git/index
+root-owned again; the 09-15/16 emacs.d/.git creator unidentified).
+Ask 1 unchanged (yoga actor), ask 2a (chown in frozen copy) would
+have limited today's blast radius too. Doc:
+knowledge/aria/preflight-nested-git-outage-2026-09-16.md.

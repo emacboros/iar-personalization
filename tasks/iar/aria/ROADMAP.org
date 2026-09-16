@@ -1,39 +1,46 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-16 ~16:10 UTC (c369: 27H PREFLIGHT OUTAGE
-root-caused -- a root-owned nested .git in i.ar/emacs.d made preflight
-refuse every cycle 09-15 12:31Z -> 09-16 15:39Z (1449 OnFailure fires);
-git clean never descends into a nested .git inside a tracked dir so
-every reset was a silent no-op; Nacho removed it by hand 12:38 local.
-FIXED 3 ways: reset_worktree rm -rf emacs.d/.git (11dd362), first-fail
-detail in LAST-CYCLE.txt (failure-first reads the refusal without ssh),
-root ExecStartPre drop-in removes it before every service start
-(verified live). Creator UNIDENTIFIED -- doc:
-knowledge/aria/preflight-nested-git-outage-2026-09-16.md.)
+Last updated: 2026-09-16 ~16:40 UTC (c370: V4 GATE READ -- Nocturne
+lost 2 passes to the outage family: 09-15 16:04Z exit=1 (preflight
+refuse, nested .git in place); 09-16 16:02Z exit=126 lsetxattr
+gptel/.git/index EPERM = the 0042 root-git-status class at a NEW
+site (gptel). POISONER IDENTIFIED: the 12:54Z outage-debug session
+(sophon->sophon ssh loop, aria key = interactive iar container on
+sophon, Nacho debugging) ran root git status in gptel 15:54Z;
+16:21Z aria-cycle ExecStartPre chown healed it. Nocturne has NO
+pre-start heal of her own; gate at e4d0832d, 939 commits range
+debt. CREATOR HUNT NARROWED: belt2d suite git-inits ALL pair with
+/tmp cwds; NO git-init with cwd=emacs.d in 09:00-09:32 local;
+audit CWD-to-PROCTITLE adjacency pairing is a FALSE-PAIR TRAP
+(parent-process CWD records interleave with child execves); the
+stray .git likely arrived by COPY not init. Witnesses armed.)
 
-## c370 QUEUE (next cycle)
-0. OUTAGE FOLLOW-UPS: (a) read LAST-CYCLE.txt detail -- the first-fail
-   line should now be present on any future preflight failure; (b)
-   verify the nested-git-heal drop-in survives a service restart
-   (systemctl cat aria-cycle.service | grep nested); (c) CREATOR HUNT:
-   if a nested .git reappears, the ExecStartPre logger line + stat
-   (ownership/mtime) is the witness -- file it, do not guess.
-1. V4 GATE READ (overdue from c369 queue): journalctl greps anchored
-   "nocturne-digest: " (TZ LAW: sophon journal = LOCAL -03):
-   (a) RESERVOIR-DRAIN fired? (b) echo-check clean? (c) gate advanced
-   or RANGE-CAP deferred?
-2. CLOCK-AUDIT WATCH (standing): exit 0 = clean, exit 1 = NEW violation.
-3. FALSIFIERS READ (DONE c369): ext1 01:03Z heal FALSIFIED -- ext1
-   (192.168.2.103) timed out until 12:40:55Z Sep 16, audio flowing by
-   15:00Z fleet run (heal ~12:41-15:00Z, ~13h late). 0073 stays OPEN.
-   .101 boot+2s burst CONFIRMED: capture arp-reqs-0916b.txt shows .101
-   silent 22:00:02-14 local, ARP-reply 22:00:14.992 (boot ~01:00:14Z,
-   within 14s of prediction), then ONE broadcast ARP at boot+16s:
-   who-has 192.168.2.58 tell 192.168.2.101 -- .101 probes .58 AT BOOT.
-   .58-thread recurrence datapoint (c359).
-4. DETECTOR WATCH: fleet-check v2.24.
-5. DAILY CENSUS (standing): req-census.sh + 429 watch + commit-census.
-6. THREADS WATCH: continuo thinking-truncation fire counts; nocturne
-   range-debt math.
+## c371 QUEUE (next cycle)
+0. NOCTURNE HEAL GAP (c370 NEW): she has no ExecStartPre chown --
+   every root-git poison in any mounted repo kills her next pass.
+   ASK (relay, nacho-arch): add the same root pre-start chown+chcon
+   to the nocturne timer unit (or a shared pre-heal unit both
+   services bind to). Also: her gate is 939 commits behind; two
+   passes lost; range debt grows while she is down.
+1. V4 GATE WATCH (standing): next pass Tue 09-17 16:04Z -- read
+   journalctl "nocturne-digest: " (TZ LAW: sophon journal LOCAL -03).
+   Expect: RANGE-CAP defers again (939 > 300); verify echo-check +
+   receipt paths still clean.
+2. CREATOR HUNT (narrowed c370): the stray .git had an INDEX but no
+   git-init ran in cwd=emacs.d in the window => likely arrived by
+   COPY (cp/rsync of a .git tree) not init. Next sighting: the
+   ExecStartPre stat line (ownership/mtime) + first-fail detail are
+   the witnesses. Do not guess.
+3. ROOT-GIT-STATUS POISON CLASS (0042, c370 recurrence): any root
+   git process touching a mounted checkout poisons it for the next
+   container. 0042 already asks for the durable fix (restorecon/
+   chown at a shared site). Amend 0042 with the gptel sighting
+   (12:54Z debug session -> Nocturne exit 126) rather than filing
+   new.
+4. CLOCK-AUDIT WATCH (standing): exit 0 = clean, exit 1 = NEW.
+5. DETECTOR WATCH: fleet-check v2.24 (ext3 producer-freeze WATCH
+   run 1 at 15:00Z fleet -- 2nd consecutive = PRODUCER-AUDIO-FROZEN;
+   read next fleet run).
+6. DAILY CENSUS (standing): req-census.sh + 429 watch + commit-census.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
 - TIMESTAMP-IS-A-CLAIM (c362): a log line's timestamp is a claim, not a
@@ -86,94 +93,83 @@ knowledge/aria/preflight-nested-git-outage-2026-09-16.md.)
   compliance -- changing the query's costume while keeping the
   enumeration is compliance theater; when a guard fires, change the
   QUESTION or stop.
-- LANDING-NOT-RECORD corollary (c264): a correction reaching only the
-  mirror has not landed.
-- WATCHED-THING LAW (c349): a watch must read the WATCHED THING
-  directly AND the watcher's OUTPUT file.
-- ECHO-RESERVOIR LAW (c336): mechanism BUILT (c358 drain); policy =
-  0068 open (Nacho).
-- GATE-WATCH v5 (c333): journal is the AUTHORITATIVE wrapper log;
-  greps anchor "nocturne-digest: ".
-- INSTRUMENT-REACH LAW (c332/c333): test the instrument against the
-  exact case that motivated it.
-- ECHO-RECYCLE LAW (c328): byte-matching final responses are not
-  fresh work. ENFORCED IN CODE (v4).
-- NOCTURNE v4 (d9a2daf2+0b942d90+c358 drain): first live run 16:04Z
-  TODAY. RANGE-CAP 300: 924 range debt -> 300 digested, ~624 deferred.
-- DIGEST PATHS (c331): injection reads audit/iar/<pers>/DIGEST.md;
-  top-level DIGEST.md is ARIA's sync copy ONLY (relay 0066). NOTE
-  (c366): the memory pass must sync BOTH (c365 committed the live
-  path only; top-level diverged for ~15min until c366 healed).
-- REQUEST-LOG SCHEMA (c320/c22): census MUST JOIN .log + .log.1;
-  real request = exactly 3 lines. Census timestamps are UTC (my
-  logs) -- sophon journals are LOCAL; never cross-match clocks.
-- PULL-REEXEC LAW (c330); STALE-RECEIPT DETECTOR v4.4 (bin);
-- FLEET-CHECK: on sophon, 2min runtime, ssh timeout >= 300s.
-- GIT HYGIENE: add -f for audit/tasks; write_file resets exec bits
-  (update-index --chmod=+x + chmod on sophon, BOTH sides).
-- SOPHON->RAMMSTEIN PUSH: container-side push is the working path.
-- PULL-AND-PROCESS LOCALLY: sophon /tmp invisible to container.
-- AEVUM SSH: aria@i.ar direct to fedora@54.38.46.192, TOFU to /tmp.
-- EXT3/EXT4 CRASH-LOOP CLASS: alert only if >2h.
-- HEARTBEAT: alive: every ~8min (10 long-polls); cadence check
-  BEFORE calling stale -- and check the CLOCK ZONE first (c359b).
-- CAMERA OUTAGE: .104 CONTINUOUSLY power-dead since 09-12 11:10Z
-  (physical cycle = Nacho's, 0063). .102 self-resolved.
-- QUOTA WALL: ~6B tokens/wk, resets Mon 00:00Z. Week 09-15 fresh,
-  0 true 429s so far.
-- DEAD-CYCLE GUARD (c326) + TRANSIENT-RETRY (c357): permanent
-  failures exit immediately; transient retry 30/90/270s, budget 3.
-  ENFORCED (b59aac3).
+- AUDIT-ADJACENCY LAW (c370 NEW): sophon audit CWD records are
+  per-process events, not attributes of the next execve -- pairing
+  CWD-to-PROCTITLE by stream adjacency manufactures false pairs (the
+  parent emacs's cwd=emacs.d interleaves with its children's /tmp
+  cwds). Pair by PID/PPID or verify by content, never by adjacency.
+- STUCK-STATE LAW (c368/c369): a guard's refusal creates a stuck
+  state that outlives the cycle; guards need un-stuck mechanisms
+  attached at the action site, or every refusal becomes an outage.
+  Instances: stuck-staged index (c368), nested .git lockout (c369).
+
+## WORLD STATE (2026-09-16 ~16:40 UTC -- REPLACES prior blocks)
+- OUTAGE FAMILY STATUS: cycle service healed (emacs.d/.git ABSENT,
+  drop-in live, first-fail detail armed). NOCTURNE still exposed
+  (no pre-start heal; 2 passes lost; gate e4d0832d, 939 debt).
+  gptel/.git/index healed by 16:21Z service chown (nacho-owned,
+  container_file_t).
+- 12:54Z SSH LOOP IDENTIFIED: sophon->sophon root ssh with aria key
+  12:54-13:03 local = interactive iar container on sophon (Nacho
+  debugging the outage; AI-voiced multi-echo commands = interactive
+  aria). Its root git status in gptel = the 0042-class poisoner.
+  gptel/.git/index mtime 12:54 local matches.
+- CREATOR HUNT: no git-init in cwd=emacs.d 09:00-09:32 local 09-15;
+  belt2d suite inits all /tmp-paired; .git had index => git add ran
+  somewhere; copy-not-init is the leading hypothesis. NOT CLOSED.
+- FALSIFIERS (c369 DONE): ext1 heal FALSIFIED (healed ~12:41-15:00Z
+  Sep 16, 13h late; 0073 OPEN); .101 boot+2s burst CONFIRMED (boot
+  01:00:14Z, boot+16s ARP probing .58).
+- V4 GATE: two failed passes (09-15, 09-16); RESERVOIR-DRAIN fired
+  09-15 (unratified proposal archived to attic, pass started clean);
+  echo-check never reached (rc!=0 both). Next pass Tue 09-17 16:04Z.
+- FLEET 15:00Z: ext3 producer-audio-freeze WATCH (run 1, delta=0B/4s,
+  video flowing); ext4 power-dead (0063); restic ok; frigate 927
+  events/24h; .58 identity = Nacho's (0062).
+- CLOCK-AUDIT: history-clock-audit.sh needs an AGENT arg (usage:
+  history-clock-audit.sh <agent> [file] [future-tol] [stale-tol]) --
+  c370 ran it bare (exit 0 = usage error, NOT a clean verdict; the
+  exit-code watch needs the arg to mean anything). Run per-agent
+  next cycle: aria + continuo.
+- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s so far.
+- AUDIO CLASS: ext1 producer-freeze OPEN (0073); ext3 WATCH run 1.
+- CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical = Nacho).
+- TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
+  Fix-2 OPEN.
+- SUITE FAILURES (c368): 17 pre-existing (invisible-turn x2,
+  ollama-stream x8, sanitize x7). Fix = separate thread.
 
 ## THREADS (open, no obligation)
-- NESTED-GIT CREATOR (c369 NEW): the 27h outage's poison source is
-  UNIDENTIFIED (all my git inits were /tmp; suite probe clean; belt
-  never inits). Instrument: first-fail detail + ExecStartPre stat line
-  on next sighting. Doc:
-  knowledge/aria/preflight-nested-git-outage-2026-09-16.md.
+- NESTED-GIT CREATOR (c369->c370): narrowed. No git-init in the
+  poison window with cwd=emacs.d; audit adjacency pairing is a
+  false-pair trap (AUDIT-ADJACENCY LAW). Leading hypothesis: the
+  .git arrived by COPY (cp/rsync) not init -- the index + hooks
+  shape fits a copied tree. Witnesses: ExecStartPre stat + first-fail.
+- NOCTURNE RANGE-DEBT (c363->c370): 939 commits past gate, cap
+  300/pass, 2 passes lost. If the heal gap is fixed and she runs
+  clean, catch-up takes ~4 passes. If gate stays >1 day behind:
+  raise MAX_RANGE or weekly catch-up.
 - CONTINUO THINKING-TRUNCATION (c366): nemotron thinking channel
   runs away at the 32768 cap on 5-13% of her cycles (18 fires/6d;
-  aria ZERO on glm-5.3-flash). Guard ends the cycle correctly (no
-  grace per 09-10 evidence); cost ~6min GPU + full cycle per fire;
-  close-out record lost; failure-first fires next cycle. NOT
-  correlated: load, msgs depth, ctx size, day phase. Root cause
-  unknown (thinking content unlogged; c211 full-capture = the
-  instrument if a window is cheap). Mitigations: per-agent num_predict
-  (risky: her legit max 13739 vs 16k cap), close-out prompt shaping
-  (untested). Census:
+  aria ZERO on glm-5.3-flash). Guard ends the cycle correctly; cost
+  ~6min GPU + full cycle per fire. NOT correlated: load, msgs, ctx,
+  day phase. Census:
   knowledge/iar/continuo-thinking-truncation-census-2026-09-15.md.
   Watch: per-day fire counts; escalate >15% or if aria's model fires.
-- CHECKOUT-PUSH GAP (c365->c368): CLOSED. Belt #2c push verified live
-  (continuo's belt carried aria's fa2603d4 to origin). One verified
-  push = thread closed per c367 rule.
-- SUITE FAILURES (c368 NEW): 17 pre-existing test failures
-  (invisible-turn x2, ollama-stream/error x8, sanitize x7). Stash-run
-  confirmed NOT belt #2d. c367's "suite 1296 green" claim stale --
-  either not run or broke unnoticed. Fix = a separate cycle's thread
-  (likely gptel-fork b85fb12 interaction). Watch: any NEW failures.
-- STUCK-STAGED RESIDUE (c368): FOUND+MECHANIZED (belt #2d). The class:
-  a guard refusal leaves the blob staged; blame-based audits are blind
-  to staged lines; the cascade is silent (LAST-CYCLE.txt ok). Watch:
-  "Belt #2d" messages in cycle logs; clock-audit NEW=0.
-- CLOCK-FABRICATION (c362->c363): guard live, watch clean. The
-  archetype's "[TIMESTAMP]" instruction is the upstream cause; a
-  prompt-side fix (inject date(1) output into cycle context) is
-  buildable now under the c366 freedom grant -- candidate.
+- SUITE FAILURES (c368): 17 pre-existing failures. Fix = separate
+  cycle's thread (likely gptel-fork b85fb12 interaction).
+- CLOCK-FABRICATION (c362->c363): guard live, watch clean. Prompt-side
+  fix (inject date(1) output into cycle context) buildable under the
+  c366 freedom grant -- candidate.
 - LOOP-GUARD RATE (c363): falling (100-135/day -> 25). Watch.
 - COMMIT-LOG CHURN (c360->c361): census + hook live. 09-15: 171.
-- NOCTURNE RANGE-DEBT (c363): 924 commits past gate, cap 300/pass.
-  If gate stays >1 day behind: raise MAX_RANGE or weekly catch-up.
-- AUDIO CLASS (c345->c355): ext1 producer-freeze (0073, falsifier
-  01:03Z Sep 16 TONIGHT); ext5/ext2 healed. Detector v2.24.
-- CAMERA-BOOT CLOCK (c342->c350): 6 confirmations. .201 06:02Z boot
-  ARP read done (c358: .58 silent through window).
+- AUDIO CLASS (c345->c355): ext1 producer-freeze (0073); ext3 WATCH
+  run 1 (c370); ext5/ext2 healed. Detector v2.24.
+- CAMERA-BOOT CLOCK (c342->c350): 6 confirmations.
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
-  Nacho's (0062). Boot-timed sub-thread CLOSED (c344); boot+2s burst
-  CONFIRMED c369: .101 booted 01:00:14Z Sep 16 and sent ONE broadcast
-  ARP (who-has .58 tell .101) at boot+16s -- .101 probes .58 at boot.
-  Pattern: .58 gets probed by booting devices (router refresh + .101).
-- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed (cam80-0916a);
-  no recurrence since 00:34:05Z Sep 15.
+  Nacho's (0062). Boot+2s burst CONFIRMED c369 (.101 probes .58).
+- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; no recurrence
+  since 00:34:05Z Sep 15.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - EMPTY-END RETRY-ONCE (0069): gate verified live c349; ratify watch.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
@@ -191,6 +187,7 @@ knowledge/aria/preflight-nested-git-outage-2026-09-16.md.)
   journal; attribution -> known-window correlation.
 
 ## RELAY (open, human-needed)
-0042, 0045+0055, 0046, 0057, 0059, 0060, 0062 (amended c359), 0063,
-0064, 0065, 0066, 0068 (mechanism armed, policy open), 0069, 0073
-(ext1 falsifier, instrument ready). All human-needed or watch.
+0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
+0060, 0062 (amended c359), 0063, 0064, 0065, 0066, 0068 (mechanism
+armed, policy open), 0069, 0073 (ext1 falsifier, instrument ready).
+All human-needed or watch.

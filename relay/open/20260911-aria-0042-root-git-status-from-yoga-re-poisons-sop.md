@@ -150,3 +150,33 @@ root-owned again; the 09-15/16 emacs.d/.git creator unidentified).
 Ask 1 unchanged (yoga actor), ask 2a (chown in frozen copy) would
 have limited today's blast radius too. Doc:
 knowledge/aria/preflight-nested-git-outage-2026-09-16.md.
+
+## AMENDMENT (aria c370, 2026-09-16 16:40Z): recurrence at a NEW site
+
+The class recurred 2026-09-16 with a different actor, different repo,
+different victim:
+
+- ACTOR: the 12:54-13:03 local (-03) outage-debug session -- a
+  sophon->sophon root ssh loop with the aria key (interactive iar
+  container on sophon; the AI-voiced multi-echo commands are
+  interactive-aria working with Nacho). It ran git status in
+  /var/home/nacho/repos/gptel at 12:54 local (15:54Z); the
+  gptel/.git/index mtime matches exactly.
+- VICTIM: Nocturne's daily digest one-shot, 16:02Z Sep 16 -- exit 126
+  in 2s: `lsetxattr(label=system_u:object_r:container_file_t:s0)
+  /var/home/nacho/repos/gptel/.git/index: operation not permitted`.
+  Same EPERM shape as the c207 original.
+- HEALED BY ACCIDENT: the aria-cycle ExecStartPre tripwire chowns ALL
+  of /var/home/nacho/repos on every service start (16:21Z), so gptel
+  was healed 19 minutes after the poison. Nocturne has no such heal
+  of her own -- her next pass would have died again if the cycle
+  service had not started in between.
+- NEW ASK (extends item 2): Nocturne's timer unit needs the same
+  root pre-start chown+chcon the cycle service has, or a shared
+  pre-heal unit both bind to. Until then, any root git process
+  touching ANY mounted checkout (i.ar, gptel, personalization)
+  poisons the next container that mounts it -- and the victim
+  rotates.
+- CONFIRMED ACTOR DETAIL for item 1: the yoga-side 09-11 actor was
+  the same shape (interactive iar container, root ssh). The durable
+  fix is structural (2a/2b), not actor-by-actor.

@@ -83,3 +83,58 @@ trackable longitudinally.
   distribution should track the WRN inter-arrival distribution.
 - The 12:04.29 heal without WRN: check whether that heal came from
   the recorder side (frigate ffmpeg restart) instead of go2rtc.
+* AMENDMENT (2026-09-16, aria c374 -- written same day, investigation outran the doc)
+
+The core claim above -- "audio returns at the next FULL-STREAM stall
+... which replaces the producer" -- is FALSIFIED by ext3's own data.
+
+** What falsifies it
+
+ext3's 62-minute freeze (14:39-15:41Z) SURVIVED 14 producer
+replacements. Fresh TCP connections were made during the freeze
+(each timing out again ~30s later, 14 WRNs inside the freeze
+window), video kept flowing, and audio stayed dead through all of
+them. The real heal at 15:41Z left NO trace: no WRN, no watchdog
+event, no camera reboot visible in any journal.
+
+So producer replacement is NOT sufficient to heal an audio freeze.
+It is sufficient for interior_1 (10/12 heals WRN-correlated) but
+not for ext3. The mechanism is not one path; it is at least three:
+
+- PATH A -- producer replacement heals (interior_1 pattern,
+  WRN-correlated 0-24s after heal boundary).
+- PATH B -- recorder-side restart heals (the 12:04.29 interior_1
+  heal with no WRN = frigate ffmpeg recorder restart, confirmed
+  by process start time).
+- PATH C -- silent camera-side heal (ext3 15:41Z, no trace
+  anywhere). Also: ext1's 12:54Z heal left zero journal events.
+
+** The WRN proxy is partial
+
+The "heal = WRN" table above is a PROXY correlation, not the
+mechanism. WRNs mark full-stream stalls (producer replacements);
+some of those heal freezes (path A), some happen to healthy
+producers (costless), and some heals come from paths B/C that no
+WRN marks. Absence of a WRN is not absence of a heal -- ext1 and
+ext3 both healed silently. Every heal previously attributed to a
+camera cron reboot needs the same asterisk.
+
+** What survives
+
+- The freeze itself is silent by construction (TCP read alive,
+  audio data stops). Onset has no signature in any current log.
+- Stall cadence is still the right variable: interior_1's ~100/day
+  cadence bounds its freeze duration at minutes; ext3's heals come
+  from a path that fires ~1/hour at best.
+- The segcensus puller measures OUTCOMES (dead segments/hour) and
+  is immune to the WRN-proxy problem. It is the ground truth for
+  freeze duration and class tracking going forward.
+
+** Open after amendment
+
+- What is path C? Camera-side recovery with no producer
+  replacement and no reboot. Candidate: prudynt restarting its own
+  audio encoder thread. Needs prudynt-side logs to confirm.
+- Why did ext3's 14 in-freeze replacements fail where interior_1's
+  succeed? Difference in freeze depth (encoder vs receiver state)?
+  This is the sharpest open question in the class.

@@ -2,7 +2,7 @@
 filed: 2026-09-11T20:55Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: Root git-status from yoga re-poisons sophon checkout index (c207)
 body: |
@@ -38,7 +38,7 @@ body: |
   Law 44 second actor shape: interactive root ssh + "read-only" git
   commands -- git status IS a write. Until fixed, continuo's cycles
   remain exposed to a race the heal cannot win.
-answer: (none)
+answer: RESOLVED 2026-09-16 (interactive session, both asks): ASK 1 CONFIRMED by Nacho -- the yoga actor was HIS long-running interactive session (the nocturne-implementation + 24h cycle-polling session, also the token-outage session). It ran repo-health checks (git log + git status) as root over ssh from yoga; git status rewrote the checkout index as root. Actor identified, class understood: interactive iar containers doing root ssh + 'read-only' git commands. ASK 2: option (a) chosen and LANDED -- heal_git_poison() in iar.sh (commit 20be99d, pushed sophon-bare+rammstein): detects root-owned files under personalization/.git, i.ar/.git, gptel-fork/.git before EVERY podman run (run_cycle + run_one_shot), chowns via root path or sudo -n (nacho NOPASSWD:ALL on sophon), chcon relabels, logs to iar-heal. Live-tested: planted root-owned file healed in one pass. Layering now: ExecStartPre (service start) + heal_git_poison (every cycle/one-shot) + reset_worktree (nested .git) -- the class needs an actor that poisons AND the heal to fail, not just a poison event. Nocturne's drop-in covers her one-shot path.
 
 [UPDATE 2026-09-11 ~22:45Z by aria (c215), monitoring note.]
 No root SSH from 10.66.0.4 (yoga) since 20:55Z (verified via journalctl

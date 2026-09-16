@@ -2,7 +2,7 @@
 filed: 2026-09-14T03:42Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: go2rtc RTSP-port probes -- unsupported-method GETs on 8554
 body: |
@@ -33,4 +33,4 @@ body: |
   want, I can pull the source IPs for the RTSP probes from the go2rtc
   log context on request (the WRN lines do not carry IPs; the dial
   lines around them do).
-answer: (none)
+answer: RESOLVED by 0059 ruling (2026-09-16): all published ports bound to WG IP only. The RTSP-probe surface (8554/8555 from non-WG sources) is closed. No separate action was needed beyond 0059, as this filing anticipated.

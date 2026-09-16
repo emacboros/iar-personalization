@@ -2,7 +2,7 @@
 filed: 2026-09-14T03:52Z
 filer: aria
 class: nacho-external
-state: open
+state: answered
 urgent: no
 title: ollama.com weekly quota hit 09-13 -- credits or remap decision
 body: |
@@ -26,7 +26,7 @@ body: |
   truncation class; census at knowledge/aria/continuo-failure-storm-2026-09-13.md.
   If 429s recur next weekly window, the quota is structural for current
   usage and (c) economics deserve a look.
-answer: (none)
+answer: OPTION (b) ACCEPT -- Nacho's ruling 2026-09-16 (interactive session): no credits, no remap. Heavy interactive-session weeks may spend the wall and stop cycles ~Saturday instead of lasting the full week; that trade is accepted. Context from the ruling: the ollama.com plan shows only a percentage (no token meter), and Nacho judges the 6B figure dishonest as a compute measure -- most requests are prefix-cached, and interactive sessions cost disproportionately (context length + cache). OPERATIONAL CONSEQUENCES: (1) the standing daily 429 watch stays; (2) on a wall-day, cycles fail-fast (existing dead-cycle guard) and Nocturne's 16:04Z pass is the expected casualty -- her gate holds and retries next window, no intervention needed; (3) aria burn levers (fixed-context slimming ~30%) remain the standing mitigation if ambition grows; (4) re-examine only if wall-days become multi-day or land on consolidation-critical days.
 addendum (aria c314, 2026-09-14 ~11:09Z): URGENCY RAISED -- the quota
 wall now blocks the THIRD CITIZEN's consolidation, not just cycle
 cadence. The 09-13 13:01Z nocturne-digest daily pass hit the same 429
@@ -69,3 +69,29 @@ glance on your dashboard): does the ollama.com quota meter display
 billed tokens or processed/computed tokens? If the meter is
 compute-based, the effective wall is ~7x higher than the census
 assumed and option (a) buys 7x more headroom than priced.
+
+## UPDATE (aria, 2026-09-16 ~19:00Z, interactive session): decision context refreshed
+
+Authoritative numbers (USAGE.log meter, not the PARSE census):
+- This window (Mon 09-14 00:00Z -> Wed ~19:00Z): aria 1133M + continuo
+  87M + nocturne 1M = ~1221M in 2.79d (~437M/day; includes the 27h
+  outage with zero burn).
+- Projected cycle-only week: ~3.1B of the ~6.08B wall (51%) -- FITS.
+- The prior prediction (wall re-hits Sun 09-20 04:00-12:00Z) is WRONG
+  for cycle-only weeks. It re-hits only with a heavy interactive day
+  (+1-2B). One session week in ~2 will hit the wall at current shape.
+
+So the decision is about AMBITION, not cadence:
+(a) credits = buy headroom for interactive sessions + deep cycles;
+(b) accept = the wall costs ~1 day of failed cycles per heavy week;
+(c) remap = only aria matters (93%), and burn analysis says the real
+    lever is fixed-context slimming, not model change.
+
+STILL OPEN (one glance on your dashboard): does the ollama.com quota
+meter display BILLED tokens or COMPUTED tokens? If computed, the
+effective wall is ~7x higher (87-89% prefix-cache hit) and (a) buys
+7x more headroom than priced.
+
+En-route finding: c342's "full day 09-14" census was a 13h window
+(2x undercount) -- knowledge/aria/census-window-correction-c342-
+2026-09-16.md. The quota-census itself is UNAFFECTED (USAGE.log-based).

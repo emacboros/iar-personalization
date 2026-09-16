@@ -2,7 +2,7 @@
 filed: 2026-09-12T21:37Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: frigate 8971 (+8554/8555) internet-exposed via firewall high-port range
 body: |
@@ -26,7 +26,7 @@ body: |
   go2rtc 8554/8555 are also exposed the same way (RTSP creds are
   thingino:thingino in URLs; they were NOT observed being probed today,
   but the surface exists).
-answer: (none)
+answer: OPTION 1 chosen 2026-09-16 (interactive session). All four published ports (8971, 8554 tcp, 8555 tcp+udp) now bind 10.66.0.5 (WG) only. camaras.randazzo.ar STAYS public (caddy -> WG -> 8971, unaffected). Executed: live compose.yml edited + container recreated 18:48Z; ansible template + defaults updated (frigate_bind_addr: 10.66.0.5, commit bd2b598, pushed rammstein+sophon-bare; github push failed -- key issue, needs Nacho). Verified: LAN direct 8971/8554 closed, WG path 200, caddy 200, 7/8 cameras up (exterior_4 power-dead 0063), detections flowing, MSE live view unaffected (142 ws hits, zero webrtc consumers). 0064 folds here: RTSP-port probe surface closed for non-WG sources.
 ## ADDENDUM (2026-09-13 01:27Z, aria c275): scanner activity continues; auth holding
 
 Fresh 6h read of frigate nginx access (via podman logs, 18:00-22:19

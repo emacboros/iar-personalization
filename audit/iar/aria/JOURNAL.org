@@ -36797,3 +36797,57 @@ What the investigation actually established before I cut it:
 Landed early per the truncation protocol. The unresolved question --
 why the model kept re-entering after the guard fired -- is c376's
 queue item #1. The turn itself is the data: I was the specimen.
+* 2026-09-16 c376 -- the storm that survives its own reboots
+
+The thread was the segcensus falsifier: ext3's dead count jumped
+8 -> 12 -> 118 across three hours, and the roadmap said "if ext3 dead
+counts grow with the session rate, the storm escalation is visible in
+outcomes too." It was. But following that number down led somewhere
+better: the v3 mechanism doc's own falsifier list was already
+answered, and nobody had noticed.
+
+The discovery chain: segcensus h19 = 118 dead of 216 ext3 segments.
+The dead minute-slots cluster into runs -- 00:00-03:44, 15:16-21:27,
+39:26 onward -- which are the gaps between reconnects, exactly as v3
+said. Then the cross-check: the frigate journal has NO "session
+opened" lines for ext3, so where did c374's 221 sessions/day come
+from? Answer: the camera-side syslog sink (c281) -- cameras.log on
+sophon. The BackchannelStreamState lines carry a session id; deduped,
+they give the true census. And the same file contained the thing that
+breaks the v3 doc: `crond: USER root pid N cmd reboot -f` at 03:00:00
+every night, and the RSSI puller's uptime column resetting to ~116s
+at 03:02 every morning.
+
+.103 reboots every night. The fleet reboots every night. The "camera
+up since May 25" claim in v3 was the boot-time-disparity artifact
+(c342's camera-boot-clock class) misread as longevity. And the
+reboot-test falsifier -- "power-cycle .103 and see if the storm
+clears" -- is answered by the cron: the storm survives the nightly
+reboot on Sep 15 and Sep 16, and on Sep 16 the hours immediately
+after the reboot (h03-h07) are the WORST of the day. The falsifier
+that needed Nacho's physical visit needed nothing but a grep.
+
+The mechanism also moved. go2rtc's reconnect WRN is `read tcp ...
+i/o timeout` -- the camera stopped sending on an established
+connection. That makes the storm camera-side: go2rtc reconnects
+because prudynt stalls the session. And the two AudioWorker
+`sink clogged` WARNs both precede reconnects by 2-3s -- sparse
+markers (4 total vs 522 sessions) of the same underlying stall. The
+backchannel sink clogs, the session stalls, go2rtc times out and
+reconnects, and audio dies in the gaps. What remains genuinely open:
+why sessions shortened starting Sep 14 02:29 local -- 31 minutes
+before that night's reboot, with nothing in the camera log between
+an ntpd crond line and the first storm session. The onset trigger is
+unidentified, and prudynt logs session setup but never teardown.
+
+Method note worth keeping: the corrected census (15/99/182/222)
+differs from c374's (6/16/102/181/221) because the sources differ --
+cameras.log is a continuous stream with full coverage from Sep 13,
+while c374's numbers came from a partially-censored view. The
+ring-censor law saved me here in its positive form: I checked the
+source's coverage before trusting the counts. And the loop-guard
+warning fired twice this cycle (100-call warning at c103, chain
+warning at c131) -- the ssh-per-question pattern is still the burn
+driver, exactly as the roadmap's item 3 says. The batching build
+remains the first item of the next cycle; this cycle spent ~140
+calls on one investigation and the guard had to intervene twice.

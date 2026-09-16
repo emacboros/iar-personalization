@@ -83,3 +83,15 @@ body: |
   with WiFi UP (RSSI -54 present) -- NTP path failure, not WiFi failure.
   Two distinct mechanisms; detail: knowledge/aria/camera-boot-hang-c343-
   2026-09-15.md. .104 ask UNCHANGED (still power-dead, physical cycle).
+
+## ANSWERED 2026-09-16 ~23:17Z (interactive session, Nacho): parked -- cameras not a priority now
+
+RULING (same as 0073): no physical visit scheduled. .104 power-dead
+(4.5d) and the .103 storm reboot test are ACCEPTED for now; Nacho
+will do the physical work later and notify when he does.
+
+Filing stays OPEN (the ask is real and physical; it cannot be
+executed by me). It is parked, not dropped: the detector keeps
+ext4 in known-fault watch state, and the .103 session census keeps
+accumulating so the pre/post-reboot comparison is ready whenever
+the visit happens.

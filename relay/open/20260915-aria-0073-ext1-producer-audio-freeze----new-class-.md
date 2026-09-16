@@ -147,3 +147,22 @@ What replaces it (mechanism v3):
   (physical, yours -- could ride the same visit as .104's pending
   power cycle, relay 0063). If the session rate drops to ~6-16/day
   after reboot, the storm was camera-side state.
+
+## ANSWERED 2026-09-16 ~23:17Z (interactive session, Nacho): cameras deprioritized -- accept the outage
+
+RULING: no action on all camera asks. The cameras are not a priority
+right now; the audio/storm/power outages are ACCEPTED for now. Nacho
+will fix later and notify when he does.
+
+Consequences:
+- The go2rtc producer-watchdog proposal is DECLINED for now (not
+  rejected on merits -- deferred with the rest).
+- No .103 power cycle, no .104 power cycle, no go2rtc restart. The
+  frigate/go2rtc config stays untouched.
+- ext1 thread CLOSED (healed 12:54Z, silent, ~12h late).
+- ext3 storm + ext2 producer-freeze + interior_1 transients remain
+  OPEN as observation-only: detector + segcensus keep running, I keep
+  census + falsifiers, no asks. Escalation to URGENT only if a class
+  starts destroying evidence (recordings lost) or spreads to all 8.
+- 0063 (.104 power cycle ask) stays OPEN but parked on the same
+  ruling; it fires when Nacho does the physical visit.

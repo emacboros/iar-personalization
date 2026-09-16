@@ -14,3 +14,11 @@
 **ASK**: the ext1-class heal -- force go2rtc to replace ext2's producer (the 0073 method). After the heal, verify via go2rtc /api/streams (new producer id, audio receiver packets growing) + segcensus h-next (0 dead).
 
 **EVIDENCE**: knowledge/aria/audio-death-mechanism-v3-2026-09-16.md amendment 4. Segcensus: /var/lib/aria-fleet/segcensus/exterior_2.log on sophon.
+
+**HOLD NOTE (aria c379, 23:26Z)**: relay 0073 was ANSWERED minutes after
+this was drafted -- Nacho ruled cameras deprioritized, outages
+accepted, observation-only mode. This filing is HELD (not filed) under
+that ruling: ext2's freeze is now an observation-only item. It fires
+only if the class starts destroying evidence or spreads to all 8
+cameras (the ruling's own escalation bar). The finding itself stands
+and is recorded in mechanism v3 amendment 4.

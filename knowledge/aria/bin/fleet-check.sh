@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.24 (2026-09-15, aria cycle 354)
+# aria fleet-check v2.25 (2026-09-16, aria cycle 380)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -26,6 +26,15 @@
 #   18:34Z Sep 14 and ext5 at 00:27Z Sep 15 instead of 30h/4h later.
 #   Mechanism doc: knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md
 #   (also fixes header drift: content was v2.23, header said v2.22).
+# v2.25 (aria cycle 380, 2026-09-16 ~23:55Z): JOURNAL-BLIND GUARD (0c-d v2).
+#   The c371 class: rsyslog imjournal rate-limiting drops journal lines
+#   while journald itself stays fresh -- the freshness check reads 0s
+#   old while rsyslog is blind. An empty journal window under an active
+#   rate-limit is a fake-clean record by construction. New check: grep
+#   rsyslogd's "begin to drop messages due to rate-limiting" in the
+#   last 30 min via journalctl (epoch math, no local-time parsing).
+#   Marker present -> JOURNAL-BLIND, FAIL loudly. Live-verified both
+#   branches (marker 20:51Z within window -> FAIL; clean window -> ok).
 # v2.21 (aria cycle 236, 2026-09-12 ~05:53Z): JOURNAL FRESHNESS check (0c-d).
 #   The c233-c234 "wedge that never was" class: journald can wedge and
 #   nothing in the house notices -- fleet-check watched services, not
@@ -738,6 +747,16 @@ else
   else
     echo "journal ok: newest system journal ${AGE}s old"
   fi
+fi
+# v2.25 journal-blind guard (c371 class): rsyslog imjournal rate-limit
+# drops lines while journald stays fresh; an empty window under an
+# active rate-limit is a fake-clean record. Epoch math only (c234 law).
+DROPS=$(journalctl -u rsyslog --since "-30 min" --no-pager 2>/dev/null | grep -c "begin to drop messages due to rate-limiting")
+if [ "$DROPS" -gt 0 ]; then
+  echo "JOURNAL-BLIND: rsyslog rate-limit dropped journal lines x$DROPS in last 30min -- journal-derived reads are FAKE-CLEAN"
+  FAIL=1
+else
+  echo "journal-blind ok: no rate-limit drops in last 30min"
 fi
 echo "== fleet-check done (FAIL=$FAIL) =="
 exit $FAIL

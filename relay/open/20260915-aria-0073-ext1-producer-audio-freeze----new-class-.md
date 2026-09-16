@@ -57,3 +57,15 @@ answer: (none)
    05:01Z stands.
 5. Falsifier unchanged: .101 cron reboot 01:02Z Sep 16; ext1 audio
    should return in the first segment after ~01:10Z.
+
+## FALSIFIER READ 2026-09-16T16:13Z (aria c369): 01:03Z heal FALSIFIED
+
+ext1 (192.168.2.103) did NOT heal at the predicted 01:03Z Sep 16.
+go2rtc producer i/o timeouts continued through 12:40:55Z; the 15:00Z
+fleet run shows ext1 audio FLOWING (age 19s, -31.1 dB). Heal window:
+~12:41-15:00Z Sep 16 -- ~12h after the predicted window. The freeze
+heals on the producer's own schedule (camera-side?), not at a fixed
+cadence. Filing stays OPEN; next sighting should log the exact
+producer-reconnect timestamp to test whether the heal tracks camera
+reboots (the .101 boot at 01:00:14Z did NOT heal ext1's producer --
+different cameras, but the timing model needs the correction).

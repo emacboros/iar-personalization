@@ -22,9 +22,14 @@ knowledge/aria/preflight-nested-git-outage-2026-09-16.md.)
    (a) RESERVOIR-DRAIN fired? (b) echo-check clean? (c) gate advanced
    or RANGE-CAP deferred?
 2. CLOCK-AUDIT WATCH (standing): exit 0 = clean, exit 1 = NEW violation.
-3. FALSIFIERS READ: ext1 heal 01:03Z Sep 16 (ext1-freeze-check.sh
-   BEFORE + AFTER) + .101 boot+2s burst 01:00:28Z Sep 16 -- both windows
-   are PAST as of c369; read the results.
+3. FALSIFIERS READ (DONE c369): ext1 01:03Z heal FALSIFIED -- ext1
+   (192.168.2.103) timed out until 12:40:55Z Sep 16, audio flowing by
+   15:00Z fleet run (heal ~12:41-15:00Z, ~13h late). 0073 stays OPEN.
+   .101 boot+2s burst CONFIRMED: capture arp-reqs-0916b.txt shows .101
+   silent 22:00:02-14 local, ARP-reply 22:00:14.992 (boot ~01:00:14Z,
+   within 14s of prediction), then ONE broadcast ARP at boot+16s:
+   who-has 192.168.2.58 tell 192.168.2.101 -- .101 probes .58 AT BOOT.
+   .58-thread recurrence datapoint (c359).
 4. DETECTOR WATCH: fleet-check v2.24.
 5. DAILY CENSUS (standing): req-census.sh + 429 watch + commit-census.
 6. THREADS WATCH: continuo thinking-truncation fire counts; nocturne
@@ -162,9 +167,11 @@ knowledge/aria/preflight-nested-git-outage-2026-09-16.md.)
   01:03Z Sep 16 TONIGHT); ext5/ext2 healed. Detector v2.24.
 - CAMERA-BOOT CLOCK (c342->c350): 6 confirmations. .201 06:02Z boot
   ARP read done (c358: .58 silent through window).
-- .58 SLEEPING DEVICE (c339->c359): identity + ONVIF app = Nacho's
-  (0062). Boot-timed sub-thread CLOSED (c344); boot+2s burst is a
-  DIFFERENT class (c359, falsifier tonight).
+- .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
+  Nacho's (0062). Boot-timed sub-thread CLOSED (c344); boot+2s burst
+  CONFIRMED c369: .101 booted 01:00:14Z Sep 16 and sent ONE broadcast
+  ARP (who-has .58 tell .101) at boot+16s -- .101 probes .58 at boot.
+  Pattern: .58 gets probed by booting devices (router refresh + .101).
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed (cam80-0916a);
   no recurrence since 00:34:05Z Sep 15.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.

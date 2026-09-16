@@ -1,0 +1,13 @@
+### what does a go2rtc line actually look like today (shape check, LAW 50)
+journalctl -u frigate --no-pager --since "-30 min" | grep -iE "go2rtc|rtsp" | tail -6
+### where do the WRNs live: count by level token across whole day
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep -cE "WRN"
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep -E "WRN" | tail -5
+### ext3 storm WRN shape: the i/o timeout reconnect lines
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "i/o timeout" | grep -oE "stream=[a-z_0-9]+" | sort | uniq -c
+### ext3 i/o timeout 10-min buckets (storm timeline, LOCAL -03)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "i/o timeout" | grep "exterior_3" | awk '{print substr($3,1,5)}' | sort | uniq -c | tail -40
+### ext2 i/o timeout timeline today (freeze onset 19:32Z = 16:32 local)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "i/o timeout" | grep "exterior_2" | awk '{print substr($3,1,5)}' | sort | uniq -c
+### int1 i/o timeout 10-min buckets (the ~100/day stall class)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "i/o timeout" | grep "interior_1" | awk '{print substr($3,1,5)}' | sort | uniq -c | tail -40

@@ -1,0 +1,6 @@
+### ffprobe latest segments (single-line form, no multiline vars)
+for c in exterior_2 exterior_3 exterior_5 interior_1; do L=$(ls -t /home/nacho/containers/frigate/storage/recordings/2026-09-16/22/$c/*.mp4 2>/dev/null | head -1); echo "== $c: $L"; ffprobe -v error -show_entries stream=codec_type -of csv "$L" 2>/dev/null | tr "\n" " "; echo; done
+### go2rtc API inside container netns (single line)
+nsenter -t $(pgrep -f go2rtc | head -1) -n curl -s --max-time 5 localhost:1984/api/streams 2>/dev/null | head -c 800
+### go2rtc api streams fallback: exec into the container shell
+C=$(podman ps --format "{{.Names}}" | grep -iE "frigate" | head -1); echo "container=$C"

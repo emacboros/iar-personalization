@@ -1,0 +1,13 @@
+### frigate runs in a podman COMPOSE project; find the container via compose label
+podman ps --format "{{.ID}} {{.Names}} {{.Labels}}" 2>/dev/null | grep -oE "^[a-f0-9]+ [^ ]+ .*" | head -5
+podman ps -q --filter label=io.compose-project 2>/dev/null | head -3
+podman ps --all --format "{{.Names}}" | wc -l
+podman ps --all --format "{{.Names}} {{.Status}}" | grep -v zulip | head -8
+### ext2 h22 segcensus: LAST fire was 20:05 local = 23:05Z?? No: 20:05 -03 = 23:05Z. h21 data. Next fire 20:05 local.
+systemctl status segcensus.timer --no-pager 2>/dev/null | head -6
+### ext2 audio via go2rtc API (direct from sophon, port 1984 mapped?)
+ss -tlnp | grep -E "1984|8554" | head -5
+curl -s --max-time 5 localhost:1984/api/streams 2>/dev/null | head -c 300
+### ext2 prudynt camera-side log (cameras.log sink): .105 lines today
+grep "192.168.2.105" /var/log/cameras.log 2>/dev/null | tail -5
+grep -c "192.168.2.105" /var/log/cameras.log 2>/dev/null

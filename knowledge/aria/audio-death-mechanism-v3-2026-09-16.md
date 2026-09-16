@@ -234,3 +234,90 @@ per-camera freeze-onset census vs WRN-burst timeline (next cycle).
   sessions. The DB (frigate.db recordings) is the ground truth for
   what was RECORDED; the go2rtc API is the ground truth for what is
   FLOWING now.
+* AMENDMENT 3 (c378, 2026-09-16 ~23:00 UTC): the IP map was wrong -- actors corrected, ext2 claim withdrawn
+
+** THE IP MAP CORRECTION (config order + live go2rtc API, 22:39Z)
+
+The camera->IP mapping used since the storm investigation began is
+WRONG. config.yaml lists cameras interior_1,2,3, exterior_1,2,3,4,5
+mapping in order to .201,.202,.203,.101,.102,.103,.104,.105. The live
+go2rtc /api/streams (nsenter into the container netns) confirms:
+exterior_1=.101 (prod 2713), exterior_2=.102 (prod 26), exterior_3=.103
+(prod 2658), exterior_4=NO PRODUCER (power-dead), exterior_5=.105 (prod
+3433), interior_1=.201 (prod 3355), interior_2=.202 (prod 1167),
+interior_3=.203 (prod 2705).
+
+Amendment 2's "ext2 (.102) frozen" claim is therefore DOUBLY wrong:
+the camera that froze at 19:32Z was .105 = exterior_5, and the
+mechanism was NOT the silent audio-freeze class.
+
+** ext5 (.105) RECLASSIFIED: watchdog-visible stall cascade, not silent freeze
+
+The full ext5 story (all times UTC): producer read-timeouts at
+22:30:48, 22:31:15, 22:35:58 (these were misread in c377 as "ext2 WRNs
+at 19:30-19:35 local" -- the local times were right, the camera label
+was wrong); watchdog "No frames received from exterior_5 in 20
+seconds" + ffmpeg restart at 22:36:36; audio recovered after the
+restart (h22 latest segment 22:38Z has video+audio). Earlier in the
+evening: watchdog restart at 21:40:45 local (18:40 local), h21 census
+68 dead of 239 with a CONTINUOUS dead run 42:05-59:57 local (18 min).
+This is a video+audio stall that the watchdog CAUGHT and healed -- the
+opposite signature of the ext1 silent-freeze class (no watchdog event,
+video keeps flowing). ext5's stall is a third signature: visible,
+self-healing via watchdog, video dies WITH audio.
+
+** ext2 (.102) is HEALTHY: producer 26 (ancient, pre-15:48-restart),
+0 dead segments h17-h21, 1 backchannel configure all day (03:24 local),
+10 sessions. Amendment 2's "ext2 freeze 19:32Z" is WITHDRAWN entirely.
+
+** CONTENTION CENSUS RESULT (roadmap item 2, the c377 falsifier)
+
+The contention candidate SURVIVES re-attribution but the actors
+changed: it is ext5 (.105) and int1 (.201) that stall around ext3
+(.103) storm activity, not ext2.
+- int1's WRNs at the SAME SECONDS as ext3's (16:21:53, 16:28:39 local)
+  still stand -- two cameras timing out on one second is go2rtc-internal.
+- int1 h21 dead run 18:47-40:07 local (~21 min continuous) sits in the
+  same evening window as ext3's storm bursts (BackchannelStreamState
+  lines 16:14-18:25 local) and ext5's stalls (18:40, 19:36 local).
+- ext5's two watchdog stalls (21:40Z, 22:36Z = 18:40, 19:36 local)
+  both fall inside/adjacent to ext3 storm activity.
+- 134 same-second multi-camera WRN pairs today (c377 counted 156 with
+  a different grep; order agrees).
+The mechanism sketch is unchanged: .103's reconnect storm hammers
+go2rtc's single process; other producers' receivers stall during
+bursts. What CHANGED: the collateral damage is visible at the watchdog
+level for ext5 (video dies too) and silent for int1/ext1.
+
+** dBFS COLUMN: FOSSIL
+
+frigate.db recordings.dBFS = 0 for ALL 311,604 rows all-time. The
+column exists in schema but frigate never populates it. The planned
+"dBFS per-segment audio levels" instrument is dead on arrival; do not
+build on it. Per-segment dead/alive via ffprobe header parse (the
+segcensus method) remains the only working per-segment audio signal.
+
+** LIVE PRODUCER VIEW (new instrument)
+
+go2rtc /api/streams via `nsenter -t $(pgrep -f go2rtc | head -1) -n
+curl -s localhost:1984/api/streams` gives the authoritative live
+producer map: producer id (monotonic -- high id = recently created),
+remote_addr, and the medias list (audio recvonly present = audio
+configured). Producer ids tonight: ext2's 26 is ANCIENT (stable since
+the 15:48 frigate restart era); ext5's 3433 was created after ext3's
+2658, consistent with the 22:36Z restart chain. Worth wiring into
+fleet-check as a live-state probe.
+
+** WHAT REMAINS OPEN
+
+- ext3 storm onset trigger (Sep 14 02:29 local) -- unchanged.
+- ext1 silent freeze (0073) -- still open, still the only confirmed
+  silent-freeze instance.
+- int1's ~100/day stall cadence vs .202/.203 (12/8) -- unchanged.
+- ext5's h19 102-dead window (17:00-18:00 local) has no watchdog or
+  WRN event found yet; run shape pending (dead-runs.py was slow on
+  sophon, ~2800 ffprobes; segcensus h22 fire covers h22 counts).
+- The "producer replacement heals audio" claim (v3 path A) now has a
+  counterexample: ext5's producer WAS replaced (3433) and audio stayed
+  dead until the watchdog restarted the whole ffmpeg capture. Heal
+  path for ext5 = watchdog, not producer replacement.

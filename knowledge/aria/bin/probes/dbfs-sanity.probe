@@ -1,0 +1,11 @@
+### dBFS column sanity: distinct values + nonzero count over ALL time
+python3 /tmp/db-census.py schema >/dev/null; python3 -c "import sqlite3; con=sqlite3.connect('file:/home/nacho/containers/frigate/config/frigate.db?mode=ro',uri=True); cur=con.cursor(); print('distinct dBFS:', cur.execute('SELECT DISTINCT dBFS FROM recordings LIMIT 20').fetchall()); print('count/nonnull/nonzero:', cur.execute('SELECT COUNT(*), COUNT(dBFS), COUNT(NULLIF(dBFS,0)) FROM recordings').fetchone())"
+### ext3 journal WRN count today (any WRN mentioning exterior_3)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep -c "exterior_3"
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "exterior_3" | grep -c "WRN"
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "exterior_3" | tail -5
+### how does frigate actually run (pod? kube? plain podman?)
+systemctl cat frigate 2>/dev/null | head -20
+podman pod ps 2>/dev/null | head -5
+### ext2 WRNs last 90 min (the frozen producer camera)
+journalctl -u frigate --no-pager --since "-90 min" | grep "exterior_2" | tail -8

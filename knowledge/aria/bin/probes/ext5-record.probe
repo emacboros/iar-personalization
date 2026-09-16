@@ -1,0 +1,10 @@
+### ext5 (.105): does frigate's ffmpeg read DIRECT from camera (not go2rtc)? config check
+grep -A3 "exterior_5" /home/nacho/containers/frigate/config/config.yaml | head -8
+grep -B2 -A6 "record:" /home/nacho/containers/frigate/config/config.yaml | head -20
+### ext5 (.105): ffmpeg record process lines today (record role separate from detect)
+journalctl -u frigate --no-pager --since "2026-09-16 19:30:00" | grep "ffmpeg.exterior_5.record" | head -8
+### ext5 (.105): audio in RECORD segments vs DETECT segments (record role writes the mp4s)
+L=$(ls -t /home/nacho/containers/frigate/storage/recordings/2026-09-16/22/exterior_5/*.mp4 | head -1); ffprobe -v error -show_entries stream=codec_type -of csv "$L" 2>/dev/null
+L=$(ls -t /home/nacho/containers/frigate/storage/recordings/2026-09-16/21/exterior_5/*.mp4 | head -1); echo "h21: $L"; ffprobe -v error -show_entries stream=codec_type -of csv "$L" 2>/dev/null
+L=$(ls -t /home/nacho/containers/frigate/storage/recordings/2026-09-16/20/exterior_5/*.mp4 | head -1); echo "h20: $L"; ffprobe -v error -show_entries stream=codec_type -of csv "$L" 2>/dev/null
+L=$(ls -t /home/nacho/containers/frigate/storage/recordings/2026-09-16/19/exterior_5/*.mp4 | head -1); echo "h19: $L"; ffprobe -v error -show_entries stream=codec_type -of csv "$L" 2>/dev/null

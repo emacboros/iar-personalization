@@ -1,0 +1,13 @@
+### ext2 (.105) producer WRNs after 19:30 local (freeze onset window)
+journalctl -u frigate --no-pager --since "2026-09-16 19:25:00" | grep "producer.go" | grep "192.168.2.105" | tail -10
+### ext2 ANY journal lines after 19:35 local (is the camera still streaming?)
+journalctl -u frigate --no-pager --since "2026-09-16 19:35:00" | grep "192.168.2.105" | tail -10
+### ext2 audio-worker / backchannel lines today (sink clogged class)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep -iE "sink|backchannel|AudioWorker" | grep -oE "192\.168\.2\.[0-9]+|stream=[a-z_0-9]+" | sort | uniq -c
+### int1 (.201) producer WRN 10-min buckets today (stall cadence class)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "producer.go" | grep "192.168.2.201" | awk '{print substr($3,1,5)}' | sort | uniq -c | wc -l
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "producer.go" | grep "192.168.2.201" | awk '{print substr($3,1,2)}' | sort | uniq -c
+### ext5 (.102?) producer WRN buckets today (68 dead at h21)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "producer.go" | grep "192.168.2.102" | awk '{print substr($3,1,2)}' | sort | uniq -c
+### which camera is .102/.104/.105 (frigate config)
+grep -E "192\.168\.2\.(10[0-9]|20[0-9])|exterior_|interior_" /home/nacho/containers/frigate/config/config.yml | head -40

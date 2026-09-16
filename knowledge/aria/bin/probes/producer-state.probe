@@ -1,0 +1,2 @@
+### producer medias (retry: previous run produced empty output -- maybe API slow; add error surfacing)
+nsenter -t $(pgrep -f go2rtc | head -1) -n curl -s --max-time 8 localhost:1984/api/streams > /tmp/streams.json 2>/dev/null; wc -c /tmp/streams.json; python3 -c "import json; d=json.load(open('/tmp/streams.json')); [print(k, '->', 'id', d[k]['producers'][0]['id'], 'medias', d[k]['producers'][0].get('medias')) for k in sorted(d)]"

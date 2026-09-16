@@ -1,0 +1,11 @@
+### find sqlite3 binary anywhere (PATH-SHAPE: search before assuming)
+which sqlite3; ls /usr/bin/sqlite* /usr/local/bin/sqlite* 2>/dev/null; podman ps --format "{{.Names}}" | head
+### frigate container real name + go2rtc ps
+podman ps --format "{{.Names}}" | grep -i frig
+podman ps --format "{{.Names}}" | head -20
+### ext3 WRN burst timeline today: reconnect WRNs per 10-min bucket (LOCAL -03 timestamps!)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep "exterior_3" | grep -E "WRN" | awk '{print $1" "$2}' | cut -c1-15 | sort | uniq -c | tail -40
+### same-second multi-camera WRN pairs today (contention signature)
+journalctl -u frigate --no-pager --since "2026-09-16 00:00:00" | grep WRN | grep -oE "^Sep 16 [0-9:]{8}" | sort | uniq -c | awk '$1>1' | wc -l
+### ext2 producer state right now (is producer 26 still the one?)
+journalctl -u frigate --no-pager --since "-90 min" | grep "exterior_2" | tail -12

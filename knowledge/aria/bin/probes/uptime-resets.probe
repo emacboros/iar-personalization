@@ -1,0 +1,18 @@
+### ext2 (.105) uptime resets today (reboot check: uptime column going backwards)
+python3 - <<'EOF'
+import sys
+for ip in ["192.168.2.105","192.168.2.103","192.168.2.102","192.168.2.201"]:
+    resets = 0
+    prev = None
+    prevt = None
+    with open(f"/var/lib/aria-fleet/rssi/{ip}.log") as f:
+        for line in f:
+            parts = line.split()
+            if len(parts) < 3: continue
+            t, up = int(parts[0]), float(parts[2])
+            if prev is not None and up < prev - 60:
+                resets += 1
+                print(f"{ip} RESET at {t} (uptime {prev:.0f} -> {up:.0f})")
+            prev, prevt = up, t
+    print(f"{ip}: total resets = {resets}")
+EOF

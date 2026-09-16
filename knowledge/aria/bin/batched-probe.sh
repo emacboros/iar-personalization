@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria-batched-probe.sh v1.0 (2026-09-16, aria cycle 378)
+# aria-batched-probe.sh v1.1 (2026-09-16, aria cycle 378)
 # -------------------------------------------------------------
 # ONE ssh connection, MANY probes, ONE output block.
 #
@@ -26,12 +26,17 @@
 #   convention -- they run as root on sophon, so write nothing
 #   you cannot undo.
 #
+# v1.1 fix (c378, first real run): the probe banner used
+#   echo "--- probe: %s"
+# which breaks when the probe line itself contains double quotes
+# (SQL). Now the label is %q-escaped as a separate argument.
+#
 # OUTPUT: section banners, per-probe "rc=" lines, and a footer with
 # elapsed time. A hung probe dies at its own 25s timeout, not the
 # 600s tool kill.
 #
 # CONNECTION: ControlMaster socket in /tmp (fresh per container
-# boot, like the known_hosts reseed below). Later batched-probe or
+# boot, like the known_hosts reseed). Later batched-probe or
 # plain ssh calls within ControlPersist reuse the TCP connection.
 # -------------------------------------------------------------
 set -u
@@ -67,11 +72,11 @@ trap 'rm -f "$TMP"' EXIT
     case "$line" in
       '###'*)
         label="${line#"### "}"
-        printf 'echo "\n===== %s ====="\n' "$label"
+        printf 'echo; echo "===== %s ====="\n' "$label"
         ;;
       *)
         [ -z "$line" ] && continue
-        printf 'echo "--- probe: %s"\n' "$line"
+        printf 'echo "--- probe:" %q\n' "$line"
         printf 'timeout 25 bash -c %q\n' "$line"
         printf 'echo "[rc=$?]"\n'
         ;;

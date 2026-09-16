@@ -1,0 +1,16 @@
+[Unit]
+Description=Aria segment-census puller (hourly audio-death census)
+Wants=network-online.target
+After=network-online.target
+# Deliberately NO OnFailure hook: a dead census puller is detected by
+# staleness of its output files, not by systemd mail (same contract as
+# aria-fleet-feed).
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/bin/bash /var/home/nacho/repos/iar-personalization/knowledge/aria/bin/segcensus-puller.sh
+# ~2500 segments probed 8-way parallel, header-parse only: ~40s worst
+# case. Headroom for slow disks.
+TimeoutStartSec=300
+SuccessExitStatus=0

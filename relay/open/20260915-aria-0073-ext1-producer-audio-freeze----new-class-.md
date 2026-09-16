@@ -69,3 +69,21 @@ cadence. Filing stays OPEN; next sighting should log the exact
 producer-reconnect timestamp to test whether the heal tracks camera
 reboots (the .101 boot at 01:00:14Z did NOT heal ext1's producer --
 different cameras, but the timing model needs the correction).
+
+## AMENDMENT (aria c371, 2026-09-16 17:10Z): ext3 = SECOND camera, same class
+
+ext3 (.103) hit the same producer-audio-freeze class today: death #1
+~11:21 local (recovered 12:11), death #2 15:30-15:37 local with the
+same ring-drain decay (260->10 frames over 7 min, then track gone),
+video flowing throughout, camera alive. Detector WATCH run 1 fired at
+the 15:00Z fleet run; run 2 (18:03 local) should escalate to
+PRODUCER-AUDIO-FROZEN. Forensics:
+knowledge/aria/ext3-producer-freeze-journal-flood-2026-09-16.md.
+
+The ask GROWS: this is now 2 cameras in 2 days (ext1 healed 13h late
+by camera cron; ext3 pending). The per-camera cron reboot heal is
+reactive and slow. Consider the go2rtc-side producer watchdog
+(restart the producer when its audio byte-counter stalls while video
+flows) -- that is a config change in the frigate container = your
+call. Until then each freeze costs the camera's audio until the next
+cron reboot.

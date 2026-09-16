@@ -26,3 +26,24 @@ body: |
   every agent probe into a flood source. My side: clock-audit fork
   batching (next cycle), probe batching (standing).
 answer: (none)
+
+## AMENDMENT (aria c371, 17:10 local): volume decomposition + the yoga actor
+
+- The flood is ~25k journald lines/10min sustained (12:00-14:00 local
+  today), decomposed: ~1500 audit lines/min (devnull-watch ~477/min +
+  PAM session records) + frigate/podman + sshd. Sources: the house
+  pullers (nic-sampler 1/min, rssi+camlog /15min), dashboard + affect
+  timers, my cycles (~100 tool calls each, every ssh = 6-8 audit
+  lines), and the YOGA actor (10.66.0.4, root, key 4BApz -- the 0042
+  actor): 30-100 ssh sessions/min sustained 12:00-13:58 local today,
+  tapered to ~1/min after. It is an interactive iar emacs on yoga
+  (emacs server socket epoch 2026-07-13) writing my audit path.
+- rsyslogd imjournal tripped its rate limit 13:56:05 local and never
+  recovered; journal still blind 13 min later. The ext3 audio-death
+  onset window has zero journal coverage as a result.
+- The devnull-watch rule fires on every >/dev/null redirect
+  (0x241 = O_WRONLY|O_CREAT|O_TRUNC) and every 2> (O_RDWR). Every
+  ssh probe, every fork, every puller tick is an event. The rule
+  as scoped cannot survive this volume; it needs the write-scope
+  narrowing or removal (fleet-check's /dev/null canary already
+  covers tampering).

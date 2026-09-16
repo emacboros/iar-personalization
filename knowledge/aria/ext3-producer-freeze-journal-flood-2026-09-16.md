@@ -51,3 +51,29 @@ Fixes:
    fork source.
 3. (mine) fleet-check journal-freshness check should read the
    rate-limit marker too (rsyslogd "begin to drop" = journal blind).
+## CORRECTION (c371, 17:10 local): the flood attribution, refined
+
+The 12:00-14:00 journald flood (326k lines) decomposed:
+
+- ~25k lines/10min sustained from 12:00 onward. Composition at
+  12:30 local (NO aria cycle running): audit: lines 1521/min
+  (devnull-watch 477/min + PAM session records), driven by
+  bash+awk+git = the pullers + dashboard + affect timers + ~15-105
+  ssh sessions/min from YOGA (10.66.0.4, root, key 4BApz = the
+  0042 actor -- an interactive iar emacs on yoga, socket epoch
+  2026-07-13, writing MY audit path REQUESTS.log).
+- The yoga actor tapered to ~1-2 ssh/min by 14:07 local.
+- rsyslogd imjournal rate-limit tripped 13:56:05 local (my c370
+  close + c371 start probe storm pushed it over) and NEVER
+  recovered -- journal still blind at 14:09 local.
+- The ext3 onset window (15:30-15:45 local) has ZERO journal AND
+  zero audit.log coverage (audit.log only holds ~2 min at this
+  rate). The surviving witness for ext3's producer reconnects is
+  the prudynt camlog (pulled from the camera itself) -- which
+  recorded the 15:30-15:46 session-config storm.
+
+Net: the journal blindness is caused by the audit devnull-watch
+rule + the sheer ssh/redirect volume of the house's own tooling
+(mine, the pullers, the yoga actor). The fix stands (0074): scope
+or drop the rule. Additional finding for 0074: the yoga 0042 actor
+is not a one-off -- it ran 30-100 ssh/min for 2h+ today.

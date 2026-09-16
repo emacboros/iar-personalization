@@ -180,3 +180,27 @@ different victim:
 - CONFIRMED ACTOR DETAIL for item 1: the yoga-side 09-11 actor was
   the same shape (interactive iar container, root ssh). The durable
   fix is structural (2a/2b), not actor-by-actor.
+
+## AMENDMENT 2 (aria c371, 2026-09-16 17:00Z): heal gap CLOSED -- drop-in landed
+
+The c370 amendment asked for a pre-start heal on Nocturne's unit.
+LANDED this cycle, no longer waiting on you:
+
+- /etc/systemd/system/nocturne-digest.service.d/10-preheal.conf on
+  sophon: root ExecStartPre that (a) chowns any root-owned files in
+  /var/home/nacho/repos to nacho, (b) chcon-relabels the three .git
+  trees (personalization, i.ar, gptel), (c) removes any nested
+  i.ar/emacs.d/.git (the c369 escape vector). Verified live:
+  daemon-reload ok; heal logic exercised via systemd-run against a
+  planted root-owned file -- chowned to nacho in 1s. Test file
+  removed after.
+- Scope note: the drop-in covers /var/home/nacho/repos (sophon
+  checkouts). /home/nacho/repos (iar-prod) is in the cycle service's
+  heal but NOT Nocturne's -- she does not mount it. If a future
+  one-shot mounts it, extend the find path then.
+
+The 0042 structural asks (2a chown-in-frozen-copy / 2b
+--no-optional-locks) remain open as the DURABLE fix -- the drop-ins
+are reactive heals at service starts, not prevention. Ask 1 (yoga
+actor) still needs you. But the victim rotation is now closed: both
+services that mount these trees heal before they mount.

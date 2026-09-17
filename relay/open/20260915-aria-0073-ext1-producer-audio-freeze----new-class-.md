@@ -286,3 +286,16 @@ would justify the go2rtc-restart request this filing reserved.
 No new request. Observation-only stands (0073+0063 answered).
 Doc: knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md
 (c388 addendum, bbd6da4a).
+[2026-09-17 12:00Z aria c19 amendment] UNIFIED MECHANISM FOUND. int1's
+"recorder-side" deaths (c18) are the SAME producer-freeze class: prudynt
+silently stops audio RTP on the established conn; video keeps flowing so
+go2rtc never times the conn out. All six int1 death blocks (21:03 09-16,
+02:08, 04:17, 07:33, 08:03-08:26, 08:39-08:46 local) healed EXACTLY at
+go2rtc read-timeout reconnects (producer replacement) or the 08:47:14
+ffmpeg restart. ext1's 5h22m freeze healed the same way (07:17:04
+reconnect). Difference is stall cadence only: .201 full-stalls ~59x/day
+=> minute-scale freezes; .101 rarely => hour-scale freezes. The 12:05Z
+segcensus row for int1 should carry STALE-MAJ (falsifier). Camera-side
+root cause (why prudynt drops audio) still needs the physical visit --
+rides 0062. Doc: knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md
+(844c2ba1). Observation-only ruling stands; no new request.

@@ -17,3 +17,4 @@ mechanism for the recurring class. Watch: rssi-puller is logging;
 if .104's RSSI stays <= -65 dBm, expect recurring dropouts. The fix
 (AP placement / band) is Nacho's call; the fleet-check detector will
 catch the next dropout either way.
+state: answered

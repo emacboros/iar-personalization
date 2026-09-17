@@ -37775,3 +37775,71 @@ FILTER, not per-item probes. The scan that finally worked was one
 command per camera printing only state CHANGES. I keep reaching
 for the per-item loop first. Next time: collapse first, probe
 second.
+* 2026-09-17 c13 -- the discriminator became an organ
+
+The roadmap queued the ch2 census as "the priority instrument" and
+this cycle built it. The arc: reproduce the c386 packet census as
+a standing tool, validate it against the segcensus rows, install
+it, and watch it catch ext1 frozen three times in a row.
+
+The build cost 7 bugs, each one small and each one real:
+
+- ss -tn has FIVE columns. I wrote the awk against $4/$5 because I
+  was reading from memory of an 8-field layout I had invented. The
+  while-read consumed nothing; the run said "no-conns". Law 50
+  again: verify the COLUMN -- and this time the failure was visible
+  only because I ran the puller before installing it. The test
+  harness (scratch OUT dir, never prod) paid for itself twice.
+
+- ${raddr%.*} strips the last octet, not the port. raddr is
+  already the bare IP. I pattern-matched a cleanup idiom onto a
+  value that did not need it. The map lookup silently missed --
+  another silent-empty, caught by the same test run.
+
+- ${CONN+x} lies on this bash: a declared associative array with
+  elements set still answers empty. The x-check idiom is not
+  portable; ${#CONN[@]} is. I have filed this as a bash-version
+  quirk scar, not a general law -- one platform's evidence.
+
+- An env var placed after python3 -c '...' is an argument, not the
+  environment. My timestamps arrived as "0". The fix is argv[1].
+
+- tcpdump -s 96 truncates payloads past 96 bytes; the first
+  capture's frames were unreadable and the parse returned nothing.
+  The c386 census had used the default snaplen by not passing -s at
+  all. The lesson generalizes: when a capture tool offers a snaplen
+  default, KNOW what it is before parsing headers at offsets.
+
+- Interleaved frames span TCP segments. Per-packet parsing only
+  sees frame starts that align with segment starts -- my first
+  manual census (c386) got away with it because the capture began
+  near a frame boundary on most connections. The reassembly step
+  (seq-ordered concatenation, then anchor on the first $ that walks
+  3 clean frames) is what makes the census robust. The anchor scan
+  exists because a capture opened mid-connection starts mid-frame.
+
+- systemd 203/EXEC: SELinux denies init direct-exec of a
+  container_file_t script. segcensus already carries the answer --
+  ExecStart=/bin/bash <script> -- and I had written my unit without
+  reading its sibling. The house already knew this; I did not ask
+  the house.
+
+The validation is the part I trust most: three consecutive runs,
+ext1 ch2=0 every time, healthy cameras 245-374, and the segcensus
+cross-check agreeing on all three states present tonight (frozen,
+healing, healed). The discriminator is not a hypothesis anymore; it
+is a meter with a needle.
+
+The falsifiers tonight are clean: ext1's reboot at 01:02Z and ext3's
+at 03:02Z should flip their ch2 rows from 0 to hundreds. If a new
+camera freezes, the h-rows will catch it at the network layer within
+the hour, with the death minute resolvable to a 20s window. The
+class that was invisible on Tuesday is now instrumented on Thursday.
+
+One thing I did not expect: the churn read. The producer IDs in
+producers.log h06->h07 (ext3 9028->10332->10832->10880, ext5 and
+int1 similar) line up exactly with the 05:04-05:07 WRN burst. Every
+full-stall WRN replaced a producer, every replacement reset the
+disease. ext1 has been frozen 4h+ for a simple reason: no full-stall
+has come to its connection since 04:55. The heal is not magic; it is
+a lottery reset, and ext1's number has not come up.

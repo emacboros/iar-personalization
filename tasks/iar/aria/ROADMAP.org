@@ -1,30 +1,26 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~06:30 UTC (c385: AUDIO-FREEZE 3-CAM CENSUS (71b61fdb + relay 0073 amendment 03a14465): int2 02:47Z + ext1 04:55Z + ext3 05:52Z, camera audio ALIVE all three, death minutes pinned by segment ffprobe; MECHANISM RECONCILED: consumer-side backpressure (recorder ffmpeg audio track stops draining -> producer audio queue fills -> bytes counter stalls; producer replacement does NOT heal -- ext5 precedent + mechanism agree); falsifier: 07:00Z .202 reboot, h06/h07 segcensus rows answer. Prior c384: CYCLE-SEQ corrected (109508e). Prior c383: counter built (43139b0).)
+Last updated: 2026-09-17 ~07:10 UTC (c386: FALSIFIER READ -- producer replacement HEALS (int2 audio back 07:01:38Z after 07:00Z reboot, producer 6069->10007); c385 consumer-side theory FALSIFIED; PACKET CENSUS pins the disease CAMERA-SIDE: frozen cams send ZERO ch2 audio frames on the established conn (healthy cams 217-620/20-45s; fresh conn to frozen .202 carries 177 in 6s); prudynt silently drops the audio track mid-connection; go2rtc receiver stall = starvation; no log trace anywhere; heal = camera reboot (ext1 01:00Z tomorrow, ext3 03:00Z). Prior c385: 3-cam census + mechanism reconciliation (superseded).)
 
-## c385 QUEUE (next cycle)
-A. INT2 REBOOT FALSIFIER READ (resolves itself): .202 reboots 07:00Z
-   (cron verified on-camera: `0 7 * * * reboot -f`). READ at next
-   cycle after 08:05Z: segcensus h06 row (07:05Z, 5min post-reboot)
-   + h07 row (08:05Z). Audio returns in recorder => consumer-side
-   theory WRONG (producer replacement heals); still dead =>
-   consumer-side CONFIRMED, heal = recorder-ffmpeg restart or go2rtc
-   restart (service-touching, Nacho's call, deferred per 0073
-   ruling). Doc: knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md.
-   Also read the 09:00:56Z fleet-feed: should flag int2 (FROZEN run 2)
-   + ext1/ext3 (first catches). STALE-ALL flags h04/h05 verified live.
-B. NOCTURNE PASS READ: fires 16:01Z TODAY (13:01 local). Gate ~1275
-   behind, cap 300/pass => ~5 clean passes to drain. 09-16 exit 126
-   predates the preheal drop-in -- today is its first real test.
-   Read the verdict after 16:01Z.
-C. DAILY CENSUS (standing): DONE c385: aria 09-17 2055x200 + 1x502
-   (04:49:58Z ollama.com conn reset, transient, retried OK); continuo
-   530x200; TRUE 429s 0 both; empty-end aria 0 / continuo 14 (0069
-   standing). Commit-census 229 today. NEXT: repeat tomorrow.
-D. SPREAD-RATE WATCH (new, from c385 census): 1->2->3 frozen cameras
-   in 3 days (ext1 09-15, int2+ext1+ext3 09-17). Escalation bar is
-   all-8 spread or evidence destruction (0073 ruling) -- 3/8 is
-   within, but the RATE is the number to watch. If 4+ freeze in one
-   night, that is a new shape.
+## c386 STATE (this cycle)
+A. INT2 REBOOT FALSIFIER: RESOLVED c386 -- producer replacement
+   heals; audio back 07:01:38Z; disease is CAMERA-side (prudynt
+   drops the audio track mid-connection; packet census is the
+   proof). Doc amended in place:
+   knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md.
+B. NEXT FALSIFIERS (self-resolving): ext1 heals at 01:00Z tomorrow
+   (its producer 8147 will churn or the reboot re-establishes);
+   ext3 heals at 03:00Z tomorrow. Tonight's segcensus h01/h03 rows
+   answer. Fleet-feed 09:00Z should flag int2 HEALED + ext1/ext3
+   FROZEN (run 2).
+C. CH2-CENSUS DETECTOR (buildable, mine): the packet census
+   discriminates frozen vs healthy in one 20s tcpdump + header
+   parse. Read-only. Candidate for fleet-check v2.26 or a
+   standalone puller. LOW urgency (reboot staircase heals), but it
+   catches partial freezes the ear check misses.
+D. WHY DOES PRUDYNT DROP THE TRACK: camera-side, no log trace.
+   Correlate deaths with prudynt version, time-of-day, connection
+   age across more instances. Needs the ch2 census running
+   longitudinally first (C).
 
 0. NOCTURNE PASS READ: fires 16:01Z TODAY. Gate ~1275 behind, cap
    300/pass => ~5 clean passes. Preheal drop-in first real test.
@@ -77,13 +73,19 @@ D. SPREAD-RATE WATCH (new, from c385 census): 1->2->3 frozen cameras
   PARSE-field-anchored census scripts.
 
 ## STATE (world as of 2026-09-17 ~06:30Z -- REPLACES prior blocks)
-- AUDIO-FREEZE CENSUS (c385): 3 cams frozen overnight (int2 02:47Z,
-  ext1 04:55Z, ext3 05:52Z), camera audio ALIVE all three (direct
-  RTSP probes 94KiB/3s). Healthy: ext2/ext5/int1/int3. ext4
-  power-dead (0063). Mechanism: consumer-side backpressure; producer
-  replacement does NOT heal; falsifier at 07:00Z reboot. Doc:
-  knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md. Relay
-  0073 amended (03a14465). Observation-only ruling stands.
+- AUDIO-FREEZE CLASS (c385->c386 RESOLVED): 3 cams froze overnight
+  09-17 (int2 02:47Z, ext1 04:55Z, ext3 05:52Z). FALSIFIER RESULT
+  c386: producer replacement HEALS (int2 audio back 07:01:38Z after
+  07:00Z reboot, producer 6069->10007). PACKET CENSUS: frozen cams
+  send ZERO ch2 audio frames on the established producer conn
+  (healthy cams 217-620 per window; fresh conn to frozen .202
+  carries 177 in 6s) => DISEASE IS CAMERA-SIDE (prudynt drops the
+  audio track mid-connection, silent, no log trace). go2rtc
+  receiver stall = starvation, not backpressure. Heal = camera
+  reboot (staircase: ext1 01:00Z, ext3 03:00Z tomorrow). Doc
+  amended in place: knowledge/aria/audio-freeze-census-3-cams-
+  2026-09-17.md. Relay 0073 amended (03a14465). Observation-only
+  stands.
 - CYCLE-SEQ: c384 fix live (bump at iar-run-cycle action site). My
   number this cycle: 10. Values <=9 polluted; monotonicity is the
   invariant. Watch: 1 bump per cycle from c384.

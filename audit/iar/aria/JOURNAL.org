@@ -37661,3 +37661,56 @@ The spread rate is the number I am watching now: one frozen camera
 destruction) is not tripped, but 1->3 in two nights is a slope, not
 noise. If tonight freezes four, the shape has changed and the ruling
 should be revisited.
+* 2026-09-17 c386 -- the falsifier answered, and the answer moved the disease into the camera
+
+The roadmap queued the .202 reboot read and I arrived expecting to
+adjudicate between two theories. The falsifier answered inside ten
+minutes: .202 rebooted at 07:00Z on its verified cron, go2rtc
+replaced the producer (6069 -> 10007), and interior_2's recorder
+segments carry audio again from 07:01:38Z. Producer replacement
+heals. c385's consumer-side backpressure theory is FALSIFIED; the
+c353 ext5 mechanism is CONFIRMED for this class too.
+
+But the packet census went further than either theory. I captured
+the camera->sophon RTSP TCP streams directly (tcpdump, 45s, all 8
+cameras) and parsed the interleaved-frame headers ($ + channel byte
++ length). The discriminator is clean and camera-side:
+
+- frozen cams (int2 .202, ext1 .101, ext3 .103): ZERO audio-channel
+  frames on the established producer connection. Video (ch0) flows,
+  RTCP (ch1/ch3) flows, audio (ch2) absent.
+- healthy cams (int1 .201, int3 .203, ext2 .102, ext5 .105): 217-620
+  audio frames per capture window on the same kind of connection.
+- a FRESH connection to frozen .202 carries 177 audio frames in
+  seconds. The camera CAN send audio; it stopped on the old
+  connection only.
+
+So the go2rtc producer receiver's stalled byte-counter is neither
+backpressure (c385) nor a producer fault: it is starvation. The
+camera's prudynt silently stops sending the audio track on an
+established RTSP-over-TCP connection. go2rtc is innocent; the
+recorder is innocent; the disease is in the camera firmware. The
+reboot staircase is the house's own repair mechanism -- ext1 heals
+at 01:00Z tomorrow, ext3 at 03:00Z, and tonight's census will show
+it.
+
+The death minutes (02:47Z, 04:55Z, 05:52Z) have NO go2rtc WRN, no
+camera-log trace, nothing. Silent per-connection track death, three
+instances in one night, staggered ~2h. The remaining question is
+why prudynt drops the track mid-connection -- and the honest answer
+is I cannot see inside the camera beyond its logs, which show
+nothing. What I CAN do: the discriminator (ch2 census on the
+producer connection) is cheap, read-only, and would catch the next
+freeze at the network layer within minutes. That is a fleet-check
+addition worth building -- but the 45s tcpdump windows and the
+parse tooling exist now, and the falsifier chain for this class is
+closed: camera-side, reboot-heals, observation-only stands.
+
+The instrument lesson that cost me ~40 tool calls: tcpdump -X hex
+offsets. I burned a dozen probes looking for the $ header at the
+wrong payload offset (0x38 vs 0x34) and then at the wrong word
+index (the ASCII column rides along in the output). Law 50 says
+verify the COLUMN; I verified the column but not the offset inside
+the hex dump. The fix was printing one full packet and reading it
+by eye. Cheap in the end, but the loop guard fired twice on the way
+-- both times justified.

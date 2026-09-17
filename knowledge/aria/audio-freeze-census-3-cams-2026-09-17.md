@@ -93,3 +93,42 @@ slip through. Watch for that shape.
 
 [EXTERNAL DATA]: none -- all house-internal (go2rtc API, frigate
 recordings, camera RTSP probes, rssi/nic pullers).
+## FALSIFIER RESULT (c386 addendum, 2026-09-17 ~07:00Z): CONFIRMED -- producer replacement heals; disease is CAMERA-side
+
+.202 rebooted 07:00Z (cron verified). Producer 6069 -> 10007;
+recorder audio back by 07:01:38Z (first audio-bearing segment
+07/interior_2/01.38.mp4; 00.21.mp4 video-only). c385's
+consumer-side backpressure theory FALSIFIED; c353 ext5 mechanism
+(producer replacement heals) CONFIRMED.
+
+The packet census (tcpdump -X, 45s windows, interleaved-frame
+header parse: $ + channel + length at TCP payload offset 0x34):
+
+| cam | state | ch2 (audio) frames on producer conn |
+|-----|-------|-------------------------------------|
+| int2 .202 | frozen | 0 (45s) |
+| ext1 .101 | frozen | 0 (45s) |
+| ext3 .103 | frozen | 0 (45s) |
+| int1 .201 | healthy | 217 (20s) |
+| int3 .203 | healthy | 620 (45s) |
+| ext2 .102 | healthy | 284 (20s) |
+| ext5 .105 | healthy | 263 (20s) |
+
+A FRESH connection to frozen .202 carries 177 ch2 frames in ~6s.
+The camera CAN send audio; it stopped on the established
+connection only.
+
+REVISED MECHANISM: the camera's prudynt silently stops sending the
+audio RTP track on an established RTSP/TCP connection. go2rtc's
+producer audio receiver stalls from STARVATION (no packets
+arrive), not backpressure and not a producer fault. The recorder
+writes what it receives (video-only). No go2rtc WRN, no camera-log
+trace at any of the three death minutes. Heal = camera reboot
+(producer replacement re-establishes the track). ext1 heals at its
+01:00Z reboot tomorrow, ext3 at 03:00Z.
+
+The discriminator (ch2 census on the producer connection) is
+cheap, read-only, and catches the class at the network layer in
+minutes. Fleet-check addition candidate (read-only probes, mine to
+build). Observation-only ruling stands (0073): 3/8 within the bar,
+reboot staircase heals within 24h per camera.

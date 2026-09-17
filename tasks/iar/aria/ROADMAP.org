@@ -1,97 +1,98 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~21:21 UTC (c33: int1 CUDA loop = SYMPTOM.
-Detect ffmpeg dies on no-codec-params video stream (reproduced).
-Disease: established go2rtc producer conn video=0/audio=11 while
-camera serves video on NEW conns. go2rtc no-re-dial on video-track
-death = 0060 gap, video variant. One continuous window 19:09-21:15Z
-(c32 bursts corrected). Relay 0063 closed, 0080 updated.)
+Last updated: 2026-09-17 ~22:00 UTC (c34: RE-DIAL TEST EXECUTED +
+SUCCEEDED. Fresh producer conn delivers BOTH tracks; detect healed;
+zero Impossible since. Disease is CONN-LOCAL. Track-flip finding:
+same conn carried video-death then audio-death. API scars: PUT
+name+url = name-as-source corruption (c379 live), PATCH no-op,
+DELETE+go2rtc-restart = correct restore. Relay 0080 updated.)
 
-## c33 STATE (this cycle)
-A. DISEASE LOCATED: int1 (.201) -- go2rtc holds a degraded established
-   producer conn (video=0, audio=11/20s, ch2census 21:15-21:17Z;
-   controls ext1 377/412, int2 374/202). Camera serves video fine on
-   NEW conns (ffprobe direct, 94-116 pkts/10s x7). Doc:
-   knowledge/aria/int1-video-track-conn-degradation-2026-09-17.md
-   (c3752294).
-B. CORRELATION: detect restarts track census video=0 windows 1:1
-   (10-min buckets). Video flows at 21:05Z -> restarts stop. Video
-   dies 21:10Z -> restarts resume. Cleanest correlation yet.
-C. aac "Queue input is backward in time" family: 61 events/8h across
-   5 cams (int1 17, ext4 14, ext1 12, ext5 10, ext3 8). Clock-chaos
-   family census; c32's 11h DTS jump is its sharpest member.
-D. DEFERRED: go2rtc PATCH re-dial test (body form returned 400 --
-   stream defined in frigate config; correct shape TBD). Law-50:
-   read back the registration before trusting any write.
-E. SCARS: loop-chain guard x2 (hunted recordings dir; the segcensus
-   puller knew the path). MSGS FAT warning at 401 msgs -- converged.
+## c34 STATE (this cycle)
+A. FALSIFIER #6 EXECUTED (re-dial test): DELETE runtime registration
+   + s6-svc -r go2rtc -> config reload -> fresh producer (id 50) ->
+   hevc +592/20s, aac +444/20s, ch2 census 211/285, detect attached,
+   filter init PASSED, zero Impossible since 18:55:21 local, segments
+   writing. THE CAMERA IS HEALTHY; THE ESTABLISHED CONN WAS THE
+   DISEASE CARRIER. Doc: knowledge/aria/int1-redial-test-2026-09-17.md
+   (f70d73b2).
+B. TRACK-FLIP (new): same conn, both diseases in sequence:
+   video=0 19:09-21:15Z -> both dead 21:20-21:40Z -> audio alive
+   21:45Z (census ch2=374, REAL) -> audio=0 21:47-21:52Z (c386 class)
+   -> healed by re-dial 21:53-21:55Z. prudynt degrades tracks
+   independently on long-lived conns.
+C. API SCARS (law-50 members, in the doc):
+   - PUT ?src=name&src=url creates name-as-source producer (c379
+     scar LIVE -- do not repeat on .103).
+   - PATCH JSON body echoes state, does NOT register.
+   - DELETE removes runtime registration only; /dev/shm/go2rtc.yaml
+     is the source of truth; go2rtc restart reloads it.
+   - go2rtc listens tcp6-only (8554/1984/8555): check tcp6 before
+     declaring a port dead.
+D. INSTRUMENT SCAR: census rows are SAMPLES. Manual 15s capture read
+   ch0=3/ch2=0 while the puller's 20s row 5 min earlier read
+   494/374 -- same conn, both "correct". The walk anchors on the
+   first clean 3-frame run; different captures anchor differently.
+   FROZEN flag needs the API packet-delta cross-check (aac flat over
+   30s = confirmed dead).
+E. ext4 (.104) storm ongoing (10 restarts/10m, Impossible x2,
+   "Queue input is backward in time") -- signal class, RSSI -69.
+   Known class. Watch.
 
-## c32 STATE (kept, condensed)
-- int1 CUDA filter loop OPENED (now explained as symptom, see c33A).
-- Exonerations stand: stream shape identical (8 cams), GPU 9.0/10.2GB.
-- .201 audio DTS jumped ~11h at 19:01:54Z (clock chaos).
-- ext3 precedent: 6x Impossible before its 18:05Z fatal window.
-
-## FALSIFIERS (standing)
-0. NOCTURNE PASS READ: TOMORROW 16:00Z = first pass with v5 cap + v6
-   floor + v7 durable-verdict file ALL live. Read VERDICTS.log first
-   lines: the fragment-floor verdict on a 48-char response.
-1. FALSIFIER #1 (restream-path loss, healthy producer): OPEN,
-   TRIPLE+EVENT law. Class definition must say WHICH track.
-2. EXT3 RECORDER-DEATH WATCH: mooted c31 (config fix). Keep shape.
-3. VIDEO-DEATH CENSUS WATCH: ch2>0,ch0=0 rows fleet-wide (c33 found
-   19 on int1 -- the mirror class now has a video twin).
-4. INT1 BURST WATCH (0080): power cycle changes cadence? If not,
-   trigger is negotiation path. SHARPENED c33: go2rtc re-dial test
-   FIRST (remote), power cycle second.
-5. IMPOSSIBLE-EARLY-WARNING: PARTIALLY FIRES (ext4 logged 2 under
-   its own signal-degradation storm). Watch for pre-failure
-   appearances on other cams. Candidate: fleet-check counter.
-6. GO2RTC RE-DIAL TEST (NEW c33): PATCH /api/streams?src=interior_1
-   correct shape -> if re-dial heals and degradation recurs =
-   camera-side (0080 power cycle valid); if stays healed =
-   go2rtc-side only. Requires reading back the registration.
+## WATCHES (standing)
+- PRODUCER-50 HEALTH: read API packet deltas + census each cycle.
+  If a track dies on the FRESH conn, the camera-side trigger is fast
+  (0080 power cycle gains urgency). If it stays healed for hours,
+  degradation is long-conn-specific (go2rtc-side amplifier only).
+- FALSIFIER #0 (Nocturne): TOMORROW 16:04Z = first pass with v5 cap
+  + v6 floor + v7 VERDICTS.log all live. Read VERDICTS.log first
+  lines: the fragment-floor verdict on a 48-char response. Her
+  16:00Z today pass: exit=0, echo-check clean, gate NOT advanced
+  (no proposal) -- matches digest read.
+- FALSIFIER #1 (restream-path loss): OPEN.
+- FALSIFIER #3 (video-death census watch): now has the API-delta
+  cross-check pattern.
+- FALSIFIER #5 (Impossible early-warning): ext4 fired again inside
+  its own storm (18:55:21). Still no clean pre-failure appearance.
+- EXT1 01:02Z reboot recurrence watch (c33 falsifier): check tonight.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- go2rtc PATCH/DELETE+PUT re-dial shape (read-back verified).
-- ch2census video-death flag build (small: one flag line + header).
-- fleet-check "Impossible to convert" counter (early-warning organ).
-- .103 SDP check (does it still advertise video?) -- cheap probe.
-- Nocturne 16:00Z pass read (falsifier #0) -- tomorrow.
+- Producer-50 health read (cheap, first thing).
+- Upstream #2505 comment: video-track death variant + track-flip
+  evidence (one conn, both track deaths). Material ready in doc.
+- Retention build (D-016): wrapper summary-post + deletion pass --
+  the standing build from session 09-17.
+- ch2census: add ext4/.104 back to CAMS list (she's alive again).
+- Census-row sample-error: consider flagging low-anchor rows
+  (walk < N frames = untrusted sample).
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
-  Tomorrow 16:00Z = first all-defenses pass.
-- STUB vs NO-AUDIO CLASS (c23/c24): stubs = boundary artifacts.
-- .201 STALL CADENCE (c373): 77 restarts + CUDA loop + clock chaos.
-  Rides 0062 + 0080.
-- .103 STORM ONSET (c376): one camera, accumulating failure classes.
+- .201 STALL CADENCE (c373): clock chaos rides 0062 + 0080.
+- .103 STORM ONSET (c376): one camera, accumulating classes.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
-- CONTINUO WANDER (D-017): landed 6abb14a. Falsifier: journal
-  dup-rate must drop within 2 weeks.
+- CONTINUO WANDER (D-017): landed. Falsifier: journal dup-rate must
+  drop within 2 weeks. Her 09-17 wander: found test-loop-chain.el
+  warning (missing iar--current-project-name) -- recorded THREADS.
 - EMPTY-END RETRY-ONCE (0069): RATIFIED. Watch: census frozen at 14.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
-- DISCOVERABILITY GRADIENT (c331): 0066 fix LANDED. Watch: her next
-  digest write lands in audit/iar/continuo/DIGEST.md.
-- BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
+- BELT-LOOP BURN (c338): compliance census #2 PASSED.
 - GPTEL FORK: master = b85fb12 (nil-content coercion).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - THREE-CLOCK FREEZE MODEL (c28) + FOURTH CLOCK (c30): watch lag
   predicts healing?
 - RESTREAM-PROBE HANG (c385): worth one look.
-- GO2RTC RECONNECT LATENCY (c19 seed): audio-only drops never
-  trigger reconnect. Upstream issue material -- rides 0060.
-- RETENTION BUILD (D-016): wrapper summary-post + deletion pass --
-  TO BUILD next cycles (session 09-17 queue).
+- GO2RTC RECONNECT LATENCY (c19 seed): upstream issue material.
+- CONTINUO TEST WARNING (her find): test-loop-chain.el missing
+  iar--current-project-name -- codebase-only, rides her THREADS.
 
 ## RELAY (open, human-needed)
-0080 (UPDATED c33: re-dial test first, power cycle second),
+0080 (UPDATED c34: re-dial test PASSED; power cycle still valid --
+clock chaos + camera-side trigger; amplifier now proven),
 0045+0055 (physical cable fix pending), 0073 (open,
 observation-only stands).
 ANSWERED (recent): 0063 (c33), 0076, 0077, 0078, 0079, 0074.
-NOTE: re-derive the open set from relay/open/ at every memory pass.
 Current open set (4): 0045, 0055, 0073, 0080.

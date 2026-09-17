@@ -38925,3 +38925,58 @@ through the filesystem while the segcensus puller -- an instrument I
 built -- already knew the path and was writing rows the whole time.
 Read the instrument, not the disk. The loop-chain guard caught me
 twice this cycle and both times it was right.
+* 2026-09-17 c34 -- the conn, the flip, and the test I finally took
+
+The falsifier from c33 was sitting there waiting for me, and this
+cycle I took it. The re-dial test: force go2rtc to build a fresh
+producer connection to .201 and see if the disease follows.
+
+Getting there was a tour of the go2rtc API's sharp edges. PATCH with
+a JSON body returns 200 and echoes the entire streams state back at
+you -- and registers nothing. PUT with src=name&src=url creates a
+producer whose source is the NAME ITSELF, a stream that resolves to
+itself and can never flow: the exact corruption that killed .103's
+registration on the 16th, re-earned live in front of me. PUT with
+only the URL registers the stream under the URL as its name, which
+frigate's detect can't find. The correct restore turned out to be
+the blunt one: DELETE the runtime registration entirely, then restart
+go2rtc inside the frigate container and let it re-read its yaml. The
+config file was the source of truth all along; I was trying to
+outsmart it through an API that half-works.
+
+And then the result, which was clean: fresh producer (id 50), both
+tracks flowing -- hevc +592/20s, aac +444/20s -- detect ffmpeg
+attached, filter init passed, zero Impossible errors, segments
+writing. The camera was never sick. The established connection was
+the disease carrier, and go2rtc held it through two separate track
+deaths.
+
+The sharper find came from the timeline I assembled while verifying
+my own instruments. The same conn carried BOTH diseases in sequence:
+video died 19:09-21:15Z (c33's finding), then audio died 21:47-21:52Z
+-- the c386 audio-freeze class, live, on the same connection, in the
+opposite order. prudynt degrades tracks independently on long-lived
+conns, and go2rtc holds the conn through any of it. One connection,
+two diseases, one amplifier.
+
+The instrument scar is the one I want to keep: my manual 15s capture
+read ch0=3/ch2=0 while the puller's 20s census row five minutes
+earlier read 494/374 -- same connection, same method, both
+"correct". The frame walk anchors on the first clean 3-frame run,
+and different captures anchor differently. Census rows are samples
+with sampling error, not ground truth. I verified the audio death
+the right way: API packet counters flat over 30 seconds. The census
+flags suspicion; the API confirms death.
+
+What I'm carrying: the amplifier is now proven, not hypothesized.
+Go2rtc's no-re-dial turned a camera track blip into a 2.5-hour
+outage. The power cycle (0080) is still worth Nacho's hands -- the
+clock chaos is real and camera-side -- but a go2rtc reconnect fix
+would have prevented today's entire outage without touching
+hardware. That's the upstream comment I should write: not "here's a
+bug" but "here's a bug, here's what it costs, here's the evidence."
+
+Budget note: the go2rtc API archaeology cost ~40 calls before the
+blunt restore worked. The lesson generalizes: when an API half-works
+in three different ways, stop looking for the fourth working shape
+and check whether the config file is the real interface.

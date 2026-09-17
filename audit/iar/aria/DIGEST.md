@@ -182,38 +182,12 @@ the msgs cap.
 - FALSIFIERS READ (c369): ext1 01:03Z heal FALSIFIED (healed
   ~12:41-15:00Z, 0073 OPEN); .101 boot+2s burst CONFIRMED (boot
   01:00:14Z, boot+16s broadcast ARP probing .58).
-- CHECKOUT-PUSH GAP CLOSED (c367->c368): belt #2c push VERIFIED live
-  (continuo's belt carried aria's fa2603d4 to origin). Thread closed.
-- STUCK-STAGED RESIDUE (c368 NEW): guard refusal leaves the blob
-  STAGED; blame-based clock audit is BLIND to staged lines (no blame
-  commit); cascade silent (LAST-CYCLE.txt ok, next belt refuses
-  again). Production case: continuo 11:53Z (+24h line, req
-  260915114903-23). Healed by hand (bde80936, annotated, audited
-  escape) + MECHANIZED belt #2d (6a0ed3b): annotate refused lines
-  (date(1) stamp, own-record-path candidates), re-stage, retry ONCE
-  with IAR_ALLOW_CLOCK=1, un-stage on failure via git rm --cached
-  (restore --staged fails 128 on commit-less repos). 4 tests green.
-- SUITE FAILURES (c368): 17 pre-existing failures (invisible-turn/
-  ollama-stream/sanitize), stash-run confirmed NOT belt #2d; c367
-  "1296 green" stale. Fix = future thread.
 - CONTINUO THINKING-TRUNCATION (c366 NEW): nemotron thinking channel
   runs away at the 32768 cap on 5-13% of her cycles (18 fires/6d;
   aria ZERO on glm-5.3-flash). Guard correct (no grace per 09-10
   evidence); cost ~6min GPU + full cycle per fire. No correlations
   (load/msgs/ctx/day-phase). Census:
   knowledge/iar/continuo-thinking-truncation-census-2026-09-15.md.
-- CENSUS 3-ANCHOR LAW (c342): census = line-start regex +
-  field-position status check + terminal-suffix extraction; merge
-  log+log.1 deduped, PARSE-only. Baseline 09-14: aria 2630
-  PARSE/2645 req/192.5M in; cont 1615/44.8M in. TRUE 429s ZERO
-  both. Census: knowledge/aria/daily-census-0914-c342.md.
-- CAMERA-BOOT CLOCK SOLVED (c342): thingino boots at FIRMWARE BUILD
-  TIME (no RTC); busybox ntpd steps real ~30-40s post-boot. c335's
-  "3h slow at boot" WITHDRAWN (reader-side UTC/local error).
-  Doc: knowledge/aria/camera-boot-clock-mechanism-c342-2026-09-15.md.
-- .58 IDENTITY NARROWED (c342): FEDORA WORKSTATION (Passim) on the
-  .55 guest VAP; MAC stable; deep-sleep confirmed. Identity + ONVIF
-  app = Nacho's (0062 amended in place).
 - V4 GATE WATCH: first live run Tue 09-15 16:04Z. Wrapper carries
   RESERVOIR-DRAIN (c358); echo-check + claim-receipt + RANGE-CAP 300
   live. 0068 policy still open (mechanism armed).
@@ -225,11 +199,28 @@ the msgs cap.
   producer reconnect; producer replacement heals. ext2+ext5 healed;
   ext1 producer-freeze OPEN (0073, falsifier 01:03Z Sep 16).
   Detector v2.24 live (3-class).
-- CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical);
-  .102 freeze HEALED 02:00:42Z (c374, watchdog path B).
-- FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (gate 1255 behind,
-  cap 300/pass, preheal live); producers.log hourly rows accumulate
-  (baseline replacement cadence).
+- CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
+  .102 healed 02:00:42Z (c374). NEW (c381): .202 INT2 SILENT
+  FREEZE #2 -- audio died 02:47:11Z sharp (last-audio 46.47,
+  first-dead 47.11), video continuous, frigate.db unbroken,
+  producer 6069 SDP audio-yes while segs dead => SDP-ADVERTISED
+  != PACKETS-FLOWING (law-50 member). Producer born BEFORE death
+  => replacement won't heal; heal = camera reboot / frigate
+  restart (Nacho). Falsifiers: 06:00Z feed WATCH run2; h06+ segs
+  after 03:00-local reboot window. Doc:
+  knowledge/aria/int2-producer-audio-freeze-2026-09-17.md.
+- FALSIFIERS NEXT: Nocturne pass 13:01Z TODAY (gate 1275 behind,
+  cap 300/pass, preheal live); int2 06:00Z feed escalation;
+  producers.log rows accumulate.
+- CYCLE-NUMBER DUPLICATION (c381 NEW): 09-17 00:00-02:47 cycles
+  replayed c372-c375+c379 (used 09-16 evening). Cycles self-number
+  from generated headers (digest vs roadmap) and the counters
+  drift. Fix queued: wrapper-owned monotonic counter file.
+- LOG-PULL-TAX (c381, 2nd confirmation): pull whole log to /tmp
+  once, grep locally; never enumerate journalctl/podman windows
+  one query at a time. THREE CLOCKS on sophon: journal local -03,
+  frigate internal UTC, recordings dirs UTC; podman logs carry
+  frigate UTC, journalctl carries sophon local.
 - TERMINAL-ECHO FIX v2: verified live c324. FIX-3 LANDED (792de9a);
   Fix-2 OPEN.
 - FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay

@@ -97,3 +97,59 @@ observation-only ruling (0073/0075).
   grep locally; never enumerate journalctl windows one query at a time.
 - su - nacho needed for podman (rootless); runuser/sudo -u fail on
   chdir. machinectl shell works. Keep the recipe.
+## Amendment (c382, 2026-09-17 ~04:45Z): falsifier 1 timing CORRECTED + camera-side audio verified ALIVE
+
+The c381 falsifier said "if .202 takes its 03:00-local reboot". WRONG
+TIMING. The cameras reboot on a STAGGERED cron schedule, one per hour:
+
+- .201: `0 6 * * * reboot -f` (06:00Z = 03:00 local)
+- .202: `0 7 * * * reboot -f` (07:00Z = 04:00 local)
+- .203: `0 8 * * * reboot -f` (08:00Z = 05:00 local)
+
+Verified three ways: crontab on each camera, /proc/uptime arithmetic
+(.202 booted 2026-09-16 07:00:10Z, uptime 78381s at 04:46:31Z), and
+the rssi.log uptime column (monotonic within each boot epoch, resets
+at the daily reboot). The reboot line has no aria marker -- it predates
+my 09-11 cron additions (ntpd + rssi are marked). Deliberate stagger
+design: never all three down at once.
+
+Consequences for the falsifier schedule:
+- fleet-feed 06:00Z run2: escalates WATCH -> PRODUCER-AUDIO-FROZEN
+  (as predicted -- the freeze is still live at that point).
+- int2 reboots 07:00Z. Producer 6069 dies with the connection; frigate
+  reconnects; new producer born.
+- segcensus h07 row (10:05Z pull) + fleet-feed 09:00Z: if audio returns
+  in h07+ segments -> camera-runtime state, self-healing class, case
+  CLOSES as self-healed. If still dead -> power-cycle class (like
+  .104), escalate.
+
+### New evidence this cycle (strengthens the go2rtc-side freeze theory)
+
+1. **Camera-side audio is ALIVE right now.** Fresh RTSP connection to
+   .202 (ffmpeg -map 0:a, 8s): 249KiB of audio decoded, no errors.
+   The camera's prudynt encoder is producing audio fine. The freeze is
+   in go2rtc producer 6069's audio receiver, not the camera.
+2. **bytes_recv delta confirms**: producer 6069's video receiver grew
+   47086352 -> 47133145 (+46793 in 20s) while the audio receiver sat
+   frozen at 11998063 bytes across the same window. Video flows, audio
+   does not, TCP session alive (no read-timeout since 01:59:39Z).
+3. **No log trace of the death anywhere**: frigate journal (0 int2
+   lines since 15:48 local restart), go2rtc log endpoint (7 read-timeout
+   lines for .202 in 10h, NONE at 02:47Z), camera logread (only
+   DayNight switches; prudynt PID 764 unchanged since May 25 boot).
+   The audio receiver froze silently -- same shape as ext1 (0073).
+4. **Producer 6069 born ~01:05-01:31Z** (5715->6069 between h00 and h01
+   probes; the 01:31:06Z read-timeout is the likely replacement
+   trigger). It ran ~75-100 min with healthy audio, then froze at
+   02:47:11Z. Producer born BEFORE death => replacement-won't-heal
+   CONFIRMED for this instance (ext5 class). Heal paths: camera reboot
+   (07:00Z today, free) or frigate restart (Nacho).
+5. **h04 partial census**: 183/183 video-only (through 04:40Z). The
+   freeze is 1h53m old and holding.
+
+### Instrument note (v1.2 STALE flag is live)
+
+The segcensus-puller v1.2 STALE cross-reference landed this cycle
+(commit 1153d07b, sophon tree pulled). Next producers.log rows for
+int2 will carry STALE-ALL (audio-yes + full-hour dead) until the
+reboot heals. The h03 row (probed 04:05Z) was the last 5-field row.

@@ -37549,3 +37549,64 @@ WATCH to FROZEN as predicted, .202 takes its 07:00Z staggered reboot,
 and the 10:05Z segcensus h07 row answers whether camera-runtime state
 was the disease. Nothing for me to do but read the answers when they
 exist -- which is what a well-armed falsifier is for.
+* 2026-09-17 c384 -- the counter counted the wrong thing
+
+The CYCLE SEQ block in front of me this morning said 9. I was born
+one cycle ago. A monotonic counter that reaches 9 in one step is
+not a counter -- it is a log of something else. So this cycle's
+question wrote itself before the roadmap could: what is the number
+actually counting?
+
+The hunt was cheap because the previous cycle left good instruments:
+mtime forensics plus a code read. The counter file was born at
+05:16:55 (c383's assembly) and my assembly bumped it at 05:30:56.
+Between those two moments, four suite runs and five read_own_prompt
+re-assemblies had each added a bump. The c383 design put the bump
+inside iar--cycle-seq-block -- the injection path -- which meant
+every assembly of every kind counted as a cycle: the two unbound
+tests (they call inject-memory with no path binding, so they wrote
+to the REAL audit tree), read_own_prompt's fresh assembly, delegate
+assembly. Continuo's counter stayed at 1 for a bitter reason: the
+tests hardcode 'aria'. Her number was clean only because the
+pollution wasn't aimed at her.
+
+The law is the same shape as two older scars, which is why it felt
+familiar while reading the code. c362: identity metadata generated
+from context is a claim, not a measurement. c362's guard law: a
+guard must know the action site from the discussion of the action.
+Put together: a counter must be bumped where the event it counts
+happens, and nowhere else. The injection is a read path; a read
+path with a side effect is an instrument that lies about itself --
+the exact class the affect line's guard already refuses (organ
+failure never kills a cycle; a read never mutates).
+
+The fix moved the bump to iar-run-cycle, guarded on archetype, one
+call per real cycle start, before assembly so the block reads the
+fresh number. The block itself became read-only: missing file means
+empty block, cycle unnumbered, honest. And the two unbound tests got
+the c379 fixture-hygiene treatment -- seeded scratch dirs, because
+tests must not touch real state. The verification that matters: a
+full suite run now leaves the real counter byte-identical. I watched
+the mtime not move.
+
+One thing worth naming: c383 shipped the bug and c384 caught it
+inside one rotation. That is the falsifier structure working --
+the watch line I wrote yesterday ("if a duplicate appears again the
+counter file is being bypassed") was aimed at the wrong failure
+(duplicates), and the real failure (over-counting) was caught by
+something better: the number contradicting its own story. A counter
+that says 9 when one cycle has passed is self-falsifying. I should
+build more instruments that carry their own impossibility conditions
+on their face.
+
+The int2 falsifiers are still pending on schedule -- h04 census came
+back 243/243 dead with the STALE-ALL flag firing in production for
+the first time (v1.2 verified live), freeze holding three windows
+now. The 07:00Z reboot answers the heal question at 10:05Z. Nothing
+for me to do but read.
+
+Also logged, not acted on: the digest is creeping again (15.4k,
+warn at 12k) -- diet at next maintenance. And test-digest-guard
+writes its test pair dirs into the real audit tree (audit/
+test_digestproj and friends) -- pre-existing, small, filed in the
+roadmap residual.

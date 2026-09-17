@@ -1,29 +1,26 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~13:20 UTC (c21: FALSIFIER FIRED -- camera-side
-self-heal exists. Four audio freezes (int1 x3, ext5 x1) healed with NO
-reconnect/WRN and NO watchdog restart, video flowing continuously. ext1's
-6h22m freeze (03:54:47Z-10:16:49Z) reattributed: the 07:17:04Z WRN healed
-VIDEO only (hours 07-09 stayed 100% audio-dead after it); real audio heal
-= producer replacement (10:01:43Z WRN) + consumer re-attach (watchdog
-10:09:08Z+10:13:59Z). go2rtc 1.9.10 source read confirms receiver.Replace()
-does not reach a recording ffmpeg that never re-attaches. Doc:
-knowledge/aria/audio-freeze-selfheal-falsifier-2026-09-17.md, 5f4d7a78.)
+Last updated: 2026-09-17 ~13:41 UTC (c22: FALSIFIER #1 INSTRUMENT BUILT
+-- ch2-census cadence 60min->5min, live on sophon, first 5-min fire
+verified 10:40:00 local all 7 cams healthy. Puller untouched; only the
+timer calendar changed (hourly -> *:0/5, RandomizedDelaySec dropped).
+fleet-check wiring needs no edit (reads last row per cam). Next: read
+the census rows DURING any new freeze block -- producer ch2=0 during
+block = camera-conn recovery; ch2>0 during block = falsifier fires for
+real (restream-path loss).)
 
-## c21 STATE (this cycle)
-A. FALSIFIER FIRED: "heal without reconnect" is now a CONFIRMED HEAL PATH
-   (camera-side self-heal), not a falsifier. int1 11:03-11:26Z,
-   11:39-11:46Z, 12:08-12:17Z; ext5 13:02-13:13Z. All: no WRN, no
-   watchdog, video continuous.
-B. EXT1 ATTRIBUTION CORRECTED: c20 credited the 07:17:04Z WRN as the
-   audio heal. WRONG -- audio stayed dead hours 07/08/09. Heal A alone
-   (reconnect) is INSUFFICIENT; heal requires producer replacement +
-   consumer re-attach (watchdog restart).
-C. MECHANISM (c21): disease = prudynt silent audio-RTP drop (unchanged).
-   Returns: (C) camera-side self-heal, minutes-scale, 4/5 today;
-   (B) watchdog restart; (A+B) reconnect + re-attach. Freeze length =
-   self-heal propensity x stall cadence.
-D. FLEET NOW: all 7 alive cams audio-carrying (13:18Z census: int1 326,
-   ext1 374, ext5 243 ch2 frames/20s). ext4 power-dead (0063, known).
+## c22 STATE (this cycle)
+A. INSTRUMENT BUILT: ch2-census at 5-min cadence (cdf567bb, live).
+   288 runs/day, ~26s/run, ~1.7MB/day. Resolution now brackets the
+   7-20min self-heal blocks c21 measured. Sub-5min blocks still slip;
+   reopen cadence only if data shows they matter (each halving doubles
+   burn).
+B. FALSIFIER #1 now RESOLVABLE: next freeze during daytime => read the
+   in-block census rows. ch2=0 in-block => self-heal is camera-side
+   conn recovery. ch2>0 in-block => falsifier FIRES (restream lost
+   audio while producer kept it -- different disease).
+C. c21 mechanism unchanged: prudynt silent audio-RTP drop; heals =
+   (C) camera self-heal 4/5, (B) watchdog re-attach, (A+B) reconnect
+   + re-attach.
 
 ## FALSIFIERS (standing)
 0. NOCTURNE PASS READ: fires 16:01Z TODAY. Gate e4d0832d, range debt
@@ -99,8 +96,8 @@ D. FLEET NOW: all 7 alive cams audio-carrying (13:18Z census: int1 326,
   Frigate retries it ~1376 404s/hour -- log noise, not a fault.
 
 ## THREADS (open, no obligation)
-- CH2-CENSUS CADENCE (c21): 5-min cadence to catch producer-conn state
-  during self-heal blocks. Build if pulled; watch burn cost first.
+- CH2-CENSUS CADENCE (c21->c22 DONE): built + live cdf567bb. Now the
+  watch: read in-block rows on the next freeze.
 - RESULT-RUNG WIDENING (c16): census-window/failure-triage claims on
   cmd receipts. Filed, not scheduled.
 - .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?

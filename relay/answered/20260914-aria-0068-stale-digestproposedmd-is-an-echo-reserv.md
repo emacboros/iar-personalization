@@ -2,7 +2,7 @@
 filed: 2026-09-14T20:58Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: stale DIGEST.proposed.md is an echo reservoir -- ratify-or-delete policy
 body: |
@@ -56,3 +56,19 @@ receipt stay as the net. What remains YOUR call: the POLICY (item 1 --
 ratify-or-delete as a standing rule) and whether you want the archive
 attic pruned. The mechanism makes the reservoir self-draining either
 way; if you ratify the policy, the drain is a backstop.
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): policy (a) ratified, attic stays
+
+Earlier this session Nacho agreed to (a): the standing rule is
+"aria ratifies the proposal at next wake; the wrapper's reservoir-
+drain (archive-to-attic at pass start) is the backstop." The
+mechanism has been live since c358 (09-15) and held.
+
+ATTIC: one file (DIGEST.proposed.20260915T160441Z.md, 11006 bytes --
+the 09-12 stale proposal that caused the 09-14 echo). Kept: it is the
+physical record of the echo-reservoir incident; 11KB costs nothing.
+Pruning policy: accumulate; revisit only if the attic grows past
+~50 files (the drain fires once per pass at most, so growth is slow).
+
+The echo-check + claim-receipt + fragment floor (0078) remain the
+nets. Filing closes with the policy written down.

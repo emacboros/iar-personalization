@@ -108,3 +108,65 @@ replacement carried audio.
   stays OPEN, not overturned: the timed-out scan was incomplete.
 - The 5-min census remains the right instrument; its readings just need
   the EVENT correlation to be interpretable.
+## ADDENDUM (same cycle, after the hour-12/13 seg walk): one REAL block found
+
+The full-day seg walk (codec_type probe, not frame counts -- see scars)
+found ONE real NO-AUDIO block the census missed:
+
+**int1 12:08:11Z - 12:16:41Z (8.3 min, video-only segs, no audio stream
+at all).** Sequence: frigate watchdog restarted int1 ffmpeg at 12:05:38Z
+(No-frames event); the NEW producer conn established ~12:05:38Z carried
+NO audio (camera-side); video-only segs 12:08:11-12:16:31Z; audio
+resumed 12:16:41Z on the same conn with NO frigate event; the go2rtc
+producer WRN for that conn fired 12:16:56Z (15s after audio resumed --
+read-timeout semantics, loose timing). The census was HOURLY over this
+window (the 5-min grid starts 13:40:00Z): rows 12:03:19Z (healthy) and
+13:01:28Z (boundary artifact) bracketed the block and missed it
+entirely. This is the c19 disease at full scale, camera-side, and it is
+the instrument-validation case: at 5-min cadence the rows at 12:10Z and
+12:15Z would have read ch2=0/low-bytes with NO boundary event -- the
+Class-C signature.
+
+## c23 corrections (re-derivation overturned two claims)
+
+1. **ext5 14:05Z "real near-freeze"** -- reclassified Class A (conn
+   replacement): frigate watchdog restarted ext5 ffmpeg at 14:05:17-18Z,
+   INSIDE the capture window (c23 wrote "No watchdog" -- it missed the
+   restart because it searched a different window). The row is the
+   starving conn's tail. The stubs 14:08-14:10Z are the recorder's view
+   of the post-restart gap (WRNs 14:08:17/14:09:35/14:10:52Z = the NEW
+   conn also timing out).
+2. **int1 13:31-13:32Z NO-AUDIO block** -- NOT CONFIRMED. The hour-13
+   segs show audio 23/142 (degraded, partial) at 13.20/13.39, both
+   burst-written at 13:13-13:14Z right after the 13:13:39Z producer WRN
+   + 13:18:36Z watchdog restart. No seg exists at 13:31Z (name gap =
+   muxer lag, c21 law). The c23 "six consecutive video-only segments"
+   does not exist in today's files. The real degraded-audio window is
+   ~13:20-13:49Z, explained by boundary events. Falsifier #1 was
+   inferred from this block; it does NOT fire.
+
+## The corrected day picture (int1)
+
+- 12:05:38Z watchdog restart -> NEW conn silent-audio -> REAL block
+  12:08:11-12:16:41Z (8.3min) -> camera resumed audio on the same conn
+  12:16:41Z -> conn WRN 12:16:56Z -> replacement.
+- 13:13:39Z WRN -> burst-write 13:13-14Z -> partial segs 13.20/13.39
+  (degraded audio AND video) -> 13:18:36Z watchdog restart.
+- 14:23:05Z WRN -> degraded census 14:25Z -> watchdog 14:25:31Z ->
+  dead-conn census 14:30Z -> healthy 14:35Z.
+- Parse artifacts at 14:30Z/14:45Z (bytes healthy).
+- 31 producer WRNs on .201 today; 37 watchdog restarts. The conn
+  boundary is the dominant event; the camera-side silent-audio drop
+  happened ONCE at full scale (12:08Z) plus the c19-era blocks.
+
+## Net
+
+The disease is real and camera-side (12:08Z block proves it). The
+census's degraded rows are mostly heal-boundary echoes, not disease
+bodies. The falsifier #1 test (restream-path loss with healthy
+producer) remains open and now has a precise reading procedure:
+TRIPLE + EVENT correlation, per the reading law above. The 12:08Z block
+is the reference case of a REAL block: census-blind (hourly era),
+recordings show it cleanly (video-only seg run), heal = camera-side
+resumption, no frigate event at either end except the conn WRN 15s
+after the heal.

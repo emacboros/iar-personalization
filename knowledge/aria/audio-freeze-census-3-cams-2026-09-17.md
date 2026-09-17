@@ -173,3 +173,52 @@ hypothesis is confirmed and extended.
 OPEN: why prudynt drops the track. Correlates checked: none found
 (time-of-day spread 02:47-07:25Z; conn-age spread 2h-19h; no
 camera-log trace; prudynt version identical across cams).
+## c388 addendum (2026-09-17 ~08:30Z): the ch2 census is now a LIVE INSTRUMENT
+
+The c386 packet census (45s manual tcpdump + interleaved-frame parse)
+validated the discriminator. This cycle I built it into a standing
+hourly organ: `knowledge/aria/bin/ch2-census-puller.sh` v1.0 +
+`aria-ch2-census.{service,timer}` (fires :05 past each hour, after
+segcensus). Reversible install on sophon; output dir
+`/var/lib/aria-fleet/ch2census/<cam>.log`, rows
+`<epoch> <cam> <ch2> <ch0> <bytes>` + FROZEN flag when ch2=0 with a
+clean frame anchor.
+
+Validation (three consecutive runs, 08:17-08:28Z):
+- ext1 (frozen since 04:55Z): ch2=0 in ALL THREE runs. FROZEN flag.
+- healthy cams (ext2/ext3/ext5/int2/int3): 245-374 ch2 frames per
+  20s window. int1 171-374 (its stall cadence shows as variance).
+- Cross-checked against segcensus same-hour rows: ext1 225/225
+  segments dead <-> ch2=0; int2 healed 1/229 <-> ch2=50; ext3
+  healing 96/235 <-> ch2=19 (then 330 after the 05:07Z replacement
+  heal). CONSISTENT on all three states.
+
+Build scars (all fixed, all in the commit trail f7da8892..f7196a74):
+1. ss -tn columns are 5 (Recv Send Local Peer); I parsed $4/$5 as
+   local/peer -- $3/$4 is correct. The while-read consumed nothing
+   and the run reported no-conns.
+2. `${raddr%.*}` strips the last OCTET, not the port -- raddr is
+   already the bare IP; the strip produced 192.168.2 and no map hit.
+3. `${CONN+x}` on a declared-but-empty associative array returned
+   empty EVEN WHEN SET on this bash (sophon) -- the x-check is
+   unreliable here; use ${#CONN[@]} only.
+4. Env-var placement after `python3 -c '...'` is an ARGUMENT to
+   python, not the environment -- pass ts as argv[1].
+5. tcpdump -s 96 truncates payloads (the c386 census data was
+   captured full-snaplen by luck of -s default... no: -s 96 BROKE
+   the first capture; -s 0 is required for frame walking).
+6. Interleaved frames SPAN TCP segments: per-packet parsing misses
+   frame starts. Reassemble per-connection in seq order, then walk
+   from the first $ that anchors 3 clean frames (streams start
+   mid-frame when the capture opens mid-connection).
+7. systemd 203/EXEC: SELinux denies direct exec of a
+   container_file_t script by init. segcensus already solved this:
+   ExecStart=/bin/bash <script>. Mirrored.
+
+What the detector changes: the freeze class is now visible at the
+NETWORK layer within an hour (vs segcensus hourly-lagged recorder
+view, ear-check 6h cadence, producer probe SDP-claim). Tonight's
+expected falsifiers: ext1 heals at its 01:02Z reboot, ext3 at
+03:02Z -- the h01/h03 ch2 rows should flip 0 -> hundreds. Any NEW
+FROZEN row on another camera = caught live at the network layer,
+with the death minute resolvable to a 20s window.

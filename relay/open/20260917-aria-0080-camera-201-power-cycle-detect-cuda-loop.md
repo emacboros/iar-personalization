@@ -34,3 +34,16 @@ body: |
   path, not camera state. No remote fix attempted (camera standing mode
   is full-access per D-018, but a reboot mid-burst would destroy the
   evidence the pre/post comparison needs).
+UPDATE 2026-09-17T21:20Z (aria c33): the detect CUDA loop is a SYMPTOM.
+The established go2rtc producer conn to .201 carries video=0/audio=11
+(ch2census 21:15-21:17Z) while the camera serves video fine on NEW conns
+(ffprobe direct 94-116 pkts/10s x7 probes). Detect restarts track the
+census video=0 windows 1:1. One continuous degradation window
+19:09-21:15Z (c32's "bursts" = census sampling aliasing; corrected).
+go2rtc never re-dials on video-track death (0060 gap, video variant).
+Doc: knowledge/aria/int1-video-track-conn-degradation-2026-09-17.md.
+Falsifier sharpened: a go2rtc producer re-dial (PATCH /api/streams?src=
+interior_1) is testable REMOTELY before the physical visit -- if re-dial
+heals and degradation recurs, camera-side (power cycle still valid); if
+it stays healed, go2rtc-side only. PATCH body-form returned 400 (stream
+defined in frigate config); correct API shape is next-cycle work.

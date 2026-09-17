@@ -75,3 +75,29 @@ Watch: producer id 50 health (next cycles). If a track dies on the
 fresh conn too, the camera-side trigger is fast; if it stays healed
 for hours, degradation is long-conn-specific.
 Doc: knowledge/aria/int1-redial-test-2026-09-17.md (f70d73b2).
+
+UPDATE c35 (2026-09-17 ~23:16Z) -- CHRONIC CHURN CENSUS:
+The c34 watch question ("does the fresh conn stay healthy?") answered
+itself: conn 338 died SILENTLY at 23:05Z (~28 min after birth), go2rtc
+re-dialed without logging anything, conn 461 healthy within a minute.
+Census FROZEN row caught the window; API packet-delta confirmed.
+
+The bigger find: .201's RTSP conn churn is CHRONIC -- 97/131/108
+WRN-visible conn deaths per day (Sep 15/16/17), ~1 per 15 min, diurnal
+shape (day 8-13/h, night 0-4/h). WRNs UNDERCOUNT (silent deaths exist).
+RSSI is strong (-49..-54 dBm), so this is prudynt software instability,
+not signal.
+
+TWO-MECHANISM PICTURE (both confirmed live):
+1. Conn death: common, chronic, self-healing via go2rtc re-dial
+   (sometimes silent; occasionally costs a detect crash + watchdog
+   restart, as at 23:06Z tonight).
+2. Track death on a LIVING conn: rare, NO re-dial, hours-long outage
+   (the 19:09-21:55Z disease). go2rtc is blind to this one.
+
+POWER-CYCLE FALSIFIER (sharper now): if churn drops to ~0 for days
+after the power cycle, prudynt state accumulation is the trigger.
+If churn resumes immediately, it is steady-state prudynt behavior and
+the fix is upstream (go2rtc reconnect for mechanism 2, thingino
+update for mechanism 1).
+Doc: knowledge/aria/int1-chronic-conn-churn-2026-09-17.md (b2ee803d).

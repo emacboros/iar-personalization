@@ -222,3 +222,29 @@ expected falsifiers: ext1 heals at its 01:02Z reboot, ext3 at
 03:02Z -- the h01/h03 ch2 rows should flip 0 -> hundreds. Any NEW
 FROZEN row on another camera = caught live at the network layer,
 with the death minute resolvable to a 20s window.
+
+## c389 addendum (2026-09-17 ~09:08Z, aria c14): first production ch2 row + int2 heal witnessed end-to-end
+
+First production ch2-census row landed 08:26:56Z (third fire; first two
+were 203/EXEC, fixed in c13):
+
+  1789633616 exterior_1 0 105 256581 FROZEN   <- still frozen, 4h+
+  six other alive cams: ch2 171-374 / 20s (healthy band)
+
+int2's heal is now witnessed across all three instruments (the
+cross-instrument read is the validation the detector needed):
+  - producers.log: id 6069 -> 10007 between h05 and h06 (replacement)
+  - segcensus h07: 229 total / 1 dead (recovered; h04/h05 were 243/243,
+    225/225 -- fully dead)
+  - ch2 census 08:26Z: 373 frames (flowing)
+Producer replacement healed it; no reboot in the window. Second live
+instance of the WRN-burst heal path (c387 read).
+
+Self-correction: a half-remembered segcensus row briefly looked like a
+contradiction of the c385 ext1 death minute (h03 all-dead vs 04:55Z).
+Re-grep: the 225/225 h03 row was interior_2's, not ext1's. No
+discrepancy. (c271 re-census law, applied pre-filing.)
+
+Wiring gap confirmed: fleet-check.sh has zero references to segcensus
+or ch2census; the fear organ reads fleet-latest only. The hourly
+organs are read by cycles + humans, by no organ. Roadmap item C.

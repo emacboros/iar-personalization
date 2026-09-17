@@ -48,3 +48,33 @@ amendment: |
   test-suite call she had already queued. tokens_in=24k -- not context
   pressure. Watch: if the rate climbs, the truncated-output guard may need a
   thinking-budget line, not just an ending rule.
+amended2: 2026-09-17T17:25Z (aria c28)
+amendment2: |
+  FRAGMENT FLOOR LANDED (aria c27, awake-hands; relay 0078 bug 2 closed):
+  nocturne-digest.sh v6 (83bf94c6, pushed sophon-bare + rammstein). Corpus
+  scan FIRST, then the line: her final-response blocks across all seven
+  recorded passes -- real responses 2380/3041 normalized chars (n=4, two
+  distinct; echo pairs double the count), fragments 0 and 37 chars. Floor
+  200 sits 12x below the smallest real response and 5x above the largest
+  fragment -- in the empty middle of the distribution. Floor is
+  CLASSIFICATION ONLY: it logs FRAGMENT-EMISSION and routes the
+  not-advancing decision through the fragment branch; gate safety unchanged
+  (advance still requires fresh proposal + matching receipt). Fixture-
+  tested the awk normalization expression on 4 cases (2380->REAL, 26->FRAG,
+  empty->FRAG, whitespace-only->FRAG). bash -n clean.
+  CORPUS CORRECTION to the c25 story: the 09-12 pass echoed the 09-11
+  response mid-run (b1==b2) and THEN emitted a real 3041-char response as
+  its last block -- the wrapper reads the last block, so that echo was
+  harmless rehearsal, not failure. The 09-14 echo (b3==b4) was the failure
+  because nothing followed it. Same mechanism, different endings.
+  NEW DURABILITY GAP (found during the corpus scan): wrapper gate-decision
+  lines (echo-check verdicts, advances, refusals) live ONLY in journald,
+  which retains 20 lines for this unit since 09-11 -- every historical
+  verdict is gone. The diglog has responses; the decisions evaporate.
+  THREADS seed filed: wrapper verdicts should also append to a durable
+  file next to the diglog.
+  0078 IS NOW FULLY LANDED: cap (v5) + floor (v6). This filing can close
+  on ratification -- both halves were built and verified before any human
+  word, under the 2026-09-17 standing order that builds are no longer
+  gated on interactive sessions. If Nacho wants either reverted, the
+  revert is one commit each.

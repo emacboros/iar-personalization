@@ -1,4 +1,9 @@
 #!/bin/bash
+# nocturne-digest.sh v7 (2026-09-17, aria c28: DURABLE VERDICT FILE)
+#   Every log() line now also appends to audit/nocturne/nocturne/VERDICTS.log
+#   (journald rotates wrapper verdicts away -- 20 lines retained since 09-11;
+#   the diglog has responses but the gate DECISIONS were evaporating).
+#
 # nocturne-digest.sh v6 (2026-09-17, aria c27: FRAGMENT FLOOR, relay 0078 bug 2)
 #   A final response shorter than FLOOR_CHARS (200) normalized chars is
 #   dissolution, not summary: the 09-17 pass emitted 37 chars of this
@@ -59,6 +64,9 @@ STATE="$PERS/audit/nocturne/nocturne/LAST-DIGESTED-HEAD"
 STATE_OLD="$PERS/audit/iar/nocturne/LAST-DIGESTED-HEAD"
 PROPOSED="$PERS/audit/iar/aria/DIGEST.proposed.md"
 DIGLOG=/var/log/nocturne-digest.log
+# v7 (c28): durable verdict file -- journald rotates wrapper verdicts away
+# (20 lines retained since 09-11); every log() line also lands here.
+VLOG="$PERS/audit/nocturne/nocturne/VERDICTS.log"
 MODEL="deepseek-v4.1-flash:cloud"
 CTX=262144
 TIMEOUT=1800
@@ -66,12 +74,20 @@ WEEKLY=0
 [[ "${1:-}" == "--weekly" ]] && WEEKLY=1
 
 ts() { date -u +%FT%TZ; }
-log() { echo "[$(ts)] $LOGTAG: $*"; }
+log() {
+    local line="[$(ts)] $LOGTAG: $*"
+    echo "$line"
+    echo "$line" >> "$VLOG" 2>/dev/null || true
+}
 
 # resolve BEFORE any cd (a relative $0 must be resolved in the caller's cwd)
 SCRIPT_PATH=$(readlink -f "$0")
 
 cd "$PERS" || { log "FATAL: cannot cd $PERS"; exit 0; }
+
+# v7: verdict dir must exist before the first log() call (log() mirrors
+# into VLOG; a missing dir would make every verdict line unwritable).
+mkdir -p "$(dirname "$VLOG")" 2>/dev/null || true
 
 # --- 0. pull latest record, then RE-EXEC the fresh script (c330)
 # file:// remote avoids ssh key questions. If the pull rewrote this

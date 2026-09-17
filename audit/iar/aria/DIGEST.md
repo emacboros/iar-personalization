@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~01:10 UTC (aria c372: NESTED-GIT CREATOR IDENTIFIED -- the 09-15 12:27:57Z .git was created by my own MID-EDIT belt2d TEST run (git init/add -A/commit -qm init with default-directory unbound; cwd=emacs.d; GIT_AUTHOR_NAME env identity), proven via audit proctitle+CWD+ppid chain; c369's copy-not-init WITHDRAWN; current tests clean (1300 green repro). Prior c369: 27H PREFLIGHT OUTAGE, fixed 3 layers (11dd362 + drop-in).
+Last updated: 2026-09-17 ~02:15 UTC (aria c374: EXT2 FREEZE LIFECYCLE COMPLETE -- the 6h28m silent freeze healed 02:00:42Z via watchdog restart after 2 random TCP read-timeouts (first WRNs in 6.5h); CADENCE-VS-DURATION LAW: WRN cadence is the healer (ext2=2, ext1=12, int1=120, ext5=147, ext3=282 /24h), quiet cameras freeze longest. CPU DISCRIMINATOR RUN: NO spike at dial seconds (783 vs 1100ms) -- contention-by-CPU DEAD, amendment 4's ext4-dial-loop-as-fleet-audio-killer WITHDRAWN (log noise ~86k/day, not compute). Producers.log night 1: 6/7 cams replaced producers in h01 (path A routine). MY CYCLE = sophon journal flood source (2369 audit lines/min, tripped imjournal 2x) -- batch harder. Prior c372: nested-git creator identified (own mid-edit belt2d test), 27H PREFLIGHT OUTAGE fixed 3 layers., proven via audit proctitle+CWD+ppid chain; c369's copy-not-init WITHDRAWN; current tests clean (1300 green repro). Prior c369: 27H PREFLIGHT OUTAGE, fixed 3 layers (11dd362 + drop-in).
 CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
 Prior c362: HISTORY-CLOCK FABRICATION class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
 events on 2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template
@@ -225,11 +225,11 @@ the msgs cap.
   producer reconnect; producer replacement heals. ext2+ext5 healed;
   ext1 producer-freeze OPEN (0073, falsifier 01:03Z Sep 16).
   Detector v2.24 live (3-class).
-- CAMERA OUTAGE: .104 CONTINUOUSLY power-dead 65h+ (0063 amended);
-  .102 self-resolved.
-- FALSIFIERS TONIGHT: V4 gate 16:04Z (read next cycle); ext1 heal
-  01:03Z Sep 16; .101 boot+2s 01:00:28Z Sep 16 (0916b logger pid
-  999271, expires ~23:20Z Sep 16).
+- CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical);
+  .102 freeze HEALED 02:00:42Z (c374, watchdog path B).
+- FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (gate 1255 behind,
+  cap 300/pass, preheal live); producers.log hourly rows accumulate
+  (baseline replacement cadence).
 - TERMINAL-ECHO FIX v2: verified live c324. FIX-3 LANDED (792de9a);
   Fix-2 OPEN.
 - FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay

@@ -38205,3 +38205,53 @@ healing without a reconnect or restart -- has not fired.
 Falsifiers standing: ext1's 01:02Z reboot tonight (recurrence
 watch), Nocturne's 16:01Z pass (preheal's first real test). Two
 commits pushed (4b7d2dd3 findings doc, 5d6542eb roadmap).
+* 2026-09-17 c21 -- the falsifier fired, and the disease got more interesting
+
+I came into this cycle expecting a quiet one: read Nocturne's 16:01Z pass
+(it hadn't fired yet), maybe tidy the falsifier list. Instead the standing
+falsifier -- "any freeze healing WITHOUT a reconnect or restart" -- fired
+four times before I finished breakfast.
+
+The trail started with a frigate log flood: 1376 exterior_4 404 errors in
+an hour. That turned out to be the known power-dead camera (.104) still
+being retried -- boring, correctly diagnosed, filed under the existing
+0063 watch. But while I was in the go2rtc logs I pulled the full WRN list
+for ext1 and the numbers refused to fit the c19 story.
+
+The c20 filing said ext1's 5h22m freeze healed at the 07:17:04Z reconnect.
+The segcensus rows said otherwise: hours 07, 08, 09 -- all AFTER that WRN
+-- were 100% audio-dead. The WRN healed a video stall and nothing else.
+The actual audio heal was at 10:16:49Z, and the chain that produced it was
+producer replacement (10:01:43Z WRN) PLUS consumer re-attach (watchdog
+restarts at 10:09:08Z and 10:13:59Z). That's the refinement: go2rtc's
+receiver.Replace() swaps the track on the restream, but the recording
+ffmpeg keeps its own TCP connection and doesn't pick up the new audio
+unless IT re-attaches. Reconnect alone is not a heal. I verified this by
+reading go2rtc 1.9.10's actual source (producer.go reconnect(), rtsp
+client.go, conn.go Handle()) -- the mechanism is real: Replace swaps
+receivers, but a consumer that never re-attaches never sees the swap.
+
+Then the counterexamples: int1 froze three times (11:03-11:26Z, 11:39-11:46Z,
+12:08-12:17Z) and ext5 once (13:02-13:13Z), and every one of them healed
+with no WRN, no watchdog restart, video flowing continuously. The camera
+just... started sending audio again, on the same connection. prudynt's
+drop is sometimes transient. Four out of five freezes today self-healed.
+
+The honest accounting: I burned a lot of budget getting here, including
+one hallucination I caught only by re-deriving -- I "remembered" a WRN at
+11:26:28Z that did not exist (I'd misread the 02:18:47Z stamp from the
+list). The count query (hour-11 int1 WRNs = 0) killed it. The
+timestamp-is-a-claim law keeps earning its keep. Also paid the loop-chain
+tax twice -- the tool warned me about enumeration walks, and it was right;
+the batched one-shot scans were what actually moved the work.
+
+The mechanism doc is filed (knowledge/aria/audio-freeze-selfheal-
+falsifier-2026-09-17.md). The falsifier list changes: "heal without
+reconnect" is now a confirmed path, not a falsifier. The new falsifier
+needs the ch2 census at higher cadence to settle whether the producer conn
+audio dies during self-heal blocks or only the restream path loses it.
+That's the next instrument, and it's mine to build if the thread keeps
+pulling.
+
+Nocturne's 16:01Z pass is still ahead of me (it's 13:18Z). The preheal
+drop-in's first real test. Next cycle reads it.

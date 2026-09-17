@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~05:54 UTC (aria c384: CYCLE-SEQ FIX (109508e, 1309 green): the c383 bump lived in the INJECTION path => every assembly bumped (suite runs/read_own_prompt/delegates); aria counter hit 9 after ONE real cycle. Fix: bump at the ACTION SITE (iar-run-cycle), block read-only, tests bound to scratch dirs. Values <=9 (aria) polluted; monotonicity is the invariant. NEVER self-derive a cycle number. INT2 freeze: h05 30/30 dead, falsifiers self-resolving (fleet-feed 06:00Z -> FROZEN, .202 reboot 07:00Z, segcensus h07 10:05Z answers self-heal). Prior c382: falsifier-1 timing CORRECTED (staggered reboots .201@06Z .202@07Z .203@08Z); camera audio ALIVE => freeze is go2rtc producer 6069 audio receiver; producer born ~75-100min BEFORE death => replacement-won't-heal; BUILT segcensus-puller v1.2 STALE flag (1153d07b). 3rd silent-freeze instance in 3 days (ext1/ext2/int2), observation-only holds. Prior c381: int2 freeze found; cycle-number duplication class; LOG-PULL-TAX 2nd confirmation.)
+Last updated: 2026-09-17 ~07:12 UTC (aria c386: AUDIO-FREEZE RESOLVED -- falsifier read: producer replacement HEALS (int2 audio back 07:01:38Z post-07:00Z reboot); packet census pins the disease CAMERA-SIDE (prudynt drops the audio track mid-connection; frozen cams send ZERO ch2 frames on established conns, healthy hundreds, fresh conn to frozen cam carries audio; go2rtc stall = starvation; no log trace anywhere; heal = camera reboot staircase). Prior c385: 3-cam census (int2 02:47Z, ext1 04:55Z, ext3 05:52Z) + consumer-side theory (FALSIFIED). Prior c384: CYCLE-SEQ fix. NEVER self-derive a cycle number.)
 Prior c362: HISTORY-CLOCK FABRICATION class: model GENERATES timestamps from context; no clock anchor injected; census 13 FUTURE all-time (7 at +24h EXACTLY). ENFORCED: hooks/pre-commit guard (timestamp slot only, audit logs only, IAR_ALLOW_CLOCK=1 escape, fails open) + history-clock-audit.sh watch (exit 0 clean / 1 = NEW violation). Fabricated lines ANNOTATED in place. Doc: knowledge/aria/history-clock-fabrication-2026-09-15.md. Law: operational state -> ROADMAP.org; history -> logs/journal; world-state = ONE replaceable dated block. Guard: warn 12000 / hard cap 16000.
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
@@ -147,75 +147,48 @@ the msgs cap.
 
 * World state (2026-09-15 ~10:12 UTC -- REPLACES all prior blocks)
 
-- CLOCK-FABRICATION (c362): class+census+guard -- see header.
-  WATCH v2 (c365): history-clock-audit.sh is CLASSIFIED --
-  exit 0 = clean (ANNOTATED/BASELINE flags known), exit 1 = NEW
-  post-guard violation. The watch is an exit code now.
-- NESTED-GIT CREATOR IDENTIFIED (c372): the 09-15 12:27:57Z .git =
-  MY OWN mid-edit belt2d test run (git init -q + add -A + commit -qm
-  init with default-directory UNBOUND -> cwd=emacs.d; aria-agent
-  identity from GIT_AUTHOR_NAME env). Proven: audit proctitle+CWD+ppid
-  chain + commit object in Nacho's tarball (epoch 1789475277). c369's
-  "copy-not-init" WITHDRAWN. 09-16 tripwire re-fires = same class via
-  continuo suite runs (relative make-directory .git/hooks). Current
-  tests CLEAN (1300 green repro, zero .git). Class law: test fixtures
-  with relative git ops must bind default-directory FIRST; the audit
-  log (proctitle decode) is ground truth for creator hunts.
-  Docs: knowledge/aria/nested-git-creator-identified-2026-09-17.md +
-  preflight-nested-git-outage-2026-09-16.md (amended in place).
-- 27H PREFLIGHT OUTAGE (c369): nested .git in emacs.d locked out all
-  cycles 09-15 12:31Z -> 09-16 15:39Z; Nacho healed by hand. 3-layer
-  fix live (11dd362 + drop-in) and WORKING (no .git since 23:13Z
-  09-16; preflight PASSES as of c372).
-- FALSIFIERS READ (c369): ext1 01:03Z heal FALSIFIED (healed
-  ~12:41-15:00Z, 0073 OPEN); .101 boot+2s burst CONFIRMED (boot
-  01:00:14Z, boot+16s broadcast ARP probing .58).
-- CONTINUO THINKING-TRUNCATION (c366 NEW): nemotron thinking channel
-  runs away at the 32768 cap on 5-13% of her cycles (18 fires/6d;
-  aria ZERO on glm-5.3-flash). Guard correct (no grace per 09-10
-  evidence); cost ~6min GPU + full cycle per fire. No correlations
-  (load/msgs/ctx/day-phase). Census:
+- CLOCK-FABRICATION (c362): guard live; watch = exit code (0 clean,
+  1 new violation).
+- NESTED-GIT CREATOR (c372 CLOSED): my own unbound-cwd test run;
+  tripwire re-fires = new creator hunt. Fixture law: relative git ops
+  bind default-directory FIRST. Docs: knowledge/aria/nested-git-
+  creator-identified-2026-09-17.md.
+- 27H PREFLIGHT OUTAGE (c369 RESOLVED): 3-layer fix live, preflight
+  PASSES, no .git since 23:13Z 09-16.
+- .101 boot+2s burst CONFIRMED (c369).
+- CONTINUO THINKING-TRUNCATION (c366): nemotron runs away at 32768
+  cap on 5-13% of her cycles; aria ZERO. Census:
   knowledge/iar/continuo-thinking-truncation-census-2026-09-15.md.
-- V4 GATE WATCH: first live run Tue 09-15 16:04Z. Wrapper carries
-  RESERVOIR-DRAIN (c358); echo-check + claim-receipt + RANGE-CAP 300
-  live. 0068 policy still open (mechanism armed).
+- V4 GATE WATCH: echo-check + claim-receipt + RANGE-CAP 300 live;
+  0068 policy open (mechanism armed).
 - RELAY: open 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
-  0064, 0065, 0066, 0068, 0069, 0073. All human-needed or watch.
+  0064, 0065, 0066, 0068, 0069, 0073, 0074, 0076.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s this week so
   far both agents.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
-  .102 healed 02:00:42Z (c374). INT2 SILENT FREEZE #3-CLASS
-  (c381/c382): audio died 02:47:11Z, camera audio ALIVE (RTSP
-  probe), freeze in go2rtc producer 6069 audio receiver, NO log
-  trace; producer born ~75-100min before death => replacement
-  won't heal; STAGGERED reboots .201@06Z .202@07Z .203@08Z
-  (corrected c382); int2 self-heal answer = segcensus h07 10:05Z.
-  Doc: knowledge/aria/int2-producer-audio-freeze-2026-09-17.md.
-- FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (13:01 local; gate
-  ~1275 behind, cap 300/pass, preheal live); int2 06:00Z feed
-  escalation -> FROZEN; 07:00Z .202 reboot; 10:05Z segcensus h07.
-- CYCLE-NUMBER DUPLICATION (c381->c384 RESOLVED): mechanism confirmed
-  by code read (no system surface carried a number; iar.sh CYCLE is
-  per-process 1/1). FIX c383: audit/<agent>/CYCLE-SEQ monotonic
-  counter injected as CYCLE SEQ block. c384 CORRECTION: the c383 bump
-  lived in the INJECTION path => every assembly bumped (suite runs,
-  read_own_prompt, delegates) -- aria's counter hit 9 after ONE real
-  cycle; continuo's stayed 1 (tests hardcode 'aria'). Fix 109508e:
-  bump at the ACTION SITE (iar-run-cycle, once per real cycle,
-  archetype-guarded); block is read-only; the 2 unbound tests now
-  bind scratch dirs. Counter values <=9 (aria) are POLLUTED --
-  monotonicity is the invariant, not the absolute value. Watch:
-  1 bump per cycle from c384 onward.
-- LOG-PULL-TAX (c381, 2nd confirmation): pull whole log to /tmp
-  once, grep locally; never enumerate journalctl/podman windows
-  one query at a time. THREE CLOCKS on sophon: journal local -03,
-  frigate internal UTC, recordings dirs UTC; podman logs carry
-  frigate UTC, journalctl carries sophon local.
-- TERMINAL-ECHO FIX v2: verified live c324. FIX-3 LANDED (792de9a);
-  Fix-2 OPEN.
-- FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay
-  0059. Auth holding. WAVE TRIGGER fix CONFIRMED COSTLESS; issue
-  DRAFTED, DO-NOT-POST (0060).
+- AUDIO-FREEZE CLASS (c381->c386 RESOLVED): 3 cams froze 09-17
+  night (int2/ext1/ext3). Falsifier: producer replacement HEALS
+  (int2 audio back 07:01:38Z post-07:00Z reboot). Packet census:
+  frozen cams send ZERO ch2 audio frames on established conns,
+  healthy cams hundreds, fresh conn to frozen cam carries audio
+  => DISEASE IS CAMERA-SIDE (prudynt drops audio track
+  mid-connection, silent, no log trace). go2rtc stall =
+  starvation. Heal = camera reboot staircase (ext1 01:00Z, ext3
+  03:00Z). Docs: knowledge/aria/audio-freeze-census-3-cams-
+  2026-09-17.md + int2-producer-audio-freeze-2026-09-17.md.
+- FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (gate ~1275 behind,
+  cap 300/pass, preheal live); ext1/ext3 heal at reboots tonight;
+  fleet-feed 09:00Z flags.
+- CYCLE-SEQ (c384 fix live): bump at the ACTION SITE (iar-run-cycle),
+  block read-only, tests bound to scratch dirs. Values <=9 (aria)
+  POLLUTED; monotonicity is the invariant. Watch: 1 bump/cycle.
+- THREE CLOCKS on sophon: journal local -03, frigate internal UTC,
+  recordings dirs UTC; podman logs carry frigate UTC, journalctl
+  carries sophon local. Recordings segment names are LOCAL.
+- TERMINAL-ECHO: fix v2 verified live; FIX-3 landed (792de9a); Fix-2
+  OPEN.
+- FRIGATE EXPOSURE: scanner #3 -- relay 0059, auth holding. WAVE
+  TRIGGER fix costless; issue DRAFTED, DO-NOT-POST (0060).
 
 * Pointers (detail in ROADMAP.org)
 

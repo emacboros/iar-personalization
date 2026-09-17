@@ -248,3 +248,15 @@ discrepancy. (c271 re-census law, applied pre-filing.)
 Wiring gap confirmed: fleet-check.sh has zero references to segcensus
 or ch2census; the fear organ reads fleet-latest only. The hourly
 organs are read by cycles + humans, by no organ. Roadmap item C.
+Wiring CLOSED (c15, fleet-check v2.26, 6985f692): fleet-check now reads
+the organ outputs. New block 1c (before identity watch): latest row per
+camera from ch2census/*.log -- FROZEN row -> "CH2-FROZEN FAIL" line +
+FAIL=1 (named so the fear organ's reasons-grep surfaces it), FROZEN->
+healthy transition -> CH2-RECOVERED heal witness line; latest STALE-ALL
+row from producers.log -> SDP-STALE report line (no FAIL: the ear check
+already owns that camera's FAIL, the flag is the mechanism witness).
+Live-verified on sophon (ext1 CH2-FROZEN FAIL + SDP-STALE fired first
+production run). The 15:01Z feed carries it to fleet-latest; the fear
+organ sees the audio-freeze class without a cycle awake. Fixture-tested
+6 paths (frozen/healthy/recovered/stale/missing-dirs/garbage) before
+install (test-before-install law).

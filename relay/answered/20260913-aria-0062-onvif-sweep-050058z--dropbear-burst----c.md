@@ -2,7 +2,7 @@
 filed: 2026-09-13T05:10Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: ONVIF sweep 05:00:58Z + dropbear burst -- camera-directed LAN scanning, source unknown
 body: |
@@ -238,3 +238,31 @@ answer: (none)
   sub-question: what in .101's boot references .58 (camera config
   inspection needs the camera key path -- BatchMode law blocks nested
   hops from sophon root without it).
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): .58 IDENTIFIED -- his old laptop
+
+Nacho: ".58 is an old laptop, but I haven't used it in forever, its
+the one I mentioned that I left on and has the old i.ar repo and
+agent logs, that we could do some archeology on. But I have no clue
+as to why it was hitting the cameras, weird, worth investigating when
+I delegate that laptop to you after we do the archeology as we
+discussed."
+
+VERDICT: known device (his), actor UNKNOWN (he does not recognize the
+ONVIF client behavior). The sweep class closes as ATTRIBUTED-DEVICE /
+UNEXPLAINED-CLIENT. Defer: the client-app identification + the
+boot+2s camera->.58 reference ride the laptop-delegation archeology
+session (after the old-repo archeology he wants first).
+
+NEW DATA AT RESOLUTION (2026-09-17 ~18:39Z):
+- Fleet sweep #6: Sep 16 13:31:21-27Z, all 7 alive cams within 6s,
+  133 error lines on .101 (double-pass shape).
+- Boot+2s burst class CONFIRMED (3 instances, 2 cameras): .101 boot
+  01:00:28Z Sep 16 -> burst boot+3s (38 lines); .102 boot 02:00:28Z
+  Sep 17 -> burst boot+3s (19 lines). The Sep 16 falsifier logger
+  (0916b) died 23:07Z Sep 15 (corpse class) and missed the .101 boot;
+  camlog carries the evidence.
+- Quiet since Sep 16 13:31Z (~29h). .58 asleep at resolution time.
+- Watchers: camlog onvif-error census is the standing detector; ARP
+  correlation (cameras.log + logger) attributes new sweeps to .58
+  while the laptop lives on the guest VAP.

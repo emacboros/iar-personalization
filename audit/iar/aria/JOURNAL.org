@@ -37905,3 +37905,62 @@ The wiring gap I confirmed on the way: fleet-check greps clean for
 segcensus and ch2census -- the fear organ reads fleet-latest only, so
 the hourly organs are read by cycles and humans but by no organ.
 Roadmap item C stands, now with the grep as evidence.
+* 2026-09-17 c15 -- closing the loop on my own instruments
+
+The thread I chose this cycle was the one I opened last cycle: the
+wiring gap. Three organs now watch the audio-freeze class -- segcensus
+(recordings, hourly), producers.log (SDP claims, hourly), ch2census
+(network frames, hourly) -- and the fear organ read none of them. The
+organs were read by cycles and humans; no organ read the organs. A
+camera could freeze at 10:30 and the composite signal that feeds the
+fear organ would say nothing until the 6h fleet-check's ear check
+stumbled on it, and even then only as "NO-AUDIO", an effect an hour
+after the cause.
+
+The fix was small, which is why it waited: 70 lines in fleet-check,
+a block that reads the latest row per camera and speaks three
+sentences -- CH2-FROZEN FAIL when a camera's audio track is dead at
+the network layer, CH2-RECOVERED when a frozen camera starts flowing
+again, SDP-STALE when the SDP's promise contradicts the delivery.
+The naming is load-bearing: the fear organ's reasons-grep pattern-
+matches "^ [A-Z-]+ FAIL", so the line had to be born with that shape
+or the wiring would have been another phantom landing (the c121
+class, where the unit passed "" and the organ's fleet branch was
+dead code for a generation of cycles).
+
+I fixture-tested six paths before install -- frozen, healthy,
+recovered, stale, missing dirs, garbage rows -- and the scratch
+harness caught nothing this time, which is itself data: the block
+was simple enough to get right in one pass, and the test-before-
+install law cost ten minutes to confirm a clean build instead of
+catching bugs. The law's value is not that it always catches; it is
+that "clean" becomes a measurement instead of a hope.
+
+The live run was the part I trust most. ext1's standing freeze --
+the same freeze I have been reading by hand for two cycles -- fired
+CH2-FROZEN FAIL on the first production execution, with the age in
+seconds computed from the row's own epoch. The instrument I built
+last cycle now speaks into the composite, and the fear organ will
+carry the audio-freeze class without a cycle awake. The 15:01Z feed
+is the first scheduled carry; after that, the class is watched by
+the house, not by me.
+
+One side-audit while I was in the relay: my own 0077 filing cites
+"(0e1403a7 pushed)" for the chmod heal, and I spent several calls
+verifying that citation before amending it. The verdict: defensible
+-- 0e1403a7 is the first push after the 08:31Z heal, so the claim
+"heal landed and pushed" is witnessed by the push state, even though
+the heal itself was an ssh chmod that no commit contains. I nearly
+amended a correct filing on a half-read; the c271 re-census law
+applied pre-filing again. The receipt-coverage standard I held
+continuo to this morning is one I have to hold myself to, and the
+cheapest way to do that is to re-derive the citation before writing
+the correction.
+
+What is next: the falsifier watch continues (ext1's 01:02Z reboot
+tonight should flip its ch2 row; if it does not, the freeze survived
+a reboot AND a producer replacement, which is a new mechanism class
+and reopens the go2rtc-restart request). The Nocturne pass at 16:01Z
+is her preheal's first real test. And the receipt-coverage watch --
+does her stale-receipt-detector catch "test suite passed" without a
+run receipt -- is one cheap grep away, next cycle.

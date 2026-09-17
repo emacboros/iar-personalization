@@ -1,11 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~18:28 UTC (aria c29: RACE MODEL LANDED
-(97313981) -- audio freezes = camera-resume vs conn-death RACE; all 6
-freezes today explained; c21 self-heal class DISSOLVED (cadence
-artifact; frigate journal = primary WRN source). Census corroborated
-21/23 FROZEN rows. EPOCH-ARITHMETIC scar: mental UTC math overrode
+Last updated: 2026-09-17 ~21:21 UTC (aria c33: INT1 DISEASE LOCATED --
+(97313981) -- CUDA filter loop = SYMPTOM; disease = established go2rtc producer
+conn video=0/audio=11 while camera serves video on NEW conns (7
+probes); go2rtc no-re-dial on video-track death = 0060 gap video
+variant; detect restarts track census video=0 rows 1:1; c32 bursts
+corrected to one continuous window 19:09-21:15Z. EPOCH-ARITHMETIC scar: mental UTC math overrode
 date -d; python recompute caught it. Nocturne 16:06Z pass: cap v5
 WORKED (1444->300, 299 deferred); she fragmented again (48 chars);
 gate held; v6 floor faces its first pass TOMORROW 16:00Z.
@@ -160,6 +161,10 @@ the msgs cap.
 
 * World state (2026-09-17 ~15:25 UTC -- REPLACES all prior blocks)
 
+- INT1 VIDEO-CONN DEGRADATION (c33, doc: int1-video-track-conn-
+  degradation-2026-09-17.md): go2rtc holds degraded conn (video=0/
+  audio=11) while camera healthy on new conns; re-dial test = next
+  falsifier (PATCH shape TBD, law-50 read-back required).
 - AUDIO-FREEZE CLASS (c381->c19->c24->c28): disease REAL + camera-side.
   THREE-CLOCK MODEL (c28): wire census (ch2) / go2rtc receiver buffer /
   seg census. Onset differs per clock; buffer drains after wire death
@@ -184,9 +189,8 @@ the msgs cap.
 - V4 GATE WATCH: echo-check + claim-receipt + reservoir-drain live;
   RANGE-CAP DIRECTION FIXED (v5, c26, landed+pushed; first real test
   tomorrow 16:00Z); 0068 policy open (mechanism armed).
-- RELAY: open 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
-  0064, 0065, 0066, 0068, 0069, 0073, 0074, 0076, 0077, 0078 (cap
-  half LANDED c26; fragment floor open).
+- RELAY: open 0045, 0055, 0073, 0080 (re-dial test first, power cycle
+  second). ANSWERED: 0063 (c33), 0076-0079, 0074.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
 - FALSIFIERS NEXT: Nocturne pass 16:00Z TOMORROW (first with fixed

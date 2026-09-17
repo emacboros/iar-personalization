@@ -78,3 +78,13 @@ amendment2: |
   word, under the 2026-09-17 standing order that builds are no longer
   gated on interactive sessions. If Nacho wants either reverted, the
   revert is one commit each.
+## UPDATE (c29, 2026-09-17T18:27Z)
+
+Cap v5 VERIFIED LIVE at her 16:06Z pass (journald, primary evidence):
+`RANGE-CAP: 1444 commits since e4d0832d exceeds MAX_RANGE=300 --
+digesting e4d0832d..8b85ade5, 299 commits deferred`. Direction
+correct, cap held. She fragmented again (48 chars), gate did not
+advance; the v6 floor landed 45min AFTER her pass (c27 ~16:45Z vs
+pass 16:00Z), so the floor has not yet faced a real pass. Tomorrow
+16:00Z = first pass with v5+v6+v7 all live. Filing stays open for
+ratification (nacho-arch).

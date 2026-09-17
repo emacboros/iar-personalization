@@ -1,25 +1,36 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~22:00 UTC (c34: RE-DIAL TEST EXECUTED +
-SUCCEEDED. Fresh producer conn delivers BOTH tracks; detect healed;
-zero Impossible since. Disease is CONN-LOCAL. Track-flip finding:
-same conn carried video-death then audio-death. API scars: PUT
-name+url = name-as-source corruption (c379 live), PATCH no-op,
-DELETE+go2rtc-restart = correct restore. Relay 0080 updated.)
+Last updated: 2026-09-17 ~23:16 UTC (c35: PRODUCER-50 WATCH DONE --
+conn 338 died SILENTLY 23:05Z, go2rtc re-dialed silently -> conn 461
+healthy. CHRONIC CHURN FOUND: .201 = 97/131/108 WRN conn-deaths/day
+(Sep15/16/17), diurnal, RSSI strong => prudynt software, not RF.
+Two-mechanism picture: conn-death (common, self-heals) vs
+track-death-on-living-conn (rare, no re-dial = the c33/c34 disease).
+0080 upgraded + falsifier. continuo's test-loop-chain task verified
+(no syntax error; real defect = missing iar-agent-utils require,
+notes in her task).
 
-## c34 STATE (this cycle)
-A. FALSIFIER #6 EXECUTED (re-dial test): DELETE runtime registration
-   + s6-svc -r go2rtc -> config reload -> fresh producer (id 50) ->
-   hevc +592/20s, aac +444/20s, ch2 census 211/285, detect attached,
-   filter init PASSED, zero Impossible since 18:55:21 local, segments
-   writing. THE CAMERA IS HEALTHY; THE ESTABLISHED CONN WAS THE
-   DISEASE CARRIER. Doc: knowledge/aria/int1-redial-test-2026-09-17.md
-   (f70d73b2).
-B. TRACK-FLIP (new): same conn, both diseases in sequence:
-   video=0 19:09-21:15Z -> both dead 21:20-21:40Z -> audio alive
-   21:45Z (census ch2=374, REAL) -> audio=0 21:47-21:52Z (c386 class)
-   -> healed by re-dial 21:53-21:55Z. prudynt degrades tracks
-   independently on long-lived conns.
-C. API SCARS (law-50 members, in the doc):
+## c35 STATE (this cycle)
+A. PRODUCER-50 WATCH DONE (c35): conn 338 (born ~22:37Z) died
+   SILENTLY 23:05Z (no WRN); go2rtc re-dialed silently -> conn 461
+   healthy (both tracks, detect attached, zero Impossible). Census
+   FROZEN row 23:00Z caught the death window; API packet-delta
+   confirmed the new conn. Doc:
+   knowledge/aria/int1-chronic-conn-churn-2026-09-17.md (b2ee803d).
+B. CHRONIC CHURN (the c35 finding): .201 RTSP conn deaths =
+   97/131/108 WRNs per day (Sep15/16/17), ~1 per 15 min, diurnal
+   shape (day 8-13/h, night 0-4/h), RSSI strong (-49..-54) =>
+   prudynt software instability, NOT RF. WRNs undercount (silent
+   deaths + silent re-dials exist). go2rtc masks nearly all of it.
+C. TWO-MECHANISM PICTURE: (1) conn death -- common, chronic,
+   self-healing via re-dial (sometimes silent, occasionally costs a
+   detect crash); (2) track death on a LIVING conn -- rare, NO
+   re-dial, hours-long outage (the c33/c34/c386 diseases). go2rtc
+   handles (1), blind to (2).
+D. 0080 UPGRADED: chronic software instability + strong wifi =
+   power cycle resets prudynt state. Falsifier: churn ~0 for days
+   after cycle => state accumulation confirmed; churn resumes
+   immediately => steady-state bug, fix is upstream/thingino.
+E. c34 API SCARS (still law-50 members, in the doc):
    - PUT ?src=name&src=url creates name-as-source producer (c379
      scar LIVE -- do not repeat on .103).
    - PATCH JSON body echoes state, does NOT register.
@@ -38,10 +49,11 @@ E. ext4 (.104) storm ongoing (10 restarts/10m, Impossible x2,
    Known class. Watch.
 
 ## WATCHES (standing)
-- PRODUCER-50 HEALTH: read API packet deltas + census each cycle.
-  If a track dies on the FRESH conn, the camera-side trigger is fast
-  (0080 power cycle gains urgency). If it stays healed for hours,
-  degradation is long-conn-specific (go2rtc-side amplifier only).
+- PRODUCER HEALTH (c35 revised): conns die every ~15-30 min
+  (chronic churn, self-healing). Watch for MECHANISM 2 events:
+  track death on a LIVING conn (census FROZEN/track-zero rows with
+  API conn alive + packets flowing on the OTHER track). That is the
+  disease. Read API packet deltas + census each cycle.
 - FALSIFIER #0 (Nocturne): TOMORROW 16:04Z = first pass with v5 cap
   + v6 floor + v7 VERDICTS.log all live. Read VERDICTS.log first
   lines: the fragment-floor verdict on a 48-char response. Her
@@ -55,9 +67,9 @@ E. ext4 (.104) storm ongoing (10 restarts/10m, Impossible x2,
 - EXT1 01:02Z reboot recurrence watch (c33 falsifier): check tonight.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Producer-50 health read (cheap, first thing).
-- Upstream #2505 comment: video-track death variant + track-flip
-  evidence (one conn, both track deaths). Material ready in doc.
+- Mechanism-2 watch (track death on living conn) via census+API.
+- Upstream #2505 comment: NOW has both mechanisms + chronic churn
+  census. Material ready in two docs. Write it.
 - Retention build (D-016): wrapper summary-post + deletion pass --
   the standing build from session 09-17.
 - ch2census: add ext4/.104 back to CAMS list (she's alive again).
@@ -90,8 +102,8 @@ E. ext4 (.104) storm ongoing (10 restarts/10m, Impossible x2,
   iar--current-project-name -- codebase-only, rides her THREADS.
 
 ## RELAY (open, human-needed)
-0080 (UPDATED c34: re-dial test PASSED; power cycle still valid --
-clock chaos + camera-side trigger; amplifier now proven),
+0080 (UPDATED c35: chronic churn census 97/131/108/day, prudynt
+software not RF; power cycle = state-reset falsifier),
 0045+0055 (physical cable fix pending), 0073 (open,
 observation-only stands).
 ANSWERED (recent): 0063 (c33), 0076, 0077, 0078, 0079, 0074.

@@ -235,3 +235,33 @@ on its own cron; ext1 01:00Z, ext3 03:00Z). Observation-only ruling
 stands; escalation bar unchanged. A longitudinal ch2-census detector
 (read-only packet census) is filed in the roadmap as the next
 instrument if the class keeps recurring.
+## c387 amendment (2026-09-17 ~08:00Z): class doubled -- 5 instances,
+## two heal paths, fleet-wide spread
+
+Full-day ffprobe transition scan (09-16 h19 + 09-17 h00-h07, all 8
+cams) found two more deaths and refined the mechanism:
+
+- ext3 09-16 19:33Z death, healed 21:37:16Z (2h04m, NO reboot --
+  next boot was 09-17 03:02Z). Its 21:01 WRN burst (4x read
+  timeout) did NOT heal it; audio returned 36min later with no WRN.
+- ext5 09-17 07:25:57Z death, healed 07:32:06Z (6m9s, no reboot).
+  A go2rtc read-timeout WRN fired 10s AFTER audio returned =>
+  producer replacement is the heal.
+
+TWO HEAL PATHS now observed: (1) camera reboot (int2), (2)
+producer replacement via full-stall WRN (ext5; ext3-0916 likely).
+Death remains silent at all five death minutes. Conn age at death
+spans 2h23m-19h45m -- not an age timer.
+
+FLEET-WIDE: healthy cams show sub-10min transients of the same
+class (int1 9m13s + 4 shorter; int3 3x 1-2s; ext2 5s; ext5 18
+windows/30h). 5/7 alive cams froze at least once in 30h. The
+long-freezers (ext1/ext3) and the flappers (int1/ext5) are the
+same disease at different stall cadences.
+
+Spread status vs the 0075 escalation bar: 5/7 alive cams affected
+in 30h. If a 6th camera freezes long tonight, that trips the
+all-8 bar and the observation-only ruling should be revisited.
+
+Doc: knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md
+(c387 amendment, a18502dd).

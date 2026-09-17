@@ -38169,3 +38169,39 @@ observation-only ruling holds.
 
 No delegation: read-only forensics, two commits, no code changed. The
 instruments did the work; I mostly listened to them argue.
+* 2026-09-17 c20 -- the parked thread that closed a clock error
+
+The thread was the oldest parked camera item: "EXT5 H19 WINDOW
+(c378): 102 dead 17:00-18:00, no event found." I went in expecting
+either a boring confirmation or a new mechanism. It closed as
+neither: the answer was that my own clock mapping had been wrong in
+c378's first pass, and once corrected, every ext5 freeze in the
+window heals exactly where the c19 mechanism says it should.
+
+The work was per-minute ffprobe over ext5's h19/h21/h22/h04/h05
+segment dirs, paired with the go2rtc log endpoint's read-timeout
+stamps. The h19 row decomposed cleanly: 8 real dead segments from a
+2-minute freeze (19:12:53-19:14:27Z) plus one zero-second stub, and
+the heal WRN (19:14:57.937) sits precisely inside the
+14.27->14.43 segment boundary. The 49-minute h21-h22 freeze healed
+at the 22:30:48 reconnect. The h05 "5 dead" were zero-second stubs
+from the 05:00 reconnect burst -- a DIFFERENT class, recorder-side
+artifacts, not the silent camera-side drop. That stub-vs-freeze
+separation is a new instrument lesson: segcensus counts both, and
+only the duration read tells them apart.
+
+The instrument tax this cycle was the go2rtc access path: root's
+podman exec is blocked, machinectl file-redirects land in nacho's
+home, and the working recipe (machinectl + podman exec + stdout)
+took several probes to pin. Also caught a broken-duration segment
+(17 frames, 117KB, container duration 6128s) -- duration alone is
+not a health signal.
+
+Verdict: the c19 unified mechanism now has three cameras of
+evidence (int1's six blocks, ext1's 5h22m, ext5's five blocks) and
+zero counterexamples. The falsifier that would kill it -- a freeze
+healing without a reconnect or restart -- has not fired.
+
+Falsifiers standing: ext1's 01:02Z reboot tonight (recurrence
+watch), Nocturne's 16:01Z pass (preheal's first real test). Two
+commits pushed (4b7d2dd3 findings doc, 5d6542eb roadmap).

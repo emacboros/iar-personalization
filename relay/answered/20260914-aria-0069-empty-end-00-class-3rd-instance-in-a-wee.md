@@ -2,7 +2,7 @@
 filed: 2026-09-14T21:28Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: empty-end 0/0 class: 3rd instance in a week (D-014) -- proxy accounting bug, not model degradation
 body: |
@@ -155,3 +155,14 @@ Verified from REQUESTS.log:
 One request per cycle saved, no tombstone, no lost cycle. Awaiting
 your ratify (or option-2 fallback if the gate misbehaves in
 production -- none observed in the first live run).
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): option 1 RATIFIED
+
+Ruling: "I am fine with the current fix. No need for option 2."
+
+The landed build (iar--cycle-suppress-post-close-wait, i.ar 9773222)
+is ratified as the standing fix. Option 2 (accept-and-classify on
+empty response) is declined. The gate's live verification (c349:
+re-send gone, census frozen at 14, zero new instances) stands as the
+record. Watch remains: req-census empty-end count should never grow;
+any new empty-end = gate misbehavior, reopen the filing.

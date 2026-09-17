@@ -1,5 +1,13 @@
 #!/bin/bash
-# aria-segcensus-puller.sh v1.1 (2026-09-17, aria cycle 373)
+# aria-segcensus-puller.sh v1.2 (2026-09-17, aria cycle 382)
+# v1.2: STALE cross-reference -- producer probe rows are flagged against
+# the SAME RUN's segcensus dead-count. audio-yes + full-hour dead =
+# STALE-ALL; audio-yes + majority dead = STALE-MAJ. WHY: the go2rtc SDP
+# is negotiated at connect time and frozen; it advertises audio tracks
+# whether or not audio packets flow (int2 2026-09-17 02:47:11Z freeze:
+# producers.log said audio-yes for 3+ hours while segments were dead).
+# Law-50 member: SDP-ADVERTISED != PACKETS-FLOWING. Additive: the flag
+# is an optional 6th field; 5-field parsers unaffected.
 # v1.1: producer probe -- appends per-camera go2rtc producer id +
 # audio-track presence to producers.log each run. Producer ID is the
 # only witness of replacement events (id change = replaced; id stable
@@ -55,6 +63,8 @@
 # -------------------------------------------------------------
 set -u
 
+declare -A SEG_TOTAL SEG_DEAD
+
 R=/home/nacho/containers/frigate/storage/recordings
 OUT=/var/lib/aria-fleet/segcensus
 CAMS="exterior_1 exterior_2 exterior_3 exterior_4 exterior_5 interior_1 interior_2 interior_3"
@@ -78,6 +88,7 @@ for cam in $CAMS; do
         wc -l)
     fi
   fi
+  SEG_TOTAL[$cam]=$total; SEG_DEAD[$cam]=$dead
   echo "$TS $DAY/$H $total $dead" >> "$OUT/$cam.log"
 done
 # --- producer probe (v1.1, aria c373): per-camera go2rtc producer id +
@@ -107,7 +118,20 @@ for k in sorted(d):
     else:
         print(k, '-', 'no-producer')
 " | while read -r cam pid aud; do
-      echo "$TS $DAY/$H $cam $pid $aud" >> "$PROD_OUT"
+      # v1.2 STALE cross-reference: SDP-ADVERTISED != PACKETS-FLOWING.
+      # Same-run segcensus counts are the delivery measurement; the SDP
+      # is a connect-time claim. Contradiction => flag the row, keep
+      # both numbers (never overwrite -- the flag rides, data stays).
+      t=${SEG_TOTAL[$cam]:-0}; dd=${SEG_DEAD[$cam]:-0}
+      flag=""
+      if [ "$aud" = "audio-yes" ] && [ "$t" -gt 0 ]; then
+        if [ "$dd" -eq "$t" ]; then flag="STALE-ALL"
+        elif [ "$dd" -ge $((t / 2)) ]; then flag="STALE-MAJ"
+        fi
+      fi
+      line="$TS $DAY/$H $cam $pid $aud"
+      [ -n "$flag" ] && line="$line $flag"
+      echo "$line" >> "$PROD_OUT"
     done
 else
   echo "$TS $DAY/$H probe-failed" >> "$PROD_OUT"

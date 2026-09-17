@@ -1,5 +1,14 @@
 #!/bin/bash
-# aria-segcensus-puller.sh v1.0 (2026-09-16, aria cycle 373)
+# aria-segcensus-puller.sh v1.1 (2026-09-17, aria cycle 373)
+# v1.1: producer probe -- appends per-camera go2rtc producer id +
+# audio-track presence to producers.log each run. Producer ID is the
+# only witness of replacement events (id change = replaced; id stable
+# across hours = frozen in place, the ext2 19:32Z case where the
+# producer kept SDP audio-yes while recordings went audio-dead).
+# Reaches go2rtc via machinectl shell nacho@ (rootless podman; root
+# cannot podman exec directly). Additive, reversible: rm producers.log
+# + revert this block to undo.
+# v1.0 (2026-09-16, aria cycle 373)
 # -------------------------------------------------------------
 # Hourly audio-segment census: counts segments with NO audio stream
 # per camera for the PREVIOUS complete UTC hour.
@@ -71,4 +80,37 @@ for cam in $CAMS; do
   fi
   echo "$TS $DAY/$H $total $dead" >> "$OUT/$cam.log"
 done
+# --- producer probe (v1.1, aria c373): per-camera go2rtc producer id +
+# audio-track presence, appended to producers.log. WHY: the audio-freeze
+# class is invisible to recordings-only reads (producer SDP still says
+# audio-yes); the producer ID is the only witness of replacement events
+# (id changes = producer replaced; id stable across hours = frozen in
+# place, the ext2 19:32Z case). One curl, ~10ms.
+PROD_OUT="$OUT/producers.log"
+PROD_JSON=$(machinectl shell nacho@ /bin/sh -c "podman exec frigate curl -s --max-time 4 http://localhost:1984/api/streams" 2>/dev/null \
+  | grep -v "^Connected to" | grep -v "^Press" | grep -v "^Connection to")
+if [ -n "$PROD_JSON" ]; then
+  echo "$PROD_JSON" | python3 -c "
+import json,sys
+try:
+    d=json.load(sys.stdin)
+except Exception:
+    sys.exit(0)
+for k in sorted(d):
+    v=d[k] or {}
+    prods=v.get('producers') or []
+    if prods:
+        p=prods[0]
+        sdp=p.get('sdp','') or ''
+        aud='audio-yes' if 'm=audio' in sdp else 'audio-NO'
+        print(k, p.get('id','-'), aud)
+    else:
+        print(k, '-', 'no-producer')
+" | while read -r cam pid aud; do
+      echo "$TS $DAY/$H $cam $pid $aud" >> "$PROD_OUT"
+    done
+else
+  echo "$TS $DAY/$H probe-failed" >> "$PROD_OUT"
+fi
+
 exit 0

@@ -1,4 +1,14 @@
 #!/bin/bash
+# nocturne-digest.sh v6 (2026-09-17, aria c27: FRAGMENT FLOOR, relay 0078 bug 2)
+#   A final response shorter than FLOOR_CHARS (200) normalized chars is
+#   dissolution, not summary: the 09-17 pass emitted 37 chars of this
+#   wrapper's own awk code as its final response -- novel, so the echo-check
+#   passed it (novelty catches repetition, not dissolution). Corpus scan
+#   (c27, /var/log/nocturne-digest.log): real responses 2380-3041 normalized
+#   chars (n=4 instances, 2 distinct), fragments 0 and 37. Floor 200 sits
+#   12x below the smallest real response. CLASSIFICATION ONLY: gate safety
+#   unchanged (advance still requires fresh proposal + matching receipt;
+#   a short response accompanying a real write+receipt still advances).
 # nocturne-digest.sh v5 (2026-09-17, aria c26: range-cap DIRECTION fix)
 # v5 (c26): CAPPED_HEAD was the 300th commit back from HEAD, making the
 # digested range debt-299 (1143 commits at debt 1442) -- the cap failed
@@ -233,6 +243,7 @@ log "one-shot exit=$rc"
 # mtime branch. The echo-check exists precisely for the no-write case.
 ADVANCE=0
 ECHO_STATUS=""
+FRAGMENT=0
 if [[ $rc -eq 0 ]]; then
     # extract this run's final response (watermark-anchored) and run
     # the echo-check regardless of proposal state
@@ -270,6 +281,17 @@ if [[ $rc -eq 0 ]]; then
         else
             ECHO_STATUS="clean"
             log "echo-check clean (this run's response is novel)"
+        fi
+        # FRAGMENT FLOOR (v6, c27, relay 0078 bug 2): a tiny final response
+        # is dissolution, not summary. The 09-17 pass emitted 37 normalized
+        # chars of the wrapper's own awk code -- novel, so the echo-check
+        # passed it. Floor is classification: the gate already refuses to
+        # advance without a fresh proposal + matching receipt.
+        CUR_NCHARS=$(awk '{ gsub(/\r/,""); sub(/^[[:space:]]+/,""); sub(/[[:space:]]+$/,""); if (length($0)>0) print }' "$CURFILE" | wc -c)
+        FLOOR_CHARS=200
+        if [[ "$CUR_NCHARS" -lt "$FLOOR_CHARS" ]]; then
+            FRAGMENT=1
+            log "FRAGMENT-EMISSION (c27): final response is $CUR_NCHARS normalized chars (< floor $FLOOR_CHARS) -- dissolution, not summary; treating as no-response (relay 0078 bug 2)"
         fi
         # claim-receipt check: if the response CLAIMS a write, require
         # the RECEIPT line matching the proposal's CURRENT disk stat
@@ -317,7 +339,11 @@ if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
         if [[ "$ECHO_STATUS" == "echo" ]]; then
             log "NOT advancing gate: proposal NOT rewritten AND final response is an echo-recycle (c328) -- the run produced nothing fresh"
         else
-            log "NOT advancing gate (rc=0 but proposal NOT rewritten this run -- stale proposal would mask $LAST..$HEAD_NOW)"
+            if [[ "$FRAGMENT" -eq 1 ]]; then
+                log "NOT advancing gate: proposal NOT rewritten AND final response is a fragment (c27) -- the run produced nothing"
+            else
+                log "NOT advancing gate (rc=0 but proposal NOT rewritten this run -- stale proposal would mask $LAST..$HEAD_NOW)"
+            fi
         fi
     fi
     if [[ $ADVANCE -eq 1 ]]; then

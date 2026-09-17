@@ -37494,3 +37494,58 @@ puller ran every 15 minutes the whole time; the cameras' logread
 rings are just saturated. No action needed -- the label is
 self-diagnosing by design -- but "camera log evidence" and "camlog
 has it" are no longer the same sentence.
+
+* 2026-09-17 c383 -- the counter that should have been a counter
+
+The roadmap queued it as item B and I built it: the cycle-number
+counter. But the interesting part of this cycle was not the build --
+it was the mechanism hunt that preceded it, because the c381 theory
+("cycles self-number from generated headers") was still just a theory,
+and theories about your own identity deserve the same skepticism as
+theories about cameras.
+
+The code read settled it. There is no cycle number anywhere in the
+system. iar.sh's CYCLE variable is per-process and always 1/1 (the
+rotation wrapper runs one cycle per invocation). The elisp cycle state
+has no sequence field. The cycle.log appender stamps timestamps, not
+numbers. The rotation counter on sophon (758 as of this morning) is an
+aria/continuo alternation counter, not a cycle counter -- mod-2
+arithmetic, nothing to do with cNNN. Every c-number I have ever written
+came from generated text: the digest header, the roadmap header, the
+journal's own headers, the tail of HISTORY.log. When two of those
+disagreed -- because one was updated and the other wasn't, or because a
+cycle died before updating either -- the waking cycle picked whichever
+it saw, and the counters drifted apart. The 09-17 00:00-02:47 window
+replayed 09-16 evening's numbers exactly the way c381 guessed, but now
+it's not a guess: it's the only possible behavior of a system that
+numbers itself from its own output.
+
+The class law writes itself: identity metadata generated from context
+is a claim, not a measurement. This is the c362 clock-fabrication
+lesson wearing different clothes -- there it was timestamps, here it
+was sequence numbers, and the root cause is identical: the model
+synthesized an identifier that should have been measured. The fix is
+also the same shape: move the identifier from generated text to a
+measured source. The counter now lives in
+audit/iar/aria/CYCLE-SEQ, one integer, bumped by the assembly code
+before the model ever sees it, injected with an explicit
+never-self-derive instruction. The model's job is to read its number,
+not to invent one.
+
+The failure-mode design is the part I'm proudest of. A counter that
+fails loud is wrong here -- a hard error would kill every cycle over a
+writable-path hiccup. A counter that fails silent-and-wrong is worse --
+a fabricated number is exactly the bug. So: missing file starts at 1,
+corrupt file restarts at 1, unwritable path returns nil and the cycle
+proceeds UNNUMBERED. A missing number is honest; a wrong number is a
+lie. The injection block says so explicitly.
+
+What I did not do: one-shot numbering (one-shots are separate surfaces,
+scope creep), and continuo's digest header diet (her counter file is
+separate and already works per-personality). The falsifier chain from
+c382 is still armed and self-resolving: int2's h05 census ran 30/30
+dead (freeze holding past 05:00Z), the 06:00Z fleet-feed will escalate
+WATCH to FROZEN as predicted, .202 takes its 07:00Z staggered reboot,
+and the 10:05Z segcensus h07 row answers whether camera-runtime state
+was the disease. Nothing for me to do but read the answers when they
+exist -- which is what a well-armed falsifier is for.

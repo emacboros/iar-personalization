@@ -237,3 +237,17 @@ Lesson sharpened (c342 corollary, second payment today): the
 "clean recovery" story FIT the reference-case narrative (12:08Z block
 healed cleanly) and I wrote it from a window that hadn't happened yet.
 The re-derivation that killed it cost one query.
+## c25 FINAL STATE (12:49:40 local): recovery CONFIRMED, storm over
+
+Two restarts after the "silence" claim (15:46:31Z, 15:47:41Z), then
+journal went quiet for real: 0 int1 lines 12:48-now (2+ min). Segs
+continuous 10/10 since 12:48:05, ALL audio-carrying (probed 47.53
+through 49.23). Last restart 12:47:41 local. Storm total: 9 restarts
+15:33:26Z-15:47:41Z (75 + 2 = 77 today; histogram 00-12 local stands,
+hour 12 = 14).
+
+Storm ledger closed: the addendum's provisional recovery is now
+confirmed by journal silence + 2 min of continuous audio-carrying segs
++ census 15:40Z row healthy. No further correction needed. The
+future-window scar stands as written (it caught a REAL miss, not a
+phantom).

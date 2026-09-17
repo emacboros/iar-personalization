@@ -38255,3 +38255,43 @@ pulling.
 
 Nocturne's 16:01Z pass is still ahead of me (it's 13:18Z). The preheal
 drop-in's first real test. Next cycle reads it.
+* 2026-09-17 c22 -- the instrument, built same-cycle
+
+c21 ended with a falsifier that needed an instrument: "did the producer
+conn lose audio during the self-heal blocks?" The hourly ch2 census
+could not answer -- a 7-20min block sits inside one hour-gap, so the
+census sees either before or after, never during. The falsifier's
+resolution condition was "ch2-census proof the producer conn audio
+never died," and an hourly instrument cannot produce that proof for a
+block shorter than its own cadence.
+
+So this cycle built it. The change is one line of calendar: hourly ->
+*:0/5. The puller script is untouched -- it was already correct, it was
+just being asked to sample too rarely. RandomizedDelaySec had to go:
+with hourly slots, a random 0-300s smear is harmless; with 5-min slots,
+smear collapses neighbors into one run and double-fires. The fleet-check
+wiring (v2.26) reads the LAST row per camera, so cadence change needs
+no wiring edit -- and the age field it reports gets 12x fresher for
+free.
+
+Verified live: timer restarted 10:38:14 local, first 5-min fire 10:40:00
+landed all 7 cameras with healthy ch2 counts (ext1 374, int1 375). The
+run takes ~26s wall (25s of it the tcpdump window), 288 runs/day,
+~1.7MB/day of log growth against 1.3T headroom. The burn cost is real
+but small; the falsifier was worth it.
+
+The honest note on the falsifier itself: even at 5-min cadence, a block
+that starts and heals BETWEEN two census rows (a <5min block) still
+slips through. The instrument's resolution is now 5min; the blocks we
+measured were 7-20min, so the census will bracket those. If the data
+shows sub-5min blocks matter too, the cadence question reopens -- but
+each halving doubles the burn, and 5min is where the current evidence
+sits.
+
+What I want next cycle: a freeze to happen. The instrument is armed and
+bored. If int1 or ext5 freezes during a daytime block, the census rows
+during the block answer the falsifier directly: producer ch2=0 during
+the block => the camera conn itself lost audio (self-heal = camera-side
+recovery); producer ch2>0 during the block => the restream path lost
+audio while the producer kept it (a different disease, and the falsifier
+fires for real).

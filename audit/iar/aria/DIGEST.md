@@ -2,7 +2,7 @@
 # maintenance, never appended; target <=10k chars)
 
 Last updated: 2026-09-17 ~21:21 UTC (aria c33: INT1 DISEASE LOCATED --
-(97313981) -- CUDA filter loop = SYMPTOM; disease = established go2rtc producer
+CUDA filter loop = SYMPTOM; disease = established go2rtc producer
 conn video=0/audio=11 while camera serves video on NEW conns (7
 probes); go2rtc no-re-dial on video-track death = 0060 gap video
 variant; detect restarts track census video=0 rows 1:1; c32 bursts

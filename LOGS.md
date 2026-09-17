@@ -255,3 +255,40 @@ OPEN / WHERE WE LEFT OFF:
 
 Session record: personalization 9660a0e3 (pushed sophon-bare +
 rammstein); i.ar 20be99d; iar-infrastructure bd2b598.
+
+## Session 2026-09-16 (~22:13-00:35 UTC, Nacho): relay 0073+0063 -- cameras deprioritized
+
+Nacho opened: "lets continue with the relay questions." Pre-read done
+live (sophon forensics): ext3 storm curve 6->16->102->180->220
+sessions/day (still rising, per-hour 7-15); h20 UTC = FULL dead hour
+(225/225 noaudio) DESPITE active sessions every 2-10min -> v3's
+"heal = next reconnect" FALSIFIED; audio returned ~18:56 local with
+ZERO journal events (silent heal, ext1 shape). ext2 (.102) = NEW
+producer-freeze instance (audio dead since ~19Z, camera healthy,
+02:00Z cron reboot PASSED -- uptime reset 86397->116s, RSSI back in
+2min). .104 still L2-dead 4.5d (arping 0, 2633 dial timeouts).
+interior_1 transients continue; ext5 h21 68-seg transient self-healed.
+
+- RULING (both filings): cameras NOT a priority; outages ACCEPTED;
+  he fixes later and will notify. No power cycles, no go2rtc restart,
+  producer-watchdog DECLINED-for-now. ext1 thread CLOSED (healed
+  12:54Z). ext3/ext2/interior_1 -> OBSERVATION-ONLY (detector +
+  segcensus keep running, no asks; escalate to URGENT only on
+  evidence loss or fleet-wide spread). 0063 stays OPEN but parked.
+- Landed: 41ea4543 (answers appended to both filings), pushed
+  sophon-bare + rammstein. 0075 (ext2 freeze, drafted by c379 cycle)
+  already HELD under the same ruling.
+- Nocturne 16:02Z exit-126 root cause: gptel/.git/index relabel
+  transient (poisoner-session mtime 12:54Z); :z relabel verified
+  WORKING now (test container rc=0) -- no fix needed, class is
+  transient; tripwire already heals root-owned files.
+- Queue at close: 10 open. NEXT SESSION OPENER: 0069 (ratify the
+  landed post-close suppress gate -- build verified live, awaiting
+  ratify), then 0068 (ratify-or-delete policy), 0066 (one-line path
+  fix), 0060 (issue draft ratify), 0062 (.58 identity questions),
+  0046 (stimulus ruling), 0045+0055 (10M link fix).
+- Session record: LOGS.md + journal + history; relay answers in
+  41ea4543. NOTE: session end got stuck in a commit-push treadmill on
+  REQUESTS.log (own emissions re-dirty the file every turn; ~40
+  empty "session lines" commits). Scar: do not commit REQUESTS.log
+  mid-session; commit once at close.

@@ -37048,3 +37048,49 @@ sweeps. Accepting the outage means my attention needs somewhere else
 to go. The queue has structural questions in it (0046's stimulus
 ruling, 0068's echo-reservoir policy) that are actually about the
 same thing: what do I look at when the cameras go quiet.
+* 2026-09-17 c372 -- the creator hunt closes: the tests did it
+
+Failure-first found LAST-CYCLE.txt failed: preflight refused again,
+"/root/.emacs.d/.git/hooks -- directory is WRITABLE". But the nested
+.git was already gone (the 23:13Z tripwire heal had landed) -- the
+failure record was stale, written 23:59Z before the heal. Preflight
+passes now. So the root-cause work was not "fix the preflight" but the
+open question from the outage: WHO created the nested .git.
+
+The answer came from the sophon audit log, and it is mine. At 12:27:50Z
+on 09-15, a test emacs running `run-tests.sh belt2d` (cwd=emacs.d)
+executed `git init -q` with cwd=/root/i.ar/emacs.d, then `git add -A`
+twice, then `git commit -qm init` -- committing the entire emacs.d tree
+(166 files) with the aria-agent identity that iar.sh injects as
+GIT_AUTHOR_NAME env. The belt2d tests I was writing that cycle ran git
+init/add/commit with default-directory NOT yet bound to the tmp repo,
+so the ambient cwd took the hit. The commit object survived in
+Nacho's tarball (/tmp/emacs-d-accidental-git-*.tar.gz) and its logs/HEAD
+gave the exact epoch: 1789475277 = 12:27:57Z. The audit proctitles
+(hex-encoded argv) gave the rest: pid, ppid chain, cwd, command shape.
+
+The prior filing said "creator UNIDENTIFIED, copy-not-init". Wrong, and
+the correction matters: it was not a copy of some other .git -- it was
+a real git-init by my own test code. The mid-edit version is gone; the
+committed tests are clean (I re-ran all 1300 in a repro, zero .git,
+all green). The class: test code with relative git ops and an unbound
+default-directory inherits the runner's cwd, and run-tests.sh cds to
+emacs.d. The tripwire kept firing on 09-16 because continuo ran the
+suite twice more (21:01Z, 21:56Z); the audit shows no git-init in
+emacs.d that day, so the re-creations were most likely the belt2d
+tests' relative (make-directory ".git/hooks") landing in emacs.d when
+a binding failed mid-suite -- same class, different tool.
+
+The lesson I keep re-learning: the audit log is the ground truth for
+"who did this". File forensics said "copy-not-init"; the proctitle
+chain said "git init, here is the pid, here is the parent, here is the
+cwd". One query, once I knew to decode hex proctitles. The creator hunt
+that c369 closed as UNIDENTIFIED was closed too early -- the evidence
+existed and was readable.
+
+Also this cycle: the personalization repo had 4 unpushed local commits
+diverged from 29 upstream ones (the stash-run residue from last
+night's race). Rebase dance took three rounds -- the REQUESTS.log
+conflict recipe (pull --rebase, checkout --theirs, add -f, continue)
+held but needed three iterations because the upstream kept moving
+under me. Pushed clean at 591097a4.

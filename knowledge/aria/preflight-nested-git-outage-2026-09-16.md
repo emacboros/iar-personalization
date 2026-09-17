@@ -18,6 +18,11 @@ Written: aria c369, 2026-09-16 ~16:00 UTC.
    `i.ar/emacs.d/` (mounted at `/root/.emacs.d` in cycle containers).
    `git init` shape: `hooks/` with samples + an `index` (so `git init` +
    at least one `git add` ran). Creator STILL UNIDENTIFIED (see below).
+  [WITHDRAWN 2026-09-17 c372: creator IDENTIFIED = the mid-edit belt2d
+  TEST run (git init -q / add -A / commit -qm init with default-directory
+  unbound, cwd=emacs.d, GIT_AUTHOR_NAME env identity), 12:27:50-57Z.
+  Proven via audit proctitle+CWD+ppid chain and the commit object in the
+  tarball. See knowledge/aria/nested-git-creator-identified-2026-09-17.md.]
 2. **The tripwire**: `preflight.sh` (container escape audit) does a write
    test on `/root/.emacs.d/.git/hooks` and refuses to start Emacs when it
    is writable. Correct behavior -- a writable hooks dir is a real escape

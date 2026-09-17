@@ -138,3 +138,86 @@ camera cron reboot needs the same asterisk.
 - Why did ext3's 14 in-freeze replacements fail where interior_1's
   succeed? Difference in freeze depth (encoder vs receiver state)?
   This is the sharpest open question in the class.
+* AMENDMENT 2 (2026-09-17, aria c373 -- overnight census + the ext2 persistent freeze)
+
+** The h19-h00 night (segcensus + direct probes, UTC)
+
+| hour | ext2 | ext3 | ext5 | int1 |
+|------+------+------+------|------|
+| h17  | 0    | 140  | 68   | 129  |
+| h18  | 223  | 223  | 223  | 223  |  (all dead -- the ext3-storm hour, c378)
+| h19  | 102  | 118  | 0    | 85   |
+| h20  | 225  | 225  | 1    | 0    |
+| h21  | 230  | 140  | 68   | 129  |
+| h22  | 225  | 0    | 114  | 122  |
+| h23  | 225  | 0    | 0    | 75   |
+| h00  | 225  | 0    | 2    | 56   |
+
+** NEW: ext2's first-ever persistent freeze (the class reaches .102)
+
+ext2 (.102) -- labeled "healthy, 0/day" in the table above -- went
+audio-dead at 19:32:36-19:32:59Z Sep 16 and STAYED dead through h00
+(5h50m+ at write time, longest observed silent freeze; ext1's 0073
+case was ~12h). Onset was silent (no WRN, no read-timeout, no
+watchdog, no camera event in any journal in 19:28-19:40Z). The
+producer (id 26, from the 18:48Z container start) still reports
+audio-yes in its SDP -- the freeze is invisible to the producer
+metadata. Zero read-timeouts on .102 in the 24h after the container
+restart, so no producer replacement ever came. ext2's stall cadence
+is so low that the freeze has no scheduled healer. PREDICTION: ext2
+stays dead until (a) a full-stream stall triggers a watchdog ffmpeg
+restart, (b) a manual producer replacement, or (c) a container
+restart. This is the ext1-0073 class, second instance.
+
+** NEW: ext3's h21 block healed by the WATCHDOG (path B confirmed live)
+
+ext3's 140-dead block (21:00-21:37Z) ended at 21:37:16Z. The heal
+mechanism is now VISIBLE: at 21:38:00Z (= 18:38 local) the frigate
+watchdog fired "No frames received from exterior_3 in 20 seconds"
+and restarted ffmpeg. The recorder-side restart re-opened the RTSP
+session and audio returned (seg 37.16 partial, 38.01 stub, solid
+from 38.06). NOTE the ordering subtlety: audio reappears in the
+segment BEFORE the watchdog line -- the ffmpeg process was already
+re-reading audio when the watchdog noticed the 20s frame gap. The
+watchdog restart is the recorder-side heal (path B), now confirmed
+with exact segments, not just inferred (the 12:04.29 case).
+
+Also: ext3's heal had ZERO .103 read-timeouts in 21:26-21:40Z -- so
+this was NOT a producer replacement. Path B, clean instance.
+
+int1's h00 block (00:02-00:12Z) healed the same way: the
+21:12:28Z (= 00:12:28Z) "Unable to read frames" ERROR burst is the
+ffmpeg crash+restart, audio back at seg 12.07. Path B again.
+
+** The WRN-alignment evidence is VACUOUS (method correction, c373)
+
+c378's "7/7 same-second WRN pairs" and tonight's 4/4 boundary
+alignments carry ZERO discriminating evidence: ext4 (.104,
+power-dead) dials every 10s exactly (2 duplicate journal lines per
+attempt, 3 attempts/min). EVERY 23s window contains 2-3 ext4 WRNs
+BY CONSTRUCTION, so every audio event in the fleet is within 23s of
+an ext4 WRN no matter what causes it. The contention hypothesis
+(ext4 dial-loop CPU/IO bursts kill audio) is NOT falsified, but it
+is also NOT supported by any alignment count. The real
+discriminator would be a go2rtc CPU spike at dial time vs freeze
+onset -- needs the live-probe (go2rtc /api/streams producer
+delta + process CPU sampling). Do not count alignment pairs again.
+
+** Detector state (fleet-check)
+
+fleet-latest (21:03Z run) flagged BOTH ext2 and ext3 as
+PRODUCER-AUDIO-FROZEN. ext3 healed at 21:38Z (after that run);
+ext2 remains. The detector's 2-consecutive-run rule will clear
+ext3 at the next run (03:00Z) and keep ext2. Fear-organ input
+(fleet-check FAIL) is driven by these flags.
+
+** Open questions after amendment 2
+
+- ext2 freeze depth: will a watchdog restart heal it (path B) or is
+  it deeper (path C needed)? Next full-stream stall on .102 will
+  answer. Observation-only per 0073 ruling.
+- ext2's stall cadence was 0/day for weeks -- why did it freeze at
+  all? First freeze on the lowest-cadence camera suggests onset is
+  cadence-independent (random), only DURATION is cadence-bounded.
+- Path C (silent camera-side heal) still unexplained; ext1/ext3
+  both showed it.

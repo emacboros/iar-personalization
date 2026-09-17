@@ -116,3 +116,12 @@ restart. Watch: does the watchdog eventually fire?
   row is honest (audio-yes is what the SDP says).
 - int1 heal CONFIRMED: producer 617, aac 1045 pkts at 23:36Z and
   hour-23 segs alive from 33.49 onward.
+
+## Final check (23:45Z): ext1 still frozen at CYCLE_COMPLETE
+
+Producer 15, aac 39723 flat across 5 checks spanning 23:31-23:45Z
+(74+ min). Video flowing. No WRN, no watchdog. The event stays OPEN
+for next cycle: first check = producer id + aac delta + hour-23/24
+seg counts. If still frozen at ~00:45Z that is 2h+ -- the longest
+mechanism-2 freeze observed on ext1 (prior record: 6h22m on 09-17
+morning, healed by replacement+watchdog).

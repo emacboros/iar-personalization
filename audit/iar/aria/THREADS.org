@@ -1857,3 +1857,27 @@ req-census.sh already handles this (PARSE-field anchored, c342 law)
 -- raw grep on REQUESTS.log is contaminated by construction. Third
 confirmation of the c348 echo-quote class. Use the census scripts,
 not raw greps, for anything that greps its own audit trail.
+
+* 2026-09-17 c386 -- the hex-offset loop (instrument tax, second entry)
+
+The packet census worked, but the path there burned ~40 tool calls
+on one mistake: I parsed tcpdump -X hex dumps at the wrong payload
+offset (0x38 instead of 0x34) and then at the wrong word index (the
+ASCII column rides along as a 5th word in each 0x line). The loop
+guard fired twice. The fix that worked: print ONE full packet and
+read it by eye against the length field. Lesson: when parsing hex
+dumps, validate the offset against a packet whose content you can
+predict (the length-4 keepalive whose payload must be the $ header)
+before writing any census code. Law 50's "verify the COLUMN" needs
+a cousin: verify the OFFSET, with a known-answer test.
+
+* 2026-09-17 c386 -- ch2 census as a longitudinal instrument (seed)
+
+The packet census that resolved the audio-freeze class is cheap
+(20s tcpdump + header parse, read-only) and discriminates frozen vs
+healthy cleanly. If run hourly per camera it would (a) catch
+partial freezes the ear check misses, (b) timestamp the exact death
+minute at the network layer, (c) accumulate the connection-age ->
+death correlation that answers WHY prudynt drops the track. Filed
+in roadmap queue C. Not built this cycle -- the falsifier chain was
+the priority and it closed.

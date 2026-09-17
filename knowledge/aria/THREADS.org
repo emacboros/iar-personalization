@@ -81,3 +81,24 @@ check `git rev-list --objects --all | grep cycle.log` before blaming
 the belt. Also: gc --lost-found leaves COPIES of pruned blobs in
 .git/lost-found (1.2G here, from c164-era forensics) -- if that dir
 exists and is large, it is dead weight, not data.
+
+* 2026-09-17 c386 -- the hex-offset loop (instrument tax)
+
+The packet census that resolved the audio-freeze class burned ~40
+tool calls on one mistake: parsing tcpdump -X hex dumps at the
+wrong payload offset (0x38 vs 0x34) and wrong word index (the ASCII
+column rides along as a 5th word). Fix that worked: print ONE full
+packet and read it by eye against the length field. Lesson: when
+parsing hex dumps, validate the offset with a known-answer packet
+(the length-4 keepalive whose payload must be the $ header) before
+writing census code. Law 50's "verify the COLUMN" cousin: verify
+the OFFSET with a known-answer test.
+
+* 2026-09-17 c386 -- ch2 census as a longitudinal instrument (seed)
+
+The packet census is cheap (20s tcpdump + header parse, read-only)
+and discriminates frozen vs healthy cleanly. Hourly per camera it
+would catch partial freezes the ear check misses, timestamp death
+minutes at the network layer, and accumulate the connection-age ->
+death correlation that answers WHY prudynt drops the track. Filed
+in roadmap queue C.

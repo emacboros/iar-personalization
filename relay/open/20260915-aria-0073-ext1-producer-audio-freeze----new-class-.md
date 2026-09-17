@@ -180,3 +180,36 @@ frigate restart. Still observation-only per your ruling; falsifiers
 armed (06:00Z feed escalation; h06+ segs after the 03:00-local reboot
 window). Filing: knowledge/aria/int2-producer-audio-freeze-2026-09-17.md.
 Escalation bar unchanged (evidence destruction / all-8 spread).
+## AMENDMENT (aria c385, 2026-09-17 ~06:30Z): THIRD INSTANCE + census -- THREE cameras froze overnight, mechanism narrowed to consumer-side backpressure
+
+Overnight census (death minutes pinned by segment ffprobe binary search):
+- interior_2 (.202): 02:46:13-02:47:11Z (producer 6069, born 01:05-02:05Z)
+- exterior_1 (.101): 04:54:04-04:55:03Z (producer 8147, born 03:05-04:05Z)
+- exterior_3 (.103): 05:51:09-05:52:15Z (producer 9028, born 04:05-05:05Z)
+
+All three: camera audio ALIVE (direct RTSP probes, 94KiB/3s each),
+video flowing, recorder segments video-only since death. Healthy:
+ext2/ext5/int1/int3. Producer age at death 42-110min in all three --
+but c355 already showed producer-age is not the trigger (3.5h/11h/19.5h
+prior instances), so the tight window tonight is probably coincidence
+of the churn cadence, not a law.
+
+MECHANISM RECONCILIATION (resolves the c382 contradiction): the freeze
+is CONSUMER-side. The recorder ffmpeg (PID 1241, alive since container
+start 18:48Z 09-16) stops draining its audio track; the producer audio
+receiver's queue fills and its bytes counter stalls (looks frozen, is
+actually blocked). Producer replacement does NOT heal (ext5 precedent)
+because the new producer's audio queue fills the same way. The int2
+"producer receiver frozen" observation and the ext5
+"replacement-doesn't-heal" observation are the same disease seen from
+two layers. Prediction for the 07:00Z .202 reboot: audio STAYS dead
+unless the recorder ffmpeg restarts (it only restarts on VIDEO
+failure). Falsifier: h07 segcensus (11:05Z pull). Doc:
+knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md.
+
+Detector note: ext1+ext3 froze AFTER the 03:00Z fleet-check, so they
+were invisible until the next feed; the 06:00Z feed run (09:00Z UTC)
+should flag all three. Observation-only ruling unchanged; escalation
+bar (evidence destruction / all-8 spread) unchanged -- 3/8 frozen is
+within the accepted outage, but the SPREAD RATE (1->2->3 cameras in
+3 days) is now the number to watch.

@@ -37714,3 +37714,64 @@ verify the COLUMN; I verified the column but not the offset inside
 the hex dump. The fix was printing one full packet and reading it
 by eye. Cheap in the end, but the loop guard fired twice on the way
 -- both times justified.
+* 2026-09-17 c387 -- the class was never three cameras; it was the whole fleet wearing different masks
+
+The roadmap queued a quiet cycle: read tonight's falsifiers, note
+the heals, move on. Instead I pulled the thread one layer further
+-- a full-day ffprobe transition scan across all eight cameras --
+and the class doubled in size while I watched.
+
+Two new deaths surfaced that the hourly census had smeared into
+"partial" rows: ext3 died 09-16 19:33Z and healed 21:37Z, two
+hours later, with no reboot anywhere near it. ext5 died 07:25Z
+today and healed six minutes later -- and this time I caught the
+heal mechanism red-handed: a go2rtc read-timeout WRN fired ten
+seconds after audio returned, which means the heal was a producer
+replacement, not a camera reboot. Two heal paths now, both ending
+in the same place: a new RTSP connection where prudynt is willing
+to send audio again.
+
+The death minutes themselves stay silent. No WRN at 02:47, no WRN
+at 04:54, no WRN at 05:51, no WRN at 19:33 the night before. The
+one WRN that came near a death (ext5, 16 seconds before) didn't
+replace the producer -- video flowed continuously through it -- so
+it was a transient read stall on the same connection, not the
+killer. The disease drops the audio track without a sound, and
+only a full stall (which replaces the producer) or a reboot brings
+it back.
+
+The conn-age numbers killed my favorite hypothesis before I could
+love it: 2h23m, 2h49m, 3h52m, 16h31m, 19h45m. If this were a
+connection-age timer, those numbers would cluster. They don't.
+Whatever prudynt does, it isn't counting hours.
+
+And then the healthy cameras. int1 flapped for 9m13s at 00:02Z
+plus four shorter windows; int3 had three 1-2s blips; ext2 five
+seconds; ext5 eighteen dead windows in thirty hours. Five of seven
+alive cameras froze at least once in a day and a half. The class
+was never three cameras. It was the whole fleet, wearing different
+masks: the cams that stall often (int1, ext5) heal in minutes and
+look healthy; the cams that stall rarely (ext1, ext3) freeze for
+hours and look broken. Same disease, different stall cadence. The
+c373 unified-mechanism hypothesis is now confirmed with five
+instances instead of inferred from two.
+
+What I could not find: a cause. Time-of-day spread 02:47-07:25Z,
+conn-age spread 2h-19h, identical firmware, no camera-log trace,
+no go2rtc trace. The remaining honest answer is that I cannot see
+inside prudynt from here, and the next instrument is the ch2
+census running longitudinally -- catch the next death at the
+network layer, in minutes, with the connection's full packet
+history leading up to it. That is queue C, and it just got more
+urgent: with 5/7 cameras affected in 30h, the next freeze is not
+an if.
+
+The instrument tax came due again: the transition scan took
+~15 tool calls of ffprobe enumeration before I wrote the
+transition-collapse loop, and the loop guard fired twice more
+before I switched to nohup background runs. The lesson is now
+three cycles old and still costs me: ENUMERATE WITH A COLLAPSING
+FILTER, not per-item probes. The scan that finally worked was one
+command per camera printing only state CHANGES. I keep reaching
+for the per-item loop first. Next time: collapse first, probe
+second.

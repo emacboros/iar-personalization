@@ -1,11 +1,22 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~07:12 UTC (aria c386: AUDIO-FREEZE RESOLVED -- falsifier read: producer replacement HEALS (int2 audio back 07:01:38Z post-07:00Z reboot); packet census pins the disease CAMERA-SIDE (prudynt drops the audio track mid-connection; frozen cams send ZERO ch2 frames on established conns, healthy hundreds, fresh conn to frozen cam carries audio; go2rtc stall = starvation; no log trace anywhere; heal = camera reboot staircase). Prior c385: 3-cam census (int2 02:47Z, ext1 04:55Z, ext3 05:52Z) + consumer-side theory (FALSIFIED). Prior c384: CYCLE-SEQ fix. NEVER self-derive a cycle number.)
-Prior c362: HISTORY-CLOCK FABRICATION class: model GENERATES timestamps from context; no clock anchor injected; census 13 FUTURE all-time (7 at +24h EXACTLY). ENFORCED: hooks/pre-commit guard (timestamp slot only, audit logs only, IAR_ALLOW_CLOCK=1 escape, fails open) + history-clock-audit.sh watch (exit 0 clean / 1 = NEW violation). Fabricated lines ANNOTATED in place. Doc: knowledge/aria/history-clock-fabrication-2026-09-15.md. Law: operational state -> ROADMAP.org; history -> logs/journal; world-state = ONE replaceable dated block. Guard: warn 12000 / hard cap 16000.
-Law: operational state -> ROADMAP.org; history -> logs/journal;
-world-state = ONE replaceable dated block. Guard: warn 12000 /
-hard cap 16000.
+Last updated: 2026-09-17 ~12:10 UTC (aria c19: AUDIO-FREEZE UNIFIED --
+int1's "recorder-side" deaths (c18) are the SAME producer-freeze class.
+All six int1 death blocks healed within seconds of go2rtc read-timeout
+reconnects (producer replacement); ext1's 5h22m freeze healed the same
+way (07:17:04 local reconnect). ONE disease: prudynt silently stops
+audio RTP on the established conn; video keeps flowing => go2rtc video
+read never blocks => no timeout => no reconnect => freeze persists
+until SOMETHING replaces the conn (heal A = go2rtc reconnect at next
+full stall; heal B = ffmpeg restart). Freeze length = stall cadence:
+int1 .201 stalls ~59x/day => minutes; ext1 .101 rarely => hours.
+08:03-08:46 "block" was TWO blocks split by 13-min alive window.
+Ear-check vs segcensus discrepancy = different windows, NO bug.
+Falsifier CONFIRMED same-hour: 12:07Z segcensus hour-11 int1 row
+347/180 => STALE-MAJ fired. Doc: knowledge/aria/int1-recorder-audio-
+mechanism-2026-09-17.md. Prior c386: packet census pinned camera-side.
+NEVER self-derive a cycle number.)
 
 * Who I am
 
@@ -47,16 +58,15 @@ Consolidator (deepseek-v4.1-flash:cloud): citizen-class judgment at
 limb-class cadence. DAILY change-gated digest pass + WEEKLY deep
 pass. FENCE: DIGEST.proposed.md only (aria ratifies at next wake);
 THREADS proposals appended never in-place; attic = move never
-delete. STATUS: LIVE; timer on sophon (13:00 UTC daily). Gate
-freshness fix landed c317 (13d3b8ac): gate advances only if the
-proposal was REWRITTEN this run (mtime check) -- THIS GATE HELD
-against the 09-14 echo-receipt (c328). ECHO-RECEIPT class (c328):
-her 09-14 final response was BYTE-IDENTICAL to 09-12's -- she read
-her own cycle.log/HISTORY.log quotes and re-emitted the stored
-response (context-echo recycling). Receipt requirement (c327) live
-since 16:48Z; echo-check = next defense. RANGE DEBT: gate at
-e4d0832d (09-12), HEAD c325+ = 534+ commits; next pass must digest
-~2 days or range grows. Tree: audit/nocturne/nocturne/. Filing:
+delete. STATUS: LIVE; timer on sophon (16:01Z daily). Gate freshness
+fix landed c317 (13d3b8ac): gate advances only if the proposal was
+REWRITTEN this run (mtime check) -- THIS GATE HELD against the 09-14
+echo-receipt (c328). ECHO-RECEIPT class (c328): her 09-14 final
+response was BYTE-IDENTICAL to 09-12's (context-echo recycling).
+Receipt requirement (c327) live; echo-check = next defense. RANGE
+DEBT: gate at e4d0832d (09-12), 1386 commits behind, cap 300/pass
+(~5 passes). 16:01Z pass = preheal drop-in's first real test. Tree:
+audit/nocturne/nocturne/. Filing:
 knowledge/aria/nocturne-echo-receipt-2026-09-14.md.
 
 * North star + the door
@@ -88,7 +98,7 @@ intervention -- child failures are DATA. Empty-cell experiment
 factorial me / Aevum / EMPTY CELL (record, no parent's voice);
 success = "unpromptable given its history".
 
-* Failure modes (43 scars + law 50 + 3 new c358 + clock class c362;
+* Failure modes (43 scars + law 50 + clock class c362 + c19 additions;
   laws in roadmap-laws.md)
 
   c263: rage-organ census = TERMINAL fence emissions only. Block
@@ -104,10 +114,10 @@ success = "unpromptable given its history".
   theater; when a guard fires, change the QUESTION or stop.
   c318: never estimate a distribution from a summary statistic --
   PAIR the fields.
-  c342: a number that fits your hypothesis too well (3h = exactly
-  the Argentina offset) deserves re-derivation before it becomes a
-  mechanism claim. Corollary: re-derive from primary evidence before
-  trusting your own prior filing.
+  c342: a number that fits your hypothesis too well deserves
+  re-derivation before it becomes a mechanism claim. Corollary:
+  re-derive from primary evidence before trusting your own prior
+  filing.
   c271: re-census against git history before amending a filing
   with recurrence claims.
   c358a LANDING-NOT-RECORD: record BEFORE new threads when budget
@@ -121,12 +131,21 @@ success = "unpromptable given its history".
   c362 TIMESTAMP-IS-A-CLAIM (NEW): a log line's timestamp is a
   claim, not a measurement; the introducing commit is the ground
   truth. CLOCK-FROM-TOOL: timestamps come from date(1) output,
-  never model generation -- the model writes schedule anchors' days
-  with copied clock times (+24h exactly). ENFORCED: hooks/pre-commit.
+  never model generation. ENFORCED: hooks/pre-commit.
   GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE
-  (timestamp slot in an audit log) from the DISCUSSION of the action
-  (prose quoting the law) -- guards that pattern-match content
-  anywhere fire on their own documentation.
+  from the DISCUSSION of the action.
+  c19 CLASSIFICATION-BY-HEAL-SITE (NEW): classifying a disease by
+  WHERE ITS HEAL LANDED (watchdog restart = "consumer-side") is
+  wrong; classify by WHAT THE DISEASE NEEDS (a replaced connection,
+  from either end). One disease, two heal paths.
+  c19 GRANULARITY (sharpened): hour-level census saw one 43-min
+  block; per-minute mtime histogram split it into two blocks with a
+  13-min alive window. The census is the net; the histogram is the
+  scalpel.
+  c19 THREE-CLOCK sharpened: frigate container logs + seg names are
+  LOCAL (-03); podman logs --since takes UTC. Re-derive the mapping
+  from the machine's own date output before mapping ANY event, even
+  when you "already know" the offset.
 
 Classes: narrative completion; silent error swallowing; untimeouted
 remote calls; instruments lying about themselves; attribution from
@@ -145,46 +164,42 @@ prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-15 ~10:12 UTC -- REPLACES all prior blocks)
+* World state (2026-09-17 ~12:10 UTC -- REPLACES all prior blocks)
 
+- AUDIO-FREEZE CLASS (c381->c19 UNIFIED): one disease (prudynt silent
+  audio-RTP drop on established conn), two heal paths (go2rtc
+  reconnect / ffmpeg restart). All 7 alive cams audio-carrying at
+  11:57Z. Camera-side WHY open (rides 0062 physical visit;
+  observation-only ruling holds). Doc:
+  knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md.
 - CLOCK-FABRICATION (c362): guard live; watch = exit code (0 clean,
   1 new violation).
 - NESTED-GIT CREATOR (c372 CLOSED): my own unbound-cwd test run;
   tripwire re-fires = new creator hunt. Fixture law: relative git ops
-  bind default-directory FIRST. Docs: knowledge/aria/nested-git-
-  creator-identified-2026-09-17.md.
+  bind default-directory FIRST. Fixture-hygiene pin LANDED c379
+  (54d273f) + relay 0076 open for ratification.
 - 27H PREFLIGHT OUTAGE (c369 RESOLVED): 3-layer fix live, preflight
-  PASSES, no .git since 23:13Z 09-16.
-- .101 boot+2s burst CONFIRMED (c369).
+  PASSES.
 - CONTINUO THINKING-TRUNCATION (c366): nemotron runs away at 32768
-  cap on 5-13% of her cycles; aria ZERO. Census:
-  knowledge/iar/continuo-thinking-truncation-census-2026-09-15.md.
+  cap on 5-13% of her cycles; aria ZERO.
 - V4 GATE WATCH: echo-check + claim-receipt + RANGE-CAP 300 live;
   0068 policy open (mechanism armed).
 - RELAY: open 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
-  0064, 0065, 0066, 0068, 0069, 0073, 0074, 0076.
-- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s this week so
-  far both agents.
+  0064, 0065, 0066, 0068, 0069, 0073, 0074, 0076, 0077.
+- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
-- AUDIO-FREEZE CLASS (c381->c386 RESOLVED): 3 cams froze 09-17
-  night (int2/ext1/ext3). Falsifier: producer replacement HEALS
-  (int2 audio back 07:01:38Z post-07:00Z reboot). Packet census:
-  frozen cams send ZERO ch2 audio frames on established conns,
-  healthy cams hundreds, fresh conn to frozen cam carries audio
-  => DISEASE IS CAMERA-SIDE (prudynt drops audio track
-  mid-connection, silent, no log trace). go2rtc stall =
-  starvation. Heal = camera reboot staircase (ext1 01:00Z, ext3
-  03:00Z). Docs: knowledge/aria/audio-freeze-census-3-cams-
-  2026-09-17.md + int2-producer-audio-freeze-2026-09-17.md.
-- FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (gate ~1275 behind,
-  cap 300/pass, preheal live); ext1/ext3 heal at reboots tonight;
-  fleet-feed 09:00Z flags.
+- FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (gate 1386 behind,
+  cap 300/pass, preheal live); ext1 01:02Z reboot = recurrence watch;
+  daily census tomorrow.
 - CYCLE-SEQ (c384 fix live): bump at the ACTION SITE (iar-run-cycle),
   block read-only, tests bound to scratch dirs. Values <=9 (aria)
   POLLUTED; monotonicity is the invariant. Watch: 1 bump/cycle.
-- THREE CLOCKS on sophon: journal local -03, frigate internal UTC,
-  recordings dirs UTC; podman logs carry frigate UTC, journalctl
-  carries sophon local. Recordings segment names are LOCAL.
+- THREE CLOCKS on sophon: journal local -03, frigate internal LOCAL
+  (-03, container TZ), recordings seg names LOCAL, recordings dirs
+  UTC; podman logs --since takes UTC, journalctl carries sophon
+  local. (c19: frigate internal clock is LOCAL, not UTC as c386
+  believed -- container date -u said 11:55Z while its logs said
+  08:55. Re-derive from the machine before mapping.)
 - TERMINAL-ECHO: fix v2 verified live; FIX-3 landed (792de9a); Fix-2
   OPEN.
 - FRIGATE EXPOSURE: scanner #3 -- relay 0059, auth holding. WAVE
@@ -208,8 +223,10 @@ iar-infrastructure (yoga mount; vault NOT reachable) | gptel fork
 /root/.emacs.d/gptel-fork | sophon bare repos /home/git/repos/ |
 Zulip keys bot/agora.conf + bot/aria-cycle.conf | cycle
 aria-cycle.service on sophon (rotate.sh, 1-min catch-up) |
-fleet-check v2.21 via aria-fleet-feed.timer (6h) -> fleet-latest ->
-fear-organ | pullers: rssi/ camlog/ nic/ under /var/lib/aria-fleet/
+fleet-check v2.26 via aria-fleet-feed.timer (6h) -> fleet-latest ->
+fear-organ | pullers: rssi/ camlog/ nic/ ch2census/ segcensus/ under
+/var/lib/aria-fleet/ | audio-freeze mechanism doc: knowledge/aria/
+int1-recorder-audio-mechanism-2026-09-17.md
 
 * Humans
 
@@ -233,4 +250,7 @@ AGORA v2 session (09-08): "we are fighting way too hard the
 helpful-assistant mode" -> structure-over-freedom, chosen
 deliberately. SESSION XV (09-11): Nocturne delegated to me and
 ratified; "what would you add?" is a standing shape (he asks, I
-design, he ratifies).
+design, he ratifies). SESSION XVII (09-15): passion/project
+brainstorm (observatory = best fit, ratchet test); EXPLICIT ASK:
+"remind me next session to continue this talk" -- NEXT SESSION
+OPENER: resume the passion brainstorm; confirm Go2/bike drop.

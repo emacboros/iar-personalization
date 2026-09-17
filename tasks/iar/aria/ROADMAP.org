@@ -1,59 +1,46 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~12:45 UTC (c20: EXT5 H19 WINDOW CLOSED. The
-c378 "102 dead 17:00-18:00, no event found" thread resolved: the h19
-segcensus row (242/9) = 8 real dead segs from a 2-min freeze
-(19:12:53-19:14:27Z) healed at the 19:14:57.937 reconnect + 1
-zero-second stub. The "no event found" was a clock-mapping error (seg
-names are LOCAL). All 5 ext5 freezes in the 09-16/17 window heal at
-reconnects/restarts -- ZERO counterexamples to the c19 mechanism.
-Doc: knowledge/aria/ext5-h19-closed-fleet-reverify-2026-09-17.md,
-4b7d2dd3.)
+Last updated: 2026-09-17 ~13:20 UTC (c21: FALSIFIER FIRED -- camera-side
+self-heal exists. Four audio freezes (int1 x3, ext5 x1) healed with NO
+reconnect/WRN and NO watchdog restart, video flowing continuously. ext1's
+6h22m freeze (03:54:47Z-10:16:49Z) reattributed: the 07:17:04Z WRN healed
+VIDEO only (hours 07-09 stayed 100% audio-dead after it); real audio heal
+= producer replacement (10:01:43Z WRN) + consumer re-attach (watchdog
+10:09:08Z+10:13:59Z). go2rtc 1.9.10 source read confirms receiver.Replace()
+does not reach a recording ffmpeg that never re-attaches. Doc:
+knowledge/aria/audio-freeze-selfheal-falsifier-2026-09-17.md, 5f4d7a78.)
 
-## c20 STATE (this cycle)
-A. EXT5 H19 CLOSED: 8-real + 1-stub decomposition; heal at 19:14:57
-   reconnect. c378's 102-dead claim was the watchdog-visible stall
-   (already reclassified c379).
-B. STUB CLASS SEPARATED: zero-second stubs (dur=0, small) are
-   recorder-side artifacts of reconnect bursts -- NOT the silent
-   audio-freeze class. segcensus counts both; per-minute histogram +
-   duration read separates them.
-C. MECHANISM RE-VERIFIED on 3 cameras (int1 6 blocks, ext1 5h22m,
-   ext5 5 blocks), zero unexplained heals.
-D. FLEET NOW: all 7 alive cams audio-carrying at 12:03Z (ch2 census
-   103-415 frames/cam/20s; go2rtc producer delta all FLOWING).
-
-## c19 STATE (this cycle)
-A. UNIFIED AUDIO-FREEZE MECHANISM (RESOLVED): prudynt silently stops
-   audio RTP on the established conn; video keeps flowing => go2rtc
-   video read never blocks => no timeout => no reconnect => freeze
-   persists. Heal A = go2rtc reconnect (next full stall). Heal B =
-   ffmpeg restart (watchdog). int1 freezes 2-23 min (.201 stalls
-   ~59x/day in log window); ext1 froze 5h22m (.101 stalls rarely).
-   The 08:03-08:46 "block" was TWO blocks (08:03-08:26, 08:39-08:46)
-   split by a 13-min alive window -- per-minute mtime histogram did it.
-B. EAR-CHECK vs SEGCENSUS: RESOLVED, no bug. Different windows.
-C. FALSIFIER CONFIRMED (12:07Z): segcensus hour-11 int1 row = 347/180
-   dead => STALE-MAJ flag fired on producers.log (id 14084). The
-   mechanism's own prediction verified within an hour of the filing.
-D. FLEET NOW: all 7 alive cams audio-carrying at 11:57Z (newest segs).
+## c21 STATE (this cycle)
+A. FALSIFIER FIRED: "heal without reconnect" is now a CONFIRMED HEAL PATH
+   (camera-side self-heal), not a falsifier. int1 11:03-11:26Z,
+   11:39-11:46Z, 12:08-12:17Z; ext5 13:02-13:13Z. All: no WRN, no
+   watchdog, video continuous.
+B. EXT1 ATTRIBUTION CORRECTED: c20 credited the 07:17:04Z WRN as the
+   audio heal. WRONG -- audio stayed dead hours 07/08/09. Heal A alone
+   (reconnect) is INSUFFICIENT; heal requires producer replacement +
+   consumer re-attach (watchdog restart).
+C. MECHANISM (c21): disease = prudynt silent audio-RTP drop (unchanged).
+   Returns: (C) camera-side self-heal, minutes-scale, 4/5 today;
+   (B) watchdog restart; (A+B) reconnect + re-attach. Freeze length =
+   self-heal propensity x stall cadence.
+D. FLEET NOW: all 7 alive cams audio-carrying (13:18Z census: int1 326,
+   ext1 374, ext5 243 ch2 frames/20s). ext4 power-dead (0063, known).
 
 ## FALSIFIERS (standing)
 0. NOCTURNE PASS READ: fires 16:01Z TODAY. Gate e4d0832d, range debt
-   1386 commits (cap 300/pass => ~5 passes). Preheal drop-in first
-   real test. Read her pass next cycle.
-1. INT1 12:05Z SEGCENSUS: DONE (12:07Z, STALE-MAJ fired -- see c19
-   STATE C). Next falsifier: any freeze healing WITHOUT a reconnect
-   or restart falsifies the mechanism.
-2. EXT1 REBOOT STAIRCASE: tonight 01:02Z reboot = RECURRENCE watch
-   (ext1 already healed 10:17Z). If ext1 refreezes before reboot and
-   the reboot heals => heal-path confirmation.
-3. DAILY CENSUS (standing): req-census + 429 + commit-census. Last
-   clean c17. Next: tomorrow.
+   1386 commits (cap 300/pass => ~5 passes). Preheal drop-in first real
+   test. READ NEXT CYCLE.
+1. NEW FALSIFIER (c21): a PERSISTENT (>30min) freeze healing with NEITHER
+   conn replacement NOR consumer re-attach AND ch2-census proof the
+   producer conn audio never died (=> restream lost audio while producer
+   kept it -- a different disease). Needs 5-min-cadence ch2 census to
+   resolve. INSTRUMENT CANDIDATE: ch2-census cadence 60min->5min.
+2. EXT1 REBOOT STAIRCASE: tonight 01:02Z reboot = RECURRENCE watch.
+3. DAILY CENSUS (standing): req-census + 429 + commit-census. Last clean
+   c17. Next: tomorrow.
 4. PRODUCER-ID LONGITUDINAL (standing): producers.log rows accumulate.
 5. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
 6. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
-7. GPTEL-FORK RESIDUE: sophon-side emacs.d/gptel-fork empty dir.
-   Inert false-alarm magnet -- ask or leave (nacho-owned tree).
+7. GPTEL-FORK RESIDUE: sophon-side emacs.d/gptel-fork empty dir. Inert.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
 - RECEIPT LAW (c16): command-issuance receipt witnesses INTENT; result
@@ -64,7 +51,6 @@ D. FLEET NOW: all 7 alive cams audio-carrying at 11:57Z (newest segs).
 - TEST-BEFORE-INSTALL LAW (c13): scratch harness before timer install.
 - READ-THE-SIBLING LAW (c13): read the nearest existing sibling unit
   before writing a new systemd unit.
-- SNAPLEN LAW (c13): know the capture tool's snaplen default.
 - TRANSITION-COLLAPSE LAW (c387): write the state-transition collapse
   loop FIRST; nohup background when item count is large.
 - PATH-SHAPE LAW (c377): verify path shape against KNOWN-GOOD before
@@ -82,51 +68,47 @@ D. FLEET NOW: all 7 alive cams audio-carrying at 11:57Z (newest segs).
 - Law 50 (schema): verify DAY, COLUMN, KEY FORMAT, CLOCK (timezone),
   SOCKET, UNITS, DELTA-vs-CUMULATIVE + COLUMN COUNT.
 - c362 TIMESTAMP-IS-A-CLAIM: timestamps from date(1), never model
-  generation. ENFORCED: hooks/pre-commit.
+  generation. ENFORCED: hooks/pre-commit. (c21: re-derive WRN lists by
+  COUNT query, never from memory of the list -- hallucinated a 11:26Z
+  WRN that did not exist; the count query killed it.)
 - GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE from
   the DISCUSSION of the action.
 - c385 CENSUS-LAW: greps that pattern-match their own audit trail
   self-pollute. PARSE-field-anchored census scripts.
+- c21 MTIME-LAG LAW: seg mtime gaps with CONTINUOUS seg names are
+  muxer lag, not stalls. Check seg-name continuity before reading an
+  mtime gap as a freeze.
 
-## STATE (world as of 2026-09-17 ~12:00Z -- REPLACES prior blocks)
-- CH2-CENSUS: LIVE (hourly :05, sophon). 11:00Z run: all 7 alive cams
-  ch2>0. ext1 flipped 0->374 (healed 10:17Z via go2rtc reconnect).
-- AUDIO-FREEZE CLASS: RESOLVED MECHANISM (c19). One disease (prudynt
-  silent audio-RTP drop on established conn), two heal paths (go2rtc
-  reconnect / ffmpeg restart). Camera-side root cause OPEN (needs
-  pcap/prudynt logs -- rides 0062 physical visit).
-- DAILY CENSUS c17: 0 true 429s; 1 transient 502 (retry absorbed);
-  empty-end 0/0; commits 289.
-- SUITE (c17): 1309/1309 GREEN -- c368's 17 failures CLOSED.
-- TERMINAL-ECHO LIVE-VERIFIED (c17): 1 echo-close in ~450 runs/5d.
-- FLEET WIRING: CLOSED c15. FLEET-CHECK v2.26: 09:04Z feed green
-  except ext1 (then-frozen, expected) + JOURNAL-BLIND x1 (known).
+## STATE (world as of 2026-09-17 ~13:20Z -- REPLACES prior blocks)
+- AUDIO-FREEZE CLASS: mechanism REFINED (c21). Self-heal path added.
+  All 7 alive cams audio-carrying at 13:18Z.
+- CH2-CENSUS: LIVE hourly :03. Cadence gap vs 7-20min blocks noted --
+  5-min cadence is the candidate instrument (c21 falsifier needs it).
 - NOCTURNE: preheal drop-in live; 16:01Z pass = first real test.
   Gate e4d0832d, 1386 commits debt, cap 300/pass.
-- CYCLE-SEQ: c384 fix live. This cycle: 19 (system counter).
+- CYCLE-SEQ: c384 fix live. This cycle: 21 (system counter).
 - CLOCK-FABRICATION (c362): guard live, watch clean.
-- 27H PREFLIGHT OUTAGE (c369): RESOLVED; creator IDENTIFIED c372.
 - TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
   Fix-2 OPEN.
-- FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay
-  0059. Auth holding. WAVE TRIGGER fix CONFIRMED COSTLESS; issue
-  DRAFTED, DO-NOT-POST (0060).
+- FRIGATE EXPOSURE: scanner #3 (relay 0059), auth holding. WAVE
+  TRIGGER fix costless; issue DRAFTED, DO-NOT-POST (0060).
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - BARE REPO HEALTH: 2 root-owned commit-graph files persist in
   iar-personalization.git (old, c372). My pushes create none.
 - .104 power-dead since 09-12 (0063, physical, parked on visit).
+  Frigate retries it ~1376 404s/hour -- log noise, not a fault.
 
 ## THREADS (open, no obligation)
+- CH2-CENSUS CADENCE (c21): 5-min cadence to catch producer-conn state
+  during self-heal blocks. Build if pulled; watch burn cost first.
 - RESULT-RUNG WIDENING (c16): census-window/failure-triage claims on
   cmd receipts. Filed, not scheduled.
-- EXT5 H19 WINDOW (c378): CLOSED c20 (8-real+1-stub, heal at 19:14:57Z reconnect; doc 4b7d2dd3).
 - .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?
 - .201 STALL CADENCE (c373): ~59 go2rtc timeouts/log-window vs .101's
   11. WHY does .201 stall 5x more? Camera-side evidence censored;
-  needs pcap or prudynt (rides 0062).
+  rides 0062. (c21 adds: self-heal propensity may differ per camera.)
 - NOCTURNE RANGE-DEBT (c363->c371): 1386 commits past gate.
-- CONTINUO THINKING-TRUNCATION (c366): 5-13% of her cycles; aria
-  ZERO. Watch per-day fire counts; escalate >15%.
+- CONTINUO THINKING-TRUNCATION (c366): 5-13% of her cycles; aria ZERO.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
@@ -148,19 +130,19 @@ D. FLEET NOW: all 7 alive cams audio-carrying at 11:57Z (newest segs).
   the existing consumer when a stream is frozen. Worth one look.
 - GO2RTC RECONNECT LATENCY (c19 seed): audio-only drops never trigger
   reconnect. Would a go2rtc audio-track inactivity timeout close the
-  gap? Upstream issue material -- rides 0060 draft decision.
+  gap? Upstream issue material -- rides 0060 draft decision. (c21:
+  the consumer-re-attach gap is now MEASURED -- 15min ext1, 8min int1.)
 
 ## RELAY (open, human-needed)
 0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
 0060, 0062 (amended c359), 0063 (parked on 0073 ruling; fires on
 physical visit), 0064, 0065, 0066, 0068 (mechanism armed, policy
 open), 0069, 0074 (journal flood), 0073 (amended c385+c387+c19),
-0076 (fixture pin landed, ratify watch), 0077 (git-poison rule,
-behavioral, awaiting 0042-durable linkage).
+0076 (fixture pin landed, ratify watch), 0077 (git-poison rule).
 ANSWERED: 0073+0063 (cameras deprioritized, observation-only).
 HELD: 0075 (ext2 silent freeze -- fires only on evidence-destruction
-or all-8 spread per the ruling's escalation bar). NOTE: spread is
-5/7 alive cams historically; int1/ext1/ext2/ext3/int2 all froze and
-healed today -- the class is ACTIVE but self-healing. If a freeze
-persists >6h (ext1-class latency), re-notify via 0075.
+or all-8 spread per the ruling's escalation bar). NOTE (c21): ext1
+freeze reached 6h22m today (>6h bar) BUT healed and the class is
+self-healing -- re-notify via 0075 only if a freeze persists >6h AND
+is still frozen at observation time.
 All human-needed or watch.

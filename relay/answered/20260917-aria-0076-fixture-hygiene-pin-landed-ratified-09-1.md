@@ -2,7 +2,7 @@
 filed: 2026-09-17T03:09Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: fixture-hygiene pin landed (ratified 09-16, built c379)
 body: |
@@ -32,3 +32,15 @@ body: |
 answer: (none)
 [2026-09-17 2026-09-17 14:20Z aria c23 verification] Pin test verified live from the cycle container: /root/i.ar/emacs.d/test/test-fixture-hygiene.el exists, commit 54d273f resolves in the i.ar repo with the full design note (static scan + negative test + guard-authoring self-fix). Filing's claims check out. No further action; stays open for the scan-widening question (source modules) which is optional.
 
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): RATIFIED, scope stays test-files-only
+
+Ruling: "Ratified, and lets leave it to test-files only for now."
+
+- The landed build (test-fixture-hygiene.el, 54d273f) is ratified as
+  the standing guard for the nested-git creator class.
+- Scan-widening to source modules: DECLINED for now -- source
+  legitimately runs git against the real checkout; widening would
+  need per-site exceptions for marginal gain. Revisit only if a
+  source-module git op ever poisons a checkout (the class would show
+  as a tripwire fire with no test-suite run in the audit window).

@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.25 (2026-09-16, aria cycle 380)
+# aria fleet-check v2.26 (2026-09-17, aria cycle 15)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -7,6 +7,17 @@
 # The version in git IS the running version -- no copy on sophon.
 # CALLER: use ssh timeout >= 300s (ear check alone runs ~2min).
 #
+# v2.26 (aria c15, 2026-09-17): HOURLY ORGAN WIRING -- the c14 gap closed.
+#   The hourly audio organs (ch2census :05, segcensus :05) wrote to
+#   /var/lib/aria-fleet/ but NOTHING read them into this composite: they
+#   were read by cycles and humans, by no organ (fleet-check had zero
+#   references to them). New block 1c (before identity watch): reads the
+#   latest row per camera from ch2census/*.log (FROZEN -> CH2-FROZEN FAIL,
+#   named so the fear organ's reasons-grep surfaces it; FROZEN->healthy
+#   transition -> CH2-RECOVERED heal witness) and the latest STALE-ALL row
+#   from segcensus/producers.log (SDP-STALE report line, no FAIL -- the
+#   ear check already owns that camera's FAIL; the flag is the mechanism
+#   witness). Read-only toward the organ outputs.
 # v2.24 (aria cycle 354, 2026-09-15): RECORDER-AUDIO-DEATH DETECTOR
 #   (block 1b) + KNOWN_FAULT_EXT2_SEG withdrawn (.102 self-resolved:
 #   power + audio both healed, live-verified c353 02:01:13Z first
@@ -530,6 +541,64 @@ for cam in $NEW_DEAD; do
   echo "$cam $((runs+1))" >> "$RA_STATE.tmp"
 done
 mv "$RA_STATE.tmp" "$RA_STATE" 2>/dev/null
+
+# --- 1c. HOURLY ORGAN WIRING (v2.26, aria c15): segcensus + ch2census into the composite ---
+# The c14 wiring gap: the hourly audio organs (aria-ch2-census.timer :05,
+# segcensus.timer :05) write to /var/lib/aria-fleet/{ch2census,segcensus}/
+# but NOTHING read their outputs into the fear organ's composite signal --
+# they were read by cycles and humans, by no organ. This block surfaces
+# their latest rows. Read-only toward the organ outputs (this block never
+# writes to them); additive; reversible by deleting the block.
+#
+# Why the ch2 FROZEN flag carries the FAIL: the ch2 census reads the
+# NETWORK layer -- a camera-side audio-track drop (prudynt, relay 0073
+# class) shows here up to an hour before the recorder-side instruments
+# (ear check samples 3 segments; segcensus closes on the hour). New
+# freeze = news = FAIL. A standing freeze stays FAILED on purpose (the
+# fault is real every run; the alarm is owned by relay 0073, and the
+# row flipping back to hundreds is the heal witness).
+#
+# segcensus STALE-ALL rows are REPORT lines, not FAILs: the SDP-claims-
+# audio-but-delivery-says-none contradiction is already owned by the ear
+# check's NO-AUDIO FAIL on the same camera; double-failing the same fault
+# adds noise, not signal (the flag's value is the mechanism witness).
+echo "-- hourly organ wiring (ch2census + segcensus) --"
+CH2_DIR=/var/lib/aria-fleet/ch2census
+SEG_DIR=/var/lib/aria-fleet/segcensus
+if [ -d "$CH2_DIR" ]; then
+  for f in "$CH2_DIR"/*.log; do
+    [ -r "$f" ] || continue
+    cam=$(basename "$f" .log)
+    row=$(tail -1 "$f" 2>/dev/null)
+    [ -z "$row" ] && continue
+    case "$row" in
+      *"FROZEN"*)
+        # epoch cam ch2 ch0 bytes FROZEN -- freeze live at last census
+        age=$(( $(date +%s) - $(echo "$row" | awk '{print $1}') ))
+        echo "CH2-FROZEN FAIL ($cam ch2=0 at last census, ${age}s ago -- camera-side audio track dropped, relay 0073 class)"; FAIL=1
+        ;;
+      *)
+        # healthy row: report only if the cam was FROZEN in the previous row (heal witness)
+        prev=$(tail -2 "$f" 2>/dev/null | head -1)
+        case "$prev" in
+          *"FROZEN"*) echo "$cam CH2-RECOVERED: ch2 flowing again ($(echo "$row" | awk '{print $3}') frames/20s) -- withdraw any freeze watch" ;;
+        esac
+        ;;
+    esac
+  done
+else
+  echo "ch2census dir missing -- organ not installed? (report, not fail: the ear check covers deafness)"
+fi
+if [ -r "$SEG_DIR/producers.log" ]; then
+  laststale=$(grep "STALE-ALL" "$SEG_DIR/producers.log" 2>/dev/null | tail -1)
+  if [ -n "$laststale" ]; then
+    # report the LATEST stale row only (the log accumulates hourly; a
+    # standing freeze shows one STALE-ALL per hour -- surface the newest)
+    echo "SDP-STALE (latest): $laststale -- SDP advertises audio, delivery says all-dead (law-50: SDP-ADVERTISED != PACKETS-FLOWING)"
+  else
+    echo "sdp-stale ok: no STALE-ALL rows in producers.log"
+  fi
+fi
 
 # --- 2. IDENTITY WATCH (pixels, not metadata) ---
 echo "-- identity watch --"

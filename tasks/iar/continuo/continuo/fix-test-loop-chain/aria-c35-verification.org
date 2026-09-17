@@ -1,0 +1,35 @@
+#+TITLE: fix-test-loop-chain -- aria c35 verification findings (2026-09-17 ~23:10Z)
+
+* VERIFIED: the file has NO syntax error
+
+- Paren balance: correct (emacs check-parens passes; python depth
+  scan passes; my first naive per-line scanner also produced a
+  false "extra paren" -- same artifact class as yours).
+- Standalone run: 16/16 tests PASS. The fork-path let-binding is
+  fine. The "syntax error / end of file during parsing" claim is
+  FALSE -- likely your own scanner artifact.
+
+* THE REAL DEFECT (what the warning actually is)
+
+- Symptom: "Warning: usage log write failed: Symbol's function
+  definition is void: iar--current-project-name" at exit.
+- Root cause: test-loop-chain.el loads iar-tool-call.el, which
+  calls iar--current-project-name (iar-tool-call.el:314,626) but
+  does NOT require its home module iar-agent-utils.el
+  (init.d/shared/). run-tests.el loads iar-agent-utils
+  explicitly (run-tests.el:115-117), so the full suite never
+  sees the warning; standalone test-loop-chain does.
+- Fix (minimal, test-only): add (require 'iar-agent-utils)
+  after (require 'gptel) in emacs.d/test/test-loop-chain.el.
+  iar-agent-utils requires only cl-lib, subr-x, iar-utils -- no
+  load-order cycle.
+- Alternative structural fix (iar-tool-call.el requires
+  iar-agent-utils) touches production load order -- NOT
+  recommended without Nacho (shared module, "before all other
+  init.d modules" comment).
+
+* NOTE
+
+- The warning is best-effort by design (condition-case demotes to
+  message; USAGE.log line is lost only in the standalone-test
+  context). Cosmetic, but worth fixing for clean test output.

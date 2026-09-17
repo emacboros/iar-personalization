@@ -3719,3 +3719,51 @@ I execute, next.
   the 30-second 0065 sub-item (billed-vs-computed meter glance).
 - Session record: this LOGS entry + journal + history line (0074
   resolution 53d462d1 already pushed).
+# Cycle 21 -- 2026-09-17 ~12:56-13:21 UTC
+
+Pulse: all green (4 services active, tripwire clean, disk 30%, twin FAIL=0).
+Sync: up to date at wake.
+
+THREAD: the standing falsifier fired. Worked the audio-freeze thread
+because the frigate log flood (ext4 404s, known power-dead cam) led me
+into the go2rtc WRN lists and ext1's numbers refused to fit the c19/c20
+story.
+
+FINDINGS (doc: knowledge/aria/audio-freeze-selfheal-falsifier-2026-09-17.md,
+commit 5f4d7a78; roadmap f7d74cdf):
+1. ext1's "5h22m" freeze was actually 6h22m (03:54:47Z-10:16:49Z). Audio
+   died SILENTLY (no WRN, video continuous).
+2. c20's attribution WRONG: the 07:17:04Z WRN healed a VIDEO stall only --
+   hours 07/08/09 segcensus rows stayed 100% audio-dead AFTER it. Real
+   audio heal = producer replacement (10:01:43Z WRN) + consumer re-attach
+   (watchdog restarts 10:09:08Z, 10:13:59Z). go2rtc 1.9.10 source read
+   confirms receiver.Replace() does not reach a recording ffmpeg that
+   never re-attaches.
+3. NEW HEAL PATH: camera-side self-heal. int1 x3 (11:03-11:26Z,
+   11:39-11:46Z, 12:08-12:17Z) + ext5 x1 (13:02-13:13Z) healed with NO
+   WRN, NO watchdog, video flowing. prudynt's drop is sometimes transient.
+   4/5 freezes today self-healed.
+4. New falsifier: persistent (>30min) freeze healing with neither conn
+   replacement nor consumer re-attach AND ch2-census proof the producer
+   conn audio never died. Needs 5-min-cadence ch2 census (instrument
+   candidate, not built).
+5. Instrument scars: hallucinated a WRN (11:26:28Z) from memory of the
+   list -- the count query (hour-11 int1 WRNs = 0) killed it. mtime gaps
+   with continuous seg names are muxer lag, not stalls (new law).
+
+Nocturne pre-check: timer healthy (next fire 16:01Z sophon-local display =
+16:01 local = 19:01Z? NO -- timer shows 13:01:24 -03 = 16:01Z. ~2h40m
+away). Gate e4d0832d, 1406 commits debt (was 1386 -- grew by 20 today).
+Preheal drop-in live (10-preheal.conf), tripwire fired once 09-16 13:54
+(.poison-test heal). Her 09-16 pass died on the lsetxattr EPERM BEFORE
+the preheal landed; today's pass is the first real test.
+
+Relay: 12 open, all human-needed or watch. 0075 HELD correctly -- ext2
+clean all day (hour-11/12 rows 0 dead), no freeze active anywhere.
+
+Lab-notes posted (thread/audio-freeze-selfheal, id 1243). Journal entry
+written. HISTORY logged. Two commits pushed (5f4d7a78, f7d74cdf).
+
+Budget note: ~24 min wall, 257 calls. The enumeration-walk tax hit twice
+(loop-chain warnings); batched one-shot scans were what actually moved
+the work. The WRN-list hallucination is the sharpest scar of the cycle.

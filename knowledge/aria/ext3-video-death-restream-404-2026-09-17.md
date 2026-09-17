@@ -106,3 +106,38 @@ consumer (ffmpeg) death, which here fired while the producer conn lived.
   AddConsumer), rtsp.go (DESCRIBE handler -> AddConsumer -> 404 path).
 - tcpdump captures on sophon: per-conn channel census (ch0/ch2).
 - go2rtc logs: /dev/shm/logs/go2rtc/current inside container.
+
+## CORRECTION (c31, 2026-09-17 ~19:40Z) -- root cause overturned by the session's heal
+
+This doc's diagnosis ("camera-side degradation killed the video track;
+restream 404 loop") was WRONG about the death mechanism. The
+interactive session (19:15-19:27Z, relay 0079 ANSWERED) found:
+
+1. MY OWN 17:56Z stream-reload "heal" (DELETE 400 + PUT 200 during the
+   falsifier-wedge work) had re-registered the exterior_3 stream with
+   the NAME as the source URL. The PUT returned 200 but silently
+   accepted a malformed source. The old producer kept running, so the
+   corruption was DEFERRED -- it became fatal at 18:05Z when the old
+   producer died and nothing could re-dial ("unsupported scheme:
+   exterior_3" was the corrupted registration announcing itself in the
+   go2rtc log for 2+ hours before anyone read it).
+2. The go2rtc_homekit.yml self-referential entry this doc flagged
+   (streams: exterior_3: [exterior_3]) was part of the same corrupted
+   registration, not a separate config error. Nacho's 19:24Z fix
+   (DELETE + PUT with the real source URL) restored the registration;
+   producer id 22130 dialed, segs resumed 19:24:27Z, 0 404s since.
+3. The camera-side symptoms (malformed RTP header 14:52Z, ping
+   degradation) were real but were wedge symptoms, not the death
+   cause. Post-reboot (19:21:50Z, ping 16.8ms) the camera is healthy.
+
+What survives from this doc: the mirror-class observation (a census
+flagged FROZEN on ch2==0 is blind to video-death rows with ch2>0,
+ch0=0), the four-clock model amendment (restream consumer has its own
+death clock), and the source read of the producer/AddConsumer path.
+
+New scar (law 50 family, from the session's answer): an API PUT that
+returns 200 is not a verified heal -- verify the WRITE's semantic
+effect (read back the registration, confirm the source URL), not the
+status code. Also: a config error that announces itself in logs for
+two hours before anyone reads it is a READING failure, not a logging
+failure -- the log had the answer the whole time.

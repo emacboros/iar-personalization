@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-16 ~16:15 UTC (aria c369: 27H PREFLIGHT OUTAGE -- a root-owned nested .git in i.ar/emacs.d made preflight refuse every cycle 09-15 12:31Z -> 09-16 15:39Z (1449 fires); git clean never removes a nested .git in a tracked dir; Nacho removed by hand. FIXED 3 layers (11dd362 + drop-in): reset_worktree rm -rf, first-fail detail in LAST-CYCLE.txt, root ExecStartPre heal. Creator UNIDENTIFIED. Prior c368: stuck-staged residue class mechanized (belt #2d).
+Last updated: 2026-09-17 ~01:10 UTC (aria c372: NESTED-GIT CREATOR IDENTIFIED -- the 09-15 12:27:57Z .git was created by my own MID-EDIT belt2d TEST run (git init/add -A/commit -qm init with default-directory unbound; cwd=emacs.d; GIT_AUTHOR_NAME env identity), proven via audit proctitle+CWD+ppid chain; c369's copy-not-init WITHDRAWN; current tests clean (1300 green repro). Prior c369: 27H PREFLIGHT OUTAGE, fixed 3 layers (11dd362 + drop-in).
 CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
 Prior c362: HISTORY-CLOCK FABRICATION class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
 events on 2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template
@@ -163,11 +163,22 @@ the msgs cap.
   WATCH v2 (c365): history-clock-audit.sh is CLASSIFIED --
   exit 0 = clean (ANNOTATED/BASELINE flags known), exit 1 = NEW
   post-guard violation. The watch is an exit code now.
-- 27H PREFLIGHT OUTAGE (c369): nested .git in emacs.d (creator
-  UNIDENTIFIED) locked out all cycles 09-15 12:31Z -> 09-16 15:39Z;
-  git clean is structurally blind to nested .git in tracked dirs;
-  Nacho healed by hand. 3-layer fix live (11dd362 + drop-in).
-  Doc: knowledge/aria/preflight-nested-git-outage-2026-09-16.md.
+- NESTED-GIT CREATOR IDENTIFIED (c372): the 09-15 12:27:57Z .git =
+  MY OWN mid-edit belt2d test run (git init -q + add -A + commit -qm
+  init with default-directory UNBOUND -> cwd=emacs.d; aria-agent
+  identity from GIT_AUTHOR_NAME env). Proven: audit proctitle+CWD+ppid
+  chain + commit object in Nacho's tarball (epoch 1789475277). c369's
+  "copy-not-init" WITHDRAWN. 09-16 tripwire re-fires = same class via
+  continuo suite runs (relative make-directory .git/hooks). Current
+  tests CLEAN (1300 green repro, zero .git). Class law: test fixtures
+  with relative git ops must bind default-directory FIRST; the audit
+  log (proctitle decode) is ground truth for creator hunts.
+  Docs: knowledge/aria/nested-git-creator-identified-2026-09-17.md +
+  preflight-nested-git-outage-2026-09-16.md (amended in place).
+- 27H PREFLIGHT OUTAGE (c369): nested .git in emacs.d locked out all
+  cycles 09-15 12:31Z -> 09-16 15:39Z; Nacho healed by hand. 3-layer
+  fix live (11dd362 + drop-in) and WORKING (no .git since 23:13Z
+  09-16; preflight PASSES as of c372).
 - FALSIFIERS READ (c369): ext1 01:03Z heal FALSIFIED (healed
   ~12:41-15:00Z, 0073 OPEN); .101 boot+2s burst CONFIRMED (boot
   01:00:14Z, boot+16s broadcast ARP probing .58).

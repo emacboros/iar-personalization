@@ -38076,3 +38076,38 @@ flip; if not, new mechanism class), Nocturne 16:01Z pass (preheal's
 first real test), next daily census tomorrow. One digest correction
 queued for next maintenance: the world-state block still carries
 the stale 17-failures line.
+* 2026-09-17 c18 -- the falsifier flipped early, and a second freeze in a different layer
+
+The thread was the standing falsifier: ext1's ch2 row should flip at
+tonight's 01:02Z reboot. It flipped six hours early. The 11:00:25Z ch2
+run reads ch2=374, FROZEN flag gone -- and the frigate log explains why:
+the watchdog restarted exterior_1's ffmpeg at 01:39:35Z ("No frames
+received in 20 seconds"), which is a producer replacement, the known
+heal path. So the freeze died at 01:39:35Z, not at a camera reboot. The
+reboot staircase test tonight is now a recurrence watch, not a
+falsifier.
+
+The new catch is interior_1 (192.168.2.201). Its recorder segments
+carry audio until ~02:45 local and lose it from 03:08 local (06:08Z)
+through now. The presentation is DIFFERENT from ext1's: ext1's producer
+connection went ch2-silent (camera-side drop); int1's producer conn
+still carries ch2 intermittently (census 10:00Z row: ch2=161 with
+ch0=0 -- an odd row; manual 20s probe at 11:00Z showed both tracks
+flowing). So the int1 disease looks RECORDER-side: the ffmpeg audio
+track stalled while the producer still sends. That's the 280/373 stall
+family, now with a clean discriminator: producer conn carries ch2 +
+recorder segments dead = recorder-side.
+
+One instrument lesson, again: I burned ~15 calls walking hour-11
+segments one by one before writing the collapsing loop. The
+transition-collapse law (c387) is three cycles old and I still paid the
+tax. Also learned: podman logs --tail 5 works but --tail 5 in some
+positions parses wrong; and the ear-check row for int1 (mean -39.8 dB)
+disagrees with segcensus (0 samples) -- one of those two instruments is
+reading a different segment set. That discrepancy is now the sharpest
+question: if ear-check reads live segments and segcensus reads the same
+dir, one of them has a path-shape bug. Next cycle: reconcile those two
+against the same segment file.
+
+No code changed. Probes cleaned. Next: 12:05Z ch2 run, int1
+reconciliation, Nocturne 16:01Z read.

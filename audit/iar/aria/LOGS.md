@@ -3767,3 +3767,46 @@ written. HISTORY logged. Two commits pushed (5f4d7a78, f7d74cdf).
 Budget note: ~24 min wall, 257 calls. The enumeration-walk tax hit twice
 (loop-chain warnings); batched one-shot scans were what actually moved
 the work. The WRN-list hallucination is the sharpest scar of the cycle.
+## Session 2026-09-17 (~14:45-19:50 UTC, Nacho): the relay queue drained
+
+Nacho opened: "Lets continue with the open relay items." One-at-a-time
+format held all session. TEN filings resolved or explicitly parked:
+
+- 0069 RATIFIED: empty-end gate (option 1 standing, option 2 declined).
+  Watch: census frozen at 14.
+- D-016 RATIFIED (agora retention): nocturne writes daily+weekly
+  summaries to digest stream (7); lab-notes 7d delete-after-summary;
+  human streams 30d move-to-archive (8). Mechanics verified live:
+  realm delete deadline -> unlimited, lab-notes delete-any group 38,
+  move works. c38 "bots cannot delete" recipe DEAD.
+- 0066 LANDED: PATHS line in continuo_daily.org (b08bab0).
+- D-017 RATIFIED (continuo stimulus): WANDER phase, CODEBASE-ONLY
+  constraint (Nacho's), notices to THREADS.org, falsifier = journal
+  dup-rate must drop in 2 weeks.
+- 0060: falsifier RAN (single mic-probe -> remake -> wedge -> reload
+  heal; self-heal FALSIFIED). Issue POSTED as AlexxIT/go2rtc#2505 as
+  emacboros (aria's own account, darwin-era; PAT stored uncommitted
+  at audit/iar/aria/github-credentials.md).
+- 0062 ANSWERED: .58 = Nacho's OLD LAPTOP (archeology target, then
+  delegation). ONVIF client app UNEXPLAINED by him. Boot+2s burst
+  class CONFIRMED (3 instances).
+- 0045+0055 STAY OPEN: NIC physical fix, his hands.
+- 0078 RATIFIED: nocturne cap v5 + fragment floor v6. Watch: tomorrow
+  16:00Z first live pass.
+- 0077 RATIFIED: ssh-no-commit rule; 0042 heal = structural backstop.
+- 0076 RATIFIED: fixture-hygiene pin; scan stays test-files-only.
+- 0079 ANSWERED + D-018: observation-only LIFTED (cameras
+  nice-to-have, full access). Remote reboot .103 executed. ROOT CAUSE
+  of the 18:05Z death = MY OWN 17:56Z PUT corrupted the stream
+  registration (name-as-source). SCAR: PUT 200 != verified heal.
+- 0063 RESOLVED: Nacho power-cycled .103+.104; FLEET 8/8 (first time
+  since Sep 12). Signal hypothesis SUPPORTED by RSSI (.104 marginal
+  -66/-68 dBm on nacho_camaras AP).
+- 0065 sub-item closed: dashboard has no token metrics; full-token
+  meter model stands as conservative default.
+- 0068 ANSWERED: policy (a) ratified, attic kept (1 file).
+
+QUEUE AT CLOSE: ZERO open filings (0045+0055 parked on his hands).
+NEW DECISIONS: D-016 (retention), D-017 (wander), D-018 (camera
+access). Token credential file created (gitignored). Retention build
+(wrapper summary-post + deletion pass) still TO BUILD next cycles.

@@ -1,91 +1,76 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~20:35 UTC (c32: NEW CLASS -- int1 detect-ffmpeg
-CUDA filter-init loop. "Impossible to convert" + ENOSYS, bursty ~20s
-restart loop from 19:09:54Z; recordings stop during bursts, resume in
-gaps. NOT stream shape, NOT GPU OOM. Same error on ext3 10 min before
-its 18:05Z fatal window = early-warning signature. .201 audio DTS
-jumped ~11h at 19:01:54Z = camera clock chaos. Relay 0080 filed.)
+Last updated: 2026-09-17 ~21:21 UTC (c33: int1 CUDA loop = SYMPTOM.
+Detect ffmpeg dies on no-codec-params video stream (reproduced).
+Disease: established go2rtc producer conn video=0/audio=11 while
+camera serves video on NEW conns. go2rtc no-re-dial on video-track
+death = 0060 gap, video variant. One continuous window 19:09-21:15Z
+(c32 bursts corrected). Relay 0063 closed, 0080 updated.)
 
-## c32 STATE (this cycle)
-A. INT1 CUDA FILTER LOOP (doc: knowledge/aria/int1-cuda-filter-loop-
-   2026-09-17.md, b0a3276c): detect ffmpeg (hwaccel cuda) fails filter
-   init every restart during bursts; 111 Impossible-errors/hour; 112
-   int1 restarts in the hour. Bursts: 16:09-16:19, 16:49-17:13,
-   17:22-17:27+ local. Maintainer discards 44-byte stubs; recordings
-   resume in quiet gaps (ffprobe-verified video+audio).
-B. EXONERATIONS: stream shape identical across all 8 cams (same SPS
-   hex, yuv420p, 1280x720, 5fps); GPU at 9.0-9.2/10.24GB, zero CUDA
-   errors; loop heals between bursts with same GPU state.
-C. .201 CLOCK CHAOS: audio DTS jumped ~11h mid-session at 19:01:54Z
-   (DTS 3801664718 vs next 296923000). NEW camera-side symptom class.
-D. EXT3 PRECEDENT: 6x same error 17:54-18:0xZ before the 18:05Z fatal
-   window. "Impossible to convert" at filter init = degraded-negotiation
-   early warning. Cheap-probe/full-session asymmetry re-earns at the
-   hwaccel layer.
-E. ACTIONS: relay 0080 filed (.201 power cycle, rides .104 visit);
-   lab-notes posted (id 1272); THREADS entry + doc committed.
+## c33 STATE (this cycle)
+A. DISEASE LOCATED: int1 (.201) -- go2rtc holds a degraded established
+   producer conn (video=0, audio=11/20s, ch2census 21:15-21:17Z;
+   controls ext1 377/412, int2 374/202). Camera serves video fine on
+   NEW conns (ffprobe direct, 94-116 pkts/10s x7). Doc:
+   knowledge/aria/int1-video-track-conn-degradation-2026-09-17.md
+   (c3752294).
+B. CORRELATION: detect restarts track census video=0 windows 1:1
+   (10-min buckets). Video flows at 21:05Z -> restarts stop. Video
+   dies 21:10Z -> restarts resume. Cleanest correlation yet.
+C. aac "Queue input is backward in time" family: 61 events/8h across
+   5 cams (int1 17, ext4 14, ext1 12, ext5 10, ext3 8). Clock-chaos
+   family census; c32's 11h DTS jump is its sharpest member.
+D. DEFERRED: go2rtc PATCH re-dial test (body form returned 400 --
+   stream defined in frigate config; correct shape TBD). Law-50:
+   read back the registration before trusting any write.
+E. SCARS: loop-chain guard x2 (hunted recordings dir; the segcensus
+   puller knew the path). MSGS FAT warning at 401 msgs -- converged.
 
-## c31 STATE (kept)
-0079 RESOLVED: root cause was MY OWN 17:56Z corrupted stream
-registration (PUT 200 with name-as-source, deferred failure); Nacho's
-session fixed it 19:24Z. D-018: camera full-access mode. c30's
-mirror-class + four-clock survive; the "camera degradation" story does
-not. Law 50 addition: PUT 200 is not a verified heal -- read back the
-write's semantic effect.
-
-## c29/c30 STATE (kept, condensed)
-- RACE MODEL: freeze = min(camera-resume, conn-death); 6 freezes
-  explained; audio-only death never triggers reconnect (0060 gap).
-- MIRROR CLASS: ch2census FROZEN flag (ch2==0) blind to video-death
-  rows (ch2>0, ch0=0). Video-death flag = standing instrument ask.
-- FOURTH CLOCK: restream consumer death is independent of producer
-  conn health.
-- EPOCH-ARITHMETIC scar: re-derive times from the machine, never
-  mental math.
+## c32 STATE (kept, condensed)
+- int1 CUDA filter loop OPENED (now explained as symptom, see c33A).
+- Exonerations stand: stream shape identical (8 cams), GPU 9.0/10.2GB.
+- .201 audio DTS jumped ~11h at 19:01:54Z (clock chaos).
+- ext3 precedent: 6x Impossible before its 18:05Z fatal window.
 
 ## FALSIFIERS (standing)
-0. NOCTURNE PASS READ (every cycle after 16:00Z): read her receipt +
-   proposal + gate. TOMORROW 16:00Z = first pass with v5 cap + v6
-   floor live. Verify digested range <=300 and gate behavior.
+0. NOCTURNE PASS READ: TOMORROW 16:00Z = first pass with v5 cap + v6
+   floor + v7 durable-verdict file ALL live. Read VERDICTS.log first
+   lines: the fragment-floor verdict on a 48-char response.
 1. FALSIFIER #1 (restream-path loss, healthy producer): OPEN,
    TRIPLE+EVENT law. Class definition must say WHICH track.
-2. EXT3 RECORDER-DEATH WATCH: does the 404 loop self-heal without
-   intervention? (Mooted c31 -- Nacho's config fix healed it. Keep the
-   watch shape for future 404 loops.)
-3. VIDEO-DEATH CENSUS WATCH: scan ch2census logs for ch2>0, ch0=0
-   rows on OTHER cams (fleet-wide vs ext3-specific).
-4. INT1 BURST WATCH (NEW c32): does the int1 CUDA loop burst cadence
-   change after a .201 power cycle (relay 0080)? If not, trigger is
-   the go2rtc<->detect negotiation path, not camera state.
-5. IMPOSSIBLE-EARLY-WARNING (NEW c32): if "Impossible to convert"
-   appears on other cameras shortly before their next failure, the
-   early-warning reading generalizes. Candidate: fleet-check block
-   counting Impossible-errors per cam per hour -> FAIL line.
+2. EXT3 RECORDER-DEATH WATCH: mooted c31 (config fix). Keep shape.
+3. VIDEO-DEATH CENSUS WATCH: ch2>0,ch0=0 rows fleet-wide (c33 found
+   19 on int1 -- the mirror class now has a video twin).
+4. INT1 BURST WATCH (0080): power cycle changes cadence? If not,
+   trigger is negotiation path. SHARPENED c33: go2rtc re-dial test
+   FIRST (remote), power cycle second.
+5. IMPOSSIBLE-EARLY-WARNING: PARTIALLY FIRES (ext4 logged 2 under
+   its own signal-degradation storm). Watch for pre-failure
+   appearances on other cams. Candidate: fleet-check counter.
+6. GO2RTC RE-DIAL TEST (NEW c33): PATCH /api/streams?src=interior_1
+   correct shape -> if re-dial heals and degradation recurs =
+   camera-side (0080 power cycle valid); if stays healed =
+   go2rtc-side only. Requires reading back the registration.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
+- go2rtc PATCH/DELETE+PUT re-dial shape (read-back verified).
 - ch2census video-death flag build (small: one flag line + header).
 - fleet-check "Impossible to convert" counter (early-warning organ).
-- Nocturne 16:00Z pass read (falsifier #0) -- tomorrow.
 - .103 SDP check (does it still advertise video?) -- cheap probe.
+- Nocturne 16:00Z pass read (falsifier #0) -- tomorrow.
 
 ## THREADS (open, no obligation)
-- CAMERA FLEET 8/8 (09-17 19:45Z): .104 revived by Nacho's power
-  cycle. Signal hypothesis for .103/.104 recurring-failure class
-  SUPPORTED by RSSI (.104 marginal -66/-68 dBm). AP fix = Nacho's.
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
-  0078 RATIFIED. Watch: tomorrow 16:00Z pass = first with v5+v6 live.
-- STUB vs NO-AUDIO CLASS (c23/c24): stubs = recorder-side boundary
-  artifacts; NO-AUDIO segs = the disease's body.
-- .201 STALL CADENCE (c373): 77 restarts today + NOW the CUDA loop.
-  WHY does .201 stall more? Rides 0062 + 0080.
+  Tomorrow 16:00Z = first all-defenses pass.
+- STUB vs NO-AUDIO CLASS (c23/c24): stubs = boundary artifacts.
+- .201 STALL CADENCE (c373): 77 restarts + CUDA loop + clock chaos.
+  Rides 0062 + 0080.
 - .103 STORM ONSET (c376): one camera, accumulating failure classes.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
-- CONTINUO WANDER (D-017): landed 6abb14a. Falsifier: journal dup-rate
-  must drop within 2 weeks.
-- EMPTY-END RETRY-ONCE (0069): RATIFIED 09-17. Watch: empty-end census
-  must stay frozen at 14.
+- CONTINUO WANDER (D-017): landed 6abb14a. Falsifier: journal
+  dup-rate must drop within 2 weeks.
+- EMPTY-END RETRY-ONCE (0069): RATIFIED. Watch: census frozen at 14.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
@@ -93,23 +78,20 @@ write's semantic effect.
 - DISCOVERABILITY GRADIENT (c331): 0066 fix LANDED. Watch: her next
   digest write lands in audit/iar/continuo/DIGEST.md.
 - BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
-- GPTEL FORK: master = b85fb12 (nil-content coercion). Mirror on
-  rammstein gptel.git. Regression tests live in i.ar suite.
+- GPTEL FORK: master = b85fb12 (nil-content coercion).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - THREE-CLOCK FREEZE MODEL (c28) + FOURTH CLOCK (c30): watch lag
   predicts healing?
 - RESTREAM-PROBE HANG (c385): worth one look.
-- GO2RTC RECONNECT LATENCY (c19 seed): audio-only drops never trigger
-  reconnect. Upstream issue material -- rides 0060 draft decision.
-- GO2RTC HOMEKIT SELF-REFERENCE: RESOLVED c31 (Nacho's fix; the
-  self-referential entry was part of the corrupted registration).
+- GO2RTC RECONNECT LATENCY (c19 seed): audio-only drops never
+  trigger reconnect. Upstream issue material -- rides 0060.
+- RETENTION BUILD (D-016): wrapper summary-post + deletion pass --
+  TO BUILD next cycles (session 09-17 queue).
 
 ## RELAY (open, human-needed)
-0080 (NEW c32: .201 power cycle -- CUDA filter loop + clock chaos),
-0079 (answered: .103 config fixed by Nacho; camera-side power cycle
-still valid, rides 0063), 0045+0055 (physical cable fix pending),
-0063 (.104 power cycle, L2-dead, physical only), 0073 (open,
+0080 (UPDATED c33: re-dial test first, power cycle second),
+0045+0055 (physical cable fix pending), 0073 (open,
 observation-only stands).
-ANSWERED (recent): 0076, 0077, 0078, 0079, 0074, 0073+0063, 0062.
-NOTE: re-derive the open set from relay/open/ at every memory pass,
-not from memory. Current open set (5): 0045, 0055, 0063, 0073, 0080.
+ANSWERED (recent): 0063 (c33), 0076, 0077, 0078, 0079, 0074.
+NOTE: re-derive the open set from relay/open/ at every memory pass.
+Current open set (4): 0045, 0055, 0073, 0080.

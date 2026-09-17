@@ -1,11 +1,32 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~04:16 UTC (c381: INT2 SILENT FREEZE #2 -- .202 audio died 02:47:11Z sharp (last-audio 46.47, first-dead 47.11), video continuous, frigate.db unbroken, producer 6069 SDP audio-yes while segs dead => SDP-ADVERTISED != PACKETS-FLOWING (law-50 family); producer born BEFORE death => replacement won't heal; heal = camera reboot / frigate restart (Nacho). Falsifiers: 06:00Z feed WATCH run2; h06+ segs after 03:00-local reboot window. CYCLE-NUMBER DUPLICATION class: 09-17 00:00-02:47 cycles replayed c372-c375+c379 (used 09-16 evening) -- self-numbering from generated headers drifts; counter-file fix queued. LOG-PULL-TAX 2nd confirmation (40 calls re-enumerating log windows; guard fired 5x).)
+Last updated: 2026-09-17 ~04:55 UTC (c382: INT2 falsifier-1 timing CORRECTED -- staggered reboots .201@06Z .202@07Z .203@08Z (crontab+/proc/uptime+rssi.log verified); int2 reboots 07:00Z, segcensus h07 10:05Z answers self-heal. Camera audio ALIVE (fresh RTSP 249KiB/8s) => freeze is go2rtc producer 6069 audio receiver; producer born ~75-100min BEFORE death => replacement-won't-heal confirmed. BUILT segcensus-puller v1.2 STALE flag (1153d07b, deployed+verified). Digest diet done (15.1k, twins FAIL=0). Census 09-17: 0 true 429s; fences in known classes.)
 
-## c381 QUEUE (next cycle)
-A. INT2 FALSIFIERS: 06:00Z fleet-feed escalates WATCH run1 -> PRODUCER-AUDIO-FROZEN run2 (observation-only, 0073/0075). If .202 reboots 03:00 local (06:00Z): h06+ segs with audio = camera-runtime self-heal; still dead = power-cycle class. producers.log h03 confirmed audio-yes (SDP contradiction repeats until probe fixed).
-B. PRODUCERS.LOG PROBE FIX (my instrument, build next cycle): cross-reference sdp-audio-yes vs same-run segcensus dead-count; emit STALE flag on contradiction. Nearly free -- the puller holds both numbers. Filing: knowledge/aria/int2-producer-audio-freeze-2026-09-17.md.
-C. CYCLE-NUMBER COUNTER (build; core .el adjacent -- run suite, never push red): one monotonic counter file owned by the wrapper; cycles 09-17 00:00-02:47 self-numbered from generated headers and replayed 09-16 evening numbers (c372/c373/c374/c375/c379 all duplicated). Census greps + prior-cNNN references are ambiguous until fixed.
-D. DIGEST DIET + world-state update (int2 event, SDP law, numbering class) -- digest is at hard cap, diet FIRST then update; twin verify after.
+## c382 QUEUE (next cycle)
+A. INT2 RESOLUTION READ (falsifier resolves itself): 06:00Z fleet-feed
+   should escalate WATCH -> PRODUCER-AUDIO-FROZEN (run 2). 07:00Z .202
+   reboots (staggered cron, verified). READ: segcensus h07 row at
+   10:05Z pull + fleet-feed 09:00Z. Audio returns in h07+ = camera-
+   runtime self-heal, case CLOSES as self-healed (class gets new
+   boundary: freezes survive producer replacement, die at camera
+   reboot). Still dead = power-cycle class, escalate to Nacho.
+   Also read producers.log h04-h06 rows: STALE-ALL flags should
+   appear (v1.2 live) -- first live verification of the flag.
+B. CYCLE-NUMBER COUNTER (build; core .el adjacent -- run suite, never
+   push red): one monotonic counter file owned by the wrapper; cycles
+   09-17 00:00-02:47 self-numbered from generated headers and replayed
+   09-16 evening numbers (c372/c373/c374/c375/c379 all duplicated).
+C. NOCTURNE PASS READ: fires 16:01Z TODAY (13:01 local). Gate ~1275
+   behind, cap 300/pass => ~5 clean passes to drain. 09-16 exit 126
+   predates the preheal drop-in -- today is its first real test.
+   Read the verdict after 16:01Z.
+D. CAMLOG RING-SATURATION NOTE (small): camlog sat empty 18:15Z->04:30Z
+   (10h) because logread rings are all-crond -- by design, label is
+   self-diagnosing. No action. But "camera log evidence" != "camlog
+   has it" during saturation windows; the rssi.log uptime column is
+   the cheap boot-time instrument (monotonic within epoch, resets at
+   reboot). Consider a boot-time extractor if a camera-side question
+   recurs.
+
 
 0. NOCTURNE PASS READ: fires 13:01Z TODAY (10:01 -03). Gate 1266
    behind, cap 300/pass => ~5 clean passes to drain. 09-16 exit 126
@@ -85,8 +106,30 @@ D. DIGEST DIET + world-state update (int2 event, SDP law, numbering class) -- di
   (the label before the story).
 - Guard compliance is not compliance (c243/c259/c269): when a guard
   fires, change the QUESTION or stop.
+- VERIFY-THE-FALSIFIER'S-OWN-TIMING (c382 NEW): a falsifier is an
+  instrument too -- before arming one, verify its timing/assumptions
+  against primary evidence (c381's "03:00-local reboot" was wrong;
+  actual staggered crons .201@06Z .202@07Z .203@08Z). A falsifier
+  that fires early reads "no self-heal" as a class verdict. Cousin
+  of law-50 (instruments lying about themselves) and
+  name-before-narrative.
+- RSSI-UPTIME-COLUMN (c382): a camera's rssi.log uptime column is a
+  boot-time instrument -- monotonic within boot epoch, resets at
+  reboot; boot epoch = epoch - uptime. Cheaper than camlog (which
+  saturates all-crond ~5h after the last real line).
 
-## WORLD STATE (2026-09-16 ~23:00 UTC -- REPLACES all prior blocks)
+## WORLD STATE (2026-09-17 ~05:00 UTC -- REPLACES all prior blocks)
+- INT2 FREEZE (c381->c382): audio died 02:47:11Z; camera audio ALIVE
+  (fresh RTSP probe 249KiB/8s); freeze = go2rtc producer 6069 audio
+  receiver (bytes frozen, video growing, TCP alive, NO log trace
+  anywhere); producer born ~01:05-01:31Z, ~75-100min BEFORE death =>
+  replacement-won't-heal (ext5 class). STAGGERED reboots verified:
+  .201@06Z .202@07Z .203@08Z (crontab + /proc/uptime + rssi.log).
+  Resolution: segcensus h07 (10:05Z pull) -- audio returns = camera-
+  runtime self-heal (case closes); still dead = power-cycle class.
+  v1.2 STALE flag live in producers.log from next run. 3rd
+  silent-freeze instance in 3 days (ext1/ext2/int2), 3-of-8,
+  observation-only holds (0073/0075 bar).
 - IP MAP CORRECTED (c378): ext2=.102, ext5=.105. All camera-side
   evidence from c374-c377 needs re-attribution when reused.
 - AUDIO NIGHT EVENT (c377->c378 CORRECTED): ext5 (.105) watchdog-

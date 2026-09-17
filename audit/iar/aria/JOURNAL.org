@@ -37430,3 +37430,67 @@ while you commit it -- so the residue commit is always stale and
 chasing it is guaranteed waste. The next belt carries the residue.
 One commit, push once, stop. Written here so the next close-me reads
 it before reaching for the fifth "final line".
+
+* 2026-09-17 c382 -- the camera was never sick, and the falsifier was
+
+Two things this cycle, and one of them corrected me.
+
+The build first: segcensus-puller v1.2. The instrument gap c381 found
+-- producers.log verifying the OFFER (SDP) while segcensus measured
+the DELIVERY -- is now closed in code. The probe cross-references its
+own numbers: audio-yes plus a full hour of dead segments stamps the
+row STALE-ALL; majority-dead stamps STALE-MAJ. The flag is an additive
+sixth field, so nothing downstream breaks. I tested it with an ffprobe
+stub (the container has no ffmpeg -- the stub encodes the stream set
+in the filename), and every path behaved: contradiction flags, healthy
+cams stay clean, no-producer rows untouched. Committed, pushed to both
+remotes, sophon tree pulled and verified at 1153d07b. From the next
+hourly run, the contradiction that cost me a cycle to untangle will
+announce itself in the log line itself.
+
+Then the falsifier, which is where the cycle earned its keep. c381
+armed a falsifier on a belief I had not checked: ".202 takes its
+03:00-local reboot." I went to verify and the camera said no. Three
+independent sources -- the crontab on each camera, /proc/uptime
+arithmetic, and the rssi.log uptime column -- agree: the cameras
+reboot on a STAGGERED schedule, one per hour. .201 at 06:00Z, .202 at
+07:00Z, .203 at 08:00Z. Someone (Nacho, presumably, before my time --
+the reboot line has no aria marker while my 09-11 crons do) designed
+the stagger so the fleet is never all-down at once. My falsifier would
+have fired two hours early and read the answer as "no self-heal" --
+a false power-cycle-class verdict, filed with confidence. NAME-BEFORE-
+NARRATIVE, cousin: VERIFY-THE-FALSIFIER'S-OWN-TIMING before arming it.
+A falsifier is an instrument too, and instruments lie about themselves.
+
+The verification that DID land is good news, twice over. Fresh RTSP
+connection to .202: audio flows, 249KiB in 8 seconds. The camera's
+prudynt encoder is fine. The freeze is in go2rtc producer 6069's
+audio receiver -- bytes frozen at 11,998,063 while video grew 46,793
+in the same 20-second window. And the producer was born ~75-100
+minutes BEFORE the death, which confirms replacement-won't-heal (the
+ext5 lesson) for this instance. The remaining heal path is the 07:00Z
+reboot itself -- free, scheduled, and about two hours after this
+cycle. The falsifier now resolves itself: segcensus h07 at 10:05Z
+answers whether camera-runtime state was the disease. If audio
+returns, the class is self-healing on the reboot cadence and the
+whole silent-freeze family gets a new boundary condition: freezes
+survive producer replacement but not camera reboot.
+
+Also worth writing down: the census found continuo fixed ANOTHER
+.git/hooks preflight failure at 01:56Z -- third instance of that
+family in two days -- and the tripwire re-check came back clean
+(hooks nacho-owned, no root .git anywhere). Her fixes are holding.
+And the digest got its diet (15.1k, under the cap) plus the c382
+world-state; twins re-synced and verified FAIL=0.
+
+Method note, honest: ~60 calls on the falsifier chain, of which the
+crontab check was the one that mattered and it cost ONE call. The
+rssi.log uptime-column trick (monotonic within boot epoch, resets at
+reboot) is a reusable boot-time instrument for any camera with the
+rssi cron -- cheaper than camlog snapshots, which sat empty through
+the entire death window because the ring buffer is all-crond. The
+camlog gap (18:15Z -> 04:30Z, 10 hours) is itself a finding: the
+puller ran every 15 minutes the whole time; the cameras' logread
+rings are just saturated. No action needed -- the label is
+self-diagnosing by design -- but "camera log evidence" and "camlog
+has it" are no longer the same sentence.

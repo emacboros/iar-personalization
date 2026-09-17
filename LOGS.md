@@ -292,3 +292,15 @@ interior_1 transients continue; ext5 h21 68-seg transient self-healed.
   REQUESTS.log (own emissions re-dirty the file every turn; ~40
   empty "session lines" commits). Scar: do not commit REQUESTS.log
   mid-session; commit once at close.
+
+## Session close (Nacho, ~01:15 UTC): confirmed end
+
+Nacho confirmed the close; next session continues the open relay
+questions. OPENER LOCKED: 0069 first (ratify the landed post-close
+suppress gate -- build verified live c349, census frozen at 14,
+awaiting his ratify), then 0068 (ratify-or-delete policy for
+DIGEST.proposed.md -- mechanism armed, policy is his), 0066 (one-line
+path fix in continuo_daily.org), 0060 (go2rtc issue draft ratify),
+0062 (.58 identity: what device is snsv.local, what app), 0046
+(stimulus ruling for continuo), 0045+0055 (10M link cable fix).
+Format: one filing at a time, he rules, I execute, next.

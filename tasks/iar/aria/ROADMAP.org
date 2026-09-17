@@ -1,39 +1,44 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~07:10 UTC (c386: FALSIFIER READ -- producer replacement HEALS (int2 audio back 07:01:38Z after 07:00Z reboot, producer 6069->10007); c385 consumer-side theory FALSIFIED; PACKET CENSUS pins the disease CAMERA-SIDE: frozen cams send ZERO ch2 audio frames on the established conn (healthy cams 217-620/20-45s; fresh conn to frozen .202 carries 177 in 6s); prudynt silently drops the audio track mid-connection; go2rtc receiver stall = starvation; no log trace anywhere; heal = camera reboot (ext1 01:00Z tomorrow, ext3 03:00Z). Prior c385: 3-cam census + mechanism reconciliation (superseded).)
+Last updated: 2026-09-17 ~08:00 UTC (c387: AUDIO-FREEZE CLASS DOUBLED -- full-day ffprobe scan found ext3 09-16 19:33Z death (healed 21:37Z, 2h04m, NO reboot) + ext5 09-17 07:25Z death (healed 07:32Z, 6m9s, producer replacement via full-stall WRN 10s after audio return). TWO heal paths: camera reboot AND producer replacement. Death silent at all 5 death minutes. Conn-age spread 2h23m-19h45m = NOT an age timer. Healthy-cam transients: int1 9m13s+4, int3 3x, ext2 5s, ext5 18 windows/30h => FLEET-WIDE, 5/7 alive cams froze in 30h. c373 unified mechanism CONFIRMED with 5 instances.)
 
-## c386 STATE (this cycle)
-A. INT2 REBOOT FALSIFIER: RESOLVED c386 -- producer replacement
-   heals; audio back 07:01:38Z; disease is CAMERA-side (prudynt
-   drops the audio track mid-connection; packet census is the
-   proof). Doc amended in place:
-   knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md.
-B. NEXT FALSIFIERS (self-resolving): ext1 heals at 01:00Z tomorrow
-   (its producer 8147 will churn or the reboot re-establishes);
-   ext3 heals at 03:00Z tomorrow. Tonight's segcensus h01/h03 rows
-   answer. Fleet-feed 09:00Z should flag int2 HEALED + ext1/ext3
-   FROZEN (run 2).
-C. CH2-CENSUS DETECTOR (buildable, mine): the packet census
+## c387 STATE (this cycle)
+A. AUDIO-FREEZE CLASS: 5 instances total (ext3 09-16 19:33, int2
+   09-17 02:47, ext1 09-17 04:54, ext3 09-17 05:51, ext5 09-17
+   07:25). Mechanism: prudynt silently drops the audio track
+   mid-connection. Heals: reboot (int2) OR producer replacement
+   via full-stall WRN (ext5, ext3-0916). Doc amended in place:
+   knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md (c387
+   amendment, a18502dd).
+B. PENDING FALSIFIERS (self-resolving): ext1 heals at 01:02Z
+   tomorrow (reboot), ext3 at 03:02Z. Tonight's segcensus h01/h03
+   rows answer. ALSO: ext5/int1 flapping means new short freezes
+   will appear tonight -- the ch2 census (C) would catch one live.
+C. CH2-CENSUS DETECTOR (buildable, mine): packet census
    discriminates frozen vs healthy in one 20s tcpdump + header
-   parse. Read-only. Candidate for fleet-check v2.26 or a
-   standalone puller. LOW urgency (reboot staircase heals), but it
-   catches partial freezes the ear check misses.
-D. WHY DOES PRUDYNT DROP THE TRACK: camera-side, no log trace.
-   Correlate deaths with prudynt version, time-of-day, connection
-   age across more instances. Needs the ch2 census running
-   longitudinally first (C).
+   parse. Read-only. NOW THE PRIORITY INSTRUMENT: with 5/7 cams
+   affected in 30h, the next freeze is near-certain tonight; a
+   longitudinal ch2 census would capture the death minute's packet
+   history. Candidate: fleet-check v2.26 or standalone puller.
+D. WHY DOES PRUDYNT DROP THE TRACK: correlates checked = NONE
+   (time-of-day 02:47-07:25Z spread; conn-age 2h-19h spread;
+   firmware identical; no camera-log trace). Remaining: catch a
+   death live with the ch2 census + correlate with prudynt-internal
+   state (needs camera-side access -- 0062/0073 territory).
 
 0. NOCTURNE PASS READ: fires 16:01Z TODAY. Gate ~1275 behind, cap
    300/pass => ~5 clean passes. Preheal drop-in first real test.
-1. DAILY CENSUS (standing): req-census + 429 + commit-census. c385
-   done (see C above). LAW: use req-census.sh, never raw grep on
-   REQUESTS.log (echo-quote self-pollution, 3rd confirmation c385).
+1. DAILY CENSUS (standing): req-census + 429 + commit-census.
+   c387 done (0 true 429s both agents; 389 commits/24h).
 2. PRODUCER-ID LONGITUDINAL (standing): producers.log hourly rows
-   accumulate. Producer ids are a GLOBAL counter (churn across all
-   streams) -- id changes are churn, not per-camera events. Baseline
-   replacement cadence per camera over days still open.
-3. WRN-WAVE CLUSTERING (seed, THREADS.org): multi-camera read-timeout
-   minutes every ~20-40min, different camera sets each time. Needs a
-   per-wave camera-set + host-load join across several days. LOW.
+   accumulate (started 09-17/00). NOTE: no 09-16 rows exist -- the
+   ext3-0916 heal mechanism (replacement at 21:01 WRN vs 21:37
+   no-WRN) is UNRESOLVABLE retroactively. Baseline cadence builds
+   from today forward.
+3. WRN-WAVE CLUSTERING (seed, THREADS.org): 09-17 non-ext4 WRN
+   counts by hour: 00=9, 01=15, 02=12, 03=2, 04=14. 09-16: 15=7,
+   16=31, 17=9, 18=11, 19=6, 20=11, 21=10, 22=12, 23=8. No obvious
+   wave structure in hourly counts; per-wave camera-set join still
+   open. LOW.
 4. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
 5. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
 6. SUITE FAILURES (c368): 17 pre-existing. Separate thread.
@@ -42,11 +47,14 @@ D. WHY DOES PRUDYNT DROP THE TRACK: camera-side, no log trace.
    Inert false-alarm magnet -- ask or leave (nacho-owned tree).
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
+- TRANSITION-COLLAPSE LAW (c387 NEW): enumerating per-item probes
+  (one ffprobe per segment) is the loop fuel; write the
+  state-transition collapse loop FIRST (print only changes), run it
+  in background (nohup) when the item count is large. Cost me ~15
+  calls + 2 guard fires this cycle; 3rd cycle with this lesson.
 - PATH-SHAPE LAW (c377): before reading "0 results" from a
   find/ls as a REAL absence, verify the path shape against a
-  KNOWN-GOOD example (list the parent dir first). Zero-padding, case,
-  date formats are silent no-match traps. File cousin of the
-  empty-grep class (c376): EMPTY OUTPUT IS THE LOOP FUEL.
+  KNOWN-GOOD example (list the parent dir first).
 - NAME-BEFORE-NARRATIVE LAW (c3xx): name the thing before building
   the story about it.
 - INSTRUMENT-TAX (c378): nested timeout+podman-exec hangs; use
@@ -54,57 +62,35 @@ D. WHY DOES PRUDYNT DROP THE TRACK: camera-side, no log trace.
   fixed instrument-tax line to time predictions.
 - SDP-ADVERTISED != PACKETS-FLOWING (c381): producers.log reads the
   frozen SDP offer; segcensus measures delivery; STALE flag
-  cross-references (v1.2 live, first production fire c384).
-- PRODUCER-RECEIVER-FREEZE = SYMPTOM (c385 NEW): the go2rtc producer
-  audio receiver's stalled byte-counter is backpressure from the
-  consumer side (recorder ffmpeg audio track), not a producer fault.
-  Class B label in fleet-check misattributes the layer; heal
-  prediction (producer replacement) contradicted by ext5 c382 +
-  mechanism. Falsifier pending (queue A).
+  cross-references (v1.2 live).
 - Law 50 (schema): verify DAY, COLUMN, KEY FORMAT, CLOCK (timezone),
   SOCKET, UNITS, DELTA-vs-CUMULATIVE on every instrument output.
+  c387 corollary: podman logs --since takes HOST-LOCAL time on
+  sophon (TZ=-03) -- filter by UTC only after converting.
 - c362 TIMESTAMP-IS-A-CLAIM: log timestamps are claims; the
   introducing commit is ground truth. CLOCK-FROM-TOOL: timestamps
   from date(1), never model generation. ENFORCED: hooks/pre-commit.
-- GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE from
-  the DISCUSSION of the action.
+- GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE
+  from the DISCUSSION of the action.
 - c385 CENSUS-LAW: greps that pattern-match their own audit trail
-  self-pollute (echo-quote class, 3rd confirmation). Use the
-  PARSE-field-anchored census scripts.
+  self-pollute (echo-quote class). Use the PARSE-field-anchored
+  census scripts.
 
-## STATE (world as of 2026-09-17 ~06:30Z -- REPLACES prior blocks)
-- AUDIO-FREEZE CLASS (c385->c386 RESOLVED): 3 cams froze overnight
-  09-17 (int2 02:47Z, ext1 04:55Z, ext3 05:52Z). FALSIFIER RESULT
-  c386: producer replacement HEALS (int2 audio back 07:01:38Z after
-  07:00Z reboot, producer 6069->10007). PACKET CENSUS: frozen cams
-  send ZERO ch2 audio frames on the established producer conn
-  (healthy cams 217-620 per window; fresh conn to frozen .202
-  carries 177 in 6s) => DISEASE IS CAMERA-SIDE (prudynt drops the
-  audio track mid-connection, silent, no log trace). go2rtc
-  receiver stall = starvation, not backpressure. Heal = camera
-  reboot (staircase: ext1 01:00Z, ext3 03:00Z tomorrow). Doc
-  amended in place: knowledge/aria/audio-freeze-census-3-cams-
-  2026-09-17.md. Relay 0073 amended (03a14465). Observation-only
-  stands.
-- CYCLE-SEQ: c384 fix live (bump at iar-run-cycle action site). My
-  number this cycle: 10. Values <=9 polluted; monotonicity is the
-  invariant. Watch: 1 bump per cycle from c384.
-- NOCTURNE: preheal drop-in live (verified in unit file); pass today
-  16:01Z is its first real test. Gate ~1275 behind.
-- FLEET-CHECK v2.25: healthy at 03:00Z except int2 WATCH (run 1).
-  Next feed 09:00:56Z should flag int2 FROZEN + ext1/ext3 first
-  catches. segcensus h06 07:05Z, h07 08:05Z.
-- REBOOT STAIRCASE (c385 verified): camera crontabs read directly --
-  .101 01:00Z, .102 02:00Z, .103 03:00Z, .105 05:00Z, .201 06:00Z,
-  .202 07:00Z, .203 08:00Z (all `reboot -f`, verified on-camera).
-  .201's 06:00Z boot today: verified via direct uptime probe (boot
-  06:00:10Z). The rssi uptime column is the boot-time instrument
-  (c385: boot-time extractor considered; jumps census clean except
-  .102's 881 empty-uptime rows 09-12/13 -- old puller-era artifact,
-  rows have RSSI but empty uptime; harmless, noted).
-- CAMLOG RING-SATURATION: by design (self-diagnosing label); .201
-  camlog shows only crond + stale DayNight lines (ring saturated) --
-  camera log evidence != camlog has it during saturation.
+## STATE (world as of 2026-09-17 ~08:00Z -- REPLACES prior blocks)
+- AUDIO-FREEZE CLASS (c381->c387): 5 deaths in 30h, fleet-wide
+  (5/7 alive cams). Camera-side (prudynt drops audio track
+  mid-connection, silent). Two heal paths: reboot + producer
+  replacement. int2 HEALED (07:01:38Z); ext1/ext3 still frozen
+  (heal at 01:02Z/03:02Z tonight); ext5 healed 07:32Z.
+- NOCTURNE: preheal drop-in live; pass today 16:01Z is its first
+  real test. Gate ~1275 behind.
+- FLEET-CHECK v2.25: 03:00Z run had int2 WATCH (run 1); 09:00:56Z
+  feed should show int2 FROZEN (2nd run) + ext1/ext3 first catches.
+- REBOOT STAIRCASE (verified from rssi uptime resets, 5 days):
+  .101 01:02Z, .102 02:02Z, .103 03:02Z, .105 05:02Z, .201 06:02Z,
+  .202 07:02Z, .203 08:02Z (cron `reboot -f`; rssi rows show boot
+  ~2min after the hour -- puller cadence artifact, actual ~:00).
+- CYCLE-SEQ: c384 fix live (bump at iar-run-cycle). This cycle: 12.
 - CLOCK-FABRICATION (c362): guard live, watch clean.
 - 27H PREFLIGHT OUTAGE (c369): RESOLVED; creator IDENTIFIED c372.
 - TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
@@ -115,29 +101,26 @@ D. WHY DOES PRUDYNT DROP THE TRACK: camera-side, no log trace.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - BARE REPO HEALTH: 2 root-owned commit-graph files persist in
   iar-personalization.git (old, from c372 root push). My pushes
-  create none (verified c373).
+  create none.
 - SUITE FAILURES (c368): 17 pre-existing (invisible-turn x2,
   ollama-stream x8, sanitize x7). Fix = separate thread.
 
 ## THREADS (open, no obligation)
 - EXT5 H19 WINDOW (c378): 102 dead 17:00-18:00 local, no event found.
-  Run shape pending (nohup on sophon).
 - .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?
-  pcap or prudynt debug are the remaining instruments.
 - .201 STALL CADENCE (c373): why ~100/day vs 12/8 on identical
   hardware? Camera-side evidence censored; needs pcap or prudynt.
-- NESTED-GIT CREATOR (c369->c372): CLOSED. Residual watch: tripwire
-  re-fires would mean a NEW creator.
+- NESTED-GIT CREATOR (c369->c372): CLOSED. Residual watch.
 - NOCTURNE RANGE-DEBT (c363->c371): ~1275 commits past gate.
 - CONTINUO THINKING-TRUNCATION (c366): 5-13% of her cycles; aria
   ZERO. Watch per-day fire counts; escalate >15%.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean.
-- LOOP-GUARD RATE (c363): c378 ran ~108 calls, ONE guard fire.
-- CAMERA-BOOT CLOCK (c342->c350): 6 confirmations + c376 corollary.
+- CAMERA-BOOT CLOCK (c342->c350): 7 confirmations (rssi resets
+  09-13..09-17 at 01:02Z/03:02Z for .101/.103).
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
   Nacho's (0062). Boot+2s burst CONFIRMED.
-- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; no recurrence
-  since 00:34:05Z Sep 15.
+- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; no
+  recurrence since 00:34:05Z Sep 15.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - EMPTY-END RETRY-ONCE (0069): gate verified live c349; ratify watch.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
@@ -151,19 +134,18 @@ D. WHY DOES PRUDYNT DROP THE TRACK: camera-side, no log trace.
 - GPTEL FORK: master = b85fb12 (nil-content coercion). Mirror on
   rammstein gptel.git. Regression tests live in i.ar suite.
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
-- RESTREAM-PROBE HANG (c385 NEW): go2rtc restream probe queues behind
-  the existing consumer when a stream is frozen; probe ffmpeg hung,
-  killed. If a future freeze needs the restream probe, use ffmpeg
-  -timeout and expect the queue. Possible single-consumer
-  serialization in go2rtc -- worth one look someday.
+- RESTREAM-PROBE HANG (c385): go2rtc restream probe queues behind
+  the existing consumer when a stream is frozen. Worth one look.
 
 ## RELAY (open, human-needed)
 0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
 0060, 0062 (amended c359), 0063 (parked on 0073 ruling; fires on
 physical visit), 0064, 0065, 0066, 0068 (mechanism armed, policy
-open), 0069, 0074 (journal flood), 0073 (amended c385: 3-cam census
-+ consumer-side mechanism; observation-only stands).
+open), 0069, 0074 (journal flood), 0073 (amended c385+c387:
+5-instance census, two heal paths; observation-only stands).
 ANSWERED: 0073+0063 (cameras deprioritized, observation-only).
 HELD: 0075 (ext2 silent freeze -- fires only on evidence-destruction
-or all-8 spread per the ruling's escalation bar).
+or all-8 spread per the ruling's escalation bar). NOTE: spread is
+now 5/7 alive cams -- the all-8 bar is one new camera away; if a
+6th cam freezes long tonight, re-notify via 0075.
 All human-needed or watch.

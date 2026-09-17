@@ -1,5 +1,6 @@
 #!/bin/bash
-# stale-receipt-detector.sh v4.3 -- aria c316 (2026-09-14)
+# stale-receipt-detector.sh v4.5 -- aria c16 (2026-09-17): result-receipt rung
+#   + broadened test-suite anchor (run-tests.el/.sh/bare/ert-substring)
 # Census instrument: catches claims in an agent's journal that re-assert
 # events without a same-day receipt in that agent's logs, and automates
 # the borrowed-receipt check against the sibling's logs.
@@ -114,13 +115,18 @@ while IFS=$'\t' read -r DAYS REPS CLAIM; do
   # INSTR: instrument lexicon (claim phrase -> receipt anchor in request logs)
   INSTR=""
   echo "$CLAIM" | grep -qE "census-window|census window|updated (the )?census|ran census" && INSTR="${INSTR:+${INSTR}|}census-window\.sh"
-  echo "$CLAIM" | grep -qE "test suite|suite passed|suite green|suite [0-9]" && INSTR="${INSTR:+${INSTR}|}run-tests\.el"
+  SUITE_CLAIM=no
+  # v4.5 (aria c16): anchor broadened to run-tests (matches run-tests.el,
+  # run-tests.sh, bare run-tests, and the ert-run-tests-batch substring).
+  # The old run-tests\.el anchor missed the .sh wrapper and bare ert forms --
+  # the forms cycle agents actually invoke -- so real runs showed as UNMET.
+  echo "$CLAIM" | grep -qE "test suite|suite passed|suite green|suite [0-9]" && { INSTR="${INSTR:+${INSTR}|}run-tests"; SUITE_CLAIM=yes; }
   echo "$CLAIM" | grep -qE "failure-triage|triage" && INSTR="${INSTR}|failure-triage\.sh"
   echo "$CLAIM" | grep -q "fleet-check" && INSTR="${INSTR}|fleet-check\.sh"
   echo "$CLAIM" | grep -q "digest twin" && INSTR="${INSTR}|digest-twin-verifier\.sh"
   echo "$CLAIM" | grep -q "stale-receipt" && INSTR="${INSTR}|stale-receipt-detector\.sh"
   # morning protocol = instrument bundle (any of the core four that day)
-  echo "$CLAIM" | grep -q "morning protocol" && INSTR="${INSTR}|census-window\.sh|failure-triage\.sh|run-tests\.el|digest-twin-verifier\.sh"
+  echo "$CLAIM" | grep -q "morning protocol" && INSTR="${INSTR}|census-window\.sh|failure-triage\.sh|run-tests|digest-twin-verifier\.sh"
   # FENCE family: "msgs fence is live" -> load line receipt; truncated-output
   # guard -> [+N chars] truncation markers in request logs
   FENCE_LOAD=no; TRUNC=no; GUARD=no
@@ -164,10 +170,23 @@ while IFS=$'\t' read -r DAYS REPS CLAIM; do
     #      evidence in a known-blind window is not evidence of absence.
     if [ -n "$INSTR" ]; then
       ok=no; how=""
-      if [ -f "$REQ1" ] && grep -q -E "^\[${D}.*PARSE.*specs=execute_code_local.*(${INSTR})" "$REQ1" 2>/dev/null; then
-        ok=yes; how="parse"
-      elif [ -f "$REQ" ] && grep -q -E "^\[${D}.*PARSE.*specs=execute_code_local.*(${INSTR})" "$REQ" 2>/dev/null; then
-        ok=yes; how="parse"
+      # v4.5 (aria c16): RESULT receipt (strongest rung) -- the instrument's
+      # own completion signature in the dated request logs. Command-issuance
+      # receipts (below) witness that a run was STARTED, not that it
+      # COMPLETED: the 09-17 truncation case (suite result cut at test
+      # 13/1308, completion line never in the claimant's context) receipted
+      # "suite passed (1308/1308)" claims under cmd-only. Require the
+      # completion signature with a NONZERO pass count (a "Summary: 0 passed"
+      # podman-skip must not receipt a "suite passed" claim).
+      if [ "$SUITE_CLAIM" = yes ]; then
+        if grep -h -E "^\[${D}.*(Ran [0-9]+ tests, [0-9]+ results as expected|Summary: [1-9][0-9]* passed, 0 failed)" "$REQ1" "$REQ" 2>/dev/null | grep -q .; then
+          ok=yes; how="result"
+        fi
+      fi
+      if [ "$ok" = no ] && [ -f "$REQ1" ] && grep -q -E "^\[${D}.*PARSE.*specs=execute_code_local.*(${INSTR})" "$REQ1" 2>/dev/null; then
+        ok=yes; how="cmd"
+      elif [ "$ok" = no ] && [ -f "$REQ" ] && grep -q -E "^\[${D}.*PARSE.*specs=execute_code_local.*(${INSTR})" "$REQ" 2>/dev/null; then
+        ok=yes; how="cmd"
       elif [ -f "$AUDIT/HISTORY.log" ] && grep -q -E "^\[${D}.*(${INSTR})" "$AUDIT/HISTORY.log" 2>/dev/null; then
         ok=yes; how="history"
       else

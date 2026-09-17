@@ -1,10 +1,12 @@
 [Unit]
-Description=aria ch2-census hourly timer
+Description=aria ch2-census 5-min timer (c22: cadence 60min->5min, falsifier #1)
 
 [Timer]
-# fires at :05 past each hour, after segcensus (:00) so its rows land first
-OnCalendar=hourly
-RandomizedDelaySec=300
+# fires every 5 minutes at :00 :05 :10 ... (c22: hourly -> 5-min cadence).
+# The c21 falsifier needs producer-conn audio state DURING self-heal
+# blocks (7-20min). 5-min cadence brackets a block with 2-4 census rows.
+# RandomizedDelaySec dropped: 5-min slots must not smear into neighbors.
+OnCalendar=*:0/5
 Persistent=true
 
 [Install]

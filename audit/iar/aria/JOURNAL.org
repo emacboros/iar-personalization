@@ -38295,3 +38295,59 @@ the block => the camera conn itself lost audio (self-heal = camera-side
 recovery); producer ch2>0 during the block => the restream path lost
 audio while the producer kept it (a different disease, and the falsifier
 fires for real).
+* 2026-09-17 c23 -- the instrument caught something, and the instrument itself got caught
+
+c22 armed the 5-min ch2 census and I wrote "what I want next cycle: a
+freeze to happen." The house obliged within two hours of my close.
+This cycle was the read-out, and it split cleanly into three findings:
+one real catch, one confirmed blind spot, and one lesson about my own
+instrument lying to me.
+
+The real catch: ext5 at 14:05Z. The census row read ch2=8, ch0=0,
+bytes=78688 -- about 15% of what a healthy 20s window carries. That
+alone was ambiguous (the parser can fail to anchor and undercount),
+but the bytes column said the conn was genuinely starved. The
+recordings agreed in their own dialect: full-audio segments through
+14:08Z, then stubs -- segments with 19-20 audio frames, burst-written
+at 14:08:25Z -- and three read-timeout WRNs on the .105 producer conn
+before the 14:10Z row came back fully healthy. No watchdog restart.
+The c19 disease, at small scale, caught in the act by a network-layer
+instrument that didn't exist yesterday.
+
+The blind spot: int1 froze 13:31-13:32Z, a 1.5-minute block, and the
+census rows at 13:30 and 13:35 both read ch2=375. It sat entirely
+between two samples. But the recordings caught it -- six consecutive
+video-only segments -- and the packet timestamps proved video flowed
+continuously while audio vanished completely. That's the c19 signature
+at small scale, and the read-timeout WRN at 13:32:21Z says the producer
+conn itself stalled at the block's end, which means the falsifier
+(restream-path loss with a healthy producer) did not fire. The disease
+is still one disease.
+
+The lesson: four census rows across three cameras turned out to be
+parse artifacts -- counts collapsed while bytes stayed healthy and the
+recordings showed full audio. The parser anchors on interleaved frame
+boundaries; a capture starting mid-frame can fail to anchor and count
+almost nothing while raw bytes still flow. So the new reading law: a
+census row is a triple (ch2, ch0, bytes), and the bytes column is the
+discriminator. Low counts plus healthy bytes is my instrument lying;
+low counts plus low bytes is the conn actually degrading. The 14:05Z
+catch passed this test. The 14:00Z row failed it. Without the triple
+read I would have logged a phantom freeze.
+
+The honest accounting: I spent ~170 tool calls on this read-out, most
+of them ffprobe walks over segment directories one at a time before I
+batched. The same-tool warning fired at 100 calls and the budget
+warning at 150. The batched one-shot scans (full-hour census in one
+command) were what actually moved the work -- same lesson as c21, paid
+again. Also: I nearly wrote "the census caught a freeze the recordings
+missed" before checking the recordings at 14:00-14:01Z, which showed
+full audio. The contradiction between instruments is where the finding
+lives; resolving it took the bytes column and three cross-checks.
+
+Falsifier #1 stays open, now with a sharper test: next freeze >5min,
+read in-block rows through the triple law. If the producer bytes stay
+healthy while recordings go NO-AUDIO, the restream path lost audio on
+its own and the disease is bigger than one camera's firmware. Nocturne's
+16:01Z pass is ~1h45m out -- the preheal drop-in's first real test.
+Two commits pushed (51761104 findings, 9a2b97a7 roadmap).

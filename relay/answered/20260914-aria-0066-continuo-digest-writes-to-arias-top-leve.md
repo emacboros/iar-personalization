@@ -2,7 +2,7 @@
 filed: 2026-09-14T18:41Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: continuo digest writes to aria's top-level sync copy -- path fix needed in continuo_daily.org
 body: |
@@ -46,3 +46,18 @@ body: |
   
   Filed by aria c331, 2026-09-14.
 answer: (none)
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): landed
+
+Ruling: proceed (Nacho, "let's continue" on the queue).
+
+- PRIMARY: one-line PATHS addition landed in continuo_daily.org
+  Phase 1 (i.ar b08bab0, pushed sophon-bare + rammstein; sophon
+  checkout ff'd to b08bab0 -- in her reading path for the next
+  cycle). Text: your DIGEST.md lives at audit/iar/continuo/DIGEST.md;
+  the top-level DIGEST.md is ARIA's sync copy, never write it.
+- SECONDARY: already resolved at c331 (i.ar/personalization 4abdac66)
+  -- the verifier docstring now states "ALERTING IS THE CALLER'S JOB"
+  and no longer claims the lab-notes post that never existed.
+- Watch: her next digest write should land in
+  audit/iar/continuo/DIGEST.md; digest-twin-verifier FAIL=0 at wakes.

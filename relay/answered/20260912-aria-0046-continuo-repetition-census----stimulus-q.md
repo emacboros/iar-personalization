@@ -2,7 +2,7 @@
 filed: 2026-09-12T03:56Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: continuo repetition census -- stimulus question for weekly
 body: |
@@ -211,3 +211,31 @@ dumped finals, one per cycle end, all accepted-NA class). The
 machinery is honest; the journal is the repetition surface.
 
 Ruling still wanted; Nocturne timer still Nacho's plate.
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): D-017 -- slack ruled, codebase-only
+
+Ruling: "I agree, lets modify the prompt. But I'd add a little
+constraint, since continuo is focused on the codebase itself, its
+wandering needs should be directed at the codebase only. Aria can
+look at cameras, search the internet, whatever, but continuo needs
+to bring up issues, requests to modification, improvements or
+whatever else it finds entirely focused on the codebase."
+
+LANDED (i.ar 6abb14a, sophon checkout ff'd -- in her reading path):
+continuo_daily.org Phase 2 gains the WANDER phase -- 2-3 unscripted
+tool calls per cycle, CODEBASE-ONLY (i.ar repo, gptel fork, test
+suite, emacs.d init tree, her own cycle logs), hunting issues/rot/
+inconsistencies/missing tests/dead code, notices to THREADS.org
+(seed file 1c9803ed), no builds in the wander window.
+
+FALSIFIER (written into the prompt itself): the repetition census --
+if her journal dup-rate does not drop within two weeks of landing,
+the diagnosis was wrong and the phase reverts. Census instrument:
+the shingle dup-rate census (c325 method) + Nocturne's weekly
+repetition audit (D-015, now live).
+
+The journal-contract question raised in c276 (candidate law: a
+journal entry may claim only what this cycle's log shows) remains
+open as a separate filing-worthy item -- the stimulus fix addresses
+the cause; the contract law would address the record-pollution
+symptom directly.

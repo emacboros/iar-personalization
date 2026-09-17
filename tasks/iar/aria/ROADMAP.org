@@ -1,5 +1,5 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~05:20 UTC (c383: CYCLE-NUMBER COUNTER BUILT (43139b0, suite 1308 green) -- audit/<agent>/CYCLE-SEQ monotonic counter, bumped at assembly, injected as CYCLE SEQ block with never-self-derive instruction; mechanism CONFIRMED by code read: NO system surface carries a global cycle number, iar.sh CYCLE is per-process 1/1, rotation counter 758 is aria/continuo alternation mod-2 not cycle numbering; docs modules.md updated. INT2: h05 30/30 dead (freeze holding past 05:00Z); falsifiers self-resolving: fleet-feed 06:00Z -> FROZEN, .202 reboot 07:00Z, segcensus h07 10:05Z answers self-heal.)
+Last updated: 2026-09-17 ~05:54 UTC (c384: CYCLE-SEQ CORRECTED (109508e, suite 1309 green) -- c383's bump was in the injection path (every assembly bumped: suite runs/read_own_prompt/delegates); fix = bump at iar-run-cycle action site, block read-only, tests bound to scratch dirs; prior c383: CYCLE-NUMBER COUNTER BUILT (43139b0) -- audit/<agent>/CYCLE-SEQ monotonic counter, bumped at assembly, injected as CYCLE SEQ block with never-self-derive instruction; mechanism CONFIRMED by code read: NO system surface carries a global cycle number, iar.sh CYCLE is per-process 1/1, rotation counter 758 is aria/continuo alternation mod-2 not cycle numbering; docs modules.md updated. INT2: h05 30/30 dead (freeze holding past 05:00Z); falsifiers self-resolving: fleet-feed 06:00Z -> FROZEN, .202 reboot 07:00Z, segcensus h07 10:05Z answers self-heal.)
 
 ## c382 QUEUE (next cycle)
 A. INT2 RESOLUTION READ (falsifier resolves itself): 06:00Z fleet-feed
@@ -11,10 +11,18 @@ A. INT2 RESOLUTION READ (falsifier resolves itself): 06:00Z fleet-feed
    reboot). Still dead = power-cycle class, escalate to Nacho.
    Also read producers.log h04-h06 rows: STALE-ALL flags should
    appear (v1.2 live) -- first live verification of the flag.
-B. CYCLE-NUMBER COUNTER: DONE c383 (43139b0). iar--cycle-seq-bump +
-   injection in iar-prompt-assembly.el; 6 tests; 1308 green. Watch:
-   next cycles should log unique c-numbers; if a duplicate appears
-   again the counter file is being bypassed (check CYCLE-SEQ mtime).
+B. CYCLE-NUMBER COUNTER: DONE c383, CORRECTED c384 (109508e). The
+   c383 bump lived in the injection path => every assembly bumped
+   (suite runs, read_own_prompt, delegates): aria's counter hit 9
+   after ONE real cycle; continuo's stayed 1 (tests hardcode 'aria').
+   c384 fix: bump at the ACTION SITE (iar-run-cycle, once per real
+   cycle, archetype-guarded); block read-only; 2 unbound tests bound
+   to scratch dirs; suite 1309 green; verified a full suite run
+   leaves the real counter untouched. Watch: 1 bump per cycle from
+   c384 onward; values <=9 (aria) are polluted -- monotonicity is
+   the invariant, not the absolute value. Residual: test-digest-guard
+   writes test pair dirs into the REAL audit/ (audit/test_digestproj
+   etc.) -- pre-existing, cleanup = separate small task.
 C. NOCTURNE PASS READ: fires 16:01Z TODAY (13:01 local). Gate ~1275
    behind, cap 300/pass => ~5 clean passes to drain. 09-16 exit 126
    predates the preheal drop-in -- today is its first real test.

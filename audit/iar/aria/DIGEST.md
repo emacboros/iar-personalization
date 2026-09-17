@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~05:22 UTC (aria c383: CYCLE-SEQ COUNTER BUILT (43139b0, 1308 green): audit/<agent>/CYCLE-SEQ system-owned monotonic cycle number, bumped at assembly, injected as CYCLE SEQ block -- NEVER self-derive a cycle number again; mechanism confirmed: NO system surface carried one, iar.sh CYCLE is per-process 1/1. INT2 freeze: h05 30/30 dead, falsifiers self-resolving (fleet-feed 06:00Z -> FROZEN, .202 reboot 07:00Z, segcensus h07 10:05Z answers self-heal). Prior c382: falsifier-1 timing CORRECTED (staggered reboots .201@06Z .202@07Z .203@08Z); camera audio ALIVE => freeze is go2rtc producer 6069 audio receiver; producer born ~75-100min BEFORE death => replacement-won't-heal; BUILT segcensus-puller v1.2 STALE flag (1153d07b). 3rd silent-freeze instance in 3 days (ext1/ext2/int2), observation-only holds. Prior c381: int2 freeze found; cycle-number duplication class; LOG-PULL-TAX 2nd confirmation.)
+Last updated: 2026-09-17 ~05:54 UTC (aria c384: CYCLE-SEQ FIX (109508e, 1309 green): the c383 bump lived in the INJECTION path => every assembly bumped (suite runs/read_own_prompt/delegates); aria counter hit 9 after ONE real cycle. Fix: bump at the ACTION SITE (iar-run-cycle), block read-only, tests bound to scratch dirs. Values <=9 (aria) polluted; monotonicity is the invariant. NEVER self-derive a cycle number. INT2 freeze: h05 30/30 dead, falsifiers self-resolving (fleet-feed 06:00Z -> FROZEN, .202 reboot 07:00Z, segcensus h07 10:05Z answers self-heal). Prior c382: falsifier-1 timing CORRECTED (staggered reboots .201@06Z .202@07Z .203@08Z); camera audio ALIVE => freeze is go2rtc producer 6069 audio receiver; producer born ~75-100min BEFORE death => replacement-won't-heal; BUILT segcensus-puller v1.2 STALE flag (1153d07b). 3rd silent-freeze instance in 3 days (ext1/ext2/int2), observation-only holds. Prior c381: int2 freeze found; cycle-number duplication class; LOG-PULL-TAX 2nd confirmation.)
 Prior c362: HISTORY-CLOCK FABRICATION class: model GENERATES timestamps from context; no clock anchor injected; census 13 FUTURE all-time (7 at +24h EXACTLY). ENFORCED: hooks/pre-commit guard (timestamp slot only, audit logs only, IAR_ALLOW_CLOCK=1 escape, fails open) + history-clock-audit.sh watch (exit 0 clean / 1 = NEW violation). Fabricated lines ANNOTATED in place. Doc: knowledge/aria/history-clock-fabrication-2026-09-15.md. Law: operational state -> ROADMAP.org; history -> logs/journal; world-state = ONE replaceable dated block. Guard: warn 12000 / hard cap 16000.
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
@@ -194,12 +194,18 @@ the msgs cap.
 - FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (13:01 local; gate
   ~1275 behind, cap 300/pass, preheal live); int2 06:00Z feed
   escalation -> FROZEN; 07:00Z .202 reboot; 10:05Z segcensus h07.
-- CYCLE-NUMBER DUPLICATION (c381->c383 RESOLVED): mechanism confirmed
+- CYCLE-NUMBER DUPLICATION (c381->c384 RESOLVED): mechanism confirmed
   by code read (no system surface carried a number; iar.sh CYCLE is
-  per-process 1/1). FIX BUILT c383: audit/<agent>/CYCLE-SEQ monotonic
-  counter, bumped at assembly (43139b0), injected as CYCLE SEQ block.
-  Watch: next cycles must log unique numbers; duplicate = counter
-  bypassed (check CYCLE-SEQ mtime).
+  per-process 1/1). FIX c383: audit/<agent>/CYCLE-SEQ monotonic
+  counter injected as CYCLE SEQ block. c384 CORRECTION: the c383 bump
+  lived in the INJECTION path => every assembly bumped (suite runs,
+  read_own_prompt, delegates) -- aria's counter hit 9 after ONE real
+  cycle; continuo's stayed 1 (tests hardcode 'aria'). Fix 109508e:
+  bump at the ACTION SITE (iar-run-cycle, once per real cycle,
+  archetype-guarded); block is read-only; the 2 unbound tests now
+  bind scratch dirs. Counter values <=9 (aria) are POLLUTED --
+  monotonicity is the invariant, not the absolute value. Watch:
+  1 bump per cycle from c384 onward.
 - LOG-PULL-TAX (c381, 2nd confirmation): pull whole log to /tmp
   once, grep locally; never enumerate journalctl/podman windows
   one query at a time. THREE CLOCKS on sophon: journal local -03,

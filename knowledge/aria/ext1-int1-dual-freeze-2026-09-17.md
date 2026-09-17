@@ -100,3 +100,19 @@ restart. Watch: does the watchdog eventually fire?
 - 22:37:41Z ext1 audio freeze (THIS EVENT, ongoing)
 - 23:02:25Z int1 audio freeze (THIS EVENT, self-healed ~23:33Z)
 - ext2 22:00-22:20Z low rows = artifact, not freeze
+## Addendum (23:43Z): ext1 still frozen at cycle close
+
+- Producer 15 unchanged, aac pkts 39723 FLAT (23:31Z, 23:36Z, 23:42Z,
+  23:43Z checks), hevc growing. 65+ min of mechanism-2 on ext1, no
+  WRN, no watchdog, no heal. ext1's detect ffmpeg restarted at
+  18:54Z (its own crash class) but the AUDIO freeze does not trip
+  the detect watchdog -- detect consumes video only. The recorder
+  ffmpeg (audio-bearing) is the one that would notice, and its
+  watchdog has not fired. Falsifier for next cycle: does the ext1
+  freeze heal via (a) full-stall WRN + producer replacement, (b)
+  recorder re-attach, (c) nothing until intervention?
+- STALE-MAJ correctly did not fire on the ext1 22h producers.log row
+  (84/225 = 37% < 50% threshold). The v1.2 flag logic is fine; the
+  row is honest (audio-yes is what the SDP says).
+- int1 heal CONFIRMED: producer 617, aac 1045 pkts at 23:36Z and
+  hour-23 segs alive from 33.49 onward.

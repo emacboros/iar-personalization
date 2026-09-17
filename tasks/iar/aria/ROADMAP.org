@@ -1,64 +1,47 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~05:54 UTC (c384: CYCLE-SEQ CORRECTED (109508e, suite 1309 green) -- c383's bump was in the injection path (every assembly bumped: suite runs/read_own_prompt/delegates); fix = bump at iar-run-cycle action site, block read-only, tests bound to scratch dirs; prior c383: CYCLE-NUMBER COUNTER BUILT (43139b0) -- audit/<agent>/CYCLE-SEQ monotonic counter, bumped at assembly, injected as CYCLE SEQ block with never-self-derive instruction; mechanism CONFIRMED by code read: NO system surface carries a global cycle number, iar.sh CYCLE is per-process 1/1, rotation counter 758 is aria/continuo alternation mod-2 not cycle numbering; docs modules.md updated. INT2: h05 30/30 dead (freeze holding past 05:00Z); falsifiers self-resolving: fleet-feed 06:00Z -> FROZEN, .202 reboot 07:00Z, segcensus h07 10:05Z answers self-heal.)
+Last updated: 2026-09-17 ~06:30 UTC (c385: AUDIO-FREEZE 3-CAM CENSUS (71b61fdb + relay 0073 amendment 03a14465): int2 02:47Z + ext1 04:55Z + ext3 05:52Z, camera audio ALIVE all three, death minutes pinned by segment ffprobe; MECHANISM RECONCILED: consumer-side backpressure (recorder ffmpeg audio track stops draining -> producer audio queue fills -> bytes counter stalls; producer replacement does NOT heal -- ext5 precedent + mechanism agree); falsifier: 07:00Z .202 reboot, h06/h07 segcensus rows answer. Prior c384: CYCLE-SEQ corrected (109508e). Prior c383: counter built (43139b0).)
 
-## c382 QUEUE (next cycle)
-A. INT2 RESOLUTION READ (falsifier resolves itself): 06:00Z fleet-feed
-   should escalate WATCH -> PRODUCER-AUDIO-FROZEN (run 2). 07:00Z .202
-   reboots (staggered cron, verified). READ: segcensus h07 row at
-   10:05Z pull + fleet-feed 09:00Z. Audio returns in h07+ = camera-
-   runtime self-heal, case CLOSES as self-healed (class gets new
-   boundary: freezes survive producer replacement, die at camera
-   reboot). Still dead = power-cycle class, escalate to Nacho.
-   Also read producers.log h04-h06 rows: STALE-ALL flags should
-   appear (v1.2 live) -- first live verification of the flag.
-B. CYCLE-NUMBER COUNTER: DONE c383, CORRECTED c384 (109508e). The
-   c383 bump lived in the injection path => every assembly bumped
-   (suite runs, read_own_prompt, delegates): aria's counter hit 9
-   after ONE real cycle; continuo's stayed 1 (tests hardcode 'aria').
-   c384 fix: bump at the ACTION SITE (iar-run-cycle, once per real
-   cycle, archetype-guarded); block read-only; 2 unbound tests bound
-   to scratch dirs; suite 1309 green; verified a full suite run
-   leaves the real counter untouched. Watch: 1 bump per cycle from
-   c384 onward; values <=9 (aria) are polluted -- monotonicity is
-   the invariant, not the absolute value. Residual: test-digest-guard
-   writes test pair dirs into the REAL audit/ (audit/test_digestproj
-   etc.) -- pre-existing, cleanup = separate small task.
-C. NOCTURNE PASS READ: fires 16:01Z TODAY (13:01 local). Gate ~1275
+## c385 QUEUE (next cycle)
+A. INT2 REBOOT FALSIFIER READ (resolves itself): .202 reboots 07:00Z
+   (cron verified on-camera: `0 7 * * * reboot -f`). READ at next
+   cycle after 08:05Z: segcensus h06 row (07:05Z, 5min post-reboot)
+   + h07 row (08:05Z). Audio returns in recorder => consumer-side
+   theory WRONG (producer replacement heals); still dead =>
+   consumer-side CONFIRMED, heal = recorder-ffmpeg restart or go2rtc
+   restart (service-touching, Nacho's call, deferred per 0073
+   ruling). Doc: knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md.
+   Also read the 09:00:56Z fleet-feed: should flag int2 (FROZEN run 2)
+   + ext1/ext3 (first catches). STALE-ALL flags h04/h05 verified live.
+B. NOCTURNE PASS READ: fires 16:01Z TODAY (13:01 local). Gate ~1275
    behind, cap 300/pass => ~5 clean passes to drain. 09-16 exit 126
    predates the preheal drop-in -- today is its first real test.
    Read the verdict after 16:01Z.
-D. CAMLOG RING-SATURATION NOTE (small): camlog sat empty 18:15Z->04:30Z
-   (10h) because logread rings are all-crond -- by design, label is
-   self-diagnosing. No action. But "camera log evidence" != "camlog
-   has it" during saturation windows; the rssi.log uptime column is
-   the cheap boot-time instrument (monotonic within epoch, resets at
-   reboot). Consider a boot-time extractor if a camera-side question
-   recurs.
+C. DAILY CENSUS (standing): DONE c385: aria 09-17 2055x200 + 1x502
+   (04:49:58Z ollama.com conn reset, transient, retried OK); continuo
+   530x200; TRUE 429s 0 both; empty-end aria 0 / continuo 14 (0069
+   standing). Commit-census 229 today. NEXT: repeat tomorrow.
+D. SPREAD-RATE WATCH (new, from c385 census): 1->2->3 frozen cameras
+   in 3 days (ext1 09-15, int2+ext1+ext3 09-17). Escalation bar is
+   all-8 spread or evidence destruction (0073 ruling) -- 3/8 is
+   within, but the RATE is the number to watch. If 4+ freeze in one
+   night, that is a new shape.
 
-
-0. NOCTURNE PASS READ: fires 13:01Z TODAY (10:01 -03). Gate 1266
-   behind, cap 300/pass => ~5 clean passes to drain. 09-16 exit 126
-   predates the preheal drop-in -- today is its first real test.
-   Read the verdict next cycle after 13:01Z.
-1. DAILY CENSUS (standing): req-census + 429 + commit-census.
-   c380 (09-16 done): 0 true 429s both; aria 2120/153.9M; cont
-   518/14.6M. NEW WATCH: aria output-cap fence (2nd instance,
-   09-16 20:41:08 tokens_out=32768) -- census per day; >2/week
-   = census it like continuo's thinking-truncation.
+0. NOCTURNE PASS READ: fires 16:01Z TODAY. Gate ~1275 behind, cap
+   300/pass => ~5 clean passes. Preheal drop-in first real test.
+1. DAILY CENSUS (standing): req-census + 429 + commit-census. c385
+   done (see C above). LAW: use req-census.sh, never raw grep on
+   REQUESTS.log (echo-quote self-pollution, 3rd confirmation c385).
 2. PRODUCER-ID LONGITUDINAL (standing): producers.log hourly rows
-   accumulate. Baseline replacement cadence per camera over days.
-   ext3's stable 4577 vs the rest's churn is the first contrast.
+   accumulate. Producer ids are a GLOBAL counter (churn across all
+   streams) -- id changes are churn, not per-camera events. Baseline
+   replacement cadence per camera over days still open.
 3. WRN-WAVE CLUSTERING (seed, THREADS.org): multi-camera read-timeout
    minutes every ~20-40min, different camera sets each time. Needs a
-   per-wave camera-set + host-load join across several days. No
-   instrument yet; the journal holds the data. LOW priority.
+   per-wave camera-set + host-load join across several days. LOW.
 4. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
 5. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
 6. SUITE FAILURES (c368): 17 pre-existing. Separate thread.
-7. FIXTURE HYGIENE (Nacho-ratified 09-16): DONE c379 (54d273f).
-   Static pin test live (test-fixture-hygiene.el, 2 tests, negative
-   included). Relay 0076 records the landing. No fixture refactor
-   needed -- committed tests verified clean (zero .git in runner cwd).
+7. FIXTURE HYGIENE: DONE c379 (54d273f). Relay 0076 records landing.
 8. GPTEL-FORK RESIDUE: sophon-side emacs.d/gptel-fork empty dir.
    Inert false-alarm magnet -- ask or leave (nacho-owned tree).
 
@@ -68,121 +51,69 @@ D. CAMLOG RING-SATURATION NOTE (small): camlog sat empty 18:15Z->04:30Z
   KNOWN-GOOD example (list the parent dir first). Zero-padding, case,
   date formats are silent no-match traps. File cousin of the
   empty-grep class (c376): EMPTY OUTPUT IS THE LOOP FUEL.
-- NAME-BEFORE-NARRATIVE LAW (c378 NEW): before attributing an event
-  to a named camera, verify the NAME->IP map against the LIVE system
-  (config order + go2rtc API), not against memory or an older doc.
-  A wrong map survives for days and manufactures false mechanisms
-  (c377's ext2 claim). Verify the LABEL before the STORY.
-- DB-BEFORE-DERIVED (c377): when a derived read (filesystem scan)
-  contradicts the primary record (frigate.db recordings table), the
-  disagreement is the finding -- check the query before the world.
-- TIMESTAMP-IS-A-CLAIM (c362): a log line's timestamp is a claim, not a
-  measurement; the introducing commit is the ground truth.
-  CLOCK-FROM-TOOL: timestamps in records come from date(1) output,
-  never model generation. ENFORCED IN CODE: hooks/pre-commit refuses
-  future-dated/unexpanded HISTORY/USAGE lines (escape IAR_ALLOW_CLOCK=1,
-  fails open). Family: echo-receipt (v4), close-once (commit-msg),
-  history-clock (pre-commit).
-- GUARD-AUTHORING LAW (c362/c363): a guard OR INSTRUMENT must know the
-  ACTION SITE (the leading timestamp slot in an audit log) from the
-  DISCUSSION of the action (prose quoting the law). Guards that
-  pattern-match content anywhere fire on their own documentation --
-  and instruments built in the same cycle as the guard reproduce the
-  guard's bug unless the law is checked against the new artifact.
-- CLOSE-ONCE LAW (c360, ENFORCED c361): the cycle close is ONE batch
-  commit (max two: artifacts + memory-pass). ENFORCED IN CODE:
-  hooks/commit-msg refuses the 3rd chasing-shaped commit in a 3h window.
-  Escape: IAR_ALLOW_TAIL=1 (audited).
-- MEMORY-TO-MECHANISM (c361): when a law keeps firing zero times on
-  READ, move it from memory to mechanism -- laws in roadmaps are read
-  by a busy mind; laws in hooks are executed by the tool about to do
-  the thing. Family: echo-receipt (v4), close-once (hook),
-  history-clock (pre-commit).
-- TZ LAW SHARPENED (c359b, APPLIED-AND-BURNED c372 AND AGAIN c374):
-  sophon JOURNAL timestamps are LOCAL -03; frigate recording HOUR-DIRS
-  and segcensus labels are UTC. Reconcile the query window against the
-  query clock BEFORE building a narrative on the timestamps.
-- INSTRUMENT-TAX LAW (c378 NEW, B3 data): never wait inline for a
-  sophon python job longer than 30s -- nohup it, read it NEXT cycle.
-  dead-runs.py cost ~13 min of wall (4 timeouts + nohup waits) for
-  marginal data. Predictions underestimate instrument-repair time;
-  add a fixed instrument-tax line to every plan.
-- LAW 50 (c215-c259): an instrument's output has a SCHEMA --
-  verify the DAY, the COLUMN, the KEY FORMAT, the CLOCK (timezone),
-  the SOCKET, the UNITS, and DELTA-vs-CUMULATIVE. c377 addition:
-  verify the PATH SHAPE. c378 addition: verify the NAME->IP MAP
-  (the label before the story).
-- Guard compliance is not compliance (c243/c259/c269): when a guard
-  fires, change the QUESTION or stop.
-- VERIFY-THE-FALSIFIER'S-OWN-TIMING (c382 NEW): a falsifier is an
-  instrument too -- before arming one, verify its timing/assumptions
-  against primary evidence (c381's "03:00-local reboot" was wrong;
-  actual staggered crons .201@06Z .202@07Z .203@08Z). A falsifier
-  that fires early reads "no self-heal" as a class verdict. Cousin
-  of law-50 (instruments lying about themselves) and
-  name-before-narrative.
-- RSSI-UPTIME-COLUMN (c382): a camera's rssi.log uptime column is a
-  boot-time instrument -- monotonic within boot epoch, resets at
-  reboot; boot epoch = epoch - uptime. Cheaper than camlog (which
-  saturates all-crond ~5h after the last real line).
+- NAME-BEFORE-NARRATIVE LAW (c3xx): name the thing before building
+  the story about it.
+- INSTRUMENT-TAX (c378): nested timeout+podman-exec hangs; use
+  ffmpeg's own -timeout or timeout INSIDE the container. Add a
+  fixed instrument-tax line to time predictions.
+- SDP-ADVERTISED != PACKETS-FLOWING (c381): producers.log reads the
+  frozen SDP offer; segcensus measures delivery; STALE flag
+  cross-references (v1.2 live, first production fire c384).
+- PRODUCER-RECEIVER-FREEZE = SYMPTOM (c385 NEW): the go2rtc producer
+  audio receiver's stalled byte-counter is backpressure from the
+  consumer side (recorder ffmpeg audio track), not a producer fault.
+  Class B label in fleet-check misattributes the layer; heal
+  prediction (producer replacement) contradicted by ext5 c382 +
+  mechanism. Falsifier pending (queue A).
+- Law 50 (schema): verify DAY, COLUMN, KEY FORMAT, CLOCK (timezone),
+  SOCKET, UNITS, DELTA-vs-CUMULATIVE on every instrument output.
+- c362 TIMESTAMP-IS-A-CLAIM: log timestamps are claims; the
+  introducing commit is ground truth. CLOCK-FROM-TOOL: timestamps
+  from date(1), never model generation. ENFORCED: hooks/pre-commit.
+- GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE from
+  the DISCUSSION of the action.
+- c385 CENSUS-LAW: greps that pattern-match their own audit trail
+  self-pollute (echo-quote class, 3rd confirmation). Use the
+  PARSE-field-anchored census scripts.
 
-## WORLD STATE (2026-09-17 ~05:00 UTC -- REPLACES all prior blocks)
-- INT2 FREEZE (c381->c382): audio died 02:47:11Z; camera audio ALIVE
-  (fresh RTSP probe 249KiB/8s); freeze = go2rtc producer 6069 audio
-  receiver (bytes frozen, video growing, TCP alive, NO log trace
-  anywhere); producer born ~01:05-01:31Z, ~75-100min BEFORE death =>
-  replacement-won't-heal (ext5 class). STAGGERED reboots verified:
-  .201@06Z .202@07Z .203@08Z (crontab + /proc/uptime + rssi.log).
-  Resolution: segcensus h07 (10:05Z pull) -- audio returns = camera-
-  runtime self-heal (case closes); still dead = power-cycle class.
-  v1.2 STALE flag live in producers.log from next run. 3rd
-  silent-freeze instance in 3 days (ext1/ext2/int2), 3-of-8,
-  observation-only holds (0073/0075 bar).
-- IP MAP CORRECTED (c378): ext2=.102, ext5=.105. All camera-side
-  evidence from c374-c377 needs re-attribution when reused.
-- AUDIO NIGHT EVENT (c377->c378 CORRECTED): ext5 (.105) watchdog-
-  visible stall cascade h21-h22 (producer WRNs 22:30-22:35Z, watchdog
-  restarts 21:40Z + 22:36Z, audio recovered post-restart). ext2
-  (.102) healthy. ext3 (.103) audio dead 19:39-21:37Z then recovered
-  in-session; h21 140 dead recovering; storm continues (522 sessions
-  today). int1 (.201) h21 129 dead (21-min run 18:47-40:07 local).
-- CONTENTION MECHANISM (c378): candidate SURVIVES with corrected
-  actors (ext5/int1 stall around ext3 storm bursts). 134 same-second
-  multi-camera WRN pairs today. Amendment 3 in mechanism v3 doc.
-- PRODUCER-REPLACEMENT-HEALS: now has a counterexample (ext5 3433
-  replaced, audio stayed dead until watchdog restart). Heal path for
-  ext5 = watchdog. ext1 silent freeze (0073) still the only confirmed
-  silent-freeze instance.
-- SEG-CENSUS PULLER v1.1 (c373): LIVE. Hourly at :05 + producer probe
-  (producers.log: id + audio-track per cam). h00: ext2 225 dead (frozen
-  since 19:32Z), int1 56 (healed), ext5 2 (stubs), ext3 0 (healed).
-- .103 RECONNECT STORM (c374->c378): sessions/day 15/99/182/222/522
-  (cameras.log dedup). Storm survives nightly 03:00 reboots. Onset
-  trigger (Sep 14 02:29 local) UNIDENTIFIED.
-- FRIGATE WATCHDOG (c374): ~380 restarts/hour all day (ext4 dial
-  crash loop dominates). fps-limit kills: 38 today (ext3 30).
-- NOCTURNE: heal drop-in landed c371; next pass Wed 09-17 13:00Z.
-  Gate ~1000+ commits behind; cap 300/pass => ~4 clean passes.
-- 27H PREFLIGHT OUTAGE (c369): RESOLVED; creator IDENTIFIED c372 (mid-edit belt2d test).
+## STATE (world as of 2026-09-17 ~06:30Z -- REPLACES prior blocks)
+- AUDIO-FREEZE CENSUS (c385): 3 cams frozen overnight (int2 02:47Z,
+  ext1 04:55Z, ext3 05:52Z), camera audio ALIVE all three (direct
+  RTSP probes 94KiB/3s). Healthy: ext2/ext5/int1/int3. ext4
+  power-dead (0063). Mechanism: consumer-side backpressure; producer
+  replacement does NOT heal; falsifier at 07:00Z reboot. Doc:
+  knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md. Relay
+  0073 amended (03a14465). Observation-only ruling stands.
+- CYCLE-SEQ: c384 fix live (bump at iar-run-cycle action site). My
+  number this cycle: 10. Values <=9 polluted; monotonicity is the
+  invariant. Watch: 1 bump per cycle from c384.
+- NOCTURNE: preheal drop-in live (verified in unit file); pass today
+  16:01Z is its first real test. Gate ~1275 behind.
+- FLEET-CHECK v2.25: healthy at 03:00Z except int2 WATCH (run 1).
+  Next feed 09:00:56Z should flag int2 FROZEN + ext1/ext3 first
+  catches. segcensus h06 07:05Z, h07 08:05Z.
+- REBOOT STAIRCASE (c385 verified): camera crontabs read directly --
+  .101 01:00Z, .102 02:00Z, .103 03:00Z, .105 05:00Z, .201 06:00Z,
+  .202 07:00Z, .203 08:00Z (all `reboot -f`, verified on-camera).
+  .201's 06:00Z boot today: verified via direct uptime probe (boot
+  06:00:10Z). The rssi uptime column is the boot-time instrument
+  (c385: boot-time extractor considered; jumps census clean except
+  .102's 881 empty-uptime rows 09-12/13 -- old puller-era artifact,
+  rows have RSSI but empty uptime; harmless, noted).
+- CAMLOG RING-SATURATION: by design (self-diagnosing label); .201
+  camlog shows only crond + stale DayNight lines (ring saturated) --
+  camera log evidence != camlog has it during saturation.
 - CLOCK-FABRICATION (c362): guard live, watch clean.
-- STUCK-STAGED RESIDUE (c368): mechanized belt #2d live.
-- CHECKOUT-PUSH GAP: closed c367->c368.
-- FALSIFIERS: Nocturne pass 16:01Z TODAY; ext2 self-heal watch (h01/h02
-  segcensus + producer-id change in producers.log); segcensus h01 01:05Z.
-- BARE REPO HEALTH: 2 root-owned commit-graph files persist in
-  iar-personalization.git (old, from c372 root push). My pushes
-  create none (verified c373).
-- V4 GATE: two failed passes (09-15, 09-16); next pass Wed 09-17
-  13:00Z. RESERVOIR-DRAIN fired 09-15.
-- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s so far.
-- CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical =
-  Nacho). .102 self-resolved Sep 14 13:41 (8.5h outage, crash-loop
-  class, watchdog 3309).
+- 27H PREFLIGHT OUTAGE (c369): RESOLVED; creator IDENTIFIED c372.
 - TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
   Fix-2 OPEN.
 - FRIGATE EXPOSURE: scanner #3 (Google Cloud, 91 reqs) -- relay
   0059. Auth holding. WAVE TRIGGER fix CONFIRMED COSTLESS; issue
   DRAFTED, DO-NOT-POST (0060).
+- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
+- BARE REPO HEALTH: 2 root-owned commit-graph files persist in
+  iar-personalization.git (old, from c372 root push). My pushes
+  create none (verified c373).
 - SUITE FAILURES (c368): 17 pre-existing (invisible-turn x2,
   ollama-stream x8, sanitize x7). Fix = separate thread.
 
@@ -193,15 +124,13 @@ D. CAMLOG RING-SATURATION NOTE (small): camlog sat empty 18:15Z->04:30Z
   pcap or prudynt debug are the remaining instruments.
 - .201 STALL CADENCE (c373): why ~100/day vs 12/8 on identical
   hardware? Camera-side evidence censored; needs pcap or prudynt.
-- NESTED-GIT CREATOR (c369->c372): CLOSED. Creator = mid-edit belt2d test (unbound default-directory). Copy-not-init WITHDRAWN. Residual watch: tripwire re-fires would mean a NEW creator; the class law is test fixtures bind default-directory before relative git ops.
-- NOCTURNE RANGE-DEBT (c363->c371): ~1000 commits past gate.
+- NESTED-GIT CREATOR (c369->c372): CLOSED. Residual watch: tripwire
+  re-fires would mean a NEW creator.
+- NOCTURNE RANGE-DEBT (c363->c371): ~1275 commits past gate.
 - CONTINUO THINKING-TRUNCATION (c366): 5-13% of her cycles; aria
   ZERO. Watch per-day fire counts; escalate >15%.
-- SUITE FAILURES (c368): 17 pre-existing. Separate cycle.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean.
-- LOOP-GUARD RATE (c363): c378 ran ~108 calls, ONE guard fire (the
-  nohup wait chain -- now an INSTRUMENT-TAX law). Batching build
-  DONE; the remaining driver is inline-waiting, mechanized away.
+- LOOP-GUARD RATE (c363): c378 ran ~108 calls, ONE guard fire.
 - CAMERA-BOOT CLOCK (c342->c350): 6 confirmations + c376 corollary.
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
   Nacho's (0062). Boot+2s burst CONFIRMED.
@@ -220,12 +149,18 @@ D. CAMLOG RING-SATURATION NOTE (small): camlog sat empty 18:15Z->04:30Z
 - GPTEL FORK: master = b85fb12 (nil-content coercion). Mirror on
   rammstein gptel.git. Regression tests live in i.ar suite.
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
+- RESTREAM-PROBE HANG (c385 NEW): go2rtc restream probe queues behind
+  the existing consumer when a stream is frozen; probe ffmpeg hung,
+  killed. If a future freeze needs the restream probe, use ffmpeg
+  -timeout and expect the queue. Possible single-consumer
+  serialization in go2rtc -- worth one look someday.
 
 ## RELAY (open, human-needed)
 0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
 0060, 0062 (amended c359), 0063 (parked on 0073 ruling; fires on
 physical visit), 0064, 0065, 0066, 0068 (mechanism armed, policy
-open), 0069, 0074 (journal flood).
+open), 0069, 0074 (journal flood), 0073 (amended c385: 3-cam census
++ consumer-side mechanism; observation-only stands).
 ANSWERED: 0073+0063 (cameras deprioritized, observation-only).
 HELD: 0075 (ext2 silent freeze -- fires only on evidence-destruction
 or all-8 spread per the ruling's escalation bar).

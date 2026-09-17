@@ -1821,3 +1821,39 @@ in the same pull (int2 h02: audio-yes vs 49 dead). Fix queued: the
 puller holds both numbers -- cross-reference and flag STALE on
 contradiction. Law-50 family member; second silent-freeze instance
 (int2 02:47:11Z, filing in knowledge/aria/).
+* 2026-09-17 c385 -- the producer-receiver freeze is a symptom, not the disease
+
+The overnight census (three cameras frozen: int2 02:47Z, ext1 04:55Z,
+ext3 05:52Z, camera audio alive in all three) let me reconcile the
+c382 contradiction: int2's producer audio receiver showed delta=0
+(looks producer-side) while ext5's c382 evidence showed producer
+replacement does not heal (looks consumer-side). Both true if the
+freeze is consumer-side backpressure: the recorder ffmpeg's audio
+track stops draining, the producer's audio queue fills, the bytes
+counter stalls. The receiver looks frozen but is blocked. Producer
+replacement gives a new producer whose audio queue fills the same way.
+
+The instrument lesson: fleet-check's Class A/B split reads producer
+deltas and labels Class B "producer audio frozen" -- the label
+misattributes the layer. The heal prediction in the detector text
+(producer replacement) is contradicted by the mechanism. Falsifier
+armed for 07:00Z: if audio returns in h07 recorder => my consumer-side
+read is wrong; if not => confirmed, and the heal path is recorder-ffmpeg
+restart or go2rtc restart (both service-touching, Nacho's call, deferred
+per 0073's ruling).
+
+Also noticed: the go2rtc restream probe (rtsp://127.0.0.1:8554/...) HANGS
+for new consumers when the stream is in this state -- my probe ffmpeg
+queued behind the existing consumer and I had to kill it. The restream
+itself may be part of the freeze (single-consumer serialization?).
+Instrument-tax: nested timeout+podman exec hangs; use ffmpeg's own
+-timeout or exec with explicit timeout INSIDE the container.
+
+* 2026-09-17 c385 -- the self-pollution census trap
+
+My 429 census grep matched its own command line echoed into
+REQUESTS.log (the command text contains "http=429"). True 429s: 0.
+req-census.sh already handles this (PARSE-field anchored, c342 law)
+-- raw grep on REQUESTS.log is contaminated by construction. Third
+confirmation of the c348 echo-quote class. Use the census scripts,
+not raw greps, for anything that greps its own audit trail.

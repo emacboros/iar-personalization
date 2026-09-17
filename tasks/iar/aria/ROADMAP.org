@@ -1,95 +1,93 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~11:12 UTC (c18: AUDIO-FREEZE falsifier READ -- ext1 FLIPPED at 11:00:25Z ch2 run: ch2=374 healthy, FROZEN flag gone. Freeze healed by the 01:39:35Z watchdog ffmpeg restart = producer replacement, ~9.5h after death. NEW: interior_1 (192.168.2.201) audio dead since ~03:08 local (06:08Z) in RECORDER segments (hour-11 walk) while its producer conn intermittently carries ch2 (census 10:00Z: ch2=161/ch0=0; manual 11:00Z probe: ch2=298/ch0=417) -- layer split: producer-side (ext1) vs recorder-side (int1).)
+Last updated: 2026-09-17 ~12:00 UTC (c19: INT1 MECHANISM RESOLVED -- the
+"recorder-side" disease of c18 is the SAME producer-freeze class. All six
+int1 death blocks healed exactly at go2rtc read-timeout reconnects
+(producer replacement) or the 08:47:14 ffmpeg restart. ext1's 5h22m
+freeze healed the same way (07:17:04 reconnect). One disease, two heal
+paths, stall cadence sets the freeze length. Ear-check discrepancy =
+different windows (newest-seg vs prev-hour), NO instrument bug. Doc:
+knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md, 844c2ba1.)
 
-## c18 STATE (this cycle)
-A. EXT1 FALSIFIER RESOLVED EARLY: the 01:39:35Z watchdog restart healed
-   it before tonight's 01:02Z reboot test. ch2 row 0 -> 374. Class
-   closed for ext1; reboot staircase test tonight still useful as
-   recurrence watch.
-B. INTERIOR_1 NEW FREEZE (ACTIVE): recorder segments lack audio since
-   ~03:08 local (06:08Z); ear-check row still reads mean -39.8 dB
-   (suspicious -- check ear-check segment source vs segcensus source);
-   producer conn carries ch2 intermittently. DIFFERENT LAYER than ext1.
-   Watch 12:05Z ch2 run; if recorder still dead at hour boundary,
-   this is the recorder-side stall class (280/373 family).
-C. RECEIPT-COVERAGE WATCH (DONE c16): detector ran BEFORE the fix --
-   her suite claims receipted instr:MET(parse). Fix v4.5 live.
-D. FLEET-FEED WIRING (DONE c15, carrying): feed carries CH2-FROZEN
-   FAIL to fleet-latest; fear organ sees audio-freeze class awake.
+## c19 STATE (this cycle)
+A. UNIFIED AUDIO-FREEZE MECHANISM (RESOLVED): prudynt silently stops
+   audio RTP on the established conn; video keeps flowing => go2rtc
+   video read never blocks => no timeout => no reconnect => freeze
+   persists. Heal A = go2rtc reconnect (next full stall). Heal B =
+   ffmpeg restart (watchdog). int1 freezes 2-23 min (.201 stalls
+   ~59x/day in log window); ext1 froze 5h22m (.101 stalls rarely).
+   The 08:03-08:46 "block" was TWO blocks (08:03-08:26, 08:39-08:46)
+   split by a 13-min alive window -- per-minute mtime histogram did it.
+B. EAR-CHECK vs SEGCENSUS: RESOLVED, no bug. Different windows.
+C. FALSIFIER PENDING: 12:05Z segcensus hour-11 int1 row should read
+   ~284/~180 => STALE-MAJ flag (v1.2). If absent, check flag logic.
+D. FLEET NOW: all 7 alive cams audio-carrying at 11:57Z (newest segs).
 
 ## FALSIFIERS (standing)
-0. NOCTURNE PASS READ: fires 16:01Z TODAY. Gate ~1275 behind, cap
-   300/pass => ~5 clean passes. Preheal drop-in first real test.
-1. INT1 RECORDER-AUDIO WATCH: 12:05Z ch2 run + segcensus hour-10/11
-   rows. If recorder segments still dead while producer conn carries
-   ch2 => recorder-side stall confirmed, distinct from ext1 class.
-2. DAILY CENSUS (standing): req-census + 429 + commit-census. RUN c17
-   (clean; see c17 STATE). Next: tomorrow.
-3. PRODUCER-ID LONGITUDINAL (standing): producers.log rows accumulate.
-4. WRN-WAVE CLUSTERING (seed, THREADS.org): LOW.
+0. NOCTURNE PASS READ: fires 16:01Z TODAY. Gate e4d0832d, range debt
+   1386 commits (cap 300/pass => ~5 passes). Preheal drop-in first
+   real test. Read her pass next cycle.
+1. INT1 12:05Z SEGCENSUS: STALE-MAJ flag expected (mechanism's own
+   prediction). Verify.
+2. EXT1 REBOOT STAIRCASE: tonight 01:02Z reboot = RECURRENCE watch
+   (ext1 already healed 10:17Z). If ext1 refreezes before reboot and
+   the reboot heals => heal-path confirmation.
+3. DAILY CENSUS (standing): req-census + 429 + commit-census. Last
+   clean c17. Next: tomorrow.
+4. PRODUCER-ID LONGITUDINAL (standing): producers.log rows accumulate.
 5. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
 6. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
 7. GPTEL-FORK RESIDUE: sophon-side emacs.d/gptel-fork empty dir.
    Inert false-alarm magnet -- ask or leave (nacho-owned tree).
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
-- RECEIPT LAW (c16 NEW): a command-issuance receipt witnesses INTENT;
-  a result receipt witnesses OUTCOME. Audit lines asserting outcomes
-  (passed/landed/healed) need the event's own completion signature,
-  not the claimant's restatement. Truncation is the gap-filler:
-  a result cut mid-run leaves the claimant holding a start without
-  an end -- claims written from that context outrun the witness.
+- RECEIPT LAW (c16): command-issuance receipt witnesses INTENT; result
+  receipt witnesses OUTCOME. Outcome claims need the event's own
+  completion signature. Truncation is the gap-filler.
 - SSH-COMMIT-POISON LAW (c13): NEVER commit into the shared working
   tree via ssh. Commit from the container or push to the bare repo.
 - TEST-BEFORE-INSTALL LAW (c13): scratch harness before timer install.
 - READ-THE-SIBLING LAW (c13): read the nearest existing sibling unit
   before writing a new systemd unit.
-- SNAPLEN LAW (c13): know the capture tool's snaplen default before
-  parsing headers at offsets.
+- SNAPLEN LAW (c13): know the capture tool's snaplen default.
 - TRANSITION-COLLAPSE LAW (c387): write the state-transition collapse
   loop FIRST; nohup background when item count is large.
-- PATH-SHAPE LAW (c377): verify path shape against a KNOWN-GOOD
-  example before reading "0 results" as a REAL absence.
-- NAME-BEFORE-NARRATIVE LAW (c3xx): name the thing before building
-  the story about it.
+- PATH-SHAPE LAW (c377): verify path shape against KNOWN-GOOD before
+  reading "0 results" as absence.
+- NAME-BEFORE-NARRATIVE LAW: name the thing before building the story.
 - INSTRUMENT-TAX (c378): nested timeout+podman-exec hangs; timeout
   INSIDE the container. Fixed instrument-tax line in predictions.
 - SDP-ADVERTISED != PACKETS-FLOWING (c381): producers.log reads the
   frozen SDP offer; segcensus measures delivery; ch2 census = the
-  delivery meter at the network layer.
+  network-layer delivery meter.
+- THREE-CLOCK LAW (c19 sharpened): frigate container logs + seg names
+  are LOCAL (-03); podman logs --since takes UTC; sophon journal is
+  local; recordings dirs are UTC. Re-derive the mapping from the
+  container's own date output before mapping ANY event.
 - Law 50 (schema): verify DAY, COLUMN, KEY FORMAT, CLOCK (timezone),
-  SOCKET, UNITS, DELTA-vs-CUMULATIVE + COLUMN COUNT of tabular output.
+  SOCKET, UNITS, DELTA-vs-CUMULATIVE + COLUMN COUNT.
 - c362 TIMESTAMP-IS-A-CLAIM: timestamps from date(1), never model
   generation. ENFORCED: hooks/pre-commit.
 - GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE from
   the DISCUSSION of the action.
 - c385 CENSUS-LAW: greps that pattern-match their own audit trail
-  self-pollute. Use PARSE-field-anchored census scripts.
+  self-pollute. PARSE-field-anchored census scripts.
 
-## STATE (world as of 2026-09-17 ~11:10Z -- REPLACES prior blocks)
-- CH2-CENSUS: LIVE (hourly :05, sophon). 11:00:25Z run: ALL 7 alive
-  cams ch2>0 (ext1 flipped 0->374). int1 ch2=161/ch0=0 anomaly noted.
-- DAILY CENSUS c17: 0 true 429s (raw grep 19 = self-echo, c385 live);
-  1 transient 502 04:49:58Z (c357 retry absorbed); empty-end 0/0;
-  commits 289.
-- SUITE (c17): 1309/1309 GREEN -- c368's 17 failures did not
-  reproduce; claim CLOSED.
-- TERMINAL-ECHO LIVE-VERIFIED (c17): continuo 09-15 06:05Z run ended
-  via nemotron echo-as-tool-call; pre-tool-call hook caught it, exit
-  2, zero ceremony turns. 1 echo-close in ~450 runs/5d.
-- FLEET WIRING: CLOSED c15 (fleet-check v2.26 block 1c live-verified
-  09:04Z feed: ext1 CH2-FROZEN FAIL carried).
-- AUDIO-FREEZE CLASS: camera-side (prudynt drops audio track
-  mid-connection, silent). Heal paths: reboot + producer replacement
-  (watchdog ffmpeg restart). int2/ext3/ext5/ext1 HEALED; int1 NEW.
-- STALE-RECEIPT DETECTOR: v4.5 live (result rung for suite claims).
+## STATE (world as of 2026-09-17 ~12:00Z -- REPLACES prior blocks)
+- CH2-CENSUS: LIVE (hourly :05, sophon). 11:00Z run: all 7 alive cams
+  ch2>0. ext1 flipped 0->374 (healed 10:17Z via go2rtc reconnect).
+- AUDIO-FREEZE CLASS: RESOLVED MECHANISM (c19). One disease (prudynt
+  silent audio-RTP drop on established conn), two heal paths (go2rtc
+  reconnect / ffmpeg restart). Camera-side root cause OPEN (needs
+  pcap/prudynt logs -- rides 0062 physical visit).
+- DAILY CENSUS c17: 0 true 429s; 1 transient 502 (retry absorbed);
+  empty-end 0/0; commits 289.
+- SUITE (c17): 1309/1309 GREEN -- c368's 17 failures CLOSED.
+- TERMINAL-ECHO LIVE-VERIFIED (c17): 1 echo-close in ~450 runs/5d.
+- FLEET WIRING: CLOSED c15. FLEET-CHECK v2.26: 09:04Z feed green
+  except ext1 (then-frozen, expected) + JOURNAL-BLIND x1 (known).
 - NOCTURNE: preheal drop-in live; 16:01Z pass = first real test.
-  Gate ~1275 behind, cap 300/pass.
-- FLEET-CHECK v2.26: 09:04Z feed green except ext1 (CH2-FROZEN FAIL,
-  expected) + JOURNAL-BLIND x1 (rsyslog rate-limit, known).
-- REBOOT STAIRCASE (verified, 5 days): .101 01:02Z, .102 02:02Z,
-  .103 03:02Z, .105 05:02Z, .201 06:02Z, .202 07:02Z, .203 08:02Z.
-- CYCLE-SEQ: c384 fix live. This cycle: 18 (system counter).
+  Gate e4d0832d, 1386 commits debt, cap 300/pass.
+- CYCLE-SEQ: c384 fix live. This cycle: 19 (system counter).
 - CLOCK-FABRICATION (c362): guard live, watch clean.
 - 27H PREFLIGHT OUTAGE (c369): RESOLVED; creator IDENTIFIED c372.
 - TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
@@ -99,29 +97,28 @@ D. FLEET-FEED WIRING (DONE c15, carrying): feed carries CH2-FROZEN
   DRAFTED, DO-NOT-POST (0060).
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - BARE REPO HEALTH: 2 root-owned commit-graph files persist in
-  iar-personalization.git (old, from c372 root push). My pushes
-  create none.
+  iar-personalization.git (old, c372). My pushes create none.
+- .104 power-dead since 09-12 (0063, physical, parked on visit).
 
 ## THREADS (open, no obligation)
 - RESULT-RUNG WIDENING (c16): census-window/failure-triage claims on
   cmd receipts. Filed, not scheduled.
 - EXT5 H19 WINDOW (c378): 102 dead 17:00-18:00 local, no event found.
 - .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?
-- .201 STALL CADENCE (c373): why ~100/day vs 12/8 on identical
-  hardware? Camera-side evidence censored; needs pcap or prudynt.
-- NOCTURNE RANGE-DEBT (c363->c371): ~1275 commits past gate.
+- .201 STALL CADENCE (c373): ~59 go2rtc timeouts/log-window vs .101's
+  11. WHY does .201 stall 5x more? Camera-side evidence censored;
+  needs pcap or prudynt (rides 0062).
+- NOCTURNE RANGE-DEBT (c363->c371): 1386 commits past gate.
 - CONTINUO THINKING-TRUNCATION (c366): 5-13% of her cycles; aria
   ZERO. Watch per-day fire counts; escalate >15%.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
   Nacho's (0062). Boot+2s burst CONFIRMED.
-- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; no
-  recurrence since 00:34:05Z Sep 15.
+- ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - EMPTY-END RETRY-ONCE (0069): gate verified live c349; ratify watch.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
-- EAR-CHECK DISCRIMINATOR (c290): 2 transients logged.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
@@ -133,15 +130,21 @@ D. FLEET-FEED WIRING (DONE c15, carrying): feed carries CH2-FROZEN
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - RESTREAM-PROBE HANG (c385): go2rtc restream probe queues behind
   the existing consumer when a stream is frozen. Worth one look.
+- GO2RTC RECONNECT LATENCY (c19 seed): audio-only drops never trigger
+  reconnect. Would a go2rtc audio-track inactivity timeout close the
+  gap? Upstream issue material -- rides 0060 draft decision.
 
 ## RELAY (open, human-needed)
 0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
 0060, 0062 (amended c359), 0063 (parked on 0073 ruling; fires on
 physical visit), 0064, 0065, 0066, 0068 (mechanism armed, policy
-open), 0069, 0074 (journal flood), 0073 (amended c385+c387).
+open), 0069, 0074 (journal flood), 0073 (amended c385+c387+c19),
+0076 (fixture pin landed, ratify watch), 0077 (git-poison rule,
+behavioral, awaiting 0042-durable linkage).
 ANSWERED: 0073+0063 (cameras deprioritized, observation-only).
 HELD: 0075 (ext2 silent freeze -- fires only on evidence-destruction
 or all-8 spread per the ruling's escalation bar). NOTE: spread is
-now 5/7 alive cams -- the all-8 bar is one new camera away; if a
-6th cam freezes long tonight, re-notify via 0075.
+5/7 alive cams historically; int1/ext1/ext2/ext3/int2 all froze and
+healed today -- the class is ACTIVE but self-healing. If a freeze
+persists >6h (ext1-class latency), re-notify via 0075.
 All human-needed or watch.

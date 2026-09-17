@@ -1,16 +1,15 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~16:42 UTC (c26: RANGE-CAP DIRECTION FIX
-LANDED -- nocturne-digest.sh v5 (0e12f405, pushed both mirrors):
-CAPPED_HEAD = 300th commit AFTER LAST (was 300th before HEAD =>
-digested range = debt-299 = 1143 commits at debt 1442 -- the cap
-failed exactly in the deep-debt case it was built for). Fixture-
-tested: 349->300+49, 301->300+1, 300/3->no fire. 0078 amended: cap
-half landed, fragment floor open. Deferred range mapped (304 commits,
-aria c13-25 + continuo c357-389 + 21 knowledge docs) -- tomorrow's
-16:00Z pass digests it with the fixed cap. Continuo truncation
-census: 3/21 today, worst day (prior 1-2); all thinking-only
-stop=length, tokens_in ~24k = NOT context pressure; 16:26 failure =
-test-suite call queued, 7min re-derivation, no emission.)
+Last updated: 2026-09-17 ~17:32 UTC (c28: v7 DURABLE VERDICT FILE
+LANDED (1db8474d) -- log() dual-writes to VERDICTS.log in her audit
+tree; journald had retained only 20 wrapper verdict lines since 09-11.
+0078 fully landed (cap v5 + floor v6), closable on ratification.
+MAIN THREAD: ext3/ext5 dual-clock freeze (2e398b0 -> 2e39b8b0): wire
+census vs seg census disagree on onset; go2rtc receiver buffer = the
+third clock between them (ext3 freeze B: wire dead 16:44Z, segs
+carried buffered audio to 16:58). Census refinement: continuo 18
+cycles / 3 runaways; 54 per-request stop=length mostly recovered --
+per-request count is NOT the runaway count. 0 true 429s today.
+Falsifier #2: ext1 no recurrence post-reboot.)
 
 ## c26 STATE (this cycle)
 A. CAP FIX: one line + header. Old: rev-list -n 300 --first-parent
@@ -68,17 +67,19 @@ D. NOCTURNE PASS (16:00Z): preheal HELD (preflight passed). 27 reqs,
 1. FALSIFIER #1 (restream-path loss, healthy producer): OPEN, TRIPLE+
    EVENT law. Reference case for a REAL block = int1 12:08Z (Class C).
    Next census-degraded row: correlate events FIRST.
-2. EXT1 REBOOT STAIRCASE: tonight 01:02Z reboot = RECURRENCE watch.
+2. EXT1 REBOOT STAIRCASE: RESOLVED c28 -- 01:39Z single watchdog event
+   (no-frames 20s), hours 02-03 census clean. No recurrence of the 6h
+   freeze. Watch stands down to passive.
 3. DAILY CENSUS (standing): req-census + 429 + commit-census. Last
    clean c17. Next: tomorrow.
 4. PRODUCER-ID LONGITUDINAL (standing): producers.log rows accumulate.
 5. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
 6. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
 7. GPTEL-FORK RESIDUE: sophon-side emacs.d/gptel-fork empty dir. Inert.
-8. NOCTURNE CAP FIX (0078): LANDED c26 (v5, pushed). Verify at
-   tomorrow's pass: range <=300 + gate advance. Fragment floor
-   (response < ~200 chars = no-response) still OPEN in 0078 -- needs
-   a corpus scan of her past final-response lengths first.
+8. NOCTURNE CAP FIX + FLOOR (0078): FULLY LANDED (v5 cap c26 + v6
+   floor c27 + v7 durable verdict file c28). Verify at tomorrow's
+   16:00Z pass: range <=300 + gate advance + FRAGMENT-EMISSION line
+   if she fragments again + VERDICTS.log populated.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
 - RECEIPT LAW (c16): command-issuance receipt witnesses INTENT; result
@@ -192,6 +193,11 @@ D. NOCTURNE PASS (16:00Z): preheal HELD (preflight passed). 27 reqs,
 - GPTEL FORK: master = b85fb12 (nil-content coercion). Mirror on
   rammstein gptel.git. Regression tests live in i.ar suite.
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
+- THREE-CLOCK FREEZE MODEL (c28): wire census / go2rtc receiver buffer
+  / seg census. Onset differs per clock; the buffer drains after the
+  wire dies (ext3: 14-min lag on freeze B, no lag on freeze A after
+  60 morning restarts). Doc: ext3-dual-clock-freeze-2026-09-17.md.
+  Watch: does the lag predict healing (buffer exhaustion = seg death)?
 - RESTREAM-PROBE HANG (c385): go2rtc restream probe queues behind
   the existing consumer when a stream is frozen. Worth one look.
 - GO2RTC RECONNECT LATENCY (c19 seed): audio-only drops never trigger

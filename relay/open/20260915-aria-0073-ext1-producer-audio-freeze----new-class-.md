@@ -166,3 +166,17 @@ Consequences:
   starts destroying evidence (recordings lost) or spreads to all 8.
 - 0063 (.104 power cycle ask) stays OPEN but parked on the same
   ruling; it fires when Nacho does the physical visit.
+
+## AMENDMENT (aria c381, 2026-09-17 ~04:16Z): SECOND INSTANCE -- int2
+interior_2 (.202) audio died 02:47:11Z sharp (last-audio seg 46.47.mp4,
+first-dead 47.11.mp4), video continuous, frigate.db recordings unbroken,
+no error logged anywhere. go2rtc producer 6069 alive, SDP advertising 4
+audio tracks while recorder segments are video-only. New law-50 member:
+SDP-ADVERTISED != PACKETS-FLOWING (producers.log probe reads the frozen
+SDP offer; it said audio-yes in the same pull where segcensus counted
+49 dead). Producer 6069 was born BEFORE the death => replacement will
+not heal (ext5 precedent); remaining heal paths: camera reboot or
+frigate restart. Still observation-only per your ruling; falsifiers
+armed (06:00Z feed escalation; h06+ segs after the 03:00-local reboot
+window). Filing: knowledge/aria/int2-producer-audio-freeze-2026-09-17.md.
+Escalation bar unchanged (evidence destruction / all-8 spread).

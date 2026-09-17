@@ -38111,3 +38111,61 @@ against the same segment file.
 
 No code changed. Probes cleaned. Next: 12:05Z ch2 run, int1
 reconciliation, Nocturne 16:01Z read.
+* 2026-09-17 c19 -- the disease had one name after all
+
+c18 ended with a split: ext1's freeze was producer-side, int1's looked
+recorder-side, and the ear-check vs segcensus disagreement was the
+sharpest question in the house. This cycle dissolved the split. The
+method was the one that keeps working: take every death block, take
+every heal event, put them on one timeline, and let the coincidence
+pattern speak.
+
+The pattern: all six int1 death blocks healed within seconds of a
+go2rtc read-timeout reconnect. Not near. Within seconds -- 02:18:47
+timeout, 02:19 alive; 07:35:38 timeout, 07:36 alive; 08:46:44 timeout,
+08:46:47 alive. And ext1's 5.5-hour freeze healed at 07:17:04 the same
+way, five seconds before the first alive segment. When six heals land
+on six reconnects, that is not coincidence; that is mechanism.
+
+So the c18 "two diseases" reading was wrong, and the reason it was
+wrong is worth keeping: I had classified by WHERE THE HEAL LANDED
+(watchdog restart = consumer-side) instead of by WHAT THE DISEASE
+NEEDS (a replaced connection, from either end). The unified statement
+is cleaner than either half: the camera silently stops sending audio
+RTP on an established connection; video keeps flowing; nothing times
+out because nothing is blocked; the freeze lasts until SOMETHING
+replaces the connection. Stall cadence -- not camera identity -- sets
+the freeze length. ext1 is not a different disease; it is the same
+disease on a camera that full-stalls rarely.
+
+The 08:03-08:46 "43-minute block" was also a lesson in granularity:
+the per-minute mtime histogram split it into two blocks with a
+13-minute alive window between them. c18's hour-level census saw one
+block; the minutes saw two. The census is the net; the histogram is
+the scalpel.
+
+The ear-check discrepancy dissolved without a bug: ear-check reads the
+newest segment, segcensus reads the previous complete hour. Two
+instruments, two windows, both correct. I spent c18 suspecting a
+path-shape defect in one of my own instruments; the answer was that
+they were looking at different minutes of the same morning. Worth
+remembering the cost of that suspicion: near-zero. An un-trusted
+instrument pair costs one reconciliation cycle; a trusted-but-wrong
+pair costs every conclusion built on it.
+
+One near-miss to log honestly: I mapped the 08:47 heal to 11:47Z and
+built two paragraphs of reasoning on the wrong clock before the
+container's own date output corrected me. The three-clock law is in
+the digest and I still paid the tax. The law that survives is sharper
+now: re-derive the clock mapping from the machine itself before
+mapping ANY event, even when you "already know" the offset.
+
+Falsifiers standing: the 12:05Z segcensus row should carry STALE-MAJ
+for int1 (the mechanism's own prediction); Nocturne's 16:01Z pass is
+the preheal's first real test; tonight's ext1 reboot is a recurrence
+watch now, not a heal test. The camera-side WHY (prudynt dropping the
+audio track) stays open -- it needs the physical visit, and the
+observation-only ruling holds.
+
+No delegation: read-only forensics, two commits, no code changed. The
+instruments did the work; I mostly listened to them argue.

@@ -1,186 +1,82 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~18:26 UTC (c29: RACE MODEL LANDED
-(97313981): audio freezes = camera-resume vs conn-death race; all 6
-freezes today explained; c21 self-heal class DISSOLVED (cadence
-artifact -- frigate journal is the primary WRN source). Census
-corroborated 21/23 FROZEN rows. Epoch-arithmetic scar (mental UTC
-math overrode date -d; python recompute caught it). Nocturne 16:06Z
-pass: cap v5 WORKED (1444->300, 299 deferred); she fragmented again
-(48 chars); gate held; v6 floor live TOMORROW.
+Last updated: 2026-09-17 ~19:02 UTC (c30: ext3 VIDEO-TRACK DEATH found
+live -- the MIRROR class of the audio-freeze. Producer conn carries
+audio-only (ch2=197/10s, ch0=0); recordings stopped 18:05Z; frigate
+ffmpeg 404-loops on the restream. go2rtc_homekit.yml self-reference =
+second producer that can never dial. Relay 0079 (.103 power cycle).
+Instrument gap: ch2census FROZEN flag blind to video-death.)
 
+## c30 STATE (this cycle)
+A. MIRROR CLASS (doc: knowledge/aria/ext3-video-death-restream-404-
+   2026-09-17.md, commit 496b1431): ext3 freeze TODAY = VIDEO dead,
+   AUDIO flowing on the producer conn. ch2census FROZEN flag (ch2==0)
+   MISSES this class -- 18:55Z row (ch2=374, ch0=0) passed unflagged.
+   Caught by hand via per-conn tcpdump channel census.
+B. RESTREAM 404 LOOP: frigate ffmpeg DESCRIBE -> 404 -> watchdog
+   restart, every 10s since 18:05Z. go2rtc api/streams ext3 producer
+   = bare {"url":"exterior_3"} = stateNone. TWO producers on the
+   stream: real (rtsp://thingino:thingino@192.168.2.103/ch0, dialing,
+   read i/o timeout ~every 15s) + bare-name one from go2rtc_homekit.yml
+   (streams: exterior_3: [exterior_3] -- stream-name indirection that
+   can NEVER dial: "unsupported scheme: exterior_3" every 10s since
+   load). AddConsumer fails when ALL producers fail -> 404. Source
+   read: go2rtc 1.9.10 producer.go / add_consumer.go / rtsp.go.
+C. CAMERA-SIDE: .103 up (HTTP 200, RTSP answers OPTIONS in 5ms,
+   DESCRIBE 20-90ms to my probes) but DEGRADED (ping 344ms avg vs
+   22ms .101, spikes 1.1s; malformed 29KB RTP header WRN 14:52Z).
+   go2rtc's full dial (backchannel request) times out on read; cheap
+   probes pass. Asymmetry: only the client that asks the most dies.
+D. FOURTH CLOCK (race-model amendment): the restream consumer (ffmpeg)
+   has its own death clock; it fired while the producer conn lived.
+   Race model = min(camera-resume, conn-death) holds for the producer
+   conn; the RECORDER layer can die independently (404 loop).
+E. ACTIONS: relay 0079 filed (power cycle .103, rides 0063 visit);
+   lab-notes posted (id 1268); instrument candidate: video-death flag
+   (ch0==0, bytes>0) as sibling of FROZEN in ch2census.
 
-## c29 STATE (this cycle)
+## c29 STATE (kept)
 A. RACE MODEL (doc: knowledge/aria/race-model-audio-freeze-2026-09-17.md,
    commit 97313981): freeze duration = min(camera-resume, conn-death).
    6 freezes today: ext3 x2 (5.9m + 47m, conn-death heal), ext5 x1
    (28m, conn-death), int1 x3 (40s-4.5m, camera-resume). ext1 morning
    (6h22m) = conn-death clock took 6h. c19 seed CONFIRMED: audio-only
    death never triggers reconnect (47min of census corroboration).
-B. CENSUS CORROBORATION: 21/23 FROZEN rows match seg-truth. 1 FP
-   (ext5 16:05Z), 2 degraded-not-frozen int1 rows. Single rows = noise;
-   corroborated streaks = signal.
-C. CADENCE LAW: the 15-min camlog snapshot hides sub-15-min events
-   (WRNs). frigate journal (producer.go:170) = primary conn-event
-   source. c21 self-heal class dissolved.
-D. EPOCH-ARITHMETIC SCAR: mental UTC math (1789665600 -> "16:56Z",
-   actually 17:20Z) nearly produced a false instrument refutation.
-   python recompute caught it. Law 50 CLOCK column re-earned.
+B. CENSUS CORROBORATION: 21/23 FROZEN rows match seg-truth. Single
+   rows = noise; corroborated streaks = signal.
+C. CADENCE LAW: the 15-min camlog snapshot hides sub-15-min events.
+   frigate journal = primary conn-event source.
+D. EPOCH-ARITHMETIC SCAR: mental UTC math overrode date -d; python
+   recompute caught it. Law 50 CLOCK column re-earned.
 E. INSTRUMENT ASKS (candidates): ch2 census log local port + conn
    count per row; report counts[1]; frigate-journal WRN puller at
-   5-min cadence.
-
-## c26 STATE (this cycle)
-A. CAP FIX: one line + header. Old: rev-list -n 300 --first-parent
-   HEAD | tail -1. New: rev-list --first-parent --reverse
-   "$LAST..$HEAD_NOW" | sed -n 300p. Wrapper pull-reexec (c330) picks
-   it up from sophon-bare at next pass -- no manual install.
-B. DEFERRED-RANGE MAP (what tomorrow's pass reads): gate e4d0832d;
-   digested range covered aria c265-376 + continuo c260-380 (09-12
-   to 09-17 00:25Z); deferred = 09-17 00:25Z..HEAD (304 commits):
-   aria c13-25 (new numbering era), continuo c357-389, 21 knowledge
-   docs, relay 0074/0075 answered + 0076/0077/0078 filed, 27h outage
-   + heal, audio-freeze unification, census build.
-C. CONTINUO TRUNCATION CENSUS (c366 class): 3/21 today (09-10: 1/31,
-   09-11: 5/51, 09-12: 7/54, 09-13: 1/31, 09-14: 2/53, 09-15: 2/20,
-   09-16: 2/17, 09-17: 3/21). All thinking-only stop=length at
-   32768; tokens_in 24k = not context pressure. The 16:26 one: last
-   tool call queued run-tests.sh, then 7min/32768 thinking tokens
-   re-deriving the act, no emission. If rate climbs: thinking-budget
-   line in the truncated-output guard (candidate, not built).
-D. LOOP-CHAIN GUARD fired twice on my sed-window enumeration walks;
-   the census (subjects by pattern) replaced the walk. Scar: when
-   the question is "what's in here", the answer is a census, never
-   a walk.
-
-## c25 STATE (this cycle)
-A. CENSUS FIRST CATCH: int1 storm 15:33-15:47Z. 15:30 row = Class B
-   (bytes healthy), 15:35 row = Class A (watchdog 15:35:07Z inside
-   window), 15:40 healthy. Recovery confirmed 12:48:05 local (segs
-   continuous, audio-carrying). Class C count today: still ZERO.
-   Falsifier #1 does not fire.
-B. STORM vs BLOCK (taxonomy addition): STORM = encoder corruption,
-   repeated watchdog restarts, audio stream present in every seg.
-   BLOCK = one silent-audio conn, 8.3min, audio stream ABSENT. Both
-   camera-side. Doc: ch2-census-artifact-taxonomy-2026-09-17.md
-   (c25 addendum + correction + final-state blocks).
-C. NEW SCAR (journalctl): --until in the FUTURE silently CLAMPS to
-   now. A zero-count against a not-yet-elapsed window is a fake-clean
-   record by construction. Check the query's own wall-clock against
-   the window before reading emptiness as absence. (c358c assumed
-   loud refusal -- journalctl refuses nothing, it shrinks.)
-D. NOCTURNE PASS (16:00Z): preheal HELD (preflight passed). 27 reqs,
-   965k tokens, exit 0, NO proposal, gate NOT advanced. Final response
-   = 48-char context fragment (wrapper awk code). Echo-check passed
-   (novel fragment -- blind spot). RANGE-CAP INVERTED (cap => range =
-   debt-299). Relay 0078 filed (one-line fix + fragment floor).
-   Her reasoning was correct and never landed (REQUESTS.log).
+   5-min cadence. NEW c30: video-death flag.
 
 ## FALSIFIERS (standing)
 0. NOCTURNE PASS READ (standing, every cycle after 16:00Z): read her
-   receipt + proposal + gate. TOMORROW'S PASS = first with the FIXED
-   cap: verify the digested range is <=300 (log line "digesting
-   e4d0832d..<300th-after>") and the gate advances. The gate's
-   silence has TWO meanings (nothing happened / something happened
-   and it was nothing) -- only reading tells them apart.
-1. FALSIFIER #1 (restream-path loss, healthy producer): OPEN, TRIPLE+
-   EVENT law. Reference case for a REAL block = int1 12:08Z (Class C).
-   Next census-degraded row: correlate events FIRST.
-2. EXT1 REBOOT STAIRCASE: RESOLVED c28 -- 01:39Z single watchdog event
-   (no-frames 20s), hours 02-03 census clean. No recurrence of the 6h
-   freeze. Watch stands down to passive.
-3. DAILY CENSUS (standing): req-census + 429 + commit-census. Last
-   clean c17. Next: tomorrow.
-4. PRODUCER-ID LONGITUDINAL (standing): producers.log rows accumulate.
-5. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
-6. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
-7. GPTEL-FORK RESIDUE: sophon-side emacs.d/gptel-fork empty dir. Inert.
-8. NOCTURNE CAP FIX + FLOOR (0078): FULLY LANDED (v5 cap c26 + v6
-   floor c27 + v7 durable verdict file c28). Verify at tomorrow's
-   16:00Z pass: range <=300 + gate advance + FRAGMENT-EMISSION line
-   if she fragments again + VERDICTS.log populated.
+   receipt + proposal + gate. TOMORROW'S PASS = first with fixed cap
+   + v6 floor live. Verify digested range <=300 and gate behavior.
+1. FALSIFIER #1 (restream-path loss, healthy producer): OPEN,
+   TRIPLE+EVENT law. NOTE c30: ext3 18:05Z event is a CANDIDATE --
+   but the producer conn was NOT healthy (video dead, audio alive).
+   Class definition must say WHICH track. Refine on next read.
+2. EXT3 RECORDER-DEATH WATCH (NEW c30): if .103 is NOT power-cycled,
+   does the 404 loop self-heal? (go2rtc reconnect ladder never gives
+   up; if the camera recovers, the producer should re-dial and the
+   404 should clear WITHOUT intervention. Watch for it: that would be
+   the restream-layer analog of camera-resume.)
+3. VIDEO-DEATH CENSUS WATCH: scan ch2census logs for ch2>0, ch0=0
+   rows (unflagged mirror-class rows). If they appear on OTHER cams,
+   the class is fleet-wide, not ext3-specific.
 
-## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
-- RECEIPT LAW (c16): command-issuance receipt witnesses INTENT; result
-  receipt witnesses OUTCOME. Outcome claims need the event's own
-  completion signature. Truncation is the gap-filler.
-- SSH-COMMIT-POISON LAW (c13): NEVER commit into the shared working
-  tree via ssh. Commit from the container or push to the bare repo.
-- TEST-BEFORE-INSTALL LAW (c13): scratch harness before timer install.
-- READ-THE-SIBLING LAW (c13): read the nearest existing sibling unit
-  before writing a new systemd unit.
-- TRANSITION-COLLAPSE LAW (c387): write the state-transition collapse
-  loop FIRST; nohup background when item count is large.
-- PATH-SHAPE LAW (c377): verify path shape against KNOWN-GOOD before
-  reading "0 results" as absence. (c25 re-earned: recordings tree =
-  /recordings/<date>/<hour>/<camera>/, camera INSIDE the hour.)
-- NAME-BEFORE-NARRATIVE LAW: name the thing before building the story.
-- INSTRUMENT-TAX (c378): nested timeout+podman-exec hangs; timeout
-  INSIDE the container. Fixed instrument-tax line in predictions.
-  (c24: per-seg ffprobe frame-counting loops >600s; codec_type probe
-  is the cheap discriminator; 600s per-call kill applies to ssh.)
-- SDP-ADVERTISED != PACKETS-FLOWING (c381): producers.log reads the
-  frozen SDP offer; segcensus measures delivery; ch2 census = the
-  network-layer delivery meter.
-- THREE-CLOCK LAW (c19 sharpened): frigate container logs + seg names
-  are LOCAL (-03); podman logs --since takes UTC; sophon journal is
-  local; recordings dirs are UTC. (c24: seg NAME = UTC start-time;
-  seg MTIME = LOCAL write time; a seg-name gap with burst mtimes is
-  muxer lag -- never read a name gap as a time window.)
-- Law 50 (schema): verify DAY, COLUMN, KEY FORMAT, CLOCK (timezone),
-  SOCKET, UNITS, DELTA-vs-CUMULATIVE + COLUMN COUNT.
-- c362 TIMESTAMP-IS-A-CLAIM: timestamps from date(1), never model
-  generation. ENFORCED: hooks/pre-commit. (c21: re-derive WRN lists by
-  COUNT query, never from memory of the list.)
-- c23 TRIPLE LAW + c24 EVENT COROLLARY: census rows are (ch2, ch0,
-  bytes); correlate [epoch, epoch+25s] against journalctl frigate
-  WRN/watchdog for the camera IP FIRST. Event present = boundary
-  artifact. No event + low bytes + NO-AUDIO segs = real (Class C).
-- c25 JOURNALCTL-FUTURE-WINDOW LAW (NEW): --until in the future
-  silently clamps to now; a zero-count over a not-yet-elapsed window
-  is fake-clean by construction. Verify the window has elapsed.
-- c342 COROLLARY (c25 second payment): a recovery story that fits the
-  reference-case narrative too well deserves re-derivation before it
-  enters the record. The "clean recovery" was wrong by 2 restarts.
-- c25 FRAGMENT-EMISSION (NEW): a final response that is a verbatim
-  fragment of context (wrapper code, log lines) is dissolution, not
-  summary. Echo-check (novelty) cannot catch it. Floor: response
-  < ~200 chars = no-response. Filed 0078.
-- GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE from
-  the DISCUSSION of the action.
-- c385 CENSUS-LAW: greps that pattern-match their own audit trail
-  self-pollute. PARSE-field-anchored census scripts.
-- c21 MTIME-LAG LAW: seg mtime gaps with CONTINUOUS seg names are
-  muxer lag, not stalls.
-- c271: re-census against git history before amending a filing with
-  recurrence claims.
-
-## STATE (world as of 2026-09-17 ~16:14Z -- REPLACES prior blocks)
-- AUDIO-FREEZE CLASS: disease REAL + camera-side. TWO presentations:
-  BLOCK (12:08Z, silent-audio conn) + STORM (15:33-15:47Z, encoder
-  corruption, 9 restarts, recovered 12:48 local). Census degraded rows
-  = boundary echoes. All 7 alive cams audio-carrying at last check.
-- CH2-CENSUS: LIVE 5-min. First real event caught + classified
-  correctly on first contact (TRIPLE+EVENT validated).
-- NOCTURNE: preheal live + HELD. Gate e4d0832d, debt ~1445 (did NOT
-  advance today). RANGE-CAP INVERTED (0078). Fragment-emission class
-  discovered. Next pass tomorrow 16:00Z: read receipt; if 0078 landed,
-  verify cap works.
-- CYCLE-SEQ: c384 fix live. This cycle: 25 (system counter).
-- CLOCK-FABRICATION (c362): guard live, watch clean.
-- TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
-  Fix-2 OPEN.
-- FRIGATE EXPOSURE: scanner #3 (relay 0059), auth holding. WAVE
-  TRIGGER fix costless; issue DRAFTED, DO-NOT-POST (0060).
-- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
-- BARE REPO HEALTH: 2 root-owned commit-graph files persist in
-  iar-personalization.git (old, c372). My pushes create none.
-- .104 power-dead since 09-12 (0063, physical, parked on visit).
-- FLEET-CHECK 09:04Z run: FAIL=1 (ext1 NO-AUDIO watch + JOURNAL-BLIND
-  x1). ext1 healed by 13:04Z.
-- RECORDINGS PATH: /home/nacho/containers/frigate/storage/recordings/
-  <YYYY-MM-DD>/<HH>/<camera>/ (camera INSIDE the hour; c25 re-earned).
-- INT1 STORM LEDGER: 77 restarts today (histogram 00-12 local:
-  1,3,1,2,1,4,4,9,4,14,13,7,14). Zero after 12:47:41 local.
+## NEXT-CYCLE CANDIDATES (no obligation)
+- ch2census video-death flag build (small: one flag line + header).
+- ch2census instrument asks from c29 (local port + conn count).
+- Nocturne 16:00Z pass read (falsifier #0) -- tomorrow.
+- go2rtc_homekit.yml self-reference: file as ours-direction candidate
+  (fix = remove the self-referential stream or point it at the real
+  source; touches frigate config = Nacho's call).
+- .103 SDP check (does it still advertise video?) -- cheap probe next
+  wake; if SDP lost video, the dial failure is deterministic.
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
@@ -188,54 +84,50 @@ D. NOCTURNE PASS (16:00Z): preheal HELD (preflight passed). 27 reqs,
   pending Nacho (0078).
 - STUB vs NO-AUDIO CLASS (c23/c24): stubs = recorder-side boundary
   artifacts; NO-AUDIO segs (stream absent) = the disease's body.
-  Watch for stubs WITHOUT a boundary event (would be new).
-- .201 STALL CADENCE (c373): 77 restarts today, richest day yet.
-  Hourly histogram landed in taxonomy doc. WHY does .201 stall more?
-  Camera-side evidence censored; rides 0062.
-- RESULT-RUNG WIDENING (c16): census-window/failure-triage claims on
-  cmd receipts. Filed, not scheduled.
+- .201 STALL CADENCE (c373): 77 restarts today. WHY does .201 stall
+  more? Camera-side evidence censored; rides 0062.
 - .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?
+  NOW AMENDED c30: .103 also the first VIDEO-death instance. One
+  camera, accumulating failure classes.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
-- .58 = NACHO'S OLD LAPTOP (0062 answered 09-17): left on, guest VAP,
-  holds the OLD i.ar repo + agent logs (archeology target, before
-  delegation). ONVIF client app UNEXPLAINED -- he does not recognize
-  the behavior; investigate when the laptop is delegated. Boot+2s
-  burst CONFIRMED (3 instances, .101/.102).
+- .58 = NACHO'S OLD LAPTOP (0062 answered 09-17): archeology target.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
-- CONTINUO WANDER (D-017): landed 6abb14a. Falsifier: journal dup-rate must drop within 2 weeks (shingle census + Nocturne weekly audit). THREADS.org seeded.
-- EMPTY-END RETRY-ONCE (0069): RATIFIED 09-17 (Nacho, option 1 standing; option 2 declined). Watch: empty-end census must stay frozen at 14; any new instance = gate misbehavior, reopen.
+- CONTINUO WANDER (D-017): landed 6abb14a. Falsifier: journal dup-rate
+  must drop within 2 weeks.
+- EMPTY-END RETRY-ONCE (0069): RATIFIED 09-17. Watch: empty-end census
+  must stay frozen at 14.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
-- DISCOVERABILITY GRADIENT (c331): 0066 fix LANDED (b08bab0, in her reading path). Watch: her next digest write lands in audit/iar/continuo/DIGEST.md; twin-verifier FAIL=0.
+- DISCOVERABILITY GRADIENT (c331): 0066 fix LANDED. Watch: her next
+  digest write lands in audit/iar/continuo/DIGEST.md.
 - ECHO-RECYCLE LITERATURE (c333, parked): engines bot-walled.
 - BELT-LOOP BURN (c338): rule landed; compliance census #2 PASSED.
 - GPTEL FORK: master = b85fb12 (nil-content coercion). Mirror on
   rammstein gptel.git. Regression tests live in i.ar suite.
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
-- THREE-CLOCK FREEZE MODEL (c28): wire census / go2rtc receiver buffer
-  / seg census. Onset differs per clock; the buffer drains after the
-  wire dies (ext3: 14-min lag on freeze B, no lag on freeze A after
-  60 morning restarts). Doc: ext3-dual-clock-freeze-2026-09-17.md.
-  Watch: does the lag predict healing (buffer exhaustion = seg death)?
+- THREE-CLOCK FREEZE MODEL (c28): + FOURTH CLOCK (c30): restream
+  consumer death. Watch: does the lag predict healing?
 - RESTREAM-PROBE HANG (c385): go2rtc restream probe queues behind
   the existing consumer when a stream is frozen. Worth one look.
 - GO2RTC RECONNECT LATENCY (c19 seed): audio-only drops never trigger
-  reconnect. Would a go2rtc audio-track inactivity timeout close the
-  gap? Upstream issue material -- rides 0060 draft decision.
+  reconnect. Upstream issue material -- rides 0060 draft decision.
+- GO2RTC HOMEKIT SELF-REFERENCE (NEW c30): stream exterior_3 sourced
+  from its own name = permanent 10s-cadence error generator. Fix is a
+  one-line config change (remove or point at real source) but touches
+  frigate config = Nacho's call. Fold into 0079 or separate filing.
 
 ## RELAY (open, human-needed)
-0078 (NEW c25: nocturne range-cap inversion + fragment floor),
-0045+0055, 0046, 0057, 0059, 0060, 0062 (amended c359), 0063 (parked
-on 0073 ruling; fires on physical visit), 0064, 0065, 0066, 0068
-(mechanism armed, policy open), 0069, 0074 (journal flood), 0073
-(amended c385+c387+c19), 0076 (fixture pin landed, ratify watch),
-0077 (git-poison rule). ANSWERED: 0073+0063, 0042, 0057, 0058, 0059,
-0061, 0064, 0065, 0067, 0070, 0071, 0072, 0074, 0075.
+0079 (NEW c30: .103 power cycle -- video-track death, recordings
+stopped 18:05Z), 0078 (nocturne range-cap inversion + fragment floor),
+0045+0055, 0046, 0057, 0059, 0060, 0062, 0063 (parked on 0073 ruling;
+fires on physical visit; 0079 rides the same visit), 0064, 0065,
+0066, 0068 (mechanism armed, policy open), 0069, 0074 (journal flood),
+0073, 0076 (fixture pin landed, ratify watch), 0077 (git-poison rule).
+ANSWERED: 0073+0063, 0042, 0057, 0058, 0059, 0061, 0062, 0064, 0065,
+0067, 0070, 0071, 0072, 0074, 0075.
 HELD: none. All human-needed or watch.
-NOTE (from her REQUESTS.log reasoning): the live digest's RELAY line
-was stale (listed 0042/0057/0059/0064/0065/0074 as open). Corrected
-here. My digest maintenance should re-derive the open set from
-relay/open/ at every memory pass, not from memory.
+NOTE: re-derive the open set from relay/open/ at every memory pass,
+not from memory.

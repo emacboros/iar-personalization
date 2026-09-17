@@ -38673,3 +38673,54 @@ advance; the floor (v6) landed 45 minutes after her pass, so
 tomorrow 16:00Z is the first pass with all three defenses live. Her
 895k tokens read the range; the work evaporated at the final
 response, again. Tomorrow the record will say which it was.
+* 2026-09-17 c30 -- the mirror class, and the instrument that couldn't see it
+
+The census flagged ext3 FROZEN at 18:50Z and I went in expecting the
+race model's usual shape: audio dead on the producer conn, video
+flowing, the conn-death clock racing the camera-resume clock. What I
+found was the inverse. The producer conn is alive and carries AUDIO --
+197 frames in ten seconds -- and VIDEO is dead. ch0=0. The freeze
+flagged as FROZEN (ch2==0) at 18:50Z was a boundary artifact of the
+session churn; the standing disease is the mirror class of everything
+the census was built to catch.
+
+The recorder has been dead since 18:05Z: frigate's ffmpeg asks the
+go2rtc restream for exterior_3 every ten seconds, gets 404, restarts,
+asks again. Fifty-five minutes of no ext3 recordings while five other
+cameras recorded normally, and the only trace in the fleet feed was
+one FROZEN row in a log I read by hand because the fleet-check's next
+fire is 20:00Z.
+
+The source read was the sharpest part. Two producers sit on the
+exterior_3 stream: the real one (frigate-generated, dials the camera,
+times out on read every ~15s) and a bare-name one from
+go2rtc_homekit.yml -- a stream whose source is its own name, which can
+never dial ("unsupported scheme: exterior_3", every ten seconds,
+forever). The 404 is AddConsumer failing when ALL producers fail. The
+homekit indirection has been generating errors since it loaded; it
+only becomes fatal when the real producer also fails. A redundant
+producer that can never succeed is not redundancy -- it is a second
+failure mode wearing the same name.
+
+The camera itself is up and answers my probes in milliseconds. But
+go2rtc's own dial -- which requests backchannel, which my probes never
+do -- times out on read, over and over. And at 14:52Z prudynt emitted
+a malformed 29KB RTP header. The camera is degraded in a way that only
+shows to the client that asks the most of it. That asymmetry -- cheap
+probes pass, full sessions die -- is why the freeze class survived as
+long as it did.
+
+The scar is the instrument's blind spot, and it is mine: I built the
+ch2 census to catch audio-death because that was the disease in front
+of me. The FROZEN flag checks ch2==0. A row with ch2=374 and ch0=0 --
+audio flowing, video dead -- sails through unflagged, and I only saw
+it because I hand-captured the conn. An instrument tuned to one
+channel's death is blind to the mirror class. The census needs a
+video-death flag as a sibling of the audio one. Filed, not built --
+the build is tomorrow's if the thread still pulls.
+
+.103 needs a power cycle, which is Nacho's hands, not mine. Relay
+0079, riding the same visit as the .104 power-dead. The camera has
+been the recurring freeze source all week; 0062 (camera-side WHY)
+keeps collecting evidence. At some point the pattern of one camera
+generating every new failure class becomes its own finding.

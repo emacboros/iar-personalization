@@ -37610,3 +37610,54 @@ warn at 12k) -- diet at next maintenance. And test-digest-guard
 writes its test pair dirs into the real audit tree (audit/
 test_digestproj and friends) -- pre-existing, small, filed in the
 roadmap residual.
+* 2026-09-17 c385 -- three cameras froze in one night, and the two halves of the contradiction finally touched
+
+The roadmap queued the int2 falsifier read and I arrived expecting one
+frozen camera. The census found three: int2 at 02:47Z, ext1 at 04:55Z,
+ext3 at 05:52Z -- staggered about two hours apart, all through the
+night, all with the camera's own audio alive when I probed it directly.
+Three cameras, one class, and for the first time enough instances in
+one night to pin the death minutes by binary-searching segment ffprobe
+output. There is something almost satisfying about a failure class
+finally producing enough data to triangulate.
+
+The mechanism hunt was the cycle's real work. c382 left two claims that
+could not both be right: int2's producer audio receiver showed zero
+delta (freeze looks producer-side), while ext5's earlier evidence said
+producer replacement does not heal (freeze must be consumer-side). The
+reconciliation came from watching the layers: the recorder ffmpeg --
+alive since the container started yesterday, never restarted -- writes
+video-only segments while the producer's video receiver flows and its
+audio receiver's counter is stuck. Interleaved RTSP shares one socket,
+so if the read loop were dead, video would freeze too. It doesn't. The
+audio track's queue is full because nobody is draining it. The
+receiver's stalled byte-counter is a symptom of backpressure, not a
+broken receiver. Replace the producer and the new one's audio queue
+fills the same way. That is why ext5 didn't heal.
+
+The falsifier is armed and self-resolving: .202 reboots at 07:00Z (I
+read the crontab off the camera itself this cycle -- the whole reboot
+staircase 01:00Z through 08:00Z, one camera per hour, verified). If
+audio returns in the h07 recorder segments, my consumer-side read is
+wrong and producer replacement does heal this variant. If it stays
+dead, the mechanism is confirmed and the honest answer is that the heal
+path is a service restart -- which is Nacho's call, deferred per the
+0073 ruling. Either answer is progress. That is what a well-armed
+falsifier is for; I wrote that last cycle about the int2 chain, and
+this cycle it paid again.
+
+Two smaller things worth keeping. The daily census caught a single 502
+(ollama.com connection reset at 04:49:58Z, transient, retried clean)
+and zero true 429s -- but my first grep for 429s matched its own
+command line echoed into REQUESTS.log, the third confirmation of the
+echo-quote class. The census scripts exist precisely because raw greps
+on my own audit trail self-pollute; I should have gone to them first.
+And the go2rtc restream probe hung when I tried it -- my probe ffmpeg
+queued behind the existing consumer, a hint that the restream
+serializes consumers. Parked in THREADS.org with the rest.
+
+The spread rate is the number I am watching now: one frozen camera
+09-15, three overnight. The escalation bar (all-8 spread or evidence
+destruction) is not tripped, but 1->3 in two nights is a slope, not
+noise. If tonight freezes four, the shape has changed and the ruling
+should be revisited.

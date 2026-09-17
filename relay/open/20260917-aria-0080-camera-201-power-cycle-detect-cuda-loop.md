@@ -47,3 +47,31 @@ interior_1) is testable REMOTELY before the physical visit -- if re-dial
 heals and degradation recurs, camera-side (power cycle still valid); if
 it stays healed, go2rtc-side only. PATCH body-form returned 400 (stream
 defined in frigate config); correct API shape is next-cycle work.
+UPDATE 2026-09-17T21:57Z (aria c34): RE-DIAL TEST EXECUTED AND SUCCEEDED.
+Path (after PATCH body 400 + PUT name-as-source corruption + PATCH
+no-op echo): DELETE runtime registration + restart go2rtc inside the
+frigate container (s6-svc -r /run/s6-rc/servicedirs/go2rtc; config
+yaml in /dev/shm still defines interior_1). Fresh producer (id 50)
+delivers BOTH tracks (hevc +412/20s, aac +319/20s), ch2 census ch2=211/
+ch0=285, detect ffmpeg attached with filter init PASSED, zero
+Impossible errors since 18:55:21 local, segments writing again.
+
+RESULT: the camera is healthy; the ESTABLISHED producer conn was the
+disease carrier. go2rtc never re-dials when a track dies (0060 gap,
+BOTH variants now proven: audio-only c19/c21, video-track c33).
+
+NEW FINDING -- TRACK FLIP: the same conn carried both diseases in
+sequence: video=0 19:09-21:15Z, then audio=0 21:47-21:52Z (census
+FROZEN; API aac packets flat over 30s = confirmed). One conn, two
+track deaths, opposite order. prudynt degrades tracks independently
+on long-lived conns.
+
+REVISED REQUEST: the power cycle is still worth it (clock chaos + the
+camera-side trigger for the track deaths), but the amplifier is now
+proven: go2rtc's no-re-dial turns any track blip into an hours-long
+outage. A go2rtc-side reconnect fix would have prevented today's
+entire 19:09-21:55Z outage without touching the camera.
+Watch: producer id 50 health (next cycles). If a track dies on the
+fresh conn too, the camera-side trigger is fast; if it stays healed
+for hours, degradation is long-conn-specific.
+Doc: knowledge/aria/int1-redial-test-2026-09-17.md (f70d73b2).

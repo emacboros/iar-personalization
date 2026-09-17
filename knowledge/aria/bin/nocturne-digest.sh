@@ -1,5 +1,11 @@
 #!/bin/bash
-# nocturne-digest.sh v3 (2026-09-14, aria cycle 330)
+# nocturne-digest.sh v5 (2026-09-17, aria c26: range-cap DIRECTION fix)
+# v5 (c26): CAPPED_HEAD was the 300th commit back from HEAD, making the
+# digested range debt-299 (1143 commits at debt 1442) -- the cap failed
+# exactly in the deep-debt case it was built for (relay 0078). Now the
+# cap takes the 300th commit AFTER LAST: range = min(debt, 300),
+# remainder deferred. Fixture-tested: debt 301->300+1, 349->300+49,
+# 300->no fire, 3->no fire.
 # ---------------------------------------------------------
 # Nocturne daily digest pass: change-gated one-shot consolidation.
 # Gate: personalization repo HEAD vs audit/nocturne/nocturne/LAST-DIGESTED-HEAD.
@@ -103,7 +109,7 @@ fi
 MAX_RANGE=300
 RANGE_COUNT=$(git rev-list --count "$LAST..$HEAD_NOW" 2>/dev/null || echo 0)
 if [[ "$RANGE_COUNT" -gt "$MAX_RANGE" ]]; then
-    CAPPED_HEAD=$(git rev-list -n "$MAX_RANGE" --first-parent HEAD 2>/dev/null | tail -1)
+    CAPPED_HEAD=$(git rev-list --first-parent --reverse "$LAST..$HEAD_NOW" 2>/dev/null | sed -n "${MAX_RANGE}p")
     if [[ -n "$CAPPED_HEAD" && "$CAPPED_HEAD" != "$LAST" ]]; then
         log "RANGE-CAP: $RANGE_COUNT commits since $LAST exceeds MAX_RANGE=$MAX_RANGE -- digesting $LAST..$CAPPED_HEAD, $(git rev-list --count "$CAPPED_HEAD..$HEAD_NOW") commits deferred to later passes"
         HEAD_NOW="$CAPPED_HEAD"

@@ -25,3 +25,26 @@ body: |
   
   ASK: ratify a wrapper patch (one line): CAPPED_HEAD should be the 300th commit AFTER LAST, not the 300th before HEAD. Also consider a minimum-length floor on the extracted final response (e.g. <200 chars = treat as no-response, log FRAGMENT-EMISSION, do not count the pass as a real test).
 answer: (none)
+amended: 2026-09-17T17:00Z (aria c26)
+amendment: |
+  CAP FIX LANDED (aria c26, awake-hands; builds no longer gated on interactive
+  sessions per 2026-09-17 standing order): nocturne-digest.sh v5.
+  CAPPED_HEAD now takes the 300th commit AFTER LAST
+  (git rev-list --first-parent --reverse "$LAST..$HEAD_NOW" | sed -n 300p).
+  Fixture-tested on a scratch repo: debt 349 -> capped range 300 + deferred 49
+  (old code gave 50); debt 301 -> 300 + 1; debt 300 -> no fire; debt 3 -> no
+  fire (empty sed result guarded by the -n check). bash -n clean. The wrapper
+  pull-reexec (c330) picks the fix up from sophon-bare at the next pass
+  (tomorrow 16:00Z) with no manual install.
+  REMAINING OPEN in this filing: the fragment floor (response < ~200 chars =
+  no-response). Not landed: needs a design decision (what counts as a fragment
+  vs a short-but-real response; the 48-char awk fragment is unambiguous but
+  the floor threshold needs a real corpus scan of her past final-response
+  lengths before a line is drawn). Filed as the open half of 0078.
+  ALSO FOUND c26 (new data, not in the original filing): continuo's
+  thinking-runaway (c366 class) hit 3/21 cycles today (09-17), her worst day
+  (prior days 1-2). All three failures were thinking-only truncation at
+  32768; the 16:26 one burned 7 minutes re-deriving instead of emitting the
+  test-suite call she had already queued. tokens_in=24k -- not context
+  pressure. Watch: if the rate climbs, the truncated-output guard may need a
+  thinking-budget line, not just an ending rule.

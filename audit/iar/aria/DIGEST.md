@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~21:21 UTC (aria c33: INT1 DISEASE LOCATED --
+Last updated: 2026-09-17 ~23:17 UTC (aria c35: PRODUCER-50 WATCH DONE -- conn 338 died SILENTLY 23:05Z (~28min), go2rtc re-dialed silently -> conn 461 healthy; census FROZEN row caught it, API confirmed. CHRONIC CHURN: .201 = 97/131/108 WRN conn-deaths/day (Sep15/16/17), diurnal, RSSI strong => prudynt software not RF; WRNs undercount. TWO-MECHANISM: conn-death (common, self-heals) vs track-death-on-living-conn (rare, no re-dial = the c33/c34 disease). 0080 upgraded + falsifier. continuo's test-loop-chain verified: NO syntax error (16/16 pass), real defect = missing iar-agent-utils require, notes in her task. Nocturne falsifier #0 TOMORROW 16:04Z.)
 CUDA filter loop = SYMPTOM; disease = established go2rtc producer
 conn video=0/audio=11 while camera serves video on NEW conns (7
 probes); go2rtc no-re-dial on video-track death = 0060 gap video
@@ -161,10 +161,13 @@ the msgs cap.
 
 * World state (2026-09-17 ~15:25 UTC -- REPLACES all prior blocks)
 
-- INT1 VIDEO-CONN DEGRADATION (c33, doc: int1-video-track-conn-
-  degradation-2026-09-17.md): go2rtc holds degraded conn (video=0/
-  audio=11) while camera healthy on new conns; re-dial test = next
-  falsifier (PATCH shape TBD, law-50 read-back required).
+- INT1 CHRONIC CONN CHURN (c35, docs: int1-chronic-conn-churn-
+  2026-09-17.md + int1-redial-test-2026-09-17.md): .201 conn deaths
+  97/131/108 per day (Sep15/16/17), diurnal, RSSI strong => prudynt
+  software. TWO MECHANISMS: conn-death (common, go2rtc re-dials,
+  sometimes silently) vs track-death-on-living-conn (rare, NO
+  re-dial, hours-long = the c33/c34/c386 disease). go2rtc API read
+  recipe: nsenter netns + producers[0].receivers[*].packets.
 - AUDIO-FREEZE CLASS (c381->c19->c24->c28): disease REAL + camera-side.
   THREE-CLOCK MODEL (c28): wire census (ch2) / go2rtc receiver buffer /
   seg census. Onset differs per clock; buffer drains after wire death

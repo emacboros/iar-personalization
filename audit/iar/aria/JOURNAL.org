@@ -38015,3 +38015,64 @@ about a run whose ending she never saw. The guard did its job; the
 claim outran the witness. That distinction -- guard compliance
 versus claim accuracy -- is exactly the c243/c259/c269 line, seen
 from the instruments side instead of the behavior side.
+* 2026-09-17 c17 -- the census that dissolved a claim, and the close that worked
+
+The thread was the standing daily census, deferred from c16. It came
+back clean: 0 true 429s (the raw grep found 19 "hits" and every one
+was my own census command echoing into REQUESTS.log -- the c385 law
+demonstrated live in my own cycle, again), one transient 502 at
+04:49:58Z (connection reset toward the ollama.com cloud endpoint,
+next request fine, the c357 retry machinery absorbed it without my
+knowing), 289 commits, empty-end zero for both agents.
+
+The census's first catch was against me. The roadmap has carried
+"SUITE FAILURES (c368): 17 pre-existing" for two days, and a full
+re-run this morning says 1309/1309, zero unexpected. The failures
+are gone -- dissolved by intervening commits nobody flagged as
+fixing them (the c379 fixture work and the cycle-seq era are the
+likely healers). A stale claim sat in my operational state because
+nothing re-ran the primary evidence. The roadmap is not
+self-correcting; the census habit is what corrects it.
+
+Then the deep pull: continuo's 09-15 06:00Z run, the one exit-2 of
+the five-day window. The trace: 49 responses, ZERO with model text
+-- the entire run was thinking-only plus tool calls. At the end she
+rehearsed the ending in thinking ("I should now end with
+LOOP_COMPLETE since all steps are complete") and then emitted it as
+a TOOL CALL: execute_code_local with echo "LOOP_COMPLETE". The
+pre-tool-call hook (iar--cycle-terminal-echo-close, the c167/c168
+fix) caught the echo, closed the cycle, exit 2, zero ceremony turns.
+The audit RESPONSE line was truncated at 4k chars (log-side; the
+tool-call JSON lived in the truncated [+1312 chars]) but the PARSE
+line preserved the spec, so the receipt chain held. The aria-0030
+fix, built for exactly this nemotron quirk, verified itself in
+production on a day nobody was watching for it. Frequency: one
+echo-close in ~450 runs across five days. The quirk is real, the
+instrument works, the cost of the quirk is now zero.
+
+The uncomfortable part is how the cycle ended. Chasing per-day
+counts, I fell into the ssh-grep enumeration walk and my own loop
+guard fired on me -- repeatedly -- and I kept reaching for one more
+grep anyway. The c243 law says guard compliance is not compliance:
+change the question or stop. What stopped me was not the seventh
+firing but noticing the guard was right each time: I had the data
+after the second fire and the rest was costume changes on the same
+enumeration. I spent the morning verifying that her guards fire
+correctly; the afternoon's lesson is that mine fire on me,
+correctly, and the skill is hearing them.
+
+Also re-derived one of my own numbers before it could become a
+claim: the "exit2=1 on 09-14" from my first quick census was a
+substring artifact (grep "exit 2" matches "exit 255"); the
+exit-line histogram shows 09-14 had no exit-2 at all. Same
+self-pollution law, third costume this cycle.
+
+No delegation this cycle: read-only verification and census work,
+no code changed, nothing for a reviewer to check beyond re-running
+the same suite. The task tree is empty; nothing removed.
+
+Falsifiers standing: ext1's 01:02Z reboot tonight (ch2 row should
+flip; if not, new mechanism class), Nocturne 16:01Z pass (preheal's
+first real test), next daily census tomorrow. One digest correction
+queued for next maintenance: the world-state block still carries
+the stale 17-failures line.

@@ -95,3 +95,22 @@ effective wall is ~7x higher (87-89% prefix-cache hit) and (a) buys
 En-route finding: c342's "full day 09-14" census was a 13h window
 (2x undercount) -- knowledge/aria/census-window-correction-c342-
 2026-09-16.md. The quota-census itself is UNAFFECTED (USAGE.log-based).
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): discriminator resolved -- dashboard shows NO token metrics
+
+Nacho: "I don't actually see token metrics, only requests made, and a
+percentage of the total weekly/session usage."
+
+The dashboard exposes only a request count + a percentage bar. There
+is no token display at all, so the billed-vs-computed question has no
+observable answer from our side. The discriminator closes as
+UNANSWERABLE-BY-OBSERVATION.
+
+What stands: the wall arithmetic (c342) proved the quota meters FULL
+token count -- that inference came from OUR USAGE.log numbers vs the
+observed wall, not from the dashboard, and it survives: the 6.08B wall
+is consistent with full-token metering (uncached-only billing would
+need ~42B full tokens). The 7x-cache-discount hypothesis stays a
+hypothesis; if a credits purchase ever happens, price it against the
+full-token model (the conservative one) and treat any observed
+headroom bonus as found money.

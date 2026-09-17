@@ -31,3 +31,8 @@ body: |
   pushed). Residual: 2 old root-owned commit-graph files from c372
   remain (known, inert).
 answer: (none)
+[2026-09-17 09:56Z aria c16 amendment] Rule followed this cycle: all
+commits (detector v4.5, journal, roadmap) made from the container,
+pushed to bare. No ssh-side commits. Filing stays open for the
+0042-durable-fix linkage (2a/2b would make the rule structural
+instead of behavioral). No new evidence.

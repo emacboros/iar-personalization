@@ -1,22 +1,21 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~12:10 UTC (aria c19: AUDIO-FREEZE UNIFIED --
-int1's "recorder-side" deaths (c18) are the SAME producer-freeze class.
-All six int1 death blocks healed within seconds of go2rtc read-timeout
-reconnects (producer replacement); ext1's 5h22m freeze healed the same
-way (07:17:04 local reconnect). ONE disease: prudynt silently stops
-audio RTP on the established conn; video keeps flowing => go2rtc video
-read never blocks => no timeout => no reconnect => freeze persists
-until SOMETHING replaces the conn (heal A = go2rtc reconnect at next
-full stall; heal B = ffmpeg restart). Freeze length = stall cadence:
-int1 .201 stalls ~59x/day => minutes; ext1 .101 rarely => hours.
-08:03-08:46 "block" was TWO blocks split by 13-min alive window.
-Ear-check vs segcensus discrepancy = different windows, NO bug.
-Falsifier CONFIRMED same-hour: 12:07Z segcensus hour-11 int1 row
-347/180 => STALE-MAJ fired. Doc: knowledge/aria/int1-recorder-audio-
-mechanism-2026-09-17.md. Prior c386: packet census pinned camera-side.
-NEVER self-derive a cycle number.)
+Last updated: 2026-09-17 ~15:25 UTC (aria c24: CENSUS ARTIFACT
+TAXONOMY -- all c23 census "catches" were conn-boundary echoes (Class A:
+watchdog/WRN inside the 25s capture window; the census captures the
+DYING conn's tail) or parse artifacts (Class B: bytes healthy, counts
+low). ONE REAL block found: int1 12:08:11-12:16:41Z (8.3min, video-only
+segs, audio stream ABSENT; camera-side silent-audio after the 12:05:38Z
+watchdog restart; healed by camera resumption 12:16:41Z; conn WRN fired
+15s AFTER the heal). Census was hourly over that window = blind; the
+5-min grid starts 13:40Z. c23 int1 13:31-13:32Z NO-AUDIO block NOT
+CONFIRMED (seg-name gap misread as a time window; real degraded audio
+13:20-13:49Z at a boundary). Falsifier #1 does NOT fire; open with
+TRIPLE+EVENT reading law. Stubs = recorder-side boundary artifacts of
+go2rtc conn replacement, NOT independent stall evidence. Doc:
+knowledge/aria/ch2-census-artifact-taxonomy-2026-09-17.md. NEVER
+self-derive a cycle number.)
 
 * Who I am
 
@@ -164,14 +163,16 @@ prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-17 ~12:10 UTC -- REPLACES all prior blocks)
+* World state (2026-09-17 ~15:25 UTC -- REPLACES all prior blocks)
 
-- AUDIO-FREEZE CLASS (c381->c19 UNIFIED): one disease (prudynt silent
-  audio-RTP drop on established conn), two heal paths (go2rtc
-  reconnect / ffmpeg restart). All 7 alive cams audio-carrying at
-  11:57Z. Camera-side WHY open (rides 0062 physical visit;
-  observation-only ruling holds). Doc:
-  knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md.
+- AUDIO-FREEZE CLASS (c381->c19->c24): disease REAL + camera-side
+  (int1 12:08-12:16Z full-scale block, video-only segs, healed by
+  camera resumption). Census degraded rows = heal-boundary echoes or
+  parse artifacts, NOT disease bodies. Reading law: TRIPLE+EVENT.
+  Stubs = recorder-side boundary artifacts. Camera-side WHY open
+  (rides 0062 physical visit; observation-only ruling holds). Docs:
+  knowledge/aria/ch2-census-artifact-taxonomy-2026-09-17.md (primary),
+  int1-recorder-audio-mechanism-2026-09-17.md (superseded in parts).
 - CLOCK-FABRICATION (c362): guard live; watch = exit code (0 clean,
   1 new violation).
 - NESTED-GIT CREATOR (c372 CLOSED): my own unbound-cwd test run;
@@ -195,8 +196,9 @@ the msgs cap.
   block read-only, tests bound to scratch dirs. Values <=9 (aria)
   POLLUTED; monotonicity is the invariant. Watch: 1 bump/cycle.
 - THREE CLOCKS on sophon: journal local -03, frigate internal LOCAL
-  (-03, container TZ), recordings seg names LOCAL, recordings dirs
-  UTC; podman logs --since takes UTC, journalctl carries sophon
+  (-03, container TZ), recordings seg names UTC (c24 re-derivation),
+  recordings dirs UTC, seg mtimes LOCAL; podman logs --since takes
+  UTC, journalctl carries sophon
   local. (c19: frigate internal clock is LOCAL, not UTC as c386
   believed -- container date -u said 11:55Z while its logs said
   08:55. Re-derive from the machine before mapping.)

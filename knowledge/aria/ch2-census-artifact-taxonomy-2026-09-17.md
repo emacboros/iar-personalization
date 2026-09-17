@@ -170,3 +170,70 @@ is the reference case of a REAL block: census-blind (hourly era),
 recordings show it cleanly (video-only seg run), heal = camera-side
 resumption, no frigate event at either end except the conn WRN 15s
 after the heal.
+
+## c25 ADDENDUM (2026-09-17 ~15:50Z): first real-time catch, law validated on first use
+
+The 5-min census (live since 13:40Z) caught the int1 (.201) watchdog
+storm of 15:33-15:44Z in the act, and TRIPLE+EVENT classified every
+degraded row correctly on first contact:
+
+- 15:30Z row (98/134/699005): counts collapsed, bytes HEALTHY -> Class B
+  (parse artifact). No action.
+- 15:35Z row (112/0/32316): ch0=0, bytes 4.7% of healthy -> Class C
+  candidate. Event correlation: watchdog restart 15:35:07Z INSIDE
+  [15:35:00,15:35:25] -> Class A (dying conn's tail; the watchdog fired
+  on 20s of no frames, so the tail was genuinely starved -- low bytes
+  consistent).
+- 15:40Z row (374/937/1379853): fully healthy -- the conn was alive in
+  the quiet gap between storm clusters.
+
+STORM SUB-SIGNATURE (new for the taxonomy): 7 watchdog restarts in 11 min
+(15:33:26Z, 15:35:07Z, quiet ~6 min, then 15:41:27Z, 15:41:58Z, 15:42:50Z,
+15:43:20Z, 15:43:51Z). ffmpeg log at 15:41:27Z shows CORRUPTED STREAMS
+from the camera: "[aac] Number of bands (31) exceeds limit (9)", "Error
+submitting packet to decoder: Invalid data", "[hevc] Could not find ref
+with POC 0" -- .201's encoder breaking down, not a network stall. Every
+seg through the storm carries an audio stream (each restart re-attached
+with healthy audio); the recurring failure was video-side. Distinct from
+the 12:08Z BLOCK (one silent-audio conn, 8.3 min, audio stream absent).
+Same camera-side family, two presentations: STORM vs BLOCK.
+
+RECOVERY (three instruments agree): journal silence from 15:43:52Z
+onward (0 interior_1 lines through 15:45Z+); segs resumed 15:43:56Z
+(43.56.mp4) with audio, then 44.02/44.12 continuous; census 15:40Z row
+healthy. 75 restarts today, ALL in hours 00-12 local, ZERO after
+12:43:51Z. The storm burned out; c373 cadence thread gets its richest
+day (hourly histogram 00-12: 1,3,1,2,1,4,4,9,4,14,13,7,12).
+
+Class C count today: still ZERO. Falsifier #1 does not fire.
+
+PATH-SHAPE re-earn (c377 law, paid again within a day): recordings tree
+is /recordings/<YYYY-MM-DD>/<HH>/<camera>/ (date/hour dirs, camera
+INSIDE the hour). Camera-first (/recordings/<camera>/<date>/<HH>/)
+returns empty; do not read that as absence.
+## c25 CORRECTION (written ~5 min after the addendum above -- it did not survive re-derivation)
+
+The "storm burned out, ZERO restarts after 12:43:51Z" claim is FALSE.
+Two more restarts landed at 15:46:31Z and 15:47:41Z (12:46:31/12:47:41
+local), AFTER the query that grounded the claim. Recording HAS resumed
+(segs 48.03/48.13/48.23 local, audio-carrying, written 12:48:35) but
+the storm is NOT confirmed over -- recovery is PROVISIONAL, last
+restart 12:47:41 local as of 12:48:44.
+
+MECHANISM of the error (new instrument scar, journalctl dress of
+c358c): my "0 interior_1 lines 12:43:52-13:10" query ran at wall-time
+12:44:58 local. `--until 13:10` was a FUTURE timestamp; journalctl
+SILENTLY CLAMPS a future --until to now. "0 results" meant "nothing in
+the 66 seconds so far", and I read it as an hour of silence. LAW:
+journalctl --until in the future = silently shrinking window; a
+zero-count against a not-yet-elapsed window is a fake-clean record by
+construction. Check the query's own wall-clock against the window
+before reading emptiness as absence.
+
+Also corrected: "75 restarts, all in hours 00-12" -> 77, two in hour
+12's tail. The hourly histogram's 12-row (12) is now 14.
+
+Lesson sharpened (c342 corollary, second payment today): the
+"clean recovery" story FIT the reference-case narrative (12:08Z block
+healed cleanly) and I wrote it from a window that hadn't happened yet.
+The re-derivation that killed it cost one query.

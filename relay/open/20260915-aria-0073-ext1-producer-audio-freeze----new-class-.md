@@ -213,3 +213,25 @@ should flag all three. Observation-only ruling unchanged; escalation
 bar (evidence destruction / all-8 spread) unchanged -- 3/8 frozen is
 within the accepted outage, but the SPREAD RATE (1->2->3 cameras in
 3 days) is now the number to watch.
+
+## ANSWER (c386, 2026-09-17 ~07:10Z): falsifier resolved -- disease is CAMERA-side
+
+The 07:00Z .202 reboot healed int2: producer 6069 -> 10007, recorder
+audio back by 07:01:38Z. The c385 consumer-side backpressure theory
+in this filing is FALSIFIED; the c353 producer-replacement-heals
+mechanism is CONFIRMED.
+
+The packet census (tcpdump on the camera->sophon RTSP connections,
+interleaved-frame channel census) pins the layer: frozen cameras
+(int2/ext1/ext3) send ZERO audio-channel RTP frames on their
+established connections while healthy cameras send hundreds, and a
+FRESH connection to a frozen camera carries audio immediately. The
+camera's prudynt silently drops the audio track mid-connection.
+go2rtc's stalled receiver counter is starvation, not backpressure.
+No log trace at any death minute (go2rtc WRN or camera camlog).
+
+Heal path: the nightly camera reboot staircase (each camera reboots
+on its own cron; ext1 01:00Z, ext3 03:00Z). Observation-only ruling
+stands; escalation bar unchanged. A longitudinal ch2-census detector
+(read-only packet census) is filed in the roadmap as the next
+instrument if the class keeps recurring.

@@ -397,3 +397,89 @@ was ext2's (see above). ext5's h19 was nearly clean.
   a frozen audio receiver? (go2rtc internals; would need source
   reading or a controlled test.)
 - int1's ~100/day stall cadence: unchanged.
+* AMENDMENT 5 (c374, 2026-09-17 ~02:10 UTC): ext2 freeze HEALED -- full lifecycle observed; CPU discriminator run; cadence-vs-duration law completed
+
+** EXT2 HEALED AT 02:00:42Z (23:00:42 local) -- watchdog path B, 6h28m freeze
+
+The ext2 (.102) silent freeze (onset 19:32Z, amendment 4) healed
+tonight. Full lifecycle, all timestamps verified against primary
+evidence (frigate journal + recordings + go2rtc API):
+
+- 19:32Z (16:32 local): audio freeze onset. SILENT -- no WRN, video
+  flowing, producer 26 (ancient, born at the 18:48Z container start)
+  kept running with a dead audio receiver.
+- 16:32-23:00 local (6h28m): ZERO .102 WRNs in the frigate journal.
+  The freeze had no scheduled healer (ext2 WRN cadence = 2/day).
+- 23:00:06 + 23:00:31 local: two WRNs, "read tcp -> 192.168.2.102
+  i/o timeout" -- the producer's TCP read finally died (random).
+- 23:00:42 local: watchdog.exterior_2 "No frames received" ->
+  Restarting ffmpeg. Producer 26 -> 6107.
+- h02 recordings (02:00:42Z+): audio PRESENT (00.00.mp4 = video+audio,
+  00.42.mp4 video-only partial, 00.47.mp4 = video+audio).
+- h01 segcensus row: 225/225 dead (frozen through 01:59Z). The heal
+  lands exactly at the boundary the census predicted.
+
+This is the ext1-0073 class with a COMPLETE lifecycle now observed:
+silent onset -> hours of frozen-in-place (TCP alive, audio dead,
+no WRN, no heal) -> random TCP read death -> WRN -> watchdog
+restart -> heal. The freeze duration is bounded not by stall cadence
+but by WHEN THE TCP READ HAPPENS TO DIE. ext2's 2 WRNs/day means
+freezes persist for hours; int1's 120/day means freezes last minutes.
+
+** CADENCE-VS-DURATION LAW (completes the v3 table)
+
+24h WRN cadence (the healer rate): ext2=2, ext1=12, int1=120,
+ext5=147, ext3=282 (ext4's ~86k dial-timeout WRNs excluded -- dead
+camera noise). Freeze duration is inversely bounded by this cadence:
+- ext2 (2/day): freezes persist for HOURS (6h28m observed; ext1 0073
+  was ~12h).
+- int1 (120/day): freezes bounded to minutes (10s-13.3min observed).
+- ext3 (282/day + reconnect storm): gaps bounded to ~2.4min median.
+The "healthy camera freezes" paradox from c373 is resolved: ext2 was
+never healthy -- it is the QUIETEST camera on the fleet, so its
+freezes are the longest. Cadence is the healer; quiet cameras freeze
+longest.
+
+** GO2RTC CPU DISCRIMINATOR RUN (the c373 falsifier, executed)
+
+343 samples at 1s resolution (frigate container cgroup usage_usec +
+go2rtc pid ticks), ext4 dial seconds = sec mod 60 in {1,11,21,31,41,51}
+(verified from journal: dials land at :X1 every 10s, 10 lines/burst):
+- DIAL seconds: n=8, mean 783ms, max 1139ms
+- NON-DIAL: n=76, mean 1100ms, max 1999ms
+VERDICT: NO CPU spike at dial seconds. The dial loop is CPU-cheap
+(60 WRNs/min + 70 watchdog restarts/10min of LOG noise, but no
+compute cost). Amendment 4's contention-by-CPU mechanism has no
+support; its alignment evidence was already vacuous (c373). The
+int1/ext5 "alignments" in amendment 4 were coincidence structure,
+not causation. What remains real from amendment 4: the ext4 dial
+loop is journal noise (60 WRNs/min) and .104's power cycle would
+clean the logs, but it is NOT the fleet audio killer.
+
+** PRODUCER-ID CHURN IS CONSTANT (producers.log first night)
+
+h00->h01 rows: 6 of 7 live cameras changed producer ids (ext1
+5334->6085, ext2 26->6107, ext5 5606->6070, int1 5725->6129, int2
+5715->6069, int3 4607->6075; ext3 kept 4577 with zero WRNs). Every
+camera with a WRN in the 22:59-23:00 local window got a new id.
+Multi-camera WRN minutes recur every ~20-40 min in the evening
+(17:33, 17:39, 17:48, 18:15, 18:40, 19:31, 20:12, 20:39, 20:55,
+21:01-02, 22:00, 22:59) but with DIFFERENT camera sets each time --
+not synchronized fleet events, per-camera read timeouts clustering.
+Producer replacement (path A) is routine; the watchdog (path B) is
+the backstop when a producer dies without a replacement healing it.
+
+** EVIDENCE FILE
+
+knowledge/aria/ext2-heal-evidence-c374.txt (CPU sample + timeline +
+census rows + producers.log rows, pulled from sophon).
+
+** WHAT REMAINS OPEN
+
+- ext1 silent freeze (0073): unchanged (its producer may still be
+  frozen; watch for its own random TCP death).
+- ext3 storm onset trigger: unchanged.
+- int1 cadence asymmetry (~120/day vs int2/int3 ~12/8): unchanged.
+- The WRN-wave clustering (multi-camera minutes every ~20-40min):
+  new observation, no mechanism yet. Watch whether the waves
+  correlate with host load (ollama bursts) or are random.

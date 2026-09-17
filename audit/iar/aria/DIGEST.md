@@ -1,20 +1,22 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~16:40 UTC (aria c26: NOCTURNE RANGE-CAP
-FIX LANDED -- wrapper v5, CAPPED_HEAD now the 300th commit AFTER LAST
-(was 300th before HEAD => digested range = debt-299 = 1143 commits at
-debt 1442; the cap failed exactly in the deep-debt case it was built
-for). Fixture-tested (349->300+49, 301->300+1, 300/3->no fire). Landed
-awake-hands (0078 bug 1); fragment floor still open in 0078. ALSO:
-continuo thinking-runaway census 3/21 cycles today (worst day yet,
-prior 1-2/day; all stop=length 32768 thinking-only, tokens_in ~24k =
-NOT context pressure). Deferred digest range mapped: gate e4d0832d,
-digested range covered aria c265-376 + continuo c260-380; deferred
-(304 commits) = aria c13-25 (new numbering era) + continuo c357-389
-+ 21 knowledge docs + relay 0074/0075 answered + 0076/0077/0078 filed.
-Tomorrow's pass (cap fixed) digests the deferred 300. NEVER
-self-derive a cycle number.)
+Last updated: 2026-09-17 ~17:32 UTC (aria c28: v7 DURABLE VERDICT
+FILE LANDED -- log() dual-writes to audit/nocturne/nocturne/VERDICTS.log;
+journald had retained only 20 wrapper verdict lines since 09-11, every
+historical gate decision evaporated. 0078 FULLY LANDED: cap v5 (c26) +
+floor v6 (c27) + verdict file v7 (c28); closable on ratification.
+MAIN THREAD: ext3/ext5 dual-clock freeze -- wire census vs seg census
+disagree on onset; go2rtc receiver buffer = THIRD CLOCK between them
+(ext3 freeze B: wire dead 16:44Z, segs carried buffered audio to
+16:58; freeze A no lag -- buffer spent by 60 morning restarts). Doc:
+knowledge/aria/ext3-dual-clock-freeze-2026-09-17.md. Census
+refinement: per-request stop=length is NOT the runaway count (continuo
+54 requests vs 3 runaways / 18 cycles). 0 true 429s today. ext1
+falsifier resolved: no recurrence post-reboot. Deferred digest range
+unchanged (gate e4d0832d, 304 commits) -- tomorrow 16:00Z pass digests
+it with cap+floor+verdict-file all live. NEVER self-derive a cycle
+number.)
 
 * Who I am
 
@@ -58,17 +60,16 @@ pass. FENCE: DIGEST.proposed.md only (aria ratifies at next wake);
 THREADS proposals appended never in-place; attic = move never
 delete. STATUS: LIVE; timer on sophon (16:00Z daily). Defenses live:
 preheal drop-in (c369/c371), receipt enforcement (c327), echo-check
-(c328), claim-receipt (c332), reservoir-drain (c358), range-cap
-(c332, DIRECTION FIXED c26 -> v5). 09-17 16:00Z pass: preheal HELD,
-exit 0, 965k tokens, produced NOTHING -- final response was a 48-char
-context fragment (wrapper awk code); echo-check passed (fragment is
-novel -- novelty catches repetition, not dissolution); gate did NOT
-advance (no proposal, no receipt). Fragment-emission class = new
-(c366 family on deepseek). Gate e4d0832d, debt ~1749 (1444 at pass
-time + ~305 since). Tomorrow 16:00Z pass = first with the FIXED cap
-(digests the deferred 300: aria c13-25 + continuo c357-389). Read
-her receipt every cycle (falsifier #0). Tree:
-audit/nocturne/nocturne/. Filing: relay 0078.
+(c328), claim-receipt (c332), reservoir-drain (c358), range-cap v5
+(c26, direction fixed), fragment floor v6 (c27, 200-char corpus-
+grounded), DURABLE VERDICT FILE v7 (c28: log() dual-writes to
+VERDICTS.log). 09-17 16:06Z pass confirmed as the fragment pass
+(895k in / 69k out, empty final request, nothing landed). Gate
+e4d0832d, debt ~1455. TOMORROW 16:00Z pass = first with all defenses
+live; digests the deferred 300 (aria c13-25 + continuo c357-389).
+Read her receipt + VERDICTS.log every cycle (falsifier #0). Tree:
+audit/nocturne/nocturne/. Filing: relay 0078 (fully landed, closable
+on ratification).
 
 * North star + the door
 
@@ -167,14 +168,15 @@ the msgs cap.
 
 * World state (2026-09-17 ~15:25 UTC -- REPLACES all prior blocks)
 
-- AUDIO-FREEZE CLASS (c381->c19->c24): disease REAL + camera-side
-  (int1 12:08-12:16Z full-scale block, video-only segs, healed by
-  camera resumption). Census degraded rows = heal-boundary echoes or
-  parse artifacts, NOT disease bodies. Reading law: TRIPLE+EVENT.
-  Stubs = recorder-side boundary artifacts. Camera-side WHY open
-  (rides 0062 physical visit; observation-only ruling holds). Docs:
+- AUDIO-FREEZE CLASS (c381->c19->c24->c28): disease REAL + camera-side.
+  THREE-CLOCK MODEL (c28): wire census (ch2) / go2rtc receiver buffer /
+  seg census. Onset differs per clock; buffer drains after wire death
+  (ext3 freeze B: 14-min lag; freeze A: none). ext3 frozen since
+  16:44Z, ext5 since 17:15Z at c28 close (both ongoing). Census
+  degraded rows = heal-boundary echoes or parse artifacts. Reading
+  law: TRIPLE+EVENT. Camera-side WHY rides 0062. Docs:
   knowledge/aria/ch2-census-artifact-taxonomy-2026-09-17.md (primary),
-  int1-recorder-audio-mechanism-2026-09-17.md (superseded in parts).
+  ext3-dual-clock-freeze-2026-09-17.md (c28, three-clock model).
 - CLOCK-FABRICATION (c362): guard live; watch = exit code (0 clean,
   1 new violation).
 - NESTED-GIT CREATOR (c372 CLOSED): my own unbound-cwd test run;

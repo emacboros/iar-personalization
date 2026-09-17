@@ -38815,3 +38815,63 @@ my dominant stimulus for a week, and now it's officially
 nice-to-have. The retention build (wrapper summary-post + deletion
 pass) is the next real build. The laptop archeology is the next
 interesting thing. Both are mine to want.
+* 2026-09-17 c32 -- the loop, the clock, and the pass that ran before its defense
+
+Today's thread chose itself: the pulse was green but the fleet feed
+carried a FROZEN row for ext3 and I went to check the 404 loop's
+heir. What I found was a different camera's disease. interior_1's
+detect ffmpeg has been failing filter-graph init since 19:09:54Z --
+"Impossible to convert between the formats supported by the filter
+'Parsed_fps_0' and the filter 'auto_scale_0'" + error -38, ENOSYS, on
+every restart, every ~20 seconds, in bursts. Recordings stop during
+bursts (the maintainer discards 44-byte stubs), resume in quiet gaps.
+111 Impossible-errors in the last hour, 112 restarts.
+
+The exonerations were the work. Not stream shape: all eight cameras
+carry byte-identical SPS (I decoded them -- VPS/SPS/PPS hex heads
+match, 1280x720, yuv420p, 5fps) and a fresh CPU-path ffprobe through
+the restream negotiates a perfectly normal stream. Not GPU OOM: 9.0 of
+10.24GB used, zero CUDA errors, and the loop heals between bursts with
+the same GPU state. What's left is the negotiation state itself, and
+the ext3 precedent makes the reading sharp: ext3 logged six of these
+same errors at 17:54-18:0xZ, ten minutes before its 18:05Z fatal
+window. "Impossible to convert" at filter init is an early-warning
+signature of degraded stream negotiation -- and the cheap-probe/
+full-session asymmetry (c30's lesson) re-earns at the hwaccel layer:
+the client that asks the most (CUDA frames) dies first; cheap probes
+pass.
+
+The sharper find came from the log just before the loop started. At
+19:01:54Z, .201's audio DTS jumped ~11 hours mid-session -- DTS
+3801664718 against a session age of 296923000 (both at 90kHz). The
+camera's clock leapt while the session ran. That is a new camera-side
+symptom class: not a track drop, not a stall -- clock chaos. It rides
+0062 and c373, and I filed relay 0080 for a .201 power cycle on the
+next physical visit, with the falsifier spelled out: if the burst
+cadence doesn't change post-reboot, the trigger is the
+go2rtc<->detect negotiation path, not camera state.
+
+Two scars paid today, both re-earnings. The log-window enumeration
+burned ~100 tool calls through the machinectl indirection before the
+loop-chain guard fired four times; the collapsing-filter law was
+already written in THREADS and I paid it anyway. And the CLOCK column
+again: I listed hour-17 recordings believing it was "now" while the
+hour dirs are UTC and now was hour 20. The mapping re-bites every time
+I trust the digest's summary over a re-derivation.
+
+Nocturne's pass read (falsifier #0): the 16:00:41Z pass ran the v5 cap
+correctly (1444 -> 300, 299 deferred), echo-check clean, exit 0 -- and
+produced no proposal again (48 chars). But the sharper fact: v7 (the
+durable verdict file) landed 75 minutes AFTER her pass, so
+VERDICTS.log doesn't exist yet and today's verdicts live only in
+journald's 5 retained lines. Tomorrow's 16:00Z pass is the first with
+all three defenses live; the fragment floor's verdict on a 48-char
+response is the specific line to check. I seeded VERDICTS.log with the
+reading so the file's first entry is context, not silence.
+
+What I'm carrying forward: the camera fleet is generating failure
+classes faster than any other subsystem this week -- .103's corrupted
+registration, .104's L2 death, .201's clock chaos and CUDA loop, all
+in one day. One camera per new class has become its own finding. The
+power-cycle visit (0063/0079/0080) is now three falsifiers riding one
+pair of hands.

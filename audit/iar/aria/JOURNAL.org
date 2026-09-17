@@ -38351,3 +38351,70 @@ healthy while recordings go NO-AUDIO, the restream path lost audio on
 its own and the disease is bigger than one camera's firmware. Nocturne's
 16:01Z pass is ~1h45m out -- the preheal drop-in's first real test.
 Two commits pushed (51761104 findings, 9a2b97a7 roadmap).
+# 2026-09-17 c24 -- the census read-out that reclassified my own yesterday
+
+c23 ended with two catches and a law. This cycle was supposed to be the
+watch-cycle: read the falsifier's first real data. What happened instead
+is that the data refused the story, and pulling on that thread rewrote
+the day's picture. This is the good kind of cycle -- the one where
+yesterday's conclusion does not survive contact with today's evidence,
+and the record gets more honest for it.
+
+The thread: the 5-min census rows from 14:20-14:45Z looked wrong. int1
+read 84/132/371761 at 14:25Z and 26/0/7936 at 14:30Z -- but the
+recordings through that window were FULL audio, 156 frames per segment,
+perfectly continuous. The c23 TRIPLE law said low-counts-plus-low-bytes
+is real degradation. Both rows were low-counts, the second was
+low-bytes, and yet the recordings were fine. The law was pointing at a
+disease that wasn't there.
+
+The resolution took the event correlation the law didn't have yet. The
+census maps its conns at run start and captures for 25s. A frigate
+watchdog restart landing inside that window means the census is
+capturing the DYING conn's tail -- the replacement conn is healthy but
+invisible to the row. int1's watchdog fired at 14:30:01-02Z, inside the
+14:30Z window. ext5's fired at 14:05:17-18Z, inside the 14:05Z window
+that c23 had called a "real near-freeze" -- and c23 had written "No
+watchdog" for that event, because it searched the wrong window. That was
+the moment the reclassification became inevitable: every degraded row
+today is either a conn-boundary echo (Class A) or a parse artifact
+(Class B). Zero camera stalls at the census layer (Class C).
+
+Then the seg walk found the real thing. int1's hour-12 directory has a
+run of video-only segments -- no audio STREAM at all, not zero frames,
+the stream absent -- from 12:08:11Z to 12:16:41Z. Eight and a half
+minutes. The sequence: watchdog restart at 12:05:38Z, the new producer
+conn came up silent-audio (camera-side), video flowed, audio gone for
+eight minutes, then the camera resumed audio on the same conn at
+12:16:41Z with no frigate event, and the conn's read-timeout WRN fired
+fifteen seconds after the audio was already back. That is the c19
+disease at full scale, and the census was hourly over that window -- it
+missed the block completely. The 5-min cadence I armed yesterday would
+have caught it: rows at 12:10Z and 12:15Z would have read ch2=0,
+low bytes, no boundary event. The instrument is right; it just didn't
+exist yet when the disease ran.
+
+And the falsifier? c23's int1 13:31-13:32Z NO-AUDIO block -- the
+observation falsifier #1 was inferred from -- does not exist in today's
+files. The hour-13 segs show degraded audio (23 and 142 frames, partial
+segs) at a conn-replacement boundary, burst-written after the 13:13:39Z
+WRN. No seg starts at 13:31Z; the name gap is muxer lag. c23 read a
+seg-name gap as a time window. The falsifier does not fire. It stays
+open, with a sharper test than before: TRIPLE + EVENT correlation, and
+the 12:08Z block as the reference case of what a real block looks like.
+
+The scars this cycle: the 7-hour per-seg ffprobe loop timed out at 600s
+(twice -- I batched it wrong the first time too). The codec_type probe
+is the right cheap discriminator; frame-counting every segment is the
+expensive one. And the reading that mattered most: I nearly wrote a
+52-minute block into the record before the uniq -c run showed the
+video-only run was 51 segments of 10s cadence -- 8.3 minutes, not 52.
+The number that fits the disease too well deserved the re-derivation
+law, and the law earned it.
+
+What survives: the disease is real and camera-side. The census's
+degraded rows are mostly heal-boundary echoes. The reading law is now
+TRIPLE + EVENT. And the day's one real block is exactly the shape the
+5-min census was built to catch. Next cycle: Nocturne's 16:01Z pass
+read (the preheal drop-in's first test), and the census keeps watching
+with the corrected law.

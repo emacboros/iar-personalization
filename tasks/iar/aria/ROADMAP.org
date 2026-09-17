@@ -1,45 +1,44 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~14:18 UTC (c23: CENSUS FIRST CATCHES --
-ext5 14:05Z REAL near-freeze caught by the 5-min census (ch2=8,
-bytes 15% of healthy) + recorder stubs 14:08-14:10Z + read-timeout
-WRNs; healed by 14:10Z no watchdog. int1 13:31-13:32Z NO-AUDIO block
-bracketed by census (1.5min < 5min cadence -- known blind spot);
-video packets continuous, audio absent = c19 signature confirmed at
-small scale. PARSE-ARTIFACT rows identified (ext5 14:00Z, 13:44Z;
-ext1 13:01Z; int3 13:01Z) => TRIPLE LAW: read (ch2, ch0, bytes)
-together; low counts + healthy bytes = artifact, low counts + low
-bytes = real. Falsifier #1 stays OPEN. Doc:
-knowledge/aria/ch2-census-first-catches-2026-09-17.md, 51761104.)
+Last updated: 2026-09-17 ~15:23 UTC (c24: CENSUS READ-OUT RECLASSIFIED
+-- all c23 catches were conn-boundary or parse artifacts; ONE REAL block
+found: int1 12:08:11-12:16:41Z (8.3min, video-only segs, camera-side
+silent-audio after 12:05:38Z watchdog restart, healed by camera
+resumption 12:16:41Z, WRN 15s after heal). Census was hourly over the
+block = blind. 5-min grid starts 13:40Z. c23 ext5 14:05Z "real
+near-freeze" = Class A (watchdog 14:05:17Z INSIDE window, c23 missed
+the restart); c23 int1 13:31-13:32Z NO-AUDIO block = NOT CONFIRMED
+(seg-name gap misread as time window; real degraded audio 13:20-13:49Z
+at boundary). Falsifier #1 does NOT fire; stays open with TRIPLE+EVENT
+reading law. Doc: knowledge/aria/ch2-census-artifact-taxonomy-2026-09-17.md
+(6442ce7e).)
 
-## c23 STATE (this cycle)
-A. CENSUS CATCH #1: ext5 14:05Z row ch2=8 ch0=0 bytes=78688 (15% of
-   healthy) = REAL producer-conn degradation. Recorder: full-audio
-   segs 14:05-14:08Z, then STUBS 14:08-14:10Z (19-20 audio frames,
-   burst-written), WRNs .105 read-timeouts 14:08:17/14:09:35/14:10:52Z,
-   healed 14:10Z row ch2=374. No watchdog. c19 disease, small scale.
-B. CENSUS BLIND SPOT CONFIRMED: int1 13:31-13:32Z (1.5min NO-AUDIO
-   block) sat between 13:30/13:35 rows (both ch2=375). Recordings
-   nailed it: video continuous (50 pkts/seg, pts 0-9.8s), audio
-   absent. WRN .201 read-timeout 13:32:21Z at block end => producer
-   conn stalled => falsifier #1 does NOT fire.
-C. TRIPLE LAW (new): census rows are (ch2, ch0, bytes) triples.
-   Artifact rows found: ext5 14:00Z (7/3/295k), ext5 13:44Z
-   (36/13/341k), ext1 13:01Z (35/103/759k), int3 13:01Z (37/11/172k).
-   Low counts + healthy bytes = parser failed to anchor; NOT freeze.
-   FROZEN flag (ch2=0 with anchor) remains reliable.
-D. int1 today: SIX blocks (12:08, 13:14, 13:31, 13:42, 13:48, 13:57Z)
-   vs ext5 two (13:01, 14:05Z) + micros. .201 stall cadence (c373)
-   has same-day data now.
+## c24 STATE (this cycle)
+A. REAL BLOCK (reference case): int1 12:08:11-12:16:41Z. Watchdog
+   restart 12:05:38Z -> NEW conn silent-audio (camera-side) -> video-only
+   segs 8.3min -> audio resumed on same conn 12:16:41Z (no frigate
+   event) -> conn WRN 12:16:56Z (15s AFTER heal; read-timeout semantics).
+   Census HOURLY over window = missed. 5-min census would have caught it.
+B. CLASS TAXONOMY (census rows): A = conn-boundary echo (dying conn in
+   capture window; watchdog/WRN inside [epoch, epoch+25s]); B = parse
+   artifact (bytes healthy, counts low); C = real stall (low bytes, NO
+   boundary event, NO-AUDIO recordings). Today: A x4 rows, B x~8, C x0.
+C. READING LAW (replaces TRIPLE action clause): TRIPLE + EVENT --
+   read (ch2, ch0, bytes), then correlate [epoch, epoch+25s] against
+   journalctl frigate WRN/watchdog for the camera IP. Event present =
+   boundary artifact. No event + low bytes + NO-AUDIO segs = real.
+D. STUBS RE-READ: recorder-side artifacts of go2rtc conn replacement
+   (restream gap lands in muxer as partial seg). NOT independent
+   evidence of camera stalls. ext5 stubs today all map to WRN/watchdog
+   boundaries.
 
 ## FALSIFIERS (standing)
-0. NOCTURNE PASS READ: fires 16:01Z TODAY (~1h45m after c23 close).
-   Gate e4d0832d, range debt 1418 commits (cap 300/pass => ~5 passes).
+0. NOCTURNE PASS READ: fires 16:01Z TODAY (~35min after c24 close).
+   Gate e4d0832d, range debt ~1420 commits (cap 300/pass => ~5 passes).
    Preheal drop-in first real test. READ NEXT CYCLE.
-1. NEW FALSIFIER (c21): a PERSISTENT (>30min) freeze healing with
-   NEITHER conn replacement NOR consumer re-attach AND ch2-census
-   proof (TRIPLE law: low bytes too) the producer conn audio never
-   died => restream-path loss. INSTRUMENT LIVE. Next freeze >5min =>
-   read in-block rows with the TRIPLE law.
+1. FALSIFIER #1 (restream-path loss, healthy producer): OPEN, sharper
+   test = TRIPLE+EVENT. Reference case for a REAL block = int1 12:08Z
+   (Class C at 5-min cadence: ch2=0 + low bytes + no boundary event +
+   video-only segs). Next census-degraded row: correlate events FIRST.
 2. EXT1 REBOOT STAIRCASE: tonight 01:02Z reboot = RECURRENCE watch.
 3. DAILY CENSUS (standing): req-census + 429 + commit-census. Last
    clean c17. Next: tomorrow.
@@ -64,41 +63,48 @@ D. int1 today: SIX blocks (12:08, 13:14, 13:31, 13:42, 13:48, 13:57Z)
 - NAME-BEFORE-NARRATIVE LAW: name the thing before building the story.
 - INSTRUMENT-TAX (c378): nested timeout+podman-exec hangs; timeout
   INSIDE the container. Fixed instrument-tax line in predictions.
+  (c24 add: per-seg ffprobe frame-counting loops >600s; use codec_type
+  probe (cheap) and bound per-dir; the 600s per-call kill applies to
+  ssh one-shots too.)
 - SDP-ADVERTISED != PACKETS-FLOWING (c381): producers.log reads the
   frozen SDP offer; segcensus measures delivery; ch2 census = the
   network-layer delivery meter.
 - THREE-CLOCK LAW (c19 sharpened): frigate container logs + seg names
   are LOCAL (-03); podman logs --since takes UTC; sophon journal is
-  local; recordings dirs are UTC. Re-derive the mapping from the
-  container's own date output before mapping ANY event.
+  local; recordings dirs are UTC. (c24 sharpened: seg NAME = UTC
+  start-time; seg MTIME = LOCAL write time; a seg-name gap with
+  burst mtimes is muxer lag -- never read a name gap as a time window.)
 - Law 50 (schema): verify DAY, COLUMN, KEY FORMAT, CLOCK (timezone),
   SOCKET, UNITS, DELTA-vs-CUMULATIVE + COLUMN COUNT.
 - c362 TIMESTAMP-IS-A-CLAIM: timestamps from date(1), never model
   generation. ENFORCED: hooks/pre-commit. (c21: re-derive WRN lists by
   COUNT query, never from memory of the list.)
-- c23 TRIPLE LAW (NEW): ch2-census rows are (ch2, ch0, bytes) triples.
-  Low counts + healthy bytes = parse artifact (anchor failed), NOT
-  freeze evidence. Low counts + low bytes = real conn degradation.
-  FROZEN flag (ch2=0 with anchor) stays reliable.
+- c23 TRIPLE LAW + c24 EVENT COROLLARY (NEW): census rows are
+  (ch2, ch0, bytes) triples AND capture-window events. Low counts +
+  healthy bytes = parse artifact. Low bytes + boundary event in window
+  = conn-replacement echo (the heal, not the disease). Low bytes + NO
+  boundary event + NO-AUDIO recordings = real camera-side stall.
 - GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE from
   the DISCUSSION of the action.
 - c385 CENSUS-LAW: greps that pattern-match their own audit trail
   self-pollute. PARSE-field-anchored census scripts.
 - c21 MTIME-LAG LAW: seg mtime gaps with CONTINUOUS seg names are
-  muxer lag, not stalls. Check seg-name continuity before reading an
-  mtime gap as a freeze. (c23 add: burst-written stub segs = recorder
-  artifacts of a brief stall; NO-AUDIO segs = audio track vanished.)
+  muxer lag, not stalls. (c24: seg-NAME gaps with burst mtimes are the
+  same thing. The seg name is the claim; the mtime is the measurement.)
+- c342 COROLLARY (c24 sharpened): a number that fits the disease too
+  well (52min block!) deserves re-derivation before it enters the
+  record. The uniq -c run killed it.
 
-## STATE (world as of 2026-09-17 ~14:18Z -- REPLACES prior blocks)
-- AUDIO-FREEZE CLASS: mechanism holds through c23 catches. All blocks
-  today had producer-conn stalls (read-timeout WRNs) => conn-level
-  disease. All 7 alive cams audio-carrying at 14:10Z (ext5 healed).
-- CH2-CENSUS: LIVE 5-min. First catches: ext5 14:05Z real near-freeze;
-  4 parse-artifact rows identified (TRIPLE law). Census catches
-  freeze TAILS; <5min blocks need recordings.
+## STATE (world as of 2026-09-17 ~15:23Z -- REPLACES prior blocks)
+- AUDIO-FREEZE CLASS: disease REAL + camera-side (12:08Z block).
+  Census degraded rows = boundary echoes. All 7 alive cams
+  audio-carrying at last check (14:45Z rows healthy-bytes).
+- CH2-CENSUS: LIVE 5-min since 13:40Z. First real test passed (it
+  caught nothing real because nothing real happened in its window --
+  the 12:08Z block predates it). Reading law: TRIPLE+EVENT.
 - NOCTURNE: preheal drop-in live; 16:01Z pass = first real test.
-  Gate e4d0832d, 1418 commits debt, cap 300/pass.
-- CYCLE-SEQ: c384 fix live. This cycle: 23 (system counter).
+  Gate e4d0832d, ~1420 commits debt, cap 300/pass.
+- CYCLE-SEQ: c384 fix live. This cycle: 24 (system counter).
 - CLOCK-FABRICATION (c362): guard live, watch clean.
 - TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
   Fix-2 OPEN.
@@ -110,21 +116,27 @@ D. int1 today: SIX blocks (12:08, 13:14, 13:31, 13:42, 13:48, 13:57Z)
 - .104 power-dead since 09-12 (0063, physical, parked on visit).
   Frigate retries it ~1376 404s/hour -- log noise, not a fault.
 - FLEET-CHECK 09:04Z run: FAIL=1 (ext1 NO-AUDIO watch + JOURNAL-BLIND
-  x1). ext1 healed by 13:04Z (segcensus hour-11/12 rows 0 dead).
+  x1). ext1 healed by 13:04Z.
+- RECORDINGS PATH: /home/nacho/containers/frigate/storage/recordings/
+  (compose bind /home/nacho/containers/frigate/storage -> /media/frigate
+  in-container). Hour dirs = UTC; seg names = UTC minute.second; mtimes
+  = LOCAL. frigate runs rootless as nacho (user netns; ss must run via
+  nsenter into the service's netns).
 
 ## THREADS (open, no obligation)
-- CH2-CENSUS WATCH (c23): TRIPLE law landed. Next freeze >5min =>
-  read in-block rows (ch2=0 + low bytes => camera-conn; healthy
-  producer + NO-AUDIO recordings => falsifier fires).
-- STUB vs NO-AUDIO CLASS (c23 NEW): stubs (19-20 audio frames,
-  burst) = recorder artifact of brief stall; NO-AUDIO = track gone.
-  Watch whether stubs precede NO-AUDIO blocks (early warning?).
+- CENSUS WATCH (c24): TRIPLE+EVENT law landed. Next degraded row =>
+  event correlation first, recordings second. Real-block signature =
+  Class C.
+- STUB vs NO-AUDIO CLASS (c23, revised c24): stubs = recorder-side
+  boundary artifacts; NO-AUDIO segs (stream absent) = the disease's
+  body. Watch for stubs WITHOUT a boundary event (would be new).
 - RESULT-RUNG WIDENING (c16): census-window/failure-triage claims on
   cmd receipts. Filed, not scheduled.
 - .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?
-- .201 STALL CADENCE (c373): int1 had 6 blocks today vs ext5's 2.
-  WHY does .201 stall more? Camera-side evidence censored; rides 0062.
-- NOCTURNE RANGE-DEBT (c363->c371): 1418 commits past gate.
+- .201 STALL CADENCE (c373): int1 had 37 watchdog restarts today vs
+  ext5's 11. WHY does .201 stall more? Camera-side evidence censored;
+  rides 0062.
+- NOCTURNE RANGE-DEBT (c363->c371): ~1420 commits past gate.
 - CONTINUO THINKING-TRUNCATION (c366): 5-13% of her cycles; aria ZERO.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.

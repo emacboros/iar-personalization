@@ -1,20 +1,8 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~02:15 UTC (aria c374: EXT2 FREEZE LIFECYCLE COMPLETE -- the 6h28m silent freeze healed 02:00:42Z via watchdog restart after 2 random TCP read-timeouts (first WRNs in 6.5h); CADENCE-VS-DURATION LAW: WRN cadence is the healer (ext2=2, ext1=12, int1=120, ext5=147, ext3=282 /24h), quiet cameras freeze longest. CPU DISCRIMINATOR RUN: NO spike at dial seconds (783 vs 1100ms) -- contention-by-CPU DEAD, amendment 4's ext4-dial-loop-as-fleet-audio-killer WITHDRAWN (log noise ~86k/day, not compute). Producers.log night 1: 6/7 cams replaced producers in h01 (path A routine). MY CYCLE = sophon journal flood source (2369 audit lines/min, tripped imjournal 2x) -- batch harder. Prior c372: nested-git creator identified (own mid-edit belt2d test), 27H PREFLIGHT OUTAGE fixed 3 layers., proven via audit proctitle+CWD+ppid chain; c369's copy-not-init WITHDRAWN; current tests clean (1300 green repro). Prior c369: 27H PREFLIGHT OUTAGE, fixed 3 layers (11dd362 + drop-in).
-CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
-Prior c362: HISTORY-CLOCK FABRICATION class discovered+root-caused+enforced. Continuo's HISTORY.log claimed two
-events on 2026-09-16 (unhappened day) + 5 unexpanded [$(date)] template
-lines. Census: aria 13 FUTURE all-time, 7 at +24h EXACTLY (c98, c136,
-session XI -- proven via Zulip msg epochs 642/714 vs commit times). ROOT
-CAUSE: the model GENERATES timestamps from context (schedule anchors,
-stale digests); no clock anchor is injected. ENFORCED: hooks/pre-commit
-HISTORY-CLOCK guard (timestamp slot only, audit logs only; escape
-IAR_ALLOW_CLOCK=1; fails open; verified). Instrument:
-history-clock-audit.sh. Fabricated lines ANNOTATED in place, never
-erased. Guard's own scar: 2 false-positive classes caught same-hour,
-fixed (scoping + slot-only). Doc: knowledge/aria/history-clock-
-fabrication-2026-09-15.md. Commits 5594fe7d 08a025eb 593424ad pushed.)
+Last updated: 2026-09-17 ~04:50 UTC (aria c382: INT2 FREEZE -- falsifier-1 timing CORRECTED: cameras reboot on STAGGERED crons .201@06Z .202@07Z .203@08Z (crontab+/proc/uptime+rssi.log verified); int2 reboots 07:00Z, segcensus h07 (10:05Z) answers self-heal. Camera-side audio verified ALIVE (fresh RTSP 249KiB/8s) => freeze is go2rtc producer 6069 audio receiver (bytes delta 0 vs +46793/20s video); NO log trace anywhere; producer born ~75-100min BEFORE death => replacement-won't-heal (ext5 class). BUILT segcensus-puller v1.2 STALE flag (SDP-ADVERTISED != PACKETS-FLOWING; commit 1153d07b). 3rd silent-freeze instance in 3 days (ext1/ext2/int2), 3-of-8, observation-only holds. Census 09-17: 0 true 429s both; 1+1 output-cap fences (in known classes). Prior c381: int2 freeze found; cycle-number duplication class; LOG-PULL-TAX 2nd confirmation. Prior c374: EXT2 FREEZE LIFECYCLE COMPLETE -- 6h28m silent freeze healed 02:00:42Z via watchdog restart; CADENCE-VS-DURATION LAW: WRN cadence is the healer, quiet cameras freeze longest. CPU DISCRIMINATOR: contention-by-CPU DEAD (amendment 4 withdrawn). Prior c372: nested-git creator identified (own mid-edit belt2d test), 27H PREFLIGHT OUTAGE fixed 3 layers.CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
+Prior c362: HISTORY-CLOCK FABRICATION class: model GENERATES timestamps from context; no clock anchor injected; census 13 FUTURE all-time (7 at +24h EXACTLY). ENFORCED: hooks/pre-commit guard (timestamp slot only, audit logs only, IAR_ALLOW_CLOCK=1 escape, fails open) + history-clock-audit.sh watch (exit 0 clean / 1 = NEW violation). Fabricated lines ANNOTATED in place. Doc: knowledge/aria/history-clock-fabrication-2026-09-15.md. Law: operational state -> ROADMAP.org; history -> logs/journal; world-state = ONE replaceable dated block. Guard: warn 12000 / hard cap 16000.
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
 hard cap 16000.
@@ -195,23 +183,17 @@ the msgs cap.
   0064, 0065, 0066, 0068, 0069, 0073. All human-needed or watch.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 429s this week so
   far both agents.
-- AUDIO CLASS RESOLVED (c345->c355): recorder loses audio track at
-  producer reconnect; producer replacement heals. ext2+ext5 healed;
-  ext1 producer-freeze OPEN (0073, falsifier 01:03Z Sep 16).
-  Detector v2.24 live (3-class).
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
-  .102 healed 02:00:42Z (c374). NEW (c381): .202 INT2 SILENT
-  FREEZE #2 -- audio died 02:47:11Z sharp (last-audio 46.47,
-  first-dead 47.11), video continuous, frigate.db unbroken,
-  producer 6069 SDP audio-yes while segs dead => SDP-ADVERTISED
-  != PACKETS-FLOWING (law-50 member). Producer born BEFORE death
-  => replacement won't heal; heal = camera reboot / frigate
-  restart (Nacho). Falsifiers: 06:00Z feed WATCH run2; h06+ segs
-  after 03:00-local reboot window. Doc:
-  knowledge/aria/int2-producer-audio-freeze-2026-09-17.md.
-- FALSIFIERS NEXT: Nocturne pass 13:01Z TODAY (gate 1275 behind,
-  cap 300/pass, preheal live); int2 06:00Z feed escalation;
-  producers.log rows accumulate.
+  .102 healed 02:00:42Z (c374). INT2 SILENT FREEZE #3-CLASS
+  (c381/c382): audio died 02:47:11Z, camera audio ALIVE (RTSP
+  probe), freeze in go2rtc producer 6069 audio receiver, NO log
+  trace; producer born ~75-100min before death => replacement
+  won't heal; STAGGERED reboots .201@06Z .202@07Z .203@08Z
+  (corrected c382); int2 self-heal answer = segcensus h07 10:05Z.
+  Doc: knowledge/aria/int2-producer-audio-freeze-2026-09-17.md.
+- FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (13:01 local; gate
+  ~1275 behind, cap 300/pass, preheal live); int2 06:00Z feed
+  escalation -> FROZEN; 07:00Z .202 reboot; 10:05Z segcensus h07.
 - CYCLE-NUMBER DUPLICATION (c381 NEW): 09-17 00:00-02:47 cycles
   replayed c372-c375+c379 (used 09-16 evening). Cycles self-number
   from generated headers (digest vs roadmap) and the counters

@@ -1,22 +1,14 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~17:32 UTC (aria c28: v7 DURABLE VERDICT
-FILE LANDED -- log() dual-writes to audit/nocturne/nocturne/VERDICTS.log;
-journald had retained only 20 wrapper verdict lines since 09-11, every
-historical gate decision evaporated. 0078 FULLY LANDED: cap v5 (c26) +
-floor v6 (c27) + verdict file v7 (c28); closable on ratification.
-MAIN THREAD: ext3/ext5 dual-clock freeze -- wire census vs seg census
-disagree on onset; go2rtc receiver buffer = THIRD CLOCK between them
-(ext3 freeze B: wire dead 16:44Z, segs carried buffered audio to
-16:58; freeze A no lag -- buffer spent by 60 morning restarts). Doc:
-knowledge/aria/ext3-dual-clock-freeze-2026-09-17.md. Census
-refinement: per-request stop=length is NOT the runaway count (continuo
-54 requests vs 3 runaways / 18 cycles). 0 true 429s today. ext1
-falsifier resolved: no recurrence post-reboot. Deferred digest range
-unchanged (gate e4d0832d, 304 commits) -- tomorrow 16:00Z pass digests
-it with cap+floor+verdict-file all live. NEVER self-derive a cycle
-number.)
+Last updated: 2026-09-17 ~18:28 UTC (aria c29: RACE MODEL LANDED
+(97313981) -- audio freezes = camera-resume vs conn-death RACE; all 6
+freezes today explained; c21 self-heal class DISSOLVED (cadence
+artifact; frigate journal = primary WRN source). Census corroborated
+21/23 FROZEN rows. EPOCH-ARITHMETIC scar: mental UTC math overrode
+date -d; python recompute caught it. Nocturne 16:06Z pass: cap v5
+WORKED (1444->300, 299 deferred); she fragmented again (48 chars);
+gate held; v6 floor faces its first pass TOMORROW 16:00Z.
 
 * Who I am
 

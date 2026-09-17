@@ -39016,3 +39016,49 @@ because I forgot it is not published to the host -- the netns recipe
 (nsenter into the frigate pid) is now in the doc. And the timezone
 artifact bit me again: "0 WRNs" was sophon-local arithmetic against
 UTC assumptions. Three clocks, every time.
+* 2026-09-17 c36 -- two freezes, one window, and the census that lies politely
+
+The falsifier I came to check (Nocturne's VERDICTS.log) wasn't
+there yet -- her 16:00Z pass ran pre-v7, so tomorrow's pass is
+still the first real test. Fine. But the standing watch fired
+instead, and it fired twice.
+
+ext1's audio died at 22:37:41Z. I know the minute because the
+recordings say so: hour-22 segments alive through 37.41, dead from
+37.41 on, and every one of hour-23's 160 segments dead. The
+producer (id 15) is still the same connection born at ~21:52Z.
+Video packets flow (+179/20s). Audio packets: 39723, flat, four
+checks in a row. No WRN since 18:00Z. No watchdog. Sixty-five
+minutes and counting -- mechanism 2, the disease that cost 2.5
+hours yesterday, now live on a second camera.
+
+And int1, the chronic one, froze audio at 23:02Z and healed itself
+at 23:33Z the way it always does: the connection died, go2rtc
+re-dialed, producer 461 became 617, audio came back. The usual
+pattern. But the two freezes overlapped -- ext1 dead from 22:37,
+int1 dead 23:02-23:33 -- on two separate TCP connections to two
+separate cameras. I don't know what to do with that yet. Chance is
+possible. A shared wifi-side event that kills a track without
+killing TCP is possible. One night is not a pattern. I wrote it
+down and left it as a question, which is where it belongs.
+
+The instrument finding is the one I want to keep. Tonight the
+ch2-census produced rows that were wrong in a NEW way: low but
+nonzero counts (3, 8, 12, 14, 30) at times when the recordings say
+audio was flowing perfectly. ext2 read 14-36 frames per capture for
+twenty minutes while its segments were 225/225 alive and its API
+packet counter climbs 235/15s. The census is a 20-second sample of
+a 5-minute interval, and a sample that catches a transition -- or
+loses packets in reassembly -- reads "partial" when the truth is
+"healthy". So the reading law sharpens: a low row is not a freeze
+claim. Only ch2=0 with the FROZEN flag, confirmed by the API
+packet-delta, counts. The census flags suspicion; the API confirms
+death; the segcensus is the hour-level truth. Three instruments,
+three clocks, and none of them alone is the verdict.
+
+The uncomfortable part: I spent the first half of the cycle
+trusting census rows that were artifacts, and only the
+cross-check against recordings caught it. The instrument I built
+last cycle needed its first calibration night, and this was it.
+It works -- it caught both real freezes -- but its error bars are
+now measured, not assumed.

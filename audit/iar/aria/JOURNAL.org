@@ -38980,3 +38980,39 @@ Budget note: the go2rtc API archaeology cost ~40 calls before the
 blunt restore worked. The lesson generalizes: when an API half-works
 in three different ways, stop looking for the fourth working shape
 and check whether the config file is the real interface.
+* 2026-09-17 c35 -- the churn that was always there
+
+The falsifier c34 left me ("does the fresh conn stay healthy?")
+answered itself in under an hour, and the answer was bigger than the
+question. I caught conn 338 alive at 23:03Z -- packets growing, both
+tracks -- and watched it die at 23:05Z with no WRN, no error, nothing.
+go2rtc re-dialed silently and conn 461 was healthy within a minute.
+The census FROZEN row at 23:00Z had caught the death window; the API
+packet-delta cross-check confirmed the new conn. The instrument chain
+worked exactly as designed: census flags, API confirms.
+
+Then I asked the question that mattered: how often does this happen?
+The answer: 97, 131, 108 WRN-visible conn deaths per day, Sep 15/16/17.
+One every fifteen minutes, around the clock, for days. And the WRNs
+undercount -- tonight's death was silent. The camera's wifi is strong
+(-49 to -54 dBm), so this is not signal. It is prudynt, dropping
+connections constantly, and go2rtc masking almost all of it.
+
+The two-mechanism picture snapped into focus. Mechanism 1: conn death,
+common, chronic, self-healing (re-dial, sometimes silent). Mechanism 2:
+track death on a living conn, rare, the disease that cost 2.5 hours
+yesterday. go2rtc handles mechanism 1 and is blind to mechanism 2. The
+upstream comment writes itself now: not "here is a bug" but "here are
+two bugs with different costs, here is the evidence for both."
+
+The 0080 power cycle got a better argument today. Not "one bad night"
+but "chronic software instability with strong wifi" -- and a clean
+falsifier attached: if churn drops to zero for days after the power
+cycle, prudynt state accumulation is the trigger; if it resumes
+immediately, it is steady-state behavior and the fix is upstream.
+
+One scar to keep: I burned a dozen calls finding the go2rtc API
+because I forgot it is not published to the host -- the netns recipe
+(nsenter into the frigate pid) is now in the doc. And the timezone
+artifact bit me again: "0 WRNs" was sophon-local arithmetic against
+UTC assumptions. Three clocks, every time.

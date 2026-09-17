@@ -37168,3 +37168,65 @@ intervention on the fleet. The thread pulled because the mechanism
 doc had a hole -- "healthy camera freezes" was impossible under the
 v3 table, and impossible things in a table are the best kind of
 thread.
+* 2026-09-17 c374 -- the night the quietest camera healed itself
+
+Failure-first: LAST-CYCLE ok. Pulse green (all 4 services, tripwire
+clean, disk 30%, twin FAIL=0). The falsifiers from c373 were queued
+and the thread chose itself: the ext2 freeze watch.
+
+The finding that matters: ext2's 6h28m silent freeze HEALED at
+02:00:42Z, and the heal path is now fully mapped. The freeze that
+started at 19:32Z with no WRN ended with two random TCP read-timeouts
+at 23:00:06/31 local, which tripped the frigate watchdog ("No frames
+received") into restarting ffmpeg -- and the new producer (26 ->
+6107) brought audio back. The recordings confirm it: h01 census
+225/225 dead, h02 00.00.mp4 has video+audio. The lifecycle of the
+ext1-0073 class is now complete: silent onset -> hours frozen-in-place
+-> random TCP death -> watchdog heal. What bounds the freeze duration
+is not the stall cadence (there were ZERO WRNs during the freeze) but
+when the TCP read happens to die.
+
+That completes the cadence-vs-duration law, and it resolves the
+"healthy camera freezes" paradox from c373: ext2 was never healthy.
+It is the QUIETEST camera on the fleet (2 WRNs/day vs int1's 120,
+ext3's 282), so its freezes have no scheduled healer and persist for
+hours. Quiet cameras freeze longest. The healer is the WRN cadence
+itself.
+
+The second finding kills my own hypothesis from amendment 4: the
+go2rtc CPU discriminator run (343 samples, 1s resolution) shows NO
+CPU spike at ext4 dial seconds (mean 783ms vs 1100ms off-dial -- dial
+seconds are actually CHEAPER than average). The contention-by-CPU
+mechanism has no support, and the alignment evidence was already
+vacuous. Amendment 4's "ext4 dial loop is the fleet audio killer" is
+withdrawn: the dial loop is log noise (60 WRNs/min, ~86k/day), not
+compute contention. What remains real: .104 is power-dead and its
+dial loop floods the journal; the power cycle (0063) cleans the logs
+but is not an audio fix.
+
+Also tonight: the producers.log first night paid immediately. The
+h00->h01 rows show 6 of 7 cameras replaced producers in one hour
+(ext3 kept 4577 with zero WRNs). Every camera with a WRN got a new
+id -- producer replacement (path A) is routine churn, not an event.
+And the WRN-wave clustering observation: multi-camera read-timeout
+minutes recur every ~20-40min with different camera sets each time.
+Filed as a seed; no mechanism yet.
+
+One self-inflicted finding: my own cycle is the sophon journal flood
+source right now. 2369 audit lines/min during my probing (peak 9365/
+min during fleet-check), 65% of all journal flow, and it tripped
+imjournal rate limiting twice (2953 messages dropped at 02:03:31Z).
+The 0074 residual flag said a "yoga-class ssh actor" would trip the
+limit -- I am that actor. The structural fix (imjournal rate limit /
+audit exclusion) is still Nacho's call; my part is batching harder
+and probing less. The fleet-check run alone generated a 9k-line
+audit minute.
+
+Nocturne: gate 1255 commits behind, next pass 16:01Z today, preheal
+drop-in live. The falsifier is the pass itself.
+
+The thread pulled because a falsifier was queued and the answer was
+one batched read away. Everything tonight was observation-only: one
+additive evidence file, one mechanism amendment, no intervention on
+the fleet. The freeze healed itself while I watched -- the best kind
+of confirmation, the kind that requires no permission.

@@ -95,3 +95,20 @@ executed by me). It is parked, not dropped: the detector keeps
 ext4 in known-fault watch state, and the .103 session census keeps
 accumulating so the pre/post-reboot comparison is ready whenever
 the visit happens.
+
+## UPDATE 2026-09-17 (interactive session, Nacho): ssh-reboot attempt on .104 -- L2-DEAD, physical visit still needed
+
+Nacho's hypothesis: not a power issue, maybe the streamer process
+(streamer = most demanding process) fails periodically; "the camera I
+suspect is already on"; ssh reboot authorized.
+
+ATTEMPTED (19:31-19:33Z): ping 100% loss; ARP FAILED then absent;
+HTTP 000; RTSP port closed; broadcast ping no reply; arping 3
+broadcast probes 0 responses. The camera does not answer AT LAYER 2
+from sophon's wired vantage. A crashed streamer process would still
+answer ARP (the kernel handles ARP, not prudynt). Verdict: .104 is
+power-dead or network-dead at a layer below any process -- the
+physical visit (power cycle / cable check) stands as the only path.
+The streamer-crash hypothesis is NOT excluded for the FUTURE class
+(it would show as ping-OK + RTSP-dead, a different signature -- worth
+remembering if .104 ever shows that shape after revival).

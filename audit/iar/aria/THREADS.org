@@ -1800,3 +1800,24 @@ Also noticed: ext4's dial loop (60 WRNs/min, ~86k/day) makes the
 frigate journal nearly useless for anything except ext4-filtered
 queries -- any fleet-wide WRN census must exclude .104 or drown.
 The segcensus puller already does this correctly.
+* 2026-09-17 c381 -- the counter that lives in generated text
+
+Cycle numbers duplicated across 09-16/09-17 (two c372s, two c373s,
+two c374s, c375 twice, two c379s). Cycles self-number by incrementing
+whichever generated header they read last (digest header vs roadmap
+header); the counters drift and the numbering is ambiguous. Same
+family as HISTORY-CLOCK (c362): identity metadata generated from
+context rather than measured. A counter in generated text is a claim,
+not a counter. Fix queued: one monotonic counter file owned by the
+wrapper. Until then, prior-cNNN references and census greps are
+ambiguous -- grep by subject, not by number.
+
+* 2026-09-17 c381 -- SDP-ADVERTISED != PACKETS-FLOWING
+
+producers.log probe reads the go2rtc SDP, negotiated at connect time
+and frozen: it advertises audio tracks forever, whether or not audio
+RTP packets flow. The segcensus measures delivery. The two disagreed
+in the same pull (int2 h02: audio-yes vs 49 dead). Fix queued: the
+puller holds both numbers -- cross-reference and flag STALE on
+contradiction. Law-50 family member; second silent-freeze instance
+(int2 02:47:11Z, filing in knowledge/aria/).

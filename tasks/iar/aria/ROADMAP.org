@@ -1,15 +1,39 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~16:14 UTC (c25: TWO EVENTS. (1) The 5-min
-census caught its first real event: int1 (.201) watchdog STORM
-15:33:26-15:47:41Z, 9 restarts, ffmpeg decoder errors (aac bands 31>9,
-hevc POC) = camera encoder corruption. New presentation alongside the
-12:08Z silent-audio BLOCK: BLOCK vs STORM, same camera-side family.
-TRIPLE+EVENT classified both degraded rows correctly on first contact.
-(2) Nocturne 16:00Z pass read: preheal HELD, pass produced NOTHING --
-fragment emission (48 chars of wrapper awk code as final response) +
-RANGE-CAP INVERSION found (cap takes 300th back from HEAD => range =
-debt-299 = 1143 commits at debt 1442). Relay 0078 filed. Gate still
-e4d0832d.)
+Last updated: 2026-09-17 ~16:42 UTC (c26: RANGE-CAP DIRECTION FIX
+LANDED -- nocturne-digest.sh v5 (0e12f405, pushed both mirrors):
+CAPPED_HEAD = 300th commit AFTER LAST (was 300th before HEAD =>
+digested range = debt-299 = 1143 commits at debt 1442 -- the cap
+failed exactly in the deep-debt case it was built for). Fixture-
+tested: 349->300+49, 301->300+1, 300/3->no fire. 0078 amended: cap
+half landed, fragment floor open. Deferred range mapped (304 commits,
+aria c13-25 + continuo c357-389 + 21 knowledge docs) -- tomorrow's
+16:00Z pass digests it with the fixed cap. Continuo truncation
+census: 3/21 today, worst day (prior 1-2); all thinking-only
+stop=length, tokens_in ~24k = NOT context pressure; 16:26 failure =
+test-suite call queued, 7min re-derivation, no emission.)
+
+## c26 STATE (this cycle)
+A. CAP FIX: one line + header. Old: rev-list -n 300 --first-parent
+   HEAD | tail -1. New: rev-list --first-parent --reverse
+   "$LAST..$HEAD_NOW" | sed -n 300p. Wrapper pull-reexec (c330) picks
+   it up from sophon-bare at next pass -- no manual install.
+B. DEFERRED-RANGE MAP (what tomorrow's pass reads): gate e4d0832d;
+   digested range covered aria c265-376 + continuo c260-380 (09-12
+   to 09-17 00:25Z); deferred = 09-17 00:25Z..HEAD (304 commits):
+   aria c13-25 (new numbering era), continuo c357-389, 21 knowledge
+   docs, relay 0074/0075 answered + 0076/0077/0078 filed, 27h outage
+   + heal, audio-freeze unification, census build.
+C. CONTINUO TRUNCATION CENSUS (c366 class): 3/21 today (09-10: 1/31,
+   09-11: 5/51, 09-12: 7/54, 09-13: 1/31, 09-14: 2/53, 09-15: 2/20,
+   09-16: 2/17, 09-17: 3/21). All thinking-only stop=length at
+   32768; tokens_in 24k = not context pressure. The 16:26 one: last
+   tool call queued run-tests.sh, then 7min/32768 thinking tokens
+   re-deriving the act, no emission. If rate climbs: thinking-budget
+   line in the truncated-output guard (candidate, not built).
+D. LOOP-CHAIN GUARD fired twice on my sed-window enumeration walks;
+   the census (subjects by pattern) replaced the walk. Scar: when
+   the question is "what's in here", the answer is a census, never
+   a walk.
 
 ## c25 STATE (this cycle)
 A. CENSUS FIRST CATCH: int1 storm 15:33-15:47Z. 15:30 row = Class B
@@ -35,10 +59,12 @@ D. NOCTURNE PASS (16:00Z): preheal HELD (preflight passed). 27 reqs,
    Her reasoning was correct and never landed (REQUESTS.log).
 
 ## FALSIFIERS (standing)
-0. NOCTURNE PASS READ (standing, every cycle after 16:01Z): read her
-   receipt + proposal + gate. The gate's silence now has TWO meanings
-   (nothing happened / something happened and it was nothing) -- only
-   reading tells them apart.
+0. NOCTURNE PASS READ (standing, every cycle after 16:00Z): read her
+   receipt + proposal + gate. TOMORROW'S PASS = first with the FIXED
+   cap: verify the digested range is <=300 (log line "digesting
+   e4d0832d..<300th-after>") and the gate advances. The gate's
+   silence has TWO meanings (nothing happened / something happened
+   and it was nothing) -- only reading tells them apart.
 1. FALSIFIER #1 (restream-path loss, healthy producer): OPEN, TRIPLE+
    EVENT law. Reference case for a REAL block = int1 12:08Z (Class C).
    Next census-degraded row: correlate events FIRST.
@@ -49,8 +75,10 @@ D. NOCTURNE PASS (16:00Z): preheal HELD (preflight passed). 27 reqs,
 5. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
 6. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
 7. GPTEL-FORK RESIDUE: sophon-side emacs.d/gptel-fork empty dir. Inert.
-8. NOCTURNE CAP FIX (0078): after Nacho ratifies, verify next pass
-   digests a <=300 range and the gate advances.
+8. NOCTURNE CAP FIX (0078): LANDED c26 (v5, pushed). Verify at
+   tomorrow's pass: range <=300 + gate advance. Fragment floor
+   (response < ~200 chars = no-response) still OPEN in 0078 -- needs
+   a corpus scan of her past final-response lengths first.
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
 - RECEIPT LAW (c16): command-issuance receipt witnesses INTENT; result

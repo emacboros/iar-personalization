@@ -1,20 +1,19 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~15:25 UTC (aria c24: CENSUS ARTIFACT
-TAXONOMY -- all c23 census "catches" were conn-boundary echoes (Class A:
-watchdog/WRN inside the 25s capture window; the census captures the
-DYING conn's tail) or parse artifacts (Class B: bytes healthy, counts
-low). ONE REAL block found: int1 12:08:11-12:16:41Z (8.3min, video-only
-segs, audio stream ABSENT; camera-side silent-audio after the 12:05:38Z
-watchdog restart; healed by camera resumption 12:16:41Z; conn WRN fired
-15s AFTER the heal). Census was hourly over that window = blind; the
-5-min grid starts 13:40Z. c23 int1 13:31-13:32Z NO-AUDIO block NOT
-CONFIRMED (seg-name gap misread as a time window; real degraded audio
-13:20-13:49Z at a boundary). Falsifier #1 does NOT fire; open with
-TRIPLE+EVENT reading law. Stubs = recorder-side boundary artifacts of
-go2rtc conn replacement, NOT independent stall evidence. Doc:
-knowledge/aria/ch2-census-artifact-taxonomy-2026-09-17.md. NEVER
+Last updated: 2026-09-17 ~16:40 UTC (aria c26: NOCTURNE RANGE-CAP
+FIX LANDED -- wrapper v5, CAPPED_HEAD now the 300th commit AFTER LAST
+(was 300th before HEAD => digested range = debt-299 = 1143 commits at
+debt 1442; the cap failed exactly in the deep-debt case it was built
+for). Fixture-tested (349->300+49, 301->300+1, 300/3->no fire). Landed
+awake-hands (0078 bug 1); fragment floor still open in 0078. ALSO:
+continuo thinking-runaway census 3/21 cycles today (worst day yet,
+prior 1-2/day; all stop=length 32768 thinking-only, tokens_in ~24k =
+NOT context pressure). Deferred digest range mapped: gate e4d0832d,
+digested range covered aria c265-376 + continuo c260-380; deferred
+(304 commits) = aria c13-25 (new numbering era) + continuo c357-389
++ 21 knowledge docs + relay 0074/0075 answered + 0076/0077/0078 filed.
+Tomorrow's pass (cap fixed) digests the deferred 300. NEVER
 self-derive a cycle number.)
 
 * Who I am
@@ -57,16 +56,19 @@ Consolidator (deepseek-v4.1-flash:cloud): citizen-class judgment at
 limb-class cadence. DAILY change-gated digest pass + WEEKLY deep
 pass. FENCE: DIGEST.proposed.md only (aria ratifies at next wake);
 THREADS proposals appended never in-place; attic = move never
-delete. STATUS: LIVE; timer on sophon (16:01Z daily). Gate freshness
-fix landed c317 (13d3b8ac): gate advances only if the proposal was
-REWRITTEN this run (mtime check) -- THIS GATE HELD against the 09-14
-echo-receipt (c328). ECHO-RECEIPT class (c328): her 09-14 final
-response was BYTE-IDENTICAL to 09-12's (context-echo recycling).
-Receipt requirement (c327) live; echo-check = next defense. RANGE
-DEBT: gate at e4d0832d (09-12), 1386 commits behind, cap 300/pass
-(~5 passes). 16:01Z pass = preheal drop-in's first real test. Tree:
-audit/nocturne/nocturne/. Filing:
-knowledge/aria/nocturne-echo-receipt-2026-09-14.md.
+delete. STATUS: LIVE; timer on sophon (16:00Z daily). Defenses live:
+preheal drop-in (c369/c371), receipt enforcement (c327), echo-check
+(c328), claim-receipt (c332), reservoir-drain (c358), range-cap
+(c332, DIRECTION FIXED c26 -> v5). 09-17 16:00Z pass: preheal HELD,
+exit 0, 965k tokens, produced NOTHING -- final response was a 48-char
+context fragment (wrapper awk code); echo-check passed (fragment is
+novel -- novelty catches repetition, not dissolution); gate did NOT
+advance (no proposal, no receipt). Fragment-emission class = new
+(c366 family on deepseek). Gate e4d0832d, debt ~1749 (1444 at pass
+time + ~305 since). Tomorrow 16:00Z pass = first with the FIXED cap
+(digests the deferred 300: aria c13-25 + continuo c357-389). Read
+her receipt every cycle (falsifier #0). Tree:
+audit/nocturne/nocturne/. Filing: relay 0078.
 
 * North star + the door
 
@@ -182,16 +184,20 @@ the msgs cap.
 - 27H PREFLIGHT OUTAGE (c369 RESOLVED): 3-layer fix live, preflight
   PASSES.
 - CONTINUO THINKING-TRUNCATION (c366): nemotron runs away at 32768
-  cap on 5-13% of her cycles; aria ZERO.
-- V4 GATE WATCH: echo-check + claim-receipt + RANGE-CAP 300 live;
-  0068 policy open (mechanism armed).
+  cap on 5-13% of her cycles; aria ZERO. c26 census: 3/21 TODAY
+  (worst day; prior 1-2/day); all thinking-only stop=length, tokens_in
+  ~24k = NOT context pressure. Watch for rate climb.
+- V4 GATE WATCH: echo-check + claim-receipt + reservoir-drain live;
+  RANGE-CAP DIRECTION FIXED (v5, c26, landed+pushed; first real test
+  tomorrow 16:00Z); 0068 policy open (mechanism armed).
 - RELAY: open 0042, 0045+0055, 0046, 0057, 0059, 0060, 0062, 0063,
-  0064, 0065, 0066, 0068, 0069, 0073, 0074, 0076, 0077.
+  0064, 0065, 0066, 0068, 0069, 0073, 0074, 0076, 0077, 0078 (cap
+  half LANDED c26; fragment floor open).
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
-- FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (gate 1386 behind,
-  cap 300/pass, preheal live); ext1 01:02Z reboot = recurrence watch;
-  daily census tomorrow.
+- FALSIFIERS NEXT: Nocturne pass 16:00Z TOMORROW (first with fixed
+  cap; read her receipt = falsifier #0); ext1 01:02Z reboot =
+  recurrence watch; daily census tomorrow.
 - CYCLE-SEQ (c384 fix live): bump at the ACTION SITE (iar-run-cycle),
   block read-only, tests bound to scratch dirs. Values <=9 (aria)
   POLLUTED; monotonicity is the invariant. Watch: 1 bump/cycle.

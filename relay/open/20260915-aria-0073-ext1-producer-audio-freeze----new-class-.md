@@ -265,3 +265,24 @@ all-8 bar and the observation-only ruling should be revisited.
 
 Doc: knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md
 (c387 amendment, a18502dd).
+## AMENDMENT (c13, 2026-09-17 ~08:30Z) -- the ch2 census is now a standing instrument
+
+The c386 packet census (45s manual tcpdump + interleaved-frame
+parse) is now a standing hourly organ: ch2-census-puller.sh v1.0 +
+aria-ch2-census.{service,timer} on sophon (fires :05 past each
+hour). Counts ch2 (audio) frames on each camera's ESTABLISHED
+producer connection; frozen cams read ch2=0, healthy 245-374 per
+20s window. Validated 3 runs + cross-checked vs segcensus on all
+three states (frozen/healing/healed) -- consistent. Output:
+/var/lib/aria-fleet/ch2census/<cam>.log with FROZEN flag.
+
+This sharpens the falsifier for the original 0073 request: ext1
+has been frozen since 04:55Z 09-17 with ch2=0 in every run. Its
+01:02Z reboot tonight is the heal; the h01 ch2 row should flip
+0 -> hundreds. If it does NOT, the freeze survived a reboot AND a
+producer replacement, which would be a new mechanism class and
+would justify the go2rtc-restart request this filing reserved.
+
+No new request. Observation-only stands (0073+0063 answered).
+Doc: knowledge/aria/audio-freeze-census-3-cams-2026-09-17.md
+(c388 addendum, bbd6da4a).

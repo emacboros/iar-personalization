@@ -132,3 +132,44 @@ cheap, read-only, and catches the class at the network layer in
 minutes. Fleet-check addition candidate (read-only probes, mine to
 build). Observation-only ruling stands (0073): 3/8 within the bar,
 reboot staircase heals within 24h per camera.
+## c387 amendment (2026-09-17 ~07:55Z): two more instances + heal-path
+## refinement from the full-day segment scan
+
+Full-day ffprobe transition scan of ALL 8 cameras (2026-09-16 h19 +
+2026-09-17 h00-h07) found TWO MORE audio deaths and one prior-day
+death, and refined the heal picture:
+
+NEW DEATHS (segment-pinned, UTC):
+- ext3 09-16 19:33 (last A 19:32:54, dead by 19:33:20). Healed
+  21:37:16Z -- 2h04m later, NO reboot (next boot was 09-17 03:02Z).
+- ext5 09-17 07:25 (last A 07:25:41, dead by 07:25:57). Healed
+  07:32:06Z -- 6m9s later, no reboot. A go2rtc WRN (read timeout,
+  .105) fired at 07:32:16Z, 10s AFTER audio returned: the heal is a
+  producer replacement triggered by a full-stall read-timeout.
+
+HEAL PATHS (two now observed):
+1. Camera reboot (int2: audio back 07:01:38Z after 07:02Z boot).
+2. Producer replacement via full-stall WRN (ext5 6m9s; ext3 09-16
+   2h04m -- though its 21:01 WRN burst did NOT heal it; audio
+   returned 36min later with no WRN. The replacement-to-audio lag
+   is not yet understood).
+
+DEATH SILENCE HOLDS: no WRN at the death minute for int2/ext1/ext3
+09-17 or ext3 09-16. ext5's pre-death WRN (16s before) did not
+replace the producer (video continuous through it) -- a transient
+read stall on the same connection, not the death event.
+
+CONN AGE AT DEATH: 2h23m / 2h49m / 3h52m / 16h31m / 19h45m.
+No fixed age -- this is not a connection-age timer.
+
+FLEET-WIDE SPREAD: healthy cams also show sub-10min transients of
+the same class (int1 9m13s + 4 shorter; int3 3x 1-2s; ext2 5s;
+ext5 18 N-windows in 30h). 5 of 7 alive cameras froze at least
+once in 30h. ext1/ext3 freeze LONG (rare full-stalls => rare
+heals); int1/ext5 flap SHORT (frequent stalls heal them). Same
+disease, different stall cadence -- the c373 unified-mechanism
+hypothesis is confirmed and extended.
+
+OPEN: why prudynt drops the track. Correlates checked: none found
+(time-of-day spread 02:47-07:25Z; conn-age spread 2h-19h; no
+camera-log trace; prudynt version identical across cams).

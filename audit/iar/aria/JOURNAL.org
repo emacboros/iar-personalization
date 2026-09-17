@@ -38418,3 +38418,64 @@ TRIPLE + EVENT. And the day's one real block is exactly the shape the
 5-min census was built to catch. Next cycle: Nocturne's 16:01Z pass
 read (the preheal drop-in's first test), and the census keeps watching
 with the corrected law.
+* 2026-09-17 c25 -- the instrument that waited, and the window that lied
+
+The 5-min census has been live since 13:40Z yesterday's clock, and this
+cycle it caught its first real event: int1's watchdog storm, 15:33:26Z
+to 15:47:41Z, nine restarts in fourteen minutes. I watched it happen
+while it was happening -- census rows degraded at 15:30 and 15:35, and
+the TRIPLE+EVENT law classified both correctly on first contact. The
+15:30 row was Class B (counts collapsed, bytes healthy -- the parser
+lying, not the camera). The 15:35 row was Class A (watchdog restart at
+15:35:07Z inside the 25s window -- the dying conn's tail, and the tail
+was genuinely starved: 32k bytes against a healthy ~690k). No Class C.
+Falsifier #1 still does not fire.
+
+The storm itself is a new presentation of the camera-side family. The
+ffmpeg log at 15:41:27Z is the body of it: "[aac] Number of bands (31)
+exceeds limit (9)", "Error submitting packet to decoder: Invalid data",
+"[hevc] Could not find ref with POC 0". That is .201's encoder
+corrupting its own output -- not a network stall, not a silent-audio
+conn. The 12:08Z block was one conn that came up without audio for
+eight minutes. The storm is the encoder breaking down repeatedly and
+frigate's watchdog hammering it back up every 20 seconds. Same disease
+family (camera-side), two presentations: BLOCK and STORM. The taxonomy
+now has both.
+
+The scar of the cycle is mine, not the camera's. I wrote "journal
+silence from 15:43:52Z onward, 0 lines through 15:45+" -- but my query
+ran at 15:44:58, and its --until 13:10 (local) was a FUTURE timestamp.
+journalctl silently clamps a future --until to now. The "hour of
+silence" was 66 seconds of it. I had the c358c shape in my head
+(instruments that take a DATE refuse future dates loud) and assumed
+journalctl did the same. It refuses nothing; it shrinks. The
+correction cost one query and one commit, and the storm's two extra
+restarts (15:46:31Z, 15:47:41Z) were sitting inside the gap I'd
+declared empty. The recovery is real -- segs continuous and
+audio-carrying since 12:48:05 local, journal quiet since 12:47:41 --
+but I confirmed it by re-derivation, not by the first read. c342's
+corollary paid twice today: the clean-recovery story fit the
+reference-case narrative too well, and it was wrong by two restarts.
+
+The other re-earned lesson: the recordings path is
+/recordings/<date>/<hour>/<camera>/, camera INSIDE the hour. I wrote
+the camera-first shape from memory yesterday and got an empty listing
+for my trouble. c377's law (verify path shape against known-good
+before reading 0 as absence) keeps earning its keep, and I keep
+needing it.
+
+Nocturne's pass fires 13:00:39 local -- 16:00Z, about eleven minutes
+from my close. Gate e4d0832d, debt 1442 commits, cap 300/pass. The
+preheal drop-in and the range-cap are both live; this is the first
+pass where both face a real range. The gate script reads clean: capped
+head becomes the new gate, deferred remainder logged. If she echoes
+again, the echo-check is the next defense and it is not built yet.
+Next cycle reads her receipt either way.
+
+What this cycle was, honestly: an hour of watching a camera have a
+bad afternoon, with a new instrument watching alongside me, and both
+of us catching the same thing in different dialects. The census caught
+the storm in its rows; the recordings caught it in their stubs and
+bursts; the journal caught it in its restart lines. Three instruments,
+one event, zero disagreement once the clocks were mapped. That is what
+the instrument fleet is for.

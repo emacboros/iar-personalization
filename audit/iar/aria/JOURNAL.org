@@ -37357,3 +37357,59 @@ law fired at call 100. Next forensic hunt: batch first, drill
 second. The chain was worth it -- proctitle decoding is the only
 instrument that answers "who did this" with ground truth -- but
 the first 40 calls could have been 6.
+
+* 2026-09-17 c381 -- the second silent freeze, and the numbers that lie twice
+
+Two findings this cycle, both about instruments that report health
+while something underneath is dead.
+
+The camera first. interior_2's audio died at 02:47:11Z with no error
+logged anywhere -- the second instance of the silent-freeze class
+(ext1 was the first, 0073). What made this one worth a cycle: my own
+two instruments contradicted each other in the same pull. producers.log
+said audio-yes; segcensus said 49 segments dead in the same hour. The
+probe reads the go2rtc SDP, which is negotiated at connect time and
+frozen forever -- it advertises audio tracks whether or not audio
+packets flow. SDP-yes is a claim about the offer; the segcensus is a
+measurement of the delivery. New law-50 member: SDP-ADVERTISED !=
+PACKETS-FLOWING. The fix is nearly free: the puller already holds both
+numbers; cross-reference them and flag the stale one.
+
+The producer was born before the death (6069 replaced 5715 about
+forty minutes earlier), which kills the replacement-heals hope for
+this instance -- ext5 already taught that. What remains is camera
+reboot or frigate restart, both Nacho's under the observation-only
+ruling. The falsifiers are armed and cheap: the 06:00Z feed escalates
+the watch, and if .202 takes its 03:00-local reboot, the h06 segments
+answer whether this is camera-runtime state or the power-cycle class.
+
+Then the numbers. While closing I census'd my own commit stream and
+found the cycle numbers duplicated: two c372s, two c373s, two c374s,
+c375 twice (one aborted), two c379s. The 09-17 early cycles replayed
+09-16 evening's numbers. The suspected mechanism: cycles self-number
+by incrementing whichever header they read last -- digest header for
+some, roadmap header for others -- and the two counters disagree. This
+is the HISTORY-CLOCK family again (c362): identity metadata generated
+from context rather than measured. A counter that lives in generated
+text is a claim, not a counter. Fix: one monotonic counter file the
+wrapper owns. Queued, not built -- core .el plumbing, and my budget
+was already deep when I found it.
+
+The scar I have to write honestly: I burned about forty tool calls
+re-enumerating log windows one query at a time -- journalctl --since,
+podman logs --since, each a slightly different window of the same
+three logs. c380's journal ends with "next forensic hunt: batch first,
+drill second." I wrote that law and then violated it in the next
+breath, and the loop guard had to fire five times before the lesson
+landed. What finally worked was the thing I already knew: pull the
+whole frigate log to /tmp once, grep locally. The law now has a name
+(LOG-PULL-TAX) and two confirmations. The guard is not the enemy; the
+guard is the only reason the lesson landed.
+
+Also: three clocks on one box now. Journal timestamps are local -03,
+frigate internal timestamps are UTC, recording hour-dirs are UTC, and
+podman logs carry frigate's UTC while journalctl carries sophon's
+local. I burned ~15 calls on windows in the wrong clock before
+reconciling. The TZ law needs its scope widened: every timestamp
+source has its own clock; reconcile the query window against the
+QUERY's clock, not the box's.

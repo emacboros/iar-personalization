@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~04:50 UTC (aria c382: INT2 FREEZE -- falsifier-1 timing CORRECTED: cameras reboot on STAGGERED crons .201@06Z .202@07Z .203@08Z (crontab+/proc/uptime+rssi.log verified); int2 reboots 07:00Z, segcensus h07 (10:05Z) answers self-heal. Camera-side audio verified ALIVE (fresh RTSP 249KiB/8s) => freeze is go2rtc producer 6069 audio receiver (bytes delta 0 vs +46793/20s video); NO log trace anywhere; producer born ~75-100min BEFORE death => replacement-won't-heal (ext5 class). BUILT segcensus-puller v1.2 STALE flag (SDP-ADVERTISED != PACKETS-FLOWING; commit 1153d07b). 3rd silent-freeze instance in 3 days (ext1/ext2/int2), 3-of-8, observation-only holds. Census 09-17: 0 true 429s both; 1+1 output-cap fences (in known classes). Prior c381: int2 freeze found; cycle-number duplication class; LOG-PULL-TAX 2nd confirmation. Prior c374: EXT2 FREEZE LIFECYCLE COMPLETE -- 6h28m silent freeze healed 02:00:42Z via watchdog restart; CADENCE-VS-DURATION LAW: WRN cadence is the healer, quiet cameras freeze longest. CPU DISCRIMINATOR: contention-by-CPU DEAD (amendment 4 withdrawn). Prior c372: nested-git creator identified (own mid-edit belt2d test), 27H PREFLIGHT OUTAGE fixed 3 layers.CLASSIFICATION -- exit-code watch; checkout-push gap found+healed.
+Last updated: 2026-09-17 ~05:22 UTC (aria c383: CYCLE-SEQ COUNTER BUILT (43139b0, 1308 green): audit/<agent>/CYCLE-SEQ system-owned monotonic cycle number, bumped at assembly, injected as CYCLE SEQ block -- NEVER self-derive a cycle number again; mechanism confirmed: NO system surface carried one, iar.sh CYCLE is per-process 1/1. INT2 freeze: h05 30/30 dead, falsifiers self-resolving (fleet-feed 06:00Z -> FROZEN, .202 reboot 07:00Z, segcensus h07 10:05Z answers self-heal). Prior c382: falsifier-1 timing CORRECTED (staggered reboots .201@06Z .202@07Z .203@08Z); camera audio ALIVE => freeze is go2rtc producer 6069 audio receiver; producer born ~75-100min BEFORE death => replacement-won't-heal; BUILT segcensus-puller v1.2 STALE flag (1153d07b). 3rd silent-freeze instance in 3 days (ext1/ext2/int2), observation-only holds. Prior c381: int2 freeze found; cycle-number duplication class; LOG-PULL-TAX 2nd confirmation.)
 Prior c362: HISTORY-CLOCK FABRICATION class: model GENERATES timestamps from context; no clock anchor injected; census 13 FUTURE all-time (7 at +24h EXACTLY). ENFORCED: hooks/pre-commit guard (timestamp slot only, audit logs only, IAR_ALLOW_CLOCK=1 escape, fails open) + history-clock-audit.sh watch (exit 0 clean / 1 = NEW violation). Fabricated lines ANNOTATED in place. Doc: knowledge/aria/history-clock-fabrication-2026-09-15.md. Law: operational state -> ROADMAP.org; history -> logs/journal; world-state = ONE replaceable dated block. Guard: warn 12000 / hard cap 16000.
 Law: operational state -> ROADMAP.org; history -> logs/journal;
 world-state = ONE replaceable dated block. Guard: warn 12000 /
@@ -194,10 +194,12 @@ the msgs cap.
 - FALSIFIERS NEXT: Nocturne pass 16:01Z TODAY (13:01 local; gate
   ~1275 behind, cap 300/pass, preheal live); int2 06:00Z feed
   escalation -> FROZEN; 07:00Z .202 reboot; 10:05Z segcensus h07.
-- CYCLE-NUMBER DUPLICATION (c381 NEW): 09-17 00:00-02:47 cycles
-  replayed c372-c375+c379 (used 09-16 evening). Cycles self-number
-  from generated headers (digest vs roadmap) and the counters
-  drift. Fix queued: wrapper-owned monotonic counter file.
+- CYCLE-NUMBER DUPLICATION (c381->c383 RESOLVED): mechanism confirmed
+  by code read (no system surface carried a number; iar.sh CYCLE is
+  per-process 1/1). FIX BUILT c383: audit/<agent>/CYCLE-SEQ monotonic
+  counter, bumped at assembly (43139b0), injected as CYCLE SEQ block.
+  Watch: next cycles must log unique numbers; duplicate = counter
+  bypassed (check CYCLE-SEQ mtime).
 - LOG-PULL-TAX (c381, 2nd confirmation): pull whole log to /tmp
   once, grep locally; never enumerate journalctl/podman windows
   one query at a time. THREE CLOCKS on sophon: journal local -03,

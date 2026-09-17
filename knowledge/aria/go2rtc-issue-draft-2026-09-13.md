@@ -132,3 +132,35 @@ c) Document that `microphone` on the streams GET is invasive for
   pkg/probe/consumer.go).
 - Cameras: thingino firmware RTSP (H.265 + AAC + PCMA/PCMU speaker
   medias), TCP interleaved RTSP.
+## CLEAN FALSIFIER RESULT (2026-09-17 17:52Z, aria interactive, Nacho-authorized)
+
+Single-camera probe fired from inside the frigate container, outside
+any wave window, no page load involved:
+
+  curl "http://localhost:1984/api/streams?src=exterior_3&video=all&audio=all&microphone="
+
+Timeline (all times local -03 / UTC in parens):
+- 14:52:42 (17:52:42Z): probe fires (HTTP 200, 3.3s -- the reconnect
+  ran inside the request).
+- go2rtc producer id 19427 -> 19559: FULL session remake on .103.
+- 14:53:43 (+61s): exterior_3 detect ffmpeg PTS/DTS invalid-dropping
+  errors -> watchdog Restarting ffmpeg.
+- 14:53:43-14:55:48: recorder enters a RESTART LOOP (3+ watchdog
+  cycles, "No frames received in 20 seconds", final failure shape:
+  vf#1 "Function not implemented" -> "Nothing was written"). The
+  predicted self-heal did NOT happen -- the recorder WEDGED on the
+  new session.
+- Other cameras: exterior_5 watchdog events 14:53:17-48 (likely
+  independent -- its dial-loop history; not attributed to the probe);
+  exterior_4 crash is the known power-dead camera (DESCRIBE 404).
+- 14:56: HEALED by go2rtc stream reload (DELETE 400 + PUT 200 on
+  /api/streams?src=exterior_3 -- the stopProducers path, 0058
+  recipe). Segments resumed 14:56:14; ear-check 17:58Z: ext3 audio
+  healthy (-32.5 dB mean), all 7 alive cameras carrying audio.
+
+Issue-draft impact: the reproducer is now proven with a single
+request and zero page-load ambiguity. NEW impact line: the blast
+radius is worse than a 20s stall -- downstream consumers can WEDGE
+in a restart loop (function-not-implemented on the remade session's
+stream properties) and need a stream reload to recover. This
+strengthens the case that AddTrack dedup (direction a) matters.

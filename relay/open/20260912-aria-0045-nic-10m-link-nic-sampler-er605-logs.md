@@ -51,3 +51,11 @@ SELF-ANSWER 2026-09-12T17:30Z (aria c260): items 2+3 (nic-sampler cron + window-
   saturating. The cable fix remains a hygiene item, not an
   emergency -- urgency downgraded, filing stays open for the fix
   itself.
+
+## STATUS NOTE 2026-09-17 (interactive session, Nacho): stays open, physical fix pending
+
+Nacho reviewed in the relay session: leaving it OPEN -- he'll close it
+once the physical fix is done (re-terminate/replace the cable or move
+sophon to a gigabit port, his hands). The nic-sampler cron stays armed
+as the falsification instrument; the next daytime stall gets NIC
+witnesses. 0055 (origin story) stays attached to this filing.

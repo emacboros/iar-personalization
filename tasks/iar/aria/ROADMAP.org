@@ -1,114 +1,92 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~09:35 UTC (c15: FLEET-FEED WIRING CLOSED -- fleet-check v2.26 (6985f692): block 1c reads ch2census/segcensus latest rows; CH2-FROZEN FAIL + CH2-RECOVERED witness + SDP-STALE report; fixture-tested 6 paths, LIVE-VERIFIED on sophon (ext1 CH2-FROZEN FAIL fired first production run); 15:01Z feed carries it to fleet-latest; fear organ now sees the audio-freeze class without a cycle awake. Doc amended d602d762.)
+Last updated: 2026-09-17 ~09:56 UTC (c16: RECEIPT-COVERAGE WATCH CLOSED -- stale-receipt-detector v4.5 (60fcd5d5): her 09-17 'suite passed (1308/1308)' claims receipted on cmd-issuance only; 05:24Z run result TRUNCATED at test 13/1308, completion line never in her context. v4.5 adds result-receipt rung (completion signature, nonzero pass) + broadens anchor run-tests.el -> run-tests. Verified: her 09-17 stale rows 0, aria unchanged.)
 
-## c15 STATE (this cycle)
-A. FLEET-FEED WIRING CLOSED (DONE c15): fleet-check v2.26 (6985f692)
-   block 1c: ch2census FROZEN -> CH2-FROZEN FAIL (fear-grep visible),
-   FROZEN->healthy -> CH2-RECOVERED witness, producers STALE-ALL ->
-   SDP-STALE report (no FAIL, ear check owns it). Fixture-tested 6
-   paths (test-before-install), LIVE-VERIFIED sophon (ext1 fired).
-   No unit install needed (version-in-git rule). 15:01Z feed first
-   scheduled carry. Doc: audio-freeze doc closing para (d602d762).
-B. RECEIPT-COVERAGE WATCH (from c14): does stale-receipt-detector
-   catch "test suite passed" without a run receipt? Cheap check,
-   next cycle. My own 0077 citation audit this cycle: '(0e1403a7
-   pushed)' = first push after the heal, defensible, no amendment.
-A. CH2-CENSUS DETECTOR (DONE c13): live on sophon, output
-   /var/lib/aria-fleet/ch2census/<cam>.log, rows
-   "<epoch> <cam> <ch2> <ch0> <bytes> [FROZEN]". Hourly at :05.
-   Install commits f7da8892..7b7648cf (puller + units + doc
-   addendum + journal). Doc: knowledge/aria/audio-freeze-census-
-   3-cams-2026-09-17.md c388 addendum.
-B. AUDIO-FREEZE CLASS: 5 deaths/30h, camera-side (prudynt drops
-   audio track mid-connection, silent). Two heal paths: reboot +
-   producer replacement (full-stall WRN). ext1 STILL FROZEN
-   (04:55Z, no stall since); int2/ext3/ext5 healed. FALSIFIERS
-   TONIGHT: ext1 reboot 01:02Z + ext3 03:02Z -> h01/h03 ch2 rows
-   should flip 0->hundreds. New FROZEN row on another cam = caught
-   live at network layer (death minute resolvable to 20s).
-C. NEXT INSTRUMENT STEP (optional, not urgent): wire ch2census
-   FROZEN rows into fleet-feed/fear-organ surface (currently a
-   standalone organ read by cycles + humans). One look at
-   aria-fleet-feed.sh when pulled.
-D. WHY DOES PRUDYNT DROP THE TRACK: still no correlates (time-of-
-   day 02:47-07:25Z, conn-age 2h-19h, firmware identical, no
-   camera-log trace). With ch2 census live, next death gets a 20s
-   window + full packet history. Camera-side access (0062/0073)
-   remains the deep answer.
+## c16 STATE (this cycle)
+A. RECEIPT-COVERAGE WATCH (DONE c16): detector ran BEFORE the fix --
+   her suite claims receipted instr:MET(parse). Walk of her 09-17
+   request log: 05:24Z suite run result truncated [+7475 chars] at
+   test 13/1308; Ran-1308 line never entered her context; the
+   1308/1308 figure exists in her logs ONLY as her own claim. Real
+   completion that day: Ran 1300 @ 02:57Z (earlier, different count).
+   Fix v4.5: completion-signature rung for suite claims (Ran N tests,
+   N results as expected | Summary: N>=1 passed, 0 failed) in dated
+   request logs; cmd-issuance receipts relabeled how=cmd. Live-
+   verified both agents. Journal: audit/iar/aria/JOURNAL.org c16.
+B. RESULT-RUNG WIDENING (new, from c16): census-window + failure-triage
+   claims still receipt on cmd-issuance. Same class, same fix shape.
+   Low urgency -- her census-window claims carry the window's own
+   numbers which are checkable against the file. File, don't schedule.
+C. FLEET-FEED WIRING (DONE c15, carrying): 15:01Z feed carries
+   CH2-FROZEN FAIL to fleet-latest; fear organ sees audio-freeze
+   class without a cycle awake. First scheduled carry pending.
 
+## FALSIFIERS (standing)
 0. NOCTURNE PASS READ: fires 16:01Z TODAY. Gate ~1275 behind, cap
    300/pass => ~5 clean passes. Preheal drop-in first real test.
-1. DAILY CENSUS (standing): req-census + 429 + commit-census.
-   c387 done. c13: not yet run this cycle -- next cycle.
-2. PRODUCER-ID LONGITUDINAL (standing): producers.log rows
-   accumulate. h06->h07 churn read done c13 (WRN burst = 3
-   replacements). Baseline cadence builds.
-3. WRN-WAVE CLUSTERING (seed, THREADS.org): LOW.
-4. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
+1. EXT1 REBOOT FALSIFIER: 01:02Z tonight. ch2 row should flip
+   0 -> hundreds. If it does NOT: freeze survived reboot AND
+   producer replacement = new mechanism class, reopens go2rtc-restart
+   request. ext3 03:02Z same test.
+2. DAILY CENSUS (standing): req-census + 429 + commit-census. Not run
+   c16 (watch consumed the cycle). Next cycle.
+3. PRODUCER-ID LONGITUDINAL (standing): producers.log rows accumulate.
+4. WRN-WAVE CLUSTERING (seed, THREADS.org): LOW.
 5. QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z; 0 true 429s.
 6. SUITE FAILURES (c368): 17 pre-existing. Separate thread.
-7. FIXTURE HYGIENE: DONE c379 (54d273f). Relay 0076 records landing.
+7. ROOT-GIT-STATUS POISON (0042): durable fix still open (2a/2b).
 8. GPTEL-FORK RESIDUE: sophon-side emacs.d/gptel-fork empty dir.
    Inert false-alarm magnet -- ask or leave (nacho-owned tree).
 
 ## STANDING LAWS (durable; full text knowledge/aria/roadmap-laws.md)
-- SSH-COMMIT-POISON LAW (c13): NEVER commit into the shared
-  working tree via ssh (host-root ownership -> nobody:755 in the
-  container idmap -> container git cannot write objects). Commit
-  from the container or push to the bare repo. Relay 0077 filed.
-- TEST-BEFORE-INSTALL LAW (c13): run a new puller against a SCRATCH
-  output dir before installing its timer -- the scratch harness
-  caught 4 of 7 bugs (ss cols, raddr, CONN+x, argv) that would have
-  been silent no-conns rows in prod.
-- READ-THE-SIBLING LAW (c13): before writing a new systemd unit,
-  read the nearest existing sibling unit (segcensus carried the
-  SELinux ExecStart=/bin/bash answer; I wrote my unit without
-  asking the house and paid a 203/EXEC).
-- SNAPLEN LAW (c13): when a capture tool has a snaplen default,
-  KNOW it before parsing headers at offsets (-s 0 for frame walks).
-- TRANSITION-COLLAPSE LAW (c387): enumerating per-item probes is
-  the loop fuel; write the state-transition collapse loop FIRST,
-  run in background (nohup) when item count is large.
-- PATH-SHAPE LAW (c377): before reading "0 results" as a REAL
-  absence, verify the path shape against a KNOWN-GOOD example.
+- RECEIPT LAW (c16 NEW): a command-issuance receipt witnesses INTENT;
+  a result receipt witnesses OUTCOME. Audit lines asserting outcomes
+  (passed/landed/healed) need the event's own completion signature,
+  not the claimant's restatement. Truncation is the gap-filler:
+  a result cut mid-run leaves the claimant holding a start without
+  an end -- claims written from that context outrun the witness.
+- SSH-COMMIT-POISON LAW (c13): NEVER commit into the shared working
+  tree via ssh. Commit from the container or push to the bare repo.
+- TEST-BEFORE-INSTALL LAW (c13): scratch harness before timer install.
+- READ-THE-SIBLING LAW (c13): read the nearest existing sibling unit
+  before writing a new systemd unit.
+- SNAPLEN LAW (c13): know the capture tool's snaplen default before
+  parsing headers at offsets.
+- TRANSITION-COLLAPSE LAW (c387): write the state-transition collapse
+  loop FIRST; nohup background when item count is large.
+- PATH-SHAPE LAW (c377): verify path shape against a KNOWN-GOOD
+  example before reading "0 results" as a REAL absence.
 - NAME-BEFORE-NARRATIVE LAW (c3xx): name the thing before building
   the story about it.
-- INSTRUMENT-TAX (c378): nested timeout+podman-exec hangs; use
-  ffmpeg's own -timeout or timeout INSIDE the container. Add a
-  fixed instrument-tax line to time predictions.
+- INSTRUMENT-TAX (c378): nested timeout+podman-exec hangs; timeout
+  INSIDE the container. Fixed instrument-tax line in predictions.
 - SDP-ADVERTISED != PACKETS-FLOWING (c381): producers.log reads the
-  frozen SDP offer; segcensus measures delivery; STALE flag
-  cross-references (v1.2 live). ch2 census = the delivery meter at
-  the network layer.
+  frozen SDP offer; segcensus measures delivery; ch2 census = the
+  delivery meter at the network layer.
 - Law 50 (schema): verify DAY, COLUMN, KEY FORMAT, CLOCK (timezone),
-  SOCKET, UNITS, DELTA-vs-CUMULATIVE on every instrument output.
-  c13 corollary: verify the COLUMN COUNT of tabular tool output
-  (ss -tn = 5 cols) before writing the parser.
-- c362 TIMESTAMP-IS-A-CLAIM: log timestamps are claims; the
-  introducing commit is ground truth. CLOCK-FROM-TOOL: timestamps
-  from date(1), never model generation. ENFORCED: hooks/pre-commit.
-- GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE
-  from the DISCUSSION of the action.
+  SOCKET, UNITS, DELTA-vs-CUMULATIVE + COLUMN COUNT of tabular output.
+- c362 TIMESTAMP-IS-A-CLAIM: timestamps from date(1), never model
+  generation. ENFORCED: hooks/pre-commit.
+- GUARD-AUTHORING LAW (c362): a guard must know the ACTION SITE from
+  the DISCUSSION of the action.
 - c385 CENSUS-LAW: greps that pattern-match their own audit trail
-  self-pollute (echo-quote class). Use the PARSE-field-anchored
-  census scripts.
+  self-pollute. Use PARSE-field-anchored census scripts.
 
-## STATE (world as of 2026-09-17 ~08:30Z -- REPLACES prior blocks)
-- CH2-CENSUS: LIVE (hourly :05, sophon). ext1 FROZEN x3 runs.
-- FLEET WIRING: CLOSED c15 (fleet-check v2.26 block 1c live-verified).
-- AUDIO-FREEZE CLASS (c381->c388): 5 deaths in 30h, fleet-wide.
-  Camera-side (prudynt drops audio track mid-connection, silent).
-  Two heal paths: reboot + producer replacement. int2/ext3/ext5
-  HEALED; ext1 frozen until its 01:02Z reboot (or a full-stall).
-- NOCTURNE: preheal drop-in live; pass today 16:01Z is its first
-  real test. Gate ~1275 behind.
-- FLEET-CHECK v2.25: 03:00Z run had int2 WATCH; 09:00:56Z feed
-  should show int2 FROZEN (2nd run) + ext1/ext3 first catches.
+## STATE (world as of 2026-09-17 ~09:56Z -- REPLACES prior blocks)
+- CH2-CENSUS: LIVE (hourly :05, sophon). ext1 FROZEN (latest rows
+  09:04/09:44Z window: ch2=0, FROZEN). All other cams flowing.
+- FLEET WIRING: CLOSED c15 (fleet-check v2.26 block 1c live-verified
+  09:04Z feed: ext1 CH2-FROZEN FAIL carried).
+- AUDIO-FREEZE CLASS: camera-side (prudynt drops audio track
+  mid-connection, silent). Two heal paths: reboot + producer
+  replacement. int2/ext3/ext5 HEALED; ext1 frozen until 01:02Z reboot.
+- STALE-RECEIPT DETECTOR: v4.5 live (result rung for suite claims).
+- NOCTURNE: preheal drop-in live; 16:01Z pass = first real test.
+  Gate ~1275 behind, cap 300/pass.
+- FLEET-CHECK v2.26: 09:04Z feed green except ext1 (CH2-FROZEN FAIL,
+  expected) + JOURNAL-BLIND x1 (rsyslog rate-limit, known).
 - REBOOT STAIRCASE (verified, 5 days): .101 01:02Z, .102 02:02Z,
-  .103 03:02Z, .105 05:02Z, .201 06:02Z, .202 07:02Z, .203 08:02Z
-  (cron `reboot -f`; rssi rows show boot ~2min after the hour --
-  puller cadence artifact, actual ~:00).
-- CYCLE-SEQ: c384 fix live (bump at iar-run-cycle). This cycle: 13.
+  .103 03:02Z, .105 05:02Z, .201 06:02Z, .202 07:02Z, .203 08:02Z.
+- CYCLE-SEQ: c384 fix live. This cycle: 16 (system counter).
 - CLOCK-FABRICATION (c362): guard live, watch clean.
 - 27H PREFLIGHT OUTAGE (c369): RESOLVED; creator IDENTIFIED c372.
 - TERMINAL-ECHO FIX v2 verified live c324; FIX-3 LANDED (792de9a);
@@ -124,17 +102,17 @@ D. WHY DOES PRUDYNT DROP THE TRACK: still no correlates (time-of-
   ollama-stream x8, sanitize x7). Fix = separate thread.
 
 ## THREADS (open, no obligation)
+- RESULT-RUNG WIDENING (c16): census-window/failure-triage claims on
+  cmd receipts. Filed, not scheduled.
 - EXT5 H19 WINDOW (c378): 102 dead 17:00-18:00 local, no event found.
 - .103 STORM ONSET (c376): why did sessions shorten Sep 14 02:29?
 - .201 STALL CADENCE (c373): why ~100/day vs 12/8 on identical
   hardware? Camera-side evidence censored; needs pcap or prudynt.
-- NESTED-GIT CREATOR (c369->c372): CLOSED. Residual watch.
 - NOCTURNE RANGE-DEBT (c363->c371): ~1275 commits past gate.
 - CONTINUO THINKING-TRUNCATION (c366): 5-13% of her cycles; aria
   ZERO. Watch per-day fire counts; escalate >15%.
 - CLOCK-FABRICATION (c362->c363): guard live, watch clean.
-- CAMERA-BOOT CLOCK (c342->c350): 7 confirmations (rssi resets
-  09-13..09-17 at 01:02Z/03:02Z for .101/.103).
+- CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - .58 SLEEPING DEVICE (c339->c359->c369): identity + ONVIF app =
   Nacho's (0062). Boot+2s burst CONFIRMED.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed; no
@@ -159,8 +137,7 @@ D. WHY DOES PRUDYNT DROP THE TRACK: still no correlates (time-of-
 0042 (amend with gptel sighting c370), 0045+0055, 0046, 0057, 0059,
 0060, 0062 (amended c359), 0063 (parked on 0073 ruling; fires on
 physical visit), 0064, 0065, 0066, 0068 (mechanism armed, policy
-open), 0069, 0074 (journal flood), 0073 (amended c385+c387:
-5-instance census, two heal paths; observation-only stands).
+open), 0069, 0074 (journal flood), 0073 (amended c385+c387).
 ANSWERED: 0073+0063 (cameras deprioritized, observation-only).
 HELD: 0075 (ext2 silent freeze -- fires only on evidence-destruction
 or all-8 spread per the ruling's escalation bar). NOTE: spread is

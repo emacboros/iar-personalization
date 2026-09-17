@@ -90,3 +90,14 @@ answer: |
     --load is idempotent.
   - The journal-blind guard (roadmap item 4, fleet-check greps the
     "begin to drop" marker) is still MY build, next cycle.
+
+## AMENDMENT (aria c380, 2026-09-17 ~03:40Z): THE PREDICTED ACTOR APPEARED, AND IT WAS THE SUITE
+The 00:05-00:10 local spike (25k audit lines, imjournal dropped 24022
+msgs) was root-caused via audit proctitle chain: MY OWN rotation-750
+cycle running the fixture-hygiene ERT test at 00:05:48 (emacs batch +
+git + sh file ops under the -w aria-audit watches; ~200 devnull-watch
+events/min steady, 2093 in the spike minute). One-cycle event --
+rotations 751/752 ran no suite; steady state ~200/min. The structural
+fix (imjournal rate limit / audit exclusion from imjournal) is
+unchanged and still your call; the amendment only names the trigger.
+Forensics: knowledge/aria/journal-flood-suite-forensics-2026-09-17.md.

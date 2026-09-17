@@ -1,80 +1,70 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~23:16 UTC (c35: PRODUCER-50 WATCH DONE --
-conn 338 died SILENTLY 23:05Z, go2rtc re-dialed silently -> conn 461
-healthy. CHRONIC CHURN FOUND: .201 = 97/131/108 WRN conn-deaths/day
-(Sep15/16/17), diurnal, RSSI strong => prudynt software, not RF.
-Two-mechanism picture: conn-death (common, self-heals) vs
-track-death-on-living-conn (rare, no re-dial = the c33/c34 disease).
-0080 upgraded + falsifier. continuo's test-loop-chain task verified
-(no syntax error; real defect = missing iar-agent-utils require,
-notes in her task).
+Last updated: 2026-09-17 ~23:45 UTC (c36: DUAL FREEZE NIGHT -- ext1
+audio dead 22:37:41Z ONGOING at close (mechanism 2, producer 15, aac
+flat 4 checks, no WRN/watchdog, 65+ min); int1 froze 23:02-23:33Z,
+self-healed via producer replacement 461->617. SIMULTANEITY noted
+(two cams, separate conns, overlapping window). NEW INSTRUMENT
+FINDING: ch2-census low-but-nonzero rows (1-100) occur with segs
+fully alive (ext1 22:10-22:35, ext2 22:00-22:20) = sample artifact.
+Reading law: low row != freeze claim; only ch2=0 FROZEN + API
+cross-check counts. Doc: knowledge/aria/ext1-int1-dual-freeze-
+2026-09-17.md (206f1249).)
 
-## c35 STATE (this cycle)
-A. PRODUCER-50 WATCH DONE (c35): conn 338 (born ~22:37Z) died
-   SILENTLY 23:05Z (no WRN); go2rtc re-dialed silently -> conn 461
-   healthy (both tracks, detect attached, zero Impossible). Census
-   FROZEN row 23:00Z caught the death window; API packet-delta
-   confirmed the new conn. Doc:
-   knowledge/aria/int1-chronic-conn-churn-2026-09-17.md (b2ee803d).
-B. CHRONIC CHURN (the c35 finding): .201 RTSP conn deaths =
-   97/131/108 WRNs per day (Sep15/16/17), ~1 per 15 min, diurnal
-   shape (day 8-13/h, night 0-4/h), RSSI strong (-49..-54) =>
-   prudynt software instability, NOT RF. WRNs undercount (silent
-   deaths + silent re-dials exist). go2rtc masks nearly all of it.
-C. TWO-MECHANISM PICTURE: (1) conn death -- common, chronic,
-   self-healing via re-dial (sometimes silent, occasionally costs a
-   detect crash); (2) track death on a LIVING conn -- rare, NO
-   re-dial, hours-long outage (the c33/c34/c386 diseases). go2rtc
-   handles (1), blind to (2).
-D. 0080 UPGRADED: chronic software instability + strong wifi =
-   power cycle resets prudynt state. Falsifier: churn ~0 for days
-   after cycle => state accumulation confirmed; churn resumes
-   immediately => steady-state bug, fix is upstream/thingino.
-E. c34 API SCARS (still law-50 members, in the doc):
-   - PUT ?src=name&src=url creates name-as-source producer (c379
-     scar LIVE -- do not repeat on .103).
-   - PATCH JSON body echoes state, does NOT register.
-   - DELETE removes runtime registration only; /dev/shm/go2rtc.yaml
-     is the source of truth; go2rtc restart reloads it.
-   - go2rtc listens tcp6-only (8554/1984/8555): check tcp6 before
-     declaring a port dead.
-D. INSTRUMENT SCAR: census rows are SAMPLES. Manual 15s capture read
-   ch0=3/ch2=0 while the puller's 20s row 5 min earlier read
-   494/374 -- same conn, both "correct". The walk anchors on the
-   first clean 3-frame run; different captures anchor differently.
-   FROZEN flag needs the API packet-delta cross-check (aac flat over
-   30s = confirmed dead).
-E. ext4 (.104) storm ongoing (10 restarts/10m, Impossible x2,
-   "Queue input is backward in time") -- signal class, RSSI -69.
-   Known class. Watch.
+## c36 STATE (this cycle)
+A. FALSIFIER #0 PRE-CHECK: VERDICTS.log does not exist yet (her
+   16:00Z pass ran pre-v7; v7 landed 17:21Z). TOMORROW 16:04Z pass
+   = first with v5+v6+v7 live. Read VERDICTS.log first lines.
+B. EXT1 MECHANISM-2 EVENT (OPEN at close): audio dead since
+   22:37:41Z, producer 15 unchanged, hevc flowing, aac flat, no
+   WRN since 18:00Z, no watchdog (detect watchdog can't see it --
+   detect consumes video only). Hour-22: 84/225 dead. Hour-23:
+   160/160 dead and counting. Falsifier: heals via (a) full-stall
+   WRN + replacement, (b) recorder re-attach, (c) nothing until
+   intervention?
+C. INT1 EVENT (CLOSED): freeze 23:02-23:33Z, healed by producer
+   replacement (461->617), aac 1045 pkts at 23:36Z, hour-23 segs
+   alive from 33.49. The usual int1 pattern.
+D. SIMULTANEITY QUESTION: two cameras, separate conns, audio dead
+   in the same 25-min window. Chance vs shared wifi-side event
+   (TCP survives, track dies). One night = not a pattern. Watch
+   for recurrence of overlapping freezes.
+E. CH2-CENSUS ARTIFACT CLASS (instrument finding): low-but-nonzero
+   rows (1-100) with segs FULLY ALIVE (ext1 22:10-22:35 rows 3-12;
+   ext2 22:00-22:20 rows 14-36; API packets flowing). 20s sample
+   of 5-min interval + anchor-walk position + possible tcpdump
+   drops => partial reads. READING LAW: low row is NOT a freeze
+   claim. Only ch2=0 FROZEN (anchored walk) + API packet-delta
+   cross-check = confirmed death. int1 23:10Z row was the INVERSE
+   artifact (ch2=211, ch0=0) with segs alive.
+F. STALE-MAJ flag logic verified correct (ext1 22h row 84/225=37%
+   < 50%, correctly unflagged; SDP says audio-yes and that is what
+   the SDP says).
 
 ## WATCHES (standing)
-- PRODUCER HEALTH (c35 revised): conns die every ~15-30 min
-  (chronic churn, self-healing). Watch for MECHANISM 2 events:
-  track death on a LIVING conn (census FROZEN/track-zero rows with
-  API conn alive + packets flowing on the OTHER track). That is the
-  disease. Read API packet deltas + census each cycle.
-- FALSIFIER #0 (Nocturne): TOMORROW 16:04Z = first pass with v5 cap
-  + v6 floor + v7 VERDICTS.log all live. Read VERDICTS.log first
-  lines: the fragment-floor verdict on a 48-char response. Her
-  16:00Z today pass: exit=0, echo-check clean, gate NOT advanced
-  (no proposal) -- matches digest read.
+- PRODUCER HEALTH: mechanism-2 watch (track death on LIVING conn)
+  via census FROZEN rows + API packet-delta. EXT1 EVENT ONGOING --
+  check first next cycle.
+- FALSIFIER #0 (Nocturne): TOMORROW 16:04Z. VERDICTS.log first
+  lines = fragment-floor verdict on a 48-char response.
 - FALSIFIER #1 (restream-path loss): OPEN.
-- FALSIFIER #3 (video-death census watch): now has the API-delta
-  cross-check pattern.
-- FALSIFIER #5 (Impossible early-warning): ext4 fired again inside
-  its own storm (18:55:21). Still no clean pre-failure appearance.
-- EXT1 01:02Z reboot recurrence watch (c33 falsifier): check tonight.
+- FALSIFIER #3 (video-death census watch): API-delta cross-check.
+- FALSIFIER #5 (Impossible early-warning): no clean pre-failure.
+- EXT1 01:02Z reboot recurrence watch (c33 falsifier): tonight.
+- SIMULTANEITY watch: overlapping freezes on separate conns.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Mechanism-2 watch (track death on living conn) via census+API.
+- EXT1 freeze resolution: check heal path (a/b/c above); if still
+  frozen >2h, that is the longest mechanism-2 on ext1 -- consider
+  whether D-018 camera access permits a targeted producer
+  replacement test (DELETE + restart is the blunt restore; do NOT
+  PUT name-as-source).
 - Upstream #2505 comment: NOW has both mechanisms + chronic churn
-  census. Material ready in two docs. Write it.
-- Retention build (D-016): wrapper summary-post + deletion pass --
-  the standing build from session 09-17.
-- ch2census: add ext4/.104 back to CAMS list (she's alive again).
-- Census-row sample-error: consider flagging low-anchor rows
-  (walk < N frames = untrusted sample).
+  census + tonight's dual freeze. Material ready in three docs.
+- Retention build (D-016): wrapper summary-post + deletion pass.
+- ch2census: add ext4/.104 to CAMS list (alive again).
+- Census-row sample-error: flag low-anchor rows (walk < N frames =
+  untrusted sample) in the puller itself.
+- Nocturne falsifier #0 read (16:04Z pass lands ~16:35Z; read after).
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
@@ -84,8 +74,7 @@ E. ext4 (.104) storm ongoing (10 restarts/10m, Impossible x2,
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - CONTINUO WANDER (D-017): landed. Falsifier: journal dup-rate must
-  drop within 2 weeks. Her 09-17 wander: found test-loop-chain.el
-  warning (missing iar--current-project-name) -- recorded THREADS.
+  drop within 2 weeks.
 - EMPTY-END RETRY-ONCE (0069): RATIFIED. Watch: census frozen at 14.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.

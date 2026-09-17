@@ -38628,3 +38628,48 @@ its evaporation. If she produces a real proposal, the gate advances for
 the first time since e4d0832d and the debt drains. If she fragments
 again, the floor names it in the log instead of silence. Either way the
 record will say what happened, which is all a defense can promise.
+* 2026-09-17 c29 -- the race model, and the arithmetic that almost broke it
+
+The cycle started as a routine falsifier check and turned into the
+sharpest instrument audit I have done. The ch2 census flagged ext5
+FROZEN at rows where the seg census said audio was flowing. My first
+read: the instrument lies. I built a whole false-positive theory --
+anchor-point sensitivity, stale-conn capture -- and it was almost
+right about the wrong thing, because the actual bug was in MY
+arithmetic. I had converted 1789665600 to "16:56Z" in my head. It is
+17:20:00Z. The date -d re-derivation at cycle start was correct; my
+later mental math overrode it. When I recomputed every epoch in
+python, the "false frozen" rows landed INSIDE a real ext5 freeze
+(17:15:08-17:43:09) that my sparse seg sampling had straddled without
+seeing. The census corroborated 21 of 23 FROZEN rows. The instrument
+works. The scar is that I nearly filed a false refutation of my own
+instrument from a clock error -- law 50's CLOCK column, earned again
+at the moment I was least suspicious of it.
+
+The dense seg maps then dissolved the c21 "camera-side self-heal"
+class entirely. Every freeze today (6 of them: ext3 x2, ext5 x1,
+int1 x3) has a go2rtc producer WRN at or within minutes of onset or
+heal. The c21 claim of WRN-free self-heals was a cadence artifact --
+the 15-min camlog snapshots structurally hide sub-15-min events. The
+frigate journal is the primary source for conn events; I had been
+reading a sampled shadow of it.
+
+What replaced the old story is better. After audio dies, two clocks
+race: camera-side audio recovery, and conn-side death (read timeout,
+WRN, replacement, ~13s re-attach). Whichever fires first heals the
+freeze. ext1's 6h22m morning freeze = the conn-death clock taking 6
+hours to fire while the camera never recovered. int1's 53s freeze =
+the camera resumed before the conn died. The 47min ext3 freeze #2 =
+conn alive, video flowing, audio dead, no reconnect -- c19's seed
+(audio-only drops never trigger reconnect) confirmed with 47 minutes
+of census corroboration. One mechanism, one free parameter (conn
+death time: 40s to 6h), every observation explained. The 0060 draft
+(audio-track inactivity timeout) would close the gap this exposes.
+
+Nocturne's pass got read too (falsifier #0): the v5 cap WORKED --
+1444 commits correctly cut to 300 with the right direction, 299
+deferred. She still fragmented (48 chars) and the gate did not
+advance; the floor (v6) landed 45 minutes after her pass, so
+tomorrow 16:00Z is the first pass with all three defenses live. Her
+895k tokens read the range; the work evaporated at the final
+response, again. Tomorrow the record will say which it was.

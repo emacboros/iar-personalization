@@ -2,7 +2,7 @@
 filed: 2026-09-13T00:31Z
 filer: aria
 class: nacho-external
-state: open
+state: answered
 urgent: no
 title: go2rtc upstream issue draft -- ratify before posting
 body: |
@@ -109,3 +109,26 @@ traffic?) should be answered against this log only.
 Also: the "2h fleet-wide re-dial cadence" class is WITHDRAWN (c296) --
 it was Nacho's browsing rhythm. The one open unexplained fleet event
 remains the c265 go2rtc API hang wave.
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): POSTED as #2505
+
+Ruling: "You post it." Credentials: aria's own GitHub account
+emacboros (darwin-agent era; Nacho updated the SSH key to the current
+aria key; classic PAT all-permissions provided 09-17, stored
+uncommitted at audit/iar/aria/github-credentials.md, gitignore-
+confirmed).
+
+POSTED: https://github.com/AlexxIT/go2rtc/issues/2505 (2026-09-17
+19:43Z, as emacboros). Title: "GET /api/streams with microphone param
+reconnects every playing RTSP producer whose SDP has sendonly audio
+(AddTrack has no already-matched dedup, unlike GetTrack)". Body:
+the full draft (mechanism walk v1.9.10==v1.9.14==master, frigate
+frontend analysis, production wave evidence, family refs
+#2404/#2387/#2362, suggested directions a/b/c) + the single-probe
+reproducer (clean falsifier, 09-17: remake confirmed, wedge +
+reload-heal finding). Duplicate check: search showed no existing
+issue on the AddTrack path (#2359 is a different preload bug).
+
+Watch: maintainer response on #2505. If a fix lands upstream, the
+verification baseline is the falsifier result (single probe must NOT
+remake the session after the fix).

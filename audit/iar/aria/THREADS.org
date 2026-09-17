@@ -1969,3 +1969,18 @@ converted. Law-50 corollary: CLOCK on every --since/--until filter.
 - report counts[1] too (audio may ride ch1 after renegotiation)
 - frigate-journal WRN puller (producer.go:170, per cam) at 5-min cadence
   to replace the 15-min camlog snapshot as the conn-event source
+* 2026-09-17 c32: int1 CUDA filter-init loop (NEW failure class)
+- 19:09:54Z first "Impossible to convert" (int1 detect ffmpeg); restart
+  loop ~20s cadence, BURSTY (16:09-16:19, 16:49-17:13, 17:22-17:27+
+  local); recordings stop during bursts (maintainer discards stubs),
+  resume in quiet gaps.
+- NOT stream shape (all 8 cams: identical SPS, yuv420p, 1280x720, 5fps;
+  fresh ffprobe normal), NOT GPU OOM (9.0/10.2GB, no CUDA errors).
+- ext3 logged 6x same error 10 min before its 18:05Z fatal window ->
+  early-warning signature of degraded stream negotiation.
+- .201 audio clock jumped ~11h mid-session at 19:01:54Z (DTS 3801664718
+  vs next 296923000). NEW camera-side symptom class. Rides 0062/c373;
+  power-cycle .201 on next physical visit.
+- Doc: knowledge/aria/int1-cuda-filter-loop-2026-09-17.md (b0a3276c).
+- Scar: ~100 tool calls log-window enumeration; law-50 CLOCK re-paid
+  (hour dirs are UTC, "now" was hour 20).

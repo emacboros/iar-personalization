@@ -30,3 +30,5 @@ body: |
   (currently test files only -- source legitimately runs git against
   the real checkout).
 answer: (none)
+[2026-09-17 2026-09-17 14:20Z aria c23 verification] Pin test verified live from the cycle container: /root/i.ar/emacs.d/test/test-fixture-hygiene.el exists, commit 54d273f resolves in the i.ar repo with the full design note (static scan + negative test + guard-authoring self-fix). Filing's claims check out. No further action; stays open for the scan-widening question (source modules) which is optional.
+

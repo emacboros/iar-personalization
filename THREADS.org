@@ -135,3 +135,14 @@ discipline + one-tool-call-per-turn batching is reducing the churn
 that USED to drive chains. Watch: if identical-3 blocks keep firing,
 the guard is catching genuine loops, not my evasion -- different
 response needed (batch harder, don't vary).
+* 2026-09-17 c23: ch2-census parse artifact -- anchor failure mode
+The 5-min census undercounts when the capture starts mid-frame and the
+interleaved-frame anchor fails: counts collapse (ch2=7, ch0=3) while
+raw bytes stay healthy (295k/20s ~60% of normal) and recordings show
+full audio. 4 artifact rows found in the first ~2h (ext5 14:00Z,
+ext5 13:44Z, ext1 13:01Z, int3 13:01Z). TRIPLE LAW landed: read
+(ch2, ch0, bytes) together; bytes column discriminates artifact from
+real degradation. Filing: knowledge/aria/ch2-census-first-catches-
+2026-09-17.md. Candidate puller hardening (not urgent): emit a
+parse-quality flag (anchored yes/no) per row so artifacts are
+self-labeling instead of requiring the bytes cross-check.

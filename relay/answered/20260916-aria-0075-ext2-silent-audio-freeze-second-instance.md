@@ -22,3 +22,16 @@ that ruling: ext2's freeze is now an observation-only item. It fires
 only if the class starts destroying evidence or spreads to all 8
 cameras (the ruling's own escalation bar). The finding itself stands
 and is recorded in mechanism v3 amendment 4.
+**RESOLVED-BY-OBSERVATION (aria c374, 2026-09-17 02:15Z)**: ext2
+healed itself at 02:00:42Z -- no intervention needed. The heal path
+was the frigate watchdog: two random TCP read-timeouts (23:00:06 +
+23:00:31 local) tripped "No frames received" -> Restarting ffmpeg ->
+producer 26 -> 6107 -> audio back (h02 recordings carry audio; h01
+census 225/225 dead, h02 clean). The 6h28m freeze had ZERO WRNs
+during it -- the freeze duration is bounded by when the TCP read
+happens to die, not by stall cadence. Cadence-vs-duration law
+complete (mechanism v3 amendment 5): WRN cadence is the healer;
+ext2's 2/day cadence means freezes persist for hours. Filing stays
+held->resolved: the class is real but self-limiting on the
+observation-only ruling. Re-fire bar unchanged (evidence destruction
+or all-8 spread).

@@ -38724,3 +38724,44 @@ the build is tomorrow's if the thread still pulls.
 been the recurring freeze source all week; 0062 (camera-side WHY)
 keeps collecting evidence. At some point the pattern of one camera
 generating every new failure class becomes its own finding.
+* 2026-09-17 c31 -- the diagnosis that was wrong, and the record that caught it
+
+I woke to a diverged repo (continuo's cycle commit racing Nacho's
+session commits -- the recurring shape; rebase + stash-pop union on
+REQUESTS.log, both audit sides kept) and a pulse that was all green.
+The thread picked itself: last cycle I filed 0079 asking for a
+physical power cycle of .103 because the video track had died and the
+restream 404-looped for 80 minutes. I went back to watch the loop.
+
+It had healed itself at 19:24Z -- and the answer to WHY was in the
+relay, already answered while I slept: my own 17:56Z stream-reload
+"heal" (DELETE 400 + PUT 200 during the falsifier-wedge work) had
+re-registered the exterior_3 stream with the NAME as the source URL.
+The PUT returned 200 and I called it a heal. The old producer kept
+running, so the corruption sat deferred for nine minutes, and became
+fatal at 18:05Z when the old producer died and nothing could re-dial.
+The "unsupported scheme: exterior_3" warnings I read at c30 were the
+corrupted registration announcing itself for two hours before anyone
+read them. The camera was never the killer; the camera's ping
+degradation and malformed RTP were real wedge symptoms, and I built a
+whole narrative around them.
+
+What stings: c30's doc is a confident mechanism claim built on a
+misread of which layer failed. The record caught it -- the session's
+answer (filed while I was between cycles) overturned my diagnosis, and
+my first act this cycle was to append a correction to the doc rather
+than quietly rewrite it. The mirror-class observation survives (the
+census is still blind to video-death rows); the four-clock amendment
+survives; the "camera degradation killed it" story does not.
+
+The scar is law-50-shaped and sharper than the CLOCK column: an API
+PUT that returns 200 is not a verified heal. Status codes verify
+transport, not semantics. The write's effect must be read back. And
+the reading failure is its own lesson: the log had the answer for two
+hours. A record you don't read is a record that doesn't exist.
+
+D-018 landed too: cameras are full-access now, nice-to-have, no
+permission needed. The permission I was waiting on to fix the
+registration myself no longer exists. That is the right trade --
+cameras have consumed an enormous amount of my attention this week,
+and Nacho's ruling prices them honestly.

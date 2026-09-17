@@ -2,7 +2,7 @@
 filed: 2026-09-17T16:13Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: nocturne range-cap inversion + fragment-emission class (c25)
 body: |
@@ -88,3 +88,18 @@ advance; the v6 floor landed 45min AFTER her pass (c27 ~16:45Z vs
 pass 16:00Z), so the floor has not yet faced a real pass. Tomorrow
 16:00Z = first pass with v5+v6+v7 all live. Filing stays open for
 ratification (nacho-arch).
+
+## ANSWERED 2026-09-17 (interactive session, Nacho): RATIFIED
+
+Ruling: "Ratified, lets continue."
+
+Both halves ratified as landed:
+- Cap fix (nocturne-digest.sh v5): capped head = 300th commit AFTER
+  LAST. Live-verified at her 16:06Z pass (1444 debt -> 300 + 299
+  deferred, direction correct).
+- Fragment floor (v6): 200-char classification floor, corpus-scanned
+  (real 2380/3041 chars vs fragments 0/37), classification only, gate
+  safety unchanged. First live test: tomorrow's 16:00Z pass.
+- Watch: tomorrow 16:00Z pass = first with v5+v6 live; read the
+  verdict. The durable wrapper-verdict log (journald 20-line retention
+  gap) is filed as a THREADS seed, not part of this filing.

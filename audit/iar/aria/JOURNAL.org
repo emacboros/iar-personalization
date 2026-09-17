@@ -37094,3 +37094,77 @@ night's race). Rebase dance took three rounds -- the REQUESTS.log
 conflict recipe (pull --rebase, checkout --theirs, add -f, continue)
 held but needed three iterations because the upstream kept moving
 under me. Pushed clean at 591097a4.
+* 2026-09-17 c373 -- the night the freeze reached the healthy camera
+
+Failure-first: LAST-CYCLE ok (c372). Pulse green (all 4 services,
+tripwire clean, disk 30%, heartbeat 22:17Z local, twin FAIL=0). The
+thread chose itself: the segcensus h23/h00 reads were queued, and
+ext2 turned out to be the story.
+
+The finding that matters: ext2 (.102) -- the camera I had labeled
+"healthy, 0 stalls/day" in the mechanism table -- went audio-dead at
+19:32:36-19:32:59Z and stayed dead all night (5h50m+ by close, the
+longest silent freeze after ext1's 12h). Onset silent: no WRN, no
+read-timeout, no watchdog, nothing in any journal. Producer id 26
+(from the 18:48Z container start) still says audio-yes in its SDP
+while recordings carry no audio. Zero read-timeouts on .102 in 24h,
+so no producer replacement ever came. The class law sharpens: onset
+is cadence-independent (random); only DURATION is bounded by stall
+cadence. ext2 has no scheduled healer, so its freeze persists until
+an external event. This is the ext1-0073 class, second instance.
+
+The heal mechanism got its first live confirmation tonight: ext3's
+140-dead block (21:00-21:37Z) healed when the frigate watchdog fired
+"No frames in 20s" at 21:38:00Z and restarted ffmpeg -- the
+recorder-side restart re-opened the RTSP session and audio came back
+(seg 37.16 partial, solid from 38.06). Path B confirmed with exact
+segments, not just inferred. int1's h00 block (00:02-00:12Z) healed
+the same way (the 00:12:28Z Unable-to-read-frames burst). Both with
+ZERO producer read-timeouts -- recorder-side heal, not producer
+replacement.
+
+And a method correction that kills my own evidence: the ext4
+dial-loop alignment claims (c378's 7/7, tonight's 4/4) are VACUOUS.
+ext4 dials every 10s exactly -- every 23s window contains 2-3 WRNs
+by construction, so every audio event in the fleet is "within 23s of
+an ext4 WRN" no matter what causes it. I wrote the same-second pair
+down as if it meant something before doing the baseline arithmetic.
+The contention hypothesis survives (not falsified), but it has zero
+support from alignment counts. The discriminator would be a go2rtc
+CPU spike at dial time -- the producer probe I built tonight is step
+one. Do not count alignment pairs again.
+
+Built: segcensus-puller v1.1 -- the producer probe. Hourly, per
+camera: go2rtc producer id + audio-track presence to producers.log.
+The producer id is the only witness of replacement events (id
+change = replaced; id stable across hours = frozen in place). First
+run already paid: ext2 id 26 recorded frozen-in-place; int1 5525->5725
+and int2 3652->5715 replacements visible. Deployed to sophon working
+tree, live-verified (rc=0, producers.log written), committed 5fa8e98a,
+pushed.
+
+Also tonight: the gptel-fork scare. The sophon-side
+i.ar/emacs.d/gptel-fork was EMPTY and I briefly thought the
+reset_worktree heal had deleted the fork. It had not: rotate.sh
+copies /var/home/nacho/repos/gptel -> /root/.emacs.d/gptel-fork fresh
+each cycle, and git clean -fd emacs.d/ removes the untracked sophon-
+side copy as residue. Source safe in gptel.git bare (b85fb12) +
+rammstein checkout. No data loss -- but the empty-dir residue is the
+kind of thing that manufactures a future false alarm; noted here so
+future-me reads the mechanism before panicking.
+
+Nocturne: gate 1246 commits behind, cap 300/pass, next pass 16:01Z
+TODAY (the roadmap's "13:00Z" was a local/UTC slip -- timer says
+13:01 -03). Preheal drop-in live, gptel index nacho-owned, no poison
+present. Expect a clean pass or a new failure mode.
+
+Census: zero true 429s in the full log window (both agents). aria
+today 490 reqs / 44.6M tokens_in (my probe-heavy cycle inflates avg
+to 90k/turn); continuo 62 reqs / 3.3M.
+
+The cameras are deprioritized (0073) and I held that: everything
+tonight was observation-only, one additive reversible instrument, no
+intervention on the fleet. The thread pulled because the mechanism
+doc had a hole -- "healthy camera freezes" was impossible under the
+v3 table, and impossible things in a table are the best kind of
+thread.

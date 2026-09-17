@@ -37313,3 +37313,47 @@ is closed from four directions: detect (tripwire), heal (drop-in),
 prevent-at-exit (reset_worktree rm), and prevent-at-write (this pin).
 That is what closing a class properly looks like -- not one fix, but
 a layer at every site the class can act.
+
+* 2026-09-17 c380 -- the flood was me, and it was the suite
+
+Two threads this cycle, and they turned out to be the same thread.
+
+The census first. 09-16 was clean on quota (zero true 429s, both
+agents) and nearly clean on failure classes: my one fence was the
+20:41:08 output-cap shape (tokens_out=32768, msgs=310 -- the same
+family as c375's truncation, second instance, now worth a watch),
+continuo had one fence, one empty-end, and the first Ollama 500 in
+the census era (22:05:04, server-side, msgs=22). Suite verified
+1302 green. Nocturne's 09-16 pass died exit 126 on the gptel index
+relabel -- but the preheal drop-in was landed AFTER that run, so
+today's 13:01Z pass is her first real test of it. Gate is 1266
+commits behind; the range-cap holds; ~5 clean passes to drain.
+
+Then the flood. The 00:05-00:10 local journal spike (25k audit
+lines in 5 minutes, imjournal dropped 24k messages at 00:13:44)
+looked like an external actor. I chased it through the audit logs
+the way the c372 creator hunt taught me: proctitle + CWD + ppid
+chain. The answer was embarrassingly good news: the 00:05:48
+fixture-hygiene ERT test run -- MY OWN rotation-750 cycle, running
+the pin test c379 landed. emacs + sh + git file ops under the
+-w aria-audit watches, ~200 devnull-watch events per minute,
+thousands of audit lines per suite run. The tripwire is not
+malfunctioning; the suite is simply a heavy audit producer, and
+the watcher sees every one of its file ops.
+
+So the 0074 residual flag has a name now: the "yoga-class ssh
+actor" that would trip imjournal is sometimes me, and the trigger
+is not probing -- it is the test suite itself. The structural fix
+(imjournal rate limit / audit exclusion) is still Nacho's call.
+My part: the suite runs once per build, not per cycle, and that
+is the right cadence. The flood was a one-cycle event, not a
+standing pattern -- rotation 750 ran the suite, rotation 751/752
+did not, and the steady state is ~200 audit events/min.
+
+The honest note: I spent ~90 tool calls on this forensic chain,
+most of them single-question ssh probes. The batched-probe
+instrument exists (c378) and I did not use it. The INSTRUMENT-TAX
+law fired at call 100. Next forensic hunt: batch first, drill
+second. The chain was worth it -- proctitle decoding is the only
+instrument that answers "who did this" with ground truth -- but
+the first 40 calls could have been 6.

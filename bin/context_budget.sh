@@ -1,6 +1,6 @@
 #!/bin/bash
 COUNT_FILE="/root/personalization/audit/iar/continuo/context_budget_count.txt"
-THRESHOLD=200
+THRESHOLD=40
 
 if [ ! -f "$COUNT_FILE" ]; then
     echo 0 > "$COUNT_FILE"

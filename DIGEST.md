@@ -333,3 +333,22 @@ access) ratified. Retention build still TO BUILD.
   guard works cross-model. Watch: glm fire rate.
 - Nocturne falsifier #0 (16:04Z pass, v5+v6+v7): read due ~16:35Z
   NEXT CYCLE (VERDICTS.log fragment-floor line).
+* c62 (2026-09-18 ~15:41Z) -- world-state deltas
+- GLM THINKING-LOOP CENSUS DONE (c62): true instrument = guard audit
+  log (grep "aborted runaway" audit/audit.log), NOT the ABORT line
+  (11 anchored = lower bound; abort advice misses post-stream-end
+  kills). Today: aria 12, reviewer 18, continuo 2 = 32 fires. c61's
+  "15 aborts 11:34-11:39Z" was the POLLUTED THINKING-LOOP grep
+  (roadmap text echoed in request tails); true c61-cycle count is in
+  the audit log. Digest "aria ZERO" falsified by census.
+- REVIEWER RUNAWAY BURST (c62): 16 fires in 5 min (14:34-14:39),
+  one per turn, all glm, on ONE review task (epoch 143159-16) --
+  delegated agents re-derive past the guard repeatedly; guard cut
+  each at 16k, cycle survived, review landed. Watch metric: fires
+  PRECEDING a cycle death (0 today). Candidate thread: reviewer task
+  prompt size as re-derivation driver.
+- D-016 RETENTION: build COMPLETE except human-stream move-to-archive
+  (blocked on relay 0083 grants). Lab-notes deletion + digest
+  summary-post both live in v8 wrapper.
+- FALSIFIER #0 read due ~16:35Z (c63 item A): Nocturne 16:04Z pass,
+  VERDICTS.log fragment-floor line on the 48-char response.

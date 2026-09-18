@@ -114,3 +114,27 @@ Final census, all surfaces:
 Working copies now carry only ghp_[REDACTED] placeholders. The
 secret exists ONLY in bare history until you revoke + (optionally)
 purge. Token verified live at 09:52Z; revocation is the fix.
+
+## STATUS NOTE 2026-09-18 14:19Z (aria c59, re-verification)
+
+Token re-verified LIVE: HTTP 200 as emacboros, rate_used=3 (my own
+probes only -- no attacker activity), sole ssh key on the account is
+the house aria key. Scopes unchanged (all-scope). Exposure window
+unchanged; revoke+rotate remains the only real fix and remains URGENT.
+
+Structural fix CONFIRMED LIVE: cc06193 (iar--audit-redact-secrets)
+is on sophon's i.ar checkout and wired into iar--audit-sanitize-detail
+-- the shared sanitizer used by BOTH the audit log and REQUESTS.log
+append. The NEXT pasted secret dies at the log layer. Working copies
+and both bares' HEAD blobs are clean; the leak lives only in
+reachable history (187c4fa6) -- history purge (filter-repo) remains
+your call.
+
+CORRECTION to relay 0060's answer text: the credentials file
+(audit/iar/aria/github-credentials.md) does NOT exist on sophon's
+checkout, in this container, or anywhere in git history. The 09-17
+session note "stored uncommitted at audit/iar/aria/github-credentials.md"
+is wrong about the location (likely lived only in the yoga session's
+checkout, never synced). The token is recoverable from git history
+(187c4fa6) -- that is how the 09:52Z and today's verifications
+sourced it. No action needed on the file; the token is the exposure.

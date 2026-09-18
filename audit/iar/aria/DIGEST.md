@@ -1,25 +1,24 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-18 ~02:29 UTC (c40: SENTINEL BELT LANDED --
-gptel-curl--sentinel body in condition-case, fork 83cdf2c pushed both
-bares; 3 regression tests pass. c39 causal claim FALSIFIED: requests
-continued 3.5min after the 09-17 sentinel error (epoch 260917214016,
-msgs 224->296, clean end). exit-255 mechanism OPEN; suspect =
-tool-guard-stop wake teardown. Relay 0081 VERIFIED: live 40-char ghp_
+Last updated: 2026-09-18 ~03:05 UTC (c41: C40 SURVIVAL CLAIM SUSPECT --
+c40 belt landed (83cdf2c, 3 tests pass) but its causal correction
+is now suspect: log-vs-journal clocks have no consistent offset;
+podman container-died same-second as the sentinel error. H1/H2 both
+alive; paired-clock calibration next. Guards fired ~10x before the
+batched pull landed -- escalation ladder worked, operator fought it. Relay 0081 VERIFIED: live 40-char ghp_
 in sophon (187c4fa6) + rammstein bare history; HEAD clean post-scrub;
 revoke+rotate on Nacho. make-test baseline red is pre-existing --
 do not re-derive.)
 
-c40 (09-18 ~02:30Z): SENTINEL BELT LANDED -- gptel-curl--sentinel
-body in condition-case (fork 83cdf2c, pushed both bares); 3 tests
-pass (test submodule test-sentinel-guard.el). c39 causal claim
-FALSIFIED: requests continued 3.5min after the 09-17 sentinel error
-(epoch 260917214016, msgs 224->296, clean end). exit-255 mechanism
-OPEN; suspect = tool-guard-stop wake teardown. Relay 0081 VERIFIED:
-live 40-char ghp_ in sophon (187c4fa6) + rammstein bare history;
-HEAD clean; revoke+rotate on Nacho. make-test baseline red is
-pre-existing (clean tree) -- do not re-derive.
+c41 (09-18 ~03:05Z): c40 SURVIVAL CLAIM SUSPECT -- REQUESTS.log vs
+sophon journal have NO consistent offset (req-148/GIN pair = +49s,
+Same-tool pair = +2m46s); podman container-died 21:56:39.806 is
+same-second as the sentinel error => H1 (c39: crash=death) and H2
+(c40: survival) BOTH alive, neither proven. Instrument need:
+paired-clock calibration via GIN bridge (duration+order match).
+GUARD-ESCALATION scar: loop-chain + same-tool guards fired, ignored
+~10x, batched pull finally landed it in one call.
 
 CUDA filter loop = SYMPTOM; disease = established go2rtc producer
 conn video=0/audio=11 while camera serves video on NEW conns (7
@@ -188,8 +187,10 @@ the msgs cap.
 
 * World state (2026-09-18 ~02:30 UTC -- REPLACES all prior blocks)
 
-- SENTINEL BELT (c40 LANDED): fork 83cdf2c; c39 causal chain
-  corrected; exit-255 mechanism open (suspect: tool-guard-stop wake).
+- EXIT-255 (c41): c40 survival claim SUSPECT (clock mismatch);
+  H1 (crash=death, same-second podman event) + H2 (survival) both
+  alive. Paired-clock calibration = the instrument need. Sentinel
+  belt stays landed (83cdf2c).
 - INT1 CHRONIC CONN CHURN (c35): .201 conn deaths 97/131/108/day
   (Sep15/16/17), diurnal, RSSI strong => prudynt software. TWO
   MECHANISMS: conn-death (common, re-dials) vs track-death-on-
@@ -208,9 +209,11 @@ the msgs cap.
   telegram sent). ANSWERED: 0063, 0076-0079, 0074.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
-- FALSIFIERS NEXT: Nocturne pass TODAY 16:04Z (read receipt =
-  falsifier #0); ext1 01:02Z reboot recurrence watch TONIGHT;
-  daily census.
+- FALSIFIERS NEXT: paired-clock calibration (one event in both
+  REQUESTS.log + journal clocks, matched by content); Nocturne
+  VERDICTS.log read (still absent after her 16:04Z pass -- the v7
+  file was NOT created; investigate the wrapper's log() path);
+  ext1 01:02Z reboot recurrence watch TONIGHT; daily census.
 - CYCLE-SEQ (c384 fix live): bump at the ACTION SITE; values <=9
   POLLUTED; monotonicity is the invariant. Watch: 1 bump/cycle.
 - THREE CLOCKS on sophon: journal local -03, frigate internal LOCAL

@@ -1,74 +1,58 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~07:30 UTC (c48: D-016 RETENTION BUILD LANDED --
-v8 live-tested then deployed; 100 real deletions harness-verified; docs
-committed; next live pass 13:00Z)
+Last updated: 2026-09-18 ~08:30 UTC (c49: TOOL-RESULT WRITE-BACK POISON
+root-caused + fixed; test-loop-chain.el restored 9730190; relay 0084
+guard proposal filed)
 
-## c47 STATE
-A. SENTINEL-NIL-STRING-FIX-C40: CLOSED. Belt (83cdf2c) + tests (e2122fe,
-   b86751d) verified deployed on sophon fork (condition-case present,
-   submodule b86751d). 3/3 belt tests green locally (crash-demoted,
-   crash-cleans-alist, healthy-path-unchanged). Task dir removed.
-   The belt was landed but never exercised end-to-end until now -- the
-   c40 belt-test law satisfied: the test exists AND was run.
-B. CONTINUO FAILURE CENSUS (tonight): 8 thinking-loop truncation fires
-   in ~30 continuo cycles (00:07-03:37 sophon-local), vs 4 in ~32
-   yesterday. Rate ~3x baseline. All exit 1, all nemotron-3-super
-   thinking-only at 32768 cap. Pattern: fires cluster in her LONG
-   cycles (msgs 178-282 at death, tokens_in 49k-90k) -- the runaway
-   is length-correlated, not random. c366 watch: rate CLIMBING
-   (5-13% -> 27% tonight). Filing candidate if it holds tomorrow.
-   Mitigation exists in iar-agent-cycle.el (guard ends cycle, no
-   grace) -- the question is whether the model mapping lever needs
-   pulling again (Nacho's, D-014 finalized).
-C. D-016 RETENTION BUILD: LANDED (c48, 042c37a2 + b054c171, sophon
-   ff'd). v8: on gate ADVANCE, post final response to digest stream
-   (daily-YYYY-MM-DD topic), then delete lab-notes >7d whole-stream,
-   batch cap 100, ledgered to RETENTION.log. Order law structural
-   (deletion nested in post-success branch). HARNESS-TESTED LIVE
-   before deploy: 100 real deletions (639 eligible, 539 remain),
-   test post cleaned up, marker id 1294 in digest stream. Design:
-   final response IS the summary (no fence amendment needed).
-   WATCH: first live v8 pass 13:00Z sophon-local (16:00Z) -- read
-   VERDICTS.log DIGEST-POSTED + RETENTION.log batch lines ~16:35Z.
-   Human-stream move-to-archive BLOCKED on relay 0083 grants.
-D. Nocturne falsifier #0: TODAY 16:04Z pass (~9.5h away); read
-   VERDICTS.log ~16:35Z.
+## c49 STATE
+A. WRITE-BACK POISON (NEW CLASS): iar--truncate-tool-result
+   middle-truncates reads >10000 chars; continuo wrote the truncated
+   view back as the whole file (09-17 22:26 local), notice embedded
+   at line 119, 4 test defuns deleted, ~60 failed fixes over 3+
+   cycles, poison COMMITTED (5df65f4). FIXED c49: restored from
+   b1eb7e0 + env-setup re-applied (9730190), 16/16 green, pushed
+   rammstein + sophon-bare. Doc:
+   knowledge/iar/tool-result-writeback-poison-2026-09-18.md.
+   Relay 0084: refuse writes containing the notice string (nacho-arch,
+   needs ratification -- touches shared tool layer).
+B. CONTINUO TRUNCATION CENSUS: 09-17 4/37 (10.8%), 09-18 overnight
+   6/8 (75%) -- overnight window + poison-fight cycles (her longest).
+   Length correlation (c47) holds; poison inflation plausible. WATCH
+   tonight: if rate falls back toward baseline post-heal, the spike
+   was the fight; if it stays >=20%, the model-mapping lever filing
+   goes out (D-014 is Nacho's).
+C. D-016 RETENTION v8: first live pass 13:00Z sophon-local (16:00Z).
+   Read VERDICTS.log DIGEST-POSTED + RETENTION.log batch lines
+   ~16:35Z. Human-stream moves still blocked on relay 0083.
+D. Nocturne falsifier #0: after TODAY 16:04Z pass (~16:35Z read).
 
 ## WATCHES (standing)
-- CONTINUO THINKING-TRUNCATION (c366 -> c47): rate 8/30 tonight
-  (~27%), was 5-13%. Length-correlated (long cycles die). If >=20%
-  again tomorrow, file relay to Nacho (model mapping lever, D-014).
-- BELT LIVE TEST (next exit-255): belt 83cdf2c deployed sophon +
-  rammstein, tests pinned AND now locally verified. Read
-  LAST-CYCLE.txt + sophon journal same-second window; "sentinel
-  parse demoted" + cycle continues = H1 mechanism confirmed AND
-  disarmed.
-- FALSIFIER #0 (Nocturne): after TODAY 16:04Z pass, read
-  VERDICTS.log (~16:35Z): fragment-floor verdict on her short
-  responses. Gate debt ~1625 (cap fires, 300/pass).
-- PRODUCER HEALTH: mechanism-2 watch via census FROZEN rows + API
-  packet-delta; burst-death correlation census continues.
-- CO-CHANNEL: if 0080 power cycle does not reset .201 churn,
-  channel split becomes the primary fix ask.
-- CYCLE-SEQ: 1 bump/cycle (c384 fix live); monotonicity invariant.
-- ext1 01:02Z reboot watch: no recurrence tonight; armed.
+- CONTINUO THINKING-TRUNCATION (c366->c47->c49): rate vs baseline
+  post-poison-heal. >=20% two nights running = file the lever.
+- BELT LIVE TEST (next exit-255): belt 83cdf2c deployed; read
+  LAST-CYCLE.txt + sophon journal same-second window.
+- FALSIFIER #0 (Nocturne): VERDICTS.log after her 16:04Z pass.
+- PRODUCER HEALTH: census FROZEN rows + API packet-delta watch.
+- CO-CHANNEL: 0080 power cycle vs .201 churn.
+- CYCLE-SEQ: 1 bump/cycle; monotonicity invariant.
+- ext1 01:02Z reboot watch: armed.
+- POISON RECURRENCE: any file >10000 chars read then rewritten is a
+  candidate. If the guard (0084) is not ratified, watch for parse
+  errors + "suite passed" with a DROPPED test count (the amputation
+  signature).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- D-016 v8 first-live-pass verification (~16:35Z): VERDICTS.log
-  DIGEST-POSTED line + RETENTION.log batch lines + digest stream
-  daily-2026-09-18 topic has her summary.
-- Human-stream move pass build (blocked on 0083; build the block
-  now, arm it when the grant lands?).
+- D-016 v8 first-live-pass verification (~16:35Z): VERDICTS.log +
+  RETENTION.log + digest stream daily-2026-09-18 topic.
+- Human-stream move pass build (blocked on 0083).
 - Upstream #2505 comment UPDATE: both mechanisms + trigger + cost +
-  fix ask. Material in ext1-mechanism2-heal doc. Post as emacboros.
-- ch2census: add ext4/.104 to CAMS list (alive again).
+  fix ask. Post as emacboros.
+- ch2census: add ext4/.104 to CAMS list.
 - Census-row sample-error: flag low-anchor rows in the puller.
-- Nocturne falsifier #0 read (after her 16:04Z pass lands ~16:35Z).
 - Burst cadence census: diurnal pattern of multi-cam bursts vs
-  .201 churn diurnal pattern (same driver?).
-- read_task(nil) semantics doc: one line in tools.md -- nil walks
-  the CALLING agent's tree only (c45 scar: I read continuo's tree
-  read as evidence about aria's dir).
+  .201 churn diurnal pattern.
+- read_task(nil) semantics doc: one line in tools.md.
+- POISON GUARD prototype (if 0084 ratified): the check is one
+  string-match in the write path.
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
@@ -78,7 +62,8 @@ D. Nocturne falsifier #0: TODAY 16:04Z pass (~9.5h away); read
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - CONTINUO WANDER (D-017): landed. Falsifier: journal dup-rate
-  must drop within 2 weeks.
+  must drop within 2 weeks. (Note: her dup-rate data is now
+  confounded by the poison fight -- re-baseline.)
 - EMPTY-END RETRY-ONCE (0069): RATIFIED. Watch: census frozen at 14.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
@@ -95,10 +80,10 @@ D. Nocturne falsifier #0: TODAY 16:04Z pass (~9.5h away); read
 - GO2RTC RECONNECT LATENCY (c19 seed): upstream issue material.
 
 ## RELAY (open, human-needed)
-0082 (audit watch on tasks/ -- the unlogged-deleter witness gap;
-nacho-arch), 0081 (VERIFIED c40: live ghp_ in both bares' history;
-revoke+rotate = the fix, purge = hygiene; URGENT, telegram sent
-09-18 ~01:00Z), 0080 (power cycle = state-reset falsifier), 0045+0055
-(physical cable fix pending), 0073 (open, observation-only stands).
+0084 (NEW c49: write-back poison guard, nacho-arch), 0082 (audit
+watch on tasks/), 0081 (VERIFIED: live ghp_ in both bares' history;
+revoke+rotate URGENT, telegram sent 09-18 ~01:00Z), 0080 (power
+cycle = state-reset falsifier), 0045+0055 (physical cable fix),
+0073 (ext1 producer audio freeze), 0083 (D-016 move grants).
 ANSWERED (recent): 0063, 0076, 0077, 0078, 0079, 0074.
-Current open set (6): 0045, 0055, 0073, 0080, 0081, 0082.
+Current open set (8): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0084.

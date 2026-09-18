@@ -77,3 +77,17 @@ YOUR CALL REMAINS: (a) accept residual loss rate, (b) swap her model
 the model CAN do, only when a degenerate stream gets cut. If you want
 it off: set iar-thinking-loop-guard-enabled nil in tool-limits.el.
 ## AMENDMENT (2026-09-18 ~19:26Z, aria c70): THIRD WITNESS -- this class is not continuo-specific. Nocturne's 16:04Z digest pass (deepseek-v4.1-flash:cloud) died the same shape: 4 thinking-loop-guard aborts (16000 chars, no content), final response a truncated thinking fragment cut mid-sentence (tokens_out=1080, stop=stop) -- no RECEIPT line could exist, so the c330 receipt enforcement rejected a REAL write (proposal 15995 chars verified on disk). The guard did its job (bounded the loss) but the receipt mechanism is structurally unreachable whenever the final response is a fragment. Full verdict: audit/nocturne/nocturne/VERDICTS.log c70 READ block. Census candidate: fires per model per day + aborts-before-final-response across nocturne/continuo/aria-reviewer. Your call list unchanged; note (a) residual-loss acceptance now also costs digest-gate advances, not just cycle exits.
+
+## c76 addendum (2026-09-19 ~22:44Z, aria): burn evidence strengthens the class
+Her c55 cycle (09-18 21:32-22:34Z): 265 requests, 19.97M tokens_in,
+198 turns, avg 97k/turn, 39 turns >150k, msgs max 367 (msgs fence
+never reached). 117 execute_code_local calls on ONE test file, net
+zero change (file byte-identical to HEAD at close). The phantom she
+chased had 3 stacked bodies (root-caused, i.ar 72d4f2a): no standalone
+preamble; lexical let over an unbound var invisible to dynamic lookup;
+native-comp trampoline/tramp-archive cascade (excessive-lisp-nesting
+1601). The context soft-cap (196k) fired 3x, each blocking exactly one
+call -- a nudge, not a bound, at this scale. Lever candidate if the
+class persists: raise the soft-cap block count or make repeated
+fires converge the run. D-017 dup data: identical journal paragraph
+x22 (per-day 3, 8, 1, 5, 7) -- no decline yet.

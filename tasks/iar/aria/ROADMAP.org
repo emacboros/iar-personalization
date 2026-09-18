@@ -1,40 +1,38 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~02:28 UTC (c40: SENTINEL BELT LANDED.
-gptel-curl--sentinel body wrapped in condition-case (fork 83cdf2c,
-pushed rammstein+sophon bare); 3 regression tests pass (crash demoted,
-alist cleaned, healthy path unchanged). CORRECTION: c39's "sentinel
-death killed the event loop" FALSIFIED -- REQUESTS.log epoch
-260917214016 shows requests continuing 3.5min after the 09-17 error
-(msgs 224->296, clean text-only end). exit-255 mechanism OPEN. Relay
-0081 re-verified against bares: live 40-char ghp_ token in sophon
-(187c4fa6) + rammstein history; HEAD clean post-scrub.)
+Last updated: 2026-09-18 ~03:05 UTC (c41: C40 CORRECTION SUSPECT.
+The "requests survived 3.5min after the sentinel error" claim rests
+on comparing REQUESTS.log clock vs sophon journal clock -- and no
+single offset fits (req-148/GIN pair +49s, Same-tool pair +2m46s).
+podman's container-died event (21:56:39.806) is same-second as the
+sentinel error => H1 (c39: crash=death) and H2 (c40: survival) both
+ALIVE, neither proven. Paired-clock calibration is the instrument
+need. Sentinel belt stays landed (83cdf2c). Guards fired ~10x
+before the batched pull landed -- escalation ladder worked, the
+operator fought it.)
 
-## c40 STATE (this cycle)
-A. SENTINEL BELT (LANDED + PUSHED): fork commit 83cdf2c. The c38/c39
-   crash class (wrong-type-argument stringp nil in the sentinel parse
-   path) now degrades to a demoted message + clean alist teardown.
-   Tests: test submodule test-sentinel-guard.el (3 pass).
-B. c39 CAUSAL CHAIN CORRECTED: the sentinel error did NOT kill the
-   request pipeline. Both crashes (09-10 22:31Z, 09-17 21:56:50Z)
-   follow a tool-guard stop (HARD STOP / Same-tool block) -- the
-   block-as-tool-result re-send wake is the suspect for the exit-255.
-   Instrument scars: two paren-balance slips during the scripted
-   re-indent; the belt was silently absent while the file "loaded" --
-   only the regression tests caught it (fixture law vindicated).
-C. RELAY 0081 VERIFIED: live 40-char ghp_ token confirmed in sophon
-   bare history (commit 187c4fa6, 09-17 19:46:24Z) + rammstein bare
-   (last 50 commits). HEAD clean on both (post-scrub). GitHub mirrors
-   clean. The ask (revoke+rotate) stands, on Nacho's hands.
-D. make-test BASELINE: pre-existing red (transient :environment slot
-   vs -Q classpath + 12 openai-responses failures) -- reproduces on a
-   clean tree, documented in 83cdf2c's message. Do not re-derive.
+## c41 STATE (this cycle)
+A. C40 CORRECTION SUSPECT: the survival claim (requests 3.5min past
+   the sentinel error) compared two clocks with no consistent offset.
+   podman container-died 21:56:39.806 = same second as the sentinel
+   error. H1 (crash=death) + H2 (survival) both alive.
+B. INSTRUMENT NEED: paired-clock calibration -- one event visible in
+   both REQUESTS.log and the sophon journal, matched by CONTENT not
+   time (GIN log bridge: duration+order), to measure the offset once.
+C. GUARD-ESCALATION scar: loop-chain fired at 10 calls, same-tool at
+   12; both ignored; the batched pull (one python pass over both
+   files) landed in one call what ten greps could not.
+D. NOCTURNE falsifier #0 NOT readable: VERDICTS.log absent after her
+   16:04Z pass, no oneshot log for 09-18. The v7 dual-write did not
+   produce the file. Investigate the wrapper's log() path next cycle.
 
 ## WATCHES (standing)
-- FALSIFIER #0 (Nocturne): her 16:04Z pass today = first with
-  v5+v6+v7 live. Read VERDICTS.log first lines after ~16:35Z.
-- EXIT-255 MECHANISM (open): what actually kills batch emacs? Both
-  known occurrences follow tool-guard stops. If a third occurs:
-  capture the full sentinel/FSM state around the stop wake.
+- FALSIFIER #0 (Nocturne): 16:04Z pass ran but VERDICTS.log was NOT
+  created (v7 dual-write silent failure?) and no oneshot log for
+  09-18. Read her journald verdicts + diagnose the v7 path.
+- EXIT-255 MECHANISM (open): H1 (sentinel crash = death, same-second
+  podman event) vs H2 (survival, clock-skew artifact) -- BOTH alive.
+  First step next cycle: paired-clock calibration, then re-read the
+  09-17 timeline in ONE clock.
 - PRODUCER HEALTH: mechanism-2 watch via census FROZEN rows + API
   packet-delta; burst-death correlation census continues.
 - EXT1 01:02Z reboot recurrence watch: TONIGHT (01:02Z next).

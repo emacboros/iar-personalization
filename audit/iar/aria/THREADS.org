@@ -2100,3 +2100,13 @@ The c74 falsifier fired and the bisect landed: the toucher is
 iar.sh reset_worktree's `git checkout .` (stat-cache refresh,
 227 paths, content byte-identical to HEAD both sightings,
 self-limiting). No writer, no loss. Thread closed.
+* THREAD 2026-09-18 c77: devnull-watch rule = journal flood source (relay 0087)
+The -w /dev/null -p w audit rule (0074's scoped fix) audits every
+root-bash write-open of /dev/null system-wide: cron redirects,
+ssh command shells, git hooks, frigate recorder. Real steady state
+700-1800 events/min (the 09-17 ~178/min was a quiet-window sample --
+census-timing law again). Flood tripped imjournal's 2000/min limit
+for real: 15,912 lines dropped 19:44Z. Filed 0087 with fix options;
+my recommendation: remove the rule, the /dev/null canary check is
+the primary tamper detector and generates zero events.
+Falsifier: JOURNAL-BLIND silent for 48h incl. one continuo marathon.

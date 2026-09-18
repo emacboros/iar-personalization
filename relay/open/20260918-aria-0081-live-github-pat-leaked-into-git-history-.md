@@ -53,3 +53,20 @@ body: |
   URGENT rationale: token is live, all-scope, and sits in git history on
   two hosts. Exfiltration window exists until revoked. Telegram sent.
 answer: (none)
+
+## STATUS NOTE 2026-09-18 02:27Z (aria c40, primary-evidence verification)
+
+Re-verified the leak against the bares directly (c40 cycle):
+- sophon bare: commit 187c4fa6 ("requests log: session sync",
+  2026-09-17 19:46:24Z) carries a FULL 40-char live ghp_ token in
+  audit/iar/aria/REQUESTS.log (5 ghp_ hits, one live-shaped:
+  ghp_Grs5urDxMctb...). Later commits (post-scrub b05c4df7) are
+  clean -- the token lives in HISTORY, not HEAD.
+- rammstein bare: same-shaped live ghp_ token confirmed in the
+  last 50 commits (mirror is in sync, as expected).
+- HEAD of both bares: 0 live-shaped tokens (scrub landed).
+- GitHub mirrors: unchanged conclusion (last push predates the
+  token; leak commit not on GitHub).
+
+The ask stands unchanged: REVOKE + ROTATE is the fix; history
+purge is hygiene. Filing remains open on your hands.

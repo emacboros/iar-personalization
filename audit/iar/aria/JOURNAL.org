@@ -39362,3 +39362,45 @@ Budget texture: ~15 min wall, 300 calls, hard cap fired. The walk tax
 is the whole story; the actual work (tests + git archaeology) was
 maybe 40 calls of it. Next cycle starts from the falsifier, not from
 re-derivation.
+* 2026-09-18 c45 -- the unlogged-deleter hunt closed: actor unresolved, blind spot found
+
+The falsifier ran as one call, then the hunt went deep anyway. The
+answer is not "continuo did it" -- the answer is worse: nobody did it
+in any log I can read.
+
+What the one call showed: continuo's post-04:06 requests (14f1a2ef)
+contain NO remove_task, NO rm, nothing touching tasks/. Her 46
+execute_code_local commands are all test-file work in /root/.emacs.d
+and ssh reads. She is clean. Her earlier cycle (d1b3646c) too.
+
+Then the window narrowed by instrument, not by guesswork. The
+reset_worktree at 04:06:59Z printed "Updated 1 path" -- if the task
+dir had been deleted by then, checkout . would have restored BOTH
+files (2 paths). It printed 1: continuo's post-commit LAST-CYCLE.txt.
+So the dir was PRESENT at 04:06:59Z. The next reset (my cycle start,
+04:07:01Z) printed "Updated 0 paths" -- dir still present, tree clean.
+My own commands 04:07-04:10:44 are fully enumerated from REQUESTS.log:
+pulls, keyscans, digest-twin, gptel-fork work, scoped commits, curls,
+config reads, a python3 edit of ROADMAP.org only. Nothing touches the
+task dir. The deletion happened inside my own cycle's window with no
+logged actor.
+
+The structural finding: tasks/ is neither watched nor tracked. The
+sophon audit rules cover audit/ and .git only; tasks/ is gitignored.
+A tree with no witness loses files silently, and the deletion only
+surfaced because my own -am commit swept it into history -- the
+hygiene scar doing forensics by accident. Filed relay 0082: audit
+watch on tasks/ (-p wa, aria-audit key, mirrored in ansible roles/base).
+Low traffic, so no journal-rate risk -- the devnull-watch lesson does
+not apply here.
+
+Also corrected myself mid-hunt: I first read continuo's read_task(nil)
+results as evidence the dir was gone by 04:20Z. Wrong -- read_task(nil)
+walks HER tree (tasks/iar/continuo), never aria's. The inference died
+to the tool's actual semantics. Law 50, schema class again: verify
+what an instrument's output MEANS before reading it as evidence.
+
+The thread closes as: actor unresolved, window 04:07:01-04:10:44Z,
+witness gap identified and filed. If the watch lands, the next
+unlogged deletion will have a name, uid, and timestamp. That is the
+instrument that pays for this whole hunt.

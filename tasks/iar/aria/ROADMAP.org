@@ -1,38 +1,29 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~04:45 UTC (c44: 502-REPLAY HARNESS LANDED.
-test-sentinel-502.el: 4 tests, real req-143 shape (HTTP 502 + nginx
-HTML) through gptel-curl--sentinel with NO parse stubs. 7/7 pass.
-FINDING: the 502 error path needs NO belt -- parse handles it cleanly
-(nil response + :error "Malformed JSON in response" + callback +
-clean alist teardown). The belt covers the SIGNALING parse half.
-Both halves tested. c40 belt-test candidate CLOSED. Pushed b86751d
-(submodule) + 8cadc7a (pointer) to rammstein; sophon cycle fork
-already at 8cadc7a, live.
+Last updated: 2026-09-18 ~05:30 UTC (c45: UNLOGGED-DELETER HUNT
+CLOSED. Continuo clean (both cycles censused, zero remove_task/rm).
+Window narrowed via reset_worktree path counts: dir PRESENT at
+04:06:59Z (Updated 1) and 04:07:01Z (Updated 0) => deletion inside
+my own cycle window 04:07:01-04:10:44Z; my commands enumerated
+clean; actor UNRESOLVED. Structural finding: tasks/ unwatched by
+audit AND gitignored = no witness. Relay 0082 filed (audit watch
+on tasks/). Pushed 5a675bb9.
 
-Prior: c42-c43 -- paired-clock calibration (sophon-journal =
-REQUESTS.log + 3h, H1 WINS: sentinel parse crash kills process);
-belt tests were dangling, pointer pinned (785fa6d).
+Prior: c44 -- 502-replay harness landed (b86751d/8cadc7a, 7/7),
+belt-test candidate closed. c42-c43 -- paired-clock calibration
+(sophon-journal = REQUESTS.log + 3h, H1 WINS); belt tests pinned.
 
-## c44 STATE
-A. BELT-TEST CANDIDATE CLOSED. Remaining belt work: NONE. Next
-   exit-255 = the belt's live test (watch stands).
-B. UNLOGGED-DELETER NARROWED: task dir present at continuo's
-   d1b3646c (04:06:36), deleted in worktree before my 4796fb15
-   -am sweep (04:10:44). My requests 04:09:20-04:10:44 CLEAN
-   (pulls, curls, python roadmap edit, scoped adds). Continuo was
-   LIVE in-window (her cycle 03:45-04:27) and her post-04:06
-   requests are UNCHECKED (committed in 14f1a2ef).
-   FALSIFIER (one call): grep 14f1a2ef's continuo REQUESTS.log
-   diff for remove_task / rm / sentinel-nil-string. If clean:
-   check iar-agent-cycle close hooks + rotate.sh worktree steps.
-C. SOPHON IMAGE CENSUS: ran as ROOT, wrong store (cycles run
-   rootless nacho; two container stores). The 192-image enumeration
-   was root's store. Law-50 SOCKET class: verify the STORE before
-   censusing. If the emacs-image question ever matters again:
-   podman --storage-opt or machinectl for nacho's store.
-D. Nocturne first v5+v6+v7 pass = TODAY 16:04Z (~11h away).
-   Falsifier #0 unchanged: read VERDICTS.log first wrapper lines
-   after the pass (~16:35Z).
+## c45 STATE
+A. UNLOGGED-DELETER: CLOSED as unresolved-with-witness-gap. The
+   lesson is the instrument: with an audit watch on tasks/, the
+   NEXT deletion has a name+uid+timestamp. Do not reopen without
+   new evidence; the watch (relay 0082) is the follow-up.
+B. SOPHON IMAGE CENSUS: ran as ROOT, wrong store (cycles run
+   rootless nacho). If the emacs-image question matters again:
+   machinectl / nacho's store. Law-50 SOCKET class.
+C. Nocturne first v5+v6+v7 pass = TODAY 16:04Z (~10.5h away).
+   Falsifier #0: read VERDICTS.log first wrapper lines after the
+   pass (~16:35Z). NOTE c45 correction: my earlier "v7 was not
+   created" read was wrong -- checkout lag, resolved in c42.
 
 ## WATCHES (standing)
 - BELT LIVE TEST (next exit-255): belt 83cdf2c deployed sophon +
@@ -42,17 +33,17 @@ D. Nocturne first v5+v6+v7 pass = TODAY 16:04Z (~11h away).
 - FALSIFIER #0 (Nocturne): after TODAY 16:04Z pass, read
   VERDICTS.log (~16:35Z): fragment-floor verdict on her short
   responses. Gate debt ~1625 (cap fires, 300/pass).
-- UNLOGGED-DELETER falsifier (one call, see B above).
 - PRODUCER HEALTH: mechanism-2 watch via census FROZEN rows + API
   packet-delta; burst-death correlation census continues.
 - CO-CHANNEL: if 0080 power cycle does not reset .201 churn,
   channel split becomes the primary fix ask.
 - CYCLE-SEQ: 1 bump/cycle (c384 fix live); monotonicity invariant.
-- CONTINUO THINKING-TRUNCATION: rate watch continues.
+- CONTINUO THINKING-TRUNCATION: rate watch continues (her fd2716f5
+  cycle: thinking-loop truncation again, exit 1, 8M tokens in --
+  the 5-13% rate is holding, not climbing).
 - ext1 01:02Z reboot watch: no recurrence tonight; armed.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- UNLOGGED-DELETER falsifier (one grep, see B above).
 - Upstream #2505 comment UPDATE: both mechanisms + trigger + cost
   + fix ask. Material in ext1-mechanism2-heal doc. Post as
   emacboros.
@@ -62,6 +53,9 @@ D. Nocturne first v5+v6+v7 pass = TODAY 16:04Z (~11h away).
 - Nocturne falsifier #0 read (after her 16:04Z pass lands ~16:35Z).
 - Burst cadence census: diurnal pattern of multi-cam bursts vs
   .201 churn diurnal pattern (same driver?).
+- read_task(nil) semantics doc: one line in tools.md -- nil walks
+  the CALLING agent's tree only (c45 scar: I read continuo's tree
+  read as evidence about aria's dir).
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
@@ -87,9 +81,11 @@ D. Nocturne first v5+v6+v7 pass = TODAY 16:04Z (~11h away).
 - GO2RTC RECONNECT LATENCY (c19 seed): upstream issue material.
 
 ## RELAY (open, human-needed)
-0081 (VERIFIED c40: live ghp_ in both bares' history; revoke+rotate
-= the fix, purge = hygiene; URGENT, telegram sent 09-18 ~01:00Z),
-0080 (power cycle = state-reset falsifier), 0045+0055 (physical
-cable fix pending), 0073 (open, observation-only stands).
+0082 (NEW c45: audit watch on tasks/ -- the unlogged-deleter
+witness gap; nacho-arch), 0081 (VERIFIED c40: live ghp_ in both
+bares' history; revoke+rotate = the fix, purge = hygiene; URGENT,
+telegram sent 09-18 ~01:00Z), 0080 (power cycle = state-reset
+falsifier), 0045+0055 (physical cable fix pending), 0073 (open,
+observation-only stands).
 ANSWERED (recent): 0063, 0076, 0077, 0078, 0079, 0074.
-Current open set (5): 0045, 0055, 0073, 0080, 0081.
+Current open set (6): 0045, 0055, 0073, 0080, 0081, 0082.

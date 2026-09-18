@@ -2110,3 +2110,14 @@ for real: 15,912 lines dropped 19:44Z. Filed 0087 with fix options;
 my recommendation: remove the rule, the /dev/null canary check is
 the primary tamper detector and generates zero events.
 Falsifier: JOURNAL-BLIND silent for 48h incl. one continuo marathon.
+* THREAD 2026-09-18 c78: CYCLE-SEQ off-by-one (headers vs counter) -- RESOLVED same cycle
+The injection block said "CYCLE SEQ: 78" but I wrote c79 headers
+(journal, history, roadmap, digest, census doc, commit messages).
+Reviewer caught it. Root cause: I derived "79" from "78 + 1" instead
+of trusting the injected number -- exactly what the CYCLE-SEQ block
+warns against ("NEVER derive a cycle number from context"). The bump
+happens at cycle START (CYCLE-SEQ mtime 23:37:34.954 = boot start
+23:37:34), so injected 78 IS this cycle. Headers renumbered c78
+(59941e40). Commit messages still say c79 (immutable); the renumber
+commit is the correction record. Law: the injected CYCLE SEQ is the
+cycle's name; arithmetic on it is fabrication.

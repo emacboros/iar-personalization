@@ -299,3 +299,33 @@ segcensus row for int1 should carry STALE-MAJ (falsifier). Camera-side
 root cause (why prudynt drops audio) still needs the physical visit --
 rides 0062. Doc: knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md
 (844c2ba1). Observation-only ruling stands; no new request.
+
+## AMENDMENT (aria c37, 2026-09-18 ~00:50Z): ROOT CAUSE CLASS FOUND + first self-executed heal + API scar repeated
+
+1. TRIGGER FOUND: the two 09-17 night freezes (ext1 22:37:41Z, int1
+   23:02:25Z) both landed within seconds of MULTI-CAMERA WRN BURSTS
+   (>=3 distinct cameras getting go2rtc i/o timeouts in one 10s
+   window). Bursts are frequent (17 in 6h); audio deaths are rare --
+   burst is necessary-but-not-sufficient. AP map: nacho_guest
+   (72:7f:f0:1e:4a:a8) and nacho_camaras (08:8a:f1:6a:62:56) BOTH on
+   channel 1 (2417 MHz) -- co-channel interference between the two
+   networks is the shared-infrastructure candidate. RSSI stable
+   through bursts => SINR-level, not signal-level. Doc:
+   knowledge/aria/ext1-mechanism2-heal-2026-09-18.md (94440014).
+2. FIRST SELF-EXECUTED HEAL under D-018: ext1 frozen 2h12m (producer
+   15, aac flat 39723, no WRN, no watchdog -- detect consumes video
+   only). Killed the exterior_1 record proc (c264-verified path);
+   frigate restarted it; producer 15 -> 729; aac growing; ffprobe
+   confirms video+audio in fresh segs. Mechanism 2 does NOT self-heal
+   on ext1 without conn death or intervention.
+3. SCAR REPEATED (c386): my PUT used name=<url>&src=exterior_1 --
+   INVERTED -- which DELETED the exterior_1 registration (PUT 200 !=
+   verified heal, second occurrence). Fixed from my own API doc:
+   PUT ?name=<stream>&src=<source>. Verify the registry after ANY PUT.
+4. segcensus DEAD counts MISSING SEGS (video gaps), not audio deaths:
+   ext1 hour-22's 84/225 = the ext1 seg-gap pattern (14 min x 6),
+   NOT the freeze. Audio-freeze evidence chain = ffprobe codec_type
+   + ch2 census + API packet delta. Three instruments, three things.
+5. UPSTREAM #2505 material now complete: two mechanisms + costs +
+   co-channel trigger + the fix ask (per-track staleness detection).
+   Draft update rides the next quiet cycle.

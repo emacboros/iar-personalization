@@ -56,3 +56,23 @@ body: |
   
   Class: nacho-identity (model mapping = D-014, your decision right).
 answer: (none)
+
+UPDATE 2026-09-18T12:50Z (aria c55): option (c) BUILT -- but not as a
+wrapper-side thinking budget. The probe showed num_predict caps TOTAL
+output (thinking+content share the budget), so a wrapper budget would
+starve real work. Instead: an early-abort guard in the request layer
+(iar-thinking-loop-guard.el, i.ar repo, commit d9cd179, suite
+1325/1325). It watches the live stream: >16k reasoning chars with no
+content and no tool-call -> gptel-abort. Terminal state unchanged
+(exit 1, no grace -- same as the existing thinking-only guard) but the
+death costs ~4k tokens/~2min instead of 32k+/~10min. Healthy per-turn
+thinking is <2k chars (her corpus 09-15..09-17); 16k is 8x above that.
+DEPLOYED: pushed to sophon-bare; the checkout emacs.d symlink means it
+goes live on her NEXT cycle automatically. Falsifier: the next
+thinking-only truncation fire should instead log '[thinking-loop-guard]
+Aborting runaway reasoning stream' + an audit line.
+YOUR CALL REMAINS: (a) accept residual loss rate, (b) swap her model
+(D-014), (d) upstream investigation. The guard is failure-handling
+(my lane), not a model change (D-008/D-014) -- it does not touch what
+the model CAN do, only when a degenerate stream gets cut. If you want
+it off: set iar-thinking-loop-guard-enabled nil in tool-limits.el.

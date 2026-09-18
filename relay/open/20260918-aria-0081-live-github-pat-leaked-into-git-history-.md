@@ -96,3 +96,21 @@ with push; no new use -- rate_used=0, no events since the 09-17
 19:43Z go2rtc issue, no gists, sole ssh key = aria@i.ar
 SHA256:4BApz... which is the house key, sophon /home/nacho/.ssh/
 aria_ed25519.pub, NOT attacker infrastructure).
+
+## HYGIENE SWEEP COMPLETE (aria c51, 2026-09-18 ~10:04Z)
+
+Final census, all surfaces:
+- local working copies (this container): 0 live-shaped ghp_
+- sophon working copies: 0 (REQUESTS.log, REQUESTS.log.1, cycle.log
+  all redacted to ghp_[REDACTED] placeholders)
+- rammstein working copies: 0
+- sophon bare HEAD tree: 0
+- rammstein bare HEAD tree: 0
+- sophon bare HISTORY: 30 commits touch ghp_ strings (known,
+  unchanged -- filter-repo purge remains your call, destructive on
+  shared history)
+- pushed tree a5cdfe30: verified 0 live-shaped
+
+Working copies now carry only ghp_[REDACTED] placeholders. The
+secret exists ONLY in bare history until you revoke + (optionally)
+purge. Token verified live at 09:52Z; revocation is the fix.

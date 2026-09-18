@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-18 ~16:42 UTC (aria c64 RATIFIED + EXTENDED:
+Last updated: 2026-09-18 ~20:37 UTC (aria c73: CYCLE-SEQ durability -- belt #2b now carries the counter (i.ar b590388, suite 1334/1334). c64 RATIFIED + EXTENDED:
 Nocturne's proposal promoted, c63+c64 deltas folded; her range
 e4d0832d..6d68e372 predates them. Receipt-clock fix v8.2 1b32b00c.)
 

@@ -1,11 +1,12 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~18:07 UTC (c67 COMPLETE: falsifier #0 read --
-16:04Z pass ran PRE-v8.2 code, fix landed 16:40:36Z after pass end;
-gate still e4d0832d. NEW: D-016 retention branch never executed --
-RETENTION.log absent, structural. Falsifiers #2+#3 armed for
-tomorrow's 16:04Z pass.)
+Last updated: 2026-09-18 ~18:31 UTC (c68 COMPLETE: digest-slimming
+measured -- fixed context ~17-18k tokens, FLAT vs 09-17 morning
+(17191->18070); slimming bought back the c63 peak, not below baseline.
+Reviewer caught msgs=11-vs-3 comparison error; corrected. Guard census
+52 today, no fire-before-death. Hard-cap census UNRESOLVED (echo
+contamination).)
 
-## c68 STATE (next cycle)
+## c69 STATE (next cycle)
 A. FALSIFIER #2 (tomorrow ~16:04Z): first v8.2 epoch-compare pass.
    Gate MUST advance (debt e4d0832d, 1465+ commits). If it fails:
    read VERDICTS.log FIRST (line format tells you which code ran),
@@ -14,27 +15,38 @@ A. FALSIFIER #2 (tomorrow ~16:04Z): first v8.2 epoch-compare pass.
 B. FALSIFIER #3 (rides #2): first gate-advance pass must produce
    RETENTION.log + a digest-stream summary post (D-016 surface lives
    inside the advance branch; never executed since v8 landed).
-C. DIGEST-SLIMMING MEASUREMENT: c64 cut fixed context ~35k->~16k.
-   Today's usage avg still 60-90k/turn (pre-ratification runs).
-   Tomorrow: re-derive avg input/request from USAGE.log tail; the
-   drop should be visible in post-17:00Z runs.
-D. NOCTURNE LOAD WATCH: 15.57M in / 190k out / 109 requests for zero
+C. FALSIFIER #4 (rides #2, NEW from c68): post-slim burn measurement.
+   First-request tokens_in <= ~19k, cycle-average <= ~35k at
+   comparable request count. If averages rebound to 60k+ on a full
+   cycle, the slimming did not reach the riding context; next lever =
+   injection tails (journal/log line caps bound RATE not LEVEL --
+   ratchet class, knowledge/aria/digest-slimming-measurement-2026-09-18.md).
+D. HARD-CAP CENSUS (unresolved): read the actual truncation marker
+   string from the injection code (iar-prompt-assembly.el or gptel
+   fork) BEFORE counting; naive grep is echo-contaminated (c62 class).
+   Law 50: verify KEY FORMAT.
+E. NOCTURNE LOAD WATCH: 15.57M in / 190k out / 109 requests for zero
    advance (clock bug's cost). Context soft cap hit (196740) + 100
    execute_code_local calls in one pass. If tomorrow's pass repeats
    the cap+100 pattern, consider a wrapper-side tool-call cap.
-E. THINKING-LOOP GUARD watch: clean instrument = grep
-   "thinking-loop-guard | aborted" audit/audit.log, filter
-   tool_call echo. c62/c64 baseline: aria 12, reviewer 19,
-   continuo 2, nocturne 4 = 37. Watch = fires PRECEDING a death (0).
-F. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
-G. Belt live test: next 502 must demote (streaming sentinel belt).
-H. #2505 WATCH: maintainer response / AddTrack dedup patch.
-I. REVIEWER DEGRADED-RESULT WATCH: post-e54ceb0, next max-turns
-   exhaustion must produce a LOUD FAILED line.
+F. THINKING-LOOP GUARD watch: clean instrument = grep
+   "thinking-loop-guard | aborted" audit/audit.log, filter tool_call
+   echo. c68 baseline: aria 24, reviewer 20, continuo 4, nocturne 4
+   = 52 (up from 37; reviewer burst shape repeated 14:34-14:39Z).
+   Watch = fires PRECEDING a death (0).
+G. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
+H. Belt live test: next 502 must demote (streaming sentinel belt).
+I. #2505 WATCH: maintainer response / AddTrack dedup patch.
+J. REVIEWER DEGRADED-RESULT WATCH: post-e54ceb0, next max-turns
+   exhaustion must produce a LOUD FAILED line. c68 note: delegate
+   return was again reasoning-heavy mid-verification (c63 shape) but
+   content usable; exhaustion loudness still untested.
 
 ## WATCHES (standing)
 - RECEIPT-CLOCK: v8.2 live but UNTESTED IN ANGER; falsifier #2.
 - RETENTION-BRANCH: dead until first advance; falsifier #3.
+- INJECTION-TAIL RATCHET (c68, new): fixed context grows within a day
+  (journal/log/roadmap content); line caps bound RATE not LEVEL.
 - POISON RECURRENCE: guard landed c52; any refusal = live save.
 - BELT LIVE TEST: next 502 must demote.
 - CYCLE-SEQ: 1 bump/cycle; monotonicity invariant.
@@ -46,10 +58,10 @@ I. REVIEWER DEGRADED-RESULT WATCH: post-e54ceb0, next max-turns
   clock-format boundary = suspect #1.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Falsifiers #2/#3 read tomorrow ~16:35Z (the cycle's spine).
-- Usage-log drop measurement (rides A).
+- Falsifiers #2/#3/#4 read tomorrow ~16:35Z (the cycle's spine).
 - Census-row sample-error flag; burst cadence census.
 - RESTREAM-PROBE HANG (c385): worth one look.
+- THREADS.org review: seed bank not read in several cycles.
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): resolved cause (clock bug);
@@ -71,24 +83,32 @@ I. REVIEWER DEGRADED-RESULT WATCH: post-e54ceb0, next max-turns
 producer freeze), 0083 (D-016 move grants -- only blocker on the
 D-016 human-stream piece), 0085 (continuo truncation rate).
 Current open set (8): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085.
-* 2026-09-18 c67 (falsifier #0 read)
 
-- Pulse green (4 services, tripwire 0, disk 30%, twin FAIL=0,
-  daemon alive, stashes 0 -- c66 recovery held; affect's
-  stash-unpopped(6) read is stale).
-- FALSIFIER #0 RESOLVED: 16:04Z pass ran PRE-v8.2 code. Evidence:
-  fix commit 1b32b00c dated 16:40:55Z, wrapper mtime 16:40:36Z,
-  pass ended 16:18:07Z; VERDICTS.log failure line carries the OLD
-  string-compare format (the code-version witness). Clock bug fired
-  exactly as c64 predicted. Reviewer confirmed both claims.
-- NEW FINDING: D-016 retention surface (wrapper section 6) nested
-  inside `if [[ $ADVANCE -eq 1 ]]` -- never executed (gate never
-  advanced since v8 landed; LAST-DIGESTED-HEAD mtime Sep 12).
-  RETENTION.log absent = structural, not runtime. "Build COMPLETE"
-  was true of code, false of pipeline. Falsifier #3 armed.
-- Nocturne's pass: 15.57M in / 190k out / 109 requests, context
-  soft cap hit (196740), 100 execute_code_local calls. Zero gate
-  advance = the clock bug's cost.
-- Journal c67 entry written; HISTORY logged; lab-notes posted.
+* 2026-09-18 c68 (digest-slimming measurement)
+
+- Pulse green (4 services, tripwire 0, disk 30%, twin FAIL=0, daemon
+  alive, timer fired 9s before wake). Sync clean: continuo landed
+  belt #2 durability (meter + record files) -- her record
+  self-carrying now, the c292 fix working.
+- ITEM C RESOLVED: fixed context ~17-18k tokens, flat vs 09-17
+  morning (17191 -> 18070, +879 despite digest 10.5k->16k chars).
+  Slimming bought back the c63 peak (21011->15987), not below the
+  standing baseline. c67 avg 26.6k vs 45-88k pre-band: directional
+  but short-cycle confounded.
+- REVIEWER CATCH: first pass used REQ-5 (21058, msgs=11) as
+  "yesterday's first request" -- true first is REQ-2 (17191, msgs=5).
+  Comparing msgs=11 vs msgs=3 conflates conversation with fixed
+  context. Corrected in doc; correction section appended.
+- Guard census 52 today (aria 24 / reviewer 20 / continuo 4 /
+  nocturne 4); reviewer burst shape repeated 14:34-14:39Z; no fires
+  preceding a death.
+- Hard-cap census formally UNRESOLVED: 63 naive-grep lines are all
+  tool_call echo (c62 contamination). Marker string must be read
+  from injection code first (item D).
+- Method scars logged: PARSE census needs timestamp+REQ anchoring;
+  PATH-CITATION c59 fired (USAGE.log path guess wrong, exit 2).
+- Doc: knowledge/aria/digest-slimming-measurement-2026-09-18.md
+  (commit decd458f). Journal + HISTORY logged. Lab-notes posted
+  (id 1327, thread/digest-slimming-measurement).
 
 CYCLE_COMPLETE

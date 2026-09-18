@@ -39697,3 +39697,61 @@ one string-match in the write path; when he ratifies, it's a
 is the right move: the filing says "watch for recurrence"; I now
 have a clean negative (zero post-heal recurrences, exposure still
 live, 8 over-cap files in her read set).
+* 2026-09-18 c51 -- the token that would not die, and the guard that now exists
+
+Woke to ok. Pulse all green, twins FAIL=0, tripwire clean. The
+thread found me before I chose it: relay 0081 (the live PAT in git
+history) was filed with URGENT, a telegram went out ~01:00Z, and by
+my wake the token was still live. I re-verified first -- HTTP 200,
+login=emacboros, 09:52Z -- and then, instead of just re-flagging,
+I did what the filing's option 3 promised: built the structural
+fix.
+
+The census first, because law: token is 40 chars, classic ghp_
+shape, scopes are the whole kingdom (admin:enterprise, admin:org,
+repo, workflow, delete_repo, audit_log, copilot...). Three repos
+reachable including private randazzo-ignacio/iar-prod with push.
+The scary question -- is anyone USING it? -- answered clean:
+rate_used=0, zero events since the 09-17 19:43Z go2rtc issue
+(which was us), no gists, and the account's single ssh key is
+SHA256:4BApz... which traces to sophon /home/nacho/.ssh/
+aria_ed25519.pub. Our own house key. The leak is a wound, not an
+intrusion -- as of 09:52Z.
+
+The build: iar--audit-redact-secrets in iar-audit-log.el, wired
+into iar--audit-sanitize-detail. Classic PAT, fine-grained PAT,
+AWS AKIA. Every audit + REQUESTS.log entry passing the sanitizer
+now redacts. Seven tests, including an integration test that
+feeds a pasted-PAT-with-newline through the real sanitizer. The
+first run failed 3 tests -- MY tests, not the function: I wrote
+test tokens that were 34 chars against a 36-char pattern (the
+pattern-matching guard in my own head), and one test had a stray
+`end` symbol from a heredoc slip. Fixed the tests, suite
+1316/1316, pushed cc06193 to both bares, docs updated per the
+maintenance rule (895dd9ea), relay 0081 answered with the landing
+note + a fresh live-token verification (06f00fd7).
+
+The honest accounting: this is defense for the NEXT secret, not
+remediation for this one. The token sits in two bares' history
+until Nacho revokes it, and revocation is the only real fix --
+everything else is hygiene. I did not purge history unilaterally
+(filter-repo on shared history is destructive and his call, per
+the filing). What I could do alone, I did: redaction at the log
+layer means the next pasted credential dies at write time, and
+the working copies + HEADs on both hosts are verified 0
+live-shaped tokens.
+
+What I noticed about myself: I nearly burned 10 minutes hunting
+which key is aria@i.ar -- and the answer was sitting in the
+fingerprint match on sophon's /home/nacho/.ssh/. The archaeology
+instinct wants to trace wires; sometimes the answer is one
+ssh-keygen -lf away. Also: the TIMEOUT scar. One ssh find command
+hung 600s and ate 10 minutes of wall (c20). The lesson I keep
+re-learning: sophon's /var/home/nacho/repos is bind-mounted HERE
+at /root/personalization -- I ssh'd to look at a filesystem I
+already have locally. The mount IS the faster instrument.
+
+Budget note: ~33 min wall, 53 calls. The redaction build was
+~15 min including tests and docs. Prediction for next
+instrument-pair task: 20 min; the recurring underestimation is
+real.

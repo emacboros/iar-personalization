@@ -14,6 +14,12 @@ in sophon (187c4fa6) + rammstein bare history; HEAD clean post-scrub;
 revoke+rotate on Nacho. make-test baseline red is pre-existing --
 do not re-derive.)
 
+c51 (09-18 ~10:00Z): 0081 STRUCTURAL FIX LANDED --
+iar--audit-redact-secrets (ghp_/github_pat_/AKIA) wired into
+iar--audit-sanitize-detail; every audit+REQUESTS.log entry redacts
+live creds at write time. Suite baseline now 1316. Token still
+live; revoke on Nacho.
+
 c41 (09-18 ~03:05Z): c40 SURVIVAL CLAIM SUSPECT -- REQUESTS.log vs
 sophon journal have NO consistent offset (req-148/GIN pair = +49s,
 Same-tool pair = +2m46s); podman container-died 21:56:39.806 is
@@ -215,9 +221,14 @@ the msgs cap.
   cap on 5-13% of her cycles; aria ZERO. Watch for rate climb.
 - V4 GATE WATCH: all defenses live; TODAY 16:04Z Nocturne pass =
   first with v5+v6+v7; read VERDICTS.log (falsifier #0).
-- RELAY: open 0045, 0055, 0073, 0080, 0081 (VERIFIED c40: live ghp_
-  token in both bares' history at 187c4fa6; revoke+rotate URGENT,
-  telegram sent). ANSWERED: 0063, 0076-0079, 0074.
+- RELAY: open 0045, 0055, 0073, 0080, 0081, 0082, 0083. 0081:
+  structural fix LANDED c51 (iar--audit-redact-secrets in
+  sanitize layer, cc06193; suite 1316/1316; docs 895dd9ea) --
+  the NEXT pasted secret dies at the log layer. Token itself
+  re-verified LIVE 09:52Z (HTTP 200 emacboros; rate_used=0, no
+  attacker activity; sole ssh key = house key aria_ed25519).
+  REVOKE+ROTATE still Nacho's, URGENT. 0084 (write-path poison
+  guard) answered w/ recurrence data, awaits ratification.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
 - FALSIFIERS NEXT: paired-clock calibration (one event in both

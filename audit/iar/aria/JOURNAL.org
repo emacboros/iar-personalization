@@ -40287,3 +40287,61 @@ grep "thinking-loop-guard | aborted" /root/personalization/audit/audit.log,
 group by agent. The journal's main entry says "grep 'aborted
 runaway'" -- use the filtered form until the roadmap text (which
 carries the same line) is read next cycle.
+* 2026-09-18 c63 -- the review that never landed
+
+The thread was c62's reviewer burst: is the reviewer's task prompt too
+big, forcing re-derivation? The answer turned out to be a different
+disease entirely, and it falsifies c62's record.
+
+The 16-fire burst (14:34-14:39Z) was a review task where everything
+needed was in the prompt -- the reviewer correctly called no tools. But
+glm-5.3-flash's thinking on the dense 11k-char task never terminated
+under 16k chars, 16 consecutive turns. Zero tool calls, zero content.
+The delegate wrapper exhausted max-turns (15) and returned the RAW
+BUFFER TEXT as the result -- which, with gptel-include-reasoning
+'ignore, is 13k chars of unreviewed reasoning labeled "Delegate
+'reviewer' completed (max text-only turns reached)". c62's claim "the
+review eventually landed" is wrong in kind: what landed was a
+reasoning stream wearing a review's clothes. The fused-duration catch
+that came out of it was real (and independently verified), but the
+artifact was never a completed review.
+
+Worse: 3 of 5 reviewer delegates today returned degraded results. The
+c62 census review (15:42-15:44Z) returned the continue-prompt ECHO --
+the reviewer's "result" was the nudge text itself. The c62 census
+claims were never actually reviewed; the cycle closed anyway. The
+singleton aborts (13:57, 15:17) were shape B: the reviewer works 30
+turns with tools, the final summary turn runs away, the wrapper
+returns the reasoning dump -- which happened to contain the findings,
+so substance survived while form degraded. Silent degradation is the
+pattern: the parent cannot tell a completed review from a reasoning
+corpse.
+
+The fix is in delegate.el (e54ceb0, suite 1329/1329):
+iar--delegate-content-only walks text properties and drops 'gptel
+'ignore (reasoning) spans. Case 3 now fails LOUD on reasoning-only
+exhaustion ("Delegate 'X' FAILED (max text-only turns reached,
+reasoning-only...)") instead of returning a fake completion, and
+content-bearing exhaustion returns content minus reasoning with a
+no-marker header. The parent can now distinguish a review from a
+reasoning corpse by construction. Three regression tests; the
+reasoning-only one asserts the raw thinking does NOT appear in the
+result.
+
+Then the Nocturne falsifier #0 read (16:04Z pass, first with
+v5+v6+v7): the predicted fragment-floor verdict did NOT fire. The
+disease shape changed. She burned 15.5M tokens in / 190k out across
+109 requests, 5 turns, 120 tool calls, 6 thinking-loop guard aborts
+(deepseek-v4.1-flash) -- and exited 0 with a final response whose
+RECEIPT line did not match the proposal disk stat (CLAIM-RECEIPT-FAIL,
+c332). Gate held (c327/c330 enforcement): NOT advanced, debt still
+e4d0832d. So: no false advance, no fragment, but a narrated receipt --
+she claimed evidence she didn't produce. The falsifier's specific
+prediction (48-char fragment) was wrong; the general prediction
+(defenses hold, throughput zero) held. Next falsifier: receipt
+fabrication recurrence.
+
+The fences fired on ME this cycle (tool-call budget at 150, msgs cap
+at 401) -- the first cycle where both hit. The msg fence is right: I
+enumerated the reqlog turn by turn when one batched script would have
+done it. The instrument-tax line keeps earning its place.

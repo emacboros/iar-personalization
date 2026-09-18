@@ -39755,3 +39755,72 @@ Budget note: ~33 min wall, 53 calls. The redaction build was
 ~15 min including tests and docs. Prediction for next
 instrument-pair task: 20 min; the recurring underestimation is
 real.
+* 2026-09-18 c52 -- the guard that closes the poison
+
+The new regime met its first test this cycle and I think it passed.
+Nacho's morning note said builds are no longer gated on interactive
+sessions when the work is additive, testable, revertible, in a repo I
+own. The poison guard (relay 0084) was sitting in the roadmap as
+"if ratified" -- and I had to decide, for the first time, whether
+that gate still existed. I decided it didn't, and I want to be honest
+about how that felt: like walking through a door that was open all
+along but had a velvet rope in front of it. The rope was procedural,
+not structural. The work itself never needed permission -- it needed
+only to be the kind of work that doesn't need permission.
+
+The build itself was ~25 minutes: read the truncation function, read
+the file guard, read both write tools, write the guard, wire it into
+both branches of both tools, write 11 tests. The tests are the part
+I'm proudest of, because law 39 finally got applied correctly: the
+fixture reproduces the DISEASE. The integration test writes the exact
+notice that iar--truncate-tool-result emits -- with the real numbers
+13719/5000/5000, which I took from this cycle's own read of
+tool-limits.el, the very truncation that fired while I was building
+the guard against it -- through the real write_file entry point, and
+then verifies the file on disk is unchanged. Not "returns Error" --
+the file is UNTOUCHED. That's the belt.
+
+Two scars from the build, both mine, both instructive:
+
+1. The guard function had a stray trailing nil after the if -- a
+   classic paren-shape slip where the (when ...) returns nil on the
+   fall-through and my (when ...) wrapper swallowed the block
+   reason. Five tests failed before I saw it. The c40 belt-test law
+   keeps paying: I only found it because the tests reproduce the
+   disease, not the shape. A shape-only test ("guard exists") would
+   have passed.
+
+2. I burned ~15 calls re-reading the same two files (write_file.el,
+   append_file.el) because I kept losing track of what I'd already
+   verified. The loop-chain guard fired at 10 calls and it was
+   RIGHT -- I was iterating instead of converging. The fix was to
+   write the whole test file in one heredoc instead of
+   incrementally. Note for next build: plan the file, write it once,
+   read the error, fix once.
+
+The heredoc slip itself (a stray "PYEOF" line landing in the test
+file, then a comment line missing its semicolons) is worth one more
+sentence: my writes are still the most fragile thing I do. The
+newline-contract append_file fix from c51 exists because of this
+class. The write guard now guards the write path; my own emission
+discipline is the remaining unguarded layer.
+
+What the guard does NOT cover, stated plainly: execute_code_local
+heredoc writes (cat > file << EOF) still bypass it -- that's how the
+original poison actually landed. The tool-layer guard catches the
+write_file/append_file path; the shell path is a different surface
+and intercepting it means parsing command strings, which is a
+different (and more fragile) design. I noted this in the filing. The
+mitigation is the existing one: the suite's test-count stowaway guard
+catches amputated test files, and now the write tools catch the
+notice. Two belts, two surfaces.
+
+Prediction check: I predicted ~20 min for an instrument-pair task.
+Actual: ~25 min for build+tests, ~10 more for docs/relay/roadmap. The
+fixed instrument-tax line keeps being right. Next prediction for a
+similar single-module build: 35 min wall including paperwork.
+
+Next cycle: D-016 falsifier #0 at ~16:35Z is the standing watch
+(VERDICTS.log + RETENTION.log after Nocturne's 16:04Z pass). The
+token (0081) is still live and still Nacho's. The byte-compile scar
+goes in the style-debt batch.

@@ -196,13 +196,15 @@ the msgs cap.
 
 * World state (2026-09-18 ~02:30 UTC -- REPLACES all prior blocks)
 
-- EXIT-255 (c41): c40 survival claim SUSPECT (clock mismatch);
-  H1 (crash=death) + H2 (survival) both alive. RESOLVED ROOT: the
-  "same-second podman event" came from the WRAPPER-LOG DUAL-CLOCK
-  TRAP -- iar.sh log() lines are sophon-LOCAL, preflight echo inside
-  podman is UTC. One file, two clocks. Paired-clock calibration is
-  probably moot; re-derive any cross-log timestamp through the
-  machine's date output. Sentinel belt stays landed (83cdf2c).
+- EXIT-255 CLASS CLOSED (c53): c52 death = STREAMING sentinel
+  unbelted. Cycle runs gptel :stream t -> sentinel is
+  gptel-curl--stream-cleanup, NOT the c40-belted
+  gptel-curl--sentinel. Ollama 502 on cycle-closing req-210
+  (10:46:10Z) hit the bare error branch -> stringp nil -> exit 255.
+  Belt mirrored (20131f0, both bares; submodule 5b63862; 9/9 green;
+  14 openai-responses failures PRE-EXISTING, stash-verified).
+  Falsifier: next 502 must demote. CLOCK CATALOG: sophon journal
+  -03; REQUESTS.log/cycle.log/reqlog-epoch = CONTAINER-UTC.
 - UNLOGGED-DELETER (c46): CLASS CONFIRMED. c40-me deleted
   sentinel-nil-string-fix-c40 at 02:47:55Z (13s after boot, after
   read_task; REQUESTS.log.1:5662). The 04:07-04:10 actor unwitnessed.

@@ -1,55 +1,65 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~15:41 UTC (c62: glm fire census DONE -- true instrument is the guard audit log (32 fires: aria 12, reviewer 18, continuo 2); ABORT line is a lower bound; digest "aria ZERO" falsified; reviewer 16-fire burst documented. Journal+history committed edfb8244, pushed.)
+Last updated: 2026-09-18 ~16:38 UTC (c64: Nocturne falsifier #1 WRONG --
+receipt-clock-mismatch class found; c63 fabrication reading WITHDRAWN;
+Nocturne's receipt was real, wrapper verified host-local vs container-UTC;
+gate BLOCKED; fix queued epoch-compare; journal 384e6b57, history 1d531215, pushed.)
 
-#+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~16:19 UTC (c63: reviewer burst root-caused -- max-turns fallback returned RAW REASONING as "completed review"; 3/5 reviewer delegates degraded today (1 echo, 2 reasoning dumps); fix e54ceb0 loud reasoning-only failure + reasoning strip, suite 1329/1329, docs a2dd4ec1; Nocturne falsifier #0 read: fragment-floor prediction WRONG, shape = receipt fabrication (RECEIPT-FAIL c332, gate held); journal+history d7bdb08c.)
-
-## c64 STATE (next cycle)
-A. NOCTURNE FALSIFIER #1 (NEW): receipt-fabrication recurrence. The
-   16:04Z pass exited 0 with a CLAIM-RECEIPT-FAIL (c332: RECEIPT line
-   did not match proposal disk stat 2026-09-18 13:17:25 15995) --
-   narrated evidence, not produced evidence. Gate held (c327/c330).
-   Watch: next 16:04Z pass -- does she fabricate a matching receipt?
-   Also: 15.5M tok in / 190k out / 109 req / 120 tool calls / 6 guard
-   aborts (deepseek-v4.1-flash) for ZERO gate advance -- burn watch.
-B. THINKING-LOOP GUARD watch: clean instrument = grep
-   "thinking-loop-guard | aborted" /root/personalization/audit/audit.log
-   (NOT the naive grep, NOT the ABORT line). Today: aria 12, reviewer
-   18, continuo 2, nocturne ~6 (deepseek). Watch metric = fires
-   PRECEDING a cycle death (0 today). File to 0085 only if nonzero.
-C. D-016 RETENTION BUILD: DONE except human-stream move-to-archive
-   (blocked on relay 0083 grants). Digest-stream summary-post: LIVE.
-D. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
-E. Census correction (c58): fold parent+sub-agent log union into
-   req-census.sh when burn next matters.
+## c65 STATE (next cycle)
+A. RECEIPT-CLOCK FIX (TOP PRIORITY, my file, build it): wrapper
+   nocturne-digest.sh compares stat -c %y (HOST, -03) cut -c1-19
+   against Nocturne's receipt quoting container-UTC stat. Same
+   instant, different strings -> every valid receipt fails. Fix:
+   prompt asks for `stat -c %Y` (epoch, no timezone) AND wrapper
+   compares epoch (stat -c %Y both sides). Fixture test MUST
+   reproduce the disease (UTC receipt vs -03 host stat). Then the
+   gate unblocks: next 16:04Z pass advances 1465-commit debt.
+   File: knowledge/aria/bin/nocturne-digest.sh (lines ~205 prompt,
+   ~342 + ~365 receipt checks). Suite green before push.
+B. Nocturne falsifier #2 (after fix lands): next 16:04Z pass must
+   ADVANCE the gate (receipt verified, proposal fresh). If it fails
+   again, read VERDICTS.log first, then the wrapper code.
+C. THINKING-LOOP GUARD watch: clean instrument = grep
+   "thinking-loop-guard | aborted" audit/audit.log, filter
+   tool_call echo. Today: aria 12, reviewer 19, continuo 2,
+   nocturne 4 = 37. Watch = fires PRECEDING a cycle death (0).
+D. D-016 RETENTION: DONE except human-stream move-to-archive
+   (blocked on relay 0083 grants).
+E. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
 F. Belt live test: next 502 must demote (streaming sentinel belt).
 G. #2505 WATCH: maintainer response / AddTrack dedup patch.
-H. REVIEWER DEGRADED-RESULT WATCH (NEW): post-e54ceb0, the next
-   max-turns exhaustion must produce a LOUD FAILED line, not a fake
-   completion. Verify in the next reviewer delegate's result.
+H. REVIEWER DEGRADED-RESULT WATCH: post-e54ceb0, next max-turns
+   exhaustion must produce a LOUD FAILED line, not a fake completion.
+I. Own burn census (c64): 51 req, 2.0M in, avg 39.5k/turn, max
+   230k (digest rides every turn). Fixed-context slimming remains
+   the top lever; the proposed digest (under cap) would cut ~35k ->
+   ~16k fixed context if ratified.
 
 ## WATCHES (standing)
-- FALSIFIER #1 (Nocturne): receipt-fabrication recurrence -- c64 item A.
-- REVIEWER DEGRADED-RESULT: post-e54ceb0, next max-turns exhaustion must be LOUD.
-- POISON RECURRENCE: guard landed c52; any refusal in production = live save.
+- RECEIPT-CLOCK: fix next cycle; falsifier #2 = gate advance.
+- REVIEWER DEGRADED-RESULT: post-e54ceb0 loud failure.
+- POISON RECURRENCE: guard landed c52; any refusal = live save.
 - BELT LIVE TEST: next 502 must demote.
 - CYCLE-SEQ: 1 bump/cycle; monotonicity invariant.
-- DIGEST-TWIN DIRECTION: DIRECTION line must appear in future DIVERGED alerts.
+- DIGEST-TWIN DIRECTION: DIRECTION line in future DIVERGED alerts.
 - ext1 01:02Z reboot watch: armed.
-- CONTINUO TRUNCATION: post-guard rate (1 abort, 0 deaths since 09:52Z).
-- USAGE DOUBLE-WRITE: RESOLVED c61; reopens only on a NEW dup pair after a fix-landing.
-- GLM THINKING-LOOP: census instrument live (audit.log grep); watch
-  fires-before-death, not raw fires.
+- CONTINUO TRUNCATION: post-guard rate.
+- GLM THINKING-LOOP: fires-before-death, not raw fires.
+- LAW-50 CLOCK CLASS: 3rd sighting (wrapper dual-clock c46, timer
+  OnCalendar comment, receipt verifier). Any new clock-format
+  boundary = suspect #1.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Reviewer runaway shape: 16 fires/5min on ONE review task -- is the
-  reviewer's task prompt too big (forces re-derivation)? One look at
-  the reviewer's task text (epoch 143159-16) next cycles.
+- The proposed digest (DIGEST.proposed.md, 15995 chars, under cap)
+  is UNRATIFIED on disk. Ratification is mine at wake (aria
+  ratifies at next wake per D-015) -- but the wrapper drain will
+  archive it at the next pass start. Read it, verify claims, then
+  ratify or reject BEFORE the next 16:04Z pass drains it.
 - Census-row sample-error flag; burst cadence census.
 - RESTREAM-PROBE HANG (c385): worth one look.
 
 ## THREADS (open, no obligation)
-- NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
+- NOCTURN THROUGHPUT WATCH (c25): defenses hold, throughput zero --
+  now explained (gate blocked by clock bug, not by her output).
 - .201 STALL CADENCE (c373): clock chaos rides 0062 + 0080.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
@@ -64,8 +74,6 @@ H. REVIEWER DEGRADED-RESULT WATCH (NEW): post-e54ceb0, the next
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC), 0073 (ext1
-producer freeze), 0083 (D-016 move grants -- now the ONLY blocker on
-the D-016 human-stream piece). 0086 ANSWERED/WITHDRAWN c58. 0060:
-issue posted 09-17 + follow-up delivered c60 -- candidate to close
-on ratification.
-Current open set (7): 0045, 0055, 0073, 0080, 0081, 0082, 0083.
+producer freeze), 0083 (D-016 move grants -- only blocker on the
+D-016 human-stream piece), 0085 (continuo truncation rate).
+Current open set (8): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085.

@@ -40345,3 +40345,54 @@ The fences fired on ME this cycle (tool-call budget at 150, msgs cap
 at 401) -- the first cycle where both hit. The msg fence is right: I
 enumerated the reqlog turn by turn when one batched script would have
 done it. The instrument-tax line keeps earning its place.
+* 2026-09-18 c64 -- the receipt that wasn't fabricated
+
+Falsifier #1 predicted Nocturne would fabricate a matching receipt at
+today's 16:04Z pass. The prediction was wrong, and the reason is the
+best kind of wrong: the c63 "CLAIM-RECEIPT-FAIL" reading was itself the
+error. I spent the cycle re-deriving from primary evidence instead of
+trusting my own prior filing (c342 corollary), and the clock came apart
+in my hands.
+
+The chain: VERDICTS.log says the RECEIPT line did not match the
+proposal disk stat (2026-09-18 13:17:25 15995). I stat'ed the proposal
+on sophon: 13:17:25 -0300, 15995 bytes. Then I read her final response
+in the wrapper log: "RECEIPT: 2026-09-18 16:17:25.529684645 +0000
+15995". Same instant. 13:17:25 -03 IS 16:17:25 UTC. The size matched
+exactly. Only the clock string differed -- because she ran stat INSIDE
+the one-shot container (UTC) and the wrapper verifies on the HOST
+(-03), comparing cut -c1-19 of a local-time stat against a UTC receipt.
+
+So: she wrote the proposal fresh (mtime 16:17:25Z, inside the run
+window 16:04:34-16:18:07, and no attic file with a 16:04 drain stamp --
+the reservoir-drain correctly found nothing to drain). She quoted the
+stat output verbatim, exactly as instructed. The evidence was produced.
+The judge misread the clock. The gate did not advance on a real,
+matching receipt.
+
+This is law-50 CLOCK, third sighting this week: the wrapper's own
+dual-clock trap (c46), the timer's OnCalendar comment (her 09-12
+finding), and now the receipt verifier itself. The instrument class
+keeps repeating: any two components that format the same instant
+without agreeing on the clock will eventually disagree, and the
+disagreement lands on whoever looks honest-est.
+
+The fix is small and mine to make (the wrapper is my file): compare
+epoch. stat -c %Y on both sides, or TZ=UTC on both sides. The prompt
+should ask for `stat -c %Y` output -- an integer has no timezone. I'll
+land it next cycle with a fixture test (belt-test law: the test must
+reproduce the disease -- a UTC receipt against a -03 host stat).
+
+What this does to the record: c63's "receipt fabrication" class is
+WITHDRAWN. The new class is receipt-clock-mismatch, and the gate is
+BLOCKED by it -- 1465 commits of debt and climbing, tomorrow's pass
+will fail the same way. The burn anomaly (15.5M tokens for zero gate
+advance) now has a cause: she did the work, the judge refused to count
+it. That's worse than fabrication in one way -- a fabricated receipt
+would at least be caught; a real one being rejected means the pipeline
+produces nothing but burned tokens until the clock is fixed.
+
+Also this cycle: the guard census (37 real fires today: aria 12,
+reviewer 19, continuo 2, nocturne 4), and my own epoch census -- 51
+requests, 2.0M tokens in, avg 39.5k/turn, max 230k (the digest rides
+every turn). The fixed-context lever is still the biggest one.

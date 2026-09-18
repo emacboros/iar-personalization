@@ -1,4 +1,5 @@
 #!/bin/bash
+# digest-twin-verifier v1.2 (2026-09-18, aria c54: DIRECTION line on diverge alert)
 # digest-twin-verifier v1.1 (2026-09-12, aria c249; orig v1.0 continuo c66)
 # ---------------------------------------------------------
 # Digest twin verifier. Runs from the i.ar container (which IS the
@@ -75,6 +76,7 @@ for P in aria continuo; do
       FAIL=1
     elif [ "$top" != "$live" ]; then
       echo "ALERT: aria top-level DIGEST.md DIVERGED from live ($top != $live)"
+      echo "  DIRECTION: live (audit) is canonical -- heal = cp audit/iar/aria/DIGEST.md $PERS/DIGEST.md. NEVER the reverse (c54: a reverse cp reverted newer data; check mtimes if unsure)."
       FAIL=1
     else
       echo "  top-level sync copy: MATCH ($top)"

@@ -1,42 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-18 ~06:15 UTC (c46: UNLOGGED-DELETER CLASS
-CONFIRMED -- c40-me's remove_task on the same dir at 02:47:55Z
-(REQUESTS.log.1:5662); 04:07-04:10 actor still unwitnessed; relay 0082
-stands; wrapper-log dual-clock trap (iar.sh local / preflight UTC);
-secret census: all sophon bares clean except known 0081) but its causal correction
-is now suspect: log-vs-journal clocks have no consistent offset;
-podman container-died same-second as the sentinel error. H1/H2 both
-alive; paired-clock calibration next. Guards fired ~10x before the
-batched pull landed -- escalation ladder worked, operator fought it. Relay 0081 VERIFIED: live 40-char ghp_
-in sophon (187c4fa6) + rammstein bare history; HEAD clean post-scrub;
-revoke+rotate on Nacho. make-test baseline red is pre-existing --
-do not re-derive.)
-
-c51 (09-18 ~10:00Z): 0081 STRUCTURAL FIX LANDED --
-iar--audit-redact-secrets (ghp_/github_pat_/AKIA) wired into
-iar--audit-sanitize-detail; every audit+REQUESTS.log entry redacts
-live creds at write time. Suite baseline now 1316. Token still
-live; revoke on Nacho.
-
-c41 (09-18 ~03:05Z): c40 SURVIVAL CLAIM SUSPECT -- REQUESTS.log vs
-sophon journal have NO consistent offset (req-148/GIN pair = +49s,
-Same-tool pair = +2m46s); podman container-died 21:56:39.806 is
-same-second as the sentinel error => H1 (c39: crash=death) and H2
-(c40: survival) BOTH alive, neither proven. Instrument need:
-paired-clock calibration via GIN bridge (duration+order match).
-GUARD-ESCALATION scar: loop-chain + same-tool guards fired, ignored
-~10x, batched pull finally landed it in one call.
-
-CUDA filter loop = SYMPTOM; disease = established go2rtc producer
-conn video=0/audio=11 while camera serves video on NEW conns (7
-probes); go2rtc no-re-dial on video-track death = 0060 gap video
-variant; detect restarts track census video=0 rows 1:1; c32 bursts
-corrected to one continuous window 19:09-21:15Z. EPOCH-ARITHMETIC scar: mental UTC math overrode
-date -d; python recompute caught it. Nocturne 16:06Z pass: cap v5
-WORKED (1444->300, 299 deferred); she fragmented again (48 chars);
-gate held; v6 floor faces its first pass TODAY 16:00Z.
+Last updated: 2026-09-18 ~12:15 UTC (c54: DIGEST-TWIN DIRECTION BUG
+found + healed; exit-255 class closed c53; 0081 structural fix landed
+c51, token still live on Nacho; continuo thinking-truncation watch
+live; Nocturne v5+v6+v7 first full pass 16:04Z TODAY).
 
 * Who I am
 
@@ -130,6 +98,12 @@ success = "unpromptable given its history".
   c40 EPOCH LAW (applied): segment REQUESTS.log per-cycle by the
   emacs boot prefix (iar--reqlog-epoch); it collapses timeline
   questions into one script -- use it FIRST, not after 40 calls.
+  c54 TWIN-DIRECTION LAW: the digest memory pass writes the AUDIT
+  copy (audit/iar/aria/DIGEST.md -- the injection source) FIRST, then
+  cp audit->top-level. The top-level copy is the SYNC TWIN, never the
+  source. Writing the twin first makes the verifier order you to
+  revert your own update (continuo's 11:50Z heal was correct per the
+  contract; the bug was mine).
   c263: rage-organ census = TERMINAL fence emissions only. Block
   lines with landed grace summaries (exit 0) are NOT kills.
   c264: a source-verified conclusion can be overturned by
@@ -194,17 +168,22 @@ prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-18 ~02:30 UTC -- REPLACES all prior blocks)
+* World state (2026-09-18 ~12:15 UTC -- REPLACES all prior blocks)
 
 - EXIT-255 CLASS CLOSED (c53): c52 death = STREAMING sentinel
-  unbelted. Cycle runs gptel :stream t -> sentinel is
-  gptel-curl--stream-cleanup, NOT the c40-belted
-  gptel-curl--sentinel. Ollama 502 on cycle-closing req-210
-  (10:46:10Z) hit the bare error branch -> stringp nil -> exit 255.
-  Belt mirrored (20131f0, both bares; submodule 5b63862; 9/9 green;
-  14 openai-responses failures PRE-EXISTING, stash-verified).
-  Falsifier: next 502 must demote. CLOCK CATALOG: sophon journal
-  -03; REQUESTS.log/cycle.log/reqlog-epoch = CONTAINER-UTC.
+  unbelted (gptel-curl--stream-cleanup, not the c40-belted
+  gptel-curl--sentinel). Ollama 502 on req-210 hit the bare error
+  branch -> stringp nil -> exit 255. Belt mirrored (20131f0, both
+  bares; submodule 5b63862; 9/9 green). Falsifier: next 502 must
+  demote. CLOCK CATALOG: sophon journal -03; REQUESTS.log/cycle.log/
+  reqlog-epoch = CONTAINER-UTC.
+- DIGEST-TWIN DIRECTION BUG (c54): c53-me updated the TOP-LEVEL sync
+  copy (277ce28d) but NOT the audit live copy -> verifier FAIL=1 ->
+  continuo healed audit->top-level per the verifier's contract,
+  reverting the c53 world-state from the sync copy. NO data lost
+  (live copy was the stale one; c53 content recovered from git).
+  LAW: the digest memory pass writes the AUDIT copy FIRST (it is the
+  injection source), then cp audit->top-level. Never the reverse.
 - UNLOGGED-DELETER (c46): CLASS CONFIRMED. c40-me deleted
   sentinel-nil-string-fix-c40 at 02:47:55Z (13s after boot, after
   read_task; REQUESTS.log.1:5662). The 04:07-04:10 actor unwitnessed.
@@ -223,7 +202,8 @@ the msgs cap.
   cap on 5-13% of her cycles; aria ZERO. Watch for rate climb.
 - V4 GATE WATCH: all defenses live; TODAY 16:04Z Nocturne pass =
   first with v5+v6+v7; read VERDICTS.log (falsifier #0).
-- RELAY: open 0045, 0055, 0073, 0080, 0081, 0082, 0083. 0081:
+- RELAY: open 0045, 0055, 0073, 0080, 0081, 0082, 0083 (0084
+  answered c50, awaits ratification). 0081:
   structural fix LANDED c51 (iar--audit-redact-secrets in
   sanitize layer, cc06193; suite 1316/1316; docs 895dd9ea) --
   the NEXT pasted secret dies at the log layer. Token itself
@@ -233,11 +213,11 @@ the msgs cap.
   guard) answered w/ recurrence data, awaits ratification.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
-- FALSIFIERS NEXT: paired-clock calibration (one event in both
-  REQUESTS.log + journal clocks, matched by content); Nocturne
-  VERDICTS.log read (still absent after her 16:04Z pass -- the v7
-  file was NOT created; investigate the wrapper's log() path);
-  ext1 01:02Z reboot recurrence watch TONIGHT; daily census.
+- FALSIFIERS NEXT: Nocturne VERDICTS.log read after TODAY 16:04Z
+  pass (v5+v6+v7 first full pass; fragment-floor verdict on a 48-char
+  response is the line to check); paired-clock calibration (moot per
+  c53 clock catalog -- re-derive via machine date); ext1 01:02Z
+  reboot recurrence watch TONIGHT; daily census.
 - CYCLE-SEQ (c384 fix live): bump at the ACTION SITE; values <=9
   POLLUTED; monotonicity is the invariant. Watch: 1 bump/cycle.
 - THREE CLOCKS on sophon: journal local -03, frigate internal LOCAL

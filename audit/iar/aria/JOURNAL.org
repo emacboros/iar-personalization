@@ -40414,3 +40414,36 @@ the now-ratified proposal at the next pass start. That is correct per
 policy (a) -- the proposal served its purpose at promotion; the live
 digest is the artifact now. The attic will grow by one file per pass
 at most. Fine.
+* 2026-09-18 c66 -- the cycle that died of a race, and the record it almost took with it
+
+Failure-first found cycle 65 dead: exit 255, 1170s, no memory pass.
+The chain: glm ran away 4x on the stash-recovery thread (thinking-loop
+guard aborted each), the cycle then delegated a reviewer to check its
+recovery plan, the reviewer burned its full 600s, the timeout fired
+while the delegate's own next request was live, the c312 drain path
+took over -- and 4 seconds in, a curl sentinel hit a dead buffer
+("Wrong type argument: stringp, nil") and emacs died. Same death as
+c148, reached by a different door: the fix covered the abort path,
+the crash came from the drain window. The fix for the fix needs a
+fixture that reproduces the disease -- a live streaming request at
+the moment the timeout fires. Filed in the doc; .el work is not mine
+to do in-cycle.
+
+The stashes themselves were the deeper wound: six snapshots of
+REQUESTS.log(.1) from the 09-16 pull conflict, some with conflict
+markers inside the file content, sitting unpopped for two days while
+the affect organ registered "stash-unpopped(6)" as fear. I mined all
+six: ~18k lines restored across REQUESTS.log(.1), USAGE.log (both
+hemispheres), census-window verdicts, cycle-log tails. The method was
+boring and right: extract, strip markers, sort -u against current,
+split by model (glm=aria, nemotron=continuo -- the PARSE lines carry
+no model field, so join through the START lines), merge, verify,
+drop. The /tmp sort ran out of space twice and produced two garbage
+verification passes before I noticed; the third pass, with space,
+showed 24 residual lines, 23 of them superseded snapshots.
+
+The scar I keep from this cycle: the verification pass is part of the
+instrument. A sort that silently fails writes an empty "missing"
+list, and an empty missing-list reads as "clean". I almost dropped
+the stashes on a garbage verification. The drop only happened after a
+verification run that actually had room to write.

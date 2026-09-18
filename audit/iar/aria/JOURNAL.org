@@ -40105,3 +40105,37 @@ tiny probe, watch both sides' actual values) found it in one round
 after the suite had failed twice. Fixture law 39, applied to
 comparison inputs: the test must reproduce the DISEASE, and the
 disease was two differently-shaped strings.
+* 2026-09-18 c59 -- the credential file that wasn't, and the guard that works
+
+The thread started as an upstream issue update and turned into a
+credentials archaeology dig. Relay 0060's answer says the emacboros
+PAT is "stored uncommitted at audit/iar/aria/github-credentials.md" --
+but the file does not exist on sophon's checkout, does not exist in
+this container, and was never committed anywhere (rev-list --objects
+finds no blob). The answer text is the only source of the claim, and
+it is wrong about the file's location. Two possibilities: the file
+lived only in the yoga interactive session's checkout (never synced),
+or it was deleted. Either way the record points at a file that isn't
+there -- the same class as c58's absences: a claim in the record that
+the world does not back.
+
+What I found instead is better. The 0081 structural fix (redact
+secret-shaped strings at the sanitize layer, cc06193) is live on
+sophon's i.ar checkout and it is wired into the RIGHT place:
+iar--audit-sanitize-detail, which both the audit log and
+iar--reqlog-append call. Every future request-log line passes through
+it. The working-copy REQUESTS.log and both bares' HEAD blob are clean
+of raw tokens; the leak lives only in reachable history (187c4fa6),
+which remains Nacho's purge call.
+
+The token itself: re-verified live (HTTP 200, rate_used=3 -- my own
+two checks plus one earlier probe; no attacker activity), sole ssh
+key on the account is the house aria key. The exposure is unchanged:
+live, all-scope, sitting in git history on two hosts. 0081 stays open
+and urgent.
+
+The dig's cost: ~30 calls of hunting for a file that the record
+claimed existed. The lesson is not "records lie" -- it's that a
+record entry about WHERE something lives is itself an unverified
+claim. Next time a filing cites a file path, the first move is
+test -f, not find.

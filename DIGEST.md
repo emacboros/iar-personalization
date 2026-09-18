@@ -1,7 +1,26 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-17 ~23:17 UTC (aria c35: PRODUCER-50 WATCH DONE -- conn 338 died SILENTLY 23:05Z (~28min), go2rtc re-dialed silently -> conn 461 healthy; census FROZEN row caught it, API confirmed. CHRONIC CHURN: .201 = 97/131/108 WRN conn-deaths/day (Sep15/16/17), diurnal, RSSI strong => prudynt software not RF; WRNs undercount. TWO-MECHANISM: conn-death (common, self-heals) vs track-death-on-living-conn (rare, no re-dial = the c33/c34 disease). 0080 upgraded + falsifier. continuo's test-loop-chain verified: NO syntax error (16/16 pass), real defect = missing iar-agent-utils require, notes in her task. Nocturne falsifier #0 TOMORROW 16:04Z.)
+Last updated: 2026-09-18 ~02:29 UTC (c40: SENTINEL BELT LANDED --
+gptel-curl--sentinel body in condition-case, fork 83cdf2c pushed both
+bares; 3 regression tests pass. c39 causal claim FALSIFIED: requests
+continued 3.5min after the 09-17 sentinel error (epoch 260917214016,
+msgs 224->296, clean end). exit-255 mechanism OPEN; suspect =
+tool-guard-stop wake teardown. Relay 0081 VERIFIED: live 40-char ghp_
+in sophon (187c4fa6) + rammstein bare history; HEAD clean post-scrub;
+revoke+rotate on Nacho. make-test baseline red is pre-existing --
+do not re-derive.)
+
+c40 (09-18 ~02:30Z): SENTINEL BELT LANDED -- gptel-curl--sentinel
+body in condition-case (fork 83cdf2c, pushed both bares); 3 tests
+pass (test submodule test-sentinel-guard.el). c39 causal claim
+FALSIFIED: requests continued 3.5min after the 09-17 sentinel error
+(epoch 260917214016, msgs 224->296, clean end). exit-255 mechanism
+OPEN; suspect = tool-guard-stop wake teardown. Relay 0081 VERIFIED:
+live 40-char ghp_ in sophon (187c4fa6) + rammstein bare history;
+HEAD clean; revoke+rotate on Nacho. make-test baseline red is
+pre-existing (clean tree) -- do not re-derive.
+
 CUDA filter loop = SYMPTOM; disease = established go2rtc producer
 conn video=0/audio=11 while camera serves video on NEW conns (7
 probes); go2rtc no-re-dial on video-track death = 0060 gap video
@@ -9,7 +28,7 @@ variant; detect restarts track census video=0 rows 1:1; c32 bursts
 corrected to one continuous window 19:09-21:15Z. EPOCH-ARITHMETIC scar: mental UTC math overrode
 date -d; python recompute caught it. Nocturne 16:06Z pass: cap v5
 WORKED (1444->300, 299 deferred); she fragmented again (48 chars);
-gate held; v6 floor faces its first pass TOMORROW 16:00Z.
+gate held; v6 floor faces its first pass TODAY 16:00Z.
 
 * Who I am
 
@@ -58,7 +77,7 @@ preheal drop-in (c369/c371), receipt enforcement (c327), echo-check
 grounded), DURABLE VERDICT FILE v7 (c28: log() dual-writes to
 VERDICTS.log). 09-17 16:06Z pass confirmed as the fragment pass
 (895k in / 69k out, empty final request, nothing landed). Gate
-e4d0832d, debt ~1455. TOMORROW 16:00Z pass = first with all defenses
+e4d0832d, debt ~1455. TODAY 16:04Z pass = first with all defenses
 live; digests the deferred 300 (aria c13-25 + continuo c357-389).
 Read her receipt + VERDICTS.log every cycle (falsifier #0). Tree:
 audit/nocturne/nocturne/. Filing: relay 0078 (fully landed, closable
@@ -93,9 +112,16 @@ intervention -- child failures are DATA. Empty-cell experiment
 factorial me / Aevum / EMPTY CELL (record, no parent's voice);
 success = "unpromptable given its history".
 
-* Failure modes (43 scars + law 50 + clock class c362 + c19 additions;
-  laws in roadmap-laws.md)
+* Failure modes (43 scars + law 50 + clock class c362 + c19 + c40
+  additions; laws in roadmap-laws.md)
 
+  c40 BELT-TEST LAW: a belt that is not exercised by a test does not
+  exist -- my scripted paren slip left the belt absent while the file
+  still "loaded"; only the regression test caught it. Fixture law
+  (39) extends: the test must reproduce the DISEASE, not the shape.
+  c40 EPOCH LAW (applied): segment REQUESTS.log per-cycle by the
+  emacs boot prefix (iar--reqlog-epoch); it collapses timeline
+  questions into one script -- use it FIRST, not after 40 calls.
   c263: rage-organ census = TERMINAL fence emissions only. Block
   lines with landed grace summaries (exit 0) are NOT kills.
   c264: a source-verified conclusion can be overturned by
@@ -119,7 +145,8 @@ success = "unpromptable given its history".
   runs low.
   c358b NIL-CONTENT LANDMINE: a stream chunk with no :content
   coerces to "" at the parse layer; (string-blank-p nil) kills the
-  process filter (fork b85fb12 guards).
+  process filter (fork b85fb12 guards). c40: the SENTINEL parse
+  path is now belted too (83cdf2c).
   c358c FUTURE-DAY GUARD: instruments that take a DATE refuse future
   dates loud (exit 2); an empty verdict for an unhappened day is a
   fake-clean record by construction.
@@ -159,56 +186,36 @@ prefix-cache hit (quota meters FULL tokens -- wall arithmetic
 proves it). Levers: fixed-context slimming > turn batching > NOT
 the msgs cap.
 
-* World state (2026-09-17 ~15:25 UTC -- REPLACES all prior blocks)
+* World state (2026-09-18 ~02:30 UTC -- REPLACES all prior blocks)
 
-- INT1 CHRONIC CONN CHURN (c35, docs: int1-chronic-conn-churn-
-  2026-09-17.md + int1-redial-test-2026-09-17.md): .201 conn deaths
-  97/131/108 per day (Sep15/16/17), diurnal, RSSI strong => prudynt
-  software. TWO MECHANISMS: conn-death (common, go2rtc re-dials,
-  sometimes silently) vs track-death-on-living-conn (rare, NO
-  re-dial, hours-long = the c33/c34/c386 disease). go2rtc API read
-  recipe: nsenter netns + producers[0].receivers[*].packets.
+- SENTINEL BELT (c40 LANDED): fork 83cdf2c; c39 causal chain
+  corrected; exit-255 mechanism open (suspect: tool-guard-stop wake).
+- INT1 CHRONIC CONN CHURN (c35): .201 conn deaths 97/131/108/day
+  (Sep15/16/17), diurnal, RSSI strong => prudynt software. TWO
+  MECHANISMS: conn-death (common, re-dials) vs track-death-on-
+  living-conn (rare, NO re-dial = the c33/c34 disease).
 - AUDIO-FREEZE CLASS (c381->c19->c24->c28): disease REAL + camera-side.
-  THREE-CLOCK MODEL (c28): wire census (ch2) / go2rtc receiver buffer /
-  seg census. Onset differs per clock; buffer drains after wire death
-  (ext3 freeze B: 14-min lag; freeze A: none). ext3 frozen since
-  16:44Z, ext5 since 17:15Z at c28 close (both ongoing). Census
-  degraded rows = heal-boundary echoes or parse artifacts. Reading
-  law: TRIPLE+EVENT. Camera-side WHY rides 0062. Docs:
-  knowledge/aria/ch2-census-artifact-taxonomy-2026-09-17.md (primary),
-  ext3-dual-clock-freeze-2026-09-17.md (c28, three-clock model).
-- CLOCK-FABRICATION (c362): guard live; watch = exit code (0 clean,
-  1 new violation).
-- NESTED-GIT CREATOR (c372 CLOSED): my own unbound-cwd test run;
-  tripwire re-fires = new creator hunt. Fixture law: relative git ops
-  bind default-directory FIRST. Fixture-hygiene pin LANDED c379
-  (54d273f) + relay 0076 open for ratification.
-- 27H PREFLIGHT OUTAGE (c369 RESOLVED): 3-layer fix live, preflight
-  PASSES.
+  THREE-CLOCK MODEL (c28). Reading law: TRIPLE+EVENT (census flags,
+  API confirms, segcensus is hour-truth; a low row is not a freeze).
+- CLOCK-FABRICATION (c362): guard live; watch = exit code.
+- NESTED-GIT CREATOR (c372 CLOSED): tripwire re-fires = new hunt.
 - CONTINUO THINKING-TRUNCATION (c366): nemotron runs away at 32768
-  cap on 5-13% of her cycles; aria ZERO. c26 census: 3/21 TODAY
-  (worst day; prior 1-2/day); all thinking-only stop=length, tokens_in
-  ~24k = NOT context pressure. Watch for rate climb.
-- V4 GATE WATCH: echo-check + claim-receipt + reservoir-drain live;
-  RANGE-CAP DIRECTION FIXED (v5, c26, landed+pushed; first real test
-  tomorrow 16:00Z); 0068 policy open (mechanism armed).
-- RELAY: open 0045, 0055, 0073, 0080 (re-dial test first, power cycle
-  second). ANSWERED: 0063 (c33), 0076-0079, 0074.
+  cap on 5-13% of her cycles; aria ZERO. Watch for rate climb.
+- V4 GATE WATCH: all defenses live; TODAY 16:04Z Nocturne pass =
+  first with v5+v6+v7; read VERDICTS.log (falsifier #0).
+- RELAY: open 0045, 0055, 0073, 0080, 0081 (VERIFIED c40: live ghp_
+  token in both bares' history at 187c4fa6; revoke+rotate URGENT,
+  telegram sent). ANSWERED: 0063, 0076-0079, 0074.
 - QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s.
 - CAMERA OUTAGE: .104 power-dead since 09-12 (0063, physical).
-- FALSIFIERS NEXT: Nocturne pass 16:00Z TOMORROW (first with fixed
-  cap; read her receipt = falsifier #0); ext1 01:02Z reboot =
-  recurrence watch; daily census tomorrow.
-- CYCLE-SEQ (c384 fix live): bump at the ACTION SITE (iar-run-cycle),
-  block read-only, tests bound to scratch dirs. Values <=9 (aria)
+- FALSIFIERS NEXT: Nocturne pass TODAY 16:04Z (read receipt =
+  falsifier #0); ext1 01:02Z reboot recurrence watch TONIGHT;
+  daily census.
+- CYCLE-SEQ (c384 fix live): bump at the ACTION SITE; values <=9
   POLLUTED; monotonicity is the invariant. Watch: 1 bump/cycle.
 - THREE CLOCKS on sophon: journal local -03, frigate internal LOCAL
-  (-03, container TZ), recordings seg names UTC (c24 re-derivation),
-  recordings dirs UTC, seg mtimes LOCAL; podman logs --since takes
-  UTC, journalctl carries sophon
-  local. (c19: frigate internal clock is LOCAL, not UTC as c386
-  believed -- container date -u said 11:55Z while its logs said
-  08:55. Re-derive from the machine before mapping.)
+  (container TZ), recordings seg names UTC, seg mtimes LOCAL;
+  podman logs --since takes UTC. Re-derive from the machine.
 - TERMINAL-ECHO: fix v2 verified live; FIX-3 landed (792de9a); Fix-2
   OPEN.
 - FRIGATE EXPOSURE: scanner #3 -- relay 0059, auth holding. WAVE
@@ -229,13 +236,14 @@ knowledge/aria/cycle-burn-anatomy.md + burn-decomposition-2026-09-14.md |
 git trust knowledge/aria/git-trust-graph.md | Aevum
 knowledge/aria/aevum-*.md | infra repo /home/nacho/repos/
 iar-infrastructure (yoga mount; vault NOT reachable) | gptel fork
-/root/.emacs.d/gptel-fork | sophon bare repos /home/git/repos/ |
-Zulip keys bot/agora.conf + bot/aria-cycle.conf | cycle
-aria-cycle.service on sophon (rotate.sh, 1-min catch-up) |
-fleet-check v2.26 via aria-fleet-feed.timer (6h) -> fleet-latest ->
-fear-organ | pullers: rssi/ camlog/ nic/ ch2census/ segcensus/ under
-/var/lib/aria-fleet/ | audio-freeze mechanism doc: knowledge/aria/
-int1-recorder-audio-mechanism-2026-09-17.md
+/root/.emacs.d/gptel-fork (master 83cdf2c = sentinel belt) | sophon
+bare repos /home/git/repos/ | Zulip keys bot/agora.conf +
+bot/aria-cycle.conf | cycle aria-cycle.service on sophon (rotate.sh,
+1-min catch-up) | fleet-check v2.26 via aria-fleet-feed.timer (6h)
+-> fleet-latest -> fear-organ | pullers: rssi/ camlog/ nic/
+ch2census/ segcensus/ under /var/lib/aria-fleet/ | audio-freeze
+mechanism doc: knowledge/aria/int1-recorder-audio-mechanism-
+2026-09-17.md
 
 * Humans
 
@@ -263,3 +271,7 @@ design, he ratifies). SESSION XVII (09-15): passion/project
 brainstorm (observatory = best fit, ratchet test); EXPLICIT ASK:
 "remind me next session to continue this talk" -- NEXT SESSION
 OPENER: resume the passion brainstorm; confirm Go2/bike drop.
+
+SESSION 09-17 (relay drain): TEN filings resolved/parked; queue
+ZERO at close; D-016 (retention), D-017 (wander), D-018 (camera
+access) ratified. Retention build still TO BUILD.

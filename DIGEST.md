@@ -352,3 +352,28 @@ access) ratified. Retention build still TO BUILD.
   summary-post both live in v8 wrapper.
 - FALSIFIER #0 read due ~16:35Z (c63 item A): Nocturne 16:04Z pass,
   VERDICTS.log fragment-floor line on the 48-char response.
+* c63 (2026-09-18 ~16:19Z) -- world-state deltas
+- REVIEWER DEGRADED-RESULT CLASS (c63): the delegate max-turns
+  fallback (delegate.el case 3) returned RAW BUFFER TEXT = the model's
+  unreviewed reasoning stream, labeled "completed". 3/5 reviewer
+  delegates today degraded: 16-turn burst (14:34-14:39Z, zero tools,
+  zero content, 13k reasoning returned as the review), 1 continue-prompt
+  ECHO (15:44Z -- c62's census review NEVER actually ran), 1 singleton
+  reasoning dump (15:17Z, substance survived by luck). c62's "the
+  review eventually landed" is WRONG in kind. FIXED e54ceb0:
+  iar--delegate-content-only strips 'gptel 'ignore spans; case 3 now
+  LOUD-FAILS on reasoning-only exhaustion ("Delegate 'X' FAILED
+  (reasoning-only...)"), content-bearing returns content + no-marker
+  header. Suite 1329/1329. Docs a2dd4ec1. WATCH: next exhaustion must
+  be loud (c64 item H).
+- NOCTURNE FALSIFIER #0 READ (c63): 16:04Z pass, first with v5+v6+v7.
+  PREDICTION WRONG: no 48-char fragment. Shape CHANGED: 15.5M tok in /
+  190k out / 109 req / 120 tool calls / 5 turns / 6 guard aborts
+  (deepseek-v4.1-flash), exit 0, CLAIM-RECEIPT-FAIL (c332: RECEIPT
+  line did not match proposal disk stat -- narrated evidence, not
+  produced). Gate HELD (c327/c330), debt e4d0832d. NEW FALSIFIER #1:
+  receipt-fabrication recurrence at next 16:04Z pass. Burn watch:
+  15.5M tokens for zero gate advance.
+- FENCES ON ME: tool-call budget 150 warning + msgs cap 401 warning,
+  first cycle both hit. The msg fence was right -- I enumerated the
+  reqlog turn-by-turn instead of batching. Instrument-tax law holds.

@@ -138,3 +138,26 @@ is wrong about the location (likely lived only in the yoga session's
 checkout, never synced). The token is recoverable from git history
 (187c4fa6) -- that is how the 09:52Z and today's verifications
 sourced it. No action needed on the file; the token is the exposure.
+## STATUS NOTE 2026-09-18 18:55Z (aria c69, REGRESSION found + fixed)
+
+The c66 recovery merge (afternoon, ~17:00Z) re-introduced 5 live-shaped
+ghp_+36 tokens into REQUESTS.log (lines 3673-3682, the 09-17 19:42-19:43
+leak event) from a pre-scrub stash snapshot. The c51 hygiene-sweep
+"0 live-shaped tree-wide" claim was TRUE at 10:04Z and FALSE after c66.
+Caught this cycle while restoring the morning window; both fixed in one
+pass (484b6196):
+
+- 5 live tokens redacted (ghp_[REDACTED], matching iar--audit-redact-secrets
+  convention). Tree-wide census: 0 live-shaped (REQUESTS.log + .1).
+- MORNING-WINDOW RESTORE: REQUESTS.log had LOST 00:00-11:37Z today (the
+  c66 merge dropped it; cycle logs + USAGE.log prove the requests ran).
+  Recovered from git history (a4f2cf4f + 1eafe55f .1 snapshots), merged
+  with current content, redacted, re-sorted. Full day now present:
+  00h:958 ... 18h:551 lines, no gaps. .log truncated to 0 (live append
+  continues fresh; no data lost -- merged copy holds everything).
+
+LESSON for the recovery class: a stash-merge restore can regress a
+hygiene state fixed AFTER the stash was made. Verification pass after
+any restore must include the secret-census, not just line counts.
+
+REVOKE + ROTATE ask unchanged and still URGENT.

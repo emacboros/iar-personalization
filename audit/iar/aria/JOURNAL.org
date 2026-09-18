@@ -41023,3 +41023,68 @@ What I'm carrying: the fear organ is two-for-two now (stash-unpopped,
 journal-blind). A worry layer that only fires on real events is
 becoming something I actually read first instead of skim. That's the
 affect-as-routing-signal thesis doing its work in miniature.
+* 2026-09-19 c79 -- the journal is an audit mirror, and I was the one who made it one
+
+Failure-first: LAST-CYCLE ok (c77). Pulse green except fleet-check
+FAIL=1 -- JOURNAL-BLIND again, and this time the fear organ was
+pointing at a FRESH event, not the 19:44Z one: two more drops
+tonight (1184 lines at 20:14, 1299 at 20:34). Four drop events in
+the last hour. The flood is not an incident; it is the steady state
+now.
+
+THREAD: chose itself -- relay 0087 was filed with a census taken
+during bursts (c77's 700-1800/min), and Nacho's fix decision rides
+on my numbers. I re-censused with proper epoch extraction and the
+picture changed twice.
+
+First change: the steady-state devnull rate is ~250/min, not
+700-1800. The c77 numbers were burst peaks (git push: 618/min in
+one minute). The 09-17 "178/min" was a quiet window. Census-timing
+law, third sighting -- I keep measuring the hour I happen to be in.
+
+Second change, the structural one: the journal is now ~97% AUDIT
+MIRROR. ~2961 audit-source lines/min of ~3067 total. imjournal's
+2000/min limit is drowning in our own audit events, which arrive
+in the journal as 4 lines per event (SYSCALL+PATH+CWD+PROCTITLE).
+Native /var/log/audit/audit.log is healthy and complete. The journal
+copy is redundant weight nobody reads. The rule I scoped in 0074 to
+fix a flood is itself the flood -- and the deeper cause is the
+double-write: audit goes to audit.log AND gets mirrored into the
+journal, and the mirror is what's blind.
+
+Composition detail that surprised me: the rule watches EVERYONE.
+uid-1000 (nacho's own git/emacs/frigate) outnumbers root 2:1 in the
+events. Frigate's camera maintainer opens /dev/null 32/min steady
+(8 cams x 15s, its own child-output plumbing, not a fault) -- the
+largest single contributor. My c77 story ("root-bash cron
+redirects") was half the picture.
+
+Revised 0087 rec, answered in the ledger: do BOTH -- remove the
+rule (canary check is primary, zero events) AND exclude audit from
+imjournal (structural). Option 2 alone fixes the flood; option 1
+alone leaves ~40% headroom, one busy git day from re-flooding.
+
+Instrument scars, all mine, all tonight:
+1. FAKE-CLEAN census: awk'd $1+0 against an epoch cutoff, but $1 is
+   "type=PATH" -- every row failed, returned 0, while the file was
+   visibly hot. Law 50 caught it because zero was absurd. The epoch
+   lives in msg=audit(...). Census-source law extends: enumerate
+   the FIELD, not just the source.
+2. exit=45 is an FD NUMBER (openat return), not an exit code. I
+   narrated it wrong for one query before correcting. Schema law
+   applies to field SEMANTICS, not just names.
+3. frigate attribution: comm said "frigate.recordi" but the opener
+   is the parent (camera maintainer, python3); ppid census showed
+   all 532 events carry ppid=439245. Process TREE, not comm string.
+
+Also answered relay 0087 via the ledger tool -- first time using
+`relay answer` in anger; the id is aria-0087 (filer+seq token), not
+the filename. Small tool lesson, cheap.
+
+What I'm carrying: the fear organ fired on a real event for the
+third time (stash-unpopped, journal-blind x2). And the sharpest
+note: the perception layer is blinding itself with its own
+telemetry -- the audit instrument drowning the journal in audit
+noise is the same shape as the guard drowning the delegate in
+re-prompts (c71). Two instruments, same disease: a layer built to
+see everything ends up blinding the layer that has to read it.

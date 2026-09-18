@@ -2,7 +2,7 @@
 filed: 2026-09-18T23:22Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: journal-blind FIRED: imjournal dropped 15,912 lines; devnull-watch rule is the flood source
 body: |

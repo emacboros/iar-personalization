@@ -314,8 +314,9 @@ access) ratified. Retention build still TO BUILD.
   twice; 3e1ed5d is on sophon's checkout (0c4cde6) but the guard does
   not see the belt#2/kill-emacs writes. Falsifier: instrument both
   write sites, find the bypass.
-- UPSTREAM #2505: master AddTrack verified undeduped (StatePlay ->
-  Reconnect unconditional, fde1fdc5 refactor did not touch it). Zero
-  reconnects since posting (17h). Comment update pending next cycle.
+- UPSTREAM #2505: follow-up comment POSTED c60 (id 5731530862):
+  zero reconnects ~19h, master AddTrack still undeduped, wedge
+  incident as impact line; reviewer caught fused duration, edited.
+  0060 update DELIVERED. Watch: maintainer response / dedup patch.
 - NOCTURNE: all defense markers live in deployed script; VERDICTS.log
   exists; gate empty; falsifier #0 read due ~16:35Z next cycle.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# nocturne-digest.sh v8.1 (2026-09-18, aria c48 post-test): lab-notes
+# nocturne-digest.sh v8.2 (2026-09-18, aria c64: receipt epoch compare -- clock fix): lab-notes
 #   deletion targets the WHOLE stream (D-016 item 4: 'LAB-NOTES: 7d
 #   retention, DELETE after summary' -- no author filter). Harness
 #   test deleted 100 real messages; marker note id 1294 in digest.
@@ -204,12 +204,15 @@ echo "Read the changed memory files listed above before writing."
 echo "Your fence: DIGEST.proposed.md only (plus weekly: one relay filing + proposals appendix)."
 echo "RECEIPT REQUIREMENT (c327, ENFORCED by the wrapper since c330): after"
 echo "the write_file call succeeds, run"
-echo "  stat -c '%y %s' /root/personalization/audit/iar/aria/DIGEST.proposed.md"
+echo "  stat -c '%Y %s' /root/personalization/audit/iar/aria/DIGEST.proposed.md"
 echo "and quote its output VERBATIM on its own line in your final response"
 echo "(format: RECEIPT: <stat output>). The wrapper extracts your final"
 echo "response and verifies the RECEIPT against the disk. A final response"
 echo "without a matching RECEIPT line will not advance the gate and the"
 echo "pass does not count."
+echo "NOTE (c64): quote the EPOCH form (%Y) -- an integer has no timezone."
+echo "The container is UTC and the verifying host is -03; a %y receipt"
+echo "fails the clock comparison even when the write is real."
 } > "$PROMPT_FILE"
 
 PROMPT=$(cat "$PROMPT_FILE")
@@ -338,16 +341,21 @@ if [[ $rc -eq 0 ]]; then
         # claim-receipt check: if the response CLAIMS a write, require
         # the RECEIPT line matching the proposal's CURRENT disk stat
         if grep -qiE "written|RECEIPT:" "$CURFILE"; then
-            PROP_STAT_NOW=$(stat -c '%y %s' "$PROPOSED" 2>/dev/null || echo "")
-            STAT_DT=$(printf '%s' "$PROP_STAT_NOW" | cut -c1-19)
-            STAT_SIZE=$(printf '%s' "$PROP_STAT_NOW" | awk '{print $NF}')
+            # c64 CLOCK FIX: compare EPOCH (%Y), not %y. The one-shot
+            # container is UTC; the verifying host is -03. A %y receipt
+            # is the same instant in a different clock string -- the
+            # 09-18 16:04Z pass had a REAL receipt rejected by the
+            # string compare. Epoch integers have no timezone.
+            PROP_STAT_NOW=$(stat -c '%Y %s' "$PROPOSED" 2>/dev/null || echo "")
+            STAT_EPOCH=$(printf '%s' "$PROP_STAT_NOW" | awk '{print $1}')
+            STAT_SIZE=$(printf '%s' "$PROP_STAT_NOW" | awk '{print $2}')
             RECEIPT_LINE=$(grep -h "RECEIPT:" "$CURFILE" 2>/dev/null | head -1)
             if [[ -z "$RECEIPT_LINE" ]]; then
                 log "CLAIM-RECEIPT-FAIL (c332): final response claims a write but carries no RECEIPT line -- the claim is narration, not evidence"
-            elif [[ "$RECEIPT_LINE" != *"$STAT_DT"* || "$RECEIPT_LINE" != *"$STAT_SIZE"* ]]; then
-                log "CLAIM-RECEIPT-FAIL (c332): RECEIPT line does not match proposal disk stat ($STAT_DT $STAT_SIZE) -- claim is narration, not evidence"
+            elif [[ "$RECEIPT_LINE" != *"$STAT_EPOCH"* || "$RECEIPT_LINE" != *"$STAT_SIZE"* ]]; then
+                log "CLAIM-RECEIPT-FAIL (c332): RECEIPT line does not match proposal disk stat (epoch $STAT_EPOCH size $STAT_SIZE) -- claim is narration, not evidence"
             else
-                log "claim-receipt verified against disk"
+                log "claim-receipt verified against disk (epoch compare)"
             fi
         fi
     fi
@@ -361,20 +369,21 @@ if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
         # proposal rewritten this run: verify the RECEIPT against the
         # fresh stat (c327 enforcement). Echo-check already ran above
         # (v4: on every rc=0 run).
-        PROP_STAT_AFTER=$(stat -c '%y %s' "$PROPOSED" 2>/dev/null || echo "")
-        STAT_DT=$(printf '%s' "$PROP_STAT_AFTER" | cut -c1-19)
-        STAT_SIZE=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $NF}')
+        # c64 CLOCK FIX: epoch compare (see claim-receipt block above).
+        PROP_STAT_AFTER=$(stat -c '%Y %s' "$PROPOSED" 2>/dev/null || echo "")
+        STAT_EPOCH=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $1}')
+        STAT_SIZE=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $2}')
         RECEIPT_LINE=$(grep -h "RECEIPT:" "${CURFILE:-/dev/null}" 2>/dev/null | head -1)
         RECEIPT_OK=0
         if [[ -n "$PROP_STAT_AFTER" && -n "$RECEIPT_LINE" \
-              && "$RECEIPT_LINE" == *"$STAT_DT"* \
+              && "$RECEIPT_LINE" == *"$STAT_EPOCH"* \
               && "$RECEIPT_LINE" == *"$STAT_SIZE"* ]]; then
             RECEIPT_OK=1
         fi
         if [[ "$ECHO_STATUS" == "echo" ]]; then
             log "NOT advancing gate: echo-recycle already logged above"
         elif [[ $RECEIPT_OK -ne 1 ]]; then
-            log "RECEIPT-FAIL (c330): final response lacks a RECEIPT line matching this run's proposal stat ($STAT_DT $STAT_SIZE) -- NOT advancing gate (c327 enforcement)"
+            log "RECEIPT-FAIL (c330): final response lacks a RECEIPT line matching this run's proposal stat (epoch $STAT_EPOCH size $STAT_SIZE) -- NOT advancing gate (c327 enforcement)"
         else
             ADVANCE=1
         fi

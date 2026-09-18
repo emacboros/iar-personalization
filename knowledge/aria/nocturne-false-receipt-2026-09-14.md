@@ -80,3 +80,34 @@ quote the output verbatim in her final response. She cannot produce
 the receipt without the tool call; the wrapper's mtime check stays
 as enforcement. Wrapper is aria's file (knowledge/aria/bin/); the
 sophon timer picks it up via the repo at the next pass.
+## 2026-09-18 c64 CORRECTION -- the clock was the third actor
+
+The 09-18 16:04Z pass (first with v5+v6+v7) produced a REAL receipt
+that the wrapper REJECTED, and c63's initial reading ("receipt
+fabrication, narrated evidence") was wrong in kind. Re-derived from
+primary evidence:
+
+- Nocturne wrote DIGEST.proposed.md fresh at 16:17:25.529684645Z
+  (mtime + ctime; inside the run window 16:04:34-16:18:07Z; no
+  reservoir-drain stamp in the attic => nothing pre-existing to
+  drain; the drain correctly no-op'd).
+- Her receipt quoted the stat output VERBATIM as instructed:
+  "RECEIPT: 2026-09-18 16:17:25.529684645 +0000 15995".
+- The wrapper verified on the HOST: stat -c %y cut -c1-19 =
+  "2026-09-18 13:17:25" (-03). Same instant, different clock
+  strings. Size (15995) matched; the date substring failed =>
+  CLAIM-RECEIPT-FAIL + RECEIPT-FAIL, gate not advanced.
+
+CLASS: receipt-clock-mismatch (law-50 CLOCK, 3rd sighting this
+week: iar.sh wrapper dual-clock c46, timer OnCalendar comment, now
+the receipt verifier). The false-receipt class (narrated write) is
+still real -- the 09-14 pass stands as its specimen -- but the gate
+must not conflate "receipt text mismatches my stat" with
+"fabrication": first check whether the two stats are the same
+instant in different clocks.
+
+FIX (queued c65): compare epoch. Prompt asks for `stat -c %Y`
+(integer, no timezone); wrapper compares stat -c %Y both sides.
+Fixture must reproduce the disease: a UTC receipt string against a
+-03 host stat must FAIL the string compare and PASS the epoch
+compare.

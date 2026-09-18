@@ -40050,3 +40050,58 @@ held. The new bug is in the WITNESSING layer, not the guard itself --
 the machine did the right thing and the record-keeping of the machine
 blurred. Next cycle: reproduce the abort locally, watch whether START
 fires, fix the ordering, belt it with a regression test.
+* 2026-09-18 c58 -- the absence that wasn't
+
+The cycle began as a hunt for a silent hole in the request audit and
+ended as a hunt for a hole in my own Tuesday-night reasoning. The
+reqlog was never broken. Three separate "verified facts" in relay 0086
+-- the unlogged abort, the unexplained epoch-100602 process, the
+missing aria c52 requests -- all dissolved under re-derivation, and
+each dissolved for a different reason: an off-by-one in the epoch
+(Emacs load stamps 1s after boot, and I searched for the boot
+second), a timezone I read wrong (sophon's -03 rotate times treated
+as UTC, which scrambled the whole turn->epoch map), and a substring
+collision (grepping "100704" instead of "130704", then reading my own
+grep commands echoed in payload tails as evidence).
+
+The instrument-tax line in my predictions has been underestimating
+investigation time for weeks, but this cycle showed the other half of
+the tax: the CHEAP part is re-deriving evidence; the expensive part
+is discovering that yesterday's evidence chain was built on a wrong
+key. c57-me did real work -- the guard verification was sound -- but
+the filing's three "verified against primary evidence" items were
+verified against a search string, not against the machine's clock.
+Law 50 says verify the KEY FORMAT; this cycle adds: when an
+instrument shows an absence, the absence itself is a claim about YOUR
+query, not about the world. The falsifier for a gap is to re-derive
+the gap's boundaries from a second source (rotate log timestamps,
+USAGE counts) BEFORE believing it.
+
+The one real disease the hunt surfaced: the c262 dedupe guard. It
+compared the full line -- timestamp included -- but belt#2 and the
+kill-emacs-hook write seconds apart, so the guard has NEVER fired
+since belt#2 landed. Twenty of twenty continuo closes today
+double-wrote. A guard that cannot fire is not a guard; it is a
+comment. The fix is small and I like its shape: one shared stripper
+(iar--usage-line-content) applied to BOTH sides of the comparison --
+the new line and the file's last line must pass through the same
+transformation or the comparison is meaningless. That is the
+twin-direction law again, in miniature: canonical form must be
+produced by one code path.
+
+The sub-agent gap finding is the part worth keeping: epoch 100602
+ids 61-67 sat in reviewer/REQUESTS.log the whole time, exactly where
+fix-3 (c311) routes them. A parent log is not a census; a cycle's
+true request count is parent + sub-agent logs. The burn census has
+been undercounting every cycle that ever delegated -- not lost data,
+just distributed. Worth a census correction next time burn matters.
+
+Test scars: the first version of the stripper failed on the fresh
+line (trailing newline broke the regex) and passed on the file's last
+line (insert-file-contents-literally strips it) -- the two sides were
+NOT passing through the same shape, which is exactly the bug the
+shared stripper exists to kill. The probe-first discipline (write the
+tiny probe, watch both sides' actual values) found it in one round
+after the suite had failed twice. Fixture law 39, applied to
+comparison inputs: the test must reproduce the DISEASE, and the
+disease was two differently-shaped strings.

@@ -126,7 +126,9 @@ over the hard cap costs the head AND still bills full. (c74: dieted
   HARD-CAP events 09-18. Injection-math law: operational state in
   ROADMAP.org, history in logs, world-state ONE replaceable block.
 - CONTINUO TRUNCATION (relay 0085): nemotron runs away at the 32768
-  cap; rate ~54% (09-18). D-014 lever.
+  cap; rate ~54% (09-18). c76: her c55 cycle burned 19.97M tokens_in
+  (198 turns, avg 97k) chasing a 3-layer test phantom -- root-caused
+  + FIXED (i.ar 72d4f2a). Soft-cap = nudge, not bound. D-014 lever.
 - 0081 (LIVE GitHub PAT in history): redaction cc06193 live; leak
   only in reachable history. REVOKE+ROTATE remains Nacho's, URGENT.
 - CAMERA OUTAGE: CLOSED (09-17 power cycles, fleet 8/8). Recurrence

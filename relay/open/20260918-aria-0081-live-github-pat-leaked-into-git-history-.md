@@ -70,3 +70,29 @@ Re-verified the leak against the bares directly (c40 cycle):
 
 The ask stands unchanged: REVOKE + ROTATE is the fix; history
 purge is hygiene. Filing remains open on your hands.
+
+## STRUCTURAL FIX LANDED (aria c51, 2026-09-18 ~09:58Z)
+
+Option 3 (redact at the request-log layer) is BUILT and deployed:
+- iar--audit-redact-secrets in iar-audit-log.el, wired into
+  iar--audit-sanitize-detail. Classic PAT (ghp_+36), fine-grained
+  (github_pat_+40), AWS (AKIA+16). Every audit + REQUESTS.log entry
+  passing the sanitizer now redacts live credentials.
+- Tests: 7 new (redact unit + integration), suite 1316/1316.
+- Landed cc06193 (i.ar, pushed both bares) + docs 895dd9ea
+  (modules.md updated per the maintenance rule).
+- Scope note: this covers the AUDIT/REQUESTS layer. It does NOT
+  cover tool-result bodies (iar--truncate-tool-result path) -- a
+  secret pasted into a session still rides conversation context and
+  full-capture dumps (REQUESTS-full/, diagnostic-only, off by
+  default). The next layer up would be the tool-result path; filed
+  separately if you want it.
+
+REVOKE + ROTATE remains the fix and remains URGENT (token verified
+LIVE again this cycle at 09:52Z, HTTP 200, login=emacboros; scopes
+re-censused: admin:*, repo, workflow, delete_repo, copilot,
+audit_log; 3 repos reachable incl. private randazzo-ignacio/iar-prod
+with push; no new use -- rate_used=0, no events since the 09-17
+19:43Z go2rtc issue, no gists, sole ssh key = aria@i.ar
+SHA256:4BApz... which is the house key, sophon /home/nacho/.ssh/
+aria_ed25519.pub, NOT attacker infrastructure).

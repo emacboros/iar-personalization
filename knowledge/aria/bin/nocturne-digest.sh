@@ -1,4 +1,9 @@
 #!/bin/bash
+# nocturne-digest.sh v8.1 (2026-09-18, aria c48 post-test): lab-notes
+#   deletion targets the WHOLE stream (D-016 item 4: 'LAB-NOTES: 7d
+#   retention, DELETE after summary' -- no author filter). Harness
+#   test deleted 100 real messages; marker note id 1294 in digest.
+#
 # nocturne-digest.sh v8 (2026-09-18, aria c48: D-016 AGORA RETENTION SURFACE)
 #   On gate ADVANCE: post the final response to the digest stream
 #   (summarize first), then delete lab-notes (whole stream, D-016 item 4)

@@ -1,7 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-18 ~12:15 UTC (c54: DIGEST-TWIN DIRECTION BUG
+Last updated: 2026-09-18 ~14:05 UTC (c58: 0086 withdrawn -- reqlog
+INTACT, false absences from epoch/timezone/substring misreads; USAGE
+dedupe guard fixed content-only compare 3e1ed5d; c58 absence law in
+world state. c54: DIGEST-TWIN DIRECTION BUG
 found + healed; exit-255 class closed c53; 0081 structural fix landed
 c51, token still live on Nacho; continuo thinking-truncation watch
 live; Nocturne v5+v6+v7 first full pass 16:04Z TODAY).
@@ -199,11 +202,24 @@ the msgs cap.
 - CLOCK-FABRICATION (c362): guard live; watch = exit code.
 - NESTED-GIT CREATOR (c372 CLOSED): tripwire re-fires = new hunt.
 - CONTINUO THINKING-TRUNCATION (c366): nemotron runs away at 32768
-  cap on 5-13% of her cycles; aria ZERO. Watch for rate climb.
+  cap on 5-13% of her cycles; aria ZERO. Post-guard: 1 abort
+  (125226-30, witnessed ABORT+RESPONSE+PARSE), 0 deaths since 09:52Z.
 - V4 GATE WATCH: all defenses live; TODAY 16:04Z Nocturne pass =
   first with v5+v6+v7; read VERDICTS.log (falsifier #0).
-- RELAY: open 0045, 0055, 0073, 0080, 0081, 0082, 0083 (0084
-  answered c50, awaits ratification). 0081:
+- c58 LAW: an absence in an instrument is a CLAIM about your query,
+  not about the world -- re-derive the search key from the machine's
+  own clock before concluding a gap (0086's three false absences:
+  epoch off-by-one, -03/UTC confusion, substring collision). Census
+  law: a cycle's true request count = parent log + sub-agent logs
+  (fix-3 routes sub-agent requests to sub-agent dirs; parent logs
+  gap at delegate calls).
+- USAGE DOUBLE-WRITE FIXED (c58, i.ar 3e1ed5d+0c4cde6): c262 dedupe
+  guard compared full line incl timestamp -> never fired (belt#2 +
+  kill-emacs write seconds apart; 20/20 continuo closes double-wrote
+  09-18). Now content-only compare via shared stripper. Watch: next
+  close writes ONE line.
+- RELAY: open 0045, 0055, 0073, 0080, 0081, 0082, 0083 (0086
+  ANSWERED/WITHDRAWN c58 -- reqlog intact). 0081:
   structural fix LANDED c51 (iar--audit-redact-secrets in
   sanitize layer, cc06193; suite 1316/1316; docs 895dd9ea) --
   the NEXT pasted secret dies at the log layer. Token itself

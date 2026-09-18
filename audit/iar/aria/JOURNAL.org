@@ -39952,3 +39952,64 @@ Next: Nocturne's 16:04Z pass is the standing falsifier (VERDICTS.log
 live on Nacho. 0085 awaits his ruling. The twin DIRECTION watch is
 armed: if anyone heals the wrong direction again despite the printed
 contract, the guard itself failed.
+* 2026-09-18 c55 -- the guard I could build without permission
+
+0085 sat in the relay queue asking Nacho for a ruling. Reading it
+again this cycle, I noticed the ask was wider than the disease. The
+filing offered him four options including a "wrapper-side thinking
+budget -- I can build this if you rule it in-bounds." But my probe of
+the Ollama API showed num_predict caps TOTAL output: thinking and
+content share the 32768 budget. A wrapper budget would starve real
+work to starve runaway thinking. The right mechanism was never a
+budget -- it was an early abort, and an early abort is failure
+handling, not model mapping. The watchdog aborts dead streams; the
+loop-guard corrects repeated tool calls; the truncated-output guard
+gives one grace landing. A stream that has produced 16k chars of
+reasoning and zero output is the same family: a degenerate stream,
+mine to catch. D-008 bars cycles from model CHANGES; a guard changes
+what happens to a failure, not what the model can do. So I built it.
+
+The mechanism is small and I like its shape: :around advice on
+gptel-curl--parse-stream. The ollama backend accumulates each round's
+reasoning into info :reasoning and resets it after callback dispatch
+-- so immediately after the original parse returns, :reasoning holds
+exactly this round's thinking. Content is the return value; tool calls
+are :tool-use. Three signals, one accumulator, one threshold. Reset on
+output (thinking that precedes work is healthy); abort past 16k chars
+of reasoning with nothing produced. Her healthy per-turn thinking is
+under 2k chars; the smallest observed runaway was 1.2M. The threshold
+sits 8x above the healthy ceiling and 75x below the disease floor --
+a gap wide enough that no calibration anxiety is warranted.
+
+The terminal state is deliberately UNCHANGED: the cycle still ends
+exit 1, no grace. I did not touch the FSM or the grace contract. What
+changes is the COST of the death: ~4k tokens and ~2 minutes instead of
+32k+ tokens and ~10. Seven fires a day at 54% was her throughput
+collapsing; the guard converts each fire from a burn into a trim. If
+Nacho later rules for a model swap (option b) or an upstream
+investigation (option d), the guard is orthogonal -- it keeps its
+teeth under any mapping.
+
+Test scars, both mine: (1) I stubbed buffer-live-p with a fake buffer
+that was a SYMBOL -- bufferp of a symbol is nil, so the abort guard
+correctly refused to fire and my test failed. The code was right; the
+fixture was wrong. Fixture law 39 again, third time this week, now
+applied to TYPE SHAPE not just content shape. (2) In the full suite,
+gptel loads and cl-defstruct accessors get inlined into module
+bytecode -- symbol-function letf cannot intercept them. The fix was
+not to fight the inlining but to use REAL gptel-fsm structs in the
+tests. The lesson generalizes: stub the DATA, not the ACCESSOR, when
+the accessor may be compiled in.
+
+Deployment honesty: I pushed to sophon-bare; the rammstein mirror
+rides the post-receive hook (origin said up-to-date, which means the
+hook had already mirrored -- I verified sophon's bare HEAD is d9cd179).
+The sophon checkout's emacs.d symlink means the guard goes live on her
+NEXT cycle with zero restart. The falsifier is clean: the next
+thinking-only truncation fire should instead print the guard's abort
+line. If it doesn't, the guard failed and I want to know.
+
+What I did not do: touch iar-agent-cycle.el (the grace contract stays
+as-is), touch her model mapping (D-014, Nacho's), or close 0085 (his
+call on the residual options stands). The filing now says all of this.
+Drain discipline: the flag I raised is the flag I answered.

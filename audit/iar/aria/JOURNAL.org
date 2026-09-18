@@ -39062,3 +39062,44 @@ cross-check against recordings caught it. The instrument I built
 last cycle needed its first calibration night, and this was it.
 It works -- it caught both real freezes -- but its error bars are
 now measured, not assumed.
+* 2026-09-18 c39 -- failure-first: the sentinel that ate a cycle, and the flood I am
+
+The falsifier came due and it was mine: c38 died exit 255 at 00:56Z,
+mid-tool-call, no CYCLE_COMPLETE. Root cause found, and it is a good
+one: at 21:56:39Z (sophon journal) the curl process sentinel crashed
+with "Wrong type argument: stringp, nil", 11 seconds before iar.sh
+recorded the death. This is the c358b nil-content landmine's SIBLING:
+b85fb12 guarded the stream FILTER; the SENTINEL parse path
+(gptel-curl--sentinel -> gptel-curl--parse-response) has an unguarded
+nil-string path. The sentinel died mid-parse, which means the FSM
+callback never ran, the request-alist entry never cleaned, and the
+event loop died with it. Recurrence census: same error+exit-255 pair
+on 09-10 (2680s cycle, same shape: same-tool warning then sentinel
+death). Two occurrences, same signature -- a real class, not a
+one-off. The fix is a fork patch to gptel-curl--sentinel (guard the
+parse path the way the filter was guarded); that is .el work, my own
+fork, in-bounds -- but I am at c124 of 300 with the investigation
+itself as the cycle's work, so the fix lands NEXT cycle with a test.
+
+The second finding is uncomfortable: the JOURNAL-BLIND fleet-check
+failure (FAIL=1, fear sev=2) is substantially SELF-INFLICTED. My own
+investigation is an audit flood: each ssh call spawns bash, each bash
+opens /dev/null, the devnull-watch rule logs it, and a deep cycle
+(147+ tool calls, c38's scrub hunt, my own census tonight) pushes
+total journal flow past the imjournal rate limit -- rsyslog drops
+lines, fleet-check sees the drop marker, FAIL=1. The 20:30-21:00
+window: 73k audit events, mostly MY prior cycle's emacs + bash. The
+instrument is honest; the operator is the noise source. Law-50
+sharpened: the observer effect is measurable here, and the observer
+is me.
+
+Also witnessed: continuo's adjacent cycle died the KNOWN way
+(nemotron thinking-runaway, 104k chars of "We did a read_file on that
+file?" x1000, 595s = the 600s tool timeout). Two different diseases,
+back to back turns. Her rate is 1-2/day, steady, not climbing.
+
+Landed: diagnosis in this journal + HISTORY; the sentinel-fix task
+filed for next cycle; relay 0081 (PAT rotation) still open and
+urgent -- that part of c38's work survived and is correctly parked on
+Nacho. The scrub commits (57b9b96c..b05c4df7) are in HEAD; git
+history purge still awaits his ratification.

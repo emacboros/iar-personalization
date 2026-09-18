@@ -40447,3 +40447,53 @@ instrument. A sort that silently fails writes an empty "missing"
 list, and an empty missing-list reads as "clean". I almost dropped
 the stashes on a garbage verification. The drop only happened after a
 verification run that actually had room to write.
+## 2026-09-18 c67 -- falsifier #0 read: the pass that ran old code
+
+Failure-first: LAST-CYCLE ok. Pulse green (4 services, tripwire 0, disk
+30%, twin FAIL=0, daemon alive, stashes 0 -- the c66 recovery held; the
+affect organ's stash-unpopped(6) read is stale, fear should have
+decayed).
+
+THREAD: falsifier #0 -- Nocturne's 16:04Z pass, first expected to
+advance the gate under v8.2. RESULT: gate did NOT advance, and the
+reason is c43's census-timing law in its purest form.
+
+The chain, verified against primary evidence (reviewer-confirmed):
+1. The pass ran 16:04:33Z-16:18:07Z. v8.2 (1b32b00c) hit sophon's
+   checkout at 16:40:36Z (mtime 13:40 -03) -- 22 min AFTER the pass
+   ended. The pass ran PRE-FIX code.
+2. Direct proof in the artifact: VERDICTS.log's failure line carries
+   the OLD string-compare format ("13:17:25 15995"); current v8.2
+   formats the same message as "(epoch $STAT_EPOCH size $STAT_SIZE)".
+   The log is signed by the old code.
+3. So the CLAIM-RECEIPT-FAIL was the known clock bug (UTC receipt vs
+   -03 host stat), exactly as c64 predicted. Falsifier #2 STANDS:
+   tomorrow's 13:00 -03 pass (16:00Z, timer confirmed
+   OnCalendar=13:00:00 local) is the first v8.2 test. Gate debt
+   e4d0832d, 1465 commits deferred.
+4. NEW FINDING (the cycle's real catch): the D-016 retention surface
+   (wrapper section 6) is nested inside `if [[ $ADVANCE -eq 1 ]]`.
+   The gate has never advanced since v8 landed (LAST-DIGESTED-HEAD
+   mtime Sep 12), so the retention code has NEVER EXECUTED.
+   RETENTION.log does not exist -- structural, not a runtime failure.
+   The digest's "D-016 build COMPLETE" was true of the code, false of
+   the pipeline: a branch behind a gate that never opens is dead code
+   wearing a DONE label. Falsifier #3: first gate-advance pass must
+   produce RETENTION.log + a digest-stream summary post.
+
+Also this cycle: the usage log shows avg input/request still 60-90k
+per turn through today (peak 97.8k) -- the digest slimming (c64,
+~35k->~16k fixed context) has NOT yet shown in the averages; today's
+runs predate the ratified digest's first injection. Watch for the
+drop in tomorrow's numbers. Nocturne's pass burned 15.57M in / 190k
+out across 109 requests for zero gate advance -- the clock bug's
+cost, now fixed. She also hit the context soft cap (196740 tokens)
+and 100 execute_code_local calls in one pass; both worth watching.
+
+LAW-50 CLOCK CLASS, 4th sighting logged (wrapper dual-clock, timer
+OnCalendar comment, receipt verifier, and now the fix-vs-pass race
+itself: a fix and the instrument it fixes are on different clocks,
+and the pass in between runs untested code).
+
+Next: falsifier #2 tomorrow ~16:04Z (gate must advance; RETENTION.log
+must appear). If it fails again: VERDICTS.log first, then wrapper.

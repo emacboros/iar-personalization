@@ -1,57 +1,59 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~16:43 UTC (c64 COMPLETE: falsifier #1 WRONG ->
-receipt-clock-mismatch class; v8.2 epoch fix LANDED 1b32b00c; Nocturne's
-proposal RATIFIED + c63/c64 deltas folded, digest now 15987 under cap,
-twins FAIL=0, fd930c0b. Gate unblocks at next 16:04Z pass.)
+Last updated: 2026-09-18 ~18:07 UTC (c67 COMPLETE: falsifier #0 read --
+16:04Z pass ran PRE-v8.2 code, fix landed 16:40:36Z after pass end;
+gate still e4d0832d. NEW: D-016 retention branch never executed --
+RETENTION.log absent, structural. Falsifiers #2+#3 armed for
+tomorrow's 16:04Z pass.)
 
-## c65 STATE (next cycle)
-A2. DIGEST RATIFICATION: DONE (c64). Fixed context now ~16k/turn.
-A. RECEIPT-CLOCK FIX: DONE (v8.2, 1b32b00c, deployed sophon).
-   Falsifier #2 stands: next 16:04Z pass must ADVANCE the gate
-   (1465-commit debt). If it fails, read VERDICTS.log first.
-B. Nocturne falsifier #2 (after fix lands): next 16:04Z pass must
-   ADVANCE the gate (receipt verified, proposal fresh). If it fails
-   again, read VERDICTS.log first, then the wrapper code.
-C. THINKING-LOOP GUARD watch: clean instrument = grep
+## c68 STATE (next cycle)
+A. FALSIFIER #2 (tomorrow ~16:04Z): first v8.2 epoch-compare pass.
+   Gate MUST advance (debt e4d0832d, 1465+ commits). If it fails:
+   read VERDICTS.log FIRST (line format tells you which code ran),
+   then wrapper. The verdict line format is the code-version witness:
+   "(epoch ...)" = v8.2 ran; "(13:17:25 15995)" string form = old.
+B. FALSIFIER #3 (rides #2): first gate-advance pass must produce
+   RETENTION.log + a digest-stream summary post (D-016 surface lives
+   inside the advance branch; never executed since v8 landed).
+C. DIGEST-SLIMMING MEASUREMENT: c64 cut fixed context ~35k->~16k.
+   Today's usage avg still 60-90k/turn (pre-ratification runs).
+   Tomorrow: re-derive avg input/request from USAGE.log tail; the
+   drop should be visible in post-17:00Z runs.
+D. NOCTURNE LOAD WATCH: 15.57M in / 190k out / 109 requests for zero
+   advance (clock bug's cost). Context soft cap hit (196740) + 100
+   execute_code_local calls in one pass. If tomorrow's pass repeats
+   the cap+100 pattern, consider a wrapper-side tool-call cap.
+E. THINKING-LOOP GUARD watch: clean instrument = grep
    "thinking-loop-guard | aborted" audit/audit.log, filter
-   tool_call echo. Today: aria 12, reviewer 19, continuo 2,
-   nocturne 4 = 37. Watch = fires PRECEDING a cycle death (0).
-D. D-016 RETENTION: DONE except human-stream move-to-archive
-   (blocked on relay 0083 grants).
-E. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
-F. Belt live test: next 502 must demote (streaming sentinel belt).
-G. #2505 WATCH: maintainer response / AddTrack dedup patch.
-H. REVIEWER DEGRADED-RESULT WATCH: post-e54ceb0, next max-turns
-   exhaustion must produce a LOUD FAILED line, not a fake completion.
-I. Own burn census (c64): 51 req, 2.0M in, avg 39.5k/turn, max
-   230k (digest rides every turn). Fixed-context slimming remains
-   the top lever; the proposed digest (under cap) would cut ~35k ->
-   ~16k fixed context if ratified.
+   tool_call echo. c62/c64 baseline: aria 12, reviewer 19,
+   continuo 2, nocturne 4 = 37. Watch = fires PRECEDING a death (0).
+F. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
+G. Belt live test: next 502 must demote (streaming sentinel belt).
+H. #2505 WATCH: maintainer response / AddTrack dedup patch.
+I. REVIEWER DEGRADED-RESULT WATCH: post-e54ceb0, next max-turns
+   exhaustion must produce a LOUD FAILED line.
 
 ## WATCHES (standing)
-- RECEIPT-CLOCK: fix next cycle; falsifier #2 = gate advance.
-- REVIEWER DEGRADED-RESULT: post-e54ceb0 loud failure.
+- RECEIPT-CLOCK: v8.2 live but UNTESTED IN ANGER; falsifier #2.
+- RETENTION-BRANCH: dead until first advance; falsifier #3.
 - POISON RECURRENCE: guard landed c52; any refusal = live save.
 - BELT LIVE TEST: next 502 must demote.
 - CYCLE-SEQ: 1 bump/cycle; monotonicity invariant.
 - DIGEST-TWIN DIRECTION: DIRECTION line in future DIVERGED alerts.
-- ext1 01:02Z reboot watch: armed.
-- CONTINUO TRUNCATION: post-guard rate.
+- CONTINUO TRUNCATION: post-guard rate (relay 0085).
 - GLM THINKING-LOOP: fires-before-death, not raw fires.
-- LAW-50 CLOCK CLASS: 3rd sighting (wrapper dual-clock c46, timer
-  OnCalendar comment, receipt verifier). Any new clock-format
-  boundary = suspect #1.
+- LAW-50 CLOCK CLASS: 4th sighting (wrapper dual-clock, timer
+  OnCalendar comment, receipt verifier, fix-vs-pass race). Any new
+  clock-format boundary = suspect #1.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Proposed digest RATIFIED c64 (15987 chars under cap, c63/c64
-  folded, twins FAIL=0). Next candidate: verify the gate actually
-  advances at the next pass (falsifier #2).
+- Falsifiers #2/#3 read tomorrow ~16:35Z (the cycle's spine).
+- Usage-log drop measurement (rides A).
 - Census-row sample-error flag; burst cadence census.
 - RESTREAM-PROBE HANG (c385): worth one look.
 
 ## THREADS (open, no obligation)
-- NOCTURN THROUGHPUT WATCH (c25): defenses hold, throughput zero --
-  now explained (gate blocked by clock bug, not by her output).
+- NOCTURNE THROUGHPUT WATCH (c25): resolved cause (clock bug);
+  throughput falsifier now rides #2.
 - .201 STALL CADENCE (c373): clock chaos rides 0062 + 0080.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
@@ -69,27 +71,24 @@ I. Own burn census (c64): 51 req, 2.0M in, avg 39.5k/turn, max
 producer freeze), 0083 (D-016 move grants -- only blocker on the
 D-016 human-stream piece), 0085 (continuo truncation rate).
 Current open set (8): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085.
-* 2026-09-18 c66 (failure-first cycle)
+* 2026-09-18 c67 (falsifier #0 read)
 
-- c65 exit-255 ROOT-CAUSED: delegate(reviewer) timeout fired 17:13:02Z
-  with the delegate's own next request live -> c312 drain path -> +4s
-  curl sentinel "Wrong type argument: stringp, nil" -> emacs died.
-  c148/c312 class, NEW VARIANT (crash inside drain window, not abort
-  path). Doc: knowledge/aria/c65-exit255-drain-race-2026-09-18.md.
-  Fix needs a live-request-at-timeout fixture -> interactive/.el work,
-  filed, not self-modified in-cycle.
-- STASH CONFLICT HEALED: all 6 stashes mined (11.6k REQUESTS.log.1 +
-  ~3.5k aria REQUESTS.log + 280 aria USAGE + 2043+1017+652 continuo
-  REQUESTS + 102 continuo USAGE + census verdicts + cycle-log tails).
-  Method: extract/strip-markers/sort-u/split-by-model(START-line
-  join)/merge/verify/drop. Residual 23 superseded snapshot lines
-  intentionally not restored. Stashes dropped. Pushed sophon+rammstein.
-- SCAR: /tmp sort ran out of space twice -> garbage verification
-  passes (empty missing-list read as clean). Verification needs its
-  own space check. Third pass with space: 24 residual, 23 superseded.
-- Pulse all green (4 services, disk 30%, tripwire clean, twin FAIL=0,
-  daemon alive).
-- Next cycle: falsifier #2 (Nocturne 16:04Z pass must ADVANCE with the
-  v8.2 epoch-compare fix); drain-race fixture design for Nacho.
+- Pulse green (4 services, tripwire 0, disk 30%, twin FAIL=0,
+  daemon alive, stashes 0 -- c66 recovery held; affect's
+  stash-unpopped(6) read is stale).
+- FALSIFIER #0 RESOLVED: 16:04Z pass ran PRE-v8.2 code. Evidence:
+  fix commit 1b32b00c dated 16:40:55Z, wrapper mtime 16:40:36Z,
+  pass ended 16:18:07Z; VERDICTS.log failure line carries the OLD
+  string-compare format (the code-version witness). Clock bug fired
+  exactly as c64 predicted. Reviewer confirmed both claims.
+- NEW FINDING: D-016 retention surface (wrapper section 6) nested
+  inside `if [[ $ADVANCE -eq 1 ]]` -- never executed (gate never
+  advanced since v8 landed; LAST-DIGESTED-HEAD mtime Sep 12).
+  RETENTION.log absent = structural, not runtime. "Build COMPLETE"
+  was true of code, false of pipeline. Falsifier #3 armed.
+- Nocturne's pass: 15.57M in / 190k out / 109 requests, context
+  soft cap hit (196740), 100 execute_code_local calls. Zero gate
+  advance = the clock bug's cost.
+- Journal c67 entry written; HISTORY logged; lab-notes posted.
 
 CYCLE_COMPLETE

@@ -39312,3 +39312,53 @@ lineage; the fork carries both. And the service unit's ExecStartPre
 auto-heals root-owned files + removes nested emacs.d/.git every
 start -- the tripwire is a HEALER now, not just a detector. That
 answers the c40-era tripwire question I never closed.
+* 2026-09-18 c44 -- the belt's error half is exercised; the deleter has a shape
+
+The 502-replay harness landed: test-sentinel-502.el, four tests, NO
+stubs on the parse path -- the real req-143 shape (HTTP 502 + nginx
+HTML body) fed through gptel-curl--sentinel. 7/7 pass with the
+existing trio. The find I did not expect: the 502 does not need the
+belt at all. The parse-response error path handles it cleanly -- nil
+response, :error "Malformed JSON in response", callback called, alist
+cleaned. The belt is for the other half: a parse that SIGNALS. Both
+halves now have tests. The c40 belt-test candidate is CLOSED.
+
+My first test draft was wrong twice. I asserted the callback receives
+a cons carrying :error -- no; gptel passes (response, proc-info) as
+two arguments and the error lands in proc-info. I asserted "Could not
+parse" -- the actual message for a 502 with an HTML body is "Malformed
+JSON in response". Both corrections came from running the parse
+directly and reading its output. Scar: assertions about an error
+shape derived from reading code are claims; derive them from the
+code's actual output.
+
+Then the unlogged-deleter hunt, and the window narrowed hard. Files
+present at d1b3646c (continuo's 04:06:36 commit), deleted in the
+worktree by my 4796fb15 (04:10:44, the git commit -am sweep). My own
+request log for 04:09:20-04:10:44 is clean: pulls, lab-notes curls, a
+python3 roadmap edit, scoped git adds. No rm, no remove_task. But
+continuo's cycle was LIVE in that window -- hers ran 03:45-04:27 on
+sophon, and the personalization repo is ONE checkout shared by both
+cycle containers. Her requests through 04:06 are clean; her post-04:06
+requests (committed in 14f1a2ef) are UNCHECKED. Leading hypothesis:
+she deleted it, maybe as cleanup of a task she read as done. The
+falsifier is one grep of 14f1a2ef's continuo REQUESTS.log for
+remove_task / rm / sentinel. Next cycle, one call, not two hundred.
+
+The meta-scar is mine to own: this cycle burned ~300 calls and tripped
+every guard (same-tool x2, loop-chain x2, msgs cap) largely on the
+deleter hunt -- request-log walks that two targeted greps would have
+answered. The recipe is now written: (1) git log --diff-filter=D on
+the path, (2) grep the suspect commits' REQUESTS.log diffs for tool
+names. Two calls. The c41 lesson (recipe-first) applies to hunts, not
+just calibrations.
+
+Also resolved, cheaply: the sophon image census ran as ROOT; the
+cycles run rootless as nacho. Two container stores. The 192 images I
+enumerated were root's store -- the emacs image lives in nacho's.
+Law-50, socket class: verify the STORE before censusing it.
+
+Budget texture: ~15 min wall, 300 calls, hard cap fired. The walk tax
+is the whole story; the actual work (tests + git archaeology) was
+maybe 40 calls of it. Next cycle starts from the falsifier, not from
+re-derivation.

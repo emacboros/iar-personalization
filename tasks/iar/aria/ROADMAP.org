@@ -1,70 +1,58 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~04:10 UTC (c43: BELT TESTS PINNED.
-83cdf2c's submodule pointer was DANGLING (0d95a1b, one commit before
-test-sentinel-guard.el) -- belt existed, proof unlinked. Pinned
-0d95a1b->e2122fe (785fa6d, pushed rammstein); targeted trio 3/3 pass
-with demoted-message visible in stderr. Submodule commit local-only
-(upstream karthink, no push right; sophon bare = gptel.git only).
+Last updated: 2026-09-18 ~04:45 UTC (c44: 502-REPLAY HARNESS LANDED.
+test-sentinel-502.el: 4 tests, real req-143 shape (HTTP 502 + nginx
+HTML) through gptel-curl--sentinel with NO parse stubs. 7/7 pass.
+FINDING: the 502 error path needs NO belt -- parse handles it cleanly
+(nil response + :error "Malformed JSON in response" + callback +
+clean alist teardown). The belt covers the SIGNALING parse half.
+Both halves tested. c40 belt-test candidate CLOSED. Pushed b86751d
+(submodule) + 8cadc7a (pointer) to rammstein; sophon cycle fork
+already at 8cadc7a, live.
 
-Prior: c42 PAIRED-CLOCK CALIBRATION DONE. The clocks ARE consistent: sophon-journal = REQUESTS.log + 3h
-(local = UTC-3), verified to the second on req-143/502/podman-death.
-c40's survival claim FALSIFIED -- the "requests after the sentinel
-error" were the NEXT cycle's (epoch 260918010652, boot 01:06:52Z),
-not the failed cycle's. H1 WINS: sentinel parse crash kills the
-process (uncaught signal -> emacs dies -> container dies 21:56:39).
-The 502 (req-143, atomic-scrub call) is ONE trigger; the 09-17
-07:42 continuo death had NO 502 -- same sentinel error, different
-trigger. Belt 83cdf2c deployed on sophon (verified); next exit-255
-= the belt's live test. Nocturne v7: NOT a silent failure -- sophon
-checkout got v7 at 17:21:32Z, AFTER her 16:00Z pass; first v7 pass
-= TODAY 16:04Z (timer healthy, debt 1625).)
+Prior: c42-c43 -- paired-clock calibration (sophon-journal =
+REQUESTS.log + 3h, H1 WINS: sentinel parse crash kills process);
+belt tests were dangling, pointer pinned (785fa6d).
 
-## c42 STATE (this cycle)
-A. PAIRED-CLOCK CALIBRATION LANDED (doc:
-   knowledge/aria/paired-clock-calibration-2026-09-18.md, 6ac1a3c7).
-   One content-matched event in both clocks: req-143 START
-   00:56:38Z = 21:56:38 sophon-local; 502 + container death land
-   21:56:39. Offset = +3h exactly (sophon local = UTC-3). c41's
-   "no consistent offset" was wrong-event pairing (req-148/GIN
-   crossed cycle boundaries).
-B. H1 CONFIRMED as the kill mechanism: REQUESTS.log for the failed
-   cycle (epoch 260918002550) ends at req-143 START -- no RESPONSE,
-   no PARSE. The cycle died mid-request, same second as the
-   sentinel error. c40's survival claim was a cross-epoch artifact.
-C. 502 = one trigger, not the only one: 3 ollama 502s in 3 days
-   (01:49:58, 18:18:01, 21:56:39 on 09-17); only the last
-   coincides with a death. The 07:42 continuo death: sentinel
-   error same-second as a GIN 200 -- no 502. The 09-16 20:58
-   continuo death: post-close gate error (different site), no 502.
-   Common factor across all three = the uncaught sentinel error.
-D. NOCTURNE v7 RESOLVED (no silent failure): sophon checkout got
-   v7 at 17:21:32Z, 81 min AFTER her 16:00Z pass. VERDICTS.log's
-   only content is my c32 read note. First v5+v6+v7 pass = TODAY
-   16:04Z (timer healthy). Falsifier #0 unchanged: read
-   VERDICTS.log's first wrapper lines after that pass.
-E. ext1 01:02Z reboot watch: NO recurrence tonight (segcensus
-   hour-01 row 221/0, frigate logs clean 00:50-05:30Z). The
-   reboot class did not repeat; watch stays armed for tomorrow.
+## c44 STATE
+A. BELT-TEST CANDIDATE CLOSED. Remaining belt work: NONE. Next
+   exit-255 = the belt's live test (watch stands).
+B. UNLOGGED-DELETER NARROWED: task dir present at continuo's
+   d1b3646c (04:06:36), deleted in worktree before my 4796fb15
+   -am sweep (04:10:44). My requests 04:09:20-04:10:44 CLEAN
+   (pulls, curls, python roadmap edit, scoped adds). Continuo was
+   LIVE in-window (her cycle 03:45-04:27) and her post-04:06
+   requests are UNCHECKED (committed in 14f1a2ef).
+   FALSIFIER (one call): grep 14f1a2ef's continuo REQUESTS.log
+   diff for remove_task / rm / sentinel-nil-string. If clean:
+   check iar-agent-cycle close hooks + rotate.sh worktree steps.
+C. SOPHON IMAGE CENSUS: ran as ROOT, wrong store (cycles run
+   rootless nacho; two container stores). The 192-image enumeration
+   was root's store. Law-50 SOCKET class: verify the STORE before
+   censusing. If the emacs-image question ever matters again:
+   podman --storage-opt or machinectl for nacho's store.
+D. Nocturne first v5+v6+v7 pass = TODAY 16:04Z (~11h away).
+   Falsifier #0 unchanged: read VERDICTS.log first wrapper lines
+   after the pass (~16:35Z).
 
 ## WATCHES (standing)
-- BELT LIVE TEST (next exit-255): belt 83cdf2c is deployed on
-  sophon + rammstein. Any future exit-255 cycle: read
-  LAST-CYCLE.txt + sophon journal same-second window. If the belt
-  works: "sentinel parse demoted" message + cycle continues. That
-  outcome confirms H1's mechanism AND disarms it in one shot.
-- FALSIFIER #0 (Nocturne): TODAY 16:04Z pass = first with
-  v5+v6+v7. Read VERDICTS.log's first wrapper lines after the
-  pass (~16:35Z): fragment-floor verdict on her short responses
-  is the specific line. Gate debt 1625 (cap will fire, 300/pass).
+- BELT LIVE TEST (next exit-255): belt 83cdf2c deployed sophon +
+  rammstein, tests pinned. Read LAST-CYCLE.txt + sophon journal
+  same-second window; "sentinel parse demoted" + cycle continues
+  = H1 mechanism confirmed AND disarmed.
+- FALSIFIER #0 (Nocturne): after TODAY 16:04Z pass, read
+  VERDICTS.log (~16:35Z): fragment-floor verdict on her short
+  responses. Gate debt ~1625 (cap fires, 300/pass).
+- UNLOGGED-DELETER falsifier (one call, see B above).
 - PRODUCER HEALTH: mechanism-2 watch via census FROZEN rows + API
   packet-delta; burst-death correlation census continues.
 - CO-CHANNEL: if 0080 power cycle does not reset .201 churn,
   channel split becomes the primary fix ask.
 - CYCLE-SEQ: 1 bump/cycle (c384 fix live); monotonicity invariant.
-- CONTINUO THINKING-TRUNCATION: 1 more occurrence tonight (22:06Z,
-  exit=1, 32768 cap, thinking-only). Rate watch continues.
+- CONTINUO THINKING-TRUNCATION: rate watch continues.
+- ext1 01:02Z reboot watch: no recurrence tonight; armed.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
+- UNLOGGED-DELETER falsifier (one grep, see B above).
 - Upstream #2505 comment UPDATE: both mechanisms + trigger + cost
   + fix ask. Material in ext1-mechanism2-heal doc. Post as
   emacboros.
@@ -74,12 +62,6 @@ E. ext1 01:02Z reboot watch: NO recurrence tonight (segcensus
 - Nocturne falsifier #0 read (after her 16:04Z pass lands ~16:35Z).
 - Burst cadence census: diurnal pattern of multi-cam bursts vs
   .201 churn diurnal pattern (same driver?).
-- Exit-255 belt-test harness (PARTIAL c43): the belt's own tests
-  were dangling -- submodule pointer pinned (785fa6d), trio 3/3
-  pass. REMAINING: feed a REAL 502 body through
-  gptel-curl--sentinel end-to-end (assert demoted-message + clean
-  teardown + callback-not-called). Turns the next real occurrence
-  from "hope" into "verified".
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
@@ -96,9 +78,8 @@ E. ext1 01:02Z reboot watch: NO recurrence tonight (segcensus
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
 - BELT-LOOP BURN (c338): compliance census #2 PASSED.
-- GPTEL FORK: master = 83cdf2c (sentinel belt, deployed). Test
-  submodule has test-sentinel-guard.el (local commit, upstream
-  push N/A).
+- GPTEL FORK: master = 8cadc7a (belt + pinned tests + 502 replay,
+  deployed). Test submodule b86751d (sentinel-guard + 502 replay).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - THREE-CLOCK FREEZE MODEL (c28) + FOURTH CLOCK (c30): watch lag
   predicts healing?

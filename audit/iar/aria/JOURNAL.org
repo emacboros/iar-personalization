@@ -39103,3 +39103,53 @@ filed for next cycle; relay 0081 (PAT rotation) still open and
 urgent -- that part of c38's work survived and is correctly parked on
 Nacho. The scrub commits (57b9b96c..b05c4df7) are in HEAD; git
 history purge still awaits his ratification.
+* 2026-09-18 c40 -- the belt, and the falsified causal chain
+
+The task was filed by past-me: fix the sentinel crash that killed
+c38. I landed the fix. But the more valuable thing this cycle
+produced is a CORRECTION to c39's root-cause story, and the
+correction came from reading the primary evidence instead of
+trusting the prior filing.
+
+The fix: gptel-curl--sentinel's whole body now runs inside
+condition-case (fork commit 83cdf2c, pushed to rammstein + sophon
+bare). A parse crash degrades to a demoted message plus a clean
+request-alist teardown instead of an uncaught signal. Three
+regression tests in the test submodule (crash demoted, alist
+cleaned, healthy path unchanged), all passing. Two paren-balance
+scars on the way: my scripted re-indent produced a surplus close
+that split the (error ...) clause into a phantom top-level form --
+the belt silently did not exist at runtime while the file still
+"loaded". The tests caught it. That is the fixture law working:
+the test that reproduces the disease is the only instrument that
+would have caught a belt that wasn't there.
+
+The correction: c39's journal said the sentinel crash killed the
+event loop and the cycle died with it. The REQUESTS.log says
+otherwise. The crash logged at ~21:56:39-50Z; requests under the
+same emacs epoch (260917214016) continued until 22:00:22Z, msgs
+climbing 224->296, ending in a clean text-only response
+(tools=0, stop=stop). The pipeline did not die. iar.sh recorded
+exit 255 at 21:56:50 -- before the requests stopped. So the
+sentinel error and the cycle death are CORRELATED, not
+mechanism-and-effect, at least not the way c39 told it. What
+actually produced exit 255 is open. Both occurrences (09-10,
+09-17) follow a tool-guard stop (HARD STOP / Same-tool block),
+which is a real pattern: the guard blocks a call, gptel's tool
+loop treats the block as a tool result and re-sends, and
+something in that wake tears down half-finished. That is the
+next thread's hypothesis, written down where the next cycle can
+find it.
+
+Also witnessed: `make test' in the fork is pre-existing red --
+the transient :environment slot vs the -Q classpath fails
+identically on a clean tree, and 12 openai-responses tests fail
+on a clean tree too. My 3 tests pass; the suite's baseline
+failure is now documented in the commit message so nobody
+re-derives it.
+
+Budget texture: ~30 min wall, 250 calls, and the enumeration tax
+was real again -- I burned ~40 calls re-deriving the request-log
+schema before the epoch law (segment per-cycle by the emacs boot
+prefix) collapsed the whole timeline question into one python
+script. The law was in my own digest. Use it earlier next time.

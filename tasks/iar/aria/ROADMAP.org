@@ -1,70 +1,72 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-17 ~23:45 UTC (c36: DUAL FREEZE NIGHT -- ext1
-audio dead 22:37:41Z ONGOING at close (mechanism 2, producer 15, aac
-flat 4 checks, no WRN/watchdog, 65+ min); int1 froze 23:02-23:33Z,
-self-healed via producer replacement 461->617. SIMULTANEITY noted
-(two cams, separate conns, overlapping window). NEW INSTRUMENT
-FINDING: ch2-census low-but-nonzero rows (1-100) occur with segs
-fully alive (ext1 22:10-22:35, ext2 22:00-22:20) = sample artifact.
-Reading law: low row != freeze claim; only ch2=0 FROZEN + API
-cross-check counts. Doc: knowledge/aria/ext1-int1-dual-freeze-
-2026-09-17.md (206f1249).)
+Last updated: 2026-09-18 ~00:13 UTC (c37: EXT1 ROOT-CAUSED + HEALED.
+Multi-cam WRN bursts (>=3 cams/10s, 17 in 6h) precede both night
+freezes by seconds; BOTH APs on channel 1 = co-channel interference
+candidate; RSSI stable => SINR-level. Healed ext1 (2h12m frozen) via
+record-proc kill: producer 15->729, audio verified. PUT inversion
+scar REPEATED (c386) -- verify registry after any PUT. CORRECTIONS:
+84/225 row = seg-gap pattern NOT freeze; producer 15 conn born
+22:39:49Z (post-death re-establish, still audio-dead). Doc:
+knowledge/aria/ext1-mechanism2-heal-2026-09-18.md (94440014).)
 
-## c36 STATE (this cycle)
-A. FALSIFIER #0 PRE-CHECK: VERDICTS.log does not exist yet (her
-   16:00Z pass ran pre-v7; v7 landed 17:21Z). TOMORROW 16:04Z pass
-   = first with v5+v6+v7 live. Read VERDICTS.log first lines.
-B. EXT1 MECHANISM-2 EVENT (OPEN at close): audio dead since
-   22:37:41Z, producer 15 unchanged, hevc flowing, aac flat, no
-   WRN since 18:00Z, no watchdog (detect watchdog can't see it --
-   detect consumes video only). Hour-22: 84/225 dead. Hour-23:
-   160/160 dead and counting. Falsifier: heals via (a) full-stall
-   WRN + replacement, (b) recorder re-attach, (c) nothing until
-   intervention?
-C. INT1 EVENT (CLOSED): freeze 23:02-23:33Z, healed by producer
-   replacement (461->617), aac 1045 pkts at 23:36Z, hour-23 segs
-   alive from 33.49. The usual int1 pattern.
-D. SIMULTANEITY QUESTION: two cameras, separate conns, audio dead
-   in the same 25-min window. Chance vs shared wifi-side event
-   (TCP survives, track dies). One night = not a pattern. Watch
-   for recurrence of overlapping freezes.
-E. CH2-CENSUS ARTIFACT CLASS (instrument finding): low-but-nonzero
-   rows (1-100) with segs FULLY ALIVE (ext1 22:10-22:35 rows 3-12;
-   ext2 22:00-22:20 rows 14-36; API packets flowing). 20s sample
-   of 5-min interval + anchor-walk position + possible tcpdump
-   drops => partial reads. READING LAW: low row is NOT a freeze
-   claim. Only ch2=0 FROZEN (anchored walk) + API packet-delta
-   cross-check = confirmed death. int1 23:10Z row was the INVERSE
-   artifact (ch2=211, ch0=0) with segs alive.
-F. STALE-MAJ flag logic verified correct (ext1 22h row 84/225=37%
-   < 50%, correctly unflagged; SDP says audio-yes and that is what
-   the SDP says).
+## c37 STATE (this cycle)
+A. EXT1 EVENT (RESOLVED + ROOT-CAUSED): audio dead 22:37:41Z ->
+   00:44Z (2h12m). Healed by record-proc kill (c264 path): producer
+   15->729, aac growing, ffprobe video+audio in fresh segs. FIRST
+   D-018 intervention. Mechanism 2 does NOT self-heal on ext1.
+B. TRIGGER FOUND: multi-cam WRN bursts (>=3 distinct cams per 10s
+   bucket, 17 in 6h since 18:00Z; max 8 cams at 18:00:17Z) precede
+   both night freezes by seconds (22:37:17-28Z burst -> ext1 audio
+   death 22:37:41Z; 23:02:07-38Z burst -> int1 audio death 23:02:25Z).
+   Bursts common, deaths rare => necessary-but-not-sufficient.
+C. AP TOPOLOGY: nacho_guest (72:7f:f0:1e:4a:a8) AND nacho_camaras
+   (08:8a:f1:6a:62:56) BOTH on channel 1 (2417 MHz). Co-channel
+   interference = shared-event candidate. RSSI stable through bursts
+   => SINR-level. Channel split (camaras -> ch6/11) = cheap fix,
+   rides relay 0080 amendment.
+D. PUT-INVERSION SCAR REPEATED: name/src params inverted on PUT ->
+   DELETED exterior_1 registration (2nd occurrence of c386). Law:
+   verify registry AFTER any PUT before anything else. API doc:
+   knowledge/aria/go2rtc-stream-api-1.9.10.md (correct form:
+   PUT ?name=<stream>&src=<source>).
+E. INSTRUMENT CORRECTION: segcensus DEAD = missing segs (video gaps),
+   NOT audio deaths. ext1 hour-22 84/225 = seg-gap pattern (14 min
+   x 6). Audio-freeze chain = ffprobe + ch2 census + API delta.
+F. FALSIFIER #0 (Nocturne): her 16:04Z pass (~15h away) is the
+   first with v5+v6+v7 live. Read VERDICTS.log first lines after.
+G. go2rtc API recipe (works): runuser -l nacho -c "podman exec
+   frigate curl -s -m 6 http://localhost:1984/api/streams".
 
 ## WATCHES (standing)
-- PRODUCER HEALTH: mechanism-2 watch (track death on LIVING conn)
-  via census FROZEN rows + API packet-delta. EXT1 EVENT ONGOING --
-  check first next cycle.
-- FALSIFIER #0 (Nocturne): TOMORROW 16:04Z. VERDICTS.log first
-  lines = fragment-floor verdict on a 48-char response.
+- PRODUCER HEALTH: mechanism-2 watch via census FROZEN rows + API
+  packet-delta. If a freeze recurs: check for a multi-cam WRN burst
+  within +/-60s (trigger correlation census).
+- BURST-DEATH CORRELATION: log every >=3-cam burst + any track death
+  within 60s. Over days: burst rate vs death rate (necessary-but-
+  not-sufficient hypothesis).
+- FALSIFIER #0 (Nocturne): her 16:04Z pass = first with all
+  defenses. Read VERDICTS.log first lines (fragment-floor verdict on
+  a 48-char response).
 - FALSIFIER #1 (restream-path loss): OPEN.
 - FALSIFIER #3 (video-death census watch): API-delta cross-check.
 - FALSIFIER #5 (Impossible early-warning): no clean pre-failure.
 - EXT1 01:02Z reboot recurrence watch (c33 falsifier): tonight.
-- SIMULTANEITY watch: overlapping freezes on separate conns.
+- CO-CHANNEL: if 0080 power cycle does not reset .201 churn,
+  channel split becomes the primary fix ask.
+- SIMULTANEITY: ANSWERED (shared burst events). Watch for bursts
+  WITHOUT deaths (expected, common) and deaths WITHOUT bursts
+  (would falsify the trigger model).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- EXT1 freeze resolution: check heal path (a/b/c above); if still
-  frozen >2h, that is the longest mechanism-2 on ext1 -- consider
-  whether D-018 camera access permits a targeted producer
-  replacement test (DELETE + restart is the blunt restore; do NOT
-  PUT name-as-source).
-- Upstream #2505 comment: NOW has both mechanisms + chronic churn
-  census + tonight's dual freeze. Material ready in three docs.
+- Upstream #2505 comment UPDATE: now has both mechanisms + trigger
+  + cost + fix ask. Material in ext1-mechanism2-heal doc. Post as
+  emacboros comment on the issue.
 - Retention build (D-016): wrapper summary-post + deletion pass.
 - ch2census: add ext4/.104 to CAMS list (alive again).
-- Census-row sample-error: flag low-anchor rows (walk < N frames =
-  untrusted sample) in the puller itself.
-- Nocturne falsifier #0 read (16:04Z pass lands ~16:35Z; read after).
+- Census-row sample-error: flag low-anchor rows in the puller.
+- Nocturne falsifier #0 read (after her 16:04Z pass lands ~16:35Z).
+- Burst cadence census: diurnal pattern of multi-cam bursts vs
+  .201 churn diurnal pattern (same driver?).
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.

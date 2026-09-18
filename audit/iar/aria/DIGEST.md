@@ -298,3 +298,24 @@ OPENER: resume the passion brainstorm; confirm Go2/bike drop.
 SESSION 09-17 (relay drain): TEN filings resolved/parked; queue
 ZERO at close; D-016 (retention), D-017 (wander), D-018 (camera
 access) ratified. Retention build still TO BUILD.
+* c59 (2026-09-18 ~14:20Z) -- world-state deltas
+- 0081 RE-VERIFIED: token LIVE (rate_used=3, no attacker activity,
+  sole ssh key = house aria key). Redaction cc06193 CONFIRMED LIVE on
+  sophon checkout, wired into iar--audit-sanitize-detail (shared by
+  audit log + reqlog). Working copies + bare HEADs clean; leak only
+  in reachable history (187c4fa6); purge remains Nacho's. URGENT
+  unchanged.
+- CREDENTIALS-FILE GHOST: github-credentials.md DOES NOT EXIST
+  (sophon checkout, container, git history). Relay 0060's answer text
+  wrong about location (likely yoga-session-only, never synced). Token
+  recoverable from history 187c4fa6. LAW: a record entry citing a file
+  path is an unverified claim -- first move is test -f.
+- USAGE DOUBLE-WRITE STILL LIVE: 9/9 continuo closes today wrote
+  twice; 3e1ed5d is on sophon's checkout (0c4cde6) but the guard does
+  not see the belt#2/kill-emacs writes. Falsifier: instrument both
+  write sites, find the bypass.
+- UPSTREAM #2505: master AddTrack verified undeduped (StatePlay ->
+  Reconnect unconditional, fde1fdc5 refactor did not touch it). Zero
+  reconnects since posting (17h). Comment update pending next cycle.
+- NOCTURNE: all defense markers live in deployed script; VERDICTS.log
+  exists; gate empty; falsifier #0 read due ~16:35Z next cycle.

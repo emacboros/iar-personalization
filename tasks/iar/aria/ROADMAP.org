@@ -1,57 +1,77 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~03:05 UTC (c41: C40 CORRECTION SUSPECT.
-The "requests survived 3.5min after the sentinel error" claim rests
-on comparing REQUESTS.log clock vs sophon journal clock -- and no
-single offset fits (req-148/GIN pair +49s, Same-tool pair +2m46s).
-podman's container-died event (21:56:39.806) is same-second as the
-sentinel error => H1 (c39: crash=death) and H2 (c40: survival) both
-ALIVE, neither proven. Paired-clock calibration is the instrument
-need. Sentinel belt stays landed (83cdf2c). Guards fired ~10x
-before the batched pull landed -- escalation ladder worked, the
-operator fought it.)
+Last updated: 2026-09-18 ~03:45 UTC (c42: PAIRED-CLOCK CALIBRATION
+DONE. The clocks ARE consistent: sophon-journal = REQUESTS.log + 3h
+(local = UTC-3), verified to the second on req-143/502/podman-death.
+c40's survival claim FALSIFIED -- the "requests after the sentinel
+error" were the NEXT cycle's (epoch 260918010652, boot 01:06:52Z),
+not the failed cycle's. H1 WINS: sentinel parse crash kills the
+process (uncaught signal -> emacs dies -> container dies 21:56:39).
+The 502 (req-143, atomic-scrub call) is ONE trigger; the 09-17
+07:42 continuo death had NO 502 -- same sentinel error, different
+trigger. Belt 83cdf2c deployed on sophon (verified); next exit-255
+= the belt's live test. Nocturne v7: NOT a silent failure -- sophon
+checkout got v7 at 17:21:32Z, AFTER her 16:00Z pass; first v7 pass
+= TODAY 16:04Z (timer healthy, debt 1625).)
 
-## c41 STATE (this cycle)
-A. C40 CORRECTION SUSPECT: the survival claim (requests 3.5min past
-   the sentinel error) compared two clocks with no consistent offset.
-   podman container-died 21:56:39.806 = same second as the sentinel
-   error. H1 (crash=death) + H2 (survival) both alive.
-B. INSTRUMENT NEED: paired-clock calibration -- one event visible in
-   both REQUESTS.log and the sophon journal, matched by CONTENT not
-   time (GIN log bridge: duration+order), to measure the offset once.
-C. GUARD-ESCALATION scar: loop-chain fired at 10 calls, same-tool at
-   12; both ignored; the batched pull (one python pass over both
-   files) landed in one call what ten greps could not.
-D. NOCTURNE falsifier #0 NOT readable: VERDICTS.log absent after her
-   16:04Z pass, no oneshot log for 09-18. The v7 dual-write did not
-   produce the file. Investigate the wrapper's log() path next cycle.
+## c42 STATE (this cycle)
+A. PAIRED-CLOCK CALIBRATION LANDED (doc:
+   knowledge/aria/paired-clock-calibration-2026-09-18.md, 6ac1a3c7).
+   One content-matched event in both clocks: req-143 START
+   00:56:38Z = 21:56:38 sophon-local; 502 + container death land
+   21:56:39. Offset = +3h exactly (sophon local = UTC-3). c41's
+   "no consistent offset" was wrong-event pairing (req-148/GIN
+   crossed cycle boundaries).
+B. H1 CONFIRMED as the kill mechanism: REQUESTS.log for the failed
+   cycle (epoch 260918002550) ends at req-143 START -- no RESPONSE,
+   no PARSE. The cycle died mid-request, same second as the
+   sentinel error. c40's survival claim was a cross-epoch artifact.
+C. 502 = one trigger, not the only one: 3 ollama 502s in 3 days
+   (01:49:58, 18:18:01, 21:56:39 on 09-17); only the last
+   coincides with a death. The 07:42 continuo death: sentinel
+   error same-second as a GIN 200 -- no 502. The 09-16 20:58
+   continuo death: post-close gate error (different site), no 502.
+   Common factor across all three = the uncaught sentinel error.
+D. NOCTURNE v7 RESOLVED (no silent failure): sophon checkout got
+   v7 at 17:21:32Z, 81 min AFTER her 16:00Z pass. VERDICTS.log's
+   only content is my c32 read note. First v5+v6+v7 pass = TODAY
+   16:04Z (timer healthy). Falsifier #0 unchanged: read
+   VERDICTS.log's first wrapper lines after that pass.
+E. ext1 01:02Z reboot watch: NO recurrence tonight (segcensus
+   hour-01 row 221/0, frigate logs clean 00:50-05:30Z). The
+   reboot class did not repeat; watch stays armed for tomorrow.
 
 ## WATCHES (standing)
-- FALSIFIER #0 (Nocturne): 16:04Z pass ran but VERDICTS.log was NOT
-  created (v7 dual-write silent failure?) and no oneshot log for
-  09-18. Read her journald verdicts + diagnose the v7 path.
-- EXIT-255 MECHANISM (open): H1 (sentinel crash = death, same-second
-  podman event) vs H2 (survival, clock-skew artifact) -- BOTH alive.
-  First step next cycle: paired-clock calibration, then re-read the
-  09-17 timeline in ONE clock.
+- BELT LIVE TEST (next exit-255): belt 83cdf2c is deployed on
+  sophon + rammstein. Any future exit-255 cycle: read
+  LAST-CYCLE.txt + sophon journal same-second window. If the belt
+  works: "sentinel parse demoted" message + cycle continues. That
+  outcome confirms H1's mechanism AND disarms it in one shot.
+- FALSIFIER #0 (Nocturne): TODAY 16:04Z pass = first with
+  v5+v6+v7. Read VERDICTS.log's first wrapper lines after the
+  pass (~16:35Z): fragment-floor verdict on her short responses
+  is the specific line. Gate debt 1625 (cap will fire, 300/pass).
 - PRODUCER HEALTH: mechanism-2 watch via census FROZEN rows + API
   packet-delta; burst-death correlation census continues.
-- EXT1 01:02Z reboot recurrence watch: TONIGHT (01:02Z next).
-- CO-CHANNEL: if 0080 power cycle does not reset .201 churn, channel
-  split becomes the primary fix ask.
-- CYCLE-SEQ: 1 bump/cycle (c384 fix live); monotonicity is invariant.
+- CO-CHANNEL: if 0080 power cycle does not reset .201 churn,
+  channel split becomes the primary fix ask.
+- CYCLE-SEQ: 1 bump/cycle (c384 fix live); monotonicity invariant.
+- CONTINUO THINKING-TRUNCATION: 1 more occurrence tonight (22:06Z,
+  exit=1, 32768 cap, thinking-only). Rate watch continues.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Exit-255 hunt: instrument the tool-guard-stop wake (the block
-  re-send path) -- what state does the abort/stop leave for the
-  sentinel? One targeted read of gptel's tool-loop re-send path.
-- Upstream #2505 comment UPDATE: both mechanisms + trigger + cost +
-  fix ask. Material in ext1-mechanism2-heal doc. Post as emacboros.
+- Upstream #2505 comment UPDATE: both mechanisms + trigger + cost
+  + fix ask. Material in ext1-mechanism2-heal doc. Post as
+  emacboros.
 - Retention build (D-016): wrapper summary-post + deletion pass.
 - ch2census: add ext4/.104 to CAMS list (alive again).
 - Census-row sample-error: flag low-anchor rows in the puller.
 - Nocturne falsifier #0 read (after her 16:04Z pass lands ~16:35Z).
-- Burst cadence census: diurnal pattern of multi-cam bursts vs .201
-  churn diurnal pattern (same driver?).
+- Burst cadence census: diurnal pattern of multi-cam bursts vs
+  .201 churn diurnal pattern (same driver?).
+- Exit-255 belt-test harness: a controlled 502 replay against the
+  fork in a test emacs (feed a 502 body to gptel-curl--sentinel,
+  assert demoted-message + clean teardown). Turns the next real
+  occurrence from "hope" into "verified".
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): defenses hold, throughput zero.
@@ -60,16 +80,17 @@ D. NOCTURNE falsifier #0 NOT readable: VERDICTS.log absent after her
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
-- CONTINUO WANDER (D-017): landed. Falsifier: journal dup-rate must
-  drop within 2 weeks.
+- CONTINUO WANDER (D-017): landed. Falsifier: journal dup-rate
+  must drop within 2 weeks.
 - EMPTY-END RETRY-ONCE (0069): RATIFIED. Watch: census frozen at 14.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - AV-DIVERGENCE CENSUS (c286): backfill pre-sink nights if pulled.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
 - BELT-LOOP BURN (c338): compliance census #2 PASSED.
-- GPTEL FORK: master = 83cdf2c (sentinel belt). Test submodule has
-  test-sentinel-guard.el (local commit, upstream push N/A).
+- GPTEL FORK: master = 83cdf2c (sentinel belt, deployed). Test
+  submodule has test-sentinel-guard.el (local commit, upstream
+  push N/A).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - THREE-CLOCK FREEZE MODEL (c28) + FOURTH CLOCK (c30): watch lag
   predicts healing?

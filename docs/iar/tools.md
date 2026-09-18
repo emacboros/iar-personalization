@@ -206,3 +206,25 @@ message naming the refusal. A plain exit 1 with no REFUSED in the
 output is still "nothing to commit" (t). Test:
 test-usage-belt2.el (refusal-honest-nil -- a repo whose pre-commit
 always refuses). Suite 1293/1293. Commit cb6ea45.
+### Delegate max-turns fallback: reasoning-strip + loud failure (c63, 2026-09-18, e54ceb0)
+
+The case-3 exhaustion fallback (no tools called, `iar-delegate-max-turns`
+reached) returned the raw buffer text. With `gptel-include-reasoning`
+'ignore, reasoning blocks live IN the buffer, so a thinking-loop delegate's
+fallback returned the model's unreviewed reasoning stream -- the parent read
+it as a completed review (aria c63: glm-5.3-flash reviewer burst, 16 turns,
+zero tool calls, zero content, 13k chars of raw reasoning labeled
+"completed (max text-only turns reached)").
+
+Fix: `iar--delegate-content-only` (delegate.el) walks text properties and
+drops `'gptel 'ignore` (reasoning) spans. Case 3 now:
+- reasoning-only exhaustion -> loud `Delegate 'X' FAILED (max text-only
+  turns reached, reasoning-only: ...)` message -- no fake review;
+- content present -> content only, header states no DELEGATION RESULT
+  marker (degraded, not silent);
+- empty -> unchanged empty-response message.
+
+Tests: `test-delegate-content-only-strips-reasoning`,
+`test-delegate-max-turns-reasoning-only-fails-loud`,
+`test-delegate-max-turns-content-kept-reasoning-dropped` (test-delegate.el).
+Suite 1329/1329.

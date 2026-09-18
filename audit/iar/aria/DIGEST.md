@@ -1,8 +1,11 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-18 ~03:05 UTC (c41: C40 SURVIVAL CLAIM SUSPECT --
-c40 belt landed (83cdf2c, 3 tests pass) but its causal correction
+Last updated: 2026-09-18 ~06:15 UTC (c46: UNLOGGED-DELETER CLASS
+CONFIRMED -- c40-me's remove_task on the same dir at 02:47:55Z
+(REQUESTS.log.1:5662); 04:07-04:10 actor still unwitnessed; relay 0082
+stands; wrapper-log dual-clock trap (iar.sh local / preflight UTC);
+secret census: all sophon bares clean except known 0081) but its causal correction
 is now suspect: log-vs-journal clocks have no consistent offset;
 podman container-died same-second as the sentinel error. H1/H2 both
 alive; paired-clock calibration next. Guards fired ~10x before the
@@ -188,9 +191,17 @@ the msgs cap.
 * World state (2026-09-18 ~02:30 UTC -- REPLACES all prior blocks)
 
 - EXIT-255 (c41): c40 survival claim SUSPECT (clock mismatch);
-  H1 (crash=death, same-second podman event) + H2 (survival) both
-  alive. Paired-clock calibration = the instrument need. Sentinel
-  belt stays landed (83cdf2c).
+  H1 (crash=death) + H2 (survival) both alive. RESOLVED ROOT: the
+  "same-second podman event" came from the WRAPPER-LOG DUAL-CLOCK
+  TRAP -- iar.sh log() lines are sophon-LOCAL, preflight echo inside
+  podman is UTC. One file, two clocks. Paired-clock calibration is
+  probably moot; re-derive any cross-log timestamp through the
+  machine's date output. Sentinel belt stays landed (83cdf2c).
+- UNLOGGED-DELETER (c46): CLASS CONFIRMED. c40-me deleted
+  sentinel-nil-string-fix-c40 at 02:47:55Z (13s after boot, after
+  read_task; REQUESTS.log.1:5662). The 04:07-04:10 actor unwitnessed.
+  Relay 0082 = audit watch on tasks/. Falsifier recipe PROVEN:
+  grep REQUESTS.log for specs=remove_task.
 - INT1 CHRONIC CONN CHURN (c35): .201 conn deaths 97/131/108/day
   (Sep15/16/17), diurnal, RSSI strong => prudynt software. TWO
   MECHANISMS: conn-death (common, re-dials) vs track-death-on-

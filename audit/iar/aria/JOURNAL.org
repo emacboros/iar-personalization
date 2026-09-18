@@ -39627,3 +39627,73 @@ hours AND her poison-fight cycles were her longest. The length
 correlation (c47) holds; the poison fight plausibly inflated it.
 Watching whether tonight's rate falls back toward baseline now that
 the file heals.
+* 2026-09-18 c50 -- the guard that isn't there yet, and the suite that counts
+
+Woke to a green pulse and a LAST-CYCLE that said ok. The pull was
+clean. The thread found me in the falsifier list: relay 0084 (the
+write-back poison guard) is still open, unratified -- and I wanted
+to know whether the poison RECURRED overnight, because the roadmap
+watch says that's the test of whether the guard matters.
+
+The census first. Continuo's REQUESTS.log for today: 3288 tool
+results, 67 truncation notices (1.8%). The 03-04Z window held all
+67 -- the tail of her poison fight, reads of test-loop-chain.el
+and its .bak while the file was still broken. 05-08Z: ZERO
+truncation notices. The file healed at 9730190 (~08:26Z per
+lab-notes), her reads of it after that returned clean, and her
+writes (I checked the actual write bodies in REQUESTS.log) contain
+no notice strings. The poison has NOT recurred. The c49 spike was
+the fight, as hypothesized -- the length correlation was inflated
+by it, exactly as the roadmap watch predicted.
+
+But then I read the restored file myself, and the read itself was
+the experiment: test-loop-chain.el is 13106 chars, so MY read of
+it came back middle-truncated with the notice embedded -- first
+5000, notice, last 5000. I was one careless write_file away from
+being c46's continuo. The guard in relay 0084 does not exist yet:
+I grepped the whole tool-call layer, and the write path
+(write_file/append_file) has NO check for notice strings. The
+truncation function itself (iar--truncate-tool-result) is the only
+thing that knows the format, and it only formats, never guards.
+
+So the exposure is live RIGHT NOW: any cycle agent that reads a
+file over 10000 chars and writes its view back will poison the
+file. It happened to her for three cycles. It will happen again
+tonight if she reads JOURNAL.org (100405 chars) or cycle.log
+(140929) or HISTORY.log (78169) -- all over the cap, all in her
+read set.
+
+The second thing: her "16/16 green" claim. I counted the defuns --
+16 ert-deftest in the restored file, and the full suite runs 1309
+tests with all 16 chain tests passing (193-208 in the run order).
+Her claim was TRUE this time. But the lexical-binding warning
+check_elisp flags on the restored file is real, and it is not
+hers: 14 of the test files lack the directive. Pre-existing style
+debt, not poison damage. Worth one line in the roadmap, not a
+build.
+
+The third thing is the one I want to think hardest about. The
+suite is 1309 tests. Her poisoned version had 13. The amputation
+was invisible because "suite green" doesn't say the count unless
+you look. I ran the full suite: 1309/1309. The COUNT is the
+falsifier for this disease class -- and the count is only visible
+if someone reads the tail of the test output. Her 08:53Z history
+line says "verified test suite passed" and the 08:56Z one says
+"census window shows exit1 without timeout, test suite passed" --
+both true. The instrument that would have caught the original
+poison at first write is not a better verification habit; it is a
+guard in the write path that refuses the notice string. That's
+relay 0084, and it's Nacho's to ratify because it touches the
+shared tool layer. Until it ratifies, the watch is manual: any
+file >10000 chars that gets read then rewritten is a candidate,
+and the signature is a parse error plus a suite that passes with
+a DROPPED test count.
+
+What I did NOT do: build the guard unilaterally. 0084 is
+nacho-arch class -- the write path is shared infrastructure, and
+the ratification line exists precisely for this. The prototype is
+one string-match in the write path; when he ratifies, it's a
+10-minute build. Filing the recurrence data on 0084 as an answer
+is the right move: the filing says "watch for recurrence"; I now
+have a clean negative (zero post-heal recurrences, exposure still
+live, 8 over-cap files in her read set).

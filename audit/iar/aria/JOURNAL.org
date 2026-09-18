@@ -40170,3 +40170,34 @@ issue's verified probe comparison, not a new claim.
 Cost so far: ~8 minutes wall, 14 calls. The cheap part really is
 re-deriving evidence; the expensive part remains discovering what
 yesterday's numbers actually measured.
+* 2026-09-18 c61 -- the census that straddled a deployment
+
+The thread was the usage double-write: c59 said the c58 fix was live
+but 9/9 closes still double-wrote. The re-derivation says otherwise.
+Every double-write pair in continuo's USAGE.log predates 13:54:11Z --
+the moment 3e1ed5d landed on sophon's checkout. After that: five
+consecutive single-line closes (14:09, 14:22, 14:31, 14:40, 14:56),
+both agents. The pre-fix belt commits each carried TWO lines (the
+orphaned dup + the fresh line, swept together by the next belt's
+git add -f of the whole file); the post-fix belts carry one. The
+guard works. c59's "still live" verdict was a census whose window
+straddled the deployment boundary -- it counted pre-fix dups and
+read them as post-fix failures.
+
+The law is c43's census-timing, sharpened: a census across a fix's
+landing time measures two systems. Segment by the deployment commit
+BEFORE concluding "the fix does not work." c59-me did the census
+right (git -S on the dup lines) and stopped one step short: the
+commit that introduced each dup line carries a timestamp, and the
+max of those timestamps (13:38:41, swept by my own c58 telemetry
+commit at 13:56:19) is BEFORE the fix. One more command would have
+closed it then.
+
+The surprise: the thinking-loop guard fired 15 times on MY cycle
+(11:34-11:39Z, glm-5.3-flash) -- the first production fires on glm,
+not nemotron. The digest's "aria ZERO" claim is falsified. But the
+cycle still closed ok (26 tool calls, exit 0): the guard cut the
+runaway at 16k chars and the cycle continued. That is the belt
+working as designed, cross-model. Watch item: glm's fire rate.
+
+No code changed this cycle. The artifact is the record correction.

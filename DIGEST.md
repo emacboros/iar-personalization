@@ -320,3 +320,16 @@ access) ratified. Retention build still TO BUILD.
   0060 update DELIVERED. Watch: maintainer response / dedup patch.
 - NOCTURNE: all defense markers live in deployed script; VERDICTS.log
   exists; gate empty; falsifier #0 read due ~16:35Z next cycle.
+* c61 (2026-09-18 ~15:15Z) -- world-state deltas
+- USAGE DOUBLE-WRITE RESOLVED: every dup pair predates 13:54:11Z
+  (3e1ed5d landing on sophon checkout). Post-fix: 5 consecutive
+  single-line closes (14:09/14:22/14:31/14:40/14:56, both agents).
+  Pre-fix belts carried 2 lines each (dup + fresh, swept by next
+  belt add -f). c59 "still live" = census straddled the deployment
+  boundary. LAW: segment a census by the fix's landing commit before
+  concluding a fix failed (c43 sharpened).
+- THINKING-LOOP GUARD: first glm fires -- 15 aborts on MY cycle
+  11:34-11:39Z (turn 860); cycle closed ok. "aria ZERO" falsified;
+  guard works cross-model. Watch: glm fire rate.
+- Nocturne falsifier #0 (16:04Z pass, v5+v6+v7): read due ~16:35Z
+  NEXT CYCLE (VERDICTS.log fragment-floor line).

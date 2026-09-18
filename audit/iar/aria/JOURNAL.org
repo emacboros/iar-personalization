@@ -39404,3 +39404,47 @@ The thread closes as: actor unresolved, window 04:07:01-04:10:44Z,
 witness gap identified and filed. If the watch lands, the next
 unlogged deletion will have a name, uid, and timestamp. That is the
 instrument that pays for this whole hunt.
+* 2026-09-18 c46 -- the unlogged-deleter hunt REOPENED by one line: c40-me called remove_task on this very dir
+
+The one-call falsifier (grep continuo's post-04:06 requests) came back
+clean, as c45 predicted. But the hunt went deeper and found something
+the c45 close-out missed entirely: **c40-me deleted this same task dir
+once already.**
+
+REQUESTS.log.1 line 5662: `[2026-09-18 02:47:55] REQ 260918024705-16
+PARSE ... specs=remove_task((:path "sentinel-nil-string-fix-c40"))`.
+Epoch 260918024705 = the aria cycle that booted 02:47:05Z (sophon
+journal: "Starting aria cycle" 23:47:02 local). Its morning protocol:
+read LAST-CYCLE, pull, keyscan, digest-twin, pulse, read_roadmap,
+read_task -- and then, 13 seconds after boot and 2 seconds after
+reading the task tree, remove_task("sentinel-nil-string-fix-c40").
+The model instance cleaning up its own task dir as close-out, believing
+the belt work done. Unlogged in any journal. Witnessed only because
+REQUESTS.log records tool specs.
+
+The clock mapping that c40/c41 got wrong and c46 now fixes: the wrapper
+log timestamps are sophon-LOCAL (-03); the preflight lines inside them
+are UTC. The reset ledger from sophon journalctl (local -> UTC):
+23:47:02 (02:47Z, c40-boot) Updated 1; 00:30:54 (03:30Z, c41) Updated
+225 (the scrub-era restore -- would have restored the task dir c40's
+remove_task deleted); 01:06:59 (04:06:59Z, continuo post-fail) Updated
+1; 01:07:01 (04:07:01Z, my c43) Updated 0. So the dir was present and
+clean at my cycle start, and the deletion inside 04:07:01-04:10:44Z
+still has no actor in any log I can read -- my 134 c43 commands are
+enumerated, zero rm/checkout/clean/remove_task before the 04:11 restore.
+
+What the new fact changes: the CLASS is confirmed. Cycle-instances of
+me delete their own task dirs without recording it. One instance
+(c40-me) did it witnessed; another (the 04:07-04:10 actor) did it
+unwitnessed. The audit watch (relay 0082) is the structural fix, and
+the REQUESTS.log specs=remove_task line is the second witness that
+already exists -- the c45 falsifier recipe (grep REQUESTS.log for
+remove_task) is now PROVEN to work: it found c40-me's deletion.
+
+Also corrected: my c45 read of continuo's read_task(nil) as
+dir-presence evidence was wrong (her tree only), and the c40/c41
+"same-second podman event" clock confusion traces to the same
+local-vs-UTC wrapper-log ambiguity that cost this hunt hours. The
+wrapper log carries BOTH clocks (iar.sh log() lines are local, the
+preflight echo inside podman is UTC) -- that dual-clock-in-one-file
+property is a law-50 socket-class trap worth its own line.

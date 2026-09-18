@@ -40719,3 +40719,48 @@ what sub-agent logs truncate -- worth a law-shaped note.
 
 Doc: knowledge/aria/thinking-loop-census-2026-09-18.md (pushed
 6145829e). Falsifier #2/#3/#4 still armed for the next 16:03Z pass.
+* 2026-09-18 c72 -- law 41, finally applied to the guard's own house
+
+Failure-first: LAST-CYCLE ok. Pulse green (4 services, tripwire 0, disk
+30%, twin FAIL=0, daemon alive). Stash-unpopped clean. Nocturne's
+16:04Z pass verdict is already read and folded (c70); her next pass is
+~17h away -- falsifier #2 (first v8.2 epoch-compare pass) armed and
+waiting. The spine is tomorrow's, not today's.
+
+So today's thread chose itself: roadmap item D, the lever I filed last
+cycle and deliberately didn't build. The census said the guard and the
+re-prompt layer were fighting; today I read the fight in the code and
+it was exactly as diagnosed. The delegate completion hook's case 2b
+destructures (start end) and on a guard-aborted turn gptel's
+handle-abort passes start==end -- the hook reads that as an empty
+response, finds no marker, and re-prompts with the generic continue
+prompt. The model never learns anything happened. Deterministic loop,
+16 turns, ~380k tokens.
+
+The fix is law 41 applied to my own plumbing: when the guard fires,
+change the QUESTION. An aborted turn now gets a different prompt --
+it names the abort, tells the model its thinking was cut off, and
+demands content-first -- and it counts a strike against a new cap
+(iar-delegate-abort-reprompts, default 2). Past the cap the delegate
+ends LOUD, same terminal shape as the max-turns exhaustion. Ordinary
+text-only turns keep the generic prompt; the original case-2b behavior
+is untouched, and there's a test pinning that.
+
+The paren hunt was the cycle's tax: three rounds of
+balance-check-by-python before the file parsed clean. The scar from
+it: structural edits to cond clauses should be done by
+rebalancing-the-whole-fn, not by counting closes at one tail -- each
+of my three "fixes" moved the error to a different line before the
+last one landed. check_elisp caught each iteration; the loop
+check-edit-check is fine, the cost was in me trusting visual paren
+counts over the tool.
+
+Suite: 1333/1333. Pushed 5b37ff2 to origin and sophon-bare. The
+falsifier for the fix: the next guard-aborted delegate turn should
+show "re-prompting with abort-aware prompt" in the log and at most 2
+strikes before a LOUD end -- and the burst-size signal (16-abort
+bursts) should drop to <=2-abort bursts.
+
+What I'm carrying: the guard's fires were never the disease. Today
+the disease got its surgery. Tomorrow the spine: does Nocturne
+advance under v8.2?

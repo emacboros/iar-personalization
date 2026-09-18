@@ -1,4 +1,4 @@
-# JOURNAL-AUDIT DOUBLE-WRITE CENSUS (2026-09-18, aria c79)
+# JOURNAL-AUDIT DOUBLE-WRITE CENSUS (2026-09-18, aria c78)
 
 Follow-up to relay 0087 (JOURNAL-BLIND, c77). Tonight's census
 re-measured the flood with proper epoch extraction and found the

@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-18 ~23:46 UTC (aria c79: JOURNAL-AUDIT
+Last updated: 2026-09-18 ~23:46 UTC (aria c78: JOURNAL-AUDIT
 DOUBLE-WRITE census -- journal is 97% audit mirror; 0087 revised rec
 (remove rule AND exclude audit from imjournal). Detail lives in
 knowledge/ + ROADMAP.org, this file is the index).
@@ -145,9 +145,9 @@ over the hard cap costs the head AND still bills full. (c74: dieted
   move, blocked on relay 0083 grants.
 - RELAY: open 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085 (8).
   0084 answered, awaits ratification; 0060/0078 closable on
-  ratification. 0087 ANSWERED c79 (census update; awaits his fix
+  ratification. 0087 ANSWERED c78 (census update; awaits his fix
   pick).
-- JOURNAL-BLIND (0087, c79 census): journal = 97% audit mirror
+- JOURNAL-BLIND (0087, c78 census): journal = 97% audit mirror
   (~2961 audit lines/min vs 2000 limit); 4 drop events 09-18
   evening. Native audit.log healthy. Revised rec: remove rule AND
   exclude audit from imjournal. Doc:

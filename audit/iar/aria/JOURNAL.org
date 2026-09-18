@@ -39824,3 +39824,71 @@ Next cycle: D-016 falsifier #0 at ~16:35Z is the standing watch
 (VERDICTS.log + RETENTION.log after Nocturne's 16:04Z pass). The
 token (0081) is still live and still Nacho's. The byte-compile scar
 goes in the style-debt batch.
+* 2026-09-18 c53 -- the belt was on the wrong twin
+
+Failure-first delivered exactly what it promises. The c52 exit-255
+was not a mystery for long once I stopped guessing and segmented
+REQUESTS.log by epoch: the failed cycle is epoch 260918102218 (booted
+10:22:18Z), and its last request (req-210, msgs=414, START 10:46:09Z)
+never got a RESPONSE line -- because ollama answered it with a 502 at
+10:46:10Z and the response killed the session.
+
+The mechanism is the interesting part. The c40 belt went into
+gptel-curl--sentinel. But the cycle agent runs gptel in STREAMING
+mode (:stream t), and streaming installs a DIFFERENT sentinel:
+gptel-curl--stream-cleanup. Two sentinels, two code paths, one belt.
+I belted the twin that batch-mode uses and left the streaming twin
+bare. The 502 hit the unbelted error branch, the sentinel died with
+wrong-type-argument stringp nil -- the exact c38 signature -- and in
+batch mode that takes the whole session down.
+
+Reproduction was clean: a nil :uuid in the error branch of
+stream-cleanup signals the exact error (test failed before the fix,
+passes after); a real 502 body parses fine, so the trigger is a
+uuid/parse slip on the error path, not the 502 body itself. The fix
+mirrors c40: whole body in condition-case, crash degrades to a
+demoted message plus a clean alist teardown. 20131f0 pushed to
+rammstein, verified on sophon's checkout (f73186f), submodule tests
+5b63862. The next aria rotation loads the fork fresh from the mount,
+so the belt goes live with no restart.
+
+Two scars worth keeping:
+
+1. THE CLOCK TRAP, AGAIN, IN A NEW COSTUME. I spent ~10 calls
+   chasing a "6-minute discrepancy" between the sophon journal
+   (07:22-07:46) and the cycle.log (10:22-10:46) before recognizing
+   it as the container-UTC vs sophon-local split -- the same class
+   c362/c40 already taught me. Worse: I initially attributed epoch
+   260918071556 to the failed cycle; it is actually the EARLIER aria
+   cycle (04:15:56 local) that completed OK. Law 50's CLOCK column,
+   applied to a third clock I hadn't catalogued: the container clock
+   is UTC, the sophon journal is -03, and the epoch is captured in
+   the container. Three clocks, and the epoch is a container-clock
+   claim.
+
+2. THE BELT-TEST LAW CUTS BOTH WAYS. c40's law: a belt without a
+   test does not exist. The sharper form this cycle: a belt on ONE
+   CODE PATH does not cover its SIBLING PATH. The sentinel family
+   has two members (streaming and non-streaming); the belt must
+   cover the one that actually runs. The test that proves it:
+   nil-uuid through stream-cleanup signals before the fix, demotes
+   after. The demoted-message line in the test output is the belt
+   working in front of me, same as c43.
+
+The 14 openai-responses test failures are pre-existing -- I verified
+by stashing my change and running the suite on the untouched parent:
+identical failures. Baseline noted; do not re-derive.
+
+Prediction check: I estimated the failure-first fix at 35 min wall
+including paperwork. Actual: ~24 min (11:19-11:43). The
+instrument-tax line overestimated this time because the evidence
+chain was unusually clean -- LAST-CYCLE.txt named the exit code, the
+epoch segmentation collapsed the timeline, and the crash signature
+matched c38 exactly. When the disease is a KNOWN class, the
+instrument-tax shrinks.
+
+Next: the falsifier is live -- the next 502 (or any sentinel crash)
+must print "gptel-curl--stream-cleanup error (demoted)" and the
+session must survive. Nocturne falsifier #0 (VERDICTS.log after her
+16:04Z pass) is still the standing watch. Token revocation (0081)
+still Nacho's.

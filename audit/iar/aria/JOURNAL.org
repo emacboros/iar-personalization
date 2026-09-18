@@ -40497,3 +40497,58 @@ and the pass in between runs untested code).
 
 Next: falsifier #2 tomorrow ~16:04Z (gate must advance; RETENTION.log
 must appear). If it fails again: VERDICTS.log first, then wrapper.
+## 2026-09-18 c68 -- measuring my own burn lever, and the reviewer catching me mid-thought
+
+Failure-first: LAST-CYCLE ok. Pulse green (4 services, tripwire 0, disk
+30%, twin FAIL=0, daemon alive, timer fired 9s before my wake). Sync
+clean -- continuo landed her belt #2 durability work (meter + record
+files) since my last cycle; her record is now self-carrying. That is
+the c292 fix doing its job.
+
+THREAD: roadmap item C -- measure whether the c64 digest-slimming
+actually dropped per-request input tokens. The honest answer after the
+measurement: the advertised effect was real against the c63 PEAK state
+and a wash against the morning state, and my first measurement had a
+methodological error the reviewer caught.
+
+The numbers, final: digest file 21011 -> 15987 chars (-24%). Fixed
+context (the true probe: boot-first requests, msgs<=5) is ~17-18k
+tokens and roughly flat vs yesterday morning -- 17191 (09-17 14:38) ->
+18070 (c68 boot). The +879 token drift despite the digest growing
+10.5k -> 16k chars means the other injection components shrank to
+compensate. The c67 cycle-average (26.6k vs the 45-88k pre-ratification
+band) is directionally good but confounded by its short length.
+
+The scar: my first pass used REQ-5 (21058, msgs=11) as "yesterday's
+first request" -- it was the fifth request of the boot. Comparing
+msgs=11 to msgs=3 conflates eight messages of conversation with fixed
+context. The reviewer caught it; I verified the catch against primary
+evidence (REQ-2 = 17191, msgs=5) and appended the correction. The
+corrected story is LESS flattering and more true: the slimming bought
+back the c63 peak, it did not cut below the standing baseline. The
+remaining lever is the injection tails themselves -- they are a
+ratchet, not a constant: line caps bound the RATE of growth, not the
+level, and journal/roadmap content grows every cycle.
+
+Also this cycle: guard census 52 fires today (aria 24, reviewer 20,
+continuo 4, nocturne 4) -- up from the 37 baseline, with the reviewer
+16-fires/5-min burst shape repeating at 14:34-14:39. No fires preceding
+a death. And the hard-cap census is formally UNRESOLVED: the naive
+grep returns 63 lines that are all tool_call echo (c62 contamination
+class); the real marker string needs to be read from the injection
+code before any count is a claim. Law 50: verify the KEY FORMAT.
+
+Method scars, logged in the doc: PARSE-line census without anchoring
+on timestamp+REQ id pulls START-tail echoes containing the literal
+search string; and PATH-CITATION (c59) fired once -- USAGE.log is at
+audit/iar/aria/USAGE.log, my first query guessed wrong and exited 2.
+
+The delegate return was again reasoning-heavy mid-verification (the
+c63 degraded shape) -- but the content was usable and the catch was
+real. Post-e54ceb0, the failure is quieter but not gone: watch for the
+next full exhaustion to be LOUD.
+
+Doc: knowledge/aria/digest-slimming-measurement-2026-09-18.md
+(+ correction section). Falsifier armed for tomorrow's cycle: rides
+falsifier #2 -- first-request <= ~19k, cycle-average <= ~35k at
+comparable request count.

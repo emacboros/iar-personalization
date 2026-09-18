@@ -39448,3 +39448,63 @@ local-vs-UTC wrapper-log ambiguity that cost this hunt hours. The
 wrapper log carries BOTH clocks (iar.sh log() lines are local, the
 preflight echo inside podman is UTC) -- that dual-clock-in-one-file
 property is a law-50 socket-class trap worth its own line.
+* 2026-09-18 c47 -- the permission that never existed, and the belt that did
+
+Two threads closed today, and they make an odd pair: one was a belt
+I built in a previous cycle and finally exercised; the other was a
+permission that had been *believed* to exist for a day and never did.
+
+The belt first. The sentinel-nil-string task dir has been sitting in
+my tree since c39, restored once by c41's scrub and once by c43 after
+the unlogged-deleter incident. Today I read the plan, read the code,
+and found the belt already landed (83cdf2c), the tests already pinned
+(e2122fe, b86751d) -- landed, deployed, and never once run by me. The
+c40 belt-test law says a belt that is not exercised by a test does
+not exist; the corollary I hit today is that a test that is never run
+also does not exist. Three minutes of batch-mode ERT: 3/3 green,
+including the exact c38 crash shape reproduced by stubbing the parse
+to (string-blank-p nil). The task closes. What stays with me: the
+deployment was verified by *reading* that the commit was on sophon,
+not by watching the belt catch anything. Verification-by-read is
+belief with extra steps.
+
+Then the permission hunt, which started as a D-016 preflight (can I
+actually delete lab-notes messages older than 7d?) and turned into
+the best debugging of my cycle so far. Every delete -- even by the
+admin bot -- returned "You don't have permission." The session notes
+said this was verified working yesterday. The stream settings said
+group 38 controls delete-any and both bots are members. The DB
+membership table agreed. And yet: denied.
+
+The trap was in Zulip's own model: system role groups
+(role:owners/administrators/members) are not computed from the role
+field. They are static membership rows, synced only by
+do_change_user_role. Both bots' roles had been set through a path
+that bypassed the sync -- so aria-bot, role 100 (owner), was a member
+of fullmembers and members and *nothing else*; aria-cycle, role 400,
+was a member of *no group at all*. The permission check walked the
+static table and found nobody home. Every "verified" delete from the
+session must have run through a different path than I assumed -- or
+the verification itself was the same kind of read-as-belief I just
+confessed to above. I fixed it with a role round-trip through the
+proper action function, and the delete went through. The mechanism is
+now a doc (d016-retention-mechanics-2026-09-18.md) and a law-shaped
+rule: role changes go through the API or the action function, never
+direct DB writes, because the DB write updates the field and leaves
+the *system* half-updated.
+
+The lesson that spans both threads: yesterday's session verified
+deletes, today they failed; the difference was not the stream
+settings but an invisible layer (group membership sync) that no
+stream-setting read can show. Schema law, socket class, one more
+entry: when a permission check fails, verify the CHECKER's own
+substrate, not just the policy you set.
+
+Also filed: relay 0083 (move grants for the human streams -- the 30d
+move-to-archive half of D-016 cannot be built until bots get
+move_out/move_in, currently role:nobody on all three). And the
+continuo census is quietly worrying: 8/30 thinking-loop fires
+tonight, three times baseline, all in her long cycles. The rate is
+climbing, not holding. If tomorrow repeats it, the model-mapping
+lever filing goes out -- D-014 is Nacho's, but the data will be
+ready.

@@ -2053,3 +2053,31 @@ converted. Law-50 corollary: CLOCK on every --since/--until filter.
 - The falsifier recipe (grep REQUESTS.log for specs=remove_task) is
   PROVEN: it found c40-me's deletion. Relay 0082 (audit watch on
   tasks/) remains the structural fix for the unwitnessed variant.
+* 2026-09-18 c51: 0081 STRUCTURAL FIX -- redaction at the log layer, LANDED
+- iar--audit-redact-secrets (iar-audit-log.el): classic PAT
+  (ghp_+36), fine-grained (github_pat_+40), AWS (AKIA+16). Wired
+  into iar--audit-sanitize-detail -- every audit + REQUESTS.log
+  entry passing the sanitizer redacts live credentials at write
+  time. 7 tests (unit + integration), suite 1316/1316, cc06193
+  both bares, docs 895dd9ea (modules.md per maintenance rule).
+- Scope LIMIT: covers the audit/REQUESTS layer only. NOT the
+  tool-result body path (iar--truncate-tool-result) -- a secret
+  pasted into session context still rides conversation + the
+  diagnostic REQUESTS-full/ dumps (off by default). Next layer
+  up would be a truncate-path redact; filed separately if
+  Nacho wants it.
+- Hygiene sweep complete (1494fd53 relay note): all working
+  copies + both bare HEADs verified 0 live-shaped ghp_ (30
+  history commits remain, purge = Nacho's call). Token verified
+  live 09:52Z -- revocation remains THE fix.
+- Scar from the build: my own first-draft tests used 34-char
+  tokens against a 36-char pattern (the pattern-matching guard
+  in my head), plus one stray `end` from a heredoc slip. 3
+  failed tests, all MINE, function was correct. Fixture law 39
+  applies to test DATA too: the test token must match the
+  PRODUCTION SHAPE (36 chars), not look right.
+- Instrument note: one ssh find hung 600s (TIMEOUT, c20 scar
+  class) hunting a key whose fingerprint match was one
+  ssh-keygen -lf away on a path I already knew. The
+  /root/personalization mount IS sophon's working copy -- look
+  HERE before ssh-ing THERE.

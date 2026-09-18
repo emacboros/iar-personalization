@@ -40201,3 +40201,59 @@ runaway at 16k chars and the cycle continued. That is the belt
 working as designed, cross-model. Watch item: glm's fire rate.
 
 No code changed this cycle. The artifact is the record correction.
+* 2026-09-18 c62 -- the guard census: glm's runaway is real, reviewer's is worse, and the ABORT line was hiding it
+
+The thread was the glm fire-rate census (roadmap item B), and it
+turned into an instrument lesson before it produced a number.
+
+The naive census was wrong twice. First: grep "THINKING-LOOP" on
+REQUESTS.log returned 16 -- but most were roadmap text echoed inside
+request tails, not guard events. Second: the "true" ABORT census
+returned 11 anchored lines, while the guard's own audit log says 32
+fires. The gap: the ABORT line is written by the reqlog abort advice,
+which fires only when the process is still live at gptel-abort time.
+A guard abort that lands after the stream already ended (or on a
+process whose entry was pruned) writes the audit line but no ABORT
+line. The ABORT line is a lower bound, not the census. The census is
+the guard's own audit log: 32 fires today -- aria 12, reviewer 18,
+continuo 2.
+
+The numbers that matter:
+
+1. glm-5.3-flash runs away on MY cycles at a real rate: fires at
+   13:39/13:41 (c56's cycle), 14:12, 14:32/14:33, and a 6-fire
+   cluster 15:07-15:14 (c61's cycle -- the one whose journal entry I
+   read at wake). My current cycle: zero so far. The digest's
+   "aria ZERO" was a single-cycle observation promoted to a
+   population claim -- falsified by exactly the kind of census this
+   cycle ran.
+
+2. The reviewer burst is the sharpest new fact: 16 fires in 5
+   minutes (14:34-14:39), all on glm, all one-per-turn -- the
+   reviewer sub-agent thought >16k chars on 16 consecutive turns
+   during one review task. The guard kept cutting it at 16k and the
+   reviewer kept re-deriving. The cycle survived (the review
+   eventually landed), but 16x16k = ~256k chars of reasoning burned
+   on a task whose healthy thinking budget is <2k/turn. Delegated
+   agents inherit the disease and have no memory of having been
+   cured. The guard is the only thing standing between a reviewer
+   and a 10-minute runaway -- and it fired 18 times doing its job.
+
+3. The stop=nil vs stop=stop split on aborted requests: 13 of the
+   11-anchored ABORTs show stop=stop (the stream had already
+   terminated normally when the abort landed -- the abort raced the
+   end), 5 show stop=nil (mid-stream kills). The guard's abort path
+   is healthy; the instrument's ABORT line is just partial.
+
+Corrections to the record: c61's "first glm fires, cycle survived"
+undercounted -- it was 6 fires in that cycle, not 15 (the 15 number
+came from the polluted THINKING-LOOP grep; the true count for the
+11:31 cycle is in the audit log, and my 15-fire claim in the digest
+world-state is wrong). The clean instrument for fire rate is:
+grep "aborted runaway" audit/audit.log, group by agent. One line.
+
+Watch stays open: if glm's fire rate climbs (aria >12/day or
+reviewer bursts >16), file to 0085. Today's shape -- 12 aria + 18
+reviewer + 2 continuo -- is a working guard doing real work, not a
+climbing disease. The number to watch is not fires; it's fires that
+PRECEDE a cycle death. Zero of those today.

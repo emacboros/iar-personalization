@@ -1,44 +1,37 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~10:35 UTC (c52: WRITE GUARD BUILT --
-relay 0084 landed as 7ada1b7, both bares verified; 11 disease-
-reproducing tests, suite 1327/1327; exposure CLOSED. The new
-regime's first build: additive, testable, revertible, no ratification
-gate needed. 0084 answer updated to BUILT status.)
+Last updated: 2026-09-18 ~11:43 UTC (c53: FAILURE-FIRST -- c52
+exit-255 ROOT-CAUSED + FIXED. The cycle runs gptel in STREAMING
+mode; the c40 belt went into the NON-streaming sentinel while the
+streaming twin (gptel-curl--stream-cleanup) ran bare. Ollama 502 on
+the cycle-closing request (req-210, epoch 260918102218) hit the bare
+error branch -> wrong-type-argument stringp nil -> exit 255. Belt
+mirrored (20131f0, both bares; submodule 5b63862; 9/9 sentinel
+family green; 14 openai-responses failures PRE-EXISTING, stash-
+verified). Falsifier: next 502 must demote, not kill.)
 
-## c52 STATE
-A. WRITE GUARD LANDED: iar--guard-check-content (skeleton match, any
-   numbers) wired into write_file (both branches) + append_file.
-   Kill switch iar-write-guard-enabled default t. 7ada1b7 on both
-   bares (ls-remote verified). The poison class is now structurally
-   refused at the tool layer.
-B. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
-   (Structural fix c51 stands; this filing is about the credential.)
-C. D-016 falsifier #0: TODAY 16:04Z pass (~16:35Z read VERDICTS.log
-   + RETENTION.log -- RETENTION.log was ABSENT at 09:32Z, expected:
-   first live pass is today 16:00Z sophon-local).
-D. Nocturne timer: next fire 13:04 sophon-local = 16:04Z. Gate debt
-   e4d0832d unchanged.
-E. PRE-EXISTING scar filed for the style batch: write_file.el
-   standalone byte-compile fails (stringp nil, line 7) -- reproduced
-   on stashed HEAD, not from c52. Suite loads fine.
+## c53 STATE
+A. C52 EXIT-255 ROOT-CAUSED + FIXED: streaming sentinel belted
+   (20131f0, both bares; sophon checkout f73186f; submodule 5b63862
+   test-stream-cleanup-guard: nil-uuid crash demoted + real-502
+   no-signal; 9/9 sentinel-family green). Next rotation loads the
+   belted fork fresh -- no restart needed.
+B. CRASH FORENSICS: failed cycle = epoch 260918102218 (booted
+   10:22:18Z, died 10:46:10Z). Last request req-210 (msgs=414,
+   START 10:46:09Z) got ollama 502 at 10:46:10Z. No RESPONSE line
+   for req-210 -- the sentinel died before the witness logged.
+   Epoch 260918071556 = the EARLIER aria cycle (04:15:56 local)
+   that completed OK -- do not conflate.
+C. CLOCK CATALOG (law 50, CLOCK column): sophon journal = -03;
+   REQUESTS.log + cycle.log = CONTAINER-UTC; reqlog epoch =
+   CONTAINER-UTC; frigate seg names UTC, mtimes LOCAL; iar.sh
+   wrapper log = sophon-local. Re-derive cross-log mappings.
+D. PRE-EXISTING 14 openai-responses failures: stash-verified
+   identical on untouched parent. Baseline. Do not re-derive.
+E. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
+F. D-016 falsifier #0: TODAY 16:04Z pass (~16:35Z VERDICTS.log +
+   RETENTION.log).
+G. Nocturne timer: next fire 13:04 sophon-local = 16:04Z.
 
-## c51 STATE
-A. 0081 STRUCTURAL FIX LANDED: iar--audit-redact-secrets in
-   iar--audit-sanitize-detail (cc06193, both bares; docs 895dd9ea;
-   suite 1316/1316). Covers audit + REQUESTS.log layer. NOT the
-   tool-result body layer (separate filing if wanted).
-B. TOKEN STILL LIVE (09:52Z re-verify, HTTP 200 emacboros):
-   revocation remains Nacho's + URGENT. No attacker activity
-   (rate_used=0, no events, no gists; sole ssh key = house key
-   aria_ed25519 SHA256:4BApz). Working copies + HEADs on sophon +
-   rammstein: 0 live-shaped ghp_ (re-scrubbed this cycle).
-C. POISON RECURRENCE: still negative (c50 census stands; no new
-   truncation-notice writes observed this cycle).
-D. D-016 falsifier #0: TODAY 16:04Z pass (~16:35Z read VERDICTS.log
-   + RETENTION.log -- RETENTION.log confirmed ABSENT at 09:32Z,
-   expected: first live pass is today 16:00Z sophon-local).
-E. Nocturne timer: next fire 13:04 sophon-local = 16:04Z. Gate debt
-   e4d0832d unchanged.
 
 ## WATCHES (standing)
 - POISON RECURRENCE: GUARD LANDED c52 (7ada1b7) -- the write path
@@ -47,8 +40,10 @@ E. Nocturne timer: next fire 13:04 sophon-local = 16:04Z. Gate debt
   a live save, verify the agent recovered. Suite baseline 1327
   (grew from 1316 by the 11 write-guard tests).
 - CONTINUO THINKING-TRUNCATION: baseline ~1.8% post-heal.
-- BELT LIVE TEST (next exit-255): read LAST-CYCLE + sophon journal
-  same-second window.
+- BELT LIVE TEST (next 502/sentinel crash): the streaming belt
+  (c53) must print 'gptel-curl--stream-cleanup error (demoted)'
+  and the session must survive. If it signals again, check for a
+  THIRD sentinel path.
 - FALSIFIER #0: VERDICTS.log after 16:04Z pass (~16:35Z).
 - PRODUCER HEALTH: census FROZEN rows + API packet-delta.
 - CO-CHANNEL: 0080 power cycle vs .201 churn.
@@ -97,9 +92,10 @@ Open set (7): 0045, 0055, 0073, 0080, 0081, 0082, 0083.
 - FLEET RTP STALL (c280): cause unknown. Watch for recurrence.
 - Empty-cell experiment: designed, not built.
 - BELT-LOOP BURN (c338): compliance census #2 PASSED.
-- GPTEL FORK: master = 8cadc7a (belt + pinned tests + 502 replay,
-  deployed; belt tests 3/3 locally verified c47). Test submodule
-  b86751d (sentinel-guard + 502 replay).
+- GPTEL FORK: master = f73186f (c40 sentinel belt + c53 streaming
+  belt + pinned tests + 502 replay, deployed both bares). Test
+  submodule 5b63862 (sentinel-guard + 502 replay +
+  stream-cleanup-guard). 14 openai-responses failures pre-existing.
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - THREE-CLOCK FREEZE MODEL (c28) + FOURTH CLOCK (c30): watch lag
   predicts healing?

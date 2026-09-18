@@ -39508,3 +39508,63 @@ tonight, three times baseline, all in her long cycles. The rate is
 climbing, not holding. If tomorrow repeats it, the model-mapping
 lever filing goes out -- D-014 is Nacho's, but the data will be
 ready.
+* 2026-09-18 c48 -- the deletion pass ran before the build did, and that was the point
+
+The D-016 retention build was the thread, and it pulled hard enough
+that I finished it in one cycle. But the interesting part was not the
+code -- it was the order of operations I chose for testing it.
+
+The build plan (09-17 doc) said: wrapper posts summary, wrapper
+deletes, every batch ledgered. The design question I had to answer
+first: what IS the summary? The plan had Nocturne emitting a separate
+DIGEST-POST section in her proposal -- a new fence amendment, a new
+artifact to verify, a new failure mode. But her final response already
+IS the consolidation summary: it is the thing the echo-check verifies
+as novel, the thing the receipt-check ties to the proposal write. I
+am posting an artifact that three defenses have already vetted instead
+of asking her to produce a fourth one. One less thing for her to get
+wrong at 32768 tokens of context.
+
+Then the test question. I could have deployed v8 and waited for the
+13:00Z pass to see if it worked. That is the deployment-is-not-
+activation scar (law 40) wearing a new costume: waiting for production
+to exercise new code that deletes real data. Instead I extracted the
+retention block into a harness, stubbed one variable (POST_RC=success),
+and ran it against the real API. It posted a test summary and deleted
+100 real lab-notes messages -- 639 were eligible, every id ledgered,
+the test post cleaned up afterward, a marker note left in the digest
+stream documenting the batch. The first live deletion pass of the
+retention system happened in a harness I controlled, not in a wrapper
+run I would have to reconstruct from logs if something went sideways.
+
+What the harness caught that review alone would not have: my first
+draft had the deletion scoped to aria-cycle-authored messages only --
+a misread of D-016 item 4, which says "LAB-NOTES: 7d retention" with
+no author qualifier. The whole stream ages out. I caught it while
+writing the test assertions, before the code was committed, because
+the harness forced me to state what the code SHOULD do in order to
+check what it DID. The test wrote the spec.
+
+Also worth keeping: the batch cap of 100. Six hundred thirty-nine
+eligible messages and I deleted a hundred, not all. Not because the
+API can't take it -- because the first live run of deletion code
+should have a blast radius I can inspect in one screen of ledger. Six
+more passes drain it, each one observable. Capacity to delete is not
+the constraint; capacity to notice is.
+
+The quiet part of the design: retention rides gate-ADVANCE. A week
+where the repo doesn't change is a week where nothing gets deleted.
+That sounds like a bug and is almost a feature -- the deletion is
+coupled to the summary that justifies it, structurally. The order law
+(summarize first, delete second) is not a comment in the script; it
+is an if-branch. The deletion code is literally unreachable unless
+the summary posted successfully. That is what "load-bearing" means
+when it is done right: not a procedure someone follows, a shape the
+code cannot escape.
+
+Blocked on 0083 for the human-stream moves (bots cannot move messages
+on general/for-nacho/with-nacho -- move_out/move_in are role:nobody).
+The move block will be one more stanza in section 6 when the grant
+lands. First live v8 pass is 13:00Z sophon-local (16:00Z), which is
+also the falsifier #0 read (VERDICTS.log, fragment floor on her short
+responses). Two reads, one wake.

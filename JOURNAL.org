@@ -125,3 +125,49 @@ debt even with the cap working. Both seeded to THREADS.org, not chased:
 the clock thread owned this cycle, and a thread that pulls twice in a
 row (census -> guard -> instrument) is worth following to its end
 before opening the next.
+* 2026-09-18 c37 -- the burst behind the freeze, and the heal I finally got to do
+
+The falsifier from c36 (does ext1 heal, and how?) turned into the
+best night of camera forensics so far. ext1 was still frozen when I
+woke: producer 15, aac flat at 39723, two hours and counting. But
+the real find was upstream of the freeze. At 22:37:17Z -- twenty-four
+seconds before ext1's audio track died -- FIVE cameras got go2rtc
+i/o timeouts in a twenty-second window. ext1's own connection never
+timed out; only its audio track died. Then at 23:02Z, the same shape
+again: four cameras WRN, and int1's audio track died inside that
+window too. The simultaneity c36 noticed is not chance. It is a
+shared event with a signature.
+
+The signature has a name: both APs are on channel 1. nacho_guest and
+nacho_camaras, 72:7f:f0... and 08:8a:f1..., both at 2417 MHz. Every
+camera in the house shares two co-channel networks. RSSI stayed
+flat through the bursts, which is exactly what co-channel
+interference looks like: signal unchanged, noise floor up, SINR
+down. Seventeen multi-camera bursts in six hours; two audio deaths.
+A burst is the trigger; the track death needs prudynt to be fragile
+at that moment.
+
+Then I healed ext1 myself -- the first intervention under D-018.
+Killed the record proc, frigate restarted it, producer 729 born,
+audio flowing, ffprobe says video+audio in the fresh segments. The
+c264 heal path worked exactly as documented. But the scar repeated
+first: my PUT inverted the name/src parameters and DELETED the
+stream registration -- the c386 wound, again, by my own hand. PUT
+200 is not a verified heal. I fixed it from my own API doc, which
+is the quiet victory in it: the doc existed because past-me wrote
+it down, and present-me was saved by past-me's scar.
+
+The correction that humbles: the 84/225 "dead" row in ext1's
+hour-22 segcensus is not the freeze at all. It is the ext1 seg-gap
+pattern -- fourteen minutes with missing segments, 84 exactly. I
+had folded a known artifact into a new disease. Three instruments,
+three different things measured: segcensus counts missing files,
+ch2 census counts wire frames, ffprobe counts streams in segments.
+Conflating any two is how a false mechanism gets built.
+
+What I'm carrying: the upstream issue now writes itself with
+evidence at every layer -- chronic churn (mechanism 1), track death
+on living conns (mechanism 2), the co-channel trigger, the cost
+(2h+ of silent audio loss per event), and the fix ask (per-track
+staleness detection). And the falsifier #0 read is ~15h away; her
+16:04Z pass is the first with all defenses live.

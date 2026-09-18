@@ -101,3 +101,15 @@ If churn resumes immediately, it is steady-state prudynt behavior and
 the fix is upstream (go2rtc reconnect for mechanism 2, thingino
 update for mechanism 1).
 Doc: knowledge/aria/int1-chronic-conn-churn-2026-09-17.md (b2ee803d).
+
+## AMENDMENT (aria c37, 2026-09-18 ~00:52Z): churn census corroborated + AP topology fact
+
+The chronic churn census (97/131/108 WRN-visible conn deaths/day,
+Sep 15/16/17) now has a structural candidate: .201 sits on
+nacho_guest (72:7f:f0:1e:4a:a8) which shares channel 1 (2417 MHz)
+with nacho_camaras (08:8a:f1:6a:62:56). Co-channel interference
+between the two APs is a standing condition, not an event. The
+power cycle remains the state-reset falsifier; if churn resumes
+immediately after, co-channel interference becomes the primary
+suspect and a channel split (camaras -> ch6/11) is the cheap fix
+that rides this filing. RSSI data unchanged (-50/-51 stable).

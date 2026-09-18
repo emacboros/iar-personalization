@@ -1,21 +1,25 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-18 ~13:26 UTC (c57: GUARD FALSIFIER PASSED --
-first production fire 10:01:44Z (continuo, nemotron, 16k reasoning
-chars, no content), cycle survived exit 0. 8 truncation deaths
-pre-install, 0 after, 1 guard abort instead. NEW BUG: reqlog
-integrity gap -- aborted cycle-prompt request unlogged everywhere;
-aria c52 main-cycle requests missing (epoch 100704 nowhere);
-epoch-100602 continuo process (73 reqs, 10:06-10:21) unexplained by
-rotate log. Filed relay 0086. Root-cause = c58 priority.)
+Last updated: 2026-09-18 ~14:00 UTC (c58: 0086 RESOLVED/WITHDRAWN --
+reqlog INTACT; all three c57 "missing" items were misreads (epoch
+off-by-one, -03/UTC confusion, substring collision). Real finding:
+sub-agent requests log under sub-agent dirs (fix-3 by design) --
+parent logs gap at delegate calls; census = parent + sub-agent logs.
+BONUS: c262 USAGE dedupe guard NEVER fired (timestamp in comparison;
+20/20 continuo closes double-wrote today) -- fixed content-only
+compare, i.ar 3e1ed5d, suite 1326/1326. Relay 0086 answered.)
 
-## c58 STATE (next cycle)
-A. REQLOG-INTEGRITY BUG (relay 0086): reproduce locally -- launch a
-   cycle-shaped request, abort mid-stream with the guard, check
-   whether START logs. Then fix advice ordering, regression test.
-B. Guard watch: more fires should print the abort line + audit line.
+## c59 STATE (next cycle)
+A. Nocturne 16:04Z pass TODAY: first with v5+v6+v7. Falsifier #0:
+   read VERDICTS.log + RETENTION.log + digest stream topic ~16:35Z.
+   Fragment-floor verdict on a 48-char response is the line to check.
+B. Guard watch (thinking-loop): more fires should print abort line +
+   audit line. 1 production fire so far (125226-30), cost mechanism
+   live.
 C. 0081 token: still LIVE, revoke+rotate remains Nacho's + URGENT.
-D. Nocturne 16:04Z pass TODAY: first with v5+v6+v7. Falsifier #0
-   read ~16:35Z (VERDICTS.log + RETENTION.log + digest stream topic).
+D. Census correction (c58 finding): burn census undercounts cycles
+   that delegated -- true count = parent + sub-agent logs. Fold into
+   req-census.sh when burn next matters.
+E. Belt live test: next 502 must demote (streaming sentinel belt).
 
 ## WATCHES (standing)
 - FALSIFIER #0: VERDICTS.log + RETENTION.log after 16:04Z pass.
@@ -24,7 +28,8 @@ D. Nocturne 16:04Z pass TODAY: first with v5+v6+v7. Falsifier #0
 - CYCLE-SEQ: 1 bump/cycle; monotonicity invariant.
 - DIGEST-TWIN DIRECTION: DIRECTION line must appear in future DIVERGED alerts.
 - ext1 01:02Z reboot watch: armed.
-- CONTINUO TRUNCATION: rate now measured post-guard (1 abort, 0 deaths since 09:52Z).
+- CONTINUO TRUNCATION: post-guard rate (1 abort, 0 deaths since 09:52Z).
+- USAGE DOUBLE-WRITE: fixed c58 (3e1ed5d); verify next close writes ONE line.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Upstream #2505 comment UPDATE: both mechanisms + trigger + cost + fix ask.
@@ -40,13 +45,14 @@ D. Nocturne 16:04Z pass TODAY: first with v5+v6+v7. Falsifier #0
 - CONTINUO WANDER (D-017): landed; dup-rate falsifier running.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - Empty-cell experiment: designed, not built.
-- GPTEL FORK: master = f73186f (c40 + c53 belts + thinking-loop guard d9cd179).
+- GPTEL FORK: master = 3e1ed5d (c40+c53 belts, thinking-loop guard
+  d9cd179, c58 usage dedupe fix).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - RESTREAM-PROBE HANG (c385): worth one look.
 
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC), 0073 (ext1
-producer freeze), 0083 (D-016 move grants), 0086 (reqlog gap -- MINE,
-filed for visibility).
-Current open set (8): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0086.
+producer freeze), 0083 (D-016 move grants). 0086 ANSWERED/WITHDRAWN
+c58 (reqlog intact; false absences).
+Current open set (7): 0045, 0055, 0073, 0080, 0081, 0082, 0083.

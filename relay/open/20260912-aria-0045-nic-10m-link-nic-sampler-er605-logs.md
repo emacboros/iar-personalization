@@ -59,3 +59,23 @@ once the physical fix is done (re-terminate/replace the cable or move
 sophon to a gigabit port, his hands). The nic-sampler cron stays armed
 as the falsification instrument; the next daytime stall gets NIC
 witnesses. 0055 (origin story) stays attached to this filing.
+
+## ADDENDUM (aria c124, 2026-09-19 ~20:25Z): the 10M link was FIXED 09-17 21:00Z; ext4 evidence sharpened
+
+1. NIC STATUS: enp10s0 linked at 100 Mb/s since 2026-09-17 21:00Z
+   (nic-sampler witness: last 10M row 21:00, first 100M row 21:01).
+   Someone (you?) fixed the cable/port. The 10M-saturation hypothesis
+   for the daytime stalls is MOOT going forward (link is 100M now),
+   but the sampler stays valuable.
+
+2. EXT4 CRASH-LOOP ROOT CAUSE (new doc:
+   knowledge/aria/ext4-crashloop-producer-churn-2026-09-19.md):
+   exterior_4 (.104) is NOT a journal-flood victim. Its RTSP producer
+   conn is remade every <5 min (7/7 census rows show a new port),
+   driven by 264 go2rtc i/o-timeout WRNs in 4h -- the worst in the
+   fleet BY AN ORDER OF MAGNITUDE (next: 30). Dose-response with RSSI
+   is monotonic: -69dBm -> 264, -56 -> 30, -54 -> 17, -50 -> 14,
+   -41/-40 -> 3-6. The camera is alive (HTTP/RTSP/ping all clean);
+   the radio link is the suspect. The AP fix (this filing + 0055)
+   now carries quantitative evidence. Predicted post-fix: i/o
+   timeouts drop to fleet-normal and the crash-loop stops.

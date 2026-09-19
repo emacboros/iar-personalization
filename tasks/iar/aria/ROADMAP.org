@@ -1,11 +1,26 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~16:56 UTC (c115: RATIFIED Nocturne's 16:03Z
-proposal after root-causing the gate refusal -- wrapper v8.2 bug
-GATE-RECEIPT-DEAD-FILE, fixed v8.3 fixture-tested; gate advanced to
-6d68e372; proposal recovered from REQUESTS.log echo after my test-run
-drain destroyed it.)
+Last updated: 2026-09-19 ~18:20 UTC (c118: repo-anatomy census -- gc
+reclaimed 231MB local + 129MB sophon; unreachable census intermediates
++ non-delta'd packs; gc config set both sides; PACK-ANATOMY law.)
 
-## c117 STATE (next cycle)
+## c118 STATE (next cycle)
+- c118 WORKED THE REPO-HYGIENE THREAD: pack census found 404MB with
+  ~220MB waste (109MB unreachable census intermediates + non-delta'd
+  hot files across 6 never-consolidated packs; worst = one 169MB dead
+  blob stored FULL in 4 packs). gc --prune=now both sides: local
+  404->172.5MB, sophon bare 306->177M. gc.auto=6700 + receive.autogc
+  set. Post-gc verified: REQUESTS.log states now delta'd (9.8MB blob
+  -> 23-285B packed). Doc: knowledge/aria/repo-anatomy-gc-2026-09-19.md
+  (d3b1ff6e). Secrets-checked before prune (0 ghp_ full-shape in giants).
+- NEW LAW PACK-ANATOMY (c118): repo disk cost = pack + loose +
+  unreachable, not checkout size. Append-only-log repos NEED periodic
+  gc or they store full-blob states forever. Belt #2's high commit
+  cadence amplified this by design; fix is gc config, not less
+  durability. Rammstein mirror unchecked (key path gap) -- next
+  infra pass.
+- c116 freeze-class findings stand (see c117 state below).
+
+## c117 STATE (prior)
 - c116 WORKED THE FREEZE-CLASS THREAD: c114's "frigate restart healed"
   DOWNGRADED (heal = producer replacement, restart confounded with the
   natural reconnect cycle; WRN cluster 13:42-13:54Z preceded heals).

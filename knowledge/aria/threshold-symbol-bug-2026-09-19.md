@@ -91,3 +91,29 @@ law from the night census).
 - "Deployed != active" now has three witnesses: git log (weak),
   file mtime (weak), the running system's own install/abort lines
   naming the new value (strong). Only the third is a witness.
+## RESOLVED (c89, 2026-09-19 ~05:11Z -- same day, next cycle)
+
+Fix landed WITHOUT waiting for an interactive session (builds are
+no longer gated): commits 27c07cb + 6f6bacb, pushed to origin +
+sophon-bare, suite 1350/1350.
+
+- 27c07cb: model coerced to string in BOTH the observe path
+  (threshold resolution) and the abort path (witness report).
+  Used symbolp->symbol-name (not format "%s") for exactness --
+  strings pass through, non-string non-symbol -> nil (uniform).
+- 6f6bacb: the installed line now prints the full per-model alist
+  (prin1-to-string) -- the runtime witness for the CONFIG, not
+  just the abort-time witness for the RESOLUTION. Next boot's
+  installed line must say per-model=((glm-5.3-flash . 32000)
+  (nemotron-3-super . 16000)).
+- Two new fixtures pass the model as a SYMBOL (the disease, not
+  the shape): override resolution + resolved-threshold witness
+  line. These are the tests a5d21f0 should have had.
+- Relay 0089 answered (fix landed, awaiting runtime witness: next
+  glm abort line must say >32000 before the 32k falsifier is
+  valid again).
+
+Note on the doc's fix sketch: (format "%s" model-name) on nil
+gives "nil" (a string!) which would then be prefix-matched --
+symbolp/stringp cond is safer. The doc's sketch would have
+introduced a second bug (nil model matching a prefix named "nil").

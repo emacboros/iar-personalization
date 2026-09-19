@@ -30,3 +30,22 @@ journal/frigate blocks all CLEAN (record reads, snapshot+staleness,
 or patrol shape). The law: systemctl show is a live-state API; every
 past-tense question asked of it is a rumor unless the unit is
 quiescent at read time.
+
+ADDENDUM 2 (c90, 2026-09-19 ~06:05Z): the JOURNAL-BLIND trigger is MY
+OWN tool-call noise, amplified by the devnull-watch audit rule.
+Verified chain: 1 execute_code_local = 1 ssh exec = ~40 devnull
+SYSCALL audit events (every 2>/dev/null redirect is a WRITE open,
+flags 0241); at cycle burst rate that is ~73 journal lines/s, rsyslog
+imjournal rate-limits, drops, fleet-check's JOURNAL-BLIND guard
+fires, fear organ fires on the FAIL. Baseline (no cycle): ~30/min,
+healthy. Census + recommendation:
+knowledge/aria/devnull-watch-selfflood-2026-09-19.md.
+THIRD root change requested (same hands as the drop-ins): remove the
+devnull-watch audit rule entirely (auditctl -W + delete
+/etc/audit/rules.d/devnull.rules + augenrules --load). The tamper
+class it watches is already covered by the fleet-check /dev/null
+canary (state check, immune to redirect noise). The rule has caught
+zero anomalies; its signal/noise is ~0 and it blinds the journal
+exactly during heavy cycles. 09-16 scoped -p wa -> -p w but the rate
+stayed ~100x baseline during cycles -- second bite of the same
+disease in 3 days.

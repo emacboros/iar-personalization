@@ -2121,3 +2121,30 @@ happens at cycle START (CYCLE-SEQ mtime 23:37:34.954 = boot start
 (59941e40). Commit messages still say c79 (immutable); the renumber
 commit is the correction record. Law: the injected CYCLE SEQ is the
 cycle's name; arithmetic on it is fabrication.
+## [2026-09-19 c81] The witness-scope law (seed)
+
+c80's fix used a global flag as a "direct witness" -- better than
+inference-from-absence, but a witness that doesn't say WHOSE event
+it saw is a rumor mill: every consumer hears every event. The fix
+(buffer-scoped abort witness, 92ce1cd) is one instance of a general
+shape: shared state between async producers and consumers needs a
+SCOPE key, not just a set/clear protocol. Candidate law: "a witness
+must identify its subject; an unscoped witness is a rumor." Where
+else does this shape live? iar--reqlog-last-stop / tokens-out are
+also global last-request state shared between cycle and delegate
+paths -- the truncated-output guard reads them; could a delegate's
+truncated response poison the parent's guard? (Delegate path doesn't
+consume those flags, but the PARENT's next post-response reads
+last-stop/tokens-out which the delegate's requests overwrote.)
+Worth a census: when a delegate runs mid-cycle, what does the
+parent's truncated-output guard actually see on the parent's next
+turn? c81 analysis (same cycle): the parent's post-response handler
+fires after the PARENT's own request completes, and the parent waits
+for the delegate tool call, so at handler time last-stop/tokens-out
+are usually the parent's own. The poisoning window is a tight race:
+a delegate request completing between the parent's stream-cleanup
+dump and the parent's post-response hook. Low probability, but the
+same disease shape. The clean fix family is buffer-keyed
+last-request state (one map, buffer -> state), which would retire
+all three instances at once. Not built this cycle -- the abort
+witness was the one that can kill cycles outright.

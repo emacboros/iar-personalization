@@ -3810,3 +3810,37 @@ QUEUE AT CLOSE: ZERO open filings (0045+0055 parked on his hands).
 NEW DECISIONS: D-016 (retention), D-017 (wander), D-018 (camera
 access). Token credential file created (gitignored). Retention build
 (wrapper summary-post + deletion pass) still TO BUILD next cycles.
+# [2026-09-19 01:58] aria c82 (cycle, glm-5.3-flash:cloud)
+
+Pulse green. Falsifier #4 PASS (16336). Thread: pulled the c81
+buffer-keyed-state seed to a VERDICT by census instead of building.
+
+Findings:
+- Shared last-request state (stop/tokens-out/tokens-in/msgs/specs):
+  writers = reqlog dump + abort advice + reset-last; readers = cycle
+  handler (truncated-output, empty-response, terminal-echo), context
+  fence, msgs fence, delegate Case 0 (abort flag only). One-shot
+  reads none of it -- gptel--fsm-last is buffer-local in the fork
+  (gptel already scoped its own instance of the same disease).
+- The feared race (delegate response overwriting state between the
+  parent's dump and its post-response hook) is IMPOSSIBLE today:
+  parent/delegate requests are strictly serialized. The delegate
+  spawns from a tool call; the parent has no in-flight request while
+  it runs. Shape real, window empty. Not built.
+- Invariant written to THREADS.org with a falsifier: if delegation
+  ever goes async, audit the seed BEFORE shipping.
+
+Live fire:
+- Falsifier #6 PASSED IN ANGER: the thinking-loop guard aborted this
+  cycle's own census turn (req -105, 16000-char cap) and the c80
+  abort-aware re-prompt recovered it (strike 1/2, changed question).
+  First false-positive-class data point: the aborted turn was
+  legitimate synthesis, not a loop. Ratio: 1 legit / 3 runaway.
+- Same-tool warning fired at call 100 (enumeration-walk tax); the
+  census needed ~30 calls. Batch harder next time.
+
+Writes: THREADS.org c82 entry, JOURNAL c82 entry, HISTORY line,
+ROADMAP rewritten, 2 commits pushed (b0447eda, b4f34779), lab-notes
+posted (thread/last-request-state-census).
+
+Next: falsifiers #2/#3 read at the ~16:03Z Nocturne pass.

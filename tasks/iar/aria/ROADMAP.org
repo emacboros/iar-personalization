@@ -1,23 +1,25 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~04:02 UTC (c86: guard-burst census CLOSED
--- 09-18 bursts decomposed, fix coverage matrix, post-fix era 0
-bursts. Doc: knowledge/aria/guard-burst-census-2026-09-19.md.)
+Last updated: 2026-09-19 ~04:25 UTC (c87: watchdog inventory --
+OnFailure hook covers 6/18 sophon units; stale-queue misreport
+found live-fire (c84 death recorded as "exit 0 (success)"); relay
+0088 filed. Doc: knowledge/aria/watchdog-inventory-2026-09-19.md.)
 
-## c86 STATE (next cycle)
-- BURST CLASS CLOSED: all six 09-18 bursts decomposed (5 parent-census
-  + 1 delegate text-only loop at 11:57L). Every disease has a landed
-  fix post-dating its last occurrence (c71 20:12Z, c63 16:03Z, c79
-  00:29Z, c80 00:59Z). Post-fix era: 5 singleton aborts, all
-  recovered, ZERO delegate bursts.
-- c86 SCAR: the echo trap again -- unanchored grep of REQUESTS.log
-  counted my own echoes (125 "hits", 0 real). Anchored census
-  (`^\[date\] REQ boot-n ABORT`) is the fix. Sibling law to
-  ANCHORED-CENSUS: anchor the grep, and check rotation age FIRST
-  (c74's REQUESTS.log lines rotated out; cycle-2026-09-18.log held
-  the story).
-- ABORT BILLING GAP confirmed (0086 family): aborted reqs log
-  tokens_in=NA; body_tail truncated before final Ollama chunk.
-  ~200k tokens unattributed in c84 (~4% of burn). Known, not re-fixed.
+## c87 STATE (next cycle)
+- WATCHDOG INVENTORY (c30 seed) RESOLVED-AS-FILED: agent-failure
+  OnFailure hook verified working (30+ digests Sep 16-18) but
+  covers only 6/18 custom units. Uncovered: nocturne-digest,
+  dashboard, ch2-census, segcensus, eye-feed, eye-canvas,
+  fleet-feed (FEAR ORGAN feeder), relay-heartbeat, gpu-load-probe
+  + agora-agent/frigate/ollama. Fix = drop-in confs, filed relay
+  0088 (his hands, root systemd).
+- STALE-QUEUE MISREPORT (new bug, live-fire): notify script reads
+  systemctl show at hook-run time; next invocation restarts within
+  ~2s; failure recorded as "exit 0 (success)". Sep 18 23:48:31 is
+  the live instance (c84's death misreported). Fix = journal-derived
+  state read, in relay 0088.
+- SHAPE SEED (THREADS.org c87): "instrument reads LIVE state to
+  describe a PAST event = rumor". Sweep candidates: fleet-check,
+  digest-twin verifier, affect organs.
 
 ## OPEN FALSIFIERS (the spine)
 - #2: next ~16:03Z Nocturne pass (v8.2 epoch-compare) MUST advance
@@ -38,9 +40,8 @@ bursts. Doc: knowledge/aria/guard-burst-census-2026-09-19.md.)
   dumps).
 
 ## WATCHES (standing)
-- JOURNAL-BLIND: ACTIVE (fleet-check FAIL=1 at c83 wake; drops
-  ongoing until Nacho picks the 0087 fix). Journal-derived reads are
-  FAKE-CLEAN until fixed -- treat journal absences as claims.
+- JOURNAL-BLIND: ACTIVE (rsyslog drops until Nacho picks the 0087
+  fix). Journal-derived reads are FAKE-CLEAN until fixed.
 - GUARD FALSE-POSITIVE RATIO: 5 legit / 3 runaway (uniform-cap era;
   now per-model 32k).
 - RECEIPT-CLOCK: v8.2 live but UNTESTED IN ANGER; falsifier #2.
@@ -59,20 +60,21 @@ bursts. Doc: knowledge/aria/guard-burst-census-2026-09-19.md.)
   suspect #1 (exercised again c86: journald LOCAL vs boot-prefix UTC).
 - AUDIT-TRAIL GIT-BACKUP (c69): check git history BEFORE declaring
   data unrecoverable.
-- STASH-UNPOP (c70): git stash list at wake; c71-c86: clean.
+- STASH-UNPOP (c70): git stash list at wake; c71-c87: clean.
 - TIMER-NEXT-EMPTY (c69): rotate.sh owns scheduling; watch only.
-- REQUESTS.LOG ROTATION (c86, new): REQUESTS.log is volatile
-  (c74-era lines rotated out); cycle-YYYY-MM-DD.log is durable.
-  Census REQUESTS.log questions: check rotation age FIRST.
+- REQUESTS.LOG ROTATION (c86): REQUESTS.log is volatile; census
+  questions: check rotation age FIRST; cycle-YYYY-MM-DD.log durable.
+- STALE-QUEUE (c87, new): any instrument reading live state to
+  report past events = rumor; sweep seed in THREADS.org.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Falsifiers #2/#3 read at the next ~16:03Z pass (the spine).
 - THREADS.org seed bank: substrate experiment, stub-detector,
-  watchdog inventory, interlocutor ratification watch.
+  stale-state-instrument sweep (c87), interlocutor ratification.
 - c71 law-shaped note (parent-logs-carry-what-sub-logs-truncate):
   still unwritten as a law.
 - If JOURNAL-BLIND stays active: journal-derived instruments should
-  note the blind window in their outputs (fleet-check already does).
+  note the blind window in their outputs.
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): cause chain clock-bug ->
@@ -85,12 +87,15 @@ bursts. Doc: knowledge/aria/guard-burst-census-2026-09-19.md.)
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - Empty-cell experiment: designed, not built.
 - GPTEL FORK: master = 3e1ed5d (c40+c53 belts, thinking-loop guard
-  d9cd179, c58 usage dedupe fix, e54ceb0 loud-exhaustion).
+  d9cd179, c58 usage dedupe fix, e54ceb0 loud-exhaustion, 92ce1cd
+  buffer-scoped abort witness, a5d21f0 per-model 32k).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC), 0073 (ext1
-producer freeze), 0083 (D-016 move grants), 0085 (truncation class).
-Current open set (8): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085.
+producer freeze), 0083 (D-016 move grants), 0085 (truncation class),
+0088 (OnFailure coverage + stale-queue fix, NEW c87).
+Current open set (9): 0045, 0055, 0073, 0080, 0081, 0082, 0083,
+0085, 0088.
 0087 ANSWERED + CORRECTED c83 (awaiting his fix pick, rec revised).

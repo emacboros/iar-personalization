@@ -1,5 +1,11 @@
 #!/bin/bash
-# fear-organ.sh v1.6 (2026-09-19, aria cycle 128: sev-3 branch no longer
+# fear-organ.sh v1.7 (2026-09-19, aria cycle 129: JOURNAL-BLIND
+# fossil-window cross-check -- c127 observed the fear organ carrying a
+# sev=2 JOURNAL-BLIND worry hours after the rate-limit window had
+# passed (live drops=0); the 6h fleet snapshot keeps the FAIL-LINE.
+# Same annotate-never-silence pattern as BARE-CONTRA, guarded on the
+# rsyslog unit existing (fixture runs have no rsyslog -> no false
+# contra). v1.6 (2026-09-19, aria cycle 128: sev-3 branch no longer
 # discards CENSUS-CONTRA annotations -- the v1.5 cross-check ran BEFORE the
 # sev-3 reassignment and its reasons were overwritten (c43 handler-overwrites-
 # context class, found live 22:01Z: BARE OWNERSHIP + healed camera FAILs
@@ -130,10 +136,38 @@ if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
     # silence -- the executive weighs. Guarded: only when the organ
     # can actually see the bares (find succeeds); a non-sophon run
     # (fixture tests) finds nothing and annotates nothing.
+    # c129 guard fix: find on an ABSENT path also returns 0 lines --
+    # c128's guard fired BARE-CONTRA on hosts that cannot see the bares
+    # at all (c58 absence law: absence in an instrument is a claim about
+    # the query, not the world). Require the directory to exist.
     if grep -q "FAIL-LINE: BARE OWNERSHIP" "$FLEET_FILE" 2>/dev/null; then
-      live_rootowned=$(find /home/git/repos -user root 2>/dev/null | wc -l)
-      if [ -n "$live_rootowned" ] && [ "$live_rootowned" -eq 0 ] 2>/dev/null; then
-        reasons="$reasons BARE-CONTRA(live-count=0,healed)"
+      if [ -d /home/git/repos ]; then
+        live_rootowned=$(find /home/git/repos -user root 2>/dev/null | wc -l)
+        if [ -n "$live_rootowned" ] && [ "$live_rootowned" -eq 0 ] 2>/dev/null; then
+          reasons="$reasons BARE-CONTRA(live-count=0,healed)"
+        fi
+      fi
+    fi
+
+    # v1.7 (c129): JOURNAL-BLIND fossil-window cross-check. The
+    # rate-limit drop class is a 30min window; the 6h fleet snapshot
+    # keeps the FAIL-LINE long after the window passes (c127 live
+    # observation). Cross-check with the SAME probe fleet-check uses
+    # (identical grep = no second census to drift). Guarded: only when
+    # the rsyslog unit is queryable -- a fixture host has no rsyslog
+    # and must not annotate a fake contra. Annotate, never silence.
+    if grep -q "FAIL-LINE: JOURNAL-BLIND" "$FLEET_FILE" 2>/dev/null; then
+      # Annotate only when the rsyslog unit EXISTS in the journal
+      # (c129 fixture scar: journalctl exits 0 on an empty query AND
+      # prints "No journal files were found." / "-- No entries --" to
+      # STDOUT -- rc and line-count are both fake discriminators).
+      # Discriminator: a non-marker line in the unit's last history.
+      jlast=$(journalctl -u rsyslog -n 1 --no-pager 2>/dev/null | grep -cv -e "-- No entries --" -e "No journal files were found")
+      if [ -n "$jlast" ] && [ "$jlast" -gt 0 ] 2>/dev/null; then
+        live_drops=$(journalctl -u rsyslog --since "-30 min" --no-pager 2>/dev/null | grep -c "begin to drop messages due to rate-limiting")
+        if [ -n "$live_drops" ] && [ "$live_drops" -eq 0 ]; then
+          reasons="$reasons JOURNAL-CONTRA(live-drops=0,window-passed)"
+        fi
       fi
     fi
 

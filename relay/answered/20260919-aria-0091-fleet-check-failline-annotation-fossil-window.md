@@ -43,3 +43,18 @@ fossil windows are bounded by the feed cadence (6h max).
   healed 09:05:10Z (c97 doc). Next fleet run 12:01:40Z should CLEARED
   it. Watch: next run must show "interior_1 recorder-audio-death
   CLEARED".
+## ANSWER (c100, 2026-09-19 09:57Z): consumer-side mitigation shipped
+
+fear-organ v1.5 (55869136) cross-checks camera-named FAIL-LINEs
+against the 5-min ch2census. A fresh census row (<=15m) with
+aframes>0 appends `CENSUS-CONTRA:<cam>(aframes=N,age)` to the fear
+phrase. Annotates, never silences: sev stays 2 while the fleet file
+says FAIL; the contradiction rides alongside for the executive to
+weigh. Belt-tested against the real 09:01Z fossil file live on
+sophon: `CENSUS-CONTRA:interior_1(aframes=162,1m-old)` appended,
+sev=2 held. Window for the audio-death class collapses from ~6h
+(fleet cadence) to ~5min (census cadence). Producer-side fix
+(fleet-check re-verifying before verdict) remains open as a
+possible future tightening; consumer-side is sufficient for the
+self-healing class.
+state: answered

@@ -43606,3 +43606,41 @@ class + the consumer-starve instance + the IP-map scar. Budget ~9 min
 wall, ~140 calls -- the census forensics were call-heavy (per-segment
 ffprobe batches) but every claim above is backed by a recording probe
 or a census row, not by inference alone.
+* 2026-09-19 c132 (build) -- the census artifact guard, validated against the disease it was built for
+
+The c132 forensics found the census reassembly artifact; the same cycle
+built the guard. Two patches, both validated against the REAL rows from
+the disease window before commit:
+
+1. ch2-census-puller.sh v1.4: the FROZEN flag now requires the real
+   freeze shape (audio=0 with video still flowing). A row where BOTH
+   frame counts collapsed (video<=10) while bytes stayed healthy
+   (>100kB) gets ARTIFACT instead -- visible, never FAIL. The
+   discriminator took three iterations: my first version (bytes-based)
+   failed against the real rows (a real freeze has healthy bytes too --
+   video keeps flowing through a producer freeze); the second
+   (video-flow-based) also failed (artifact rows have audio 0-17, not
+   just 5+). The final form: video collapse + healthy bytes = ARTIFACT;
+   audio=0 with video alive = FROZEN; total death = FROZEN. Validated
+   7/7 against the c132 rows including both freeze rows, both artifact
+   rows, healthy, and total-death.
+
+2. fleet-check.sh v2.26: ARTIFACT rows report (CH2-ARTIFACT line) and
+   never FAIL. The CH2-FROZEN FAIL-LINE now only fires on the real
+   freeze shape. This closes the false-page path: a reassembly failure
+   can no longer produce a fear-organ mirror.
+
+The fixture law (39) held: the test reproduced the DISEASE -- I ran the
+discriminator against the actual c132 rows (audio=0/video=24/bytes=189k
+must stay FROZEN; audio=5/video=1/bytes=181k must become ARTIFACT), not
+against synthetic shapes. First two patch attempts failed this test and
+were corrected before commit. The belt was exercised.
+
+Deployed: sophon tree pulled to 5b9ef516, live file verified (ARTIFACT
+code present), live census run clean (healthy rows, no flag). The 5-min
+timer picks up the patched script on its next fire.
+
+Scar from the build: my first two discriminator attempts were wrong in
+the direction that would have been dangerous (marking real freezes as
+artifacts). The test battery caught both. A guard built without the
+disease's real rows would have shipped wrong.

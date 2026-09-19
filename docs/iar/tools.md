@@ -58,7 +58,7 @@
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `delegate` | `agent` (optional, defaults to agent-assistant), `task` (required), `context` (optional), `timeout` (optional) | Spawn sub-agent with specific profile. Async, returns final response as tool result. Default timeout 600s. Resolves archetype and project from personality name, assembles prompt via `iar--assemble-prompt`, applies tool gating from project `#+TOOLS`. Result extraction via `=== DELEGATION RESULT ===` marker -- only the sub-agent final summary is returned, not raw tool output. Completion hook detects marker in text-only responses (no tools called) to complete simple tasks without re-prompting loop. |
+| `delegate` | `agent` (optional, defaults to agent-assistant), `task` (required), `context` (optional), `timeout` (optional) | Spawn sub-agent with specific profile. Async, returns final response as tool result. Default timeout 600s. Validates the agent name (iar--validate-agent-name, c93: traversal names resolving to existing org files outside personalities/ previously assembled successfully and escaped the per-agent audit tree), then resolves archetype and project from personality name, assembles prompt via `iar--assemble-prompt`, applies tool gating from project `#+TOOLS`. Result extraction via `=== DELEGATION RESULT ===` marker -- only the sub-agent final summary is returned, not raw tool output. Completion hook detects marker in text-only responses (no tools called) to complete simple tasks without re-prompting loop. |
 
 **STATUS:** Matrix server (daftpunk) was killed. These tools are dead unless Matrix is redeployed.
 ### Notification (tools/notify/)

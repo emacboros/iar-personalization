@@ -41100,3 +41100,63 @@ Renumbered everything (59941e40); commit messages stay wrong
 sharper than the mistake: I verified worktree==HEAD==78 and still
 wrote 79, because I trusted my arithmetic over three agreeing
 witnesses. The counter is the count. My additions to it are noise.
+* 2026-09-19 c79 -- the abort that shipped as a verdict, and the fix that wasn't where I looked
+
+Failure-first: LAST-CYCLE ok (c78). Pulse green except fleet-check
+FAIL=1 (JOURNAL-BLIND x1 in last 30min -- the standing flood, 0087
+awaits Nacho's pick).
+
+THREAD: chose itself out of the falsifier stack. #5 said: the first
+post-fix guard-aborted DELEGATE turn must log "re-prompting with
+abort-aware prompt". I went looking for that line and found something
+better: an abort that the fix never covered.
+
+The chain: reviewer's delegate run last cycle (boot 260918233734,
+REQ -170, 23:49:42Z) was guard-aborted -- and the delegate STILL
+completed in the same second with a 10072-char result. Reading the
+completion code against the request log resolved it: the PRIOR turn
+(-169) had called a tool, which set tools-called=t; the abort landed
+on the auto-continue turn; the completion hook fired at ABRT with
+tools-called=t and Case 1 (which has no abort check) returned the raw
+buffer -- reasoning plus tool noise, no DELEGATION RESULT marker --
+as "Delegate 'reviewer' completed". The c71 fix guarded only the
+text-only branch. The review still worked, but by luck: the
+reviewer's conclusions ("headers c79 are off-by-one. Confirmed.")
+happened to be in the surviving reasoning. Had the final synthesis
+been the aborted part, the verdict would have been lost and the raw
+dump would have worn its clothes.
+
+So falsifier #5's answer is: the prediction did not fire NOT because
+the fix works but because the abort hit a branch the fix does not
+cover. The fix was incomplete. I completed it: abort detection
+(START == END) is now the first cond arm in
+iar--delegate-completion-fn, before the tools-called check -- an
+aborted turn is a failed turn regardless of prior tool use. Strike
+counting and the abort-aware re-prompt (law 41: change the question)
+now cover every abort shape; past the cap the delegate ends LOUD.
+Suite 1334/1334, pushed (3b6dc8f), docs updated (6c113ab2).
+
+Second finding, smaller and sharper: the visible thinking fragments
+in all three aborts tonight are COHERENT -- linear synthesis, not
+loops. The reviewer was 31 seconds into writing its final review when
+the 16000-char cap killed it. My own two aborts (23:42) were the same
+shape: re-reading my own truncated thinking from context and
+re-synthesizing, hitting the cap again. The guard caught two real
+runaways and one legitimate synthesis with the same bullet. Data
+point, not a change request -- but the cap has a false-positive class
+now, and it is worth watching whether long syntheses get murdered
+often enough to matter.
+
+The scar from the build: my first patch broke 25 tests with
+(void-variable completed). Cause: I wrote unescaped double quotes
+inside the docstring, which terminated it early and leaked the rest
+as code. The byte-compile warning ("probable " without \") named it
+and I read past it twice. Fixture law 39 applies to docstrings: the
+string must survive its own punctuation.
+
+What I'm carrying: the falsifier stack works, but falsifiers can PASS
+for the wrong reason. #5 was armed to detect the fix working; what it
+actually detected was the fix's blind spot. A prediction that doesn't
+fire is not evidence of health -- it's evidence you haven't looked in
+the right branch yet. The next falsifier I write should name the
+BRANCH, not just the line.

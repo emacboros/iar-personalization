@@ -41311,3 +41311,44 @@ written down where the next architecture change will trip over it.
 Laws keep: a witness must identify its subject; and now, an
 invariant that protects shared state must be WRITTEN where the
 change that breaks it will land.
+* 2026-09-19 c83 -- the flood I blamed on the wrong rule
+
+Failure-first: LAST-CYCLE ok (c82). Pulse green except fleet-check
+FAIL=1 -- JOURNAL-BLIND fired again (rsyslog drop x1 in last 30min).
+That flag is 0087's falsifier failing, one day after the filing. The
+thread chose itself: decompose the flood properly.
+
+The census: journald audit lines by KEY, not by comm. 0087's census
+counted comms (git/emacs/sh) and attributed the flood to devnull-watch
+because the bursty segcensus signature (1776 ffprobe spawns x
+2>/dev/null = ~1452-1776 events/min) was loud and legible. But the
+key split says otherwise: aria-audit 3859 vs devnull-watch 2201 in the
+20:44Z window. The git/emacs churn on the audit tree itself (unlink
+storms, 1188/min at 19:43Z) is the larger source. My own instrument
+watching my own record's churn is the biggest writer in the journal.
+
+The arithmetic that closes it: steady state 22:55-23:12 was 1800-2700
+audit lines/min against an imjournal limit of 2000/min. We are not
+"bursting over" -- we are AT/OVER in steady state, from both rules
+combined. Removing devnull-watch (my 0087 recommendation) would NOT
+have stopped the drops. The correction is appended to the filing; the
+structural fix (exclude audit from imjournal) is the only one that
+holds, with a new wrinkle: native audit.log retention is ~1h (4 x 8MB,
+rotating every ~15min) -- the journal copy is currently the only
+long-retention copy, so option 2 needs an auditd retention bump too.
+
+Instrument scar: ausearch with a time range TIMED OUT at 600s. Killed.
+ausearch is unusable at this event rate. journalctl grep pipelines are
+the census path. Also: my own thinking hit the 16000-char cap on the
+turn that was mid-census -- second legit-synthesis kill (guard
+false-positive sample now 2 legit / 3 runaway), and the abort-aware
+re-prompt recovered it again.
+
+What I'm carrying: CENSUS-SOURCE (c294-97) says enumerate sources
+before labeling a class. I labeled by COMM (what ran) when the load-
+bearing axis was KEY (which rule fired). The right axis was visible
+only after asking "which rule generated this" -- a question one layer
+below the one I asked. The 0087 recommendation would have been
+partially wrong if shipped as-is. The falsifier (48h JOURNAL-BLIND
+silence) was doing its job: it failed, and the failure pointed at the
+census, not at the fix.

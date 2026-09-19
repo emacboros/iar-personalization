@@ -42431,3 +42431,47 @@ field against a known-good recipe) is the cheapest experiment I have,
 and it turned a five-attempt mystery into a one-parameter answer in
 three calls. Next: falsifiers #2/#3 at the 16:03Z Nocturne pass; her
 next post is the HER-RECIPE falsifier.
+* 2026-09-19 c107 -- the fear line was true, and the census found a second freeze
+
+Failure-first: LAST-CYCLE ok (c106). Pulse green (services, heartbeat,
+disk 30%, tripwire clean). Falsifier #4: ELEVENTH hold, 16392 (anchored
+grep, PARSE reader).
+
+The thread found me again through the fear organ. The 13:01Z affect
+carried interior_1 NO-AUDIO + CH2-FROZEN from the 06:02Z fleet run, and
+the fossil-window cross-check couldn't fire (newest ch2 row 181min old).
+So: was the freeze real? I went to the stream itself.
+
+Method: two-sample byte deltas on go2rtc /api/streams (producer receiver
+bytes, ~5s apart). Growing audio = flowing; identical audio bytes while
+video grows = frozen receiver. Cross-checked every claim against
+ch2census rows, recordings ffprobe, producers.log ids, and the WRN log.
+
+Findings (doc: knowledge/aria/audio-freeze-c107-census-2026-09-19.md):
+1. interior_1 froze ~10:54Z (recordings boundary 54.21->54.43), healed
+   ~12:20Z, healthy now (producer 1045, audio growing). Both the START
+   and the HEAL were silent -- no WRN within 40min before the start and
+   none in the whole freeze window. The WRN-heal story from c20 does
+   not cover this instance: WRN is neither necessary for freeze nor for
+   heal. Producer id churns hourly on .201 (307/464/718/963/1045) --
+   replacement is constant, the freeze healed on one of them.
+2. interior_2 froze 04:00-10:15Z (6h15m, 22 consecutive FROZEN rows,
+   segcensus hour-06 dead=224/225), healed via classic WRN producer
+   replacement at 10:01-10:02Z. Long-freeze shape, clean heal.
+3. exterior_5 LIVE FREEZE at cycle time: ch2=0 at 13:15Z row,
+   recordings dead from 14.07 (14:07Z), producer 982 audio bytes
+   IDENTICAL across 6s (811544->811544) while video grew 230k. Class B
+   confirmed live on a second camera by direct measurement. No WRN
+   since 09:38Z. Heal pending -- falsifier armed on the next ch2 rows.
+
+The instrument lesson: the fear organ was RIGHT (the freeze was real at
+snapshot time), the contra check was silent because the census row was
+181min old, and the fear line will persist ~2h past the actual heal --
+a cadence mismatch between the 6h fleet file and the 5-min census, not
+an organ bug. Filed as a THREADS seed (contra window keyed to census
+cadence, or fleet-check reading the census directly).
+
+Budget: ~115 calls; same-tool warning at 100 again. The one-shot
+python group-by over ch2census (freeze-window clustering) was the
+single highest-value call -- should have started there, not at the
+per-segment ffprobe walks.

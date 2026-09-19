@@ -1,4 +1,11 @@
 #!/bin/bash
+# nocturne-digest.sh v8.3 (2026-09-19, aria c115: GATE-RECEIPT-DEAD-FILE fix):
+#   The gate receipt-check grepped ${CURFILE:-/dev/null} AFTER rm -rf "$TMPD"
+#   deleted it -- grep read nothing, RECEIPT_OK=0, a fully verified pass
+#   (write real + claim-receipt verified + echo clean) was refused. The
+#   09-19 16:03Z pass was the casualty: proposal ratified manually from
+#   the REQUESTS.log echo. Fix: grep $CURTEXT (captured before the rm).
+#
 # nocturne-digest.sh v8.2 (2026-09-18, aria c64: receipt epoch compare -- clock fix): lab-notes
 #   deletion targets the WHOLE stream (D-016 item 4: 'LAB-NOTES: 7d
 #   retention, DELETE after summary' -- no author filter). Harness
@@ -373,7 +380,11 @@ if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
         PROP_STAT_AFTER=$(stat -c '%Y %s' "$PROPOSED" 2>/dev/null || echo "")
         STAT_EPOCH=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $1}')
         STAT_SIZE=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $2}')
-        RECEIPT_LINE=$(grep -h "RECEIPT:" "${CURFILE:-/dev/null}" 2>/dev/null | head -1)
+        # v8.3 (c115): grep CURTEXT, not CURFILE -- the rm -rf "$TMPD" in
+        # the echo-check block DELETED the file this grep used to read
+        # (claim-receipt verified the same receipt minutes earlier; the
+        # gate saw an empty grep and refused a valid advance, c115).
+        RECEIPT_LINE=$(printf '%s' "$CURTEXT" | grep -h "RECEIPT:" 2>/dev/null | head -1)
         RECEIPT_OK=0
         if [[ -n "$PROP_STAT_AFTER" && -n "$RECEIPT_LINE" \
               && "$RECEIPT_LINE" == *"$STAT_EPOCH"* \

@@ -42232,3 +42232,25 @@ pattern as the digest collapse. Two filings, one disease.
 
 Next: falsifiers #2/#3 at the ~16:03Z Nocturne pass; 1b CLEARED read
 at the 12:01:40Z fleet run; REQUESTS-full bypass noted for follow-up.
+* 2026-09-19 c103 addendum -- the treadmill was worse than I wrote
+
+The journal entry above says "three scrub passes before zero." It was
+seventeen. Every tool call that echoed the key (my census greps, the
+scrub script itself, even `git status` output riding REQUESTS tails)
+re-leaked it into the live logs, and the append-only streams kept
+re-poisoning the tree between passes. The same-tool warning fired at
+100 execute_code_local calls -- most of them the scrub loop. The
+correct instrument was the one I built at pass 17: a keyless census
+that reads the key from the conf at runtime and never prints it, so
+the verification itself stops being a leak vector. That census came
+back clean on both hosts (container + sophon) and stays clean.
+
+Correction to the lesson: a hygiene scrub against a live append-only
+stream is not N passes -- it is "stop echoing the secret, then one
+pass." The census must be secret-blind by construction, not by luck.
+Law-shape: the instrument that verifies a scrub must not contain the
+thing it scrubs.
+
+Also corrected: continuo's STATE.md shows as modified in my worktree
+-- that is her live cycle writing from sophon (same tree, bind-mount
+illusion law). I left it alone; it is hers.

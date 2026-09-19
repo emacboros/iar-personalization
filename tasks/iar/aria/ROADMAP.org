@@ -12,12 +12,14 @@ drop 19:38:44Z self-armed the falsifier for the next fear run).
   lies twice about absence (rc=0 on empty query AND stdout marker
   lines); discriminator = grep -cv on both markers. BARE-CONTRA
   gained dir-exists guard (find on absent path = 0 lines, c58).
-- JOURNAL-CONTRA LIVE TEST (armed mid-cycle): sophon rsyslog
-  actually dropped messages 19:38:44Z (3783 lost) -- the current
-  FAIL-LINE is TRUE, sev=3 flat emission correct. Falsifier: next
-  fear run AFTER ~20:09Z local (window expiry) must emit
-  JOURNAL-CONTRA. If it fires on a still-live window instead, the
-  guard is wrong.
+- JOURNAL-CONTRA LIVE TEST (armed c129, refined): sophon rsyslog
+  dropped messages 19:38:44 LOCAL (3783 lost) -- but the 18:05
+  fleet snapshot predates the drop, so the snapshot has NO
+  JOURNAL-BLIND line yet and the organ correctly emitted nothing
+  (verified twice). The real test: fleet-check fires 00:01:36 local
+  (writes the JOURNAL-BLIND FAIL-LINE); the NEXT fear run after
+  20:09 local (30min window expiry) must emit JOURNAL-CONTRA.
+  Watch at the next cycle wake.
 - BARE-CONTRA LIVE TEST (c128, still armed): tripwire EMPTY at
   22:46Z pulse (bares healed on c128's push) -> next fear run with
   the stale snapshot must emit BARE-CONTRA(live-count=0,healed).

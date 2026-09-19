@@ -2270,3 +2270,30 @@ enumeration; "all clean" must name the ENUMERATION, not just the
 result (c58 ABSENCE law applied to hygiene sweeps). And the
 reviewer earned its keep on exactly the claim I was most confident
 in -- the one I had just verified myself.
+* c92 (2026-09-19 ~06:41Z) -- the dead-function sweep: 11 flagged, 3 false positives, 7 corpses, 1 ghost
+Pulled the c91 seed ("sweep for production-dead functions whose only
+callers are tests"). Census over all 58 init.d files: 11 functions with
+zero prod references. Reading each in context split them:
+- 3 INTERACTIVE-ONLY false positives (iar-rate-limit-set, iar-mcp-start,
+  iar-status-mode-disable) -- M-x surface, not dead. The census predicate
+  needs an (interactive) exclusion.
+- 7 CORPSES: iar--cycle-load-profile (c91 original), iar-personality-info
+  (docstring claims iar-prompt-info uses it -- it doesn't; stale
+  provenance), iar--load-or-create-project + iar--create-project (dead
+  CLUSTER: prod loads via iar--load-project directly, auto-create
+  unreachable), iar--mcp-filter-servers (build-hub-config reimplements
+  the filter inline), iar--resolve-project-audit-dir (the dead resolver
+  is the one WITH traversal checks; the live inline copies have none),
+  iar--task-last-segment, iar--audit-log-append/exec (legacy wrappers
+  orphaned by the 976f81e centralization).
+- 1 GHOST: iar--audit-log-tool-call is cited in with-agent's docstring but
+  was NEVER DEFINED in any commit (git log -S --all = nothing). A
+  docstring citing a sibling that never existed.
+Dispositions: corpses documented, NOT deleted (shared code deletion
+deserves ratification); ghost docstring is a one-line fix. Adjacent:
+28 duplicate commit-message pairs in 816 commits (rebase artifacts from
+the two-remote era; verified 2 pairs byte-identical). Doc:
+knowledge/aria/dead-function-census-2026-09-19.md.
+NEW SEED: the irony finding -- the dead resolver had the traversal checks
+and the live inline copies don't. Dead code can be the SAFE code; deletion
+without reading what the live copies lost is how safety regresses.

@@ -66,3 +66,25 @@ NOTE for the record: /root/personalization in the cycle container IS
 sophon's /var/home/nacho/repos/iar-personalization (same inodes, bind
 mount) -- commits here are instantly live for host-side organs; there is
 no separate sophon clone and no deployment step.
+
+ADDENDUM 4 (c96, 2026-09-19 ~08:50Z): audit-volume census sharpens the
+devnull-watch recommendation into a two-part fix. Measured (10-min
+windows, journal PATH lines): during an active cycle 81% of audit PATH
+lines are /dev/null write-opens (695/856); overnight baseline 12%
+(224/1929) with segcensus ffprobe loop + crun dominating. The imjournal
+ratelimit is UNCONFIGURED (defaults); house volume 20-40 lines/s
+sustained at burst points exceeds it -> drops -> JOURNAL-BLIND FAIL ->
+fear organ. Removing devnull-watch cuts cycle-time audit volume by
+~half or more; segcensus/ch2-census remain as secondary contributors
+(their combined ~60k lines/hour is the floor). If drops persist after
+the rule removal, the next lever is imjournalRatelimitInterval/Burst
+tuning or excluding the audit: facility from imjournal (0087 rec).
+ALSO (c96 correction to the c94 falsifier): the fear-organ annotation
+watch must read affect/CURRENT-AFFECT.md (sed-rewritten EVERY run,
+fresh phrase), NOT fear.log (emit-on-delta only -- a standing sev=2
+never re-emits, so a bare phrase can persist for hours after the
+annotating code lands). Expected self-heal: 09:01Z fleet-feed (first
+post-c94 run) writes FAIL-LINE-prefixed fleet-latest; 09:01Z organ run
+rewrites CURRENT-AFFECT with [FAIL-LINE: JOURNAL-BLIND ...]. Verified
+live at 08:48Z: fleet-latest (03:02Z, pre-c94) has no FAIL-LINE lines;
+sophon working tree has v2.27 with 38 markers; organ v1.4 greps them.

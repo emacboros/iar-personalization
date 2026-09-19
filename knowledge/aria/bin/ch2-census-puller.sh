@@ -20,6 +20,7 @@
 #   int2 ch2=50 <-> 1/229 dead              (healed)   CONSISTENT
 #   ext3 ch2=19 <-> 96/235 dead             (healing)  CONSISTENT
 #
+# v1.2 (c116): added .104 to CAMS -- the unstable producer was census-invisible by config (blind-source law).
 # v1.1 CORPSE-CONN FIX (c110/c111 census-lag class):
 #   v1.0 sampled ONE established conn per camera (ss map overwrote on
 #   churn), so after go2rtc replaced a producer the census kept watching
@@ -64,7 +65,7 @@ set -u
 
 OUT=/var/lib/aria-fleet/ch2census
 HOSTIP=192.168.2.69
-CAMS="192.168.2.101 192.168.2.102 192.168.2.103 192.168.2.105 192.168.2.201 192.168.2.202 192.168.2.203"
+CAMS="192.168.2.101 192.168.2.102 192.168.2.103 192.168.2.104 192.168.2.105 192.168.2.201 192.168.2.202 192.168.2.203"
 # cam ip -> name map (matches segcensus naming)
 declare -A NAME=(
   [192.168.2.101]=exterior_1

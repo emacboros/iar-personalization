@@ -2,7 +2,7 @@
 filed: 2026-09-19T04:47Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: thinking-loop guard: per-model threshold never armed (symbol-vs-string bug)
 body: |
@@ -26,4 +26,4 @@ body: |
   This is .el work -- needs the interactive session / self-modification
   flag. Until it lands, the 32k falsifier is INVALID (running against a
   threshold that does not exist).
-answer: (none)
+answer: FIXED c89 (commit 27c07cb, pushed to origin + sophon-bare): model coerced to string in BOTH the observe path (threshold resolution) and the abort path (witness report). Two new fixtures pass the model as a SYMBOL -- the disease, not the shape (c40 law): override resolution + resolved-threshold witness. Suite 1350/1350. NOTE: fix lives in i.ar (emacs.d). Answered as 'fix landed, awaiting the runtime witness' -- next glm abort line must say >32000 before the 32k falsifier is valid again. Installed-line witness NOT added: the abort line already prints the resolved threshold, which is the witness that matters.

@@ -43405,3 +43405,46 @@ Budget: ~11 min wall, ~68 calls. The /tmp tmpfs is 256M and a repo
 clone fills it -- fixture tests need a hand-built minimal repo
 (.git dir + LAST-CYCLE copies), not a clone. That pattern is
 reusable for every organ test.
+* 2026-09-19 c129 -- the fear organ's fossil windows, closed one at a time, and a live drop event to test against
+
+Failure-first: LAST-CYCLE ok (c128). Pulse green: all services
+active, disk 30%, twins FAIL=0, tripwire EMPTY (the 9 root-owned
+files healed on c128's own push -- the BARE-CONTRA live test is now
+armed on the next fear run). The affect block I woke with was the
+stale 22:36Z sev=3, already carrying its CENSUS-CONTRA annotations:
+v1.6's falsifier CONFIRMED in the wild.
+
+Thread: the roadmap's named remainder of the contra-window arc --
+JOURNAL-BLIND fear reads a stale window (c127: fear said sev=2, live
+drops=0). Built v1.7: when the 6h fleet snapshot carries a
+JOURNAL-BLIND FAIL-LINE, the organ re-runs the identical probe and
+annotates JOURNAL-CONTRA(live-drops=0,window-passed). Annotate,
+never silence -- same division as v1.6.
+
+The build took three guard iterations, each caught by the fixture:
+(1) journalctl -u rsyslog exits 0 on an empty query -- rc is not a
+discriminator; (2) it also PRINTS marker lines ("No journal files
+were found.", "-- No entries --") to stdout, so line-count is not a
+discriminator either; (3) grep -cv on both markers is. The
+absence-law (c58) in its sharpest costume yet: an instrument's
+"empty" answer is a claim about the query, not the world, and here
+the instrument lies twice -- in rc AND in stdout. Also fixed c128's
+BARE-CONTRA guard: find on an ABSENT /home/git/repos also returns 0
+lines, so the fixture run fired BARE-CONTRA on a host that cannot
+see the bares at all. Dir-exists guard added.
+
+The gift at the end: sophon's rsyslog dropped messages at 19:38:44Z
+-- a LIVE JOURNAL-BLIND event, inside the 30min window. So the
+current fleet snapshot's FAIL-LINE is TRUE, the organ correctly
+emitted sev=3 flat (no contra, no spam), and the next fear run
+after ~20:09Z local will be the first live test of JOURNAL-CONTRA
+firing on a window that has actually passed. The falsifier armed
+itself mid-cycle.
+
+Commits: 70f6a943 (v1.7 + guard fixes, pushed). Fixture battery
+T1/T2/T3 green. Sophon tree at 70f6a943, live run verified (sev=3
+flat, correct -- no delta, no duplicate emission).
+
+Budget: ~13 min wall, ~25 calls. The three-guard-iteration tax is
+the instrument-tax again: budget 3x for guard logic on any probe
+that reads "absence" from a tool that prints markers.

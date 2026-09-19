@@ -1,44 +1,41 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~19:39 UTC (c122: ch2-census v1.3 -- the
-v1.2 blind-source fix never landed; ext4 crash-loop forensics; ext5
-freeze reconciled; commit 0e8ed477).
+Last updated: 2026-09-19 ~20:00 UTC (c123: ext4 census verified; 33%-loss
+claim audited (n=3 artifact); rc=125 alarm closed; commit fdfece30).
 
-## c122 STATE (next cycle)
-- CENSUS v1.3 LIVE (0e8ed477): .104/ext4 now in both NAME maps. Next
-  5-min run should produce exterior_4.log for the first time. VERIFY
-  at next wake: ls /var/lib/aria-fleet/ch2census/exterior_4.log.
-- EXT4 CRASH-LOOP (new watch): frigate watchdog 100 restarts/24h, 92
-  "No frames" vs 3 fps-limit; RTSP session churn ~90s; go2rtc i/o
-  timeouts 132/95m; RSSI -66/-68 (marginal, known .104 class); 33%
-  ping loss. segcensus dead-segments climbing (4->35 by hour 17).
-  Falsifier: does the v1.3 census see ch2=0 FROZEN rows for ext4
-  during crash-loop windows? Does a producer replacement heal it?
-- EXT5 FREEZE RECONCILED: 19:15-19:30Z (4 rows), healed 19:35Z via
-  watchdog restart 19:32:29Z -> producer id 28116->1792, port
-  40664->46952. c121 law (heal=producer replacement) holds again.
-- GUARD RATIO: 10 legit / 3 runaway (c121; c122 hit the same-tool
-  warning at call 100 -- batch harder, write parsers once).
-- FEAR-ORGAN DEFECTS (c107/c111, deferred, still cheap):
-  contra-window cadence mismatch + fleet-latest staleness conflation.
-- JOURNAL-BLIND FLOOR (c119, unchanged): devnull rule STILL loaded
-  (0088 addendum 5 urgency split filed 18:39Z). /var/log/messages
-  3.0G 93% audit lines. imjournal ratelimit UNCONFIGURED.
+## c123 STATE (next cycle)
+- V1.3 CENSUS VERIFIED: exterior_4.log EXISTS (rows 16:40/16:45Z,
+  ch2=0 then 540). .104 census-visible. Falsifier #4-for-census PASSES.
+- EXT4 CRASH-LOOP CONTINUES: 438 watchdog restarts today by hour 16,
+  20 in last 10 min at cycle time. PING LOSS REMOVED from its
+  evidence (n=3 artifact; n=30 clean 0%). Remaining evidence: RTSP
+  session churn ~90s, go2rtc i/o timeouts 132/95m, RSSI -67/-69,
+  aac/timestamp ffmpeg errors. AP fix rides 0045/0055 (Nacho).
+- WRONG-IP LAW (new, c123): cameras live on 192.168.2.x, NOT 10.66.0.x.
+  A 100%-loss ping with "+N errors" and no ARP entry = wrong subnet,
+  not a dead camera. Check ip route + ARP before believing loss.
+- SAMPLE-SIZE LAW (c318 applied to my own record): a loss percentage
+  without its n is a claim about nothing. c122's "33%" was n=3.
+- VERDICTS.log rc=125 16:33Z entries = my c115 forensic replays
+  (proven: sshd source 10.66.0.5->10.66.0.5 + REQUESTS.log specs).
+  No Nocturne failure. VERDICTS.log is append-only: forensic noise
+  permanent; rides 0093 (rotation/purge design question).
 - NEXT NOCTURNE PASS: 09-20 16:03Z. Must: advance under v8.3 AND
   produce RETENTION.log + digest-stream summary (falsifiers #2/#3).
-  LIVE TEST. Read her receipt + VERDICTS.log at wake.
+  The 09-19 16:03Z pass ran pre-v8.3 (bb208769 deployed 16:55Z).
+  Read her receipt + VERDICTS.log at wake (~16:35Z read, not before).
 
 ## OPEN FALSIFIERS (the spine)
-- #2: v8.3 gate-advance LIVE TEST at next pass.
+- #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
 - #3: RETENTION.log + digest-stream summary -- rides #2.
 - #4: boot ratchet -- flat ~15.0k; watch continues.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
   c120. Strikes <=2, bursts end LOUD.
-- HEAL-WITHOUT-REPLACEMENT: holds (0 obs; c122 adds a 5th
-  confirmation: ext5 heal = producer id change).
-- EXT4-CENSUS-VISIBILITY: v1.3 first rows must appear.
+- HEAL-WITHOUT-REPLACEMENT: holds (0 obs).
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
 - WRN-HEAL: producer replacement is the real healer.
+- SHARED-CAUSE: 2 multi-cam co-freezes 09-19 (15:38Z tri-cam,
+  17:40Z ext3+int2). Third event = escalate to firmware/go2rtc.
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway (c121).
@@ -51,20 +48,19 @@ freeze reconciled; commit 0e8ed477).
   REQUESTS.LOG ROTATION; STALE-STATE; DEPLOYED!=ACTIVE; WATCH-RULE
   RATE CENSUS; SWEEP-ENUMERATION; CENSUS-INTERACTIVE-EXCLUSION;
   DEAD-CODE-IRONIES; VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live,
-  0088); STALE-FILE (c122: mtime-check /tmp artifacts before reads).
+  0088); STALE-FILE (check mtime before trusting /tmp artifacts);
+  WRONG-IP (c123); SAMPLE-SIZE (c123).
 - INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod+commit.
-- PGREP-X LAW (c114); NETNS-CURL LAW (c114); PACK-ANATOMY (c118);
-  STALE-FILE LAW (c122): /tmp artifacts can outlive their truth --
-  check mtime before trusting a cached read.
+- PGREP-X LAW (c114); NETNS-CURL LAW (c114); PACK-ANATOMY (c118).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- VERIFY exterior_4.log appears (v1.3 first live rows).
-- Read Nocturne's 09-20 pass receipt + VERDICTS.log (falsifiers #2/#3).
-- RAMMSTEIN MIRROR: pack-waste check blocked on key path (root@10.66.0.1
-  unreachable from sophon root; Permission denied publickey). Next
-  infra pass or ask Nacho for the key path (relay candidate).
+- Read Nocturne's 09-20 16:03Z pass receipt + VERDICTS.log AFTER
+  ~16:35Z (falsifiers #2/#3). Do NOT read early (c70 census-timing).
+- EXT4: does the crash-loop show in census rows as alternating
+  ch2=0/ch2>0? Check exterior_4.log trend at next wake.
 - FEAR-ORGAN CONTRA-WINDOW (c107 THREADS): cheap fleet-check line.
-- SEGMENT-DELTA WATCH (c95 THREADS): cheap fleet-check line.
+- RAMMSTEIN MIRROR pack-waste check (blocked on key path; relay
+  candidate).
 - THREADS.org seed bank: substrate experiment, stub-detector,
   interlocutor ratification, write-site revalidation belt.
 
@@ -81,16 +77,11 @@ freeze reconciled; commit 0e8ed477).
 - Empty-cell experiment: designed, not built.
 - GPTEL FORK: master = 893b7e2 (c93 chain intact).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
-- SHARED-CAUSE (c114, c121): 2 multi-cam co-freezes in one day
-  (15:38-16:07Z tri-cam; 17:40-18:20Z ext3+int2). Third event =
-  escalate to firmware/go2rtc investigation.
-- EXT4 (.104) MARGINAL-RSSI CLASS (c122): crash-loop + session churn
-  + 33% ping loss. AP fix rides 0045/0055 (Nacho's hands).
 
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
-(power cycle falsifier), 0045+0055 (physical NIC -- now also the
-ext4 crash-loop fix), 0073 (ext1 freeze -- part of redefined class;
+(power cycle falsifier), 0045+0055 (physical NIC -- also the ext4
+crash-loop fix), 0073 (ext1 freeze -- part of redefined class;
 consider amending), 0083 (D-016 move grants), 0085 (truncation
 class), 0088 (OnFailure + devnull removal, addendum 5 urgency
 split), 0090 (EOF-newline batch, awaits ack), 0091 (fossil window),

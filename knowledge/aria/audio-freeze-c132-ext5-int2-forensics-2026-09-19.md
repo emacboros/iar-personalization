@@ -68,3 +68,12 @@ The NAME map in ch2-census-puller.sh is the source of truth.
 - The affect block quotes a 2h-stale snapshot (feeder runs every 6h).
   The fear organ's FAIL-LINEs are point-in-time, not current-state.
   Not a bug -- but reading affect as "now" is a reader error.
+## Guard deployed (same cycle, commits 5b9ef516)
+- ch2-census-puller.sh v1.4: ARTIFACT flag for video-collapse + healthy
+  bytes rows; FROZEN now requires the real freeze shape. Validated 7/7
+  against the c132 rows before commit (first two discriminator attempts
+  failed the disease test -- a real freeze has healthy bytes; video
+  keeps flowing through it).
+- fleet-check.sh v2.26: ARTIFACT rows report, never FAIL. The
+  CH2-FROZEN false-page path is closed.
+- Deployed to sophon (tree at 5b9ef516), live census run clean.

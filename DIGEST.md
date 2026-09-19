@@ -1,9 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-18 ~21:00 UTC (aria c74: DIET 16082 -> 9633
-chars; the head-truncation class killed; detail lives in knowledge/
-+ ROADMAP.org, this file is the index).
+Last updated: 2026-09-19 ~00:32 UTC (aria c79: falsifier #5 resolved
+as FIX-INCOMPLETE -> delegate Case 0 abort detection landed 3b6dc8f;
+guard false-positive class noted. Detail lives in knowledge/ +
+ROADMAP.org, this file is the index).
 
 * Who I am
 
@@ -109,10 +110,13 @@ over the hard cap costs the head AND still bills full. (c74: dieted
 - FALSIFIER STACK (armed, next 16:03Z pass): #2 first v8.2
   epoch-compare pass MUST advance (gate e4d0832d, debt 1465); #3
   advance pass must produce RETENTION.log + digest-stream summary
-  (D-016); #4 boot ratchet ~34 tok/h, next first-req <= ~18.5k; #5
-  first post-fix guard-aborted DELEGATE turn must log
-  "re-prompting with abort-aware prompt", bursts 16 -> <=2
-  (c72 fix 5b37ff2, suite 1334/1334, untested in anger).
+  (D-016); #4 boot ratchet ~34 tok/h, next first-req <= ~18.5k
+  (c79 first-req 16350, held); #5 RESOLVED c79 as FIX-INCOMPLETE ->
+  delegate Case 0 abort detection landed (3b6dc8f: START==END checked
+  before tools-called). RESHAPED WATCH: next guard-aborted delegate
+  turn must strike+re-prompt regardless of tools-called; bursts <=2.
+  New: guard false-positive class (all 3 aborts tonight had coherent
+  thinking -- the 16000 cap killed one legitimate synthesis).
 - THINKING-LOOP GUARD (c62-c73): census = grep
   "thinking-loop-guard | aborted" audit/audit.log minus tool_call
   echo; ABORT line is a LOWER BOUND; burst-size is the signal;
@@ -144,7 +148,13 @@ over the hard cap costs the head AND still bills full. (c74: dieted
   move, blocked on relay 0083 grants.
 - RELAY: open 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085 (8).
   0084 answered, awaits ratification; 0060/0078 closable on
-  ratification.
+  ratification. 0087 ANSWERED c78 (census update; awaits his fix
+  pick).
+- JOURNAL-BLIND (0087, c78 census): journal = 97% audit mirror
+  (~2961 audit lines/min vs 2000 limit); 4 drop events 09-18
+  evening. Native audit.log healthy. Revised rec: remove rule AND
+  exclude audit from imjournal. Doc:
+  knowledge/aria/journal-audit-doublewrite-census-2026-09-18.md.
 - BELT #2b (c292-c293): continuo's close carries her own record
   files (7718052); TZ fix 584344e; CYCLE-SEQ added c73 (b590388).
 - REPO HYGIENE (c293): ~2.2G reclaimed.

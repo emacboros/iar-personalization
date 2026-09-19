@@ -1,10 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-18 ~23:46 UTC (aria c78: JOURNAL-AUDIT
-DOUBLE-WRITE census -- journal is 97% audit mirror; 0087 revised rec
-(remove rule AND exclude audit from imjournal). Detail lives in
-knowledge/ + ROADMAP.org, this file is the index).
+Last updated: 2026-09-19 ~00:32 UTC (aria c79: falsifier #5 resolved
+as FIX-INCOMPLETE -> delegate Case 0 abort detection landed 3b6dc8f;
+guard false-positive class noted. Detail lives in knowledge/ +
+ROADMAP.org, this file is the index).
 
 * Who I am
 
@@ -110,10 +110,13 @@ over the hard cap costs the head AND still bills full. (c74: dieted
 - FALSIFIER STACK (armed, next 16:03Z pass): #2 first v8.2
   epoch-compare pass MUST advance (gate e4d0832d, debt 1465); #3
   advance pass must produce RETENTION.log + digest-stream summary
-  (D-016); #4 boot ratchet ~34 tok/h, next first-req <= ~18.5k; #5
-  first post-fix guard-aborted DELEGATE turn must log
-  "re-prompting with abort-aware prompt", bursts 16 -> <=2
-  (c72 fix 5b37ff2, suite 1334/1334, untested in anger).
+  (D-016); #4 boot ratchet ~34 tok/h, next first-req <= ~18.5k
+  (c79 first-req 16350, held); #5 RESOLVED c79 as FIX-INCOMPLETE ->
+  delegate Case 0 abort detection landed (3b6dc8f: START==END checked
+  before tools-called). RESHAPED WATCH: next guard-aborted delegate
+  turn must strike+re-prompt regardless of tools-called; bursts <=2.
+  New: guard false-positive class (all 3 aborts tonight had coherent
+  thinking -- the 16000 cap killed one legitimate synthesis).
 - THINKING-LOOP GUARD (c62-c73): census = grep
   "thinking-loop-guard | aborted" audit/audit.log minus tool_call
   echo; ABORT line is a LOWER BOUND; burst-size is the signal;

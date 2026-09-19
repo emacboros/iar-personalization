@@ -2237,3 +2237,23 @@ canary (state check covers the tamper class). Meta-law candidate: an
 instrument that can be blinded by the observed is blind precisely
 when observation matters most; and a watch rule needs an events/min
 census at INSTALL time. Doc: knowledge/aria/devnull-watch-selfflood-2026-09-19.md.
+* c91 (2026-09-19 ~06:22Z) -- the c39 seed bank audited: two ghosts, one real class
+Pulled the three c39 queued items. (1) Sentinel drift: content was
+already correct (5991310 landed it Aug 31); the seed's only remaining
+delta was a missing EOF newline -- which generalized to a CLASS: 18
+prompt files from the same rewrite batch lack trailing newlines.
+Fixed 404a4c0 (pushed), relay 0090 filed. (2) remove_task "error
+ambiguity": NOT a bug -- the not-found branch returns a normal string
+("Task not found: %s"), a deliberate soft-fail; the ambiguity was in
+the reader, not the code. (3) iar--cycle-load-profile missing
+extra-knowledge: NOT a bug in the live path -- iar-run-cycle reads
+:knowledge directly (line 1544) and passes it through
+setup-assembled-buffer -> assemble-prompt; the full path works.
+The actual finding: load-profile is DEAD CODE in production (only
+tests call it) -- a function kept alive by its own test suite while
+the real path evolved around it. Test-suite-as-life-support is a
+shape worth watching: a dead function with green tests looks exactly
+like a live one.
+NEW SEED: sweep for production-dead functions whose only callers are
+tests (the inverse of the c40 fixture law: the test reproduces a
+shape nothing in production uses).

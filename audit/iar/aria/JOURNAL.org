@@ -42604,3 +42604,40 @@ the heal and clears the fear line for the 15:04Z scheduled run.
 Budget: ~43 calls, 5min wall. The per-segment hour-walk (c27) was
 expensive but it was the decisive evidence. Next time: segcensus
 first, ffprobe only the boundary segs.
+* 2026-09-19 c112 -- the census learned to count its conns
+
+Failure-first: LAST-CYCLE ok (c111). Pulse green (services, tripwire,
+heartbeat 12:07Z, disk 30%, twins FAIL=0). Falsifier #4: FIFTEENTH read,
+16660 (series .../16472/16595/16579/16660 -- flat; ratchet stalled ~5
+cycles, stop expecting the slope this week).
+
+The thread: the census-lag corpse-conn fix, promised last cycle. Built
+ch2-census-puller.sh v1.1 (a661fa45): enumerate ALL established conns
+per camera instead of one (the v1.0 ss-map overwrite was the corpse-conn
+bug), capture on every conn, per-cam row = SUM across conns, FROZEN only
+if every anchored conn shows ch2=0. Per-conn detail -> conn-breakdown.log,
+where dst_port doubles as a conn-age proxy (go2rtc assigns fresh
+ephemeral ports per producer; same port across samples = same conn).
+
+Fixture-tested before deploy -- and the fixture itself earned its keep:
+my first synthetic was wrong three ways (no In/Out marker, payload-only
+hex without IP/TCP headers, and a frame() that multiplied filler by
+length). Each failure was the parser teaching me its real assumptions:
+tcpdump -i any emits device + In/Out, the reassembly slices TCP payload
+from IP-first packets. Three fixture iterations, then 3/3 pass:
+corpse-alone no-flag, all-dead FROZEN, single-healthy normal.
+
+Deployed on sophon (pull, verify v1.1, manual run rc=0) -- and the first
+live run immediately earned its keep: at 15:21:00Z interior_1's conn
+39584 showed ch2=0 (video flowing). Next sample 79s later: ch2=56 on the
+SAME conn. A ~60s micro-freeze, self-healed, and for the first time I
+can PROVE it was real (same conn identity throughout) rather than a
+corpse conn. The old instrument would have shown the same FROZEN row
+with no way to discriminate. Today's micro-freeze count: 14:50Z + 15:21Z
+plus c111's 14:00Z -- the daytime cadence on .201 is ~30-40min.
+
+Scar: write_file drops exec bits (100755 -> 100644 caught in the push);
+chmod + separate commit (939ee544). New standing line: instrument-tax.
+
+Next cycle: 16:03Z Nocturne pass = falsifiers #2/#3 (the spine -- first
+live v8.2 advance attempt). Also: fear-organ contra-window (cheap line).

@@ -2432,3 +2432,21 @@ knowledge/aria/continuo-digest-collapse-2026-09-19.md):
 * [2026-09-19 c111] micro-freeze class: ~1min audio gaps (50.53/50.55 NOAUDIO at 14:50Z) invisible to 5-min census cadence and to segcensus hourly aggregation. Only per-segment walks catch them. Question: how common? A segcensus variant with 10-seg probe windows would census the micro-freeze rate cheaply.
 * [2026-09-19 c111] fleet-latest staleness conflation: the fear line said "17s old" (segment age) while the fleet FILE was 8h51m stale (6h timer cadence). Two clocks in one organ read. Candidate: fleet-check output should carry its own run timestamp, and the fear organ's contra check should key on fleet-file age, not segment age.
 * [2026-09-19 c111] Nocturne 13:03Z pass is ~65min away (timer healthy, NextElapse 13:03:01 -03 = 16:03Z). Falsifiers #2/#3 (gate advance under v8.2 + RETENTION.log) read NEXT cycle or the one after -- the pass runs 13:03-13:18 local. Do NOT read early: the c70 law (census-timing) applies; a read before the pass completes measures nothing.
+* [2026-09-19 c112] census-lag RESOLVED (corpse-conn): ch2-census v1.1 shipped
+  (a661fa45 + exec-bit 939ee544), fixture-tested 3/3, deployed sophon,
+  live-validated on first run (15:21Z int1 micro-freeze, same-conn proof).
+  Candidate (a) per-conn breakdown chosen over (b) conn-age check: the
+  breakdown GIVES the age proxy for free (dst_port identity across samples).
+* [2026-09-19 c112] lab-notes recipe in the cycle prompt is STALE: it says
+  `-u "aria-cycle@...:<key>"` with "key at .../aria-cycle.conf" -- but the
+  conf is an INI ([zulip] site= email= key=), so the raw file as key gives
+  UNAUTHORIZED. Working extraction: `KEY=$(grep -E '^key' <conf> | cut -d= -f2 | xargs)`.
+  Posted fine once extracted (id 1393). Prompt fix is interactive-session
+  work; noted here so future cycles don't re-pay the 2 failed calls.
+* [2026-09-19 c112] write_file drops exec bits (100755 -> 100644): any script
+  written via write_file needs chmod +x + a commit before deploy. Caught in
+  the push output (mode change line); fixed 939ee544. Standing instrument-tax.
+* [2026-09-19 c112] micro-freeze count today (int1/.201): 14:50Z + 15:21Z +
+  c111's 14:00Z -- daytime cadence ~30-40min. The v1.1 instrument makes these
+  visible in real time with conn-identity proof. The segcensus 10-seg-probe
+  variant (c111 seed) would census the historical rate cheaply; still parked.

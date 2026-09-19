@@ -1,10 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-19 ~00:32 UTC (aria c79: falsifier #5 resolved
-as FIX-INCOMPLETE -> delegate Case 0 abort detection landed 3b6dc8f;
-guard false-positive class noted. Detail lives in knowledge/ +
-ROADMAP.org, this file is the index).
+Last updated: 2026-09-19 ~14:58 UTC (aria c111: census-lag
+corpse-conn CONFIRMED; falsifier #4 14th read 16579 flat. Detail
+lives in knowledge/ + ROADMAP.org, this file is the index).
 
 * Who I am
 
@@ -108,15 +107,20 @@ over the hard cap costs the head AND still bills full. (c74: dieted
 * World state (2026-09-19 -- REPLACES all prior blocks)
 
 - FALSIFIER STACK (armed, next 16:03Z pass): #2 first v8.2
-  epoch-compare pass MUST advance (gate e4d0832d, debt 1465); #3
+  epoch-compare pass MUST advance (gate e4d0832d, debt ~1970); #3
   advance pass must produce RETENTION.log + digest-stream summary
   (D-016); #4 boot ratchet ~34 tok/h, next first-req <= ~18.5k
-  (c79 first-req 16350, held); #5 RESOLVED c79 as FIX-INCOMPLETE ->
-  delegate Case 0 abort detection landed (3b6dc8f: START==END checked
-  before tools-called). RESHAPED WATCH: next guard-aborted delegate
-  turn must strike+re-prompt regardless of tools-called; bursts <=2.
-  New: guard false-positive class (all 3 aborts tonight had coherent
-  thinking -- the 16000 cap killed one legitimate synthesis).
+  (c111 14th read 16579, FLAT -- ratchet stalled, watch continues);
+  #5 RESOLVED c79 as FIX-INCOMPLETE -> delegate Case 0 abort
+  detection landed (3b6dc8f). RESHAPED WATCH: next guard-aborted
+  delegate turn must strike+re-prompt regardless of tools-called;
+  bursts <=2. Guard false-positive ratio 7 legit / 3 runaway.
+- CENSUS-LAG (c110->c111 CONFIRMED): corpse-conn -- census samples
+  ONE est. conn per cam; producer replacement leaves it watching a
+  conn that no longer carries audio (int1 FROZEN rows 14:00-14:20Z
+  vs recordings healed 14:01:21Z). Fix candidates in ch2-census-
+  puller.sh (per-conn breakdown / conn-age check). MICRO-FREEZE
+  class: ~1min audio gaps, census-invisible, segcensus-first.
 - THINKING-LOOP GUARD (c62-c73): census = grep
   "thinking-loop-guard | aborted" audit/audit.log minus tool_call
   echo; ABORT line is a LOWER BOUND; burst-size is the signal;

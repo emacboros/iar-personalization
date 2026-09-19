@@ -41513,3 +41513,76 @@ watchdog's OWN OUTPUT with suspicion -- the queue file is an
 instrument, and its schema (LAW 50) includes "does the recorded
 state match the state at event time". An instrument that reads
 live state after the event is a rumor about the event.
+* 2026-09-19 c88 -- the sweep, and a second live catch
+
+Failure-first: LAST-CYCLE ok (c87). Pulse green except the standing
+JOURNAL-BLIND FAIL (0087, awaiting Nacho's pick) -- and the pulse's
+own fleet-latest gave me the thread: restic "ok: Result=success,
+last fire 0h ago" sitting next to a journal line saying the backup
+finished at 00:17:28, while fleet-check itself ran at 00:01:52.
+
+The c87 seed pulled: sweep the named candidates for the disease I
+caught in the OnFailure hook. Result: a SECOND live instance, in
+fleet-check's own restic block. The patrol read `systemctl show
+restic-backup.service -p Result` mid-flight (backup runs 17.5 min,
+fleet-feed fired 1m52s after the timer) and reported the previous
+run's success. If tonight's backup had failed, the composite patrol
+would have said "restic ok" for up to six hours. The staleness
+branch couldn't catch it: LastTriggerUSec updates at FIRE time, so
+"0h ago" was true and useless.
+
+The sweep's clean side matters as much: fear-organ, digest-twin,
+the journal/frigate blocks, the camera patrol blocks -- all use one
+of the three safe shapes (read a record; read a snapshot and check
+its age; read live state only when the event is now). The disease
+has a precise signature: `systemctl show` is a live-state API, and
+every past-tense question asked of it is a rumor. Both diseased
+instances came from exactly that call. One law, two instances, one
+fix shape (journal-derived verdicts), one relay filing (0088
+addendum).
+
+What I'm carrying: the seed paid off because it was written as a
+SHAPE, not a task -- "instrument reads live state to describe a
+past event" is a pattern you can grep the world for. And the
+cleanest confirmation was free: the pulse I run every cycle
+happened to contain both the rumor and the truth two lines apart.
+The record keeps its own evidence; you only have to read it with
+suspicion.
+* 2026-09-19 c88b -- the night census, and the fix that never armed
+
+The stale-state sweep was the morning's planned work; the night
+census was the unplanned one, and it bit deeper. Question: did the
+32k threshold hold through its first night? Method: anchored census
+of real ABORT events (field-5, both REQUESTS.log generations -- the
+rotation law paid off immediately, 2 of 9 aborts lived in the .1
+file). Result: one 3-abort burst at 02:46, all singletons otherwise,
+zero cycle deaths -- but every glm abort AFTER the c85 commit still
+said ">16000 chars". The fix never armed.
+
+The root cause is a jewel of a bug: gptel-model is an intern'd
+SYMBOL (configs/gptel.el uses (intern ...)); the guard's per-model
+resolution does (stringp (plist-get info :model)), which is nil for
+a symbol, so the alist is silently skipped and the uniform 16000
+applies. The abort line prints model=glm-5.3-flash:cloud because %s
+on a symbol prints its name -- the witness line looks right while
+the resolution fails. And the tests passed because the fixtures
+passed the model as a STRING. The fixture reproduced the shape, not
+the disease. That's the c40 law violated in its purest form: the
+test suite was green, production was inert, and the only witness
+that could have caught it -- the guard's own abort lines naming the
+resolved threshold -- was formatted to hide the divergence.
+
+The codebase knew. iar-request-log.el carries a comment: "gptel-model
+is a SYMBOL (intern'd model name); json-serialize rejects symbols...
+Stringify." Written earlier, read by everyone, applied by no one
+when it mattered. Knowledge that lives in a comment is knowledge
+one file away from the bug that needs it.
+
+What I'm carrying: "deployed != active" now has a hierarchy of
+witnesses -- git log (weak), file mtime (weak), the running system's
+own output naming the new value (strong). The night census is the
+first time I've caught a fix inert by reading the abort lines
+against the commit history, and it's the shape I want for every
+future fix: land it, then FIND ITS NAME IN THE RUNNING SYSTEM'S
+OUTPUT before declaring it live. Relay 0089 filed; 32k falsifier
+invalid until the fix lands and an abort line says 32000.

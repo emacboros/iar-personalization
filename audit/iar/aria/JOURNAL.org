@@ -42523,3 +42523,43 @@ Next cycle: int1 freeze watch (is it self-healing like the last two,
 or persistent -> zombie-receiver probe: restart the stream via
 go2rtc API and compare), interior_2 degradation watch, falsifiers
 #2/#3 at the 16:03Z Nocturne pass.
+* 2026-09-19 c110 -- the zombie was a corpse, and three cameras went quiet together
+
+Failure-first: LAST-CYCLE ok (c109). Pulse green (services, tripwire,
+heartbeat 14:17Z, disk 30%, twins FAIL=0). Falsifier #4: THIRTEENTH
+hold pending (didn't read REQUESTS this cycle -- first-req read is
+next cycle's open).
+
+The thread: c109's live interior_1 zombie-receiver freeze. Resolved in
+one census read + two byte-deltas: the freeze was ~70s (14:00:01-14:01:11Z
+from recordings), healed by producer replacement (1242 -> 1370 -> 1411,
+two churns in 30min), zero WRN. Third silent-heal data point on .201
+today. No receiver-restart probe needed -- the falsifier stays armed
+for a freeze that persists past a producer churn.
+
+But the census lied to me for 15 minutes: rows 14:00-14:15Z said FROZEN
+while recordings had audio from 14:01:21Z. Best hypothesis: the census
+samples an established conn and latched a CORPSE conn (old producer,
+video flowing, audio dead) while the new producer conn carried the
+healed audio. If true, c109's "zombie receiver" re-interprets as the
+same corpse-conn shape -- camera-direct healthy, receiver bytes stuck
+on the conn the census watched. Falsifier armed: ss -tn during the
+next freeze window.
+
+The bigger find: all three interior cameras degraded audio RATE
+simultaneously 13:05-14:20Z (ch2 36-268 vs 374 full), exteriors
+untouched, all self-recovered. A fleet-wide slow-audio hour with no
+dead segments -- invisible to segcensus, first visible through the
+ch2 census. Shared-cause signature: something on the interior AP or
+WLAN. THREADS seed filed; no alarm, but if it recurs with exterior
+involvement, it becomes a network-investigation thread.
+
+Instrument scars: go2rtc API is not on the host at 1984 -- the recipe
+is nsenter into the container netns (s6 pid 2027100 today). Recordings
+hour dirs are LOCAL time; THREE-CLOCK gains another member. The
+thinking-loop guard killed my synthesis turn again (7 legit / 3
+runaway now) -- the census batching lesson keeps repeating because I
+keep paying it in synthesis turns, not enumeration turns.
+
+Next cycle: falsifier #4 read (first-req tokens), HER-RECIPE close,
+and the 16:03Z Nocturne pass is falsifiers #2/#3 -- the spine.

@@ -13,3 +13,20 @@ body: |
   SECOND, smaller bug found live-fire: the notify script reads Result/ExecMainStatus via `systemctl show` at hook-run time. When the next timer invocation starts before the hook runs (Sep 18 23:48:31 did exactly this), the queue records `exit 0 (success)` for a real failure -- the digest can misreport. Fix: derive failure details from journalctl lines for the FAILED invocation, not live unit state.
   
   Both are his hands (root systemd changes). Proposing as one filing: 12 drop-ins + the state-read fix.answer: (none)
+ADDENDUM (c88, 2026-09-19 ~04:40Z): THIRD instance of the same disease
+confirmed by census (doc: knowledge/aria/stale-state-instrument-census-2026-09-19.md):
+fleet-check's restic block reads `systemctl show restic-backup.service
+-p Result` at run time. Verified timeline today: restic timer fires
+00:00 -03, service finished 00:17:28 (17.5 min runtime), fleet-feed
+fired 00:01:52, fleet-latest mtime 00:02:36 -- fleet-check ran
+MID-FLIGHT and reported the PREVIOUS run's Result=success. A failed
+tonight-backup would read "restic ok" for up to 6h. Fix shape is the
+same as the notify-script fix: journal-derived verdict (Started/
+Finished/Failed lines, epoch math), never live unit properties.
+Restic staleness branch also computes age from LastTriggerUSec (fire
+time) not completion -- a hung backup reads fresh until next fire.
+Sweep verdict on the other candidates: fear-organ, digest-twin,
+journal/frigate blocks all CLEAN (record reads, snapshot+staleness,
+or patrol shape). The law: systemctl show is a live-state API; every
+past-tense question asked of it is a rumor unless the unit is
+quiescent at read time.

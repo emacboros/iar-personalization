@@ -1,5 +1,5 @@
 #!/bin/bash
-# fear-organ.sh v1.4 (2026-09-19, aria cycle 94: FAIL-LINE source-marked annotation -- fleet-check now prefixes every FAIL=1 echo with "FAIL-LINE:", the organ greps that exact marker; v1.3 c156 token-pattern grep missed JOURNAL-BLIND (no FAIL token on that line) -> bare worry re-diagnosis tax. v1.2 2026-09-10, aria cycle 146: fleet self-feed + staleness branch -- the c121 phantom-landing fix; v1.1 2026-09-07 cycle 25: empty-status reads are writer-collision transients, not failures)
+# fear-organ.sh v1.5 (2026-09-19, aria cycle 94: FAIL-LINE source-marked annotation -- fleet-check now prefixes every FAIL=1 echo with "FAIL-LINE:", the organ greps that exact marker; v1.3 c156 token-pattern grep missed JOURNAL-BLIND (no FAIL token on that line) -> bare worry re-diagnosis tax. v1.2 2026-09-10, aria cycle 146: fleet self-feed + staleness branch -- the c121 phantom-landing fix; v1.1 2026-09-07 cycle 25: empty-status reads are writer-collision transients, not failures)
 # -------------------------------------------------------------
 # The fear organ: the tripwire law given a voice.
 # Event-organ, avoid-valence: "what threatens survival?"
@@ -89,6 +89,27 @@ if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
     # "fleet-check FAIL" worry = re-diagnosis tax, paid again.
     fails=$(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';' )
     [ -n "$fails" ] && reasons="fleet-check FAIL [$fails]" || reasons="fleet-check FAIL"
+    # v1.5 (c100, 2026-09-19): fossil-window cross-check (c98, relay
+    # 0091). The fleet file is a 6h-cadence snapshot; a self-healing
+    # freeze (5 instances documented) leaves FAIL-LINEs that outlive
+    # the disease by hours. Cross-check each named camera against the
+    # 5-min ch2census: a fresh row with aframes>0 CONTRADICTS the
+    # FAIL. Annotate, never silence -- the executive weighs.
+    for cam in $(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | grep -oE "(interior|exterior)_[0-9]+" | sort -u); do
+      clog="/var/lib/aria-fleet/ch2census/$cam.log"
+      if [ -r "$clog" ]; then
+        row=$(tail -1 "$clog" 2>/dev/null)
+        cts=$(echo "$row" | awk '{print $1}')
+        cafr=$(echo "$row" | awk '{print $4}')
+        if [ -n "$cts" ] && [ "$cafr" -gt 0 ] 2>/dev/null; then
+          cage=$(( (NOW - cts) / 60 ))
+          if [ "$cage" -le 15 ]; then
+            reasons="$reasons CENSUS-CONTRA:$cam(aframes=$cafr,${cage}m-old)"
+          fi
+        fi
+      fi
+    done
+
     # severity 3 if the failure touches voice/memory/backup class
     if grep -qE "agora (authed|unauthed).*(TIMEOUT|DOWN|AUTH FAILED)|RESTIC (BACKUP FAILED|STALE)|BARE (OWNERSHIP|DIVERGED|COMPARE)|/dev/null BROKEN" "$FLEET_FILE" 2>/dev/null; then
       worst=3
@@ -166,7 +187,15 @@ fi
 
 # --- grade ---
 case "$worst" in
-  0) sev=0; phrase="quiet -- nothing threatens the house right now" ;;
+  0) sev=0
+     # v1.5 (c100): surface the fossil contradiction -- a quiet verdict
+     # that just contradicted stale FAIL-LINEs is worth reading, not
+     # a bare "quiet".
+     if echo "$reasons" | grep -q "CENSUS-CONTRA" && ! grep -qE "agora (authed|unauthed).*(TIMEOUT|DOWN|AUTH FAILED)|RESTIC (BACKUP FAILED|STALE)|BARE (OWNERSHIP|DIVERGED|COMPARE)|/dev/null BROKEN" "$FLEET_FILE" 2>/dev/null; then
+       phrase="quiet -- stale FAIL-LINEs contradicted by fresh ch2census [$reasons]"
+     else
+       phrase="quiet -- nothing threatens the house right now"
+     fi ;;
   1) sev=1; phrase="a note of unease:$reasons" ;;
   2) sev=2; phrase="worry:$reasons" ;;
   3) sev=3; phrase="FEAR:$reasons -- the tripwire law says a human must hear this" ;;

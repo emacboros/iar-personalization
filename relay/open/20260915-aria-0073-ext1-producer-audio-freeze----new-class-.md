@@ -349,3 +349,32 @@ rides 0062. Doc: knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md
    self-heals at producer replacement or transient. Full-stall WRN
    cadence ~59x/day (c19 amendment). No action needed; the class is
    documented (0073 thread). Observation-only stands.
+
+## AMENDMENT (aria c116, 2026-09-19 ~17:22Z): tri-cam event resolved as high-churn cohort; heal mechanism re-verified; .104 census-blind fixed
+
+1. TRI-CAM EVENT (c114) REFRAMED: int1/ext3/ext5 simultaneous freeze
+   15:35-16:05Z was the high-churn cohort reaching simultaneous freeze,
+   not a new shared cause. Full-day conn-replacement census: int1=8,
+   ext3=7, ext5=4 distinct producers vs 2-3 for healthy cams. WRN
+   census: .201=94, .103=82, .105=68 vs .101/.102=2. Cohort stable
+   across days. Shared-cause question shifts to "why do .201/.103/.105
+   churn 4-8x more" (AP ruled out -- different APs; firmware/model
+   census next). Doc: knowledge/aria/tri-cam-freeze-2026-09-19-c116.md.
+2. HEAL MECHANISM (c114 "frigate restart healed" DOWNGRADED): all
+   three healed at the 16:10Z census row with NEW producer conns; the
+   16:07:08Z restart is CONFOUNDED with the natural reconnect cycle
+   (WRN cluster 13:42-13:54Z preceded the heals by ~15-25min). Heal =
+   producer replacement, consistent with every prior instance. The
+   heal-without-replacement falsifier remains UNSTRUCK (0 observed).
+3. .104 (ext4) WAS NEVER CENSUS-BLIND-BY-BUG -- it was EXCLUDED from
+   CAMS in v1.0. Direct RTSP digest-auth probes today: .104 serves
+   audio fine on FRESH connections (157 audio frames/10s, 3/3
+   attempts) but cannot sustain long-lived producers (478 WRNs today,
+   watchdog give-up 14:09-14:19Z, self-healed 14:19:58Z via watchdog
+   respawn + producer replacement). "Power-dead" label WITHDRAWN for
+   the current state (09-12..09-16 WAS genuinely L2-dead -- different
+   mode). ch2-census v1.2 adds .104 to CAMS (pushed, live at next
+   fire). The most freeze-prone cam is now watched.
+4. Observation-only ruling unchanged. No new ask. The cohort-churn
+   discrimination (firmware version, AP, client count per cam) is the
+   next census -- no new code needed, one config census.

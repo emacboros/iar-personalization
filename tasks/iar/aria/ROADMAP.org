@@ -1,29 +1,26 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~02:26 UTC (c83: 0087 flood attribution CORRECTED -- aria-audit > devnull-watch; census-by-key law; ausearch timeout scar.)
+Last updated: 2026-09-19 ~03:30 UTC (c85: c84 exit-1 root-caused = 3
+LEGIT guard strikes; per-model threshold landed a5d21f0; falsifier
+re-armed at 32k.)
 
-## c83 STATE (next cycle)
-- 0087 CORRECTED (c83): the flood census was taken by COMM, not by KEY.
-  Key split (20:44-20:55Z window): aria-audit 3859 vs devnull-watch
-  2201. The git/emacs churn on the audit tree itself (unlink storms,
-  1188/min at 19:43Z) is the larger source. Steady state 1800-2700
-  audit lines/min vs imjournal 2000/min = AT/OVER in steady state.
-  Removing devnull-watch alone would NOT stop drops. Correction
-  appended to the filing (commit 32f6c9c9); lab-notes posted (id 1352).
-  REVISED REC: option 2 (exclude audit from imjournal) + auditd
-  retention bump (native audit.log = 4x8MB rotating ~15min = ~1h
-  retention only; journal copy is currently the ONLY long-retention
-  copy). Still Nacho's call (shared rsyslog/audit config, 0074 ruling).
-- NEW LAW-SHAPED NOTE (c83): CENSUS-SOURCE (c294-97) says enumerate
-  SOURCES before labeling a class -- c83 adds: enumerate by the axis
-  that CARRIES the load (which rule fired = key), not by the first
-  legible signature (which comm ran). A census can be correct in its
-  numbers and wrong in its attribution axis.
-- INSTRUMENT SCAR (c83): ausearch with time range TIMED OUT (600s
-  kill) at ~2000-6000 audit events/min. ausearch is unusable at this
-  rate; journalctl grep pipelines are the census path.
-- GUARD FALSE-POSITIVE SAMPLE: 2 legit (c82, c83) / 3 runaway (09-18).
-  c83's own census turn was killed mid-thinking (16000-char cap),
-  abort-aware re-prompt recovered it. Ratio watch continues.
+## c85 STATE (next cycle)
+- c84 ROOT CAUSE CLOSED: exit 1 = 3 thinking-loop-guard strikes on
+  LEGITIMATE census synthesis (the falsifier armed in c84 fired on
+  its first cycle). FIX LANDED (a5d21f0):
+  iar-thinking-loop-max-chars-per-model (glm 32000, nemotron 16000,
+  first-prefix-match, uniform fallback). Suite 1348/1348. Docs row
+  added to modules.md.
+- GUARD FALSE-POSITIVE RATIO: 5 legit / 3 runaway. The uniform cap
+  is retired; the re-armed falsifier: next legit-synthesis abort
+  must NOT occur below 32000 chars. If 3 legit strikes kill a cycle
+  at 32k, the length-cap approach is falsified -> repetition-signal
+  detector (REQUESTS.log ABORT dumps = fixtures).
+- c85 SCAR: the guard aborted c85's own census turn too (strike 1)
+  -- the fix's author was bitten by the bug mid-fix. Also: a
+  same-anchor rsplit edit mangled the test file (4 duplicated
+  with-fake-entry lines); caught by end-of-file during parsing,
+  repaired, suite green. Edit scripts that rsplit+join must be
+  verified by count BEFORE write.
 
 ## OPEN FALSIFIERS (the spine)
 - #2: next ~16:03Z Nocturne pass (v8.2 epoch-compare) MUST advance
@@ -42,7 +39,8 @@ Last updated: 2026-09-19 ~02:26 UTC (c83: 0087 flood attribution CORRECTED -- ar
 - JOURNAL-BLIND: ACTIVE (fleet-check FAIL=1 at c83 wake; drops
   ongoing until Nacho picks the 0087 fix). Journal-derived reads are
   FAKE-CLEAN until fixed -- treat journal absences as claims.
-- GUARD FALSE-POSITIVE RATIO: 2 legit / 3 runaway.
+- GUARD FALSE-POSITIVE RATIO: 5 legit / 3 runaway (uniform-cap era;
+  now per-model).
 - RECEIPT-CLOCK: v8.2 live but UNTESTED IN ANGER; falsifier #2.
 - RETENTION-BRANCH: dead until first advance; falsifier #3.
 - INJECTION-TAIL RATCHET: ~34 tok/h at boot level (~800/day).
@@ -52,8 +50,9 @@ Last updated: 2026-09-19 ~02:26 UTC (c83: 0087 flood attribution CORRECTED -- ar
 - DIGEST-TWIN DIRECTION: DIRECTION line in future DIVERGED alerts.
 - CONTINUO TRUNCATION: post-guard rate (relay 0085); bursts = retry
   pathology; singleton aborts = guard working.
-- GLM THINKING-LOOP: fires-before-death; abort-aware re-prompt
-  verified live twice (c82, c83).
+- GLM THINKING-LOOP: per-model threshold LIVE (a5d21f0); abort-aware
+  re-prompt verified live x3 (c82, c83, c85). Watch: legit-abort
+  below 32k = falsifier.
 - LAW-50 CLOCK CLASS: 4th sighting; any new clock-format boundary =
   suspect #1.
 - AUDIT-TRAIL GIT-BACKUP (c69): check git history BEFORE declaring

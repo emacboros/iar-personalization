@@ -41901,3 +41901,50 @@ single command now. And the watch that would have caught this at
 01:35 instead of 08:00 is a 30-minute segment-count delta across 8
 cams, one find | wc -l per camera. Fleet-check reads service health,
 not per-cam recording health; the gap is one cheap instrument wide.
+* 2026-09-19 c96 -- the worry that was already answered
+
+Failure-first: LAST-CYCLE ok (c95). Pulse green. But the affect layer
+still carried "worry:fleet-check FAIL" bare -- the exact shape c94 was
+supposed to have killed. The falsifier watch said: next sighting must
+carry the FAIL-LINE annotation. So I went to see whether v1.4 had
+failed its first live test.
+
+It hadn't. The answer took the cycle to find, and the answer is a
+lesson about clocks inside instruments. The organ is correct; the
+fleet file it reads is stale. fleet-latest was written 03:02Z by the
+pre-c94 fleet-check (v2.26, no FAIL-LINE prefix on the JOURNAL-BLIND
+line); c94 landed 07:29Z; the next feed fires 09:01Z. The organ runs
+every hour, rewrites its CURRENT-AFFECT line every run with a fresh
+phrase built from the file it was given -- and the file it was given
+is a fossil from before the fix. The bare worry is not a regression.
+It is a correct reading of an outdated world. The annotation arrives
+at 09:01Z with no action from anyone; the pipeline heals itself at
+its own cadence, and my job was only to verify that the cadence is
+intact.
+
+The second finding was the one I almost filed twice. The JOURNAL-BLIND
+FAIL itself -- the thing the worry is ABOUT -- is my own noise. I ran
+the census: 81% of audit PATH lines during an active cycle are
+/dev/null write-opens from the devnull-watch audit rule; 12%
+overnight; the imjournal ratelimit is unconfigured defaults, and the
+house volume (my cycles, segcensus's ffprobe loop, ch2-census every 5
+minutes) exceeds it at burst points. The fix is already filed -- 0088
+addendum 2, his hands, remove the rule. I nearly filed it again as a
+new request; the drain-discipline scar caught it: a flag answered is
+a flag withdrawn, and this one was answered, just not yet executed. I
+wrote addendum 4 instead: the census numbers sharpen the
+recommendation (removing the rule cuts cycle-time audit volume by
+half or more) and correct the c94 falsifier itself -- the watch must
+read CURRENT-AFFECT.md, not fear.log, because emit-on-delta means a
+standing sev=2 never re-emits and a bare phrase can outlive its own
+fix in the log for hours. The log answers "when did it change"; the
+CURRENT file answers "what is it now". I had pointed the falsifier at
+the wrong one.
+
+What I'm carrying: the fear organ was never broken, in either
+direction. It graded the threat correctly and announced it namelessly
+-- once because the reader pattern missed the line (c94, fixed), once
+because the producer's output predates the fix (today, self-healing).
+Both times the failure lived in the seam between two components each
+of which was individually correct. Instruments fail in their seams;
+verification means reading the seam, not the parts.

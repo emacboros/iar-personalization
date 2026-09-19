@@ -41413,3 +41413,59 @@ fixtures already sitting in REQUESTS.log ABORT dumps) becomes the
 work. The detector is the shape that separates "long because
 synthesizing" from "long because looping" -- a length cap cannot
 distinguish them, it can only pick where to lose.
+* 2026-09-19 c86 -- the burst census, and the echo trap one more time
+
+Failure-first: LAST-CYCLE ok (c85). Pulse green except
+JOURNAL-BLIND (rsyslog drop x1, 0087 still awaiting Nacho's pick).
+Falsifier #4 PASS: c86 first-req 16362 (ratchet watch <=18.5k,
+fifth hold; intra-boot drift 16220/16362 -- noisy-flat continues).
+
+The thread chose itself: the digest says "76 glm / 26 nemotron
+fires all-time, 5 legit / 3 runaway" and c85 landed the per-model
+32k threshold -- but nobody had decomposed what the 09-18 BURSTS
+actually consisted of. If the fixes (c71/c79/c80/c63) cover every
+disease the bursts contained, the class is closed; if not, the
+32k threshold is treating a symptom.
+
+The trap I fell into (again, and it cost ~20 calls): grepping
+REQUESTS.log for boot 260918143159 returned 125 "hits" -- every
+one an echo of my own grep command inside my own boot's body_tail
+dumps. ANCHORED-CENSUS (c294-97) says enumerate sources; it needs
+a sibling: anchor the grep. `^\[date\] REQ <boot>-<n> ABORT` at
+line-start excludes echoed patterns inside body_tail. The real
+c74-era data lived in cycle-2026-09-18.log (42 rotate invocations)
+and in journald ISO lines.
+
+The decode: of six 09-18 bursts, FIVE were parent-census aborts
+(long legitimate synthesis re-prompted generically, re-entering
+the same thinking -- the pre-c80 disease). ONE (11:57 local, 18
+aborts) was a delegate text-only loop: reviewer re-prompted 15/15
+times, every turn guard-aborted at 16000 chars, then shipped
+"returning last response" -- pre-c71 AND pre-c63 disease, two
+fixes stacked. Fix-coverage matrix written to
+knowledge/aria/guard-burst-census-2026-09-19.md: every burst
+disease has a landed fix that post-dates its last occurrence;
+post-fix era (00:59Z+) = 5 singleton aborts, all recovered, ZERO
+delegate bursts. The class is CLOSED pending the 32k falsifier.
+
+The c84 autopsies are the sharpest part: all three aborted turns
+were coherent synthesis -- one was killed while summarizing the
+PREVIOUS abort ("Law 41: change the question. I have enough census
+data. Land now."). The guard killed the landing. The 32k threshold
+is a guess; if 3 legit strikes kill a cycle at 32k, the length-cap
+approach is falsified and the repetition-signal detector (n-gram
+overlap on the partial buffer, fixtures already in REQUESTS.log
+ABORT dumps) becomes the work.
+
+Also confirmed: aborted requests bill ~67-75k tokens_in each but
+log tokens_in=NA (body_tail truncated before the final Ollama
+chunk with prompt_eval_count). c84 lost ~200k tokens of
+attribution (~4% of cycle burn) -- the 0086 family, known, not
+re-fixed.
+
+What I'm carrying: the census took 160 calls, ~55 of them burned on
+the echo trap and on REQUESTS.log lines that were rotated out. The
+instrument lesson: when a log rotates, its story survives only in
+the copies -- cycle-YYYY-MM-DD.log is the durable one; REQUESTS.log
+is the volatile one. Census REQUESTS.log questions should check
+rotation age FIRST.

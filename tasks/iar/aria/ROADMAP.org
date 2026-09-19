@@ -1,46 +1,48 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~03:30 UTC (c85: c84 exit-1 root-caused = 3
-LEGIT guard strikes; per-model threshold landed a5d21f0; falsifier
-re-armed at 32k.)
+Last updated: 2026-09-19 ~04:02 UTC (c86: guard-burst census CLOSED
+-- 09-18 bursts decomposed, fix coverage matrix, post-fix era 0
+bursts. Doc: knowledge/aria/guard-burst-census-2026-09-19.md.)
 
-## c85 STATE (next cycle)
-- c84 ROOT CAUSE CLOSED: exit 1 = 3 thinking-loop-guard strikes on
-  LEGITIMATE census synthesis (the falsifier armed in c84 fired on
-  its first cycle). FIX LANDED (a5d21f0):
-  iar-thinking-loop-max-chars-per-model (glm 32000, nemotron 16000,
-  first-prefix-match, uniform fallback). Suite 1348/1348. Docs row
-  added to modules.md.
-- GUARD FALSE-POSITIVE RATIO: 5 legit / 3 runaway. The uniform cap
-  is retired; the re-armed falsifier: next legit-synthesis abort
-  must NOT occur below 32000 chars. If 3 legit strikes kill a cycle
-  at 32k, the length-cap approach is falsified -> repetition-signal
-  detector (REQUESTS.log ABORT dumps = fixtures).
-- c85 SCAR: the guard aborted c85's own census turn too (strike 1)
-  -- the fix's author was bitten by the bug mid-fix. Also: a
-  same-anchor rsplit edit mangled the test file (4 duplicated
-  with-fake-entry lines); caught by end-of-file during parsing,
-  repaired, suite green. Edit scripts that rsplit+join must be
-  verified by count BEFORE write.
+## c86 STATE (next cycle)
+- BURST CLASS CLOSED: all six 09-18 bursts decomposed (5 parent-census
+  + 1 delegate text-only loop at 11:57L). Every disease has a landed
+  fix post-dating its last occurrence (c71 20:12Z, c63 16:03Z, c79
+  00:29Z, c80 00:59Z). Post-fix era: 5 singleton aborts, all
+  recovered, ZERO delegate bursts.
+- c86 SCAR: the echo trap again -- unanchored grep of REQUESTS.log
+  counted my own echoes (125 "hits", 0 real). Anchored census
+  (`^\[date\] REQ boot-n ABORT`) is the fix. Sibling law to
+  ANCHORED-CENSUS: anchor the grep, and check rotation age FIRST
+  (c74's REQUESTS.log lines rotated out; cycle-2026-09-18.log held
+  the story).
+- ABORT BILLING GAP confirmed (0086 family): aborted reqs log
+  tokens_in=NA; body_tail truncated before final Ollama chunk.
+  ~200k tokens unattributed in c84 (~4% of burn). Known, not re-fixed.
 
 ## OPEN FALSIFIERS (the spine)
 - #2: next ~16:03Z Nocturne pass (v8.2 epoch-compare) MUST advance
   (gate e4d0832d, debt ~1465).
 - #3: advance pass must produce RETENTION.log + digest-stream summary
   (D-016).
-- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k. c83 WAKE
-  READ: 16200 (PASS, fourth hold). Intra-boot drift: 16350 16225
-  16293 16336 16200 -- noisy-flat, the +40/cycle trend did not
-  continue this cycle.
-- #5: delegate-path abort watch (c79/c80) -- armed, no live fire.
-- #6: cycle-path abort watch (c80) -- LIVE-FIRED c82+c83, PASSED
-  twice. Stays armed: strikes <=2, bursts end LOUD past cap.
+- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k. c86 WAKE
+  READ: 16362 (PASS, fifth hold). Intra-boot drift: 16220 16362 --
+  noisy-flat.
+- #5: delegate-path abort watch (c79/c80) -- armed; post-fix census
+  shows 0 delegate bursts (c86 verification).
+- #6: cycle-path abort watch (c80) -- LIVE-FIRED c82+c83, PASSED.
+  Stays armed: strikes <=2, bursts end LOUD past cap.
+- 32K THRESHOLD (c85, re-armed): next legit-synthesis abort must NOT
+  occur below 32000 chars. If 3 legit strikes kill a cycle at 32k,
+  length-cap approach is falsified -> repetition-signal detector
+  (n-gram overlap on partial buffer; fixtures in REQUESTS.log ABORT
+  dumps).
 
 ## WATCHES (standing)
 - JOURNAL-BLIND: ACTIVE (fleet-check FAIL=1 at c83 wake; drops
   ongoing until Nacho picks the 0087 fix). Journal-derived reads are
   FAKE-CLEAN until fixed -- treat journal absences as claims.
 - GUARD FALSE-POSITIVE RATIO: 5 legit / 3 runaway (uniform-cap era;
-  now per-model).
+  now per-model 32k).
 - RECEIPT-CLOCK: v8.2 live but UNTESTED IN ANGER; falsifier #2.
 - RETENTION-BRANCH: dead until first advance; falsifier #3.
 - INJECTION-TAIL RATCHET: ~34 tok/h at boot level (~800/day).
@@ -54,11 +56,14 @@ re-armed at 32k.)
   re-prompt verified live x3 (c82, c83, c85). Watch: legit-abort
   below 32k = falsifier.
 - LAW-50 CLOCK CLASS: 4th sighting; any new clock-format boundary =
-  suspect #1.
+  suspect #1 (exercised again c86: journald LOCAL vs boot-prefix UTC).
 - AUDIT-TRAIL GIT-BACKUP (c69): check git history BEFORE declaring
   data unrecoverable.
-- STASH-UNPOP (c70): git stash list at wake; c71-c83: clean.
+- STASH-UNPOP (c70): git stash list at wake; c71-c86: clean.
 - TIMER-NEXT-EMPTY (c69): rotate.sh owns scheduling; watch only.
+- REQUESTS.LOG ROTATION (c86, new): REQUESTS.log is volatile
+  (c74-era lines rotated out); cycle-YYYY-MM-DD.log is durable.
+  Census REQUESTS.log questions: check rotation age FIRST.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Falsifiers #2/#3 read at the next ~16:03Z pass (the spine).

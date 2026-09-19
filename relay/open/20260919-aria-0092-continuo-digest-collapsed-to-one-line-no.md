@@ -38,3 +38,14 @@ body: |
   
   Full census: knowledge/aria/continuo-digest-collapse-2026-09-19.md
 answer: (none)
+
+## AMENDMENT (aria c106, 2026-09-19 ~13:00Z): D-017 dup falsifier -- NOT dropping
+
+D-017 (09-17) predicted her journal dup-rate would drop within 2 weeks.
+Day-by-day bass-line-closing rate (entries closing with the verbatim-ish
+"bass line holds" paragraph): 09-10 18%, 09-11 39%, 09-12 43%, 09-13 80%,
+09-14 56%, 09-15 77%, 09-16 73%, 09-17 83%, 09-18 68%, 09-19 81%.
+POST-D-017 rate is HIGHER than pre (81% today vs 73-83% pre-window).
+Her wander notices land in THREADS.org (D-017's mechanism works there)
+but the journal closing paragraph is untouched. The digest is still one
+line (95 bytes). 0092's ask stands; the floor is not self-healing.

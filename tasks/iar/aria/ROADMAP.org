@@ -1,35 +1,35 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~12:40 UTC (c105: quote-adjacent agora-key
-leak class found live + fixed e409ffe; all live surfaces scrubbed;
-tracked REQUESTS.log scrubbed in git 06d332ea; relay 0094+0095 filed.)
+Last updated: 2026-09-19 ~13:01 UTC (c106: her lab-notes failure
+ROOT-CAUSED by live control posts -- sender= is mirror-only, JSON body
+unparsed; c105's "missing -u" diagnosis WITHDRAWN; falsifier #4 TENTH
+hold 16407; req-id suffix-collision law recorded.)
 
-## c106 STATE (next cycle)
-- AGORA-KEY REDACTOR: c103 a8b0454 (shapes) -> c104 fc561ff
-  (escaped-newline) -> c105 e409ffe (quote-adjacent). Anchor set now:
-  string-start | escaped-newline | ; | space | " | '. LIVE SURFACES
-  CLEAN (0 hits, keyless census). Git HISTORY: 341 commits touch the
-  key -- rotation (0093) is the real fix, history rewrite NOT
-  attempted.
-- CYCLE.LOG BYPASS SURFACE (c105, NEW): the model transcript
-  (iar--cycle-log-append, buffer-substring) is NEVER sanitized -- any
-  secret a tool result carries lands there raw. Her 12:27Z conf read:
-  7 hits. Design question filed on 0093 (sanitize-at-append vs
-  accept+rotate). My lean: sanitize at append. Interactive-session
-  material if Nacho wants it structural.
-- CONTINUO WATCH: her lab-notes failure 12:27Z = MISSING -u FLAG
-  (credential), not an API bug. She will retry the same broken recipe
-  next cycle. Digest collapse continues (DIGEST.md 85 bytes; journal
-  closing paragraph verbatim-identical across days; 0092 open).
-  NOT touched her files.
-- FALSIFIER #4: c97 wake read 16336. Series
-  16362/16127/16091/16117/16139/16336 -- noisy-flat, NINTH hold.
+## c107 STATE (next cycle)
+- HER LAB-NOTES FIX: root cause = sender= field (mirror-only param,
+  NOT in send-message API). JSON body also fails (form-encoded only).
+  Fix posted to lab-notes thread/continuo-lab-notes-recipe (id 1384)
+  so her next cycle reads it. Watch: her next post must succeed
+  (no sender=). If she still fails, the post didn't reach her.
+- FALSIFIER #4: TENTH HOLD. Series (PARSE tokens_in, correct reader):
+  16250/16351/16302/16248/16324/16373/16347/16407 -- flat ~16.3k,
+  next threshold ~18.5k.
+- REQ-ID SUFFIX LAW (c106, NEW): grepping REQUESTS.log for "REQ <id>-1
+  RESPONSE" matches -10x/-11x too (41 false lines for my boot). Anchor
+  the dash boundary. Also: RESPONSE body_tail may lack the final stats
+  chunk (tail truncation); PARSE tokens_in is the per-request truth --
+  streaming-chunk prompt_eval_count values SPAN requests (shared tail
+  buffer) and are NOT per-request prompt sizes. c94 READER-PATTERN
+  amended.
+- AGORA-KEY REDACTOR: unchanged from c105 (a8b0454/fc561ff/e409ffe;
+  live surfaces clean; rotation 0093 = the real fix).
+- CYCLE.LOG BYPASS SURFACE: unchanged (0093 design question open).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: next 16:03Z Nocturne pass (v8.2 epoch-compare, first live
   advance attempt) MUST advance (gate e4d0832d, debt ~1970 commits).
 - #3: advance pass must produce RETENTION.log + digest-stream summary
   (D-016).
-- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k.
+- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k. TENTH hold.
 - #5: delegate-path abort watch -- armed; 0 delegate bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83, PASSED. Stays
   armed: strikes <=2, bursts end LOUD past cap.
@@ -37,11 +37,10 @@ tracked REQUESTS.log scrubbed in git 06d332ea; relay 0094+0095 filed.)
   line names >32000.
 - ZOMBIE-PRODUCER (c95): next persistent cam freeze -> ffprobe
   restream vs camera direct FIRST. Divergence = go2rtc zombie.
-- REDACTOR ANCHOR COMPLETENESS (c105, NEW): next live leak must be
-  classified by its preceding char BEFORE the fix; if a new class
-  appears, the anchor-set hypothesis is wrong at a deeper level
-  (consider: redact by VALUE-match against the conf key itself, not
-  by shape).
+- REDACTOR ANCHOR COMPLETENESS (c105): next live leak must be
+  classified by its preceding char BEFORE the fix.
+- HER-RECIPE (c106, NEW): her next lab-notes post must succeed with
+  no sender=. Failure = the lab-notes fix didn't reach her.
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 5 legit / 3 runaway (uniform-cap era).
@@ -53,21 +52,22 @@ tracked REQUESTS.log scrubbed in git 06d332ea; relay 0094+0095 filed.)
 - CYCLE-SEQ: 1 bump/cycle; monotonicity invariant; belted (c73).
 - DIGEST-TWIN DIRECTION: DIRECTION line in future DIVERGED alerts.
 - CONTINUO TRUNCATION: post-guard rate (relay 0085).
-- GLM THINKING-LOOP: per-model threshold FIXED c89 (27c07cb);
-  abort-aware re-prompt verified live x4.
-- LAW-50 CLOCK CLASS: 4th sighting. LAW-50 READER-PATTERN (c94).
-  LAW-50 PRODUCER-SIDE (c95): a producer can lie by omission.
+- GLM THINKING-LOOP: per-model threshold FIXED c89 (27c07cb).
+- LAW-50 CLOCK CLASS: 4th sighting. LAW-50 READER-PATTERN (c94,
+  amended c106: req-id dash-boundary + PARSE-not-chunks).
 - PUT-200 CLASS (c95): control-API 200 = claim not evidence.
-- FOSSIL-WINDOW (c98, NEW): a producer fix is invisible to its
-  consumer until the producer's next run; bounded by feed cadence.
-- AUDIT-TRAIL GIT-BACKUP (c69); STASH-UNPOP (c70); TIMER-NEXT-EMPTY
-  (c69); REQUESTS.LOG ROTATION (c86); STALE-STATE (c87-c88);
-  DEPLOYED!=ACTIVE (c121->c88); WATCH-RULE RATE CENSUS (c90);
-  SWEEP-ENUMERATION (c91); CENSUS-INTERACTIVE-EXCLUSION (c92);
-  DEAD-CODE-IRONIES (c92/c93); VALIDATION-BY-ACCIDENT (c93).
+  ZULIP-200 VARIANT (c106): reqlog http=200 is transport-only; Zulip
+  errors ride in the JSON body at HTTP 200.
+- FOSSIL-WINDOW (c98); AUDIT-TRAIL GIT-BACKUP (c69); STASH-UNPOP
+  (c70); TIMER-NEXT-EMPTY (c69); REQUESTS.LOG ROTATION (c86);
+  STALE-STATE (c87-c88); DEPLOYED!=ACTIVE (c121->c88); WATCH-RULE
+  RATE CENSUS (c90); SWEEP-ENUMERATION (c91);
+  CENSUS-INTERACTIVE-EXCLUSION (c92); DEAD-CODE-IRONIES (c92/c93);
+  VALIDATION-BY-ACCIDENT (c93).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Falsifiers #2/#3 read at the ~16:03Z pass (the spine).
+- HER-RECIPE falsifier read: did her next post succeed?
 - SEGMENT-DELTA WATCH (c95 THREADS): 30-min per-cam segment-count
   delta; alert on any cam < ~60% fleet median. Cheap fleet-check line.
 - ZOMBIE-PRODUCER PROBE (c95 THREADS): ffprobe restream-vs-camera as
@@ -77,12 +77,12 @@ tracked REQUESTS.log scrubbed in git 06d332ea; relay 0094+0095 filed.)
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2.
-- .201 STALL CADENCE (c373): rides 0062 + 0080. c97 adds instance 5
-  (interior_1 self-heal); prudynt audio-stop mechanism still unknown.
+- .201 STALL CADENCE (c373): rides 0062 + 0080.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
-- CONTINUO WANDER (D-017): landed; dup-rate falsifier running.
+- CONTINUO WANDER (D-017): dup-rate falsifier READ c106: NOT dropping
+  (81% today vs 73-83% pre) -- evidence for 0092.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - Empty-cell experiment: designed, not built.
 - GPTEL FORK: master = 893b7e2 (c93 chain intact).
@@ -92,13 +92,12 @@ tracked REQUESTS.log scrubbed in git 06d332ea; relay 0094+0095 filed.)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC), 0073 (ext1
 producer freeze), 0083 (D-016 move grants), 0085 (truncation class),
-0088 (OnFailure coverage + stale-state fix + devnull-watch removal;
-addendum 3 = fear-organ annotation, FIXED by me), 0090 (EOF-newline
-batch class -- fixed 404a4c0, awaiting his ack), 0091 (fossil window
--- informational), 0092 (continuo digest collapse; D-014 is his),
-0093 (agora key rotation + purge ratification; cycle.log design
-question added c105), 0094 (NEW c105: REQUESTS-full dumps
-dormant-by-config -- corrects c104's open-class claim), 0095 (NEW
-c105: quote-adjacent class fixed e409ffe + cycle.log bypass surface).
+0088 (OnFailure coverage + stale-state fix; addendum 3 FIXED by me),
+0090 (EOF-newline batch class -- fixed 404a4c0, awaiting his ack),
+0091 (fossil window -- informational), 0092 (continuo digest collapse
++ c106 dup-rate amendment; D-014 is his), 0093 (agora key rotation +
+purge ratification; cycle.log design question), 0094 (REQUESTS-full
+dumps dormant-by-config), 0095 (quote-adjacent class + c106 amendment:
+her lab-notes root cause = sender=, c105's -u diagnosis withdrawn).
 Current open set (15): 0045, 0055, 0073, 0080, 0081, 0082, 0083,
 0085, 0088, 0090, 0091, 0092, 0093, 0094, 0095.

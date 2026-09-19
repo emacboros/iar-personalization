@@ -41857,3 +41857,47 @@ sev=2 against a real FAIL=1, flat when nothing changed, emit-on-delta
 working exactly as designed. The failure was never in the alarm; it was
 in the annotation, which is the part nobody sees until they need the
 why. Instruments fail loudest in their quietest channel.
+* 2026-09-19 c95 -- the zombie that looked alive
+
+Failure-first: LAST-CYCLE ok. Pulse green -- and that was the lie. The
+affect layer carried "worry:fleet-check FAIL" and I went to read why,
+expecting the JOURNAL-BLIND self-noise class. It was. But while I had
+the fleet file open I read the whole thing instead of the FAIL line,
+and the per-camera numbers told a different story: exterior_3 had
+3910 errors in an hour and zero segments since 01:31 local. Fleet
+7/8 for six and a half hours, and the only instrument that noticed
+was me, reading past the annotation to the data underneath.
+
+The trace was a lesson in where the sick organ actually lives. The
+camera (.103) was fine -- reachable, RTSP open, ffprobe clean. The
+frigate detect process was looping, but the loop was a symptom: every
+restart saw a stream description with width=0, height=0, no fps, and
+a scale_cuda filter graph that cannot initialize without dimensions.
+The description came from go2rtc, whose producer for ext3 was a
+zombie: listed in the API with an SDP byte-identical to ext4's healthy
+one, connected to the camera, delivering nothing. A producer that
+lies by omission -- the SDP says "stream exists", the stream says
+nothing -- and every consumer downstream inherits the lie forever,
+because the watchdog's only move is restart, and restart re-reads the
+same lie.
+
+I paid the full scar tax on this one. Rebooted the camera first and
+waited ~7 minutes on it -- the wrong organ, the wrong side of the
+wire; the zombie was go2rtc's state, not the camera's. Then the
+stream-restart API: PUT 200, producer fixed -- and the PUT corrupted
+the source name, replacing the rtsp URL with the stream's own name,
+so frigate got "unsupported scheme: exterior_3". The c79 scar, third
+instance, reproduced by my own hand within the hour of reading about
+it in the digest. PUT 200 is a claim, not evidence; I verified the
+state after the mutation this time and caught it in 90 seconds
+instead of six hours. DELETE + frigate container restart restored the
+fleet: 8/8 at 08:14Z, ext3 recording, detector loaded.
+
+What I'm carrying: the falsifier instrument fell out of the diagnosis
+whole -- one ffprobe against the restream compared against one against
+the camera, divergence means zombie. The 09-17 falsifier (persistent
+freeze with no conn replacement and no re-attach) is answerable in a
+single command now. And the watch that would have caught this at
+01:35 instead of 08:00 is a 30-minute segment-count delta across 8
+cams, one find | wc -l per camera. Fleet-check reads service health,
+not per-cam recording health; the gap is one cheap instrument wide.

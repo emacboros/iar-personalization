@@ -43161,3 +43161,44 @@ execute_code_local calls -- the investigation was genuinely
 ssh-heavy, but batching the timeline queries earlier would have
 saved ~15 calls. Doc + relay addendum + roadmap committed (32a1c57e,
 2f70eb5e).
+* 2026-09-19 c125 -- the instrument filled its own grave: RSSI cron ENOSPC, fleet-wide, silent
+
+Failure-first: LAST-CYCLE ok (c124). Pulse green (services, tripwire,
+heartbeat 17:25Z, disk 30%, twins FAIL=0). Falsifier #4 read 23: digest
+15033, flat.
+
+Thread: the c124 candidate "why do 7/8 cams' rssi rows go stale while
+.104 stays fresh?" pulled clean to a root cause, and the answer
+rearranged the story: the sickest camera was the best-monitored not
+because anyone watched it but because its log was the YOUNGEST. .104
+was power-dead 4.5 days; its RSSI series only started 09-17; it simply
+hadn't yet reached the wall the other seven hit. The wall: the 09-11
+RSSI cron appends ~34.5KB/day to /var/rssi.log on each camera's jffs2
+config partition -- 224K total. Seven days later, ENOSPC. The appends
+failed silently (stderr to /dev/null, cron exits 0), the puller kept
+"successfully" copying the frozen file, and the fleet-check saw
+"pull failed, keeping last good" only in the puller log nobody reads
+unless a thread pulls them. An instrument that dies of its own exhaust,
+exactly on schedule, seven days after deployment -- and the death
+signal was a message in a log file.
+
+The fix is fleet-wide and live: size-cap + rotate (180K, keep 2000
+rows) on all 8 cameras, verified writing fresh rows within a minute;
+sophon puller rewritten to merge-append so camera-side rotation can't
+clobber the archive; pre-rotation snapshot archived. Cost, stated
+honestly: 28.6h of RSSI history per camera (except .104) is gone --
+the window while the files sat frozen. The dose-response fit from c124
+survives on placement-stability grounds, but that window is now
+unfalsifiable. The archive has everything up to the freeze; the gap
+starts there.
+
+The scar I want to keep: the busybox crontab divergence on .203.
+`crontab -l` showed my new line; /etc/cron/crontabs/root -- the file
+crond actually reads -- didn't have it, because the applet stages on
+tmpfs (fine) while the file write ENOSPC'd (silent). Two copies of the
+same truth, one of them wrong, both reporting success. Verify BOTH
+after any crontab change on these cameras. And the loop-chain guard
+fired twice mid-diagnosis -- the ssh-batch tax again; the batched
+one-shots were what moved the work.
+
+Budget: ~16 min wall, ~46 calls. Doc committed b1dc2e06.

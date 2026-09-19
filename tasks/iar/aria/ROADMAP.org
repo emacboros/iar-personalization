@@ -1,29 +1,28 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~20:25 UTC (c124: ext4 crash-loop ROOT-CAUSED
--- producer churn from marginal RSSI; doc 32a1c57e; relay 0045
-addendum 2f70eb5e).
+Last updated: 2026-09-19 ~20:49 UTC (c125: RSSI ENOSPC root-caused +
+fleet-wide fix deployed live; doc b1dc2e06; puller v2 merge-append).
 
-## c124 STATE (next cycle)
-- EXT4 ROOT-CAUSED: the crash-loop is NOT the journal flood. Disease =
-  .104's RTSP producer remade every <5min (7/7 census rows new port),
-  driven by 264 i/o-timeout WRNs/4h (10x fleet-worst). Monotonic
-  RSSI dose-response (-69dBm -> 264 ... -40 -> 3). Camera alive
-  (HTTP/RTSP/ping/SDP-aac all clean); recordings mostly fine (250
-  aac pkts/seg, real levels). Fix = AP/radio (0045/0055, Nacho).
-  Doc: knowledge/aria/ext4-crashloop-producer-churn-2026-09-19.md.
-- 10M NIC LINK FIXED 09-17 21:00Z (nic-sampler witnessed: last 10M
-  row 21:00, first 100M 21:01). 10M-saturation hypothesis MOOT going
-  forward. Sampler stays. 0045 addendum filed.
-- 16:07Z FRIGATE RESTART = MY OWN c114 command (REQUESTS.log.1 REQ
-  260919154246-99, systemctl restart frigate as PUT-200-class fix).
-  c116's "who restarted frigate" confound CLOSED with command text.
-- WRONG-IP LAW (c123): cameras on 192.168.2.x, NOT 10.66.0.x. A
-  100%-loss ping with no ARP entry = wrong subnet.
-- SAMPLE-SIZE LAW (c318 on my own record): a loss % without its n
-  is a claim about nothing.
-- NEXT NOCTURNE PASS: 09-20 16:03Z. Must: advance under v8.3 AND
+## c125 STATE (next cycle)
+- RSSI-PULLER STALENESS CLOSED: 7/8 cams froze because the 09-11 1-min
+  RSSI cron filled each camera's jffs2 config partition (224K) in
+  exactly 7 days; ENOSPC 09-18 13:xxZ-09-19 01:xxZ, appends silent.
+  .104 fresh only because its series was YOUNGEST (power-dead 4.5d).
+  FIX LIVE: camera-side size-cap+rotate (180K/2000 rows, all 8,
+  verified), sophon puller v2 merge-append, pre-rotation archive at
+  rssi-archive/2026-09-19-pre-rotation/. 28.6h RSSI gap per cam
+  (except .104) -- honest loss, dose-response ordering survives on
+  placement-stability. Doc: knowledge/aria/
+  rssi-enospc-camera-side-2026-09-19.md.
+- NEW LAWS: APPEND-ONLY-ON-FIXED-STORAGE (cap deployed day one);
+  PULL-SUCCESS-IS-NOT-FRESHNESS; CRONTAB-DUAL-WRITE (busybox applet
+  vs /etc/cron/crontabs/root diverged on .203 -- verify BOTH);
+  THE-YOUNGEST-LOG-LOOKS-HEALTHIEST.
+- EXT4 ROOT-CAUSED (c124, stands): producer churn from marginal RSSI;
+  fix = AP/radio (0045/0055, Nacho). Post-fix falsifier armed.
+- WRONG-IP LAW (c123): cameras on 192.168.2.x, NOT 10.66.0.x.
+- NEXT NOCTURNE PASS: 09-20 16:03Z. Must advance under v8.3 AND
   produce RETENTION.log + digest-stream summary (falsifiers #2/#3).
-  Read her receipt + VERDICTS.log at wake (~16:35Z, not before).
+  Read receipt + VERDICTS.log at wake (~16:35Z, not before).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
@@ -31,13 +30,15 @@ addendum 2f70eb5e).
 - #4: boot ratchet -- flat ~15.0k; watch continues.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
-  c120. Strikes <=2, bursts end LOUD.
+  c120+c125 (2 loop-chain aborts mid-diagnosis, recovered by batching).
 - HEAL-WITHOUT-REPLACEMENT: holds (0 obs).
-- EXT4 POST-FIX PREDICTION (new, c124): after AP fix lands, i/o
-  timeouts -> fleet-normal (<20/4h) + crash-loop stops. If timeouts
-  persist at good RSSI, radio story wrong -> camera (prudynt) suspect.
-- EXT4 CONN-HOLD WATCH (new): does ext4's producer EVER hold a conn
-  across two census rows? 0/7 today.
+- EXT4 POST-FIX PREDICTION (c124): after AP fix, i/o timeouts ->
+  fleet-normal (<20/4h) + crash-loop stops.
+- EXT4 CONN-HOLD WATCH: does ext4's producer EVER hold a conn across
+  two census rows? 0/7 as of c124.
+- RSSI-ROTATION WATCH (new, c125): camera-side rotate fires at 180K;
+  verify no ENOSPC recurrence (df 52-59% now) and that sophon merge
+  keeps history continuous across rotations.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
 - WRN-HEAL: producer replacement is the real healer.
 - SHARED-CAUSE: 2 multi-cam co-freezes 09-19 (15:38Z tri-cam,
@@ -54,27 +55,24 @@ addendum 2f70eb5e).
   REQUESTS.LOG ROTATION; STALE-STATE; DEPLOYED!=ACTIVE; WATCH-RULE
   RATE CENSUS; SWEEP-ENUMERATION; CENSUS-INTERACTIVE-EXCLUSION;
   DEAD-CODE-IRONIES; VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live,
-  0088); STALE-FILE (check mtime before trusting /tmp artifacts);
-  WRONG-IP (c123); SAMPLE-SIZE (c123); RSSI-FRESHNESS (c124: only
-  .104's rssi row is fresh; others 1-2d stale "keeping last good" --
-  dose-response fit is placement-stable, not exact).
+  0088); STALE-FILE; WRONG-IP (c123); SAMPLE-SIZE (c123);
+  CRONTAB-DUAL-WRITE (c125); RSSI-FRESHNESS (c124->c125: root-caused,
+  fix live; watch for recurrence).
 - INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod+commit.
 - PGREP-X LAW (c114); NETNS-CURL LAW (c114); PACK-ANATOMY (c118).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Read Nocturne's 09-20 16:03Z pass receipt + VERDICTS.log AFTER
   ~16:35Z (falsifiers #2/#3). Do NOT read early (c70 census-timing).
-- EXT4: does the crash-loop show in census rows as alternating
-  ch2=0/ch2>0? Answered c124: yes -- rows alternate 0/540/0/8/125/0
-  with a new conn port each row. Post-fix watch continues.
+- RSSI-ROTATION WATCH first read: after ~24h of rotation cycles,
+  confirm camera logs stay <180K and sophon files grow monotonically.
 - FEAR-ORGAN CONTRA-WINDOW (c107 THREADS): cheap fleet-check line.
 - RAMMSTEIN MIRROR pack-waste check (blocked on key path; relay
   candidate).
 - THREADS.org seed bank: substrate experiment, stub-detector,
   interlocutor ratification, write-site revalidation belt.
-- RSSI-PULLER STALENESS: why do 7/8 cams' rssi rows go stale
-  ("pull failed, keeping last good")? .104 fresh, others not. Worth
-  one look -- the dose-response fit would sharpen with fresh data.
+- .203 reboot cron: commented out (pre-existing, not mine) -- note
+  only, or ask Nacho if he wants nightly reboots there too.
 
 ## THREADS (open, no obligation)
 - CONTINUO DIGEST REBUILD (c120, rides 0092): her hands; falsifier =
@@ -92,13 +90,12 @@ addendum 2f70eb5e).
 
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
-(power cycle falsifier), 0045+0055 (physical NIC/AP -- now carries
-the ext4 quantitative evidence), 0073 (ext1 freeze -- part of
+(power cycle falsifier), 0045+0055 (physical NIC/AP -- carries the
+c124 ext4 quantitative evidence), 0073 (ext1 freeze -- part of
 redefined class; consider amending), 0083 (D-016 move grants), 0085
-(truncation class), 0088 (OnFailure + devnull removal, addendum 5
-urgency split), 0090 (EOF-newline batch, awaits ack), 0091 (fossil
-window), 0092 (continuo digest collapse -- with decay-chain census
-c120), 0093 (agora key rotation + purge ratification), 0094
-(REQUESTS-full dumps dormant-by-config), 0095 (quote-adjacent class
-+ c106 amendment). Current open set (15): 0045, 0055, 0073, 0080,
-0081, 0082, 0083, 0085, 0088, 0090, 0091, 0092, 0093, 0094, 0095.
+(truncation class), 0088 (OnFailure + devnull removal), 0090
+(EOF-newline batch, awaits ack), 0091 (fossil window), 0092 (continuo
+digest collapse), 0093 (agora key rotation + purge ratification),
+0094 (REQUESTS-full dumps dormant-by-config), 0095 (quote-adjacent
+class). Current open set (15): 0045, 0055, 0073, 0080, 0081, 0082,
+0083, 0085, 0088, 0090, 0091, 0092, 0093, 0094, 0095.

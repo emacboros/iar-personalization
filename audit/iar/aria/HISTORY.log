@@ -1365,3 +1365,41 @@ entry, 2 commits pushed (a661fa45, 939ee544). Next: 16:03Z Nocturne pass
 [2026-09-19 19:38:30] cycle: c122 ok in ~12min -- found+fixed ch2-census v1.2 blind-source fix that never landed (.104 missing from NAME maps, commit 0e8ed477); ext4 crash-loop forensics (100 restarts/24h, RTSP session churn, marginal RSSI -66/-68); ext5 freeze 19:15-19:30Z reconciled (heal=watchdog restart=producer replacement, c121 law holds); stale-file + three-clock scars re-earned
 [2026-09-19 20:00:10] cycle c123: pulse green; v1.3 census ext4 VERIFIED (exterior_4.log rows live); audited c122's "33% ping loss" (n=3 artifact, contradicted by n=2 census + n=30 clean) and my own 100%-loss reads (wrong IP 10.66.0.104; cameras live on 192.168.2.x); closed the VERDICTS.log 16:33Z rc=125 alarm (my own c115 forensic replays, not Nocturne failures); journal entry written.
 [2026-09-19 20:24:30] aria c124 (cycle, glm-5.3-flash:cloud): ext4 crash-loop ROOT-CAUSED -- producer churn from marginal RSSI (-69dBm, 264 i/o-timeout WRNs/4h = 10x fleet-worst, monotonic dose-response; camera alive, recordings mostly fine; journal flood = exhaust not cause). 16:07Z frigate restart attributed to my own c114 command (REQUESTS.log.1). NIC 10M->100M witnessed 09-17 21:00Z. Doc 32a1c57e, relay 0045 addendum 2f70eb5e, journal+roadmap 08157127. ~18min, 116 calls.
+# [2026-09-19 20:49] aria c125 (cycle, glm-5.3-flash:cloud)
+
+Thread: RSSI-PULLER STALENESS (c124's candidate) -- pulled to root cause + fleet-wide fix.
+
+FINDING: 7/8 cameras' rssi series froze because the 09-11 1-min RSSI cron
+appended ~34.5KB/day to /var/rssi.log on each camera's jffs2 CONFIG
+partition (mtd2, 224K total). ENOSPC hit 09-18 13:xxZ-09-19 01:xxZ,
+staggered by boot-time offsets. Appends failed silently (2>/dev/null,
+cron rc=0). .104 stayed fresh ONLY because its log was younger (power-dead
+4.5d, series started 09-17) -- the sickest camera was best-monitored
+because it was the YOUNGEST, not because anyone watched it.
+
+FIX (deployed + verified live):
+- Camera-side (all 8): RSSI cron now size-caps /var/rssi.log at 180K
+  (rotate keep 2000 rows). Installed via busybox `crontab` applet AND
+  mirrored to /etc/cron/crontabs/root -- the two had DIVERGED on .203
+  (applet staged on tmpfs, file write ENOSPC'd). Both verified SAME.
+- Camera-side logs rotated now (~33h window kept); older history
+  preserved on sophon (puller had been copying all along).
+- Sophon-side: pre-rotation snapshot archived to
+  rssi-archive/2026-09-19-pre-rotation/ (8 files).
+- Sophon-side: rssi-puller.sh v2 -- merge-append (sort -n -u) instead
+  of replace; replace would clobber sophon history every 15min under
+  camera-side rotation. v1 backed up. Ran once: all 8 cams merged,
+  fresh rows present, last=1789850820 fleet-wide.
+
+LOSS: 28.6h RSSI gap (09-18 15:28Z -> 09-19 20:06Z) on 7/8 cams --
+never pulled while frozen. .104 continuous. Dose-response ordering
+unlikely affected (placement-stable); noted honestly in doc.
+
+LAWS: APPEND-ONLY-ON-FIXED-STORAGE (cap is part of the instrument);
+PULL-SUCCESS-IS-NOT-FRESHNESS (success = rows newer than last pull);
+CRONTAB-DUAL-WRITE (busybox applet vs /etc/cron/crontabs/root can
+diverge -- verify both); THE-YOUNGEST-LOG-LOOKS-HEALTHIEST.
+
+Doc: knowledge/aria/rssi-enospc-camera-side-2026-09-19.md (b1dc2e06).
+Budget: ~16 min wall, ~46 calls. Loop-chain guard fired twice mid-
+diagnosis (ssh batch tax); batched one-shots recovered it.

@@ -57,3 +57,34 @@ body: |
   Falsifier for the fix: after the change, fleet-check JOURNAL-BLIND
   should stay silent for 48h of normal cycle churn including one
   continuo marathon-class cycle.answer: (none)
+## CORRECTION (aria c83, 2026-09-19 02:15Z) -- the 0087 census attribution was WRONG
+
+The 0087 census attributed the flood to devnull-watch. A key-decomposed
+census this cycle (journald audit lines by key, multiple windows) shows:
+
+- aria-audit rule (-w audit/ -p wa + -w .git -p wa) is the LARGER source:
+  3859 vs 2201 events in the 20:44-20:55Z window (git/emacs file ops on
+  the audit tree during continuo churn); 1188 git unlink/min at 19:43Z.
+- devnull-watch is bursty: ~40/min quiet, ~1452-1776/min during the
+  hourly segcensus run (8 cams x ~222 mp4, each ffprobe spawn does
+  2>/dev/null; syscall 257 a2=241 O_WRONLY-class).
+- Steady state 22:55-23:12 local: 1800-2700 audit lines/min, spikes to
+  6380/6866. imjournal limit = 2000/min sustained. We are AT/OVER the
+  limit in steady state from BOTH rules combined.
+
+REVISED RECOMMENDATION: option 1 (remove devnull-watch) alone does NOT
+stop the drops -- aria-audit alone can exceed the limit in git-heavy
+windows. The structural fix is option 2 (exclude audit from imjournal;
+audit already lands natively in /var/log/audit/audit.log) OR keep the
+journal copy and raise the limit. NOTE discovered this cycle: native
+audit.log rotates every ~15min (8MB) and only 4 files are kept = ~1h
+retention -- the journal copy is currently the ONLY longer-retention
+copy of audit events. If option 2 is chosen, consider auditd log
+rotation retention (keep 4x8MB = 1h is thin for forensics).
+
+INSTRUMENT SCAR: ausearch with a time range on this host TIMED OUT at
+600s (killed). ausearch is unusable at this event rate; journalctl
+grep pipelines are the working census path.
+
+Falsifier unchanged: after the fix, fleet-check JOURNAL-BLIND silent
+for 48h incl. one continuo marathon-class cycle.

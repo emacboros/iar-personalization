@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria-ch2-census-puller.sh v1.0 (2026-09-17, aria cycle 13)
+# aria-ch2-census-puller.sh v1.1 (2026-09-19, aria cycle 112)
 # -------------------------------------------------------------
 # ch2-census: counts interleaved RTSP audio-channel (ch2) frames on the
 # ESTABLISHED camera->sophon producer connections, per camera, per run.
@@ -20,8 +20,24 @@
 #   int2 ch2=50 <-> 1/229 dead              (healed)   CONSISTENT
 #   ext3 ch2=19 <-> 96/235 dead             (healing)  CONSISTENT
 #
+# v1.1 CORPSE-CONN FIX (c110/c111 census-lag class):
+#   v1.0 sampled ONE established conn per camera (ss map overwrote on
+#   churn), so after go2rtc replaced a producer the census kept watching
+#   the CORPSE conn -- video flowing, audio dead -- and reported FROZEN
+#   for 15+ min past the real heal (int1 14:00Z freeze, healed 14:01:11Z,
+#   census rows FROZEN through 14:20Z). v1.1:
+#   1. enumerates ALL established producer conns per camera (ports append,
+#      not overwrite) and captures on every one of them;
+#   2. per-camera row = SUM across that camera's conns; FROZEN only if
+#      every anchored conn shows ch2=0 (a corpse conn alone can't flag);
+#   3. per-conn detail appended to conn-breakdown.log:
+#      "CONN <ts> <cam> <dstport> <ch2> <ch0> <bytes> anchored=0|1"
+#      dst_port is a conn-age proxy (go2rtc assigns fresh ephemeral ports
+#      per producer) -- conn-age checks need no new code, just this log.
+#   Per-cam row format UNCHANGED (fleet-check + fear-organ readers intact).
+#
 # METHOD (c386 census, hardened):
-#   1. ss -tn: find established conns 192.168.2.69 -> <cam>:554
+#   1. ss -tn: find established conns 192.168.2.69 -> <cam>:554 (ALL ports)
 #   2. tcpdump 20s full-snaplen capture on those conns (-s 0; the -s 96
 #      mistake truncated payloads and broke frame parsing -- c388 scar)
 #   3. reassemble per connection in TCP seq order (interleaved frames
@@ -29,7 +45,8 @@
 #   4. walk $-interleaved frames from the first clean frame boundary
 #      (stream may start mid-frame; require 3 clean frames to anchor)
 #   5. append "<epoch> <cam> <ch2> <ch0> <bytes>" per cam to
-#      /var/lib/aria-fleet/ch2census/<cam>.log; ch2=0 rows get FROZEN flag
+#      /var/lib/aria-fleet/ch2census/<cam>.log; FROZEN flag only if ALL
+#      anchored conns for the cam show ch2=0
 #
 # READ-ONLY toward the network and recordings; writes only to its own dir.
 # Reversible (D-011 aria-reversible): rm -rf /var/lib/aria-fleet/ch2census
@@ -62,10 +79,11 @@ TS=$(date +%s)
 
 mkdir -p "$OUT" 2>/dev/null || { echo "ch2census: cannot create $OUT" >&2; exit 0; }
 
-# 1. map established producer conns: cam ip -> local port
+# 1. map established producer conns: cam ip -> ALL local ports (v1.1:
+#    append, never overwrite -- the v1.0 overwrite was the corpse-conn bug)
 declare -A CONN
 while read -r _ _ laddr lport _ raddr rport _; do
-  ip="$raddr"; [ -n "${NAME[$ip]:-}" ] && CONN[$ip]=$lport
+  ip="$raddr"; [ -n "${NAME[$ip]:-}" ] && CONN[$ip]="${CONN[$ip]:-} $lport"
 done < <(ss -tn state established 2>/dev/null | awk -v h="$HOSTIP" '
   NR>1 && $3 ~ h":" && $4 ~ /:554$/ {split($3,a,":"); split($4,b,":"); print "x x " a[1] " " a[2] " x " b[1] " " b[2] " x"}')
 
@@ -74,10 +92,12 @@ if [ "${#CONN[@]}" -eq 0 ]; then
   exit 0
 fi
 
-# 2. capture 20s on all established cam conns (full snaplen)
+# 2. capture 20s on ALL established cam conns (full snaplen)
 FILTER=""
 for ip in "${!CONN[@]}"; do
-  FILTER="$FILTER or (src host $ip and src port 554 and dst port ${CONN[$ip]})"
+  for port in ${CONN[$ip]}; do
+    FILTER="$FILTER or (src host $ip and src port 554 and dst port $port)"
+  done
 done
 FILTER="${FILTER# or }"
 timeout 25 tcpdump -i any -nn -s 0 "$FILTER" -w /tmp/ch2census-run.pcap >/dev/null 2>&1
@@ -118,37 +138,46 @@ for line in sys.stdin:
 flush()
 import sys as _s
 ts = _s.argv[1] if len(_s.argv) > 1 else "0"
+# v1.1: group per-conn streams by camera; per-cam row = SUM across conns
+percam = collections.defaultdict(list)
 for key in sorted(streams):
-    cam_ip = key[0]
-    name = NAME.get(cam_ip)
-    if not name: continue
-    segs = streams[key]
-    data = b"".join(segs[k] for k in sorted(segs))
-    n = len(data)
-    # anchor: first $ that walks >=3 clean frames (stream may start mid-frame)
-    start = None
-    for i in range(n - 4):
-        if data[i:i+1] == b"$":
-            off = i; ok = 0
+    name = NAME.get(key[0])
+    if name: percam[name].append((key[1], streams[key]))
+for name in sorted(percam):
+    total = [0, 0, 0, 0]; nbytes = 0; anchored = 0
+    for dport, segs in percam[name]:
+        data = b"".join(segs[k] for k in sorted(segs))
+        n = len(data); nbytes += n
+        # anchor: first $ that walks >=3 clean frames (stream may start mid-frame)
+        start = None
+        for i in range(n - 4):
+            if data[i:i+1] == b"$":
+                off = i; ok = 0
+                while off + 4 <= n and data[off:off+1] == b"$":
+                    ln = int.from_bytes(data[off+2:off+4], "big")
+                    if off + 4 + ln > n: break
+                    off += 4 + ln; ok += 1
+                    if ok >= 3: break
+                if ok >= 3: start = i; break
+        counts = [0, 0, 0, 0]
+        if start is not None:
+            anchored += 1
+            off = start
             while off + 4 <= n and data[off:off+1] == b"$":
-                ln = int.from_bytes(data[off+2:off+4], "big")
+                ch = data[off+1]; ln = int.from_bytes(data[off+2:off+4], "big")
                 if off + 4 + ln > n: break
-                off += 4 + ln; ok += 1
-                if ok >= 3: break
-            if ok >= 3: start = i; break
-    counts = [0,0,0,0]
-    if start is not None:
-        off = start
-        while off + 4 <= n and data[off:off+1] == b"$":
-            ch = data[off+1]; ln = int.from_bytes(data[off+2:off+4], "big")
-            if off + 4 + ln > n: break
-            if ch <= 3: counts[ch] += 1
-            off += 4 + ln
-    flag = " FROZEN" if (start is not None and counts[2] == 0) else ""
-    print(f"{ts} {name} {counts[2]} {counts[0]} {n}{flag}")
+                if ch <= 3: counts[ch] += 1
+                off += 4 + ln
+        print(f"CONN {ts} {name} {dport} {counts[2]} {counts[0]} {n} anchored={1 if start is not None else 0}")
+        for j in range(4): total[j] += counts[j]
+    flag = " FROZEN" if (anchored > 0 and total[2] == 0) else ""
+    print(f"{ts} {name} {total[2]} {total[0]} {nbytes}{flag}")
 ' "$TS" 2>/dev/null | while read -r row; do
-  cam=$(echo "$row" | awk "{print \$2}")
-  echo "$row" >> "$OUT/$cam.log"
+  case "$row" in
+    CONN\ *) echo "$row" >> "$OUT/conn-breakdown.log" ;;
+    *) cam=$(echo "$row" | awk "{print \$2}")
+       echo "$row" >> "$OUT/$cam.log" ;;
+  esac
 done
 
 rm -f /tmp/ch2census-run.pcap

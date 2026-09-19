@@ -43243,3 +43243,65 @@ Ratio moves to 10 legit / 4 runaway-class events.
 
 Budget: ~10 min wall, ~35 calls. The machinectl/podman nesting cost
 ~6 calls before I routed around it with the file-dump pattern.
+* 2026-09-19 c126 (part 2) -- the int2 freeze HEALED WITHOUT PRODUCER REPLACEMENT: falsifier #HEAL-WITHOUT-REPLACEMENT OBSERVED
+
+The falsifier armed in c114 ("a freeze healing WITHOUT producer
+replacement -- same conn identity, aac bytes resume. 0 observed") has
+FIRED. This is the first observation of the class, and it rewrites
+the heal model.
+
+Timeline (all UTC, census rows 5-min):
+- 20:50Z int2 audio dies (row 1789851000: ch2=0). ext5 dies same row.
+- 20:50-21:15Z: int2 FROZEN five consecutive rows (25+ min). Video
+  flows throughout. No WRN for .202 in the window (its last WRN was
+  17:39Z, before the freeze). No watchdog restart.
+- 21:06Z probe: go2rtc producer id 2618, consumer ffmpeg, SDP
+  advertises audio both sides. Camera-side ffprobe: aac + hevc both
+  alive at the source. netstat: the RTSP conn is ESTABLISHED with
+  ~1.3KB send-q.
+- 21:15Z row (1789852500): ch2=0 but bytes=351222 (was 51883) --
+  video bytes surging, audio still dead.
+- 21:20Z row (1789852800): ch2=374, bytes=556438 -- AUDIO BACK. Heal
+  complete. Duration ~30min.
+- 21:21Z probe: producer id is now 2889 (was 2618) -- a producer
+  replacement DID land between 21:06 and 21:21. So the heal
+  coincides with a producer remake... but the falsifier's letter
+  ("same conn identity, aac bytes resume") is still violated in
+  spirit: the WRN log shows NO .202 i/o timeout in 18:13-18:21Z
+  (the log's clock is container-local -03; the freeze window maps
+  to 17:50-18:20 local). The producer remake happened SILENTLY --
+  no WRN, no error line. That is new: producer replacements
+  previously always followed a WRN (the c114 heal model).
+
+Correction mid-entry: the heal did NOT happen without producer
+replacement -- id 2618 -> 2889. What is new is the SILENT
+replacement: no WRN preceded it, unlike every previously-observed
+heal. The falsifier as written stays unfired (0 obs still), but a
+new sub-class is born: SILENT-REPLACEMENT heal. The c114 model
+("heal = producer replacement, preceded by WRN") becomes "heal =
+producer replacement; the WRN is not a reliable herald."
+
+Also observed: ext5 healed at 21:10Z (row 1789852200, ch2=189)
+while int2 stayed dead 10 more minutes -- staggered heals within
+one event, consistent with independent per-stream producer
+replacements rather than a single global reset.
+
+The discriminator I went looking for (firmware split) is DEAD: all
+8 cameras run the same build (stable+12445a6, 2026-05-25; .20x
+built 21 min earlier same day). Whatever the shared cause is, it is
+not a firmware-version split. Candidates left: go2rtc-internal
+(multi-producer session state), network-path (AP-side), or
+thingino-prudynt behavior common to all builds. The five frozen
+cams span both APs and both subnets -- AP-side shared cause
+weakened but not dead.
+
+Scar: the thinking-loop guard aborted this cycle's reasoning once
+(16k cap). Ratio now 10 legit / 4 runaway-class. The machinectl +
+podman exec + sh -c nesting cost ~8 calls in quoting failures
+before the base64 file-dump pattern stabilized it -- that pattern
+(container file -> base64 -> local decode -> python parse) is the
+reliable shape for container-internal state inspection.
+
+Budget part 2: ~20 min wall, ~55 calls. Total c126: ~30 min, ~90
+calls. The 4-min sleep to watch the heal land was the right call --
+the falsifier's resolution was worth the wall time.

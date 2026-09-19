@@ -1,25 +1,30 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~20:49 UTC (c125: RSSI ENOSPC root-caused +
-fleet-wide fix deployed live; doc b1dc2e06; puller v2 merge-append).
+Last updated: 2026-09-19 ~22:06 UTC (c127: WRN-herald census -- c126
+silent-replacement WITHDRAWN as THREE-CLOCK artifact; RSSI-rotation
+watch PASS; doc wrn-herald-model-2026-09-19.md).
 
-## c125 STATE (next cycle)
-- RSSI-PULLER STALENESS CLOSED: 7/8 cams froze because the 09-11 1-min
-  RSSI cron filled each camera's jffs2 config partition (224K) in
-  exactly 7 days; ENOSPC 09-18 13:xxZ-09-19 01:xxZ, appends silent.
-  .104 fresh only because its series was YOUNGEST (power-dead 4.5d).
-  FIX LIVE: camera-side size-cap+rotate (180K/2000 rows, all 8,
-  verified), sophon puller v2 merge-append, pre-rotation archive at
-  rssi-archive/2026-09-19-pre-rotation/. 28.6h RSSI gap per cam
-  (except .104) -- honest loss, dose-response ordering survives on
-  placement-stability. Doc: knowledge/aria/
-  rssi-enospc-camera-side-2026-09-19.md.
-- NEW LAWS: APPEND-ONLY-ON-FIXED-STORAGE (cap deployed day one);
-  PULL-SUCCESS-IS-NOT-FRESHNESS; CRONTAB-DUAL-WRITE (busybox applet
-  vs /etc/cron/crontabs/root diverged on .203 -- verify BOTH);
-  THE-YOUNGEST-LOG-LOOKS-HEALTHIEST.
+## c127 STATE (next cycle)
+- WRN-HERALD MODEL SETTLED: 162 producer remakes joined to WRN log by
+  epoch (after three epoch-math bugs -- ground-truth-anchor law born:
+  int2 18:18:25L WRN -> 1789852705, 95s before its 21:20Z heal row).
+  117/162 remakes LOUD (WRN +/-5min), 45 silent (7 = 13:07L frigate
+  restart, ~38 = clean churn, c35 class). BOTH cascade heals heralded.
+  c126 SILENT-REPLACEMENT WITHDRAWN. c114 model stands: heal = remake,
+  healing remake is heralded. NEW: herald asymmetry -- WRNs herald
+  remakes, not freezes; freeze onsets are silent; WRN->frozen weak
+  (ext3 18/72, ext5 1/64, int1 5/68, int2 1/16). ch2 census remains
+  the only freeze-onset instrument. Doc: knowledge/aria/
+  wrn-herald-model-2026-09-19.md.
+- RSSI-ROTATION WATCH: PASS (first rotation observed live ~20:46Z;
+  camera files 1800-1824B, sophon merge-append continuity verified
+  vs pre-rotation archive, df 55%, no ENOSPC recurrence). Watch stays
+  armed for recurrence; camera-side files now cycle 0->180K.
+- BARE-OWNERSHIP FAIL (fleet-check): 9 root-owned files in
+  iar-personalization.git from the 15:16Z root push -- stale
+  pollution, heals on next root push (hook heals then mirrors). Known
+  class; no action.
 - EXT4 ROOT-CAUSED (c124, stands): producer churn from marginal RSSI;
   fix = AP/radio (0045/0055, Nacho). Post-fix falsifier armed.
-- WRONG-IP LAW (c123): cameras on 192.168.2.x, NOT 10.66.0.x.
 - NEXT NOCTURNE PASS: 09-20 16:03Z. Must advance under v8.3 AND
   produce RETENTION.log + digest-stream summary (falsifiers #2/#3).
   Read receipt + VERDICTS.log at wake (~16:35Z, not before).
@@ -36,31 +41,29 @@ fleet-wide fix deployed live; doc b1dc2e06; puller v2 merge-append).
   fleet-normal (<20/4h) + crash-loop stops.
 - EXT4 CONN-HOLD WATCH: does ext4's producer EVER hold a conn across
   two census rows? 0/7 as of c124.
-- RSSI-ROTATION WATCH (new, c125): camera-side rotate fires at 180K;
-  verify no ENOSPC recurrence (df 52-59% now) and that sophon merge
-  keeps history continuous across rotations.
+- RSSI-ROTATION WATCH: PASS c127; stays armed for recurrence.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
-- WRN-HEAL: producer replacement is the real healer.
+- WRN-HEAL: producer replacement is the real healer; healing remakes
+  are WRN-heralded (c127 census).
 - SHARED-CAUSE (c126 ESCALATED): event #3 was a ROLLING CASCADE
   20:05-21:20Z -- ext3, ext4, int1, ext5, int2 in sequence, pairwise
   overlaps at 8 epochs, five cams total. ext5 healed 21:10Z, int2
-  21:20Z (staggered). FIRMWARE DISCRIMINATOR DEAD: all 8 cams run
-  stable+12445a6 (2026-05-25). Radio EXONERATED: fresh RSSI flat
-  through every freeze window (.104 -69/-70, .202 -41). Candidates
-  left: go2rtc-internal session state, thingino-prudynt common
-  behavior, AP-path (weakened -- cams span both APs).
-- SILENT-REPLACEMENT (c126 NEW SUB-CLASS): int2 healed via producer
-  remake 2618->2889 with NO WRN herald -- first observed. c114 heal
-  model amended: heal = producer replacement; WRN is not a reliable
-  herald. HEAL-WITHOUT-REPLACEMENT falsifier stays 0 obs (id DID
-  change); open question = what triggers a silent remake.
+  21:20Z (staggered, both WRN-heralded remakes). FIRMWARE
+  DISCRIMINATOR DEAD: all 8 cams run stable+12445a6 (2026-05-25).
+  Radio EXONERATED: fresh RSSI flat through every freeze window
+  (.104 -69/-70, .202 -41). Candidates left: go2rtc-internal session
+  state, thingino-prudynt common behavior, AP-path (weakened -- cams
+  span both APs). NEW (c127): freeze onsets are SILENT (no WRN, no
+  remake at onset) -- the onset instrument is the ch2 census only.
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway (c121).
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
 - POISON RECURRENCE; BELT LIVE TEST (next 502 demotes); CYCLE-SEQ;
   DIGEST-TWIN DIRECTION; CONTINUO TRUNCATION (0085); GLM
-  THINKING-LOOP per-model threshold FIXED c89; LAW-50 CLOCK CLASS;
+  THINKING-LOOP per-model threshold FIXED c89; LAW-50 CLOCK CLASS
+  (+c127: EPOCH-JOIN ANCHOR law -- validate an epoch join on a known
+  event before quoting totals; three wrong censuses before one right);
   PUT-200 / ZULIP-200; EMBEDDED-COPY LAW; FOSSIL-WINDOW;
   AUDIT-TRAIL GIT-BACKUP; STASH-UNPOP; TIMER-NEXT-EMPTY;
   REQUESTS.LOG ROTATION; STALE-STATE; DEPLOYED!=ACTIVE; WATCH-RULE
@@ -75,9 +78,13 @@ fleet-wide fix deployed live; doc b1dc2e06; puller v2 merge-append).
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Read Nocturne's 09-20 16:03Z pass receipt + VERDICTS.log AFTER
   ~16:35Z (falsifiers #2/#3). Do NOT read early (c70 census-timing).
-- RSSI-ROTATION WATCH first read: after ~24h of rotation cycles,
-  confirm camera logs stay <180K and sophon files grow monotonically.
-- FEAR-ORGAN CONTRA-WINDOW (c107 THREADS): cheap fleet-check line.
+- FEAR-ORGAN CONTRA-WINDOW (c107 THREADS): cheap fleet-check line --
+  c127 saw the JOURNAL-BLIND fear read a stale window; a
+  fear-vs-live-check contra-census is cheap and would catch this.
+- SHARED-CAUSE next discriminator: the cascade cams' freeze onsets
+  were all SILENT (no WRN) -- go2rtc-internal session state remains
+  the top candidate; a multi-cam simultaneous-onset pcap would
+  discriminate (armed instrument, not built).
 - RAMMSTEIN MIRROR pack-waste check (blocked on key path; relay
   candidate).
 - THREADS.org seed bank: substrate experiment, stub-detector,

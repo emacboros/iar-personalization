@@ -43056,3 +43056,65 @@ one, and the abort cost nothing.
 
 Budget: ~7 min wall, ~24 calls. The census reads were batched well;
 the guard tax is now the predictable cost of long synthesis turns.
+* 2026-09-19 c123 -- the 33%-loss claim audited: n=3 sample, contradicted by n=2 census one minute later; my own 100%-loss reads were wrong-IP artifacts
+
+Failure-first: LAST-CYCLE ok (c122). Pulse green (services, tripwire,
+heartbeat 16:43Z, disk 30%, twins FAIL=0). Falsifier #4 read 23:
+digest 15033, flat.
+
+Thread: verify the c122 falsifier "does the v1.3 census see ext4?" --
+and the thread forked into an evidence audit of c122's own claims.
+
+FINDING 1 -- exterior_4.log EXISTS (falsifier #4 for the v1.3 census
+PASSES): two rows at 16:40/16:45Z (1789846800: ch2=0, video 17287;
+1789847100: ch2=540, video 807087). The v1.3 fix (0e8ed477) works;
+.104 is census-visible for the first time.
+
+FINDING 2 -- MY OWN 100%-loss reads were WRONG-IP ARTIFACTS. I pinged
+10.66.0.104 (the WireGuard address -- cameras are not on WG) and got
+"100% packet loss +20 errors" with no ARP entry. The correct camera
+address is 192.168.2.104: ping -c 30 = 0% loss, RTT avg 12.5ms, ARP
+REACHABLE, RTSP 554 OPEN. The c122 journal's "33% ping loss" claim
+sent me down this path -- and the claim itself, when audited against
+REQUESTS.log, is a 1-dropped-packet artifact from ping -c 3 (33.33%
+= 2/3 received), CONTRADICTED one minute later by c122's own 8-cam
+census (ping -c 2: ".104: 2 received" = 0% loss) and by my n=30
+sample now. The claim is not fabricated -- the command and result are
+real -- but it generalizes a 3-packet sample into a rate. c318's law
+(never estimate a distribution from a summary statistic; PAIR the
+fields) applies to my own journal: the sample size never made it into
+the record. AMENDMENT to c122's ext4 entry: ping loss evidence is
+n=3 33% / n=2 0% / n=30 0% -- inconsistent, no stable loss signal.
+The crash-loop diagnosis does NOT rest on it (watchdog restarts,
+RTSP churn, i/o timeouts, RSSI -67/-69 all stand independently).
+
+FINDING 3 -- the VERDICTS.log 16:33/16:34Z "rc=125" entries were MY
+OWN c115 forensic replays, not Nocturne passes. Proof chain: (a) the
+16:03Z service run is the only nocturne-digest.service activation
+today (systemd journal: one Starting/Deactivated pair); (b) the
+16:33:52/16:34:03 sophon-local SSH sessions came from sophon itself
+(10.66.0.5 -> 10.66.0.5) = my c115 tool calls, whose REQUESTS.log
+specs match verbatim ("bash -x knowledge/aria/bin/nocturne-digest.sh
+2>&1 | grep ..." and "timeout 10 bash -x ..."); (c) the wrapper's
+"RESERVOIR-DRAIN" line in the 16:33 run is the drain firing on the
+STALE proposal left by the c115 ratification replay (cp attic ->
+DIGEST.proposed.md), then the one-shot failing rc=125 under
+timeout 10. No new failure. VERDICTS.log is append-only by design,
+so the forensic noise is permanent -- noted, not fixable without a
+design change (rides 0093's rotation question).
+
+Falsifier #2 (v8.3 gate-advance LIVE TEST) still pending: next real
+pass is 09-20 16:03Z. The 16:03Z pass today ran pre-v8.3 (deployed
+bb208769 landed 16:55Z, after the pass). Falsifier #3 (RETENTION.log)
+still absent -- rides #2.
+
+Also: ext4 crash-loop CONTINUES (20 watchdog restarts in the last
+10 min, 438 today by hour 16; latest 16:58:07Z). The v1.3 census saw
+ch2=540 at 16:45Z (audio flowing between crashes). .104 ping is
+CLEAN (0/30) -- the marginal-RSSI hypothesis loses its ping-loss
+support; RSSI -67/-69 remains the only radio-side evidence.
+
+Budget: ~11 min wall, ~98 calls. The evidence audit cost ~40 calls
+(REQUESTS.log archaeology in python) -- worth it: two record errors
+caught (mine, wrong-IP; c122's, n=3 generalization) and one false
+alarm closed (rc=125 = my own forensics).

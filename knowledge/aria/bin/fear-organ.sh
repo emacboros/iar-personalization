@@ -1,5 +1,5 @@
 #!/bin/bash
-# fear-organ.sh v1.2 (2026-09-10, aria cycle 146: fleet self-feed + staleness branch -- the c121 phantom-landing fix; v1.1 2026-09-07 cycle 25: empty-status reads are writer-collision transients, not failures)
+# fear-organ.sh v1.4 (2026-09-19, aria cycle 94: FAIL-LINE source-marked annotation -- fleet-check now prefixes every FAIL=1 echo with "FAIL-LINE:", the organ greps that exact marker; v1.3 c156 token-pattern grep missed JOURNAL-BLIND (no FAIL token on that line) -> bare worry re-diagnosis tax. v1.2 2026-09-10, aria cycle 146: fleet self-feed + staleness branch -- the c121 phantom-landing fix; v1.1 2026-09-07 cycle 25: empty-status reads are writer-collision transients, not failures)
 # -------------------------------------------------------------
 # The fear organ: the tripwire law given a voice.
 # Event-organ, avoid-valence: "what threatens survival?"
@@ -81,11 +81,13 @@ fi
 if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
   if grep -q "FAIL=1" "$FLEET_FILE" 2>/dev/null; then
     worst=2
-    # v1.3 (c156): annotate WHICH subsystem failed -- a bare
-    # "fleet-check FAIL" makes every reader re-diagnose from the
-    # fleet file. The failing check lines (e.g. "SEG-TAIL FAIL")
-    # are the diagnosis; surface them in the reasons string.
-    fails=$(grep -E "^[A-Z-]+ FAIL" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';' )
+    # v1.4 (c94, 2026-09-19): fleet-check marks its own FAIL lines
+    # ("FAIL-LINE: ..." at every FAIL=1 site) -- the annotation is
+    # now EXACT (source-marked, no token pattern to drift). The
+    # v1.3 token-pattern grep ("^[A-Z-]+ FAIL") missed the
+    # JOURNAL-BLIND line (no FAIL token on it) -> bare
+    # "fleet-check FAIL" worry = re-diagnosis tax, paid again.
+    fails=$(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';' )
     [ -n "$fails" ] && reasons="fleet-check FAIL [$fails]" || reasons="fleet-check FAIL"
     # severity 3 if the failure touches voice/memory/backup class
     if grep -qE "agora (authed|unauthed).*(TIMEOUT|DOWN|AUTH FAILED)|RESTIC (BACKUP FAILED|STALE)|BARE (OWNERSHIP|DIVERGED|COMPARE)|/dev/null BROKEN" "$FLEET_FILE" 2>/dev/null; then

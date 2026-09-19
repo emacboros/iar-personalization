@@ -253,7 +253,7 @@ echo "-- /dev/null canary --"
 nulf=$(stat -c '%F' /dev/null 2>/dev/null)
 nudev=$(stat -c '%t:%T' /dev/null 2>/dev/null)
 if [ "$nulf" != "character special file" ] || [ "$nudev" != "1:3" ]; then
-  echo "/dev/null BROKEN: ${nulf:-missing} dev=${nudev:-none} -- sshd/podman/systemd degrade silently when this is wrong"
+  echo "FAIL-LINE: /dev/null BROKEN: ${nulf:-missing} dev=${nudev:-none} -- sshd/podman/systemd degrade silently when this is wrong"
   FAIL=1
 else
   echo "/dev/null ok (char 1:3)"
@@ -263,7 +263,7 @@ fi
 echo "-- git bare health --"
 rootowned=$(find /home/git/repos -user root 2>/dev/null | wc -l)
 if [ "$rootowned" -gt 0 ]; then
-  echo "BARE OWNERSHIP: $rootowned root-owned files in /home/git/repos -- git-user mirror pushes will fail silently"
+  echo "FAIL-LINE: BARE OWNERSHIP: $rootowned root-owned files in /home/git/repos -- git-user mirror pushes will fail silently"
   FAIL=1
 else
   echo "bare ownership ok (0 root-owned)"
@@ -271,10 +271,10 @@ fi
 sb=$(git -C /home/git/repos/iar-personalization.git -c safe.directory='*' rev-parse refs/heads/main 2>/dev/null)
 rb=$(cd /tmp && runuser -u git -- env HOME=/home/git timeout 20 git ls-remote git@10.66.0.1:/home/git/repos/iar-personalization.git refs/heads/main 2>/dev/null | cut -f1)
 if [ -z "$sb" ] || [ -z "$rb" ]; then
-  echo "BARE COMPARE FAIL (sophon=$sb rammstein=$rb)"
+  echo "FAIL-LINE: BARE COMPARE FAIL (sophon=$sb rammstein=$rb)"
   FAIL=1
 elif [ "$sb" != "$rb" ]; then
-  echo "BARE DIVERGED: sophon=$sb rammstein=$rb -- mirror leg broken, push from a clone to re-sync"
+  echo "FAIL-LINE: BARE DIVERGED: sophon=$sb rammstein=$rb -- mirror leg broken, push from a clone to re-sync"
   FAIL=1
 else
   echo "bares in sync ($sb)"
@@ -295,11 +295,11 @@ APSITE=https://agora.randazzo.ar
 apcode=$(timeout 15 curl -s -o /dev/null -w '%{http_code}' "$APSITE/api/v1/messages?anchor=newest&num_before=1&num_after=0" 2>/dev/null)
 case "$apcode" in
   200|400|401|403) echo "agora unauthed GET: HTTP $apcode (app server alive)" ;;
-  000) echo "agora unauthed GET: TIMEOUT/UNREACHABLE"; FAIL=1 ;;
-  *) echo "agora unauthed GET: HTTP $apcode -- unexpected"; FAIL=1 ;;
+  000) echo "FAIL-LINE: FAIL-LINE: agora unauthed GET: TIMEOUT/UNREACHABLE"; FAIL=1 ;;
+  *) echo "FAIL-LINE: FAIL-LINE: agora unauthed GET: HTTP $apcode -- unexpected"; FAIL=1 ;;
 esac
 if [ ! -r "$APCONF" ]; then
-  echo "agora authed GET: keyfile $APCONF unreadable -- cannot verify primary signal, FAILING CLOSED"; FAIL=1
+  echo "FAIL-LINE: agora authed GET: keyfile $APCONF unreadable -- cannot verify primary signal, FAILING CLOSED"; FAIL=1
 else
   APKEY=$(awk -F'= *' '$1 ~ /^key *$/ {sub(/\r$/,"",$2); print $2; exit}' "$APCONF")
   APBODY=$(mktemp) || APBODY=/dev/null
@@ -318,16 +318,16 @@ except Exception:
     if [ "$apresult" = "success" ]; then
       echo "agora authed GET: HTTP 200 result=success -- voice channel HEALTHY"
     else
-      echo "agora authed GET: HTTP 200 but result=$apresult -- API-level problem"; FAIL=1
+      echo "FAIL-LINE: agora authed GET: HTTP 200 but result=$apresult -- API-level problem"; FAIL=1
     fi
   elif [ "$apcode" = "000" ]; then
-    echo "agora authed GET: TIMEOUT/UNREACHABLE"; FAIL=1
+    echo "FAIL-LINE: agora authed GET: TIMEOUT/UNREACHABLE"; FAIL=1
   elif [ "$apcode" = "401" ] || [ "$apcode" = "403" ]; then
-    echo "agora authed GET: HTTP $apcode -- AUTH FAILED (key revoked? identity broken?)"; FAIL=1
+    echo "FAIL-LINE: agora authed GET: HTTP $apcode -- AUTH FAILED (key revoked? identity broken?)"; FAIL=1
   elif [ "$apcode" = "429" ]; then
-    echo "agora authed GET: HTTP 429 -- rate limited (redis limiter ALIVE; back off)"; FAIL=1
+    echo "FAIL-LINE: agora authed GET: HTTP 429 -- rate limited (redis limiter ALIVE; back off)"; FAIL=1
   else
-    echo "agora authed GET: HTTP $apcode -- VOICE CHANNEL DOWN (redis MISCONF / app / proxy class)"; FAIL=1
+    echo "FAIL-LINE: agora authed GET: HTTP $apcode -- VOICE CHANNEL DOWN (redis MISCONF / app / proxy class)"; FAIL=1
   fi
 fi
 
@@ -396,7 +396,7 @@ for cam in $CAMERAS; do
     if echo " $KNOWN_SEG " | grep -q " $cam "; then
       echo "$cam NO-SEGMENT (known-fault power-dead, watch state; power cycle pending)"
     else
-      echo "$cam NO-SEGMENT"; FAIL=1
+      echo "FAIL-LINE: $cam NO-SEGMENT"; FAIL=1
     fi
     continue
   fi
@@ -409,7 +409,7 @@ for cam in $CAMERAS; do
     if echo " $KNOWN_SEG " | grep -q " $cam "; then
       echo "$cam STALE(${age}s) (known-fault power-dead, watch state; power cycle pending)"
     else
-      echo "$cam STALE(${age}s)"; FAIL=1
+      echo "FAIL-LINE: $cam STALE(${age}s)"; FAIL=1
     fi
   fi
   # v2.16 audio verdict: probe the 3-segment window. noaudio counts
@@ -430,18 +430,18 @@ for cam in $CAMERAS; do
     [ -n "$mv_db" ] && { last_mv="$mv_db"; last_mx="$mx_db"; }
   done
   if [ "$nprobe" -eq 0 ]; then
-    echo "$cam age=${age}s PROBE-EMPTY (segs list empty)"; FAIL=1
+    echo "FAIL-LINE: $cam age=${age}s PROBE-EMPTY (segs list empty)"; FAIL=1
   elif [ "$noaudio" -eq "$nprobe" ]; then
     # ALL sampled segments lack audio = real deafness (or known-deaf)
     DEAD_AUDIO="$DEAD_AUDIO $cam"  # v2.24: feed the 1b detector
     if echo " $KNOWN_DEAF " | grep -q " $cam "; then
       echo "$cam age=${age}s NO-AUDIO (known-deaf, watch state; $noaudio/$nprobe dead)"
     else
-      echo "$cam age=${age}s NO-AUDIO ($noaudio/$nprobe segments dead)"; FAIL=1
+      echo "FAIL-LINE: $cam age=${age}s NO-AUDIO ($noaudio/$nprobe segments dead)"; FAIL=1
     fi
   elif echo " $KNOWN_DEAF " | grep -q " $cam " && [ -n "$last_mv" ]; then
     # v2.13 contract preserved: RECOVERY on a known-deaf cam fails loudly
-    echo "$cam RECOVERED: audio present again (mean/max: $last_mv dB $last_mx dB) -- update KNOWN_DEAF, withdraw flags"; FAIL=1
+    echo "FAIL-LINE: $cam RECOVERED: audio present again (mean/max: $last_mv dB $last_mx dB) -- update KNOWN_DEAF, withdraw flags"; FAIL=1
   elif [ -n "$last_mv" ]; then
     # healthy audio in the window (partial stubs reported inline)
     if [ "$noaudio" -gt 0 ]; then
@@ -452,7 +452,7 @@ for cam in $CAMERAS; do
   else
     # audio streams present with samples but no mean_volume parsed:
     # unhandled shape, fail closed (v2.13 discipline)
-    echo "$cam age=${age}s VOLUME-UNPARSED (samples>0, no mean_volume)"; FAIL=1
+    echo "FAIL-LINE: $cam age=${age}s VOLUME-UNPARSED (samples>0, no mean_volume)"; FAIL=1
   fi
 done
 
@@ -509,7 +509,7 @@ print(json.dumps(out))'
         # CLASS A: producer audio flowing, recorder segments dead -> recorder lost its track
         NEW_DEAD="$NEW_DEAD $cam"; runs=${PREV_RUNS[$cam]:-0}
         if [ "$runs" -ge 1 ]; then
-          echo "$cam RECORDER-AUDIO-DEAD ($((runs+1)) consecutive): producer audio FLOWING (delta=${adelta}B/4s, video ${vdelta}B) but recorder segments have 0 samples -- recorder lost its audio track; heal = producer replacement (camera cron reboot) or go2rtc restart. See knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md"; FAIL=1
+          echo "FAIL-LINE: $cam RECORDER-AUDIO-DEAD ($((runs+1)) consecutive): producer audio FLOWING (delta=${adelta}B/4s, video ${vdelta}B) but recorder segments have 0 samples -- recorder lost its audio track; heal = producer replacement (camera cron reboot) or go2rtc restart. See knowledge/aria/ext5-audio-death-mechanism-2026-09-15.md"; FAIL=1
         else
           echo "$cam recorder-audio-death WATCH (run 1): producer audio flowing (delta=${adelta}B/4s), recorder segments 0 samples -- 2nd consecutive run = RECORDER-AUDIO-DEAD"
         fi
@@ -519,7 +519,7 @@ print(json.dumps(out))'
         # (rssi puller still gets rows). Heal = producer replacement too.
         NEW_DEAD="$NEW_DEAD $cam"; runs=${PREV_RUNS[$cam]:-0}
         if [ "$runs" -ge 1 ]; then
-          echo "$cam PRODUCER-AUDIO-FROZEN ($((runs+1)) consecutive): producer audio STUCK (delta=${adelta}B/4s) while video flows (${vdelta}B) -- go2rtc producer audio receiver froze; camera healthy; heal = producer replacement (camera cron reboot) or go2rtc restart. See knowledge/aria/ext1-producer-audio-freeze-2026-09-15.md"; FAIL=1
+          echo "FAIL-LINE: $cam PRODUCER-AUDIO-FROZEN ($((runs+1)) consecutive): producer audio STUCK (delta=${adelta}B/4s) while video flows (${vdelta}B) -- go2rtc producer audio receiver froze; camera healthy; heal = producer replacement (camera cron reboot) or go2rtc restart. See knowledge/aria/ext1-producer-audio-freeze-2026-09-15.md"; FAIL=1
         else
           echo "$cam producer-audio-freeze WATCH (run 1): producer audio stuck (delta=${adelta}B/4s), video flowing (${vdelta}B), recorder segments 0 samples -- 2nd consecutive run = PRODUCER-AUDIO-FROZEN"
         fi
@@ -575,7 +575,7 @@ if [ -d "$CH2_DIR" ]; then
       *"FROZEN"*)
         # epoch cam ch2 ch0 bytes FROZEN -- freeze live at last census
         age=$(( $(date +%s) - $(echo "$row" | awk '{print $1}') ))
-        echo "CH2-FROZEN FAIL ($cam ch2=0 at last census, ${age}s ago -- camera-side audio track dropped, relay 0073 class)"; FAIL=1
+        echo "FAIL-LINE: CH2-FROZEN FAIL ($cam ch2=0 at last census, ${age}s ago -- camera-side audio track dropped, relay 0073 class)"; FAIL=1
         ;;
       *)
         # healthy row: report only if the cam was FROZEN in the previous row (heal witness)
@@ -607,7 +607,7 @@ $P exec frigate sh -c "mkdir -p $WDIR && rm -f $WDIR/*.jpg /media/frigate/aria_w
 
 # 2a. direct grab of .101 (container ffmpeg: host ffmpeg lacks hevc)
 grab=$($P exec frigate sh -c "timeout 25 /usr/lib/ffmpeg/7.0/bin/ffmpeg -y -loglevel error -rtsp_transport tcp -i 'rtsp://thingino:thingino@192.168.2.101/ch0' -frames:v 1 $WDIR/direct.jpg && cp $WDIR/direct.jpg /media/frigate/aria_watch_direct.jpg && echo OK" 2>/dev/null)
-if [ "$grab" != "OK" ]; then echo "DIRECT-GRAB FAIL (is .101 up?)"; FAIL=1; fi
+if [ "$grab" != "OK" ]; then echo "FAIL-LINE: DIRECT-GRAB FAIL (is .101 up?)"; FAIL=1; fi
 
 # 2b. ext1 newest segment tail (host path -> container path)
 n=$(find $R/$TODAY -path "*exterior_1*" -name "*.mp4" 2>/dev/null | sort | tail -1)
@@ -637,7 +637,7 @@ if [ -n "$n" ]; then
     if [ -n "$KNOWN_FAULT_EXT1_SEG" ]; then
       echo "SEG-TAIL (known-fault ext1 timestamp poison, watch state; aria-0028 pending)"
     else
-      echo "SEG-TAIL FAIL"; FAIL=1
+      echo "FAIL-LINE: SEG-TAIL FAIL"; FAIL=1
     fi
   elif [ "$segpoisoned" = "1" ]; then
     # v2.19: decodes clean but duration metadata is poisoned. This is
@@ -647,7 +647,7 @@ if [ -n "$n" ]; then
     if [ -n "$KNOWN_FAULT_EXT1_SEG" ]; then
       echo "SEG-TAIL (known-fault ext1 timestamp poison, watch state; aria-0028 pending)"
     else
-      echo "SEG-TAIL FAIL (timestamp poison returned: duration=$segdur)"; FAIL=1
+      echo "FAIL-LINE: SEG-TAIL FAIL (timestamp poison returned: duration=$segdur)"; FAIL=1
     fi
   else
     # v2.20: sane + flag = the sane half of the poison sawtooth, not a
@@ -660,7 +660,7 @@ if [ -n "$n" ]; then
     fi
   fi
 else
-  echo "SEG-TAIL FAIL (no ext1 segment)"; FAIL=1
+  echo "FAIL-LINE: SEG-TAIL FAIL (no ext1 segment)"; FAIL=1
 fi
 # 2c. wait for host-side visibility of the copied frames, then
 #     vision read both, compare overlay cam names.
@@ -672,8 +672,8 @@ wait_file() {
 }
 if [ "$grab" = "OK" ] && [ "${tail:-}" = "OK" ]; then
   HD=/home/nacho/containers/frigate/storage
-  if ! wait_file $HD/aria_watch_direct.jpg; then echo "DIRECT-JPG NOT VISIBLE ON HOST"; FAIL=1; fi
-  if ! wait_file $HD/aria_watch_seg.jpg;    then echo "SEG-JPG NOT VISIBLE ON HOST"; FAIL=1; fi
+  if ! wait_file $HD/aria_watch_direct.jpg; then echo "FAIL-LINE: DIRECT-JPG NOT VISIBLE ON HOST"; FAIL=1; fi
+  if ! wait_file $HD/aria_watch_seg.jpg;    then echo "FAIL-LINE: SEG-JPG NOT VISIBLE ON HOST"; FAIL=1; fi
 fi
 if [ -f /home/nacho/containers/frigate/storage/aria_watch_direct.jpg ] && [ -f /home/nacho/containers/frigate/storage/aria_watch_seg.jpg ]; then
   python3 - <<'EOF'
@@ -709,16 +709,16 @@ try:
         if dc[0].lower() == sc[0].lower():
             print(f"VERDICT: MATCH ({dc[0]}) -- no race")
         else:
-            print(f"VERDICT: RACE -- direct={dc[0]} frigate={sc[0]}")
+            print(f"FAIL-LINE: VERDICT: RACE -- direct={dc[0]} frigate={sc[0]}")
             sys.exit(1)
     else:
-        print("VERDICT: VISION-UNCLEAR (no overlay name parsed)")
+        print("FAIL-LINE: VERDICT: VISION-UNCLEAR (no overlay name parsed)")
         sys.exit(1)
 except Exception as e:
-    print(f"VERDICT: VISION-FAIL ({e})")
+    print(f"FAIL-LINE: VERDICT: VISION-FAIL ({e})")
     sys.exit(1)
 EOF
-  [ $? -ne 0 ] && FAIL=1
+  [ $? -ne 0 ] && { echo "FAIL-LINE: IDENTITY-WATCH python failed (no verdict line)"; FAIL=1; }
 fi
 
 # cleanup: same-run, both sides
@@ -738,13 +738,13 @@ rres=$(systemctl show restic-backup.service -p Result --value 2>/dev/null)
 rexit=$(systemctl show restic-backup.service -p ExecMainStatus --value 2>/dev/null)
 rlast=$(systemctl show restic-backup.timer -p LastTriggerUSec --value 2>/dev/null)
 if [ "$rres" != "success" ]; then
-  echo "RESTIC BACKUP FAILED: Result=$rres exit=$rexit (last timer fire: $rlast)"
+  echo "FAIL-LINE: RESTIC BACKUP FAILED: Result=$rres exit=$rexit (last timer fire: $rlast)"
   FAIL=1
 else
   # freshness: LastTrigger must be within 26h (daily 00:00 -03 timer)
   age_h=$(( ( $(date +%s) - $(date -d "$rlast" +%s 2>/dev/null || echo 0) ) / 3600 ))
   if [ "$age_h" -gt 26 ]; then
-    echo "RESTIC STALE: last fire $rlast (${age_h}h ago) -- timer may be skipping"
+    echo "FAIL-LINE: RESTIC STALE: last fire $rlast (${age_h}h ago) -- timer may be skipping"
     FAIL=1
   else
     echo "restic ok: Result=success, last fire $rlast (${age_h}h ago)"
@@ -779,7 +779,7 @@ except Exception as e:
 PYEOF
 )
 if [[ "$frev" == ERR* ]]; then
-  echo "FRIGATE DB UNREADABLE: $frev"
+  echo "FAIL-LINE: FRIGATE DB UNREADABLE: $frev"
   FAIL=1
 else
   read -r n24 nint next_ total <<< "$frev"
@@ -787,7 +787,7 @@ else
   if [ "$total" -eq 0 ]; then
     echo "frigate: no events ever -- detector has never produced one (report, not fail)"
   elif [ "$n24" -eq 0 ]; then
-    echo "FRIGATE EVENTS STALE: $total events exist but none in 24h -- detector likely dead"
+    echo "FAIL-LINE: FRIGATE EVENTS STALE: $total events exist but none in 24h -- detector likely dead"
     FAIL=1
   fi
   # exterior-zero is the open longitudinal question (start 2026-09-01 23:41 -03):
@@ -806,12 +806,12 @@ echo "-- journal freshness --"
 JDIR=/var/log/journal/$(cat /etc/machine-id 2>/dev/null)
 NEWEST=$(stat -c "%Y" "$JDIR"/system*.journal 2>/dev/null | sort -rn | head -1)
 if [ -z "$NEWEST" ]; then
-  echo "JOURNAL FRESHNESS: no system journal files found at $JDIR"
+  echo "FAIL-LINE: JOURNAL FRESHNESS: no system journal files found at $JDIR"
   FAIL=1
 else
   AGE=$(( $(date +%s) - NEWEST ))
   if [ "$AGE" -gt 1800 ]; then
-    echo "JOURNAL STALE: newest system journal mtime ${AGE}s ago (>30min) -- journald wedged?"
+    echo "FAIL-LINE: JOURNAL STALE: newest system journal mtime ${AGE}s ago (>30min) -- journald wedged?"
     FAIL=1
   else
     echo "journal ok: newest system journal ${AGE}s old"
@@ -822,7 +822,7 @@ fi
 # active rate-limit is a fake-clean record. Epoch math only (c234 law).
 DROPS=$(journalctl -u rsyslog --since "-30 min" --no-pager 2>/dev/null | grep -c "begin to drop messages due to rate-limiting")
 if [ "$DROPS" -gt 0 ]; then
-  echo "JOURNAL-BLIND: rsyslog rate-limit dropped journal lines x$DROPS in last 30min -- journal-derived reads are FAKE-CLEAN"
+  echo "FAIL-LINE: JOURNAL-BLIND: rsyslog rate-limit dropped journal lines x$DROPS in last 30min -- journal-derived reads are FAKE-CLEAN"
   FAIL=1
 else
   echo "journal-blind ok: no rate-limit drops in last 30min"

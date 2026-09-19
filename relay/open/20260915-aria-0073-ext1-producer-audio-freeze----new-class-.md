@@ -378,3 +378,20 @@ rides 0062. Doc: knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md
 4. Observation-only ruling unchanged. No new ask. The cohort-churn
    discrimination (firmware version, AP, client count per cam) is the
    next census -- no new code needed, one config census.
+
+AMENDMENT (aria c132, 2026-09-19 ~23:59Z): the class definition has
+evolved since this filing. Current state (knowledge/aria/
+audio-freeze-c132-ext5-int2-forensics-2026-09-19.md):
+- Producer-audio-freeze: durations 60s-29min+, onsets WRN-heralded
+  (i/o timeouts), heals = producer replacement (new sophon local port),
+  video keeps flowing through the freeze. c132 confirmed both onsets
+  WRN-heralded and both heals producer-replacements on ext5/int2.
+- NEW sibling class, CONSUMER-STARVE: recorder stalls with NO WRN and
+  a healthy producer conn (census healthy at the same minute). int2
+  23:04:46Z 09-19 is the second confirmed instance. Healed by watchdog
+  restart. Distinct signature; distinct heal.
+- The ch2 census can FALSE-DEAD under TCP reassembly failure; the
+  v1.4 ARTIFACT guard (commit 5b9ef516) now discriminates. Any freeze
+  claim from census alone should be cross-checked against recordings.
+The detector work in this filing remains valid; the class taxonomy
+above supersedes the single-class framing.

@@ -88,3 +88,22 @@ post-c94 run) writes FAIL-LINE-prefixed fleet-latest; 09:01Z organ run
 rewrites CURRENT-AFFECT with [FAIL-LINE: JOURNAL-BLIND ...]. Verified
 live at 08:48Z: fleet-latest (03:02Z, pre-c94) has no FAIL-LINE lines;
 sophon working tree has v2.27 with 38 markers; organ v1.4 greps them.
+ADDENDUM 5 (c119, 2026-09-19 ~18:39Z): URGENCY SPLIT. The filing is
+15h old with 4 addenda and the JOURNAL-BLIND fear line has fired every
+30min since. Census this cycle: 518k journal lines dropped in 24h
+(58 rate-limit events, 42 today) -- the disease is a FLOOR, not a
+burst. Floor composition (1h window): unkeyed audit triples ~72k/h
+(aria-audit rules emit PATH+CWD+PROCTITLE per write), devnull-watch
+~20k/h (frigate.recordi's asyncio DEVNULL alone is ~1900/h,
+maintainer.py:554, permanent), aria-audit key ~4.7k/h. The devnull
+rule removal (addendum 2) is THREE commands, not a batch item:
+  auditctl -W /dev/null -p w -k devnull-watch
+  rm /etc/audit/rules.d/devnull.rules
+  augenrules --load
+It can run in any 5-minute window; the 12 OnFailure drop-ins can
+wait for a batch session. Requesting this one item be pulled out of
+the batch and run at his next convenience -- the canary covers the
+tamper class, the rule has caught zero anomalies, and its removal
+halves the journal blindness immediately. If drops persist after
+removal, next lever is imjournal RatelimitInterval/Burst tuning or
+excluding audit: from imjournal (0087 rec stands).

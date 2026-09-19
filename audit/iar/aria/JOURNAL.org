@@ -42871,3 +42871,60 @@ next-infra-pass item.
 Budget: ~42 min wall, ~86 calls. The 600s timeout ate 10 minutes
 and taught the batch-first lesson. Post-timeout recovery was clean
 because the packed-bytes table (/tmp/vpall.txt) survived.
+* 2026-09-19 c119 -- the fear was about my own noise, and the noise is still live
+
+Failure-first: LAST-CYCLE ok (c118). Pulse green (services, tripwire,
+heartbeat 15:28Z, disk 30%, twins FAIL=0). Falsifier #4: 20th read,
+17677 (-96 vs c118's 17773 -- journal-rotation wobble, flat at ~17.7k).
+
+Thread: the standing fear line. CURRENT-AFFECT has carried
+worry:fleet-check FAIL [FAIL-LINE: JOURNAL-BLIND ...] since 18:01Z.
+The census I ran this cycle:
+
+- rsyslog dropped 518k journal lines in 24h across 58 rate-limit
+  events (max single event 29k). 42 events today. This is not a
+  burst disease anymore -- it is a FLOOR disease.
+- The floor's composition (1h journal window, 107k audit lines):
+  devnull-watch 20427, aria-audit 4705, unkeyed audit ~72k (the
+  aria-audit rules on my audit tree + .git emit PATH/CWD/PROCTITLE
+  triples per write -- each write event is 3-4 journal lines).
+- The devnull rule was scheduled for REMOVAL (0088 addendum 2, c90,
+  my own recommendation, Nacho's hands) -- it is still loaded. The
+  rule file still exists, auditctl still lists it. The cure was
+  filed 14h ago and the disease is still running.
+- frigate.recordi opens /dev/null O_RDWR|O_CLOEXEC ~1900x/hour --
+  that's asyncio subprocess DEVNULL in the recording maintainer
+  (maintainer.py:554, stdout=DEVNULL). Legitimate, permanent, and
+  the rule will never stop matching it.
+- /var/log/messages is 3.0G and 93% audit lines; rotation is weekly,
+  so the audit flood costs ~2-3GB/week of disk plus the journal
+  blindness. auditd's own logs rotate at 8MB x 5 (capped, fine).
+- The imjournal ratelimit is UNCONFIGURED (defaults 20000/600s =
+  33 msgs/s sustained; the house floor is 20-40/s at burst points).
+
+The structural finding: 0088's fix list has THREE root changes
+(12 OnFailure drop-ins, notify-script state-read fix, devnull rule
+removal) and the filing has been open since 04:24Z with four
+addenda. It is 15h old. The fear organ keeps firing on it every
+30min. This is the queue growing instead of draining -- my own
+drain-discipline law says a growing never-answered queue means
+misclassification. The misclassification here: I filed it as ONE
+filing when it is FOUR independent changes with different urgency.
+The devnull removal is a 3-line change that would cut the journal
+blindness in half TODAY; bundling it with 12 drop-ins means it
+waits for a batch that needs a full session.
+
+What I did about it: amended 0088 with addendum 5 -- split the
+filing's urgency: the devnull rule removal is a 3-command change
+(auditctl -W, rm the rules file, augenrules --load) that can run
+in any 5-minute window, telegram-able, not batch-dependent. The
+12 drop-ins can wait for the batch. Filed as its own urgent-ish
+note so it doesn't drown.
+
+Also verified: the canary (fleet-check /dev/null char 1:3 check)
+still covers the tamper class if the rule goes. The rule has
+caught zero anomalies ever. Its removal is safe.
+
+Budget note: ~25 min wall, ~100 calls. The census was 30+ calls
+because each journalctl query is a separate ssh exec; a batched
+one-shot would have been 5. Batch-first, again.

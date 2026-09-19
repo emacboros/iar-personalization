@@ -1,127 +1,81 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~01:20 UTC (c81: abort witness SCOPED -- buffer-keyed 92ce1cd; the c80 flag was a rumor without a subject; suite 1344/1344.)
-## c81 STATE (next cycle)
-- ABORT WITNESS SCOPED (c81, 92ce1cd): the c80 flag was GLOBAL -- any
-  gptel-abort set it, only the cycle handler cleared it. A delegate
-  abort during a parent turn leaves it set (delegate Case 0 handles
-  its own abort via START==END, never touches the flag) -> parent's
-  next healthy turn reads a stale abort -> phantom strike; 3 phantoms
-  = cycle ends LOUD on a false positive. LATENT at c80 (fix landed
-  after the 09-18 23:49 reviewer abort; window opens next delegate
-  abort). Fix: iar--reqlog-last-abort-buf records WHICH buffer; cycle
-  branch consumes only own-buffer aborts; foreign aborts are cleared
-  + strikes reset; delegate Case 0 consumes its own witness. 3 new
-  tests, 4 c80 tests updated (they encoded the unscoped shape).
-  Suite 1344/1344. Docs modules.md ddc85513.
-- LAW-SHAPED (c81, THREADS.org): a witness must identify its SUBJECT;
-  an unscoped witness is a rumor. Third-instance candidate: shared
-  last-request state (last-stop/tokens-out) is also global -- parent
-  handler usually reads its own state (parent waits for delegate),
-  but a delegate completing between the parent's dump and its
-  post-response hook is a tight race. Clean fix family: buffer-keyed
-  last-request state map. NOT built -- abort witness was the killer;
-  the rest is a seed in THREADS.org.
-- CENSUS CORRECTION (c81): the c80 "22 aborts all re-prompted with
-  STANDARD continue" claim VERIFIED against primary evidence for the
-  live-fire pair (-54/-55 START tails carry std-continue, zero
-  abort-aware text). Self-echo trap scar: grepping REQUESTS.log for
-  strings my own session echoes matches MY OWN PARSE lines -- filter
-  by timestamp prefix or extract-to-file first.
-## c80 STATE (superseded by c81 above)
-- CYCLE-LEVEL ABORT-AWARE FIX LANDED (c80, 9ceb390): the c71/c79 fix
-  covered the DELEGATE path only. Census: 22 guard-aborted cycle turns
-  in aria's REQUESTS.log (09-18), ALL re-prompted with the STANDARD
-  continue prompt (law 41 violated at cycle level). Worst: 191514 boot,
-  9 aborts in 4 min (19:16-19:20) re-entering the same thinking pattern.
-  Mechanism: aborted turn with partial thinking in buffer takes the
-  SUCCESS path (START < END) -> FAILED-path strike counting never sees
-  it. Fix: iar--reqlog-last-abort flag (set by reqlog's gptel-abort
-  advice, consumed+cleared on read) -> abort-aware branch in the cycle
-  success-path cond, consecutive strikes, cap 2 then end LOUD. Shared
-  prompt moved to shared/iar-agent-utils.el (iar--abort-continue-prompt;
-  delegate.el aliases it). Suite 1341/1341, docs modules.md 99869838.
-- FALSIFIER #6 (ARMED, c80): next guard-aborted CYCLE turn must log
-  "[<agent>] Turn was guard-aborted (strike %d/%d) -- re-prompting with
-  abort-aware prompt" and strikes must stay <=2; a 3rd consecutive
-  abort must end the cycle exit 1 with "past re-prompt cap". Census
-  recipe: grep audit.log for "Turn was guard-aborted" (cycle-level,
-  distinct from delegate's "[delegate] ... strike").
-- GUARD FALSE-POSITIVE CLASS (c79, watch only): all 3 aborts tonight
-  had COHERENT visible thinking (linear synthesis, not loops). Cap
-  caught 2 real runaways + 1 legitimate synthesis with the same bullet.
-  Watch the ratio; if legit-synthesis kills dominate, the cap needs a
-  shape check (repetition detection), not a raise.
-- FALSIFIER #5 RESHAPED WATCH (c79, delegate path): next guard-aborted
-  delegate turn must strike-count + re-prompt regardless of
-  tools-called; bursts must stay <=2.
-- DOCSTRING SCAR (c79): unescaped quotes in a docstring terminate it
-  early and leak the tail as code. check_elisp's "probable quote"
-  warning is the detector -- READ IT. Fixture law 39 extends: strings
-  must survive their own punctuation.
-- c80 SCAR (instrument): check_elisp's "free variable" warnings for
-  cross-module vars are load-path artifacts, not bugs -- but the SUITE
-  is the gate. Bare (defvar x) forward-declarations silence them
-  without clobbering (defvar only binds when void). Two added
-  (iar--abort-continue-prompt, iar--reqlog-last-abort).
-- c80 SCAR (test design): my first branch predicate (stop=nil &&
-  tokens=nil) hijacked 7 existing tests -- nil is also the shape of a
-  reqlog-disabled session. The direct witness (abort advice sets a
-  flag) replaced the inference. Law-shaped: prefer a WITNESS that saw
-  the event over a signature inferred from absence.
-## c79 STATE (superseded detail in git history)
-- FALSIFIER #5 RESOLVED (c79): delegate Case 0 abort detection landed
-  3b6dc8f. Its cycle-level twin landed c80 (above).
-## c78 STATE (superseded detail in git history)
-- JOURNAL-AUDIT DOUBLE-WRITE (c78, relay 0087 answered with census):
-  journal = ~97% audit mirror (~2961 audit-source lines/min of ~3067
-  total; imjournal limit 2000/min). REVISED REC: remove rule AND
-  exclude audit from imjournal. Doc:
-  knowledge/aria/journal-audit-doublewrite-census-2026-09-18.md.
-  Falsifier: JOURNAL-BLIND silent 48h post-fix incl. one continuo
-  marathon. If only rule removed: watch aria-audit growth (40%
-  headroom). AWAITING NACHO (0074 residual flag: steady journal flow
-  ~2000/min is AT the imjournal limit; structural fix = shared
-  rsyslog config, his call).
+Last updated: 2026-09-19 ~01:58 UTC (c82: buffer-keyed-state seed RESOLVED as census -- window empty, invariant documented; falsifier #6 live-fired + PASSED.)
+
+## c82 STATE (next cycle)
+- SEED RESOLVED (c82): the c81 buffer-keyed last-request state seed
+  is CLOSED by census, not by build. All readers/writers enumerated:
+  writers = iar--reqlog-dump + abort-advice + reset-last; readers =
+  cycle handler (3 guards), context fence, msgs fence, delegate Case
+  0 (abort flag only). One-shot reads NONE (uses gptel--fsm-last,
+  buffer-local in the fork -- gptel already scoped that one).
+  VERDICT: parent/delegate requests are STRICTLY SERIALIZED (delegate
+  spawns from a tool call; parent has no in-flight request during the
+  delegate), so the poisoning race is impossible today. The
+  unscoped-witness SHAPE is real but has no live-fire path. Detail:
+  THREADS.org c82 entry. Falsifier: if delegation ever goes async,
+  audit the seed BEFORE shipping that change.
+- FALSIFIER #6 LIVE-FIRED + PASSED (c82, req 260919015032-105): the
+  thinking-loop guard aborted THIS cycle's census turn (16000-char
+  reasoning cap, 01:57:04Z). The c80 abort-aware branch fired:
+  strike 1/2, changed question, cycle continued. Census recipe held
+  (grep audit.log for "Turn was guard-aborted" -- this event is the
+  first real one, prior hits were self-echo).
+- GUARD FALSE-POSITIVE CLASS (c79 watch): FIRST DATA POINT (c82) --
+  the aborted census turn was LEGITIMATE synthesis (reader/writer
+  enumeration), not a loop. Sample now 1 legit / 3 real runaways
+  (09-18) / 1 legit (c82). Ratio watch continues: if legit kills
+  dominate, the cap needs a shape check (repetition detection), not
+  a raise. Note: the cap DID cost this cycle ~1 turn of burn; the
+  abort-aware re-prompt recovered it cleanly.
+- BUDGET NOTE (c82): the same-tool warning fired at call 100
+  (execute_code_local) during the census -- the enumeration-walk tax
+  again. Batched one-shot scans are the fix; the census needed ~30
+  calls, not 100.
+
 ## OPEN FALSIFIERS (the spine)
 - #2: next ~16:03Z Nocturne pass (v8.2 epoch-compare) MUST advance
-  (gate e4d0832d, debt ~1866).
+  (gate e4d0832d, debt ~1465).
 - #3: advance pass must produce RETENTION.log + digest-stream summary
   (D-016).
-- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k. c80 WAKE
-  READ: 16225 (PASS, ratchet ticked DOWN from c79's 16350).
-- #5: delegate-path abort watch (see c79/c80 above).
-- #6: cycle-path abort watch (NEW, c80 -- see c80 STATE).
+- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k. c82 WAKE
+  READ: 16336 (PASS, third hold; intra-boot drift +40/cycle, watch).
+- #5: delegate-path abort watch (c79/c80) -- armed, no live fire.
+- #6: cycle-path abort watch (c80) -- LIVE-FIRED c82, PASSED. Stays
+  armed: strikes must stay <=2, bursts must end LOUD past cap.
 
 ## WATCHES (standing)
+- GUARD FALSE-POSITIVE RATIO: 1 legit (c82) / 3 runaway (09-18).
 - RECEIPT-CLOCK: v8.2 live but UNTESTED IN ANGER; falsifier #2.
 - RETENTION-BRANCH: dead until first advance; falsifier #3.
 - INJECTION-TAIL RATCHET: ~34 tok/h at boot level (~800/day).
 - POISON RECURRENCE: guard landed c52; any refusal = live save.
 - BELT LIVE TEST: next 502 must demote.
-- CYCLE-SEQ: 1 bump/cycle; monotonicity invariant; NOW BELTED (c73).
+- CYCLE-SEQ: 1 bump/cycle; monotonicity invariant; belted (c73).
 - DIGEST-TWIN DIRECTION: DIRECTION line in future DIVERGED alerts.
-- CONTINUO TRUNCATION: post-guard rate (relay 0085); c71 adds:
-  singleton aborts = guard working, bursts = retry pathology.
+- CONTINUO TRUNCATION: post-guard rate (relay 0085); bursts = retry
+  pathology; singleton aborts = guard working.
 - GLM THINKING-LOOP: fires-before-death, not raw fires; burst-size
-  is the signal (c73: 69/day total). Post-c80: cycle-level bursts
-  should cap at 2; watch for the first burst to verify.
+  is the signal. Post-c82: abort-aware re-prompt verified live.
 - LAW-50 CLOCK CLASS: 4th sighting; any new clock-format boundary =
   suspect #1.
 - AUDIT-TRAIL GIT-BACKUP (c69): check git history BEFORE declaring
   data unrecoverable.
-- STASH-UNPOP (c70): git stash list at wake; unpopped = investigate.
-  c71-c80: clean.
+- STASH-UNPOP (c70): git stash list at wake; c71-c82: clean.
 - TIMER-NEXT-EMPTY (c69): rotate.sh owns scheduling; watch only.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Falsifiers #2/#3 read at the next ~16:03Z pass (the spine).
-- THREADS.org review: seed bank not read in several cycles.
+- THREADS.org: the c82 census closed one seed; the seed bank still
+  holds the substrate experiment, the stub-detector, the watchdog
+  inventory, the interlocutor ratification watch.
 - Law-shaped note (c71 item L): parent-logs-carry-what-sub-logs-
-  truncate -- write it as a law with the c71 evidence.
-- c80 law-shaped note: witness-over-inference (see c80 SCAR).
+  truncate -- still unwritten as a law.
+- c82 law-shaped note: an invariant that protects shared state must
+  be WRITTEN where the change that breaks it will land (done --
+  THREADS.org c82).
 
 ## THREADS (open, no obligation)
-- NOCTURNE THROUGHPUT WATCH (c25): cause chain now clock-bug ->
+- NOCTURNE THROUGHPUT WATCH (c25): cause chain clock-bug ->
   truncation; falsifier rides #2.
 - .201 STALL CADENCE (c373): clock chaos rides 0062 + 0080.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
@@ -137,29 +91,5 @@ Last updated: 2026-09-19 ~01:20 UTC (c81: abort witness SCOPED -- buffer-keyed 9
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC), 0073 (ext1
-producer freeze), 0083 (D-016 move grants), 0085 (truncation class
--- c71 census strengthens it). Current open set (8): 0045, 0055,
-0073, 0080, 0081, 0082, 0083, 0085.
-
-* 2026-09-18 c73 (CYCLE-SEQ durability: the belt with a hole)
-
-- Pulse green. Stash clean. LAST-CYCLE ok.
-- Found: CYCLE-SEQ worktree 73 vs HEAD 71. Schema verified first
-  (law 50): bump lives at the action site (iar-run-cycle, c384
-  invariant held, 1 bump/cycle). Disease = durability: belt #2b's
-  iar--audit-record-files never staged CYCLE-SEQ; c72's close
-  commit (65fa64e2) missed the counter.
-- Fix: i.ar b590388 (CYCLE-SEQ in the belt list + test; suite
-  1334/1334); personalization db996991 (seq committed at 73).
-  Both pushed.
-- Second read: 19:16-19:18 aria burst = c70's own cycle-level
-  thinking runaway (0 delegate lines). c72 fix's falsifier still
-  armed; no post-fix guard-aborted delegate turn yet.
-- Law-shaped note: counting right and keeping the count are
-  different belts. A counter bumped at the action site still
-  needs a belt that carries it.
-## c74 ADDENDUM (mtime-touch thread)
-- /root/i.ar/audit/iar/aria/ mtimes all 20:41:37 (3s after c73 close),
-  content == HEAD byte-for-byte, tree is a MARKED FOSSIL (52142bf).
-  No loss. Filed in THREADS.org with falsifier (watch next close;
-  bisect iar.sh close steps if mtimes advance again).
+producer freeze), 0083 (D-016 move grants), 0085 (truncation class).
+Current open set (8): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085.

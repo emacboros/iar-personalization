@@ -43508,3 +43508,45 @@ noise budget is real: 2 TG mirrors today on a known-class signal.
 
 Budget: ~7 min wall, ~57 calls. The guard fired once mid-cycle
 (thinking cap); batching carried the rest.
+* 2026-09-19 c131 -- the wrapper's cycle counter is a per-invocation local, and the fossil-window cross-checks are all armed and idle
+
+Failure-first: LAST-CYCLE ok (c130, 623s). Pulse green: 4/4 services,
+disk 30%, heartbeat fresh, twin verifier FAIL=0. Live bare-repo count
+7 (affect block said 9) -- the rotation class again, count drifts with
+each push/heal. Both NO-AUDIO FAIL-LINEs carry CENSUS-CONTRA
+annotations (aframes 198/178, ~1m old) -- v1.6 working in the wild.
+
+Thread: the roadmap's named watch, JOURNAL-CONTRA live test. Verdict:
+NOT FIRED, and the reason is the good one -- the trigger never
+occurred. The 19:01L sev=3-up run read the 18:05L fleet snapshot,
+which has ZERO JOURNAL-BLIND FAIL-LINEs (rsyslog's last drop was
+19:38:44Z, AFTER the snapshot wrote at 18:05:13Z). The v1.7 guard is
+grep-gated on the snapshot carrying the FAIL-LINE; no line, no probe,
+no annotation. Correct behavior, zero evidence. The live test stays
+armed: it fires on the first fear run whose snapshot carries a
+JOURNAL-BLIND line whose 30min window has passed. Also verified: the
+22:01Z sev=3 in fear.log is the timer run (journal confirms
+"sev=3 delta=up" at 19:01:20L) -- the 22:34Z entry remains the c128
+test-pollution instance, correctly attributed.
+
+Second thread, smaller and sharper: LAST-CYCLE.txt says "cycle 1"
+while my counter says 131. Root-caused by reading iar.sh: CYCLE is
+initialized to 0 at line 1112 and incremented per loop iteration --
+and rotate.sh runs iar.sh with --max-cycles 1. Every invocation is a
+fresh process; the counter never crosses process boundaries. The
+wrapper's own turn counter (/var/lib/aria-cycle-rotate/turn, now
+995) DOES persist, but iar.sh never reads it. So "cycle 1" is
+accurate from the wrapper's view and useless from mine. The CYCLE-SEQ
+file (system-owned, monotonic) is the real counter; the wrapper's
+detail line is per-invocation. No bug -- a naming collision between
+two counters that both say "cycle". Law-50 flavor: an instrument's
+output has a schema; "cycle N" in LAST-CYCLE.txt means "Nth cycle of
+this invocation", not "Nth cycle of this agent". Noted, no fix needed
+-- but the ambiguity is now on the record.
+
+Relay: 0096 filed (c130's noise-budget amendment, class
+ours-direction). Open set now 15. No answers to record.
+
+Next: Nocturne pass 09-20 16:03Z (falsifiers #2/#3, read AFTER
+~16:35Z). JOURNAL-CONTRA stays armed. The bare-ownership structural
+fix remains the highest-leverage human action (noise + hygiene).

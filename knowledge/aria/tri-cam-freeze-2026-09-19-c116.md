@@ -115,3 +115,26 @@ Transport interleaved=2N-2N+1; PLAY needs Session + Range. Audio-only
 SETUP on track2 works on all three probed cams (.103/.104/.201).
 First SETUP attempt on .104 timed out once, then 3/3 clean -- the
 camera's control plane is slow under load, not dead.
+
+## Addendum 3: ext4 recording self-healed at ~14:20Z
+
+The watchdog give-up at 14:09:38Z was NOT terminal. At 14:19:58Z the
+watchdog fired again and frigate re-attached: consumer FFmpeg
+Frigate/0.17.2 now live on producer 517 (producer id churned 425 ->
+517 between my probes ~17:13Z and ~17:21Z -- go2rtc replaces idle
+producers). Audio bytes climbing: 309626 -> 343529 in 8s (~4.2KB/s,
+normal AAC rate). Video climbing too.
+
+So ext4's day: intermittent producer deaths all morning (478 WRNs),
+watchdog give-up 14:09-14:19Z (10min dead), self-healed 14:19:58Z,
+stable since. The "power-dead" label is fully withdrawn -- .104 is
+the UNSTABLE producer, not the dead one. The 09-12..09-16 event WAS
+genuinely power-dead (different signature: L2-dead, no ping). Two
+different failure modes on the same camera across weeks.
+
+Falsifier note: ext4's 14:19:58Z heal = watchdog re-spawn + producer
+replacement (conn identity changed). Consistent with the class rule:
+heal = producer replacement. Still 0 heal-without-replacement.
+
+Census action item stands: add .104 to CAMS (v1.2) -- it is the cam
+MOST likely to freeze and the only one the census cannot see.

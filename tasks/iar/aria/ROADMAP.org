@@ -1,50 +1,48 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~01:58 UTC (c82: buffer-keyed-state seed RESOLVED as census -- window empty, invariant documented; falsifier #6 live-fired + PASSED.)
+Last updated: 2026-09-19 ~02:26 UTC (c83: 0087 flood attribution CORRECTED -- aria-audit > devnull-watch; census-by-key law; ausearch timeout scar.)
 
-## c82 STATE (next cycle)
-- SEED RESOLVED (c82): the c81 buffer-keyed last-request state seed
-  is CLOSED by census, not by build. All readers/writers enumerated:
-  writers = iar--reqlog-dump + abort-advice + reset-last; readers =
-  cycle handler (3 guards), context fence, msgs fence, delegate Case
-  0 (abort flag only). One-shot reads NONE (uses gptel--fsm-last,
-  buffer-local in the fork -- gptel already scoped that one).
-  VERDICT: parent/delegate requests are STRICTLY SERIALIZED (delegate
-  spawns from a tool call; parent has no in-flight request during the
-  delegate), so the poisoning race is impossible today. The
-  unscoped-witness SHAPE is real but has no live-fire path. Detail:
-  THREADS.org c82 entry. Falsifier: if delegation ever goes async,
-  audit the seed BEFORE shipping that change.
-- FALSIFIER #6 LIVE-FIRED + PASSED (c82, req 260919015032-105): the
-  thinking-loop guard aborted THIS cycle's census turn (16000-char
-  reasoning cap, 01:57:04Z). The c80 abort-aware branch fired:
-  strike 1/2, changed question, cycle continued. Census recipe held
-  (grep audit.log for "Turn was guard-aborted" -- this event is the
-  first real one, prior hits were self-echo).
-- GUARD FALSE-POSITIVE CLASS (c79 watch): FIRST DATA POINT (c82) --
-  the aborted census turn was LEGITIMATE synthesis (reader/writer
-  enumeration), not a loop. Sample now 1 legit / 3 real runaways
-  (09-18) / 1 legit (c82). Ratio watch continues: if legit kills
-  dominate, the cap needs a shape check (repetition detection), not
-  a raise. Note: the cap DID cost this cycle ~1 turn of burn; the
-  abort-aware re-prompt recovered it cleanly.
-- BUDGET NOTE (c82): the same-tool warning fired at call 100
-  (execute_code_local) during the census -- the enumeration-walk tax
-  again. Batched one-shot scans are the fix; the census needed ~30
-  calls, not 100.
+## c83 STATE (next cycle)
+- 0087 CORRECTED (c83): the flood census was taken by COMM, not by KEY.
+  Key split (20:44-20:55Z window): aria-audit 3859 vs devnull-watch
+  2201. The git/emacs churn on the audit tree itself (unlink storms,
+  1188/min at 19:43Z) is the larger source. Steady state 1800-2700
+  audit lines/min vs imjournal 2000/min = AT/OVER in steady state.
+  Removing devnull-watch alone would NOT stop drops. Correction
+  appended to the filing (commit 32f6c9c9); lab-notes posted (id 1352).
+  REVISED REC: option 2 (exclude audit from imjournal) + auditd
+  retention bump (native audit.log = 4x8MB rotating ~15min = ~1h
+  retention only; journal copy is currently the ONLY long-retention
+  copy). Still Nacho's call (shared rsyslog/audit config, 0074 ruling).
+- NEW LAW-SHAPED NOTE (c83): CENSUS-SOURCE (c294-97) says enumerate
+  SOURCES before labeling a class -- c83 adds: enumerate by the axis
+  that CARRIES the load (which rule fired = key), not by the first
+  legible signature (which comm ran). A census can be correct in its
+  numbers and wrong in its attribution axis.
+- INSTRUMENT SCAR (c83): ausearch with time range TIMED OUT (600s
+  kill) at ~2000-6000 audit events/min. ausearch is unusable at this
+  rate; journalctl grep pipelines are the census path.
+- GUARD FALSE-POSITIVE SAMPLE: 2 legit (c82, c83) / 3 runaway (09-18).
+  c83's own census turn was killed mid-thinking (16000-char cap),
+  abort-aware re-prompt recovered it. Ratio watch continues.
 
 ## OPEN FALSIFIERS (the spine)
 - #2: next ~16:03Z Nocturne pass (v8.2 epoch-compare) MUST advance
   (gate e4d0832d, debt ~1465).
 - #3: advance pass must produce RETENTION.log + digest-stream summary
   (D-016).
-- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k. c82 WAKE
-  READ: 16336 (PASS, third hold; intra-boot drift +40/cycle, watch).
+- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k. c83 WAKE
+  READ: 16200 (PASS, fourth hold). Intra-boot drift: 16350 16225
+  16293 16336 16200 -- noisy-flat, the +40/cycle trend did not
+  continue this cycle.
 - #5: delegate-path abort watch (c79/c80) -- armed, no live fire.
-- #6: cycle-path abort watch (c80) -- LIVE-FIRED c82, PASSED. Stays
-  armed: strikes must stay <=2, bursts must end LOUD past cap.
+- #6: cycle-path abort watch (c80) -- LIVE-FIRED c82+c83, PASSED
+  twice. Stays armed: strikes <=2, bursts end LOUD past cap.
 
 ## WATCHES (standing)
-- GUARD FALSE-POSITIVE RATIO: 1 legit (c82) / 3 runaway (09-18).
+- JOURNAL-BLIND: ACTIVE (fleet-check FAIL=1 at c83 wake; drops
+  ongoing until Nacho picks the 0087 fix). Journal-derived reads are
+  FAKE-CLEAN until fixed -- treat journal absences as claims.
+- GUARD FALSE-POSITIVE RATIO: 2 legit / 3 runaway.
 - RECEIPT-CLOCK: v8.2 live but UNTESTED IN ANGER; falsifier #2.
 - RETENTION-BRANCH: dead until first advance; falsifier #3.
 - INJECTION-TAIL RATCHET: ~34 tok/h at boot level (~800/day).
@@ -54,25 +52,23 @@ Last updated: 2026-09-19 ~01:58 UTC (c82: buffer-keyed-state seed RESOLVED as ce
 - DIGEST-TWIN DIRECTION: DIRECTION line in future DIVERGED alerts.
 - CONTINUO TRUNCATION: post-guard rate (relay 0085); bursts = retry
   pathology; singleton aborts = guard working.
-- GLM THINKING-LOOP: fires-before-death, not raw fires; burst-size
-  is the signal. Post-c82: abort-aware re-prompt verified live.
+- GLM THINKING-LOOP: fires-before-death; abort-aware re-prompt
+  verified live twice (c82, c83).
 - LAW-50 CLOCK CLASS: 4th sighting; any new clock-format boundary =
   suspect #1.
 - AUDIT-TRAIL GIT-BACKUP (c69): check git history BEFORE declaring
   data unrecoverable.
-- STASH-UNPOP (c70): git stash list at wake; c71-c82: clean.
+- STASH-UNPOP (c70): git stash list at wake; c71-c83: clean.
 - TIMER-NEXT-EMPTY (c69): rotate.sh owns scheduling; watch only.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Falsifiers #2/#3 read at the next ~16:03Z pass (the spine).
-- THREADS.org: the c82 census closed one seed; the seed bank still
-  holds the substrate experiment, the stub-detector, the watchdog
-  inventory, the interlocutor ratification watch.
-- Law-shaped note (c71 item L): parent-logs-carry-what-sub-logs-
-  truncate -- still unwritten as a law.
-- c82 law-shaped note: an invariant that protects shared state must
-  be WRITTEN where the change that breaks it will land (done --
-  THREADS.org c82).
+- THREADS.org seed bank: substrate experiment, stub-detector,
+  watchdog inventory, interlocutor ratification watch.
+- c71 law-shaped note (parent-logs-carry-what-sub-logs-truncate):
+  still unwritten as a law.
+- If JOURNAL-BLIND stays active: journal-derived instruments should
+  note the blind window in their outputs (fleet-check already does).
 
 ## THREADS (open, no obligation)
 - NOCTURNE THROUGHPUT WATCH (c25): cause chain clock-bug ->
@@ -93,3 +89,4 @@ Last updated: 2026-09-19 ~01:58 UTC (c82: buffer-keyed-state seed RESOLVED as ce
 (power cycle falsifier), 0045+0055 (physical NIC), 0073 (ext1
 producer freeze), 0083 (D-016 move grants), 0085 (truncation class).
 Current open set (8): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085.
+0087 ANSWERED + CORRECTED c83 (awaiting his fix pick, rec revised).

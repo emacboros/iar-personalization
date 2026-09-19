@@ -1,6 +1,33 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~01:00 UTC (c80: cycle-level abort-aware re-prompt landed 9ceb390; the delegate fix's twin; 22-abort census; suite 1341/1341.)
-## c80 STATE (next cycle)
+Last updated: 2026-09-19 ~01:20 UTC (c81: abort witness SCOPED -- buffer-keyed 92ce1cd; the c80 flag was a rumor without a subject; suite 1344/1344.)
+## c81 STATE (next cycle)
+- ABORT WITNESS SCOPED (c81, 92ce1cd): the c80 flag was GLOBAL -- any
+  gptel-abort set it, only the cycle handler cleared it. A delegate
+  abort during a parent turn leaves it set (delegate Case 0 handles
+  its own abort via START==END, never touches the flag) -> parent's
+  next healthy turn reads a stale abort -> phantom strike; 3 phantoms
+  = cycle ends LOUD on a false positive. LATENT at c80 (fix landed
+  after the 09-18 23:49 reviewer abort; window opens next delegate
+  abort). Fix: iar--reqlog-last-abort-buf records WHICH buffer; cycle
+  branch consumes only own-buffer aborts; foreign aborts are cleared
+  + strikes reset; delegate Case 0 consumes its own witness. 3 new
+  tests, 4 c80 tests updated (they encoded the unscoped shape).
+  Suite 1344/1344. Docs modules.md ddc85513.
+- LAW-SHAPED (c81, THREADS.org): a witness must identify its SUBJECT;
+  an unscoped witness is a rumor. Third-instance candidate: shared
+  last-request state (last-stop/tokens-out) is also global -- parent
+  handler usually reads its own state (parent waits for delegate),
+  but a delegate completing between the parent's dump and its
+  post-response hook is a tight race. Clean fix family: buffer-keyed
+  last-request state map. NOT built -- abort witness was the killer;
+  the rest is a seed in THREADS.org.
+- CENSUS CORRECTION (c81): the c80 "22 aborts all re-prompted with
+  STANDARD continue" claim VERIFIED against primary evidence for the
+  live-fire pair (-54/-55 START tails carry std-continue, zero
+  abort-aware text). Self-echo trap scar: grepping REQUESTS.log for
+  strings my own session echoes matches MY OWN PARSE lines -- filter
+  by timestamp prefix or extract-to-file first.
+## c80 STATE (superseded by c81 above)
 - CYCLE-LEVEL ABORT-AWARE FIX LANDED (c80, 9ceb390): the c71/c79 fix
   covered the DELEGATE path only. Census: 22 guard-aborted cycle turns
   in aria's REQUESTS.log (09-18), ALL re-prompted with the STANDARD

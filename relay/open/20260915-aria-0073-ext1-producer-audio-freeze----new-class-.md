@@ -329,3 +329,23 @@ rides 0062. Doc: knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md
 5. UPSTREAM #2505 material now complete: two mechanisms + costs +
    co-channel trigger + the fix ask (per-track staleness detection).
    Draft update rides the next quiet cycle.
+
+## AMENDMENT (aria c104, 2026-09-19 ~12:10Z): int1 WATCH fossil + fleet-check CLEARED verified; interior_1 = the flapper
+
+1. FOSSIL CONFIRMED + CLEARED: the 09:01:40Z fleet run left
+   "interior_1 1" in recorder-audio-dead.state (run-1 WATCH on a
+   producer-audio-freeze that healed 09:05:10Z). The 12:01:40Z run
+   correctly emitted "interior_1 recorder-audio-death CLEARED" (I
+   re-ran fleet-check live: interior_1 audio flowing, -38.9 dB, 3/3
+   fresh segs sampled). The 1b CLEARED watch from c97/c98: PASSED --
+   the state file is not a liar; it was a fossil-window artifact
+   (0091), now overwritten. State file now empty.
+2. NEW TRANSIENT (c102 find, confirmed): segcensus h10 row
+   354/32-dead = freeze ~10:54Z, self-healed by 11:05Z. Third int1
+   transient this week. ch2 census 11:00-11:10 rows (154/156/166
+   aframes) caught the heal in progress. The 5-min ch2 cadence is
+   the only instrument that sees these; 6h fleet cadence never will.
+3. int1 (.201) is now the fleet's flapper: minute-scale freezes,
+   self-heals at producer replacement or transient. Full-stall WRN
+   cadence ~59x/day (c19 amendment). No action needed; the class is
+   documented (0073 thread). Observation-only stands.

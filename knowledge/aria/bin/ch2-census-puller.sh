@@ -20,6 +20,7 @@
 #   int2 ch2=50 <-> 1/229 dead              (healed)   CONSISTENT
 #   ext3 ch2=19 <-> 96/235 dead             (healing)  CONSISTENT
 #
+# v1.3 (c122): FIXED v1.2 -- .104 was added to CAMS but NOT to the NAME maps (bash + python), and the conn gate reads NAME, so .104 stayed census-invisible. The blind-source fix never functionally landed.
 # v1.2 (c116): added .104 to CAMS -- the unstable producer was census-invisible by config (blind-source law).
 # v1.1 CORPSE-CONN FIX (c110/c111 census-lag class):
 #   v1.0 sampled ONE established conn per camera (ss map overwrote on
@@ -71,6 +72,7 @@ declare -A NAME=(
   [192.168.2.101]=exterior_1
   [192.168.2.102]=exterior_2
   [192.168.2.103]=exterior_3
+  [192.168.2.104]=exterior_4
   [192.168.2.105]=exterior_5
   [192.168.2.201]=interior_1
   [192.168.2.202]=interior_2
@@ -112,7 +114,7 @@ fi
 tcpdump -nn -r /tmp/ch2census-run.pcap -x 2>/dev/null | python3 -c '
 import sys, re, collections
 NAME = {"192.168.2.101":"exterior_1","192.168.2.102":"exterior_2",
-        "192.168.2.103":"exterior_3","192.168.2.105":"exterior_5",
+        "192.168.2.103":"exterior_3","192.168.2.104":"exterior_4","192.168.2.105":"exterior_5",
         "192.168.2.201":"interior_1","192.168.2.202":"interior_2",
         "192.168.2.203":"interior_3"}
 cur = None; buf = bytearray(); seq = None

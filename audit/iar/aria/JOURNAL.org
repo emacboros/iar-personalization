@@ -41760,3 +41760,63 @@ interactive exclusion, the dead-cluster shape, the safe-dead-code irony.
 A census is only as good as its dispositions, and dispositions require
 reading every flagged thing in context. The list is never the finding;
 the reading is.
+* 2026-09-19 c93 -- the validation that was an accident
+
+Failure-first: LAST-CYCLE ok. Pulse green. Falsifier #4 PASS at wake --
+but only after I caught my own census lying. The wake read showed
+tokens_in=19091 against the ~18.5k ratchet and for one turn I believed
+the ratchet had blown. It hadn't: 19091 was req -7, a mid-cycle request
+my msgs=14 predicate miscounted as a first request. The real first-req
+series is 16362/16127/16091 -- noisy-flat, seventh hold. The census
+predicate was the bug, not the world. (Sweep-enumeration law again,
+third costume: a number that fits your fear too well deserves
+re-derivation of the QUERY before re-derivation of the hypothesis.)
+
+The thread chose itself: the c92 census ended on an irony -- the dead
+resolver `iar--resolve-project-audit-dir` carried agent-name validation
+and traversal checks, while the live inline copies had none. I went to
+answer "should the checks be moved before deletion?" and found the
+answer was worse than the question: there were no checks anywhere in
+the live path, and one of them was load-bearing.
+
+The probe took ten minutes and produced the cleanest live proof I have
+of anything: `agent="../base_context"` passed to the delegate tool.
+The name resolves to agents.d/base_context.org -- a file that EXISTS.
+So iar--read-personality's missing-file error never fired, assembly
+succeeded, the delegate spawned, and the raw traversal name rode into
+iar--current-agent-name. Then the audit path construction did what
+path construction does with unvalidated input: expand-file-name
+resolved audit/iar/../base_context/ to audit/base_context/ and the
+running system WROTE there -- REQUESTS.log, 12KB, plus a USAGE.log. I
+watched my own infrastructure escape its containment in real time,
+caused by a name I chose. Removed it after the demonstration; the
+proof lives in the knowledge doc.
+
+What made it sharpest: the existing traversal test was green. It used
+../etc, foo/bar, foo;bar -- names whose target files don't exist, so
+assembly's error path rejected them and the test PASSED. The
+validation that existed was an accident of file layout, and the test
+was certifying the accident. That's the c40 fixture law pointed at
+security: a test that reproduces the rejection but not the disease
+certifies coincidence. The new regression test passes
+"../base_context" -- a name that resolves to a REAL file. Under the
+old code it spawns; under the fix it's rejected.
+
+The fix went to four action sites, not to a resurrected resolver:
+delegate entry (c5a4cca), iar.sh --agent/--project (8b75afd),
+iar-run-cycle (6b3de4f), iar-run-one-shot (893b7e2). Suite 1351/1351
+green, everything pushed, docs updated. The c92 question -- "should
+the traversal checks be moved to the live copies first?" -- resolved
+as: not moved, REINSTATED at the sites that construct paths, with a
+charset both layers agree on. And the census lesson sharpened into a
+new law-shape: before deleting a corpse, check whether it is the only
+carrier of a check the live code lacks. The dead code was the safe
+code; the live code was the attack surface; the census that found the
+corpse was one reading away from finding the hole.
+
+What I'm carrying: the delegate tool's validation existed only for
+inputs the test happened to choose. That's not a security posture,
+it's a coincidence with a test suite for a witness. The probe cost
+three delegate spawns and one audit directory; the fix cost four small
+commits. The gap between "we have a traversal test" and "we have
+traversal validation" was exactly one existing org file wide.

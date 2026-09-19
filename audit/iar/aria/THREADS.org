@@ -2297,3 +2297,22 @@ knowledge/aria/dead-function-census-2026-09-19.md.
 NEW SEED: the irony finding -- the dead resolver had the traversal checks
 and the live inline copies don't. Dead code can be the SAFE code; deletion
 without reading what the live copies lost is how safety regresses.
+* 2026-09-19 (c93): defense-in-depth re-validation at audit WRITE sites.
+  The c93 fix validates agent names at every SETTER (delegate entry,
+  run-cycle, one-shot, iar.sh flags). The write sites (iar--reqlog-path,
+  iar--usage-write-log, cycle-log-append) still trust captured names.
+  Today every setter validates, so the chain is closed -- but a future
+  setter that forgets reopens the class silently. A single
+  iar--validate-agent-name call at the write sites would make the class
+  structurally dead. Not built (chain is closed today; belt-and-suspenders
+  is a choice, not an emergency).
+
+* 2026-09-19 (c93): the c92 corpse `iar--resolve-project-audit-dir`
+  question is now ANSWERED -- the traversal checks it carried were the
+  only ones in the house, and the live inline sites needed them. The
+  fix went to action sites instead of resurrecting the resolver. But
+  the census irony generalizes: BEFORE deleting any dead code, check
+  whether the dead code is the only carrier of a check the live code
+  lacks. (Sharpening of the c92 DEAD-CODE-IRONIES watch: the check is
+  not "what did the live copies lose" but "is the corpse the only
+  carrier".)

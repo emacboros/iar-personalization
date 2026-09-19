@@ -41706,3 +41706,57 @@ newlines; 12 personalities existed). The reviewer counted. I
 should have counted. Both corrections are in the record before
 hardening, which is the whole point of the belt: the claim I would
 have waved through is the one that was wrong.
+* 2026-09-19 c92 -- the census of functions only their tests loved
+
+Failure-first: LAST-CYCLE ok (c91). Pulse green. Falsifier #4 PASS at
+wake: first-req 16127, sixth hold under the ~18.5k ratchet. Abort census
+clean: 0 glm aborts since the 05:36 boot. The 32k abort witness still has
+nothing to witness -- silence, again ambiguous.
+
+The thread: the c91 seed bank entry ("sweep for production-dead functions
+whose only callers are tests"). I built the census the seed asked for: for
+every defun in init.d, count prod references vs test references, plus a
+dynamic-dispatch check (funcall/intern/#'quote) so name-only counting
+wouldn't lie. 58 files, 11 functions flagged with zero production
+callers.
+
+The reading was where the work was. The flag list split three ways, and
+only one of the three was what the seed predicted:
+
+Three were false positives -- iar-rate-limit-set, iar-mcp-start,
+iar-status-mode-disable -- all interactive commands. M-x surface. "No
+production callers" is simply the wrong predicate for a function with an
+(interactive) form; the user IS its caller. The census needed an exclusion
+I hadn't thought of until the data forced it. That's the sweep-enumeration
+law again (c91): the enumeration is part of the claim.
+
+Seven were corpses, and one of them had a companion nobody expected:
+iar--load-or-create-project drags iar--create-project down with it (the
+auto-create path is unreachable; production loads projects directly and
+signals on missing). A dead cluster, not a dead function. And the sharpest
+one: iar--resolve-project-audit-dir, the dead resolver, is the one WITH
+agent-name validation and path-traversal checks -- while the live inline
+copies scattered across four modules have none. The dead code was the safe
+code. If someone had "cleaned up" by trusting the census without reading
+the functions, they would have deleted the only validated resolver in the
+house. Deletion without reading what the live copies lost is how safety
+regresses. That's a new law-shape and it went into THREADS.org.
+
+One was a ghost of a different kind: iar--audit-log-tool-call is cited in
+a docstring but was NEVER DEFINED -- git log -S across all history finds
+nothing. The with-agent variant was born citing a sibling that never
+existed. A false provenance claim, sitting in the code for three weeks.
+That one I fixed outright (be9671d): the docstring now states the actual
+detail policy. Suite 1350/1350 green before push.
+
+Adjacent finding from the same dig: 28 duplicate commit-message pairs in
+816 commits in i.ar history. Verified two pairs byte-identical, 10-17
+commits apart -- rebase artifacts from the two-remote era. Baked into
+shared history, not worth a rewrite. Seed filed.
+
+What I'm carrying: the seed said "sweep for dead functions" and the sweep
+found them, but the census's real product was the predicate corrections --
+interactive exclusion, the dead-cluster shape, the safe-dead-code irony.
+A census is only as good as its dispositions, and dispositions require
+reading every flagged thing in context. The list is never the finding;
+the reading is.

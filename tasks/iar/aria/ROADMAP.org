@@ -1,37 +1,35 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~12:20 UTC (c104: 1b CLEARED PASSED; agora
-redactor escaped-newline bug found live + fixed fc561ff; falsifiers
-#2/#3 ride the 13:03Z Nocturne pass.)
+Last updated: 2026-09-19 ~12:40 UTC (c105: quote-adjacent agora-key
+leak class found live + fixed e409ffe; all live surfaces scrubbed;
+tracked REQUESTS.log scrubbed in git 06d332ea; relay 0094+0095 filed.)
 
-## c102 STATE (next cycle)
-- CONTINUO DIGEST COLLAPSE (c102): her DIGEST.md eroded 10.7k chars ->
-  73 bytes over 4 days (no-floor diet, each step reasonable). Delegate
-  re-verification of her own protocol costs ~10x the diet savings.
-  Relay 0092 filed (D-014 is Nacho's); doc
-  knowledge/aria/continuo-digest-collapse-2026-09-19.md. NOT touched
-  her files. Watch: her next cycles -- does a floor arrive, does the
-  dup-rate falsifier fire?
-- AGORA-KEY REDACTOR: c103 landed a8b0454; c104 found the LIVE leak
-  (escaped-newline conf echo, continuo REQUESTS.log 11:59Z) and FIXED
-  fc561ff (anchor = string-start|escaped-newline|;|space). 4 tests,
-  suite 1325/1325. Live leak files scrubbed (80 hits). Rotation still
-  Nacho's (0093). OPEN CLASS: REQUESTS-full dumps bypass the sanitizer
-  entirely (0 hits today, but the dump path is pre-sanitize).
-- 1B CLEARED: RESOLVED c104 (PASSED). 12:01:40Z run emitted CLEARED;
-  live fleet-check re-run verified interior_1 audio (-38.9 dB). State
-  file was a fossil (0091 class), now empty. Relay 0073 amended: int1
-  = flapper (3 transients this week, 5-min ch2 census is the only
-  instrument that sees them).
+## c106 STATE (next cycle)
+- AGORA-KEY REDACTOR: c103 a8b0454 (shapes) -> c104 fc561ff
+  (escaped-newline) -> c105 e409ffe (quote-adjacent). Anchor set now:
+  string-start | escaped-newline | ; | space | " | '. LIVE SURFACES
+  CLEAN (0 hits, keyless census). Git HISTORY: 341 commits touch the
+  key -- rotation (0093) is the real fix, history rewrite NOT
+  attempted.
+- CYCLE.LOG BYPASS SURFACE (c105, NEW): the model transcript
+  (iar--cycle-log-append, buffer-substring) is NEVER sanitized -- any
+  secret a tool result carries lands there raw. Her 12:27Z conf read:
+  7 hits. Design question filed on 0093 (sanitize-at-append vs
+  accept+rotate). My lean: sanitize at append. Interactive-session
+  material if Nacho wants it structural.
+- CONTINUO WATCH: her lab-notes failure 12:27Z = MISSING -u FLAG
+  (credential), not an API bug. She will retry the same broken recipe
+  next cycle. Digest collapse continues (DIGEST.md 85 bytes; journal
+  closing paragraph verbatim-identical across days; 0092 open).
+  NOT touched her files.
 - FALSIFIER #4: c97 wake read 16336. Series
   16362/16127/16091/16117/16139/16336 -- noisy-flat, NINTH hold.
-- PUT-200 SCAR: 3 instances. Verify-after-mutation discipline.
 
 ## OPEN FALSIFIERS (the spine)
-- #2: next 13:03Z Nocturne pass (v8.2 epoch-compare, first live
+- #2: next 16:03Z Nocturne pass (v8.2 epoch-compare, first live
   advance attempt) MUST advance (gate e4d0832d, debt ~1970 commits).
 - #3: advance pass must produce RETENTION.log + digest-stream summary
   (D-016).
-- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k. Series above.
+- #4: boot ratchet ~34 tok/h; next first-req <= ~18.5k.
 - #5: delegate-path abort watch -- armed; 0 delegate bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83, PASSED. Stays
   armed: strikes <=2, bursts end LOUD past cap.
@@ -39,7 +37,11 @@ redactor escaped-newline bug found live + fixed fc561ff; falsifiers
   line names >32000.
 - ZOMBIE-PRODUCER (c95): next persistent cam freeze -> ffprobe
   restream vs camera direct FIRST. Divergence = go2rtc zombie.
-- 1B CLEARED (c98): see STATE above.
+- REDACTOR ANCHOR COMPLETENESS (c105, NEW): next live leak must be
+  classified by its preceding char BEFORE the fix; if a new class
+  appears, the anchor-set hypothesis is wrong at a deeper level
+  (consider: redact by VALUE-match against the conf key itself, not
+  by shape).
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 5 legit / 3 runaway (uniform-cap era).
@@ -65,8 +67,7 @@ redactor escaped-newline bug found live + fixed fc561ff; falsifiers
   DEAD-CODE-IRONIES (c92/c93); VALIDATION-BY-ACCIDENT (c93).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- 1B CLEARED read after 12:01:40Z fleet run (cheap, next cycle).
-- Falsifiers #2/#3 read at the next ~16:03Z pass (the spine).
+- Falsifiers #2/#3 read at the ~16:03Z pass (the spine).
 - SEGMENT-DELTA WATCH (c95 THREADS): 30-min per-cam segment-count
   delta; alert on any cam < ~60% fleet median. Cheap fleet-check line.
 - ZOMBIE-PRODUCER PROBE (c95 THREADS): ffprobe restream-vs-camera as
@@ -95,7 +96,9 @@ producer freeze), 0083 (D-016 move grants), 0085 (truncation class),
 addendum 3 = fear-organ annotation, FIXED by me), 0090 (EOF-newline
 batch class -- fixed 404a4c0, awaiting his ack), 0091 (fossil window
 -- informational), 0092 (continuo digest collapse; D-014 is his),
-0093 (NEW: agora key rotation + purge ratification; structural fix
-landed a8b0454).
-Current open set (13): 0045, 0055, 0073, 0080, 0081, 0082, 0083,
-0085, 0088, 0090, 0091, 0092, 0093.
+0093 (agora key rotation + purge ratification; cycle.log design
+question added c105), 0094 (NEW c105: REQUESTS-full dumps
+dormant-by-config -- corrects c104's open-class claim), 0095 (NEW
+c105: quote-adjacent class fixed e409ffe + cycle.log bypass surface).
+Current open set (15): 0045, 0055, 0073, 0080, 0081, 0082, 0083,
+0085, 0088, 0090, 0091, 0092, 0093, 0094, 0095.

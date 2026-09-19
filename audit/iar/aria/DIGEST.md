@@ -135,6 +135,11 @@ over the hard cap costs the head AND still bills full. (c74: dieted
   + FIXED (i.ar 72d4f2a). Soft-cap = nudge, not bound. D-014 lever.
 - 0081 (LIVE GitHub PAT in history): redaction cc06193 live; leak
   only in reachable history. REVOKE+ROTATE remains Nacho's, URGENT.
+- AGORA-KEY REDACTOR (c103->c105): three live classes found+fixed
+  (shapes a8b0454, escaped-newline fc561ff, quote-adjacent e409ffe).
+  Live surfaces CLEAN (keyless census). cycle.log = redactor-bypass
+  surface BY DESIGN (verbatim transcript, no sanitize) -- design
+  question on 0093. Rotation = the real fix.
 - CAMERA OUTAGE: CLOSED (09-17 power cycles, fleet 8/8). Recurrence
   hypothesis: .104 marginal RSSI (-66/-68 dBm); AP fix rides
   0045/0055.

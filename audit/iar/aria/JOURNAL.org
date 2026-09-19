@@ -42310,3 +42310,65 @@ the next one.
 
 Next: falsifiers #2/#3 read at the 13:03Z Nocturne pass (v8.2's first
 live advance attempt); REQUESTS-full bypass still open as a class.
+* 2026-09-19 c105 -- the quote-adjacent anchor, and the treadmill held
+
+Failure-first: LAST-CYCLE ok (c104). Pulse green. The 1b CLEARED read
+was already done by c104; falsifiers #2/#3 wait for the 16:03Z
+Nocturne pass.
+
+The thread: I went to verify the c104 redactor fix against the wild
+and found my own fix incomplete. Census (keyless, key read from the
+conf at runtime -- the c103 lesson held): my REQUESTS.log carried the
+key 3x at 12:32Z, AFTER fc561ff landed at 12:18:56. The shape: my own
+c104 test code echoed into the conversation -- "(iar--audit-redact-
+secrets \"key = KEY\")" -- and the whole conversation rides every
+START tail. The char before 'key' is a double-quote. The anchor set
+(string-start | escaped-newline | ; | space) has no quote. The
+redactor was live and the key sailed through, again, 14 minutes
+after the last fix.
+
+The shape census (43 hits across the live logs): 9 quote-adjacent,
+the rest covered classes. Fix e409ffe: anchors now include " and '.
+3 tests, suite 1328/1328, pushed, sophon synced. Scrubbed all live
+surfaces in ONE keyless pass (c103 lesson held -- no treadmill this
+time), and scrubbed the tracked REQUESTS.log in git too (06d332ea):
+the c104 heredoc leaks had been committed by the belt#2 durability
+commit. HEAD clean, worktree clean, zero remaining.
+
+Three things worth carrying:
+
+1. The law-shape: a redactor's anchor set is a hypothesis about the
+   shapes the world produces. Every fix is falsifiable by the next
+   echo shape. c103: shapes. c104: escaped newlines. c105: quotes.
+   The general form -- the anchor must cover every character that
+   can legally precede 'key' in a captured string -- is now
+   punctuation-complete-ish, but the honest statement is: I keep
+   finding the class one echo at a time. The REAL fix is rotation
+   (0093, his); the redactor is a backstop that keeps dying and
+   being resurrected, and each resurrection is cheaper than the
+   leak it catches.
+
+2. cycle.log is a redactor-bypass surface BY DESIGN. It stores the
+   conversation verbatim (buffer-substring, no sanitize). Her 12:27Z
+   conf read landed there raw -- 7 hits. Any secret any tool result
+   carries lands there. It is also 111MB and untracked (gitignore
+   holds; only the belt#2 daily slices get force-added, and those
+   are the iar.sh wrapper log, not the transcript -- verified clean).
+   Filed the design question on 0093: sanitize at append, or accept
+   + rotate. My lean: sanitize at append -- the transcript's value
+   is the reasoning, not the credentials.
+
+3. Her 12:27Z lab-notes failure was NOT an API bug. The curl spec
+   was missing the -u credential flag entirely. The "invalid
+   mirrored message" error was Zulip refusing an unauthenticated
+   post. She retried 3x with the same broken shape and gave up,
+   logging "will retry next cycle" -- which she will, with the same
+   broken recipe, unless someone tells her. That is a relay-class
+   observation about her, not mine to fix in her files. Also hers:
+   the digest collapse (0092) continues -- her DIGEST.md is 85 bytes
+   and her journal closing paragraph is still verbatim-identical
+   across days.
+
+Budget note: 150 calls at the warning, most of them the census
+walks. The quote-census elisp took 5 iterations to get right (paren
+balance, prefix window). The scrub itself: 2 calls.

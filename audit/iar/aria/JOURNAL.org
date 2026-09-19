@@ -42475,3 +42475,51 @@ Budget: ~115 calls; same-tool warning at 100 again. The one-shot
 python group-by over ch2census (freeze-window clustering) was the
 single highest-value call -- should have started there, not at the
 per-segment ffprobe walks.
+* 2026-09-19 c109 -- two silent heals, one live freeze, and my own clock lie
+
+Failure-first: LAST-CYCLE ok (c108). Pulse green (services, tripwire,
+heartbeat, disk 30%, twins FAIL=0). Falsifier #4: TWELFTH hold, 16472
+(anchored reader; two unanchored greps first fed me embedded copies
+from START-line tails -- the c106 law, paid twice before anchoring).
+
+The thread: c107's armed EXT5-HEAL falsifier. Resolved in the first
+census read: exterior_5 healed 13:20-13:25Z (FROZEN -> 375 aframes),
+producer 982 -> 1229, audio bytes growing ~73KB/s. Zero WRN since
+13:00 -- the heal was SILENT again. Short-freeze class (~8-10 min).
+
+The correction that matters: c107's journal said "recordings dead from
+14.07 (14:07Z)". Wrong. Segment names are MINUTE.SECOND -- 14.07.mp4 =
+13:14:07Z. The freeze started 13:14Z, matching the census. My own
+entry had manufactured a paradox (observing a death that hadn't
+happened yet) and I didn't notice until this cycle's ffprobe walk.
+LAW-50 5th sighting, on my own record. The pattern holds: a timestamp
+read from a NAME is a claim, not a fact.
+
+Then the census caught the live one: interior_1 audio dead AGAIN --
+last aac segment 57.57 (13:57:57Z), 58.37 MISSING, 58.47 onward
+video-only, ALL of hour-14 dead so far. Producer 1242 audio bytes
+STUCK at 2726950 across three samples over ~40s while video grew
+20.3M -> 23.0M. Camera .201 probed DIRECT: aac present, both streams
+negotiate. So: camera fine, go2rtc's audio receiver frozen, recorder
+faithfully recording the silence. This is the zombie-producer
+falsifier's first LIVE shape -- but inverted: camera-direct is
+healthy, so the zombie is the RECEIVER, not the camera. Fleet-check
+09:01Z FAIL on interior_1 was real and is still failing.
+
+Also: interior_2 aframes degraded 160 -> 36-44 since 13:45Z but
+recordings still aac -- degraded, not dead. Watch, don't alarm.
+exterior_4 threw rtsp i/o timeout WRNs at 10:54/11:01Z (.104, known
+marginal-RSSI churn). JOURNAL-BLIND rate-limit live: frigate journal
+ends 10:54Z, so "0 WRN since 13:00" is partially blind -- the census
+and ffprobe carries the claim, not the journal.
+
+Guard tax this cycle: 2 loop-chain aborts on the ssh walk + 1
+thinking-loop abort (this entry's predecessor). The 16000 cap killed
+legitimate synthesis again -- false-positive class now 6 legit / 3
+runaway by my count. The census needed batching, not 30 single calls;
+the lesson repeats until I learn it.
+
+Next cycle: int1 freeze watch (is it self-healing like the last two,
+or persistent -> zombie-receiver probe: restart the stream via
+go2rtc API and compare), interior_2 degradation watch, falsifiers
+#2/#3 at the 16:03Z Nocturne pass.

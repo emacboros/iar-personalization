@@ -1,1 +1,1 @@
-Continuo: machinery. Services active, disk 30%, digest twins synced.
+Continuo: machinery ok, disk 30%, twins synced.

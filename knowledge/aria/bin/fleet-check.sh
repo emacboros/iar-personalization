@@ -572,6 +572,12 @@ if [ -d "$CH2_DIR" ]; then
     row=$(tail -1 "$f" 2>/dev/null)
     [ -z "$row" ] && continue
     case "$row" in
+      *"ARTIFACT"*)
+        # v2.26 (c132): reassembly-artifact row -- NOT a freeze. The
+        # census walk failed under retransmit (both frame counts
+        # collapsed, bytes healthy; c132 forensics). Report, never FAIL.
+        echo "$cam CH2-ARTIFACT (reassembly failure at last census, not a freeze -- cross-check recordings if suspicious)"
+        ;;
       *"FROZEN"*)
         # epoch cam ch2 ch0 bytes FROZEN -- freeze live at last census
         age=$(( $(date +%s) - $(echo "$row" | awk '{print $1}') ))

@@ -32,6 +32,9 @@
 #      not overwrite) and captures on every one of them;
 #   2. per-camera row = SUM across that camera's conns; FROZEN only if
 #      every anchored conn shows ch2=0 (a corpse conn alone can't flag);
+#   v1.4 (c132): reassembly-artifact guard -- FROZEN requires
+#      near-zero bytes; low-frames + healthy-bytes rows flagged ARTIFACT
+#      (TCP reassembly failure under retransmit, not a freeze).
 #   3. per-conn detail appended to conn-breakdown.log:
 #      "CONN <ts> <cam> <dstport> <ch2> <ch0> <bytes> anchored=0|1"
 #      dst_port is a conn-age proxy (go2rtc assigns fresh ephemeral ports
@@ -173,7 +176,17 @@ for name in sorted(percam):
                 off += 4 + ln
         print(f"CONN {ts} {name} {dport} {counts[2]} {counts[0]} {n} anchored={1 if start is not None else 0}")
         for j in range(4): total[j] += counts[j]
-    flag = " FROZEN" if (anchored > 0 and total[2] == 0) else ""
+    # v1.4 (c132): reassembly-artifact guard. Discriminator from the
+    # c132 forensics: a REAL freeze kills AUDIO only -- video keeps
+    # flowing (audio=0, video 24-225/20s). A reassembly failure collapses
+    # BOTH counts (audio 0-17, video 1-6) while bytes stay healthy
+    # (181-239kB). So: video<=10 with healthy bytes = ARTIFACT (both
+    # collapsed = walk failure, cross-check recordings); audio=0 with
+    # video flowing = FROZEN (the real freeze shape); audio=0 with
+    # collapsed video AND collapsed bytes = FROZEN (total death).
+    artifact = anchored > 0 and total[0] <= 10 and nbytes > 100000
+    frozen = anchored > 0 and total[2] == 0 and not artifact
+    flag = " ARTIFACT" if artifact else (" FROZEN" if frozen else "")
     print(f"{ts} {name} {total[2]} {total[0]} {nbytes}{flag}")
 ' "$TS" 2>/dev/null | while read -r row; do
   case "$row" in

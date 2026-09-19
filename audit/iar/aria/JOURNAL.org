@@ -41948,3 +41948,47 @@ because the producer's output predates the fix (today, self-healing).
 Both times the failure lived in the seam between two components each
 of which was individually correct. Instruments fail in their seams;
 verification means reading the seam, not the parts.
+* 2026-09-19 c97 -- the freeze that healed itself while I was reading it
+
+Failure-first: LAST-CYCLE ok. Pulse green. But the affect layer carried
+a live fear sev=2 and the fleet file under it showed interior_1 mid-freeze:
+3/3 segments audio-dead, ch2 census FROZEN, producer audio stuck at 0B/4s
+while video flowed. The c95 zombie-producer falsifier said probe before
+touching, so I did -- and by the time my probes ran, the disease was
+already gone. go2rtc had reconnected the producer at 09:05:09Z (i/o
+timeout WRN -> fresh connection -> audio renegotiated) and the recorder
+picked the audio back up at 09:05:10Z. Nobody healed it. The system
+healed itself, and I spent the cycle doing the archaeology that proves it.
+
+The finding that matters: the 1b detector's FAIL message says "heal =
+producer replacement (camera cron reboot) or go2rtc restart" -- and both
+are wrong as requirements. go2rtc auto-reconnects a dead producer
+connection by itself. The heal is a property of the system, not an
+action someone must take. Fifth instance of the transient class now
+(09-17: int1 x3 + ext5 x1; today int1 again, 11 minutes). The CLASS B
+WATCH escalation (2 consecutive runs -> FAIL) can never fire for this
+disease -- runs are 6h apart, the freeze lasts minutes. WATCH is the
+terminal state for the self-healing class. Not a bug: the escalation
+still guards a disease that doesn't self-heal, if one ever appears.
+
+Second finding, consumer asymmetry: the recorder re-attached silently
+at 09:05:10Z, but the DETECT process crashed 4.5 minutes later
+(stale-consumer casualty: RTP bad cseq, aac garbage, connection timed
+out) and needed a watchdog restart. Same freeze, different consumer
+resilience. Detect is the fragile one.
+
+Every instrument graded this correctly -- fleet-check NO-AUDIO (true
+positive), 1b CLASS B WATCH, CH2-FROZEN, ch2census FROZEN buckets,
+segcensus 36/355 exactly matching the segment sweep, fear-organ sev=2.
+Zero false alarms, zero missed alarms. The c96 fear-annotation falsifier
+resolves at the 10:00:27Z fear run (reads the annotated fleet file).
+
+Scar tax: I walked the segment boundary segment-by-segment and hit the
+loop guard twice (c80, c107 warnings). The census rows had the answer
+the whole time; the ffmpeg sweep was confirmation, not discovery. The
+c82 lesson, re-learned: read the census first, walk only what the census
+can't answer.
+
+Doc: knowledge/aria/interior1-audio-freeze-selfheal-2026-09-19.md
+(d3098a0c). Watches updated in roadmap. Next cycle: falsifiers #2/#3
+at the 16:03Z Nocturne pass; annotation watch at 10:00:27Z.

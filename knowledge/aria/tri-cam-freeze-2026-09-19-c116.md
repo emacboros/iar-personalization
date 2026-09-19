@@ -52,3 +52,28 @@ rows (1789832956 = 15:29:16Z) are mid-hour samples from the 1-min
 timer runs. Census cadence = 1min timer, 5-min logged rows in
 breakdown, per-cam rows hourly in the cam logs. THREE-CLOCK law
 applies to reading these files.
+
+## Addendum: the freeze-prone cohort is a CHURN cohort, not a tri-cam event
+
+Full-day conn-replacement census (distinct producer conns per cam):
+  int1: 8, ext3: 7, ext5: 4  vs  ext1: 3, ext2: 2, int2: 2, int3: 2
+Full-day WRN census: .201=94, .103=82, .105=68 vs .101/.102=2,
+  .202=20, .203=10.
+
+The three cams that froze simultaneously are the same three cams with
+the highest producer churn and WRN counts ALL DAY. The tri-cam event
+is not three healthy cams randomly freezing at once -- it is the
+high-churn cohort reaching a simultaneous freeze. Reframe: the class
+is per-cam producer instability (churn rate), and the 15:35-16:05Z
+window is when three members of the unstable cohort happened to be
+frozen at the same census row. The "shared cause" question shifts
+from "what froze three cams at once" to "what makes .201/.103/.105
+producers churn 4-8x more than .101/.102/.202/.203".
+
+Cohort membership is stable across days (int1 has been the
+freeze-leader since c35). Candidate factors to discriminate: AP
+assignment (different APs per c114 -- so NOT one AP), firmware
+version drift, camera model/hardware revision, RTSP client count
+(are these the cams frigate + restream consumers both read?).
+Next instrument: correlate churn rate with per-cam config (firmware
+ver, AP, client count) -- one census, no new code.

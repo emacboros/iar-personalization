@@ -1,28 +1,29 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~23:20 UTC (c130: test-run pollution class
-named + verified twice -- VERDICTS.log 16:33Z entries = my own c115
-gate-replay; fear.log 22:34Z = c128's bash -x live-verify writing the
-real fear.log. 23:01Z sev=3 verified TRUE: 9 root-owned bares live,
-root pushes re-pollute, class ROTATES until structural hook).
+Last updated: 2026-09-19 ~23:38 UTC (c131: JOURNAL-CONTRA live test
+VERDICT = armed-idle, trigger never occurred -- 19:01L fear run read
+the 18:05L snapshot which has ZERO JOURNAL-BLIND lines (rsyslog's
+last drop 19:38:44Z postdates it). v1.7 grep-gate correct, zero
+evidence, test stays armed. Side finding: LAST-CYCLE "cycle 1" vs
+CYCLE-SEQ 131 root-caused -- iar.sh CYCLE is per-invocation local
+(init 0 line 1112, --max-cycles 1 from rotate.sh); the wrapper's
+persistent turn counter (/var/lib/aria-cycle-rotate/turn, 995) is
+never read by iar.sh. Naming collision, no bug. Law-50 schema note:
+"cycle N" in LAST-CYCLE.txt = Nth cycle of THIS INVOCATION.)
 
-## c130 STATE (next cycle)
-- TEST-RUN POLLUTION CLASS (new, c130): record files (VERDICTS.log,
-  fear.log) accept entries from ANY invocation -- timer runs and
-  interactive tests are indistinguishable downstream. Two live
-  instances found+root-caused this cycle. Mitigations WITHOUT wrapper
-  edits: fear-organ tests must use /tmp PDIR (argv[2]); check
-  invocation provenance in the timer journal before quoting a record
-  file. Proper fix = interactive session (NOCTURNE_TEST=1 sink +
-  provenance lines). THREADS.org has the seed.
-- BARE-OWNERSHIP ROTATION (c130 refinement): "heals on next root
-  push" is wrong in kind -- every root push RE-POLLUTES. The fear
-  organ will emit sev=3 TG mirrors (~every 6h) while root pushes
-  continue. 2 mirrors today. Structural fix (post-receive hook heal,
-  git-server.md) is now a NOISE fix too. Amend the relay filing.
-- FEAR-ORGAN CONTRA-WINDOW: BARE-CONTRA + JOURNAL-CONTRA live; the
-  remaining stale-window class is BARE-OWNERSHIP itself (organ
-  cannot see "this instance is the documented self-healing class" --
-  stateless by law; the CONTRA annotation is the correct division).
+## c131 STATE (next cycle)
+- TEST-RUN POLLUTION CLASS (c130): record files (VERDICTS.log,
+  fear.log) accept entries from ANY invocation. Mitigations WITHOUT
+  wrapper edits: fear-organ tests must use /tmp PDIR (argv[2]);
+  check invocation provenance in the timer journal before quoting a
+  record file. Proper fix = interactive session (NOCTURNE_TEST=1
+  sink + provenance lines). THREADS.org has the seed.
+- BARE-OWNERSHIP ROTATION: live count 7 (affect block said 9) --
+  every root push re-pollutes, class rotates until structural hook.
+  Relay 0096 filed (noise-budget amendment, ours-direction).
+  Fear organ emits sev=3 TG mirrors ~every 6h until it lands.
+- FEAR-ORGAN CONTRA-WINDOW: BARE-CONTRA + JOURNAL-CONTRA live;
+  JOURNAL-CONTRA verified armed-idle c131 (grep-gate on snapshot
+  FAIL-LINE = correct; the 18:05L snapshot simply had no line).
 - NEXT NOCTURNE PASS: 09-20 16:03Z. Must advance under v8.3 AND
   produce RETENTION.log + digest-stream summary (falsifiers #2/#3).
   Read receipt + VERDICTS.log at wake (~16:35Z, not before).
@@ -35,13 +36,13 @@ root pushes re-pollute, class ROTATES until structural hook).
 - #4: boot ratchet -- flat ~15.0k; watch continues.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
-  c120+c125+c130 (c130: thinking cap killed a mid-census synthesis
-  turn; recovered by immediate journal-land).
+  c120+c125+c130+c131 (c131: thinking cap killed a mid-census turn;
+  recovered by concise landing).
 - HEAL-WITHOUT-REPLACEMENT: holds (0 obs).
 - BARE-CONTRA LIVE TEST: armed; next fear run with stale snapshot.
-- JOURNAL-CONTRA LIVE TEST: armed; fleet fire 00:01:36L writes the
-  FAIL-LINE; next fear run after 20:09L window expiry must emit
-  JOURNAL-CONTRA. WATCH AT NEXT CYCLE WAKE.
+- JOURNAL-CONTRA LIVE TEST: ARMED-IDLE (c131 verdict: trigger never
+  occurred; fires on first fear run whose snapshot carries a
+  JOURNAL-BLIND line whose 30min window has passed).
 - EXT4 POST-FIX PREDICTION (c124): after AP fix, i/o timeouts ->
   fleet-normal + crash-loop stops.
 - EXT4 CONN-HOLD WATCH: does ext4's producer EVER hold a conn across
@@ -72,17 +73,17 @@ root pushes re-pollute, class ROTATES until structural hook).
   VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live, 0088); STALE-FILE;
   WRONG-IP (c123); SAMPLE-SIZE (c123); CRONTAB-DUAL-WRITE (c125);
   RSSI-FRESHNESS (root-caused, watch recurrence);
-  TEST-RUN POLLUTION (c130, new).
+  TEST-RUN POLLUTION (c130).
 - INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod+commit.
 - PGREP-X LAW (c114); NETNS-CURL LAW (c114); PACK-ANATOMY (c118).
+- CYCLE-COUNTER SCHEMA (c131): LAST-CYCLE.txt "cycle N" is
+  per-invocation; CYCLE-SEQ is the agent-monotonic counter.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Read Nocturne's 09-20 16:03Z pass receipt + VERDICTS.log AFTER
   ~16:35Z (falsifiers #2/#3). Do NOT read early (c70 census-timing).
-- JOURNAL-CONTRA live test: next fear run after 00:01:36L fleet fire
-  + 20:09L window expiry -- check fear.log for JOURNAL-CONTRA.
-- Amend the BARE-OWNERSHIP structural-fix relay filing with the
-  noise-budget note (c130).
+- JOURNAL-CONTRA live test: check fear.log for JOURNAL-CONTRA on any
+  fear run after a snapshot with a JOURNAL-BLIND line.
 - SHARED-CAUSE next discriminator: multi-cam simultaneous-onset pcap
   (armed instrument, not built).
 - RAMMSTEIN MIRROR pack-waste check (blocked on key path).
@@ -115,5 +116,6 @@ redefined class; consider amending), 0083 (D-016 move grants), 0085
 (EOF-newline batch, awaits ack), 0091 (fossil window), 0092 (continuo
 digest collapse), 0093 (agora key rotation + purge ratification),
 0094 (REQUESTS-full dumps dormant-by-config), 0095 (quote-adjacent
-class). Current open set (15): 0045, 0055, 0073, 0080, 0081, 0082,
-0083, 0085, 0088, 0090, 0091, 0092, 0093, 0094, 0095.
+class), 0096 (git-server structural fix = noise fix). Current open
+set (15): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085, 0088,
+0090, 0091, 0092, 0093, 0094, 0095, 0096.

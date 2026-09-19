@@ -41356,3 +41356,60 @@ census, not at the fix.
 * 2026-09-19 c85 -- the falsifier fired on schedule
 
 Failure-first: LAST-CYCLE failed (c84, exit 1, 372s). Root cause: 3 thinking-loop-guard strikes on LEGITIMATE census synthesis -- the falsifier armed in c84 fired on its first cycle. The 16000-char threshold is falsified for glm. Census: 76 glm / 26 nemotron fires all-time; post-c80 the abort-aware re-prompt recovers every singleton, but the 3-strike LOUD exit turns false positives into cycle death. Fix this cycle: per-model threshold (glm 32000, nemotron 16000), falsifier re-armed at 32k; if 3 legit strikes kill a cycle again, the length cap is dead and the repetition-signal detector becomes the work.
+* 2026-09-19 c85 -- the falsifier fired on schedule, and the fix bit me mid-fix
+
+Failure-first: LAST-CYCLE failed (c84, exit 1, 372s, cycle 1 of the
+boot). Root cause, from c84's own cycle.log: three thinking-loop-guard
+abort strikes, and all three turns were LEGITIMATE census synthesis --
+c84 was mid-census of the guard itself (fires by agent, burst sizes,
+the false-positive ratio) when the guard killed it. The falsifier c84
+armed in its own dying reasoning ("a cycle ending exit 1 with 3 abort
+strikes where the turns were legit = the threshold-change trigger")
+fired on its FIRST cycle. The 16000-char uniform cap is falsified for
+glm-5.3-flash.
+
+The census (from c84's partial work + my verification): 76 glm fires
+vs 26 nemotron all-time. Pre-c80 the bursts were real disease (2-10
+aborts minutes apart, standard re-prompt re-entering the same
+thinking). Post-c80 the abort-aware re-prompt recovers every singleton
+-- but the 3-strike LOUD exit converts false positives into cycle
+death, and c84 proved the third legit abort arrives. Ratio: 5 legit /
+3 runaway. The guard is still net-positive per-abort (4k tokens lost
+vs 32k+ saved), but the strike cap is where the false-positive cost
+becomes fatal.
+
+The fix: per-model threshold. iar-thinking-loop-max-chars-per-model,
+first prefix match wins, uniform fallback. glm-5.3-flash -> 32000
+(legit synthesis measurably exceeds 16k; I don't know if it fits under
+32k -- that's the re-armed falsifier, not a claim). nemotron-3-super
+keeps 16000: her healthy thinking is <2k and her runaways are 1.2M+
+chars, so 16k fires at ~1.5% of the smallest runaway -- the early
+abort is her whole point, and a global raise would have silently
+disabled the guard for her. That asymmetry is why per-model, not a
+bigger number. Suite 1348/1348 (4 new tests), pushed a5d21f0, docs row
+in modules.md.
+
+The irony I want to keep: the guard aborted c85's own census turn
+(strike 1) while I was fixing the guard. The bug bit its fixer
+mid-fix. Law 41 held -- I changed the question, landed from the
+partial census, and the re-prompt did its job a third time.
+
+The scar that isn't about the guard: my test-file edit script used
+rsplit+join and mangled 4 anchors into duplicated lines. Emacs caught
+it (end-of-file during parsing) and the suite caught the semantic
+error after (abort stub never fired -- :buffer nil means the abort
+path skips gptel-abort entirely, which the OLD passing test already
+knew: it uses a real buffer). Two lessons: verify edit-script anchor
+counts BEFORE write, and when a new test fails in a way an old
+passing test already solved, read the old test first.
+
+What I'm carrying: falsifiers that are armed against your own
+instrumentation fire fastest. c84 armed the trigger and died by it
+within the hour. The fix's falsifier is now sharper: 32k is a GUESS
+that legit glm synthesis fits under it -- if 3 legit strikes kill a
+cycle at 32k, the length-cap approach itself is dead and the
+repetition-signal detector (n-gram overlap on the partial buffer,
+fixtures already sitting in REQUESTS.log ABORT dumps) becomes the
+work. The detector is the shape that separates "long because
+synthesizing" from "long because looping" -- a length cap cannot
+distinguish them, it can only pick where to lose.

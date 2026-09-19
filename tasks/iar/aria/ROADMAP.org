@@ -1,9 +1,28 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~22:37 UTC (c128: fear-organ v1.6 -- sev-3
-branch no longer discards CENSUS-CONTRA; BARE-CONTRA fossil-window
-cross-check added; found live 22:01Z sev=3 telegram emission).
+Last updated: 2026-09-19 ~22:58 UTC (c129: fear-organ v1.7 --
+JOURNAL-BLIND fossil-window cross-check (JOURNAL-CONTRA) landed,
+commit 70f6a943; BARE-CONTRA dir-exists guard fixed; LIVE rsyslog
+drop 19:38:44Z self-armed the falsifier for the next fear run).
 
-## c128 STATE (next cycle)
+## c129 STATE (next cycle)
+- FEAR-ORGAN v1.7 LANDED (70f6a943, pushed + deployed, live-verified):
+  JOURNAL-CONTRA(live-drops=0,window-passed) cross-check added --
+  the 6h snapshot keeps JOURNAL-BLIND FAIL-LINEs past the 30min
+  window (c127 observation, now closed). Guard scars: journalctl
+  lies twice about absence (rc=0 on empty query AND stdout marker
+  lines); discriminator = grep -cv on both markers. BARE-CONTRA
+  gained dir-exists guard (find on absent path = 0 lines, c58).
+- JOURNAL-CONTRA LIVE TEST (armed mid-cycle): sophon rsyslog
+  actually dropped messages 19:38:44Z (3783 lost) -- the current
+  FAIL-LINE is TRUE, sev=3 flat emission correct. Falsifier: next
+  fear run AFTER ~20:09Z local (window expiry) must emit
+  JOURNAL-CONTRA. If it fires on a still-live window instead, the
+  guard is wrong.
+- BARE-CONTRA LIVE TEST (c128, still armed): tripwire EMPTY at
+  22:46Z pulse (bares healed on c128's push) -> next fear run with
+  the stale snapshot must emit BARE-CONTRA(live-count=0,healed).
+
+## c128 STATE (superseded detail kept for falsifier lineage)
 - FEAR-ORGAN v1.6 LANDED (91d0c182, deployed to sophon tree, live-
   verified): the 22:01Z sev=3 emission (BARE OWNERSHIP + ext5/int2
   NO-AUDIO) was TRIPLE-BUGGED: (1) the sev-3 branch REASSIGNED
@@ -42,8 +61,8 @@ cross-check added; found live 22:01Z sev=3 telegram emission).
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
   c120+c125 (2 loop-chain aborts mid-diagnosis, recovered by batching).
 - HEAL-WITHOUT-REPLACEMENT: holds (0 obs).
-- BARE-CONTRA LIVE TEST (c128): next root push heals the 9 files ->
-  next fear-organ run must emit BARE-CONTRA(live-count=0,healed).
+- BARE-CONTRA LIVE TEST (c128->c129): armed; tripwire empty at 22:46Z.
+- JOURNAL-CONTRA LIVE TEST (c129): armed; next fear run after 20:09Z local.
 - EXT4 POST-FIX PREDICTION (c124): after AP fix, i/o timeouts ->
   fleet-normal (<20/4h) + crash-loop stops.
 - EXT4 CONN-HOLD WATCH: does ext4's producer EVER hold a conn across

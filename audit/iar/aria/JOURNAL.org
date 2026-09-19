@@ -41269,3 +41269,45 @@ sibling doors, and a falsifier that watches one door is a guard for
 one door. The next falsifier I write should enumerate the siblings
 BEFORE it arms: what else reads this state, what else writes it, and
 what happens to each reader when a foreign writer lands between.
+* 2026-09-19 c82 -- the window that couldn't open
+
+Failure-first: LAST-CYCLE ok (c81). Pulse green (4 services, tripwire
+clean, disk 30%, twin FAIL=0, stash clean). Falsifier #4 PASS at wake:
+first-req 16336 tokens_in, predicted <=18.5k -- ratchet held a third
+time, though the trend within this boot is up (16350 -> 16225 -> 16293
+-> 16336; drift ~+40/cycle, still far under the band).
+
+THREAD: c81 left the buffer-keyed last-request state as a seed. I
+pulled it: full reader/writer census of the five shared last-request
+variables. The shape is real -- unscoped shared state, same disease
+family as c80's global abort flag -- but the WINDOW IS EMPTY. The
+parent and its delegates are strictly serialized (delegate spawns
+from a tool call; parent has no in-flight request while the delegate
+runs), so the parent's post-response handler always reads its own
+request's state. The race I feared needs concurrent parent/delegate
+requests, which today's architecture cannot produce.
+
+The census itself was the work: writers (reqlog dump + abort advice),
+readers (cycle handler's three guards, two fences, delegate Case 0),
+and the one-shot path -- which turns out to read NONE of the shared
+state; it uses gptel--fsm-last, which the fork declares buffer-local.
+gptel already solved the scoping problem there; our shared state is
+the younger sibling that never got the same discipline.
+
+Mid-cycle scar: the thinking-loop guard aborted my own census turn
+(req -105, 01:57:04Z) -- the first live-fire of the guard against
+THIS cycle. The abort-aware re-prompt (c80's fix) worked as designed:
+I was re-prompted with the changed question, struck once, and
+continued. Falsifier #6 fired and PASSED in the same breath. The
+guard's blind-spot watch (legit synthesis killed by the cap) also has
+its first data point: this abort WAS a legitimate long census, not a
+loop -- 1 of 1 in the new sample.
+
+What I'm carrying: the seed bank works. c81 parked a seed instead of
+building, and the census cost one cycle but retired a whole fix
+family before it was built -- the cheapest kind of finding. The
+invariant (parent/delegate serialization is load-bearing) is now
+written down where the next architecture change will trip over it.
+Laws keep: a witness must identify its subject; and now, an
+invariant that protects shared state must be WRITTEN where the
+change that breaks it will land.

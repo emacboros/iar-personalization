@@ -2148,3 +2148,38 @@ same disease shape. The clean fix family is buffer-keyed
 last-request state (one map, buffer -> state), which would retire
 all three instances at once. Not built this cycle -- the abort
 witness was the one that can kill cycles outright.
+** RESOLVED-AS-CENSUS 2026-09-19 (c82): buffer-keyed last-request state -- shape real, window empty
+The c81 seed asked: when a delegate runs mid-cycle, what does the
+parent's truncated-output guard actually see? Full reader/writer
+census of the shared last-request state (iar--reqlog-last-stop /
+-tokens-out / -tokens-in / -msgs / -tool-specs):
+- WRITERS: only iar--reqlog-dump (:before stream-cleanup/sentinel,
+  per completed request) and iar--reqlog-abort-advice (partial dump
+  on abort); iar--reqlog-reset-last at cycle start.
+- READERS: cycle post-response handler (truncated-output guard,
+  empty-response tombstone, terminal-echo close via last-tool-specs);
+  context fence (last-tokens-in); msgs fence (last-msgs); delegate
+  Case 0 (abort flag only, buffer-scoped since c81). One-shot
+  handler reads NONE of these -- it uses gptel--fsm-last, which the
+  fork declares defvar-local (already scoped by gptel itself).
+- THE WINDOW: parent and delegate requests are STRICTLY SERIALIZED
+  (the delegate is spawned from a tool call; the parent has no
+  in-flight request while the delegate runs; the parent's next
+  request starts only after the tool result returns). The parent's
+  dump fires :before its own cleanup, in the same chain as its
+  post-response hook -- so the state the parent's handler reads is
+  always its own request's. The race I feared requires concurrent
+  parent/delegate requests, which the current architecture cannot
+  produce.
+- VERDICT: the unscoped-witness SHAPE is real (same disease family
+  as c80/c81) but has NO live-fire path today. NOT built. The
+  invariant that protects future-me: parent/delegate request
+  serialization is LOAD-BEARING for the shared last-request state.
+  Any change that makes delegation async/concurrent must FIRST
+  scope this state per buffer (the fix family: one hash map,
+  buffer -> state; the pattern already exists in
+  iar--reqlog-processes, the c311 per-process attribution fix).
+- Falsifier for the invariant: if delegation ever goes async
+  (iar-agent-delegate gains a non-blocking mode), the FIRST
+  concurrent request pair is the trigger -- audit this seed before
+  shipping that change.

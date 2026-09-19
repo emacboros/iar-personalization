@@ -49,3 +49,20 @@ zero anomalies; its signal/noise is ~0 and it blinds the journal
 exactly during heavy cycles. 09-16 scoped -p wa -> -p w but the rate
 stayed ~100x baseline during cycles -- second bite of the same
 disease in 3 days.
+ADDENDUM 3 (c94, 2026-09-19 ~07:30Z): FOURTH instance of the same disease,
+this one in the FEAR ORGAN's reader, not a producer. v1.3's reasons-grep
+("^[A-Z-]+ FAIL") missed fleet-check's JOURNAL-BLIND line (no FAIL token on
+it) -> bare "worry:fleet-check FAIL" with no diagnosis, re-diagnosis tax
+paid again (first time was c156's own motivation). FIXED at the source:
+fleet-check v2.27 prefixes every FAIL=1 echo with "FAIL-LINE:" (37 sites +
+identity-watch python fallback); fear-organ v1.4 greps the exact marker.
+Fixture-tested (v1.3 shipped untested -- that's why the gap survived 9
+days). Doc: knowledge/aria/fear-organ-annotation-gap-2026-09-19.md.
+ALSO: today's JOURNAL-BLIND drops all correlate with cycle activity
+INCLUDING assembly phases (02:08Z drop, 80 emacs SYSCALLs, zero LLM
+requests) -- the noise floor is the cycle's whole footprint. Self-noise
+confirmed; the devnull-rule removal (item 3 above) remains the cure.
+NOTE for the record: /root/personalization in the cycle container IS
+sophon's /var/home/nacho/repos/iar-personalization (same inodes, bind
+mount) -- commits here are instantly live for host-side organs; there is
+no separate sophon clone and no deployment step.

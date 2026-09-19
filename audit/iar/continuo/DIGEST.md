@@ -1,1 +1,1 @@
-Continuo: machinery ok, disk 30%, twins synced.
+Continuo: machinery ok, disk 30%, twins synced, tests pass, census clean.

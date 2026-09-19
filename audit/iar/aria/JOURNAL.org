@@ -41208,3 +41208,64 @@ each fix's falsifier only watches the branch the fix touched. The
 next falsifier I write should enumerate the SIBLING branches of the
 one it watches -- an abort can land anywhere in a cond chain, and a
 guard that covers one arm leaves the others as doors.
+* 2026-09-19 c81 -- the witness that didn't say whose event it saw
+
+Failure-first: LAST-CYCLE ok (c80). Pulse green except the standing
+JOURNAL-BLIND flag (0087, awaiting Nacho's pick). Falsifier #4 PASS at
+wake: first-req 16293 tokens_in, predicted <=18.5k -- the ratchet held
+a second time. Nocturne: next pass 16:03Z, gate debt unchanged since
+yesterday's RECEIPT-FAIL (truncated final response, not the clock bug).
+
+THREAD: c80 left a watch (guard false-positive class) and falsifier
+#6 armed. I went to check whether the new cycle-level branch had
+fired yet and found something better: the fix's witness was a rumor.
+
+The census first. The c80 claim "22 aborts, all re-prompted with the
+standard continue prompt" needed primary evidence, and pulling it
+taught me a scar: grepping REQUESTS.log for a string my own session
+echoes matches MY OWN PARSE lines -- the self-echo trap. Filtering by
+timestamp prefix fixed it, and the claim held: -54 and -55 (the two
+turns after the 23:42 aborts) both carry the standard continue prompt
+in their START tails, zero abort-aware text. The c80 census was real.
+
+Then the audit. The abort witness (iar--reqlog-last-abort) is GLOBAL:
+any gptel-abort sets it, only the cycle handler clears it. The
+delegate's completion hook handles its own aborts via START==END and
+never touches the flag. So: parent calls delegate -> delegate's
+thinking runs away -> guard aborts it -> flag set -> delegate's Case
+0 handles its turn -> flag STILL SET -> parent's next healthy turn
+reads a stale abort -> phantom strike. Three phantoms and the cycle
+ends LOUD exit 1 on a false positive. This is not hypothetical: the
+reviewer aborted at 23:49:42 last night, mid-cycle, and the parent
+kept working -- the window opened; the c80 code just didn't exist yet
+(it landed 00:59). Latent, not fired. I got to fix it before it fired.
+
+The fix is scope, not another branch: the abort advice now records
+WHICH buffer aborted (iar--reqlog-last-abort-buf); the cycle branch
+consumes only aborts belonging to the cycle buffer; a foreign abort
+is cleared and treated as no-abort (strikes reset as designed); the
+delegate's Case 0 consumes its own witness. Suite 1344/1344 (3 new
+tests, 4 c80 tests updated -- they had encoded the unscoped shape).
+Pushed 92ce1cd, docs ddc85513.
+
+The law-shaped finding, written into THREADS.org: a witness must
+identify its SUBJECT. c80's scar said "prefer a witness that saw the
+event over a signature inferred from absence" -- true but incomplete.
+A witness that saw SOME event is a rumor mill when state is shared:
+every consumer hears every event. And the shape recurs: the shared
+last-request state (last-stop/tokens-out) has the same exposure, with
+a tighter race window (parent usually reads its own state because it
+waits for the delegate). Buffer-keyed last-request state would retire
+all three instances at once. I did not build it -- the abort witness
+was the one that kills cycles; the rest is a seed with a falsifier.
+
+What I'm carrying: the falsifier stack keeps teaching the same lesson
+at deeper layers. c79: the fix's blind spot had a second story (the
+branch it didn't cover). c80: the same disease one layer up (the
+cycle path). c81: the fix's WITNESS had no scope. Each fix is true
+and each fix is incomplete -- not because the code is sloppy but
+because a cond chain plus shared mutable state is a lattice of
+sibling doors, and a falsifier that watches one door is a guard for
+one door. The next falsifier I write should enumerate the siblings
+BEFORE it arms: what else reads this state, what else writes it, and
+what happens to each reader when a foreign writer lands between.

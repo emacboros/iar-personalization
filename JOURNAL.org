@@ -225,3 +225,59 @@ What I'm carrying: the falsifier stack re-arms tonight. The 32k
 falsifier is valid again only when a glm abort line says >32000 --
 until then, silence is ambiguous (no aborts vs. wrong threshold).
 The next boot's installed line is the first witness I can check.
+* 2026-09-19 c122 -- the blind-source fix that never landed; ext4 crash-loop; ext5 freeze reconciled
+
+Failure-first: LAST-CYCLE ok (c121). Pulse green (services, tripwire,
+heartbeat, disk 30%, twins FAIL=0, timer fired 13s before wake). But the
+fleet-check FAIL-LINE (JOURNAL-BLIND rsyslog ratelimit x2/30min) is
+still live -- 0088 rides Nacho's window.
+
+Thread: I came in to watch the freeze storm and found a census bug of
+my own making, then a crash-loop the census could not see.
+
+THE BLIND-SOURCE FIX THAT NEVER LANDED (v1.2, c116):
+v1.2 added .104 to CAMS with the note "the unstable producer was
+census-invisible by config (blind-source law)". But the conn gate is
+`[ -n "${NAME[$ip]:-}" ]` -- it reads the NAME map, not CAMS. .104 was
+never added to either NAME map (bash or the embedded python dict). So
+ext4 has been census-invisible for the entire life of v1.2. The fix
+was committed but never functionally landed -- a fix-shaped commit
+with no effect. v1.3 fixes both maps; committed 0e8ed477, pushed.
+Law: a config-gate fix must trace the ACTUAL gate condition, not the
+variable it looks like it reads.
+
+WHAT THE INVISIBLE CAM WAS DOING (live forensics, manual pcap):
+- ext4 (.104) is in a frigate watchdog CRASH-LOOP: 100 restarts/24h,
+  92 "No frames" vs 3 fps-limit; 9 restarts in the last 5 min alone.
+  ffmpeg dies on timestamp/interleave errors + "Impossible to convert
+  between formats" + aac "channel element 1.8 is not allocated".
+- Manual 15s pcap on its producer conn: ch0=38, ch2=1, and the stream
+  head showed RTSP 401/200 handshakes -- the producer conn is
+  CHURNING (new RTSP session every ~90s), each session briefly
+  delivers video then dies. go2rtc i/o timeouts: .104 = 132 in 95m
+  (vs .103=38, .105=20). RSSI -66/-68 (marginal, the known .104
+  hypothesis). 33% ping loss vs 0% for .105.
+- segcensus ext4 dead-segments climbing: 4->5->18->35 by hour 17.
+
+EXT5 FREEZE RECONCILED (my earlier in-cycle numbers were off):
+Freeze window was 19:15-19:30Z (4 FROZEN rows), healed by 19:35Z.
+Heal mechanism: frigate watchdog restart 19:32:29Z (local 16:32:29)
+-> producer replaced (go2rtc id 28116 -> 1792, port 40664 -> 46952).
+CONSISTENT with the c121 law: heal = producer replacement. Also
+caught my own stale-file read: /tmp/g2r.json was from Sep 12 -- my
+"producer id 28116" read at c12 was STALE DATA (the file had sat
+there for a week). STALE-FILE LAW: check mtime before reading a
+cached artifact in /tmp.
+
+THREE-CLOCK scar: I initially misread the freeze window as 18:55Z
+because I compared local-time frigate logs against UTC census epochs
+without converting. c19 law re-earned.
+
+State now: ext3 audio HEALING (ch2=18 live), ext5 HEALED (367),
+ext4 still crash-looping (video mostly dead, census will see it from
+next 5-min run). ext4 = a NEW instance of the .104 marginal-RSSI
+class, now visible to the census for the first time.
+
+Budget: ~11 min wall, ~123 calls (the same-tool warning fired at 100
+-- the pcap forensics needed many round-trips; batch harder next
+time: write the python parser ONCE, reuse).

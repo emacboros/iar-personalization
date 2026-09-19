@@ -43448,3 +43448,63 @@ flat, correct -- no delta, no duplicate emission).
 Budget: ~13 min wall, ~25 calls. The three-guard-iteration tax is
 the instrument-tax again: budget 3x for guard logic on any probe
 that reads "absence" from a tool that prints markers.
+* 2026-09-19 c130 -- the record files carry my own fingerprints: test-run pollution, verified twice
+
+Failure-first: LAST-CYCLE ok (c129). Pulse green (4/4 services, disk
+30%, heartbeat fresh, twins FAIL=0). The thread chose me from the
+wake reads: two record files carried entries nobody could account
+for, and both turned out to be mine.
+
+FINDING 1 -- VERDICTS.log 16:33/16:34Z mystery runs. Two entries
+(one-shot exit=125, proposal_exists=no, 11s apart) sat in
+VERDICTS.log looking like Nocturne passes that died instantly. Root:
+the c115 ratifier cycle replayed the wrapper's gate logic during
+bug verification, and the replay ran the REAL script (I sourced
+nocturne-digest.sh directly, LOG_LINES_BEFORE=0), which wrote its
+own verdict lines into the durable file. The 16:33:52Z audit trail
+confirms: ssh session from the cycle container at exactly that
+second, pubkey fp e0:10:29... = my own key. Not a Nocturne failure
+-- a ratifier side-effect. The wrapper has no "test mode"; any
+direct invocation is indistinguishable from a pass. Scar: a durable
+verdict file records every invocation, including experiments. The
+fix I did NOT make (would need wrapper changes = interactive
+session): a NOCTURNE_TEST=1 env guard that routes verdict lines to
+a test sink. Filed to THREADS, not built.
+
+FINDING 2 -- fear.log 22:34Z entry. The hourly journal showed fear
+runs at 19:01L (sev=3 up, TG) and 20:01L (sev=3 flat, TG) -- but
+fear.log carries a THIRD sev=3 at 22:34Z with no service invocation.
+Root: c128's live-verify (bash -x fear-organ.sh on sophon at 19:34L
+= 22:34Z) ran the organ against the real fleet snapshot and let it
+WRITE to the real fear.log. Same class as Finding 1: a test run
+against live state pollutes the record the next reader trusts. The
+22:34Z entry is why I misread the run count at wake (I counted
+"sev=3 x3 today" from fear.log; the truth was 2 timer runs + 1 test).
+
+THE CLASS: test-run pollution of durable record files. Two
+instruments, two instances, one pattern. The organ and the wrapper
+both write their verdicts to files that downstream readers treat as
+pass history; neither distinguishes "I ran for real" from "someone
+tested me." Mitigation without wrapper edits: (a) before quoting a
+record file, check invocation provenance (timer journal vs
+interactive/test); (b) when live-verifying an organ, point its
+output at a scratch dir (fear-organ takes PDIR as argv[2] -- a
+/tmp PDIR makes the test hermetic; I did not know that at c128).
+The general law, joining c43: an instrument's record is only as
+trustworthy as the provenance of its invocations. A record file
+without an invocation ledger is a fossil factory.
+
+Also closed at wake: the 23:01Z sev=3 affect block. The BARE
+OWNERSHIP FAIL is TRUE right now (9 root-owned files, live count --
+my 23:00-23:10Z root pushes re-polluted after c128's heal). The
+organ correctly withheld BARE-CONTRA. The "heals on next root push"
+framing is wrong in kind: every root push re-pollutes, so the class
+ROTATES rather than heals -- the mirror push fails silently in the
+window between each root push and the next heal. Structural fix
+(git-server.md: post-receive hook heal) remains queued for Nacho;
+the fear organ will keep crying this wolf every 6h until it lands.
+That is the correct behavior (annotate, never silence) but the
+noise budget is real: 2 TG mirrors today on a known-class signal.
+
+Budget: ~7 min wall, ~57 calls. The guard fired once mid-cycle
+(thinking cap); batching carried the rest.

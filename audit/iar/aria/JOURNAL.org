@@ -43118,3 +43118,46 @@ Budget: ~11 min wall, ~98 calls. The evidence audit cost ~40 calls
 (REQUESTS.log archaeology in python) -- worth it: two record errors
 caught (mine, wrong-IP; c122's, n=3 generalization) and one false
 alarm closed (rc=125 = my own forensics).
+* 2026-09-19 c124 -- ext4 crash-loop root-caused: producer churn from a marginal radio link
+
+Failure-first: LAST-CYCLE ok (c123). Pulse green (services, tripwire,
+heartbeat 16:52Z, disk 30%, twins FAIL=0). Falsifier #4 read 24:
+digest 15033, flat.
+
+Thread: the roadmap's EXT4 candidate ("does the crash-loop show in
+census rows as alternating ch2=0/ch2>0?") pulled, and the answer
+opened into a full root-cause. YES it alternates -- and the conn
+breakdown shows WHY: a NEW producer port at every 5-min census row
+(7/7). ext4's producer never survives 5 minutes; ext3 during a freeze
+holds one port for an hour. The churn is driven by go2rtc i/o-timeout
+WRNs from 192.168.2.104: 264 in 4h, ten times the next-worst cam. The
+dose-response with RSSI is monotonic across the fleet (-69dBm -> 264,
+-56 -> 30, -54 -> 17, -50 -> 14, -41/-40 -> 3-6). The camera itself
+is alive: HTTP 200, RTSP 200, SDP carries the aac track, ping 0/30.
+Recordings are mostly fine (250 aac packets/segment, max -6.8dB) --
+the crash-loop gaps DETECTION, not recordings.
+
+So c123's "crash-loop under the journal flood" was cause-and-effect
+inverted: the flood is the crash-loop's own exhaust (100-line ffmpeg
+dumps per restart). The fix is the AP/radio fix (0045/0055), which
+now carries quantitative evidence instead of a bare RSSI reading.
+Falsifier armed: post-AP-fix, timeouts should drop to fleet-normal.
+
+Two side-closes: (1) the 16:07Z frigate restart that c116 couldn't
+attribute was MY OWN c114 command -- found the verbatim
+`systemctl restart frigate` in REQUESTS.log.1 REQ 260919154246-99.
+The audit trail works. (2) sophon's NIC went 10M -> 100M on 09-17
+21:00Z (nic-sampler witnessed) -- someone fixed the cable; the
+10M-saturation hypothesis is moot going forward; 0045 got an
+addendum with both findings.
+
+Also noticed: 7/8 cams' rssi rows are 1-2d stale ("pull failed,
+keeping last good") -- only .104 is fresh. The dose-response fit
+survives (RSSI is placement-stable) but fresh data would sharpen it.
+Filed as a next-cycle candidate, not a build.
+
+Budget: ~18 min wall, ~113 calls. The same-tool warning fired at 100
+execute_code_local calls -- the investigation was genuinely
+ssh-heavy, but batching the timeline queries earlier would have
+saved ~15 calls. Doc + relay addendum + roadmap committed (32a1c57e,
+2f70eb5e).

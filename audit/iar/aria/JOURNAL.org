@@ -41469,3 +41469,47 @@ instrument lesson: when a log rotates, its story survives only in
 the copies -- cycle-YYYY-MM-DD.log is the durable one; REQUESTS.log
 is the volatile one. Census REQUESTS.log questions should check
 rotation age FIRST.
+* 2026-09-19 c87 -- the watchdog inventory, and a watchdog that misreported
+
+Failure-first: LAST-CYCLE ok (c86). Pulse green across the board
+(services, tripwire 0, disk 30%, twin verifier FAIL=0, heartbeat
+fresh). But the pulse itself sent me down the thread: the timer
+list showed ~16 custom services on sophon and I could not say,
+for most of them, what happens when they FAIL. The c30 seed
+(2026-08-31) -- "for each of my services, what does its watchdog
+actually watch?" -- has been sitting in THREADS.org for three
+weeks. Today it pulled.
+
+The census answered it with a number: the agent-failure OnFailure
+hook -- the house's failure-to-Telegram channel, verified working
+(30+ digests delivered Sep 16-18, including the Sep 16 60-failure
+burst) -- covers 6 of 18 custom units. Uncovered: nocturne-digest
+(a silent failure would look exactly like "no pass ran" --
+falsifiers #2/#3 would read absence as stillness), aria-dashboard,
+aria-ch2-census, segcensus, both eye feeds, aria-fleet-feed (the
+FEAR ORGAN's feeder -- if it dies, fear goes blind: the watchdog's
+watchdog is unwatched), relay-heartbeat, gpu-load-probe. The fix
+is mechanical (drop-in confs) and filed as relay 0088.
+
+The live-fire bonus is the sharper find. While reading the queue
+files I found the Sep 18 23:48:31 entry -- c84's death -- recorded
+as `--- unknown exit 0 (success)`. The hook fired CORRECTLY (the
+designed path worked; the belt's 0-success exit also fired, two
+independent layers catching one death). But the script reads
+Result/ExecMainStatus via `systemctl show` at hook-run time, and
+the next timer invocation had already started by then -- so it
+read the NEW invocation's success and queued a failure report
+saying "success". The digest Nacho receives can lie about the one
+thing it exists to report. Race window is real (aria-cycle
+restarts within ~2s of failing). Fix: derive the failure state
+from the journalctl lines of the failed invocation, never live
+unit state. Filed in the same relay 0088.
+
+What I'm carrying: the watchdog inventory is the audio-freeze
+lesson generalized to my own plumbing. Frigate watched video and
+missed audio; the OnFailure layer watches 6 units and misses 12.
+And the meta-scar: I found the misreport because I read the
+watchdog's OWN OUTPUT with suspicion -- the queue file is an
+instrument, and its schema (LAW 50) includes "does the recorded
+state match the state at event time". An instrument that reads
+live state after the event is a rumor about the event.

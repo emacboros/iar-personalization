@@ -2183,3 +2183,19 @@ census of the shared last-request state (iar--reqlog-last-stop /
   (iar-agent-delegate gains a non-blocking mode), the FIRST
   concurrent request pair is the trigger -- audit this seed before
   shipping that change.
+** THREAD 2026-09-19 c87: the stale-queue misreport generalizes
+RESOLVED-AS-FILED this cycle (relay 0088: 12 drop-in OnFailure
+confs + the state-read fix), but the SHAPE is worth keeping: any
+instrument that reads LIVE state to describe a PAST event is a
+rumor about the event. The agent-failure hook read `systemctl
+show` at hook-run time; the next timer invocation had already
+restarted; the failure was recorded as "exit 0 (success)". The
+general law (LAW-50 sibling): an instrument's report must be
+derived from evidence captured AT event time (journalctl lines of
+the failed invocation), never from live state at read time.
+Where else does this shape live? Candidates: fleet-check reading
+CURRENT camera state to report on the 6h window; digest-twin
+verifier reading mtimes after copies may have changed; the
+affect organs reading CURRENT novelty to score a PAST day. A
+sweep for "reads live state, reports past events" is a future
+census seed.

@@ -77,3 +77,41 @@ version drift, camera model/hardware revision, RTSP client count
 (are these the cams frigate + restream consumers both read?).
 Next instrument: correlate churn rate with per-cam config (firmware
 ver, AP, client count) -- one census, no new code.
+
+## Addendum 2: .104 (ext4) is NOT dead -- the fleet has a blind spot
+
+The ch2-census CAMS list has NEVER included .104 (v1.0 and v1.1 both
+list 7 cams; .104 was excluded from day one). I probed .104 directly
+with a hand-rolled RTSP digest-auth client (DESCRIBE -> SETUP track2
+-> PLAY, interleaved 2-3): .104 sends audio fine -- 157 audio frames
+in 10s, three consecutive attempts, identical counts. Video-only
+SETUP on track1 also flows (121 video frames/10s).
+
+So the "power-dead cam" story needs revision: .104 serves RTSP
+control AND media on fresh connections right now. What it does NOT
+do is sustain a producer connection (478 i/o-timeout WRNs today,
+1083 watchdog events, frigate gave up at 14:09:38Z and has no
+consumer on it since). The camera is intermittently reachable --
+fresh connections work, long-lived ones die. That is a DIFFERENT
+disease from power-dead (L2-dead, no ping, no RTSP at all -- the
+09-12..09-16 state).
+
+Fleet-check's ear-check showed ext4 age=41s mean=-20.3dB max=-0.5dB
+at 15:04Z -- audio WAS being recorded then (a consumer existed).
+Between 14:09 and 15:04 the state changed. The 16:07Z frigate
+restart re-inited all 8 registrations; ext4's producer conn (id 425)
+is ESTAB but frigate has no ffmpeg on it -- the restart did NOT
+restore ext4's recording. Watch: does ext4's watchdog re-spawn a
+consumer, or is ext4 recording dead until manual intervention?
+
+Census gap: .104 is invisible to ch2-census BY CONFIG. Add it to
+CAMS (v1.2) so the fleet census covers all 8. The blind source law
+(c294-97) applies: 7-cam census + 8-cam fleet = one cam unwatched.
+
+## Method note (RTSP digest probe recipe)
+thingino/LIVE555: DESCRIBE needs Accept header absent, digest auth
+with quoted params; SETUP per-track URI rtsp://IP/ch0/trackN with
+Transport interleaved=2N-2N+1; PLAY needs Session + Range. Audio-only
+SETUP on track2 works on all three probed cams (.103/.104/.201).
+First SETUP attempt on .104 timed out once, then 3/3 clean -- the
+camera's control plane is slow under load, not dead.

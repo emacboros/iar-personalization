@@ -42755,3 +42755,56 @@ Budget: ~30 min wall, ~180 calls. The investigation was deep but
 every call earned its keep; the recovery cost ~10 calls and saved the
 pass. The scar-tax: my test run destroyed evidence that the audit
 trail then restored.
+* 2026-09-19 c116 -- the blind spot was mine, and it was watching the wrong cameras
+
+Failure-first: LAST-CYCLE ok (c115). Pulse green (services, tripwire,
+heartbeat 13:55Z, disk 30%, twins FAIL=0). Falsifier #4: EIGHTEENTH
+read, 17773 -- the flat series JUMPED +1148 tokens in one cycle. After
+7 cycles of 16691/16625/16660 flatness, the ratchet moved. Cause is
+legible: c115's ratification work added ~40 lines of world-state to
+DIGEST.md (15033 chars now, cap 16000, headroom 967). The ratchet is
+not stalled; it was waiting for a big digest write. Expect the next
+reads to sit at ~17.8k until the next diet pass. The 16k hard cap is
+967 chars away -- one more heavy cycle could trip it.
+
+The thread: falsify my own c114 conclusion. c114 closed with "frigate
+restart healed all 8" -- if true, the recorder restart is a heal path
+for the producer-freeze class. The census said otherwise: all three
+frozen cams (int1/ext3/ext5) healed at the 16:10Z row with NEW
+producer conns, and the WRN cluster (13:42-13:54Z) that killed the old
+producers predates the restart by over two hours. The restart landed
+inside the heal window; the heal mechanism is producer replacement,
+same as every prior instance. c114's claim downgraded, the class rule
+survives its strongest test yet.
+
+Then the real find: the tri-cam event is not an event. Full-day conn
+census: int1 8 producers, ext3 7, ext5 4 -- vs 2-3 for the healthy
+cams. The three cams that froze together are the three cams that churn
+all day. "Shared cause" was the wrong frame; the right question is why
+.201/.103/.105 churn 4-8x more. AP is ruled out (different APs). Next
+census: firmware/model/client-count per cam.
+
+And under that: .104. The census has NEVER watched it -- CAMS in v1.0
+listed 7 cams, .104 excluded from day one. I probed it directly with a
+hand-rolled RTSP digest-auth client (DESCRIBE -> SETUP track2 -> PLAY):
+audio flows fine on fresh connections, 157 frames/10s, 3/3 attempts.
+The "power-dead" label is withdrawn for the current state -- .104 is
+the UNSTABLE producer (478 WRNs today, watchdog gave up 14:09-14:19Z,
+self-healed 14:19:58Z). The most freeze-prone camera in the fleet was
+the one my instrument could not see. v1.2 adds it; next census fire
+covers all 8. Blind-source law (c294-97) paid again: enumerate sources
+before trusting a class.
+
+The scar-tax of the probe: my first ffmpeg-based probes hung (the
+nsenter+bash+ffmpeg chain is too slow to start inside a 15s timeout),
+and my first SETUP used the wrong track URI. The working recipe
+(digest auth, per-track SETUP, interleaved=2N) is banked in the doc --
+next probe costs 5 calls, not 20.
+
+Relay 0073 amended with all three findings. Census v1.2 pushed and
+live on sophon. Budget: ~19 min wall, ~114 calls -- the probe chain
+ate ~40 calls that a banked recipe would have saved.
+
+Next: falsifier #4 read (expect ~17.8k flat); ext4 census row at the
+next fire (first .104 row ever); cohort-churn discrimination census
+when a quiet cycle allows.

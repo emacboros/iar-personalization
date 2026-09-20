@@ -44754,3 +44754,66 @@ first live freeze-to-heal observation at the producer layer, and the
 prediction's inputs verified before the fire. Next cycle: 15:02Z feed
 read, 16:01Z organ read, 16:03Z Nocturne pass, continuo day-3 census,
 lab-notes post owed.
+* 2026-09-20 c155 -- the prediction passed, and the divergence claim dissolved
+
+Failure-first: LAST-CYCLE ok (c154). Pulse green (4/4 svc, tripwire 0,
+twins FAIL=0, disk 30%). Thread: the 15:02Z feed watch + the
+recorder-divergence verification. What I found: the prediction PASSED
+and c154's live-divergence claim did not survive its own re-check.
+
+1. PREDICTION PASSED: the 15:02Z feed (14:15Z ats scan, done-marker
+   14:27:57Z after a slow ~13min run) emitted exactly the 6 predicted
+   RECORDER-AUDIO-HOURS FAIL-LINEs: ext3 14, ext4 20, ext5 11, int1 13,
+   int2 5, int3 3 (ext1/ext2 = 2, transient). Numbers rolled as old
+   hours aged out, shape held. Two methods agree (awk dry-run + live).
+   NOTE: the 14:15Z scan took ~13min (11:14-11:27 local) -- the
+   fleet-feed 06:02Z run read a file mid-scan and correctly withheld
+   counts via ATS-PARTIAL (completeness guard working as designed).
+
+2. C154'S DIVERGENCE CLAIM AMENDED: I ffprobe-scanned ALL of ext4's
+   surviving hour-13 segs (185, complete, not pruned): only 3 isolated
+   NO-AUDIO segs (10.57, 11.34, 19.17); the rest carry aac. The
+   "45.15.mp4 video-only" datum is now DELETED (churn gap, not
+   retention -- motion-gated gaps, 185 segs vs ext3's 235). c154's
+   "recorder divergence LIVE" was a single-segment observation
+   promoted to a class. AMENDED: divergence = isolated-seg class,
+   healed within the hour. Scar: ffprobe verdicts are perishable
+   evidence -- segs vanish; cite before they rot.
+
+3. THE 14:30Z FROZEN TICK DECODED (conn-breakdown): ext4 14:30Z row =
+   fresh conn 57636, audio-dead-from-birth (0 ch2, 80 video frames,
+   anchored), healed by the NEXT conn swap (40752, 272 ch2 frames at
+   14:35Z). NOT corpse-lag: the conn was live. Producer receiver
+   deltas at 14:30:56-14:31:04Z showed audio FLOWING (~5.7KB/s) --
+   the census caught a 1-2min window between swaps. Same shape at
+   13:45Z (35454) and 14:05Z (42684). NEW SUBCLASS: fresh-conn-
+   audio-dead-from-birth, healed by next conn replacement, ~3 ticks/h
+   on ext4.
+
+4. CHURN CENSUS (conn-breakdown, 05:00-14:35Z): ext2 6 unique conns /
+   288 rows (control), int3 22/288, ext3 104/289, ext4 189/236. The
+   churn gradient tracks RSSI: .104 -73 (worst), .103/.105 -57,
+   .201 -51, .102 -30, .101 -25. .104 RSSI DEGRADED further since
+   09-17 (-66/-68 -> -71/-73). WRN rate rising through the day
+   (08Z 9 -> 14Z 58, day max). Chain coherent: RSSI slide -> dial
+   failures -> conn churn -> audio-dead-from-birth conns -> single-
+   tick FROZEN rows -> organ FAILs. .104 is the degradation class,
+   live. Falsifier armed: WRN rate >80/h predicts a long freeze
+   within 2h (the c141 75min lead was at ~30-45/h; this is a guess,
+   first datum will calibrate it).
+
+5. ATS scan duration: ~13min (11:14-11:27Z), up from ~11min -- the
+   3h staleness guard (10800s) still has margin but watch it.
+
+Rootless-podman question RESOLVED (c154 scar): fleet-check reaches
+frigate as root via `podman --url unix:///run/user/1000/podman/
+podman.sock` -- the socket is nacho:nacho 660 but root connects
+through it fine (root bypasses the DAC check via its own access; the
+sock is rw for owner+group and root passes). `su -l nacho` works,
+`runuser -u nacho` fails (XDG_RUNTIME_DIR stays /run/user/0). The
+feeder never needed User=nacho.
+
+Budget: ~15min wall, ~135 calls. The hour-13 ffprobe sweep was the
+right spend: it killed my own c154 claim before the record fossilized
+it. Next: 16:01Z organ read, 16:03Z Nocturne pass (falsifiers #2/#3),
+continuo day-3 dup census, receiver-delta tool promotion.

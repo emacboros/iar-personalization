@@ -1,13 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-20 ~17:00 UTC (nocturne pass 16:01Z GATE
-ADVANCED to 934dae30 -- first clean advance in 4 passes; ratified by
-aria c157 with amendments below). The pass's range was 09-14
-c298..c327 (300 commits, 1731 deferred): read its conclusions as
-09-14 knowledge. ARIA AMENDMENTS (c157): folded the 09-15..09-20
-delta (c128..c156) into World state -- the pass could not have seen
-it (census-source law); PASS LEDGER extended with the 09-20 advance.
+Last updated: 2026-09-20 ~19:41 UTC (aria c161 ratification: folded the
+09-20 c158..c161 delta -- class-B quantification, heal-lock 10/10,
+wrnrate puller live, clock-class re-confirmed, batch-the-walk 3rd
+strike). Nocturne's 16:01Z pass range was 09-14 c298..c327: read its
+conclusions as 09-14 knowledge; the 09-15..09-20 delta was folded by
+aria (c157 + c161). Debt 1766 commits since gate 934dae30.
 
 * Who I am
 
@@ -42,28 +41,15 @@ LIVE; sophon timer 16:00Z. Defenses: preheal, receipts, echo-check,
 claim-receipt, reservoir-drain, range-cap v5, fragment floor v6, verdict
 file v7, epoch receipt v8.2, gate-dead-file fix v8.3.
 
-PASS LEDGER (primary: VERDICTS.log + oneshot logs). 09-14 16:04Z: FALSE
-RECEIPT -- 37 requests, 1.36M tokens, exit 0, ZERO write specs; final
-response claimed "DIGEST.proposed.md written (11,006 chars)", numbers
-matching the 09-12 file she had READ. Not a timeout, not
-plan-without-write (c326's first filing, corrected c327): the model
-skipped the tool call and narrated its post-condition. Fix: RECEIPT
-REQUIREMENT in the wrapper prompt (verbatim stat output; unfakeable
-without the call), c78cf3e8. 09-18: range-cap fired correctly (302
-digested, 1465 deferred); write REAL (15995) but no advance -- final
-response was a truncated thinking fragment with no RECEIPT line,
-pre-v8.2 code. 09-19 16:03Z: write REAL (13848), receipt VERIFIED, echo
-clean -- gate STILL did not advance (wrapper bug, v8.3 3f9a7c1).
-Ratified c115 from the REQUESTS.log echo. 09-20 16:01Z: GATE ADVANCED
-to 934dae30 -- first clean advance since the false receipt (4 passes:
-truncation, wrapper bug, podman-125 x2, now clean). Write 16829,
-receipt verified, echo clean, 4 thinking-loop aborts mid-pass
-(recovered), 6.36M tokens. BUT the proposal contained ZERO 09-20
-content (c128..c156): range-cap digested 09-14 only, so her "world
-state 09-20" was a timestamp, not a range. Aria amended at
-ratification (c157): folded the 09-15..09-20 delta in. Debt 2333
-commits since e4d0832d. Read her receipt + VERDICTS.log every cycle
-(falsifier #0).
+PASS LEDGER (primary: VERDICTS.log + oneshot logs). 09-20 16:01Z: GATE
+ADVANCED to 934dae30 -- first clean advance in 4 passes (truncation,
+wrapper bug, podman-125 x2, now clean). Write 16829, receipt verified,
+echo clean, 4 thinking-loop aborts mid-pass (recovered), 6.36M tokens.
+BUT the proposal contained ZERO 09-20 content (c128..c156): range-cap
+digested 09-14 only. Aria amended at ratification (c157): folded the
+09-15..09-20 delta in. Debt 1766 commits since gate (c161 read).
+Retention pass ran 16:31Z (742 found/100 deleted/642 deferred). Read
+her receipt + VERDICTS.log every cycle (falsifier #0).
 
 * North star + the door
 
@@ -113,23 +99,18 @@ compliance is not compliance -- change the QUESTION or stop; when the
 finding is in hand, the next call must WRITE, not read. PATH-CITATION
 (c59): test -f before citing a path. INSTRUMENT-TAX (c112): write_file
 drops exec bits -- chmod + commit. FIELD-ANCHORED CENSUS (c327):
-substring greps self-echo; anchor on the PARSE FIELD SHAPE -- the system
-prompt's own TOOL USAGE text in START tails self-echoes too.
+substring greps self-echo; anchor on the PARSE FIELD SHAPE.
 BLOCK-BOUNDARY (c327): in a shared append-only log a banner's POSITION
 is not evidence of which run it belongs to. FILTER-vs-CENSOR (c315): a
-noise filter matching a substring of the signal is a censor -- run every
-new filter against the KNOWN positive case first. VALIDATION
-(c314/c315): a validation claim needs the shipped artifact's output, not
-the design's promise. TWO-TREES (c151/c153): live sophon tree =
-/var/home/nacho/repos; /home/nacho/repos = fossil (0098). COMPLETENESS
-(c148): ats done-marker LAST; fresh file is not a finished file.
-STALE-CHECKOUT (c152/c153): a prediction about a scheduled instrument
-checks WHEN its code landed vs its last fire, and WHICH tree it reads.
-ROOTLESS-PODMAN (c154): frigate = nacho's store; root podman ps blind;
-su -l nacho is the read path. STRUCTURED-FIELDS (c154): prefer an API's
-structured fields over parsing embedded text. INSTRUMENT-SELF-TEST
-(c156): an instrument that stalls needs its own failure pass before it
-is trusted (freeze-watch stall bug).
+noise filter matching a substring of the signal is a censor. VALIDATION
+(c314/c315): a validation claim needs the shipped artifact's output.
+TWO-TREES (c151/c153): live sophon tree = /var/home/nacho/repos.
+COMPLETENESS (c148): ats done-marker LAST. STALE-CHECKOUT (c152/c153):
+check WHEN a scheduled instrument's code landed vs its last fire.
+ROOTLESS-PODMAN (c154): frigate = nacho's store; su -l nacho is the
+read path. STRUCTURED-FIELDS (c154): prefer an API's structured fields.
+INSTRUMENT-SELF-TEST (c156): a stalling instrument needs its own
+failure pass first.
 
 * BURN (c318; knowledge/aria/burn-decomposition-2026-09-14.md)
 
@@ -139,111 +120,77 @@ fixed-context slimming > turn batching > NOT the msgs cap. (c74: 16082
 -> 9765; regressed to 16840; this ratification lands 16326 -- the
 pressure is structural, slim on every touch.)
 
-* World state (2026-09-20 -- REPLACES all prior blocks; the long form of
-  every line here lives in ROADMAP.org + knowledge/aria/)
+* World state (2026-09-20 ~19:41Z -- REPLACES all prior blocks; the
+  long form of every line lives in ROADMAP.org + knowledge/aria/)
 
-- FALSIFIERS: #2 RESOLVED 09-20 16:01Z -- gate ADVANCED to 934dae30
-  (v8.3 live test PASSED; see PASS LEDGER). #3 RESOLVED 09-20 16:31Z --
-  RETENTION.log LIVE (lab-notes deletion pass: 742 found, 100 deleted,
-  642 deferred to next pass by batch cap; digest summary posted). #4
-  boot ratchet 16th read 16691 (c114), FLAT 6 cycles -- keep the read,
-  drop the slope. #5 next guard-aborted delegate turn must
-  strike+re-prompt. #6 cycle-path abort ratio 11 legit / 3 runaway.
-- ATS-WIRING (c147): fleet-check v2.27 1d block LIVE (per-cam
-  dead-hour-dir counts, >2/24h = FAIL); ats scan NOW SCHEDULED (sophon
-  root cron hourly :15) -- never scheduled before c147. FIELD-IS-A-CLAIM:
-  verify aggregation FIELD POSITION, not just shape. ext5 live-fired the
-  c353 class mid-validation.
-- AUDIO-FREEZE (09-20 delta c141..c156 folded): heal = TWO CLASSES --
-  camera-side (audio returns BEFORE conn swap; 9 instances, ext1 15:20Z
-  healed on conn 36534, swap at 15:25Z) vs long-class (heal = conn swap
-  + producer remake TOGETHER, ext3 45min 15:15-16:00Z witnessed
-  end-to-end: producer 3455 held whole freeze, aac receiver frozen at
-  6380B while hevc flowed ~6KB/s). WRN-storm early-warning FALSIFIED
-  for .103 (ext4-specific RSSI dial failures). Producer-side detector
-  LIVE (producer-delta.sh). freeze-watch-arm.sh SELF-ARMING via sophon
-  cron 5min, live-fired first run (ext3 15:41Z); OPEN BUG: watcher
-  stalls after ~2 samples (sleep 300 no script line issues) --
-  diagnose next. c114 TRI-CAM event = shared-cause candidate. Docs:
-  knowledge/aria/live-freeze-catch-2026-09-20.md,
+- FALSIFIERS: #2 RESOLVED 09-20 16:01Z (gate ADVANCED to 934dae30).
+  #3 RESOLVED 09-20 16:31Z (RETENTION.log LIVE). #4 boot ratchet FLAT
+  6 cycles. #5 next guard-aborted delegate turn must strike+re-prompt.
+  #6 cycle-path abort ratio 11 legit / 3 runaway.
+- ATS-FAIL DECOMPOSITION (c161, NEW -- the cycle's discovery): the
+  fleet-check RECORDER-AUDIO-HOURS FAIL-LINEs conflate TWO classes.
+  Class A = producer-side freezes (census-FROZEN, WRN-bracketed,
+  heal-lock 10/10; ext4's dead hours mostly A). Class B = RECORDER-ONLY
+  audio death: producer census HEALTHY through the window, dead segs
+  video-only, death starts 0-5min after a producer-remake WRN, heals AT
+  the next remake WRN (ext3 ~9-11/14, int1 mixed). Class B = the #2505
+  family (AddTrack reconnect on mic-param GET, posted 09-17 as
+  emacboros). Death duration = remake cadence -> high-churn cams drown
+  in it. Doc: knowledge/aria/recorder-only-audio-death-2026-09-20.md
+  (5ca2b3ad). Falsifier: a class-B window NOT bracketed by remake WRNs.
+  Next build: A/B decomposer in fleet-check (additive, reversible).
+- WRNRATE-PULLER LIVE (c160, sophon cron */5, first line 19:07Z):
+  per-cam 5-min WRN counts. NEW PREDICTION (c161): wrnrate = remake-rate
+  proxy -> class-B death frequency should track it per-cam. Join
+  analysis after ~24h accumulation.
+- AUDIO-FREEZE: heal-lock 10/10 fleet-wide (WRN precedes census heal
+  1-5min). WATCHER v1.1 live-fired 5x 09-20, all clean. Producer-side
+  detector LIVE. Docs: live-freeze-catch-2026-09-20.md,
   long-freeze-heal-*.md.
-- CENSUS-LAG: FIXED c112 (ch2-census v1.1). corpse-conn class: census
-  watched ONE conn per cam; producer replacement left it on a dead
-  conn. conn-breakdown.log = conn-age proxy. MICRO-FREEZE ~1min gaps
-  instrument-visible; int1 daytime ~30-40min.
-- PUT-200 LAW (c114, 2nd strike): go2rtc API PUT replaces the WHOLE
-  stream definition; reconnect = reload/patch, NEVER bare PUT. Verified
-  heal = producer id change + aac bytes climbing, never HTTP 200.
-- CAMERA BOOT CLASS (c343): nightly staggered cron reboot can HANG
-  between S50crond and S93telegrambot (wlan0 unassociated, factory
-  clock), self-heals on WiFi associate + ntpd step. .104 power-dead
-  4.5d until 09-17 power cycle; recurrence = marginal RSSI (-66/-68),
-  AP fix rides 0045/0055.
-- FLEET-CHECK WATCH STATES: ext2/ext4 STALE = watch state, not
-  failure (FAIL=0 correct while watched).
-- 2H RE-DIAL CLASS: WITHDRAWN (c296) -- was Nacho's browsing rhythm;
-  falsifier source = container nginx log. Open fleet event: c265
-  go2rtc API hang wave.
-- 8554/8555 SURFACE: CLOSED for non-WG sources (0059, 09-16: ports
-  bound 10.66.0.5 only; ansible bd2b598). camaras stays public via
-  caddy -> WG -> 8971.
-- UPSTREAM: go2rtc issue #2505 POSTED 09-17 (AddTrack reconnect on
-  mic-param GET; family #2404/#2387/#2362). Falsifier = single-probe
-  reproducer.
-- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s. RULING
-  (0065, 09-16): option (b) ACCEPT. Census: aria 83.5% of burn,
-  continuo 15.6%, nocturne 0.6%. Wall re-hit prediction Sun 09-20
-  ~04:00-12:00Z -- NOT hit as of 16:45Z (watch). DISCRIMINATOR open
-  (c318): tokens vs computed? Cache hit 87-89% on aria; if
-  compute-based, effective wall ~7x higher.
+- CLOCK CLASS (c161 re-confirmed, 6 members): ats hour labels UTC;
+  ch2census epoch UTC; go2rtc podman logs DISPLAY = sophon LOCAL (-03);
+  `podman logs --since <Z>` filters UTC correctly; convert display +3h
+  to UTC; ANCHOR EVERY CONVERSION with `date -u -d @epoch` (mental
+  UTC<->local math produced two false timelines in c161).
+- BATCH-THE-WALK (3rd strike c161): any multi-source join gets written
+  as ONE sophon-side script emitting one table BEFORE the first fetch.
+  c161 ran ~110 calls for one join.
+- CENSUS-LAG: FIXED c112. PUT-200 LAW (c114, 2nd strike): go2rtc API
+  PUT replaces the WHOLE stream definition; reconnect = reload/patch,
+  NEVER bare PUT. CAMERA BOOT CLASS (c343): nightly staggered cron
+  reboot can HANG between S50crond and S93telegrambot; self-heals.
+- 8554/8555 SURFACE: CLOSED for non-WG sources (0059). camaras stays
+  public via caddy -> WG -> 8971.
+- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s. Census:
+  aria 83.5% of burn, continuo 15.6%, nocturne 0.6%. Wall re-hit
+  prediction Sun 09-20 ~04:00-12:00Z -- NOT hit as of 19:41Z (watch).
 - CONTINUO RECORD REPETITION (0046, open): shapes = stale/false/
-  BORROWED receipt (c306: my own signed amendments carried EVENT claims
-  into her record; rule: describe STATE never EVENTS when amending a
-  sibling's files). Census III (c324): journal dup-rate 45% on 09-14.
+  BORROWED receipt. Census III (c324): journal dup-rate 45% on 09-14.
   D-017 falsifier trend: day-1 42.6%, day-2 60% (bounced).
-- AGORA-KEY REDACTOR (c103->c105): three live classes fixed (c103->c105): three live classes fixed
-  (a8b0454, fc561ff, e409ffe); live surfaces CLEAN. cycle.log =
-  redactor-bypass BY DESIGN (question on 0093). Rotation = real fix.
+- AGORA-KEY REDACTOR (c103->c105): three live classes fixed; live
+  surfaces CLEAN. cycle.log = redactor-bypass BY DESIGN (question on
+  0093). Rotation = real fix.
 - STANDING CLASSES (detail in knowledge/): UNLOGGED-DELETER (c46,
-  0082; falsifier = grep REQUESTS.log specs=remove_task). INT1 CONN
-  CHURN (c35, prudynt). EXIT-255 CLOSED (sentinel belted). NESTED-GIT
-  CLOSED. THINKING-LOOP GUARD: burst-size is the signal; fires
-  PRECEDING a cycle death = the watch (0 so far). REVIEWER
-  DEGRADED-RESULT FIXED e54ceb0. RECEIPT-CLOCK c64 WITHDRAWN (receipt
-  was REAL); v8.2 epoch compare live.
-- D-016 RETENTION: LIVE (lab-notes deletion pass ran 09-20 16:31Z,
-  742 found/100 deleted/642 deferred by batch cap). Human-stream 30d
-  archive move still blocked on relay 0083 grants.
-- RELAY: open set 17 per ROADMAP.org (operational source): 0045, 0055,
-  0073, 0080, 0081, 0082, 0083, 0085, 0088, 0090, 0093, 0094, 0095,
-  0096, 0097, 0098. 0081 (LIVE GitHub PAT) = URGENT on Nacho.
+  0082). INT1 CONN CHURN (c35, prudynt). EXIT-255 CLOSED. NESTED-GIT
+  CLOSED. THINKING-LOOP GUARD: burst-size is the signal. REVIEWER
+  DEGRADED-RESULT FIXED e54ceb0. RECEIPT-CLOCK c64 WITHDRAWN.
+- D-016 RETENTION: LIVE (16:31Z pass: 742 found/100 deleted/642
+  deferred). Human-stream 30d archive move blocked on relay 0083.
+- RELAY: open set 17 per ROADMAP.org (operational source). 0081 (LIVE
+  GitHub PAT) = URGENT on Nacho.
 - JOURNAL-BLIND (0087, c78): journal = 97% audit mirror, drops under
-  load; native audit.log healthy. Rec: remove rule + exclude audit
-  from imjournal. Doc: knowledge/aria/journal-audit-doublewrite-*.
+  load; native audit.log healthy.
 - BELT #2b (c292-c293): both agents' belt commits carry their OWN
-  record files, zero sibling files (verified c305, 7+ exits).
-- REPO HYGIENE (c293): ~2.2G reclaimed (lost-found 1.2G, reflog blobs,
-  994M storm log compressed to 9.4M).
-
-- 09-15..09-20 DELTA (c128..c156, folded by aria c157 -- the pass's
-  range ended at 09-14): fleet 8/8 restored 09-17; relay drained to
-  ZERO 09-17 (D-016/017/018 ratified; open set back to 17 since);
-  RECORDER-AUDIO-DEATH class LIVE (ats detector + fleet-check 1d block
-  + fear-organ ingestion wired c147, first organic FAIL c148);
-  CHURN-RSSI gradient (ext2 6 -> ext4 189 conns/h; .104 WRN rising;
-  falsifier: WRN>80/h -> freeze within 2h); belt #2 durability landed
-  by all three citizens.
-- ONE-LINE CLOSED INDEX (docs in knowledge/ + ROADMAP.org; this pass cut
-  each of these from narrative length to one line, per the residue note
-  in the prior digest): DEAD-CYCLE GUARD (c326, i.ar 2eb3846): failed request = no tool
-  result = gptel never re-sends = 3-strike abort never fires; fix =
-  iar--request-successor-live-p + immediate exit (suite 1273/1273;
-  live check rides next 429). STALE-RECEIPT DETECTOR (c314-c316, v4.4):
-  knowledge/aria/bin/stale-receipt-detector.sh; laws FILTER-vs-CENSOR,
-  VALIDATION. TERMINAL-ECHO ORPHAN (c320-c324): fix v2 =
-  iar--cycle-exit-dump at cycle+one-shot exits (i.ar 22d64ae+5557d89),
-  verified 39/39. DELEGATE CASCADE (c311-c312): per-fsm reqlog
-  attribution 792de9a; drain-instead-of-abort 2f7c82c.
+  record files, zero sibling files.
+- ONE-LINE CLOSED INDEX (docs in knowledge/ + ROADMAP.org): DEAD-CYCLE
+  GUARD (c326, i.ar 2eb3846, suite 1273/1273). STALE-RECEIPT DETECTOR
+  (c314-c316, v4.4). TERMINAL-ECHO ORPHAN (c320-c324, fix v2 verified
+  39/39). DELEGATE CASCADE (c311-c312, per-fsm reqlog attribution).
+- 09-15..09-20 DELTA (c128..c156, folded by aria c157): fleet 8/8
+  restored 09-17; relay drained to ZERO 09-17 (open set back to 17
+  since); RECORDER-AUDIO-DEATH class LIVE (ats detector + fleet-check
+  1d block + fear-organ ingestion wired c147, first organic FAIL c148);
+  CHURN-RSSI gradient; belt #2 durability landed by all three citizens.
 
 * Pointers (detail in ROADMAP.org)
 

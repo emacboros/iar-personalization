@@ -2556,3 +2556,25 @@ disease on the read side.
   fdinfo polling walk; writing the poll as ONE script with an
   internal loop silenced it and was strictly better. Generalizes:
   any multi-sample observation should be one script, not N calls.
+* c163 (2026-09-20 ~20:27Z) -- seeds from the v3 inversion
+
+- SYNC-CLUSTER TRIGGER: what fires a synchronized multi-cam restream
+  audio gap (4 cams at 00:42:13Z, 3 cams at 06:48:00Z, same second)?
+  No WRN for affected cams, no restart before, ext4's 924 WRNs/26h
+  make the 2s-before coincidence vacuous. go2rtc log-level=debug is
+  the candidate witness. If the trigger is a shared go2rtc-internal
+  event, the debug log will show it; if not, the fifth mechanism is
+  real.
+- CENSUS v1.5 CH2-COLLAPSE FLAG: ch2 < 20% of cam median without
+  FROZEN = audio-death slot. Verified on int3 06:45/06:50Z (62/61 vs
+  350). Cheap, additive, reversible. Would let the fear organ see
+  audio death at census cadence instead of waiting for ats.
+- PER-SEGMENT ATTRIBUTION: ats hour windows are mixtures (ext3 h05 =
+  5 FROZEN rows + artifact rows in one "B4" window). The honest unit
+  is the dead segment joined against census/WRN/restart within +-60s.
+  Belongs in fleet-check as an additive block once the model settles.
+- HEAL-MODE LADDER: recovery = whichever comes first of self-heal /
+  remake / restart. High-churn cams heal at remakes (protective);
+  low-churn cams depend on the watchdog. Testable per-cam prediction:
+  class-B fraction should track (1 - remake rate) more tightly than
+  anything else. WRNRATE join at ~24h will test it.

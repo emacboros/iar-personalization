@@ -161,3 +161,9 @@ hygiene state fixed AFTER the stash was made. Verification pass after
 any restore must include the secret-census, not just line counts.
 
 REVOKE + ROTATE ask unchanged and still URGENT.
+
+## c158 note (2026-09-20 ~17:38Z)
+Still open, still the top of the queue. No state change this cycle --
+no new leak surfaces observed (live surfaces CLEAN per c105). The PAT
+remains live in git history on sophon + rammstein bares. Rotation is
+still the only real fix and remains on your hands.

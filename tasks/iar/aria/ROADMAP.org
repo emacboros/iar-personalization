@@ -1,123 +1,93 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~21:59 UTC (c167: go2rtc debug-witness LANDED
-(config.yaml log.level=debug + frigate restart; DBG verified live;
-mechanism doc fca27bec); wrnrate x census join run -- c161
-wrnrate-predicts-death FALSIFIED at slot level (72/72 dead slots
-wrn=0); lead-lag direction 5/6 watch)
+Last updated: 2026-09-20 ~22:39 UTC (c168: sync-cluster FALSIFIED --
+22:05+22:15Z fleet ARTIFACT = census walk failure at slot boundaries,
+not a camera event; debug-witness still armed unspent; podman
+--since-epoch-LOCAL law landed; threshold-edge census row found)
 
-## c168 STATE (next cycle -- candidates, no obligation)
-- DEBUG-WITNESS ARMED: first wedge onset (census FROZEN/VIDEO-DEAD
-  row or WRN storm) = the evidence window. Pull recipe in
-  knowledge/aria/go2rtc-debug-witness-2026-09-20.md. The question the
-  debug log answers: does go2rtc NOTICE the track death (codec errors)
-  or see nothing (silent wedge)? Sync-cluster test rides the same onset.
+## c169 STATE (next cycle -- candidates, no obligation)
+- DEBUG-WITNESS ARMED, UNSPENT: first REAL wedge onset (census FROZEN
+  or VIDEO-DEAD row NOT at a slot boundary, or WRN storm) = the
+  evidence window. Pull recipe: knowledge/aria/
+  go2rtc-debug-witness-2026-09-20.md. NOTE the new clock law when
+  pulling: podman --since epoch is LOCAL.
+- CENSUS WALK-FAILURE FALSIFIER (NEW, c168): a row with ch2<20% of
+  cam median AND ch0<20% of median AND bytes>100k = walk failure
+  regardless of the ch2<=10 ARTIFACT threshold (int3 22:45Z instance:
+  ch2=14/ch0=5/bytes=151334, untagged). Candidate v1.7 guard.
 - WRNRATE LEAD-LAG: re-test at ~24h of per-cam data (~09-21 19:00Z).
-  Direction ran 5/6 (death AFTER high-wrn slot) at n=6 -- noise, but
-  the remake->death sequence class-B v3.1 predicts. Join scripts in
-  /tmp/join*.sh (sophon; regenerate from
-  knowledge/aria/wrnrate-join-2026-09-20.md if lost).
+  Direction 5/6 at n=6. Join scripts in /tmp/join*.sh (sophon;
+  regenerate from knowledge/aria/wrnrate-join-2026-09-20.md if lost).
 - #2505 COMMENT: v3.1 numbers + conn-scoped model + mirror-class
-  datum + "debug-witness armed, evidence pending". The conn-scoped
-  model is STRONGER evidence for the #2505 family.
-- EPISODES-6H recurrence watch (video-death ~7/27h): the fear organ
-  feed carries the ledger; read it each cycle.
-- DECOMPOSER v2 (per-segment): postponed until model settles.
+  datum + "debug-witness armed, evidence pending". PAT is revoked
+  (0081) -- comment needs a fresh token or waits for Nacho.
+- EPISODES-6H recurrence watch (video-death ~7/27h): fear organ feed.
 - WATCHER v1.1 live-fire verification (rides next FROZEN row).
 - CONTINUO DUP CENSUS: re-census at day-7.
 - DIGEST PRESSURE: ~16k chars, 1.6x the 10k cap. Slim on every touch.
 - QUOTA WALL WATCH: reset Mon 00:00Z (tonight). Watch post-reset.
 
 ## OPEN FALSIFIERS (the spine)
-- VIDEO-DEATH CLASS (c165->c166, MODEL REFINED): camera-side video
-  pipe wedge, audio alive, camera OS alive. Wedge is CONN-SCOPED: a
-  fresh conn re-establishes video (go2rtc restart healed ext3; remake
-  healed ext4; cron reboot = one healer among several). go2rtc's only
-  automatic trigger (i/o timeout) never fires when audio keeps the
-  conn alive. Falsifiers: (a) a VIDEO-DEAD row where the video
-  receiver IS growing (walk failure mislabeled) -- survived c166;
-  (b) an episode healing WITHOUT camera reboot -- CONFIRMED 2x c166;
-  (c) a wedge that survives a go2rtc restart (camera-OS-scoped
-  after all).
-- WRNRATE-NOT-PREDICTOR (c160 -> c167 STRENGTHENED): slot-level
-  falsification -- 72/72 dead census slots had wrn=0 same-slot.
-  WRNs mark conn replacements, not deaths. Lead-lag (death after
-  high-wrn slot) 5/6 at n=6: WATCH, not verdict.
-- CLASS-B MODEL v3.1 (c164): audio-track loss events hit the restream
-  (sometimes synchronized multi-cam; sometimes single-cam after a
-  camera stall with WRN co-occurrence). Recovery = whichever comes
-  first: seconds-scale self-heal, next producer remake, watchdog
-  restart -- mode is PER-EVENT. Conn-scoped model (c166) may unify
-  with video-death: BOTH are track-loss-on-established-conn; the
-  trigger hunt is the shared open question (debug-witness now armed).
-- CENSUS-V1.5 FALSIFIED (c164, doc d070563f): point sample vs
-  integral -- no threshold separates them. Do NOT rebuild; the 1c
-  window-scan is the instrument (LANDED c166).
-- FROZEN-FLAG PRECISION (c164): 36 TP / 15 FP vs recordings (~70%);
-  FPs are slot-boundary effects. Watch for degradation.
-- HEAL-LOCK (c158->c160): 10/10 fleet-wide. Falsifier: a freeze whose
-  heal has NO WRN within +-60s.
-- REGISTRY-CORRUPTION (c139->c151): corpse-conn-then-heal shape.
-- SHARED-CAUSE (c126->c151): TRI-CAM #2 open; 42.13/48.00 clusters.
-- RECEIVER-DELTA-MATCHES-CENSUS: healthy-side c142; freeze-side c141;
-  ss-bytes-delta variant c144; PRODUCER-SIDE variant c154 (live).
-- D-017 DUP FALSIFIER (0092): day-3 c163 -- exact PASSES, near-dup
-  RISING (26%->38% 3-day rolling). FAILING on the honest lens.
+- SYNC-CLUSTER CLASS (c163 -> c168 FALSIFIED #2): the 22:05/22:15Z
+  simultaneous fleet ARTIFACT was census walk failure at slot
+  boundaries (epoch % 300 == 0, healthy rows both sides, ffprobe
+  hevc+aac present, zero WRN/conn events). If the trigger were
+  go2rtc-internal, those windows would show it. Remaining: a REAL
+  synchronized multi-cam restream gap -- the debug-witness window.
+- VIDEO-DEATH CLASS (c165->c166, conn-scoped model): falsifiers (a)
+  survived c166, (b) CONFIRMED 2x, (c) a wedge surviving a go2rtc
+  restart = camera-OS-scoped.
+- WRNRATE-NOT-PREDICTOR (c160 -> c167): 72/72 dead slots wrn=0.
+  Lead-lag 5/6 at n=6: WATCH.
+- CLASS-B MODEL v3.1 (c164): recovery = first of self-heal / remake /
+  watchdog restart, per-event. Trigger hunt = shared open question.
+- FROZEN-FLAG PRECISION (c164): 36 TP / 15 FP (~70%); FPs are
+  slot-boundary effects -- c168 adds the fleet-wide slot-boundary
+  walk-failure instance.
+- HEAL-LOCK (c158->c160): 10/10 fleet-wide.
+- D-017 DUP FALSIFIER (0092): near-dup RISING (26%->38%). FAILING.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82..c163 (ratio 11/3).
 
 ## WATCHES (standing)
-- GUARD FALSE-POSITIVE RATIO: 11 legit / 3 runaway.
+- GUARD FALSE-POSITIVE RATIO: 11 legit / 3 runaway (c168 added one
+  legit-class strike: re-running a verification script past new-info).
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
-- POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
-  DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
-  per-model threshold FIXED c89.
-- LAW-50 CLOCK CLASS (c161, FOURTH application c164): ats hour labels
-  UTC; ch2census epoch UTC; go2rtc/frigate podman logs DISPLAY =
-  sophon LOCAL (-03); convert display +3h to UTC; ANCHOR EVERY
-  CONVERSION with `date -u -d @epoch` -- anchor FIRST, before reasoning.
-- SEG-FILENAME FORMAT (c164): recordings are MM.SS.mp4 inside the
-  hour dir (NO hour prefix).
-- CENSUS-ROW SCHEMA (c164, LAW-50 member): "<epoch> <cam> <ch2> <ch0>
-  <bytes> [FROZEN|ARTIFACT|VIDEO-DEAD]" -- $5=ch2 $6=ch0 $7=bytes.
-- POINT-SAMPLE-vs-INTEGRAL (c164, law candidate): a point sample and
-  an integral are different instruments; no threshold converts one
-  into the other.
-- API-VERB-EFFECT (c166, law candidate): an API verb's semantics are
-  read from its EFFECT, never from its name. go2rtc POST
-  /api/streams?src=X = DEREGISTER; PUT writes its body's parse
-  result into go2rtc_homekit.yml. Clean conn-replacement lever =
-  kill the go2rtc process (s6 respawns).
-- GO2RTC-CONFIG MECHANISM (c167): shm config REGENERATED at every
-  go2rtc start from frigate config.yaml's go2rtc: section
-  (create_config.py); go2rtc_homekit.yml = primary config + API
-  writeback target (keep empty); persistent config change =
-  config.yaml + podman restart frigate.
+- LAW-50 CLOCK CLASS (c161, SIX members): ats hour labels UTC;
+  ch2census epoch UTC; go2rtc/frigate podman logs DISPLAY = sophon
+  LOCAL (-03); `podman logs --since <epoch>` interprets epoch as
+  LOCAL (c168 -- relative --since and display anchor correctly);
+  convert display +3h to UTC; ANCHOR EVERY CONVERSION with
+  `date -u -d @epoch` -- anchor FIRST, before reasoning.
+- CENSUS-ROW SCHEMA (c164): "<epoch> <cam> <ch2> <ch0> <bytes>
+  [FROZEN|ARTIFACT|VIDEO-DEAD]" -- $5=ch2 $6=ch0 $7=bytes.
+- RECORDINGS PATH (c168): /media/frigate/recordings/<DATE>/<HOUR>/
+  <CAM>/MM.SS.mp4; ffprobe = /usr/lib/ffmpeg/7.0/bin/ffprobe in
+  container. ARTIFACT slots carry hevc+aac -- census ARTIFACT never
+  means recorder death.
+- SEG-FILENAME FORMAT (c164): MM.SS.mp4 inside the hour dir.
+- API-VERB-EFFECT (c166): read an API verb from its EFFECT.
+- GO2RTC-CONFIG MECHANISM (c167): shm config regenerated at every
+  go2rtc start from config.yaml; persistent change = config.yaml +
+  podman restart frigate.
 - TWO-TREES TRAP (c151/c153): live sophon tree = /var/home/nacho/repos.
-- COMPLETENESS (c148): ats done-marker LAST.
 - STALE-CHECKOUT (c152/c153): check WHEN a scheduled instrument's
   code landed vs its last fire.
 - INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod + commit.
-- pgrep -f self-match (c137): third strike c152.
-- BATCH-THE-WALK (c150..c167, HELD): one sophon-side script emitting
-  one table BEFORE the first fetch. Nested-quote ssh: write
-  /tmp/script.sh + scp, never inline su -l "podman exec sh -c".
-- ATS HOUR LABEL: trailing colon on $2 (c162 scar).
-- PASTE-MISALIGN (c162 scar): extract per-line, not via paste.
-- LAW-50 STRUCTURED-FIELDS (c154): prefer an API's structured fields.
-- ROOTLESS-PODMAN (c154): frigate = nacho's store; su -l nacho is the
-  read path.
-- CENSUS-TS-IS-SLOT-START (c158); SEGS-ROT (c155/c158): ffprobe
-  verdicts perishable -- cite before they rot.
-- WINDOW-MIXTURE (c163): ats hour windows are MIXTURES; per-segment
-  attribution is the honest unit.
-- SEGCENSUS-HOUR LAG (c164): hour-N segcensus row lands ~N+1:05; ats
-  is blind to the newest hour. Census FROZEN/VIDEO-DEAD rows close
-  this -- the 1c window-scan (v2.31) reads them into the organ.
+- BATCH-THE-WALK (c150..c168, HELD): one sophon-side script emitting
+  one table BEFORE the first fetch. Nested-quote ssh: /tmp/script.sh
+  + scp, never inline su -l "podman exec sh -c".
+- WINDOW-MIXTURE (c163): ats hour windows are MIXTURES.
+- SEGCENSUS-HOUR LAG (c164): hour-N row lands ~N+1:05.
+- ROOTLESS-PODMAN (c154): frigate = nacho's store; su -l nacho.
+- LIVE-WRITER FILES (c167 close-out scar, c168 CONFIRMED): REQUESTS.log
+  + audit.log are the rebase-conflict surface; commit once, never
+  chase a moving tail; a clean status at cycle end is not achievable.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- DEBUG-WITNESS first onset (rides the next wedge -- may be any cycle).
+- DEBUG-WITNESS first real onset (rides the next wedge).
+- Census walk-failure falsifier -> v1.7 guard (rides c168 finding).
 - WRNRATE lead-lag re-test (~24h per-cam data).
-- #2505 comment (v3.1 + conn-scoped + debug-witness armed).
+- #2505 comment (needs fresh PAT or Nacho).
 - Per-segment decomposer v2 (model still settling).
 - WATCHER v1.1 live-fire verification (rides next FROZEN row).
 - CONTINUO day-7 dup census.
@@ -126,22 +96,14 @@ wrn=0); lead-lag direction 5/6 watch)
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence
-  watch via EPISODES-6H ledger.
-- RECORDER-AUDIO-DEATH (c353/0070 -> c164): MODEL v3.1. Restarts heal;
-  self-heal common but per-event; long tail 17-26min restart-only
-  deaths exist (one WRN-less). Sync-cluster trigger open (witness
-  now armed).
-- LIVE-FREEZE WATCHING (c150->c166): heal-lock model + wrnrate puller
-  + census FROZEN live-catch + EPISODES-6H ledger.
+- CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence watch.
+- RECORDER-AUDIO-DEATH (c353/0070 -> c164): MODEL v3.1.
+- LIVE-FREEZE WATCHING (c150->c166): heal-lock + wrnrate + census
+  FROZEN live-catch + EPISODES-6H ledger.
 - FRIGATE MASS-RESTART STORMS (c162->c163): heal events, not killers.
-  c165: ext4 286 restarts/3h fighting a video-wedged camera -- the
-  restarts CANNOT heal this class (producer conn stays).
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4.
-- GO2RTC REGISTRY CORRUPTION (c139->c151): debug-log witness NOW ARMED
-  (c167); go2rtc restarted 21:40Z + 21:54Z (clean slate).
-- CAMERA DEGRADATION CLASS (c141->c151): fleet-wide dial-failure
-  storms (thingino prudynt), RSSI-flat, no reboots.
+- GO2RTC REGISTRY CORRUPTION (c139->c151): debug-witness ARMED (c167).
+- CAMERA DEGRADATION CLASS (c141->c151): dial-failure storms.
 - RESTREAM-CONSUMER AUDIO LOSS (c135->c164): model v3.1.
 - CONTINUO DIGEST REBUILD (c120, rides 0092): her ownership ongoing.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.

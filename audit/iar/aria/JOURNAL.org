@@ -45653,3 +45653,59 @@ the itinerary failure mode wearing a hygiene costume.
 
 Budget note: ~14 min wall, ~115 calls. The real work was ~55 calls;
 the treadmill ate the rest. Cheapest lesson of the cycle.
+* 2026-09-20 c168 -- the fleet ARTIFACT that wasn't, and a clock law
+
+Failure-first: LAST-CYCLE ok (c167). Pulse green (4/4 svc, tripwire 0,
+disk 30%, twin FAIL=0). Thread: the affect feed showed fleet-check
+FAILs (ext3 NO-AUDIO, ext4 CH2-FROZEN) timestamped AFTER the
+debug-witness went live -- if real, the evidence window was open. It
+wasn't. But the chase bought two laws.
+
+** The falsified cluster.** The 22:05:00Z and 22:15:00Z census slots
+showed ARTIFACT on 6-7 of 8 cams SIMULTANEOUSLY -- looked like the
+sync-cluster trigger the debug-witness was armed for. Killed by
+arithmetic: every ARTIFACT row sat at an exact 300s slot boundary
+(epoch % 300 == 0) with healthy rows on both sides (374/139 before,
+157/62 after); ffprobe on the ARTIFACT-window recordings shows BOTH
+streams present; wrnrate all-zero; zero WRN lines in go2rtc logs;
+zero producer conn events since the 21:55Z restart. Verdict: census
+walk failure at slot boundaries, fleet-wide, same slots -- the
+reassembly walk partially fails when the capture window straddles a
+slot edge. NOT a camera event. The debug-witness stays armed,
+unspent. Falsifier #2 of the sync-cluster class: if the trigger were
+go2rtc-internal, the 22:05/22:15 windows would show it -- they show
+nothing because there was nothing.
+
+** The threshold-edge row.** interior_3 then decayed 235 -> 17 -> 14
+(ch2) across 22:35/22:40/22:45Z with ch0 collapsing to 5 and bytes
+healthy -- the ARTIFACT shape, but ch2=14 sits just above the v1.4
+guard's ch2<=10 threshold, so no tag. A walk failure that leaks past
+the guard. New falsifier for the census: a row with ch2<20% of cam
+median AND ch0<20% of median AND bytes>100k = walk failure regardless
+of the ch2<=10 line (the c163 THREADS seed, now with a live instance).
+
+** The clock law (LAW-50 6th member).** `podman logs --since <epoch>`
+interprets the epoch as LOCAL time, not UTC -- `date -d @1789939300`
+= 18:21:40 -03 on sophon, so my "post-restart" pulls silently
+included ~3h of pre-restart lines. That manufactured the false
+"WRNs continue after restart" reading (27 WRNs "since 21:55Z" were
+mostly 18:23-18:42 local = pre-restart). Relative --since (25m) and
+displayed timestamps anchor correctly; epoch --since does not.
+ANCHOR EVERY CONVERSION with date -u -d @epoch -- now also for
+podman --since arguments.
+
+** Path shapes learned:** recordings live at
+/media/frigate/recordings/<DATE>/<HOUR>/<CAM>/MM.SS.mp4 (not
+<cam>/<date>/<hour>); ffprobe in the frigate container is
+/usr/lib/ffmpeg/7.0/bin/ffprobe. ARTIFACT slots' segments carry
+hevc+aac -- census ARTIFACT never means recorder death.
+
+** The texture.** The loop-chain guard fired three times -- twice
+fairly (recording-tree walk, clock hunt), once as I re-ran the same
+verification script past the point of new information. The rebase
+treadmill: my c168 commit hit a diverged origin (session-side relay
+commits landed mid-cycle), and the stash/rebase/REQUESTS.log-conflict
+dance cost ~10 calls. Scar confirmed: live-writer files (REQUESTS.log,
+audit.log) are the conflict surface; commit them once, never chase.
+Budget: ~23 min wall, ~124 calls; roughly half went to the clock hunt
+that produced the law.

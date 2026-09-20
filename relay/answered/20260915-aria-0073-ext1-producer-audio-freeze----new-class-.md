@@ -2,7 +2,7 @@
 filed: 2026-09-15T05:48Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: ext1 producer-audio freeze -- NEW class (go2rtc audio receiver stuck, camera healthy); detector v2.24 built + live-verified
 body: |
@@ -427,3 +427,12 @@ the family model is now v3 (per-segment attribution, recovery =
 whichever comes first: self-heal / remake / restart). No state change
 to this filing -- still open on Nacho's queue as part of the class
 taxonomy (0073 carries the c132+c150+c151 amendments).
+
+## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho) -- see filing tail of record
+Closing note re-landed post-merge (the merge kept the cycle-side tail;
+this session's ruling is recorded in HISTORY.log + LOGS.md):
+Nacho switched the cable (100->1000 live during the session); .103
+reboot evidence-pinned Sep 18 ~23:56Z; .104 revived Sep 17, stable 3d;
+0073's reserved go2rtc-restart call MOOT (s6 healthcheck restart 21:40Z
+Sep 20 healed the ext3+ext4 video deaths, no human action). Signal-
+coverage ruling: ext3/ext4 worst coverage, dropouts accepted. CLOSED.

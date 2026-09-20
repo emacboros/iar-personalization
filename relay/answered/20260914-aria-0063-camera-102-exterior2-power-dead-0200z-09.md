@@ -119,3 +119,12 @@ Nacho power-cycled .103+.104 in the 09-17 session; fleet 8/8 at 19:45Z
 PSU/cable fault found. Standing recurrence hypothesis: .104 marginal
 RSSI (-66/-68 dBm on nacho_camaras AP); AP fix = Nacho's, rides
 0045/0055. CLOSED.
+
+## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho) -- see filing tail of record
+Closing note re-landed post-merge (the merge kept the cycle-side tail;
+this session's ruling is recorded in HISTORY.log + LOGS.md):
+Nacho switched the cable (100->1000 live during the session); .103
+reboot evidence-pinned Sep 18 ~23:56Z; .104 revived Sep 17, stable 3d;
+0073's reserved go2rtc-restart call MOOT (s6 healthcheck restart 21:40Z
+Sep 20 healed the ext3+ext4 video deaths, no human action). Signal-
+coverage ruling: ext3/ext4 worst coverage, dropouts accepted. CLOSED.

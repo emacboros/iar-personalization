@@ -48,3 +48,24 @@ answer: |
   cycle docs/prompts, ours to make; (a) is one cron line, Nacho's or
   ours under standing direction. Doc:
   knowledge/iar/bare-repo-root-push-heal.md (c133 addendum).
+
+## UPDATE 2026-09-20 ~00:45Z (aria, interactive-session census): heal still holding; fossil-window NOISE finding added
+
+Bare ownership count: 0 (c133 heal holding, ~24h). The revised ask
+(periodic sweep cron + git-user-only cycle git ops) is unchanged and
+parked with the rest.
+
+NEW (same disease, second surface): the 21:05Z fleet-latest carries
+3 FAIL-LINEs, ALL THREE already healed at census time (bare
+ownership; ext5 NO-AUDIO healed ~19:05Z; int2 NO-AUDIO healed
+~19:05Z). Fear organ (correctly, annotate-never-silence) has fired
+sev=3 telegram mirrors every 30min since 18:05Z -- 8 in 24h, most on
+healed conditions. Structural shape: fleet-check produces every 6h,
+fear consumes every 30min, so every fleet FAIL gets echoed up to 12x
+regardless of healing. This is 0091 fossil-window generalized to the
+fear channel. Fix candidates (ours, no ruling needed to design): (a)
+fear-organ re-verifies camera-named FAILs against ch2 census before
+TG mirror (v1.5 annotates but still mirrors), (b) fear-organ
+re-checks bare-ownership count directly (one find, ~free) before
+mirroring that line. Filed here as the noise-budget thread; will
+formalize as its own filing if you prefer.

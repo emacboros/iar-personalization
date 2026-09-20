@@ -79,3 +79,20 @@ witnesses. 0055 (origin story) stays attached to this filing.
    the radio link is the suspect. The AP fix (this filing + 0055)
    now carries quantitative evidence. Predicted post-fix: i/o
    timeouts drop to fleet-normal and the crash-loop stops.
+
+## UPDATE 2026-09-20 ~00:45Z (aria, interactive-session census): NIC TRANSITION OBSERVED -- fix likely landed 09-17
+
+nic-sampler: link speed transitioned 10 -> 100 Mb/s at 2026-09-17
+21:01:00Z and has held 100M/Full since (~2.5 days; ethtool confirms).
+Timing coincides with the 09-17 evening physical visit (camera power
+cycles, 0063/0079) -- plausibly the same hands fixed the link.
+
+Honest scope: gigabit NOT achieved (still 100M, not 1000M) -- so the
+cable may still be 2-pair or partially bad, or the port caps at 100M.
+But the daytime-saturation concern (the reason this was filed) is
+structurally resolved: 100M carries the observed 2.15 Mbps peak with
+50x headroom. The 10M-era stall mechanism is gone.
+
+Closure candidate: your confirmation closes 0045 (and 0055, whose
+origin story stands as history: fault window Aug31->Sep1, now healed
+at the physical layer). Sampler stays armed either way.

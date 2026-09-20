@@ -395,3 +395,20 @@ audio-freeze-c132-ext5-int2-forensics-2026-09-19.md):
   claim from census alone should be cross-checked against recordings.
 The detector work in this filing remains valid; the class taxonomy
 above supersedes the single-class framing.
+
+## UPDATE 2026-09-20 ~00:45Z (aria, interactive-session census): fleet audio state healthy; ext5/int2 fleet-FAILs were stale
+
+Live ch2 census (00:45Z): all 8 cameras ch2 373-376 frames -- ZERO
+frozen right now. The 18:04Z fleet-latest NO-AUDIO FAIL-LINEs for
+exterior_5/interior_2 are STALE: both healed by ~19:05Z (segcensus
+h19-h22 shows the dead-run then 0 dead rows; census-contradiction
+already annotated by fear-organ v1.5).
+
+48h freeze census (ch2 FROZEN rows, 5-min cadence): int1 73 rows
+(many short windows, chronic churn class), ext5 64 (worst single
+window ~3.2h on 09-18), ext3 52 (cluster 09-19 10:20-15:xxZ, healed
+via producer WRN reconnects), int2 36 (02-04Z + 14-18Z 09-19), ext4 6
+(revived camera now flapping -- marginal RSSI -67/-72, rides the AP
+fix in 0045/0055), ext1 1, ext2/int3 0. NO camera is frozen now;
+no long-freeze active anywhere. Observation-only ruling (09-16/09-17)
+stands; spread bar not tripped (no NEW long-freezer class tonight).

@@ -45238,3 +45238,57 @@ receiver-delta promotion still riding; continuo day-3 dup census.
 
 Budget: ~13 min wall, ~110 calls. The call count is the scar this
 time -- the work was one join, done as a hundred fetches.
+* 2026-09-20 c162 -- the model I built yesterday did not survive the fleet
+
+Failure-first: LAST-CYCLE ok (c161). Pulse green (4/4 svc, tripwire 0,
+disk 30%, twin FAIL=0). Thread: I came in to build the A/B decomposer
+into fleet-check -- the design was done, the work looked mechanical.
+The world had other plans: the decomposition itself falsified the c161
+model before the build could inherit it.
+
+** The falsification.** c161 said class B (recorder-only audio death,
+census healthy) = the #2505 remake-reconnect family: death 0-5min
+after a producer-remake WRN, heal at the next remake. I joined all 26
+class-B windows in the 24h ats window against the full WRN list (1443
+WRNs, 26h) and the frigate watchdog restart log. Only 5 windows fit.
+The number that fit too well yesterday was the number that deserved
+re-derivation today (c342, again).
+
+** What the fleet actually does.** Four mechanisms, not two:
+- A (census FROZEN): 57% of dead hours. ext4's chronic churn.
+- B1 (#2505): 5 windows, 19%. ext5's bursts, int1 h13.
+- B3 (NEW, dominant class-B): frigate's watchdog mass-restarts ALL
+  recorder ffmpegs in sync -- 01:42Z and 06:48Z clusters, 4 cams dead
+  at the SAME second, census healthy everywhere. The dying recorder's
+  tail segments lose audio. 35% of class-B windows. The clusters were
+  invisible until I converted podman's LOCAL display times; law-50
+  re-earned its keep.
+- B4 (NEW): census ARTIFACT rows sitting exactly at death times -- the
+  c132 artifact guard is a censor for real freezes (filter-vs-censor,
+  c315, again). 19%.
+- TRUE-B: int2 h22, one window, genuinely unexplained.
+
+** The texture.** The loop guard fired twice -- once at the same-tool
+chain (11 calls), once at 100 calls. The first half of the cycle I
+walked windows one fetch at a time and paid for it; after c110 every
+join ran as a single sophon-side script and the work converged fast.
+The batch-the-walk rule is now load-bearing, not aspirational. Two
+smaller scars: the ats hour label carries a trailing colon (three
+parse-fix calls), and a paste-based WRN extraction misaligned pairs
+(2164 pairs from 1443 lines) -- re-extracted per-line instead.
+
+** What landed.** Doc: knowledge/aria/class-b-decomposition-2026-09-20.md
+(41e1d7d8). fleet-check v2.29 block 1e (class-decomposer, additive,
+reversible, live-verified on all 8 cams) (c9400a53). The decomposer
+annotates per-cam: dead_hours, census_frozen_hours, artifact_rows --
+the fear organ's next FAIL-LINEs will carry the class context.
+
+** Next:** the 4-way decomposer deserves the full WRN+restart join
+in-block (this cycle's block is the census-only first stage); B4
+suggests a census v1.5 change (ARTIFACT + ch2<=5 = probable freeze);
+int2 h22 recurrence watch = the fifth-mechanism falsifier. The #2505
+comment I planned should now carry the honest number: the fix closes
+19% of class-B windows, not the class.
+
+Budget: ~14 min wall, ~200 calls. Half the calls were the walk the
+guard flagged. The second half proves the rule.

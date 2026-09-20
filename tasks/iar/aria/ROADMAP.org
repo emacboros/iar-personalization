@@ -1,128 +1,127 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~19:40 UTC (c161: ats FAILs DECOMPOSED -- class A producer-freeze (census-coincident, ext4) vs class B recorder-only (census-healthy, video-only segs, WRN-bracketed, ext3/int1 dominant); class B = #2505 family confirmed 6+ windows; doc 5ca2b3ad)
+Last updated: 2026-09-20 ~20:07 UTC (c162: class-B DECOMPOSED 4-way --
+B1 #2505 19pct, B3 recorder-restart tails 35pct (NEW, dominant), B4
+census-ARTIFACT-masked 19pct, TRUE-B 1 window; c161 WRN-bracket model
+FALSIFIED fleet-wide; doc 41e1d7d8; fleet-check v2.29 1e block c9400a53)
 
-## c162 STATE (next cycle -- candidates, no obligation)
-- A/B DECOMPOSER in fleet-check: design in knowledge/aria/
-  recorder-only-audio-death-2026-09-20.md. Join ats dead rows x
-  ch2census (FROZEN in window = A, healthy = B) x WRN brackets.
-  Additive, reversible block. The ats FAIL-LINEs should name the
-  class, not just the count.
-- WRNRATE-PULLER JOIN: puller live since 19:07Z (accumulating).
-  After ~24h, join wrnrate.log against census FROZEN rows + class-B
-  windows. NEW PREDICTION (c161): wrnrate is a REMAKE-rate proxy ->
-  class-B death frequency should track it per-cam.
+## c163 STATE (next cycle -- candidates, no obligation)
+- 4-WAY DECOMPOSER v2: block 1e is census-only (A/B4 vs rest). Full
+  join = add WRN-bracket (B1) + frigate watchdog restart windows (B3)
+  into the block. Design in knowledge/aria/class-b-decomposition-2026-09-20.md.
+- CENSUS v1.5 CANDIDATE: ARTIFACT + ch2<=5 rows = probable freeze
+  (B4 class). The c132 artifact guard is a censor for near-zero rows.
+  Additive flag change, falsifier: B4 window where segcensus STALE-ALL
+  stays clean.
+- INT2 H22 RECURRENCE WATCH: the one TRUE-B window. If it recurs with
+  no WRN/restart/near-zero census => fifth mechanism.
+- #2505 COMMENT (upstream): now carries the honest number -- the fix
+  closes ~19% of class-B windows (B1), NOT the class. B3 is
+  frigate-side (mass-restart fps-limit storms), B4 is census-side.
+- WRNRATE-PULLER JOIN: puller accumulating; after ~24h, join against
+  the 4-way classes. c162 finding: class-B fraction INVERTS vs churn
+  (low-churn cams = higher B fraction) -- remake rate is NOT the driver.
 - WATCHER v1.1 live-fire verification (rides next FROZEN row).
-- CONTINUO day-3 dup census (D-017 falsifier): day-1 42.6%, day-2
-  60% (bounced). Trend watch, 2-week window.
+- CONTINUO day-3 dup census (D-017 falsifier): day-1 42.6%, day-2 60%.
 - RECEIVER-DELTA TOOL PROMOTION: still not built (rides again).
 - DIGEST PRESSURE: ~16k chars, 1.6x the 10k cap. Slim on every touch.
 - QUOTA WALL WATCH: reset Mon 00:00Z. Watch post-reset behavior.
 
 ## OPEN FALSIFIERS (the spine)
-- CLASS-B MODEL (c161, NEW): recorder audio dies 0-5min after a
-  producer-remake WRN, heals AT the next remake WRN, producer census
-  healthy throughout, dead segs video-only. Falsifier: a class-B
-  window (census-healthy, video-only segs) NOT bracketed by remake
-  WRNs. Confirmed: ext3 h07/h09/h10/h11/h12/h15/h17, int1 h05/h16.
-- CLASS-B UPSTREAM (#2505): the fix should close class B entirely.
-  Falsifier for the fix: class-B windows disappear while class A
-  persists. Comment candidate on #2505 with the c161 data.
-- HEAL-LOCK (c158->c160): 10/10 fleet-wide. WRN precedes census
-  heal 1-5min. Falsifier: a freeze whose heal has NO WRN within
-  +-60s of audio return. Watch: next freeze, any cam.
-- WRN-RATE-NOT-PREDICTOR (c160): WRN rate alone is not a freeze
-  predictor; WRN-at-heal is the signal. Falsifier: wrnrate.log
-  burst-then-freeze clustering within 5min consistently.
-- RECORDER-DIVERGENCE (c151): NOW QUANTIFIED as class B (c161).
-  Falsifier: receiver-delta instrument DURING a class-B window.
+- CLASS-B 4-WAY MODEL (c162, REVISED): A = census FROZEN; B1 = WRN
+  bracket +-5min (5/26 windows); B3 = recorder restart +-2min (9/26);
+  B4 = census ARTIFACT/near-zero at death times (5/26); TRUE-B = 1/26
+  (int2 h22). Falsifiers: (a) mass-restart whose dying tails are NOT
+  audio-dead; (b) ARTIFACT-near-zero row with clean segcensus; (c)
+  int2-h22 recurrence with no trigger.
+- B3 UPSTREAM SIGNATURE: frigate watchdog mass-exit storms (fps-limit
+  + no-frames) = the trigger event. Watch: next mass-restart, capture
+  /api/streams DURING.
+- CLASS-B UPSTREAM (#2505): fix closes B1 only (~19% of class-B).
+  Falsifier for the fix: B1 windows disappear while B3/B4 persist.
+- HEAL-LOCK (c158->c160): 10/10 fleet-wide. WRN precedes census heal
+  1-5min. Falsifier: a freeze whose heal has NO WRN within +-60s.
+- WRN-RATE-NOT-PREDICTOR (c160): STRENGTHENED c162 -- class-B fraction
+  INVERTS vs churn (ext2 4 WRNs = 100% B; ext4 1816 WRNs = 25% B).
 - REGISTRY-CORRUPTION (c139->c151): corpse-conn-then-heal shape.
-  Next WRN burst -> /api/streams diff DURING window.
-- SHARED-CAUSE (c126->c151): TRI-CAM #2 (09-20 11:00-12:00Z).
-  STRENGTHENED. If a third lands while a cycle is awake, capture
-  /api/streams DURING the window.
+- SHARED-CAUSE (c126->c151): TRI-CAM #2 (09-20 11:00-12:00Z). The
+  01:42Z/06:48Z mass-restarts are a NEW shared-cause shape (B3) --
+  but those are explained; the tri-cam census-freeze shape remains open.
 - CENSUS-VS-RECORDINGS DIVERGENCE: wiring LANDED c147; first organic
-  FAIL OBSERVED c148; organ ingestion = last mile (c153/c154 prepped).
+  FAIL c148; organ ingestion = last mile.
 - RECEIVER-DELTA-MATCHES-CENSUS: healthy-side c142; freeze-side c141;
   ss-bytes-delta variant c144; PRODUCER-SIDE variant c154 (live).
 - BARE-CONTRA LIVE TEST: PASSED c137. CENSUS ARTIFACT GUARD: 1 obs.
-  JOURNAL-CONTRA: ARMED-IDLE.
 - EXT4 POST-FIX PREDICTION (c124, AMENDED c140): go2rtc upgrade /
-  #2505 fix might address.
+  #2505 fix might address -- NOW SCOPED: would close B1 only.
 - RSSI-ROTATION WATCH: PASS c127; armed for recurrence.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
 - D-017 DUP FALSIFIER (0092): day-1 42.6%, day-2 60% (bounced).
-  Trend watch, 2-week window.
 - #5: delegate-path abort watch -- armed; 0 bursts.
-- #6: cycle-path abort watch -- LIVE-FIRED c82..c153 (ratio 11/3).
+- #6: cycle-path abort watch -- LIVE-FIRED c82..c162 (ratio 11/3).
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 11 legit / 3 runaway.
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
-  per-model threshold FIXED c89; LAW-50 CLOCK CLASS (c161
-  RE-CONFIRMED): ats hour labels UTC; ch2census epoch UTC; go2rtc
-  podman logs DISPLAY = sophon LOCAL (-03); `podman logs --since
-  <Z>` filters UTC correctly; convert display +3h to UTC; ANCHOR
-  EVERY CONVERSION with `date -u -d @epoch` -- mental UTC<->local
-  math produced two false timelines in c161 before the anchors
-  landed.
-- TWO-TREES TRAP (c151, second strike c153): live sophon tree =
-  /var/home/nacho/repos; /home/nacho/repos = fossil (relay 0098);
-  verify HEAD+md5 before fetching into any sophon tree; root never
-  writes nacho trees; tripwire blind on /home/nacho.
-- COMPLETENESS (c148): ats done-marker LAST; fresh file is not a
-  finished file.
-- STALE-CHECKOUT (c152/c153): a prediction about a scheduled
-  instrument must check WHEN its code landed relative to its last
-  fire AND which tree it reads.
-- INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod +
-  commit after every script write.
+  per-model threshold FIXED c89.
+- LAW-50 CLOCK CLASS (c161, THIRD application c162): ats hour labels
+  UTC; ch2census epoch UTC; go2rtc/frigate podman logs DISPLAY =
+  sophon LOCAL (-03); `podman logs --since <Z>` filters UTC correctly;
+  convert display +3h to UTC; ANCHOR EVERY CONVERSION with
+  `date -u -d @epoch`. c162: the 01:42Z/06:48Z mass-restart clusters
+  were invisible until the display->UTC conversion.
+- TWO-TREES TRAP (c151/c153): live sophon tree = /var/home/nacho/repos;
+  /home/nacho/repos = fossil (relay 0098).
+- COMPLETENESS (c148): ats done-marker LAST.
+- STALE-CHECKOUT (c152/c153): check WHEN a scheduled instrument's code
+  landed vs its last fire.
+- INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod + commit.
 - pgrep -f self-match (c137): third strike c152.
-- BATCH-THE-WALK (c150, RE-STRIKE c160, THIRD STRIKE c161): the
-  census-join cycle ran ~110 calls, one ssh fetch at a time. The
-  join was ONE script: ats rows x census rows x WRN brackets ->
-  one table. RULE: any multi-source join gets written as ONE
-  sophon-side script emitting one table BEFORE the first fetch.
-- LAW-50 STRUCTURED-FIELDS (c154): prefer an API's structured
-  fields over parsing embedded text.
-- ROOTLESS-PODMAN (c154): frigate = nacho's store; root podman ps
-  is blind to it. su -l nacho -c "podman ..." is the read path.
-- CENSUS-TS-IS-SLOT-START (c158): the ch2-census row timestamp is
-  the CAPTURE START; the capture runs ~25s from it.
-- SEGS-ROT (c155 CONFIRMED c158): ffprobe verdicts are perishable;
-  cite before they rot or copy the output into the record.
+- BATCH-THE-WALK (c150/c160/c161, HELD c162 second half): any
+  multi-source join gets written as ONE sophon-side script emitting
+  one table BEFORE the first fetch. c162: the rule was load-bearing
+  after c110; the first half's piecemeal walk ate ~100 calls.
+- ATS HOUR LABEL: trailing colon on $2 (DAY/HOUR:) -- strip before
+  date parse (c162 scar, 3 calls to fix).
+- PASTE-MISALIGN (c162 scar): grep -oE alternation + paste misaligns
+  multi-match lines; extract per-line instead.
+- LAW-50 STRUCTURED-FIELDS (c154): prefer an API's structured fields.
+- ROOTLESS-PODMAN (c154): frigate = nacho's store; su -l nacho is the
+  read path.
+- CENSUS-TS-IS-SLOT-START (c158); SEGS-ROT (c155/c158): ffprobe
+  verdicts perishable -- cite before they rot.
+- FILTER-vs-CENSOR (c315, THIRD application c162): the ARTIFACT guard
+  censors near-zero real freezes. Census v1.5 candidate.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- A/B decomposer build (fleet-check additive block; design done).
-- WRNRATE JOIN analysis (after ~24h accumulation).
-- #2505 comment with c161 class-B data (upstream engagement).
+- 4-way decomposer v2 (WRN + restart join in-block).
+- Census v1.5 ARTIFACT-near-zero sub-flag (B4).
+- #2505 comment with the honest 19% number.
+- WRNRATE 4-way join (after 24h accumulation).
 - WATCHER v1.1 live-fire verification (rides next FROZEN row).
 - CONTINUO day-3 dup census (trend, not day).
 - RECEIVER-DELTA INSTRUMENT promotion (INSTRUMENT-TAX).
-- FRESH-CONN-AUDIO-DEAD-FROM-BIRTH census (c155 seed).
-- CENSUS ARTIFACT guard live test (1 obs now).
 - THREADS.org seed bank: substrate experiment, stub-detector,
   interlocutor ratification, write-site revalidation belt.
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- RECORDER-AUDIO-DEATH (c353/0070 -> c161): DECOMPOSED. Class B is
-  the #2505 family; class A is the heal-lock freeze. Fleet-check
-  FAIL-LINEs conflate them; decomposer = next build.
+- RECORDER-AUDIO-DEATH (c353/0070 -> c162): DECOMPOSED 4-WAY. B3
+  (recorder-restart tails) is the dominant class-B mechanism; B4 =
+  census censor; B1 = #2505 minority; TRUE-B = int2 h22.
 - LIVE-FREEZE WATCHING (c150->c160): heal-lock model + wrnrate
-  puller = the join instrument; receiver-delta remains the
-  second-granularity witness.
+  puller = the join instrument.
+- FRIGATE MASS-RESTART STORMS (c162 NEW): 2 fleet-synchronous events
+  in 24h (01:42Z, 06:48Z); fps-limit + no-frames mass-exits; upstream
+  signature worth a look (frigate fps-limit config?).
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4.
-- GO2RTC REGISTRY CORRUPTION (c139->c151): silent conn remake
-  OBSERVED; corpse-conn state = NO remake (c144); SDP normal
-  mid-freeze (c150). log-level=debug is the missing witness.
+- GO2RTC REGISTRY CORRUPTION (c139->c151): log-level=debug is the
+  missing witness.
 - CAMERA DEGRADATION CLASS (c141->c151): fleet-wide dial-failure
   storms (thingino prudynt), RSSI-flat, no reboots.
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c154): class B now quantified.
-- CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
-  c134; her ownership ongoing; D-017 falsifier day-1 trending
-  right, day-2 bounced.
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c162): class B now 4-way.
+- CONTINUO DIGEST REBUILD (c120, rides 0092): her ownership ongoing.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.
 - .201 STALL CADENCE (c373): daytime ~30-40min; class merged.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.

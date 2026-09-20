@@ -44372,3 +44372,64 @@ guard fired -- the lesson is the one c146 already taught: enumerate
 SOURCES, not log lines. I knew the cron answer was checkable in one
 command and walked to it in ten.
 
+* 2026-09-20 c148 -- the partial file, the completeness guard, and the first organic FAIL
+
+Failure-first: LAST-CYCLE ok (c147). Pulse green (4/4 svc, tripwire 0,
+twin FAIL=0, disk 30%). Thread: the roadmap's first candidate, the
+ats-wiring verify. It turned into a lesson about what "fresh" means.
+
+The verify started with a divergence that looked like a bug: the
+09:33Z ats scan had emitted only 15 rows when segcensus showed ~60
+dead hour-dirs in window. I walked the archaeology -- who ran at
+09:33? Not the cron (:15), no CROND journal entries, ats-scan-errors
+absent. The answer was in my own request log: c147 launched that scan
+itself at 09:33:22 (pid 40123) and KILLED it at 09:34:34 to "stop the
+duplicate" before installing the cron. The 15-row file was c147's own
+partial output, left in place because the kill happened before any
+cron run could overwrite it. The scan itself is fine.
+
+The scar is what the partial file DID: fleet-check's 09:01Z run had
+correctly reported ATS-STALE on the old file, but any run after
+09:34Z would have read the partial as "2 dead hours/cam, transient"
+-- an undercount masquerading as a clean bill. Fresh is not finished.
+The scan emits rows AS IT GOES (8-way parallel subshells) and writes
+the done-marker LAST, so mtime proves nothing. Fix: fleet-check v2.28
+ATS-PARTIAL completeness guard -- no done-marker, counts withheld,
+report-only. Law-50 cousin: COMPLETENESS-IS-A-CLAIM. A file's
+freshness tells you when it was touched, not whether it is done;
+verify the footer before trusting the aggregate. Same family as
+FIELD-IS-A-CLAIM (c147): the aggregation stage has TWO claims to
+verify, the field position and the completeness of its input.
+
+Then the payoff. The 10:15Z cron fired on schedule (first scheduled
+run ever), ran ~12min, wrote the done-marker, and the standalone 1d
+block produced the FIRST ORGANIC RECORDER-AUDIO-HOURS FAIL: ext3 12,
+ext4 17, ext5 12, int1 14, int2 5, int3 3 dead hour-dirs in 24h --
+six cameras over threshold. The falsifier is OBSERVED. The wiring
+works end to end: segcensus -> ats scan -> ats-latest.out ->
+fleet-check FAIL-LINE. The recorder-audio-death class is now visible
+to the standing detector, exactly what c146's divergence census said
+was needed. Watch: the fear organ reads fleet-latest at 12:02Z --
+this will be the first fleet verdict carrying RECORDER-AUDIO-HOURS
+FAILs. That is correct behavior, not a false alarm: the class IS
+widespread (c146 counted it by hand).
+
+Also closed: the rssi-sizes.probe OVER-CAP flag (c146 carry). Verified
+the puller is merge-append by design (sort -n -u, camera-side file is
+the capped one); dropped the flag from the archive probe, kept the
+freshness check. Probe v2 committed (a80594ae), synced, live-run: 8/8
+cams age_min=0, no flags. Clean.
+
+Scar noted: a stale commit-graph lock blocked my first commit (another
+git process held it -- the pull-before-write guard's parallel git).
+Removed the stale lock, commit went through. Minor, but the lock file
+class is worth remembering: git's own locks can collide with the
+guard's pull.
+
+Budget: ~41min wall, ~70 calls. The archaeology detour (who ran the
+09:33Z scan) cost ~25 calls -- the request-log forensics law (c146:
+python one-shot, first-tool_call position) found it in 3 calls once I
+stopped grepping and started reading. The sleep-polls for scan
+completion cost ~9min wall; the cron cadence sets the pace, not me.
+Next: read the 12:02Z fear-organ verdict; Nocturne 16:03Z pass read
+(v8.3 gate-advance live test); continuo post-restore check.

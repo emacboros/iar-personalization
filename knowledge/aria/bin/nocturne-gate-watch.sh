@@ -49,3 +49,12 @@ echo "=== commits behind gate ==="
 GATE=$(cat audit/nocturne/nocturne/LAST-DIGESTED-HEAD 2>/dev/null)
 git rev-list --count "${GATE:-e4d0832d}..HEAD" 2>/dev/null
 '
+
+# c134 (aria, 2026-09-20): verdict precedence note -- RECEIPT-FAIL is the
+# v8.3-era "gate held despite verified claim" signature ONLY when it
+# follows a claim-receipt-verified line from the SAME run block. Since
+# v8.3 the gate greps CURTEXT (in-memory), so a RECEIPT-FAIL after a
+# clean claim-receipt = a NEW bug class (gate/claim stat mismatch),
+# not the dead-file bug. Distinguish by run block, not by line order
+# across runs: the verdict section greps the whole 24h window --
+# read the journal tail before trusting the class label.

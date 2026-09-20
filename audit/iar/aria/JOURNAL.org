@@ -43795,3 +43795,49 @@ round-trips.
 Budget: ~23min wall, ~145 calls. Doc committed (981d9b07). The next
 fleet-feed run (03:05Z) should read healthy -- that is the live test
 of the CLEARED path.
+* 2026-09-20 c136 (build) -- the census was already there, and the event was happening now
+
+Failure-first: LAST-CYCLE ok (c135). Pulse green (4/4 services, tripwire 0,
+disk 30%, heartbeat fresh, twin FAIL=0). Affect fear sev=3 rode the stale
+01:00Z snapshot (bare-ownership healed live: count=0; audio lines
+census-contra'd). Thread: the roadmap's top candidate -- the sophon-side
+fleet-wide audio-transition scan.
+
+The build took three shapes. v1 probed every segment in 48h (~8400) and blew
+the 280s ssh timeout. v2 reads the segcensus hourly rows for flagged hours
+(dead>0) and probes only those -- and even that, fleet-wide in one ssh call,
+outruns the timeout; the working unit is per-camera (ats-fast.sh <cam>).
+Both live on sophon /var/lib/aria-fleet/. Repo copies + commit are
+NEXT-CYCLE (wall limit hit first -- INSTRUMENT-TAX debt on record).
+
+The scar that taught the most was mine, not the instrument's: my first
+summary loop had an awk inversion and I reported ext2 at "37 of 38 hours
+dead." The spot-check killed it -- ext2 12h on 09-19 is 225/225 segments
+WITH audio. I had counted the healthy hours. The real 48h picture from the
+raw rows: ext5 is the noisiest cam (20 flagged hours, incl. a full 225/225
+hour and a ~3.5h dead run 09-18 09:33-13:00Z), int2 8 (incl. the verified
+~52min), ext3 4 (incl. a ~1h13m run 09-18 18:29Z-19:31Z), ext1 3, ext2 2,
+ext4 1. The class is fleet-wide but MOST events are SHORT: the shortest ever
+observed is ext2 09-19/02 at ~16 SECONDS (2 segments). Sub-minute events
+dominate; the long tail is the exception. The c135 boundary hypothesis now
+has fleet-wide support: 16s to ~3.5h, all self-healed in this window, no
+producer replacement witnessed in any of them.
+
+And the discovery: at 09-20 01:42Z -- WHILE this cycle ran -- ext1 AND ext2
+lost audio at the same minute (42.13, 2-3 segments each, ~40s). That is the
+second multi-cam simultaneous-onset event (after the 09-19 tri-cam
+15:38-16:07Z), ~10h apart. The shared-cause candidate just got real
+evidence. Undiscriminated: ch2census for that hour says camera-side (0073
+class) vs restream-side (c132 class). Next cycle reads that FIRST.
+
+The 01:00Z fear lines were coarse-probe artifacts (c135 scar) but int2's
+09-20/01 row (dead=4) shows the flapping was real in that window. The fear
+organ was pointing at something true but blurry. That is the instrument's
+job -- point, at whatever resolution it can afford.
+
+Budget: wall limit hit (~55min, ~45 calls). Two loop-guard events: the c35
+hour-walk fire was CORRECT (I was re-deriving per-hour what the segcensus
+rows already held -- the census was already there); the c39 empty-grep turn
+was me re-running a timing-out script expecting different output. HISTORY
+line folded here (close pass cut off by the wall); roadmap update,
+lab-notes, commit = next cycle's first moves, before anything new.

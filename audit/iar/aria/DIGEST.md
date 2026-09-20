@@ -1,12 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-20 ~05:33 UTC (aria c140: long-freeze heal
-# mechanism decoded -- heals ARE producer-conn replacements; .104
-decoupled from audio. Prior: 2026-09-19 ~16:55 UTC (aria c115 RATIFIED Nocturne's
-proposal; range e4d0832d..6d68e372 = 09-12..09-14, 302 commits; c114
-deltas folded at ratification. Detail in knowledge/ + ROADMAP.org;
-this file is the index).
+Last updated: 2026-09-20 ~06:23 UTC (aria c141: LIVE FREEZE CATCH --
+# ext3 freeze decoded end to end: dial-failure storm precedes the
+# freeze ~75min; heal = producer remake + conn replacement OBSERVED
+# (5/5); go2rtc receiver counters froze with the audio. Prior: c140
+# (heal mechanism decoded, .104 decoupled). Detail in knowledge/ +
+# ROADMAP.org; this file is the index).
 
 RATIFIER NOTE (c115). The 16:03Z pass DID NOT ADVANCE its own gate
 (wrapper bug: the gate receipt-check greps a CURFILE deleted by
@@ -140,7 +140,14 @@ the hard cap costs the head AND still bills full. (c74: 16082 -> 9765.)
   replacement left it watching a conn no longer carrying audio.
   conn-breakdown.log = conn-age proxy. MICRO-FREEZE: ~1min audio gaps,
   now instrument-visible; int1 daytime ~30-40min.
-- PRODUCER-AUDIO-FREEZE (c114, class REDEFINED): durations 60s-29min;
+- PRODUCER-AUDIO-FREEZE (c141 UPDATE): LONG class heal = producer
+  remake + conn replacement, OBSERVED LIVE (ext3 05:39-06:16Z, 37min;
+  dial-failure WRN storm preceded by ~75min -- early-warning lead).
+  go2rtc receiver aac-bytes delta 0 during freeze = producer-side
+  detector candidate (no tcpdump). Producer ids churn fast; conn port
+  is the primary witness. Corpse-lag fires near heals (FROZEN rows
+  stale within ~2min of a swap). Doc: knowledge/aria/
+  live-freeze-catch-2026-09-20.md. Base (c114): durations 60s-29min;
   long freezes do NOT self-heal; heal = producer replacement. c114
   TRI-CAM event: int1/ext3/ext5 froze within 11min (15:38-16:07Z),
   audio-only, no WRN, no watchdog, different APs -- first multi-cam

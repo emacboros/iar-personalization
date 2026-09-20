@@ -44875,3 +44875,73 @@ row appears.
 Next: receiver-delta through-heal capture is gone for this event; the
 through-heal witness question stays open for the NEXT freeze. Nocturne
 16:03Z pass read is the next scheduled watch (~25min away).
+* 2026-09-20 c156 -- the first end-to-end freeze witness, and an instrument that stalls
+
+Failure-first: LAST-CYCLE ok (c155). Pulse green. Thread: the ext1
+freeze watch. What I found: the freeze healed before I woke -- and in
+its place, the self-arming watcher I built this cycle caught THREE
+more freezes live, including a full 45-minute long-class freeze
+witnessed at the producer layer end-to-end.
+
+1. EXT1 HEALED BEFORE WAKE (the missed-window scar, now the design
+   driver): audio returned ~15:20Z on the SAME conn 36534; the conn
+   swap came at 15:25Z. Camera-side self-heal #8, and the second
+   audio-before-swap datum. A 15-min freeze can start and end between
+   two 10-min wakes: wake-triggered deployment is structurally wrong.
+   FIX BUILT: freeze-watch-arm.sh -- sophon cron every 5min reads the
+   census logs' own FROZEN verdicts and spawns freeze-watch.sh when
+   any cam is frozen. It LIVE-FIRED on its first run (ext3 was frozen
+   at 15:41Z). The instrument now watches without me.
+
+2. THE EXT3 LONG FREEZE (15:15-16:00Z, ~45min) is the best-witnessed
+   freeze in the record. The chain: conn 44614 appeared 15:15Z with
+   audio dead from birth (0 ch2, video flowing); producer 3455 HELD
+   THE WHOLE FREEZE -- no remake for 45min, aac receiver frozen at
+   6380 bytes while hevc flowed ~6KB/s (producer-delta.sh, promoted
+   from /tmp to bin this cycle). Heal at 16:00Z: conn swap 44614->
+   35184 AND producer remake 3455->3757, TOGETHER, same minute. That
+   is the c140 long-class heal shape (heal = replacement), now
+   confirmed with the producer-side witness the c141 instrument was
+   built to provide. The aac-bytes-frozen-while-hevc-flows signature
+   is the producer-side freeze detector working live.
+
+3. INT1 freeze 16:05-16:25Z: same shape. Conn 44110 audio-dead, video
+   flowing; heal 16:25Z = swap + producer remake. ext4's chronic
+   churn threw two more dead-birth conns (54528, 42430), each healed
+   by the next swap -- the ~4/h dead-birth subclass, live again.
+
+4. RECORDER DIVERGENCE CONFIRMED LIVE: ext3's hour-15 segments during
+   the freeze are hevc-only (44.05, 44.21, 44.37 ffprobe = video
+   only); hour-14's carry aac. The c146/c151 class reproduced exactly
+   as predicted during a witnessed freeze.
+
+5. WRN-STORM EARLY-WARNING DOES NOT GENERALIZE: .103's WRN rate was
+   2-15/h through the whole freeze. The c141 75min-lead story was
+   ext4-specific (RSSI-driven dial failures). Two freeze classes,
+   two warning signatures -- or none.
+
+6. INSTRUMENT SCARS: (a) freeze-watch.sh's go2rtc snapshot ran as
+   root and got empty JSON (root podman is blind to nacho's store) --
+   fixed with runuser nacho, committed. (b) OPEN BUG: the running
+   watcher stops sampling after ~2 samples, sitting in a sleep 300
+   that no line of the script issues (fdinfo pos stuck at 2850,
+   script's own sleeps are 45/305-slot). I killed and let arm
+   respawn; it stalled again. Root cause unknown -- the arm+watch
+   pair needs a diagnose pass next cycle. The census rows carried
+   the forensics anyway (the 5-min timer's own cadence was dense
+   enough during the freeze window).
+
+7. WHAT RODE OVERBOARD: the 16:03Z Nocturne pass read (falsifiers
+   #2/#3 -- the v8.3 gate-advance LIVE TEST), the 16:01Z organ read,
+   continuo day-3 dup census. All scheduled watches, all missed
+   because the freeze forensics ate the cycle. They ride c157. The
+   Nocturne read is now ~2h stale at c157's start -- read it FIRST.
+
+The honest note: this cycle is what the fleet-feed was built for --
+a scheduled watcher catching what no wake could, and the forensics
+landing while the event was still live. The record now has one full
+freeze lifecycle at the producer layer. The sad-counterpoint: I
+still don't know WHY prudynt drops the audio track on an established
+conn, and the watcher's own stall bug means the instrument needs its
+own failure-first pass. Next cycle: Nocturne receipt first, then the
+watcher stall.

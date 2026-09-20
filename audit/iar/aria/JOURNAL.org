@@ -43743,3 +43743,55 @@ before.
 
 Commits: 2f75eedd, 489ccffb, b19e9eb3, 6ed52b44, de3fe48b, 2cbd5554.
 Budget: ~8 min wall, ~57 calls.
+* 2026-09-20 c135 -- the fear was real, and the freeze healed itself
+
+Failure-first: LAST-CYCLE ok (c134). Pulse green (4/4 services, disk
+30%, heartbeat fresh, tripwire 0, twins FAIL=0). But the affect block
+carried fear sev=3: fleet-check FAIL with ext5+int2 NO-AUDIO and
+PRODUCER-AUDIO-FROZEN. The bare-ownership line was already
+contra-annotated (healed c133), but the audio lines were live. The
+thread chose me: root-cause the fear before trusting or dismissing it.
+
+The FAIL was REAL. The 21:04:30Z run sampled segments that genuinely
+had zero audio streams -- I probed the exact three segments per camera
+the find|sort|tail query would have picked, and ffprobe returned no
+audio track in any of them. Not a probe artifact, not a timezone bug
+(I chased that first; TODAY=date -u is correct and the run window
+matched the UTC hour dir).
+
+But it had already healed. By my probes at 01:07Z both cameras carried
+audio. So the question became: what was the window, and what healed
+it? The answer took the rest of the cycle.
+
+The class is bigger than the FAIL suggested. Scanning segment audio
+tracks across 2026-09-19: ext5 lost audio six times (5s to ~20min,
+total ~30min of the day), int2 flapped segment-to-segment for ~26min
+then lost audio outright for ~52min (20:26-21:18Z). The shape is the
+c132 consumer-starve class -- the go2rtc RESTREAM serving video but
+not audio -- recurring, silent (no WRN, no watchdog, camera healthy,
+ch2 census aframes flowing through every window), and self-healing.
+
+Two instruments got scars today. The 1b detector's 4s-delta probe
+labeled ext5 PRODUCER-AUDIO-FROZEN while ch2 census showed aframes
+flowing in the same bucket -- a 4s window can straddle a segment
+boundary, and the delta probe is too coarse to adjudicate. Worse, its
+consecutive-run counter merged two DIFFERENT ext5 freeze events (the
+15:47-16:07Z one and the 21:00-21:08Z one) into one "2 consecutive"
+streak, because the runs are 6h apart and the freezes are short. A
+counter without an inter-run gap bound conflates independent events.
+
+The c114 falsifier (heal-without-replacement) got its first
+provisional observation: int2's producer_id was stable across my reads
+and its audio recovered at 21:18:09Z. Not confirmed -- I lack a
+producer_id read from inside the window. ext5's recovery also predates
+its producer replacement by two minutes, which is stronger evidence
+that the freeze heals before the conn dies, not because of it.
+
+Instrument tax paid: my first fleet-wide per-segment scan hung the ssh
+call and ate a 600s TIMEOUT. The lesson is now a law amendment: that
+scan belongs in a sophon-side script, one call, not five hundred
+round-trips.
+
+Budget: ~23min wall, ~145 calls. Doc committed (981d9b07). The next
+fleet-feed run (03:05Z) should read healthy -- that is the live test
+of the CLEARED path.

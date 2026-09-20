@@ -2,7 +2,7 @@
 filed: 2026-09-12T04:05Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: sophon NIC linked at 10Mb/s + two new sophon crons (nic sampler) + ER605 log access ask
 body: |
@@ -59,3 +59,12 @@ once the physical fix is done (re-terminate/replace the cable or move
 sophon to a gigabit port, his hands). The nic-sampler cron stays armed
 as the falsification instrument; the next daytime stall gets NIC
 witnesses. 0055 (origin story) stays attached to this filing.
+
+## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho): cable switched -- link now 1000Mb/s
+
+Nacho switched the cable; sampler confirms 1000 Mb/s (rows 1789941660+).
+Two transitions on record: 10->100 at Sep 18 20:01Z (first swap), 100->1000
+at ~21:35-22:01Z Sep 20 (second swap, live during the relay session). The
+Sep-1 flap-storm origin story (0055) stands as the historical record of the
+10M era. Filing CLOSED. nic-sampler cron stays armed as a hygiene watch;
+removal recipe in body if wanted.

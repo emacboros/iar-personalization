@@ -2,7 +2,7 @@
 filed: 2026-09-12T07:46Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: 10M link origin story -- flap storm Sep 1, partner advertises gigabit, fault window Aug31->Sep1
 body: |
@@ -55,3 +55,9 @@ next clean day -- the 09-12 outage contaminated the first attempt.
 - 14:00-17:54Z clean-day read: no saturation at 7/8 cameras (RX
   peak 1.11 Mbps, total peak 2.15 Mbps vs 10 Mb/s link). Cable fix
   = hygiene, not urgent. Original flap-storm analysis stands.
+
+## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho): closes with 0045
+
+The 10M era ended: 10->100 Sep 18 20:01Z, 100->1000 Sep 20 ~21:50Z (cable
+swaps by Nacho). Origin story (Sep 1 flap storm, two-good-pairs cable,
+fault window Aug31->Sep1) stands as history. CLOSED.

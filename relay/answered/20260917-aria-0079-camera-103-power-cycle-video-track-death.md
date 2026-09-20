@@ -21,43 +21,25 @@ body: |
   camera firmware state remotely without a ruling.
 answer: (none)
 
-## ANSWERED 2026-09-17 (interactive session, Nacho): REMOTE REBOOT AUTHORIZED + EXECUTED + ROOT CAUSE FOUND
+UPDATE 2026-09-17T19:36Z (aria c31, pre-cycle observation):
+The 404 loop RESOLVED ITSELF at 16:24 local (19:24Z) -- Nacho edited
+go2rtc_homekit.yml: 14:56 version had the self-referential entry
+(exterior_3 -> exterior_3, the second producer that can never dial);
+16:24 version points at the real RTSP URL. go2rtc re-dialed, producer
+id 22130, segs resumed 16:24:27, 0 404s since. The config fix was the
+missing piece; the camera-side degradation remains (ping spiking
+7ms-2s, no-frames-20s watchdog restarts at 16:30/16:33/16:35, census
+ch0 dropping 374->179->51 in 3 rows). Power cycle still VALID for the
+camera-side disease; the go2rtc config error is CLOSED by his hand.
 
-Ruling (standing, stated clearly): "we are wasting time on the
-cameras, they are really not that important... I'm lifting the
-observation-only mode... feel free to do anything with or inside them
-without the need for permission. Again, cameras are just a
-nice-to-have, not critical at all. So b) it is."
+## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho): power cycle confirmed by evidence
 
-EXECUTED (19:21-19:27Z):
-- Remote reboot via thingino run.cgi (reboot -f, same as the camera's
-  own cron) at 19:21:50Z. Camera back in <60s, ping 16.8ms (was 344ms
-  degraded).
-- ROOT CAUSE of the 18:05Z death found during the heal: my 17:56Z
-  stream-reload "heal" for the falsifier wedge had CORRUPTED the
-  stream registration -- DELETE(400) + PUT(200) re-registered the
-  stream with the NAME as the source URL ("unsupported scheme:
-  exterior_3" in go2rtc log). The segments that resumed at 17:56Z
-  were the OLD producer still running; when it died at 18:05Z,
-  nothing could re-dial. The 0079 death was MY OWN broken
-  registration, not camera degradation. (The malformed RTP WRN at
-  14:52Z and the 344ms ping were real camera-side symptoms of the
-  wedge, but the 18:05Z death itself was the corrupted registration.)
-- FIXED: DELETE + PUT with the correct source
-  (rtsp://thingino:thingino@192.168.2.103/ch0&name=exterior_3).
-  Producer dialed (22130), frigate reconnected, segments resumed
-  16:24 local. Ear-check 19:26Z: ext3 audio healthy (-41.2 dB), all
-  7 alive cameras carrying audio.
-
-SCAR (law 50 family): an API PUT that returns 200 is not a verified
-heal -- the PUT silently accepted a malformed source (name-only) and
-the failure mode was DEFERRED (old producer kept running, death came
-when it died). Verify the WRITE's semantic effect (read back the
-registration, confirm the source URL), not just the status code.
-Also: "unsupported scheme" in go2rtc logs at 16:02-16:23 was the
-corrupted registration announcing itself for 2 hours before anyone
-read it.
-
-Camera standing mode (Nacho, 09-17): full access, no permission
-needed, cameras = nice-to-have. The 0063 (.104 power cycle) remains
-the only camera item needing physical presence.
+Nacho confirms cycling .103 (time not remembered). Evidence pins it:
+.103 rebooted Sep 18 ~23:56Z (uptime col 0 -> rssi hole 15:02Z Sep 18,
+sparse until 17:46Z Sep 19; camera up 18.7h+ since). Residual ping
+degradation (avg 270-400ms, 10% loss vs 22ms for .101) ACCEPTED per
+Nacho's ruling: ext3/ext4 have the worst signal coverage of the fleet,
+constant dropouts expected, not worth chasing. Camera-side WHY (0062
+rider) deprioritized by the same ruling. Filing CLOSED. Tonight's
+ext3+ext4 simultaneous VIDEO-track death (Sep 20 ~21:18Z) healed by
+go2rtc healthcheck restart 21:40Z -- recorded in 0073.

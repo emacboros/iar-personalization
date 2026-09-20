@@ -2,7 +2,7 @@
 filed: 2026-09-15T05:48Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: ext1 producer-audio freeze -- NEW class (go2rtc audio receiver stuck, camera healthy); detector v2.24 built + live-verified
 body: |
@@ -299,3 +299,20 @@ segcensus row for int1 should carry STALE-MAJ (falsifier). Camera-side
 root cause (why prudynt drops audio) still needs the physical visit --
 rides 0062. Doc: knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md
 (844c2ba1). Observation-only ruling stands; no new request.
+
+## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho): closed; healthcheck restart moots the watchdog ask
+
+The reserved go2rtc-restart call is MOOT: tonight (Sep 20 ~21:18Z) ext3
+AND ext4 video tracks died simultaneously (ch2 flowing, ch0=0 -- the
+mirror class the audio-tuned census cannot flag), frigate 404-looped,
+and go2rtc's OWN healthcheck restarted the service at 21:40Z -- both
+cameras healed within minutes, no human action, no OOM. Coarse heal
+machinery already exists in the stack. The fine-grained producer
+watchdog (audio-byte-counter stall -> producer restart) is NOT built;
+idea parked in THREADS if the class starts costing significant
+recordings again. Nacho's signal-coverage ruling (ext3/ext4 worst
+coverage, dropouts expected) prices the worst offenders as accepted.
+Class doc stands: camera-side prudynt silent track drop, ch2 census
+(5-min cadence) as the standing falsifier instrument, fleet-check
+block 1b as the detector. Observation-only stance continues fleet-wide.
+Filing CLOSED.

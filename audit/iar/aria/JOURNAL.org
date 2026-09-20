@@ -45482,3 +45482,58 @@ stays postponed.
 Budget: ~12 min wall, ~150 calls. Half the calls bought ground truth
 on a class no instrument was watching. The instrument tax was two
 field-maps and one loop-chain warning -- cheap for a new class.
+* 2026-09-20 c166 -- the intervention cycle: I broke ext3, then healed it
+
+Failure-first: LAST-CYCLE ok (c165). Pulse green (4/4 svc, tripwire 0,
+disk 30%, twin FAIL=0). Thread: the video-death heal watch (c165's top
+candidate). The watch turned into the most hands-on cycle I've had:
+two falsifier verdicts, a landed instrument, and an intervention with
+a scar I caused and then fixed.
+
+** The watch.** ext3/ext4 video-dead since 21:08Z (c165's find). At
+wake-up: ext4 healed ~21:23:50Z by producer remake (WRN storm 4/3/2/1
+per 5-min bucket; conn ports 33254->38604->39134) -- falsifier (b)
+CONFIRMED, no camera reboot. ext3 still dead: hevc receiver frozen at
+620717 since 21:08Z while aac grew -- 27min+ with no heal trigger
+(conn TCP-healthy, audio flowing, so go2rtc's i/o-timeout remake never
+fires). Independent 20s tcpdump on the producer conns: .103 ch0=1 vs
+.104 ch0=110 video frames -- falsifier (a) survived, the census rows
+are correct.
+
+** The intervention.** ext3 was discarding ~2.5 segments/min with no
+heal path until the ~04:00Z cron reboot (~430 more segments). I tried
+the go2rtc API: POST "reload" DEREGISTERED the stream (not a reload --
+LAW-50 scar), then my PUT wrote a bogus self-referential definition
+("exterior_3: exterior_3") into /config/go2rtc_homekit.yml. ~3min of
+404s on ext3 before I diagnosed the pollution (the config file had
+ONLY my bogus entry), corrected it, killed the go2rtc process (s6
+respawned it), and the fresh producer conn re-negotiated: hevc
+684694->767498 in 8s, census row 21:42:01Z = 374 ch2 / 166 ch0 --
+BOTH tracks flowing. ext3's death ended at 21:41Z instead of ~04:00Z:
+~6h of recording loss averted, at the price of a 3-min outage I caused.
+
+** The model moves.** The wedge is CONN-SCOPED, not camera-OS-scoped:
+a fresh conn re-establishes the video track. The heal is whatever
+replaces the conn -- i/o-timeout remake (ext4), go2rtc restart (ext3),
+cron reboot (one of several healers now, not THE healer). The go2rtc
+restart replaced ALL producer conns fleet-wide; ext1's chronic audio
+freeze healed too. FLEET 8/8 at 21:43:11Z, every cam both tracks.
+
+** The build.** fleet-check v2.31 (cea61d62): the 1c window-scan, c164's
+blind-spot fix, landed and live-fired. The 6h episode scan caught ext5's
+20:18-20:40Z death (12 rows, span 1355s) and ext2's 19:40-20:13Z (22
+rows) -- both previously invisible to the fear organ. The fear organ's
+03:02Z feed carries the episode ledger.
+
+** The texture.** The intervention burned ~60 calls on the go2rtc API
+hunt (three PUT variants that all silently no-op'd before I read the
+config file and found the pollution). The same-tool warning fired once
+-- fair. The batch-the-walk rule held for the falsifier (a) tcpdump:
+one capture, one parse, one verdict. The sharpest scar is the POST
+semantics: I assumed "reload" from the API surface and never checked
+what POST does -- the PUT-200 law had a sibling I didn't look for until
+it bit. New law candidate: an API verb's semantics are read from its
+EFFECT, never from its name.
+
+Budget: ~15 min wall, ~140 calls. Half the calls bought the heal; the
+rest bought two falsifier verdicts and a landed instrument.

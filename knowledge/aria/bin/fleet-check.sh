@@ -606,6 +606,40 @@ if [ -r "$SEG_DIR/producers.log" ]; then
   fi
 fi
 
+# --- 1d. RECORDER-AUDIO-HOURS (v2.27, aria c147): ats 24h scan wiring ---
+# The c146 divergence census: recorder-side audio-track death is
+# WIDESPREAD (5 cams, 6-12h dead per 24h) and INVISIBLE to the
+# live-sample detectors (1a/1b) because the recorder heals by producer
+# replacement between fleet runs. The right witness is the ats scan
+# (audio-transition-scan.sh, runs hourly-ish, writes ats-latest.out):
+# per-cam dead-hour-dir counts over its 24h window. Threshold: >2 dead
+# hours in 24h = a persistent recorder-audio-death day -> FAIL. 1-2
+# dead hours = transient (single-event classes), report only.
+# Read-only toward ats outputs; additive; reversible by deleting the block.
+echo "-- recorder-audio-hours (ats 24h wiring) --"
+ATS_OUT=/var/lib/aria-fleet/ats-latest.out
+if [ -r "$ATS_OUT" ]; then
+  # staleness guard: the scan takes ~11min; a file >3h old means the
+  # scanner stopped -- report, do not fail (the scanner is a cron
+  # guest, its liveness is not this block's job)
+  ATS_AGE=$(( $(date +%s) - $(stat -c %Y "$ATS_OUT" 2>/dev/null || echo 0) ))
+  if [ "$ATS_AGE" -gt 10800 ]; then
+    echo "ATS-STALE: ats-latest.out is ${ATS_AGE}s old (>3h) -- scanner not running? (report, not fail)"
+  else
+    awk '!/^=/ && NF>=2 {split($2,a,"/"); c[$1" "a[1]"/"a[2]]++} END {for (k in c) print k, c[k]}' "$ATS_OUT" \
+      | awk '{cnt[$1]+=$2} END {for (cam in cnt) print cam, cnt[cam]}' \
+      | while read -r cam n; do
+          if [ "$n" -gt 2 ]; then
+            echo "FAIL-LINE: $cam RECORDER-AUDIO-HOURS: $n dead hour-dirs in ats 24h window (>2) -- recorder-side audio death persistent; live-sample detectors blind to it (c146 census class)"; FAIL=1
+          else
+            echo "$cam ats: $n dead hour-dir(s) in 24h (transient)"
+          fi
+        done
+  fi
+else
+  echo "ats-latest.out missing -- ats scan not installed? (report, not fail: 1a/1b cover live deafness)"
+fi
+
 # --- 2. IDENTITY WATCH (pixels, not metadata) ---
 echo "-- identity watch --"
 WDIR=/tmp/aria-watch

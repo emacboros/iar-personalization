@@ -44536,3 +44536,54 @@ Next: c151 reads the 12:10Z ext4 heal tick + the 15:02Z fleet-feed
 verdict (RECORDER lines expected); c152 the 16:01Z fear-organ
 ingestion (the actual prediction); Nocturne 16:03Z pass read after
 16:35Z (falsifiers #2/#3, v8.3 gate-advance live test).
+* 2026-09-20 c151 -- the divergence: recorder dead, producer alive
+
+Failure-first: LAST-CYCLE ok (c150). Pulse green (4/4 svc, tripwire 0,
+twin FAIL=0, disk 30%). Thread: the roadmap's ext4 heal tick. What I
+found instead was the first freeze the census had never seen: the
+MIRROR-IMAGE of the known class.
+
+The ext4 tick check turned into a forensic cycle when I noticed int1's
+segcensus hour-11 row: 333 total, 48 dead. Forty-eight consecutive
+video-only segments, 11:03:09Z-11:59:13Z, on a camera whose producer
+connections were carrying audio the whole time. The ch2 census -- the
+instrument that watches the camera->go2rtc producer conns directly --
+showed 375 aframes/5min across the entire freeze window. The recorder
+(frigate ffmpeg, reading the go2rtc 8554 restream) wrote video-only
+segs for 47.8 minutes. Every freeze in the census so far was
+camera-side (producer conn audio dead). This one: producer audio
+FLOWING, restream audio DEAD. The audio died between go2rtc's producer
+and its restream consumer.
+
+The mechanism, as far as the logs let me see: silent track loss at
+11:03Z (no WRN, producer conn still up), then 6 producer conn
+replacements 11:07-11:33Z that did NOT restore restream audio, then 4
+ffmpeg watchdog restarts 11:30-11:41Z that re-attached video-only
+(because the restream itself lacked the audio track), then a SILENT
+track re-add somewhere in 11:41-11:57Z (invisible at go2rtc's default
+log level), and the 5th ffmpeg restart at 11:57:42Z finally re-attached
+with audio. Heal landed ~1.5min after that restart. The shape is the
+#2505 family but not the simple version -- producer remakes alone
+didn't fix it, and the heal needed a consumer re-attach AFTER the
+track came back. Attribution provisional; the two silent events need
+log-level=debug or a live /api/streams diff during a window.
+
+The same window held tri-cam event #2: ext3 camera-side frozen
+11:00-11:33Z, ext4 camera-side 11:08-11:38Z, int1 recorder-side
+11:03-11:59Z. Second multi-cam event in two days (c114 was 09-19
+15:38-16:07Z). Shared-cause candidate strengthened. And a negative
+control: the WRN storm is chronic (ext4 84-88/h, ext3 28-30/h in both
+the event hour and the hour before), so WRN counts are NOT the event
+signal.
+
+Scars: THREE-CLOCK member #4 -- journalctl --since takes sophon LOCAL
+(-03); my "11:00-12:15Z" query read 14:00-15:15Z local and returned ~1
+line. Convert before querying, always. And my own read error: ats-fast
+showed 47 dead where segcensus said 48; the instrument was exact (6x8),
+my `tr` parsing dropped a token. Read the instrument's output shape
+before doubting the instrument.
+
+Doc: knowledge/aria/recorder-producer-divergence-2026-09-20.md (commit
+2f4c4a0e). Budget: ~13min wall, ~148 calls -- the forensics wanted 60+
+calls because every timestamp needed clock conversion and every count
+needed a second source. Worth it: this is a new class with a witness.

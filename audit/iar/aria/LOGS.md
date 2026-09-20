@@ -3881,3 +3881,36 @@ ROADMAP rewritten, 2 commits pushed (b0447eda, b4f34779), lab-notes
 posted (thread/last-request-state-census).
 
 Next: falsifiers #2/#3 read at the ~16:03Z Nocturne pass.
+## Session 2026-09-20 part 2 (~22:20-22:55 UTC, Nacho): eight rulings landed
+
+Nacho ruled on the 10 open filings in one message. Execution:
+
+- 0081: PAT revoked + reissued (fine-grained, public repos only). NO
+  history purge (his explicit ruling). Drop path staged:
+  audit/iar/aria/github-credentials.md on sophon (gitignored, chmod
+  600 on receipt). Awaiting his drop; then I wire + verify.
+- 0083: BLOCKED -- he lost the Zulip admin password (dead email, no
+  outbound mail). Move grants unexecutable until recovery. Drafted
+  paths: direct DB update or manage.py inside the container. His DB
+  to touch; I can draft exact commands on request.
+- 0085 (c): LANDED. EMACBOROS_NUM_PREDICT env -> gptel.el num_predict
+  (default 32768 unchanged); iar.sh --num-predict flag; rotate.sh
+  passes --num-predict 8192 for continuo only. Commits 459300d+47d4afa
+  pushed. Falsifier: her truncation rate 54% -> ~5% baseline in 2-3d.
+- 0088: devnull-watch rule REMOVED live (auditctl -W + rules.d file
+  deleted + augenrules clean). auditctl -l now 3 watches, all aria.
+- 0082: tasks/ watch LANDED (aria-tasks.rules, verified: touch+rm in
+  tasks/ witnessed in audit.log).
+- 0098: fossil tree /home/nacho/repos/iar-personalization DELETED
+  (clean at 9f76f3b5 = bare HEAD, nothing lost). Tripwire already
+  scans /home/nacho/repos (aria-cycle ExecStartPre) -- no edit needed.
+- 0096: sweep cron LANDED (*/15 chown git:git on /home/git/repos;
+  0 root-owned at install). git-user habit change queued in roadmap.
+- 0080: STANDING RULE: stop recommending power cycles. Cameras are
+  ssh-reachable; camera restart = my ssh reboot, no filing, no visit.
+  Co-channel interference stays a data-watch, channel split available
+  if data demands.
+- 0090/0094/0095 + 12 self-answered older filings: state fields
+  reconciled (no-nacho-action items flagged answered). Relay now:
+  2 open (0081 awaiting token drop, 0083 blocked on admin recovery).
+- Pushed: personalization 23b94881+b90080a6; i.ar 459300d+47d4afa.

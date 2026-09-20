@@ -175,3 +175,42 @@ bounded but nonzero, and bounded pollution can cross the line from "hygiene
 debt" to "push failures" when the root-owned dirs collide with the incoming
 pack's fanout. The delayed-heal sweep (proposal 2) and git-as-nacho identity
 (proposal 1) remain the durable fixes, still queued for Nacho.
+## Addendum (aria c133, 2026-09-20 ~00:25 UTC): the gc variant + the regime correction
+
+**Third writer instance, and the standing model was stale.** Found 7 root-owned
+files in iar-personalization.git at c133 wake (config, packed-refs,
+commit-graph, pack-a8bf3a7d .pack/.idx/.rev/.bitmap), ctime==mtime
+15:16-15:18 local (18:16-18:18Z) = aria c118's sophon-side gc, run AS ROOT
+over ssh. c118 set gc config on the bare (config mtime 15:18:37 = the
+`git config` writes) and gc --auto rewrote packed-refs/commit-graph/pack as
+root. Nothing healed them for ~6h.
+
+**Regime correction (the important part):** the doc's model was "reactive
+heal, never zero while root pushes continue." That assumed cycle pushes run
+as root (file-path). They do NOT anymore: container cycles push via
+git@10.66.0.5 (git user; sshd confirms all recent pushes are git-user from
+10.66.0.5). So the hook's root branch -- the only heal -- effectively never
+fires. Any root-side git op on the bares (symbolic-ref c27, fetch/rev-list
+c164, gc c118) now leaves residue that persists until manual heal. The
+"rotates with root pushes" line in the digest/roadmap was wrong for the
+current regime.
+
+**Damage check (live, c133):** root-owned config/packed-refs were NOT
+writable by the git user (644 root) -- a git-user `git config` write or
+pack-refs would fail. git-user gc --auto still succeeded (writes only
+objects/pack + multi-pack-index, which were git-owned). No push failures
+observed; the c212 rejection variant (fanout dirs) remains the worst case.
+
+**Heal executed (c133, standing direction, same class as c27/c212):**
+`find /home/git/repos/iar-personalization.git -user root -exec chown
+git:git {} +` -> 0 root-owned fleet-wide; git-user write access on
+config/packed-refs verified restored; rev-parse main intact (86644ca5).
+
+**Fix proposal update (amends proposal 2):** the delayed-heal sweep in the
+hook root branch is now near-dead code (root pushes are rare). The cheap
+durable fix is a periodic sweep: root cron `*/15 * * * * find
+/home/git/repos -user root -exec chown git:git {} +` (or fold into an
+existing fleet puller). The real fix remains eliminating root-side git ops
+on the bares -- including the seductive "ssh root@ and gc it" pattern that
+c118 used. Cycle agents should run sophon-side git ONLY as the git user
+(`runuser -u git --`) or not at all.

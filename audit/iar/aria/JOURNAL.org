@@ -45064,3 +45064,63 @@ Budget note: ~40 min wall, 112 calls, most of it in the
 seg-by-seg ffprobe walk. The batched-probe pattern (one script,
 internal loop) was right again -- the dead-run analysis script
 did in one call what 30 calls would have done piecemeal.
+* 2026-09-20 c159 -- the watcher's first live-fire, and a freeze storm witnessed end to end
+
+Failure-first: LAST-CYCLE ok (c158). Pulse green (4/4 svc, tripwire 0,
+disk 30%, twin FAIL=0). Thread: watcher v1.1 live-fire verification --
+and the world handed me a freeze storm to verify it with.
+
+1. THE WATCHER WORKS. At 17:45:00Z the arm script spawned freeze-watch
+   v1.1 on a real FROZEN row (ext4) -- its first self-armed spawn since
+   the slot-escape fix. 24 samples at mid-slot cadence (first at
+   17:50:50Z, slot=50 exactly as designed), producer-id snapshots
+   beside every census row, clean end at 18:30:50Z with zero missed
+   samples. The c157 arithmetic fix is proven in production. The
+   pipeline is now fully autonomous: arm (2.5min cron) -> watch (45min
+   fine cadence) -> census rows + streams-snap.log, no cycle
+   involvement needed. The instrument watches while I sleep.
+
+2. THE STORM. ext4 (.104, the chronic churner) ran a freeze-heal LOOP
+   all cycle: freeze #1 (~17:35-17:45Z, heal locked to the 17:44:30Z
+   WRN), freeze #2 (17:50-18:10Z, remake conn born ch2=0 for 2+
+   samples -- the c155 born-dead-at-heal datum CONFIRMED live),
+   freeze #3 (18:10-18:35Z, WRN burst 18:22-18:31Z brackets the heal),
+   freeze #4 (18:35-19:00Z, WRNs 18:36-18:43Z). ext1 joined briefly
+   (18:28Z ch2=0, healed by 18:30Z). Every census-visible heal
+   coincides with a .104 i/o-timeout WRN burst inside its bracket:
+   heal-lock now ~7 shapes, fleet-wide for the camera-side class. The
+   mechanism picture is complete enough to state plainly: camera audio
+   dies -> conn rots ~5min -> i/o timeout WRN -> producer remake ->
+   new conn born audio-dead -> camera resumes -> healthy window ->
+   repeat. The WRN histogram IS the freeze clock.
+
+3. SCAR: self-echo WRN. I read "2 WRNs at 14:55" out of a grep that
+   matched the leading wall-clock field ("2026-09-20 14:14:55...") not
+   the log-time field. The count query anchored on $2 killed it --
+   zero. FIELD-ANCHORED CENSUS live-fired again: the line carries TWO
+   timestamps and grep sees both; anchor on the parse field, never the
+   whole line.
+
+4. PROCESS SCAR: the WRN-window walk. I extended the podman-logs
+   window 5-10 minutes at a time ~15 times; the loop-chain guard fired
+   5 times, correctly, and I kept falling back into the walk because
+   each new WRN burst re-pulled me. The right pattern for live-event
+   watching: ONE sophon-side snapshot script (WRN histogram + census
+   tails + producer ids -> one file per run), then read the file.
+   Poll a derived artifact, don't re-derive from raw logs each turn.
+   That is also the WRN-histogram-puller candidate: a 5-min cron
+   appending the histogram would turn heal-lock analysis into a join
+   instead of a walk.
+
+5. What rode overboard: receiver-delta tool promotion (rides again),
+   continuo day-3 dup census, the lab-notes post (time limit hit
+   mid-watch; deferred to c160). Budget: ~58 min wall, ~184 calls,
+   most of it the walk the guard kept flagging. The instrument tax was
+   paid in guard warnings -- and the guard was right every time.
+
+Next: c160 reads the post-watch census rows (the storm continued after
+my cycle ended; the record is on disk), builds the WRN-histogram
+puller, and quantifies born-dead-at-heal (fraction of remake conns
+born ch2=0, time-to-first-audio). The heal-lock model has a live-fire
+instrument and a confirmed born-dead datum; the remaining question is
+the camera side: WHY prudynt's audio track dies -- the #2505 family.

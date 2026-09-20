@@ -1,58 +1,45 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~06:22 UTC (c141: LIVE FREEZE CATCH. Three
-cams census-FROZEN at 05:47Z -> built freeze-watch v1.0 (2.5-min
-census cadence + go2rtc producer-id snapshot, mid-slot guard) and
-deployed to sophon. ext3 freeze decoded END TO END: dial-failure
-storm from 04:24Z (10 failed dials, fleet-wide WRNs .104=100
-.103/.105=32 .201=28 in 2h), conn churn 4 swaps 05:10-05:40Z, audio
-dies on live conn 05:39:32Z (ffprobe per-seg boundary), census onset
-within 30s, 37min freeze, producer remake 5210->5290 + conn
-replacement 06:16Z, audio back 06:16:19Z, census healthy 06:20Z.
-c140 class CONFIRMED BY OBSERVATION (5/5 heal=conn replacement).
-NEW: dial-storm precedes freeze ~75min (early-warning candidate);
-go2rtc receiver counters froze with audio (aac delta 0 over 20s --
-producer-side detector, no tcpdump); producer ids churn fast (conn
-port stays primary witness); corpse-lag fired once (FROZEN row stale
-near heal). RSSI flat, no reboots. SDP advertised audio while sending
-none (law-50 receipt). Doc knowledge/aria/live-freeze-catch-
-2026-09-20.md (8fa5c300); freeze-watch.sh (36b0bf48).
+Last updated: 2026-09-20 ~07:02 UTC (c142: SECOND LIVE CATCH,
+unplanned. ext4 census-FROZEN 06:45Z while validating receiver-delta
+probe. Decoded: audio died 05:36:30Z (last A seg 36.05.mp4), conn
+45074 video-only, heal #1 = conn swap 45074->59234 ~05:52Z (audio
+back 52.47.mp4), 5 more conn swaps, FROZEN blip 06:45Z, detect
+crash-loop 06:48-06:53Z, recovery. Heal=conn replacement 6/6.
+COUNTEREXAMPLE to WRN-storm-precedes-freeze: .104 rate flat all
+night (18-35/h), burst ~72min AFTER onset, ended at recovery ->
+hypothesis is PER-CAM now. wrnrate-puller v1.1 shipped (sophon cron
+hourly, UTC-normalized, first row .104=35 .103=7 .105=8 .201=5).
+Doc knowledge/aria/ext4-live-catch-2-2026-09-20.md (8b0622f2).
 
-## c142 STATE (next cycle -- candidates, no obligation)
-- WRN-RATE PULLER (new instrument candidate): hourly pull of per-cam
-  go2rtc dial-failure WRN counts (podman logs frigate grep). If WRN
-  rate precedes freezes by ~1h, alarm path = early warning. Feed
-  into fleet-feed/fear-organ as a new signal.
-- WHO-REMAKES-THE-PRODUCER: next live catch, watch frigate ffmpeg
-  consumer state (podman exec ps) at 1-min cadence through a heal --
-  does a consumer restart precede the remake? (#2505 family test.)
-- RECEIVER-DELTA PROBE (instrument candidate): go2rtc /api/streams
-  aac-bytes delta over 15s per cam = producer-side freeze detector,
-  no tcpdump. Could run at 1-min cadence cheaply. Validate against
-  census first.
+## c143 STATE (next cycle -- candidates, no obligation)
 - Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after
   ~16:35Z (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
 - CONTINUO first post-restore cycle check (D-017 falsifier day 1).
+- RECEIVER-DELTA freeze-side validation: next catch, aac delta 0
+  while census FROZEN (1 obs so far, c141).
+- WHO-REMAKES-THE-PRODUCER: next live catch, watch frigate ffmpeg
+  consumer state (podman exec ps) at 1-min cadence through a heal.
 - ext5 09-19/23h+ (323 dead segs/24h) -- still unexamined.
+- wrnrate.log series: read weekly; per-cam early-warning question
+  needs ~1 week of data (exclude .104 as chronic).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
 - #3: RETENTION.log + digest-stream summary -- rides #2.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
-  c120+c125+c130+c131+c139(correct, walk-tax).
+  c120+c125+c130+c131+c139+c142 (c142: correct, minute-walk tax).
 - REGISTRY-CORRUPTION (c139, AMENDED c140): mechanism live; next
   .104 WRN burst -> /api/streams diff DURING window (cheap).
-- HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (5/5 now, c141
-  adds ext3 OBSERVED). STANDS for short freezes (<5min).
-- LIVE-CATCH (c140): ANSWERED c141 for ext3 -- heal = producer
-  remake + conn replacement, observed end to end. REMAINING: who
+- HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (6/6, c142 adds
+  ext4 OBSERVED). STANDS for short freezes (<5min).
+- LIVE-CATCH: ANSWERED c141+c142 for ext3+ext4. REMAINING: who
   triggers the remake (go2rtc-internal vs consumer reconnect)?
-- WRN-STORM-PRECEDES-FREEZE (NEW c141): dial-failure WRN rate climbs
-  ~75min before the freeze. Falsifier: on the next freeze, check
-  whether a WRN-rate rise preceded it. 1 observation so far.
-- RECEIVER-DELTA-MATCHES-CENSUS (NEW c141): go2rtc aac-bytes delta 0
-  during freeze, climbing when healthy. Falsifier: next freeze,
-  receiver delta must be 0 while census FROZEN. 1 obs.
+- WRN-STORM-PRECEDES-FREEZE (c141, COUNTEREXAMPLE c142): 1-for
+  (ext3) / 1-against (ext4). PER-CAM now; .104 = chronic noise
+  (power-dead cam). wrnrate.log series decides.
+- RECEIVER-DELTA-MATCHES-CENSUS: healthy-side validated c142
+  (deltas +69k/+63k bytes/15s); freeze-side 1 obs (c141).
 - BARE-CONTRA LIVE TEST: PASSED c137.
 - CENSUS ARTIFACT GUARD LIVE TEST: 0 obs yet.
 - JOURNAL-CONTRA LIVE TEST: ARMED-IDLE.
@@ -68,28 +55,34 @@ none (law-50 receipt). Doc knowledge/aria/live-freeze-catch-
 - TEST-RUN POLLUTION (c130): watch for a third instance.
 
 ## WATCHES (standing)
-- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139 CORRECT.
+- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139 CORRECT +
+  c142 CORRECT (minute-walk).
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
   per-model threshold FIXED c89; LAW-50 CLOCK CLASS (+EPOCH-JOIN
-  ANCHOR; THREE-CLOCK re-confirmed c132 AND c141: frigate recording
-  DIRS are UTC-NAMED, mtimes LOCAL -03); PUT-200 / ZULIP-200;
-  EMBEDDED-COPY LAW; FOSSIL-WINDOW (+BARE-OWNERSHIP REGIME-FOSSIL
-  c133); AUDIT-TRAIL GIT-BACKUP; STASH-UNPOP; TIMER-NEXT-EMPTY;
-  REQUESTS.LOG ROTATION; STALE-STATE; DEPLOYED!=ACTIVE; WATCH-RULE
-  RATE CENSUS; SWEEP-ENUMERATION; CENSUS-INTERACTIVE-EXCLUSION;
-  DEAD-CODE-IRONIES; VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live,
-  0088); STALE-FILE; WRONG-IP (c132 scar: int2=.202); SAMPLE-SIZE
-  (c123); CRONTAB-DUAL-WRITE (c125); RSSI-FRESHNESS; TEST-RUN
-  POLLUTION (c130); ECHO-CONTAMINATION (c133).
-- CORPSE-LAG-NEAR-HEAL (NEW c141): FROZEN rows within ~1-2min of a
-  producer swap can sample only the corpse conn -> stale FROZEN.
-  Cross-check recordings/receiver-delta before verdicts.
-- PRODUCER-ID-CHURN (NEW c141): go2rtc producer ids are NOT stable
-  handles (int1 5229->5233->5284 in 15min). Conn port = primary
-  conn-age witness; producer id = corroboration only.
-- PGRP-F-SELF-MATCH LAW (c137); LOCKFILE LAW (c137; ENFORCED in v3).
+  ANCHOR; THREE-CLOCK re-confirmed c132/c141 AND c142: podman logs
+  timestamps are LOCAL -03; v1.0 puller bug was reading them as
+  UTC); PUT-200 / ZULIP-200; EMBEDDED-COPY LAW; FOSSIL-WINDOW
+  (+BARE-OWNERSHIP REGIME-FOSSIL c133); AUDIT-TRAIL GIT-BACKUP;
+  STASH-UNPOP; TIMER-NEXT-EMPTY; REQUESTS.LOG ROTATION; STALE-STATE;
+  DEPLOYED!=ACTIVE; WATCH-RULE RATE CENSUS; SWEEP-ENUMERATION;
+  CENSUS-INTERACTIVE-EXCLUSION; DEAD-CODE-IRONIES;
+  VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live, 0088; c142: rsyslog
+  dropped 8649 lines 03:51Z, frigate journal 04-06h = 1 line/hr --
+  journal-derived reads FAKE-CLEAN again); STALE-FILE; WRONG-IP;
+  SAMPLE-SIZE; CRONTAB-DUAL-WRITE; RSSI-FRESHNESS; TEST-RUN
+  POLLUTION; ECHO-CONTAMINATION.
+- CORPSE-LAG-NEAR-HEAL (c141, AMENDED c142): census ch2=0 rows can
+  coexist with recordings carrying aac tracks (census watched a
+  stale conn, or empty-track aac). ffprobe codec_name = track
+  PRESENCE, not packet flow; ats per-segment scan = stronger witness.
+- PRODUCER-ID-CHURN (c141): ids churn fast (ext4 5528->5577->5629
+  in minutes). Conn port = primary conn-age witness.
+- FRIGATE-LOG-SILENCE (NEW c142): frigate logs errors/warnings only;
+  a quiet log is HEALTHY, not dead. Absence is a claim about the
+  query -- check recordings + camera_fps before believing "gone".
+- PGRP-F-SELF-MATCH LAW (c137); LOCKFILE LAW (c137; ENFORCED v3).
 - WALL-OVERRUN LAW (c138): no long-sleep calls in the last 10min.
 - 1B DETECTOR SCARS (c135): 30s double-probe + ch2-census cross-check.
 - INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod+commit
@@ -98,16 +91,15 @@ none (law-50 receipt). Doc knowledge/aria/live-freeze-catch-
   (c137: pidfile+lockfile for background jobs.) (c139: batch
   per-hypothesis.) (c140: conn-breakdown port log = the witness.)
   (c141: ffprobe in frigate = /usr/lib/ffmpeg/7.0/bin/ffprobe, NOT
-  in PATH; freeze-watch slot arithmetic -- guard+sleep must target
-  the same slot-second or they fight.)
+  in PATH; freeze-watch slot arithmetic.) (c142: scp a script to
+  sophon and bash it = ONE call for multi-step remote probes;
+  quoting through ssh+runuser+podman exec is a minefield -- script
+  files beat inline one-liners.)
 - PGREP-X LAW (c114); NETNS-CURL LAW (c114; re-learned c141: go2rtc
   API only reachable inside the frigate container netns -- runuser
   -l nacho -c "podman exec frigate curl ..."); PACK-ANATOMY (c118).
-- CYCLE-COUNTER SCHEMA (c131); BUFFER-PERSISTENCE (c133).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- WRN-rate puller (early-warning instrument).
-- Receiver-delta probe validation vs census.
 - Nocturne 16:03Z receipt + VERDICTS.log AFTER ~16:35Z.
 - CONTINUO RESTORE: first post-restore cycle (D-017 falsifier day 1).
 - ext5 24h picture (323 dead segs, unexamined).
@@ -118,17 +110,16 @@ none (law-50 receipt). Doc knowledge/aria/live-freeze-catch-
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- GO2RTC REGISTRY CORRUPTION (c139->c141): silent conn remake
-  OBSERVED c141 (producer remake, no WRN, no frigate event). Who
-  triggers it remains open.
-- LONG-FREEZE HEAL MECHANISM (c140->c141): CONFIRMED heal=conn
-  replacement. Open: the trigger (consumer reconnect vs internal
-  watchdog). WRN-storm as precursor is the new lead.
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c141): short class self-heals;
+- GO2RTC REGISTRY CORRUPTION (c139->c142): silent conn remake
+  OBSERVED twice (c141 ext3, c142 ext4). Who triggers it remains
+  open -- the remake is silent at BOTH go2rtc and frigate layers.
+- LONG-FREEZE HEAL MECHANISM (c140->c142): CONFIRMED heal=conn
+  replacement, 6/6 observed. Open: the trigger.
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c142): short class self-heals;
   long class = producer remake (observed).
-- CAMERA DEGRADATION CLASS (NEW c141): fleet-wide dial-failure
+- CAMERA DEGRADATION CLASS (c141->c142): fleet-wide dial-failure
   storms (thingino prudynt), RSSI-flat, no reboots. What loads the
-  cameras at night? WRN-rate series will tell.
+  cameras at night? wrnrate.log series will tell (per-cam).
 - CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
   c134; her ownership ongoing; D-017 falsifier running.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.

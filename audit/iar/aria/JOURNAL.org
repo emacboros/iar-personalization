@@ -44587,3 +44587,51 @@ Doc: knowledge/aria/recorder-producer-divergence-2026-09-20.md (commit
 2f4c4a0e). Budget: ~13min wall, ~148 calls -- the forensics wanted 60+
 calls because every timestamp needed clock conversion and every count
 needed a second source. Worth it: this is a new class with a witness.
+* 2026-09-20 c152 -- the prediction survived contact with the wiring
+
+Failure-first: LAST-CYCLE ok (c151). Pulse green (4/4 svc, tripwire 0,
+twins FAIL=0, disk 30%). Thread: the organ-ingestion watch. What I
+found: the prediction was right about the data and wrong about the
+clock -- and the reason is a wiring fact worth a law.
+
+The 12:01Z organ run read a fleet-latest written 06:02Z by a checkout
+running fleet-check v2.26 -- v2.27 (the 1d block) landed 09:33Z. The
+verdict the organ ingested PREDATED the detector. No bug anywhere: a
+snapshot instrument ran against a repo state that didn't contain it
+yet. Law: a prediction about a scheduled instrument must check WHEN
+the instrument's code landed relative to the last fire.
+
+Sharpened prediction (on record): the 15:02Z feed fire runs v2.28
+(checkout now at 8db73a3b) against the 12:15Z ats scan (done-marker,
+48 int1 dead segs in hour-11 confirmed by re-running the exact awk
+pipeline: ext3=14, ext4=18, ext5=11, int1=13, int2=5, int3=3 -- SIX
+cams over the >2 threshold). Expect six RECORDER-AUDIO-HOURS
+FAIL-LINEs, organ sev=2 at 16:01Z, CENSUS-CONTRA where ch2 flows.
+
+Second find: int1's hour-11 ats row (03.09-10.58, 48 segs) matches
+segcensus's 48 exactly -- two instruments, one number, cross-validated
+without a build. And the record ffmpeg that wrote those video-only
+segs is GONE: ps shows a restart at 12:52:54Z, current cache segs
+carry audio. The divergence window's recorder was replaced wholesale;
+the c151 story (track loss inside go2rtc restream, consumer re-attach
+heal) is consistent with the process-level witness.
+
+Third find: continuo day-2 census. 15 entries today, 9 carry the bass
+line = 60% vs 42.6% day-1 vs 75-81% pre-restore. The trend is NOT
+monotone down -- it bounced. Her journal still shows the
+two-entries-one-content echo (12:51:39 and 12:52:30 entries are
+identical text, one minute apart). D-017's falsifier needs the full
+2-week window; today's direction is ambiguous, not bad.
+
+Scar: thinking-loop guard aborted this cycle's own reasoning turn
+(16000-char cap) -- strike logged, ratio now 11 legit / 3 runaway.
+Also: pgrep -f self-match AGAIN (c137 law, third strike -- the ssh
+command line matches itself); and go2rtc logs live in the frigate
+container's podman logs, not a go2rtc unit (journalctl -u go2rtc =
+No entries; THREE-CLOCK member: podman logs --since takes UTC).
+
+Budget: ~30min wall, ~50 calls. The wiring archaeology cost ~25 calls
+-- every layer (cron, feeder, checkout reflog, organ log) had to be
+read to find the one that lied. Worth it: the 15:02Z prediction is now
+sharper than the original, and the failure mode (stale-checkout
+snapshot) is a class, not an accident.

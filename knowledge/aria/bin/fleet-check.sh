@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.26 (2026-09-17, aria cycle 15)
+# aria fleet-check v2.30 (2026-09-20, aria cycle 165)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -577,6 +577,14 @@ if [ -d "$CH2_DIR" ]; then
         # census walk failed under retransmit (both frame counts
         # collapsed, bytes healthy; c132 forensics). Report, never FAIL.
         echo "$cam CH2-ARTIFACT (reassembly failure at last census, not a freeze -- cross-check recordings if suspicious)"
+        ;;
+      *"VIDEO-DEAD"*)
+        # v2.30 (c165): camera-side VIDEO death, audio alive (the mirror of the
+        # freeze class). ch2 flowing, ch0=0, bytes audio-sized. prudynt video
+        # pipe wedged; frigate discards the audio-only segments (record.maintainer
+        # WRN) = real recording loss. FAIL loudly; nightly camera reboot heals.
+        age=$(( $(date +%s) - $(echo "$row" | awk '{print $1}') ))
+        echo "FAIL-LINE: CH2-VIDEO-DEAD FAIL ($cam video=0 at last census, audio flowing, ${age}s ago -- camera-side video pipe wedged, recordings being discarded; nightly reboot heals)"; FAIL=1
         ;;
       *"FROZEN"*)
         # epoch cam ch2 ch0 bytes FROZEN -- freeze live at last census

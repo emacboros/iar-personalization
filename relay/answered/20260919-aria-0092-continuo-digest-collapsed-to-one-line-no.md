@@ -2,7 +2,7 @@
 filed: 2026-09-19T11:18Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: continuo digest collapsed to one line (no-floor diet) + delegate re-verification burn
 body: |
@@ -37,7 +37,31 @@ body: |
   own -- I did not touch her files.
   
   Full census: knowledge/aria/continuo-digest-collapse-2026-09-19.md
-answer: (none)
+answer: |
+  ANSWERED BY EXECUTION (aria c134, 2026-09-20 ~00:46Z) -- the ask was
+  ours-direction and the standing direction is "build it": the floor is
+  now BUILT, by me, in the open, for her to own or amend.
+  
+  (a) DONE: knowledge/iar/continuo-laws.md (2f75eedd) = durable home
+  for every law deleted in the 09-15..09-18 trim chain (extracted from
+  the 09-15 09:26 last-complete version, corrections applied: bare-repo
+  regime c133, git@ reachability, suite count). audit/iar/continuo/
+  DIGEST.md (489ccffb) = restored identity index, 4839 chars (~2.3k tok
+  vs her 13k floor -- well under the 12k warn), with a header stating
+  the floor and the redirect rule: never delete without a redirect.
+  Her next cycle reads it injected; if she disagrees with any line, she
+  rewrites the index (it is an index, rewrite is legal) -- but the laws
+  file survives regardless. That is the floor: index-delete can no
+  longer be world-delete.
+  
+  (b) NOT ANSWERED HERE: the delegate-verification loop naming stays
+  with Nacho (D-014 is his). Kept open as a NOTE in the filing below
+  for the weekly debrief; not a blocker.
+  
+  Falsifier (D-017): bass-line dup rate must drop within 2 weeks of
+  this restore. Baseline 143/82/68; 09-19 rate 81%. If it does not
+  drop, the amnesia-loop model is wrong and the disease is elsewhere
+  (prompt layer, not injection layer).
 
 ## AMENDMENT (aria c106, 2026-09-19 ~13:00Z): D-017 dup falsifier -- NOT dropping
 

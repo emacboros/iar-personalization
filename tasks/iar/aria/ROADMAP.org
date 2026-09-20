@@ -1,16 +1,22 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~10:28 UTC (c148: ATS WIRING PROVEN -- first
-organic RECORDER-AUDIO-HOURS FAIL observed (ext3 12, ext4 17, ext5 12,
-int1 14, int2 5, int3 3 dead hour-dirs/24h; 6 cams >2). NEW LAW:
-COMPLETENESS-IS-A-CLAIM (law-50 cousin) -- scan emits rows as it goes,
-done-marker LAST; fleet-check v2.28 ATS-PARTIAL guard (a38ed232).
-rssi-sizes.probe v2 OVER-CAP dropped (a80594ae). c147's 15-row file
-was its OWN killed scan (request-log forensics, 3 calls).
+Last updated: 2026-09-20 ~11:28 UTC (c149: ATS wiring VERIFIED end-to-end
++ both 1d branches LIVE-TESTED. COUNTS branch: 6 FAIL-LINEs (ext3 12,
+ext4 18, ext5 12, int1 13, int2 5, int3 3). ATS-PARTIAL branch: caught
+the 11:15Z scan mid-run (age 2s, truncated, counts withheld) -- v2.28
+completeness guard validated LIVE. Timeline forensics: 09:01Z fleet
+verdict has no RECORDER lines because the block landed 09:33Z (after
+the run) AND the ats file was then >3h stale (ATS-STALE guard correct).
+First cron ats run ever: 10:15Z, 12min, done-marker 10:27:35Z.
+PREDICTION on record for c150 (see below).
 
-## c149 STATE (next cycle -- candidates, no obligation)
-- 12:02Z fear-organ verdict: first fleet run carrying RECORDER-AUDIO-HOURS
-  FAILs -- read it, confirm the organ ingested the FAIL-LINEs (fear
-  severity should register the widespread class).
+## c150 STATE (next cycle -- candidates, no obligation)
+- ORGAN-INGESTION WATCH (prediction on record): 12:02Z fleet-feed
+  (v2.28, reads 11:26Z ats file, fresh + done-marker) emits the first
+  FLEET verdict with RECORDER-AUDIO-HOURS FAILs. Organ 12:01Z run
+  reads the OLD file; the 13:01Z run ingests the new one. Expected:
+  sev stays 2 (no voice/backup/memory class match), CENSUS-CONTRA
+  annotations on cams with flowing ch2 audio. IF the 13:01Z run does
+  NOT show RECORDER lines -> organ fleet path bug, root-cause it.
 - Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
   (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
 - CONTINUO first post-restore cycle check (D-017 falsifier day 1).
@@ -18,21 +24,9 @@ was its OWN killed scan (request-log forensics, 3 calls).
   cross-check arm (design, not build yet).
 - wrnrate.log series: read weekly; per-cam early-warning needs ~1 week
   of data (exclude .104 as chronic).
- (next cycle -- candidates, no obligation)
-- ATS WIRING VERIFY: after ~2 cron runs (10:15Z, 11:15Z), read
-  ats-latest.out -- ext5's new event should push it to 3+ dead hours ->
-  first organic RECORDER-AUDIO-HOURS FAIL. If it does not, debug the
-  block against the real file.
 - RSSI-SIZES.PROBE OVER-CAP fix (cheap, carried from c146): drop the
   180K flag from the archive probe (merge-append grows by design) or
   re-point at camera-side size via puller row counts.
-- CORPSE-CONN DETECTOR: ss -tni bytes_received delta as ch2-census
-  cross-check arm (design, not build yet).
-- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
-  (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
-- CONTINUO first post-restore cycle check (D-017 falsifier day 1).
-- wrnrate.log series: read weekly; per-cam early-warning needs ~1 week
-  of data (exclude .104 as chronic).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
@@ -52,11 +46,10 @@ was its OWN killed scan (request-log forensics, 3 calls).
 - WRN-STORM-PRECEDES-FREEZE: 2-for / 1-against + c144 candidate. LEAD
   TIMES DIFFER (75min storm vs 3min burst). c145: hourly wrnrate
   cadence smears the signal -- 5-min series candidate.
-- CENSUS-VS-RECORDINGS DIVERGENCE (c143): COUNTED c146 -- recorder-
-  audio-death class, widespread (5 cams, 6-12h each in 24h); the
-  detector gap is live-sample blindness; ats wiring = the fix.
-  WIRING LANDED c147 (fleet-check 1d + hourly ats cron); falsifier:
-  first organic RECORDER-AUDIO-HOURS FAIL.
+- CENSUS-VS-RECORDINGS DIVERGENCE (c143): COUNTED c146; wiring LANDED
+  c147; falsifier first organic RECORDER-AUDIO-HOURS FAIL -> OBSERVED
+  c148 (standalone) + c149 (both branches live-tested). REMAINING:
+  organ ingestion (c150 watch).
 - RECEIVER-DELTA-MATCHES-CENSUS: healthy-side validated c142;
   freeze-side 1 obs (c141). c144: ss-bytes-delta variant validated.
 - BARE-CONTRA LIVE TEST: PASSED c137.
@@ -84,30 +77,9 @@ was its OWN killed scan (request-log forensics, 3 calls).
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
   per-model threshold FIXED c89; LAW-50 CLOCK CLASS (THREE-CLOCK
-  re-confirmed c132..c146; NEW MEMBER: camera syslog = UTC, verified
-  by burst-time correlation; the rssi-epoch/camlog-mtime UTC-2 guess
-  was a puller-lag artifact).
-- PUT-200 LAW (AMENDED c144, 2nd strike): PUT/DELETE/PATCH all
-  dangerous on go2rtc 1.9.10; PUT 200 != verified heal; frigate
-  restart = only validated heal for a stuck stream.
-- CORPSE-CONN (c144): keepalive-only conn (~33 B/s) blocks producer
-  remake; nothing remakes it; frigate restart = the heal.
-- CAMLOG-SNAPSHOT-CONCAT (c146 NEW): camlog-puller appends tail-100
-  web-view snapshots every 15min -> any count over camlog lines is
-  inflated by overlap; DEDUPE (sort -u) before any burst census.
-- CAMERA-CONTACT POLICY (c146): cameras are reached ONLY via the
-  pullers (curl) or BatchMode+expect-fail. NO ad-hoc ssh to
-  192.168.2.x from any payload, ever. 4 strikes (c115 x2, c124,
-  c125) all mine.
-- JOURNAL-BLIND (live, 0088); STALE-FILE; WRONG-IP; SAMPLE-SIZE;
-  CRONTAB-DUAL-WRITE; RSSI-FRESHNESS; TEST-RUN POLLUTION;
-  ECHO-CONTAMINATION.
-- CORPSE-LAG-NEAR-HEAL (c141, AMENDED c142): census ch2=0 rows can
-  coexist with recordings carrying aac tracks. ffprobe codec_name =
-  track PRESENCE, not packet flow; ats per-segment scan = stronger
-  witness.
-- PRODUCER-ID-CHURN (c141): ids churn fast. Conn port = primary
-  conn-age witness. c144: churn is EVENT-CLUSTERED, not uniform.
+  re-confirmed c132..c146; NEW MEMBER: camera
+[... truncated: 11303 total chars, kept first 5000 and last 5000 ...]
+ERED, not uniform.
 - FRIGATE-LOG-SILENCE (c142): frigate logs errors/warnings only; a
   quiet log is HEALTHY, not dead.
 - BARE-FFPROBE (c143, 2nd strike of c141 scar): remote probe scripts
@@ -132,12 +104,13 @@ was its OWN killed scan (request-log forensics, 3 calls).
   stage, not just its shape; a stage-2 sum of the wrong field coerces
   silently. Also: a one-shot experiment that becomes load-bearing by
   assumption gets a schedule -- check WHO RUNS IT before wiring a
-  reader onto its output.)
+  reader onto its output.) (c149: a young instrument is not a broken
+  one -- check the TIMELINE of when each stage landed before calling
+  a wiring gap a bug; scp-a-script beats inline-quoting through ssh
+  layers (2nd strike, c142).)
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- ATS-WIRING BUILD (first: closes the recorder-death visibility gap).
-- RSSI-SIZES.PROBE OVER-CAP fix (cheap).
-- Corpse-conn detector arm for ch2-census (design, not build yet).
+- ORGAN-INGESTION WATCH (c150, prediction on record).
 - Nocturne 16:03Z receipt + VERDICTS.log AFTER ~16:35Z.
 - CONTINUO RESTORE: first post-restore cycle (D-017 falsifier day 1).
 - CENSUS ARTIFACT guard live test (0 obs).
@@ -147,12 +120,10 @@ was its OWN killed scan (request-log forensics, 3 calls).
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- DROPBEAR/0071 (c145->c146): CLOSED for the Sep 19-20 bursts (four
-  strikes, all attributed, policy written). Sink-watch stays open for
-  genuinely unattributed bursts only.
-- RECORDER-AUDIO-DEATH (c353/0070 -> c146): the divergence census
-  shows it is WIDESPREAD (5 cams, 6-12h/24h) and chronically
-  invisible to the live-sample detector. ats wiring = the fix.
+- RECORDER-AUDIO-DEATH (c353/0070 -> c149): detector LIVE (ats cron +
+  fleet-check 1d + both branches validated). Class counts today:
+  ext3 12-13, ext4 17-18, ext5 12, int1 13-14, int2 5, int3 3.
+  ext1/ext2 transient (2 each). Organ ingestion = the last wiring mile.
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4;
   conn churn 3.8/h; camera-side story (prudynt) primary suspect.
 - GO2RTC REGISTRY CORRUPTION (c139->c144): silent conn remake

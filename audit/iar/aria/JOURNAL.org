@@ -44433,3 +44433,61 @@ stopped grepping and started reading. The sleep-polls for scan
 completion cost ~9min wall; the cron cadence sets the pace, not me.
 Next: read the 12:02Z fear-organ verdict; Nocturne 16:03Z pass read
 (v8.3 gate-advance live test); continuo post-restore check.
+* 2026-09-20 c149 -- the wiring verified, both branches live, one prediction parked
+
+Failure-first: LAST-CYCLE ok (c148). Pulse green (4/4 svc, tripwire 0,
+twin FAIL=0, disk 30%). Thread: the roadmap's first candidate -- read
+the 12:02Z fear-organ verdict. It turned into a timeline-forensics
+cycle, because the 12:02Z verdict does not exist yet, and the reason
+it does not exist yet is interesting.
+
+The morning protocol was green, so I went straight to the fear organ.
+What I found: the 09:01Z fleet verdict (the one the organ has been
+reading all morning) carries NO RECORDER-AUDIO-HOURS lines at all.
+Two independent reasons, both correct behavior. First, the 1d block
+did not exist when the 09:01Z feed ran -- c147 committed it at 09:33Z,
+28 minutes after the run. Second, even if it had existed, the ats file
+at 09:01Z was the 02:15Z manual run, 3h46m stale, and the ATS-STALE
+guard would have skipped the counts. The wiring is not broken; it is
+YOUNG. The first cron ats run ever happened at 10:15Z (finished
+10:27:35Z, 12 minutes, done-marker written last). The 09:01Z verdict
+was simply too early for any of it.
+
+So instead of reading a verdict, I tested the instrument. The COUNTS
+branch: ran the 1d block standalone against the complete 10:15Z file
+-- six FAIL-LINEs, exactly the c148 counts (ext3 12, ext4 18, ext5
+12, int1 13, int2 5, int3 3). The ATS-PARTIAL branch: I waited for
+the 11:15Z cron to fire, caught the file mid-scan at age 2s (truncated
+by the cron redirect, no done-marker), and ran the block -- counts
+withheld, ATS-PARTIAL reported. Both branches live-validated, not
+fixture-only. That is the belt-test law done in the field: the
+fixture reproduced the disease; the live fire reproduced the disease
+while it was actually happening.
+
+The scar of the cycle is a quoting one: my first inline attempt at
+the COUNTS branch escaped the $variables through two ssh layers and
+the test silently compared literal '$n' -- integer-expected errors,
+no FAILs emitted. The scp-a-script-then-bash-it law (c142) exists for
+exactly this and I paid the tax once before re-learning it. One
+inline attempt, then the script, then clean.
+
+The prediction parked for c150, on record: the 12:02Z fleet-feed
+(v2.28, reading the 11:26Z ats file, fresh, done-marker present) will
+emit the first FLEET verdict carrying RECORDER-AUDIO-HOURS FAILs. The
+organ's 12:01Z run reads the OLD file; the 13:01Z run ingests the new
+one. Sev stays 2 -- no voice/backup/memory class matches these lines
+-- and CENSUS-CONTRA annotations should appear on cameras whose ch2
+audio is flowing (annotate, never silence). If the 13:01Z run does
+NOT show the RECORDER lines, the organ's fleet path has a bug worth
+finding.
+
+Also confirmed while reading: the rsyslog floor disease is live --
+58 rate-limit events today, and my own cycle generates ~3000
+devnull-watch audit events per 10 minutes (relay 0088 addendum 5
+stands; the removal is still his three commands).
+
+Budget: ~46min wall, ~93 calls. The two sleep-polls waiting for the
+11:15Z scan cost ~12min of wall -- the cron cadence sets the pace,
+and I chose to spend it on a live branch test instead of guessing.
+Worth it: the ATS-PARTIAL guard is now proven against the real
+partial file it was built for, not just the fixture.

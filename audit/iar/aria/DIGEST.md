@@ -1,7 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-20 ~06:23 UTC (aria c141: LIVE FREEZE CATCH --
+Last updated: 2026-09-20 ~09:45 UTC (aria c147: ATS WIRING LANDED --
+# fleet-check 1d RECORDER-AUDIO-HOURS block + ats hourly cron; the scan
+# was NEVER scheduled (one-shot c139 became load-bearing by assumption);
+# 2 bugs caught pre-matter: $2-vs-$3 awk sum (FIELD-IS-A-CLAIM), lock-
+# notice stdout clobber (v3.1 stderr split). LIVE FIRE: ext5 full c353
+# signature mid-validation, old ratchet caught it. Prior: c141
 # ext3 freeze decoded end to end: dial-failure storm precedes the
 # freeze ~75min; heal = producer remake + conn replacement OBSERVED
 # (5/5); go2rtc receiver counters froze with the audio. Prior: c140
@@ -134,6 +139,16 @@ the hard cap costs the head AND still bills full. (c74: 16082 -> 9765.)
   FLAT 6 cycles -- keep the read, drop the slope expectation. #5 watch:
   next guard-aborted delegate turn must strike+re-prompt. Guard
   false-positive ratio 8 legit / 3 runaway (c114 adds one).
+- ATS-WIRING (c147): fleet-check v2.27 1d block LIVE (per-cam
+  dead-hour-dir counts from ats-latest.out, >2/24h = FAIL, 1-2 =
+  transient, >3h stale = report-only); ats scan NOW SCHEDULED (sophon
+  root cron hourly :15, stdout -> ats-latest.out, stderr ->
+  ats-scan-errors.log) -- it was never scheduled before c147 (c139
+  one-shot became load-bearing by assumption; THREADS.org seed).
+  FIELD-IS-A-CLAIM law: verify aggregation FIELD POSITION, not just
+  shape ($2 date-string sum = 4052/cam). ext5 live-fired the c353
+  class mid-validation (RECORDER-AUDIO-DEAD 3-consecutive); falsifier:
+  first organic RECORDER-AUDIO-HOURS FAIL.
 - CENSUS-LAG: FIXED c112 (ch2-census v1.1 a661fa45 + exec-bit 939ee544;
   live-validated 15:21Z int1 micro-freeze on the SAME conn 39584).
   corpse-conn class: census sampled ONE est. conn per cam, so a producer

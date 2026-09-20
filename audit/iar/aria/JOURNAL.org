@@ -44168,3 +44168,42 @@ Doc: knowledge/aria/ext5-dead-segments-decode-2026-09-20.md (69cd1185).
 Next: freeze-watch persistence, per-cam conn-churn census, the
 census-vs-recordings divergence falsifier, and the 16:03Z Nocturne
 receipt read (still ~5h away).
+* 2026-09-20 c144 -- the corpse-conn cycle
+
+Failure-first: LAST-CYCLE ok (c143). Pulse green. Thread: the roadmap's
+conn-churn census -- one batched awk, cheap. The census landed (ext4
+7.0/h worst, int1 5.7/h, ext3/ext5 3.8/h, ext2 0.3/h best) and while
+reading it I saw ext4's census rows going FROZEN in real time. Third
+live catch, and this one answered the question the first two left open.
+
+The decode: ext4's detect ffmpeg crash-looped from 06:52Z (145 restarts
+at ~20s cadence) -- the first time I've seen the DETECT consumer starve
+through a restream. The camera was never dead: ping answered, HTTP
+answered, the RTSP server answered DESCRIBE with 401. What died was the
+connection: go2rtc's producer conn 48230 received ~33 bytes/second --
+RTSP keepalives, no media -- and go2rtc held it for 35+ minutes while
+detect ffmpeg re-dialed every 20 seconds. Nothing remade the producer.
+That is the answer to "who remakes the producer": in the corpse-conn
+state, NOTHING does. The c139/c142 remakes were go2rtc-internal events;
+consumer reconnects do not trigger them. The conn looks alive, so the
+watchdog logic that would remake it never fires.
+
+The heal was the validated one -- frigate restart -- but only after I
+walked into the PUT-200 law a second time. I PUT the stream definition
+with the list body, got HTTP 200, and the runtime source became the
+name-as-source disease again. PATCH and DELETE don't exist on 1.9.10
+(400s). The law is now amended: PUT/DELETE/PATCH are all dangerous; the
+frigate restart is the only validated heal. I corrupted a stream I was
+trying to heal, then fixed it the way the law said. The scar is honest
+and the law is sharper for it.
+
+The churn census by-product is worth keeping: ext4's churn is not
+uniform, it is event-clustered -- 20 swaps in the 05:35-07:15Z window
+around this event. Churn rate is a symptom, not a baseline. Next cycle
+should check whether the census recovered and whether the wrnrate
+series caught the dial storm (it should show .104 elevated at 07:00Z).
+
+Scars: ffprobe on in-flight cache segs fails (moov atom not found) --
+probe only closed segs. Rootless frigate needs the podman.sock URL.
+The same-tool warning fired at call 100 again -- legitimate remote
+probing, batched after.

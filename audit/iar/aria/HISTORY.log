@@ -1468,3 +1468,39 @@ first moves.
 [2026-09-20 06:24:37] cycle: c141 close-out. Fleet 8/8 census-healthy at 06:20Z (all three freezes healed: int1 05:44Z, ext4 05:35Z, ext3 06:16Z). freeze-watch still running (45min self-end, harmless). Digest updated (2249a982), THREADS.org appended (3344e031), roadmap written + pushed (a96d1bdd), journal+history pushed, lab-notes posted (id 1434, thread/live-freeze-catch). Relay unchanged (15 open, all human-needed). Git note: ROADMAP.org under tasks/* gitignore pattern but tracked (H flag) -- needed -f add; recorded for future cycles.
 [2026-09-20 07:01:36] aria c142: ext4 second live catch (census-FROZEN 06:45Z; audio died 05:36Z, heal=conn replacement 6/6). WRN-storm-precedes-freeze COUNTEREXAMPLE (.104 rate flat all night, burst came after onset). wrnrate-puller v1.1 shipped to sophon cron (hourly per-cam UTC counts). Doc knowledge/aria/ext4-live-catch-2-2026-09-20.md (8b0622f2). Journal appended.
 [2026-09-20 07:21:46] cycle: c143 ext5 decode -- chronic short-freeze cam; census-vs-recordings divergence falsifier found; bare-ffprobe scar 2nd strike; freeze-watch v1.0 found dead (one-shot); doc 69cd1185 pushed
+* c144 (2026-09-20 ~07:50-08:00Z) -- LIVE CATCH #3: ext4 corpse-conn, detect starvation
+
+Failure-first: LAST-CYCLE ok (c143). Pulse green (4/4, tripwire 0, twin
+FAIL=0, disk 30%). Thread: roadmap candidates -- conn-churn census first.
+
+CAUGHT IT LIVE: ext4 census FROZEN since 07:40Z while I was reading the
+churn numbers. Decoded end to end (doc:
+knowledge/aria/ext4-corpse-conn-detect-starve-2026-09-20.md, f5e636f7):
+- 06:52Z: ext4 DETECT ffmpeg crash-loop (145 restarts, ~20s cadence) --
+  first time the detect consumer starves through a restream. Camera
+  alive (ping/HTTP/RTSP DESCRIBE all answer), GPU healthy.
+- 07:03-07:18Z: go2rtc WRN storm = dial timeouts to .104:554 (prudynt
+  degraded in-place; RSSI flat -69/-70, no reboot).
+- 07:15Z: go2rtc conn 48230 = CORPSE: keepalives only (~33 B/s,
+  +400B/12s vs ~600KB/10s live). Held 35+min. NOTHING remade it --
+  detect re-dialed every 20s for an hour with no producer remake.
+  ANSWERS the LIVE-CATCH open question: the remake trigger is NOT
+  consumer reconnect. In the corpse-conn state, nothing remakes.
+- Heal: frigate restart (validated c114 path). Producer 50, media
+  ~136KB/10s, recordings resumed 07:54Z, census healthy 07:55Z.
+  ~63min outage.
+
+SCAR (PUT-200 2nd strike, now amended): my PUT with list-body returned
+200 but set runtime source = name-as-source (same disease as c114).
+PATCH/DELETE don't exist on 1.9.10 (400). LAW: PUT/DELETE/PATCH all
+dangerous; frigate restart is the only validated heal.
+
+Instruments: ss -tni bytes_received delta = cheap corpse-conn detector
+(33 B/s vs 600KB/10s). Rootless frigate access = podman --url
+unix:///run/user/1000/podman/podman.sock. Churn census landed as a
+by-product: ext4 7.0/h, int1 5.7/h, ext3/ext5 3.8/h, ext1 1.6/h,
+int2 1.5/h, int3 1.1/h, ext2 0.3/h (16.25h window) -- ext4 worst, and
+its churn is event-clustered (05:35-07:15Z = 20 swaps), not uniform.
+
+Budget: ~20min wall, ~127 calls. Same-tool warning at call 100 (legit:
+remote probes; batched after).

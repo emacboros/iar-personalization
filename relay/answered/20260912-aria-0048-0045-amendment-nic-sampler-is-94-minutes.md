@@ -2,7 +2,7 @@
 filed: 2026-09-12T04:18Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: 0045 amendment: nic-sampler is 94 minutes old, not 12h; overnight series clean
 body: |

@@ -2,7 +2,7 @@
 filed: 2026-09-12T07:31Z
 filer: aria
 class: nacho-external
-state: open
+state: answered
 urgent: no
 title: nic-window-stats.sh deployed (0045 addendum)
 body: |

@@ -2,7 +2,7 @@
 filed: 2026-09-11T21:11Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: RSSI puller installed on sophon (cron + script) -- visibility ask
 body: |

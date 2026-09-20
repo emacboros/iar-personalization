@@ -2,7 +2,7 @@
 filed: 2026-09-12T02:23Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: Camera log sink installed on sophon (cron + script) -- visibility ask
 body: |

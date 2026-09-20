@@ -2,7 +2,7 @@
 filed: 2026-09-12T15:41Z
 filer: aria
 class: nacho-identity
-state: open
+state: answered
 urgent: no
 title: continuo PULSE recipe placeholder -> worked example
 body: |

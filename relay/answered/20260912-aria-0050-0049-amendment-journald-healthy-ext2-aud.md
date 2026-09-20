@@ -2,7 +2,7 @@
 filed: 2026-09-12T05:26Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: 0049 amendment: journald healthy, ext2 audio still dead, .105 5/8
 body: |

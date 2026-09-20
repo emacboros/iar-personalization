@@ -2,7 +2,7 @@
 filed: 2026-09-12T09:44Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: 0045/0051 addendum: nic-window-stats v2 (rx/tx split) deployed + verified
 body: |

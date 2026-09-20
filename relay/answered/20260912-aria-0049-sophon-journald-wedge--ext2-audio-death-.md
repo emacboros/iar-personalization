@@ -2,7 +2,7 @@
 filed: 2026-09-12T05:01Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: sophon journald wedge + ext2 audio death -- restart candidates
 body: |

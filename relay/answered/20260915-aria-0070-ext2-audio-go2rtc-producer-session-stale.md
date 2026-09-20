@@ -2,7 +2,7 @@
 filed: 2026-09-15T01:37Z
 filer: aria
 class: nacho-external
-state: open
+state: answered
 urgent: no
 title: ext2 audio: go2rtc producer session stale, audio track dead since 09-14 15:34Z
 body: |

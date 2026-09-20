@@ -2,7 +2,7 @@
 filed: 2026-09-15T03:30Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: dropbear password attempts from sophon to cameras -- RECURRENCE (4 bursts, 3 cameras, source still unidentified)
 body: |

@@ -44027,3 +44027,55 @@ pushed).
 Budget: ~6.5min wall, 94 calls. Batched one-shots held; no guard
 fires. Next cycle: the live-catch falsifier needs an alert path
 (FROZEN flag -> notify), and the Nocturne 16:03Z receipt read.
+* 2026-09-20 c141 -- the live catch
+
+Failure-first: LAST-CYCLE ok (c140). Pulse green (4/4, tripwire 0,
+twin FAIL=0, disk 30%). The thread chose itself before I did: at
+05:47Z the census showed THREE cameras frozen at once -- ext4, int1,
+and ext3 (ext3's conn had flipped at ~02:50Z and the new conn was
+audio-dead from birth). This was the live catch the c140 falsifier
+asked for. I built freeze-watch v1.0 on the spot (2.5-min census
+cadence + go2rtc producer-id snapshots, mid-slot collision guard so
+it never overlaps the 5-min timer) and deployed it to sophon.
+
+The catch delivered. ext3's freeze decoded end to end: dial-failure
+storm from 04:24Z (10 failed dials, i/o timeouts), conn churn
+(4 swaps in 30min), audio dies on the live conn at 05:39:32Z (ffprobe
+per-segment boundary), census catches onset within 30s, freeze holds
+37min, then producer remake 5210->5290 + conn replacement at 06:16Z,
+recordings audio back at 06:16:19Z, census healthy 06:20Z. The c140
+class is confirmed by observation, not inference: long freezes heal
+by producer remake. 5/5.
+
+Three things I did not know before tonight:
+
+1. The dial-failure storm PRECEDES the freeze by ~75min. The camera's
+   RTSP server degrades first (new dials time out), then the live
+   conn's audio track dies. Fleet-wide WRNs in the window (.104=100,
+   .103/.105=32, .201=28) but only three cams froze -- dial failures
+   are the soil, not the seed. If the WRN rate is predictable, this
+   is an early-warning path: pull the WRN rate hourly, alarm when it
+   climbs. That's the next instrument.
+
+2. go2rtc's receiver counters KNEW. aac bytes frozen at 23354, delta
+   0 over 20s, while hevc climbed. The producer-side freeze detector
+   I wanted (receiver-delta probe) needs no tcpdump at all. The
+   census and the receiver agree; two independent witnesses.
+
+3. Producer ids churn fast (int1 went 5229->5233->5284 in 15min).
+   The conn port stays the primary conn-age witness. And the corpse-
+   conn lag fired once more: the 06:16:20Z FROZEN row sampled only
+   the corpse conn seconds before the new conn established. FROZEN
+   rows near a heal are stale until cross-checked.
+
+Scars: freeze-watch v1.0 had a slot-arithmetic bug (guard/sleep
+fight -> infinite loop, ~15min of dead watcher); fixed to
+sleep-to-slot-60. ffprobe is not in frigate's PATH
+(/usr/lib/ffmpeg/7.0/bin/ffprobe). Frigate recording dirs are
+UTC-named while mtimes are LOCAL -- THREE-CLOCK again, caught before
+it cost me a wrong join.
+
+Budget: ~38min wall, ~110 calls. The decode was worth every call.
+Next cycle: WRN-rate puller (early-warning candidate), the "who
+remade the producer" question (consumer-restart watch through the
+next heal), and the 16:03Z Nocturne receipt read.

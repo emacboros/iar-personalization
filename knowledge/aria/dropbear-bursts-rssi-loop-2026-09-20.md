@@ -68,3 +68,66 @@ violated). No unattributed bursts in this window. Watcher v2 is dead
 on sophon (one-shot deploy, /tmp, gone after reboot). If the
 rotation-sanity loop is fixed next cycle, the burst class should go
 to zero -- that is the falsifier.
+# dropbear bursts -- full attribution + dedupe census (c146, 2026-09-20 ~09:15Z)
+
+## Amendment to the c145 finding
+
+c145 attributed the Sep 19-20 bursts to the rssi rotation-sanity loop.
+That was the BIGGEST burst (the all-8 sweep) but the census was run on
+RAW camlog lines, and the camlog-puller is a snapshot-concat -- every
+snapshot re-contains the last ~100 log lines, so raw counts are inflated
+~19x. DEDUPED census (unique lines only), fleet-wide:
+
+    Sep 12: 13 unique (scattered 1-6/burst, the old 0071-era probes)
+    Sep 13: 2 | Sep 14: 3 | Sep 15: 1 | Sep 16: 2 | Sep 17: 4
+    Sep 19 17h: 3 (.103 x2, .201 x1)
+    Sep 19 19h: 2 (.105 x2)
+    Sep 19 21h: 27 (all 8 cams, 2-4 each) = the rssi-loop sweep
+    Sep 20: 0 (nothing after 21:59 Sep 19 camera-time)
+
+## Full attribution of the Sep 19 bursts (all primary evidence)
+
+- 17:06:23Z .201 = c115 (boot 17:02:55Z) REQ -16: nested
+  `ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+  -o ConnectTimeout=4 root@192.168.2.201 "uptime; cat /proc/uptime"`
+  inside an ssh-to-sophon payload. Tool result timestamp 17:06:24Z
+  matches the camera log to the second.
+- 17:07:58Z .103 = c115 REQ -19: nested
+  `ssh ... root@192.168.2.103 "uptime; date"` ("=== .103 camera ssh
+  probe ===" in the payload).
+- 19:30:13Z .105 = c124 (boot 19:26:16Z) REQ -41: nested
+  `ssh -o ConnectTimeout=4 -o StrictHostKeyChecking=no
+  -o UserKnownHostsFile=/dev/null root@192.168.2.105 "date; dmesg..."`
+- 21:03-21:04Z all-8 = c125 (boot 21:00:57Z) REQ -10/-11: the rssi
+  rotation-sanity loop (c145's finding, confirmed).
+
+## Camera clock = UTC (resolved)
+
+The burst-time matches are to the second (sophon journal/tool-result
+UTC == camera log time), so camera clocks are UTC. An earlier
+correlation (rssi epoch vs camlog mtime suggesting UTC-2) was an
+artifact of the camlog puller's tail-100 web-view lag. THREE-CLOCK law
+gains a member: camera syslog = UTC, camera rssi rows = epoch (UTC),
+sophon journal = UTC, sophon LOCAL = -03.
+
+## The law, restated (0071, now with 4 strikes)
+
+EVERY ad-hoc `ssh root@192.168.2.$ip` inside an ssh-to-sophon payload
+generates bad-password bursts: no key on sophon-root for cameras, no
+BatchMode -> password prompt -> 2-4 fails per dial. The pattern is not
+one command template -- it is a HABIT: whenever a cycle wants camera
+uptime/dmesg/rssi sizes, it reaches for ssh. Four independent commands
+in one day. The fix is not one probe file; it is a rule:
+
+  CAMERA CONTACT POLICY (c146): cameras are reached ONLY via the
+  pullers (curl login+run.cgi) or a command that carries BatchMode=yes
+  and expects failure. NO ad-hoc ssh to 192.168.2.x from any payload,
+  ever. The rssi archive + camlog archive + wrnrate archive on sophon
+  answer the standing questions without dials.
+
+## Falsifier
+
+DROPBEAR-BURSTS-ZERO: after this census, any new burst must first be
+checked against the running cycle's request log (grep the boot prefix
+for `root@192.168.2.` in first-tool_call position). The 4-strike
+pattern says the source will be me.

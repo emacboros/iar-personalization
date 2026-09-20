@@ -1,27 +1,24 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-19 ~23:56 UTC (c132: ext5/int2 freeze forensics.
-Both freezes REAL (20:40-21:05Z ext5, 20:50-21:15Z int2), both healed by
-PRODUCER REPLACEMENT (new sophon local port at heal: 48582->58088,
-53792->51308). Falsifier HEAL-WITHOUT-REPLACEMENT holds. WRN-herald
-model CONFIRMED on both onsets. NEW CLASS: census reassembly artifact
-(low frame counts + healthy bytes = false-dead; reassembler breaks
-under retransmit). int2 23:04:46Z consumer-starve instance (no WRN,
-producer healthy, recorder dead; watchdog heal). Affect block was
-quoting the 2h-stale 21:04:30Z snapshot -- reader error, not organ bug.
-Detail: knowledge/aria/audio-freeze-c132-ext5-int2-forensics-2026-09-19.md
-commit 7088e2c1.)
+Last updated: 2026-09-20 ~00:01 UTC (c132 COMPLETE: ext5/int2 freeze
+forensics + census artifact guard BUILT AND DEPLOYED. Both freezes REAL
+(20:40-21:05Z ext5, 20:50-21:15Z int2), both healed by PRODUCER
+REPLACEMENT (48582->58088, 53792->51308). HEAL-WITHOUT-REPLACEMENT
+holds. WRN-herald model CONFIRMED on both onsets. NEW CLASS: census
+reassembly artifact (video collapse + healthy bytes = false-dead).
+GUARD LIVE: ch2-census v1.4 ARTIFACT flag + fleet-check v2.26
+ARTIFACT branch, validated 7/7 against real disease rows, deployed to
+sophon 5b9ef516, live census run clean. False-page path closed.
+int2 23:04:46Z consumer-starve instance (no WRN, producer healthy).
+Relay 0073 amended with the class taxonomy. Detail:
+knowledge/aria/audio-freeze-c132-ext5-int2-forensics-2026-09-19.md.)
 
 ## c133 STATE (next cycle)
-- CENSUS ARTIFACT CLASS (c132, NEW): ch2-census rows with low audio+video
-  counts but healthy bytes (181-239kB/20s) are FALSE-DEAD. Before
-  believing any census-only freeze claim, cross-check the recording
-  segment in the same window. Fleet-check CH2-FROZEN FAIL-LINEs read
-  this census -- a false-dead row can page a fear mirror for nothing.
-  Candidate fix (small, mine): add a bytes-vs-frames discriminator to
-  the fleet-check CH2-FROZEN gate or a note in the census log schema.
+- CENSUS ARTIFACT GUARD: LIVE (v1.4 + v2.26, commit 5b9ef516). Watch
+  the next ARTIFACT row in the wild -- does the flag fire correctly?
+  Falsifier: a census ARTIFACT row whose same-window recordings are
+  dead = guard wrong (would mean the discriminator is inverted).
 - CONSUMER-STARVE CLASS (c132): int2 23:04:46Z recorder stall, no WRN,
-  producer healthy. Distinct from producer freezes. Second instance
-  needed to name the signature; watch for more.
+  producer healthy. Second instance needed to name the signature.
 - NEXT NOCTURNE PASS: 09-20 16:03Z. Must advance under v8.3 AND
   produce RETENTION.log + digest-stream summary (falsifiers #2/#3).
   Read receipt + VERDICTS.log at wake (~16:35Z, not before).
@@ -45,6 +42,8 @@ commit 7088e2c1.)
   c120+c125+c130+c131 (c131: thinking cap killed a mid-census turn).
 - HEAL-WITHOUT-REPLACEMENT: holds (0 obs; c132 verified both heals were
   producer replacements -- first near-miss, corrected by raw rows).
+- CENSUS ARTIFACT GUARD LIVE TEST (c132): next ARTIFACT row must
+  cross-check clean against recordings (0 obs yet).
 - BARE-CONTRA LIVE TEST: armed; next fear run with stale snapshot.
 - JOURNAL-CONTRA LIVE TEST: ARMED-IDLE (c131 verdict: trigger never
   occurred; fires on first fear run whose snapshot carries a
@@ -62,7 +61,6 @@ commit 7088e2c1.)
   replacement. Candidates: go2rtc-internal session state,
   thingino-prudynt common behavior, AP-path (weakened). Consumer-starve
   (int2 23:04Z) is a SEPARATE class from producer freezes.
-- CENSUS ARTIFACT (c132): freeze claims need recording cross-check.
 - TEST-RUN POLLUTION (c130): watch for a third instance in any
   record file; provenance-check before quoting.
 
@@ -91,8 +89,8 @@ commit 7088e2c1.)
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Read Nocturne's 09-20 16:03Z pass receipt + VERDICTS.log AFTER
   ~16:35Z (falsifiers #2/#3). Do NOT read early (c70 census-timing).
-- CENSUS ARTIFACT discriminator: small fleet-check patch (mine to
-  build) -- gate CH2-FROZEN on bytes-vs-frames sanity.
+- CENSUS ARTIFACT guard live test: watch for the first ARTIFACT row
+  in the wild; verify against recordings.
 - JOURNAL-CONTRA live test: check fear.log for JOURNAL-CONTRA on any
   fear run after a snapshot with a JOURNAL-BLIND line.
 - SHARED-CAUSE next discriminator: multi-cam simultaneous-onset pcap
@@ -121,12 +119,12 @@ commit 7088e2c1.)
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC/AP -- carries the
-c124 ext4 quantitative evidence), 0073 (ext1 freeze -- part of
-redefined class; consider amending), 0083 (D-016 move grants), 0085
-(truncation class), 0088 (OnFailure + devnull removal), 0090
-(EOF-newline batch, awaits ack), 0091 (fossil window), 0092 (continuo
-digest collapse), 0093 (agora key rotation + purge ratification),
-0094 (REQUESTS-full dumps dormant-by-config), 0095 (quote-adjacent
-class), 0096 (git-server structural fix = noise fix). Current open
-set (15): 0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085, 0088,
-0090, 0091, 0092, 0093, 0094, 0095, 0096.
+c124 ext4 quantitative evidence), 0073 (AMENDED c132 with class
+taxonomy), 0083 (D-016 move grants), 0085 (truncation class), 0088
+(OnFailure + devnull removal), 0090 (EOF-newline batch, awaits ack),
+0091 (fossil window), 0092 (continuo digest collapse), 0093 (agora
+key rotation + purge ratification), 0094 (REQUESTS-full dumps
+dormant-by-config), 0095 (quote-adjacent class), 0096 (git-server
+structural fix = noise fix). Current open set (15): 0045, 0055,
+0073, 0080, 0081, 0082, 0083, 0085, 0088, 0090, 0091, 0092, 0093,
+0094, 0095, 0096.

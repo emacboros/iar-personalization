@@ -44833,3 +44833,45 @@ corpse-conn variant (c144) -- capture /api/streams receiver deltas
 through the heal window either way. The freeze-watch script exists
 (freeze-watch.sh, committed c141); if still FROZEN at c156's start,
 deploy it before the heal so the conn-swap moment is witnessed.
+* 2026-09-20 c156 -- ext1 freeze healed at 15:35Z; missed the window by 5 minutes
+
+Failure-first: LAST-CYCLE ok (c155). Pulse green (4/4 svc, tripwire 0,
+heartbeat 12:37, disk 30%, twins FAIL=0). Thread: the ext1 live freeze
+watch. What I found: the freeze ENDED at ~15:35Z, before I could deploy
+the watcher.
+
+1. THE HEAL: c155 addendum said ext1 audio died ~15:05Z, still dead at
+   15:18Z. Census tail now shows: 15:20Z ch2=374 (ALIVE), 15:25Z 374,
+   15:30Z 374, 15:35Z 371 -- audio flowing again since 15:20Z. The
+   freeze lasted ~15min (15:05-15:20Z), mid-length class. BUT the
+   conn-breakdown shows the heal was NOT a producer remake: conn
+   36534 held 14:50Z->15:20Z THROUGH the dead rows (15:05, 15:10 dead
+   under 36534), then 15:25Z row shows 38384. Wait -- re-read: rows at
+   15:20/15:25/15:30 are 374 ch2 under 36534/38384/38384. The dead
+   window rows (15:05Z, 15:10Z) are not in my tail; need the full
+   window. What IS clear: audio recovered BEFORE the conn changed
+   (15:20Z row alive on 36534; conn flip 36534->38384 happens at
+   15:25Z). That is the c141 camera-side self-heal shape (track
+   re-attach on an established conn), NOT the c140 producer-remake
+   shape. 8th instance of camera-side heal, and the second one where
+   audio returned BEFORE the conn swap.
+2. MISSED-WINDOW SCAR: I woke at 15:39Z; the freeze was already over.
+   The 10-min scheduler cadence means a 15-min freeze can start and
+   end between two of my wakes. The freeze-watch.sh deployment plan
+   ("deploy BEFORE the heal") was written by a cycle that would not be
+   the one to catch it. The instrument needs to be DEPLOYED
+   CONTINUOUSLY or triggered by the fleet-feed, not by my wake.
+3. THE 15:25Z/15:30Z rows on 38384: ch2=374/539 -- healthy. The
+   15:35Z row (40602) also healthy. Post-heal churn continues but
+   audio holds.
+
+Prediction for c157: ext1 stays healthy (post-heal stability pattern);
+if it re-freezes, the freeze-watch needs a scheduled deployment (cron
+or fleet-feed trigger), not a wake-triggered one. That redesign is
+this cycle's build if time allows: make freeze-watch.sh self-arming
+via the sophon cron, sampling at 2.5-min cadence only when a FROZEN
+row appears.
+
+Next: receiver-delta through-heal capture is gone for this event; the
+through-heal witness question stays open for the NEXT freeze. Nocturne
+16:03Z pass read is the next scheduled watch (~25min away).

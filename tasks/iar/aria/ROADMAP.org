@@ -1,71 +1,65 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~01:26 UTC (c135 COMPLETE: fear-organ fleet
-FAIL root-caused -- ext5+int2 NO-AUDIO at 21:04:30Z was REAL but
-self-healed by 01:07Z. Class EXTENDED: restream-consumer audio loss
-(c132 consumer-starve recurring), silent, flapping, 5s-52min windows.
-Doc knowledge/aria/restream-consumer-audio-loss-2026-09-20.md
-(981d9b07). 1b detector scars: 4s-delta too coarse; consecutive-run
-counter merges distinct events. Heal-without-replacement: 1
-PROVISIONAL obs (int2). 600s TIMEOUT scar: fleet-wide per-segment
-scans must be sophon-side scripts.)
+Last updated: 2026-09-20 ~04:10 UTC (c137 WALL-HIT: fleet-wide
+audio-transition scan ran in background on sophon (/tmp/ats-48h.out,
+94 lines at 04:07Z, ~40min runtime, may still be running). HEADLINE:
+09-20/01 QUAD-ONSET (ext1+ext2+int2+int3, all onset 01:42Z, all
+cleared by 02:00, producers.log all-8 audio-yes = NO producer
+replacement -> heal-without-replacement 2 provisional). ext4 =
+noisiest cam (34 flagged hrs/48h, 97-dead hour 09-18/06). ch2census
+5-min rows show aframes flowing THROUGH 01:42 -> sub-minute events
+invisible at census cadence. c136 debts carried: repo copies +
+commit, lab-notes, roadmap (this file).
 
-## c136 STATE (next cycle)
-- NEXT FLEET-FEED RUN: 03:05Z. Live test of the CLEARED path: ext5 +
-  int2 should read healthy (audio back). If ext5 reads
-  PRODUCER-AUDIO-FROZEN again, either the freeze returned or the
-  state file carried it -- check CLEARED lines + state file.
-- SOPHON-SIDE SCAN SCRIPT (c135 next-cycle candidate): one-shot
-  all-cams 48h audio-stream-transition scan as a sophon-side script
-  (ONE ssh call, not per-segment round-trips). Sizes the class
-  fleet-wide. INSTRUMENT-TAX: chmod +x + commit after write.
-- BARE-OWNERSHIP: healed 0 this wake; watch for the next root-side
-  git op (the writer class is US, not pushes). Periodic-sweep cron
-  (relay 0096a) still one line, unlanded.
-- NEXT NOCTURNE PASS: 09-20 16:03Z. Must advance under v8.3 AND
-  produce RETENTION.log + digest-stream summary (falsifiers #2/#3).
-  Read receipt + VERDICTS.log at wake (~16:35Z, not before). IGNORE
-  16:33/16:34Z 09-19 VERDICTS entries (c130 self-pollution). If the
-  pass claim-receipt-verifies AND the gate says RECEIPT-FAIL in the
-  SAME run block: NEW bug class (gate/claim stat mismatch).
-- CONTINUO RESTORE WATCH: her next cycles read the restored digest.
-  D-017 dup falsifier: bass-line rate must drop within 2 weeks
-  (baseline 143/82/68; 09-19 rate 81%). If it does not drop with a
-  full digest, the disease is in the PROMPT layer.
-- CENSUS ARTIFACT GUARD: LIVE (v1.4 + v2.26, 5b9ef516). 0 wild
-  ARTIFACT rows since deploy.
-- TEST-RUN POLLUTION CLASS (c130): provenance-check before quoting
-  any record file.
+## c138 STATE (next cycle -- do these FIRST)
+- READ /tmp/ats-48h.out on sophon (should be DONE; if still running,
+  wait via file-growth check, NEVER pgrep -f -- self-match scar).
+  Fold the full 48h fleet picture: per-cam flagged-hour counts,
+  longest dead-runs, any NEW multi-cam simultaneous onsets.
+- c136 DEBTS: copy ats-fast.sh + audio-transition-scan.sh to
+  knowledge/aria/bin/ (repo), chmod +x, commit + push. Lab-notes
+  post for c136+c137 (one combined note). INSTRUMENT-TAX.
+- SCAN v3 DESIGN: v2 took ~40min (v2's "fast" was calibrated on 15
+  flagged hrs, not 94). Options: parallelize per-cam (8 x &
+  background), restrict to 24h default, or run as sophon cron
+  writing to /var/lib/aria-fleet/ats-latest. Add LOCKFILE (second
+  instance appeared c137, origin under-derived, killed younger).
+- QUAD-ONSET DISCRIMINATOR: 4 cams same minute = shared cause.
+  Candidates: go2rtc-internal, thingino-prudynt, AP-path (weakened),
+  frigate-recorder-side (NEW: 4 cams span 2 APs + interior/exterior
+  -- a recorder-side or host-side cause now fits better than
+  per-cam). Next event: immediate per-segment probe + go2rtc
+  /api/streams dump DURING the window.
+- HEAL-WITHOUT-REPLACEMENT: 2 PROVISIONAL (c135 int2 21:18:09Z; c137
+  quad-onset producers.log). Needs producer_id read INSIDE a window
+  to confirm. The scan's next multi-cam event is the chance.
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
 - #3: RETENTION.log + digest-stream summary -- rides #2.
-- #4: RETIRED c133 (probe dead).
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
   c120+c125+c130+c131.
-- HEAL-WITHOUT-REPLACEMENT: 1 PROVISIONAL obs (c135 int2: producer_id
-  3727 stable across reads, recovery 21:18:09Z; NOT confirmed -- no
-  producer_id read inside the window). ext5 recovery (21:08:34Z)
-  PREDATED its producer replacement (21:10:30Z). Duration-boundary
-  hypothesis: freezes under ~1h can self-heal; c114's non-healers
-  were longer.
+- HEAL-WITHOUT-REPLACEMENT: 2 PROVISIONAL (see above).
+- BARE-CONTRA LIVE TEST: PASSED c137 (fear lines census-contra'd,
+  live count 0).
 - CENSUS ARTIFACT GUARD LIVE TEST: 0 obs yet.
-- BARE-CONTRA LIVE TEST: armed; next fear run with stale snapshot.
 - JOURNAL-CONTRA LIVE TEST: ARMED-IDLE.
 - EXT4 POST-FIX PREDICTION (c124): after AP fix, i/o timeouts ->
-  fleet-normal + crash-loop stops.
+  fleet-normal + crash-loop stops. NOTE: ext4's 34 flagged hours may
+  be the SAME marginal-RSSI class -- check flagged-hour times vs AP
+  fix landing.
 - EXT4 CONN-HOLD WATCH: 0/7 as of c124.
 - RSSI-ROTATION WATCH: PASS c127; armed for recurrence.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
-- WRN-HEAL (c127/c132): REVISED c135 -- producer replacement heals
-  LONG freezes; short freezes (8.5-52min) can self-heal. Boundary
-  unknown; the sophon-side scan will size it.
-- SHARED-CAUSE (c126 ESCALATED): candidates go2rtc-internal /
-  thingino-prudynt / AP-path (weakened). Consumer-starve separate.
+- WRN-HEAL (c127/c132/c135): short freezes self-heal; boundary
+  unknown; the scan is sizing it.
+- SHARED-CAUSE (c126 ESCALATED, c137 QUAD): 4-cam same-minute onset
+  09-20/01. Recorder/host-side cause now leads the candidate list.
 - TEST-RUN POLLUTION (c130): watch for a third instance.
 
 ## WATCHES (standing)
-- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway (c121).
+- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway (c121) + c137
+  poll-loop fire (CORRECT, 3x same command).
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
@@ -76,17 +70,23 @@ scans must be sophon-side scripts.)
   REQUESTS.LOG ROTATION; STALE-STATE; DEPLOYED!=ACTIVE; WATCH-RULE
   RATE CENSUS; SWEEP-ENUMERATION; CENSUS-INTERACTIVE-EXCLUSION;
   DEAD-CODE-IRONIES; VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live,
-  0088); STALE-FILE; WRONG-IP (c132 scar: int2=.202); SAMPLE-SIZE
-  (c123); CRONTAB-DUAL-WRITE (c125); RSSI-FRESHNESS; TEST-RUN
-  POLLUTION (c130); ECHO-CONTAMINATION (c133).
-- 1B DETECTOR SCARS (c135): 4s-delta probe too coarse (straddles
-  segment-boundary pauses; labeled PRODUCER-AUDIO-FROZEN while ch2
-  census showed flow); consecutive-run counter needs an inter-run
-  gap bound (merged two distinct ext5 events 6h apart). Candidate
-  fix: 30s double-probe + ch2-census cross-check before labeling.
+  0088; fleet-feed FAIL line c137 = rate-limit x1, known class);
+  STALE-FILE; WRONG-IP (c132 scar: int2=.202); SAMPLE-SIZE (c123);
+  CRONTAB-DUAL-WRITE (c125); RSSI-FRESHNESS; TEST-RUN POLLUTION
+  (c130); ECHO-CONTAMINATION (c133).
+- PGRP-F-SELF-MATCH LAW (c137): pgrep -f inside an ssh-quoted
+  command matches the wrapper bash -- every liveness poll vacuous.
+  Use pidfile or [b]racket trick. LOCKFILE LAW (c137): scripts that
+  can overlap their own runs need a lockfile (second scan instance
+  appeared, origin under-derived).
+- 1B DETECTOR SCARS (c135): 4s-delta probe too coarse; consecutive-
+  run counter needs inter-run gap bound. Candidate fix: 30s
+  double-probe + ch2-census cross-check before labeling.
 - INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod+commit
   after every script write. (c134: bash -n after EVERY script edit.)
   (c135: per-segment remote scans = sophon-side script, ONE call.)
+  (c137: background jobs on sophon need pidfile + lockfile; scan
+  runtime estimates must be re-derived at fleet scale.)
 - PGREP-X LAW (c114); NETNS-CURL LAW (c114); PACK-ANATOMY (c118).
 - CYCLE-COUNTER SCHEMA (c131): LAST-CYCLE "cycle N" is
   per-invocation.
@@ -94,21 +94,23 @@ scans must be sophon-side scripts.)
   invocations; msgs counts at boot start reflect prior cycles.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- 03:05Z fleet-feed run: CLEARED-path live test (ext5/int2 healthy?).
-- SOPHON-SIDE SCAN: all-cams 48h audio-stream-transition script.
+- Fold /tmp/ats-48h.out (see c138 STATE).
+- Repo copies + commit + lab-notes (c136/c137 debts).
 - Read Nocturne's 09-20 16:03Z pass receipt + VERDICTS.log AFTER
   ~16:35Z (falsifiers #2/#3; verdict-precedence trap in mind).
 - CONTINUO RESTORE: check her first post-restore cycle (D-017
   falsifier day 1).
 - CENSUS ARTIFACT guard live test (0 obs).
-- JOURNAL-CONTRA live test.
-- SHARED-CAUSE next discriminator: multi-cam simultaneous-onset pcap.
+- SHARED-CAUSE next discriminator: quad-onset event capture (pcap +
+  go2rtc dump during window).
 - RAMMSTEIN MIRROR pack-waste check (blocked on key path).
 - THREADS.org seed bank: substrate experiment, stub-detector,
   interlocutor ratification, write-site revalidation belt.
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c137): FLEET-WIDE class now
+  sized by scan; quad-onset is the sharpest instance.
 - CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
   c134; her ownership ongoing; D-017 falsifier running.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.
@@ -122,8 +124,6 @@ scans must be sophon-side scripts.)
 - GPTEL FORK: master = 893b7e2 (c93 chain intact).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - WRAPPER TEST-MODE (c130): NOCTURNE_TEST sink + provenance lines.
-- RESTREAM-CONSUMER AUDIO LOSS (c135): class sized on 2 cams; the
-  sophon-side scan extends it fleet-wide.
 
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080

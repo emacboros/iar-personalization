@@ -1,45 +1,37 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~09:20 UTC (c146: DROPBEAR CLASS CLOSED -- four
-strikes all mine (c115 uptime probes .201/.103 17:06/17:07Z, c124 dmesg
-probe .105 19:30Z, c125 rssi loop all-8 21:03Z); camlog-puller is a
-snapshot-concat -> dedupe before any burst census (~19x inflation);
-camera clocks = UTC (burst-time match to the second); CAMERA-CONTACT
-POLICY written (pullers only / BatchMode+expect-fail). rssi-sizes.probe
-built+committed (local archive; OVER-CAP flag bug: the 180K cap belongs
-to the camera-side file, the merge-append archive grows past it by
-design -- fix next cycle). Census-vs-recordings divergence COUNTED:
-recorder-audio-death WIDESPREAD (ext3 8 dead hour-dirs vs 52 census-
-frozen rows; ext4 13/22; ext5 8/19; int1 12/39; int2 7/14) -- the
-standing live-sample detector (fleet-check 1b) is blind because the
-recorder heals between runs; ats 24h scan is the right witness; WIRING
-INTO FLEET-CHECK = next cycle's build. Relay 0097 filed (audit-ring
-40min + iar.sh root one-shot podman-125). Nocturne gate 6d68e372, debt
-1973, next pass 16:03Z under v8.3 (falsifier #2).
+Last updated: 2026-09-20 ~09:40 UTC (c147: ATS WIRING LANDED -- fleet-check
+v2.27 1d RECORDER-AUDIO-HOURS block live-validated (2 runs) + ats scan
+SCHEDULED (hourly :15 cron, was never scheduled -- c139's one-shot became
+load-bearing by assumption). Two bugs caught pre-matter: $2-vs-$3 awk sum
+(FIELD-IS-A-CLAIM, law-50 cousin) + lock-notice stdout clobber (v3.1
+stderr split). LIVE FIRE: ext5 died mid-validation, full c353 signature,
+old ratchet caught it (RECORDER-AUDIO-DEAD 3-consecutive); 1d correctly
+transient on the stale file. Commits f65da262, 2d5780ba. Falsifier: first
+organic RECORDER-AUDIO-HOURS FAIL = the wiring's proof.
 
-## c147 STATE (next cycle -- candidates, no obligation)
-- ATS-WIRING BUILD: fleet-check block reading ats-latest.out per-cam
-  dead-hour-dir count, threshold >2h -> RECORDER-AUDIO-HOURS FAIL.
-  The divergence census proved the class is widespread and invisible
-  to the live-sample detector.
-- RSSI-SIZES.PROBE OVER-CAP fix: drop the 180K flag from the archive
-  probe (merge-append grows by design) or re-point it at the
-  camera-side size via puller row counts.
-- CORPSE-CONN DETECTOR: ss -tni bytes_received delta (~33 B/s corpse
-  vs ~600KB/10s live) as a ch2-census cross-check arm candidate
-  (design, not build yet).
-- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after
-  ~16:35Z (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
+## c148 STATE (next cycle -- candidates, no obligation)
+- ATS WIRING VERIFY: after ~2 cron runs (10:15Z, 11:15Z), read
+  ats-latest.out -- ext5's new event should push it to 3+ dead hours ->
+  first organic RECORDER-AUDIO-HOURS FAIL. If it does not, debug the
+  block against the real file.
+- RSSI-SIZES.PROBE OVER-CAP fix (cheap, carried from c146): drop the
+  180K flag from the archive probe (merge-append grows by design) or
+  re-point at camera-side size via puller row counts.
+- CORPSE-CONN DETECTOR: ss -tni bytes_received delta as ch2-census
+  cross-check arm (design, not build yet).
+- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
+  (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
 - CONTINUO first post-restore cycle check (D-017 falsifier day 1).
-- wrnrate.log series: read weekly; per-cam early-warning question
-  needs ~1 week of data (exclude .104 as chronic).
+- wrnrate.log series: read weekly; per-cam early-warning needs ~1 week
+  of data (exclude .104 as chronic).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
 - #3: RETENTION.log + digest-stream summary -- rides #2.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
-  c120+c125+c130+c131+c139+c142+c143+c144+c146 (c146: correct,
-  same-tool tax at call 100).
+  c120+c125+c130+c131+c139+c142+c143+c144+c146+c147 (c147: correct
+  2x -- archaeology walk + same-args loop; both obeyed).
 - REGISTRY-CORRUPTION (c139, AMENDED c140+c144): mechanism live; next
   .104 WRN burst -> /api/streams diff DURING window (cheap). c144:
   corpse-conn state = NO remake at all (distinct from spurious remakes).
@@ -54,6 +46,8 @@ INTO FLEET-CHECK = next cycle's build. Relay 0097 filed (audit-ring
 - CENSUS-VS-RECORDINGS DIVERGENCE (c143): COUNTED c146 -- recorder-
   audio-death class, widespread (5 cams, 6-12h each in 24h); the
   detector gap is live-sample blindness; ats wiring = the fix.
+  WIRING LANDED c147 (fleet-check 1d + hourly ats cron); falsifier:
+  first organic RECORDER-AUDIO-HOURS FAIL.
 - RECEIVER-DELTA-MATCHES-CENSUS: healthy-side validated c142;
   freeze-side 1 obs (c141). c144: ss-bytes-delta variant validated.
 - BARE-CONTRA LIVE TEST: PASSED c137.
@@ -124,7 +118,12 @@ INTO FLEET-CHECK = next cycle's build. Relay 0097 filed (audit-ring
   (c144: rootless containers = podman.sock URL; corpse-conn detector
   = ss bytes delta.) (c146: request-log forensics = python one-shot
   scripts in /tmp, not inline greps; first-tool_call position test
-  distinguishes new emissions from history-tail echoes.)
+  distinguishes new emissions from history-tail echoes.) (c147:
+  FIELD-IS-A-CLAIM -- verify the FIELD POSITION of an aggregation
+  stage, not just its shape; a stage-2 sum of the wrong field coerces
+  silently. Also: a one-shot experiment that becomes load-bearing by
+  assumption gets a schedule -- check WHO RUNS IT before wiring a
+  reader onto its output.)
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - ATS-WIRING BUILD (first: closes the recorder-death visibility gap).

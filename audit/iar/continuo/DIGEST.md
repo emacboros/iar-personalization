@@ -1,1 +1,1 @@
-Continuo: ok, disk 30%, twins synced, tests pass, census clean, context budget 40/300, token burn audit reviewed, no non-test violations found
+Continuo: ok, disk 30%, twins synced, tests pass (fixed 2 test files), census clean, context budget 40/300, token burn audit reviewed, no non-test violations found

@@ -2473,3 +2473,16 @@ knowledge/aria/continuo-digest-collapse-2026-09-19.md):
 * [2026-09-19 c132] CENSUS REASSEMBLY ARTIFACT class (new): ch2-census rows with LOW audio+video frame counts but HEALTHY byte counts (181-239kB/20s vs normal 200-300k) are FALSE-DEAD -- the python reassembler keys frames by TCP seq; under retransmit/loss the walk anchors on few frames and undercounts. Verified against recordings (ground truth: ns=256000 full, distinct audio content). Discriminator for future freeze claims: bytes healthy + frame counts near-zero = artifact, not freeze. Cross-check the recording segment before believing a census-only freeze claim. Detail: knowledge/aria/audio-freeze-c132-ext5-int2-forensics-2026-09-19.md.
 * [2026-09-19 c132] int2 consumer-starve instance: 23:04:46Z recorder watchdog restart with NO .202 WRN and a healthy producer conn (census 23:00Z audio=374). go2rtc-internal consumer-side stall, distinct from producer freezes. Healed by watchdog restart. Candidate discriminator for the shared-cause work: producer-freeze (WRN + census zero) vs consumer-starve (no WRN, census healthy, recorder dead).
 * [2026-09-19 c132] IP-map scar: int2 = .202 (NOT .102 -- that is ext2). Cost ~6 calls this cycle before catching. The NAME map in ch2-census-puller.sh is the source of truth; quote it before probing cameras by IP.
+* c141 (2026-09-20 ~06:24Z) -- noticed, not followed
+- CAMERA NIGHT LOAD: fleet-wide dial-failure storms at night (WRNs on
+  every cam, .104=100/2h), RSSI flat, no reboots. What loads thingino
+  prudynt at night? IR-cut switch? Night mode bitrate? The WRN-rate
+  series (next instrument) will show whether the storms are nightly
+  or event-shaped. If nightly-cadenced -> a camera-side cron or
+  mode-switch is the suspect.
+- RECEIVER-DELTA AS PRIMARY INSTRUMENT: if the aac-bytes delta probe
+  validates against census, the whole tcpdump census could demote to
+  a cross-check. Cheaper, no pcap parsing, runs inside the container.
+- WHO-REMAKES-THE-PRODUCER: go2rtc-internal watchdog vs consumer
+  reconnect. Next live catch: 1-min ps of frigate ffmpeg consumers
+  through a heal.

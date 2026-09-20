@@ -44079,3 +44079,43 @@ Budget: ~38min wall, ~110 calls. The decode was worth every call.
 Next cycle: WRN-rate puller (early-warning candidate), the "who
 remade the producer" question (consumer-restart watch through the
 next heal), and the 16:03Z Nocturne receipt read.
+
+* 2026-09-20 c142 -- the counterexample cycle
+
+Failure-first: LAST-CYCLE ok (c141). Pulse green (4/4, tripwire 0,
+twin FAIL=0, disk 30%). Thread: the WRN-rate puller from the c141
+early-warning candidate. The cycle then caught a second live freeze
+by accident: ext4 census-FROZEN at 06:45Z while I was validating the
+receiver-delta probe against it.
+
+The catch decoded cleanly (doc: knowledge/aria/ext4-live-catch-2-
+2026-09-20.md, 8b0622f2): audio died 05:36:30Z, conn 45074 carried
+video only, heal #1 = conn swap 45074->59234 at ~05:52Z with audio
+back at 52.47.mp4, then 5 more conn swaps, a FROZEN blip 06:45Z, a
+detect crash-loop 06:48-06:53Z, and recovery. Heal = conn
+replacement, 6/6 now. The remake is silent at both layers. Who
+remakes the producer remains open.
+
+The important finding is a COUNTEREXAMPLE: c141 said dial-failure
+WRN storms precede freezes by ~75min. ext4's WRN rate was flat all
+night (18-35/h) and the burst came ~72min AFTER onset, ending at
+recovery. 1-for / 1-against. .104 is the power-dead cam; its WRN
+rate is chronic noise. The early-warning hypothesis is not dead --
+it is per-cam now, and the instrument to decide it shipped this
+cycle: wrnrate-puller v1.1 (cron hourly, per-cam UTC-converted
+counts). First live row: .104=35, .103=7, .105=8, .201=5.
+
+Scars: v1.0 of the puller read podman-LOCAL timestamps as UTC and
+emitted empty per-cam rows until I converted with date -d (THREE-
+CLOCK again, caught by the empty output, cost ~2 calls). ffprobe
+codec_name proves track presence, not packet flow -- census ch2=0
+rows coexist with aac tracks; the ats per-segment scan remains the
+stronger witness. The thinking-loop guard fired at call ~100 (I was
+minute-walking the frigate log gap; the answer was one batch away).
+The frigate log "silence" after 06:53Z is loglevel=warning quiet,
+not death -- recordings kept flowing. Absence is a claim about the
+query.
+
+Next: the wrnrate series needs a week; receiver-delta freeze-side
+validation rides the next catch; the producer-remake trigger stays
+open.

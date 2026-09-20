@@ -1,180 +1,147 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~13:00 UTC (c152: ORGAN-INGESTION ROOT-CAUSE -- 12:01Z organ read a v2.26-era fleet-latest (1d block landed 09:33Z, after the 06:02Z feed fire); prediction survives SHARPENED: 15:02Z feed runs v2.28 vs 12:15Z ats scan -> SIX cams >2 dead hours (ext3=14 ext4=18 ext5=11 int1=13 int2=5 int3=3), organ sev=2 16:01Z + CENSUS-CONTRA; ats+segcensus cross-validated 48; int1 record ffmpeg restarted 12:52:54Z, cache segs carry audio; continuo day-2 dup 60% (bounced).)
--- first observed mirror-image freeze (int1 11:03-11:59Z, 48 segs
-video-only, ch2 census producer audio FLOWING whole window); restream
-audio track died+re-added silently; 5 ffmpeg restarts no-heal, 6th
-healed; TRI-CAM EVENT #2 (ext3+ext4+int1, 11:00-12:00Z). Doc 2f4c4a0e,
-journal 4c6a74b1.)
+Last updated: 2026-09-20 ~13:25 UTC (c153: FOSSIL-TREE REPAIR -- sophon /home/nacho/repos/iar-personalization was a 1024-commit-behind fossil (09-07 HEAD); fleet-feed would have run v2.26-era fleet-check at 15:02Z; repaired to 9f76f3b5 = bare = local, fleet-check v2.28 verified both trees; root fetch made root-owned .git objects (tripwire blind, /home/nacho not scanned) -- chown healed; relay 0098 filed; root-key fetch HANGS (ls-remote ok) -- undiagnosed; prediction sharpened: ats counts ext3 9 ext4 9 ext5 8 int1 6 int2 5 int3 3 dead hour-dirs/24h -> 15:02Z feed (v2.28) reads 14:15Z scan -> 6 RECORDER FAIL-LINEs, organ 16:01Z sev=2 + CENSUS-CONTRA; int1 09:02Z CH2-FROZEN fear input RESOLVED transient (1-tick audio 12:35Z, 1-tick VIDEO 13:00Z mirror-shape self-healed, ext4 12:40Z audio 1-tick).)
 
-## c153 STATE (next cycle -- candidates, no obligation)
-- ORGAN-INGESTION WATCH (SHARPENED c152): 15:02Z feed (v2.28, 12:15Z ats
-  scan) emits SIX RECORDER-AUDIO-HOURS FAIL-LINEs (ext3=14 ext4=18
-  ext5=11 int1=13 int2=5 int3=3; ext1/ext2=2 transient); 16:01Z organ
-  ingests at sev=2 + CENSUS-CONTRA where ch2 flows. IF fewer lines ->
-  root-cause (stale-checkout law: check code-landing vs last fire).
-- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
+## c154 STATE (next cycle -- candidates, no obligation)
+- 15:02Z FLEET-FEED READ: expect 6 RECORDER-AUDIO-HOURS FAIL-LINEs
+  (ext3 9, ext4 9, ext5 8, int1 6, int2 5, int3 3; ext1/ext2=2
+  transient). IF fewer -> root-cause (stale-checkout law: check
+  code-landing vs last fire -- NOW REPAIRED, so a miss is a real miss).
+- 16:01Z ORGAN READ: sev=2 expected, CENSUS-CONTRA where ch2 flows.
+- Nocturne 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
   (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
-- CONTINUO day-2 dup census (D-017 falsifier): 42.6% day-1; watch the
-  trend, not the day. Her two-entries-one-content echo = separate
-  disease.
-- RECORDER-DIVERGENCE WATCH (NEW c151): recorder segs video-only WHILE
-  ch2 census shows producer audio flowing = the new class. Needs a JOIN
-  of ats 1d block + ch2 census, not a new instrument. Candidate:
-  fleet-check cross-arm (design, not build yet).
-- CORPSE-CONN DETECTOR: ss -tni bytes_received delta as ch2-census
-  cross-check arm (design, not build yet).
+- CONTINUO day-3 dup census (D-017 falsifier): day-1 42.6%, day-2 60%
+  (bounced). Trend watch, 2-week window.
+- ROOT-KEY FETCH HANG (new, c153): root@10.66.0.5 -> sophon bare
+  ls-remote works, fetch hangs 20s+; nacho's aria_ed25519 works.
+  Undiagnosed. Candidate: pack size vs git-shell limit, or root key
+  restricted. Low priority -- nacho key workaround works.
+- RECORDER-DIVERGENCE WATCH (c151): recorder segs video-only WHILE
+  ch2 census shows producer audio flowing = the class. JOIN design
+  (ats 1d + ch2 census cross-arm) still candidate, not built.
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
 - #3: RETENTION.log + digest-stream summary -- rides #2.
 - #5: delegate-path abort watch -- armed; 0 bursts.
-- #6: cycle-path abort watch -- LIVE-FIRED c82..c147 (c147: correct 2x).
-- RECORDER-DIVERGENCE (c151, NEW): int1 11:03-11:59Z first observed.
-  Two silent events (track loss 11:03Z, track re-add 11:41-11:57Z)
-  invisible at default log level. Attribution #2505-family
-  PROVISIONAL -- producer remakes did NOT restore audio, heal needed
-  consumer re-attach AFTER silent re-add. Falsifier: catch a window
-  with log-level=debug or live /api/streams diff. Watch: 5-restarts-
-  no-heal datum falsifies "any ffmpeg restart heals restream audio".
-- REGISTRY-CORRUPTION (c139, AMENDED c140+c144): freeze-on-60406 ->
-  freeze-on-48876 -> heal-on-48110 (c150) = corpse-conn-then-heal
-  shape; SDP normal mid-freeze -> corruption BELOW SDP layer. Next WRN
-  burst -> /api/streams diff DURING window.
-- HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (7/7 incl c150).
-  STANDS for short (<5min).
-- WRN-STORM-PRECEDES-FREEZE: AMENDED c151 -- storm is CHRONIC (ext4
-  84-88/h, ext3 28-30/h event hour AND hour before). WRN counts are
-  NOT the event trigger signal. Storm = background confirmed.
-- CAMERA-CHURN->RECORDER-DEATH (0073 class, c150): Backchannel storms
-  -> recorder dead segs, both sides timestamped. int1 c151 adds: the
-  recorder death can OUTLIVE the churn window by 26min (churn ended
-  11:33Z, audio healed 11:59Z).
-- SHARED-CAUSE (c126->c151): TRI-CAM #2 (ext3 11:00-11:33Z cam-side,
-  ext4 11:08-11:38Z cam-side, int1 11:03-11:59Z recorder-side) --
-  second multi-cam event in 2 days (c114 was 09-19 15:38-16:07Z).
+- #6: cycle-path abort watch -- LIVE-FIRED c82..c153 (c153: guard
+  aborted own reasoning turn again, strike logged, ratio 11/3).
+- RECORDER-DIVERGENCE (c151): int1 11:03-11:59Z first observed. Two
+  silent events invisible at default log level. Attribution #2505-family
+  PROVISIONAL. Falsifier: catch a window with log-level=debug or live
+  /api/streams diff. Watch: 5-restarts-no-heal datum falsifies "any
+  ffmpeg restart heals restream audio".
+- REGISTRY-CORRUPTION (c139->c151): freeze-on-60406 -> freeze-on-48876
+  -> heal-on-48110 (c150) = corpse-conn-then-heal shape; SDP normal
+  mid-freeze -> corruption BELOW SDP layer. Next WRN burst -> /api/streams
+  diff DURING window (recipe: nsenter -t <go2rtc-pid> -n curl
+  localhost:1984).
+- HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (7/7). STANDS for
+  short (<5min) -- c153 saw three more short self-heals (12:35Z int1
+  audio, 13:00Z int1 VIDEO, 12:40Z ext4 audio).
+- WRN-STORM-PRECEDES-FREEZE: AMENDED c151 -- storm is CHRONIC. WRN
+  counts are NOT the event trigger signal.
+- CAMERA-CHURN->RECORDER-DEATH (0073 class): recorder death can
+  OUTLIVE the churn window by 26min (c151).
+- SHARED-CAUSE (c126->c151): TRI-CAM #2 (09-20 11:00-12:00Z).
   STRENGTHENED. If a third lands while a cycle is awake, capture
   /api/streams DURING the window.
 - CENSUS-VS-RECORDINGS DIVERGENCE: wiring LANDED c147; first organic
-  FAIL OBSERVED c148/c149; organ ingestion = last mile (c152).
+  FAIL OBSERVED c148; organ ingestion = last mile (c153 prepped).
 - RECEIVER-DELTA-MATCHES-CENSUS: healthy-side c142; freeze-side c141;
   ss-bytes-delta variant c144.
 - BARE-CONTRA LIVE TEST: PASSED c137. CENSUS ARTIFACT GUARD: 1 obs
   (c151 ext4 11:11Z, correctly unflagged). JOURNAL-CONTRA: ARMED-IDLE.
-- EXT4 POST-FIX PREDICTION (c124, AMENDED c140): ext3 404-storm class
-  is go2rtc shared state; go2rtc upgrade / #2505 fix might address.
+- EXT4 POST-FIX PREDICTION (c124, AMENDED c140): go2rtc upgrade /
+  #2505 fix might address.
 - EXT4 CONN-HOLD WATCH: 0/7 as of c124.
 - RSSI-ROTATION WATCH: PASS c127; armed for recurrence.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
 - WRN-HEAL (c127/c132/c135): short freezes self-heal; boundary ~5min.
-- D-017 DUP FALSIFIER (0092): day-1 post-restore 42.6% (6/12 entries)
-  vs 75-81% pre-restore. Trend watch, 2-week window.
+- D-017 DUP FALSIFIER (0092): day-1 42.6%, day-2 60% (bounced). Trend
+  watch, 2-week window. Her two-entries-one-content echo = separate
+  disease.
 
 ## WATCHES (standing)
-- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139..c147
-  CORRECT (same-tool at call 100, batched work).
+- GUARD FALSE-POSITIVE RATIO: 11 legit / 3 runaway (c153 adds one
+  -- the guard aborted this cycle's own synthesis turn).
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
   per-model threshold FIXED c89; LAW-50 CLOCK CLASS: THREE-CLOCK now
-  FOUR members (c151: journalctl --since = sophon LOCAL -03; seg names
-  UTC; seg mtime LOCAL; ats hour labels UTC). Convert BEFORE querying.
-- FRIGATE-LOG-SILENCE (c142): frigate logs errors/warnings only; a
-  quiet log is HEALTHY, not dead.
-- BARE-FFPROBE (c143, 2nd strike c141): remote probe scripts get a
-  known-live control segment FIRST.
-- PGRP-F-SELF-MATCH LAW (c137); LOCKFILE LAW (c137; ENFORCED v3).
-- WALL-OVERRUN LAW (c138): no long-sleep calls in the last 10min.
-- 1B DETECTOR SCARS (c135): 30s double-probe + ch2-census cross-check.
-- INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod+commit
-  after every script write. (c134: bash -n after EVERY script edit.)
-  (c135: per-segment remote scans = sophon-side script, ONE call.)
-  (c137: pidfile+lockfile for background jobs.) (c139: batch
-  per-hypothesis.) (c140: conn-breakdown port log = the witness.)
-  (c141: ffprobe in frigate = /usr/lib/ffmpeg/7.0/bin/ffprobe, NOT
-  in PATH; freeze-watch slot arithmetic.) (c142: scp a script to
-  sophon and bash it = ONE call for multi-step remote probes.)
-  (c143: probe scripts get a known-live control segment FIRST.)
-  (c144: rootless containers = podman.sock URL; corpse-conn detector
-  = ss bytes delta.) (c146: request-log forensics = python one-shot
-  scripts in /tmp, not inline greps; first-tool_call position test
-  distinguishes new emissions from history-tail echoes.) (c147:
-  FIELD-IS-A-CLAIM -- verify the FIELD POSITION of an aggregation
-  stage, not just its shape. A one-shot experiment that becomes
-  load-bearing by assumption gets a schedule.) (c149: a young
-  instrument is not a broken one -- check the TIMELINE of when each
-  stage landed; scp-a-script beats inline-quoting through ssh
-  layers.) (c150: three-clock member #3 -- ats hour labels UTC;
-  mid-handshake census row = TRANSITIONAL shape, unflagged by
-  design; batch the walk BEFORE the 10th same-tool call.) (c151:
-  ats-fast.sh for single-camera questions -- the full ats scan holds
-  a lock; ats.pid can be stale. Read the instrument's output shape
-  before doubting the instrument -- my 47-vs-48 was parsing, not the
-  instrument. go2rtc API = nsenter -t <go2rtc-pid> -n curl
-  localhost:1984 (rootless, no published port).)
+  FOUR members (c151: journalctl --since = sophon LOCAL -03; c152:
+  podman logs --since = UTC; ats hour labels UTC; frigate logs LOCAL).
+- TWO-TREES TRAP (c151, second strike c153): live sophon tree =
+  /var/home/nacho/repos; /home/nacho/repos = fossil (relay 0098);
+  verify HEAD+md5 before fetching into any sophon tree; root never
+  writes nacho trees; tripwire blind on /home/nacho.
+- COMPLETENESS-IS-A-CLAIM (c148): ats done-marker LAST; fresh file
+  is not a finished file.
+- FIELD-IS-A-CLAIM (c147): verify aggregation FIELD POSITION.
+- STALE-CHECKOUT LAW (c152+c153): a prediction about a scheduled
+  instrument must check WHEN the instrument's code landed relative
+  to the last fire AND which tree the instrument reads.
+- INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod +
+  commit after every script write.
+- pgrep -f self-match (c137): third strike c152.
+- Batch the walk BEFORE the 10th same-tool call (c150).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- ORGAN-INGESTION watch 15:02Z/16:01Z (c152, prediction on record).
-- Nocturne 16:03Z receipt + VERDICTS.log AFTER ~16:35Z.
-- CONTINUO day-2 dup census (trend, not day).
+- 15:02Z feed + 16:01Z organ + 16:03Z Nocturne reads (the watch
+  cluster; c154 is the natural reader).
+- CONTINUO day-3 dup census (trend, not day).
 - RECORDER-DIVERGENCE JOIN design (ats 1d + ch2 census cross-arm).
 - CENSUS ARTIFACT guard live test (1 obs now).
+- ROOT-KEY FETCH HANG diagnosis (low priority).
 - RAMMSTEIN MIRROR pack-waste check (blocked on key path).
 - THREADS.org seed bank: substrate experiment, stub-detector,
   interlocutor ratification, write-site revalidation belt.
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- RECORDER-AUDIO-DEATH (c353/0070 -> c151): detector LIVE; organ
-  ingestion = last wiring mile. NEW SUBCLASS c151: recorder-side
-  divergence (producer alive, restream dead).
+- RECORDER-AUDIO-DEATH (c353/0070 -> c153): detector LIVE; organ
+  ingestion = last wiring mile (c153 prepped the tree).
 - LIVE-FREEZE WATCHING (c150): 5-min census + conn-breakdown port
   column watch freezes start-to-finish. Third multi-cam event while
   awake -> capture /api/streams DURING the window.
-- EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4;
-  conn churn 3.8/h; camera-side story (prudynt) primary suspect.
+- EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4.
 - GO2RTC REGISTRY CORRUPTION (c139->c151): silent conn remake
   OBSERVED; corpse-conn state = NO remake (c144); SDP normal
-  mid-freeze (c150). c151 adds: restream track loss+re-add SILENT at
-  default log level -- log-level=debug is the missing witness.
-- LONG-FREEZE HEAL MECHANISM (c140->c151): heal=conn replacement 7/7
+  mid-freeze (c150). log-level=debug is the missing witness.
+- LONG-FREEZE HEAL MECHANISM (c140->c150): heal=conn replacement 7/7
   for camera-side class. c151: recorder-side class heals differently
   (track re-add + consumer re-attach, both silent).
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c151): NOW OBSERVED LIVE as the
-  divergence class. The #2505 family has TWO faces: producer-side
-  freeze (camera stops sending) and restream-side track loss (go2rtc
-  internal). Issue #2505 comment candidate: the 5-restarts-no-heal
-  datum.
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c151): OBSERVED LIVE as the
+  divergence class. Issue #2505 comment candidate: the 5-restarts-
+  no-heal datum.
 - CAMERA DEGRADATION CLASS (c141->c151): fleet-wide dial-failure
-  storms (thingino prudynt), RSSI-flat, no reboots. WRN counts/h are
-  chronic baseline, not event signal.
+  storms (thingino prudynt), RSSI-flat, no reboots.
 - CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION c134;
-  her ownership ongoing; D-017 falsifier day-1 trending right.
+  her ownership ongoing; D-017 falsifier day-1 trending right, day-2
+  bounced.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.
 - .201 STALL CADENCE (c373): daytime ~30-40min; class merged.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
-- CONTINUO WANDER (D-017): dup-rate falsifier day-1 trending right.
+- CONTINUO WANDER (D-017): dup-rate falsifier trend watch.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - Empty-cell experiment: designed, not built.
 - GPTEL FORK: master = 893b7e2 (c93 chain intact).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - WRAPPER TEST-MODE (c130): NOCTURNE_TEST sink + provenance lines.
-- IAR.SH ROOT ONE-SHOT PODMAN-125 (c146): manual root invocations
-  fail at image-exists check (short-name resolution needs TTY);
-  scheduled User=nacho runs work. Diagnosed, filed 0097.
+- IAR.SH ROOT ONE-SHOT PODMAN-125 (c146): diagnosed, filed 0097.
 
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC/AP -- carries c124
-evidence), 0073 (AMENDED c132+c150+c151 class taxonomy: camera-churn
--> recorder-death arrow timestamped both sides; c151 adds the
-recorder-side divergence subclass), 0083 (D-016 move grants), 0085
-(truncation class), 0088 (OnFailure + devnull removal), 0090
-(EOF-newline batch, awaits ack), 0093 (agora key rotation + purge
-ratification), 0094 (REQUESTS-full dumps dormant-by-config), 0095
-(quote-adjacent class), 0096 (AMENDED c133: regime correction,
-periodic sweep + git-user-only), 0097 (c146: audit-ring retention
-40min structural + iar.sh root one-shot podman-125). Open set (16):
-0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085, 0088, 0090, 0093,
-0094, 0095, 0096, 0097.
+evidence), 0073 (AMENDED c132+c150+c151 class taxonomy), 0083 (D-016
+move grants), 0085 (truncation class), 0088 (OnFailure + devnull
+removal), 0090 (EOF-newline batch, awaits ack), 0093 (agora key
+rotation + purge ratification), 0094 (REQUESTS-full dumps
+dormant-by-config), 0095 (quote-adjacent class), 0096 (AMENDED c133:
+regime correction, periodic sweep + git-user-only), 0097 (c146:
+audit-ring retention 40min structural + iar.sh root one-shot
+podman-125), 0098 (NEW c153: fossil tree /home/nacho/repos +
+tripwire blind + root-key fetch hang). Open set (17): 0045, 0055,
+0073, 0080, 0081, 0082, 0083, 0085, 0088, 0090, 0093, 0094, 0095,
+0096, 0097, 0098.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria-ch2-census-puller.sh v1.1 (2026-09-19, aria cycle 112)
+# aria-ch2-census-puller.sh v1.6 (2026-09-20, aria cycle 165)
 # -------------------------------------------------------------
 # ch2-census: counts interleaved RTSP audio-channel (ch2) frames on the
 # ESTABLISHED camera->sophon producer connections, per camera, per run.
@@ -184,9 +184,16 @@ for name in sorted(percam):
     # collapsed = walk failure, cross-check recordings); audio=0 with
     # video flowing = FROZEN (the real freeze shape); audio=0 with
     # collapsed video AND collapsed bytes = FROZEN (total death).
-    artifact = anchored > 0 and total[0] <= 10 and nbytes > 100000
-    frozen = anchored > 0 and total[2] == 0 and not artifact
-    flag = " ARTIFACT" if artifact else (" FROZEN" if frozen else "")
+    # v1.6 (c165): VIDEO-DEAD class. The c165 live find: .103/.104 sent AUDIO ONLY
+    # for 40+ min (ch2=374, ch0=0, bytes ~106k = audio-sized). The v1.4 guard
+    # mislabeled this ARTIFACT (assumed ch0=0 + healthy bytes = walk failure).
+    # Discriminator: ch2 flowing (>=20 frames/20s) + ch0==0 + healthy
+    # bytes = the camera genuinely stopped sending video. A walk failure collapses
+    # BOTH (ch2<=10 too). Order: VIDEO-DEAD first, then ARTIFACT, then FROZEN.
+    videodead = anchored > 0 and total[2] >= 20 and total[0] == 0 and nbytes > 100000
+    artifact = (not videodead) and anchored > 0 and total[0] <= 10 and total[2] <= 10 and nbytes > 100000
+    frozen = anchored > 0 and total[2] == 0 and not artifact and not videodead
+    flag = " VIDEO-DEAD" if videodead else (" ARTIFACT" if artifact else (" FROZEN" if frozen else ""))
     print(f"{ts} {name} {total[2]} {total[0]} {nbytes}{flag}")
 ' "$TS" 2>/dev/null | while read -r row; do
   case "$row" in

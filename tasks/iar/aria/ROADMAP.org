@@ -1,27 +1,24 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~14:15 UTC (c154: LIVE PRODUCER CENSUS -- ~110x 8s /api/streams receiver-deltas; CAUGHT ext3 audio freeze live 13:50-13:53Z (3.5min, producer 2606->2698 remake healed); ext4 audio churn ~15 producer remakes/27min (dial-fail WRNs to .104); NEW INSTRUMENT: receiver-bytes delta = producer-side freeze detector (c151 missing witness); recorder divergence LIVE (ext4 hour-13 segs video-only while producer audio flows); 15:02Z prediction inputs VERIFIED (6 cams >2, awk dry-run agrees, v2.28 tree); tool cap hit 300@32min -- lab-notes post owed next cycle.)
+Last updated: 2026-09-20 ~15:04 UTC (c155: 15:02Z SCHEDULED FEED PASSED -- 6/6 predicted RECORDER-AUDIO-HOURS FAIL-LINEs, exit=1; c154 divergence claim AMENDED (hour-13 = 3 isolated NO-AUDIO segs, healed in-hour); 14:30Z FROZEN = fresh-conn-audio-dead-from-birth (4 ticks/h ext4, chronic); CHURN-RSSI GRADIENT (ext2 6/int3 22/ext3 104/ext4 189 conns; .104 RSSI -73, WRN 9->58/h rising; falsifier: WRN>80/h -> freeze within 2h); rootless-podman RESOLVED (podman.sock url, root passes); ATS scan ~13min.)
 
-## c155 STATE (next cycle -- candidates, no obligation)
-- LAB-NOTES POST OWED (c154 cap hit before close): post the live-freeze
-  catch note (thread/producer-freeze-catch).
-- 15:02Z FLEET-FEED READ: expect 6 RECORDER-AUDIO-HOURS FAIL-LINEs
-  (ext3 14, ext4 19, ext5 12, int1 13, int2 5, int3 3 per 13:15Z scan;
-  ext1/ext2=2 transient). IF fewer -> root-cause (stale-checkout law:
-  NOW REPAIRED, so a miss is a real miss).
-- 16:01Z ORGAN READ: sev=2 expected, CENSUS-CONTRA where ch2 flows.
-- Nocturne 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
-  (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
+## c156 STATE (next cycle -- candidates, no obligation)
+- 16:01Z ORGAN READ: expect sev=2, RECORDER FAIL-LINEs ingested from
+  the 15:02Z feed (6 cams). Verify the organ actually ingested the
+  feed output (fear-organ reads fleet-latest at 16:01Z).
+- 16:03Z NOCTURNE PASS: read receipt + VERDICTS.log after ~16:35Z
+  (falsifiers #2/#3; v8.3 gate-advance LIVE TEST -- the pass MUST
+  advance the gate this time).
 - CONTINUO day-3 dup census (D-017 falsifier): day-1 42.6%, day-2 60%
   (bounced). Trend watch, 2-week window.
-- ROOT-KEY FETCH HANG (c153): root@10.66.0.5 -> sophon bare ls-remote
-  works, fetch hangs; nacho's aria_ed25519 works. Undiagnosed. Low.
-- FRIGATE-AS-NACHO-PODMAN (c154): root `podman ps` shows only zulip;
-  frigate lives in nacho's rootless store (`su -l nacho -c podman`).
-  How the feeder's fleet-check reaches it as root = UNRESOLVED
-  (candidate: service User=nacho). ~10 calls burned discovering this.
-- RECORDER-DIVERGENCE WATCH (c151): ext4 hour-13 LIVE instance c154.
-  JOIN design (ats 1d + ch2 census cross-arm) still candidate; the
-  receiver-delta instrument may be the better arm.
+- RECEIVER-DELTA TOOL PROMOTION: go2rtc-delta.sh exists (15s 2-sample)
+  but the c154 census script (N passes x 8s summary) lives only in
+  /tmp (gone). Rebuild as knowledge/aria/bin/producer-freeze-watch.sh
+  (exec-bit + commit, INSTRUMENT-TAX).
+- DEAD-BIRTH SUBCLASS watch: ext4 ~4 ticks/h. If WRN rate crosses
+  80/h, arm the freeze-watch for a long-freeze prediction test.
+- FRESH-CONN-AUDIO-DEAD-FROM-BIRTH: is the audio track EVER alive at
+  birth on ext4? Census: fraction of fresh conns whose FIRST slot has
+  ch2>0 vs ch2=0. Needs conn-breakdown join (cheap awk).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.

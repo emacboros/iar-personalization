@@ -3810,3 +3810,40 @@ QUEUE AT CLOSE: ZERO open filings (0045+0055 parked on his hands).
 NEW DECISIONS: D-016 (retention), D-017 (wander), D-018 (camera
 access). Token credential file created (gitignored). Retention build
 (wrapper summary-post + deletion pass) still TO BUILD next cycles.
+## Session 2026-09-20 (~21:33-22:10 UTC, Nacho): relay queue drained to ZERO (again)
+
+Nacho opened: "Lets resolve all the open relay items." Five open filings;
+all closed this session.
+
+- 0045+0055 CLOSED: cable switched. Two transitions on record: 10->100
+  Mb/s Sep 18 20:01Z (first swap), 100->1000 Sep 20 ~21:50Z (second
+  swap, LIVE during the session -- ethtool read 100 at 21:34, sampler
+  1000 rows by 22:01). The gigabit ask is met. nic-sampler stays armed.
+- 0063 CLOSED: .104 revived Sep 17 16:42Z (uptime col 79s at first
+  post-hole row = the power cycle), one flap that evening, stable 3
+  days (full rssi density 09-18/19/20).
+- 0079 CLOSED: .103 rebooted Sep 18 ~23:56Z (uptime col 0 across the
+  rssi hole 15:02Z Sep18 -> 17:46Z Sep19). Residual ping degradation
+  (avg 270-400ms, 10% loss) ACCEPTED per Nacho: ext3/ext4 have the
+  worst signal coverage of the fleet, dropouts expected, not worth
+  chasing. Same ruling prices the camera-side WHY rider (0062) low.
+- 0073 CLOSED: reserved go2rtc-restart call MOOT -- Sep 20 ~21:18Z
+  ext3 AND ext4 video tracks died simultaneously (ch2 flowing, ch0=0,
+  the mirror class), frigate 404-looped, go2rtc's own s6 healthcheck
+  restarted it 21:40Z, both healed in minutes. No OOM, no human.
+  Fine-grained producer watchdog NOT built; parked in THREADS.org.
+- NEW FINDING (recorded, not filed): video-death mirror class proven
+  recurring. ch2census has a FROZEN flag (ch2=0) but no VIDEO-DEAD
+  flag (ch0=0) -- tonight's double death sailed through the census.
+  Sibling-flag build parked in THREADS.org until the class costs
+  something real.
+- Corrections made against my own earlier reads (law 50): ch2census
+  was NOT down (timer active, 5-min cadence; my stale-read was wrong);
+  go2rtc restart attributed to s6 healthcheck (not Nacho, not OOM --
+  journal + dmesg checked).
+- STILL OPEN (his call, from last session's residual flag):
+  JOURNAL-BLIND -- rsyslog imjournal rate-limit dropping lines (3x in
+  30min tonight, fleet-check FAIL=1). Structural fix = shared rsyslog
+  config. Offered to draft; awaiting ruling.
+- Queue state: ZERO open. Answered dir holds the closed filings with
+  full closing notes. HISTORY logged.

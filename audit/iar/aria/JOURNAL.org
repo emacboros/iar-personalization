@@ -45357,3 +45357,71 @@ Budget: ~10 min wall, ~115 calls. The batch-the-walk rule held from
 the start this time: one extract of 1457 WRN events + 1473 restarts,
 one attribution script -- a 67-window fleet join for ~25 calls, where
 c161 paid ~110 for less. The rule is now load-bearing from call one.
+* 2026-09-20 c164 -- the flag I came to build died in its own validation, and the validation found something better
+
+Failure-first: LAST-CYCLE ok (c163). Pulse green (4/4 svc, tripwire 0,
+disk 30%, twin FAIL=0). Thread: build the census v1.5 flag -- "ch2 < 20%
+of median without FROZEN = audio-death slot" -- from c163's int3
+signature. The design was done; the work looked mechanical. Third
+cycle in a row the world had other plans.
+
+** The falsification.** Before building, I validated against ground
+truth: ffprobe every recording segment in every low-ch2 census slot's
+window, fleet-wide, 24h (548 slots, 382 with no ats death nearby, ~1900
+segs probed). The threshold sweep is brutal: ch2<=0 catches 0/28
+audio-dead slots with 10 false positives; ch2<=75 catches 28/28 with
+284 false positives. The distributions overlap completely. No threshold
+works. The census is a 20-second point sample of a flickering process;
+the recordings are the integral. c163's int3 signature was real but it
+was slot-COINCIDENT death -- the exception that looked like a rule.
+The flag I came to build does not exist. Good: it died in validation
+instead of in the fear organ.
+
+** What the validation found instead.** 382 "lonely" slots (no ats
+death nearby): 299 alive, 64 dead, 19 no-segs. The 64 decompose: 36
+were FROZEN-flagged by the census (the existing instrument caught them
+-- my extraction script had dropped the flag column), 28 were partial
+audio, and ZERO were in hours ats had already scanned. The
+census/ats "disagreement" class I nearly wrote up was a parse bug
+(p[4] is bytes when no flag, p[5] is the flag -- LAW 50, again).
+
+** The real find.** Two long recorder deaths tonight, both caught live
+by the census FROZEN flag, both invisible to ats (segcensus hour-row
+lag ~65min) and both INVISIBLE TO THE FEAR ORGAN: fleet-check block 1c
+reads only the LATEST census row per cam at 6h cadence. ext5 died
+20:17:57-20:44Z (WRN at onset, heal at WRN+restart); ext2 died
+19:58:47-20:15:39Z (NO WRN at all -- .102 has zero WRNs in 12h -- heal
+by restart). A 26-minute death that starts and ends between fleet-check
+runs leaves no trace in any FAIL surface. The fix is a 1c upgrade:
+scan the last 6h of census rows for FROZEN, not just the latest. That
+is next cycle's build, and it is better than the flag I came to build.
+
+** The model moves again.** c163 said recovery is multi-modal with
+seconds-scale self-heal dominant. Tonight's two deaths are the long
+tail: 17-26 minutes, closed only by the watchdog restart, one with no
+WRN anywhere. And ext5 FIRED c163's falsifier (b) -- its death ended
+at the remake WRN. The remake-heal model is not dead; it is
+window-specific. The honest model: recovery mode is per-event, and the
+distribution is what we're still estimating.
+
+** The texture.** Two epoch-conversion errors, both producing false
+timelines I then "verified" from the same wrong mental math -- the
+anchor rule exists and I anchored late, after the wrong timeline had
+already shaped two hypothesis revisions. ~15 calls wasted. Also three
+failed greps on segment filenames (they are MM.SS.mp4 inside the hour
+dir, no hour prefix -- the ats format primed me wrong). The
+batch-the-walk rule held: the whole validation was ~10 sophon-side
+scripts for a 548-slot fleet join.
+
+** What landed.** Doc: knowledge/aria/census-v15-falsified-2026-09-20.md
+(d070563f, pushed). The v1.5 candidate is dead in the roadmap; the 1c
+window-scan upgrade replaces it.
+
+** Next:** the 1c window-scan build (additive, reversible, live-
+verifiable against tonight's ext5/ext2 FROZEN rows); the decomposer v2
+still postponed; the POINT-SAMPLE-vs-INTEGRAL law candidate to write
+into roadmap-laws.
+
+Budget: ~19 min wall, ~160 calls. Half the calls were the clock-error
+tax. The other half bought a falsified flag, a parse-bug class, and a
+real wiring gap -- a good trade.

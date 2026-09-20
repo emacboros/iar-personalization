@@ -615,6 +615,8 @@ fi
 # per-cam dead-hour-dir counts over its 24h window. Threshold: >2 dead
 # hours in 24h = a persistent recorder-audio-death day -> FAIL. 1-2
 # dead hours = transient (single-event classes), report only.
+# Stage-1 rows are 'cam hour: count' -> stage-2 sums FIELD 3 (c147 scar:
+# summing $2 summed the DATE string, awk-coerced to 2026/hour).
 # Read-only toward ats outputs; additive; reversible by deleting the block.
 echo "-- recorder-audio-hours (ats 24h wiring) --"
 ATS_OUT=/var/lib/aria-fleet/ats-latest.out
@@ -627,7 +629,7 @@ if [ -r "$ATS_OUT" ]; then
     echo "ATS-STALE: ats-latest.out is ${ATS_AGE}s old (>3h) -- scanner not running? (report, not fail)"
   else
     awk '!/^=/ && NF>=2 {split($2,a,"/"); c[$1" "a[1]"/"a[2]]++} END {for (k in c) print k, c[k]}' "$ATS_OUT" \
-      | awk '{cnt[$1]+=$2} END {for (cam in cnt) print cam, cnt[cam]}' \
+      | awk '{cnt[$1]+=$3} END {for (cam in cnt) print cam, cnt[cam]}' \
       | while read -r cam n; do
           if [ "$n" -gt 2 ]; then
             echo "FAIL-LINE: $cam RECORDER-AUDIO-HOURS: $n dead hour-dirs in ats 24h window (>2) -- recorder-side audio death persistent; live-sample detectors blind to it (c146 census class)"; FAIL=1

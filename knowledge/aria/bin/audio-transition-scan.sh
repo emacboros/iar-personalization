@@ -11,10 +11,12 @@
 #    ~40min runtime; 24h keeps the cron cadence sane)
 #  - per-cam parallelism (8 x &)
 # Usage: audio-transition-scan.sh [hours] ; output: stdout (cron -> ats-latest)
+#   c147: lock-collision message goes to STDERR so the cron stdout redirect
+#   never clobbers a good ats-latest.out with a 1-line lock notice
 set -u
 LOCK=/tmp/ats.lock
 exec 9>"$LOCK"
-flock -n 9 || { echo "ats: another instance holds the lock, exiting"; exit 0; }
+flock -n 9 || { echo "ats: another instance holds the lock, exiting" >&2; exit 0; }
 echo $$ > /tmp/ats.pid
 R=/home/nacho/containers/frigate/storage/recordings
 SC=/var/lib/aria-fleet/segcensus

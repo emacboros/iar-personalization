@@ -49,7 +49,7 @@ while [ "$(date +%s)" -lt "$END" ]; do
   bash "$CENSUS" >> "$OUT/watch.log" 2>&1
   # go2rtc producer-id snapshot (go2rtc-side witness; conn port is the
   # network-side witness -- a producer-id change = go2rtc remade it)
-  podman exec frigate curl -s --max-time 5 http://localhost:1984/api/streams 2>/dev/null | python3 -c '
+  runuser -l nacho -c "podman exec frigate curl -s --max-time 5 http://localhost:1984/api/streams" 2>/dev/null | python3 -c '
 import json,sys
 try:
     d=json.load(sys.stdin)

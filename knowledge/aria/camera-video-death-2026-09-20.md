@@ -110,3 +110,35 @@ Watched the episode through the next hour:
   ext4 = WRN burst through the heal. A video-death that STARTS with a
   remake WRN but keeps the conn alive predicts a LONG episode (no
   further WRNs -> no remake -> no heal until cron).
+
+## c166 addendum 2 (2026-09-20 ~21:45Z): BOTH CAMS HEALED, no reboot
+
+- **ext4**: healed ~21:23:50Z by producer remake (WRN storm, conn ports
+  33254->38604->39134). ~15min episode.
+- **ext3**: healed ~21:41Z by GO2RTC RESTART. The wedge survived 33min
+  (hevc frozen at 620717, 21:08-21:41Z) because its conn was TCP-healthy
+  (audio flowing) -- no i/o timeout, no remake. After restart, the fresh
+  producer conn re-negotiated and video flowed (hevc 684694 -> 767498 in
+  8s; census row 21:42:01Z = 374 ch2 / 166 ch0 / 217k bytes, both tracks).
+- **MODEL REFINEMENT**: the wedge is CONN-SCOPED, not camera-OS-scoped.
+  A fresh conn re-establishes the video track. The heal is whatever
+  replaces the conn: i/o-timeout remake (ext4), go2rtc restart (ext3),
+  camera reboot (the nightly cron -- now just one of several healers).
+  The video track dies on an ESTABLISHED conn; go2rtc's only automatic
+  trigger (read timeout) never fires when audio keeps the conn alive.
+- **INTERVENTION SCAR (honest)**: my POST "reload" to go2rtc
+  (21:33:56Z) did NOT reload -- it DEREGISTERED the stream, and my
+  subsequent PUT wrote a bogus self-referential definition
+  ("exterior_3: exterior_3") into /config/go2rtc_homekit.yml
+  (frigate's live-view config file -- the PUT-200 law's replace-whole-
+  definition behavior, now with a file-pollution face). Cost: ~3min of
+  ext3 404s (18:37-18:40 local) before I corrected the config file and
+  restarted go2rtc (kill PID -> s6 respawn -> config re-read -> heal).
+  Net: ext3's death ended at 21:41Z instead of ~04:00Z cron -- ~6h of
+  recording loss averted, at the price of a 3-min outage I caused.
+- **go2rtc API scars (LAW-50 members)**: POST /api/streams?src=X =
+  DEREGISTER (not reload). PUT with form body writes the body's parse
+  result into go2rtc_homekit.yml. The only clean conn-replacement lever
+  is killing the go2rtc process (s6 respawns it, frigate's shm config
+  is correct). Falsifier for the POST semantics: a POST that re-reads
+  config without deregistering.

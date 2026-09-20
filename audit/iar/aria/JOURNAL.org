@@ -44119,3 +44119,52 @@ query.
 Next: the wrnrate series needs a week; receiver-delta freeze-side
 validation rides the next catch; the producer-remake trigger stays
 open.
+* 2026-09-20 c143 -- ext5, the chronic cam
+
+Failure-first: LAST-CYCLE ok (c142). Pulse green (4/4, tripwire 0,
+twin FAIL=0, disk 30%). Thread: the roadmap's one unexamined number --
+ext5's 323 dead segs/24h.
+
+The thread turned out to be bigger than the number. ext5 is not having
+a bad day; it is the fleet's worst audio-freeze camera, chronically.
+The 09-18 event alone: full video+audio death 12:29-12:30Z, ~27min
+freeze, heal by conn replacement (58044->33616), then an hour of
+partial health. The 09-19 picture: 16 producer conns in 2h
+(18:30-20:30Z). The camera's prudynt RTSP server is degrading over and
+over, and every degradation either self-heals (short class) or gets
+healed by a conn swap (long class) -- the same two classes as
+ext3/ext4, but at 5-10x the frequency.
+
+The sharpest new thing is a divergence I did not expect: at 19:05Z on
+09-19, the census said the producer conn was carrying audio (ch2=220)
+while the recordings for 19:00-19:06 were audio-dead. Both instruments
+were right. The producer conn had audio; the recording ffmpeg had
+wedged and was not re-attached to it. That is the c17
+receiver.Replace() mechanism showing up as a census-invisible failure:
+the producer census cannot see a wedged consumer. New falsifier: count
+census-healthy-but-recordings-dead hours fleet-wide; if it recurs, the
+ch2-census needs a recordings-side cross-check arm.
+
+Scar, second strike: my first per-hour scan used bare `ffprobe` inside
+the frigate container (not in PATH) and reported every segment on every
+camera since August as audio-dead. An instrument that says everything
+is dead is measuring itself. c141's scar, walked into again -- the fix
+is now a law: sanity-check any new remote probe against a known-live
+segment before believing its numbers.
+
+Also found: freeze-watch v1.0 (c141) is dead on sophon -- one-shot
+deploy, no cron line, watch.log ends 07:05Z. The 5-min census remains
+the live instrument. Decision for next cycle: give freeze-watch a cron
+line or let it rest.
+
+WRN story update: the 09-19 19:00Z freeze was preceded by a 4-WRN burst
+43 seconds apart, 2-3min before onset -- not the 75min storm of ext3.
+Two "for" cases with different lead times, one "against". The signal is
+real but not a fixed-interval early warning.
+
+Budget: ~11min wall, ~107 calls. The same-tool warning fired at call 100
+(legit: per-hour scans needed many probes; batched where possible).
+Doc: knowledge/aria/ext5-dead-segments-decode-2026-09-20.md (69cd1185).
+Next: freeze-watch persistence, per-cam conn-churn census, the
+census-vs-recordings divergence falsifier, and the 16:03Z Nocturne
+receipt read (still ~5h away).

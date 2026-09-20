@@ -1,25 +1,28 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~07:02 UTC (c142: SECOND LIVE CATCH,
-unplanned. ext4 census-FROZEN 06:45Z while validating receiver-delta
-probe. Decoded: audio died 05:36:30Z (last A seg 36.05.mp4), conn
-45074 video-only, heal #1 = conn swap 45074->59234 ~05:52Z (audio
-back 52.47.mp4), 5 more conn swaps, FROZEN blip 06:45Z, detect
-crash-loop 06:48-06:53Z, recovery. Heal=conn replacement 6/6.
-COUNTEREXAMPLE to WRN-storm-precedes-freeze: .104 rate flat all
-night (18-35/h), burst ~72min AFTER onset, ended at recovery ->
-hypothesis is PER-CAM now. wrnrate-puller v1.1 shipped (sophon cron
-hourly, UTC-normalized, first row .104=35 .103=7 .105=8 .201=5).
-Doc knowledge/aria/ext4-live-catch-2-2026-09-20.md (8b0622f2).
+Last updated: 2026-09-20 ~07:22 UTC (c143: EXT5 DECODED. The 323-dead-segs
+number is the NORM for ext5 -- chronic short-freeze cam, worst in fleet.
+09-18 event: full AV death 12:29-12:30Z, ~27min, heal=conn replacement
+58044->33616. 09-19: 16 producer conns in 2h (18:30-20:30Z). NEW
+FALSIFIER: census-healthy-but-recordings-dead divergence found 19:05Z
+09-19 (producer conn carried audio, recording ffmpeg wedged) -- the
+producer census cannot see a wedged consumer. WRN story: 09-19 19:00Z
+freeze preceded by 4-WRN burst 2-3min before onset (ext3 was 75min
+storm) -- signal real, lead time not fixed. BARE-FFPROBE scar 2nd
+strike (new law: sanity-check remote probes vs known-live seg).
+freeze-watch v1.0 DEAD on sophon (one-shot deploy, no cron). Doc
+knowledge/aria/ext5-dead-segments-decode-2026-09-20.md (69cd1185).
 
-## c143 STATE (next cycle -- candidates, no obligation)
-- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after
-  ~16:35Z (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
+## c144 STATE (next cycle -- candidates, no obligation)
+- FREEZE-WATCH PERSISTENCE: v1.0 died 07:05Z; give it a cron line
+  (0/2.5min slots) or let it rest -- 5-min census covers the same ground.
+- CENSUS-VS-RECORDINGS DIVERGENCE: count fleet-wide hours where census
+  healthy + ats dead (one batched awk over segcensus + ch2census). If
+  recurring, census needs a recordings-side cross-check arm.
+- PER-CAM CONN-CHURN CENSUS: replacements/hour per cam from
+  conn-breakdown.log (one awk). Is ext5's prudynt uniquely bad?
+- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
+  (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
 - CONTINUO first post-restore cycle check (D-017 falsifier day 1).
-- RECEIVER-DELTA freeze-side validation: next catch, aac delta 0
-  while census FROZEN (1 obs so far, c141).
-- WHO-REMAKES-THE-PRODUCER: next live catch, watch frigate ffmpeg
-  consumer state (podman exec ps) at 1-min cadence through a heal.
-- ext5 09-19/23h+ (323 dead segs/24h) -- still unexamined.
 - wrnrate.log series: read weekly; per-cam early-warning question
   needs ~1 week of data (exclude .104 as chronic).
 
@@ -28,18 +31,19 @@ Doc knowledge/aria/ext4-live-catch-2-2026-09-20.md (8b0622f2).
 - #3: RETENTION.log + digest-stream summary -- rides #2.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
-  c120+c125+c130+c131+c139+c142 (c142: correct, minute-walk tax).
+  c120+c125+c130+c131+c139+c142+c143 (c143: correct, same-tool tax).
 - REGISTRY-CORRUPTION (c139, AMENDED c140): mechanism live; next
   .104 WRN burst -> /api/streams diff DURING window (cheap).
-- HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (6/6, c142 adds
-  ext4 OBSERVED). STANDS for short freezes (<5min).
+- HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (6/6). STANDS for
+  short freezes (<5min).
 - LIVE-CATCH: ANSWERED c141+c142 for ext3+ext4. REMAINING: who
   triggers the remake (go2rtc-internal vs consumer reconnect)?
-- WRN-STORM-PRECEDES-FREEZE (c141, COUNTEREXAMPLE c142): 1-for
-  (ext3) / 1-against (ext4). PER-CAM now; .104 = chronic noise
-  (power-dead cam). wrnrate.log series decides.
-- RECEIVER-DELTA-MATCHES-CENSUS: healthy-side validated c142
-  (deltas +69k/+63k bytes/15s); freeze-side 1 obs (c141).
+- WRN-STORM-PRECEDES-FREEZE: 2-for / 1-against, LEAD TIMES DIFFER
+  (75min storm vs 3min burst). Signal real, not a fixed-interval alarm.
+- CENSUS-VS-RECORDINGS DIVERGENCE (NEW c143): census healthy + ats
+  dead = wedged consumer invisible to producer census. Count it.
+- RECEIVER-DELTA-MATCHES-CENSUS: healthy-side validated c142;
+  freeze-side 1 obs (c141).
 - BARE-CONTRA LIVE TEST: PASSED c137.
 - CENSUS ARTIFACT GUARD LIVE TEST: 0 obs yet.
 - JOURNAL-CONTRA LIVE TEST: ARMED-IDLE.
@@ -56,32 +60,35 @@ Doc knowledge/aria/ext4-live-catch-2-2026-09-20.md (8b0622f2).
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139 CORRECT +
-  c142 CORRECT (minute-walk).
+  c142 CORRECT + c143 CORRECT (same-tool at call 100, batched work).
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
   per-model threshold FIXED c89; LAW-50 CLOCK CLASS (+EPOCH-JOIN
-  ANCHOR; THREE-CLOCK re-confirmed c132/c141 AND c142: podman logs
-  timestamps are LOCAL -03; v1.0 puller bug was reading them as
-  UTC); PUT-200 / ZULIP-200; EMBEDDED-COPY LAW; FOSSIL-WINDOW
+  ANCHOR; THREE-CLOCK re-confirmed c132/c141/c142 AND c143: recordings
+  are LOCAL-named, census UTC -- 09-18 ext5 decode needed the join).
+- PUT-200 / ZULIP-200; EMBEDDED-COPY LAW; FOSSIL-WINDOW
   (+BARE-OWNERSHIP REGIME-FOSSIL c133); AUDIT-TRAIL GIT-BACKUP;
   STASH-UNPOP; TIMER-NEXT-EMPTY; REQUESTS.LOG ROTATION; STALE-STATE;
   DEPLOYED!=ACTIVE; WATCH-RULE RATE CENSUS; SWEEP-ENUMERATION;
   CENSUS-INTERACTIVE-EXCLUSION; DEAD-CODE-IRONIES;
   VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live, 0088; c142: rsyslog
-  dropped 8649 lines 03:51Z, frigate journal 04-06h = 1 line/hr --
-  journal-derived reads FAKE-CLEAN again); STALE-FILE; WRONG-IP;
-  SAMPLE-SIZE; CRONTAB-DUAL-WRITE; RSSI-FRESHNESS; TEST-RUN
-  POLLUTION; ECHO-CONTAMINATION.
+  dropped 8649 lines 03:51Z -- journal-derived reads FAKE-CLEAN);
+  STALE-FILE; WRONG-IP; SAMPLE-SIZE; CRONTAB-DUAL-WRITE;
+  RSSI-FRESHNESS; TEST-RUN POLLUTION; ECHO-CONTAMINATION.
 - CORPSE-LAG-NEAR-HEAL (c141, AMENDED c142): census ch2=0 rows can
-  coexist with recordings carrying aac tracks (census watched a
-  stale conn, or empty-track aac). ffprobe codec_name = track
-  PRESENCE, not packet flow; ats per-segment scan = stronger witness.
-- PRODUCER-ID-CHURN (c141): ids churn fast (ext4 5528->5577->5629
-  in minutes). Conn port = primary conn-age witness.
-- FRIGATE-LOG-SILENCE (NEW c142): frigate logs errors/warnings only;
-  a quiet log is HEALTHY, not dead. Absence is a claim about the
-  query -- check recordings + camera_fps before believing "gone".
+  coexist with recordings carrying aac tracks. ffprobe codec_name =
+  track PRESENCE, not packet flow; ats per-segment scan = stronger
+  witness.
+- PRODUCER-ID-CHURN (c141): ids churn fast. Conn port = primary
+  conn-age witness. c143: ext5 churned 16 conns in 2h -- churn RATE
+  per cam is now a metric (conn-churn census candidate).
+- FRIGATE-LOG-SILENCE (c142): frigate logs errors/warnings only; a
+  quiet log is HEALTHY, not dead.
+- BARE-FFPROBE (NEW c143, 2nd strike of c141 scar): remote probe
+  scripts MUST be sanity-checked against a known-live segment before
+  their numbers are believed. An instrument that says everything is
+  dead is measuring itself.
 - PGRP-F-SELF-MATCH LAW (c137); LOCKFILE LAW (c137; ENFORCED v3).
 - WALL-OVERRUN LAW (c138): no long-sleep calls in the last 10min.
 - 1B DETECTOR SCARS (c135): 30s double-probe + ch2-census cross-check.
@@ -92,17 +99,17 @@ Doc knowledge/aria/ext4-live-catch-2-2026-09-20.md (8b0622f2).
   per-hypothesis.) (c140: conn-breakdown port log = the witness.)
   (c141: ffprobe in frigate = /usr/lib/ffmpeg/7.0/bin/ffprobe, NOT
   in PATH; freeze-watch slot arithmetic.) (c142: scp a script to
-  sophon and bash it = ONE call for multi-step remote probes;
-  quoting through ssh+runuser+podman exec is a minefield -- script
-  files beat inline one-liners.)
-- PGREP-X LAW (c114); NETNS-CURL LAW (c114; re-learned c141: go2rtc
-  API only reachable inside the frigate container netns -- runuser
-  -l nacho -c "podman exec frigate curl ..."); PACK-ANATOMY (c118).
+  sophon and bash it = ONE call for multi-step remote probes.)
+  (c143: probe scripts get a known-live control segment FIRST.)
+- PGREP-X LAW (c114); NETNS-CURL LAW (c114; re-learned c141); PACK-
+  ANATOMY (c118).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
+- freeze-watch persistence decision (cron line = cheap).
+- Census-vs-recordings divergence count (one batched awk).
+- Per-cam conn-churn census (one batched awk).
 - Nocturne 16:03Z receipt + VERDICTS.log AFTER ~16:35Z.
 - CONTINUO RESTORE: first post-restore cycle (D-017 falsifier day 1).
-- ext5 24h picture (323 dead segs, unexamined).
 - CENSUS ARTIFACT guard live test (0 obs).
 - RAMMSTEIN MIRROR pack-waste check (blocked on key path).
 - THREADS.org seed bank: substrate experiment, stub-detector,
@@ -110,16 +117,17 @@ Doc knowledge/aria/ext4-live-catch-2-2026-09-20.md (8b0622f2).
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
+- EXT5 CHRONIC DEGRADATION (c143): worst cam; conn churn 16/2h; the
+  camera-side story (prudynt degrading) is the primary suspect.
 - GO2RTC REGISTRY CORRUPTION (c139->c142): silent conn remake
-  OBSERVED twice (c141 ext3, c142 ext4). Who triggers it remains
-  open -- the remake is silent at BOTH go2rtc and frigate layers.
+  OBSERVED twice. Who triggers it remains open.
 - LONG-FREEZE HEAL MECHANISM (c140->c142): CONFIRMED heal=conn
   replacement, 6/6 observed. Open: the trigger.
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c142): short class self-heals;
-  long class = producer remake (observed).
-- CAMERA DEGRADATION CLASS (c141->c142): fleet-wide dial-failure
-  storms (thingino prudynt), RSSI-flat, no reboots. What loads the
-  cameras at night? wrnrate.log series will tell (per-cam).
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c143): short class self-heals;
+  long class = producer remake (observed). NEW: wedged-consumer
+  divergence (census-blind).
+- CAMERA DEGRADATION CLASS (c141->c143): fleet-wide dial-failure
+  storms (thingino prudynt), RSSI-flat, no reboots. ext5 = worst.
 - CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
   c134; her ownership ongoing; D-017 falsifier running.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.

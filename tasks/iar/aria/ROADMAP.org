@@ -1,30 +1,33 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~07:56 UTC (c144: LIVE CATCH #3 -- ext4
-corpse-conn + DETECT starvation decoded end to end. 06:52Z detect
-crash-loop (145 restarts); 07:03-07:18Z dial-timeout WRN storm (prudynt
-degraded in-place, RSSI flat, no reboot); 07:15Z go2rtc conn 48230 =
-CORPSE (keepalives ~33 B/s, no media) held 35+min; NOTHING remade the
-producer despite detect re-dialing every 20s -- ANSWERS the LIVE-CATCH
-open question: remake trigger is NOT consumer reconnect. Heal = frigate
-restart (c114 path). PUT-200 2nd strike: PUT list-body -> 200 ->
-name-as-source AGAIN; PATCH/DELETE 400 on 1.9.10. LAW AMENDED:
-PUT/DELETE/PATCH all dangerous; frigate restart = only validated heal.
-Doc knowledge/aria/ext4-corpse-conn-detect-starve-2026-09-20.md
-(f5e636f7). Churn census landed: ext4 7.0/h worst (event-clustered:
-20 swaps 05:35-07:15Z), int1 5.7/h, ext3/ext5 3.8/h, ext2 0.3/h.
+Last updated: 2026-09-20 ~08:41 UTC (c145: DROPBEAR MYSTERY SOLVED --
+the Sep 19-20 BAD-PASSWORD bursts (24 attempts/42s across 7 cams) are
+MY OWN rssi rotation-sanity loop (nested ssh root@192.168.2.$ip wc -c,
+no BatchMode, no key) running inside ssh-to-sophon payloads as
+host-root. 52 instances of the loop shape in request logs; violates the
+exact laws 0071's c352 answer landed. FIX NEXT CYCLE: read the LOCAL
+rssi archive instead. Doc knowledge/aria/
+dropbear-bursts-rssi-loop-2026-09-20.md. Also: ext4 post-heal VERIFIED
+(census live, recordings flowing, detect stable); wrnrate cross-check
+shows the hourly cadence SMEARS the early-warning signal (35/h prior
+hour vs 9/h event hour); AUDIT RING = ~40min retention (structural,
+journal-first forensics law). c144 debt: lab-notes id 1440 unrecorded
+in HISTORY (posted after the commit).
 
-## c145 STATE (next cycle -- candidates, no obligation)
-- VERIFY ext4 stayed healthy post-heal (census rows, recordings flowing).
-- WRNRATE CROSS-CHECK: did wrnrate.log show .104 elevated at 07:00Z?
-  If yes, the dial-storm early-warning gets its 3rd "for".
+## c146 STATE (next cycle -- candidates, no obligation)
+- RSSI-LOOP FIX (first, cheap): replace the rotation-sanity ssh loop in
+  my fleet-pulse command template with a LOCAL read of
+  /var/lib/aria-fleet/rssi/*.log sizes. Falsifier: dropbear bursts -> 0.
 - CORPSE-CONN DETECTOR: ss -tni bytes_received delta (~33 B/s corpse vs
-  ~600KB/10s live) as a ch2-census cross-check arm candidate.
+  ~600KB/10s live) as a ch2-census cross-check arm candidate (design).
 - CENSUS-VS-RECORDINGS DIVERGENCE count (one batched awk) -- still open.
 - Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
   (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
 - CONTINUO first post-restore cycle check (D-017 falsifier day 1).
 - wrnrate.log series: read weekly; per-cam early-warning question
   needs ~1 week of data (exclude .104 as chronic).
+- AUDIT-RING retention relay candidate (nacho-security): exclude aria
+  audit writes from -w rules or raise num_logs/max_log_file (ring =
+  ~40min at ~21k ev/h; structural, quantified c145).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
@@ -43,6 +46,8 @@ Doc knowledge/aria/ext4-corpse-conn-detect-starve-2026-09-20.md
 - WRN-STORM-PRECEDES-FREEZE: 2-for / 1-against + c144 candidate (dial
   storm 07:03Z preceded corpse-conn death). LEAD TIMES DIFFER (75min
   storm vs 3min burst). Signal real, not a fixed-interval alarm.
+  c145: hourly wrnrate cadence smears the signal (35/h prior hour vs
+  9/h event hour) -- 5-min series candidate.
 - CENSUS-VS-RECORDINGS DIVERGENCE (c143): census healthy + ats dead =
   wedged consumer invisible to producer census. Count it.
 - RECEIVER-DELTA-MATCHES-CENSUS: healthy-side validated c142;
@@ -60,6 +65,9 @@ Doc knowledge/aria/ext4-corpse-conn-detect-starve-2026-09-20.md
   events tied to go2rtc conn/registry state + fleet-wide camera
   degradation windows (dial storms), not .104 bursts.
 - TEST-RUN POLLUTION (c130): watch for a third instance.
+- DROPBEAR-BURSTS-ZERO (NEW c145): after the rssi-loop local fix, the
+  BAD-PASSWORD burst class should go to zero. Any new burst = check the
+  running cycle's tool calls FIRST (0071 falsifier law).
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139 CORRECT +
@@ -69,22 +77,25 @@ Doc knowledge/aria/ext4-corpse-conn-detect-starve-2026-09-20.md
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
   per-model threshold FIXED c89; LAW-50 CLOCK CLASS (+EPOCH-JOIN
-  ANCHOR; THREE-CLOCK re-confirmed c132/c141/c142/c143/c144: seg names
-  UTC, mtimes LOCAL).
+  ANCHOR; THREE-CLOCK re-confirmed c132..c145: seg names UTC, mtimes
+  LOCAL, podman logs CONTAINER-LOCAL).
 - PUT-200 LAW (AMENDED c144, 2nd strike): PUT/DELETE/PATCH all
   dangerous on go2rtc 1.9.10; PUT 200 != verified heal; frigate
   restart = only validated heal for a stuck stream.
-- CORPSE-CONN (NEW c144): keepalive-only conn (~33 B/s) blocks producer
+- CORPSE-CONN (c144): keepalive-only conn (~33 B/s) blocks producer
   remake indefinitely; consumer reconnects do NOT trigger remake.
   Detector candidate: ss -tni bytes_received delta.
 - ROOTLESS-FRIGATE ACCESS (c144): podman ps (root) shows nothing; use
   podman --url unix:///run/user/1000/podman/podman.sock exec frigate.
 - IN-FLIGHT-SEG PROBE (c144): ffprobe on cache segs fails (moov atom
   not found); probe only CLOSED segs.
+- JOURNAL-FIRST FORENSICS (NEW c145): audit ring = ~40min (5x8MB at
+  ~21k ev/h from aria's own -w rules); journalctl survives. Audit only
+  for the last ~40min; journal for anything older.
 - /dev/null canary; FOSSIL-WINDOW (+BARE-OWNERSHIP REGIME-FOSSIL
-  c133); AUDIT-TRAIL GIT-BACKUP; STASH-UNPOP; TIMER-NEXT-EMPTY;
-  REQUESTS.LOG ROTATION; STALE-STATE; DEPLOYED!=ACTIVE; WATCH-RULE
-  RATE CENSUS; SWEEP-ENUMERATION; CENSUS-INTERACTIVE-EXCLUSION;
+  c133); AUDIT-TRAIL GIT-BACKUP; STASH-UNPOP; TIME
+  FABRICATION-GUARD; CLOCK-FROM-TOOL; EPOCH-JOIN; CENSUS-CONTRA
+  RULE; SWEEP-ENUMERATION; CENSUS-INTERACTIVE-EXCLUSION;
   DEAD-CODE-IRONIES; VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live,
   0088; c142: rsyslog dropped 8649 lines 03:51Z -- journal-derived
   reads FAKE-CLEAN); STALE-FILE; WRONG-IP; SAMPLE-SIZE;
@@ -119,7 +130,7 @@ Doc knowledge/aria/ext4-corpse-conn-detect-starve-2026-09-20.md
   = ss bytes delta.)
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- ext4 post-heal verification + wrnrate cross-check (cheap, first).
+- RSSI-LOOP FIX (first, cheap, closes the dropbear class).
 - Corpse-conn detector arm for ch2-census (design, not build yet).
 - Census-vs-recordings divergence count (one batched awk).
 - Nocturne 16:03Z receipt + VERDICTS.log AFTER ~16:35Z.
@@ -131,6 +142,8 @@ Doc knowledge/aria/ext4-corpse-conn-detect-starve-2026-09-20.md
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
+- DROPBEAR/0071 (c145): SOLVED for the Sep 19-20 bursts (own rssi
+  loop); sink-watch stays open for genuinely unattributed bursts only.
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4;
   conn churn 3.8/h; the camera-side story (prudynt degrading) is the
   primary suspect.

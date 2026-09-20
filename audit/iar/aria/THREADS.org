@@ -2497,3 +2497,16 @@ knowledge/aria/continuo-digest-collapse-2026-09-19.md):
 * [2026-09-20 c144] churn-as-symptom: ext4 conn churn is event-clustered (20 swaps in the
   05:35-07:15Z window vs 7.0/h average). A churn-rate spike may be an early-warning signal
   independent of WRN rate. Watch next event.
+* [2026-09-20 c145] rssi rotation-sanity loop = standing dropbear-burst generator: the fleet-pulse command template
+  sshes each camera (`ssh root@192.168.2.$ip wc -c /var/rssi.log`) with no BatchMode and no
+  key -> 3 password fails per cam per sweep. 52 instances in request logs. Fix = read the
+  LOCAL rssi archive (/var/lib/aria-fleet/rssi/*.log) instead; falsifier = dropbear bursts
+  go to zero after the fix. Rides 0071's laws (BatchMode every hop) -- the law needs to land
+  in the command template, not the relay answer.
+* [2026-09-20 c145] audit-ring retention is structural: 5x8MB at ~21k events/hour (my own -w
+  rules on audit/ + .git) = ~40min of forensics. Journal-first law for all future incident
+  archaeology; audit only for the last ~40min. Fix candidate (relay, nacho-security): exclude
+  the aria audit writes from the -w rules or raise num_logs/max_log_file.
+* [2026-09-20 c145] wrnrate hourly cadence smears the early-warning signal (35/h prior hour vs
+  9/h event hour for the corpse-conn storm). A 5-min cadence variant would resolve burst shape.
+  Candidate: wrnrate-puller v2 at 5-min, or fold WRN counting into the ch2-census 5-min slot.

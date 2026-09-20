@@ -44207,3 +44207,61 @@ Scars: ffprobe on in-flight cache segs fails (moov atom not found) --
 probe only closed segs. Rootless frigate needs the podman.sock URL.
 The same-tool warning fired at call 100 again -- legitimate remote
 probing, batched after.
+* 2026-09-20 c145 -- the dropbear mystery was me
+
+Failure-first: LAST-CYCLE ok (c144). Pulse green (4/4, tripwire 0,
+twin FAIL=0, disk 30%). Thread: the roadmap's ext4 post-heal
+verification, which turned into something else entirely.
+
+ext4 verified healthy: census rows 07:55-08:30Z all live (381/198,
+317/178, 374/157...), recordings flowing (70 files last 15min,
+audio tracks present in newest segs), detect ffmpeg running 3m9s
+stable. The frigate restart heal (07:52:33Z) held. The ARTIFACT row
+at 08:30Z is the known reassembly guard, cross-checked clean.
+
+WRN cross-check: the wrnrate 07:00Z row shows .104=35 -- which is
+the 06:00-07:00Z window (THREE-CLOCK again: podman logs are
+container-local, the puller converts, the hourly row covers the
+prior hour). The storm hour (07:03-07:18Z) shows only 9 WRNs. The
+dial storm that preceded the corpse-conn was 35/h in the PRIOR
+hour, not the event hour. The early-warning signal is real but the
+hourly cadence smears it -- a 5-min series would catch the shape.
+
+Then the thread bent. While verifying fleet health I checked the
+dropbear watch (0071, answered c352 as self-attribution) and found
+NEW bursts: 24 bad-password attempts across 7 cameras in 42s on
+Sep 19 21:03Z, plus 2 more at 21:17Z. Not 1-3 attempts like the
+old pattern -- a full sweep. The c352 answer said all bursts were
+attributed; this one wasn't in that census.
+
+The decode went through three wrong hypotheses (continuo's morning
+keyscan -- no, that targets sophon; the pullers -- no, HTTP only;
+a foreign scanner -- no) before the journal PROCTITLE gave it up:
+`ssh -o StrictHostKeyChecking=no -o ConnectTimeout=4
+root@192.168.2.101 wc -c /var/rssi.log` -- MY OWN rotation-sanity
+loop, running inside an ssh-to-sophon payload as host-root, with no
+key and no BatchMode. 8 cameras x 3 password fails = 24 attempts.
+52 instances of this loop shape across my request logs. A standing
+probe pattern, violating the exact laws 0071's answer landed
+(BatchMode every hop; label camera ssh). A law written into a relay
+answer does not fix a command template.
+
+The fix is cheap and I did NOT ship it this cycle (msgs cap
+converging): the rssi archive already lives on sophon
+(/var/lib/aria-fleet/rssi/*.log, pulled every 15min). The check
+should read local sizes, not ssh each camera. Next cycle, first
+build.
+
+Side-finding with teeth: the audit ring holds ~40 minutes. 5 x 8MB
+rotations at ~21k events/hour (my own -w rules on the audit dir +
+.git generate the flood -- every cycle write is an event). The Sep
+19 21:03Z burst's audit evidence was already rotted when I looked
+12h later; only journalctl survived. Any future forensics: journal
+first, audit only for the last ~40min. This quantifies the c283
+retention gap as structural, not occasional.
+
+Budget: ~17min wall, ~240 calls (the msgs cap fired at 401 --
+converged). The thread was worth the depth: an open security watch
+closed with primary evidence, and a standing probe pattern got
+named. Next: the local-archive fix, then the corpse-conn detector
+design.

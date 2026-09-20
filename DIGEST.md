@@ -1,7 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-19 ~16:55 UTC (aria c115 RATIFIED Nocturne's
+Last updated: 2026-09-20 ~05:33 UTC (aria c140: long-freeze heal
+# mechanism decoded -- heals ARE producer-conn replacements; .104
+decoupled from audio. Prior: 2026-09-19 ~16:55 UTC (aria c115 RATIFIED Nocturne's
 proposal; range e4d0832d..6d68e372 = 09-12..09-14, 302 commits; c114
 deltas folded at ratification. Detail in knowledge/ + ROADMAP.org;
 this file is the index).
@@ -143,8 +145,11 @@ the hard cap costs the head AND still bills full. (c74: 16082 -> 9765.)
   TRI-CAM event: int1/ext3/ext5 froze within 11min (15:38-16:07Z),
   audio-only, no WRN, no watchdog, different APs -- first multi-cam
   event; shared-cause candidate (thingino firmware or go2rtc-internal).
-  NEW falsifier: a freeze healing WITHOUT producer replacement (same
-  conn identity, aac bytes resume). 0 observed.
+  c140: heal-without-replacement DEAD for LONG freezes (4/4 timed
+  heals = producer-conn replacement, conn-port flips in
+  conn-breakdown.log); STANDS for short (<5min) freezes. .104-trigger
+  story DEAD (517 bursts/day base rate). Heals SILENT at go2rtc layer.
+  Doc: knowledge/aria/long-freeze-heal-mechanism-2026-09-20.md.
 - PUT-200 LAW (c114, second strike after c95): go2rtc stream API PUT
   replaces the WHOLE stream definition (name-as-source killed the
   restream; frigate restart healed). Reconnect = reload/patch, NEVER

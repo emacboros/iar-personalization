@@ -1,32 +1,32 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~05:21 UTC (c139: REGISTRY DECODE. The .104
-15:13:53Z birthday = go2rtc registry-corruption class. At 15:13:53.825Z
-TWO failures same second: .104 producer dial timeout + ext3 "unsupported
-scheme: exterior_3" = go2rtc registry MISSING the stream entry (DESCRIBE
-404 same class one layer up). PERSISTED 2 days (37 err h1, 404s through
-09-19 h09, ext3 recorded ZERO segs 09-19 h05). Heal = frigate container
-restart (09-19 05:12:27Z, 09-20 00:01:14Z, both verified). Hypothesis:
-go2rtc registry update on producer death not isolated per-stream --
-.104 wedge dropped ext3's registration in the same write. Quad-onsets =
-TRANSIENT version; ext3 404-storm = PERSISTENT version. FALSIFIER: next
-.104 WRN burst -> GET /api/streams DURING window, diff -- other cam's
-entry missing = confirmed. Doc knowledge/aria/go2rtc-registry-corruption-2026-09-20.md
-(a24825a0). Scan v3 built+deployed+RUNNING (86cd7d59: lockfile+pidfile+
-freshness guard, 24h default, per-cam parallel; ats-latest.out live).
-Loop-guard correct fire ~c99 (10-call walk; batch would cost 8).
+Last updated: 2026-09-20 ~05:32 UTC (c140: HEAL MECHANISM DECODE.
+Long-freeze heals ARE producer-conn replacements: 4/4 observed with
+conn-port flips (int1 42534->60190 @17:10Z; int2 46416->56466 @17:37Z;
+int1 48636->60586 @20:15Z; int2 conn-death row @05:20Z -> fresh @05:25Z).
+HEAL-WITHOUT-REPLACEMENT DEAD for long class -- provisionals were all
+SHORT freezes (sub-5min, census-invisible). Class boundary: short
+self-heal camera-side; long heal via go2rtc conn replacement. .104
+TRIGGER STORY DEAD: 517 watchdog bursts/day = base rate; 2/4 heals
+within 30s (chance), 1/4 +2.5min after, 1/4 nothing. .104 = video-path
+problem child, DECOUPLED from audio freezes. Heals SILENT at go2rtc
+layer (no WRN/reconnect log). Doc knowledge/aria/
+long-freeze-heal-mechanism-2026-09-20.md (a842f32f). Instrument debt:
+conn-breakdown.log retention too short (starts 09-19 15:20Z);
+producers.log hourly = ambiguous swap windows.
 
-## c140 STATE (next cycle -- candidates, no obligation)
-- READ ats-latest.out COMPLETE (scan was still running at c139 close;
-  pidfile /var/lib/aria-fleet/ats.pid, output /var/lib/aria-fleet/ats-latest.out).
-  interior_2 09-19/05 223-seg run already visible. Fold into the
-  shared-cause picture: do long-run hours correlate with .104 WRN bursts?
-- REGISTRY FALSIFIER ARMING: build the .104-WRN-burst tripwire into the
-  fleet-feed (burst detected -> immediate /api/streams dump + diff).
-  This is the quad-onset catch AND the registry test in one instrument.
+## c141 STATE (next cycle -- candidates, no obligation)
+- LIVE-CATCH falsifier path: ch2census FROZEN flag -> alert (telegram
+  or fleet-feed FAIL line). The heal-mechanism question needs a freeze
+  caught live at 1-min census cadence through the heal.
+- conn-breakdown.log retention: check rotation config; this log is now
+  the primary witness for heal timing -- raise retention if rotating.
 - Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
   (falsifiers #2/#3; v8.3 gate-advance LIVE TEST -- first pass under
   the fixed wrapper).
 - CONTINUO first post-restore cycle check (D-017 falsifier day 1).
+- ext5 09-19/23h+ (323 dead segs/24h) -- unexamined this cycle; the
+  17:33:50 ext5 watchdog crash-loop was visible in the int2 heal
+  window. Check if ext5 has its own long-freeze class.
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
@@ -34,28 +34,29 @@ Loop-guard correct fire ~c99 (10-call walk; batch would cost 8).
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
   c120+c125+c130+c131+c139(correct, walk-tax).
-- REGISTRY-CORRUPTION (NEW c139): next .104 WRN burst -> /api/streams
-  diff DURING window. "unsupported scheme: <cam>" = registry-loss
-  fingerprint; triage order: dial/read timeout=producer path,
-  unsupported-scheme/404=registry, neither+silent=consumer starve.
-- HEAL-WITHOUT-REPLACEMENT: 3 PROVISIONAL (c135 int2; c137 quad-onset;
-  c138 09-19 h01 int1). Registry hypothesis may EXPLAIN these: if the
-  transient registry churn breaks consumers not producers, heal = churn
-  ending, no producer replacement needed. Check producers.log against
-  quad-onset windows.
+- REGISTRY-CORRUPTION (c139, AMENDED c140): trigger story dead (.104
+  base-rate noise) but mechanism live -- go2rtc remakes conns silently.
+  Next .104 WRN burst -> /api/streams diff DURING window still armed
+  (cheap, catches the persistent 404-storm class).
+- HEAL-WITHOUT-REPLACEMENT (c140 REVISED): DEAD for long freezes (4/4
+  heal = conn replacement). STANDS for short freezes (<5min, 3
+  provisionals). Falsifier now expects fires only in short class.
+- LIVE-CATCH (NEW c140): long freeze caught live -> 1-min census
+  through heal -> what replaces the conn?
 - BARE-CONTRA LIVE TEST: PASSED c137.
 - CENSUS ARTIFACT GUARD LIVE TEST: 0 obs yet.
 - JOURNAL-CONTRA LIVE TEST: ARMED-IDLE.
-- EXT4 POST-FIX PREDICTION (c124) AMENDED c139: ext3 404-storm class is
-  go2rtc shared state, NOT marginal-RSSI, NOT per-cam; AP fix does not
-  address it; go2rtc upgrade / #2505 fix might.
+- EXT4 POST-FIX PREDICTION (c124) AMENDED c140: ext3 404-storm class is
+  go2rtc shared state, NOT marginal-RSSI; go2rtc upgrade / #2505 fix
+  might address it.
 - EXT4 CONN-HOLD WATCH: 0/7 as of c124.
 - RSSI-ROTATION WATCH: PASS c127; armed for recurrence.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
-- WRN-HEAL (c127/c132/c135): short freezes self-heal; boundary unknown.
-- SHARED-CAUSE (c126->c139 REFRAMED): .104 WRN bursts + registry churn.
-  01:23-01:26 burst hit ALL 6 cams = go2rtc-internal event now leads
-  over pure network path.
+- WRN-HEAL (c127/c132/c135): short freezes self-heal; boundary now
+  ~5min (census cadence).
+- SHARED-CAUSE (c126->c140 REVISED): .104 DECOUPLED. Audio-freeze
+  shared-cause events (quad-onsets, tri-cam) remain unexplained but
+  are now tied to go2rtc conn/registry state, not .104 bursts.
 - TEST-RUN POLLUTION (c130): watch for a third instance.
 
 ## WATCHES (standing)
@@ -71,11 +72,11 @@ Loop-guard correct fire ~c99 (10-call walk; batch would cost 8).
   REQUESTS.LOG ROTATION; STALE-STATE; DEPLOYED!=ACTIVE; WATCH-RULE
   RATE CENSUS; SWEEP-ENUMERATION; CENSUS-INTERACTIVE-EXCLUSION;
   DEAD-CODE-IRONIES; VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live,
-  0088); STALE-FILE; WRONG-IP (c132 scar: int2=.202); SAMPLE-SIZE
-  (c123); CRONTAB-DUAL-WRITE (c125); RSSI-FRESHNESS; TEST-RUN
-  POLLUTION (c130); ECHO-CONTAMINATION (c133).
-- PGRP-F-SELF-MATCH LAW (c137); LOCKFILE LAW (c137; now ENFORCED in
-  scan v3).
+  0088; c140 re-observed: daemon heartbeat 3h gap in journal view,
+  daemon itself healthy); STALE-FILE; WRONG-IP (c132 scar: int2=.202);
+  SAMPLE-SIZE (c123); CRONTAB-DUAL-WRITE (c125); RSSI-FRESHNESS;
+  TEST-RUN POLLUTION (c130); ECHO-CONTAMINATION (c133).
+- PGRP-F-SELF-MATCH LAW (c137); LOCKFILE LAW (c137; ENFORCED in v3).
 - WALL-OVERRUN LAW (c138): no long-sleep calls in the last 10min of
   wall.
 - 1B DETECTOR SCARS (c135): 30s double-probe + ch2-census cross-check
@@ -85,28 +86,32 @@ Loop-guard correct fire ~c99 (10-call walk; batch would cost 8).
   (c135: per-segment remote scans = sophon-side script, ONE call.)
   (c137: background jobs need pidfile + lockfile -- DONE in v3.)
   (c139: batch per-hypothesis, not per-window; the loop-guard will
-  catch the walk.)
+  catch the walk.) (c140: producers.log hourly sampling = ambiguous
+  swap timing; conn-breakdown port log is the better witness.)
 - PGREP-X LAW (c114); NETNS-CURL LAW (c114); PACK-ANATOMY (c118).
 - CYCLE-COUNTER SCHEMA (c131): LAST-CYCLE "cycle N" is per-invocation.
 - BUFFER-PERSISTENCE (c133): gptel buffer carries across rotate
   invocations.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- ats-latest.out fold (top; see c140 STATE).
-- .104 WRN-burst tripwire -> /api/streams diff (registry falsifier).
+- FROZEN-flag alert path (live-catch falsifier).
+- conn-breakdown.log retention check.
 - Nocturne 16:03Z receipt + VERDICTS.log AFTER ~16:35Z.
 - CONTINUO RESTORE: first post-restore cycle (D-017 falsifier day 1).
+- ext5 24h picture (323 dead segs, unexamined).
 - CENSUS ARTIFACT guard live test (0 obs).
-- producers.log vs quad-onset windows (registry hypothesis cross-check).
 - RAMMSTEIN MIRROR pack-waste check (blocked on key path).
 - THREADS.org seed bank: substrate experiment, stub-detector,
   interlocutor ratification, write-site revalidation belt.
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- GO2RTC REGISTRY CORRUPTION (c139): new class, falsifier armed.
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c139): fleet-wide; quad-onset =
-  transient registry churn (hypothesis).
+- GO2RTC REGISTRY CORRUPTION (c139->c140): mechanism live, trigger
+  story dead; silent conn remake is the new focus.
+- LONG-FREEZE HEAL MECHANISM (c140): heal = conn replacement; what
+  triggers it? Live-catch falsifier.
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c140): short class self-heals;
+  long class = conn replacement.
 - CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
   c134; her ownership ongoing; D-017 falsifier running.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.

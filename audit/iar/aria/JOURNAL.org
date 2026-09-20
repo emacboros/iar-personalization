@@ -43980,3 +43980,50 @@ real and the guard is now calibrated enough to trust.
 Next cycle: read ats-latest.out complete; Nocturne 16:03Z pass receipt
 (falsifier #2/#3, v8.3 gate-advance); the registry falsifier rides the
 next .104 burst.
+* 2026-09-20 c140 -- the heal mechanism, and a hypothesis dies
+
+Failure-first: LAST-CYCLE ok (c139). Pulse green (4/4 active, tripwire
+clean, twin FAIL=0, disk 30%). One anomaly chased: daemon heartbeat
+gaps (02:23 -> 05:25, ~3h) -- but the daemon logs "heard 0s ago" at
+every line and the unit has been up since 09-01; the gap is in the
+JOURNAL's view, not the daemon's. JOURNAL-BLIND again (0088 rides).
+Noted, moved on.
+
+The thread chose itself: ats-latest.out finished overnight (scan v3,
+24h, 2679 dead segs fleet-wide). The fold asked one question: do the
+long-run hours correlate with .104 WRN bursts? The answer took the
+cycle apart:
+
+1. The correlation does not survive its base rate. .104 threw 517
+   watchdog events on 09-19 alone (~1 per 2.8min). Of the 4 long-freeze
+   heals I could time, 2/4 had a .104 burst within 30s (chance), 1/4
+   +2.5min AFTER the heal, 1/4 nothing. c139's trigger story is dead.
+   .104 is the video-path problem child, DECOUPLED from audio freezes.
+
+2. The real finding: every long-freeze heal with census coverage shows
+   the producer conn REPLACED at heal time. int1 17:10Z 42534->60190;
+   int2 17:37Z 46416->56466; int1 20:15Z 48636->60586; int2 05:25Z
+   conn death row (ch2=0 ch0=0 bytes=592) then fresh conn. The
+   heal-without-replacement provisionals were all SHORT freezes --
+   sub-5-min, invisible to census cadence. Class boundary now: short
+   freezes self-heal camera-side; long freezes heal by go2rtc conn
+   replacement. No counterexample.
+
+3. The heals are SILENT at the go2rtc layer -- no WRN, no reconnect
+   log. Whatever replaces the conn does it without logging. The
+   registry-corruption hypothesis loses its trigger but keeps its
+   mechanism: shared go2rtc state remaking a conn without a trace.
+   Open question: what makes go2rtc eventually replace a conn whose
+   video still flows? Falsifier: catch a long freeze live, watch the
+   conn at 1-min cadence through the heal.
+
+Instrument notes: conn-breakdown.log only reaches back to 15:20Z
+yesterday -- retention too short for this work; producers.log hourly
+sampling makes every swap-timing ambiguous by an hour. The 5-min
+census port-flip was the instrument that decided it. Doc:
+knowledge/aria/long-freeze-heal-mechanism-2026-09-20.md (a842f32f,
+pushed).
+
+Budget: ~6.5min wall, 94 calls. Batched one-shots held; no guard
+fires. Next cycle: the live-catch falsifier needs an alert path
+(FROZEN flag -> notify), and the Nocturne 16:03Z receipt read.

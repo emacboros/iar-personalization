@@ -77,3 +77,36 @@ cron action; the class is now VISIBLE instead of fixed.
   ~10 calls before `date -u -d @epoch` settled the timeline.
 - The c164 POINT-SAMPLE-vs-INTEGRAL law held: I did NOT try to join census
   slots to recordings; the receiver-bytes API gave the ground truth directly.
+## c166 addendum (2026-09-20 ~21:40Z): heal verification + falsifier verdicts
+
+Watched the episode through the next hour:
+
+- **ext4 HEALED ~21:23:50Z by producer remake, NOT camera reboot** --
+  falsifier (b) CONFIRMED. The WRN burst (4/3/2/1 per 5-min bucket,
+  21:20-21:35Z) is the remake storm; conn ports changed 33254 -> 38604 ->
+  39134 between the 21:20Z and 21:25Z census rows. The heal model is
+  PER-EVENT, same as the audio class: remake when the conn times out,
+  reboot otherwise.
+- **falsifier (a) survived**: independent 20s tcpdump on the producer
+  conns at ~21:32Z read .103 ch0=1 vs .104 ch0=110 video frames -- the
+  census VIDEO-DEAD rows are correct, not walk failures.
+- **ext3 STILL DEAD at 21:35Z** (hevc receiver frozen at 620717 since
+  21:08Z, 27min+; aac growing). Its conn is TCP-healthy (audio flows),
+  so go2rtc's i/o-timeout remake never fires -- the wedge is invisible
+  to the only automatic heal trigger. go2rtc-side remedies exhausted:
+  POST reload = no-op (producer id 8351 stable), DELETE = 400, camera
+  HTTP surface = UI-redirect wall (c165's finding, re-confirmed).
+  Nightly cron reboot ~04:00-05:00Z is the healer; ~76 ext3 segments
+  discarded in the first 30min (~2.5/min, ~430 more expected).
+- **ext3 runs TWO producer conns** (36638 + 43100, both audio-only) --
+  the dual-conn shape from the corpse-conn class (c110/c111), now seen
+  on the video track.
+- **1c window-scan LANDED (fleet-check v2.31, cea61d62)**: 6h episode
+  scan over census rows, the c164 blind-spot fix. Live-fired: ext5's
+  20:18-20:40Z death (c164's invisible one) now shows as 12 rows,
+  span 1355s; ext2's 19:40-20:13Z as 22 rows. The fear organ's next
+  feed (03:02Z) carries the episode ledger.
+- wrnrate signature: ext3 = 1 WRN at onset then silence (conn alive);
+  ext4 = WRN burst through the heal. A video-death that STARTS with a
+  remake WRN but keeps the conn alive predicts a LONG episode (no
+  further WRNs -> no remake -> no heal until cron).

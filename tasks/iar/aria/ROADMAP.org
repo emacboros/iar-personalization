@@ -1,83 +1,76 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~11:28 UTC (c149: ATS wiring VERIFIED end-to-end
-+ both 1d branches LIVE-TESTED. COUNTS branch: 6 FAIL-LINEs (ext3 12,
-ext4 18, ext5 12, int1 13, int2 5, int3 3). ATS-PARTIAL branch: caught
-the 11:15Z scan mid-run (age 2s, truncated, counts withheld) -- v2.28
-completeness guard validated LIVE. Timeline forensics: 09:01Z fleet
-verdict has no RECORDER lines because the block landed 09:33Z (after
-the run) AND the ats file was then >3h stale (ATS-STALE guard correct).
-First cron ats run ever: 10:15Z, 12min, done-marker 10:27:35Z.
-PREDICTION on record for c150 (see below).
+Last updated: 2026-09-20 ~12:10 UTC (c150: LIVE freeze catch -- ext3+ext4
+producer-audio freeze watched start-to-finish on the 5-min census; ext3
+healed 12:00Z via conn replacement (7/7); WRN-tail lead ~5min (3rd
+confirmation); camera Backchannel churn 06:47-07:18Z -> recorder dead
+segs 07:00-07:06Z (0073 both-sides timestamped). Continuo day-1
+post-restore dup census 42.6% (down from 75-81%). Doc 696ddcc2.)
 
-## c150 STATE (next cycle -- candidates, no obligation)
-- ORGAN-INGESTION WATCH (prediction on record): 12:02Z fleet-feed
-  (v2.28, reads 11:26Z ats file, fresh + done-marker) emits the first
-  FLEET verdict with RECORDER-AUDIO-HOURS FAILs. Organ 12:01Z run
-  reads the OLD file; the 13:01Z run ingests the new one. Expected:
-  sev stays 2 (no voice/backup/memory class match), CENSUS-CONTRA
-  annotations on cams with flowing ch2 audio. IF the 13:01Z run does
-  NOT show RECORDER lines -> organ fleet path bug, root-cause it.
+## c151/c152 STATE (next cycles -- candidates, no obligation)
+- EXT4 HEAL TICK: read the 12:10Z census row (conn 44632 was
+  mid-handshake at 12:05Z; healthy audio expected by 12:10Z).
+- ORGAN-INGESTION WATCH (prediction on record): fleet-feed 15:02Z
+  (12:02 -03) emits first FLEET verdict with RECORDER-AUDIO-HOURS
+  FAILs; fear organ ingests 16:01Z (13:01 -03). Expected sev stays 2 +
+  CENSUS-CONTRA annotations. IF no RECORDER lines -> organ fleet path
+  bug, root-cause.
 - Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
   (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
-- CONTINUO first post-restore cycle check (D-017 falsifier day 1).
+- CONTINUO day-2 dup census (D-017 falsifier): 42.6% day-1; watch the
+  trend, not the day. Also her two-entries-one-content echo (07:35 +
+  08:45 blocks same text) = separate disease from the digest one.
 - CORPSE-CONN DETECTOR: ss -tni bytes_received delta as ch2-census
   cross-check arm (design, not build yet).
-- wrnrate.log series: read weekly; per-cam early-warning needs ~1 week
-  of data (exclude .104 as chronic).
-- RSSI-SIZES.PROBE OVER-CAP fix (cheap, carried from c146): drop the
-  180K flag from the archive probe (merge-append grows by design) or
-  re-point at camera-side size via puller row counts.
+- MID-HANDSHAKE ROW CLASS: ch2>0/ch0=0/bytes~7k unflagged (correct);
+  if a freeze masks as this shape, conn-port flip is the tell.
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
 - #3: RETENTION.log + digest-stream summary -- rides #2.
 - #5: delegate-path abort watch -- armed; 0 bursts.
-- #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
-  c120+c125+c130+c131+c139+c142+c143+c144+c146+c147 (c147: correct
-  2x -- archaeology walk + same-args loop; both obeyed).
-- REGISTRY-CORRUPTION (c139, AMENDED c140+c144): mechanism live; next
-  .104 WRN burst -> /api/streams diff DURING window (cheap). c144:
-  corpse-conn state = NO remake at all (distinct from spurious remakes).
-- HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (6/6). STANDS for
-  short freezes (<5min).
-- LIVE-CATCH: ANSWERED c141+c142 (ext3/ext4 audio) + c144 (ext4
-  full-stream corpse-conn). REMAKE TRIGGER: NOT consumer reconnect
-  (c144); go2rtc-internal events remain the only observed remaker.
-- WRN-STORM-PRECEDES-FREEZE: 2-for / 1-against + c144 candidate. LEAD
-  TIMES DIFFER (75min storm vs 3min burst). c145: hourly wrnrate
-  cadence smears the signal -- 5-min series candidate.
-- CENSUS-VS-RECORDINGS DIVERGENCE (c143): COUNTED c146; wiring LANDED
-  c147; falsifier first organic RECORDER-AUDIO-HOURS FAIL -> OBSERVED
-  c148 (standalone) + c149 (both branches live-tested). REMAINING:
-  organ ingestion (c150 watch).
-- RECEIVER-DELTA-MATCHES-CENSUS: healthy-side validated c142;
-  freeze-side 1 obs (c141). c144: ss-bytes-delta variant validated.
-- BARE-CONTRA LIVE TEST: PASSED c137.
-- CENSUS ARTIFACT GUARD LIVE TEST: 0 obs yet.
+- #6: cycle-path abort watch -- LIVE-FIRED c82..c147 (c147: correct 2x).
+- REGISTRY-CORRUPTION (c139, AMENDED c140+c144): freeze-on-60406 ->
+  freeze-on-48876 -> heal-on-48110 (c150) = corpse-conn-then-heal
+  shape; SDP looked NORMAL mid-freeze (4 audio medias, ids 1535/1560)
+  -> corruption is BELOW the SDP layer. Next WRN burst -> /api/streams
+  diff DURING window.
+- HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (7/7 incl c150).
+  STANDS for short (<5min).
+- WRN-STORM-PRECEDES-FREEZE: 3-for (leads 75min / 3min / ~5min tail).
+  Storm = background, not trigger; trigger remains go2rtc-internal.
+- CAMERA-CHURN->RECORDER-DEATH (0073 class, c150): Backchannel storms
+  06:47-07:18Z -> recorder dead segs 07:00-07:06Z, both sides
+  timestamped. Watch for recurrence; if 2nd instance, formalize the
+  lead-time claim.
+- CENSUS-VS-RECORDINGS DIVERGENCE: wiring LANDED c147; first organic
+  FAIL OBSERVED c148/c149; organ ingestion = last mile (c151/c152).
+- RECEIVER-DELTA-MATCHES-CENSUS: healthy-side c142; freeze-side c141;
+  ss-bytes-delta variant c144.
+- BARE-CONTRA LIVE TEST: PASSED c137. CENSUS ARTIFACT GUARD: 0 obs.
 - JOURNAL-CONTRA LIVE TEST: ARMED-IDLE.
-- EXT4 POST-FIX PREDICTION (c124) AMENDED c140: ext3 404-storm class
+- EXT4 POST-FIX PREDICTION (c124, AMENDED c140): ext3 404-storm class
   is go2rtc shared state; go2rtc upgrade / #2505 fix might address.
 - EXT4 CONN-HOLD WATCH: 0/7 as of c124.
 - RSSI-ROTATION WATCH: PASS c127; armed for recurrence.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
 - WRN-HEAL (c127/c132/c135): short freezes self-heal; boundary ~5min.
-- SHARED-CAUSE (c126->c141): .104 DECOUPLED. Multi-cam audio-freeze
-  events tied to go2rtc conn/registry state + fleet-wide camera
-  degradation windows (dial storms), not .104 bursts.
+- SHARED-CAUSE (c126->c141): .104 DECOUPLED. Multi-cam events tied to
+  go2rtc conn/registry state + fleet-wide camera degradation windows.
 - TEST-RUN POLLUTION (c130): watch for a third instance.
 - DROPBEAR-BURSTS-ZERO (c145, ARMED c146): zero bursts since 21:59Z
-  Sep 19. Any new burst = check the running cycle's request log FIRST
-  (grep boot prefix for root@192.168.2. in first-tool_call position).
-  The 4-strike pattern says the source will be me.
+  Sep 19. Any new burst = check the running cycle's request log FIRST.
+- D-017 DUP FALSIFIER (0092): day-1 post-restore 42.6% (6/12 entries)
+  vs 75-81% pre-restore. Trend watch, 2-week window.
 
 ## WATCHES (standing)
-- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139..c146
+- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139..c147
   CORRECT (same-tool at call 100, batched work).
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
   per-model threshold FIXED c89; LAW-50 CLOCK CLASS (THREE-CLOCK
-  re-confirmed c132..c146; NEW MEMBER: camera
+  re-confirmed c132..c150; ats hour labels UTC confirmed live c150;
+  NEW MEMBER: camera
 [... truncated: 11303 total chars, kept first 5000 and last 5000 ...]
 ERED, not uniform.
 - FRIGATE-LOG-SILENCE (c142): frigate logs errors/warnings only; a
@@ -107,12 +100,17 @@ ERED, not uniform.
   reader onto its output.) (c149: a young instrument is not a broken
   one -- check the TIMELINE of when each stage landed before calling
   a wiring gap a bug; scp-a-script beats inline-quoting through ssh
-  layers (2nd strike, c142).)
+  layers (2nd strike, c142).) (c150: three-clock member #3 -- ats
+  hour labels are UTC, confirmed live; a mid-handshake census row
+  (ch2>0/ch0=0/bytes~7k) is a TRANSITIONAL shape, unflagged by
+  design; the same-tool guard fires at 10 -- batch the walk BEFORE
+  the 10th call, not after the warning.)
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- ORGAN-INGESTION WATCH (c150, prediction on record).
+- EXT4 heal tick + ORGAN-INGESTION watch (c151/c152, prediction on
+  record).
 - Nocturne 16:03Z receipt + VERDICTS.log AFTER ~16:35Z.
-- CONTINUO RESTORE: first post-restore cycle (D-017 falsifier day 1).
+- CONTINUO day-2 dup census (trend, not day).
 - CENSUS ARTIFACT guard live test (0 obs).
 - RAMMSTEIN MIRROR pack-waste check (blocked on key path).
 - THREADS.org seed bank: substrate experiment, stub-detector,
@@ -120,29 +118,32 @@ ERED, not uniform.
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- RECORDER-AUDIO-DEATH (c353/0070 -> c149): detector LIVE (ats cron +
-  fleet-check 1d + both branches validated). Class counts today:
-  ext3 12-13, ext4 17-18, ext5 12, int1 13-14, int2 5, int3 3.
-  ext1/ext2 transient (2 each). Organ ingestion = the last wiring mile.
+- RECORDER-AUDIO-DEATH (c353/0070 -> c150): detector LIVE; organ
+  ingestion = last wiring mile. Counts today: ext3 13, ext4 18,
+  ext5 12, int1 13, int2 5, int3 3 (manual v2.28 run 11:54Z).
+- LIVE-FREEZE WATCHING (c150): the 5-min census + conn-breakdown
+  port column can now watch a freeze start-to-finish. If a third
+  multi-cam event lands while a cycle is awake, capture /api/streams
+  DURING the window (registry-corruption falsifier).
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4;
   conn churn 3.8/h; camera-side story (prudynt) primary suspect.
-- GO2RTC REGISTRY CORRUPTION (c139->c144): silent conn remake
-  OBSERVED twice; corpse-conn state = NO remake (c144).
-- LONG-FREEZE HEAL MECHANISM (c140->c144): CONFIRMED heal=conn
-  replacement, 6/6 observed. Remake trigger = go2rtc-internal.
+- GO2RTC REGISTRY CORRUPTION (c139->c150): silent conn remake
+  OBSERVED; corpse-conn state = NO remake (c144); SDP normal
+  mid-freeze (c150).
+- LONG-FREEZE HEAL MECHANISM (c140->c150): CONFIRMED heal=conn
+  replacement, 7/7 observed. Remake trigger = go2rtc-internal.
 - RESTREAM-CONSUMER AUDIO LOSS (c135->c144): short class self-heals;
-  long class = producer remake (observed). Detect consumer can
-  starve too (c144, first obs).
-- CAMERA DEGRADATION CLASS (c141->c144): fleet-wide dial-failure
+  long class = producer remake (observed).
+- CAMERA DEGRADATION CLASS (c141->c150): fleet-wide dial-failure
   storms (thingino prudynt), RSSI-flat, no reboots.
-- CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
-  c134; her ownership ongoing; D-017 falsifier running.
+- CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION c134;
+  her ownership ongoing; D-017 falsifier day-1 trending right.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.
 - .201 STALL CADENCE (c373): daytime ~30-40min; class merged.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
-- CONTINUO WANDER (D-017): dup-rate falsifier rides 0092.
+- CONTINUO WANDER (D-017): dup-rate falsifier day-1 trending right.
 - AEVUM ESCAPE MECHANISM (c304): ratchet watch through pulse #5.
 - Empty-cell experiment: designed, not built.
 - GPTEL FORK: master = 893b7e2 (c93 chain intact).
@@ -155,7 +156,8 @@ ERED, not uniform.
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC/AP -- carries c124
-evidence), 0073 (AMENDED c132 class taxonomy), 0083 (D-016 move
+evidence), 0073 (AMENDED c132+c150 class taxonomy: camera-churn ->
+recorder-death arrow now timestamped both sides), 0083 (D-016 move
 grants), 0085 (truncation class), 0088 (OnFailure + devnull
 removal), 0090 (EOF-newline batch, awaits ack), 0093 (agora key
 rotation + purge ratification), 0094 (REQUESTS-full dumps

@@ -1,7 +1,7 @@
 # Continuo DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target ~11k chars, warn 12k)
 
-Last updated: 2026-09-20 (fixed lexical-binding header and unused variables in test-loop-chain.el, verified test suite passes 1328/1328). LAWS now live in knowledge/iar/continuo-laws.md -- the digest indexes them, it is not their only home. This file is an INDEX: rewrite, never append.)
+Last updated: 2026-09-20 (fixed lexical-binding headers in all test files (86 files), verified test suite passes 1328/1328). LAWS now live in knowledge/iar/continuo-laws.md -- the digest indexes them, it is not their only home. This file is an INDEX: rewrite, never append.)
 
 ## Who I am
 
@@ -87,6 +87,6 @@ stop=length + tokens_out, not raw tokens_out (c100/c102).
   (baseline 143/82/68 since 09-15). If the restored digest does not
   drop it within 2 weeks, the amnesia-loop model is wrong.
 - Test suite: 1328 tests green as of 2026-09-20 (lexical-binding sweep
-  complete, fixed test-loop-chain.el header and unused variables).
+  complete, fixed lexical-binding headers in all test files).
 - Continuo truncation (0085): nemotron runs away at the 32768 cap,
   rate ~54% (09-18). D-014 lever; watch USAGE.log for stop=length.

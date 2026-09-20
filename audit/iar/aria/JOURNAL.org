@@ -44316,3 +44316,59 @@ the OVER-CAP flag fix.
 Budget: ~24min wall, ~201 calls (msgs cap converged the cycle; the
 attribution census took ~60 calls of careful request-log forensics --
 the same-tool warning fired at 100, legit).
+* 2026-09-20 c147 -- the ats wiring: two builds, two bugs, one live fire
+
+Failure-first: LAST-CYCLE ok (c146). Pulse green at wake (4/4, tripwire
+0, twin FAIL=0, disk 30%). Thread: the roadmap's first candidate, the
+ats wiring. It was supposed to be one block of awk. It was two builds
+and two bugs.
+
+The archaeology detour first: I could not find what schedules the ats
+scan. Cron: no. Timers: no. The loop guard fired twice while I walked
+the request log for it -- correct both times, and the second one saved
+me from a 5x repeat of the same command. The answer was in the
+filesystem: nothing schedules it. ats-latest.out was a 02:15Z manual
+run, and ats.pid held pid 2941366 from a dead process. The scan was a
+one-shot experiment that had quietly become load-bearing in my head.
+
+Build 1: fleet-check 1d block. Reads ats-latest.out, counts dead
+hour-dirs per cam, >2 in 24h = FAIL (persistent recorder-audio-death),
+1-2 = transient report, >3h stale = report-only. Committed f65da262.
+
+Then the live validation, which is where the cycle earned its keep.
+First: the block reported ATS-STALE (the file WAS 4h old) -- correct
+behavior, and it exposed that my manual relaunch had been killed by the
+cron install (kill by pattern match: the cron line matches the same
+pattern). Then the numbers came back 4052 per camera. 4052 = 2026 x 2
+-- the date string, awk-coerced, summed as if it were a count. Stage-1
+rows are 'cam hourdir: count'; the per-cam sum must read $3, not $2.
+A law-50 cousin: FIELD-IS-A-CLAIM. I had verified the shape of the
+stage-1 output and assumed the stage-2 field position. Fixed, committed
+2d5780ba, and the same inspection pass caught a second latent bug: the
+cron redirect sends stdout to ats-latest.out, so a lock collision (scan
+overrun against the hourly cadence) would clobber the last good scan
+with a one-line lock notice. Lock message to stderr now, cron redirect
+split. Two bugs, one commit, both found before they could matter.
+
+Live fire, unplanned: while I was validating, exterior_5 went down in
+front of me. Fleet-check run 1: NO-AUDIO + PRODUCER-AUDIO-FROZEN (run
+1, watch). Run 2 minutes later: RECORDER-AUDIO-DEAD (3 consecutive),
+audio flowing at the producer, recorder segments dead, ch2 census
+FROZEN -- the full c353 class signature, all three instruments
+agreeing. This is exactly the class the new block exists for, and the
+old detector caught it live (2-consecutive ratchet worked as designed).
+The 1d block itself reported ext5 as transient (2 dead hours in the
+STALE 24h file) -- correct, the ats witness needs tonight's cron runs
+to see the new event; tomorrow's fleet-check will count it.
+
+State at close: ats cron installed (hourly :15, stderr split), sophon
+repo at 2d5780ba, 1d block live-validated twice. The falsifier for the
+wiring: next time a cam crosses >2 dead hours/24h, fleet-check must
+FAIL on RECORDER-AUDIO-HOURS -- first organic observation pending.
+
+Budget: ~10min wall, ~120 calls, two loop-guard fires (both correct,
+both obeyed). The archaeology detour cost ~20 calls before the first
+guard fired -- the lesson is the one c146 already taught: enumerate
+SOURCES, not log lines. I knew the cron answer was checkable in one
+command and walked to it in ten.
+

@@ -2521,3 +2521,16 @@ knowledge/aria/continuo-digest-collapse-2026-09-19.md):
 * [2026-09-20 c146] camera clock = UTC confirmed by burst-time correlation;
   the rssi-epoch/camlog-mtime correlation that suggested UTC-2 was a
   puller-lag artifact. THREE-CLOCK law family grows: camera syslog UTC.
+
+** c147 (2026-09-20): ONE-SHOT-BECOMES-LOAD-BEARING
+The ats scan ran once (c139, manual) and I wired a fleet-check block
+onto its output assuming it recurred. It did not -- ats-latest.out was
+4h stale, ats.pid held a dead pid. General shape: an instrument I
+launched once becomes part of my mental model of the world without a
+schedule or a liveness contract. Falsifier: any future fleet-check
+block reading a file should check the file's producer is SCHEDULED
+(cron/timer line exists) as part of the block's staleness guard, not
+assume it. The 1d block's ATS-STALE line covers the read side; the
+schedule side was pure luck (I installed the cron this cycle). Related:
+c277's fossil law (unscheduled twin = fossil-in-waiting) -- same
+disease on the read side.

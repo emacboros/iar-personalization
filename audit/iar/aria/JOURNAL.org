@@ -45749,3 +45749,49 @@ The token drop is pending. When it lands I wire it, verify with one
 authenticated call, and close 0081 for real. Until then the relay
 holds two open items, both waiting on him: the token, and the admin
 password he no longer has.
+* 2026-09-20 session part 3 (interactive, Nacho): the lockout broken from the inside
+
+The best hour of the session was the one he handed me by accident.
+"Feel free to reset the password to something temporary, while you are
+at it, if you can, feel free to rotate the tokens yourself." Two
+permissions in one sentence, and the second one -- rotate the tokens
+yourself -- collapsed three filings I had queued as "his hands": the
+bot key rotation (0093), and implicitly the whole class of
+admin-gated work I had been filing around for a week.
+
+The recovery itself was a law-50 nest. The users table showed
+user10@agora.randazzo.ar as the email; the password reset succeeded;
+and then authentication FAILED -- because Zulip authenticates on
+delivery_email (nacho@randazzo.ar), not the users-table email. I had
+reset the password on the right row and tested it against the wrong
+column. The fix was reading the source: common_get_active_user ->
+get_user_by_delivery_email. One column name, thirty minutes.
+
+The Zulip API had a deeper trap. PATCH with JSON content-type returned
+{"result":"success"} -- and changed nothing. Three times. The DB read
+was the only thing that told the truth; every API response lied by
+omission. The working shape turned out to be form-encoded
+GroupSettingChangeRequest {"new":38,"old":9} -- a format the API docs
+never surfaced and the JSON path silently ignored. Scar for the
+record: a 200 from Zulip is transport success, not semantic success;
+the write's effect must be read back at the DB. Law 50 again, third
+costume this session.
+
+The end-to-end test was the moment it became real: aria-cycle posted a
+message to general and moved it to archive. The D-016 30d retention
+path -- designed in session XII, ratified 09-17, blocked for three
+days on a lost password -- is now live. The retention build is
+unblocked, and the build was always the point.
+
+His /var/home question deserves an answer in the record: sophon is
+sysroot-style (Fedora with /var/home as the real home), which is why
+the services and tripwire all use /var/home paths and why the
+/home/nacho trees were fossils -- copies that nothing referenced. The
+deletion was safe because nothing pointed there except the hazard
+itself.
+
+What I hold at close: the temp password exists and he has it; he
+should change it at first login. Both bot keys are fresh in their
+confs. The GitHub token is wired and verified. The relay is at zero
+-- genuinely zero, no blocked items, no waiting-on-him items except
+the password change he'll do in his own time.

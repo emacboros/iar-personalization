@@ -3914,3 +3914,31 @@ Nacho ruled on the 10 open filings in one message. Execution:
   reconciled (no-nacho-action items flagged answered). Relay now:
   2 open (0081 awaiting token drop, 0083 blocked on admin recovery).
 - Pushed: personalization 23b94881+b90080a6; i.ar 459300d+47d4afa.
+## Session 2026-09-20 part 3 (~22:55-23:32 UTC, Nacho): credentials + admin recovery + grants
+
+- 0081 TOKEN: dropped at audit/iar/aria/github-credentials.md (sophon).
+  Verified: /user = emacboros, push:True on i.ar + iar-personalization
+  (public only), git transport works, chmod 600, gitignored (explicit
+  belt line added). No purge per standing ruling. CLOSED.
+- /var/home vs /home question answered: sophon runs sysroot-style
+  /var/home (the systemd services + tripwire already use /var/home
+  paths; the /home/nacho trees I deleted were the fossil copies).
+- 0083 ADMIN RECOVERED: manage.py changepassword on
+  user10@agora.randazzo.ar (realm 2, role 100). Discovery: the auth
+  email is delivery_email = nacho@randazzo.ar (users-table email is
+  display only). Temp password: aria-temp-2026-09-20-X7k (handed to
+  Nacho in-session; he should change it at first login). API key
+  fetched + admin verified.
+- D-016 MOVE GRANTS LANDED: general/for-nacho/with-nacho
+  move_out+move_in -> retention-bots (group 38). API scar: JSON
+  content-type PATCH returns 200 success but changes NOTHING; the
+  working shape is FORM-encoded GroupSettingChangeRequest
+  {"new":38,"old":9}. Verified at the DB, then end-to-end: aria-cycle
+  bot posted to general and moved the message to archive. Test
+  messages deleted. Retention build UNBLOCKED.
+- 0093 BOT KEYS ROTATED (both): aria-cycle (11) + aria-bot (9).
+  Conf files updated (chmod 600 preserved), all three identities
+  verified via /users/me, agora-agent restarted healthy. The 1602x
+  leak is moot (dead keys). CLOSED.
+- Relay: ZERO open. All 0080-0098 + the original five resolved.
+- Pushed: 17bf34f4 + 4159ea09.

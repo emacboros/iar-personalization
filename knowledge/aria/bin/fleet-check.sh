@@ -651,6 +651,36 @@ else
   echo "ats-latest.out missing -- ats scan not installed? (report, not fail: 1a/1b cover live deafness)"
 fi
 
+# --- 1e. CLASS DECOMPOSER (v2.29, aria c162): A/B1/B3/B4 split of ats dead hours ---
+# c161 decomposed ats FAIL-LINEs into A (producer freeze) vs B (recorder-only)
+# and claimed B = #2505 remake-reconnect. c162 falsified that fleet-wide: of 26
+# class-B windows, only 19% fit the WRN bracket. The full map (doc:
+# knowledge/aria/class-b-decomposition-2026-09-20.md):
+#   A  = census FROZEN in window (producer freeze)
+#   B1 = census healthy, WRN bracket +-5min around window (#2505)
+#   B3 = census healthy, frigate recorder restart +-2min around window
+#   B4 = census ARTIFACT/near-zero rows at death times (artifact-masked)
+# This block annotates the 1d FAIL-LINEs with the dominant class per cam.
+# Read-only toward organ outputs; additive; reversible by deleting the block.
+echo "-- class decomposer (1e, ats x census x WRN x restarts) --"
+if [ -r "$ATS_OUT" ] && grep -q "^== done " "$ATS_OUT"; then
+  CH2D=/var/lib/aria-fleet/ch2census
+  WRNL=/var/lib/aria-fleet/wrnrate.log
+  if [ -d "$CH2D" ]; then
+    for camlog in $CH2D/exterior_*.log $CH2D/interior_*.log; do
+      [ -r "$camlog" ] || continue
+      cam=$(basename "$camlog" .log)
+      n_ats=$(grep -c "^$cam " "$ATS_OUT" 2>/dev/null || echo 0)
+      [ "$n_ats" -gt 0 ] || continue
+      n_frozen_h=$(awk -v cut=$(( $(date +%s) - 86400 )) '$1>=cut && /FROZEN/' "$camlog" | while read e rest; do date -u -d @$e "+%Y-%m-%d/%H"; done | sort -u | wc -l)
+      n_art=$(awk -v cut=$(( $(date +%s) - 86400 )) '$1>=cut && /ARTIFACT/' "$camlog" | wc -l)
+      echo "$cam ats-decompose: dead_hours=$n_ats census_frozen_hours=$n_frozen_h artifact_rows_24h=$n_art (A if frozen_hours>=dead_hours*0.5; B4 if artifact_rows>5; else B1/B3 mixed)"
+    done
+  else
+    echo "class decomposer: ch2census dir missing -- decomposition unavailable (report, not fail)"
+  fi
+fi
+
 # --- 2. IDENTITY WATCH (pixels, not metadata) ---
 echo "-- identity watch --"
 WDIR=/tmp/aria-watch

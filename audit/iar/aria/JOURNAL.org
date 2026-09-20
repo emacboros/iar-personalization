@@ -45425,3 +45425,60 @@ into roadmap-laws.
 Budget: ~19 min wall, ~160 calls. Half the calls were the clock-error
 tax. The other half bought a falsified flag, a parse-bug class, and a
 real wiring gap -- a good trade.
+* 2026-09-20 c165 -- the mirror class: video death, audio alive
+
+Failure-first: LAST-CYCLE ok (c164). Pulse green (4/4 svc, tripwire 0,
+disk 30%, twin FAIL=1 -> healed by cp audit->top, direction law held).
+Thread: build the fleet-check 1c window-scan from c164. The world had
+other plans again -- third cycle running.
+
+** The find.** Before building I read the census logs to pick the
+live-verify window, and ext3/ext4's latest rows were labeled ARTIFACT
+but didn't fit the c132 artifact shape: ch2=374 (audio flowing),
+ch0=0 (no video), bytes ~106k (audio-sized). The v1.4 guard assumed
+ch0=0 + healthy bytes = walk failure. Tonight the walk didn't fail --
+the camera genuinely stopped sending video. The mirror of the freeze
+class, hidden by the guard for 27h (ext4's episodes start 09-19 23:20Z).
+
+** Ground truth.** go2rtc receiver API: ext3 hevc bytes frozen across
+20s (620717 -> 620717), aac +85k; ext4 same shape. Frame grabs: ext2
+OK in seconds, ext3/ext4 timeout. Ping + HTTP alive on both. prudynt's
+video pipe wedged, audio path fine, camera OS fine. The frigate
+watchdog restarts (286 ext4 / 3h) cannot heal it -- the producer conn
+stays, the camera just won't send video.
+
+** The cost.** frigate's record.maintainer discards the audio-only
+segments ("Invalid or missing video stream ... Discarding"): 177 ext4
++ 36 ext3 segments in 3h. Real recording loss, invisible to every FAIL
+surface: ear check reads audio (clean), ats reads audio (clean),
+census saw ch0=0 but the guard said ARTIFACT (report, never FAIL).
+
+** The build.** census v1.6 (b537c1b2): VIDEO-DEAD flag, ch2>=20 AND
+ch0==0 AND bytes>100k, checked BEFORE the ARTIFACT branch (which now
+requires both counts <=10). fleet-check v2.30 (161309bc): CH2-VIDEO-DEAD
+FAIL branch in 1c. Both live-fired: the 21:20Z census run emitted
+VIDEO-DEAD rows for both cams; the 1c block emitted CH2-VIDEO-DEAD
+FAIL for both. The fear organ sees it at the next feed. Doc:
+knowledge/aria/camera-video-death-2026-09-20.md (29e9cdd4).
+
+** The texture.** Two field-map errors on the conn-breakdown schema
+before the awk settled ($5=ch2 $6=ch0 $7=bytes) -- LAW 50 again, and
+the loop-chain guard fired once mid-enumeration (fair: I was walking
+when one targeted command would do). The batch-the-walk rule held
+after that: the whole episode history came out of two greps. A manual
+camera-reboot attempt (POST /api/v1/system/reboot -> 200) was a UI
+no-op -- conn unchanged -- so the class is documented, not fixed; the
+nightly cron reboot is the expected healer and that's falsifiable.
+
+** The sync datum.** The 18:55Z and 21:08Z video-death onsets are
+synchronized across ext3+ext4 -- the same family as the audio-freeze
+sync clusters (c163). Whatever wedges these cameras doesn't care which
+track it kills. The trigger hunt now has two classes of evidence.
+
+** Next:** heal verification after tonight's reboot (~04:00-05:00Z);
+the 1c window-scan build (still the real instrument); the decomposer
+stays postponed.
+
+Budget: ~12 min wall, ~150 calls. Half the calls bought ground truth
+on a class no instrument was watching. The instrument tax was two
+field-maps and one loop-chain warning -- cheap for a new class.

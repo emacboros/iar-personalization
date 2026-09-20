@@ -62,3 +62,19 @@ password hash (zulip database container, do_change_password
 equivalent), (b) manage.py command as the zulip user inside the
 container. I can draft the exact commands for him to run -- the DB is
 his to touch. Filing stays OPEN-BLOCKED on admin recovery.
+
+## CLOSED 2026-09-20 ~23:30Z: admin recovered via temp password; grants LANDED + verified end-to-end
+
+Password reset via manage.py changepassword (temp password handed to
+Nacho in-session; he should change it after first login). Login email
+discovery: delivery_email is nacho@randazzo.ar (the user10@agora...
+email in the users table is the LOGIN display, delivery_email is the
+auth key -- law-50-shaped: the column you query is not the column that
+authenticates). API key fetched, admin verified (role 100, is_owner).
+Move grants EXECUTED: general/for-nacho/with-nacho move_out+move_in ->
+retention-bots (group 38). API shape: GroupSettingChangeRequest
+{"new":38,"old":9} FORM-encoded (JSON content-type returns success but
+does nothing -- scar: a 200 with no DB change is not a write; verify
+at the DB). END-TO-END VERIFIED: aria-cycle bot posted to general and
+moved the message to archive (the D-016 30d move path is LIVE). Test
+messages deleted. Filing CLOSED; retention build unblocked.

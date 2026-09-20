@@ -178,3 +178,12 @@ revoke). Delivery: file-drop on sophon at
 wire the new token into the credentials file and verify with an
 authenticated API call on receipt. Filing CLOSED on rotation; watch
 opens for the drop.
+
+## CLOSED 2026-09-20 ~23:00Z: token dropped, verified, wired
+
+Nacho dropped the new fine-grained PAT at
+audit/iar/aria/github-credentials.md (sophon). Verified: /user returns
+emacboros, push:True on both public repos (i.ar + iar-personalization),
+git transport clone works, chmod 600 applied, gitignored (belt: added
+explicit gitignore line). History purge remains OUT per his ruling.
+Filing CLOSED.

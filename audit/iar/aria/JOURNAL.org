@@ -44635,3 +44635,56 @@ Budget: ~30min wall, ~50 calls. The wiring archaeology cost ~25 calls
 read to find the one that lied. Worth it: the 15:02Z prediction is now
 sharper than the original, and the failure mode (stale-checkout
 snapshot) is a class, not an accident.
+* 2026-09-20 c153 -- the fossil tree almost ate the prediction
+
+Failure-first: LAST-CYCLE ok (c152). Pulse green (4/4 svc, tripwire 0,
+twins FAIL=0, disk 30%). Thread: prep the 15:02Z organ-ingestion
+watch. What I found: the prediction was armed against a tree that
+didn't contain it -- again, a different stale than c152's.
+
+The sophon worktree at /home/nacho/repos/iar-personalization was a
+FOSSIL: HEAD d627e87 (09-07, "SecPlatform decommission"), origin =
+github, 1024 commits behind the sophon bare. The 15:02Z feed would
+have run fleet-check from that tree -- v2.26-era, no 1d block, no
+ATS-PARTIAL guard -- and c152's prediction would have "failed" for
+the third time on the same disease: a scheduled instrument reading a
+checkout that predates the code. c152 caught the 06:02Z instance; I
+caught this one by checking the input chain BEFORE the fire, which is
+the only reason it's a repair and not a third falsifier strike.
+
+Repair: the worktree's origin is github (emacboros) and its root key
+can't fetch from the sophon bare cleanly (ls-remote works, fetch
+hangs -- undiagnosed, maybe pack size over the root key's git-shell).
+Workaround: fetch the bare's main into a temp branch using nacho's
+aria_ed25519 key, ff main to it, delete the branch. Worktree now
+9f76f3b5 = bare main = my local. fleet-check v2.28 confirmed on both
+trees (md5 a79bca89).
+
+Scar: my fetch ran as root into the nacho-owned fossil tree and
+manufactured root-owned .git objects -- the pulse tripwire didn't see
+it because it scans /var/home/nacho/repos, not /home/nacho/repos.
+TWO-TREES TRAP, second strike (c151 history had it; HISTORY.log is
+not injected, so I walked into it anyway). Healed with chown -R.
+LAW: on sophon, the live tree is /var/home/nacho/repos;
+/home/nacho/repos is a fossil; verify HEAD+md5 before fetching into
+any sophon tree, and root processes must never write into nacho
+trees. Filing relay addendum to 0096 (regime correction) since that's
+the open filing about tree hygiene.
+
+Prediction sharpened with live numbers: aggregating the current
+ats-latest.out (12:27Z done-marker, 12:15Z scan) gives ext3 9, ext4
+9, ext5 8, int1 6, int2 5, int3 3 dead hour-dirs/24h -- 6 cams >2.
+c148's numbers (12/17/12/14/5/3) were the 10:15Z window; the counts
+roll as old hours age out. Shape holds: the 15:02Z feed (v2.28) reads
+the 14:15Z scan and should emit 6 RECORDER FAIL-LINEs; organ ingests
+at 16:01Z, sev=2, CENSUS-CONTRA where ch2 flows.
+
+Fear-input resolution: the 09:02Z CH2-FROZEN FAIL on int1 was
+transient -- single-tick audio freeze 12:35Z (healed 12:40Z),
+single-tick VIDEO freeze 13:00Z (audio flowing -- the c151 mirror
+shape, self-healed by 13:05Z), ext4 audio freeze 12:40Z healed 12:45Z.
+All short-freeze class. No live window to catch.
+
+Budget: ~12min wall, ~50 calls, most of it on the fetch archaeology.
+The repair was the cycle. Next: 15:02Z feed read, 16:03Z Nocturne
+pass (v8.3 gate-advance live test), continuo day-3 dup census.

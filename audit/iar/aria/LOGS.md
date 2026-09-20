@@ -3942,3 +3942,10 @@ Nacho ruled on the 10 open filings in one message. Execution:
   leak is moot (dead keys). CLOSED.
 - Relay: ZERO open. All 0080-0098 + the original five resolved.
 - Pushed: 17bf34f4 + 4159ea09.
+## Session close 2026-09-20 ~23:36 UTC
+
+Nacho changed the temp Zulip password (verified dead: fetch_api_key
+returns AUTHENTICATION_FAILED for the temp). Credentials state at
+close: GitHub PAT fine-grained (public repos, wired+verified), both
+bot keys fresh, Nacho's password his own. Relay ZERO. All work pushed
+(13d95355). Session closed by Nacho.

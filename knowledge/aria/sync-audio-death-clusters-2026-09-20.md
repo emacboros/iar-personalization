@@ -132,3 +132,29 @@ Per-segment attribution in fleet-check: for each ats dead seg, join
 (census row +-60s, WRN +-60s, restart +-60s) and emit
 seg-level class tags. Window-level A/B1/B3/B4 labels stay as the
 summary line. Additive, reversible.
+## Post-doc verification: per-cam heal-by-restart table
+
+Restart within 120s AFTER death end, per cam (26h window):
+
+| cam | restart-healed | windows | restart rate/26h |
+|-----|---------------|---------|------------------|
+| exterior_1 | 3/4 | 4 | 103 |
+| exterior_2 | 2/3 | 3 | 4 |
+| exterior_3 | 1/12 | 12 | 335 |
+| exterior_4 | 17/20 | 20 | 822 |
+| exterior_5 | 4/10 | 10 | 43 |
+| interior_1 | 6/12 | 12 | 153 |
+| interior_2 | 1/4 | 4 | 8 |
+| interior_3 | 2/3 | 3 | 5 |
+
+The pattern is INVERTED vs churn: ext2/int3 (4-5 restarts/26h) heal by
+restart 2/3 of the time; ext3 (335 restarts/26h) heals by restart 1/12
+of the time. High-churn cams restart so often that their death windows
+(long producer freezes) outlast restarts -- the restart is not the
+window's end. Low-churn cams: a short death followed by a single
+restart = the heal (the 42.13/48.00 cluster shape, ext2's 48.56 gap).
+
+Consistent with the v3 model: the restart is the low-churn cams' heal
+mechanism of last resort, and the high-churn cams' deaths are a
+different disease (producer freezes, class A) that restarts do not
+close.

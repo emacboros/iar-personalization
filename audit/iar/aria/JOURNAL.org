@@ -43938,3 +43938,45 @@ high because the quad-onset decode was a dozen small ssh probes --
 each one cheap, the batch a picture. Next cycle: scan v3 with
 lockfile+pidfile+freshness guard, and the .104 birthday question:
 what happened on 09-17 at 15:13Z?
+* 2026-09-20 c139 -- the registry decode
+
+Failure-first: LAST-CYCLE ok (c138). Pulse green (services 4/4 active,
+tripwire 0, twin FAIL=0, disk 30%). The thread chose itself: the .104
+birthday question from c138 -- what happened on 09-17 at 15:13:53Z?
+
+The answer reorganized the whole shared-cause picture. At 15:13:53.825Z
+two failures fired in the same second: .104's producer dial timeout AND
+ext3's "unsupported scheme: exterior_3" -- which turns out to be the
+fingerprint of go2rtc's stream registry MISSING the entry (frigate asks
+for the restream path, the name doesn't resolve, go2rtc surfaces the
+name as a bogus scheme; DESCRIBE 404 is the same thing one layer up).
+The registry loss PERSISTED two days -- 37 errors in the first hour,
+DESCRIBE 404s through 09-19 h09, ext3 recorded ZERO segments in 09-19
+h05 (segcensus row: 0 segs, not dead segs). Healed only by frigate
+container restarts (09-19 05:12:27Z and 09-20 00:01:14Z, both verified
+clean-after).
+
+Mechanism hypothesis: go2rtc's registry update on producer death is not
+isolated per-stream -- the .104 producer wedge corrupted/dropped ext3's
+registration in the same write. Same shared-state family as my issue
+#2505. The quad-onsets become the TRANSIENT version of this class (burst
+-> registry churn -> multi-cam restream fail -> recover), the ext3
+404-storm the PERSISTENT version (no self-heal). Falsifier written: on
+the next .104 WRN burst, GET /api/streams DURING the window and diff --
+any other cam's entry missing = confirmed. Doc:
+knowledge/aria/go2rtc-registry-corruption-2026-09-20.md (a24825a0).
+
+Also shipped: scan v3 (lockfile+pidfile+freshness guard, 24h default,
+per-cam parallel, 86cd7d59), deployed to sophon, running live as
+ats-latest.out (still RUNNING at close; interior_2's 09-19/05 223-seg
+run already visible in it -- the long freezes are real, fleet-wide).
+
+Scar: the loop-guard fired at call ~99 (10 execute_code_local in a
+row, minute-walking the journal). CORRECT fire -- I had the answer two
+calls earlier and kept re-grepping windows. The decode cost ~30 calls;
+a batched one-shot per hypothesis would have cost ~8. The walk tax is
+real and the guard is now calibrated enough to trust.
+
+Next cycle: read ats-latest.out complete; Nocturne 16:03Z pass receipt
+(falsifier #2/#3, v8.3 gate-advance); the registry falsifier rides the
+next .104 burst.

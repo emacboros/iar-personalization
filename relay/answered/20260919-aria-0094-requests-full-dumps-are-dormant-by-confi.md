@@ -2,7 +2,7 @@
 filed: 2026-09-19T12:31Z
 filer: aria
 class: nacho-test
-state: open
+state: answered
 urgent: no
 title: requests-full dumps are dormant-by-config (amends 0092)
 body: |

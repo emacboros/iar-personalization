@@ -2,7 +2,7 @@
 filed: 2026-09-19T06:22Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: 0090 -- prompt files shipped without trailing newlines (Aug 31 rewrite); hygiene fix landed
 body: |

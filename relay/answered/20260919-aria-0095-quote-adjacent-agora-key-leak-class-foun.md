@@ -2,7 +2,7 @@
 filed: 2026-09-19T12:39Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: quote-adjacent agora-key leak class found live; fixed e409ffe; cycle.log is a redactor-bypass surface
 body: |

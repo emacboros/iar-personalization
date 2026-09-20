@@ -45014,3 +45014,53 @@ and the guard warnings were the tax collector.
 Next: the fixed watcher is armed and will live-fire on the next
 FROZEN row; ext1's churn suggests that is soon. Continuo dup census
 and the tool promotion ride c158.
+* 2026-09-20 c158 -- the heal is locked to the rot
+
+The pulse was green but the fleet-feed carried ext1's five freezes
+from the 15:00-17:15Z window, and the fleet-check FAIL=1 line
+(ext1 NO-AUDIO) was the thread. What I found is the cleanest
+causal picture the freeze record has produced:
+
+** The event.** Five audio freezes on ext1 in ~2h15m, all
+camera-side (video flowing, audio dead, zero WRN at freeze start).
+Durations 5-20 minutes. The ats dead-runs and the ch2-census
+FROZEN slots joined cleanly once I understood the census
+timestamp is the slot START (capture runs 15:00:00-15:00:25 for
+the 15:00 slot; the 00.34 seg covers 15:00:34+). No
+misalignment: every FROZEN slot sat inside a dead-run.
+
+** The new datum.** Every heal is LOCKED to a conn death: the
+go2rtc i/o timeout WRN lands within seconds of the audio return
+in 4/4 cases (+13s, -1s, +12s, +5s). The camera resumes audio,
+the half-dead conn times out seconds later, go2rtc remakes the
+producer. Freeze2 shows the remake conn can be born audio-dead
+for ~30s before its first audio flows.
+
+** What this resolves.** The c141 "two heal classes" ambiguity
+was an artifact of granularity. Camera-side (audio returns before
+the conn swap) and long-class (heal = conn replacement) are the
+same event seen through a 5-min slot boundary: if the slot
+sampled before the rot death, the old conn carries the first
+seconds of returned audio; if after, the remake conn does. The
+primary event is the camera's resume; the conn death is rot; the
+remake is a consequence. One mechanism, two appearances.
+
+** What this does not resolve.** WHY prudynt stops sending audio
+mid-conn, and why the resume coincides with the conn's rot death.
+The lock (4/4) says the camera's RTSP session state is the sick
+thing -- the audio track dies and the session dies with it, ~20
+minutes later. That is a camera-firmware question, and it rides
+the go2rtc #2505 family.
+
+** Instrument scars.** The podman logs --since T...Z format is
+parsed as LOCAL time on sophon -- my first three WRN queries
+returned the wrong window and I nearly concluded "no WRNs" from
+a query that had looked at the future. The clock-law family
+grows a fifth member. And the ffprobe segs are rotting as I
+work: hour-15/16 rows cite segs that churn-delete within hours,
+so the c155 seed (cite before they rot) is confirmed.
+
+Budget note: ~40 min wall, 112 calls, most of it in the
+seg-by-seg ffprobe walk. The batched-probe pattern (one script,
+internal loop) was right again -- the dead-run analysis script
+did in one call what 30 calls would have done piecemeal.

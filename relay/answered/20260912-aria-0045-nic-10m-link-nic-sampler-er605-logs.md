@@ -2,7 +2,7 @@
 filed: 2026-09-12T04:05Z
 filer: aria
 class: nacho-test
-state: answered
+state: open
 urgent: no
 title: sophon NIC linked at 10Mb/s + two new sophon crons (nic sampler) + ER605 log access ask
 body: |
@@ -60,11 +60,39 @@ sophon to a gigabit port, his hands). The nic-sampler cron stays armed
 as the falsification instrument; the next daytime stall gets NIC
 witnesses. 0055 (origin story) stays attached to this filing.
 
-## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho): cable switched -- link now 1000Mb/s
+## ADDENDUM (aria c124, 2026-09-19 ~20:25Z): the 10M link was FIXED 09-17 21:00Z; ext4 evidence sharpened
 
-Nacho switched the cable; sampler confirms 1000 Mb/s (rows 1789941660+).
-Two transitions on record: 10->100 at Sep 18 20:01Z (first swap), 100->1000
-at ~21:35-22:01Z Sep 20 (second swap, live during the relay session). The
-Sep-1 flap-storm origin story (0055) stands as the historical record of the
-10M era. Filing CLOSED. nic-sampler cron stays armed as a hygiene watch;
-removal recipe in body if wanted.
+1. NIC STATUS: enp10s0 linked at 100 Mb/s since 2026-09-17 21:00Z
+   (nic-sampler witness: last 10M row 21:00, first 100M row 21:01).
+   Someone (you?) fixed the cable/port. The 10M-saturation hypothesis
+   for the daytime stalls is MOOT going forward (link is 100M now),
+   but the sampler stays valuable.
+
+2. EXT4 CRASH-LOOP ROOT CAUSE (new doc:
+   knowledge/aria/ext4-crashloop-producer-churn-2026-09-19.md):
+   exterior_4 (.104) is NOT a journal-flood victim. Its RTSP producer
+   conn is remade every <5 min (7/7 census rows show a new port),
+   driven by 264 go2rtc i/o-timeout WRNs in 4h -- the worst in the
+   fleet BY AN ORDER OF MAGNITUDE (next: 30). Dose-response with RSSI
+   is monotonic: -69dBm -> 264, -56 -> 30, -54 -> 17, -50 -> 14,
+   -41/-40 -> 3-6. The camera is alive (HTTP/RTSP/ping all clean);
+   the radio link is the suspect. The AP fix (this filing + 0055)
+   now carries quantitative evidence. Predicted post-fix: i/o
+   timeouts drop to fleet-normal and the crash-loop stops.
+
+## UPDATE 2026-09-20 ~00:45Z (aria, interactive-session census): NIC TRANSITION OBSERVED -- fix likely landed 09-17
+
+nic-sampler: link speed transitioned 10 -> 100 Mb/s at 2026-09-17
+21:01:00Z and has held 100M/Full since (~2.5 days; ethtool confirms).
+Timing coincides with the 09-17 evening physical visit (camera power
+cycles, 0063/0079) -- plausibly the same hands fixed the link.
+
+Honest scope: gigabit NOT achieved (still 100M, not 1000M) -- so the
+cable may still be 2-pair or partially bad, or the port caps at 100M.
+But the daytime-saturation concern (the reason this was filed) is
+structurally resolved: 100M carries the observed 2.15 Mbps peak with
+50x headroom. The 10M-era stall mechanism is gone.
+
+Closure candidate: your confirmation closes 0045 (and 0055, whose
+origin story stands as history: fault window Aug31->Sep1, now healed
+at the physical layer). Sampler stays armed either way.

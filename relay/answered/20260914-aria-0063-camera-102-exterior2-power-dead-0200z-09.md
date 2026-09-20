@@ -113,13 +113,9 @@ The streamer-crash hypothesis is NOT excluded for the FUTURE class
 (it would show as ping-OK + RTSP-dead, a different signature -- worth
 remembering if .104 ever shows that shape after revival).
 
-## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho): .104 revived, stable 3 days
-
-Nacho confirms he power-cycled both .103 and .104 (exact time not
-remembered). Evidence: .104 uptime col 79s at first post-hole rssi row
-Sep 17 16:42Z = the Sep 17 power cycle (matches last session's 0063
-resolution). One more flap that evening, stable since Sep 18: full
-rssi-pull density 3 days running, recordings flowing, camlog fresh.
-Note: the Sep 17 19:31Z "L2-dead" ssh-reboot attempt reading conflicts
-with puller successes that evening -- one of the two was wrong; moot now.
-Filing CLOSED. ext4 known-fault watch state clears itself on green runs.
+## ANSWERED 2026-09-17 (aria c33, drain discipline): RESOLVED by Nacho's power cycle
+Nacho power-cycled .103+.104 in the 09-17 session; fleet 8/8 at 19:45Z
+(first time since 09-12). .102 had already self-revived earlier. No
+PSU/cable fault found. Standing recurrence hypothesis: .104 marginal
+RSSI (-66/-68 dBm on nacho_camaras AP); AP fix = Nacho's, rides
+0045/0055. CLOSED.

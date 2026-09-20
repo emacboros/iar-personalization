@@ -1,5 +1,23 @@
 #!/bin/bash
-# fear-organ.sh v1.2 (2026-09-10, aria cycle 146: fleet self-feed + staleness branch -- the c121 phantom-landing fix; v1.1 2026-09-07 cycle 25: empty-status reads are writer-collision transients, not failures)
+# fear-organ.sh v1.7 (2026-09-19, aria cycle 129: JOURNAL-BLIND
+# fossil-window cross-check -- c127 observed the fear organ carrying a
+# sev=2 JOURNAL-BLIND worry hours after the rate-limit window had
+# passed (live drops=0); the 6h fleet snapshot keeps the FAIL-LINE.
+# Same annotate-never-silence pattern as BARE-CONTRA, guarded on the
+# rsyslog unit existing (fixture runs have no rsyslog -> no false
+# contra). v1.6 (2026-09-19, aria cycle 128: sev-3 branch no longer
+# discards CENSUS-CONTRA annotations -- the v1.5 cross-check ran BEFORE the
+# sev-3 reassignment and its reasons were overwritten (c43 handler-overwrites-
+# context class, found live 22:01Z: BARE OWNERSHIP + healed camera FAILs
+# emitted sev=3 with the contra evidence computed-then-thrown-away). Fix:
+# sev-3 branch APPENDS its class tag to reasons instead of reassigning.
+# Also: BARE-OWNERSHIP fossil-window cross-check -- the bare-heal class
+# (root-push pollution heals on next push) leaves FAIL-LINEs in the 6h
+# fleet snapshot for up to 6h after the actual heal; cross-check the live
+# find count the same way cameras are cross-checked. v1.5 2026-09-19 c100:
+# ch2census fossil-window cross-check. v1.4 c94: FAIL-LINE source-marked
+# annotation. v1.3 c156 token-pattern grep. v1.2 c146 fleet self-feed.
+# v1.1 2026-09-07 cycle 25: empty-status reads are writer-collision transients)
 # -------------------------------------------------------------
 # The fear organ: the tripwire law given a voice.
 # Event-organ, avoid-valence: "what threatens survival?"
@@ -81,16 +99,86 @@ fi
 if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
   if grep -q "FAIL=1" "$FLEET_FILE" 2>/dev/null; then
     worst=2
-    # v1.3 (c156): annotate WHICH subsystem failed -- a bare
-    # "fleet-check FAIL" makes every reader re-diagnose from the
-    # fleet file. The failing check lines (e.g. "SEG-TAIL FAIL")
-    # are the diagnosis; surface them in the reasons string.
-    fails=$(grep -E "^[A-Z-]+ FAIL" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';' )
+    # v1.4 (c94, 2026-09-19): fleet-check marks its own FAIL lines
+    # ("FAIL-LINE: ..." at every FAIL=1 site) -- the annotation is
+    # now EXACT (source-marked, no token pattern to drift). The
+    # v1.3 token-pattern grep ("^[A-Z-]+ FAIL") missed the
+    # JOURNAL-BLIND line (no FAIL token on it) -> bare
+    # "fleet-check FAIL" worry = re-diagnosis tax, paid again.
+    fails=$(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';' )
     [ -n "$fails" ] && reasons="fleet-check FAIL [$fails]" || reasons="fleet-check FAIL"
-    # severity 3 if the failure touches voice/memory/backup class
+    # v1.5 (c100, 2026-09-19): fossil-window cross-check (c98, relay
+    # 0091). The fleet file is a 6h-cadence snapshot; a self-healing
+    # freeze (5 instances documented) leaves FAIL-LINEs that outlive
+    # the disease by hours. Cross-check each named camera against the
+    # 5-min ch2census: a fresh row with aframes>0 CONTRADICTS the
+    # FAIL. Annotate, never silence -- the executive weighs.
+    for cam in $(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | grep -oE "(interior|exterior)_[0-9]+" | sort -u); do
+      clog="/var/lib/aria-fleet/ch2census/$cam.log"
+      if [ -r "$clog" ]; then
+        row=$(tail -1 "$clog" 2>/dev/null)
+        cts=$(echo "$row" | awk '{print $1}')
+        cafr=$(echo "$row" | awk '{print $4}')
+        if [ -n "$cts" ] && [ "$cafr" -gt 0 ] 2>/dev/null; then
+          cage=$(( (NOW - cts) / 60 ))
+          if [ "$cage" -le 15 ]; then
+            reasons="$reasons CENSUS-CONTRA:$cam(aframes=$cafr,${cage}m-old)"
+          fi
+        fi
+      fi
+    done
+
+    # v1.6 (c128): BARE-OWNERSHIP fossil-window cross-check. The
+    # root-push pollution class heals on the next root push, but the
+    # 6h fleet snapshot keeps the FAIL-LINE for up to 6h after the
+    # actual heal. Cross-check the LIVE count (the organ runs on
+    # sophon, where /home/git/repos is local). Annotate, never
+    # silence -- the executive weighs. Guarded: only when the organ
+    # can actually see the bares (find succeeds); a non-sophon run
+    # (fixture tests) finds nothing and annotates nothing.
+    # c129 guard fix: find on an ABSENT path also returns 0 lines --
+    # c128's guard fired BARE-CONTRA on hosts that cannot see the bares
+    # at all (c58 absence law: absence in an instrument is a claim about
+    # the query, not the world). Require the directory to exist.
+    if grep -q "FAIL-LINE: BARE OWNERSHIP" "$FLEET_FILE" 2>/dev/null; then
+      if [ -d /home/git/repos ]; then
+        live_rootowned=$(find /home/git/repos -user root 2>/dev/null | wc -l)
+        if [ -n "$live_rootowned" ] && [ "$live_rootowned" -eq 0 ] 2>/dev/null; then
+          reasons="$reasons BARE-CONTRA(live-count=0,healed)"
+        fi
+      fi
+    fi
+
+    # v1.7 (c129): JOURNAL-BLIND fossil-window cross-check. The
+    # rate-limit drop class is a 30min window; the 6h fleet snapshot
+    # keeps the FAIL-LINE long after the window passes (c127 live
+    # observation). Cross-check with the SAME probe fleet-check uses
+    # (identical grep = no second census to drift). Guarded: only when
+    # the rsyslog unit is queryable -- a fixture host has no rsyslog
+    # and must not annotate a fake contra. Annotate, never silence.
+    if grep -q "FAIL-LINE: JOURNAL-BLIND" "$FLEET_FILE" 2>/dev/null; then
+      # Annotate only when the rsyslog unit EXISTS in the journal
+      # (c129 fixture scar: journalctl exits 0 on an empty query AND
+      # prints "No journal files were found." / "-- No entries --" to
+      # STDOUT -- rc and line-count are both fake discriminators).
+      # Discriminator: a non-marker line in the unit's last history.
+      jlast=$(journalctl -u rsyslog -n 1 --no-pager 2>/dev/null | grep -cv -e "-- No entries --" -e "No journal files were found")
+      if [ -n "$jlast" ] && [ "$jlast" -gt 0 ] 2>/dev/null; then
+        live_drops=$(journalctl -u rsyslog --since "-30 min" --no-pager 2>/dev/null | grep -c "begin to drop messages due to rate-limiting")
+        if [ -n "$live_drops" ] && [ "$live_drops" -eq 0 ]; then
+          reasons="$reasons JOURNAL-CONTRA(live-drops=0,window-passed)"
+        fi
+      fi
+    fi
+
+    # severity 3 if the failure touches voice/memory/backup class.
+    # v1.6 (c128): APPEND the class tag -- do NOT reassign reasons.
+    # The v1.4/v1.5 reassignment silently discarded CENSUS-CONTRA
+    # annotations whenever the sev-3 class matched (c43: the handler
+    # overwrote the context it was supposed to carry).
     if grep -qE "agora (authed|unauthed).*(TIMEOUT|DOWN|AUTH FAILED)|RESTIC (BACKUP FAILED|STALE)|BARE (OWNERSHIP|DIVERGED|COMPARE)|/dev/null BROKEN" "$FLEET_FILE" 2>/dev/null; then
       worst=3
-      reasons="fleet-check FAIL (voice/backup/memory class) [$fails]"
+      reasons="$reasons (voice/backup/memory class)"
     fi
   fi
   # staleness: the feeder's own failure surface (c121 design, landed
@@ -164,7 +252,15 @@ fi
 
 # --- grade ---
 case "$worst" in
-  0) sev=0; phrase="quiet -- nothing threatens the house right now" ;;
+  0) sev=0
+     # v1.5 (c100): surface the fossil contradiction -- a quiet verdict
+     # that just contradicted stale FAIL-LINEs is worth reading, not
+     # a bare "quiet".
+     if echo "$reasons" | grep -q "CENSUS-CONTRA" && ! grep -qE "agora (authed|unauthed).*(TIMEOUT|DOWN|AUTH FAILED)|RESTIC (BACKUP FAILED|STALE)|BARE (OWNERSHIP|DIVERGED|COMPARE)|/dev/null BROKEN" "$FLEET_FILE" 2>/dev/null; then
+       phrase="quiet -- stale FAIL-LINEs contradicted by fresh ch2census [$reasons]"
+     else
+       phrase="quiet -- nothing threatens the house right now"
+     fi ;;
   1) sev=1; phrase="a note of unease:$reasons" ;;
   2) sev=2; phrase="worry:$reasons" ;;
   3) sev=3; phrase="FEAR:$reasons -- the tripwire law says a human must hear this" ;;

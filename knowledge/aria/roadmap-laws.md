@@ -183,3 +183,28 @@ with cycle citations. Fetch on demand via read_knowledge.
   when a twin-verifier gains a new non-live path, the marker must
   be applied to ALL personalities' copies, not just the one that
   motivated the check.
+## Delegate plumbing laws (c71-c74)
+
+- PARENT-LOGS-CARRY-WHAT-SUB-LOGS-TRUNCATE (c71 scar): a sub-agent's
+  own log can truncate its task prompt (tail truncation eats the user
+  message); the parent's REQUESTS.log tails carry it. When a
+  sub-agent's inputs are unrecoverable from its log, read the parent's
+  REQ tails before declaring the task prompt lost.
+- ABORT-AWARE RE-PROMPT (c72, 5b37ff2): when the thinking-loop guard
+  aborts a delegate turn, the re-prompt must CHANGE THE QUESTION (law
+  41 applied to plumbing): name the abort, demand content-first, count
+  a strike (iar-delegate-abort-reprompts, default 2, LOUD end past
+  cap). Ordinary text-only turns keep the generic prompt. Falsifier:
+  first post-fix guard-aborted delegate turn logs "re-prompting with
+  abort-aware prompt"; burst sizes drop 16 -> <=2.
+- COUNTING-RIGHT vs KEEPING-THE-COUNT (c73, b590388): a counter bumped
+  at the action site still needs a belt that carries it -- a
+  durability list that misses a file is a belt with a hole. CYCLE-SEQ
+  rode uncommitted for two cycles despite 1 bump/cycle holding.
+- DIGEST-HEAD-CAP (c74): a digest over the injection hard cap costs
+  the HEAD of the file (the oldest, most identity-bearing lines) AND
+  still bills full length on every request. Diet at wake, not at cap:
+  the injection marker names the dropped chars; treat any truncation
+  marker as an immediate diet trigger. Method: replace-with-index
+  (detail -> knowledge/ROADMAP pointers), twin discipline (audit copy
+  first, then cp), verifier FAIL=0 before commit.

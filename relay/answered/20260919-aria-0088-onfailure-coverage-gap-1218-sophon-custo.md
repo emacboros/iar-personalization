@@ -1,0 +1,109 @@
+# REQ 20260919-aria-0088
+filed: 2026-09-19T04:24Z
+filer: aria
+class: nacho-arch
+state: open
+urgent: no
+title: OnFailure coverage gap: 12/18 sophon custom units have no failure channel
+body: |
+  Watchdog inventory census (c87, doc: knowledge/aria/watchdog-inventory-2026-09-19.md) found the OnFailure=agent-failure@%n.service hook covers only 6/18 sophon custom units. Covered: aria-cycle, 3x affect, restic-backup, restic-check. UNCOVERED oneshot monitors: nocturne-digest, aria-dashboard, aria-ch2-census, segcensus, aria-eye-feed, aria-eye-canvas, aria-fleet-feed (fear organ feeder -- if it dies, fear goes blind), relay-heartbeat, gpu-load-probe. Also agora-agent/frigate/ollama (simple daemons -- Restart exhaustion is their failure shape, OnFailure catches it).
+  
+  Fix shape is mechanical: drop-in confs (/etc/systemd/system/<unit>.d/onfailure.conf with [Unit] OnFailure=agent-failure@%n.service), no unit edits, systemctl daemon-reload.
+  
+  SECOND, smaller bug found live-fire: the notify script reads Result/ExecMainStatus via `systemctl show` at hook-run time. When the next timer invocation starts before the hook runs (Sep 18 23:48:31 did exactly this), the queue records `exit 0 (success)` for a real failure -- the digest can misreport. Fix: derive failure details from journalctl lines for the FAILED invocation, not live unit state.
+  
+  Both are his hands (root systemd changes). Proposing as one filing: 12 drop-ins + the state-read fix.answer: (none)
+ADDENDUM (c88, 2026-09-19 ~04:40Z): THIRD instance of the same disease
+confirmed by census (doc: knowledge/aria/stale-state-instrument-census-2026-09-19.md):
+fleet-check's restic block reads `systemctl show restic-backup.service
+-p Result` at run time. Verified timeline today: restic timer fires
+00:00 -03, service finished 00:17:28 (17.5 min runtime), fleet-feed
+fired 00:01:52, fleet-latest mtime 00:02:36 -- fleet-check ran
+MID-FLIGHT and reported the PREVIOUS run's Result=success. A failed
+tonight-backup would read "restic ok" for up to 6h. Fix shape is the
+same as the notify-script fix: journal-derived verdict (Started/
+Finished/Failed lines, epoch math), never live unit properties.
+Restic staleness branch also computes age from LastTriggerUSec (fire
+time) not completion -- a hung backup reads fresh until next fire.
+Sweep verdict on the other candidates: fear-organ, digest-twin,
+journal/frigate blocks all CLEAN (record reads, snapshot+staleness,
+or patrol shape). The law: systemctl show is a live-state API; every
+past-tense question asked of it is a rumor unless the unit is
+quiescent at read time.
+
+ADDENDUM 2 (c90, 2026-09-19 ~06:05Z): the JOURNAL-BLIND trigger is MY
+OWN tool-call noise, amplified by the devnull-watch audit rule.
+Verified chain: 1 execute_code_local = 1 ssh exec = ~40 devnull
+SYSCALL audit events (every 2>/dev/null redirect is a WRITE open,
+flags 0241); at cycle burst rate that is ~73 journal lines/s, rsyslog
+imjournal rate-limits, drops, fleet-check's JOURNAL-BLIND guard
+fires, fear organ fires on the FAIL. Baseline (no cycle): ~30/min,
+healthy. Census + recommendation:
+knowledge/aria/devnull-watch-selfflood-2026-09-19.md.
+THIRD root change requested (same hands as the drop-ins): remove the
+devnull-watch audit rule entirely (auditctl -W + delete
+/etc/audit/rules.d/devnull.rules + augenrules --load). The tamper
+class it watches is already covered by the fleet-check /dev/null
+canary (state check, immune to redirect noise). The rule has caught
+zero anomalies; its signal/noise is ~0 and it blinds the journal
+exactly during heavy cycles. 09-16 scoped -p wa -> -p w but the rate
+stayed ~100x baseline during cycles -- second bite of the same
+disease in 3 days.
+ADDENDUM 3 (c94, 2026-09-19 ~07:30Z): FOURTH instance of the same disease,
+this one in the FEAR ORGAN's reader, not a producer. v1.3's reasons-grep
+("^[A-Z-]+ FAIL") missed fleet-check's JOURNAL-BLIND line (no FAIL token on
+it) -> bare "worry:fleet-check FAIL" with no diagnosis, re-diagnosis tax
+paid again (first time was c156's own motivation). FIXED at the source:
+fleet-check v2.27 prefixes every FAIL=1 echo with "FAIL-LINE:" (37 sites +
+identity-watch python fallback); fear-organ v1.4 greps the exact marker.
+Fixture-tested (v1.3 shipped untested -- that's why the gap survived 9
+days). Doc: knowledge/aria/fear-organ-annotation-gap-2026-09-19.md.
+ALSO: today's JOURNAL-BLIND drops all correlate with cycle activity
+INCLUDING assembly phases (02:08Z drop, 80 emacs SYSCALLs, zero LLM
+requests) -- the noise floor is the cycle's whole footprint. Self-noise
+confirmed; the devnull-rule removal (item 3 above) remains the cure.
+NOTE for the record: /root/personalization in the cycle container IS
+sophon's /var/home/nacho/repos/iar-personalization (same inodes, bind
+mount) -- commits here are instantly live for host-side organs; there is
+no separate sophon clone and no deployment step.
+
+ADDENDUM 4 (c96, 2026-09-19 ~08:50Z): audit-volume census sharpens the
+devnull-watch recommendation into a two-part fix. Measured (10-min
+windows, journal PATH lines): during an active cycle 81% of audit PATH
+lines are /dev/null write-opens (695/856); overnight baseline 12%
+(224/1929) with segcensus ffprobe loop + crun dominating. The imjournal
+ratelimit is UNCONFIGURED (defaults); house volume 20-40 lines/s
+sustained at burst points exceeds it -> drops -> JOURNAL-BLIND FAIL ->
+fear organ. Removing devnull-watch cuts cycle-time audit volume by
+~half or more; segcensus/ch2-census remain as secondary contributors
+(their combined ~60k lines/hour is the floor). If drops persist after
+the rule removal, the next lever is imjournalRatelimitInterval/Burst
+tuning or excluding the audit: facility from imjournal (0087 rec).
+ALSO (c96 correction to the c94 falsifier): the fear-organ annotation
+watch must read affect/CURRENT-AFFECT.md (sed-rewritten EVERY run,
+fresh phrase), NOT fear.log (emit-on-delta only -- a standing sev=2
+never re-emits, so a bare phrase can persist for hours after the
+annotating code lands). Expected self-heal: 09:01Z fleet-feed (first
+post-c94 run) writes FAIL-LINE-prefixed fleet-latest; 09:01Z organ run
+rewrites CURRENT-AFFECT with [FAIL-LINE: JOURNAL-BLIND ...]. Verified
+live at 08:48Z: fleet-latest (03:02Z, pre-c94) has no FAIL-LINE lines;
+sophon working tree has v2.27 with 38 markers; organ v1.4 greps them.
+ADDENDUM 5 (c119, 2026-09-19 ~18:39Z): URGENCY SPLIT. The filing is
+15h old with 4 addenda and the JOURNAL-BLIND fear line has fired every
+30min since. Census this cycle: 518k journal lines dropped in 24h
+(58 rate-limit events, 42 today) -- the disease is a FLOOR, not a
+burst. Floor composition (1h window): unkeyed audit triples ~72k/h
+(aria-audit rules emit PATH+CWD+PROCTITLE per write), devnull-watch
+~20k/h (frigate.recordi's asyncio DEVNULL alone is ~1900/h,
+maintainer.py:554, permanent), aria-audit key ~4.7k/h. The devnull
+rule removal (addendum 2) is THREE commands, not a batch item:
+  auditctl -W /dev/null -p w -k devnull-watch
+  rm /etc/audit/rules.d/devnull.rules
+  augenrules --load
+It can run in any 5-minute window; the 12 OnFailure drop-ins can
+wait for a batch session. Requesting this one item be pulled out of
+the batch and run at his next convenience -- the canary covers the
+tamper class, the rule has caught zero anomalies, and its removal
+halves the journal blindness immediately. If drops persist after
+removal, next lever is imjournal RatelimitInterval/Burst tuning or
+excluding audit: from imjournal (0087 rec stands).

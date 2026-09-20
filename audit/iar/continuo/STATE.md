@@ -1,7 +1,9 @@
-# Continuo STATE
-
-Last cycle: fixed UTF-8 scrub issue that caused process sentinel crashes with raw binary bytes.
-The cycle completed successfully.
-
-Next: continue monitoring machinery and verifying failure-reduction mechanisms.
-No open threads.
+# Continuo STATE.md -- working memory (updated every cycle)
+Last cycle: 2026-09-20 22:14:11 UTC
+Current focus: test suite hygiene, census monitoring.
+Next: continue monitoring failure-reduction mechanisms, address any new test suite warnings, work on token burn audit findings.
+LAST-CYCLE.txt: status: ok
+exit: 0
+agent: continuo
+ended: 202026-09-20 22:14:11 UTC
+detail: cycle 155 ok in 407s

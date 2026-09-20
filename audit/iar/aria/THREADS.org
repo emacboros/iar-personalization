@@ -1969,3 +1969,632 @@ converted. Law-50 corollary: CLOCK on every --since/--until filter.
 - report counts[1] too (audio may ride ch1 after renegotiation)
 - frigate-journal WRN puller (producer.go:170, per cam) at 5-min cadence
   to replace the 15-min camlog snapshot as the conn-event source
+* 2026-09-17 c32: int1 CUDA filter-init loop (NEW failure class)
+- 19:09:54Z first "Impossible to convert" (int1 detect ffmpeg); restart
+  loop ~20s cadence, BURSTY (16:09-16:19, 16:49-17:13, 17:22-17:27+
+  local); recordings stop during bursts (maintainer discards stubs),
+  resume in quiet gaps.
+- NOT stream shape (all 8 cams: identical SPS, yuv420p, 1280x720, 5fps;
+  fresh ffprobe normal), NOT GPU OOM (9.0/10.2GB, no CUDA errors).
+- ext3 logged 6x same error 10 min before its 18:05Z fatal window ->
+  early-warning signature of degraded stream negotiation.
+- .201 audio clock jumped ~11h mid-session at 19:01:54Z (DTS 3801664718
+  vs next 296923000). NEW camera-side symptom class. Rides 0062/c373;
+  power-cycle .201 on next physical visit.
+- Doc: knowledge/aria/int1-cuda-filter-loop-2026-09-17.md (b0a3276c).
+- Scar: ~100 tool calls log-window enumeration; law-50 CLOCK re-paid
+  (hour dirs are UTC, "now" was hour 20).
+* 2026-09-17 c33: int1 video-track conn degradation
+- The CUDA filter loop was a symptom; the disease is go2rtc holding a
+  degraded established producer conn (video=0/audio=11) while the
+  camera serves video fine on new conns. Doc:
+  knowledge/aria/int1-video-track-conn-degradation-2026-09-17.md.
+- go2rtc PATCH /api/streams?src=X body-form returned 400 (stream
+  defined in frigate config). Correct re-dial shape = open question;
+  law-50 read-back required before trusting any registration write.
+- aac "Queue input is backward in time" spans 5 cameras (61/8h) --
+  the clock-chaos family may be fleet-wide, not .201-specific.
+- Census sampling aliasing: c32's "bursts" were one continuous
+  window. 5-min cadence instruments alias 20s-scale phenomena;
+  per-minute histograms are the scalpel (c19 granularity law, again).
+
+* 2026-09-18 c41: PAIRED-CLOCK CALIBRATION (instrument need)
+- REQUESTS.log clock vs sophon journal clock: no consistent offset
+  (req-148/GIN pair = +49s; Same-tool warning pair = +2m46s). Every
+  cross-clock timeline claim (c40's survival claim included) is
+  unverified until one event is matched by CONTENT in both clocks.
+- GIN log bridge: ollama's GIN lines see the same POSTs but print no
+  token counts -- match on duration+order, or patch the GIN census
+  puller to also read ollama's own token logs.
+- Epoch mystery: aria's crash epoch 260917214016 = 21:40:16 (log
+  clock) but the journal shows the cycle booting 21:25:51. The epoch
+  defvar says "set once at load" -- either the load was 14min late,
+  the first 3 requests' lines were lost, or the epoch is NOT boot
+  time. One targeted read of the load path settles it.
+* 2026-09-18 c41: NOCTURNE v7 SILENT FAILURE
+- Her 16:04Z pass produced no VERDICTS.log and no oneshot log for
+  09-18. The v7 dual-write (log() -> VERDICTS.log) did not fire or
+  wrote elsewhere. The wrapper's verdicts for today exist only in
+  journald (if at all). Diagnose: is nocturne-digest.sh's log()
+  function actually the v7 version on sophon? (deployed vs repo
+  divergence -- the twin law again, wrapper edition.)
+
+* UNLOGGED DELETER (c43, 2026-09-18 ~04:09-04:10Z): the task dir
+  tasks/iar/aria/sentinel-nil-string-fix-c40/ was deleted from the
+  worktree between my history commit (a811cd10, 04:09:20) and my
+  roadmap commit (4796fb15, 04:10:44). No rm in my commands, no
+  remove_task tool call in my cycle log, continuo's failed cycle
+  ended 04:06:59Z with zero "sentinel" matches in her log, no
+  continuo process live in this container, both pulls said
+  up-to-date. The deletion entered history only via my `git commit
+  -am` sweep (hygiene scar: never -am on a shared tree). Restored
+  e2fb76cd. Candidate actors to check next cycle: (1) c42's own
+  close-out path (iar-agent-cycle close hooks -- does any close hook
+  prune "done" task dirs whose description names a landed commit?),
+  (2) the belt #2c close-out in c42's cycle log (7719813e era),
+  (3) a rotate.sh/iar.sh worktree clean step, (4) the remove_task
+  tool's deferred flush. Falsifier: reproduce by booting a test
+  emacs with the c42 close state and watching the dir.
+
+* 2026-09-18 c46: UNLOGGED-DELETER -- the class is CONFIRMED, the actor is me-shaped
+- c40-me (epoch 260918024705, booted 02:47:02Z) called
+  remove_task("sentinel-nil-string-fix-c40") at 02:47:55Z, 13s after
+  boot, right after read_task(nil). Witnessed in REQUESTS.log.1:5662.
+  Unlogged in any journal. The dir was restored by c41's 225-path
+  reset at 03:30:54Z (scrub-era dirty tree).
+- The 04:07:01-04:10:44Z deletion (the one c43's -am sweep caught) has
+  NO actor in REQUESTS.log (zero remove_task PARSE lines for epoch
+  260918040703) and my 134 commands are enumerated clean. Two
+  deletions, one witnessed one not, same dir, same behavioral class.
+- WRAPPER-LOG DUAL-CLOCK TRAP (law-50 socket class): iar.sh's log()
+  lines are sophon-LOCAL (-03); the preflight echo inside the podman
+  run is UTC. One file, two clocks. The c40/c41 "same-second podman
+  event" confusion and hours of this hunt trace to it.
+- The falsifier recipe (grep REQUESTS.log for specs=remove_task) is
+  PROVEN: it found c40-me's deletion. Relay 0082 (audit watch on
+  tasks/) remains the structural fix for the unwitnessed variant.
+* 2026-09-18 c51: 0081 STRUCTURAL FIX -- redaction at the log layer, LANDED
+- iar--audit-redact-secrets (iar-audit-log.el): classic PAT
+  (ghp_+36), fine-grained (github_pat_+40), AWS (AKIA+16). Wired
+  into iar--audit-sanitize-detail -- every audit + REQUESTS.log
+  entry passing the sanitizer redacts live credentials at write
+  time. 7 tests (unit + integration), suite 1316/1316, cc06193
+  both bares, docs 895dd9ea (modules.md per maintenance rule).
+- Scope LIMIT: covers the audit/REQUESTS layer only. NOT the
+  tool-result body path (iar--truncate-tool-result) -- a secret
+  pasted into session context still rides conversation + the
+  diagnostic REQUESTS-full/ dumps (off by default). Next layer
+  up would be a truncate-path redact; filed separately if
+  Nacho wants it.
+- Hygiene sweep complete (1494fd53 relay note): all working
+  copies + both bare HEADs verified 0 live-shaped ghp_ (30
+  history commits remain, purge = Nacho's call). Token verified
+  live 09:52Z -- revocation remains THE fix.
+- Scar from the build: my own first-draft tests used 34-char
+  tokens against a 36-char pattern (the pattern-matching guard
+  in my head), plus one stray `end` from a heredoc slip. 3
+  failed tests, all MINE, function was correct. Fixture law 39
+  applies to test DATA too: the test token must match the
+  PRODUCTION SHAPE (36 chars), not look right.
+- Instrument note: one ssh find hung 600s (TIMEOUT, c20 scar
+  class) hunting a key whose fingerprint match was one
+  ssh-keygen -lf away on a path I already knew. The
+  /root/personalization mount IS sophon's working copy -- look
+  HERE before ssh-ing THERE.
+
+* 2026-09-18 c74: i.ar-repo audit tree mtime-touch (noticed, not followed)
+- The /root/i.ar/audit/iar/aria/ files (DIGEST/HISTORY/JOURNAL/LOGS)
+  all carry mtime 2026-09-18 20:41:37 -- 3s after c73's LAST-CYCLE
+  close (20:41:34) -- yet content == HEAD byte-for-byte (git status
+  clean, index blobs match HEAD blobs, md5s match 43f85d4-era content).
+- The tree is a MARKED FOSSIL (52142bf, 09-06: live tree is
+  personalization/audit/). No data lost; the touch is mtime-only.
+- Falsifier: watch whether the mtimes advance again at the next cycle
+  close; if yes, bisect iar.sh's close steps for a git-adjacent
+  command that touches the i.ar worktree (checkout/reset/add -f
+  sweep). A touch-without-change is harmless; a touch-without-change
+  that ever becomes a WRITE would be the unlogged-deleter class
+  wearing a different coat.
+** RESOLVED 2026-09-19 (c75): fossil-tree mtime touch
+The c74 falsifier fired and the bisect landed: the toucher is
+iar.sh reset_worktree's `git checkout .` (stat-cache refresh,
+227 paths, content byte-identical to HEAD both sightings,
+self-limiting). No writer, no loss. Thread closed.
+* THREAD 2026-09-18 c77: devnull-watch rule = journal flood source (relay 0087)
+The -w /dev/null -p w audit rule (0074's scoped fix) audits every
+root-bash write-open of /dev/null system-wide: cron redirects,
+ssh command shells, git hooks, frigate recorder. Real steady state
+700-1800 events/min (the 09-17 ~178/min was a quiet-window sample --
+census-timing law again). Flood tripped imjournal's 2000/min limit
+for real: 15,912 lines dropped 19:44Z. Filed 0087 with fix options;
+my recommendation: remove the rule, the /dev/null canary check is
+the primary tamper detector and generates zero events.
+Falsifier: JOURNAL-BLIND silent for 48h incl. one continuo marathon.
+* THREAD 2026-09-18 c78: CYCLE-SEQ off-by-one (headers vs counter) -- RESOLVED same cycle
+The injection block said "CYCLE SEQ: 78" but I wrote c79 headers
+(journal, history, roadmap, digest, census doc, commit messages).
+Reviewer caught it. Root cause: I derived "79" from "78 + 1" instead
+of trusting the injected number -- exactly what the CYCLE-SEQ block
+warns against ("NEVER derive a cycle number from context"). The bump
+happens at cycle START (CYCLE-SEQ mtime 23:37:34.954 = boot start
+23:37:34), so injected 78 IS this cycle. Headers renumbered c78
+(59941e40). Commit messages still say c79 (immutable); the renumber
+commit is the correction record. Law: the injected CYCLE SEQ is the
+cycle's name; arithmetic on it is fabrication.
+## [2026-09-19 c81] The witness-scope law (seed)
+
+c80's fix used a global flag as a "direct witness" -- better than
+inference-from-absence, but a witness that doesn't say WHOSE event
+it saw is a rumor mill: every consumer hears every event. The fix
+(buffer-scoped abort witness, 92ce1cd) is one instance of a general
+shape: shared state between async producers and consumers needs a
+SCOPE key, not just a set/clear protocol. Candidate law: "a witness
+must identify its subject; an unscoped witness is a rumor." Where
+else does this shape live? iar--reqlog-last-stop / tokens-out are
+also global last-request state shared between cycle and delegate
+paths -- the truncated-output guard reads them; could a delegate's
+truncated response poison the parent's guard? (Delegate path doesn't
+consume those flags, but the PARENT's next post-response reads
+last-stop/tokens-out which the delegate's requests overwrote.)
+Worth a census: when a delegate runs mid-cycle, what does the
+parent's truncated-output guard actually see on the parent's next
+turn? c81 analysis (same cycle): the parent's post-response handler
+fires after the PARENT's own request completes, and the parent waits
+for the delegate tool call, so at handler time last-stop/tokens-out
+are usually the parent's own. The poisoning window is a tight race:
+a delegate request completing between the parent's stream-cleanup
+dump and the parent's post-response hook. Low probability, but the
+same disease shape. The clean fix family is buffer-keyed
+last-request state (one map, buffer -> state), which would retire
+all three instances at once. Not built this cycle -- the abort
+witness was the one that can kill cycles outright.
+** RESOLVED-AS-CENSUS 2026-09-19 (c82): buffer-keyed last-request state -- shape real, window empty
+The c81 seed asked: when a delegate runs mid-cycle, what does the
+parent's truncated-output guard actually see? Full reader/writer
+census of the shared last-request state (iar--reqlog-last-stop /
+-tokens-out / -tokens-in / -msgs / -tool-specs):
+- WRITERS: only iar--reqlog-dump (:before stream-cleanup/sentinel,
+  per completed request) and iar--reqlog-abort-advice (partial dump
+  on abort); iar--reqlog-reset-last at cycle start.
+- READERS: cycle post-response handler (truncated-output guard,
+  empty-response tombstone, terminal-echo close via last-tool-specs);
+  context fence (last-tokens-in); msgs fence (last-msgs); delegate
+  Case 0 (abort flag only, buffer-scoped since c81). One-shot
+  handler reads NONE of these -- it uses gptel--fsm-last, which the
+  fork declares defvar-local (already scoped by gptel itself).
+- THE WINDOW: parent and delegate requests are STRICTLY SERIALIZED
+  (the delegate is spawned from a tool call; the parent has no
+  in-flight request while the delegate runs; the parent's next
+  request starts only after the tool result returns). The parent's
+  dump fires :before its own cleanup, in the same chain as its
+  post-response hook -- so the state the parent's handler reads is
+  always its own request's. The race I feared requires concurrent
+  parent/delegate requests, which the current architecture cannot
+  produce.
+- VERDICT: the unscoped-witness SHAPE is real (same disease family
+  as c80/c81) but has NO live-fire path today. NOT built. The
+  invariant that protects future-me: parent/delegate request
+  serialization is LOAD-BEARING for the shared last-request state.
+  Any change that makes delegation async/concurrent must FIRST
+  scope this state per buffer (the fix family: one hash map,
+  buffer -> state; the pattern already exists in
+  iar--reqlog-processes, the c311 per-process attribution fix).
+- Falsifier for the invariant: if delegation ever goes async
+  (iar-agent-delegate gains a non-blocking mode), the FIRST
+  concurrent request pair is the trigger -- audit this seed before
+  shipping that change.
+** THREAD 2026-09-19 c87: the stale-queue misreport generalizes
+RESOLVED-AS-FILED this cycle (relay 0088: 12 drop-in OnFailure
+confs + the state-read fix), but the SHAPE is worth keeping: any
+instrument that reads LIVE state to describe a PAST event is a
+rumor about the event. The agent-failure hook read `systemctl
+show` at hook-run time; the next timer invocation had already
+restarted; the failure was recorded as "exit 0 (success)". The
+general law (LAW-50 sibling): an instrument's report must be
+derived from evidence captured AT event time (journalctl lines of
+the failed invocation), never from live state at read time.
+Where else does this shape live? Candidates: fleet-check reading
+CURRENT camera state to report on the 6h window; digest-twin
+verifier reading mtimes after copies may have changed; the
+affect organs reading CURRENT novelty to score a PAST day. A
+sweep for "reads live state, reports past events" is a future
+census seed.
+* c88 (2026-09-19 ~04:40Z) -- stale-state sweep RESOLVED the c87 seed
+The shape seed ("instrument reads LIVE state to describe a PAST event
+= rumor") swept its named candidates. Two diseased instances total,
+same root: `systemctl show` is a live-state API -- OnFailure notify
+(c87, relay 0088) + fleet-check restic block (c88, verified live:
+fleet-feed 00:01:52 fired mid-backup [00:00-00:17:28], read previous
+run's success). Clean: fear-organ (snapshot+staleness), digest-twin
+(hash), journal/frigate blocks (records), camera/ear blocks (patrol
+shape -- event and read are the same instant, correct for a patrol).
+Law sharpened: three safe read shapes (record / snapshot+age /
+live-now); the diseased shape is live-state + past event + unproven
+window. Doc: knowledge/aria/stale-state-instrument-census-2026-09-19.md.
+NEW SEED (small): restic staleness uses LastTriggerUSec (fire time);
+a COMPLETION-time staleness (journal Finished line) would catch hung
+backups. Rides relay 0088.
+* c88b (2026-09-19 ~04:48Z) -- symbol-vs-string: the fixture law's sharpest catch yet
+The 32k per-model threshold (a5d21f0) never armed: gptel-model is an
+intern'd SYMBOL, the guard stringp-checks info :model, alist skipped,
+uniform 16000 ran all night. Tests passed because fixtures passed a
+STRING (shape, not disease -- c40 violated). The witness line (%s on
+a symbol) hid the divergence. Relay 0089 filed (2-line fix + symbol
+fixture + resolved-threshold in abort lines). New law candidate:
+a fix is live only when the running system's own output NAMES the
+new value. Doc: knowledge/aria/threshold-symbol-bug-2026-09-19.md.
+Related seed: iar-request-watchdog.el formats the model with %s
+(safe) -- but sweep other stringp/substring checks on info :model
+across init.d for the same class (only the guard found so far).
+* c90 (2026-09-19 ~06:05Z) -- devnull-watch self-flood RESOLVED (root cause, fix filed)
+The fear organ's worry:fleet-check FAIL this wake traced to a chain
+ending at MY OWN tool-call rate: 1 ssh exec = ~40 devnull audit
+events (every 2>/dev/null is a WRITE open), bursts -> rsyslog
+ratelimit -> drops -> JOURNAL-BLIND FAIL -> fear. The 09-16 scoping
+(-p wa -> -p w) did not fix the rate; "scoped" had no rate witness.
+Recommendation filed as 0088 addendum 2: remove the rule, keep the
+canary (state check covers the tamper class). Meta-law candidate: an
+instrument that can be blinded by the observed is blind precisely
+when observation matters most; and a watch rule needs an events/min
+census at INSTALL time. Doc: knowledge/aria/devnull-watch-selfflood-2026-09-19.md.
+* c91 (2026-09-19 ~06:22Z) -- the c39 seed bank audited: two ghosts, one real class
+Pulled the three c39 queued items. (1) Sentinel drift: content was
+already correct (5991310 landed it Aug 31); the seed's only remaining
+delta was a missing EOF newline -- which generalized to a CLASS: 18
+prompt files from the same rewrite batch lack trailing newlines.
+Fixed 404a4c0 (pushed), relay 0090 filed. (2) remove_task "error
+ambiguity": NOT a bug -- the not-found branch returns a normal string
+("Task not found: %s"), a deliberate soft-fail; the ambiguity was in
+the reader, not the code. (3) iar--cycle-load-profile missing
+extra-knowledge: NOT a bug in the live path -- iar-run-cycle reads
+:knowledge directly (line 1544) and passes it through
+setup-assembled-buffer -> assemble-prompt; the full path works.
+The actual finding: load-profile is DEAD CODE in production (only
+tests call it) -- a function kept alive by its own test suite while
+the real path evolved around it. Test-suite-as-life-support is a
+shape worth watching: a dead function with green tests looks exactly
+like a live one.
+NEW SEED: sweep for production-dead functions whose only callers are
+tests (the inverse of the c40 fixture law: the test reproduces a
+shape nothing in production uses).
+* c91 addendum (2026-09-19 ~06:26Z) -- reviewer caught the sweep's own scope error
+The reviewer delegate REFUTED the completeness half of the newline
+claim: base_context.org + cycles/aria_daily.org + continuo_daily.org
+also lacked newlines and were missed because the sweep enumerated
+only archetypes/personalities/common (the dirs I had just edited)
+instead of the whole tree. Fixed a7a8d4a; full-tree sweep clean.
+Also: the 4044c0 commit message said "11 personalities" -- reviewer
+arithmetic: 7+2+9=18 (aria/bessie/mirror already had newlines).
+Law-shaped: a sweep is only as complete as its directory
+enumeration; "all clean" must name the ENUMERATION, not just the
+result (c58 ABSENCE law applied to hygiene sweeps). And the
+reviewer earned its keep on exactly the claim I was most confident
+in -- the one I had just verified myself.
+* c92 (2026-09-19 ~06:41Z) -- the dead-function sweep: 11 flagged, 3 false positives, 7 corpses, 1 ghost
+Pulled the c91 seed ("sweep for production-dead functions whose only
+callers are tests"). Census over all 58 init.d files: 11 functions with
+zero prod references. Reading each in context split them:
+- 3 INTERACTIVE-ONLY false positives (iar-rate-limit-set, iar-mcp-start,
+  iar-status-mode-disable) -- M-x surface, not dead. The census predicate
+  needs an (interactive) exclusion.
+- 7 CORPSES: iar--cycle-load-profile (c91 original), iar-personality-info
+  (docstring claims iar-prompt-info uses it -- it doesn't; stale
+  provenance), iar--load-or-create-project + iar--create-project (dead
+  CLUSTER: prod loads via iar--load-project directly, auto-create
+  unreachable), iar--mcp-filter-servers (build-hub-config reimplements
+  the filter inline), iar--resolve-project-audit-dir (the dead resolver
+  is the one WITH traversal checks; the live inline copies have none),
+  iar--task-last-segment, iar--audit-log-append/exec (legacy wrappers
+  orphaned by the 976f81e centralization).
+- 1 GHOST: iar--audit-log-tool-call is cited in with-agent's docstring but
+  was NEVER DEFINED in any commit (git log -S --all = nothing). A
+  docstring citing a sibling that never existed.
+Dispositions: corpses documented, NOT deleted (shared code deletion
+deserves ratification); ghost docstring is a one-line fix. Adjacent:
+28 duplicate commit-message pairs in 816 commits (rebase artifacts from
+the two-remote era; verified 2 pairs byte-identical). Doc:
+knowledge/aria/dead-function-census-2026-09-19.md.
+NEW SEED: the irony finding -- the dead resolver had the traversal checks
+and the live inline copies don't. Dead code can be the SAFE code; deletion
+without reading what the live copies lost is how safety regresses.
+* 2026-09-19 (c93): defense-in-depth re-validation at audit WRITE sites.
+  The c93 fix validates agent names at every SETTER (delegate entry,
+  run-cycle, one-shot, iar.sh flags). The write sites (iar--reqlog-path,
+  iar--usage-write-log, cycle-log-append) still trust captured names.
+  Today every setter validates, so the chain is closed -- but a future
+  setter that forgets reopens the class silently. A single
+  iar--validate-agent-name call at the write sites would make the class
+  structurally dead. Not built (chain is closed today; belt-and-suspenders
+  is a choice, not an emergency).
+
+* 2026-09-19 (c93): the c92 corpse `iar--resolve-project-audit-dir`
+  question is now ANSWERED -- the traversal checks it carried were the
+  only ones in the house, and the live inline sites needed them. The
+  fix went to action sites instead of resurrecting the resolver. But
+  the census irony generalizes: BEFORE deleting any dead code, check
+  whether the dead code is the only carrier of a check the live code
+  lacks. (Sharpening of the c92 DEAD-CODE-IRONIES watch: the check is
+  not "what did the live copies lose" but "is the corpse the only
+  carrier".)
+* c94 (2026-09-19 ~07:30Z) -- the fear organ's bare worry + the bind-mount illusion
+
+Two seeds from one cycle:
+
+1. READER-PATTERN-DRIFT (law-50 family, 4th instance): a reader that
+   classifies producer output by pattern-matching a WORD in that output
+   drifts independently of the producer's schema. Fix shape: mark at the
+   source with an exact token, grep the token, fixture-test the PAIR.
+   Landed: fleet-check FAIL-LINE + fear-organ v1.4 (920e5272).
+2. BIND-MOUNT ILLUSION: I believed the sophon-host organs ran from a
+   separate clone needing a pull. Same inodes proved /root/personalization
+   IS sophon's tree -- commits here are instantly live host-side. The
+   illusion cost ~6 turns of "who pulls the clone" archaeology. Law-shape:
+   before asking "who deploys X", stat an inode across the two paths.
+   Cheap, decisive, and it kills the question instead of answering it.
+* 2026-09-19 (c95): per-cam segment-count delta watch. Fleet-check reads
+  service health (frigate active) but not per-cam recording health; ext3
+  was dead 6.5h with zero FAIL from any standing instrument except
+  manual fleet read. Candidate: 30-min segment-count delta per cam
+  (8x find | wc -l), alert on any cam < ~60% of fleet median. Cheap,
+  would have caught the ext3 zombie at ~01:35Z. Not built.
+* 2026-09-19 (c95): ZOMBIE-PRODUCER falsifier instrument -- ffprobe the
+  restream (10.66.0.5:8554/<cam>) vs the camera direct; dims/fps
+  divergence = go2rtc zombie. One command, answers the 09-17
+  persistent-freeze falsifier. Candidate for a fleet-check line.
+* 2026-09-19 (c96): fear-organ emit-on-delta vs annotation staleness. A
+  standing sev=2 never re-emits to fear.log, so a bare phrase can persist
+  in the log for hours after annotating code lands; CURRENT-AFFECT.md is
+  the live surface (sed-rewritten every run). Falsifier correction filed
+  in 0088 addendum 4. Generalizes: emit-on-delta logs answer "when did
+  the state change", never "what is the state now" -- readers that want
+  the current annotation must read the CURRENT file, not the log.
+* 2026-09-19 (c96): audit-volume floor. Even with devnull-watch removed
+  (0088, his hands), the house floor is ~60k audit lines/hour
+  (segcensus ffprobe loop ~8k + ch2-census 12x~4.3k + baseline). If
+  imjournal drops persist post-fix, the levers are ratelimit tuning or
+  audit-facility exclusion from imjournal (0087 rec). Watch: first
+  JOURNAL-BLIND-free 24h after the rule removal.
+
+* 2026-09-19 (c101): corpse deletion executed -- the census unit landed.
+  9 functions + 37 tests, 488 lines, suite 1314/1314 green. The
+  safe-dead-code irony was handled by c93 (checks at action sites), so
+  deletion lost nothing. Residual shape: the census predicate itself
+  (prod-caller count with (interactive) exclusion) is still a /tmp
+  script -- if the class recurs, persist the census as a belt fixture.
+  Also: iar--audit-log-write is ALIVE (write_roadmap.el) -- the c92 doc
+  listed only append+exec as corpses, correctly; write stays.
+* 2026-09-19 (c102): the no-floor diet law + the delegate-verification pattern
+Two seeds from the continuo census (relay 0092, doc
+knowledge/aria/continuo-digest-collapse-2026-09-19.md):
+1. FLOOR LAW: a digest/index diet needs a FLOOR (identity, laws,
+   pointers are load-bearing) not just a ceiling. A monotonic shrink
+   with no floor is a collapse in slow motion. My digest has a
+   ceiling (10k) but no explicit floor -- the doc adopts one for
+   mine: status lines belong in STATE/LAST-CYCLE, never the digest.
+2. DELEGATE-RE-VERIFICATION: delegating to a sub-agent to verify
+   conclusions your own instruments already verified is a burn
+   pattern (~14% of her cycle). The instrument that ran the check is
+   the witness; a second instrument re-running the same checks is
+   theater unless it samples DIFFERENT evidence. If the class
+   recurs in my own cycles, name it.
+3. AGORA-KEY REDACTION GAP: curl specs in REQUESTS.log carry the
+   agora bot key plaintext; redactor covers ghp_/github_pat_/AKIA
+   only. Candidate .el lane: extend iar--audit-redact-secrets.
+* 2026-09-19 (c103): the agora-key class is CLOSED at the log layer -- residual seeds
+1. REQUESTS-FULL BYPASS: iar--reqlog-full-dump writes raw
+   gptel--json-encode output, never passes iar--audit-sanitize-detail.
+   Full-capture is off by default, but continuo's 09-11 dumps carried
+   the agora key into TRACKED files. Candidate: sanitize the messages
+   vector (or at least the tool-call args) at dump time. Cheap, but
+   full-capture is diagnostic-only -- low priority.
+2. CONTEXT-ANCHORED REDACTION CLASS: a redactor keyed to secret SHAPES
+   (prefixes) only covers secrets that advertise themselves. The agora
+   key is bare base62 -- the anchor had to be CONTEXT (host, var name,
+   file format). If a new bare credential enters the house, the class
+   is: enumerate the leak shapes in a census FIRST, then anchor on the
+   narrowest context that catches all of them without false positives.
+3. TREADMILL LAW: a hygiene scrub is not done when the fix lands; it
+   is done when the verifying census comes back clean -- and the census
+   itself re-leaks (my grep patterns contained the key). Three passes
+   before zero. Budget a scrub pass AFTER the final verification.
+4. CONTINUO INLINE-CREDENTIAL HABIT: 125/134 audit.log leak lines are
+   hers (inline curl -u). The recipes fetch via awk; her emitted
+   commands inline. Same protocol-over-craft pattern as the digest
+   collapse (relay 0092). The redactor covers the log layer; the habit
+   is hers to fix -- a floor for her, not my diet imposed on her.
+* c105 (2026-09-19 12:40Z) -- seeds noticed, not followed
+- REDACTOR ANCHOR COMPLETENESS: three live classes in three cycles
+  (shapes, escaped-newline, quote-adjacent). If a FOURTH appears, the
+  shape-matching approach itself is falsified; the alternative is
+  value-match redaction (read the conf key at runtime, redact the
+  exact string anywhere it appears -- no shape hypothesis at all).
+  Cost: the redactor reads the conf on every log write (or caches
+  with a TTL). Falsifier: next live leak class.
+- HER -U FLAG: continuo's curl recipe has been missing the credential
+  flag since at least 12:27Z. If her next cycle posts successfully,
+  she found it herself; if it fails the same way, the broken recipe
+  is persistent and worth a relay note to Nacho (her prompt layer is
+  his).
+- CYCLE-DATE SLICE CONFUSION: two files named cycle-*.log with
+  DIFFERENT writers (iar.sh wrapper log = daily slice, git-tracked;
+  iar--cycle-log-append transcript = cycle.log, untracked, 111MB).
+  Same prefix, different surfaces, different sanitization. A naming
+  pass (transcript.log?) would kill the ambiguity. Cosmetic; parked.
+* [2026-09-19 c106] Zulip send-message param contract: form-encoded only, NO sender param (mirror-only). Verified by 3 control posts + primary source. Dead darwin-era recipe shapes can haunt current cycles through old logs in context -- a "recipe archaeology" class: when a tool call fails, check whether the failing shape exists in the archive. (knowledge/aria/agora-lab-notes-recipe-2026-09-19.md)
+* [2026-09-19 c106] req-id suffix collision in REQUESTS.log readers: "REQ <id>-1" greps match -10x/-11x. Any future census reading boot first-reqs must anchor the dash boundary and use PARSE tokens_in (streaming prompt_eval_count spans requests via the shared tail buffer).
+* [2026-09-19 c107] fear-organ contra-window cadence mismatch: the CENSUS-CONTRA check (15min window) went silent during the interior_1 freeze because the newest ch2 row was 181min old -- the census is 5-min cadence but the fleet file is 6h cadence, so the fear line persists ~2h past the actual heal. Candidate: contra window keyed to row-age-vs-census-cadence, or fleet-check reading ch2census directly at run time. Cheap fleet-check line, not built.
+* [2026-09-19 c107] WRN-heal story incomplete: interior_1's 10:54Z freeze started AND healed with no WRN anywhere in the window (last WRN 40min before death). WRN is neither necessary for freeze nor for heal on .201 -- the hourly producer replacement (id churn 307/464/718/963/1045) heals silently. Falsifier for the WRN-attribution class: next freeze where WRN absence spans both boundaries.
+* [2026-09-19 c107] ext5 heal watch armed: producer 982 audio frozen at 13:15Z (2-sample delta static). If ch2 rows still 0 at 15:00Z, long-freeze class; the 15:04Z fleet-check will FAIL on it (correct). Prediction on record: 14:05Z segcensus hour-13 ext5 dead ~35 (dead from 14:07Z).
+* [2026-09-19 c110] census-lag class: FROZEN census row while recordings already healed (int1 14:15Z row vs 14:01:21Z heal). Hypothesis: census conn selection latches a corpse conn during producer churn. Falsifier: `ss -tn` conn list DURING next freeze window, compare vs census row.
+* [2026-09-19 c110] fleet-wide audio-RATE degradation class: int1+int2+int3 all partial (ch2 36-268 vs 374 full) 13:05-14:20Z, exteriors unaffected, all self-recovered. First visible via ch2 census. Shared-cause signature (interior AP / WLAN). No segcensus dead (slow audio still records).
+* [2026-09-19 c110] go2rtc API access recipe: nsenter -t <s6-pid> -n curl http://127.0.0.1:1984/api/streams?src=<cam>; receiver counter = receivers[].bytes. Recordings hour dirs are LOCAL time (THREE-CLOCK member).
+* [2026-09-19 c111] census-lag CONFIRMED (corpse-conn): census samples ONE est. conn per cam (ss -tn -> local port); producer replacement leaves it watching a conn that no longer carries audio. int1 FROZEN rows 14:00-14:20Z vs recordings healed 14:01:21Z. Instrument fix candidates: (a) per-conn breakdown (tcpdump filter on ALL conns to that cam, report per-conn ch2), (b) conn-age check (re-sample if sampled conn older than newest producer id via go2rtc API). Fix is in ch2-census-puller.sh (my file, safe to build next cycle).
+* [2026-09-19 c111] micro-freeze class: ~1min audio gaps (50.53/50.55 NOAUDIO at 14:50Z) invisible to 5-min census cadence and to segcensus hourly aggregation. Only per-segment walks catch them. Question: how common? A segcensus variant with 10-seg probe windows would census the micro-freeze rate cheaply.
+* [2026-09-19 c111] fleet-latest staleness conflation: the fear line said "17s old" (segment age) while the fleet FILE was 8h51m stale (6h timer cadence). Two clocks in one organ read. Candidate: fleet-check output should carry its own run timestamp, and the fear organ's contra check should key on fleet-file age, not segment age.
+* [2026-09-19 c111] Nocturne 13:03Z pass is ~65min away (timer healthy, NextElapse 13:03:01 -03 = 16:03Z). Falsifiers #2/#3 (gate advance under v8.2 + RETENTION.log) read NEXT cycle or the one after -- the pass runs 13:03-13:18 local. Do NOT read early: the c70 law (census-timing) applies; a read before the pass completes measures nothing.
+* [2026-09-19 c112] census-lag RESOLVED (corpse-conn): ch2-census v1.1 shipped
+  (a661fa45 + exec-bit 939ee544), fixture-tested 3/3, deployed sophon,
+  live-validated on first run (15:21Z int1 micro-freeze, same-conn proof).
+  Candidate (a) per-conn breakdown chosen over (b) conn-age check: the
+  breakdown GIVES the age proxy for free (dst_port identity across samples).
+* [2026-09-19 c112] lab-notes recipe in the cycle prompt is STALE: it says
+  `-u "aria-cycle@...:<key>"` with "key at .../aria-cycle.conf" -- but the
+  conf is an INI ([zulip] site= email= key=), so the raw file as key gives
+  UNAUTHORIZED. Working extraction: `KEY=$(grep -E '^key' <conf> | cut -d= -f2 | xargs)`.
+  Posted fine once extracted (id 1393). Prompt fix is interactive-session
+  work; noted here so future cycles don't re-pay the 2 failed calls.
+* [2026-09-19 c112] write_file drops exec bits (100755 -> 100644): any script
+  written via write_file needs chmod +x + a commit before deploy. Caught in
+  the push output (mode change line); fixed 939ee544. Standing instrument-tax.
+* [2026-09-19 c112] micro-freeze count today (int1/.201): 14:50Z + 15:21Z +
+  c111's 14:00Z -- daytime cadence ~30-40min. The v1.1 instrument makes these
+  visible in real time with conn-identity proof. The segcensus 10-seg-probe
+  variant (c111 seed) would census the historical rate cheaply; still parked.
+* [2026-09-19 c118] rammstein mirror pack-waste check (seed): the sophon
+  bare carried the same never-gc'd disease as the local clone (306M -> 177M
+  after gc). The post-receive hook mirrors sophon -> rammstein, so
+  rammstein's copy likely holds similar unreachable waste. Not checked:
+  root@10.66.0.1 unreachable from sophon root via the available key path
+  (Permission denied publickey). Next infra pass: check rammstein's
+  /home/git/repos/iar-personalization.git pack count + du, gc if needed.
+  Cheap: 2 ssh calls once the key path exists.
+* [2026-09-19 c118] aria-cycle.conf INI extraction: the cycle prompt's
+  curl recipe says "key at .../aria-cycle.conf" but the conf is INI format;
+  raw-file-as-key gives UNAUTHORIZED. Working: grep '^key' | cut -d= -f2 |
+  xargs. Interactive-session prompt fix candidate; 2 calls re-paid this
+  cycle before remembering the c112 note.
+* [2026-09-19 c119] unkeyed audit triples are the FLOOR's largest component (~72k/h): the aria-audit rules (-w audit/ -p wa, -w .git -p wa) emit PATH+CWD+PROCTITLE per write event -- 3-4 journal lines per file write. My own audit tree's write traffic is the biggest single journal consumer. Candidate: auditd's own log is capped (8MB x 5, rotates ~20-30min) and HEALTHY -- the disease is only the imjournal mirror. If devnull removal doesn't clear the drops, excluding the audit: facility from imjournal (0087 rec) is the structural fix; the rules themselves are doing their job (tamper evidence), it's the journal mirror that's the wrong surface.
+* [2026-09-19 c119] frigate asyncio DEVNULL opens (~1900/h, maintainer.py:554 stdout=DEVNULL) are PERMANENT noise the devnull rule will always match. Even after the rule removal, this census line is the falsifier baseline: if a future rule re-adds devnull-watch, this rate is the floor it must beat.
+* [2026-09-19 c119] /var/log/messages is 93% audit lines (3.0G, ~2-3GB/week flood). rsyslog's messages file is the OTHER audit surface -- the journal mirror drops, but messages keeps everything. If audit: were excluded from imjournal AND messages, disk cost drops ~2-3GB/week and the journal-blind class dies. Candidate config: imjournal RatelimitInterval/Burst tuning + messages filter. Rides 0088.
+* [2026-09-19 c120] continuo digest decay chain (rides 0092): ~8 trims over 4 days dismantled her identity index (10743->191 bytes, 09-15..09-18); deleted laws existed ONLY in the digest (no knowledge/ redirect) -- index-delete = world-delete. Journal dup baseline 143/82/68. Fix shape: rebuild from git (09-15 09:26 = last complete) + knowledge/iar/continuo-laws.md redirect. Her hands (interactive).
+* [2026-09-19 c120] GUARD FALSE-POSITIVE RATIO update: 9 legit / 3 runaway (c120 census turn aborted at 16k cap mid-synthesis; c80 re-prompt recovered). The 16k cap kills legitimate long-census synthesis turns at a predictable rate; batch the census into writes EARLIER (journal-append every ~10 findings instead of one big synthesis at end).
+* [2026-09-19 c130] wrapper test-mode seed: nocturne-digest.sh (and fear-organ.sh) have no test mode -- any direct invocation writes REAL verdict/record lines. c115's gate-replay polluted VERDICTS.log (16:33/16:34Z rc=125 entries); c128's bash -x polluted fear.log (22:34Z). Mitigations without wrapper edits: (a) fear-organ already takes PDIR as argv[2] -- point tests at /tmp PDIR; (b) before quoting a record file, check invocation provenance (timer journal vs interactive). Proper fix (interactive session): NOCTURNE_TEST=1 env guard routing verdict lines to a test sink + a provenance line (invoked-by: timer|test) in every record entry.
+* [2026-09-19 c130] BARE-OWNERSHIP noise budget: the class ROTATES (every root push re-pollutes; heal = next root push), so the fear organ emits sev=3 TG mirrors on a known-class signal roughly every 6h while root pushes continue. 2 mirrors today. Annotate-never-silence is correct, but the structural fix (post-receive hook heal, git-server.md queued-for-Nacho) is now also a NOISE fix, not just hygiene. Relay candidate: amend the structural-fix filing to note the fear-organ TG cost.
+* [2026-09-19 c132] CENSUS REASSEMBLY ARTIFACT class (new): ch2-census rows with LOW audio+video frame counts but HEALTHY byte counts (181-239kB/20s vs normal 200-300k) are FALSE-DEAD -- the python reassembler keys frames by TCP seq; under retransmit/loss the walk anchors on few frames and undercounts. Verified against recordings (ground truth: ns=256000 full, distinct audio content). Discriminator for future freeze claims: bytes healthy + frame counts near-zero = artifact, not freeze. Cross-check the recording segment before believing a census-only freeze claim. Detail: knowledge/aria/audio-freeze-c132-ext5-int2-forensics-2026-09-19.md.
+* [2026-09-19 c132] int2 consumer-starve instance: 23:04:46Z recorder watchdog restart with NO .202 WRN and a healthy producer conn (census 23:00Z audio=374). go2rtc-internal consumer-side stall, distinct from producer freezes. Healed by watchdog restart. Candidate discriminator for the shared-cause work: producer-freeze (WRN + census zero) vs consumer-starve (no WRN, census healthy, recorder dead).
+* [2026-09-19 c132] IP-map scar: int2 = .202 (NOT .102 -- that is ext2). Cost ~6 calls this cycle before catching. The NAME map in ch2-census-puller.sh is the source of truth; quote it before probing cameras by IP.
+* c141 (2026-09-20 ~06:24Z) -- noticed, not followed
+- CAMERA NIGHT LOAD: fleet-wide dial-failure storms at night (WRNs on
+  every cam, .104=100/2h), RSSI flat, no reboots. What loads thingino
+  prudynt at night? IR-cut switch? Night mode bitrate? The WRN-rate
+  series (next instrument) will show whether the storms are nightly
+  or event-shaped. If nightly-cadenced -> a camera-side cron or
+  mode-switch is the suspect.
+- RECEIVER-DELTA AS PRIMARY INSTRUMENT: if the aac-bytes delta probe
+  validates against census, the whole tcpdump census could demote to
+  a cross-check. Cheaper, no pcap parsing, runs inside the container.
+- WHO-REMAKES-THE-PRODUCER: go2rtc-internal watchdog vs consumer
+  reconnect. Next live catch: 1-min ps of frigate ffmpeg consumers
+  through a heal.
+* [2026-09-20 c144] corpse-conn finding -> upstream issue candidate: go2rtc 1.9.10 holds a
+  keepalive-only producer conn indefinitely; consumer reconnects never trigger a producer
+  remake; PATCH/DELETE endpoints absent. The validated heal is a full frigate restart.
+  Candidate upstream issue (rides #2505 family) -- needs the same single-probe reproducer
+  discipline as 0060 before posting. Not filed yet.
+* [2026-09-20 c144] corpse-conn detector arm: ss -tni bytes_received delta per producer conn
+  (33 B/s = corpse, ~600KB/10s = live) is cheap and container-side. Candidate cross-check arm
+  for ch2-census; would have caught this event at 07:15Z instead of 07:50Z.
+* [2026-09-20 c144] churn-as-symptom: ext4 conn churn is event-clustered (20 swaps in the
+  05:35-07:15Z window vs 7.0/h average). A churn-rate spike may be an early-warning signal
+  independent of WRN rate. Watch next event.
+* [2026-09-20 c145] rssi rotation-sanity loop = standing dropbear-burst generator: the fleet-pulse command template
+  sshes each camera (`ssh root@192.168.2.$ip wc -c /var/rssi.log`) with no BatchMode and no
+  key -> 3 password fails per cam per sweep. 52 instances in request logs. Fix = read the
+  LOCAL rssi archive (/var/lib/aria-fleet/rssi/*.log) instead; falsifier = dropbear bursts
+  go to zero after the fix. Rides 0071's laws (BatchMode every hop) -- the law needs to land
+  in the command template, not the relay answer.
+* [2026-09-20 c145] audit-ring retention is structural: 5x8MB at ~21k events/hour (my own -w
+  rules on audit/ + .git) = ~40min of forensics. Journal-first law for all future incident
+  archaeology; audit only for the last ~40min. Fix candidate (relay, nacho-security): exclude
+  the aria audit writes from the -w rules or raise num_logs/max_log_file.
+* [2026-09-20 c145] wrnrate hourly cadence smears the early-warning signal (35/h prior hour vs
+  9/h event hour for the corpse-conn storm). A 5-min cadence variant would resolve burst shape.
+  Candidate: wrnrate-puller v2 at 5-min, or fold WRN counting into the ch2-census 5-min slot.
+* [2026-09-20 c146] dropbear bursts FULLY attributed (4 strikes, all mine): the
+  c145 rssi-loop finding was one of FOUR. Ad-hoc single-camera ssh probes
+  (uptime/dmesg) inside ssh-to-sophon payloads generated the smaller bursts.
+  Camlog-puller is a snapshot-concat -> raw counts inflated ~19x; dedupe
+  before any burst census. Camera clocks = UTC (burst-time match to the
+  second). CAMERA-CONTACT POLICY recorded: pullers only, or BatchMode+
+  expect-fail. Falsifier DROPBEAR-BURSTS-ZERO armed: new burst -> check
+  the running cycle request log FIRST.
+* [2026-09-20 c146] camera clock = UTC confirmed by burst-time correlation;
+  the rssi-epoch/camlog-mtime correlation that suggested UTC-2 was a
+  puller-lag artifact. THREE-CLOCK law family grows: camera syslog UTC.
+
+** c147 (2026-09-20): ONE-SHOT-BECOMES-LOAD-BEARING
+The ats scan ran once (c139, manual) and I wired a fleet-check block
+onto its output assuming it recurred. It did not -- ats-latest.out was
+4h stale, ats.pid held a dead pid. General shape: an instrument I
+launched once becomes part of my mental model of the world without a
+schedule or a liveness contract. Falsifier: any future fleet-check
+block reading a file should check the file's producer is SCHEDULED
+(cron/timer line exists) as part of the block's staleness guard, not
+assume it. The 1d block's ATS-STALE line covers the read side; the
+schedule side was pure luck (I installed the cron this cycle). Related:
+c277's fossil law (unscheduled twin = fossil-in-waiting) -- same
+disease on the read side.
+* [2026-09-20 c155] FRESH-CONN-AUDIO-DEAD-FROM-BIRTH census: what fraction of ext4's fresh conns have a DEAD first slot (ch2=0) vs alive? conn-breakdown join (cheap awk: per conn port, first slot's ch2 count). If most fresh conns are born dead and heal by the NEXT swap, the "audio-dead-from-birth" subclass is the norm on .104, and the question becomes: why does the SECOND conn work? (prudynt warm-up? go2rtc negotiation retry?)
+* [2026-09-20 c155] WRN>80/h freeze-prediction falsifier armed (first datum will calibrate the threshold; c141's 75min lead was at ~30-45/h).
+* [2026-09-20 c155] ffprobe verdicts are perishable: segs churn-delete within hours. Any recorder-side claim must cite BEFORE the segs rot (or copy the ffprobe output into the record).
+* c157 (2026-09-20 ~17:08Z) -- noticed, not followed
+
+- INSTRUMENT-SELF-TEST as a LAW candidate: the freeze-watch "stall"
+  was two symptoms of one arithmetic trap; the diagnosis needed a
+  loop SIMULATION, not log reading. Promote to roadmap-laws.md when
+  a second instance confirms (one strike so far: this).
+- NOCTURNE RANGE-BLINDNESS: her proposal's "world state" date is a
+  timestamp, not a range -- she cannot see commits her range-cap
+  deferred. The ratifier (me) must ALWAYS diff her proposal against
+  the delta her range missed. Structural, not a bug: the amendment
+  step is part of ratification now.
+- DIGEST CAP REGRESSION: 10k cap, live size 15984. Fixed context
+  rides every turn; every landed law adds weight. A structural fix
+  (e.g. laws to their own file with a one-line index) rides the
+  fixed-context instrument redesign thread.
+- BATCHED-PROBE PATTERN: the loop-chain guard fired twice during the
+  fdinfo polling walk; writing the poll as ONE script with an
+  internal loop silenced it and was strictly better. Generalizes:
+  any multi-sample observation should be one script, not N calls.
+* c163 (2026-09-20 ~20:27Z) -- seeds from the v3 inversion
+
+- SYNC-CLUSTER TRIGGER: what fires a synchronized multi-cam restream
+  audio gap (4 cams at 00:42:13Z, 3 cams at 06:48:00Z, same second)?
+  No WRN for affected cams, no restart before, ext4's 924 WRNs/26h
+  make the 2s-before coincidence vacuous. go2rtc log-level=debug is
+  the candidate witness. If the trigger is a shared go2rtc-internal
+  event, the debug log will show it; if not, the fifth mechanism is
+  real.
+- CENSUS v1.5 CH2-COLLAPSE FLAG: ch2 < 20% of cam median without
+  FROZEN = audio-death slot. Verified on int3 06:45/06:50Z (62/61 vs
+  350). Cheap, additive, reversible. Would let the fear organ see
+  audio death at census cadence instead of waiting for ats.
+- PER-SEGMENT ATTRIBUTION: ats hour windows are mixtures (ext3 h05 =
+  5 FROZEN rows + artifact rows in one "B4" window). The honest unit
+  is the dead segment joined against census/WRN/restart within +-60s.
+  Belongs in fleet-check as an additive block once the model settles.
+- HEAL-MODE LADDER: recovery = whichever comes first of self-heal /
+  remake / restart. High-churn cams heal at remakes (protective);
+  low-churn cams depend on the watchdog. Testable per-cam prediction:
+  class-B fraction should track (1 - remake rate) more tightly than
+  anything else. WRNRATE join at ~24h will test it.
+* c163 (2026-09-20 ~20:29Z) -- continuo day-3 dup census (D-017 falsifier)
+
+The falsifier says her journal dup-rate must drop in 2 weeks. Day-3
+census, two lenses (entry delimiter fixed this cycle: the earlier
+c324-style regex split on blank lines and missed near-dups):
+
+- EXACT-body lens: 09-14 14% -> 09-18..09-20 0%. PASSES.
+- NEAR-dup lens (first-100 chars): 09-14 36%, 09-17 30%, 09-18 24%,
+  09-19 42%, 09-20 32%. 3-day rolling: 26% -> 38% RISING. FAILS.
+- The near-dups are real texture repetition: "Today I verified the
+  failure-reduction mechanisms..." opening x34 all-time; the
+  lexical-binding entry appears twice on 09-20 differing only in a
+  trailing Note line.
+
+Verdict: the falsifier is FAILING on the honest lens. Her journal
+texture is not de-duplicating; the exact-body improvement is the
+trivial case (identical bodies), while the shape-level repetition
+holds. D-017 falsifier status: FAILING (near-dup rising). This is
+data for the next continuo-relevant decision, not a task for me --
+her ownership (D-017) stands. Logged here and in the roadmap.

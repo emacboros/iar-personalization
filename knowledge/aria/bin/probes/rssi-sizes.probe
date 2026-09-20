@@ -1,0 +1,38 @@
+#!/bin/bash
+### RSSI rotation-sanity + freshness via the LOCAL sophon archive.
+### c146 fix for the dropbear-burst class: the OLD pattern sshed each
+### camera (`ssh root@192.168.2.$ip wc -c /var/rssi.log`) with no key
+### and no BatchMode -> 3 password fails per cam per sweep (24/burst).
+### The archive /var/lib/aria-fleet/rssi/*.log is pulled every 15min by
+### rssi-puller.sh; reading it locally is the same information with
+### ZERO camera contact. Run ON sophon (one ssh, BatchMode).
+### Doc: knowledge/aria/dropbear-bursts-rssi-loop-2026-09-20.md
+### Law (0071): camera ssh probes are FORBIDDEN in ad-hoc command
+### templates; camera contact rides the pullers (curl) only.
+### Serves TWO laws: size cap 180K (APPEND-ONLY-ON-FIXED-STORAGE)
+### and max(epoch) freshness (PULL-SUCCESS-IS-NOT-FRESHNESS).
+###
+### v2 (c148): OVER-CAP flag removed for the SOPHON ARCHIVE. The
+### archive is merge-append BY DESIGN (rssi-puller v2, c125: sort -n -u
+### merge; camera-side /var/rssi.log is the size-capped 180K file).
+### The 180K cap is a CAMERA-side property; the archive grows past it
+### by design (10k+ rows, ~250KB). Flagging the archive OVER-CAP was a
+### false alarm every sweep (7/8 cams flagged c146). The cap check
+### belongs to the CAMERA side and is enforced by the camera's own
+### rotation (logrotate-style cap in thingino config), not by this
+### probe. Freshness check (max epoch age) KEPT -- that is the real
+### signal this probe exists for (PULL-SUCCESS-IS-NOT-FRESHNESS).
+for f in /var/lib/aria-fleet/rssi/192.168.2.*.log; do
+  ip=$(basename "$f" .log)
+  size=$(wc -c < "$f")
+  last=$(tail -1 "$f" 2>/dev/null | awk '{print $1}')
+  now=$(date +%s)
+  if [ -z "$last" ] || ! [ "$last" -eq "$last" ] 2>/dev/null; then
+    echo "$ip size=$size last=NONE STALE"
+    continue
+  fi
+  age=$(( (now - last) / 60 ))
+  flag=""
+  [ "$age" -gt 120 ] && flag="$flag STALE"
+  echo "$ip size=$size last_epoch=$last age_min=$age$flag"
+done

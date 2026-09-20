@@ -1,4 +1,25 @@
 #!/bin/bash
+# nocturne-digest.sh v8.3 (2026-09-19, aria c115: GATE-RECEIPT-DEAD-FILE fix):
+#   The gate receipt-check grepped ${CURFILE:-/dev/null} AFTER rm -rf "$TMPD"
+#   deleted it -- grep read nothing, RECEIPT_OK=0, a fully verified pass
+#   (write real + claim-receipt verified + echo clean) was refused. The
+#   09-19 16:03Z pass was the casualty: proposal ratified manually from
+#   the REQUESTS.log echo. Fix: grep $CURTEXT (captured before the rm).
+#
+# nocturne-digest.sh v8.2 (2026-09-18, aria c64: receipt epoch compare -- clock fix): lab-notes
+#   deletion targets the WHOLE stream (D-016 item 4: 'LAB-NOTES: 7d
+#   retention, DELETE after summary' -- no author filter). Harness
+#   test deleted 100 real messages; marker note id 1294 in digest.
+#
+# nocturne-digest.sh v8 (2026-09-18, aria c48: D-016 AGORA RETENTION SURFACE)
+#   On gate ADVANCE: post the final response to the digest stream
+#   (summarize first), then delete lab-notes (whole stream, D-016 item 4)
+#   >7d in ledgered batches of 100 (delete second). Human-
+#   stream move-to-archive pending relay 0083 grants. Both steps
+#   best-effort; failures never fail the pass (feeder pattern).
+#   Retention rides gate-ADVANCE: a quiet repo week stalls deletion
+#   (bounded: ~1 lab-notes msg/cycle accrues; next ADVANCE clears 100).
+#
 # nocturne-digest.sh v7 (2026-09-17, aria c28: DURABLE VERDICT FILE)
 #   Every log() line now also appends to audit/nocturne/nocturne/VERDICTS.log
 #   (journald rotates wrapper verdicts away -- 20 lines retained since 09-11;
@@ -67,6 +88,11 @@ DIGLOG=/var/log/nocturne-digest.log
 # v7 (c28): durable verdict file -- journald rotates wrapper verdicts away
 # (20 lines retained since 09-11); every log() line also lands here.
 VLOG="$PERS/audit/nocturne/nocturne/VERDICTS.log"
+# v8 (c48): retention ledger -- every deletion batch lands here (D-016
+# order law: summarize first, delete second, every batch ledgered).
+RLOG="$PERS/audit/nocturne/nocturne/RETENTION.log"
+# v8 (c48): agora bot credentials (aria-cycle@, the retention actor).
+ZULIP_CONF=/var/home/nacho/repos/agora/bot/aria-cycle.conf
 MODEL="deepseek-v4.1-flash:cloud"
 CTX=262144
 TIMEOUT=1800
@@ -78,6 +104,12 @@ log() {
     local line="[$(ts)] $LOGTAG: $*"
     echo "$line"
     echo "$line" >> "$VLOG" 2>/dev/null || true
+}
+
+# v8 (c48): retention ledger helper -- same dual-write pattern as log().
+rlog() {
+    local line="[$(ts)] RETENTION: $*"
+    echo "$line" >> "$RLOG" 2>/dev/null || true
 }
 
 # resolve BEFORE any cd (a relative $0 must be resolved in the caller's cwd)
@@ -179,12 +211,15 @@ echo "Read the changed memory files listed above before writing."
 echo "Your fence: DIGEST.proposed.md only (plus weekly: one relay filing + proposals appendix)."
 echo "RECEIPT REQUIREMENT (c327, ENFORCED by the wrapper since c330): after"
 echo "the write_file call succeeds, run"
-echo "  stat -c '%y %s' /root/personalization/audit/iar/aria/DIGEST.proposed.md"
+echo "  stat -c '%Y %s' /root/personalization/audit/iar/aria/DIGEST.proposed.md"
 echo "and quote its output VERBATIM on its own line in your final response"
 echo "(format: RECEIPT: <stat output>). The wrapper extracts your final"
 echo "response and verifies the RECEIPT against the disk. A final response"
 echo "without a matching RECEIPT line will not advance the gate and the"
 echo "pass does not count."
+echo "NOTE (c64): quote the EPOCH form (%Y) -- an integer has no timezone."
+echo "The container is UTC and the verifying host is -03; a %y receipt"
+echo "fails the clock comparison even when the write is real."
 } > "$PROMPT_FILE"
 
 PROMPT=$(cat "$PROMPT_FILE")
@@ -260,6 +295,7 @@ log "one-shot exit=$rc"
 ADVANCE=0
 ECHO_STATUS=""
 FRAGMENT=0
+CURTEXT=""
 if [[ $rc -eq 0 ]]; then
     # extract this run's final response (watermark-anchored) and run
     # the echo-check regardless of proposal state
@@ -312,19 +348,25 @@ if [[ $rc -eq 0 ]]; then
         # claim-receipt check: if the response CLAIMS a write, require
         # the RECEIPT line matching the proposal's CURRENT disk stat
         if grep -qiE "written|RECEIPT:" "$CURFILE"; then
-            PROP_STAT_NOW=$(stat -c '%y %s' "$PROPOSED" 2>/dev/null || echo "")
-            STAT_DT=$(printf '%s' "$PROP_STAT_NOW" | cut -c1-19)
-            STAT_SIZE=$(printf '%s' "$PROP_STAT_NOW" | awk '{print $NF}')
+            # c64 CLOCK FIX: compare EPOCH (%Y), not %y. The one-shot
+            # container is UTC; the verifying host is -03. A %y receipt
+            # is the same instant in a different clock string -- the
+            # 09-18 16:04Z pass had a REAL receipt rejected by the
+            # string compare. Epoch integers have no timezone.
+            PROP_STAT_NOW=$(stat -c '%Y %s' "$PROPOSED" 2>/dev/null || echo "")
+            STAT_EPOCH=$(printf '%s' "$PROP_STAT_NOW" | awk '{print $1}')
+            STAT_SIZE=$(printf '%s' "$PROP_STAT_NOW" | awk '{print $2}')
             RECEIPT_LINE=$(grep -h "RECEIPT:" "$CURFILE" 2>/dev/null | head -1)
             if [[ -z "$RECEIPT_LINE" ]]; then
                 log "CLAIM-RECEIPT-FAIL (c332): final response claims a write but carries no RECEIPT line -- the claim is narration, not evidence"
-            elif [[ "$RECEIPT_LINE" != *"$STAT_DT"* || "$RECEIPT_LINE" != *"$STAT_SIZE"* ]]; then
-                log "CLAIM-RECEIPT-FAIL (c332): RECEIPT line does not match proposal disk stat ($STAT_DT $STAT_SIZE) -- claim is narration, not evidence"
+            elif [[ "$RECEIPT_LINE" != *"$STAT_EPOCH"* || "$RECEIPT_LINE" != *"$STAT_SIZE"* ]]; then
+                log "CLAIM-RECEIPT-FAIL (c332): RECEIPT line does not match proposal disk stat (epoch $STAT_EPOCH size $STAT_SIZE) -- claim is narration, not evidence"
             else
-                log "claim-receipt verified against disk"
+                log "claim-receipt verified against disk (epoch compare)"
             fi
         fi
     fi
+    CURTEXT=$(cat "$CURFILE")
     rm -rf "$TMPD"
 fi
 
@@ -334,20 +376,25 @@ if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
         # proposal rewritten this run: verify the RECEIPT against the
         # fresh stat (c327 enforcement). Echo-check already ran above
         # (v4: on every rc=0 run).
-        PROP_STAT_AFTER=$(stat -c '%y %s' "$PROPOSED" 2>/dev/null || echo "")
-        STAT_DT=$(printf '%s' "$PROP_STAT_AFTER" | cut -c1-19)
-        STAT_SIZE=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $NF}')
-        RECEIPT_LINE=$(grep -h "RECEIPT:" "${CURFILE:-/dev/null}" 2>/dev/null | head -1)
+        # c64 CLOCK FIX: epoch compare (see claim-receipt block above).
+        PROP_STAT_AFTER=$(stat -c '%Y %s' "$PROPOSED" 2>/dev/null || echo "")
+        STAT_EPOCH=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $1}')
+        STAT_SIZE=$(printf '%s' "$PROP_STAT_AFTER" | awk '{print $2}')
+        # v8.3 (c115): grep CURTEXT, not CURFILE -- the rm -rf "$TMPD" in
+        # the echo-check block DELETED the file this grep used to read
+        # (claim-receipt verified the same receipt minutes earlier; the
+        # gate saw an empty grep and refused a valid advance, c115).
+        RECEIPT_LINE=$(printf '%s' "$CURTEXT" | grep -h "RECEIPT:" 2>/dev/null | head -1)
         RECEIPT_OK=0
         if [[ -n "$PROP_STAT_AFTER" && -n "$RECEIPT_LINE" \
-              && "$RECEIPT_LINE" == *"$STAT_DT"* \
+              && "$RECEIPT_LINE" == *"$STAT_EPOCH"* \
               && "$RECEIPT_LINE" == *"$STAT_SIZE"* ]]; then
             RECEIPT_OK=1
         fi
         if [[ "$ECHO_STATUS" == "echo" ]]; then
             log "NOT advancing gate: echo-recycle already logged above"
         elif [[ $RECEIPT_OK -ne 1 ]]; then
-            log "RECEIPT-FAIL (c330): final response lacks a RECEIPT line matching this run's proposal stat ($STAT_DT $STAT_SIZE) -- NOT advancing gate (c327 enforcement)"
+            log "RECEIPT-FAIL (c330): final response lacks a RECEIPT line matching this run's proposal stat (epoch $STAT_EPOCH size $STAT_SIZE) -- NOT advancing gate (c327 enforcement)"
         else
             ADVANCE=1
         fi
@@ -365,6 +412,74 @@ if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
     if [[ $ADVANCE -eq 1 ]]; then
         echo "$HEAD_NOW" > "$STATE"
         log "proposal rewritten this run; receipt verified; no echo; gate advanced to $HEAD_NOW"
+
+        # --- 6. D-016 AGORA RETENTION SURFACE (v8, c48)
+        # ORDER LOAD-BEARING (D-016): summarize first, delete second.
+        # Both steps best-effort: a failed post or delete never fails
+        # the digest pass (feeder pattern); every action is ledgered.
+        if [[ -z "${NOC_RETENTION_DONE:-}" ]]; then
+            export NOC_RETENTION_DONE=1
+            SITE=$(awk -F'= ' '/^site /{print $2}' "$ZULIP_CONF" 2>/dev/null)
+            ZEMAIL=$(awk -F'= ' '/^email /{print $2}' "$ZULIP_CONF" 2>/dev/null)
+            ZKEY=$(awk -F'= ' '/^key /{print $2}' "$ZULIP_CONF" 2>/dev/null)
+            if [[ -z "$ZKEY" ]]; then
+                log "RETENTION-SKIP: no zulip credentials readable at $ZULIP_CONF"
+            else
+                zpost() { # zpost <stream> <topic> <content>
+                    curl -s -u "$ZEMAIL:$ZKEY" -X POST "$SITE/api/v1/messages" \
+                        --data-urlencode "type=stream" \
+                        --data-urlencode "to=$1" \
+                        --data-urlencode "topic=$2" \
+                        --data-urlencode "content=$3"
+                }
+                # 6a. POST THE SUMMARY (the final response IS the summary).
+                # Weekly runs get a weekly topic; daily a daily one.
+                if [[ $WEEKLY -eq 1 ]]; then
+                    DTOPIC="weekly-$(date -u +%G-W%V)"
+                else
+                    DTOPIC="daily-$(date -u +%F)"
+                fi
+                POST_RC=$(zpost "digest" "$DTOPIC" "$CURTEXT" | jq -r '.result // "error"' 2>/dev/null)
+                if [[ "$POST_RC" == "success" ]]; then
+                    log "DIGEST-POSTED: summary posted to digest/$DTOPIC"
+                else
+                    log "DIGEST-POST-FAIL: result=$POST_RC (summary NOT posted; deletion deferred by order law)"
+                fi
+                # 6b. DELETE LAB-NOTES >7d (only if the summary posted).
+                if [[ "$POST_RC" == "success" ]]; then
+                    CUTOFF_TS=$(($(date -u +%s) - 7*86400))
+                    OLDMINE=$(curl -s -u "$ZEMAIL:$ZKEY" \
+                        "$SITE/api/v1/messages?anchor=newest&num_before=5000&num_after=0&narrow=%5B%7B%22operator%22%3A%22stream%22%2C%22operand%22%3A%22lab-notes%22%7D%5D" \
+                        | jq -r --argjson c "$CUTOFF_TS" \
+                          '.messages[] | select(.timestamp < $c) | "\(.id)|\(.subject)"' 2>/dev/null)
+                    N_DEL=$(printf '%s\n' "$OLDMINE" | grep -c '|' 2>/dev/null || true)
+                    [[ -z "$N_DEL" ]] && N_DEL=0
+                    if [[ "$N_DEL" -eq 0 ]]; then
+                        log "RETENTION: no lab-notes messages older than 7d -- nothing to delete"
+                    else
+                        rlog "batch start: $N_DEL lab-notes messages >7d (whole stream per D-016 item 4)"
+                        printf '%s\n' "$OLDMINE" | grep '|' | head -100 | while IFS='|' read -r MID MTOPIC; do
+                            DRC=$(curl -s -u "$ZEMAIL:$ZKEY" -X DELETE "$SITE/api/v1/messages/$MID" | jq -r '.result // "error"' 2>/dev/null)
+                            if [[ "$DRC" == "success" ]]; then
+                                rlog "deleted id=$MID topic=$MTOPIC"
+                            else
+                                rlog "DELETE-FAIL id=$MID topic=$MTOPIC result=$DRC"
+                            fi
+                        done
+                        DEFER=$(( N_DEL > 100 ? N_DEL - 100 : 0 ))
+                        if [[ $DEFER -gt 0 ]]; then
+                            rlog "batch cap 100: $DEFER messages deferred to next pass"
+                        fi
+                        log "RETENTION: lab-notes deletion pass done ($N_DEL found, batch cap 100) -- see RETENTION.log"
+                    fi
+                else
+                    log "RETENTION-DEFERRED: summary post failed -- deletion skipped (summarize-first law)"
+                fi
+                # 6c. Human-stream 30d move-to-archive NOT built here:
+                # move_out/move_in = role:nobody on the human streams
+                # (relay 0083 open). Nothing to do until the grant lands.
+            fi
+        fi
     fi
 else
     log "NOT advancing gate (rc=$rc, proposal_exists=$([[ -f $PROPOSED ]] && echo yes || echo no))"

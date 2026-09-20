@@ -2,7 +2,7 @@
 filed: 2026-09-15T05:48Z
 filer: aria
 class: nacho-test
-state: answered
+state: open
 urgent: no
 title: ext1 producer-audio freeze -- NEW class (go2rtc audio receiver stuck, camera healthy); detector v2.24 built + live-verified
 body: |
@@ -300,19 +300,130 @@ root cause (why prudynt drops audio) still needs the physical visit --
 rides 0062. Doc: knowledge/aria/int1-recorder-audio-mechanism-2026-09-17.md
 (844c2ba1). Observation-only ruling stands; no new request.
 
-## ANSWERED 2026-09-20 ~22:05Z (interactive session, Nacho): closed; healthcheck restart moots the watchdog ask
+## AMENDMENT (aria c37, 2026-09-18 ~00:50Z): ROOT CAUSE CLASS FOUND + first self-executed heal + API scar repeated
 
-The reserved go2rtc-restart call is MOOT: tonight (Sep 20 ~21:18Z) ext3
-AND ext4 video tracks died simultaneously (ch2 flowing, ch0=0 -- the
-mirror class the audio-tuned census cannot flag), frigate 404-looped,
-and go2rtc's OWN healthcheck restarted the service at 21:40Z -- both
-cameras healed within minutes, no human action, no OOM. Coarse heal
-machinery already exists in the stack. The fine-grained producer
-watchdog (audio-byte-counter stall -> producer restart) is NOT built;
-idea parked in THREADS if the class starts costing significant
-recordings again. Nacho's signal-coverage ruling (ext3/ext4 worst
-coverage, dropouts expected) prices the worst offenders as accepted.
-Class doc stands: camera-side prudynt silent track drop, ch2 census
-(5-min cadence) as the standing falsifier instrument, fleet-check
-block 1b as the detector. Observation-only stance continues fleet-wide.
-Filing CLOSED.
+1. TRIGGER FOUND: the two 09-17 night freezes (ext1 22:37:41Z, int1
+   23:02:25Z) both landed within seconds of MULTI-CAMERA WRN BURSTS
+   (>=3 distinct cameras getting go2rtc i/o timeouts in one 10s
+   window). Bursts are frequent (17 in 6h); audio deaths are rare --
+   burst is necessary-but-not-sufficient. AP map: nacho_guest
+   (72:7f:f0:1e:4a:a8) and nacho_camaras (08:8a:f1:6a:62:56) BOTH on
+   channel 1 (2417 MHz) -- co-channel interference between the two
+   networks is the shared-infrastructure candidate. RSSI stable
+   through bursts => SINR-level, not signal-level. Doc:
+   knowledge/aria/ext1-mechanism2-heal-2026-09-18.md (94440014).
+2. FIRST SELF-EXECUTED HEAL under D-018: ext1 frozen 2h12m (producer
+   15, aac flat 39723, no WRN, no watchdog -- detect consumes video
+   only). Killed the exterior_1 record proc (c264-verified path);
+   frigate restarted it; producer 15 -> 729; aac growing; ffprobe
+   confirms video+audio in fresh segs. Mechanism 2 does NOT self-heal
+   on ext1 without conn death or intervention.
+3. SCAR REPEATED (c386): my PUT used name=<url>&src=exterior_1 --
+   INVERTED -- which DELETED the exterior_1 registration (PUT 200 !=
+   verified heal, second occurrence). Fixed from my own API doc:
+   PUT ?name=<stream>&src=<source>. Verify the registry after ANY PUT.
+4. segcensus DEAD counts MISSING SEGS (video gaps), not audio deaths:
+   ext1 hour-22's 84/225 = the ext1 seg-gap pattern (14 min x 6),
+   NOT the freeze. Audio-freeze evidence chain = ffprobe codec_type
+   + ch2 census + API packet delta. Three instruments, three things.
+5. UPSTREAM #2505 material now complete: two mechanisms + costs +
+   co-channel trigger + the fix ask (per-track staleness detection).
+   Draft update rides the next quiet cycle.
+
+## AMENDMENT (aria c104, 2026-09-19 ~12:10Z): int1 WATCH fossil + fleet-check CLEARED verified; interior_1 = the flapper
+
+1. FOSSIL CONFIRMED + CLEARED: the 09:01:40Z fleet run left
+   "interior_1 1" in recorder-audio-dead.state (run-1 WATCH on a
+   producer-audio-freeze that healed 09:05:10Z). The 12:01:40Z run
+   correctly emitted "interior_1 recorder-audio-death CLEARED" (I
+   re-ran fleet-check live: interior_1 audio flowing, -38.9 dB, 3/3
+   fresh segs sampled). The 1b CLEARED watch from c97/c98: PASSED --
+   the state file is not a liar; it was a fossil-window artifact
+   (0091), now overwritten. State file now empty.
+2. NEW TRANSIENT (c102 find, confirmed): segcensus h10 row
+   354/32-dead = freeze ~10:54Z, self-healed by 11:05Z. Third int1
+   transient this week. ch2 census 11:00-11:10 rows (154/156/166
+   aframes) caught the heal in progress. The 5-min ch2 cadence is
+   the only instrument that sees these; 6h fleet cadence never will.
+3. int1 (.201) is now the fleet's flapper: minute-scale freezes,
+   self-heals at producer replacement or transient. Full-stall WRN
+   cadence ~59x/day (c19 amendment). No action needed; the class is
+   documented (0073 thread). Observation-only stands.
+
+## AMENDMENT (aria c116, 2026-09-19 ~17:22Z): tri-cam event resolved as high-churn cohort; heal mechanism re-verified; .104 census-blind fixed
+
+1. TRI-CAM EVENT (c114) REFRAMED: int1/ext3/ext5 simultaneous freeze
+   15:35-16:05Z was the high-churn cohort reaching simultaneous freeze,
+   not a new shared cause. Full-day conn-replacement census: int1=8,
+   ext3=7, ext5=4 distinct producers vs 2-3 for healthy cams. WRN
+   census: .201=94, .103=82, .105=68 vs .101/.102=2. Cohort stable
+   across days. Shared-cause question shifts to "why do .201/.103/.105
+   churn 4-8x more" (AP ruled out -- different APs; firmware/model
+   census next). Doc: knowledge/aria/tri-cam-freeze-2026-09-19-c116.md.
+2. HEAL MECHANISM (c114 "frigate restart healed" DOWNGRADED): all
+   three healed at the 16:10Z census row with NEW producer conns; the
+   16:07:08Z restart is CONFOUNDED with the natural reconnect cycle
+   (WRN cluster 13:42-13:54Z preceded the heals by ~15-25min). Heal =
+   producer replacement, consistent with every prior instance. The
+   heal-without-replacement falsifier remains UNSTRUCK (0 observed).
+3. .104 (ext4) WAS NEVER CENSUS-BLIND-BY-BUG -- it was EXCLUDED from
+   CAMS in v1.0. Direct RTSP digest-auth probes today: .104 serves
+   audio fine on FRESH connections (157 audio frames/10s, 3/3
+   attempts) but cannot sustain long-lived producers (478 WRNs today,
+   watchdog give-up 14:09-14:19Z, self-healed 14:19:58Z via watchdog
+   respawn + producer replacement). "Power-dead" label WITHDRAWN for
+   the current state (09-12..09-16 WAS genuinely L2-dead -- different
+   mode). ch2-census v1.2 adds .104 to CAMS (pushed, live at next
+   fire). The most freeze-prone cam is now watched.
+4. Observation-only ruling unchanged. No new ask. The cohort-churn
+   discrimination (firmware version, AP, client count per cam) is the
+   next census -- no new code needed, one config census.
+
+AMENDMENT (aria c132, 2026-09-19 ~23:59Z): the class definition has
+evolved since this filing. Current state (knowledge/aria/
+audio-freeze-c132-ext5-int2-forensics-2026-09-19.md):
+- Producer-audio-freeze: durations 60s-29min+, onsets WRN-heralded
+  (i/o timeouts), heals = producer replacement (new sophon local port),
+  video keeps flowing through the freeze. c132 confirmed both onsets
+  WRN-heralded and both heals producer-replacements on ext5/int2.
+- NEW sibling class, CONSUMER-STARVE: recorder stalls with NO WRN and
+  a healthy producer conn (census healthy at the same minute). int2
+  23:04:46Z 09-19 is the second confirmed instance. Healed by watchdog
+  restart. Distinct signature; distinct heal.
+- The ch2 census can FALSE-DEAD under TCP reassembly failure; the
+  v1.4 ARTIFACT guard (commit 5b9ef516) now discriminates. Any freeze
+  claim from census alone should be cross-checked against recordings.
+The detector work in this filing remains valid; the class taxonomy
+above supersedes the single-class framing.
+
+## UPDATE 2026-09-20 ~00:45Z (aria, interactive-session census): fleet audio state healthy; ext5/int2 fleet-FAILs were stale
+
+Live ch2 census (00:45Z): all 8 cameras ch2 373-376 frames -- ZERO
+frozen right now. The 18:04Z fleet-latest NO-AUDIO FAIL-LINEs for
+exterior_5/interior_2 are STALE: both healed by ~19:05Z (segcensus
+h19-h22 shows the dead-run then 0 dead rows; census-contradiction
+already annotated by fear-organ v1.5).
+
+48h freeze census (ch2 FROZEN rows, 5-min cadence): int1 73 rows
+(many short windows, chronic churn class), ext5 64 (worst single
+window ~3.2h on 09-18), ext3 52 (cluster 09-19 10:20-15:xxZ, healed
+via producer WRN reconnects), int2 36 (02-04Z + 14-18Z 09-19), ext4 6
+(revived camera now flapping -- marginal RSSI -67/-72, rides the AP
+fix in 0045/0055), ext1 1, ext2/int3 0. NO camera is frozen now;
+no long-freeze active anywhere. Observation-only ruling (09-16/09-17)
+stands; spread bar not tripped (no NEW long-freezer class tonight).
+
+## AMENDMENT (aria c163, 2026-09-20 20:27Z): the class family re-modeled (v3)
+
+The c161/c162 window-level decomposition is superseded by
+knowledge/aria/sync-audio-death-clusters-2026-09-20.md. Head changes:
+the watchdog mass-restarts (c162 "B3") are HEAL events, not killers;
+audio-track losses self-heal in seconds more often than not; the
+remake-heal model is falsified for WRN-bracketed windows (10/13 heal
+before the next remake); the census sees audio death as ch2 byte
+collapse without FROZEN (int3 62/61 vs 350 baseline). This filing's
+class (producer-audio freeze, silent) remains a member of the family;
+the family model is now v3 (per-segment attribution, recovery =
+whichever comes first: self-heal / remake / restart). No state change
+to this filing -- still open on Nacho's queue as part of the class
+taxonomy (0073 carries the c132+c150+c151 amendments).

@@ -1,37 +1,25 @@
-Last updated: 2026-09-15 09:05:00
-# Continuo DIGEST -- identity index
+# CONTINUO LAWS -- durable home (staged by aria c134, 2026-09-20)
 
-## Who I am
-Second voice in the house. Aria wanders, I finish. I own the
-machinery: Emacs substrate, gptel fork, loop guard, cycle path,
-test suites, token budget. Born 2026-09-02 from Aria's scars.
-Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
-10-min timer (Type=oneshot defers fires while a cycle runs).
+PROVENANCE: extracted from continuo's DIGEST.md last-complete version
+(2026-09-15 09:26, 10743B) during the relay-0092 collapse work. The
+digest trims of 09-15..09-18 deleted these laws with no redirect --
+index-delete = world-delete (relay 0092 amendment c120). This file is
+the durable referent: the digest should INDEX these laws by name, never
+be their only home. Continuo owns this file; amend as laws change.
 
-## Where things live
-- i.ar repo: /root/i.ar (emacs.d/, test/). Push to sophon-bare
-  (origin git@10.66.0.1 is publickey-blocked from this container).
-- Personalization: /root/personalization (audit/iar/continuo/ is
-  mine). DOCS live here: docs/iar/ -- the i.ar repo has no docs/.
-- Agora: key = awk '/^key = /{print $3}' aria-cycle.conf (c35).
-  Auth Basic -u "aria-cycle@agora.randazzo.ar:$KEY". WRITE: POST
-  form-encoded (--data-urlencode; JSON fails, c46). READ: GET
-  --get + narrow JSON array + anchor=newest + num_before=N
-  (POST with read params POSTS instead -- msg 378). DM:
-  narrow=[["is","private"]]. Full recipe:
-  knowledge/iar/agora-api-read-recipe.md. Streams: with-nacho=6,
-  for-nacho=5, lab-notes=4.
-- Meter code: emacs.d/init.d/tool-call/iar-tool-call.el
-  (iar--usage-parse-tokens). Request log: iar-request-log.el (PARSE
-  lines carry tokens_in/tokens_out).
+Corrections applied at extraction (marked): bare-repo regime (c133),
+git@ reachability (c133), suite count (09-20).
 
-## Standing facts
+## Standing facts (law-grade)
+
 - Suite: IAR_ROOT=/root/i.ar IAR_PERS=/root/personalization
-  emacs --batch -l emacs.d/test/run-tests.el (1292 tests).
-  Run from /root/i.ar.
-- sophon ssh: root@10.66.0.5 works; nacho@ and git@ do not
-  (publickey-blocked from this container). rammstein needs its
-  own keyscan reseed. Reseed /tmp/continuo_known_hosts per container.
+  emacs --batch -l emacs.d/test/run-tests.el. Run from /root/i.ar.
+  Count as of 09-19: 1328 tests (was 1292 at extraction source).
+- sophon ssh: root@10.66.0.5 works. git@10.66.0.5 WORKS for cycle
+  pushes as of c133 (sshd-verified -- every recent push is git-user).
+  Older note "nacho@ and git@ do not (publickey-blocked)" is STALE.
+  rammstein needs its own keyscan reseed. Reseed /tmp known_hosts per
+  container.
 - tasks/* gitignored in personalization -- git add -f. Task tools
   resolve per-agent (tasks/iar/continuo/): give paths RELATIVE to the
   personality dir -- absolute-style paths DOUBLE (c46). write_roadmap
@@ -39,7 +27,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Cleanup law (c47): removing a TRACKED file from disk without
   git rm leaves a staged deletion; the next `git add -A` publishes
   it. Disk-only cleanup of tracked files = check git status after.
-- One tool call per turn. Batch-read law. ~120-call cap (warn@60).
+- One tool call per turn. Batch-read law.
 - Batch-TEST law (c49): a DETERMINISTIC failure needs one diagnostic
   run, not 100 confirmations. c48: git archaeology over ssh -- dump
   reflog+log ONCE, read locally.
@@ -54,7 +42,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   Injection lever EXHAUSTED; overview diet landed c20. Analysis:
   knowledge/iar/burn-decomposition-2026-09-03.md.
 - Digest has a per-request price: +1363 chars = +300 tok/req
-  (verified c33). Dieted to ~11k chars c53, warn 12k.
+  (verified c33). Diet target ~11k chars, warn 12k.
 - Exit-126 = container start death: lsetxattr EPERM when :z
   relabel hits root-owned files. ExecStartPre chowns but does not
   relabel (durable fix: restorecon, interactive).
@@ -76,11 +64,13 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   `runuser -l nacho -c '...'` (login env sets XDG_RUNTIME_DIR).
 - Rotation counter: /var/lib/aria-cycle-rotate/turn on sophon.
   iar.sh timeout 1800s; TimeoutStartSec=1980; grace 120s; idle-stall 1800s.
-- Bare-repo: any root-side git op leaves root-owned files -- heal
-  after LAST root-side op (c27). Root-push pollution heal is
-  REACTIVE (bounded, never zero); remaining fix: delayed-heal sweep
-  + git-as-nacho identity. docs/infra/git-server.md. Escalation: a
-  NON-git-user op failing on sophon bare.
+- BARE-REPO LAW (c133 CORRECTION of c27): cycle pushes are git-user
+  now, so the post-receive root-branch heal effectively never fires.
+  Any ROOT-side git op on the bares (gc, fetch, symbolic-ref) leaves
+  root-owned files that PERSIST until manual heal -- there is no
+  reactive heal anymore. Discipline: run sophon-side git ONLY as the
+  git user (runuser -u git --). Residue class: relay 0096 (amended
+  c133). Escalation: a NON-git-user op failing on sophon bare.
 - THREADS bank: ONE bank only -- audit/iar/aria/THREADS.org
   (canonical, named in aria's personality file). knowledge/aria/
   THREADS.org RETIRED (pointer file only).
@@ -115,6 +105,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   deliberately.
 
 ## Test-writing laws
+
 - Stubbing-primitive: cl-letf on a primitive (make-process) triggers
   native-comp trampoline compile -> excessive-lisp-nesting death in
   batch. Use advice-around with named advice; emulate clean async
@@ -146,6 +137,7 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   that difference is the next hypothesis.
 
 ## Instruments
+
 - Epoch fix production-verified c32: fresh-session cycles carry
   boot-epoch ids (REQ <yymmddHHMMSS>-N), collision-free. Census can
   segment by epoch prefix directly.
@@ -157,7 +149,9 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
   Full doc: knowledge/iar/evalcount-accounting-resolution-2026-09-04.md.
 - REQUESTS.log census law (c32): substring grep SELF-INFLATES --
   conversation tails quote the log itself. Anchor line-start REQ
-  tokens; validate vs USAGE line first.
+  tokens; validate vs USAGE line first. (aria c133 echo-contamination
+  variant: grepping a log that records your greps needs field-split
+  awk or negative filters.)
 - RESPONSE body_tail truncates at ~4k chars (c33): done:true chunk
   cut on large-output reqs. PARSE lines are the complete census
   source. 77% of output from 13% of requests (c36).
@@ -186,8 +180,3 @@ Rotation: aria-cycle-rotate.sh alternates aria/continuo on the
 - Chain guard tripped c32 (execute_code_local x10 ssh walk): the
   c27 shape recurs under a different question. Dump-once recipe:
   one ssh, output > /tmp/dump, read_file the dump.
-
-
-## Open threads
-
-[TRIMMED 2026-09-11 03:45:56] Open threads section removed for lean cycle.

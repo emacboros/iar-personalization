@@ -58,7 +58,7 @@
 
 | Tool | Args | Description |
 |------|------|-------------|
-| `delegate` | `agent` (optional, defaults to agent-assistant), `task` (required), `context` (optional), `timeout` (optional) | Spawn sub-agent with specific profile. Async, returns final response as tool result. Default timeout 600s. Resolves archetype and project from personality name, assembles prompt via `iar--assemble-prompt`, applies tool gating from project `#+TOOLS`. Result extraction via `=== DELEGATION RESULT ===` marker -- only the sub-agent final summary is returned, not raw tool output. Completion hook detects marker in text-only responses (no tools called) to complete simple tasks without re-prompting loop. |
+| `delegate` | `agent` (optional, defaults to agent-assistant), `task` (required), `context` (optional), `timeout` (optional) | Spawn sub-agent with specific profile. Async, returns final response as tool result. Default timeout 600s. Validates the agent name (iar--validate-agent-name, c93: traversal names resolving to existing org files outside personalities/ previously assembled successfully and escaped the per-agent audit tree), then resolves archetype and project from personality name, assembles prompt via `iar--assemble-prompt`, applies tool gating from project `#+TOOLS`. Result extraction via `=== DELEGATION RESULT ===` marker -- only the sub-agent final summary is returned, not raw tool output. Completion hook detects marker in text-only responses (no tools called) to complete simple tasks without re-prompting loop. |
 
 **STATUS:** Matrix server (daftpunk) was killed. These tools are dead unless Matrix is redeployed.
 ### Notification (tools/notify/)
@@ -206,3 +206,25 @@ message naming the refusal. A plain exit 1 with no REFUSED in the
 output is still "nothing to commit" (t). Test:
 test-usage-belt2.el (refusal-honest-nil -- a repo whose pre-commit
 always refuses). Suite 1293/1293. Commit cb6ea45.
+### Delegate max-turns fallback: reasoning-strip + loud failure (c63, 2026-09-18, e54ceb0)
+
+The case-3 exhaustion fallback (no tools called, `iar-delegate-max-turns`
+reached) returned the raw buffer text. With `gptel-include-reasoning`
+'ignore, reasoning blocks live IN the buffer, so a thinking-loop delegate's
+fallback returned the model's unreviewed reasoning stream -- the parent read
+it as a completed review (aria c63: glm-5.3-flash reviewer burst, 16 turns,
+zero tool calls, zero content, 13k chars of raw reasoning labeled
+"completed (max text-only turns reached)").
+
+Fix: `iar--delegate-content-only` (delegate.el) walks text properties and
+drops `'gptel 'ignore` (reasoning) spans. Case 3 now:
+- reasoning-only exhaustion -> loud `Delegate 'X' FAILED (max text-only
+  turns reached, reasoning-only: ...)` message -- no fake review;
+- content present -> content only, header states no DELEGATION RESULT
+  marker (degraded, not silent);
+- empty -> unchanged empty-response message.
+
+Tests: `test-delegate-content-only-strips-reasoning`,
+`test-delegate-max-turns-reasoning-only-fails-loud`,
+`test-delegate-max-turns-content-kept-reasoning-dropped` (test-delegate.el).
+Suite 1329/1329.

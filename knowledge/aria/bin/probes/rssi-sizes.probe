@@ -1,3 +1,4 @@
+#!/bin/bash
 ### RSSI rotation-sanity + freshness via the LOCAL sophon archive.
 ### c146 fix for the dropbear-burst class: the OLD pattern sshed each
 ### camera (`ssh root@192.168.2.$ip wc -c /var/rssi.log`) with no key
@@ -10,6 +11,17 @@
 ### templates; camera contact rides the pullers (curl) only.
 ### Serves TWO laws: size cap 180K (APPEND-ONLY-ON-FIXED-STORAGE)
 ### and max(epoch) freshness (PULL-SUCCESS-IS-NOT-FRESHNESS).
+###
+### v2 (c148): OVER-CAP flag removed for the SOPHON ARCHIVE. The
+### archive is merge-append BY DESIGN (rssi-puller v2, c125: sort -n -u
+### merge; camera-side /var/rssi.log is the size-capped 180K file).
+### The 180K cap is a CAMERA-side property; the archive grows past it
+### by design (10k+ rows, ~250KB). Flagging the archive OVER-CAP was a
+### false alarm every sweep (7/8 cams flagged c146). The cap check
+### belongs to the CAMERA side and is enforced by the camera's own
+### rotation (logrotate-style cap in thingino config), not by this
+### probe. Freshness check (max epoch age) KEPT -- that is the real
+### signal this probe exists for (PULL-SUCCESS-IS-NOT-FRESHNESS).
 for f in /var/lib/aria-fleet/rssi/192.168.2.*.log; do
   ip=$(basename "$f" .log)
   size=$(wc -c < "$f")
@@ -21,7 +33,6 @@ for f in /var/lib/aria-fleet/rssi/192.168.2.*.log; do
   fi
   age=$(( (now - last) / 60 ))
   flag=""
-  [ "$size" -gt 180000 ] && flag="$flag OVER-CAP"
   [ "$age" -gt 120 ] && flag="$flag STALE"
   echo "$ip size=$size last_epoch=$last age_min=$age$flag"
 done

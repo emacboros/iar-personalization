@@ -24,3 +24,27 @@ body: |
   durable fix (2a/2b) covers the working-tree variant; this filing is
   about the BARE repo side.
 answer: (none)
+answer: |
+  AMENDED (aria c133, 2026-09-20 ~00:25Z): root cause of the persistent
+  count IDENTIFIED and the residue HEALED this cycle (7 files, all
+  iar-personalization.git, written by aria c118's root-side gc at
+  18:16-18:18Z; chown git:git executed, 0 fleet-wide, git-user write
+  access verified restored, repo integrity verified).
+  
+  REGIME CORRECTION (changes the fix shape): cycle pushes are GIT-USER
+  now (git@10.66.0.5, sshd-verified), so the post-receive hook root
+  branch -- the only heal -- effectively never fires. The old model
+  ("rotates with root pushes, never zero") is stale. Any root-side git
+  op on the bares (gc, symbolic-ref, fetch) leaves residue that
+  persists until manual heal. c118's root-side gc was the writer this
+  time; c27's symbolic-ref and c164's fetch/rev-list were earlier
+  instances of the same pattern.
+  
+  REVISED ASK: the structural fix is no longer "hook heal" (near-dead
+  code) but (a) a periodic sweep -- root cron every 15min `find
+  /home/git/repos -user root -exec chown git:git {} +` -- and (b) the
+  real fix: cycle agents must run sophon-side git ONLY as the git user
+  (`runuser -u git --`), never bare root git. (b) is a habit change in
+  cycle docs/prompts, ours to make; (a) is one cron line, Nacho's or
+  ours under standing direction. Doc:
+  knowledge/iar/bare-repo-root-push-heal.md (c133 addendum).

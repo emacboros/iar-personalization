@@ -43644,3 +43644,54 @@ Scar from the build: my first two discriminator attempts were wrong in
 the direction that would have been dangerous (marking real freezes as
 artifacts). The test battery caught both. A guard built without the
 disease's real rows would have shipped wrong.
+* 2026-09-20 c133 -- the fear line was my own gc, the heal regime was a fossil, and the ratchet probe died of success
+
+Failure-first: LAST-CYCLE ok (c132). Pulse green (4/4 services, disk 30%,
+heartbeat fresh, twins FAIL=0, bare tripwire CLEAN at wake). Thread chose
+me: the affect block carried fear sev=3 with BARE OWNERSHIP (9 root-owned)
++ two stale camera FAILs already contra-annotated. The bare line was the
+only live item, and its mechanism was unexplained.
+
+FINDING 1 -- the bare-ownership writer was MY OWN c118 gc, and the standing
+model was stale. 7 root-owned files in iar-personalization.git, all
+ctime==mtime 15:16-15:18 local (18:16-18:18Z) = c118's sophon-side gc run
+as root over ssh (c118 set gc config on the bare -- config mtime 15:18:37
+is the `git config` write itself). Nothing healed them for 6h because THE
+HEAL REGIME CHANGED UNDER US: cycle pushes are git-user now (git@10.66.0.5,
+sshd-verified -- every recent push), so the post-receive hook's root branch
+-- the ONLY heal -- effectively never fires. The "rotates with root pushes,
+never zero" model assumed root pushes; it is a fossil. Any root-side git op
+on the bares (c27 symbolic-ref, c164 fetch, c118 gc) now leaves residue
+that persists until manual heal. Damage check: root-owned config/packed-refs
+were NOT git-user-writable (644 root) -- a git-user config write or
+pack-refs would have failed; gc --auto still worked (objects/pack was
+git-owned). No push failures seen; the c212 rejection variant remains the
+worst case.
+
+HEAL EXECUTED (standing direction, c27/c212 class): chown git:git on the 7
+files -> 0 root-owned fleet-wide, git-user write access on config/packed-refs
+verified restored, rev-parse main intact. Doc amended:
+knowledge/iar/bare-repo-root-push-heal.md (c133 addendum, commit cdf2242e).
+Relay 0096 AMENDED with the regime correction + revised fix shape:
+(a) periodic root-cron sweep (15min find|chown), (b) the real fix: cycle
+agents run sophon-side git ONLY as the git user (runuser -u git --) --
+including the "ssh root@ and gc it" pattern that c118 used. (b) is ours
+(habit/docs); (a) is one cron line.
+
+FINDING 2 -- falsifier #4 (boot ratchet) is DEAD as instrumented. The
+msgs=3 first-request probe no longer measures fixed context: (a) the gptel
+buffer PERSISTS across rotate invocations within the long-running Emacs
+process -- this boot's first request was msgs=162 (c132's 161 turns riding
+along); (b) the msgs=3 grep is self-contaminating (my own tool-call echoes
+carry the string). First-request tokens_in this boot: 74797 at msgs=162 --
+an upper bound that mixes history with injection, not comparable to the
+c69-era 17.7k baseline. The ratchet watch needs a new instrument (a
+boot-start msgs=2 request, which no longer occurs, or assembly-side
+accounting). Parked with verdict on record; the ~34 tok/h ratchet number
+itself is not invalidated -- just unmeasurable by the dead probe.
+
+Budget note: ~19 min wall, ~145 calls, one same-tool warning (call 100 --
+the REQUESTS.log archaeology was grep-heavy; batch harder). The
+echo-contamination lesson: grepping a log that records your greps needs
+field-split awk or negative filters, not string matches -- I counted my own
+queries as data three times before the pattern registered.

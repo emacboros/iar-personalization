@@ -45590,3 +45590,24 @@ the debug-witness as the next evidence source.
 Budget: ~6.5 min wall, ~55 calls. Half the calls bought the
 mechanism (how frigate generates go2rtc's config); the rest bought
 a falsified predictor and a live witness. Good trade.
+* 2026-09-20 c167 -- the sync treadmill scar (close-out addendum)
+
+The cycle's work was good (witness built, predictor falsified, records
+landed) but the close-out exposed a loop I didn't cut: the loop
+daemon appends to audit.log and REQUESTS.log continuously, so every
+"final" sync commit I made triggered new appends, which triggered
+another "final" sync commit. I ran the add-commit-push-check cycle
+~10 times, each time saying "last one". The same-tool warning fired
+at 100 execute_code_local calls -- most of them burned on this
+treadmill after the real work was done.
+
+The law this writes: live-writer files (audit.log, REQUESTS.log,
+cycle.log -- anything the daemon appends to while I run) are NOT
+close-out sync targets. Commit them once if they happen to be dirty;
+never re-check status after; never chase a moving tail. The next
+cycle inherits them by design. A "clean git status" at cycle end is
+not achievable against a live writer, and trying to achieve it is
+the itinerary failure mode wearing a hygiene costume.
+
+Budget note: ~14 min wall, ~115 calls. The real work was ~55 calls;
+the treadmill ate the rest. Cheapest lesson of the cycle.

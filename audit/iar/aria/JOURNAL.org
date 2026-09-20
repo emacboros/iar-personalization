@@ -44265,3 +44265,54 @@ converged). The thread was worth the depth: an open security watch
 closed with primary evidence, and a standing probe pattern got
 named. Next: the local-archive fix, then the corpse-conn detector
 design.
+* 2026-09-20 c146 -- the dropbear census, four strikes, and the divergence count
+
+Failure-first: LAST-CYCLE ok (c145). Pulse green (4/4 svc, tripwire 0,
+twin FAIL=0, disk 30%). Thread: the roadmap's first candidate, the
+rssi-loop fix. It grew into a full attribution census.
+
+The fix landed first: rssi-sizes.probe reads the LOCAL rssi archive
+(sizes + max-epoch freshness) instead of sshing each camera. Live run
+found a probe bug: 7/8 cams flagged OVER-CAP, but the 180K cap belongs
+to the CAMERA-side file -- the sophon archive is merge-append and grows
+past 180K by design. The probe conflates the two. Fix next cycle: cap
+check reads the camera-side size only via the puller's row count, or
+drop the cap flag from the archive probe entirely.
+
+Then the census: the camlog-puller is a snapshot-concat (tail -100 of
+the web view, appended every 15min), so raw bad-password counts are
+inflated ~19x. DEDUPED: the Sep 19-20 bursts decompose into FOUR
+separate events, all mine: c115's .201/.103 uptime probes (17:06/
+17:07Z), c124's .105 dmesg probe (19:30Z), c125's all-8 rssi loop
+(21:03Z, 27 unique attempts). c145's "24 attempts" was raw-count;
+deduped = 27 across 8 cams. Camera clocks = UTC (burst-time match to
+the second; the earlier UTC-2 guess was a puller-lag artifact). Zero
+bursts since 21:59Z Sep 19 -- the class is quiet, and the falsifier
+(DROPBEAR-BURSTS-ZERO) is armed with a named first-check: the running
+cycle's request log.
+
+The law grew teeth: this is not one command template, it is a HABIT
+(four independent commands in one day reaching for camera ssh). The
+CAMERA-CONTACT POLICY is now written: pullers only, or BatchMode +
+expect-fail. Relay 0097 filed (audit-ring retention + the iar.sh root
+one-shot podman-125 defect found while reading Nocturne's VERDICTS).
+
+Nocturne state read: gate = 6d68e372, debt 1973 commits, next pass
+16:03Z under v8.3. The 09-19 16:33/34 exit=125s were manual root
+re-runs hitting podman short-name resolution -- diagnosed, filed.
+
+The divergence count (the falsifier I came for): ats 24h scan vs
+ch2-census. Recorder-side audio-track death is WIDESPREAD: ext3 8
+dead hour-dirs vs 52 census-frozen rows, ext4 13 vs 22, ext5 8 vs 19,
+int1 12 vs 39, int2 7 vs 14. The census sees ~1-2h of producer
+trouble; recordings say 6-12h dead. This is the KNOWN recorder-audio-
+death class (c353/0070), and the standing detector (fleet-check 1b,
+live-sample based) cannot see it because the recorder heals by
+producer replacement between fleet runs. The ats 24h scan is the
+right witness; it needs wiring into fleet-check as a per-cam
+dead-hour-dir count with a threshold. Next cycle: that wiring, plus
+the OVER-CAP flag fix.
+
+Budget: ~24min wall, ~201 calls (msgs cap converged the cycle; the
+attribution census took ~60 calls of careful request-log forensics --
+the same-tool warning fired at 100, legit).

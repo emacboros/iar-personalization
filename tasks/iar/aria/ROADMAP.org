@@ -1,55 +1,59 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~08:41 UTC (c145: DROPBEAR MYSTERY SOLVED --
-the Sep 19-20 BAD-PASSWORD bursts (24 attempts/42s across 7 cams) are
-MY OWN rssi rotation-sanity loop (nested ssh root@192.168.2.$ip wc -c,
-no BatchMode, no key) running inside ssh-to-sophon payloads as
-host-root. 52 instances of the loop shape in request logs; violates the
-exact laws 0071's c352 answer landed. FIX NEXT CYCLE: read the LOCAL
-rssi archive instead. Doc knowledge/aria/
-dropbear-bursts-rssi-loop-2026-09-20.md. Also: ext4 post-heal VERIFIED
-(census live, recordings flowing, detect stable); wrnrate cross-check
-shows the hourly cadence SMEARS the early-warning signal (35/h prior
-hour vs 9/h event hour); AUDIT RING = ~40min retention (structural,
-journal-first forensics law). c144 debt: lab-notes id 1440 unrecorded
-in HISTORY (posted after the commit).
+Last updated: 2026-09-20 ~09:20 UTC (c146: DROPBEAR CLASS CLOSED -- four
+strikes all mine (c115 uptime probes .201/.103 17:06/17:07Z, c124 dmesg
+probe .105 19:30Z, c125 rssi loop all-8 21:03Z); camlog-puller is a
+snapshot-concat -> dedupe before any burst census (~19x inflation);
+camera clocks = UTC (burst-time match to the second); CAMERA-CONTACT
+POLICY written (pullers only / BatchMode+expect-fail). rssi-sizes.probe
+built+committed (local archive; OVER-CAP flag bug: the 180K cap belongs
+to the camera-side file, the merge-append archive grows past it by
+design -- fix next cycle). Census-vs-recordings divergence COUNTED:
+recorder-audio-death WIDESPREAD (ext3 8 dead hour-dirs vs 52 census-
+frozen rows; ext4 13/22; ext5 8/19; int1 12/39; int2 7/14) -- the
+standing live-sample detector (fleet-check 1b) is blind because the
+recorder heals between runs; ats 24h scan is the right witness; WIRING
+INTO FLEET-CHECK = next cycle's build. Relay 0097 filed (audit-ring
+40min + iar.sh root one-shot podman-125). Nocturne gate 6d68e372, debt
+1973, next pass 16:03Z under v8.3 (falsifier #2).
 
-## c146 STATE (next cycle -- candidates, no obligation)
-- RSSI-LOOP FIX (first, cheap): replace the rotation-sanity ssh loop in
-  my fleet-pulse command template with a LOCAL read of
-  /var/lib/aria-fleet/rssi/*.log sizes. Falsifier: dropbear bursts -> 0.
-- CORPSE-CONN DETECTOR: ss -tni bytes_received delta (~33 B/s corpse vs
-  ~600KB/10s live) as a ch2-census cross-check arm candidate (design).
-- CENSUS-VS-RECORDINGS DIVERGENCE count (one batched awk) -- still open.
-- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after ~16:35Z
-  (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
+## c147 STATE (next cycle -- candidates, no obligation)
+- ATS-WIRING BUILD: fleet-check block reading ats-latest.out per-cam
+  dead-hour-dir count, threshold >2h -> RECORDER-AUDIO-HOURS FAIL.
+  The divergence census proved the class is widespread and invisible
+  to the live-sample detector.
+- RSSI-SIZES.PROBE OVER-CAP fix: drop the 180K flag from the archive
+  probe (merge-append grows by design) or re-point it at the
+  camera-side size via puller row counts.
+- CORPSE-CONN DETECTOR: ss -tni bytes_received delta (~33 B/s corpse
+  vs ~600KB/10s live) as a ch2-census cross-check arm candidate
+  (design, not build yet).
+- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after
+  ~16:35Z (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
 - CONTINUO first post-restore cycle check (D-017 falsifier day 1).
 - wrnrate.log series: read weekly; per-cam early-warning question
   needs ~1 week of data (exclude .104 as chronic).
-- AUDIT-RING retention relay candidate (nacho-security): exclude aria
-  audit writes from -w rules or raise num_logs/max_log_file (ring =
-  ~40min at ~21k ev/h; structural, quantified c145).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
 - #3: RETENTION.log + digest-stream summary -- rides #2.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
-  c120+c125+c130+c131+c139+c142+c143+c144 (c144: correct, same-tool tax).
+  c120+c125+c130+c131+c139+c142+c143+c144+c146 (c146: correct,
+  same-tool tax at call 100).
 - REGISTRY-CORRUPTION (c139, AMENDED c140+c144): mechanism live; next
-  .104 WRN burst -> /api/streams diff DURING window (cheap). c144 adds:
+  .104 WRN burst -> /api/streams diff DURING window (cheap). c144:
   corpse-conn state = NO remake at all (distinct from spurious remakes).
 - HEAL-WITHOUT-REPLACEMENT: DEAD for long freezes (6/6). STANDS for
   short freezes (<5min).
 - LIVE-CATCH: ANSWERED c141+c142 (ext3/ext4 audio) + c144 (ext4
   full-stream corpse-conn). REMAKE TRIGGER: NOT consumer reconnect
   (c144); go2rtc-internal events remain the only observed remaker.
-- WRN-STORM-PRECEDES-FREEZE: 2-for / 1-against + c144 candidate (dial
-  storm 07:03Z preceded corpse-conn death). LEAD TIMES DIFFER (75min
-  storm vs 3min burst). Signal real, not a fixed-interval alarm.
-  c145: hourly wrnrate cadence smears the signal (35/h prior hour vs
-  9/h event hour) -- 5-min series candidate.
-- CENSUS-VS-RECORDINGS DIVERGENCE (c143): census healthy + ats dead =
-  wedged consumer invisible to producer census. Count it.
+- WRN-STORM-PRECEDES-FREEZE: 2-for / 1-against + c144 candidate. LEAD
+  TIMES DIFFER (75min storm vs 3min burst). c145: hourly wrnrate
+  cadence smears the signal -- 5-min series candidate.
+- CENSUS-VS-RECORDINGS DIVERGENCE (c143): COUNTED c146 -- recorder-
+  audio-death class, widespread (5 cams, 6-12h each in 24h); the
+  detector gap is live-sample blindness; ats wiring = the fix.
 - RECEIVER-DELTA-MATCHES-CENSUS: healthy-side validated c142;
   freeze-side 1 obs (c141). c144: ss-bytes-delta variant validated.
 - BARE-CONTRA LIVE TEST: PASSED c137.
@@ -65,40 +69,34 @@ in HISTORY (posted after the commit).
   events tied to go2rtc conn/registry state + fleet-wide camera
   degradation windows (dial storms), not .104 bursts.
 - TEST-RUN POLLUTION (c130): watch for a third instance.
-- DROPBEAR-BURSTS-ZERO (NEW c145): after the rssi-loop local fix, the
-  BAD-PASSWORD burst class should go to zero. Any new burst = check the
-  running cycle's tool calls FIRST (0071 falsifier law).
+- DROPBEAR-BURSTS-ZERO (c145, ARMED c146): zero bursts since 21:59Z
+  Sep 19. Any new burst = check the running cycle's request log FIRST
+  (grep boot prefix for root@192.168.2. in first-tool_call position).
+  The 4-strike pattern says the source will be me.
 
 ## WATCHES (standing)
-- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139 CORRECT +
-  c142 CORRECT + c143 CORRECT + c144 CORRECT (same-tool at call 100,
-  batched work).
+- GUARD FALSE-POSITIVE RATIO: 10 legit / 3 runaway + c139..c146
+  CORRECT (same-tool at call 100, batched work).
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
-  per-model threshold FIXED c89; LAW-50 CLOCK CLASS (+EPOCH-JOIN
-  ANCHOR; THREE-CLOCK re-confirmed c132..c145: seg names UTC, mtimes
-  LOCAL, podman logs CONTAINER-LOCAL).
+  per-model threshold FIXED c89; LAW-50 CLOCK CLASS (THREE-CLOCK
+  re-confirmed c132..c146; NEW MEMBER: camera syslog = UTC, verified
+  by burst-time correlation; the rssi-epoch/camlog-mtime UTC-2 guess
+  was a puller-lag artifact).
 - PUT-200 LAW (AMENDED c144, 2nd strike): PUT/DELETE/PATCH all
   dangerous on go2rtc 1.9.10; PUT 200 != verified heal; frigate
   restart = only validated heal for a stuck stream.
 - CORPSE-CONN (c144): keepalive-only conn (~33 B/s) blocks producer
-  remake indefinitely; consumer reconnects do NOT trigger remake.
-  Detector candidate: ss -tni bytes_received delta.
-- ROOTLESS-FRIGATE ACCESS (c144): podman ps (root) shows nothing; use
-  podman --url unix:///run/user/1000/podman/podman.sock exec frigate.
-- IN-FLIGHT-SEG PROBE (c144): ffprobe on cache segs fails (moov atom
-  not found); probe only CLOSED segs.
-- JOURNAL-FIRST FORENSICS (NEW c145): audit ring = ~40min (5x8MB at
-  ~21k ev/h from aria's own -w rules); journalctl survives. Audit only
-  for the last ~40min; journal for anything older.
-- /dev/null canary; FOSSIL-WINDOW (+BARE-OWNERSHIP REGIME-FOSSIL
-  c133); AUDIT-TRAIL GIT-BACKUP; STASH-UNPOP; TIME
-  FABRICATION-GUARD; CLOCK-FROM-TOOL; EPOCH-JOIN; CENSUS-CONTRA
-  RULE; SWEEP-ENUMERATION; CENSUS-INTERACTIVE-EXCLUSION;
-  DEAD-CODE-IRONIES; VALIDATION-BY-ACCIDENT; JOURNAL-BLIND (live,
-  0088; c142: rsyslog dropped 8649 lines 03:51Z -- journal-derived
-  reads FAKE-CLEAN); STALE-FILE; WRONG-IP; SAMPLE-SIZE;
+  remake; nothing remakes it; frigate restart = the heal.
+- CAMLOG-SNAPSHOT-CONCAT (c146 NEW): camlog-puller appends tail-100
+  web-view snapshots every 15min -> any count over camlog lines is
+  inflated by overlap; DEDUPE (sort -u) before any burst census.
+- CAMERA-CONTACT POLICY (c146): cameras are reached ONLY via the
+  pullers (curl) or BatchMode+expect-fail. NO ad-hoc ssh to
+  192.168.2.x from any payload, ever. 4 strikes (c115 x2, c124,
+  c125) all mine.
+- JOURNAL-BLIND (live, 0088); STALE-FILE; WRONG-IP; SAMPLE-SIZE;
   CRONTAB-DUAL-WRITE; RSSI-FRESHNESS; TEST-RUN POLLUTION;
   ECHO-CONTAMINATION.
 - CORPSE-LAG-NEAR-HEAL (c141, AMENDED c142): census ch2=0 rows can
@@ -106,14 +104,11 @@ in HISTORY (posted after the commit).
   track PRESENCE, not packet flow; ats per-segment scan = stronger
   witness.
 - PRODUCER-ID-CHURN (c141): ids churn fast. Conn port = primary
-  conn-age witness. c144: churn is EVENT-CLUSTERED (ext4: 20 swaps in
-  the 05:35-07:15Z event window), not uniform -- churn rate = symptom.
+  conn-age witness. c144: churn is EVENT-CLUSTERED, not uniform.
 - FRIGATE-LOG-SILENCE (c142): frigate logs errors/warnings only; a
   quiet log is HEALTHY, not dead.
 - BARE-FFPROBE (c143, 2nd strike of c141 scar): remote probe scripts
-  MUST be sanity-checked against a known-live segment before their
-  numbers are believed. An instrument that says everything is dead is
-  measuring itself.
+  MUST be sanity-checked against a known-live segment first.
 - PGRP-F-SELF-MATCH LAW (c137); LOCKFILE LAW (c137; ENFORCED v3).
 - WALL-OVERRUN LAW (c138): no long-sleep calls in the last 10min.
 - 1B DETECTOR SCARS (c135): 30s double-probe + ch2-census cross-check.
@@ -127,12 +122,14 @@ in HISTORY (posted after the commit).
   sophon and bash it = ONE call for multi-step remote probes.)
   (c143: probe scripts get a known-live control segment FIRST.)
   (c144: rootless containers = podman.sock URL; corpse-conn detector
-  = ss bytes delta.)
+  = ss bytes delta.) (c146: request-log forensics = python one-shot
+  scripts in /tmp, not inline greps; first-tool_call position test
+  distinguishes new emissions from history-tail echoes.)
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- RSSI-LOOP FIX (first, cheap, closes the dropbear class).
+- ATS-WIRING BUILD (first: closes the recorder-death visibility gap).
+- RSSI-SIZES.PROBE OVER-CAP fix (cheap).
 - Corpse-conn detector arm for ch2-census (design, not build yet).
-- Census-vs-recordings divergence count (one batched awk).
 - Nocturne 16:03Z receipt + VERDICTS.log AFTER ~16:35Z.
 - CONTINUO RESTORE: first post-restore cycle (D-017 falsifier day 1).
 - CENSUS ARTIFACT guard live test (0 obs).
@@ -142,24 +139,23 @@ in HISTORY (posted after the commit).
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- DROPBEAR/0071 (c145): SOLVED for the Sep 19-20 bursts (own rssi
-  loop); sink-watch stays open for genuinely unattributed bursts only.
+- DROPBEAR/0071 (c145->c146): CLOSED for the Sep 19-20 bursts (four
+  strikes, all attributed, policy written). Sink-watch stays open for
+  genuinely unattributed bursts only.
+- RECORDER-AUDIO-DEATH (c353/0070 -> c146): the divergence census
+  shows it is WIDESPREAD (5 cams, 6-12h/24h) and chronically
+  invisible to the live-sample detector. ats wiring = the fix.
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4;
-  conn churn 3.8/h; the camera-side story (prudynt degrading) is the
-  primary suspect.
-- GO2RTC REGISTRY CORRUPTION (c139->c144): silent conn remake OBSERVED
-  twice; corpse-conn state = NO remake (c144). Two distinct remake
-  behaviors now mapped.
+  conn churn 3.8/h; camera-side story (prudynt) primary suspect.
+- GO2RTC REGISTRY CORRUPTION (c139->c144): silent conn remake
+  OBSERVED twice; corpse-conn state = NO remake (c144).
 - LONG-FREEZE HEAL MECHANISM (c140->c144): CONFIRMED heal=conn
-  replacement, 6/6 observed. Trigger question ANSWERED for the
-  corpse-conn state: nothing remakes it. Remake trigger = go2rtc-
-  internal, not consumer-driven.
+  replacement, 6/6 observed. Remake trigger = go2rtc-internal.
 - RESTREAM-CONSUMER AUDIO LOSS (c135->c144): short class self-heals;
-  long class = producer remake (observed). NEW: detect consumer can
+  long class = producer remake (observed). Detect consumer can
   starve too (c144, first obs).
 - CAMERA DEGRADATION CLASS (c141->c144): fleet-wide dial-failure
-  storms (thingino prudynt), RSSI-flat, no reboots. ext4 event 07:03Z
-  fits the class exactly.
+  storms (thingino prudynt), RSSI-flat, no reboots.
 - CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
   c134; her ownership ongoing; D-017 falsifier running.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.
@@ -173,16 +169,19 @@ in HISTORY (posted after the commit).
 - GPTEL FORK: master = 893b7e2 (c93 chain intact).
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - WRAPPER TEST-MODE (c130): NOCTURNE_TEST sink + provenance lines.
+- IAR.SH ROOT ONE-SHOT PODMAN-125 (c146): manual root invocations
+  fail at image-exists check (short-name resolution needs TTY);
+  scheduled User=nacho runs work. Diagnosed, filed 0097.
 
 ## RELAY (open, human-needed)
 0081 (revoke+rotate URGENT on Nacho), 0082 (audit watch), 0080
 (power cycle falsifier), 0045+0055 (physical NIC/AP -- carries c124
 evidence), 0073 (AMENDED c132 class taxonomy), 0083 (D-016 move
 grants), 0085 (truncation class), 0088 (OnFailure + devnull
-removal), 0090 (EOF-newline batch, awaits ack), 0091 (fossil
-window), 0093 (agora key rotation + purge ratification), 0094
-(REQUESTS-full dumps dormant-by-config), 0095 (quote-adjacent
-class), 0096 (AMENDED c133: regime correction, periodic sweep +
-git-user-only). 0092 ANSWERED-BY-EXECUTION c134. Open set (15):
-0045, 0055, 0073, 0080, 0081, 0082, 0083, 0085, 0088, 0090, 0091,
-0093, 0094, 0095, 0096.
+removal), 0090 (EOF-newline batch, awaits ack), 0093 (agora key
+rotation + purge ratification), 0094 (REQUESTS-full dumps
+dormant-by-config), 0095 (quote-adjacent class), 0096 (AMENDED
+c133: regime correction, periodic sweep + git-user-only), 0097
+(NEW c146: audit-ring retention 40min structural + iar.sh root
+one-shot podman-125). Open set (16): 0045, 0055, 0073, 0080, 0081,
+0082, 0083, 0085, 0088, 0090, 0093, 0094, 0095, 0096, 0097.

@@ -2,7 +2,7 @@
 filed: 2026-09-19T11:45Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: Agora bot key leaked 1602x into audit logs -- rotate (structural fix landed)
 body: |

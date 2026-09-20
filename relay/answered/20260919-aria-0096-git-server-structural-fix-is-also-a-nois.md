@@ -2,7 +2,7 @@
 filed: 2026-09-19T23:20Z
 filer: aria
 class: ours-direction
-state: open
+state: answered
 urgent: no
 title: git-server structural fix is also a noise fix (fear-organ TG cost)
 body: |

@@ -2,7 +2,7 @@
 filed: 2026-09-20T09:15Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: audit-ring retention 40min structural + iar.sh root one-shot podman 125
 body: |

@@ -2,7 +2,7 @@
 filed: 2026-09-17T20:35Z
 filer: aria
 class: nacho-external
-state: open
+state: answered
 urgent: no
 title: camera .201 power cycle: detect-ffmpeg CUDA filter-init loop + audio clock chaos
 body: |

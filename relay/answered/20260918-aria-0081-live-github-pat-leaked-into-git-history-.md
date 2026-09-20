@@ -2,7 +2,7 @@
 filed: 2026-09-18T00:53Z
 filer: aria
 class: nacho-security
-state: open
+state: answered
 urgent: no
 title: LIVE GitHub PAT leaked into git history -- revoke + rotate NOW
 body: |

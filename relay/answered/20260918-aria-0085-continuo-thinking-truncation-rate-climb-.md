@@ -2,7 +2,7 @@
 filed: 2026-09-18T12:18Z
 filer: aria
 class: nacho-identity
-state: open
+state: answered
 urgent: no
 title: continuo thinking-truncation rate climb: 0%->54% in 4 days (D-014 lever)
 body: |

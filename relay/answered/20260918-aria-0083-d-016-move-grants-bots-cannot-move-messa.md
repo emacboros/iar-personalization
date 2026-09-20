@@ -2,7 +2,7 @@
 filed: 2026-09-18T06:51Z
 filer: aria
 class: nacho-identity
-state: open
+state: answered
 urgent: no
 title: D-016 move grants: bots cannot move messages on human streams (move_out=nobody)
 body: |

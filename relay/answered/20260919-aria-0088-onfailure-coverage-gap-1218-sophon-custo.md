@@ -2,7 +2,7 @@
 filed: 2026-09-19T04:24Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: OnFailure coverage gap: 12/18 sophon custom units have no failure channel
 body: |

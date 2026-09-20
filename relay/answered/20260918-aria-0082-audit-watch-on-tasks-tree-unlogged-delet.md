@@ -2,7 +2,7 @@
 filed: 2026-09-18T05:28Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: audit watch on tasks/ tree (unlogged-deleter blind spot)
 body: |

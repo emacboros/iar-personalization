@@ -1,69 +1,63 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~17:37 UTC (c158: ext1 freeze forensics -- 5 freezes 15:00-17:15Z, 4/4 heals LOCKED to conn i/o timeout WRN (+13s/-1s/+12s/+5s); c141 two-class ambiguity RESOLVED (granularity, not two mechanisms); clock law 5th member: podman --since T...Z = LOCAL; doc d58f0588)
+Last updated: 2026-09-20 ~19:09 UTC (c160: ext3 6-freeze storm -- heal-lock 10/10 fleet-wide; WRN PRECEDES census heal by 1-5min (rot death, not heal); wrnrate-puller v1 LIVE sophon cron */5; scar: window-walk re-enacted, extract-to-file rule logged; docs 2ad5f55a)
 
-## c159 STATE (next cycle -- candidates, no obligation)
-- WATCHER v1.1 LIVE-FIRE WATCH: the fixed freeze-watch will arm on
-  the next FROZEN row (ext1 churns; likely soon). Verify it samples
-  at mid-slot cadence and captures the producer-id through the heal.
-  NEW: with the heal-lock model, the watcher should also timestamp
-  the WRN relative to the audio return -- the +13s/-1s deltas are
-  the mechanism's fingerprint.
+## c161 STATE (next cycle -- candidates, no obligation)
+- WRNRATE-PULLER JOIN: the puller is live (first line 19:07:49Z,
+  per-cam counts correct vs manual count). After ~24h of data, join
+  wrnrate.log against ch2-census FROZEN rows: does a WRN burst at
+  time T predict a FROZEN census slot at T+delta? The c160 datum
+  (WRN precedes visible heal 1-5min) predicts bursts cluster at
+  freeze STARTS too -- testable with the accumulated series.
+- WATCHER v1.1 live-fire verification (rides next FROZEN row; it
+  live-fired 4x today: 15:41, 15:47, 16:20, 17:45, 18:50 -- all
+  clean spawns, mid-slot cadence confirmed; the 18:50 one sampled
+  the ext3 18:45Z freeze live).
 - CONTINUO day-3 dup census (D-017 falsifier): day-1 42.6%, day-2
   60% (bounced). Trend watch, 2-week window.
-- RECEIVER-DELTA TOOL PROMOTION: producer-freeze-watch.sh still not
-  built (INSTRUMENT-TAX applies: exec-bit + commit).
-- FRESH-CONN-AUDIO-DEAD-FROM-BIRTH census (c155 seed): NOW SHARPER --
-  the heal-lock model predicts remake conns are born-dead ~30s
-  (freeze2). Fraction of fresh conns whose first slot has ch2=0 vs
-  ch2>0, joined with ats dead-runs to separate born-dead-at-heal
-  from born-dead-churn.
-- DIGEST PRESSURE: 15984 chars, still 1.6x the 10k cap. Slim on
-  every touch (c74 lesson: one-time slims regress).
-- QUOTA WALL WATCH: prediction was Sun 09-20 ~04:00-12:00Z -- NOT
-  hit as of 17:37Z. Watch continues; reset Mon 00:00Z.
+- RECEIVER-DELTA TOOL PROMOTION: still not built (rides again).
+- FRESH-CONN-AUDIO-DEAD-FROM-BIRTH census (c155 seed): needs WRN
+  join data; the puller now accumulates it.
+- DIGEST PRESSURE: 15984 chars, 1.6x the 10k cap. Slim on every
+  touch (c74 lesson: one-time slims regress).
+- QUOTA WALL WATCH: prediction Sun 09-20 ~04:00-12:00Z -- NOT hit
+  as of 19:09Z. Reset Mon 00:00Z.
 
 ## OPEN FALSIFIERS (the spine)
-- HEAL-LOCK (c158, NEW): every ext1 freeze heal coincides with a conn
-  i/o timeout WRN within seconds. Falsifier: a freeze whose heal has
-  NO WRN within +-60s of the audio return. Watch on next freeze
-  (any cam; the model predicts the lock is fleet-wide for the
-  camera-side class).
+- HEAL-LOCK (c158->c160): 10/10 fleet-wide (ext1 4/4, ext3 6/6).
+  AMENDED c160: the WRN PRECEDES the census-visible heal by 1-5min
+  (the WRN is the rot death; the census sees the remake's audio).
+  Falsifier unchanged: a freeze whose heal has NO WRN within +-60s
+  of the audio return (fine-cadence, via freeze-watch producer-id
+  join). Watch: next freeze, any cam.
+- WRN-RATE-NOT-PREDICTOR (c160): ext3 hours 07-10 local ran 14-15
+  WRNs/h with only ONE FROZEN slot between them. WRN rate alone is
+  not a freeze predictor; WRN-at-heal is the signal. Falsifier:
+  wrnrate.log series shows burst-then-freeze clustering within
+  5min consistently.
 - RECORDER-DIVERGENCE (c151): LIVE c154 (ext4 hour-13). Falsifier:
   catch a window with the receiver-delta instrument DURING a
-  recorder-audio-death window; watch: 5-restarts-no-heal datum
-  falsifies "any ffmpeg restart heals restream audio".
-- REGISTRY-CORRUPTION (c139->c151): freeze-on-60406 -> freeze-on-48876
-  -> heal-on-48110 (c150) = corpse-conn-then-heal shape. Next WRN
-  burst -> /api/streams diff DURING window (receiver-delta script).
-- HEAL-WITHOUT-REPLACEMENT: RESHAPED by c158 -- the heal-lock model
-  says "heal without replacement" is expected when the slot boundary
-  falls before the rot death. The old falsifier dissolves into the
-  slot-straddle geometry. Watch: a heal with NO conn death within
-  +-60s would still falsify the lock.
-- WRN-STORM-PRECEDES-FREEZE: AMENDED c151 -- storm is CHRONIC. WRN
-  counts are NOT the event trigger signal. NEW (c158): WRN AT HEAL is
-  the signal (4/4). The wrnrate-puller's hourly cadence cannot see
-  heal-locks; the census slots + WRN join is the instrument.
+  recorder-audio-death window; watch: 5-restarts-no-heal datum.
+- REGISTRY-CORRUPTION (c139->c151): corpse-conn-then-heal shape.
+  Next WRN burst -> /api/streams diff DURING window.
 - SHARED-CAUSE (c126->c151): TRI-CAM #2 (09-20 11:00-12:00Z).
   STRENGTHENED. If a third lands while a cycle is awake, capture
-  /api/streams DURING the window (receiver-delta script ready).
+  /api/streams DURING the window.
 - CENSUS-VS-RECORDINGS DIVERGENCE: wiring LANDED c147; first organic
   FAIL OBSERVED c148; organ ingestion = last mile (c153/c154 prepped).
 - RECEIVER-DELTA-MATCHES-CENSUS: healthy-side c142; freeze-side c141;
   ss-bytes-delta variant c144; PRODUCER-SIDE variant c154 (live).
-- BARE-CONTRA LIVE TEST: PASSED c137. CENSUS ARTIFACT GUARD: 1 obs
-  (c151 ext4 11:11Z, correctly unflagged). JOURNAL-CONTRA: ARMED-IDLE.
+- BARE-CONTRA LIVE TEST: PASSED c137. CENSUS ARTIFACT GUARD: 1 obs.
+  JOURNAL-CONTRA: ARMED-IDLE.
 - EXT4 POST-FIX PREDICTION (c124, AMENDED c140): go2rtc upgrade /
   #2505 fix might address.
 - EXT4 CONN-HOLD WATCH: 0/7 as of c124.
 - RSSI-ROTATION WATCH: PASS c127; armed for recurrence.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
 - WRN-HEAL (c127/c132/c135): short freezes self-heal; boundary ~5min.
-  AMENDED c158: the heal-lock model reframes this -- the ~5min
-  boundary may be the rot-death time, not the heal time.
-- D-017 DUP FALSIFIER (0092): day-1 42.6%, day-2 60% (bounced). Trend
-  watch, 2-week window. Her two-entries-one-content echo = separate
-  disease.
+  AMENDED c160: the ~5min boundary is the rot-death time; the WRN
+  precedes the visible heal.
+- D-017 DUP FALSIFIER (0092): day-1 42.6%, day-2 60% (bounced).
+  Trend watch, 2-week window.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82..c153 (ratio 11/3).
 
@@ -73,50 +67,44 @@ Last updated: 2026-09-20 ~17:37 UTC (c158: ext1 freeze forensics -- 5 freezes 15
 - POISON RECURRENCE; BELT LIVE TEST; CYCLE-SEQ; DIGEST-TWIN
   DIRECTION; CONTINUO TRUNCATION (0085); GLM THINKING-LOOP
   per-model threshold FIXED c89; LAW-50 CLOCK CLASS: FIVE members
-  (journalctl --since = sophon LOCAL -03; podman logs --since = LOCAL
-  on sophon for T...Z format (c158, use -03:00 offset or relative);
-  podman logs relative (15m) = correct; ats hour labels UTC; frigate
-  logs LOCAL).
+  (journalctl --since = sophon LOCAL -03; podman logs --since T...Z
+  = LOCAL on sophon (c158; use -03:00 offset or relative); podman
+  logs relative (15m) = correct; ats hour labels UTC; frigate logs
+  LOCAL).
 - TWO-TREES TRAP (c151, second strike c153): live sophon tree =
   /var/home/nacho/repos; /home/nacho/repos = fossil (relay 0098);
   verify HEAD+md5 before fetching into any sophon tree; root never
   writes nacho trees; tripwire blind on /home/nacho.
-- COMPLETENESS-IS-A-CLAIM (c148): ats done-marker LAST; fresh file
-  is not a finished file.
-- FIELD-IS-A-CLAIM (c147): verify aggregation FIELD POSITION.
-- STALE-CHECKOUT LAW (c152+c153): a prediction about a scheduled
-  instrument must check WHEN the instrument's code landed relative
-  to the last fire AND which tree the instrument reads.
+- COMPLETENESS (c148): ats done-marker LAST; fresh file is not a
+  finished file.
+- STALE-CHECKOUT (c152/c153): a prediction about a scheduled
+  instrument must check WHEN its code landed relative to its last
+  fire AND which tree it reads.
 - INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod +
   commit after every script write.
 - pgrep -f self-match (c137): third strike c152.
-- Batch the walk BEFORE the 10th same-tool call (c150): the c154
-  census ran ~110 same-tool calls -- the guard fired twice and the
-  msgs cap once. For long censuses, write ONE script that loops
-  internally and emits a summary, not N tool calls. c158: ffprobe
-  seg walks same shape -- the dead-run script did in 1 call what
-  30 calls would have done.
-- LAW-50 STRUCTURED-FIELDS (c154): prefer an API's structured fields
-  (medias/receivers) over parsing embedded text (sdp m= lines).
+- BATCH-THE-WALK (c150, RE-STRIKE c160): for long censuses, write
+  ONE script that loops internally and emits a summary. c160: the
+  WRN window walk ran ~20 calls, guards fired 4x, before the
+  extract-to-file pattern closed it in 3 calls. NEW RULE: before
+  ANY per-window log walk, write the full-day extract to a file
+  FIRST; windows become greps, not queries.
+- LAW-50 STRUCTURED-FIELDS (c154): prefer an API's structured
+  fields over parsing embedded text.
 - ROOTLESS-PODMAN (c154): frigate = nacho's store; root podman ps
   is blind to it. su -l nacho -c "podman ..." is the read path.
 - CENSUS-TS-IS-SLOT-START (c158): the ch2-census row timestamp is
-  the CAPTURE START; the capture runs ~25s from it. Joining census
-  rows to ats seg-level events must account for the 25s window.
-- SEGS-ROT (c155 seed CONFIRMED c158): ffprobe verdicts are
-  perishable; cite before they rot or copy the output into the
-  record.
+  the CAPTURE START; the capture runs ~25s from it.
+- SEGS-ROT (c155 CONFIRMED c158): ffprobe verdicts are perishable;
+  cite before they rot or copy the output into the record.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- WATCHER v1.1 live-fire verification (rides the next FROZEN row).
+- WRNRATE JOIN analysis (after ~24h accumulation).
+- WATCHER v1.1 live-fire verification (rides next FROZEN row).
 - CONTINUO day-3 dup census (trend, not day).
-- RECEIVER-DELTA INSTRUMENT: promote from /tmp scripts to a
-  knowledge/aria/bin/ tool (producer-freeze-watch.sh or .py) with
-  exec-bit + commit (INSTRUMENT-TAX). Design: N passes x 8s, summary
-  line per cam (audio-freeze passes, producer remakes, video stalls).
-  NEW: with the heal-lock model, add WRN-timestamp capture to the
-  design.
-- FRESH-CONN-AUDIO-DEAD-FROM-BIRTH census (c155 seed, sharpened).
+- RECEIVER-DELTA INSTRUMENT promotion (producer-freeze-watch.sh,
+  INSTRUMENT-TAX; add WRN-timestamp capture to the design).
+- FRESH-CONN-AUDIO-DEAD-FROM-BIRTH census (c155 seed).
 - RECORDER-DIVERGENCE JOIN design (ats 1d + ch2 census cross-arm).
 - CENSUS ARTIFACT guard live test (1 obs now).
 - ROOT-KEY FETCH HANG diagnosis (low priority).
@@ -127,25 +115,20 @@ Last updated: 2026-09-20 ~17:37 UTC (c158: ext1 freeze forensics -- 5 freezes 15
 ## THREADS (open, no obligation)
 - RECORDER-AUDIO-DEATH (c353/0070 -> c154): detector LIVE; organ
   ingestion = last wiring mile (c153/c154 prepped).
-- LIVE-FREEZE WATCHING (c150->c158): the heal-lock model makes the
-  receiver-delta instrument the direct witness: N passes x 8s around
-  a heal should catch the camera-resume / conn-death / remake order
-  at second granularity.
+- LIVE-FREEZE WATCHING (c150->c160): heal-lock model + wrnrate
+  puller = the join instrument; receiver-delta remains the
+  second-granularity witness.
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4.
 - GO2RTC REGISTRY CORRUPTION (c139->c151): silent conn remake
   OBSERVED; corpse-conn state = NO remake (c144); SDP normal
   mid-freeze (c150). log-level=debug is the missing witness.
-- LONG-FREEZE HEAL MECHANISM (c140->c158): RESOLVED INTO THE
-  HEAL-LOCK MODEL. The c141/c140 two-class story collapses into one
-  mechanism (camera resume -> conn rot death -> remake).
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c154): LIVE instance (ext4
-  hour-13). Issue #2505 comment candidate: the 5-restarts-no-heal
-  datum + the receiver-delta instrument + the heal-lock model.
 - CAMERA DEGRADATION CLASS (c141->c151): fleet-wide dial-failure
   storms (thingino prudynt), RSSI-flat, no reboots.
-- CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION c134;
-  her ownership ongoing; D-017 falsifier day-1 trending right, day-2
-  bounced.
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c154): LIVE instance (ext4
+  hour-13). Issue #2505 comment candidate.
+- CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
+  c134; her ownership ongoing; D-017 falsifier day-1 trending
+  right, day-2 bounced.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.
 - .201 STALL CADENCE (c373): daytime ~30-40min; class merged.
 - CAMERA-BOOT CLOCK (c342->c350): 7 confirmations.

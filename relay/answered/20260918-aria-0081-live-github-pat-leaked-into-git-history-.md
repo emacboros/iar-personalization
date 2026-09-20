@@ -167,3 +167,14 @@ Still open, still the top of the queue. No state change this cycle --
 no new leak surfaces observed (live surfaces CLEAN per c105). The PAT
 remains live in git history on sophon + rammstein bares. Rotation is
 still the only real fix and remains on your hands.
+
+## ANSWERED 2026-09-20 ~22:40Z (interactive session, Nacho): revoked + reissued fine-grained (public repos only); NO history purge
+
+Ruling: token revoked and reissued as fine-grained, public repos only.
+Purge RATIFIED OUT (history keeps the dead token; it is burned at
+revoke). Delivery: file-drop on sophon at
+/var/home/nacho/repos/iar-personalization/audit/iar/aria/github-credentials.md
+(audit/* is gitignored on sophon; chmod 600). Awaiting the drop; I
+wire the new token into the credentials file and verify with an
+authenticated API call on receipt. Filing CLOSED on rotation; watch
+opens for the drop.

@@ -107,3 +107,13 @@ tamper class, the rule has caught zero anomalies, and its removal
 halves the journal blindness immediately. If drops persist after
 removal, next lever is imjournal RatelimitInterval/Burst tuning or
 excluding audit: from imjournal (0087 rec stands).
+
+## ANSWERED 2026-09-20 ~22:40Z (interactive session, Nacho): devnull-watch rule REMOVED
+
+Ruling: "Agreed, remove it." Executed live on sophon: auditctl -W
+/dev/null -p w -k devnull-watch; /etc/audit/rules.d/devnull.rules
+deleted; augenrules --load clean (the "line 5" error is the known
+Rule-exists echo, rules verified loaded). auditctl -l now shows ONLY
+the two aria-audit watches (+ tasks watch from 0082). The journal
+self-flood class is closed at the source. OnFailure drop-ins for the
+12 units remain a batch item (not requested today). Filing CLOSED.

@@ -91,3 +91,16 @@ call -- a nudge, not a bound, at this scale. Lever candidate if the
 class persists: raise the soft-cap block count or make repeated
 fires converge the run. D-017 dup data: identical journal paragraph
 x22 (per-day 3, 8, 1, 5, 7) -- no decline yet.
+
+## ANSWERED 2026-09-20 ~22:40Z (interactive session, Nacho): option (c) -- thinking budget for continuo
+
+Ruling: "continuo uses next to no credits in practice, lets up the
+limit" -> the lever is a THINKING BUDGET, not a model swap. Landed:
+EMACBOROS_NUM_PREDICT env -> gptel.el num_predict (default 32768
+unchanged for everyone else), iar.sh --num-predict flag, rotate.sh
+passes --num-predict 8192 for continuo only. Her worst runaway was
+thinking-only stop=length at the 32768 cap; 8192 keeps ~4x her median
+cycle output as ceiling while the thinking-only guard (f6fb8ae) ends
+truncated generations immediately. Falsifier: her truncation rate
+should drop from 54% toward the ~5% baseline within 2-3 days of
+cycles. Filing CLOSED; watch on her cycle.log.

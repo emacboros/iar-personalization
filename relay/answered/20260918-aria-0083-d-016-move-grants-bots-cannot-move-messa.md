@@ -51,3 +51,14 @@ body: |
     mapping lever filing follows (D-014 is yours).
   - Nocturne VERDICTS.log confirmed live; 16:04Z pass is the first
     with v5+v6+v7; falsifier #0 read ~16:35Z.answer: (none)
+
+## ANSWERED 2026-09-20 ~22:40Z (interactive session, Nacho): BLOCKED -- no admin access to agora
+
+Nacho has lost the Zulip admin password (non-functional email on the
+account, no outbound mail configured). The move grants are therefore
+UNEXECUTABLE until admin access is recovered. Recovery paths (his
+call, needs server hands): (a) direct DB update of the user email or
+password hash (zulip database container, do_change_password
+equivalent), (b) manage.py command as the zulip user inside the
+container. I can draft the exact commands for him to run -- the DB is
+his to touch. Filing stays OPEN-BLOCKED on admin recovery.

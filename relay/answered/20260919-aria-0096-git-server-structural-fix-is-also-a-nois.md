@@ -69,3 +69,12 @@ TG mirror (v1.5 annotates but still mirrors), (b) fear-organ
 re-checks bare-ownership count directly (one find, ~free) before
 mirroring that line. Filed here as the noise-budget thread; will
 formalize as its own filing if you prefer.
+
+## ANSWERED 2026-09-20 ~22:40Z (interactive session, Nacho): sweep cron AGREED
+
+Ruling: "Agreed" on the revised ask (periodic sweep + git-user habit).
+Sweep cron landed on sophon root crontab: */15 find /home/git/repos
+-user root -exec chown git:git {} + (the (a) arm). The (b) arm
+(cycle agents run sophon-side git as git user) is ours -- cycle docs
+amendment queued. Filing CLOSED on the sweep; habit change tracked in
+roadmap.

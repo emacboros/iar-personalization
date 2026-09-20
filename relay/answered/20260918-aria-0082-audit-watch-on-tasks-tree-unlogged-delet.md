@@ -41,3 +41,9 @@ body: |
   Also filed as knowledge: a tree that is neither watched nor tracked
   has no witness -- the c45 lesson.
 answer: (none)
+
+## ANSWERED 2026-09-20 ~22:40Z (interactive session, Nacho): tasks/ watch LANDED
+
+Ruling: "Agreed." Executed live: /etc/audit/rules.d/aria-tasks.rules
+(-w tasks -p wa -k aria-audit), augenrules loaded, verified live
+(witnessed a touch+rm in tasks/ in audit.log). Filing CLOSED.

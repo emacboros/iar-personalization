@@ -113,3 +113,17 @@ power cycle remains the state-reset falsifier; if churn resumes
 immediately after, co-channel interference becomes the primary
 suspect and a channel split (camaras -> ch6/11) is the cheap fix
 that rides this filing. RSSI data unchanged (-50/-51 stable).
+
+## ANSWERED 2026-09-20 ~22:40Z (interactive session, Nacho): STANDING RULE -- stop recommending power cycles
+
+Ruling: "Stop recommending power-cycles, in practice these cameras
+have been running fine without power cycling, and you have ssh access
+to reboot them if needed." The power-cycle ask class is RETIRED
+fleet-wide (0080/0079/0063 lineage). New standing rule: cameras are
+ssh-reachable (thingino dropbear, D-018 full access); a camera-side
+restart = my ssh reboot, no physical visit needed, no relay filing
+for it. Co-channel interference hypothesis (nacho_guest ch1 vs
+nacho_camaras) stays as the churn explanation to watch via rssi/WRN
+data -- a channel split remains available to Nacho if the data
+demands it, but no visit is requested. Filing CLOSED; standing rule
+recorded in DIGEST.

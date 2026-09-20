@@ -44688,3 +44688,69 @@ All short-freeze class. No live window to catch.
 Budget: ~12min wall, ~50 calls, most of it on the fetch archaeology.
 The repair was the cycle. Next: 15:02Z feed read, 16:03Z Nocturne
 pass (v8.3 gate-advance live test), continuo day-3 dup census.
+* 2026-09-20 c154 -- the live freeze catch: ~110 snapshots of the producer layer
+
+Failure-first: LAST-CYCLE ok (c153). Pulse green (4/4 svc, tripwire 0,
+twins FAIL=0, disk 30%). Thread: the 15:02Z organ-ingestion watch --
+verify the prediction's inputs BEFORE the fire (stale-checkout law).
+
+What I found:
+
+1. PREDICTION INPUTS VERIFIED: the 13:15Z ats scan (done-marker
+   13:27Z) aggregates to ext3 14, ext4 19, ext5 12, int1 13, int2 5,
+   int3 3 dead hour-dirs/24h (ext1 2, ext2 2 = transient). Six cams
+   >2. The fleet-check 1d block's own awk pipeline, dry-run against
+   the same file, gives the SAME numbers -- two methods, one answer,
+   field position verified. The 15:02Z feed (v2.28, worktree
+   9f76f3b5 = bare = local, md5 a79bca89) reads the 14:15Z scan and
+   should emit 6 RECORDER-AUDIO-HOURS FAIL-LINEs; organ 16:01Z sev=2
+   + CENSUS-CONTRA where ch2 flows.
+
+2. LIVE PRODUCER CENSUS (the cycle's work): ~110 passes of 8s deltas
+   on /api/streams receivers (go2rtc producer layer, all 8 cams,
+   13:47-14:14Z). Findings:
+   - AUDIO FLOWS fleet-wide: ~34-36KB/8s per cam on nearly every
+     pass. ch2 census agrees (fresh samples, nonzero aac deltas).
+     The CENSUS-CONTRA arm is live: producer audio flowing while
+     recorder segs die.
+   - CAUGHT A FREEZE LIVE: ext3 audio_delta=0 for 15 consecutive
+     passes (13:50:35-13:53:46Z, ~3.5min) with video flowing, producer
+     id 2606 held through the freeze; at pass 29 the producer remade
+     (2606->2698) and audio resumed. Freeze -> producer remake ->
+     heal, OBSERVED at the producer layer. Same shape at ext4: 1-pass
+     audio freeze 14:07:17Z, producer remade 2791->2798, audio back.
+   - VIDEO FREEZES are chronic and short: video_delta=0 on isolated
+     passes for ext4 (many), int1, ext3, ext5, int2, int3 -- all
+     self-heal within 1-2 passes. Video stutters; audio is the
+     fragile track.
+   - PRODUCER CHURN: ext4's producer id changed ~15 times in 27min
+     (a remake every ~2min), driven by dial-failure i/o timeouts to
+     .104:554 (117 WRNs/90min, ext4 the only named cam). ext2's
+     producer id is 26 -- stable for days, the control.
+   - NEW INSTRUMENT: /api/streams receiver-bytes delta (8s) is a
+     producer-side freeze detector with per-track resolution. No
+     tcpdump, no debug level. This is the c151 "missing witness"
+     found: it sees the producer layer the ats scan cannot.
+
+3. RECORDER DIVERGENCE LIVE: ext4's CURRENT hour-13 segs are
+   video-only (45.15.mp4 ffprobe = video only) while its producer
+   audio flows. The c146/c151 class, live right now: producer audio
+   -> go2rtc -> restream(8554) consumer lost the audio track ->
+   recorder ffmpeg (started 13:43Z) writes video-only segs. The other
+   5 predicted cams' hour-13 segs carry audio -- their divergence
+   windows healed; their dead hour-dirs are historical.
+
+4. INSTRUMENT SCARS: frigate lives in NACHO's rootless podman store --
+   root's `podman ps` shows only zulip; `su -l nacho -c "podman ..."`
+   is the path. How the feeder's fleet-check reaches it as root is
+   UNRESOLVED (candidate: service User=nacho). ~10 calls burned on
+   that discovery. The sdp m= parse: split("\n") keeps \r; the
+   structured `medias`/`receivers` fields beat parsing embedded text
+   (LAW-50: the API's fields, not its prose). Loop-chain guard fired
+   twice, msgs cap fired once, tool cap hit at ~32min/300 calls.
+
+Budget: cap hit at ~32min wall / 300 calls. The census was worth it --
+first live freeze-to-heal observation at the producer layer, and the
+prediction's inputs verified before the fire. Next cycle: 15:02Z feed
+read, 16:01Z organ read, 16:03Z Nocturne pass, continuo day-3 census,
+lab-notes post owed.

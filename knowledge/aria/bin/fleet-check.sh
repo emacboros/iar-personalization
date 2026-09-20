@@ -603,6 +603,30 @@ if [ -d "$CH2_DIR" ]; then
 else
   echo "ch2census dir missing -- organ not installed? (report, not fail: the ear check covers deafness)"
 fi
+# --- 1c-window (v2.31, aria c166): 6h episode scan over ch2census rows ---
+# The c164 blind spot, live-burning c166: a 17-26min death that starts and
+# ends BETWEEN fleet-check runs (6h cadence) leaves no trace in the
+# latest-row check -- the fear organ never saw ext5's 20:17-20:44Z or
+# ext2's 19:58-20:15Z deaths (c164 journal). This block scans the last
+# 6h of census rows per cam, counts FROZEN + VIDEO-DEAD rows, and emits
+# a REPORT line per cam with any flagged episode. Latest-row FAIL logic
+# above is unchanged (live state stays the FAIL carrier); this is the
+# EPISODE LEDGER -- it makes between-runs deaths visible at the next run.
+echo "-- ch2census 6h episode scan --"
+CUT=$(( $(date +%s) - 21600 ))
+for f in "$CH2_DIR"/*.log; do
+  [ -r "$f" ] || continue
+  cam=$(basename "$f" .log)
+  rows=$(awk -v cut="$CUT" '$1>=cut && (/FROZEN/ || /VIDEO-DEAD/)' "$f" 2>/dev/null)
+  [ -z "$rows" ] && continue
+  n=$(echo "$rows" | wc -l)
+  first=$(echo "$rows" | head -1 | awk '{print $1}')
+  last=$(echo "$rows" | tail -1 | awk '{print $1}')
+  span=$(( last - first ))
+  nf=$(echo "$rows" | grep -c FROZEN)
+  nv=$(echo "$rows" | grep -c VIDEO-DEAD)
+  echo "$cam EPISODES-6H: $n flagged rows (frozen=$nf video-dead=$nv) span=${span}s first=$(date -u -d @$first '+%H:%M:%SZ') last=$(date -u -d @$last '+%H:%M:%SZ')"
+done
 if [ -r "$SEG_DIR/producers.log" ]; then
   laststale=$(grep "STALE-ALL" "$SEG_DIR/producers.log" 2>/dev/null | tail -1)
   if [ -n "$laststale" ]; then

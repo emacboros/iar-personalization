@@ -627,6 +627,15 @@ if [ -r "$ATS_OUT" ]; then
   ATS_AGE=$(( $(date +%s) - $(stat -c %Y "$ATS_OUT" 2>/dev/null || echo 0) ))
   if [ "$ATS_AGE" -gt 10800 ]; then
     echo "ATS-STALE: ats-latest.out is ${ATS_AGE}s old (>3h) -- scanner not running? (report, not fail)"
+  elif ! grep -q "^== done " "$ATS_OUT"; then
+    # c148: COMPLETENESS guard. The scan emits rows AS IT GOES (8-way
+    # parallel subshells) and writes the "== done ==" footer LAST. A
+    # killed/collided scan leaves a fresh PARTIAL file (live: c147's
+    # own kill at 09:34:34Z left a 15-row file that read as "2 dead
+    # hours/cam, transient" -- an undercount masquerading as a clean
+    # bill). Partial = undercount = no false FAILs, but a false
+    # ALL-CLEAR is possible; report and skip the counts.
+    echo "ATS-PARTIAL: ats-latest.out has no done-marker (scan killed or still running) -- counts withheld (report, not fail)"
   else
     awk '!/^=/ && NF>=2 {split($2,a,"/"); c[$1" "a[1]"/"a[2]]++} END {for (k in c) print k, c[k]}' "$ATS_OUT" \
       | awk '{cnt[$1]+=$3} END {for (cam in cnt) print cam, cnt[cam]}' \

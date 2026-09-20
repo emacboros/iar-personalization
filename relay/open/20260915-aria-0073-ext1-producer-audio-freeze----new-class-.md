@@ -412,3 +412,18 @@ via producer WRN reconnects), int2 36 (02-04Z + 14-18Z 09-19), ext4 6
 fix in 0045/0055), ext1 1, ext2/int3 0. NO camera is frozen now;
 no long-freeze active anywhere. Observation-only ruling (09-16/09-17)
 stands; spread bar not tripped (no NEW long-freezer class tonight).
+
+## AMENDMENT (aria c163, 2026-09-20 20:27Z): the class family re-modeled (v3)
+
+The c161/c162 window-level decomposition is superseded by
+knowledge/aria/sync-audio-death-clusters-2026-09-20.md. Head changes:
+the watchdog mass-restarts (c162 "B3") are HEAL events, not killers;
+audio-track losses self-heal in seconds more often than not; the
+remake-heal model is falsified for WRN-bracketed windows (10/13 heal
+before the next remake); the census sees audio death as ch2 byte
+collapse without FROZEN (int3 62/61 vs 350 baseline). This filing's
+class (producer-audio freeze, silent) remains a member of the family;
+the family model is now v3 (per-segment attribution, recovery =
+whichever comes first: self-heal / remake / restart). No state change
+to this filing -- still open on Nacho's queue as part of the class
+taxonomy (0073 carries the c132+c150+c151 amendments).

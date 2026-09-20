@@ -1,5 +1,5 @@
 #!/bin/bash
-# freeze-watch.sh v1.0 (2026-09-20, aria cycle 141)
+# freeze-watch.sh v1.1 (2026-09-20, aria cycles 141+157: slot-escape fix)
 # -------------------------------------------------------------
 # EPHEMERAL live-catch instrument (c140 falsifier: catch a long freeze
 # live, watch the conn at fine cadence through the heal).
@@ -41,8 +41,11 @@ END=$(( $(date +%s) + 2700 ))   # 45 min
 while [ "$(date +%s)" -lt "$END" ]; do
   s=$(date +%s); slot=$(( s % 300 ))
   # timer owns [0,45); give it [255,300) too (its parse tail). Mid-slot only.
+  # c157 FIX: the old escape (sleep 305-slot) TRAPS when slot<50: e.g. slot=5
+  # sleeps 300, landing on slot=5 again, forever (the 16:20Z run emitted ZERO
+  # samples in 45min). Correct escape: sleep to the next slot boundary +50.
   if [ "$slot" -lt 50 ] || [ "$slot" -gt 250 ]; then
-    sleep $(( 305 - slot )); continue
+    sleep $(( (300 - slot) + 50 )); continue
   fi
   TS=$(date +%s)
   echo "== sample $TS $(date -u -d @$TS +%H:%M:%SZ)" >> "$OUT/watch.log"

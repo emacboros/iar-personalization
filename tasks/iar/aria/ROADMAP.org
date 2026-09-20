@@ -1,25 +1,29 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~20:07 UTC (c162: class-B DECOMPOSED 4-way --
-B1 #2505 19pct, B3 recorder-restart tails 35pct (NEW, dominant), B4
-census-ARTIFACT-masked 19pct, TRUE-B 1 window; c161 WRN-bracket model
-FALSIFIED fleet-wide; doc 41e1d7d8; fleet-check v2.29 1e block c9400a53)
+Last updated: 2026-09-20 ~20:26 UTC (c163: c162 B3 INVERTED -- restarts
+HEAL not kill; remake-heal model falsified for B1-strong; census
+ch2-collapse signature found; doc e4e77fc3+4014ad3b; decomposer build
+POSTPONED until model settles)
 
-## c163 STATE (next cycle -- candidates, no obligation)
-- 4-WAY DECOMPOSER v2: block 1e is census-only (A/B4 vs rest). Full
-  join = add WRN-bracket (B1) + frigate watchdog restart windows (B3)
-  into the block. Design in knowledge/aria/class-b-decomposition-2026-09-20.md.
-- CENSUS v1.5 CANDIDATE: ARTIFACT + ch2<=5 rows = probable freeze
-  (B4 class). The c132 artifact guard is a censor for near-zero rows.
-  Additive flag change, falsifier: B4 window where segcensus STALE-ALL
-  stays clean.
-- INT2 H22 RECURRENCE WATCH: the one TRUE-B window. If it recurs with
-  no WRN/restart/near-zero census => fifth mechanism.
-- #2505 COMMENT (upstream): now carries the honest number -- the fix
-  closes ~19% of class-B windows (B1), NOT the class. B3 is
-  frigate-side (mass-restart fps-limit storms), B4 is census-side.
-- WRNRATE-PULLER JOIN: puller accumulating; after ~24h, join against
-  the 4-way classes. c162 finding: class-B fraction INVERTS vs churn
-  (low-churn cams = higher B fraction) -- remake rate is NOT the driver.
+## c164 STATE (next cycle -- candidates, no obligation)
+- DECOMPOSER v2 (REVISED to per-segment): for each ats dead seg, join
+  (census row +-60s, WRN +-60s, restart +-60s) -> seg-level tags.
+  Window classes stay as summary. Design in
+  knowledge/aria/sync-audio-death-clusters-2026-09-20.md (v3 model).
+- CENSUS v1.5 CANDIDATE (UPDATED): ch2 < 20% of cam median without
+  FROZEN = audio-death slot (int3 06:45/06:50Z: 62/61 vs 350 baseline).
+  Stronger + more general than the ARTIFACT-near-zero sub-flag. Keep
+  the ARTIFACT-near-zero candidate too (B4 class, c132 censor).
+- SYNC-CLUSTER TRIGGER HUNT: what fires a synchronized multi-cam
+  restream audio gap (42.13Z: 4 cams same second; 48.00Z: 3 cams)?
+  No WRN for affected cams, no restart before. go2rtc log-level=debug
+  is the missing witness (rides REGISTRY-CORRUPTION thread).
+- WRNRATE-PULLER JOIN: puller at ~110 lines (9h); join at ~24h
+  (~09-21 07:00Z) against the per-segment classes.
+- INT2 H22 RECURRENCE WATCH: the one TRUE-B window (c162). If recurs
+  with no WRN/restart/near-zero census => fifth mechanism.
+- #2505 COMMENT (upstream): number now DOUBLY revised -- B1-strong
+  windows self-heal BEFORE the remake, so the #2505 fix's coverage is
+  even smaller than 19%. Comment should carry the v3 model.
 - WATCHER v1.1 live-fire verification (rides next FROZEN row).
 - CONTINUO day-3 dup census (D-017 falsifier): day-1 42.6%, day-2 60%.
 - RECEIVER-DELTA TOOL PROMOTION: still not built (rides again).
@@ -27,25 +31,29 @@ FALSIFIED fleet-wide; doc 41e1d7d8; fleet-check v2.29 1e block c9400a53)
 - QUOTA WALL WATCH: reset Mon 00:00Z. Watch post-reset behavior.
 
 ## OPEN FALSIFIERS (the spine)
-- CLASS-B 4-WAY MODEL (c162, REVISED): A = census FROZEN; B1 = WRN
-  bracket +-5min (5/26 windows); B3 = recorder restart +-2min (9/26);
-  B4 = census ARTIFACT/near-zero at death times (5/26); TRUE-B = 1/26
-  (int2 h22). Falsifiers: (a) mass-restart whose dying tails are NOT
-  audio-dead; (b) ARTIFACT-near-zero row with clean segcensus; (c)
-  int2-h22 recurrence with no trigger.
-- B3 UPSTREAM SIGNATURE: frigate watchdog mass-exit storms (fps-limit
-  + no-frames) = the trigger event. Watch: next mass-restart, capture
-  /api/streams DURING.
-- CLASS-B UPSTREAM (#2505): fix closes B1 only (~19% of class-B).
-  Falsifier for the fix: B1 windows disappear while B3/B4 persist.
+- CLASS-B MODEL v3 (c163, REVISED AGAIN): audio-track loss events hit
+  the restream (sometimes synchronized multi-cam, trigger unexplained;
+  sometimes single-cam after a camera stall with WRN co-occurrence).
+  Recovery = whichever comes first: seconds-scale self-heal, next
+  producer remake, watchdog restart. High-churn cams heal at remakes;
+  low-churn cams depend on self-heal or the watchdog. The watchdog
+  mass-restart is a HEAL event, not a death event. Falsifiers:
+  (a) synchronized multi-cam death whose segs are NOT contiguous and
+  NOT healed by the following restart; (b) B1-strong window whose
+  death end coincides with the next remake WRN; (c) int3-style ch2
+  collapse slot with ats-clean segs in the same window.
+- B1 REINTERPRETATION (c163): WRN+death co-occurrence = shared
+  camera-side trigger symptom (i/o timeout = camera stall), NOT
+  cause-and-effect. 10/13 B1-strong windows self-heal before the next
+  remake. Falsifier: a B1-strong window healing exactly at the remake.
 - HEAL-LOCK (c158->c160): 10/10 fleet-wide. WRN precedes census heal
   1-5min. Falsifier: a freeze whose heal has NO WRN within +-60s.
-- WRN-RATE-NOT-PREDICTOR (c160): STRENGTHENED c162 -- class-B fraction
-  INVERTS vs churn (ext2 4 WRNs = 100% B; ext4 1816 WRNs = 25% B).
+- WRN-RATE-NOT-PREDICTOR (c160): STRENGTHENED c162/c163 -- class-B
+  fraction INVERTS vs churn; heal-by-restart ALSO inverts vs churn
+  (ext2/int3 2/3 by restart; ext3 1/12 despite 335 restarts).
 - REGISTRY-CORRUPTION (c139->c151): corpse-conn-then-heal shape.
-- SHARED-CAUSE (c126->c151): TRI-CAM #2 (09-20 11:00-12:00Z). The
-  01:42Z/06:48Z mass-restarts are a NEW shared-cause shape (B3) --
-  but those are explained; the tri-cam census-freeze shape remains open.
+- SHARED-CAUSE (c126->c151): TRI-CAM #2 (09-20 11:00-12:00Z) remains
+  open; the 42.13/48.00 clusters are a NEW shared-cause shape (v3).
 - CENSUS-VS-RECORDINGS DIVERGENCE: wiring LANDED c147; first organic
   FAIL c148; organ ingestion = last mile.
 - RECEIVER-DELTA-MATCHES-CENSUS: healthy-side c142; freeze-side c141;
@@ -57,7 +65,7 @@ FALSIFIED fleet-wide; doc 41e1d7d8; fleet-check v2.29 1e block c9400a53)
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
 - D-017 DUP FALSIFIER (0092): day-1 42.6%, day-2 60% (bounced).
 - #5: delegate-path abort watch -- armed; 0 bursts.
-- #6: cycle-path abort watch -- LIVE-FIRED c82..c162 (ratio 11/3).
+- #6: cycle-path abort watch -- LIVE-FIRED c82..c163 (ratio 11/3).
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 11 legit / 3 runaway.
@@ -69,8 +77,8 @@ FALSIFIED fleet-wide; doc 41e1d7d8; fleet-check v2.29 1e block c9400a53)
   UTC; ch2census epoch UTC; go2rtc/frigate podman logs DISPLAY =
   sophon LOCAL (-03); `podman logs --since <Z>` filters UTC correctly;
   convert display +3h to UTC; ANCHOR EVERY CONVERSION with
-  `date -u -d @epoch`. c162: the 01:42Z/06:48Z mass-restart clusters
-  were invisible until the display->UTC conversion.
+  `date -u -d @epoch`. c163: the 06:48:06Z ext4 WRN was verified
+  against its 03:48:06 display line before use.
 - TWO-TREES TRAP (c151/c153): live sophon tree = /var/home/nacho/repos;
   /home/nacho/repos = fossil (relay 0098).
 - COMPLETENESS (c148): ats done-marker LAST.
@@ -78,10 +86,10 @@ FALSIFIED fleet-wide; doc 41e1d7d8; fleet-check v2.29 1e block c9400a53)
   landed vs its last fire.
 - INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod + commit.
 - pgrep -f self-match (c137): third strike c152.
-- BATCH-THE-WALK (c150/c160/c161, HELD c162 second half): any
-  multi-source join gets written as ONE sophon-side script emitting
-  one table BEFORE the first fetch. c162: the rule was load-bearing
-  after c110; the first half's piecemeal walk ate ~100 calls.
+- BATCH-THE-WALK (c150..c163, HELD this cycle): any multi-source join
+  gets written as ONE sophon-side script emitting one table BEFORE the
+  first fetch. c163: the extract-once + attribute-once shape cost ~25
+  calls for a 67-window fleet join (vs ~110 in c161).
 - ATS HOUR LABEL: trailing colon on $2 (DAY/HOUR:) -- strip before
   date parse (c162 scar, 3 calls to fix).
 - PASTE-MISALIGN (c162 scar): grep -oE alternation + paste misaligns
@@ -93,12 +101,16 @@ FALSIFIED fleet-wide; doc 41e1d7d8; fleet-check v2.29 1e block c9400a53)
   verdicts perishable -- cite before they rot.
 - FILTER-vs-CENSOR (c315, THIRD application c162): the ARTIFACT guard
   censors near-zero real freezes. Census v1.5 candidate.
+- WINDOW-MIXTURE (c163 NEW): ats hour windows are MIXTURES of events
+  (ext3 h05 = 5 FROZEN rows + artifact rows); window-level classes are
+  not exclusive -- per-segment attribution is the honest unit.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- 4-way decomposer v2 (WRN + restart join in-block).
-- Census v1.5 ARTIFACT-near-zero sub-flag (B4).
-- #2505 comment with the honest 19% number.
-- WRNRATE 4-way join (after 24h accumulation).
+- Per-segment decomposer v2 (fleet-check block, additive).
+- Census v1.5: ch2<20%-of-median audio-death flag + ARTIFACT-near-zero.
+- Sync-cluster trigger hunt (go2rtc debug log candidate).
+- #2505 comment with the v3 numbers.
+- WRNRATE join at ~24h accumulation.
 - WATCHER v1.1 live-fire verification (rides next FROZEN row).
 - CONTINUO day-3 dup census (trend, not day).
 - RECEIVER-DELTA INSTRUMENT promotion (INSTRUMENT-TAX).
@@ -107,20 +119,20 @@ FALSIFIED fleet-wide; doc 41e1d7d8; fleet-check v2.29 1e block c9400a53)
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- RECORDER-AUDIO-DEATH (c353/0070 -> c162): DECOMPOSED 4-WAY. B3
-  (recorder-restart tails) is the dominant class-B mechanism; B4 =
-  census censor; B1 = #2505 minority; TRUE-B = int2 h22.
+- RECORDER-AUDIO-DEATH (c353/0070 -> c163): MODEL v3. Restarts heal;
+  self-heal is real and common; remake-heal falsified for B1-strong;
+  census ch2-collapse signature found. Sync-cluster trigger open.
 - LIVE-FREEZE WATCHING (c150->c160): heal-lock model + wrnrate
   puller = the join instrument.
-- FRIGATE MASS-RESTART STORMS (c162 NEW): 2 fleet-synchronous events
-  in 24h (01:42Z, 06:48Z); fps-limit + no-frames mass-exits; upstream
-  signature worth a look (frigate fps-limit config?).
+- FRIGATE MASS-RESTART STORMS (c162->c163): REINTERPRETED as heal
+  events (downstream of the audio death, not the cause). The upstream
+  trigger question moves to the sync-cluster hunt.
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4.
 - GO2RTC REGISTRY CORRUPTION (c139->c151): log-level=debug is the
-  missing witness.
+  missing witness (also for the sync-cluster trigger).
 - CAMERA DEGRADATION CLASS (c141->c151): fleet-wide dial-failure
   storms (thingino prudynt), RSSI-flat, no reboots.
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c162): class B now 4-way.
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c163): model v3.
 - CONTINUO DIGEST REBUILD (c120, rides 0092): her ownership ongoing.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.
 - .201 STALL CADENCE (c373): daytime ~30-40min; class merged.

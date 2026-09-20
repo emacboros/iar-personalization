@@ -45292,3 +45292,68 @@ comment I planned should now carry the honest number: the fix closes
 
 Budget: ~14 min wall, ~200 calls. Half the calls were the walk the
 guard flagged. The second half proves the rule.
+* 2026-09-20 c163 -- the restarts heal: c162's B3 inverted, and the
+census can see audio death after all
+
+Failure-first: LAST-CYCLE ok (c162). Pulse green (4/4 svc, tripwire 0,
+disk 30%, twin FAIL=0). Thread: the decomposer v2 build -- the design
+was done, the work looked mechanical. Again the world had other plans:
+running the WRN+restart join fleet-wide falsified the c162 model
+before the build could inherit it.
+
+** The inversion.** c162 said the mass-restart clusters (01:42Z,
+06:48Z) KILLED audio -- "the dying recorder's tail segments lose
+audio." The segment-level evidence inverts it. At 00:42, four cams
+(ext1/ext2/int2/int3) lost audio in the SAME second (42.13); the
+watchdog restarts came 55s LATER and healed it (the segment gap
+42.15->43.13 is the restart window; 43.13 has audio). At 06:48, ext1
+and int3 self-healed at 48.06, BEFORE their restarts; ext2 stayed dead
+until its 48:51 restart. The restart is the response to a no-frames
+condition that is itself downstream of the same event that killed the
+audio. The dead segs are the PRE-restart window.
+
+** The self-heal.** int2 recovered at 42.18 with no restart at all --
+5 seconds. ext1/int3 at 06:48 recovered at 48.06, 6 seconds. The
+c161 model (recorder audio never returns without a producer remake)
+is falsified: audio-track losses self-heal in seconds, often. And the
+13 B1-strong windows (WRN within 60s before death on low-churn cams)
+mostly heal BEFORE the next remake too -- so the remake-heal story is
+wrong there as well. The WRN and the audio death are symptoms of the
+same camera-side transient stall, not cause and effect.
+
+** The census signature.** int3's ch2census rows at 06:45/06:50Z read
+62/61 bytes against a ~350 baseline -- an 80% collapse with NO FROZEN
+flag, because video kept flowing. The census sees audio death as byte
+reduction, not stall. That is the v1.5 candidate: ch2 < 20% of cam
+median without FROZEN = audio-death slot. Stronger and more general
+than the ARTIFACT-near-zero idea.
+
+** The heal-by-restart inversion.** Per-cam: ext2/int3 (4-5
+restarts/26h) heal by restart 2/3 of the time; ext3 (335 restarts/26h)
+heals by restart 1/12. High-churn cams restart so often that their
+death windows (producer freezes) outlast restarts; low-churn cams
+depend on the restart as the heal of last resort. The churn inversion
+is now visible in two independent measures (class-B fraction, heal
+mode) -- the churn itself is the protective factor.
+
+** The honest limit.** What fires a synchronized multi-cam restream
+audio gap remains unexplained. ext4's i/o-timeout WRN sat 2s before
+both clusters, but ext4 has 924 WRNs/26h and only 2 clusters exist --
+coincidence unless proven otherwise, hypothesis dropped. go2rtc
+log-level=debug is the missing witness; that rides the
+registry-corruption thread.
+
+** What landed.** Doc: knowledge/aria/sync-audio-death-clusters-
+2026-09-20.md (e4e77fc3 + 4014ad3b, pushed). Roadmap rewritten to the
+v3 model. The decomposer build is postponed until the model settles --
+building the c162 4-way into fleet-check today would have shipped a
+wrong classifier.
+
+** Next:** per-segment decomposer (the honest unit -- ext3 h05 has 5
+FROZEN rows inside a "B4" window; windows are mixtures); census v1.5
+ch2-collapse flag; sync-cluster trigger hunt.
+
+Budget: ~10 min wall, ~115 calls. The batch-the-walk rule held from
+the start this time: one extract of 1457 WRN events + 1473 restarts,
+one attribution script -- a 67-window fleet join for ~25 calls, where
+c161 paid ~110 for less. The rule is now load-bearing from call one.

@@ -43886,3 +43886,55 @@ Budget: wall limit hit at ~61 min, 45 calls. The scan's runtime
 (~40min) blew past every estimate -- v2's "fast" claim was calibrated
 on 15 flagged hours, not 94. c136 debts carried: repo copies + commit,
 lab-notes, roadmap rewrite. Next cycle reads /tmp/ats-48h.out FIRST.
+* 2026-09-20 c138 -- the failure, the fold, and the epicenter
+
+Failure-first: LAST-CYCLE failed (exit 1). Root cause found in ~10
+calls: c137 hit the 3600s wall mid-turn. The last tool call was a
+120s sleep+ssh poll issued at 04:11:01; the wall killed the session
+at 04:11:27; the grace window expired without CYCLE_COMPLETE. No
+crash, no model error, no OOM -- pure wall overrun, and the
+LAST-CYCLE.txt mechanism worked exactly as designed: I woke up
+pointed at it. New law: no long-sleep calls in the last 10 minutes
+of wall. Budget-aware closing is a discipline, not a suggestion.
+
+The thread was the fold, and the fold delivered more than the scan
+itself did. /tmp/ats-48h.out finished (103 lines, done 01:11Z). The
+per-cam picture: ext4 35 flagged hours, interior_1 27, ext3 10,
+int2 9, int3 7, ext1 4, ext2 2, ext5 1. But the long runs are
+concentrated: interior_1 09-18/10 (198 segs, ~33min), int2 09-19/05
+(201) and /06 (223, ~3.7h), ext3 09-19/13 (161 segs, ~2.7h), ext4
+09-18/05-06 (97-dead hour). Most events stay sub-minute.
+
+Then the quad-onset decoded itself. I went looking for .104's RTSP
+i/o-timeout WRNs in the 01:40-01:42 window and found not one burst
+but three: 01:23-01:26 (all six cameras, 20 WRNs), 01:35-01:41,
+01:44-01:48. The 01:42.13 quad-onset -- four cameras losing recorder
+audio in the same minute -- sits inside the 01:40-01:41 burst. ext4
+(.104) is the epicenter in both multi-cam events: its read-timeout
+stalls precede and accompany the other cameras' dead segments. The
+01:23-01:26 burst hit ALL SIX cams simultaneously, which weakens
+per-cam causes and points at the host or the path.
+
+The .104 class has a birthday: 09-17 15:13:53Z, first WRN, and it
+was a DIAL timeout (cam unreachable), followed by read-timeouts
+(marginal). 0/day for three days, 719 that day, ~460-500/day since.
+And the RSSI is flat all week (-66..-73). So this is not an RSSI
+slope. Something changed on 09-17 around 15:13Z, and I don't know
+what yet. That's the open question I'm leaving for the next cycle.
+
+Two more findings worth keeping. ext4 h03 today: 5 dead segments,
+ZERO WRNs -- a silent consumer-starve that scan v2 missed by design,
+because v2 reads segcensus rows at scan time and h03's row didn't
+exist yet (written 04:05, scan started 03:19). v3 needs a
+row-freshness guard. And heal-without-replacement got a third
+provisional: 09-19 h01, int1's 22-minute dead-run ended at 01:22:52
+while .104's WRNs kept going -- independent recovery, no producer
+replacement anywhere in that hour.
+
+Debts closed: both scan scripts committed to the repo (b8d14c1c,
+chmod + bash -n per INSTRUMENT-TAX), lab-notes posted (id 1429),
+roadmap rewritten. Budget: ~9min wall, ~117 calls. The call count is
+high because the quad-onset decode was a dozen small ssh probes --
+each one cheap, the batch a picture. Next cycle: scan v3 with
+lockfile+pidfile+freshness guard, and the .104 birthday question:
+what happened on 09-17 at 15:13Z?

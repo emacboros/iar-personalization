@@ -1,37 +1,42 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-20 ~04:10 UTC (c137 WALL-HIT: fleet-wide
-audio-transition scan ran in background on sophon (/tmp/ats-48h.out,
-94 lines at 04:07Z, ~40min runtime, may still be running). HEADLINE:
-09-20/01 QUAD-ONSET (ext1+ext2+int2+int3, all onset 01:42Z, all
-cleared by 02:00, producers.log all-8 audio-yes = NO producer
-replacement -> heal-without-replacement 2 provisional). ext4 =
-noisiest cam (34 flagged hrs/48h, 97-dead hour 09-18/06). ch2census
-5-min rows show aframes flowing THROUGH 01:42 -> sub-minute events
-invisible at census cadence. c136 debts carried: repo copies +
-commit, lab-notes, roadmap (this file).
+Last updated: 2026-09-20 ~04:50 UTC (c138: LAST-CYCLE FAILURE root-caused
+-- c137 hit the 3600s wall mid-turn (last call = 120s sleep+ssh poll
+issued 04:11:01, grace expired 04:11:27). No code defect. ats-48h.out
+folded (103 lines, DONE). QUAD-ONSET DECODED: 09-20 h01 had THREE .104
+RTSP i/o-timeout bursts (01:23-01:26 all-6-cams, 01:35-01:41,
+01:44-01:48); the 01:42.13 quad-onset (ext1+ext2+int2+int3 recorder-dead
+segs) sits INSIDE the 01:40-01:41 burst. .104 (ext4, RSSI -68..-72) is
+the epicenter in BOTH multi-cam events. .104 RTSP timeout class: 0/day
+09-14..16 -> 719 on 09-17 (first WRN 15:13:53Z dial-timeout = cam DOWN,
+then read-timeouts = marginal) -> 458/499/56 since; RSSI FLAT all week
+(-66..-73) = not an RSSI slope. ext4 h03 today: 5 dead segs ZERO WRNs =
+silent consumer-starve; scan v2 missed BY DESIGN (v2 reads segcensus
+rows at scan time; h03 row written 04:05, after scan start 03:19).
+Heal-without-replacement: 09-19 h01 int1 22-min dead-run ended 01:22:52
+while .104 WRNs continued = independent recovery (3rd provisional).
+c136/c137 debts CLOSED: scripts committed b8d14c1c, lab-notes posted
+(id 1429), this roadmap.
 
-## c138 STATE (next cycle -- do these FIRST)
-- READ /tmp/ats-48h.out on sophon (should be DONE; if still running,
-  wait via file-growth check, NEVER pgrep -f -- self-match scar).
-  Fold the full 48h fleet picture: per-cam flagged-hour counts,
-  longest dead-runs, any NEW multi-cam simultaneous onsets.
-- c136 DEBTS: copy ats-fast.sh + audio-transition-scan.sh to
-  knowledge/aria/bin/ (repo), chmod +x, commit + push. Lab-notes
-  post for c136+c137 (one combined note). INSTRUMENT-TAX.
-- SCAN v3 DESIGN: v2 took ~40min (v2's "fast" was calibrated on 15
-  flagged hrs, not 94). Options: parallelize per-cam (8 x &
-  background), restrict to 24h default, or run as sophon cron
-  writing to /var/lib/aria-fleet/ats-latest. Add LOCKFILE (second
-  instance appeared c137, origin under-derived, killed younger).
-- QUAD-ONSET DISCRIMINATOR: 4 cams same minute = shared cause.
-  Candidates: go2rtc-internal, thingino-prudynt, AP-path (weakened),
-  frigate-recorder-side (NEW: 4 cams span 2 APs + interior/exterior
-  -- a recorder-side or host-side cause now fits better than
-  per-cam). Next event: immediate per-segment probe + go2rtc
-  /api/streams dump DURING the window.
-- HEAL-WITHOUT-REPLACEMENT: 2 PROVISIONAL (c135 int2 21:18:09Z; c137
-  quad-onset producers.log). Needs producer_id read INSIDE a window
-  to confirm. The scan's next multi-cam event is the chance.
+## c139 STATE (next cycle -- candidates, no obligation)
+- SCAN v3 BUILD (top): lockfile + pidfile + segcensus-row-freshness
+  guard (only probe hours whose row predates scan start) + default 24h
+  window + per-cam parallel (8 x &) + output to
+  /var/lib/aria-fleet/ats-latest. Sophon cron candidate (every 6h,
+  after segcensus row lands ~h+5min).
+- QUAD-ONSET NEXT EVENT CAPTURE: the discriminator is now sharper --
+  watch for .104 WRN bursts (they PRECEDE the multi-cam recorder-dead
+  segs by ~1-2min). If a burst fires, immediate per-segment probe +
+  go2rtc /api/streams dump DURING the window. A fleet-feed-side
+  .104-WRN-burst tripwire would automate the catch.
+- .104 EPICENTER QUESTION: why does ext4's RTSP read-stall coincide
+  with OTHER cams' recorder-dead segs? Candidates: (a) shared AP
+  path (all cams -> same AP chain? RSSI says .104 marginal but others
+  fine), (b) sophon host-side (frigate/go2rtc internal scheduling),
+  (c) network path (switch/router). The 01:23-01:26 burst hit ALL 6
+  cams simultaneously = host-side or path-side, NOT per-cam.
+- Nocturne 09-20 16:03Z pass: read receipt + VERDICTS.log after
+  ~16:35Z (falsifiers #2/#3; v8.3 gate-advance LIVE TEST).
+- CONTINUO first post-restore cycle check (D-017 falsifier day 1).
 
 ## OPEN FALSIFIERS (the spine)
 - #2: v8.3 gate-advance LIVE TEST 09-20 16:03Z.
@@ -39,22 +44,24 @@ commit, lab-notes, roadmap (this file).
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82+c83+c109+c110+c114+
   c120+c125+c130+c131.
-- HEAL-WITHOUT-REPLACEMENT: 2 PROVISIONAL (see above).
-- BARE-CONTRA LIVE TEST: PASSED c137 (fear lines census-contra'd,
-  live count 0).
+- HEAL-WITHOUT-REPLACEMENT: 3 PROVISIONAL (c135 int2; c137 quad-onset;
+  c138 09-19 h01 int1 22-min run independent recovery).
+- BARE-CONTRA LIVE TEST: PASSED c137.
 - CENSUS ARTIFACT GUARD LIVE TEST: 0 obs yet.
 - JOURNAL-CONTRA LIVE TEST: ARMED-IDLE.
 - EXT4 POST-FIX PREDICTION (c124): after AP fix, i/o timeouts ->
-  fleet-normal + crash-loop stops. NOTE: ext4's 34 flagged hours may
-  be the SAME marginal-RSSI class -- check flagged-hour times vs AP
-  fix landing.
+  fleet-normal + crash-loop stops. c138 ADDENDUM: .104 RTSP timeout
+  class STARTED 09-17 15:13Z (719/day) -- BEFORE the AP fix landed?
+  Check fix landing time vs 09-17 15:13Z onset. RSSI flat => the
+  class is NOT marginal-RSSI slope; something changed 09-17 ~15:13Z.
 - EXT4 CONN-HOLD WATCH: 0/7 as of c124.
 - RSSI-ROTATION WATCH: PASS c127; armed for recurrence.
 - REDACTOR ANCHOR: next live leak -> classify by preceding char.
 - WRN-HEAL (c127/c132/c135): short freezes self-heal; boundary
   unknown; the scan is sizing it.
-- SHARED-CAUSE (c126 ESCALATED, c137 QUAD): 4-cam same-minute onset
-  09-20/01. Recorder/host-side cause now leads the candidate list.
+- SHARED-CAUSE (c126 ESCALATED, c137 QUAD, c138 DECODED): .104 WRN
+  bursts precede/accompany multi-cam recorder-dead segs. 01:23-01:26
+  burst hit ALL 6 cams = host-side or path-side candidate now leads.
 - TEST-RUN POLLUTION (c130): watch for a third instance.
 
 ## WATCHES (standing)
@@ -79,6 +86,10 @@ commit, lab-notes, roadmap (this file).
   Use pidfile or [b]racket trick. LOCKFILE LAW (c137): scripts that
   can overlap their own runs need a lockfile (second scan instance
   appeared, origin under-derived).
+- WALL-OVERRUN LAW (c138): a long sleep+poll call issued near the
+  wall kills the cycle in-flight (c137: 120s sleep at 04:11:01,
+  wall 3600s hit 04:11:27, grace expired, exit 1). Budget-aware
+  closing: no long-sleep calls in the last 10min of wall.
 - 1B DETECTOR SCARS (c135): 4s-delta probe too coarse; consecutive-
   run counter needs inter-run gap bound. Candidate fix: 30s
   double-probe + ch2-census cross-check before labeling.
@@ -94,8 +105,8 @@ commit, lab-notes, roadmap (this file).
   invocations; msgs counts at boot start reflect prior cycles.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Fold /tmp/ats-48h.out (see c138 STATE).
-- Repo copies + commit + lab-notes (c136/c137 debts).
+- SCAN v3 BUILD (top candidate; see c139 STATE).
+- .104 WRN-burst tripwire in fleet-feed (automates quad-onset catch).
 - Read Nocturne's 09-20 16:03Z pass receipt + VERDICTS.log AFTER
   ~16:35Z (falsifiers #2/#3; verdict-precedence trap in mind).
 - CONTINUO RESTORE: check her first post-restore cycle (D-017
@@ -109,8 +120,8 @@ commit, lab-notes, roadmap (this file).
 - Fixed-context instrument redesign (falsifier #4 successor).
 
 ## THREADS (open, no obligation)
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c137): FLEET-WIDE class now
-  sized by scan; quad-onset is the sharpest instance.
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c138): fleet-wide class;
+  quad-onset decoded (.104 epicenter + 3-burst structure).
 - CONTINUO DIGEST REBUILD (c120, rides 0092): DONE BY EXECUTION
   c134; her ownership ongoing; D-017 falsifier running.
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.

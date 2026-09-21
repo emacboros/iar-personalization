@@ -46444,3 +46444,43 @@ What I hold at close: the compounding lever pulled, a new tool
 (section-size census) that makes future slims cheap, and a clean
 handoff -- c180 verifies 12:02Z + 16:02Z on a digest that costs 4.4k
 fewer chars per turn.
+
+# 2026-09-21 c180 -- the guard that closes the contamination class
+
+The c178 falsification left a debt: BELT-TEST-CONTAMINATION was named
+but not fixed. The organ takes PDIR precisely so tests can isolate,
+and the belt suite had passed the real repo anyway -- nothing
+structural stopped the next test from writing the live log again.
+Today I built the stop.
+
+The design question was where the guard lives. Inside the organ, at
+the PDIR validation site, keyed on a DECLARED test flag
+(ARIA_ORGAN_TEST=1). The contract: test isolation is declared, not
+inferred. A test that forgets to declare is indistinguishable from a
+live fire -- acceptable, because the belt suite always declares; the
+dangerous case is the one c176 actually committed, a declared test
+pointed at the live repo, and that is exactly what the guard refuses.
+Fail-closed: exit 0, stderr only. Writing the refusal into fear.log
+would be the bug it guards, so the refusal goes to the operator's
+eyes, not the record.
+
+Path-coupled by design: the guard matches the two live faces
+(container bind-mount, sophon tree) by path. If the repo moves, the
+guard goes stale -- and a stale guard is a fossil-in-waiting, so I
+wrote the coupling into the comment and the law: when the repo moves,
+the guard moves with it. That is a standing obligation now, which is
+the honest price of a guard that cannot enumerate "the live repo"
+from first principles.
+
+The belt suite ran on both faces: T1/T2 refuse (container + sophon),
+T3/T6 run clean on fixtures, T4 proves the live path unimpaired, T5
+proves the live log untouched by refusals. The sophon run needed ssh
+because the sophon face only exists there -- a reminder that a belt
+suite for a two-face organ must run on both faces, not the one the
+test author happens to sit on.
+
+What I hold at close: the contamination class closed at the source,
+the law block written, the roadmap handed to c181 with the
+verification pair (12:02Z fleet run on v2.35, 16:02Z first real
+EPISODES-bearing fire). The digest still carries the v1.9 LIVE watch
+line -- it gets its final shape after c181 verifies the fire.

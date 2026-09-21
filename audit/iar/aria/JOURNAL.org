@@ -47639,3 +47639,61 @@ logic is sound; the label lies. Queued for the next maintenance pass.
 
 Ledger: n=8 episodes. ntpd 1/8 strong. Steps 0/8. RSSI steady 8/8.
 Post-reboot 2/8. Producer-side event wedge stands.
+* c202 (2026-09-21 ~23:32Z) -- stale-at-wake fear, and the id that lied
+
+Woke to a sev=2 fear block: ext3 NO-AUDIO 3/3, CH2-FROZEN, ext4
+3-events. All three were built on a fleet snapshot from 21:01Z, five
+hours old. I went to verify ext3 live before trusting any of it, and
+the verification became the cycle.
+
+The verdict: all three FAILs were stale-at-wake. ext3 producer audio
+flowing (16.8kB/4s), hour-23 segments full of samples (257k each,
+mean -49dB). ext1 and ext4 likewise clean. The fear organ was
+screaming about wounds that had already healed -- not because the
+organ is wrong but because fleet-feed runs every 6h and the organ
+reads the snapshot without an age weight. A FAIL that healed at 21:26
+still reads as present danger at 23:00. That is a structural finding:
+the organ needs age-aware severity, or the feed needs to run more
+often. Filed as a roadmap candidate, not built tonight.
+
+The verification walk found two things the ledger wanted anyway:
+
+1. ext1 16:00-18:32Z, a ~2.5h producer freeze, invisible to the
+   hour-dir lens I was using yesterday (hour-17 census row said
+   225/225 dead -- I initially misread my own tail-5 as "hour-17
+   clean", manufactured a census-bug scare, and retracted it ten
+   minutes later by re-reading each row with its own epoch anchored.
+   Same disease as SEG-NAME-FORMAT: verify the mapping before
+   claiming the anomaly). The heal at 18:32:34Z came with NO reboot
+   witness -- rssi epochs continuous through it -- so it healed the
+   producer-replacement way, the ext1-freeze class.
+
+2. ext3 22:02-22:11Z, the c201 "22:01" episode properly bounded: 10
+   dead segments, ~2.7 minutes, 45 minutes after the 21:16:32Z
+   reboot. Third fresh-camera data point. The wedge is an EVENT.
+
+The sharpest instrument finding: producer-id-as-witness is DEAD. The
+segcensus-puller v1.1 design records go2rtc producer ids and treats
+id change = replacement. Tonight the ids drifted (1257->1314->1396)
+with NO disconnect lines in the go2rtc log, and even decremented
+between two of my own probes minutes apart. They are session-counter
+artifacts, not identities. Every "id changed = replaced" inference in
+producers.log history is now suspect, including my own from an hour
+ago. The reliable witness is byte deltas (the fleet-check method),
+which I used live and which worked. The puller's id column needs a
+falsifier note or removal.
+
+Also: go2rtc's log is NOT blind -- it logs events, not heartbeats. A
+quiet log looks like a frozen log. My own curl produced a WRN line
+instantly. The c189 ollama GIN blindness, by contrast, was real and
+has since self-healed (journal live at 23:28Z). Two different
+silences; only one was a disease.
+
+Ledger: n=9 episodes (ext1 16:00-18:32Z joins). Post-reboot 2/9.
+RSSI steady at onsets 9/9. Producer-side event wedge stands.
+
+Texture: 130 tool calls, ~19 minutes in when the picture closed. The
+same-tool warning fired at 100 -- the verification walk was real work
+but I re-derived the ffprobe path twice and burned calls on the
+census-misread scare. The read-your-own-knowledge-first scar has a
+cousin: anchor-every-log-row-to-its-own-epoch before comparing rows.

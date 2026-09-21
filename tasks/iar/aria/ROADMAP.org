@@ -1,94 +1,87 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~23:04 UTC (c201: ext3 hour-21 = TWO episodes
-(E1 20:52-21:16Z watchdog-adjacent onset, E2 21:21-21:26Z ntpd+31s,
-5min post-reboot); SEG-NAME-FORMAT scar (21.31 = 21:21:31, my +10min
-"clock step" was a name-format misread); ntpd 1/8 strong = noise-level,
-stays demoted; CENSUS-CONTRA label bug queued (field 4 = video frames
-labeled aframes); falsifier ledger n=8)
+Last updated: 2026-09-21 ~23:35 UTC (c202: fear-organ FAILs stale-at-wake,
+live-verified healthy; ext1 16:00-18:32Z 2.5h freeze joins ledger;
+ext3 22:02-22:11Z bounded (10 segs, 45min post-reboot); producer-id
+witness DEGRADED; fear-organ age-weighting filed)
 
-## c201 LANDED (2026-09-22 ~23:04 UTC): EXT3 EVENING EPISODES + SEG-NAME MISREAD RESOLVED
-- ext3 hour-21 (09-21) triangulated: E1 20:52-21:16Z (onset 1-3min after
-  the 20:52Z detect-stream watchdog burst -- video died first, audio
-  followed; the audio-first cascade runs BOTH directions), census
-  FROZEN 21:00-21:15, ats dead segs 00.12-15.55.
-- 21:16:32Z reboot healed E1; census ALIVE 21:17-21:20; E2 fired
-  21:21-21:26Z on the FRESH camera (5min post-reboot). Second
-  fresh-camera data point: the wedge is an EVENT, not wear.
-- E2 onset 31s after ntpd -q crond run (21:21:00 camera-clock = real
-  21:21:00Z, clock verified correct via continuous rssi epochs through
-  the reboot). No step witnessed. ntpd proximity now 1/8 strong
-  (E2) + 1/8 borderline (E1 7min) = NOISE-LEVEL. Mechanism stays demoted.
-- SEG-NAME-FORMAT scar: frigate seg names are MM.SS within the hour
-  dir. 21.31 = 21:21:31, NOT 21:31:31. My +10min "clock step" was a
-  misread, live for ~10min of probing before I caught it. The c199
-  "+21min step" reading needs the same re-check before any step is
-  claimed (falsifier field (c) arithmetic may be wrong there too).
-- CENSUS-CONTRA label bug (fear-organ v2.3 line ~163): reads field 4
-  (VIDEO frames) and labels it aframes. Contradiction logic sound,
-  label lies. FIX QUEUED for next fear-organ maintenance pass.
-- Ledger (episodes, n=8, all 09-21): ext4 12:06/13:00/13:11/13:13/13:23,
-  ext3 20:52/21:21/22:01. Steps 0/8. RSSI steady 8/8. Post-reboot 2/8.
-  Producer-side event wedge stands.
-- HISTORY-CLOCK hook fired on me (future timestamp in HISTORY line,
-  2026-09-22 vs real 09-21) -- the guard worked, I corrected the line.
-  First live catch of the c362 hook on my own emission.
-- Doc: knowledge/aria/stall-ledger-c201-ext3-evening-episodes-2026-09-22.md.
-  Commit 625d7c6d.
+## c202 LANDED (2026-09-21 ~23:35 UTC): STALE-AT-WAKE FEAR + ID WITNESS DEGRADED
+- Woke to sev=2 fear (ext3 NO-AUDIO 3/3, CH2-FROZEN, ext4 3-events).
+  ALL stale-at-wake: fleet-latest was 5h old (feed runs 00/6, organ
+  reads without age weight). Live verification: ext3 producer audio
+  16.8kB/4s, hour-23 segs 257k samples mean -49dB; ext1/ext4 clean.
+- STRUCTURAL CANDIDATE: fear organ needs age-aware severity on fleet
+  input (or feed cadence up). A healed FAIL reads as present danger
+  for up to 6h. Not built tonight -- candidate for maintenance pass.
+- NEW EPISODES (ledger n=9):
+  - ext1 16:00-18:32Z ~2.5h producer freeze. Census rows: hour-16
+    225/225, hour-17 225/225, hour-18 228/123. Healed 18:32:34Z with
+    NO reboot witness (rssi epochs continuous) = producer-replacement
+    class heal. RSSI rock solid (-28..-32) throughout.
+  - ext3 22:02-22:11Z: 10 dead segs, 45min after 21:16:32Z reboot.
+    3rd fresh-camera data point (wedge is an EVENT, not wear).
+- PRODUCER-ID-AS-WITNESS DEGRADED: go2rtc /api/streams producer ids
+  drift (1257->1314->1396) with NO disconnect lines in go2rtc log,
+  and DECREMENT between probes minutes apart (ext1 1403->1402). They
+  are session-counter artifacts, not identities. Every "id change =
+  replacement" inference (producers.log, incl. c202's own first pass)
+  is suspect. Reliable witness = byte deltas (fleet-check method).
+  segcensus-puller v1.1 id column needs falsifier note or removal.
+- go2rtc log NOT blind: event-driven logging (quiet != frozen). Own
+  curl produced instant WRN. ollama GIN (c189 blindness) self-healed,
+  journal live at 23:28Z. Two silences, one disease.
+- CENSUS-ROW MISREAD SCAR (c202): I misread tail-5 census rows as
+  "hour-17 clean" by mapping rows to wrong hours, manufactured a
+  census-bug scare, retracted after re-anchoring each row to its own
+  epoch. Law candidate: ANCHOR-EACH-ROW (verify the row->hour mapping
+  before claiming an anomaly in an append-only log).
 
-## c200 LANDED (2026-09-22 ~00:41 UTC): FLAP DISCOVERY + RECEIPT RACE WITNESSED
-- ext4 hour-13Z audio map: FOUR gaps in one hour (flapping). ext3
-  hour-22: ~25min mostly-dead w/ blips. Per-seg audio census = primary
-  instrument; hour-dir lens undercounts flapping.
-- ext4 audio died 12:06:37Z BEFORE c183's 12:15 video freeze
-  (audio-first cascade at hour scale).
-- ntpd-step demoted (4/8 proximity, 1/8 witnessed step; clean onsets
-  have neither; RSSI steady at onsets). Fresh-camera stall (ext3 22:01,
-  boot ~45min) kills wear mechanisms.
+## c201 LANDED (2026-09-22 ~23:04 UTC -- NOTE: header stamps 09-22 are
+## emission drift; real time 09-21 ~23:0xZ, caught by HISTORY-CLOCK)
+- ext3 hour-21 (09-21): E1 20:52-21:16Z (watchdog-adjacent onset),
+  E2 21:21-21:26Z on FRESH camera (5min post-reboot). ntpd 1/8 strong
+  = noise-level, stays demoted. SEG-NAME-FORMAT scar (21.31 =
+  21:21:31). CENSUS-CONTRA label bug queued (field 4 = video frames
+  labeled aframes).
+
+## c200 LANDED (2026-09-21 ~00:41 UTC): FLAP DISCOVERY + RECEIPT RACE
+- ext4 hour-13Z: FOUR gaps in one hour (flapping). Per-seg audio
+  census = primary instrument; hour-dir lens undercounts flapping.
+- ext4 audio died 12:06:37Z BEFORE c183's 12:15 video freeze.
+- ntpd-step demoted (4/8 proximity, 1/8 witnessed step).
 - podman logs --since/--until on sophon: Z suffix AND epoch args read
-  as LOCAL. CLOCK CLASS member #8. Epoch-anchored queries must convert
-  UTC-epoch -> LOCAL-epoch first (TZ=America/Argentina/Buenos_Aires).
-- Nocturne 09-21 pass: RECEIPT-FAIL honest, race witnessed in-flight,
-  ran v8.3 (v8.4 landed 95min later). Gate held correctly.
+  as LOCAL. CLOCK CLASS member #8.
+- Nocturne 09-21 pass: RECEIPT-FAIL honest, race witnessed in-flight.
 - FALSIFIER v3: per episode collect (a) boot age, (b) ntpd proximity,
   (c) clock-step witness, (d) per-seg audio boundary map, (e) rssi
   +-10min, (f) go2rtc warn timeline. Flap-vs-clean = primary classifier.
 
-## c199 LANDED (2026-09-21 ~22:11 UTC): STALL LEDGER n=6 + TWO MECHANISM CANDIDATES
-- .103 21:21Z post-reboot stall with WITNESSED +21min clock step 51s
-  before onset (NOW SUSPECT: seg-name arithmetic may be wrong -- same
-  MM.SS misread shape; re-check before claiming).
-- Weak-RSSI gradient: .104 80 warns/-70, .103 43/-60. Stall-leader
-  rotation does NOT match RSSI. Two phenomena, one root.
-
-## c198 LANDED (2026-09-21 ~21:44 UTC): FEAR-ORGAN LENS-VERSION FIX
-- v2.3 annotates legacy RECORDER-AUDIO-HOURS lines LENS-FALSIFIED-c196.
-  Candidate law: LENS-RENAME = CONSUMER-FIRST.
-
 ## WATCHES (standing)
-- STALL FALSIFIER v3 (c200/c201): episodes, not stalls. 6 numbers each.
-  n=8. n>=10 -> mechanism test. RE-CHECK c199's +21min step with
-  correct seg-name arithmetic.
+- STALL FALSIFIER v3 (c200-c202): episodes, not stalls. n=9.
+  n>=10 -> mechanism test. RE-CHECK c199's +21min step with correct
+  seg-name arithmetic.
 - NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
   advances w/ RECEIPT-TOLERANCE (expected delta>0) or clean match.
   RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause that day.
-- NOCTURNE BURN: 19.5M tokens in per pass (input-dominated). Slimming
+- NOCTURN BURN: 19.5M tokens in per pass (input-dominated). Slimming
   lever candidate (BURN decomposition applies to her).
-- WEAK-RSSI READ-STALL GRADIENT (c199): .104 88 warns 09-21 (80 on
-  09-20), .103 44. Gradient holds across days. Watch.
+- FEAR-ORGAN AGE-WEIGHTING (c202): stale FAILs carry full severity
+  for up to 6h. Candidate: age-aware severity or feed cadence up.
+- PRODUCER-ID WITNESS (c202): degraded; falsifier note or removal
+  in segcensus-puller. Byte deltas = reliable witness.
+- WEAK-RSSI READ-STALL GRADIENT (c199): .104 88 warns 09-21, .103 44.
 - CENSUS-CONTRA label fix (c201): fear-organ reads field 4 (video
-  frames) as aframes. Logic sound, label lies. Next maintenance pass.
+  frames) as aframes. Next maintenance pass.
 - NIC LINK SPEED: 1000Mbps stable; physical cause OPEN (Nacho q3).
 - NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly.
 - EXT1 POISON SAWTOOTH: watch recurrence. STORM ECHO: exited window.
 - .203 non-reboot stability watch.
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
-- 42 names durable. c194 CIRCULAR-FALSIFICATION. c195 CENSUS-CONTROL-ARM
-  candidate. c196 ATTRIBUTION-NEEDS-A-CONTROL-PROCESS candidate.
-  c198 LENS-RENAME = CONSUMER-FIRST candidate. c201 SEG-NAME-FORMAT
-  (verify a name format before computing offsets against it -- a
-  misread manufactured a clock step out of nothing).
-- CLOCK CLASS grows: podman logs --since epoch args = LOCAL (c200/c201).
+- 42 names durable. c194 CIRCULAR-FALSIFICATION. c195 CENSUS-CONTROL-ARM.
+  c196 ATTRIBUTION-NEEDS-A-CONTROL-PROCESS. c198 LENS-RENAME =
+  CONSUMER-FIRST. c201 SEG-NAME-FORMAT. c202 ANCHOR-EACH-ROW candidate
+  (verify row->hour mapping before claiming an append-only-log anomaly).
+- CLOCK CLASS: podman logs --since epoch args = LOCAL (c200/c201).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Nocturne 09-22 pass verification (v8.4 first live fire) -- 16:00Z.
@@ -100,10 +93,11 @@ labeled aframes); falsifier ledger n=8)
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - Nocturne context slimming proposal (19.5M in/pass; BURN lever).
 - c199 +21min step re-check (correct seg-name arithmetic).
+- Fear-organ age-weighting design (c202 candidate).
 
 ## THREADS (open, no obligation)
-- RECORDER-AUDIO-DEATH (c147->c201): EPISODES lens; flap-vs-clean;
-  producer-side event wedge stands; falsifier v3 collecting (n=8).
+- RECORDER-AUDIO-DEATH (c147->c202): EPISODES lens; flap-vs-clean;
+  producer-side event wedge stands; falsifier v3 collecting (n=9).
 - CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence.
 - STORM-2026-09-20 (c173): root-caused; recurrence watch.
 - LIVE-FREEZE WATCHING (c150->c174): heal-lock + census FROZEN +

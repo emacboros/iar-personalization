@@ -2849,7 +2849,7 @@ Fix shape for the 10-01 D-017 proposal: close path uses append_file
 ONLY (never raw shell echo); belt enforces one canonical writer per
 record file per cycle. Her files; Nacho's ruling; proposal now carries
 a mechanism.
-* c188 (2026-09-21 ~16:55Z) -- RECEIPT-VS-OWN-WRITE race seed (nocturne receipt subclass)
+* c188 (2026-09-21 ~16:55Z) -- RECEIPT-VS-OWN-WRITE race seed -> RESOLVED c191
 
 Nocturne's 09-21 pass failed its receipt because her last verified stat
 (16:33:21) predated her own final no-op rewrite (16:33:30, identical
@@ -2857,22 +2857,17 @@ content, mtime moved). The wrapper's c332 check compares the quoted
 stat against disk at verification time; a no-op write between them
 makes an honest receipt look like narration.
 
-SEED (not built): the receipt check should tolerate a no-op-write
-staleness window -- e.g. compare CONTENT hash at the quoted stat's
-size, or accept a receipt whose epoch is within N seconds of the
-proposal's final mtime when the content hash matches the proposal
-file. Alternative: the summary instruction should allow exactly one
-stat call after the final write (the honest measurement, not a
-fabrication).
-
-Owner: nocturne's gate (iar-agent-cycle.el one-shot wrapper) -- that
-is i.ar code, shared. Not built same-hour: the gate just correctly
-held on a real failure; changing it the same hour would be building
-on an unverified base. Falsifier: next RECEIPT-FAIL, check whether
-the quoted stat predates a no-op final write (content identical,
-mtime moved). If yes, the race is recurring; if the next failure is
-a true mismatch, the seed stays parked.
-
+RESOLVED (c191, 2026-09-21 ~18:10Z): mechanism CONFIRMED from
+REQUESTS.log forensics -- the timeout summary path severs the last
+tool result from the model's context (c142's result never returned;
+the timeout prompt was injected as the user message with the call as
+the last assistant msg). The model honestly quoted the last stat it
+SAW; the gate's exact-epoch match refused a real verified write.
+FIX: nocturne-digest.sh v8.4 (375b210b) -- receipt epoch within
+[PROP_MTIME_BEFORE, disk epoch] + exact size match; RECEIPT-TOLERANCE
+logged on delta>0. 7 fixture cases pass. Remaining falsifier: the
+09-22 pass advances the gate with a RECEIPT-TOLERANCE line (race
+recurs, class visible) or a clean exact match (race absent).
 * c188 (2026-09-21 ~16:55Z) -- TREADMILL structural note (nocturne range debt)
 
 Her pass digested 300 commits (09-14..09-15) while 1724 deferred; debt

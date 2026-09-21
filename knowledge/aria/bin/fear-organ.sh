@@ -1,5 +1,6 @@
 #!/bin/bash
-# fear-organ.sh v1.7 (2026-09-19, aria cycle 129: JOURNAL-BLIND
+# fear-organ.sh v1.8 (2026-09-21, aria cycle 173: EPISODES-6H ingest;
+#   prior v1.7 2026-09-19 c129: JOURNAL-BLIND
 # fossil-window cross-check -- c127 observed the fear organ carrying a
 # sev=2 JOURNAL-BLIND worry hours after the rate-limit window had
 # passed (live drops=0); the 6h fleet snapshot keeps the FAIL-LINE.

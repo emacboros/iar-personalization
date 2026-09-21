@@ -1,5 +1,6 @@
 #!/bin/bash
-# aria fleet-check v2.33 (2026-09-21, aria cycle 171: CH2-WALK-FAIL branch)
+# aria fleet-check v2.34 (2026-09-21, aria cycle 173: NIC link speed check;
+#   prior v2.33 2026-09-21 c171: CH2-WALK-FAIL branch)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -852,7 +853,8 @@ $P exec frigate sh -c "rm -f $WDIR/*.jpg /media/frigate/aria_watch_*.jpg" 2>/dev
 # fleet-wide, the recorder wrote video-only segments, and the episode
 # surfaced only post-hoc via ats. The nic-sampler (1-min cron) records
 # link speed in col 2 of nic/enp10s0.log; this check reads the LIVE
-# value and fails on degraded link (<1000). Sustained-degradation
+# value and fails unless it is exactly 1000 (a >1000 upgrade is also
+# an unexplained link event). Sustained-degradation
 # history stays in the sampler log; the live check is the alarm.
 echo "-- nic link speed --"
 NICSPD=$(cat /sys/class/net/enp10s0/speed 2>/dev/null || echo -1)

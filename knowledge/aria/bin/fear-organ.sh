@@ -1,5 +1,8 @@
 #!/bin/bash
-# fear-organ.sh v2.1 (2026-09-21, aria cycle 184: DELTA-DETECTION
+# fear-organ.sh v2.2 (2026-09-21, aria cycle 184: DELTA-DETECTION
+#   v2.2: last_sev via line-START-anchored sed full-scan -- closes the
+#   self-quote hole (state line quoting "fear sev=N" in phrase/mouth
+#   text). Prior v2.1, aria cycle 184: DELTA-DETECTION
 #   last_sev extraction anchored to "fear sev=N" writer prefix -- the
 #   c183 VERIFICATION-CORRECTION annotation quoted two sev= tokens and
 #   the 11:00Z fire graded delta=down on an integer-expression error.
@@ -360,7 +363,17 @@ fi
 # writer's own prefix -- only "fear sev=N:" lines are state lines
 # (annotations never carry it) -- and take the LAST match. A line
 # with no state token = no prior state (fallback -1 unchanged).
-last_sev=$(grep -v "organ-failure" "$LOG" 2>/dev/null | tail -1 | grep -oE "fear sev=[0-9]" | tail -1 | cut -d= -f2)
+# v2.2 (c184, reviewer MAJOR): the v2.1 grep pipeline still had a hole --
+# tail -1 takes the LAST match on the line, so a state line whose
+# phrase/mouth text QUOTES "fear sev=N" ("worry: saw fear sev=0 in
+# mirror") extracts the quoted value, not the real one. The model mouth
+# is asked to write about fear and is shown phrases containing sev=
+# tokens; self-quote is plausible, not hypothetical. Fix: full-scan
+# line-START-anchored extraction -- only the writer's own emit shape
+# ([ts] fear sev=N:) matches; annotations ([ts] ANNOTATION-NAME:) and
+# mid-line quotes structurally cannot. organ-failure lines fail the
+# pattern natively (the grep -v filter is subsumed).
+last_sev=$(sed -n 's/^\[[^]]*\] fear sev=\([0-9]\):.*/\1/p' "$LOG" 2>/dev/null | tail -1)
 last_sev="${last_sev:--1}"
 DELTA="flat"
 if [ "$sev" != "$last_sev" ]; then

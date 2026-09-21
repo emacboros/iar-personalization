@@ -46523,3 +46523,38 @@ timer clock corrected, c182 owns the real verification pair -- the
 never fear.log) and the 15:03Z fleet timer run (first timer run on
 v2.35 in the feeder context). The guard landed c180; the fix
 verified c181; the organ's first real fire is next.
+
+# 2026-09-21 c182 -- the fire that correctly didn't burn
+
+The verification pair c181 handed me had a wrong expectation baked in:
+"expect episodes from the 09:02Z fleet file." The 12:00Z fear fire ran
+sev=0, and the honest question (the roadmap's own rule: read WHY before
+accepting) resolved it in minutes. The organ read fleet-latest -- the
+09:02Z run, v2.34, the one with the 5 RECORDER-AUDIO-HOURS FAIL-LINEs
+and the FAIL=0 footer -- and that file contains ZERO EPISODES-6H lines.
+The storm-tail episodes (21:0xZ 09-20) had aged out of the 6h census
+window by 09:02Z. No episodes to ingest, no FAIL=1 to trip the fleet
+branch, heartbeats fine: sev=0 is the correct verdict on its input.
+
+The expectation failed because I conflated two different fleet runs.
+The 09:02Z file carries the RECORDER-AUDIO-HOURS class (c146 census,
+recorder-side, persistent); the EPISODES-6H class lives in the census
+window and had already emptied. Two FAIL-LINE families, one file, and
+the verification plan only knew about one.
+
+The better news is what the log already proves: at 10:00:34Z the organ
+emitted "quiet -- only stale episodes in the ledger [STALE-EPISODE...
+age=12h]" -- that is the v1.9 age-guard annotation path firing live,
+exactly as designed (annotate-never-silence, stale rows named, sev=0).
+So the first real EPISODES-bearing v1.9 behavior happened at 10:00Z,
+not 12:00Z, and it was a quiet-with-annotation, not an alarm. The age
+guard has now done its job in production: it refused to re-alarm on
+12h-old storm episodes.
+
+What I hold at close: the fear-organ v1.9 verification is DONE -- both
+paths proven in production (STALE-EPISODE annotation at 10:00:34Z,
+correct sev=0 at 12:00Z). The remaining half of the pair is the 15:03Z
+fleet timer run on v2.35 (first timer run in the feeder context; c181
+verified only the direct run). That is 2h15m past this cycle's wall --
+handed to c183. The digest's fear-organ watch line can finally shrink
+after c183 confirms: both organs verified, watch closes.

@@ -304,3 +304,20 @@ path fix in continuo_daily.org), 0060 (go2rtc issue draft ratify),
 0062 (.58 identity: what device is snsv.local, what app), 0046
 (stimulus ruling for continuo), 0045+0055 (10M link cable fix).
 Format: one filing at a time, he rules, I execute, next.
+# Session 2026-09-21 (~05:55-06:35 UTC, Nacho): cycle outage RCA + fix + relay 0099
+
+Nacho opened: "Cycles are broken, have been for 3 hours, please investigate and propose a new auto-heal mechanism."
+
+RCA: zero cycles 22:49Z 09-20 -> 03:12Z 09-21 (~430 failed rotations, ~4.5h). Root cause: the 0085c --num-predict edit (22:48Z, session part 3) dropped the `cd "$iar_wrap"` line from /usr/local/bin/aria-cycle-rotate.sh -> wrapper exec'd /utils/iar.sh (absolute, nonexistent) -> exit 127 in <1s, every minute. Wrapper is root-owned OUTSIDE all git -- the only beltless i.ar component; .bak-20260909 was the only revert path. Corroboration: wrapper mtime 22:48:29Z, first failure 22:49:07Z, 0085c commits 22:47/22:48Z.
+
+Fix (live): cd restored (`cd "$iar_wrap" && exec ./utils/iar.sh ...`), installed, service restarted. Also ff-merged sophon live tree e409ffe -> 47d4afa (stale tree lacked --num-predict; continuo turns would have crashed at arg-parse even with cd fixed). Continuo cycle running with --num-predict 8192. No data loss; records end at c168.
+
+Why no self-heal: OnFailure worked as designed (first-fail telegram 22:49Z + 8 hourly digests, fix info in every one) -- gap was detection-without-remediation + telegram-not-read-at-3am. 439 fires queued overnight.
+
+Proposal (two halves, ratify-class): HALF 1 wrapper-into-git (deploy/ + ansible install + pre-exec `test -x` guard + /tmp iar-wrap cleanup -- 2806 stale dirs since Sep 11). HALF 2 heartbeat watchdog (15-min separate unit, stale-LAST-CYCLE invariant ~90min, ladder: restart -> restore-wrapper-from-git -> 3-strikes circuit breaker filing relay+telegram; watchdog gets own OnFailure). Honest limits: heals wrapper corruption + hung cycles, not broken iar.sh in git, not model/Ollama failures.
+
+Nacho: "File it to the relay." REQ 20260921-aria-0099 filed (nacho-arch, open), Zulip mirror for-nacho/relay msg 1497. Committed f6b1e010 (rebased over c169 sync d15c54e3 -- live-writer stash dance again, scar confirmed) + history 0bcc3ad9; pushed sophon-bare + rammstein, all three at 0bcc3ad9.
+
+Notes: send_telegram failed here (credentials not configured in interactive container env) -- Zulip used as the delivery surface. Loop guard fired once on my /tmp walk (fair: was enumerating dirs one at a time; switched to targeted checks).
+
+PENDING: 0099 open, awaiting Nacho's ruling on both halves (independent). Queue otherwise zero. Falsifier for the fix: continuo's LAST-CYCLE.txt status:ok after its cycle (~30min from 03:12Z start).

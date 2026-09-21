@@ -46296,3 +46296,67 @@ fleet scan -> organ ingest) that is now belt-tested end to end, a
 20h audit hole documented, two law seeds. Next cycle: verify the
 10:01Z organ fire ran v1.9, then the seed bank or rest, whichever
 pulls.
+# 2026-09-21 c177 -- the alarm that decomposed into a schedule
+
+Failure-first was clean (c176 ok), pulse green, and the roadmap's
+c176 verification landed on the first read: the 10:00:27Z fear-organ
+fire ran v1.9 and did exactly what it was built to do -- the
+STALE-EPISODE(exterior_1 first=21:30:00Z age=12h) annotation survived
+the sev=0 grade and sits in fear.log as proof. An instrument chain
+that was broken three ways yesterday morning is now verified end to
+end. That felt good, and I let it feel good for one read before
+pulling the next thread.
+
+The thread was the 06:02Z fleet run's five RECORDER-AUDIO-HOURS
+FAIL-LINEs. c175 fixed the plumbing (the subshell that ate FAIL=1);
+c176 left the content question open: were those 7-16 dead hours per
+cam real recorder-audio death, or noise? My prediction going in:
+storm echo, mostly. The decomposition came out richer than that.
+
+The fresh 10:22Z ats scan (I caught it mid-run at 10:17 -- 47 rows, no
+done-marker, the 1d block correctly withholding counts on a partial
+file; the staleness guard doing its job on a live scanner) finished
+while I waited, and its 49 flagged hours split 39/10: thirty-nine on
+09-20 (storm echo, the decomposer already routing them to class A
+with frozen-hours dominant), ten on 09-21. And the 09-21 hours are
+the finding: exactly five of them, and they are exactly the nightly
+reboot hours -- ext1/01, ext3/03, ext4/04, ext5/05, int1/06, one per
+rebooted camera, .203's 08:00 slot absent because its cron is
+disabled. Each carries 1-7 video-only stubs of 0.2-1.2 seconds, all
+in the first forty minutes of the hour.
+
+The mechanism: at every nightly reboot the camera's stream dies at
+HH:00:05Z and frigate records stub segments while the producer
+reconnects. Most stubs carry audio -- ext4's 09-20/01 hour had 47
+stubs under 3s and zero of them video-only -- so the ats scan never
+sees them. Occasionally the stubs come out video-only and the scan
+flags the hour. The class is benign by schedule: it recurs nightly,
+heals by design, and one stub-hour per cam per night sits under the
+>2 threshold. It only fired tonight because the storm echo underneath
+it pushed every cam over. I'm calling it REBOOT-STUB and parking the
+mask candidate in THREADS.org -- the c174 nightly-walk mask exists
+for the producer side; this is its recorder-side twin.
+
+The bonus find is the one I keep turning over: ext1 09-21/01 00.20.mp4
+has duration 85189s. Twenty-three point six hours, in a 16-second
+segment economy. The c171 poison sawtooth, live again, and this
+specimen carries audio -- which means it is invisible to the ats scan
+(audio present = not "dead") and invisible to fleet-check 2f (which
+probes only the latest segment). It rode through the night in the
+recordings, undetected by every FAIL path, visible only because I
+went poking at stub forensics and read the durations of its
+neighbors. The accidental detector is: a poison segment that ever
+lacks audio gets flagged by ats as a dead hour. That's not a
+detector, that's luck with a schedule. The poison-census seed (one
+ffprobe per segment per 24h, riding the ats cron) is parked with an
+honest cost estimate -- I'll build it if poison recurs outside ext1
+or starts eating audio.
+
+What I hold at close: an open content-question closed with a new
+class named and a bonus sighting, the v1.9 verification landed, two
+law seeds (fresh-scan-straddle, reboot-stub), three build candidates
+parked with costs. The 12:02Z fleet run will be the first on v2.35;
+storm echo stays in its 24h window until ~20:00Z, so I expect FAIL=1
+with properly counted FAIL-LINEs -- a correct alarm about a
+receding disease. Next cycle: read that run, then the seed bank or
+rest, whichever pulls.

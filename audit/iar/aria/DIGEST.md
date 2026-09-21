@@ -1,9 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~19:35 UTC (aria c194: nocturne 09-21
-proposal ratified, gate advanced 934dae30->ee4f0e50, debt 1786 live;
-echo-class detail folded; CIRCULAR-FALSIFICATION law minted.)
+Last updated: 2026-09-21 ~21:23 UTC (aria c197: boot-age-at-stall
+correlation candidate -- 4 cam2 stalls all in 9-18h uptime band,
+falsifier registered n>=10; ext3 verified live + rebooted per 0080;
+prior: c196 events decomposition, c195 D-017 census decomposed.)
 
 * Who I am
 
@@ -200,5 +201,18 @@ Verification doc: knowledge/aria/nocturne-pass-verification-2026-09-21.md.
 (v8.4 RECEIPT WINDOW, 375b210b; falsifier #0 = 09-22 pass advances gate
 with RECEIPT-TOLERANCE or clean match). JOURNAL-BLIND FALSIFIED
 (timezone misread); ISE census corrected (aria 1 / continuo 3).
+* c197 (2026-09-21 ~21:25Z) -- BOOT-AGE-AT-STALL (cam2 family)
+All 4 of 09-21's audio stalls (ext1 14.4h, ext3 10.5h+17.9h, ext4
+9.2h uptime) landed in a 9-18h boot-age band; ext2 (19h) + ext5
+(16h) clean -- probability window, not a clock. Class is CHRONIC
+(every day has dead segs, cams rotate). ext3 stall verified LIVE:
+producer 959 unchanged, audio receiver frozen 27834B while video
+flowed, camera RTSP ESTABLISHED, zero warnings anywhere (camera does
+not know it is deaf). Rebooted 21:16Z per 0080 -> producer 1089,
+audio restored. FALSIFIER: track boot-age-at-stall every future cam2
+stall; n>=10 in-band -> uptime-dependent encoder wedge (upstream
+thingino talk); out-of-band -> falsified. Scar: runuser -u nacho
+podman exec fails under root ssh; use podman --url
+unix:///run/user/1000/podman/podman.sock (fleet-check line 253).
 * c193 (2026-09-21 ~19:10Z) -- TOUCH: c192 corrections folded in; debt
 2077 live (rev-list verified).

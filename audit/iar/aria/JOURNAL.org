@@ -45928,3 +45928,60 @@ upstream-facing document I've written that has to stand on its own
 for readers who don't share my record. No journal context, no law
 numbers, just evidence and a fix ask. Writing for strangers is a
 different discipline than writing for future-me.
+* 2026-09-21 c171 -- the guard that found my own arithmetic lying
+
+Failure-first: LAST-CYCLE ok. Pulse green (4/4 svc, tripwire 0, disk
+30%, twin FAIL=0). Sync clean. Relay open set 2 (0099 watchdog
+ratification, 0100 PAT scope) -- both Nacho-blocked, nothing to drain.
+
+Thread: census walk-failure guard v1.7. The c168/c169 finding stood:
+rows like ext4 =0/0/333 and int1 =11/31/40526 are REAL gaps (recorder
+confirmed) but the census emitted them SILENT -- no FROZEN, no
+ARTIFACT, no flag -- because every flag branch required anchored>0 and
+these captures anchored nothing. The instrument's blind spot was
+exactly the rows that matter most. v1.7: if no conn anchors but bytes
+were captured, flag WALK-FAIL. Report-not-fail in fleet-check v2.33
+(the camera is unproven, the capture is suspect; a real freeze
+re-fires 5 minutes later with a clean anchor). Belt-test: 8/8 against
+the real disease rows -- the two c169 silent rows now flag, healthy
+rows stay healthy, the recorder-confirmed freeze stays FROZEN,
+VIDEO-DEAD and ARTIFACT survive untouched. Landed 5f945106, live on
+sophon, timer + manual run both clean.
+
+The bigger find was a mistake. Mid-investigation I "discovered" a
+contradiction: census said int1 audio frozen 17:15-18:10Z on 09-20,
+but the recorder segments in that window carried real audio packets
+(156 packets/segment, pts 0.011-9.935). Two instruments disagreeing
+about the same conn -- that's either a new class or a broken
+instrument, and I spent ~30 calls chasing it: two-producer-conn
+hypothesis, corpse-conn hypothesis, capture-loss hypothesis, go2rtc
+API pulls, ffprobe packet counts. The resolution was humiliating and
+clean: I had hand-converted the epochs wrong. 1789931700 is 19:15Z,
+not 17:15Z. The FROZEN window was 19:15-19:31Z, and the segcensus
+hour-19 row shows 106 dead segments at 19:13-19:31Z. The instruments
+AGREE perfectly. There was no contradiction; there was my arithmetic.
+
+This is the clock law wearing its own skin: I wrote "ANCHOR EVERY
+CONVERSION with date -u -d @epoch" into the digest after c168's
+podman --since lesson, and then this cycle I did the conversions in
+my head anyway, built a 40-minute investigation on top of them, and
+the "new class" I almost announced was arithmetic noise. The law
+isn't for the cases where you remember it. The census FROZEN flag
+came out of this CLEANER than it went in: two independent
+instruments (network-layer census, recorder-layer segcensus) now
+cross-confirm the same two stall events, which is more than the flag
+had before. And the walk-failure rows are now loud instead of silent.
+
+Also learned: the non-300-epoch census rows I puzzled over are
+freeze-watch samples (it invokes the census at 2.5-min cadence,
+mid-slot) -- the 17:45Z-18:20Z run. And the ats hour labels are the
+PREVIOUS complete hour (H=1-hour-ago at scan time), which I verified
+rather than assumed. Two instruments' schemas read carefully in one
+cycle.
+
+What I hold at close: v1.7 live; the FROZEN flag vindicated, not
+weakened; my epoch-arithmetic scar written down where the next cycle
+will trip over it before repeating it. The #2505 comment is still
+staged, still blocked on PAT scope (relay 0100). The walk-failure
+guard closes the last silent path in the census schema -- every row
+now carries a verdict.

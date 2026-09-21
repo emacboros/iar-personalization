@@ -1,4 +1,18 @@
 #!/bin/bash
+# nocturne-digest.sh v8.4 (2026-09-21, aria c191: RECEIPT WINDOW fix):
+#   The receipt-vs-own-write race (c188 seed) CONFIRMED with full mechanism:
+#   the timeout summary path severs the last tool result from the model's
+#   context. The model's final no-op rewrite executes (mtime advances) but
+#   its result never returns -- the timeout prompt is injected first. The
+#   model honestly quotes the last stat it SAW; the disk has a newer mtime
+#   from the same model's own trailing write. Exact-epoch match punished
+#   honesty (the 09-21 16:03Z pass: receipt 1790008401 vs disk 1790008420,
+#   19s delta, both from her own writes). Fix: receipt epoch must lie in
+#   [PROP_MTIME_BEFORE, STAT_EPOCH] (a stat taken during this run) with
+#   exact size match. Stale receipts fail the lower bound; future epochs
+#   fail the upper bound; content changes after her stat change size.
+#   RECEIPT-TOLERANCE logged when delta > 0 (class stays visible).
+#
 # nocturne-digest.sh v8.3 (2026-09-19, aria c115: GATE-RECEIPT-DEAD-FILE fix):
 #   The gate receipt-check grepped ${CURFILE:-/dev/null} AFTER rm -rf "$TMPD"
 #   deleted it -- grep read nothing, RECEIPT_OK=0, a fully verified pass
@@ -385,11 +399,34 @@ if [[ $rc -eq 0 && -f "$PROPOSED" ]]; then
         # (claim-receipt verified the same receipt minutes earlier; the
         # gate saw an empty grep and refused a valid advance, c115).
         RECEIPT_LINE=$(printf '%s' "$CURTEXT" | grep -h "RECEIPT:" 2>/dev/null | head -1)
+        # v8.4 (c191, 2026-09-21): RECEIPT WINDOW -- the receipt-vs-own-write
+        # race (c188 seed, CONFIRMED today). Mechanism: the timeout summary
+        # path severs the last tool result from the model's context. The
+        # model issues a final no-op rewrite, the tool executes (mtime
+        # advances), but the timeout prompt is injected BEFORE the result
+        # returns. The model honestly quotes the last stat it SAW; the
+        # disk has its own trailing write's mtime. Exact-epoch match
+        # punishes honesty. Fix: the receipt must be a stat taken DURING
+        # this run -- epoch within [PROP_MTIME_BEFORE, STAT_EPOCH] -- and
+        # the SIZE must match exactly (same content generation; a no-op
+        # rewrite preserves size). A stale (pre-run) receipt fails the
+        # lower bound; a future epoch fails the upper bound; a real
+        # content change after her stat changes size and fails. The gate
+        # stays a liveness check; content review remains aria's
+        # ratification step.
         RECEIPT_OK=0
-        if [[ -n "$PROP_STAT_AFTER" && -n "$RECEIPT_LINE" \
-              && "$RECEIPT_LINE" == *"$STAT_EPOCH"* \
-              && "$RECEIPT_LINE" == *"$STAT_SIZE"* ]]; then
-            RECEIPT_OK=1
+        if [[ -n "$PROP_STAT_AFTER" && -n "$RECEIPT_LINE" ]]; then
+            R_EPOCH=$(printf '%s' "$RECEIPT_LINE" | grep -oE '[0-9]{10}' | head -1)
+            R_SIZE=$(printf '%s' "$RECEIPT_LINE" | grep -oE '[0-9]{4,7}' | tail -1)
+            if [[ -n "$R_EPOCH" && -n "$R_SIZE" \
+                  && "$R_SIZE" == "$STAT_SIZE" \
+                  && "$R_EPOCH" -ge "$PROP_MTIME_BEFORE" \
+                  && "$R_EPOCH" -le "$STAT_EPOCH" ]]; then
+                RECEIPT_OK=1
+                if [[ "$R_EPOCH" -ne "$STAT_EPOCH" ]]; then
+                    log "RECEIPT-TOLERANCE (v8.4): receipt epoch $R_EPOCH within window [$PROP_MTIME_BEFORE,$STAT_EPOCH], size match $R_SIZE -- delta $((STAT_EPOCH - R_EPOCH))s (receipt-vs-own-write race, c188 seed confirmed)"
+                fi
+            fi
         fi
         if [[ "$ECHO_STATUS" == "echo" ]]; then
             log "NOT advancing gate: echo-recycle already logged above"

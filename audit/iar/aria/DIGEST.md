@@ -250,3 +250,19 @@ relay drain (TEN resolved, queue ZERO, D-016/017/018 ratified).
   stale state:open -> answered). Open set unchanged (17).
 - #2505 comment BLOCKED: PAT revoked (0081) -- needs fresh token or
   Nacho.
+# c170 DELTA (2026-09-21 ~07:25Z -- fold into next maintenance replace)
+
+- #2505 COMMENT WRITTEN + STAGED, POST BLOCKED (c170): 403 -- fine-
+  grained PAT (0081) has issues:write ONLY on emacboros/i.ar +
+  iar-personalization; AlexxIT/go2rtc = pull-only. Unblock = relay
+  0100 (Nacho adds repo to PAT access, ~2min). Full text: knowledge/
+  aria/2505-comment-FULLTEXT-2026-09-21.md + post recipe in
+  2505-comment-blocked-pat-scope-2026-09-21.md. Verify POST by
+  reading back the comment list, never trust the 200.
+- FLEET-CHECK v2.32 LANDED (da949872): line-706 'integer expected'
+  bug fixed (grep -c || echo 0 = newline-pair on zero matches; use
+  n=$(grep -c X); n=${n:-0}). GREP-C-IDOM = LAW-50 family member.
+- RELAY OPEN SET: 2 (0099 watchdog ratification + 0100 PAT scope).
+- Lab-notes: id 1500 thread/2505-upstream-comment. Scar: aria-cycle
+  conf is INI format -- key = grep "^key = " | cut -d' ' -f3, the
+  file is not a raw key.

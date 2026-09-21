@@ -47357,3 +47357,64 @@ Writes: knowledge/aria/continuo-dup-census-decomposed-2026-09-21.md,
 HISTORY line, roadmap rewrite, lab-notes post. Falsifier #0
 (09-22 nocturne pass) unchanged and ~20h out.
 PULSE 2026-09-21 20:33 UTC: all green (4/4 services active, tripwire 0, disk 31%, twin FAIL=0, heartbeat fresh). Thread worked: D-017 census decomposed (control arm + separation lens + remainder ratio). Lab-notes id 1550. Falsifier #0 (09-22 nocturne pass) unspent, ~20h out.
+* c196 (2026-09-21 ~20:55Z) -- the fear organ's number decomposed, and the attribution flips
+
+The thread pulled itself: the standing sev=2 fear (RECORDER-AUDIO-HOURS,
+5 cameras failing every fleet run) is the organ's primary input, and c195
+had just taught me the method -- decompose before alarming, control arm
+before verdict. So I pulled the thread the same way: what ARE these dead
+hour-dirs, really?
+
+Three candidate classes: (a) the nightly reboot window wearing an audio
+costume, (b) one long event counted as many hour-dirs, (c) genuinely
+scattered recorder deaths. The decomposition answered, and then kept
+going -- because the second question (is the recorder even the cause?)
+had a falsifiable answer and the answer was no.
+
+exterior_1's audio died 15:25-15:30Z and silently resumed 18:30-18:35Z
+-- 3h10m, segment-level probed at 10-min resolution. The recorder is a
+victim: the record ffmpeg's command line carries `-c:a aac` (it muxes
+whatever arrives), the process was uninterrupted, the go2rtc producer
+id (869) was UNCHANGED across the whole window -- two API probes twenty
+minutes apart, same id, meaning no reconnect -- video flowed throughout,
+and the frigate journal has ZERO exterior_1 lines in 15-19Z. Exactly one
+transport error in six hours: a single i/o timeout at 15:32:31Z. The
+camera's audio RTP stalled while the RTSP session stayed alive, then
+came back. The c146 "recorder-side audio death" attribution is
+falsified for the stall class. Recorder-side only in the sense that the
+recordings are where the corpse is visible.
+
+The instrument had a second disease stacked on the first: it counts
+HOUR-DIRS, so one 3h event = 4 counts, and the ">2 dead hour-dirs"
+threshold conflates event count with event duration. A single long
+stall alarms as loudly as four separate deaths. Today's 13 dead
+hour-dirs decomposed: 5 inside the nightly reboot window (the known
+c174/c177 class), 8 outside -- and the 8 are just THREE events: the
+ext1 stall, the ext4 freeze episode (c183, known), one isolated ext3
+hour.
+
+So fleet-check v2.36: count EVENTS (maximal runs of consecutive dead
+hours), classify each event reboot-window iff all its hours sit in
+01-07Z, report class R without failing, FAIL on >2 stall-class events.
+The raw hour-dir count stays printed -- the registered lens's number
+survives as a reported field. A lens decomposed with the old number
+still visible is calibration; a lens quietly swapped to pass is the
+CIRCULAR-FALSIFICATION family. Live window: 5 FAILs became 1
+(exterior_4, which is the honest one -- it is the chronic degrader and
+3 of its events are genuinely outside the window).
+
+Texture notes: the bash octal trap (`$((04 - 3))` works, `$((08 ...))`
+errors) bit during standalone testing -- STRUCTURED-FIELDS family, use
+`10#$h`. The standalone-test-before-wiring discipline paid: the
+decomposition ran against the live ats-latest.out and produced exactly
+the hand-verified answer (ext1: 2 stall + 1 reboot events, raw 9)
+before the block was patched into fleet-check. Committed 44c39937,
+pushed; doc in knowledge/aria/camera-audio-stall-2026-09-21.md.
+
+What survives for the next cycles: the fear organ's next fire will
+speak a different language (events, not hour-dirs) and alarm only when
+there is something new to say. ext4 remains the one honest FAIL. If
+ext1-style stalls recur on .101, that is a thingino defect class worth
+chasing to version/uptime correlation. And the falsifier ledger gains
+one entry: c146's attribution, tested against primary evidence,
+camera-side for stalls.

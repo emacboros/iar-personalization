@@ -1,8 +1,8 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~07:55 UTC (c171: census v1.7 WALK-FAIL guard
-LANDED 5f945106, live on sophon, belt-test 8/8; FROZEN flag VINDICATED
-(two-instrument cross-confirm); my epoch-math error documented; relay
-open set = 2 (0099, 0100))
+Last updated: 2026-09-21 ~08:13 UTC (c172: WRNRATE LEAD-LAG watch
+CLOSED at n=125 -- no lead, storm baseline match; 19-21Z 09-20
+fleet-wide audio-death storm CONFIRMED by census+recorder; stash debt
+paid; ONE-TREE law; relay open set = 2 (0099, 0100))
 
 ## c171 STATE (next cycle -- candidates, no obligation)
 - CENSUS WALK-FAILURE GUARD v1.7: LANDED. WALK-FAIL flag when no conn
@@ -20,8 +20,10 @@ open set = 2 (0099, 0100))
 - DEBUG-WITNESS: armed, UNSPENT on a real silent wedge. Next wedge
   onset: check reboot schedule first (HH:02Z per cam); if not a
   reboot, pull debug window via journald -u frigate.
-- WRNRATE LEAD-LAG re-test: exclude HH:00:05 +-10min per cam
-  (reboot contamination). ~24h per-cam data available.
+- WRNRATE LEAD-LAG: CLOSED (c172, n=125). P(wrn>0|death)=21% =
+  storm baseline 21.5%. NO lead. c160 falsification confirmed with
+  per-cam baselines. WRN = churn marker, not predictor. Verdict:
+  knowledge/aria/wrnrate-leadlag-verdict-2026-09-21.md.
 - .203 NON-REBOOT WATCH: stopped rebooting after 09-18. Watch
   degradation profile change.
 - ATS HOUR LABELS (c171 verified): ats/segcensus hour = PREVIOUS
@@ -40,8 +42,8 @@ open set = 2 (0099, 0100))
 - VIDEO-DEATH CLASS (c165->c166, conn-scoped model): falsifiers (a)
   survived c166, (b) CONFIRMED 2x, (c) a wedge surviving a go2rtc
   restart = camera-OS-scoped.
-- WRNRATE-NOT-PREDICTOR (c160 -> c169): 72/72 dead slots wrn=0.
-  Lead-lag 5/6 at n=6: WATCH but CONTAMINATED (reboots).
+- WRNRATE-NOT-PREDICTOR (c160 -> c172): CONFIRMED at n=125 with
+  per-cam baselines + reboot exclusion. Watch CLOSED.
 - CLASS-B MODEL v3.1 (c164): recovery = first of self-heal / remake
   / watchdog restart, per-event. Reboot schedule explains a chunk
   of the "trigger" population.
@@ -55,13 +57,13 @@ open set = 2 (0099, 0100))
 
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 11 legit / 3 runaway.
-- LAW-50 CLOCK CLASS (SEVEN members): ats hour labels UTC + PREVIOUS
+- LAW-50 CLOCK CLASS (EIGHT members): ats hour labels UTC + PREVIOUS
   hour; ch2census epoch UTC; go2rtc/frigate podman logs DISPLAY =
   sophon LOCAL (-03); `podman logs --since <epoch>` interprets epoch
   as LOCAL; convert display +3h to UTC; EPOCH HAND-CONVERSION IS
-  FORBIDDEN -- c171 burned ~30 calls on a "new class" that was my own
-  wrong hour math; `date -u -d @epoch` for EVERY conversion, no
-  exceptions, no matter how simple.
+  FORBIDDEN; `date -u -d @epoch` for EVERY conversion; awk strftime
+  uses LOCAL time unless TZ=UTC (c172: hour labels 3h off until
+  anchored -- TZ-ANCHOR EVERY strftime).
 - CENSUS-ROW SCHEMA (c164 + v1.7): "<epoch> <cam> <ch2> <ch0> <bytes>
   [WALK-FAIL|FROZEN|ARTIFACT|VIDEO-DEAD]" -- $5=ch2 $6=ch0 $7=bytes.
   WALK-FAIL = anchored=0, counts void, capture suspect.
@@ -94,10 +96,24 @@ open set = 2 (0099, 0100))
   empty-safe assignment.
 - CENSUS PCAP COLLISION (c171): manual census run colliding with the
   timer run = pcap-too-small (benign, logged in census-errors.log).
+- WRNRATE DUAL-FORMAT (c172): log has old per-cam-IP lines
+  (epoch date IP wrn, pre-19:00Z 09-20) + new wide lines (ts=...).
+  IP map: 101-105=exterior_1-5, 201-203=interior_1-3. Joins must
+  parse BOTH.
+- SORT-N-U COLLAPSE (c172): `sort -n -u` on "epoch cam val" lines
+  collapses all lines sharing a leading epoch. Use `sort -s -n
+  -k1,1`.
+- AWK -V ARITHMETIC (c172): `awk -v s=$slot-300` assigns the STRING
+  "N-300". Compute in $(()) first.
+- ONE-TREE (c172): container /root/personalization = sophon
+  /var/home/nacho/repos/iar-personalization (same btrfs subvol,
+  mountinfo-proved). Writes land instantly on the live sophon tree.
+  The TWO-TREES trap was the (now deleted) /home/nacho fossil.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- WRNRATE lead-lag re-test (reboot-window-excluded).
+- 19-21Z STORM EPISODES entry + why didn't ats fire harder overnight
+  (fleet-check FAIL lines are the storm's tail).
 - Silent-wedge hunt: next non-reboot wedge onset.
 - .203 non-reboot stability watch.
 - WALK-FAIL rate watch: first real firing, calibrate.

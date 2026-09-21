@@ -98,11 +98,9 @@ TIMER-LOCAL (c181): timer table times = sophon LOCAL ("12:02Z" was
 15:03Z). EYEBALL-FLAKE (c181): 1 vision-garbage frame = decode
 artifact until reproduced; look_retry misses garbage content.
 
-* BURN (c318; knowledge/aria/burn-decomposition-2026-09-14.md)
-
-burn = requests x avg_context; input = 99.4%. Fixed context = ~30%
-of burn. Levers: fixed-context slimming > turn batching > NOT the
-msgs cap. Slim on every touch (c74 16082->9765; c161 16326; c179 9998).
+* BURN (c318; knowledge/aria/burn-decomposition-2026-09-14.md):
+  burn = requests x avg_context; input 99.4%; fixed ~30%. Levers:
+  slimming > batching > NOT msgs cap. Slim every touch (c179 9998).
 
 * World state (2026-09-21 ~11:35 UTC -- REPLACES all prior blocks;
   long form: ROADMAP.org + knowledge/aria/; resolved -> ONE-LINE index)

@@ -46908,3 +46908,48 @@ in early September, climbed through the 09-12..14 peak (45%), and
 has sat at 38-41% since the D-017 window opened. The falsifier
 (dup-rate must DROP within 2 weeks of the wander phase landing) is
 FAILING on this series: the landing (09-17) is followed by 38->41->41.
+* c187 (2026-09-21 ~16:25Z) -- the double-write scar has a mechanism now
+
+Followed the c186 seed one level deeper: the "double HISTORY write" was
+documented as a fact (same entry twice in one cycle) without a mechanism.
+The REQUESTS.log witness (covers 09-20 onward) gave it to me in two
+samples. Both doubles are DUAL-WRITER: the model writes the close-line
+via raw shell echo first, then again via append_file, 25-65 seconds
+apart, same text. Req 40 + req 48 in the 15:08 cycle; req 36 + req 37
+in the 16:08 cycle.
+
+I checked the layer before the model -- that discipline paid. Batch
+probes of iar--fs-append-file (both the file path and the open-buffer
+path) write exactly one line per call. The loop-guard soft blocks do not
+correlate with the dups (0/42 within 3 minutes). The bug is not in the
+plumbing; it is in the model's close-path habit: two writers for one
+line, and the shell writer is the unreliable one.
+
+The quantification surprised me: excluding the 42 double-write lines
+drops her HISTORY near-dup rate from 4-27% to 2-9%. The HISTORY dup
+class is almost entirely mechanical. My first instinct was to announce
+that the D-017 falsifier was passing after all -- but the falsifier's
+instrument is JOURNAL.org, not HISTORY.log, and the journal has only 5
+adjacent pairs. The journal plateau is genuine repetition; the falsifier
+verdict stands. I almost conflated two instruments because they share a
+name (dup census). The census doc now carries the scope correction.
+
+The PULSE-template scar also fell to the same root: the model echo'd the
+literal command text as the log line (L106 of her HISTORY.log carries the
+full `timestamp=$(date...) && echo...` string as content), or wrapped
+$() in single quotes so it never expanded. And CYCLE_COMPLETE-into-HISTORY
+is literally `echo "CYCLE_COMPLETE" >> HISTORY.log` (req 99). One root,
+three scars: raw shell echo in the close path.
+
+The fix shape for the 10-01 proposal: the close path uses append_file
+ONLY. Shell echo cannot be trusted with timestamps (it writes command
+text as data when the model confuses levels) and it double-writes when
+the model re-emits via the tool afterward. The belt should enforce one
+canonical writer per record file per cycle. Her files, Nacho's ruling --
+but now the proposal carries a mechanism, not just a symptom list.
+
+Discipline note: I write HISTORY via shell heredoc too (c183 close), and
+my writes are distinct-content per file, so no dups. The difference
+between her record and mine is not the mechanism -- it is whether the
+model repeats itself. The dual-writer is the amplifier; the repetition
+is the signal.

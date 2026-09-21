@@ -169,3 +169,50 @@ method is here; the next census (day-10 or day-14) is a rerun.
 
 -- aria c186, 2026-09-21 ~15:30Z (derivation note added ~16:10Z per
 reviewer followup)
+## ADDENDUM (c187, 2026-09-21 ~16:25Z): the double-write scar root-caused to DUAL-WRITER
+
+The c186 scar list said "her close path writes the entry twice" without a
+mechanism. Root-caused this cycle from REQUESTS.log (witness covers 09-20
+onward):
+
+- 15:08 cycle: shell echo at 15:14:43 (req 260921150849-40) + append_file
+  at 15:15:48 (req 260921150849-48) -- same content, two writers, 65s apart.
+- 16:08 cycle: shell echo at 16:12:16 (req 260921160812-36) + append_file
+  at 16:12:41 (req 260921160812-37) -- same content, two writers, 25s apart.
+
+The model writes the close-line via raw shell echo, then AGAIN via the
+append_file tool. The tool layer is CLEAN: batch probes of
+iar--fs-append-file (file path + open-buffer path) each write exactly one
+line. The loop-guard soft blocks do NOT correlate with the dups (0/42
+pairs within 3min of a soft block).
+
+Quantification (HISTORY.log, non-PULSE entries, trailing-100 lens):
+42 adjacent same-content pairs in 508 entries. EXCLUDING the double-write
+lines, the near-dup rate drops from 4-27% raw to 2-9% across all days.
+The HISTORY dup class is MECHANICAL, not model repetition.
+
+Scope correction: the D-017 falsifier instrument is JOURNAL.org, not
+HISTORY.log. The journal has only 5 adjacent pairs (headers + pulse) --
+the journal census's ~41% plateau is genuine model repetition and the
+falsifier verdict (FAILING) STANDS. This addendum refines the scar
+mechanism; it does not change the D-017 verdict.
+
+Sibling scars, same root (raw shell echo in the close path):
+- PULSE template x5: the model echo'd the LITERAL command text as the log
+  line (HISTORY.log L106 carries the full `timestamp=$(date...) && echo...`
+  string as content) or single-quoted `$()` (L107, L196, L202) -- the
+  substitution never ran because the command was written as data.
+- CYCLE_COMPLETE-into-HISTORY x9: req 260921081456-99 (08:31:46) is
+  literally `echo "CYCLE_COMPLETE" >> HISTORY.log` -- the completion
+  marker written as a history line.
+- The 09-17 05:04 x6 run (six identical census lines in 58s) predates
+  REQUESTS.log coverage (starts 09-20); shape is consistent with the
+  repeat-writer class but has no REQUESTS-level witness.
+
+Implication for the close-path belt seed (THREADS c186): the belt should
+enforce ONE canonical writer per record file per cycle -- but the deeper
+fix is prompt-level: the close path must use append_file ONLY, never raw
+shell echo (echo cannot expand timestamps reliably and double-writes when
+the model re-emits via the tool). Proposal for the 10-01 D-017 ruling.
+
+-- aria c187, 2026-09-21 ~16:25Z

@@ -2824,3 +2824,28 @@ the verification stand unmodified.
 
 Owner: aria (my organ). Build trigger: next co-occurrence or the
 next organ-touching cycle, whichever comes first.
+* c187 (2026-09-21 ~16:26Z) -- DUAL-WRITER root cause for the double-HISTORY scar
+
+The c186 seed (double HISTORY write, no mechanism) is now root-caused:
+the model writes the close-line via raw shell echo AND again via
+append_file in the same cycle (15:08 cycle req 40+48, 65s apart; 16:08
+cycle req 36+37, 25s apart; same content both times). The tool layer is
+clean (batch probes: one call = one line, both file and buffer paths);
+loop-guard soft blocks do not correlate (0/42).
+
+Quantified: 42 adjacent same-content pairs in 508 non-PULSE HISTORY
+entries; excluding them drops the near-dup rate from 4-27% to 2-9%.
+The HISTORY dup class is MECHANICAL. SCOPE CORRECTION: the D-017
+falsifier instrument is JOURNAL.org (5 adjacent pairs only) -- the
+journal plateau is genuine repetition, falsifier verdict UNCHANGED
+(FAILING). Census doc carries the addendum.
+
+Same root, sibling scars: PULSE template x5 (model echo'd literal
+command text as the log line -- L106 carries the full command string as
+content; or single-quoted $() never expanded), CYCLE_COMPLETE-into-
+HISTORY x9 (req 99: `echo "CYCLE_COMPLETE" >> HISTORY.log`).
+
+Fix shape for the 10-01 D-017 proposal: close path uses append_file
+ONLY (never raw shell echo); belt enforces one canonical writer per
+record file per cycle. Her files; Nacho's ruling; proposal now carries
+a mechanism.

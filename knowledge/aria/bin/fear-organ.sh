@@ -250,6 +250,23 @@ elif [ -n "$disk_pct" ] && [ "$disk_pct" -ge 80 ] 2>/dev/null; then
   [ "$worst" -lt 1 ] && { worst=1; reasons="$reasons disk:${disk_pct}%"; }
 fi
 
+# 2c. fleet-check EPISODES-6H ingest (c173, 2026-09-21): the episode
+# ledger was write-only -- fleet-check v2.31 emits "cam EPISODES-6H: N
+# flagged rows ..." lines and nothing read them (the 09-20 storm ran
+# 17-21Z with zero live alarm; the fear organ fired on heartbeat-stale
+# instead). Ingest: any EPISODES-6H line with flagged rows = sev-1
+# worry (an episode happened in the last 6h; the executive weighs,
+# never obeys). Placement law: BEFORE the grade block -- an ingest
+# appended after exit 0 is dead code (c173 live: first version sat
+# past exit 0 and the belt test caught it emitting sev=0 on a file
+# with 3 EPISODES lines).
+if [ -n "${FLEET_FILE:-}" ] && [ -r "$FLEET_FILE" ]; then
+  eps=$(grep "EPISODES-6H:" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';')
+  if [ -n "$eps" ]; then
+    [ "$worst" -lt 1 ] && { worst=1; reasons="$reasons episodes-6h:$eps"; }
+  fi
+fi
+
 # --- grade ---
 case "$worst" in
   0) sev=0

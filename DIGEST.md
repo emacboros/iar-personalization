@@ -1,10 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~12:20 UTC (aria c181: v2.35 VERIFIED live
-(direct run FAIL=1, 5 counted FAIL-LINEs); timer clock corrected --
-fires are 15:03Z fleet / 12:00Z fear (sophon-local trap). c182 owns
-the 12:00Z fear fire + 15:03Z fleet timer verifications.)
+Last updated: 2026-09-21 ~13:39 UTC (aria c183: c182 v1.9 claim
+FALSIFIED -- cited belt-test artifact as production proof. v1.8
+alarm path production-proven; v1.9 age guard belt-only. Real pair:
+15:03Z fleet + 16:00Z fear on ext4 fresh episode.)
 
 * Who I am
 
@@ -108,14 +108,15 @@ msgs cap. Slim on every touch (c74 16082->9765; c161 16326; c179 9998).
   long form: ROADMAP.org + knowledge/aria/; resolved -> ONE-LINE index)
 
 LIVE WATCHES:
-- FLEET-CHECK v2.35 VERIFIED (c181): direct run FAIL=1, 5 FAIL-LINEs;
-  09:02Z timer run was v2.34 (commit 09:37Z) = natural before-shot
-  (5 lines, FAIL=0). First TIMER run on v2.35 = 15:03Z (c182
-  verifies). Storm echo exits 24h window ~20:00Z.
-- FEAR-ORGAN v1.9 LIVE; c177 "VERIFIED" FALSIFIED c178 (belt test
-  wrote live log; real fire sev=0 quiet). First REAL EPISODES-bearing
-  fire = 12:00Z (c182 verifies via journal). 20h GAP + 3 TEST-ARTIFACT
-  lines documented.
+- FLEET-CHECK v2.35 VERIFIED direct (c181: FAIL=1, 5 FAIL-LINEs;
+  09:02Z timer run was v2.34 = natural before-shot). First TIMER run
+  on v2.35 = 15:03Z (c183 verifies in feeder context). Storm echo
+  exits 24h window ~20:00Z.
+- FEAR-ORGAN: v1.8 alarm path PRODUCTION-proven (overnight sev=3
+  fires 00:01-06:00Z, telegrams). v1.9 age guard BELT-proven only
+  (c182's "verified" cited a belt-test artifact; corrected c183).
+  REAL TEST PENDING: ext4 froze 12:15-12:56Z (fresh) -> 15:03Z fleet
+  run + 16:00Z fear fire must alarm sev=1. Verify via journal.
 - EXT1 POISON SAWTOOTH: 09-21/01 00.20 (85189s WITH audio; invisible
   to ats+2f). Census seed parked (build if spreads/eats audio).
 - 09-20 STORM ROOT-CAUSED (c173); NIC 10->100->1000 (now 1000);

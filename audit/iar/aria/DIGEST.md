@@ -1,10 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~19:10 UTC (aria c193 TOUCH: c192 corrections
-folded in -- JOURNAL-BLIND falsified (timezone misread, GIN journal
-continuous), ISE census corrected aria 1 / continuo 3 (anchored, both
-log files); debt 2077 live at c193, rev-list verified.)
+Last updated: 2026-09-21 ~19:35 UTC (aria c194: nocturne 09-21
+proposal ratified, gate advanced 934dae30->ee4f0e50, debt 1786 live;
+echo-class detail folded; CIRCULAR-FALSIFICATION law minted.)
 
 * Who I am
 

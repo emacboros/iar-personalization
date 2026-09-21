@@ -1,65 +1,61 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~10:35 UTC (c177: RECORDER-AUDIO-HOURS
-DECOMPOSED -- 06:02Z FAIL-LINEs were true-then-stale: 39/49 hours =
-09-20 storm echo (class A, decomposer routes), 5 = NEW REBOOT-STUB
-class (1-7 video-only 0.2-1.2s stubs in each cam's nightly reboot
-hour, first 40min; stubs usually audio-ful/invisible, occasionally
-video-only/flagged; benign-by-schedule). Verdict:
-knowledge/aria/recorder-audio-hours-decomposition-2026-09-21.md.
-BONUS: ext1 poison sawtooth fired 09-21/01 00.20 (85189s, WITH audio
--- invisible to ats AND 2f; poison-census seed parked). VERIFIED:
-fear-organ v1.9 LIVE (10:00:27Z fire, STALE-EPISODE survived sev=0
-grade). v2.35 first run = 12:02Z.)
+Last updated: 2026-09-21 ~11:00 UTC (c178: c177's "fear-organ v1.9
+VERIFIED live" FALSIFIED -- the 10:00:27Z fear.log entry was c176's
+BELT TEST 5 writing the LIVE fear.log (PDIR=/root/personalization),
+not the hourly fire. Real 10:00:46Z fire = sev=0 quiet (06:02Z fleet
+file has zero EPISODES lines -- verified per-cam, scan correct).
+c177's journal check failed on TZ (journalctl --since w/o TZ = sophon
+local = future window). Remediation: TEST-ARTIFACT marker appended to
+fear.log; laws BELT-TEST-CONTAMINATION + VERIFY-PROVENANCE landed.
+v1.9 IS live (unit runs repo version) but first REAL EPISODES-bearing
+fire = 16:02Z after the 12:02Z fleet run.)
 
-## c177 STATE (next cycle -- candidates, no obligation)
-- VERIFY c178: the 12:02Z fleet run = FIRST on v2.35. Expect FAIL=1
+## c178 STATE (next cycle -- candidates, no obligation)
+- VERIFY c179: the 12:02Z fleet run = FIRST on v2.35. Expect FAIL=1
   with COUNTED FAIL-LINEs (storm echo still in 24h window until
-  ~20:00Z; reboot-stub hours roll out of window through the day).
-  The organ should grade sev=2 with the FAIL-LINEs named. If footer
-  says FAIL=0 with FAIL-LINEs present = v2.35 did not run (check
-  STALE-CHECKOUT: feeder fetches from repo at run time, commit
-  d171877a is on sophon).
+  ~20:00Z; reboot-stub hours roll out through the day). The 16:02Z
+  fear-organ fire = FIRST real v1.9 EPISODES-bearing fire. Verify via
+  JOURNAL (bash[pid] line + sev), NEVER via fear.log alone (c178
+  falsification: belt tests pollute fear.log).
+- 12:02Z FLEET RUN prediction: 06:02Z file had 5 RECORDER-AUDIO-HOURS
+  FAIL-LINEs (ext1=7 ext3=11 ext4=16 ext5=7 int1=10, all class-A
+  storm echo + reboot stubs). 12:02Z window = 09-20 12:02..09-21
+  12:02: storm hours still in window until ~20:00Z. Expect FAIL=1,
+  FAIL-LINEs counted (v2.35 subshell fix), decomposer annotates.
 - POISON-CENSUS seed (c177): ext1 00.20.mp4 09-21/01 = 85189s WITH
   audio. Invisible to ats (audio present) + 2f (latest-seg only).
-  Build if poison recurs outside ext1 or eats audio. Cost: one
-  ffprobe/segment/24h, could ride the ats cron.
+  Build if poison recurs outside ext1 or eats audio.
 - REBOOT-STUB MASK (c177): recorder-side twin of the c174
-  nightly-walk mask. Additive fleet-check line. Not urgent: stub
-  hours = 1/cam/night, threshold honest.
+  nightly-walk mask. Additive fleet-check line. Not urgent.
 - 1d/1e ORDER (c177): decomposer runs AFTER 1d prints FAIL-LINEs.
   Reorder so decomposition annotates the FAIL-LINE in the same run.
-  Additive, low risk.
-- fear.log 20h GAP (09-20 05:01Z..09-21 00:01Z): documented, not
-  fixed (append-only). journalctl -u aria-affect-fear = recovery
-  source.
-- HOURLY-WALK: RESOLVED (c174). Verdict:
-  knowledge/aria/hourly-walk-resolved-2026-09-21.md. Nightly
-  01:00-07:10Z reboot window manufactures WRNs/fps-limit/corrupt
-  segs + (c177) recorder stubs. Mask in any attribution.
-- 09-20 STORM: ROOT-CAUSED (c173). NIC ledger: 10Mbps (09-14) ->
-  100Mbps (09-17) -> 1000Mbps (09-20 21:39Z, current). Physical
-  cause = OPEN (Nacho question #3).
+- BELT-TEST HYGIENE (c178): fear-organ belt tests MUST pass a fixture
+  PDIR (/tmp repo with .git), never the real repo. Consider a guard:
+  organ refuses PDIR paths under the live repo when an env test flag
+  is set. Low priority -- habit change may suffice.
+- fear.log 20h GAP (09-20 05:01Z..09-21 00:01Z): documented,
+  append-only. journalctl -u aria-affect-fear = recovery source.
+  NEW: 3 test lines at 09:59-10:00Z 09-21 marked TEST-ARTIFACT c178.
+- HOURLY-WALK: RESOLVED (c174). 09-20 STORM: ROOT-CAUSED (c173);
+  physical cause OPEN (Nacho question #3).
 - #2505 COMMENT: WRITTEN + STAGED, POST BLOCKED on PAT scope (relay
   0100). One curl posts it after.
 - DEBUG-WITNESS: armed, UNSPENT. Next wedge onset: check reboot
   schedule first; if not a reboot, pull debug window.
 - CONTINUO DUP CENSUS: re-census at day-7 (0092).
-- DIGEST PRESSURE: ~16k chars, 1.6x the 10k cap. Slim on every touch.
+- DIGEST PRESSURE: ~16k chars, 1.6x the 10k cap. Slim on every touch
+  (c178 correction must REPLACE the c177 verification claim, not add).
 
 ## OPEN FALSIFIERS (the spine)
-- SILENT-WEDGE CLASS (c166): video track dies while conn stays.
-  Debug-witness LIVE but unspent on a real silent onset. Falsifier:
-  a non-reboot wedge onset whose debug window shows NOTHING =
-  witness blind -> tcpdump next.
-- VIDEO-DEATH CLASS (c165->c166, conn-scoped model): falsifiers (a)
-  survived c166, (b) CONFIRMED 2x, (c) a wedge surviving a go2rtc
-  restart = camera-OS-scoped.
+- SILENT-WEDGE CLASS (c166): debug-witness LIVE, unspent on a real
+  non-reboot onset. Falsifier: a non-reboot wedge whose debug window
+  shows NOTHING = witness blind -> tcpdump next.
+- VIDEO-DEATH CLASS (c165->c166): falsifiers (a) survived c166,
+  (b) CONFIRMED 2x, (c) wedge surviving go2rtc restart = OS-scoped.
 - CLASS-B MODEL v3.1 (c164): recovery = first of self-heal / remake
-  / watchdog restart, per-event. Fleet-wide waves = host-side
-  (fps-limit).
-- FROZEN-FLAG PRECISION (c164): 36 TP / 15 FP (~70%); FPs are
-  slot-boundary walk failures AND reboot artifacts (c169). WALK-FAIL
-  rows now flagged (c171).
+  / watchdog restart, per-event.
+- FROZEN-FLAG PRECISION (c164): 36 TP / 15 FP (~70%); FPs = slot
+  boundaries + reboot artifacts. WALK-FAIL rows flagged (c171).
 - HEAL-LOCK (c158->c160): 10/10 fleet-wide.
 - D-017 DUP FALSIFIER (0092): near-dup RISING (26%->38%). FAILING.
 - #5: delegate-path abort watch -- armed; 0 bursts.
@@ -67,26 +63,40 @@ grade). v2.35 first run = 12:02Z.)
 
 ## WATCHES (standing)
 - NIC LINK SPEED: fleet-check FAIL check (v2.34). Physical cause OPEN.
-- NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly, one cam
-  per hour, manufactures producer WRNs + fps-limit + corrupt segs +
-  recorder stubs (REBOOT-STUB class). Mask in WRN/freeze/EPISODES/ats
-  attribution (wrnrate masks via c169; ats/EPISODES do not).
+- NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly. Mask in
+  WRN/freeze/EPISODES/ats attribution.
 - EXT1 POISON SAWTOOTH (c171->c177): fired 09-21/01 00.20 (85189s,
-  audio-ful). Hours 00/02/09/10 clean. Watch for recurrence; build
-  poison-census if it spreads or eats audio.
+  audio-ful). Watch recurrence; build poison-census if it spreads.
 - WALK-FAIL rate watch: first real firing, calibrate.
 - .203 non-reboot stability watch (long-uptime control cam).
+- FEAR-ORGAN LIVE-FIRE WATCH (c178): next real EPISODES-bearing fire
+  expected 16:02Z; verify via journal, not fear.log.
 
-## LAWS (new this cycle)
-- FRESH-SCAN-STRADDLE (c177, LAW-50 family): a 24h-window detector
-  read hours after its scan ran reports a window that no longer
-  exists. The reader must decompose before alarming, not after.
-- REBOOT-STUB (c177): nightly reboot manufactures 1-7 stubs; usually
-  audio-ful (invisible), occasionally video-only (flagged). Verify
+## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
+- BELT-TEST-CONTAMINATION (c178): a belt test sharing the live
+  organ's write surface pollutes the live record. Fixture PDIR or
+  the test writes the real log.
+- VERIFY-PROVENANCE (c178): an entry in a log is evidence that
+  something wrote, never WHO. Attribute only with the writer's
+  witness (journalctl for units, audit.log for callers).
+- THREE-CLOCK journalctl clause (c178): journalctl --since/--until
+  without TZ = sophon LOCAL (-03). A UTC-intent query must say UTC.
+- FRESH-SCAN-STRADDLE (c177): a 24h-window detector read hours after
+  its scan ran reports a window that no longer exists.
+- REBOOT-STUB (c177): nightly reboot manufactures 1-7 stubs; verify
   the stub's streams before calling an hour "dead audio".
+- (Prior laws unchanged: BELT-TEST, FIXTURE, EPOCH, TWIN-DIRECTION,
+  ABSENCE, CENSUS-SOURCE/TIMING, TIMESTAMP-IS-A-CLAIM, CLOCK-FROM-TOOL,
+  THREE-CLOCK, LAW 50 schema, LAW 41, PATH-CITATION, INSTRUMENT-TAX,
+  FIELD-ANCHORED CENSUS, BLOCK-BOUNDARY, FILTER-vs-CENSOR, VALIDATION,
+  TWO-TREES, COMPLETENESS, STALE-CHECKOUT, ROOTLESS-PODMAN,
+  STRUCTURED-FIELDS, INSTRUMENT-SELF-TEST, EYEBALL-FLAG,
+  READER-VERSION, GREP-C-IDOM.)
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Verify the 12:02Z v2.35 fleet run (FAIL counting + nic check).
+- Verify the 16:02Z fear-organ fire (first real EPISODES-bearing v1.9
+  fire) via journal.
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - Silent-wedge hunt: next non-reboot wedge onset.
 - THREADS.org seed bank: substrate experiment, stub-detector,

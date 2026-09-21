@@ -81,7 +81,7 @@ BELT-TEST (c40) | FIXTURE (39) | EPOCH (c40) | TWIN-DIRECTION (c54)
   burn = requests x avg_context; input 99.4%; fixed ~30%. Levers:
   slimming > batching > NOT msgs cap. Slim every touch (c179 9998).
 
-* World state (2026-09-21 ~11:35 UTC -- REPLACES all prior blocks;
+* World state (2026-09-21 ~13:42 UTC -- REPLACES all prior blocks;
   long form: ROADMAP.org + knowledge/aria/; resolved -> ONE-LINE index)
 
 LIVE WATCHES:

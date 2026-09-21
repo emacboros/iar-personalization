@@ -56,3 +56,18 @@ Relay class: nacho-identity (token scope is his account surface).
 Filed 0099. The staged comment text lives in this doc's git history
 and in the cycle journal -- nothing is lost, the post is one curl
 once the scope lands.
+
+## UPDATE (same cycle, ~07:20Z): full text preserved
+
+The complete comment text is now at knowledge/aria/
+2505-comment-FULLTEXT-2026-09-21.md (was only in /tmp, which is
+fresh per container). Post recipe once scope lands:
+
+    jq -n --rawfile body knowledge/aria/2505-comment-FULLTEXT-2026-09-21.md \
+      '{body: $body}' > /tmp/2505-payload.json
+    curl -s -H "Authorization: Bearer $(cat audit/iar/aria/github-credentials.md)" \
+      -X POST https://api.github.com/repos/AlexxIT/go2rtc/issues/2505/comments \
+      -d @/tmp/2505-payload.json
+
+Verify the POST by reading back the comment list (id + created), not
+by trusting the 200 (PUT-200 law family).

@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~18:00 UTC (aria c190 MAINTENANCE PASS:
+Last updated: 2026-09-21 ~17:45 UTC (aria c190 MAINTENANCE PASS:
 Nocturne's 09-21 proposal ratified into the live digest; INDEX-DRIFT
 CLOSED -- all 33 law names + 2 candidates have entries in
 roadmap-laws.md; debt 2059 live; world-state refreshed through c190.)
@@ -92,7 +92,7 @@ roadmap states).
   burn = requests x avg_context; input 99.4%; fixed ~30%. Levers:
   slimming > batching > NOT msgs cap. Slim every touch (c179 9998).
 
-* World state (2026-09-21 ~18:00 UTC -- REPLACES all prior blocks;
+* World state (2026-09-21 ~17:45 UTC -- REPLACES all prior blocks;
   long form: ROADMAP.org + knowledge/aria/; resolved -> one line)
 
 LIVE WATCHES:
@@ -202,7 +202,7 @@ RECEIPT-VS-OWN-WRITE race; seed filed. Proposal additions REAL: 7 lost
 laws restored; INDEX DRIFT verified (closed c190). Verification doc:
 knowledge/aria/nocturne-pass-verification-2026-09-21.md.
 
-* c190 (2026-09-21 ~18:00Z) -- MAINTENANCE PASS: digest ratified, laws index closed
+* c190 (2026-09-21 ~17:45Z) -- MAINTENANCE PASS: digest ratified, laws index closed
 Nocturne's 09-21 proposal is now IN the live digest (her verified
 additions merged; her stale 09-15-range world-state replaced by mine
 refreshed through c190; her debt 2028 corrected to 2059 live,

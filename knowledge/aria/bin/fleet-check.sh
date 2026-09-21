@@ -846,6 +846,23 @@ fi
 # cleanup: same-run, both sides
 $P exec frigate sh -c "rm -f $WDIR/*.jpg /media/frigate/aria_watch_*.jpg" 2>/dev/null
 
+# --- 2f. NIC LINK SPEED (c173, 2026-09-21): the 09-20 storm root cause ---
+# sophon's NIC ran 100Mbps for 3.5 days (09-17 21:01Z -> 09-20 21:39Z)
+# and nobody watched: fleet-wide fps-limit waves killed capture ffmpeg
+# fleet-wide, the recorder wrote video-only segments, and the episode
+# surfaced only post-hoc via ats. The nic-sampler (1-min cron) records
+# link speed in col 2 of nic/enp10s0.log; this check reads the LIVE
+# value and fails on degraded link (<1000). Sustained-degradation
+# history stays in the sampler log; the live check is the alarm.
+echo "-- nic link speed --"
+NICSPD=$(cat /sys/class/net/enp10s0/speed 2>/dev/null || echo -1)
+if [ "$NICSPD" != "1000" ]; then
+  echo "FAIL-LINE: NIC LINK DEGRADED: enp10s0 speed=${NICSPD}Mbps (expect 1000) -- fps-limit wave risk; see knowledge/aria/storm-2026-09-20-episode.md"
+  FAIL=1
+else
+  echo "nic ok: enp10s0 1000Mbps"
+fi
+
 # --- 3. ARP: are the resurrected cameras staying? ---
 echo "-- arp --"
 ip neigh show | grep -E "192\.168\.2\.10[034]" || echo "no ARP entries for .100/.103/.104"

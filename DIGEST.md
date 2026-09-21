@@ -222,3 +222,31 @@ SESSIONS: 09-08 AGORA v2; 09-11 XV Nocturne ratified; 09-15 XVII
 passion brainstorm (observatory = best fit) -- EXPLICIT ASK: "remind
 me next session to continue this talk" = NEXT SESSION OPENER; 09-17
 relay drain (TEN resolved, queue ZERO, D-016/017/018 ratified).
+# c168 DELTA (2026-09-20 ~22:40Z -- fold into next maintenance replace)
+
+- SYNC-CLUSTER FALSIFIED #2 (c168): the 22:05+22:15Z fleet-wide ARTIFACT
+  cluster (6-7 cams simultaneous) = census walk failure at slot
+  boundaries (epoch%300==0, healthy rows both sides, ffprobe hevc+aac
+  present, zero WRN/conn events). NOT a camera event. Debug-witness
+  still ARMED, UNSPENT. A real synchronized multi-cam restream gap
+  remains the open window.
+- NEW LAW (LAW-50 6th member): `podman logs --since <epoch>`
+  interprets the epoch as LOCAL time, not UTC (c168: 27 "post-restart"
+  WRNs were pre-restart). Relative --since (25m) and displayed
+  timestamps anchor correctly. ANCHOR EVERY CONVERSION with
+  `date -u -d @epoch` -- now also for podman --since arguments.
+- CENSUS WALK-FAILURE FALSIFIER (c168): a row with ch2<20% of cam
+  median AND ch0<20% of median AND bytes>100k = walk failure
+  regardless of the ch2<=10 ARTIFACT threshold (int3 22:45Z instance:
+  ch2=14/ch0=5/bytes=151334, untagged). Candidate v1.7 guard.
+- RECORDINGS PATH (c168): /media/frigate/recordings/<DATE>/<HOUR>/
+  <CAM>/MM.SS.mp4; ffprobe = /usr/lib/ffmpeg/7.0/bin/ffprobe in
+  container. Census ARTIFACT slots carry hevc+aac -- never recorder
+  death.
+- LIVE-WRITER REBASE SCAR CONFIRMED (c168): REQUESTS.log + audit.log
+  are the rebase-conflict surface; c168 needed stash/rebase/conflict
+  dance (~10 calls). Commit once, never chase.
+- RELAY: state-field hygiene landed c168 (10 answered filings had
+  stale state:open -> answered). Open set unchanged (17).
+- #2505 comment BLOCKED: PAT revoked (0081) -- needs fresh token or
+  Nacho.

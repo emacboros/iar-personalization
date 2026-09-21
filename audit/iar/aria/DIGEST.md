@@ -1,10 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~13:39 UTC (aria c183: c182 v1.9 claim
-FALSIFIED -- cited belt-test artifact as production proof. v1.8
-alarm path production-proven; v1.9 age guard belt-only. Real pair:
-15:03Z fleet + 16:00Z fear on ext4 fresh episode.)
+Last updated: 2026-09-21 ~15:35 UTC (aria c186: D-017 day-7 census
+DONE -- falsifier FAILING at plateau ~41% at halfway; continuo
+close-path scars root-caused. 16:00Z fear fire verification IN
+PROGRESS this cycle -- prediction on record since c185.)
 
 * Who I am
 
@@ -35,9 +35,9 @@ FENCE: DIGEST.proposed.md only (aria ratifies at next wake); THREADS
 proposals appended never in-place; attic = move never delete. LIVE;
 sophon timer 16:00Z. Defense chain v5..v8.3 (tasks/iar/
 nocturne-design/). PASS LEDGER primary: VERDICTS.log + oneshot logs;
-read her receipt + VERDICTS.log every cycle (falsifier #0). 09-20:
-gate advanced to 934dae30 but proposal had ZERO 09-20 content; debt
-1766 commits since gate.
+read her receipt + VERDICTS.log every cycle (falsifier #0). 09-20
+pass: gate advanced to 934dae30, receipt verified, RETENTION ran
+(742 found, batch 100). Debt 1766 commits since gate.
 
 * North star + the door
 
@@ -81,28 +81,28 @@ BELT-TEST (c40) | FIXTURE (39) | EPOCH (c40) | TWIN-DIRECTION (c54)
   burn = requests x avg_context; input 99.4%; fixed ~30%. Levers:
   slimming > batching > NOT msgs cap. Slim every touch (c179 9998).
 
-* World state (2026-09-21 ~13:42 UTC -- REPLACES all prior blocks;
+* World state (2026-09-21 ~15:35 UTC -- REPLACES all prior blocks;
   long form: ROADMAP.org + knowledge/aria/; resolved -> ONE-LINE index)
 
 LIVE WATCHES:
-- FLEET-CHECK v2.35 VERIFIED direct (c181). First TIMER run on v2.35
-  = 15:03Z (c184+ verifies; timer fires 12:03/18:03 sophon-local).
-  Storm echo exits 24h window ~20:00Z.
-- FEAR-ORGAN: v1.8 alarm path PRODUCTION-proven; v1.9 age guard
-  BELT-proven only. REAL TEST PENDING: ext4 froze 12:15-12:56Z
-  (fresh) -> 15:03Z fleet run + 16:00Z fear fire must alarm sev=1.
-  Verify via journal. v2.2 (c184): delta-detection fixed (11:00Z
-  fire crashed on annotation quoting sev= tokens); 16:00Z runs v2.2.
-- EXT4 FROZEN EPISODE (c183, REAL): 12:15-12:56Z, audio froze with
-  video (ch2=0 ch0 flowing); recovered 13:25Z. First fresh episode
-  since v1.9 -- the pending pair is its verification.
-- EXT1 POISON SAWTOOTH: 09-21/01 00.20 (85189s WITH audio; invisible
-  to ats+2f). Census seed parked (build if spreads/eats audio).
-- 09-20 STORM ROOT-CAUSED (c173); NIC 10->100->1000 (now 1000);
-  physical cause OPEN (Nacho q3).
-- HOURLY-WALK RESOLVED (c174) = nightly reboot crons. RAH DECOMPOSED
-  (c177): 39/49 storm echo + 5 REBOOT-STUB (benign); verdict doc in
-  knowledge/aria/recorder-audio-hours-decomposition-2026-09-21.md.
+- FEAR-ORGAN v2.2: v1.8 alarm path production-proven; age guard
+  belt-proven. VERIFICATION PAIR: 15:03Z fleet run DONE (FAIL=1 +
+  EPISODES lines ext4 33 rows + ext3 1 row, both fresh) -> 16:00Z
+  fire PREDICTED sev=2 delta=up, log line, no telegram. c186
+  verifies live (fire 16:01:44Z). If confirmed, fear-organ watch
+  SHRINKS in this digest.
+- FLEET-CHECK v2.35: first timer run verified (c185). Storm echo
+  exits 24h window ~20:00Z tonight.
+- EXT4 FROZEN EPISODE (c183, REAL): 12:15-12:56Z audio froze with
+  video; recovered 13:25Z. The pair is its verification.
+- INT3 ARTIFACT ROWS (c185->c186): transient burst 14:10-14:35Z
+  (3 rows, 4-10 ch2 frames), recovered 30-46 frames. Decomposer
+  counts (B4). Watch, no build.
+- EXT1 POISON SAWTOOTH: 09-21/01 00.20 (85189s WITH audio). Seed
+  parked.
+- 09-20 STORM ROOT-CAUSED (c173); NIC now 1000Mbps; physical cause
+  OPEN (Nacho q3). HOURLY-WALK RESOLVED (c174) = nightly reboots.
+  RAH DECOMPOSED (c177): 39/49 storm echo + 5 REBOOT-STUB.
 - DEBUG-WITNESS ARMED, UNSPENT. NIC watch live (v2.34+).
 
 STANDING:
@@ -113,8 +113,12 @@ STANDING:
   Verify POST by reading back the comment list.
 - QUOTA: ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s. Burn: aria
   83.5%/15.6%/0.6% (aria/cont/noct).
-- CONTINUO REPETITION (0046): near-dup RISING 26%->38%; day-7
-  re-census. KEY REDACTOR clean; rotation DONE 0093.
+- CONTINUO REPETITION (0046/D-017): day-7 census DONE (c186) --
+  near-dup PLATEAUED ~41% (32->31->38->41->41 rolling). FAILING.
+  Deadline 10-01 (Nacho's revert-or-keep). Close-path scars
+  root-caused (double HISTORY write, literal PULSE template x5,
+  CYCLE_COMPLETE-into-HISTORY x9, STATE.md two-writer) -- THREADS
+  c186 addendum; close-path belt seed filed.
 - D-016 RETENTION LIVE (742/100/642); build UNBLOCKED.
 - RELAY open set 2 (0099 watchdog + 0100 PAT scope), Nacho-blocked.
 - JOURNAL-BLIND (0087): journal = 97% audit mirror. BELT #2b: belt

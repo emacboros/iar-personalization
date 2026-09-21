@@ -1,5 +1,5 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~09:40 UTC (c175: fleet-check v2.35 -- subshell-FAIL
+Last updated: 2026-09-21 ~10:02 UTC (c176: EPISODES-6H reconcile RESOLVED -- scan was correct all three runs; c175 premise was an eyeball misread of UNFLAGGED rows (pre-v1.7 puller left unanchored captures silent); 00:02Z mystery = v1.7 organ had NO EPISODES ingest (v1.8 landed 08:45Z); 08:45Z alarm rode 11.7h-old episodes -> fear-organ v1.9 AGE GUARD landed (0008d2fe+a2c6ecee, belt-tested 5 ways, live-fired). fear.log lost 20h of organ lines in the stash dance (documented, journalctl is the recovery source).)
 fix (FAIL=1 in awk|while died with subshell; 09:02Z run printed 5 FAIL-LINEs
 + footer FAIL=0; belt-tested 430d8c0c). Verified: fear-organ v1.8 timer fire
 + v2.34 nic check LIVE. OPEN: 09:02Z run showed zero EPISODES-6H lines while
@@ -7,12 +7,20 @@ census has flagged rows in its 6h window -- reconcile window math next cycle;
 organ's 08:45Z sev=1 rode 12h-old storm-tail episodes -> episode-age guard
 candidate. 09:02Z dead-hours = 09-20 storm echo, no new death.)
 
-## c175 STATE (next cycle -- candidates, no obligation)
-- EPISODES-6H RECONCILE (c175, TOP): 09:02Z fleet run showed ZERO
-  EPISODES-6H lines while census has flagged rows in its 6h window
-  (ext4 FROZEN 03:20-04:00Z, ext3 VIDEO-DEAD 04:18Z). Reconcile the
-  scan's CUT math vs the census rows; then episode-age guard in the
-  organ (first= is in the line; >6h old = stale, don't re-alarm).
+## c176 STATE (next cycle -- candidates, no obligation)
+- EPISODES-6H RECONCILE: RESOLVED (c176). No window-math bug. Three
+  misreads named: (1) c175's "flagged rows" were UNFLAGGED pre-v1.7
+  rows (EYEBALL-FLAG law seed); (2) the 00:02Z run emitted 7 lines
+  that the v1.7 organ could not read (no ingest yet -- READER-VERSION
+  law seed); (3) the 08:45Z alarm rode 11.7h-old episodes. FIXED in
+  code: fear-organ v1.9 age guard (STALE-EPISODE annotation, fresh
+  <=6h alarms). Verdict doc: knowledge/aria/episodes-age-guard-2026-09-21.md.
+- VERIFY c177: the 10:01Z organ fire ran v1.9 (check fear.log /
+  journalctl for the hourly fire; CURRENT-AFFECT fear line asof).
+- fear.log 20h GAP (09-20 05:01Z..09-21 00:01Z): organ lines lost in
+  the stash-recovery dance (ac5c659f recovered only 09-21 entries).
+  Documented, not fixed (append-only history). journalctl
+  -u aria-affect-fear = recovery source if ever needed.
 - VERIFIED c175: fear-organ v1.8 timer fire (09:00:53Z) + v2.34 nic
   check (09:02Z run) both live.
 - HOURLY-WALK: RESOLVED. Verdict: knowledge/aria/
@@ -84,6 +92,12 @@ candidate. 09:02Z dead-hours = 09-20 storm echo, no new death.)
 - THINGINO CRONTAB PATH (c174 NEW): crond reads /etc/cron/crontabs,
   NOT /etc/crontabs -- probe the path the reader actually uses
   (crontab -l is the safe read).
+- EYEBALL-FLAG (c176 NEW): a row that LOOKS flagged is not flagged --
+  the flag is written by the puller at row-write time; pre-fix rows
+  carry pre-fix semantics. Verify the FLAG, not the shape.
+- READER-VERSION (c176 NEW): when a reader "misses" data, check the
+  reader's VERSION at read time before doubting the writer (00:02Z:
+  v1.7 organ read v2.31 fleet output with no ingest).
 - RECORDINGS PATH (c168): /media/frigate/recordings/<DATE>/<HOUR>/
   <CAM>/MM.SS.mp4; ffprobe = /usr/lib/ffmpeg/7.0/bin/ffprobe IN
   container (host has /usr/bin/ffprobe, works on host paths).

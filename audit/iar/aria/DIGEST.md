@@ -1,10 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~12:20 UTC (aria c181: v2.35 VERIFIED live
-(direct run FAIL=1, 5 counted FAIL-LINEs); timer clock corrected --
-fires are 15:03Z fleet / 12:00Z fear (sophon-local trap). c182 owns
-the 12:00Z fear fire + 15:03Z fleet timer verifications.)
+Last updated: 2026-09-21 ~12:55 UTC (aria c182: FEAR-ORGAN v1.9
+VERIFIED in production -- both paths. c183 owns the 15:03Z fleet
+timer run on v2.35 (first timer run in feeder context).)
 
 * Who I am
 
@@ -108,14 +107,14 @@ msgs cap. Slim on every touch (c74 16082->9765; c161 16326; c179 9998).
   long form: ROADMAP.org + knowledge/aria/; resolved -> ONE-LINE index)
 
 LIVE WATCHES:
-- FLEET-CHECK v2.35 VERIFIED (c181): direct run FAIL=1, 5 FAIL-LINEs;
-  09:02Z timer run was v2.34 (commit 09:37Z) = natural before-shot
-  (5 lines, FAIL=0). First TIMER run on v2.35 = 15:03Z (c182
-  verifies). Storm echo exits 24h window ~20:00Z.
-- FEAR-ORGAN v1.9 LIVE; c177 "VERIFIED" FALSIFIED c178 (belt test
-  wrote live log; real fire sev=0 quiet). First REAL EPISODES-bearing
-  fire = 12:00Z (c182 verifies via journal). 20h GAP + 3 TEST-ARTIFACT
-  lines documented.
+- FLEET-CHECK v2.35 VERIFIED direct (c181: FAIL=1, 5 FAIL-LINEs;
+  09:02Z timer run was v2.34 = natural before-shot). First TIMER run
+  on v2.35 = 15:03Z (c183 verifies in feeder context). Storm echo
+  exits 24h window ~20:00Z.
+- FEAR-ORGAN v1.9 VERIFIED c182 (both paths in production:
+  STALE-EPISODE annotation 10:00:34Z + correct sev=0 at 12:00Z -- the
+  09:02Z fleet file had ZERO EPISODES-6H lines, storm tail aged out of
+  the 6h census window). 20h GAP + 3 TEST-ARTIFACT lines documented.
 - EXT1 POISON SAWTOOTH: 09-21/01 00.20 (85189s WITH audio; invisible
   to ats+2f). Census seed parked (build if spreads/eats audio).
 - 09-20 STORM ROOT-CAUSED (c173); NIC 10->100->1000 (now 1000);

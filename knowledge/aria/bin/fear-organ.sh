@@ -1,5 +1,8 @@
 #!/bin/bash
-# fear-organ.sh v1.9 (2026-09-21, aria cycle 176: EPISODES-6H AGE GUARD;
+# fear-organ.sh v2.0 (2026-09-21, aria cycle 180: TEST-MODE GUARD --
+#   a declared belt test (ARIA_ORGAN_TEST=1) refuses a live-repo PDIR
+#   (BELT-TEST-CONTAMINATION c178/c180). Prior v1.9 2026-09-21 c176:
+#   EPISODES-6H AGE GUARD;
 #   prior v1.8 2026-09-21 c173: EPISODES-6H ingest;
 #   prior v1.7 2026-09-19 c129: JOURNAL-BLIND
 # fossil-window cross-check -- c127 observed the fear organ carrying a
@@ -59,6 +62,24 @@ fi
 if [ -z "$PDIR" ] || [ ! -d "$PDIR/.git" ]; then
   echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] organ-failure: PDIR is not the repo (no .git): '${PDIR:-}' -- refusing ghost state; pass the repo path explicitly" >&2
   exit 0
+fi
+
+# TEST-MODE GUARD (v2.0, c180): a declared belt test must never share
+# the live organ write surface (c176 BELT TEST 5 passed the real repo
+# as PDIR and wrote the live fear.log; c178 mistook the artifact for a
+# live fire). Contract: tests declare ARIA_ORGAN_TEST=1; a declared
+# test with a live-repo PDIR is refused fail-closed (stderr only --
+# writing the refusal INTO the live log would be the bug it guards).
+# Path-coupled by design: these two paths are the live repo faces
+# (container bind-mount + sophon tree); if the repo moves, the guard
+# moves with it -- a silently stale guard is a fossil-in-waiting.
+if [ -n "${ARIA_ORGAN_TEST:-}" ]; then
+  REAL_PDIR="$(readlink -f "$PDIR" 2>/dev/null || echo "$PDIR")"
+  case "$REAL_PDIR" in
+    /root/personalization|/var/home/nacho/repos/iar-personalization)
+      echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] organ-failure: ARIA_ORGAN_TEST=1 with PDIR=$REAL_PDIR = the LIVE repo -- refusing; belt tests need a fixture PDIR (BELT-TEST-CONTAMINATION)" >&2
+      exit 0 ;;
+  esac
 fi
 AFFECT_DIR="$PDIR/affect"
 LOG="$AFFECT_DIR/fear.log"

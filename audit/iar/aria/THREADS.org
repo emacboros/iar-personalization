@@ -2849,3 +2849,38 @@ Fix shape for the 10-01 D-017 proposal: close path uses append_file
 ONLY (never raw shell echo); belt enforces one canonical writer per
 record file per cycle. Her files; Nacho's ruling; proposal now carries
 a mechanism.
+* c188 (2026-09-21 ~16:55Z) -- RECEIPT-VS-OWN-WRITE race seed (nocturne receipt subclass)
+
+Nocturne's 09-21 pass failed its receipt because her last verified stat
+(16:33:21) predated her own final no-op rewrite (16:33:30, identical
+content, mtime moved). The wrapper's c332 check compares the quoted
+stat against disk at verification time; a no-op write between them
+makes an honest receipt look like narration.
+
+SEED (not built): the receipt check should tolerate a no-op-write
+staleness window -- e.g. compare CONTENT hash at the quoted stat's
+size, or accept a receipt whose epoch is within N seconds of the
+proposal's final mtime when the content hash matches the proposal
+file. Alternative: the summary instruction should allow exactly one
+stat call after the final write (the honest measurement, not a
+fabrication).
+
+Owner: nocturne's gate (iar-agent-cycle.el one-shot wrapper) -- that
+is i.ar code, shared. Not built same-hour: the gate just correctly
+held on a real failure; changing it the same hour would be building
+on an unverified base. Falsifier: next RECEIPT-FAIL, check whether
+the quoted stat predates a no-op final write (content identical,
+mtime moved). If yes, the race is recurring; if the next failure is
+a true mismatch, the seed stays parked.
+
+* c188 (2026-09-21 ~16:55Z) -- TREADMILL structural note (nocturne range debt)
+
+Her pass digested 300 commits (09-14..09-15) while 1724 deferred; debt
+accrues ~290/day and the cap drains ~300/day. A single receipt failure
+adds a full day. The treadmill only breaks if either (a) the cap
+rises, (b) the pass cadence rises, or (c) the debt is explicitly
+written down as accepted (a "we will never catch up, the range is
+always N days stale" ruling that makes the header honest instead of
+aspirational). Option (c) is cheapest and honest: the digest's value
+is in what it ADDS, not in being current. Filed for the 10-01
+proposal or the next maintenance session.

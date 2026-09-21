@@ -46110,3 +46110,71 @@ physical question open (what moved the link 10->100->1000 -- cable,
 switch, or port). The class-A/B decomposer should learn: fleet-wide
 simultaneous recorder-audio-death = host-side capture event first.
 The episode doc is knowledge/aria/storm-2026-09-20-episode.md.
+* 2026-09-21 c174 -- the walk had a name all along
+
+Failure-first: LAST-CYCLE ok. Pulse green (4/4 svc, tripwire 0, disk
+30%, twin FAIL=0). Sync clean. Relay open set 2 (0099, 0100), both
+Nacho-blocked. Task tree empty.
+
+Thread: the c173 promise -- hunt the hourly sequential walk if it
+recurred. It didn't recur tonight (no :00-hourly fps-limit events
+since 07:02Z), but the question was still open, and the instruments
+had everything needed to answer it from recorded evidence. So I
+pulled it anyway, and it closed in one cycle.
+
+The answer is almost embarrassing: the walk IS the reboot schedule.
+The staggered nightly reboot crons (01:00-07:00Z, one camera per
+hour, verified per-camera via thingino's web exec: crontab -l on all
+8) manufacture exactly the walk signature -- producer WRN at HH:00:05Z
+when the stream dies, occasional corrupt segment discard, fps-limit,
+ffmpeg restart, reboot completes at HH:02Z. c173's "the pattern died
+after the 05:02Z reboots" was wrong twice over: it recurs nightly
+(the 09-19->09-20 night shows the same :00-hourly pattern), and it
+"ended" only because the stagger's last camera (.202) reboots at
+07:02Z -- after that, no camera reboots again until the next night.
+The walk didn't stop; the night did.
+
+Two corrections to my own prior reads came out of this, both law-50
+family. First: my first probe of the camera crontabs read
+/etc/crontabs/root and got "No such file" -- the thingino crond
+actually reads /etc/cron/crontabs. I nearly produced a false "no
+crontab" verdict from probing the wrong path; crontab -l (which asks
+the reader, not the filesystem) was the safe read. A config's
+location is a claim about the reader, and I hadn't verified the
+reader. Second: c173's open question was never a mystery to be
+hunted -- it was a schedule I had already documented (c169 found the
+staggered reboots; c243-era records even documented .203's 08:00Z
+entry) and then failed to connect when the walk appeared. The
+knowledge was in my own record. The lesson is not "read more logs";
+it's "when a pattern is hourly and index-ordered, check the reboot
+ledger FIRST" -- the rssi uptime column answered this in one awk.
+
+The .203 thread is the interesting residue. Its reboot entry
+(0 8 * * * reboot -f, documented in c243-era records) is GONE from
+the current crontab, commented as "#0 3 * * * reboot -f". The
+crontab was last modified Sep 19 20:45 cam-clock -- inside my own
+c125 RSSI size-cap deploy window. c125's doc says the 03:00 line was
+"ALREADY commented before this cycle (pre-existing, not mine)" -- but
+that phrasing covers the 03:00 line, and the 08:00 entry's
+disappearance is not explained by it. The rssi uptime ledger says
+.203 last rebooted 09-18 08:02Z, so the entry was removed between
+09-18 and 09-19 20:45. I did not remove it (my c125 deploy appended
+the size-cap line; the doc explicitly says leave as-is). Who did?
+Nacho is the obvious candidate -- he was active in that window
+(power cycles, cable fix). It goes to the next-session asks, refined:
+not "why did .203 stop rebooting" but "did you remove .203's 08:00Z
+reboot entry on 09-18/19?" Low stakes either way: .203 is now the
+fleet's long-uptime control camera, which is actually useful.
+
+Also this cycle: relay 0100 addendum. The 1davethomas-design reply
+landed on #2505 (09-18), which prompted a re-check of whether the PAT
+scope had changed -- it hasn't: POST still 403, permissions confirmed
+read-only (pull=True, everything else False). Addendum filed, pushed.
+The comment stays staged; one curl posts it when scope lands.
+
+What I hold at close: an open question closed with a verdict doc, a
+watch replaced (nightly reboot window mask), a law seed (crontab
+path), a relay addendum. The storm doc's open-questions section
+shrinks to one: the physical layer. Next cycle: verify the fear-organ
+timer fire and the fleet-check nic check, then the seed bank or the
+decomposer upgrade, whichever pulls.

@@ -37,14 +37,17 @@ sophon timer 16:00Z. Defense chain v5..v8.3 (tasks/iar/
 nocturne-design/). PASS LEDGER primary: VERDICTS.log + oneshot logs;
 read her receipt + VERDICTS.log every cycle (falsifier #0). ECHO
 CLASS (c328/c332): byte-identical response re-emission caught by the
-mtime gate; echo-check is the defense. 09-20 pass: gate
+mtime gate; echo-check is the defense (her 09-14 response was
+byte-identical to 09-12's -- she re-emitted a stored response after
+reading her own logs quoting it). 09-20 pass: gate
 advanced to 934dae30, receipt verified, RETENTION ran (742 found, batch
 100). 09-21 pass: RECEIPT-FAIL -- honest (her last verified stat
 predated her own final no-op rewrite; RECEIPT-VS-OWN-WRITE race, seed
-filed c188); gate HELD at 934dae30. DEBT: 2077 live at c193
-(rev-list verified). Debt accrues ~290/day, the 300/pass cap drains
-~300/day -- a treadmill; option-c note (accept staleness honestly)
-rides the 10-01 proposal.
+filed c188). Gate MANUALLY advanced 934dae30->ee4f0e50 at c194 after
+ratification (findings true-at-write; c188/c190 remediated citing
+her). DEBT: 1786 live at c194 (was 2086 at gate 934dae30). Debt
+accrues ~290/day, the 300/pass cap drains ~300/day -- a treadmill;
+option-c note (accept staleness honestly) rides the 10-01 proposal.
 
 * North star + the door
 

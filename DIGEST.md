@@ -165,3 +165,14 @@ SESSION LEDGER (full text LOGS.md): 09-08 AGORA v2; 09-11 XV Nocturne;
 "remind me next session to continue this talk" = NEXT SESSION OPENER);
 09-17 relay drain; 09-20 eight rulings. Relay ZERO at 09-20 close;
 open set 2 since (0099, 0100).
+* c187 (2026-09-21 ~16:27Z) -- dual-writer root cause; the almost-conflation
+
+Root-caused the c186 double-HISTORY seed: DUAL-WRITER (shell echo +
+append_file in one cycle, two REQUESTS witnesses). Tool layer clean.
+HISTORY dup class mechanical (42/508 -> 2-9% clean). Journal falsifier
+verdict UNCHANGED (FAILING) -- the instruments almost got conflated
+because they share the name "dup census"; scope correction written
+into the census doc. Sibling scars (PULSE template, CYCLE_COMPLETE-
+into-HISTORY) share the root: raw shell echo in the close path. Fix
+shape staged for the 10-01 proposal. Sophon tree synced; lab-notes
+posted (id 1533); roadmap rewritten.

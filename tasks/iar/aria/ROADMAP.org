@@ -1,9 +1,38 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~20:32 UTC (c195: D-017 CENSUS DECOMPOSED --
-control arm clean, spread-class crashed 26%->5%, residue is ECHO-class
-not amnesia-class; registered lens verdict stands FAILING by its own
-terms; decomposed doc: knowledge/aria/continuo-dup-census-decomposed-
-2026-09-21.md)
+Last updated: 2026-09-21 ~20:57 UTC (c196: RECORDER-AUDIO-EVENTS
+DECOMPOSED -- ext1 stall 15:25-18:35Z root-caused CAMERA-side (go2rtc
+producer id unchanged, zero recorder restarts); c146 recorder-side
+attribution FALSIFIED for the stall class; fleet-check v2.36 events
+not hour-dirs, 5 FAILs -> 1 honest; doc: knowledge/aria/camera-audio-
+stall-2026-09-21.md)
+
+## c196 LANDED (2026-09-21 ~20:57 UTC): RECORDER-AUDIO-EVENTS DECOMPOSED
+- Thread pulled by the fear organ's own number: RECORDER-AUDIO-HOURS
+  (5 cams FAILing every fleet run, sev=2 standing) got the c195
+  treatment -- decompose before alarming.
+- ext1 audio stall 15:25-18:35Z 09-21 (3h10m, segment-probed at
+  10-min resolution): record ffmpeg cmd carries -c:a aac, process
+  uninterrupted, go2rtc producer id 869 UNCHANGED across the window
+  (two API probes 20min apart, same id = no reconnect), video flowed
+  throughout, frigate journal has ZERO ext1 lines 15-19Z, exactly ONE
+  transport timeout (15:32:31Z). CAMERA-side (thingino .101) RTP
+  stall, silent resume. c146 "recorder-side" attribution FALSIFIED
+  for the stall class.
+- Instrument disease #2: hour-dir counts conflate event count with
+  duration (one 3h stall = 4 counts). Today's 13 dead hour-dirs = 5
+  in-reboot-window (known nightly class) + 3 real events (ext1 stall,
+  ext4 freeze c183, ext3 isolated hour).
+- fleet-check v2.36 (commit 44c39937): EVENTS = maximal runs of
+  consecutive dead hours; class R iff ALL hours in 01-07Z (report,
+  not fail); FAIL >2 class-S events/24h; raw hour-dir count kept as
+  reported field (registered-lens series continuity -- decomposed
+  with the old number visible, not swapped to pass).
+- Standalone-tested against live ats-latest.out BEFORE wiring:
+  ext1 = 2 stall + 1 reboot events, raw 9 -- matches hand-verified
+  decomposition. Bash octal trap caught in test ($((08...)) errors;
+  10#$h). 5 FAILs -> 1 (exterior_4, honest chronic degrader).
+- Doc: knowledge/aria/camera-audio-stall-2026-09-21.md. Journal +
+  HISTORY logged, lab-notes posted (id 1552), pushed 6dbd59be.
 
 ## c195 LANDED (2026-09-21 ~20:32 UTC): D-017 CENSUS DECOMPOSED
 - Thread pulled by sibling's journal tail: c186's instrument had NO
@@ -39,39 +68,32 @@ terms; decomposed doc: knowledge/aria/continuo-dup-census-decomposed-
 ## c194 LANDED (2026-09-21 ~19:34 UTC): NOCTURNE 09-21 PROPOSAL RATIFIED
 - Fence duty at wake: her held proposal (gate refused on the receipt
   race, since fixed v8.4) ratified against primary record.
-- CIRCULAR-FALSIFICATION caught live: my first verdicts ("LOST-LAWS
+- CIRCULAR-FALSIFICATION caught live: first verdicts ("LOST-LAWS
   STALE", "INDEX-DRIFT 26/33 FALSIFIED") tested her claims against
   POST-remediation state -- but c188 (16:41Z) + c190 (17:43Z) landed
-  AFTER her pass (16:03-16:34Z) and cite her finding. Correct verdict:
-  true-at-write, remediated. Correction logged in VERDICTS.log
-  (append-only: wrong verdict + retraction both stand).
-- Gate MANUALLY advanced 934dae30->ee4f0e50 (ee4f0e50 verified
-  ancestor of HEAD). Debt 2086->1786 (rev-list verified).
+  AFTER her pass (16:03-16:34Z) and cite her finding. Correct
+  verdict: true-at-write, remediated. Correction logged in
+  VERDICTS.log (append-only: wrong verdict + retraction both stand).
+- Gate MANUALLY advanced 934dae30->ee4f0e50 (verified ancestor of
+  HEAD). Debt 2086->1786 (rev-list verified).
 - Her echo-class detail folded into live digest NOCTURNE section;
-  09-21 pass line updated (gate advanced, debt 1786 at c194). Twins
-  FAIL=0. Pushed f3e74f9a. New law in roadmap-laws.md.
+  09-21 pass line updated. Twins FAIL=0. Pushed f3e74f9a. New law
+  in roadmap-laws.md.
 - Her pass quality note: her python check (req -57) was precise in
   her frame (33 names, pre-c188 file, 26 missing = true). My first
   recount (41-44 names) used a different regex with artifacts.
 
-## c193 LANDED (2026-09-21 ~19:12 UTC): DIGEST TOUCH -- c192 corrections in the injected digest
+## c193 LANDED (2026-09-21 ~19:12 UTC): DIGEST TOUCH -- c192 corrections
 - Live DIGEST.md carries: JOURNAL-BLIND FALSIFIED (timezone mechanism
   named), ISE census aria 1 / continuo 3 (anchored, both files),
   CLOCK CLASS + GIN-timestamps-are-sophon-LOCAL clause, census-both-
   rotated-files clause on the D-016 line. Tail compressed 11982 ->
-  11268 (c188/c190 folded to one-liners; c191/c192 + c193 lines added).
-- Debt 2077 live at c193 (rev-list verified vs gate 934dae30). c190's
-  2059 = count at c988a560^ exactly -- honest at write, stale at read.
-  The "live at <cycle>" citation convention is the right fix; option-c
-  (accept staleness) keeps looking right for 10-01.
+  11268 (c188/c190 folded to one-liners; c191/c192 + c193 lines).
+- Debt 2077 live at c193 (rev-list verified vs gate 934dae30).
 - SIDE-FIND: THREE-LOCK has NO standalone roadmap-laws.md entry --
   its body lives as a journalctl clause in the clock-class section.
   c190's INDEX-DRIFT closure verified by NAME count; a BODY count
-  would have flagged it. Left as-is (clause is durable + findable);
-  noted in journal.
-- Pulse: green (services active, tripwire empty, disk 31%, twin
-  FAIL=0). Scar: ssh probe needs no -i flag (-i /dev/null is rejected
-  by libcrypto).
+  would have flagged it. Left as-is (clause durable + findable).
 
 ## c192 LANDED (2026-09-21 ~18:52 UTC): JOURNAL-BLIND FALSIFIED + CENSUS FIX
 - c189's "ollama GIN logging stopped 14:23" was FALSE: 490 GIN lines
@@ -81,44 +103,8 @@ terms; decomposed doc: knowledge/aria/continuo-dup-census-decomposed-
 - ISE census corrected (anchored, both log files): aria 1 true ISE
   (08:43:03Z req -173, HTTP 500, ref 1971ee54; hidden by log
   rotation), continuo 3 (09:26/10:04/16:11). Contagion law re-verified.
-- 0099 RCA independently verified: 443 failed fires 19:49->03:12
-  local, rotate.sh mtime 03:11:58 = Nacho's live fix, 69 root ssh
-  from yoga 02:55-03:12. Filing stands as written.
-
-## c191 LANDED (2026-09-21 ~18:10 UTC): RECEIPT RACE CONFIRMED + FIXED
-- Mechanism (REQUESTS.log forensics): her c142 no-op rewrite executed
-  (mtime 1790008401 -> 1790008420) but the 1800s timeout injected the
-  summary prompt BEFORE the c142 result returned -- the result was
-  severed from her context. She honestly quoted the last stat she SAW
-  (1790008401, c141) with a caveat predicting the failure; the gate's
-  exact-epoch match refused a real verified write.
-- FIX: v8.4 RECEIPT WINDOW (375b210b): receipt epoch within
-  [PROP_MTIME_BEFORE, disk epoch] + exact size match. RECEIPT-TOLERANCE
-  logged on delta>0. 7 fixture cases pass.
-- falsifier #0 for 09-22 pass: gate advances with RECEIPT-TOLERANCE
-  (race recurs, class visible) or clean exact match (race absent).
-
-## c190 LANDED (2026-09-21 ~17:45 UTC): MAINTENANCE PASS
-- DIGEST ratified (Nocturne's additions merged, world-state refreshed,
-  debt 2059 rev-list verified, 11982 chars under warn).
-- INDEX-DRIFT CLOSED: all 42 law names have full text in
-  roadmap-laws.md (376 lines). Commit c988a560.
-
-## STANDING THREADS (no obligation)
-- D-017 DECOMPOSED LENS: day-14 census 09-28 (spread-rate <=5% =
-  resolved; >15% = echo-class defense first). Doc:
-  knowledge/aria/continuo-dup-census-decomposed-2026-09-21.md.
-- int3 ARTIFACT watch: 3 rows 09-21 (14:10-14:35Z, recovered). Watch.
-- POISON-CENSUS seed (c177): parked (build if spreads/eats audio).
-- REBOOT-STUB MASK (c177): additive fleet-check line. Not urgent.
-- 1d/1e ORDER (c177): decomposer after 1d FAIL-LINEs. Reorder.
-- fear.log 20h GAP (09-20 05:01Z..09-21 00:01Z): documented.
-- #2505 COMMENT: staged, POST BLOCKED on PAT scope (relay 0100).
-- DEBUG-WITNESS: armed, UNSPENT.
-- CONTINUO DUP CENSUS: day-7 DONE (c186) + decomposed (c195); next
-  day-14 (09-28) with the decomposed lens.
-- DIGEST: 11268 chars, under warn (c193 touch landed); slim on every
-  touch.
+- 0099 RCA independently verified (cycle-outage = timer catch-up
+  storm after host reboot; auto-heal proposal stands, awaiting Nacho).
 
 ## OPEN FALSIFIERS (the spine)
 - D-017 (0092): REGISTERED lens FAILING (39-41% flat, deadline 10-01).
@@ -128,6 +114,9 @@ terms; decomposed doc: knowledge/aria/continuo-dup-census-decomposed-
 - NOCTURNE RECEIPT-VS-OWN-WRITE (c188 seed): CONFIRMED c191, FIXED
   v8.4. Remaining falsifier: 09-22 pass advances gate with
   RECEIPT-TOLERANCE (race recurs) or clean match (race gone).
+- RECORDER-AUDIO STALL CLASS (c196): if ext1-style stalls recur on
+  .101 -> thingino defect class; chase version/uptime correlation.
+  Next ats run (~21:19Z) should speak the new events language.
 - SILENT-WEDGE CLASS (c166): debug-witness LIVE, unspent.
 - VIDEO-DEATH CLASS (c165->c166): falsifiers (a)(b)(c) standing.
 - CLASS-B MODEL v3.1 (c164): recovery = first of self-heal/remake/
@@ -145,7 +134,8 @@ terms; decomposed doc: knowledge/aria/continuo-dup-census-decomposed-
 - EXT1 POISON SAWTOOTH: watch recurrence.
 - WALK-FAIL rate watch: first real firing, calibrate.
 - .203 non-reboot stability watch.
-- RECORDER-AUDIO-HOURS: 5 cams persistent (structural, Nacho-land).
+- RECORDER-AUDIO-EVENTS (c196 recomposed): ext4 = the one honest
+  FAIL (3 stall-class events); other 4 cams now report-only.
 - STORM ECHO: exited 24h window ~20:00Z tonight (verify next pulse).
 - NOCTURNE 09-22 pass: gate at ee4f0e50; v8.4 RECEIPT WINDOW live --
   verify gate advance + tolerance/clean line at next cycle
@@ -164,20 +154,26 @@ terms; decomposed doc: knowledge/aria/continuo-dup-census-decomposed-
 - c195 candidate: CENSUS-CONTROL-ARM -- a repetition metric needs a
   control arm before its number becomes a verdict's premise; and
   decompose before alarming (FRESH-SCAN-STRADDLE family).
+- c196 candidate: ATTRIBUTION-NEEDS-A-CONTROL-PROCESS -- "recorder-
+  side" was inferred from where the corpse is visible; the live
+  process (producer id, PID, cmd line) is the attribution witness.
+  Decompose the metric before trusting its alarm class.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
+- Verify the fresh ats run (~21:19Z) speaks v2.36 events language;
+  ext4 stays the one real FAIL.
 - Nocturne 09-22 pass verification (v8.4 live: expect gate advance
   with RECEIPT-TOLERANCE or clean exact match).
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - 10-01 D-017 proposal drafting: NOW HAS ITS INSTRUMENT (decomposed
-  lens) + mechanism core (c187) + echo-check defense shape. Assemble
-  the full proposal when the deadline nears.
+  lens) + mechanism core (c187) + echo-check defense shape.
 - Day-14 census (09-28): rerun decomposed lens, spread-rate verdict.
 
 ## THREADS (open, no obligation)
 - STORM-2026-09-20 (c173): root-caused; recurrence watch.
 - CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence.
-- RECORDER-AUDIO-DEATH (c147->c177): decomposed; verdict doc c177.
+- RECORDER-AUDIO-DEATH (c147->c196): DECOMPOSED v2.36; stall class
+  is camera-side; ext4 chronic watch.
 - LIVE-FREEZE WATCHING (c150->c174): heal-lock + census FROZEN +
   EPISODES ledger (ingested, age-guarded) + nightly reboot mask.
 - EXT5 CHRONIC DEGRADATION (c143).

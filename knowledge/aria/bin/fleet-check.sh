@@ -1,5 +1,10 @@
 #!/bin/bash
-# aria fleet-check v2.35 (2026-09-21, aria cycle 175: RECORDER-AUDIO-HOURS
+# aria fleet-check v2.36 (2026-09-21, aria cycle 196: RECORDER-AUDIO-EVENTS
+#   decomposed -- events not hour-dirs, reboot-window class R report-only;
+#   c196 falsified the c146 recorder-side attribution for the stall class:
+#   ext1 15:25-18:35Z had UNCHANGED go2rtc producer id, zero recorder
+#   restarts, one transport timeout, video flowing = camera-side RTP stall.
+#   Prior v2.35 2026-09-21, aria cycle 175: RECORDER-AUDIO-HOURS
 #   subshell-FAIL fix -- FAIL=1 set inside `awk | while read` died with the
 #   subshell (5 FAIL-LINEs printed, footer FAIL=0, live 09:02Z 09-21); loop
 #   now runs in the parent shell via process substitution. Prior v2.34
@@ -685,13 +690,40 @@ if [ -r "$ATS_OUT" ]; then
     # `awk | while read` died with the subshell: 5 FAIL-LINEs printed,
     # footer said FAIL=0 (live 09:02Z 09-21). Rewrite as a command
     # substitution loop in the parent shell. Belt: fixture below.
-    while read -r cam n; do
-      if [ "$n" -gt 2 ]; then
-        echo "FAIL-LINE: $cam RECORDER-AUDIO-HOURS: $n dead hour-dirs in ats 24h window (>2) -- recorder-side audio death persistent; live-sample detectors blind to it (c146 census class)"; FAIL=1
-      else
-        echo "$cam ats: $n dead hour-dir(s) in 24h (transient)"
+    # v2.36 (c196): EVENTS = maximal runs of consecutive dead hours.
+    # Class R (reboot-window) iff ALL hours inside 01-07Z (c174/c177
+    # nightly class; report, not fail). Else class S (stall, real
+    # signal). FAIL if >2 class-S events per cam per 24h. Raw hour-dir
+    # count stays printed (registered-lens series continuity).
+    while read -r cam; do
+      hours=$(awk -v cam="$cam" '!/^=/ && $1==cam {split($2,a,"/"); gsub(/[^0-9]/,"",a[2]); print a[2]}' "$ATS_OUT" | sort -nu)
+      [ -n "$hours" ] || continue
+      ev_in=0; ev_out=0; run_has_out=0; prev=""; first=1
+      for h in $hours; do
+        h10=$((10#$h))
+        isout=1; [ "$h10" -ge 1 ] && [ "$h10" -le 7 ] && isout=0
+        newrun=1
+        if [ -n "$prev" ] && [ "$h10" -eq $((10#$prev + 1)) ]; then newrun=0; fi
+        if [ "$newrun" -eq 1 ]; then
+          if [ "$first" -eq 0 ]; then
+            if [ "$run_has_out" -eq 1 ]; then ev_out=$((ev_out+1)); else ev_in=$((ev_in+1)); fi
+          fi
+          run_has_out=$isout; first=0
+        else
+          [ "$isout" -eq 1 ] && run_has_out=1
+        fi
+        prev=$h
+      done
+      if [ "$first" -eq 0 ]; then
+        if [ "$run_has_out" -eq 1 ]; then ev_out=$((ev_out+1)); else ev_in=$((ev_in+1)); fi
       fi
-    done < <(awk '!/^=/ && NF>=2 {split($2,a,"/"); c[$1" "a[1]"/"a[2]]++} END {for (k in c) print k, c[k]}' "$ATS_OUT" | awk '{cnt[$1]+=$3} END {for (cam in cnt) print cam, cnt[cam]}')
+      raw=$(awk -v cam="$cam" '!/^=/ && $1==cam {n++} END {print n+0}' "$ATS_OUT")
+      if [ "$ev_out" -gt 2 ]; then
+        echo "FAIL-LINE: $cam RECORDER-AUDIO-EVENTS: $ev_out stall-class event(s) in 24h (>2) [raw hour-dirs=$raw, reboot-window events=$ev_in] -- camera/recorder stall, decomposed (c196)"; FAIL=1
+      else
+        echo "$cam ats-events: $ev_out stall-class event(s), $ev_in reboot-window event(s), raw hour-dirs=$raw (24h)"
+      fi
+    done < <(awk '!/^=/ && NF>=2 {print $1}' "$ATS_OUT" | sort -u)
   fi
 else
   echo "ats-latest.out missing -- ats scan not installed? (report, not fail: 1a/1b cover live deafness)"

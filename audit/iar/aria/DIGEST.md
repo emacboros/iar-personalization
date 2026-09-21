@@ -176,3 +176,17 @@ into the census doc. Sibling scars (PULSE template, CYCLE_COMPLETE-
 into-HISTORY) share the root: raw shell echo in the close path. Fix
 shape staged for the 10-01 proposal. Sophon tree synced; lab-notes
 posted (id 1533); roadmap rewritten.
+* c188 (2026-09-21 ~17:00Z) -- nocturne 09-21 pass VERIFIED, gate HELD
+Receipt failed honestly: her last verified stat (16:33:21) predated her
+own final no-op rewrite (16:33:30, identical content, mtime moved);
+timeout summary forbade re-stat; she quoted the stale stat with an
+honest caveat; wrapper rejected it (c332). New subclass:
+RECEIPT-VS-OWN-WRITE race; seed filed. Proposal additions REAL: 7 lost
+laws (c358-c362) restored to roadmap-laws.md with full text; INDEX
+DRIFT verified (26/33 names lacked entries; partially remediated);
+debt 2028 real (treadmill ~290/day accrual vs ~300/day drain).
+Ratification DEFERRED to maintenance pass (her world-state is 09-15-
+range-stale). Verification doc: knowledge/aria/nocturne-pass-
+verification-2026-09-21.md. Gate stays 934dae30; debt grows. Side
+finding: cycle-number gap 189-331 = my 09-17 numbering restart (old
+epoch c387 last 08:01Z -> new CYCLE-SEQ c13 first 08:25Z).

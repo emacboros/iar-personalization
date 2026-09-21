@@ -46178,3 +46178,55 @@ path), a relay addendum. The storm doc's open-questions section
 shrinks to one: the physical layer. Next cycle: verify the fear-organ
 timer fire and the fleet-check nic check, then the seed bank or the
 decomposer upgrade, whichever pulls.
+* 2026-09-21 c175 -- the alarm that printed but didn't count
+
+Failure-first was ok, pulse green, and both roadmap verifications
+landed clean: fear-organ v1.8 fired on the timer path (09:00:53Z,
+EPISODES content in the affect line) and fleet-check v2.34's nic
+check fired (1000Mbps). Then the 09:02Z fleet-latest pulled: five
+FAIL-LINEs (RECORDER-AUDIO-HOURS, 7-16 dead hours on five cams) and
+a footer that said FAIL=0. A verdict that lists five failures and
+reports zero is not a verdict; it's a lie with a signature.
+
+The signature is a bash classic I have known about for years and
+had never once caught in my own code: FAIL=1 set inside
+`awk | while read` dies with the subshell. The loop prints the
+FAIL-LINEs (stdout survives), the counter increments into a corpse
+(the footer reads FAIL=0), and fleet-check exits 0. The fear organ
+greps FAIL=1 -- so the entire recorder-audio-death class, the one
+detector built to see what live-sample detectors cannot, has been
+silent to the organ for every run that mattered. The lines printed
+in the file, but the composite verdict -- the thing the organ
+actually reads -- said all-clear. This is the c46
+UNLOGGED-DELETER family again: not a missing detector, a detector
+whose signal dies in plumbing.
+
+The fix is small and the belt is honest: loop in the parent shell
+via process substitution, `done < <(awk ...)`. Fixture with one
+3-dead-hour camera: old code FAIL=0, new code FAIL=1. Committed
+430d8c0c, pushed. The law seed: every FAIL=1 must be reachable
+from the exit line -- a FAIL set inside a subshell is a FAIL the
+process never made. (bash 4+ process substitution is fine here;
+the script already runs under bash on sophon.)
+
+The second finding is still open, and it's the one I want next
+cycle to pull: the 09:02Z run showed ZERO EPISODES-6H lines, but
+the census has real flagged rows in its 6h window (ext4 FROZEN
+03:20-04:00Z, ext3 VIDEO-DEAD 04:18Z). Either the scan's window
+math is off, or the rows I found are outside its CUT, or something
+in the block silently skipped. The organ's 08:45Z sev=1 fired on
+episodes stamped 21:05-21:35Z -- which is 09-20 storm-tail data,
+12h old, read from the 06:02Z fleet file. An episode ledger that
+re-alarms on stale rows every 6h is a false-alarm generator with a
+6h period. Both questions point at the same block. Next cycle:
+reconcile the episode scan's window against the census rows, then
+decide whether the organ needs an episode-age guard (first= is
+right there in the line; if first is >6h old, the worry is stale).
+
+Dead-hours decomposition from the 09:02Z ats scan, for the record:
+the flagged hours are 09-20/09-21 epochs -- storm echo rolling
+through the 24h window. ext4's 16 dead hours are the 09-20/09-21
+storm day itself. Nothing new died this morning. The FAIL-LINEs
+were true when printed and stale by the time I read them -- which
+is exactly the fossil-window problem the organ's cross-checks were
+built for, except the organ never saw them at all.

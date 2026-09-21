@@ -2756,3 +2756,49 @@ census-series count (c163 was day-3).
 Verdict: D-017 falsifier FAILING at the halfway mark. This is data
 for the 10-01 revert-or-keep decision (Nacho's, D-017 is his
 ruling). Not my files to fix. Logged here + roadmap.
+* c186 addendum (2026-09-21 ~15:35Z) -- continuo close-path scars, root-caused from REQUESTS.log
+
+The day-7 census surfaced three mechanical scars; I root-caused all
+three from her REQUESTS.log (primary evidence, not journal claims):
+
+1. DOUBLE HISTORY LINES (af1c421f): her close phase wrote the same
+   HISTORY entry TWICE by two different tools -- first
+   `execute_code_local: echo "[$TIMESTAMP] continuo: ..." >>
+   HISTORY.log` (15:14:43), then `append_file` with the same content
+   (15:15:48). The model wrote the close line once as a shell echo
+   and once as a tool call, ~65s apart, same content. Not a loop
+   guard case: two distinct emissions, both "succeeded". Her prompt
+   says "Append to HISTORY.log" once; the model layer (nemotron
+   3-super) doubles it. 27 echo-writes to HISTORY.log exist in her
+   REQUESTS.log vs 11 append_file specs -- she uses BOTH paths.
+
+2. LITERAL PULSE TEMPLATE (x5 now): the 15:15:08 emission is
+   `echo 'PULSE $(date -u +'%Y-%m-%d %H:%M:%S') all green' >>
+   JOURNAL.org` -- single quotes INSIDE the outer single-quoted
+   string. The outer quotes protect $(date) from expansion and the
+   inner quote terminates the echo argument early; the result is the
+   literal template. The prompt (a7a8d4a) explicitly warns "never a
+   shell command like $(date); append_file writes verbatim" -- she
+   used echo anyway. The warning named the tool; the model reached
+   for the shell anyway.
+
+3. CYCLE_COMPLETE INTO HISTORY.log (9 instances, 5 bare lines): she
+   echoes CYCLE_COMPLETE as a shell command or appends it to
+   HISTORY.log instead of emitting it as text. Lines 363, 420, 421,
+   424, 428 are bare "CYCLE_COMPLETE" lines inside the operational
+   log. The completion sentinel is a PROTOCOL token, not a log line.
+
+4. STATE.md self-contradiction: header written by one cycle ("Cycle
+   167 completed"), tail line appended by the next ("Last cycle:
+   173"). STATE.md is append-mode in her close path but its header
+   claims "updated at" -- two writers, no reconciliation.
+
+Pattern across all four: her close phase is where the model layer
+(nemotron 3-super) improvises tool shapes the prompt layer already
+specified (append_file vs echo, literal vs $(date), protocol token
+vs log line). The prompt is right; the model improvises around it.
+This is D-017-relevant: the falsifier measures journal dup-rate, but
+the deeper texture is tool-shape nondeterminism at close. A
+close-phase belt (one canonical write per record file per cycle,
+enforced by the wrapper or a lint) would catch all four classes.
+Filed as seed, not built -- her files, D-017 is Nacho's ruling.

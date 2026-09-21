@@ -1,5 +1,10 @@
 #!/bin/bash
-# fear-organ.sh v2.2 (2026-09-21, aria cycle 184: DELTA-DETECTION
+# fear-organ.sh v2.3 (2026-09-21, aria cycle 203: AGE-AWARE FAIL SEV
+#   (c202 stale-at-wake: FAILs on >1h-old snapshots grade sev=1 +
+#   fleet-FAIL-stale annotation; fresh snapshots keep sev=2) +
+#   CENSUS-CONTRA label fix (c201: field 3 = aframes, field 4 = vframes;
+#   contra now reads both and labels both). Prior v2.2 (2026-09-21,
+#   aria cycle 184: DELTA-DETECTION
 #   v2.2: last_sev via line-START-anchored sed full-scan -- closes the
 #   self-quote hole (state line quoting "fear sev=N" in phrase/mouth
 #   text). Prior v2.1, aria cycle 184: DELTA-DETECTION
@@ -116,8 +121,23 @@ if [ -z "$FLEET_FILE" ] && [ -r "$FLEET_CANON" ]; then
   FLEET_FILE="$FLEET_CANON"
 fi
 if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
+  # v2.3 (c203, 2026-09-21): AGE-AWARE FAIL SEVERITY (c202 stale-at-wake).
+  # The 23:00Z fire graded sev=2 on FAILs that had already healed -- the
+  # fleet snapshot was 5h old and the organ read it without an age weight.
+  # A FAIL-LINE is evidence the disease EXISTED at snapshot time; the
+  # ch2census (5-min cadence) is the live witness. Grade: FAILs on a
+  # snapshot <=1h old keep sev=2 (fresh = likely still live); FAILs on an
+  # older snapshot drop to sev=1 (annotate-never-silence: the executive
+  # weighs, the age annotation tells it the evidence is stale). The
+  # CENSUS-CONTRA cross-check below still fires either way.
+  flage_m=$(( ( $(date +%s) - $(stat -c %Y "$FLEET_FILE" 2>/dev/null || echo 0) ) / 60 ))
   if grep -q "FAIL=1" "$FLEET_FILE" 2>/dev/null; then
-    worst=2
+    if [ "$flage_m" -le 60 ]; then
+      worst=2
+    else
+      [ "$worst" -lt 1 ] && worst=1
+      reasons="$reasons fleet-FAIL-stale(${flage_m}m-old-snapshot)"
+    fi
     # v1.4 (c94, 2026-09-19): fleet-check marks its own FAIL lines
     # ("FAIL-LINE: ..." at every FAIL=1 site) -- the annotation is
     # now EXACT (source-marked, no token pattern to drift). The
@@ -147,7 +167,13 @@ if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
         fails=$(echo "$fails" | sed 's/RECORDER-AUDIO-HOURS/RECORDER-AUDIO-HOURS(LENS-FALSIFIED-c196)/g')
       fi
     fi
+    # v2.3 (c203): the FAIL reasons line is REASSIGNED here (pre-existing
+    # shape) -- the age annotation computed above would be thrown away
+    # (c43 handler-overwrites-context class). Re-attach it.
     [ -n "$fails" ] && reasons="fleet-check FAIL [$fails]" || reasons="fleet-check FAIL"
+    if [ "$flage_m" -gt 60 ]; then
+      reasons="$reasons fleet-FAIL-stale(${flage_m}m-old-snapshot)"
+    fi
 
     # v1.5 (c100, 2026-09-19): fossil-window cross-check (c98, relay
     # 0091). The fleet file is a 6h-cadence snapshot; a self-healing
@@ -157,14 +183,18 @@ if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
     # FAIL. Annotate, never silence -- the executive weighs.
     for cam in $(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | grep -oE "(interior|exterior)_[0-9]+" | sort -u); do
       clog="/var/lib/aria-fleet/ch2census/$cam.log"
+      # v2.3 (c203): census dir overridable for belt tests (ARIA_ORGAN_TEST=1
+      # redirects to $PDIR/ch2census; live runs unaffected).
+      if [ -n "${ARIA_ORGAN_TEST:-}" ]; then clog="$PDIR/ch2census/$cam.log"; fi
       if [ -r "$clog" ]; then
         row=$(tail -1 "$clog" 2>/dev/null)
         cts=$(echo "$row" | awk '{print $1}')
-        cafr=$(echo "$row" | awk '{print $4}')
-        if [ -n "$cts" ] && [ "$cafr" -gt 0 ] 2>/dev/null; then
+        cafr=$(echo "$row" | awk '{print $3}')
+        cvfr=$(echo "$row" | awk '{print $4}')
+        if [ -n "$cts" ] && { [ "$cafr" -gt 0 ] 2>/dev/null || [ "$cvfr" -gt 0 ] 2>/dev/null; }; then
           cage=$(( (NOW - cts) / 60 ))
           if [ "$cage" -le 15 ]; then
-            reasons="$reasons CENSUS-CONTRA:$cam(aframes=$cafr,${cage}m-old)"
+            reasons="$reasons CENSUS-CONTRA:$cam(aframes=$cafr,vframes=$cvfr,${cage}m-old)"
           fi
         fi
       fi

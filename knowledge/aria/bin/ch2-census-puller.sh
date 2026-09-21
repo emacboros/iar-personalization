@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria-ch2-census-puller.sh v1.6 (2026-09-20, aria cycle 165)
+# aria-ch2-census-puller.sh v1.7 (2026-09-21, aria cycle 171)
 # -------------------------------------------------------------
 # ch2-census: counts interleaved RTSP audio-channel (ch2) frames on the
 # ESTABLISHED camera->sophon producer connections, per camera, per run.
@@ -40,6 +40,14 @@
 #      dst_port is a conn-age proxy (go2rtc assigns fresh ephemeral ports
 #      per producer) -- conn-age checks need no new code, just this log.
 #   Per-cam row format UNCHANGED (fleet-check + fear-organ readers intact).
+#   v1.7 (c171): WALK-FAIL flag. The c168/c169 walk-failure class: a conn
+#      with captured bytes but NO clean $-frame anchor (anchored=0) --
+#      mid-frame capture start, reassembly gap at the head -- produced a
+#      per-cam row with REAL bytes but counts from ZERO conns, silently
+#      (no flag) = an unflagged gap (ext4 0/0/333, int1 11/31/40526).
+#      v1.7: if NO conn anchored, flag WALK-FAIL (report, not fail --
+#      the capture is suspect, the camera is unproven). FROZEN/ARTIFACT/
+#      VIDEO-DEAD still require anchored>0. fleet-check v2.33 reads it.
 #
 # METHOD (c386 census, hardened):
 #   1. ss -tn: find established conns 192.168.2.69 -> <cam>:554 (ALL ports)
@@ -190,10 +198,15 @@ for name in sorted(percam):
     # Discriminator: ch2 flowing (>=20 frames/20s) + ch0==0 + healthy
     # bytes = the camera genuinely stopped sending video. A walk failure collapses
     # BOTH (ch2<=10 too). Order: VIDEO-DEAD first, then ARTIFACT, then FROZEN.
+    # v1.7 (c171): WALK-FAIL = NO conn anchored but bytes captured. The
+    # row counts are empty-by-construction; without this flag the row
+    # reads as silent-healthy and real gaps sail through (c169 falsified
+    # the bytes>100k-only criterion: int1 11/31/40526, ext4 0/0/333).
+    walkfail = anchored == 0 and nbytes > 0
     videodead = anchored > 0 and total[2] >= 20 and total[0] == 0 and nbytes > 100000
     artifact = (not videodead) and anchored > 0 and total[0] <= 10 and total[2] <= 10 and nbytes > 100000
     frozen = anchored > 0 and total[2] == 0 and not artifact and not videodead
-    flag = " VIDEO-DEAD" if videodead else (" ARTIFACT" if artifact else (" FROZEN" if frozen else ""))
+    flag = " WALK-FAIL" if walkfail else (" VIDEO-DEAD" if videodead else (" ARTIFACT" if artifact else (" FROZEN" if frozen else "")))
     print(f"{ts} {name} {total[2]} {total[0]} {nbytes}{flag}")
 ' "$TS" 2>/dev/null | while read -r row; do
   case "$row" in

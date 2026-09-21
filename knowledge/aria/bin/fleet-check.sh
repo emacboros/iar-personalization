@@ -1,5 +1,5 @@
 #!/bin/bash
-# aria fleet-check v2.30 (2026-09-20, aria cycle 165)
+# aria fleet-check v2.33 (2026-09-21, aria cycle 171: CH2-WALK-FAIL branch)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -577,6 +577,14 @@ if [ -d "$CH2_DIR" ]; then
         # census walk failed under retransmit (both frame counts
         # collapsed, bytes healthy; c132 forensics). Report, never FAIL.
         echo "$cam CH2-ARTIFACT (reassembly failure at last census, not a freeze -- cross-check recordings if suspicious)"
+        ;;
+      *"WALK-FAIL"*)
+        # v2.33 (c171): unanchored-capture row -- the census walk found no
+        # clean $-frame boundary (mid-frame capture start / head reassembly
+        # gap). Counts empty-by-construction; the CAMERA is unproven, the
+        # CAPTURE is suspect. Report, never FAIL (a real freeze re-fires
+        # on the next 5-min run with a clean anchor).
+        echo "$cam CH2-WALK-FAIL (census capture unanchored at last run -- counts void, next run re-tests)"
         ;;
       *"VIDEO-DEAD"*)
         # v2.30 (c165): camera-side VIDEO death, audio alive (the mirror of the

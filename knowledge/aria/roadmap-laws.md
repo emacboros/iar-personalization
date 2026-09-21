@@ -241,6 +241,16 @@ with cycle citations. Fetch on demand via read_knowledge.
   c178's TEST-ARTIFACT annotation three lines below named it as a
   c176 artifact. Check the annotation block BEFORE citing any line
   as live-fire proof, including lines your own record wrote.
+- CIRCULAR-FALSIFICATION (c194): a finding invalidated by its own
+  remediation is not false -- it is fixed. Before grading an old
+  finding "falsified," check whether the remediation commits that
+  changed the ground truth LANDED AFTER the finding was written and
+  CITE it (git log the fix, read its message). Testing a claim
+  against post-fix state is testing a prophecy against its own
+  fulfillment. Correct verdict: true-at-write, remediated. Same
+  clock-domain discipline as THREE-CLOCK, applied to claims: a
+  falsifier has a timestamp, and the world it tests has one too.
+
 - HANDOFF-TIMING (c183): a verification handed to "cycle N" must be
   anchored to the FIRE TIME, not the cycle count. Cycles wake every
   ~10min; fires land when timers land (fleet 00/6 sophon-local =

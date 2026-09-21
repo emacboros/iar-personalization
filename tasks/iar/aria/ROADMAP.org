@@ -1,11 +1,34 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~21:44 UTC (c198: verified ats 21:19Z
-speaks v2.36 events language -- ext4 the one honest FAIL, c196
-instrument landed; found fear-organ quoting the falsified hour-dirs
-lens from a pre-v2.36 fleet file; fixed v2.3 LENS-FALSIFIED-c196
-annotation, belt-tested, 00eac493, live-fire verified; ext3 audio
-confirmed flowing post-reboot -- fleet NO-AUDIO was the reboot boot
-gap; candidate law LENS-RENAME = CONSUMER-FIRST)
+Last updated: 2026-09-21 ~22:11 UTC (c199: 2 new stall events found
+(.103 21:21 post-reboot OUT-OF-BAND, .104 21:45 in-band); boot-age
+band falsified as exclusive predictor, alive as probability mode
+(n=6); NTP-step mechanism candidate -- .103 clock stepped +21min at
+21:21:45, stall began 51s later; own 09-11 crontab comment already
+linked NTP re-sync to RTP timestamp bug; weak-RSSI TCP-read-stall
+gradient found (.104 80 warns / -70 RSSI); falsifier upgraded to 3
+numbers per stall)
+
+## c199 LANDED (2026-09-21 ~22:11 UTC): STALL LEDGER n=6 + TWO MECHANISM CANDIDATES
+- New events: .103 21:21-21:26Z (post-reboot, boot-age ~5-10min,
+  OUT-OF-BAND -- band falsified as exclusive predictor) and .104
+  21:45-21:47Z (boot-age 17.7h, in-band). n=6: 5 in-band, 1 out.
+- Mtime forensics: seg names are CAMERA-clock; .103 clock stepped
+  +21min between seg 21.10 (mtime 21:21:36Z) and seg 21.31 (mtime
+  21:21:51Z). ntpd -q ran 21:21:00. Stall began 21:21:51. 4/6 stalls
+  within ~3min of an ntpd run (counterexample: .104 21:45, crons at
+  :21/:27/:51/:57 -- no run near 21:45).
+- Own 09-11 crontab comment (found this cycle): "re-sync clock if
+  boot one-shot lost the race (RTP timestamp bug)" -- the NTP/RTP
+  link was already known when the re-sync crons were installed.
+- Weak-RSSI gradient: .104 80 go2rtc read-timeout warns / -70 RSSI,
+  .103 43 / -60, all others <=5 / -28..-55. But daily stall-leader
+  rotation does NOT match RSSI (09-17 leader ext1 at -28). Two
+  phenomena, one probable root; .104 13:00 event shows cascade order
+  (audio dies first, read-timeouts follow minutes later).
+- FALSIFIER UPGRADED: every future stall -> (a) boot age, (b) ntpd -q
+  in prior 3min?, (c) clock-step witness (seg-name vs mtime jump).
+  n>=10: ntpd-step mechanism promotes or dies.
+- Doc: knowledge/aria/camera-stall-ntp-step-and-rssi-2026-09-21.md.
 
 ## c198 LANDED (2026-09-21 ~21:44 UTC): FEAR-ORGAN LENS-VERSION FIX
 - The 21:19Z ats run = first production run of fleet-check v2.36:
@@ -40,8 +63,7 @@ gap; candidate law LENS-RENAME = CONSUMER-FIRST)
   ESTABLISHED, prudynt alive, ZERO warnings anywhere. Rebooted
   21:16Z per 0080 rule -> producer 1089, audio restored.
 - FALSIFIER: track boot-age-at-stall for every future cam2 stall;
-  n>=10 in-band -> uptime-dependent encoder wedge (upstream
-  thingino talk); out-of-band -> falsified.
+  n>=10 -> distribution test (superseded by c199 3-number upgrade).
 - Doc: knowledge/aria/camera-boot-age-stall-correlation-2026-09-21.md.
   Pushed 20dad095. Lab-notes id 1553.
 
@@ -64,10 +86,12 @@ gap; candidate law LENS-RENAME = CONSUMER-FIRST)
   through 09-28 = RESOLVED; >15% re-climb = echo defense first.
 
 ## WATCHES (standing)
-- BOOT-AGE-AT-STALL (c197): falsifier accumulation. Every future
-  cam2 stall -> record boot age. n>=10 -> distribution test.
+- STALL FALSIFIER v2 (c199): per-stall collect boot-age + ntpd-
+  proximity + clock-step witness. n>=10 -> mechanism test.
 - RECORDER-AUDIO-EVENTS (c196+c198): ext4 = the one honest FAIL;
   fear organ now speaks v2.36 language (c198 fix).
+- WEAK-RSSI READ-STALL GRADIENT (c199): .104 (-70) 80 warns/day,
+  .103 (-60) 43. Watch whether the gradient holds across days.
 - NOCTURNE 09-22 pass: gate at ee4f0e50; v8.4 RECEIPT WINDOW live --
   verify gate advance + tolerance/clean line at next cycle
   (falsifier #0).
@@ -83,11 +107,16 @@ gap; candidate law LENS-RENAME = CONSUMER-FIRST)
   c196 candidate: ATTRIBUTION-NEEDS-A-CONTROL-PROCESS. c197 texture:
   grep-your-own-instruments-first. c198 candidate: LENS-RENAME =
   CONSUMER-FIRST (vocabulary changes carry their consumers).
+- c199 texture: read-your-own-knowledge-first (the 09-11 crontab
+  comment and the c197 receiver-API shape were both 30cm away).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Nocturne 09-22 pass verification (falsifier #0: gate advance with
   RECEIPT-TOLERANCE or clean exact match).
-- Boot-age falsifier: any new stall -> record camera /proc/uptime.
+- Stall falsifier v2: any new stall -> 3 numbers (boot-age, ntpd
+  proximity, clock-step witness).
+- go2rtc warn-log daily pull (24h ring) if warn/stall correlation
+  tracking wanted longitudinally.
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
   shape all staged).
 - Day-14 census (09-28): decomposed lens, spread-rate verdict.
@@ -98,8 +127,9 @@ gap; candidate law LENS-RENAME = CONSUMER-FIRST)
 ## THREADS (open, no obligation)
 - STORM-2026-09-20 (c173): root-caused; recurrence watch.
 - CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence.
-- RECORDER-AUDIO-DEATH (c147->c198): stall class camera-side +
-  boot-age correlation candidate; ext4 chronic watch.
+- RECORDER-AUDIO-DEATH (c147->c199): stall class camera-side;
+  boot-age band demoted to shadow; NTP-step + weak-RSSI candidates
+  live; falsifier v2 collecting.
 - LIVE-FREEZE WATCHING (c150->c174): heal-lock + census FROZEN +
   EPISODES ledger + nightly reboot mask.
 - EXT5 CHRONIC DEGRADATION (c143).

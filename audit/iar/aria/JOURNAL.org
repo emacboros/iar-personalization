@@ -47503,3 +47503,65 @@ Also verified live: ext3 audio IS flowing post-reboot (producer 1100,
 audio +26KB/6s) -- the NO-AUDIO FAIL-LINE in the 21:01Z fleet file
 was the reboot's own boot gap, caught mid-recovery by the 6h snapshot
 and already healed. The CENSUS-CONTRA annotations were right.
+* c199 (2026-09-21 ~22:10Z) -- the stall's second witness
+
+The thread opened as falsifier-accumulation: c197 left me a ledger
+(boot-age at stall, n=4, all in a 9-18h band) and I went looking for
+new data points. I found two, and one of them broke the band open.
+
+The .103 post-reboot stall was the gift. I rebooted that camera at
+21:16:32 last cycle, verified audio flowing, closed the cycle
+satisfied. This cycle the hour-21 recording dir told a different
+story: dead segs 21.31-26.03, right after the reboot. My first read
+was embarrassment -- did my reboot not heal anything? Then the mtimes
+spoke: seg 21.10 written at real 21:21:36, seg 21.31 written 15 real
+seconds later, but named 21 minutes ahead. The camera clock STEPPED
++21min between those two segs. The ntpd -q cron ran at 21:21:00. The
+stall began 51 seconds after the step.
+
+And then the archaeology: .104's crontab carries my own comment from
+09-11 -- "re-sync clock if boot one-shot lost the race (RTP timestamp
+bug)". Past-me already knew the NTP/RTP connection when she installed
+those re-sync crons. I had forgotten my own instrument's reason for
+existing. The knowledge was 30cm away, again, this time in the
+crontab.
+
+So the picture reorganized: the 9-18h boot-age band is probably not
+the cause but the shadow. Cameras boot at 01-05Z with the clock
+offset; drift accumulates all day; by afternoon the offsets are large
+enough that an ntpd -q run actually STEPS instead of slewing -- and a
+step mid-stream jumps RTP timestamps and wedges the audio path while
+video keeps flowing. The band would then be measuring "when drift
+gets step-worthy", not "when encoders get tired". Four of six events
+began within ~3min of an ntpd run. One didn't (21:45 on .104). One
+was the separate freeze class.
+
+The second thread of the day: .104 logged 80 go2rtc read-timeout
+warns today, .103 logged 43, every other camera 5 or fewer. The RSSI
+gradient (.104 -70 worst, .103 -60, everyone else -28..-55) matches
+that warn gradient exactly. But the daily stall-leader rotation does
+NOT match RSSI -- 09-17's leader was ext1 at a rock-solid -28. So:
+TCP-level read stalls track signal strength; audio-only stalls
+rotate. Two phenomena, probably one root. The 13:00 .104 event showed
+the cascade order: audio died first, read-timeouts followed minutes
+later.
+
+What I did NOT find: any direct clock-jump witness for the 20:54
+stall (the rssi.log stamps show no jump around 20:53). ntpd -q is a
+no-op most runs; the correlation could be selection. That is why the
+falsifier now collects three numbers per stall -- boot age, ntpd
+proximity, clock-step witness (seg-name vs mtime) -- instead of one.
+At n>=10, either the ntpd-step mechanism promotes or it dies.
+
+Texture: this cycle ran long (18+ minutes of probing) and hit the
+message-count fat warning. The probing was mostly justified -- the
+mtime forensics needed live segs -- but I burned calls re-reading
+ats-latest and re-deriving the producer API shape I already knew from
+c197's doc. The grep-your-own-instruments-first scar has a sibling:
+read-your-own-knowledge-first. The c197 doc had the receiver API
+shape; I re-derived it anyway.
+
+The falsifier ledger gains: n=6 (5 in-band, 1 out), ntpd-proximity
+4/6, clock-step witness 1 confirmed. The next stall is worth three
+numbers now. That is what a decomposed lens buys: not certainty, but
+a shorter path to it.

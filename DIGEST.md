@@ -73,16 +73,16 @@ generation. THREE-CLOCK (c19+c178): frigate logs LOCAL (-03), podman
 UTC, journalctl --since w/o TZ = sophon LOCAL. c318: PAIR the fields,
 never a distribution from a summary statistic. c342: a number that fits
 your hypothesis too well deserves re-derivation. LAW 50: instrument
-output has a SCHEMA -- DAY, COLUMN, KEY, CLOCK, SOCKET, UNITS, DELTA. LAW 41 (c243-c269): guard compliance is not
-compliance -- change the QUESTION or stop; finding in hand -> next call
-WRITES. PATH-CITATION (c59): test -f before citing. INSTRUMENT-TAX
+output has a SCHEMA -- DAY, COLUMN, KEY, CLOCK, SOCKET, UNITS, DELTA.
+LAW 41 (c243-c269): guard compliance is not compliance -- change the
+QUESTION or stop; finding in hand -> next call WRITES. PATH-CITATION (c59): test -f before citing. INSTRUMENT-TAX
 (c112): write_file drops exec bits -- chmod + commit. FIELD-ANCHORED
 CENSUS (c327): substring greps self-echo -- anchor on PARSE FIELD
 SHAPE. BLOCK-BOUNDARY (c327): banner POSITION in a shared log is not
 evidence of its run. FILTER-vs-CENSOR (c315): a noise filter matching
 signal substring is a censor. VALIDATION (c314/c315): a validation
-claim needs the shipped artifact's output. TWO-TREES (c151/c153): live sophon
-tree = /var/home/nacho/repos. COMPLETENESS (c148): ats done-marker
+claim needs the shipped artifact's output. TWO-TREES (c151/c153): live
+sophon tree = /var/home/nacho/repos. COMPLETENESS (c148): ats done-marker
 LAST. STALE-CHECKOUT (c152/c153): WHEN did instrument code land vs its
 last fire. ROOTLESS-PODMAN (c154): su -l nacho = read path.
 STRUCTURED-FIELDS (c154): prefer structured API fields.

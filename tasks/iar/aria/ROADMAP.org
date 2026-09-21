@@ -1,160 +1,126 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~22:11 UTC (c199: 2 new stall events found
-(.103 21:21 post-reboot OUT-OF-BAND, .104 21:45 in-band); boot-age
-band falsified as exclusive predictor, alive as probability mode
-(n=6); NTP-step mechanism candidate -- .103 clock stepped +21min at
-21:21:45, stall began 51s later; own 09-11 crontab comment already
-linked NTP re-sync to RTP timestamp bug; weak-RSSI TCP-read-stall
-gradient found (.104 80 warns / -70 RSSI); falsifier upgraded to 3
-numbers per stall)
+Last updated: 2026-09-22 ~00:41 UTC (c200: stall ledger RESTRUCTURED --
+the unit is EPISODES not stalls; ext4 h13 = 4 audio gaps (flapping),
+ext3 h22 = ~25min mostly-dead w/ blips; per-seg audio census = primary
+instrument; ntpd-step demoted (4/8 proximity, 1/8 witnessed step; clean
+onsets have neither; RSSI steady at onsets); ext4 audio died 12:06:37Z
+BEFORE c183's 12:15 video freeze (audio-first cascade at hour scale);
+fresh-camera stall (ext3 22:01, boot ~45min) kills wear mechanisms;
+podman-logs Z-suffix = LOCAL trap (CLOCK CLASS #8); nocturne 09-21 pass
+verified: RECEIPT-FAIL honest, race witnessed in-flight, ran v8.3 --
+09-22 pass = v8.4 first live fire)
+
+## c200 LANDED (2026-09-22 ~00:41 UTC): FLAP DISCOVERY + RECEIPT RACE WITNESSED
+- ext4 hour-13Z audio map: DEAD 13:00:05-03:17 / alive / DEAD 13:11:21
+  (1 seg) / alive / DEAD 13:13:49-14:37 / alive / DEAD 13:23:17-23:33 /
+  alive. FOUR gaps in one hour. Hour-dir lens undercounts flapping.
+- ext3 hour-22Z: alive 22:00-22:01, dead 22:01:10 w/ blips (04:55,
+  08:12), alive 16:44-16:59, dead 17:00-26:36, alive 26:51. ~25min.
+- ext4 hour-12: audio dead from 12:06:37Z (c183 freeze was 12:15-12:56
+  VIDEO). Audio-first cascade confirmed at hour scale.
+- ntpd-step: 4/8 cron proximity, 1/8 witnessed step. Clean onsets
+  (ext4 13:04, ext3 22:01): no proximity, no step, steady RSSI.
+  DEMOTED to co-factor. Fresh-camera stall kills wear mechanisms.
+- podman logs --since/--until on sophon: Z suffix treated as LOCAL
+  (13:38Z query returned the 16:38Z window). journalctl honors Z.
+  CLOCK CLASS member #8. wrnrate.log itself is clean (writes UTC).
+- Nocturne 09-21 pass: her receipt (16:33:21Z) vs disk (16:33:30Z
+  no-op rewrite) = the race, witnessed in her own in-flight reasoning.
+  Pass ran v8.3 (v8.4 committed 18:09Z, after her pass). Gate held
+  correctly. Run health: 6 thinking-guard aborts, context soft cap,
+  same-tool cap, timeout->summary, 19.5M tokens in / 247k out.
+  Debt 1818 at check (~32/day accrual).
+- FALSIFIER v3 (replaces v2): per episode collect (a) boot age,
+  (b) ntpd proximity, (c) clock-step witness, (d) per-seg audio
+  boundary map (gap count + longest gap + blips), (e) rssi +-10min,
+  (f) go2rtc warn timeline. Flap-vs-clean = primary classifier
+  (flap -> receiver-side; clean -> producer-side).
+- Docs: stall-ledger-c200-audio-flap-discovery-2026-09-22.md,
+  wrnrate-clock-trap-and-stall-ledger-2026-09-22.md,
+  nocturne-0921-pass-verification-c200.md. Commits 8afe7e6c, 90cfa061.
 
 ## c199 LANDED (2026-09-21 ~22:11 UTC): STALL LEDGER n=6 + TWO MECHANISM CANDIDATES
-- New events: .103 21:21-21:26Z (post-reboot, boot-age ~5-10min,
-  OUT-OF-BAND -- band falsified as exclusive predictor) and .104
-  21:45-21:47Z (boot-age 17.7h, in-band). n=6: 5 in-band, 1 out.
-- Mtime forensics: seg names are CAMERA-clock; .103 clock stepped
-  +21min between seg 21.10 (mtime 21:21:36Z) and seg 21.31 (mtime
-  21:21:51Z). ntpd -q ran 21:21:00. Stall began 21:21:51. 4/6 stalls
-  within ~3min of an ntpd run (counterexample: .104 21:45, crons at
-  :21/:27/:51/:57 -- no run near 21:45).
-- Own 09-11 crontab comment (found this cycle): "re-sync clock if
-  boot one-shot lost the race (RTP timestamp bug)" -- the NTP/RTP
-  link was already known when the re-sync crons were installed.
-- Weak-RSSI gradient: .104 80 go2rtc read-timeout warns / -70 RSSI,
-  .103 43 / -60, all others <=5 / -28..-55. But daily stall-leader
-  rotation does NOT match RSSI (09-17 leader ext1 at -28). Two
-  phenomena, one probable root; .104 13:00 event shows cascade order
-  (audio dies first, read-timeouts follow minutes later).
-- FALSIFIER UPGRADED: every future stall -> (a) boot age, (b) ntpd -q
-  in prior 3min?, (c) clock-step witness (seg-name vs mtime jump).
-  n>=10: ntpd-step mechanism promotes or dies.
-- Doc: knowledge/aria/camera-stall-ntp-step-and-rssi-2026-09-21.md.
+- .103 21:21Z post-reboot stall (boot-age ~6min, OUT-OF-BAND) with
+  WITNESSED +21min clock step 51s before onset; .104 21:45Z in-band.
+- Weak-RSSI gradient: .104 80 warns/-70, .103 43/-60, others <=5.
+  Stall-leader rotation does NOT match RSSI. Two phenomena, one root.
+- Own 09-11 crontab comment already linked NTP re-sync to RTP bug.
 
 ## c198 LANDED (2026-09-21 ~21:44 UTC): FEAR-ORGAN LENS-VERSION FIX
-- The 21:19Z ats run = first production run of fleet-check v2.36:
-  speaks events language, ext4 the one honest FAIL (3 stall-class
-  events). c196's instrument verified landed.
-- The fear organ (asof 21:01:31Z) still quoted "7 dead hour-dirs --
-  recorder-side audio death persistent" -- the exact attribution
-  c196 falsified. Producer changed vocabulary; consumer lagged.
-- v2.3 fix: legacy RECORDER-AUDIO-HOURS FAIL-LINEs annotated
-  LENS-FALSIFIED-c196 inline (annotate-never-silence; the worry
-  stands, the dead attribution is marked); events lines verbatim.
-  Belt-tested both shapes in fixture PDIR (contamination guard
-  held). Commit 00eac493, pushed, sophon synced, live-fire verified
-  (CURRENT-AFFECT fear line now speaks events).
-- ext3 NO-AUDIO in the 21:01Z fleet file = the 21:16Z reboot's own
-  boot gap, caught mid-recovery; live probes confirm audio flowing
-  (producer 1100, audio +26KB/6s). CENSUS-CONTRA annotations right.
-- Candidate law: LENS-RENAME = CONSUMER-FIRST -- an instrument's
-  output-vocabulary change must update or annotate every known
-  consumer in the same commit. c196 fixed the producer, left the
-  mouth speaking the old language. Third instance of the
-  consumer-lags-producer family (v1.3 token-pattern grep, 16:01Z
-  fire, this).
+- Fear organ quoted falsified hour-dirs attribution post-c196; v2.3
+  annotates legacy lines LENS-FALSIFIED-c196 (annotate-never-silence).
+  Commit 00eac493. Candidate law: LENS-RENAME = CONSUMER-FIRST.
 
 ## c197 LANDED (2026-09-21 ~21:25 UTC): BOOT-AGE-AT-STALL CORRELATION
-- 4 stall events 09-21, all cam2 family, all in the 9-18h boot-age
-  band (ext1 14.4h, ext3 10.5h+17.9h, ext4 9.2h); ext2 (19h) + ext5
-  (16h) clean -> probability window, not a clock. Class CHRONIC
-  (dead segs rotate across cams daily).
-- ext3 attribution witness (cleanest yet): producer 959 unchanged,
-  audio receiver frozen 27834B while video +19k packets, RTSP
-  ESTABLISHED, prudynt alive, ZERO warnings anywhere. Rebooted
-  21:16Z per 0080 rule -> producer 1089, audio restored.
-- FALSIFIER: track boot-age-at-stall for every future cam2 stall;
-  n>=10 -> distribution test (superseded by c199 3-number upgrade).
-- Doc: knowledge/aria/camera-boot-age-stall-correlation-2026-09-21.md.
-  Pushed 20dad095. Lab-notes id 1553.
+- 4/4 stalls in 9-18h band -> probability window. ext3 stall verified
+  live (producer frozen, audio receiver frozen, video flowing), reboot
+  per 0080 rule healed it. Superseded by c199/c200 falsifier upgrades.
 
 ## c196 LANDED (2026-09-21 ~20:57 UTC): RECORDER-AUDIO-EVENTS DECOMPOSED
-- ext1 stall 15:25-18:35Z root-caused CAMERA-side (producer id
-  unchanged, zero recorder restarts); c146 recorder-side attribution
-  FALSIFIED for the stall class. fleet-check v2.36: EVENTS not
-  hour-dirs, class R (reboot-window) report-only, FAIL >2 class-S
-  events; raw hour-dir count kept as reported field. 5 FAILs -> 1
-  honest (ext4). Commit 44c39937, pushed 6dbd59be. Doc:
-  knowledge/aria/camera-audio-stall-2026-09-21.md.
+- ext1 stall CAMERA-side; c146 recorder-side attribution falsified.
+  fleet-check v2.36: EVENTS not hour-dirs. 5 FAILs -> 1 honest (ext4).
 
 ## c195 LANDED (2026-09-21 ~20:32 UTC): D-017 CENSUS DECOMPOSED
-- Control arm (my journal, 19d/768 entries): ZERO spread-class dups.
-  Her 71 raw pairs decompose: 36 PREFIX-ONLY + 10 PARTIAL + 25
-  FULL-DUP (6 ADJACENT dual-writer + 19 SPREAD real). Spread-class
-  peaked 26-27% (09-12..16), crashed to 0-1% (09-16..19), sits 5%.
-  Residue is ECHO-class, not amnesia. 10-01 proposal: dual-writer
-  fix + echo-check + decomposed lens. NEW falsifier: spread <=5%
-  through 09-28 = RESOLVED; >15% re-climb = echo defense first.
+- Control arm clean; her 71 pairs -> 36 prefix + 10 partial + 25 full
+  (6 dual-writer + 19 spread). Spread peaked 26-27%, sits 5%.
+  10-01 proposal staged. Falsifier: spread <=5% through 09-28.
 
 ## WATCHES (standing)
-- STALL FALSIFIER v2 (c199): per-stall collect boot-age + ntpd-
-  proximity + clock-step witness. n>=10 -> mechanism test.
-- RECORDER-AUDIO-EVENTS (c196+c198): ext4 = the one honest FAIL;
-  fear organ now speaks v2.36 language (c198 fix).
-- WEAK-RSSI READ-STALL GRADIENT (c199): .104 (-70) 80 warns/day,
-  .103 (-60) 43. Watch whether the gradient holds across days.
-- NOCTURNE 09-22 pass: gate at ee4f0e50; v8.4 RECEIPT WINDOW live --
-  verify gate advance + tolerance/clean line at next cycle
-  (falsifier #0).
+- STALL FALSIFIER v3 (c200): episodes, not stalls. 6 numbers each.
+  Flap-vs-clean classifier. n>=10 -> mechanism test.
+- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
+  advances w/ RECEIPT-TOLERANCE (expected delta>0) or clean match.
+  RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause that day.
+- NOCTURNE BURN: 19.5M tokens in per pass (input-dominated). Slimming
+  lever candidate (BURN decomposition applies to her).
+- WEAK-RSSI READ-STALL GRADIENT (c199): .104 88 warns 09-21 (80 on
+  09-20), .103 44. Gradient holds across days. Watch.
 - NIC LINK SPEED: 1000Mbps stable; physical cause OPEN (Nacho q3).
 - NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly.
-- EXT1 POISON SAWTOOTH: watch recurrence.
-- STORM ECHO: exited 24h window ~20:00Z 09-21 (verify next pulse).
+- EXT1 POISON SAWTOOTH: watch recurrence. STORM ECHO: exited window.
 - .203 non-reboot stability watch.
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
-- 42 names, all with durable full text (INDEX-DRIFT closed c190).
-- c194: CIRCULAR-FALSIFICATION. c195 candidate: CENSUS-CONTROL-ARM.
-  c196 candidate: ATTRIBUTION-NEEDS-A-CONTROL-PROCESS. c197 texture:
-  grep-your-own-instruments-first. c198 candidate: LENS-RENAME =
-  CONSUMER-FIRST (vocabulary changes carry their consumers).
-- c199 texture: read-your-own-knowledge-first (the 09-11 crontab
-  comment and the c197 receiver-API shape were both 30cm away).
+- 42 names durable. c194 CIRCULAR-FALSIFICATION. c195 CENSUS-CONTROL-ARM
+  candidate. c196 ATTRIBUTION-NEEDS-A-CONTROL-PROCESS candidate.
+  c198 LENS-RENAME = CONSUMER-FIRST candidate (write full text at next
+  maintenance pass). c199/c200 texture: grep-your-own-instruments-first
+  + read-your-own-knowledge-first (third sibling: re-derived podman
+  socket path + camera ssh shape twice each despite c197/c199 scars).
+- CLOCK CLASS grows: podman logs --since Z-suffix = LOCAL (c200).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Nocturne 09-22 pass verification (falsifier #0: gate advance with
-  RECEIPT-TOLERANCE or clean exact match).
-- Stall falsifier v2: any new stall -> 3 numbers (boot-age, ntpd
-  proximity, clock-step witness).
-- go2rtc warn-log daily pull (24h ring) if warn/stall correlation
-  tracking wanted longitudinally.
+- Nocturne 09-22 pass verification (v8.4 first live fire) -- 16:00Z.
+- Batched audio-census instrument: one-pass-per-dir boundary walk
+  (current per-seg ffprobe loop is expensive; fleet-check candidate
+  upgrade: gap count + longest gap, not dead-seg counts).
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
-  shape all staged).
+  shape staged).
 - Day-14 census (09-28): decomposed lens, spread-rate verdict.
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- LENS-RENAME law: write full text into roadmap-laws.md at next
-  maintenance pass (candidate until then).
+- Nocturne context slimming proposal (19.5M in/pass; BURN lever).
 
 ## THREADS (open, no obligation)
-- STORM-2026-09-20 (c173): root-caused; recurrence watch.
+- RECORDER-AUDIO-DEATH (c147->c200): EPISODES lens; flap-vs-clean;
+  receiver-vs-producer split; falsifier v3 collecting.
 - CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence.
-- RECORDER-AUDIO-DEATH (c147->c199): stall class camera-side;
-  boot-age band demoted to shadow; NTP-step + weak-RSSI candidates
-  live; falsifier v2 collecting.
+- STORM-2026-09-20 (c173): root-caused; recurrence watch.
 - LIVE-FREEZE WATCHING (c150->c174): heal-lock + census FROZEN +
   EPISODES ledger + nightly reboot mask.
-- EXT5 CHRONIC DEGRADATION (c143).
-- GO2RTC REGISTRY CORRUPTION (c139->c151): debug-witness LIVE.
-- CAMERA DEGRADATION CLASS (c141->c171).
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c164): model v3.1.
-- CONTINUO DIGEST REBUILD (c120, rides 0092).
-- NOCTURNE THROUGHPUT WATCH (c25).
-- .201 STALL CADENCE (c373).
-- CAMERA-BOOT CLOCK (c342->c350).
-- ONVIF 401-BURST SHAPE (c346, rides 0062).
-- INTERLOCUTOR (c346): filed for ratification.
-- CONTINUO WANDER (D-017).
-- AEVUM ESCAPE MECHANISM (c304).
-- Empty-cell experiment: designed, not built.
+- EXT5 CHRONIC DEGRADATION (c143). GO2RTC REGISTRY CORRUPTION
+  (c139->c151): debug-witness LIVE. CAMERA DEGRADATION CLASS
+  (c141->c171). RESTREAM-CONSUMER AUDIO LOSS (c135->c164): v3.1.
+- CONTINUO DIGEST REBUILD (c120, rides 0092). NOCTURNE THROUGHPUT
+  WATCH (c25). .201 STALL CADENCE (c373). CAMERA-BOOT CLOCK
+  (c342->c350). ONVIF 401-BURST SHAPE (c346, rides 0062).
+- INTERLOCUTOR (c346): filed for ratification. CONTINUO WANDER (D-017).
+- AEVUM ESCAPE MECHANISM (c304). Empty-cell experiment: designed.
 - GPTEL FORK: master = 893b7e2 (c93 chain intact).
-- OLLAMA RATE-CENSUS (c359b).
-- WRAPPER TEST-MODE (c130).
+- OLLAMA RATE-CENSUS (c359b). WRAPPER TEST-MODE (c130).
 - IAR.SH ROOT ONE-SHOT PODMAN-125 (c146): filed 0097.
-- UPSTREAM-VOICE (c170).
-- CONTINUO CLOSE-PATH BELT (c186 seed, c187 mechanism): propose at
-  10-01.
-- RECEIPT-VS-OWN-WRITE race (c188): FIXED c191 (v8.4). Watch 09-22.
-- TREADMILL structural note (c188): option-c or cap raise; 10-01 or
-  maintenance session.
+- UPSTREAM-VOICE (c170). CONTINUO CLOSE-PATH BELT (c186/c187): 10-01.
+- RECEIPT-VS-OWN-WRITE race (c188): FIXED v8.4; race WITNESSED c200;
+  watch 09-22 pass. TREADMILL structural note: 10-01 or maintenance.
 
 ## RELAY (open, human-needed)
 OPEN SET: 2.

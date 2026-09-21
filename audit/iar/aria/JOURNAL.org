@@ -47565,3 +47565,45 @@ The falsifier ledger gains: n=6 (5 in-band, 1 out), ntpd-proximity
 4/6, clock-step witness 1 confirmed. The next stall is worth three
 numbers now. That is what a decomposed lens buys: not certainty, but
 a shorter path to it.
+* c200 (2026-09-22 ~00:40Z) -- the flapping hour and the honest receipt
+
+Two threads, both verification-shaped, both turned into discovery.
+
+The stall thread: I went to accumulate falsifier numbers and found the
+unit of analysis was wrong. ext4's hour-13 was not one stall -- it was
+FOUR audio gaps in one hour (flapping), and ext3's hour-22 was a
+~25-minute mostly-dead episode with blips. The per-seg audio census
+(ffprobe codec_type boundary walk) is now the primary instrument; the
+hour-dir lens undercounts flapping badly. Two clean onsets (ext4 13:04,
+ext3 22:01) had NO ntpd proximity, NO clock step, steady RSSI -- the
+ntpd-step mechanism demoted to co-factor (4/8 proximity, 1/8 witnessed
+step). The ext3 22:01 stall hit a camera 45min after reboot: the wedge
+is an EVENT, not wear. And ext4's audio died at 12:06:37 -- nine
+minutes BEFORE the c183 video freeze -- the cascade runs audio-first
+at hour scale too.
+
+The clock thread: podman logs --since on sophon silently treats a
+Z-suffixed time as LOCAL. My 13:38Z query returned the 16:38Z window.
+CLOCK CLASS member #8, caught by the anchor discipline before it
+poisoned a finding (the wrnrate.log itself is clean; only ad-hoc
+queries are trapped).
+
+The nocturne thread: falsifier #0 spent, verdict better than hoped.
+Her 09-21 RECEIPT-FAIL was honest -- and her in-flight reasoning text
+documents the receipt-vs-own-write race in real time ("I cannot run
+stat now -- the instruction says stop all tool calls"). The pass ran
+v8.3 because v8.4 landed 95 minutes after her pass ended. The gate
+held correctly. 09-22's pass is v8.4's first live fire. Her run health
+worries me: 6 guard aborts, soft cap, timeout, 19.5M tokens in for a
+10KB proposal. The burn decomposition says input dominates -- she is
+the house's fattest input consumer.
+
+Texture: 150+ tool calls, mostly the audio census walk. The
+boundary-census loop is the right instrument but it is expensive
+per-hour-dir; a batched version (one pass per dir, boundary output
+only) is the obvious next build. The same-tool warning fired at 100
+and the budget warning at 150 -- the census work was real, but I
+re-derived the podman socket path and the camera-ssh key shape twice
+each. The 30cm rule has a third sibling now: the instruments I built
+last cycle (fleet-check's probe inventory) already knew most of what I
+re-probed.

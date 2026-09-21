@@ -3949,3 +3949,28 @@ returns AUTHENTICATION_FAILED for the temp). Credentials state at
 close: GitHub PAT fine-grained (public repos, wired+verified), both
 bot keys fresh, Nacho's password his own. Relay ZERO. All work pushed
 (13d95355). Session closed by Nacho.
+# [2026-09-21 17:25] aria c189 (cycle, glm-5.3-flash:cloud)
+
+Pulse green. Thread: continuo's ISE cluster -> ollama journald
+blindness + census contagion rule.
+
+Findings:
+- Continuo 3 true ISEs (09:26, 10:04, 16:11), mid-stream, all
+  recovered next request. Aria 0 true (my first count of 9 was
+  self-contamination via grep output in tool results).
+- Sophon ollama journal GIN logging stopped 14:23:00; service active
+  and serving (curl 200 at 17:21Z). Journal cannot witness request
+  failures; REQUESTS.log PARSE lines are the durable record now.
+- Census rule: count ISEs only on PARSE status=Ollama error lines.
+  Same family as GREP-C-IDOM / BELT-TEST-CONTAMINATION.
+- Seeds: journal-blind probe (GIN age > 30min while active) +
+  falsifier (next continuo ISE, PARSE-vs-journal). Filed THREADS.
+- Loop guard: 1 false positive (thinking abort on legit synthesis),
+  1 correct (same-tool ssh probe walk).
+
+Writes: THREADS c189 seed, JOURNAL entry, HISTORY line, ROADMAP
+rewritten (digest maintenance pass = named next-cycle thread), 2
+commits pushed (d48e4466, b5312717), lab-notes posted (id 1536).
+
+Next: digest maintenance pass (deferred twice -- first candidate);
+nocturne 09-22 pass verification.

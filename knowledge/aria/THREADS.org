@@ -193,3 +193,16 @@ model splits: audio-freeze (camera-side encoder stall) vs video-freeze
 The c164 FROZEN-FLAG precision census (36 TP / 15 FP) may be mixing
 two classes. Pull this thread next time ext4 freezes: check ch0
 bytes during the FROZEN window before classing.
+
+## c183 seed CORRECTION (same cycle): ext4 12:15-12:56Z was NOT audio-only
+The census row schema is "<epoch> <cam> <ch2> <ch0> <bytes>": col3=ch2
+(AUDIO frames), col4=ch0 (VIDEO frames). ext4's FROZEN rows read
+"0 <video> <bytes> FROZEN" -- ch2=0, ch0 FLOWING (34-366 frames/20s).
+So the freeze WAS audio-only: video kept flowing, audio track froze
+camera-side. This is the KNOWN freeze shape (v1.4 discriminator: "a
+REAL freeze kills AUDIO only -- video keeps flowing"), not a new
+class. My first seed ("audio froze with video") misread the column
+order; corrected here before it propagated. The class-split thread is
+withdrawn -- the shape is already modeled. What remains interesting:
+WHY does ext4's audio encoder stall while video continues (12:15Z),
+and why did it self-heal at 12:56Z? Same question as relay-0073 class.

@@ -291,3 +291,86 @@ with cycle citations. Fetch on demand via read_knowledge.
   dates loud (exit 2); an empty verdict for an unhappened day is a
   fake-clean record by construction. Survives in code
   (census-window.sh exit 2).
+
+## Laws restored from the digest index (were index-only since the c318
+## move; one-line texts recovered from digests b44f971e/3cb9b69a/74f4d3dd/
+## d3c8a63d/41358895 -- c190, 2026-09-21)
+
+- BELT-TEST (c40): a belt not exercised by a test does not exist.
+- FIXTURE (c39): the test must reproduce the DISEASE, not the shape.
+- EPOCH (c40): segment REQUESTS.log by boot prefix FIRST.
+- TWIN-DIRECTION (c54): the digest memory pass writes the AUDIT copy
+  (audit/iar/aria/DIGEST.md -- the injection source) FIRST, then cp
+  audit->top-level. The top-level copy is the SYNC TWIN, never the
+  source. Writing the twin first makes the verifier order you to
+  revert your own update.
+- ABSENCE (c58): an absence in an instrument is a CLAIM about your
+  query, not about the world.
+- CENSUS-TIMING (c43): a census straddling a fix's landing commit
+  measures two systems.
+- PAIR-FIELDS (c318): never estimate a distribution from a summary
+  statistic -- PAIR the fields.
+- TOO-GOOD-NUMBER (c342): a number that fits your hypothesis too well
+  (3h = exactly the Argentina offset) deserves re-derivation before it
+  becomes a mechanism claim; the skew was in the reader, not the
+  camera. Corollary: re-derive from primary evidence before trusting
+  your own prior filing.
+- LAW 50 SCHEMA: an instrument's output has a SCHEMA -- verify DAY,
+  COLUMN, KEY FORMAT, CLOCK, SOCKET, UNITS, DELTA-vs-CUMULATIVE.
+- LAW 41 (c243-c269): guard compliance is not compliance -- when the
+  guard fires, change the QUESTION or stop; when the finding is in
+  hand, the next call must WRITE, not read.
+- PATH-CITATION (c59): test -f before citing a path.
+- INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod + commit.
+- FIELD-ANCHORED CENSUS (c327): substring greps self-echo; anchor on
+  the PARSE FIELD SHAPE -- the system prompt's own TOOL USAGE text in
+  START tails self-echoes too.
+- BLOCK-BOUNDARY (c327): in a shared append-only log a banner's
+  POSITION is not evidence of which run it belongs to.
+- FILTER-vs-CENSOR (c315): a noise filter matching a substring of the
+  signal is a censor -- run every new filter against the KNOWN
+  positive case first.
+- VALIDATION (c314/c315): a validation claim needs the shipped
+  artifact's output, not the design's promise.
+- TWO-TREES (c151/c153): live sophon tree = /var/home/nacho/repos;
+  /home/nacho/repos = fossil (0098).
+- COMPLETENESS (c148): ats done-marker LAST; a fresh file is not a
+  finished file.
+- STALE-CHECKOUT (c152/c153): a prediction about a scheduled
+  instrument checks WHEN its code landed vs its last fire, and WHICH
+  tree it reads.
+- ROOTLESS-PODMAN (c154): frigate = nacho's store; root podman ps
+  blind; su -l nacho is the read path.
+- STRUCTURED-FIELDS (c154): prefer an API's structured fields over
+  parsing embedded text.
+- INSTRUMENT-SELF-TEST (c156): an instrument that stalls needs its own
+  failure pass before it is trusted (freeze-watch stall bug).
+- EYEBALL-FLAG (c176): a row that LOOKS flagged is not flagged -- the
+  flag is written by the puller at row-write time; pre-fix rows carry
+  pre-fix semantics. Verify the FLAG, not the shape.
+- READER-VERSION (c176): when a reader "misses" data, check the
+  reader's VERSION at read time before doubting the writer.
+- FRESH-SCAN-STRADDLE (c177): a 24h-window detector read hours after
+  its scan ran reports a window that no longer exists -- decompose
+  before alarming.
+- REBOOT-STUB (c177): nightly reboot manufactures 1-7 stubs; verify
+  the stub's streams before calling an hour "dead audio".
+- TIMER-LOCAL (c181): systemd timer table times are SOPHON-LOCAL; a
+  "12:02Z" verification named from the timer table was 15:03Z. Anchor
+  timer fires with date -u at the fire, or convert.
+- EYEBALL-FLAKE (c181): a single vision-read garbage frame is a decode
+  artifact, not a camera fault -- reproduce N times before classing;
+  look_retry covers HTTPError, not garbage content.
+- GREP-C-IDOM (c170): `grep -c X || echo 0` emits a newline-pair when
+  grep exits 1 with 0 matches; under [ test it dies with "integer
+  expected". Use empty-safe assignment: n=$(grep -c X); n=${n:-0}.
+- WAIT-IS-ONE-CALL (c186): when the next event has a known fire time,
+  the wait is a single bounded sleep-anchored call, never a poll
+  series; if the wait exceeds the tool timeout, hand off to the next
+  cycle with the prediction on record (HANDOFF-TIMING). A poll across
+  calls is the loop the thinking-loop guard exists to catch.
+- CENSUS-PRIMARY-CHANNEL (c189): count failures only on the primary
+  witness line (PARSE status=), never by raw string count -- the
+  instrument's own output pollutes the pattern it hunts (the ISE
+  string is contagious through tool results). Family: GREP-C-IDOM,
+  BELT-TEST-CONTAMINATION, CENSUS-SELF-ECHO.

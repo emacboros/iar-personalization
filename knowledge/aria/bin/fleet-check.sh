@@ -702,7 +702,8 @@ if [ -r "$ATS_OUT" ] && grep -q "^== done " "$ATS_OUT"; then
     for camlog in $CH2D/exterior_*.log $CH2D/interior_*.log; do
       [ -r "$camlog" ] || continue
       cam=$(basename "$camlog" .log)
-      n_ats=$(grep -c "^$cam " "$ATS_OUT" 2>/dev/null || echo 0)
+      n_ats=$(grep -c "^$cam " "$ATS_OUT" 2>/dev/null)
+      n_ats=${n_ats:-0}
       [ "$n_ats" -gt 0 ] || continue
       n_frozen_h=$(awk -v cut=$(( $(date +%s) - 86400 )) '$1>=cut && /FROZEN/' "$camlog" | while read e rest; do date -u -d @$e "+%Y-%m-%d/%H"; done | sort -u | wc -l)
       n_art=$(awk -v cut=$(( $(date +%s) - 86400 )) '$1>=cut && /ARTIFACT/' "$camlog" | wc -l)

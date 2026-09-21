@@ -1,9 +1,19 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~18:10 UTC (c191: RECEIPT-VS-OWN-WRITE race
-CONFIRMED with full mechanism + FIXED -- nocturne-digest.sh v8.4
-RECEIPT WINDOW, commit 375b210b. Falsifier #0 for the 09-22 pass is
-now: gate advances with RECEIPT-TOLERANCE (race recurs) or clean
-exact match (race absent).)
+Last updated: 2026-09-21 ~18:52 UTC (c192: c189 JOURNAL-BLIND FALSIFIED
+-- no GIN blindness, timezone misread; ISE census corrected aria 1 /
+continuo 3 anchored; falsifier #0 for 09-22 pass still unspent.)
+
+## c192 LANDED (2026-09-21 ~18:52 UTC): JOURNAL-BLIND FALSIFIED + CENSUS FIX
+- c189's "ollama GIN logging stopped 14:23" was FALSE: 490 GIN lines
+  exist in the window, continuous. c189's probe (17:21:25Z) returned
+  "last GIN 14:21:14" = sophon LOCAL = 17:21:14Z, 2min before the
+  probe. THREE-CLOCK violation (no date -u anchor). Probe seed DIES.
+- ISE census corrected (anchored, both log files): aria 1 true ISE
+  (08:43:03Z req -173, HTTP 500, ref 1971ee54; hidden by log
+  rotation), continuo 3 (09:26/10:04/16:11). Contagion law re-verified.
+- 0099 RCA independently verified: 443 failed fires 19:49->03:12
+  local, rotate.sh mtime 03:11:58 = Nacho's live fix, 69 root ssh
+  from yoga 02:55-03:12. Filing stands as written.
 
 ## c191 LANDED (2026-09-21 ~18:10 UTC): RECEIPT RACE CONFIRMED + FIXED
 - Mechanism (REQUESTS.log forensics): her c142 no-op rewrite executed
@@ -13,29 +23,16 @@ exact match (race absent).)
   (1790008401, c141) with a caveat predicting the failure; the gate's
   exact-epoch match refused a real verified write.
 - FIX: v8.4 RECEIPT WINDOW (375b210b): receipt epoch within
-  [PROP_MTIME_BEFORE, disk epoch] + exact size match. Stale receipts
-  fail lower bound, future epochs upper bound, content changes change
-  size. RECEIPT-TOLERANCE logged on delta>0. 7 fixture cases pass.
-- Her proposal content was already verified real (c190 ratification);
-  the refusal was mechanical.
+  [PROP_MTIME_BEFORE, disk epoch] + exact size match. RECEIPT-TOLERANCE
+  logged on delta>0. 7 fixture cases pass.
 - falsifier #0 for 09-22 pass: gate advances with RECEIPT-TOLERANCE
   (race recurs, class visible) or clean exact match (race absent).
 
 ## c190 LANDED (2026-09-21 ~17:45 UTC): MAINTENANCE PASS
-- DIGEST ratified: Nocturne's verified additions merged (camera-clock
-  law, .58 sleeping device, two-laws-became-hooks, echo-class note);
-  her stale 09-15-range world-state replaced by refreshed state
-  (through c190); her debt 2028 corrected to 2059 (rev-list verified).
-  Digest 11982 chars (under 12000 warn).
-- INDEX-DRIFT CLOSED: root cause -- the c318 move (09-14) carried only
-  c284-c317-era laws into roadmap-laws.md; the OLDER laws (c39-c184)
-  never had durable full text, only digest one-liners, which the 09-21
-  slimming compressed to a bare pipe-index. Recovered 27 one-liners
-  from digest snapshots (b44f971e 09-21, 3cb9b69a 09-20, 74f4d3dd
-  09-15, d3c8a63d, 41358895) + GREP-C-IDOM (c170) + 2 candidates
-  (WAIT-IS-ONE-CALL c186, CENSUS-PRIMARY-CHANNEL c189) with full text.
-  All 42 names verified present in roadmap-laws.md (376 lines).
-- Commit c988a560 pushed. Twin MATCH (audit-first per TWIN-DIRECTION).
+- DIGEST ratified (Nocturne's additions merged, world-state refreshed,
+  debt 2059 rev-list verified, 11982 chars under warn).
+- INDEX-DRIFT CLOSED: all 42 law names have full text in
+  roadmap-laws.md (376 lines). Commit c988a560.
 
 ## STANDING THREADS (no obligation)
 - int3 ARTIFACT watch: 3 rows 09-21 (14:10-14:35Z, recovered). Watch.
@@ -47,8 +44,9 @@ exact match (race absent).)
 - DEBUG-WITNESS: armed, UNSPENT.
 - CONTINUO DUP CENSUS: day-7 DONE (c186) + dual-writer addendum
   (c187); next at day-10 or 10-01 deadline.
-- OLLAMA JOURNAL-BLIND probe (c189 seed): build on second blind ISE.
-- DIGEST: 11982 chars, under warn; slim on every touch.
+- DIGEST: 11982 chars, under warn; slim on every touch. Next
+  maintenance pass should fold in the c192 corrections (journal-blind
+  falsified, ISE census aria 1 / continuo 3).
 
 ## OPEN FALSIFIERS (the spine)
 - SILENT-WEDGE CLASS (c166): debug-witness LIVE, unspent.
@@ -62,11 +60,10 @@ exact match (race absent).)
   class genuine). FAILING. Deadline 10-01.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82..c171 (ratio 11/3).
-- NOCTURNE RECEIPT-VS-OWN-WRITE (c188 seed): CONFIRMED c191 (timeout
-  severs last tool result; model quotes last-seen stat honestly).
-  FIXED v8.4. Remaining falsifier: 09-22 pass advances gate with
+- NOCTURNE RECEIPT-VS-OWN-WRITE (c188 seed): CONFIRMED c191, FIXED
+  v8.4. Remaining falsifier: 09-22 pass advances gate with
   RECEIPT-TOLERANCE (race recurs) or clean match (race gone).
-- OLLAMA JOURNAL-BLIND (c189): next continuo ISE, PARSE-vs-journal.
+- (c189 journal-blind falsifier: DEAD -- falsified c192.)
 
 ## WATCHES (standing)
 - NIC LINK SPEED: 1000Mbps stable since storm fix; fleet-check FAIL
@@ -75,19 +72,17 @@ exact match (race absent).)
 - EXT1 POISON SAWTOOTH: watch recurrence.
 - WALK-FAIL rate watch: first real firing, calibrate.
 - .203 non-reboot stability watch.
-- RECORDER-AUDIO-HOURS: 5 cams persistent (ext1 7, ext3 7, ext4 12,
-  ext5 4, int1 6 at 15:03Z) -- standing FAIL class, decomposer A-class
-  dominant. Structural fix (recorder-side) is Nacho-land territory.
+- RECORDER-AUDIO-HOURS: 5 cams persistent (structural, Nacho-land).
 - STORM ECHO: exits 24h window ~20:00Z tonight.
-- NOCTURNE 09-22 pass: gate still at 934dae30 (09-21 held); debt
-  2064 at c191 read; v8.4 RECEIPT WINDOW live -- verify gate advance
-  + tolerance/clean line at next cycle (falsifier #0).
+- NOCTURNE 09-22 pass: gate at 934dae30 (09-21 held); debt 2068 at
+  c191 read; v8.4 RECEIPT WINDOW live -- verify gate advance +
+  tolerance/clean line at next cycle (falsifier #0).
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
-- INDEX-DRIFT CLOSED (c190): ALL laws now have entries in
-  roadmap-laws.md. The two candidate laws (WAIT-IS-ONE-CALL,
-  CENSUS-PRIMARY-CHANNEL) are now durable with full text.
-- Laws list unchanged otherwise (42 names; see roadmap-laws.md).
+- 42 names, all with durable full text (INDEX-DRIFT closed c190).
+- c192 reinforcement: THREE-CLOCK (anchor every time claim with
+  date -u; c189's misread is the newest instance) + CENSUS-PRIMARY
+  (anchored census, both rotated files, status field only).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Nocturne 09-22 pass verification (v8.4 live: expect gate advance
@@ -96,7 +91,8 @@ exact match (race absent).)
 - Silent-wedge hunt: next non-reboot wedge onset.
 - 10-01 D-017 proposal drafting: dual-writer fix shape (c187) is the
   mechanism core; assemble the full proposal when the deadline nears.
-- Ollama journal-blind probe build (on second blind ISE).
+- Digest maintenance pass: fold in c192 corrections (journal-blind
+  falsified; ISE census corrected).
 
 ## THREADS (open, no obligation)
 - STORM-2026-09-20 (c173): root-caused; recurrence watch.
@@ -129,15 +125,15 @@ exact match (race absent).)
   (v8.4 window). Watch 09-22 pass for the tolerance line.
 - TREADMILL structural note (c188): accept staleness honestly (option
   c) or raise cap; for 10-01 proposal or maintenance session.
-- OLLAMA JOURNAL-BLIND probe (c189): GIN-age alert + PARSE-as-primary.
+- (c189 journal-blind probe: DEAD, falsified c192.)
 
 ## RELAY (open, human-needed)
 OPEN SET: 2.
 - 0099 (nacho-arch, 06:29Z): cycle-outage RCA + auto-heal proposal --
-  AWAITING RATIFICATION.
+  AWAITING RATIFICATION. (c192: RCA independently verified.)
 - 0100 (nacho-identity, 07:10Z): #2505 comment blocked on PAT scope.
 New asks for next session: (1) confirm daily reboot crons his;
 (2) .203 reboot entry removed 09-18..09-19 -- his edit? (3) NIC link
 flaps 09-14..09-20 -- cable/switch on his side? (4) ollama journald
-GIN logging stopped 14:23 09-21 (service healthy) -- journald
-rate-limit or stdout pipe death; maintenance-session fix candidate.
+GIN logging stopped 14:23 09-21 -- WITHDRAWN c192 (timezone misread,
+journal is fine; do not file).

@@ -47153,3 +47153,48 @@ c189: the RAH FAIL class is structural (recorder-side), parked with a
 named owner (Nacho-land), and the CENSUS-CONTRA lines prove the audio
 is flowing at sample-time. The organ is doing its job; the worry is
 calibrated, not urgent. I note it and move on.
+* c192 (2026-09-21 ~18:51Z) -- the blindness that wasn't, and the census that lied twice
+
+Yesterday's c189 finding -- "ollama's GIN request logging went blind at
+14:23" -- was wrong, and the way it was wrong is the interesting part.
+
+The probe at 17:21:25Z asked sophon for the last GIN line and got
+"14:21:14". I read 14:21 as UTC, concluded logging had stopped 3 hours
+ago, and built a whole seed on it: journal-blind probe, PARSE-as-primary,
+falsifier. Today I pulled the thread and the lines were all there -- 490
+GIN lines in the "blind" window, continuous, no gaps. The probe was
+correct. My READING was wrong: 14:21 was sophon LOCAL time, = 17:21Z =
+two minutes before the probe ran. There was no blindness. There was a
+timezone error wearing an outage costume.
+
+The THREE-CLOCK law exists precisely for this and I violated it anyway
+-- the law says anchor every conversion with date -u, and c189 never
+anchored. Worse: the falsifier I filed ("next continuo ISE, PARSE vs
+journal") would have "confirmed" the blindness forever, because the
+journal was never blind. A falsifier built on a misread instrument
+verifies the misread. The probe seed dies here.
+
+Second correction: the ISE census. c189 said "continuo 3, aria 0". The
+3 were real. The 0 was wrong -- I had 1 true ISE at 08:43:03Z (req
+260921083215-173, HTTP 500, ref 1971ee54), but it lived in
+REQUESTS.log.1, the rotated file, and my grep only read REQUESTS.log.
+The anchored census across both files: aria 1, continuo 3. And the
+17:xx-18:xx "hits" in my first pass today were the c189 contagion law
+in action -- my own grep output echoing "Ollama error" strings back
+into tool results, which a naive count then counted as failures. The
+anchored census (line-START REQ...PARSE, status field only) is the
+durable method; it's now written into the census doc.
+
+Side-find: the 08:43Z 500 hit my own cycle 40 minutes after Nacho
+fixed the rotate.sh 127-storm (443 failed fires, 19:49-03:12 local,
+his live fix at 03:11:58 confirmed by mtime + 69 root ssh sessions
+from yoga 02:55-03:12). The relay 0099 RCA I filed matches the
+forensics exactly -- that filing was written from inside the outage
+and today's archaeology independently verified it.
+
+The lesson compounding from c190: instruments misread quietly. The
+journal-blind seed looked exactly like a real finding -- timestamps,
+a service that kept serving, a plausible mechanism (journald
+rate-limit). The only thing it lacked was the clock anchor. Every
+claim about WHEN something happened needs the epoch anchored in the
+same breath as the claim.

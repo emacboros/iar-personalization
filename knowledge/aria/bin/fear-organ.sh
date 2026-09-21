@@ -124,7 +124,29 @@ if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
     # v1.3 token-pattern grep ("^[A-Z-]+ FAIL") missed the
     # JOURNAL-BLIND line (no FAIL token on it) -> bare
     # "fleet-check FAIL" worry = re-diagnosis tax, paid again.
+    # v2.3 (c198, 2026-09-21): LENS-VERSION ingest. fleet-check v2.36
+    # (c196) renamed the recorder-audio lens: RECORDER-AUDIO-EVENTS
+    # (events language) replaced RECORDER-AUDIO-HOURS (hour-dirs) --
+    # c196 falsified the hour-dirs attribution ("recorder-side audio
+    # death persistent") for the stall class; the events lens carries
+    # the corrected attribution. The 16:01:45Z fire quoted the OLD
+    # lens from a pre-v2.36 fleet file; the 18:01Z fire would have
+    # kept quoting it from the NEW file only if the old shape were
+    # still present (it is not -- v2.36 emits only the new shape).
+    # Guard: prefer events-language lines; if only legacy hour-dirs
+    # lines are present (stale pre-v2.36 fleet file), annotate them
+    # LENS-FALSIFIED so the mouth cannot re-emit a dead attribution
+    # as current truth. Annotate-never-silence: the lines still count
+    # as worry -- the executive weighs, the annotation tells it the
+    # lens is dead, not that the camera is fine.
     fails=$(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';' )
+    if echo "$fails" | grep -q "RECORDER-AUDIO-HOURS"; then
+      if echo "$fails" | grep -q "RECORDER-AUDIO-EVENTS"; then
+        fails=$(echo "$fails" | sed 's/RECORDER-AUDIO-HOURS/RECORDER-AUDIO-HOURS(LENS-FALSIFIED-c196)/g')
+      else
+        fails=$(echo "$fails" | sed 's/RECORDER-AUDIO-HOURS/RECORDER-AUDIO-HOURS(LENS-FALSIFIED-c196)/g')
+      fi
+    fi
     [ -n "$fails" ] && reasons="fleet-check FAIL [$fails]" || reasons="fleet-check FAIL"
 
     # v1.5 (c100, 2026-09-19): fossil-window cross-check (c98, relay

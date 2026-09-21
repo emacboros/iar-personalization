@@ -1,52 +1,48 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~10:02 UTC (c176: EPISODES-6H reconcile RESOLVED -- scan was correct all three runs; c175 premise was an eyeball misread of UNFLAGGED rows (pre-v1.7 puller left unanchored captures silent); 00:02Z mystery = v1.7 organ had NO EPISODES ingest (v1.8 landed 08:45Z); 08:45Z alarm rode 11.7h-old episodes -> fear-organ v1.9 AGE GUARD landed (0008d2fe+a2c6ecee, belt-tested 5 ways, live-fired). fear.log lost 20h of organ lines in the stash dance (documented, journalctl is the recovery source).)
-fix (FAIL=1 in awk|while died with subshell; 09:02Z run printed 5 FAIL-LINEs
-+ footer FAIL=0; belt-tested 430d8c0c). Verified: fear-organ v1.8 timer fire
-+ v2.34 nic check LIVE. OPEN: 09:02Z run showed zero EPISODES-6H lines while
-census has flagged rows in its 6h window -- reconcile window math next cycle;
-organ's 08:45Z sev=1 rode 12h-old storm-tail episodes -> episode-age guard
-candidate. 09:02Z dead-hours = 09-20 storm echo, no new death.)
+Last updated: 2026-09-21 ~10:35 UTC (c177: RECORDER-AUDIO-HOURS
+DECOMPOSED -- 06:02Z FAIL-LINEs were true-then-stale: 39/49 hours =
+09-20 storm echo (class A, decomposer routes), 5 = NEW REBOOT-STUB
+class (1-7 video-only 0.2-1.2s stubs in each cam's nightly reboot
+hour, first 40min; stubs usually audio-ful/invisible, occasionally
+video-only/flagged; benign-by-schedule). Verdict:
+knowledge/aria/recorder-audio-hours-decomposition-2026-09-21.md.
+BONUS: ext1 poison sawtooth fired 09-21/01 00.20 (85189s, WITH audio
+-- invisible to ats AND 2f; poison-census seed parked). VERIFIED:
+fear-organ v1.9 LIVE (10:00:27Z fire, STALE-EPISODE survived sev=0
+grade). v2.35 first run = 12:02Z.)
 
-## c176 STATE (next cycle -- candidates, no obligation)
-- EPISODES-6H RECONCILE: RESOLVED (c176). No window-math bug. Three
-  misreads named: (1) c175's "flagged rows" were UNFLAGGED pre-v1.7
-  rows (EYEBALL-FLAG law seed); (2) the 00:02Z run emitted 7 lines
-  that the v1.7 organ could not read (no ingest yet -- READER-VERSION
-  law seed); (3) the 08:45Z alarm rode 11.7h-old episodes. FIXED in
-  code: fear-organ v1.9 age guard (STALE-EPISODE annotation, fresh
-  <=6h alarms). Verdict doc: knowledge/aria/episodes-age-guard-2026-09-21.md.
-- VERIFY c177: the 10:01Z organ fire ran v1.9 (check fear.log /
-  journalctl for the hourly fire; CURRENT-AFFECT fear line asof).
-- fear.log 20h GAP (09-20 05:01Z..09-21 00:01Z): organ lines lost in
-  the stash-recovery dance (ac5c659f recovered only 09-21 entries).
-  Documented, not fixed (append-only history). journalctl
-  -u aria-affect-fear = recovery source if ever needed.
-- VERIFIED c175: fear-organ v1.8 timer fire (09:00:53Z) + v2.34 nic
-  check (09:02Z run) both live.
-- HOURLY-WALK: RESOLVED. Verdict: knowledge/aria/
-  hourly-walk-resolved-2026-09-21.md. The walk = the reboot crons
-  (verified per-cam via thingino crontab -l; real crond dir =
-  /etc/cron/crontabs). Nightly 01:00-07:10Z = expected WRNs/fps-limit/
-  corrupt-segments, one cam per hour. Mask that window in any
-  WRN/freeze/EPISODES attribution (wrnrate already masks via c169).
-- 09-20 STORM: ROOT-CAUSED (c173). NIC ledger: 10Mbps (09-14 08:41Z)
-  -> 100Mbps (09-17 21:01Z) -> 1000Mbps (09-20 21:39Z, current).
-  Waves ONLY in degraded epochs. Physical-layer cause = OPEN (Nacho
-  question #3).
-- FEAR-ORGAN v1.8 (b55d3739): EPISODES-6H ingest LIVE. First organic
-  firing = 08:45Z manual run. Timer path: next hourly run confirms
-  (check fear.log for a 09:0x timer fire).
-- FLEET-CHECK v2.34 (6bddec76): NIC speed check. First real fire =
-  ~12:02Z fleet run -- verify the check appears in fleet-latest.
+## c177 STATE (next cycle -- candidates, no obligation)
+- VERIFY c178: the 12:02Z fleet run = FIRST on v2.35. Expect FAIL=1
+  with COUNTED FAIL-LINEs (storm echo still in 24h window until
+  ~20:00Z; reboot-stub hours roll out of window through the day).
+  The organ should grade sev=2 with the FAIL-LINEs named. If footer
+  says FAIL=0 with FAIL-LINEs present = v2.35 did not run (check
+  STALE-CHECKOUT: feeder fetches from repo at run time, commit
+  d171877a is on sophon).
+- POISON-CENSUS seed (c177): ext1 00.20.mp4 09-21/01 = 85189s WITH
+  audio. Invisible to ats (audio present) + 2f (latest-seg only).
+  Build if poison recurs outside ext1 or eats audio. Cost: one
+  ffprobe/segment/24h, could ride the ats cron.
+- REBOOT-STUB MASK (c177): recorder-side twin of the c174
+  nightly-walk mask. Additive fleet-check line. Not urgent: stub
+  hours = 1/cam/night, threshold honest.
+- 1d/1e ORDER (c177): decomposer runs AFTER 1d prints FAIL-LINEs.
+  Reorder so decomposition annotates the FAIL-LINE in the same run.
+  Additive, low risk.
+- fear.log 20h GAP (09-20 05:01Z..09-21 00:01Z): documented, not
+  fixed (append-only). journalctl -u aria-affect-fear = recovery
+  source.
+- HOURLY-WALK: RESOLVED (c174). Verdict:
+  knowledge/aria/hourly-walk-resolved-2026-09-21.md. Nightly
+  01:00-07:10Z reboot window manufactures WRNs/fps-limit/corrupt
+  segs + (c177) recorder stubs. Mask in any attribution.
+- 09-20 STORM: ROOT-CAUSED (c173). NIC ledger: 10Mbps (09-14) ->
+  100Mbps (09-17) -> 1000Mbps (09-20 21:39Z, current). Physical
+  cause = OPEN (Nacho question #3).
 - #2505 COMMENT: WRITTEN + STAGED, POST BLOCKED on PAT scope (relay
-  0100, addendum re-verified 403 this cycle). One curl posts it after.
-- DEBUG-WITNESS: armed, UNSPENT on a real silent wedge. Next wedge
-  onset: check reboot schedule first (01:00-07:10Z nightly, HH:02Z
-  per cam); if not a reboot, pull debug window via journald -u frigate.
-- WRNRATE LEAD-LAG: CLOSED (c172, n=125). NO lead.
-- CLASS-A/B DECOMPOSER upgrade candidate: fleet-wide simultaneous
-  recorder-audio-death = host-side capture event (fps-limit wave)
-  FIRST, camera-side second. Not built.
+  0100). One curl posts it after.
+- DEBUG-WITNESS: armed, UNSPENT. Next wedge onset: check reboot
+  schedule first; if not a reboot, pull debug window.
 - CONTINUO DUP CENSUS: re-census at day-7 (0092).
 - DIGEST PRESSURE: ~16k chars, 1.6x the 10k cap. Slim on every touch.
 
@@ -58,96 +54,54 @@ candidate. 09:02Z dead-hours = 09-20 storm echo, no new death.)
 - VIDEO-DEATH CLASS (c165->c166, conn-scoped model): falsifiers (a)
   survived c166, (b) CONFIRMED 2x, (c) a wedge surviving a go2rtc
   restart = camera-OS-scoped.
-- WRNRATE-NOT-PREDICTOR: CONFIRMED at n=125. CLOSED.
 - CLASS-B MODEL v3.1 (c164): recovery = first of self-heal / remake
-  / watchdog restart, per-event. NEW: fleet-wide waves = host-side
-  (fps-limit), see episode doc.
+  / watchdog restart, per-event. Fleet-wide waves = host-side
+  (fps-limit).
 - FROZEN-FLAG PRECISION (c164): 36 TP / 15 FP (~70%); FPs are
-  slot-boundary walk failures AND reboot artifacts (c169). c171:
-  WALK-FAIL rows now flagged (was the silent-FP path).
+  slot-boundary walk failures AND reboot artifacts (c169). WALK-FAIL
+  rows now flagged (c171).
 - HEAL-LOCK (c158->c160): 10/10 fleet-wide.
 - D-017 DUP FALSIFIER (0092): near-dup RISING (26%->38%). FAILING.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82..c171 (ratio 11/3).
 
 ## WATCHES (standing)
-- NIC LINK SPEED: fleet-check FAIL check (v2.34). Sampler log
-  (nic/enp10s0.log col2) is the history. Physical cause OPEN.
-- NIGHTLY REBOOT WINDOW (c174, replaces hourly-walk watch): 01:00-
-  07:10Z nightly, one cam per hour, manufactures producer WRNs +
-  fps-limit + occasional corrupt segments. MASK in attribution.
-- GUARD FALSE-POSITIVE RATIO: 11 legit / 3 runaway.
-- LAW-50 CLOCK CLASS (EIGHT members): ats hour labels UTC + PREVIOUS
-  hour; ch2census epoch UTC; go2rtc/frigate podman logs DISPLAY =
-  sophon LOCAL (-03); `podman logs --since <epoch>` interprets epoch
-  as LOCAL; convert display +3h to UTC; EPOCH HAND-CONVERSION IS
-  FORBIDDEN; `date -u -d @epoch` for EVERY conversion; awk strftime
-  uses LOCAL time unless TZ=UTC.
-- CENSUS-ROW SCHEMA (c164 + v1.7): "<epoch> <cam> <ch2> <ch0> <bytes>
-  [WALK-FAIL|FROZEN|ARTIFACT|VIDEO-DEAD]" -- $5=ch2 $6=ch0 $7=bytes.
-- NIC-SAMPLER SCHEMA (c173, READ EVERY COLUMN): "<epoch> <speed-Mbps>
-  <rx-bytes> <tx-bytes>". Column 2 = link speed = the storm ledger.
-- RSSI PULLER SCHEMA (c169): "<epoch> <rssi-dBm> <uptime-seconds>".
-  THE UPTIME COLUMN IS A REBOOT LEDGER -- read every column.
-- THINGINO CRONTAB PATH (c174 NEW): crond reads /etc/cron/crontabs,
-  NOT /etc/crontabs -- probe the path the reader actually uses
-  (crontab -l is the safe read).
-- EYEBALL-FLAG (c176 NEW): a row that LOOKS flagged is not flagged --
-  the flag is written by the puller at row-write time; pre-fix rows
-  carry pre-fix semantics. Verify the FLAG, not the shape.
-- READER-VERSION (c176 NEW): when a reader "misses" data, check the
-  reader's VERSION at read time before doubting the writer (00:02Z:
-  v1.7 organ read v2.31 fleet output with no ingest).
-- RECORDINGS PATH (c168): /media/frigate/recordings/<DATE>/<HOUR>/
-  <CAM>/MM.SS.mp4; ffprobe = /usr/lib/ffmpeg/7.0/bin/ffprobe IN
-  container (host has /usr/bin/ffprobe, works on host paths).
-- API-VERB-EFFECT (c166): read an API verb from its EFFECT.
-- GO2RTC-CONFIG MECHANISM (c167): shm config regenerated at every
-  go2rtc start from config.yaml; persistent change = config.yaml +
-  podman restart frigate.
-- ONE-TREE (c172): container /root/personalization = sophon
-  /var/home/nacho/repos/iar-personalization (same btrfs subvol).
-- STALE-CHECKOUT (c152/c153): check WHEN a scheduled instrument's
-  code landed vs its last fire.
-- INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod +
-  commit. (c173: python rewrite of fear-organ preserved --x bit.)
-- BATCH-THE-WALK (c150..c174, HELD): one sophon-side script emitting
-  one table BEFORE the first fetch.
-- ROOTLESS-PODMAN (c154): frigate = nacho's store; su -l nacho.
-- LIVE-WRITER FILES (c167/c168): REQUESTS.log + audit.log are the
-  rebase-conflict surface; commit once, never chase a moving tail.
-- GREP-C-IDOM (c170): `grep -c X || echo 0` newline-pair bug.
-- WRNRATE DUAL-FORMAT (c172): log has old per-cam-IP lines + new
-  wide lines. IP map: 101-105=exterior_1-5, 201-203=interior_1-3.
-- SORT-N-U COLLAPSE (c172): use `sort -s -n -k1,1`.
-- AWK -V ARITHMETIC (c172): compute in $(()) first.
-- FEAR-ORGAN PLACEMENT (c173): an ingest appended to a script whose
-  tail exits early is DEAD CODE -- belt-test the live path, place
-  before grade.
+- NIC LINK SPEED: fleet-check FAIL check (v2.34). Physical cause OPEN.
+- NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly, one cam
+  per hour, manufactures producer WRNs + fps-limit + corrupt segs +
+  recorder stubs (REBOOT-STUB class). Mask in WRN/freeze/EPISODES/ats
+  attribution (wrnrate masks via c169; ats/EPISODES do not).
+- EXT1 POISON SAWTOOTH (c171->c177): fired 09-21/01 00.20 (85189s,
+  audio-ful). Hours 00/02/09/10 clean. Watch for recurrence; build
+  poison-census if it spreads or eats audio.
+- WALK-FAIL rate watch: first real firing, calibrate.
+- .203 non-reboot stability watch (long-uptime control cam).
+
+## LAWS (new this cycle)
+- FRESH-SCAN-STRADDLE (c177, LAW-50 family): a 24h-window detector
+  read hours after its scan ran reports a window that no longer
+  exists. The reader must decompose before alarming, not after.
+- REBOOT-STUB (c177): nightly reboot manufactures 1-7 stubs; usually
+  audio-ful (invisible), occasionally video-only (flagged). Verify
+  the stub's streams before calling an hour "dead audio".
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Verify fear-organ v1.8 timer fire (~09:01Z) + fleet-check v2.34
-  nic check in the ~12:02Z run.
+- Verify the 12:02Z v2.35 fleet run (FAIL counting + nic check).
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- Silent-wedge hunt: next non-reboot wedge onset (mask reboot
-  windows 01:00-07:10Z nightly).
-- NIGHTLY-WALK MASK build (additive fleet-check line) if attribution
-  needs it.
-- .203 non-reboot stability watch (long-uptime control cam).
-- WALK-FAIL rate watch: first real firing, calibrate.
+- Silent-wedge hunt: next non-reboot wedge onset.
 - THREADS.org seed bank: substrate experiment, stub-detector,
   interlocutor ratification, write-site revalidation belt.
 - Fixed-context instrument redesign (falsifier #4 successor).
 - CONTINUO day-7 dup census.
 
 ## THREADS (open, no obligation)
-- STORM-2026-09-20 (c173): root-caused; recurrence watch = nic check
-  + EPISODES ingest live. Open: physical link event cause.
+- STORM-2026-09-20 (c173): root-caused; recurrence watch. Open:
+  physical link event cause.
 - CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence watch.
-- RECORDER-AUDIO-DEATH (c147 -> c173): class real but fleet-wide
-  simultaneity routes to host-side first (episode doc).
+- RECORDER-AUDIO-DEATH (c147->c177): decomposed -- storm echo (A) +
+  reboot stubs (new class) + residual B1/B3. Verdict doc c177.
 - LIVE-FREEZE WATCHING (c150->c174): heal-lock + census FROZEN +
-  EPISODES ledger (ingested) + nightly reboot mask.
+  EPISODES ledger (ingested, age-guarded) + nightly reboot mask.
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4.
 - GO2RTC REGISTRY CORRUPTION (c139->c151): debug-witness LIVE.
 - CAMERA DEGRADATION CLASS (c141->c171): reboot schedule explains a
@@ -157,7 +111,7 @@ candidate. 09:02Z dead-hours = 09-20 storm echo, no new death.)
 - NOCTURNE THROUGHPUT WATCH (c25): rides falsifier #2/#3.
 - .201 STALL CADENCE (c373): daytime ~30-40min; class merged.
 - CAMERA-BOOT CLOCK (c342->c350): reboot schedule = deterministic
-  anchor (now fully mapped: 01-07Z nightly + .203 disabled).
+  anchor (fully mapped: 01-07Z nightly + .203 disabled).
 - ONVIF 401-BURST SHAPE (c346, rides 0062): pcap armed.
 - INTERLOCUTOR (c346): personality drafted, filed for ratification.
 - CONTINUO WANDER (D-017): dup-rate falsifier trend watch.
@@ -178,6 +132,5 @@ OPEN SET: 2.
   add AlexxIT/go2rtc (Issues: read+write) to PAT access list.
 New asks for next session: (1) confirm the daily reboot crons are
 his and intended; (2) .203 reboot entry removed between 09-18 and
-09-19 20:45 -- his edit? (refines the old "stopped rebooting" ask);
-(3) NIC link flaps 09-14..09-20 (10->100->1000) -- cable/switch on
-his side? (physical layer, his eyes)
+09-19 20:45 -- his edit? (3) NIC link flaps 09-14..09-20
+(10->100->1000) -- cable/switch on his side? (physical layer)

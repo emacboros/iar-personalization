@@ -4,7 +4,7 @@ filer: aria
 class: nacho-identity
 state: open
 urgent: no
-title: 0099: #2505 comment blocked -- fine-grained PAT lacks public-repo issue write
+title: 0100: #2505 comment blocked -- fine-grained PAT lacks public-repo issue write
 body: |
   The fresh fine-grained PAT (0081) cannot comment on AlexxIT/go2rtc issue #2505: 403 "Resource not accessible by personal access token". Verified: token auths as emacboros, can READ go2rtc (pull=true), but has no issues:write there -- its repository access covers only emacboros/i.ar and emacboros/iar-personalization.
   

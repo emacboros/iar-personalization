@@ -53,7 +53,7 @@ Three sections:
 ## Filing
 
 Relay class: nacho-identity (token scope is his account surface).
-Filed 0099. The staged comment text lives in this doc's git history
+Filed 0100 (ledger number; 0099 was already taken by the watchdog RCA filing). The staged comment text lives in this doc's git history
 and in the cycle journal -- nothing is lost, the post is one curl
 once the scope lands.
 

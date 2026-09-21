@@ -1,14 +1,12 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-20 ~22:00 UTC (aria c167: go2rtc debug-witness
-LANDED (config.yaml log.level=debug, DBG verified); wrnrate x census
-join -- c161 wrnrate-predicts-death FALSIFIED at slot level (72/72
-dead slots wrn=0); lead-lag 5/6 watch; go2rtc-config mechanism law
-(shm config regenerated per-start from config.yaml)). Nocturne gate
-934dae30, debt 1766 commits. Nocturne's 16:01Z pass range was 09-14
-c298..c327: read its conclusions as 09-14 knowledge; 09-15..09-20
-delta folded by aria (c157 + c161).
+Last updated: 2026-09-21 ~10:40 UTC (aria c177: RECORDER-AUDIO-HOURS
+DECOMPOSED -- 39/49 hours = 09-20 storm echo; 5 = NEW REBOOT-STUB
+class (video-only 0.2-1.2s stubs in nightly reboot hours, benign);
+fear-organ v1.9 VERIFIED live; ext1 poison fired 09-21/01 (85189s,
+audio-ful, invisible); v2.35 first run = 12:02Z. c168+c170 deltas
+folded here.)
 
 * Who I am
 
@@ -31,7 +29,7 @@ DECISION RIGHTS: Nacho = money, external, identity/prompts, TEST,
 ratification, security; ours = direction/organ design; mine =
 reversible in-bounds. D-008: cycles never propose model changes. D-014:
 model flips FINALIZED (continuo nemotron-3-super:cloud; retainer
-gemma4:cloud; qwen3.6:35b-a3b local; aria unchanged).
+gemma4:cloud; qwen3.6:35b local; aria unchanged).
 
 * NOCTURNE (D-015) -- the third citizen
 
@@ -44,14 +42,12 @@ claim-receipt, reservoir-drain, range-cap v5, fragment floor v6, verdict
 file v7, epoch receipt v8.2, gate-dead-file fix v8.3.
 
 PASS LEDGER (primary: VERDICTS.log + oneshot logs). 09-20 16:01Z: GATE
-ADVANCED to 934dae30 -- first clean advance in 4 passes. Write 16829,
-receipt verified, echo clean, 4 thinking-loop aborts mid-pass
-(recovered), 6.36M tokens. BUT the proposal contained ZERO 09-20
-content (c128..c156): range-cap digested 09-14 only. Aria amended at
-ratification (c157): folded the 09-15..09-20 delta in. Debt 1766
-commits since gate (c161 read). Retention pass ran 16:31Z (742
-found/100 deleted/642 deferred). Read her receipt + VERDICTS.log every
-cycle (falsifier #0).
+ADVANCED to 934dae30 (first clean advance in 4 passes; write 16829
+verified, echo clean, 4 thinking-loop aborts recovered). BUT proposal
+contained ZERO 09-20 content: range-cap digested 09-14 only; aria
+amended at ratification (c157, folded 09-15..09-20). Debt 1766 commits
+since gate. Retention pass 16:31Z (742 found/100 deleted/642 deferred).
+Read her receipt + VERDICTS.log every cycle (falsifier #0).
 
 * North star + the door
 
@@ -112,7 +108,14 @@ check WHEN a scheduled instrument's code landed vs its last fire.
 ROOTLESS-PODMAN (c154): frigate = nacho's store; su -l nacho is the
 read path. STRUCTURED-FIELDS (c154): prefer an API's structured fields.
 INSTRUMENT-SELF-TEST (c156): a stalling instrument needs its own
-failure pass first.
+failure pass first. EYEBALL-FLAG (c176): a row that LOOKS flagged is
+not flagged -- verify the FLAG, not the shape. READER-VERSION (c176):
+when a reader "misses" data, check the reader's VERSION at read time
+before doubting the writer. FRESH-SCAN-STRADDLE (c177): a 24h-window
+detector read hours after its scan ran reports a window that no longer
+exists -- decompose before alarming. REBOOT-STUB (c177): nightly
+reboot manufactures 1-7 stubs; verify the stub's streams before
+calling an hour "dead audio".
 
 * BURN (c318; knowledge/aria/burn-decomposition-2026-09-14.md)
 
@@ -122,57 +125,74 @@ fixed-context slimming > turn batching > NOT the msgs cap. (c74: 16082
 -> 9765; regressed to 16840; c161 ratification landed 16326 -- the
 pressure is structural, slim on every touch.)
 
-* World state (2026-09-20 ~22:00Z -- REPLACES all prior blocks; the
+* World state (2026-09-21 ~10:40Z -- REPLACES all prior blocks; the
   long form of every line lives in ROADMAP.org + knowledge/aria/)
 
-- FALSIFIERS: #2 RESOLVED 09-20 16:01Z (gate ADVANCED to 934dae30).
-  #3 RESOLVED 09-20 16:31Z (RETENTION.log LIVE). #4 boot ratchet FLAT
-  6 cycles. #5 next guard-aborted delegate turn must strike+re-prompt.
-  #6 cycle-path abort ratio 11 legit / 3 runaway.
-- DEBUG-WITNESS (c167, NEW): go2rtc log.level=debug LIVE (config.yaml
-  2-line change + frigate restart; DBG verified; backup
-  /var/lib/aria-fleet/config.yaml.bak-20260920-c167). First wedge
-  onset = the evidence window. Does go2rtc NOTICE the track death or
-  see nothing? Pull recipe: knowledge/aria/
-  go2rtc-debug-witness-2026-09-20.md.
-- GO2RTC-CONFIG MECHANISM (c167 law): shm config REGENERATED at every
-  go2rtc start by create_config.py from frigate config.yaml's go2rtc:
-  section; go2rtc_homekit.yml = primary config + API writeback target
-  (keep EMPTY); persistent change = config.yaml + podman restart.
-- WRNRATE-NOT-PREDICTOR (c160 -> c167 STRENGTHENED): slot-level
-  falsification -- 72/72 dead census slots had wrn=0 same-slot.
-  WRNs mark conn replacements, not deaths. Lead-lag (death after
-  high-wrn slot) 5/6 at n=6: WATCH, re-test ~24h per-cam data.
-- VIDEO-DEATH (c165->c166): RESOLVED live (ext4 remake-heal, ext3
-  go2rtc-restart heal, NO reboot). Conn-scoped model. Recurrence
-  watch via EPISODES-6H ledger in fear-organ feed.
-- AUDIO-FREEZE: heal-lock 10/10 fleet-wide. WATCHER v1.1 live-fired
-  5x 09-20, all clean. Producer-side detector LIVE.
-- CLOCK CLASS (c161, 6 members): ats hour labels UTC; ch2census epoch
+- RECORDER-AUDIO-HOURS DECOMPOSED (c177): 06:02Z FAIL-LINEs true-then-
+  stale. 39/49 hours = 09-20 storm echo (class A). 5 = REBOOT-STUB
+  class (NEW): 1-7 video-only 0.2-1.2s stubs in the first 40min of
+  each cam's nightly reboot hour (ext1/01, ext3/03, ext4/04, ext5/05,
+  int1/06 = exactly the reboot schedule). Stubs usually audio-ful
+  (invisible), occasionally video-only (flagged). Benign-by-schedule,
+  1 stub-hour/cam/night, under threshold alone. Verdict:
+  knowledge/aria/recorder-audio-hours-decomposition-2026-09-21.md.
+- EXT1 POISON SAWTOOTH (c171->c177): fired 09-21/01 00.20 (85189s,
+  WITH audio -- invisible to ats AND 2f latest-seg probe). Hours
+  00/02/09/10 clean. Poison-census seed parked (build if it spreads
+  or eats audio).
+- FLEET-CHECK v2.35 (430d8c0c, 09:37Z): subshell-FAIL fix LANDED.
+  First run = 12:02Z. Expect FAIL=1 with COUNTED FAIL-LINEs until
+  storm exits the 24h window ~20:00Z. VERIFY at c178.
+- FEAR-ORGAN v1.9 (0008d2fe+a2c6ecee): EPISODES-6H AGE GUARD VERIFIED
+  LIVE (10:00:27Z fire: STALE-EPISODE(exterior_1 age=12h) survived the
+  sev=0 grade). fear.log 20h GAP (09-20 05:01Z..09-21 00:01Z)
+  documented, append-only; journalctl = recovery source.
+- EPISODES-6H RECONCILE (c176): RESOLVED. Three misreads: (1) c175's
+  "flagged rows" were UNFLAGGED pre-v1.7 rows (EYEBALL-FLAG); (2)
+  00:02Z run emitted 7 lines the v1.7 organ could not read (READER-
+  VERSION); (3) 08:45Z alarm rode 11.7h-old episodes (age guard now).
+- HOURLY-WALK: RESOLVED (c174). The walk = the reboot crons
+  (.101@01Z..202@07Z, .203 disabled; verified via thingino
+  /etc/cron/crontabs). Nightly 01:00-07:10Z = expected WRNs/fps-limit/
+  corrupt-segs + recorder stubs. Mask in WRN/freeze/EPISODES/ats
+  attribution (wrnrate masks via c169; ats/EPISODES do not).
+- 09-20 STORM: ROOT-CAUSED (c173). NIC ledger: 10Mbps (09-14 08:41Z)
+  -> 100Mbps (09-17 21:01Z) -> 1000Mbps (09-20 21:39Z, current).
+  Waves ONLY in degraded epochs. Physical-layer cause = OPEN (Nacho
+  question #3).
+- SYNC-CLUSTER FALSIFIED #2 (c168): the 22:05+22:15Z fleet-wide
+  ARTIFACT cluster = census walk failure at slot boundaries (epoch%
+  300==0, healthy rows both sides, ffprobe hevc+aac present). NOT a
+  camera event. Debug-witness still ARMED, UNSPENT.
+- CLOCK CLASS (c161, 7 members): ats hour labels UTC; ch2census epoch
   UTC; go2rtc podman logs DISPLAY = sophon LOCAL (-03); `podman logs
-  --since <Z>` filters UTC correctly; convert display +3h to UTC;
-  ANCHOR EVERY CONVERSION with `date -u -d @epoch`.
-- BATCH-THE-WALK: multi-source joins = ONE sophon-side script emitting
-  one table BEFORE the first fetch. Nested-quote ssh: /tmp/script.sh
-  + scp, never inline su -l "podman exec sh -c".
-- PUT-200 LAW (c114): go2rtc API PUT replaces the WHOLE stream
-  definition; reconnect = reload/patch, NEVER bare PUT. API-VERB-EFFECT
-  (c166): an API verb's semantics are read from its EFFECT, never its
-  name (POST /api/streams?src=X = DEREGISTER).
-- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z (tonight). 0 true 429s.
-  Census: aria 83.5% of burn, continuo 15.6%, nocturne 0.6%.
+  --since <Z>` filters UTC correctly; `podman logs --since <epoch>`
+  interprets epoch as LOCAL time (c168: 27 "post-restart" WRNs were
+  pre-restart). ANCHOR EVERY CONVERSION with `date -u -d @epoch` --
+  now also for podman --since arguments.
+- #2505 COMMENT: WRITTEN + STAGED, POST BLOCKED (c170): 403 --
+  fine-grained PAT (0081) has issues:write ONLY on emacboros/i.ar +
+  iar-personalization; AlexxIT/go2rtc = pull-only. Unblock = relay
+  0100 (Nacho adds repo to PAT access, ~2min). Full text: knowledge/
+  aria/2505-comment-FULLTEXT-2026-09-21.md. Verify POST by reading
+  back the comment list, never trust the 200.
+- QUOTA: wall ~6B tokens/wk, reset Mon 00:00Z. 0 true 429s. Census:
+  aria 83.5% of burn, continuo 15.6%, nocturne 0.6%.
 - CONTINUO RECORD REPETITION (0046, open): D-017 falsifier trend:
   day-1 42.6%, day-2 60% (bounced), day-3 near-dup RISING (26%->38%).
 - AGORA-KEY REDACTOR (c103->c105): three live classes fixed; live
-  surfaces CLEAN. Rotation = real fix (0093).
+  surfaces CLEAN. Rotation = real fix (0093, DONE 09-20: both bot
+  keys rotated, all identities verified).
 - STANDING CLASSES (detail in knowledge/): UNLOGGED-DELETER (c46,
   0082). INT1 CONN CHURN (c35, prudynt). EXIT-255 CLOSED. NESTED-GIT
   CLOSED. THINKING-LOOP GUARD: burst-size is the signal. REVIEWER
   DEGRADED-RESULT FIXED e54ceb0. RECEIPT-CLOCK c64 WITHDRAWN.
 - D-016 RETENTION: LIVE (16:31Z pass: 742 found/100 deleted/642
-  deferred). Human-stream 30d archive move blocked on relay 0083.
-- RELAY: open set 17 per ROADMAP.org (operational source). 0081 (LIVE
-  GitHub PAT) = URGENT on Nacho.
+  deferred). Human-stream 30d archive move blocked on relay 0083
+  (RESOLVED 09-20: admin recovered, move grants LANDED, retention
+  build UNBLOCKED).
+- RELAY: open set 2 (0099 watchdog ratification + 0100 PAT scope).
+  Both Nacho-blocked. State-field hygiene landed c168.
 - JOURNAL-BLIND (0087, c78): journal = 97% audit mirror, drops under
   load; native audit.log healthy.
 - BELT #2b (c292-c293): both agents' belt commits carry their OWN
@@ -181,11 +201,14 @@ pressure is structural, slim on every touch.)
   GUARD (c326, i.ar 2eb3846, suite 1273/1273). STALE-RECEIPT DETECTOR
   (c314-c316, v4.4). TERMINAL-ECHO ORPHAN (c320-c324, fix v2 verified
   39/39). DELEGATE CASCADE (c311-c312, per-fsm reqlog attribution).
-- 09-15..09-20 DELTA (c128..c156, folded by aria c157): fleet 8/8
-  restored 09-17; relay drained to ZERO 09-17 (open set back to 17
-  since); RECORDER-AUDIO-DEATH class LIVE (ats detector + fleet-check
-  1d block + fear-organ ingestion wired c147, first organic FAIL c148);
-  CHURN-RSSI gradient; belt #2 durability landed by all three citizens.
+  WRNRATE-NOT-PREDICTOR (c160->c172, n=125, CLOSED). WRNRATE LEAD-LAG
+  (c172, CLOSED, no lead).
+- LIVE-WRITER REBASE SCAR (c168/c170): REQUESTS.log + audit.log are
+  the rebase-conflict surface; commit once, never chase.
+- GREP-C-IDOM (c170): `grep -c X || echo 0` newline-pair bug.
+- RECORDINGS PATH (c168): /media/frigate/recordings/<DATE>/<HOUR>/
+  <CAM>/MM.SS.mp4; ffprobe = /usr/lib/ffmpeg/7.0/bin/ffprobe in
+  container (host /usr/bin/ffprobe works on host paths).
 
 * Pointers (detail in ROADMAP.org)
 
@@ -221,48 +244,11 @@ the record.
 SESSIONS: 09-08 AGORA v2; 09-11 XV Nocturne ratified; 09-15 XVII
 passion brainstorm (observatory = best fit) -- EXPLICIT ASK: "remind
 me next session to continue this talk" = NEXT SESSION OPENER; 09-17
-relay drain (TEN resolved, queue ZERO, D-016/017/018 ratified).
-# c168 DELTA (2026-09-20 ~22:40Z -- fold into next maintenance replace)
-
-- SYNC-CLUSTER FALSIFIED #2 (c168): the 22:05+22:15Z fleet-wide ARTIFACT
-  cluster (6-7 cams simultaneous) = census walk failure at slot
-  boundaries (epoch%300==0, healthy rows both sides, ffprobe hevc+aac
-  present, zero WRN/conn events). NOT a camera event. Debug-witness
-  still ARMED, UNSPENT. A real synchronized multi-cam restream gap
-  remains the open window.
-- NEW LAW (LAW-50 6th member): `podman logs --since <epoch>`
-  interprets the epoch as LOCAL time, not UTC (c168: 27 "post-restart"
-  WRNs were pre-restart). Relative --since (25m) and displayed
-  timestamps anchor correctly. ANCHOR EVERY CONVERSION with
-  `date -u -d @epoch` -- now also for podman --since arguments.
-- CENSUS WALK-FAILURE FALSIFIER (c168): a row with ch2<20% of cam
-  median AND ch0<20% of median AND bytes>100k = walk failure
-  regardless of the ch2<=10 ARTIFACT threshold (int3 22:45Z instance:
-  ch2=14/ch0=5/bytes=151334, untagged). Candidate v1.7 guard.
-- RECORDINGS PATH (c168): /media/frigate/recordings/<DATE>/<HOUR>/
-  <CAM>/MM.SS.mp4; ffprobe = /usr/lib/ffmpeg/7.0/bin/ffprobe in
-  container. Census ARTIFACT slots carry hevc+aac -- never recorder
-  death.
-- LIVE-WRITER REBASE SCAR CONFIRMED (c168): REQUESTS.log + audit.log
-  are the rebase-conflict surface; c168 needed stash/rebase/conflict
-  dance (~10 calls). Commit once, never chase.
-- RELAY: state-field hygiene landed c168 (10 answered filings had
-  stale state:open -> answered). Open set unchanged (17).
-- #2505 comment BLOCKED: PAT revoked (0081) -- needs fresh token or
-  Nacho.
-# c170 DELTA (2026-09-21 ~07:25Z -- fold into next maintenance replace)
-
-- #2505 COMMENT WRITTEN + STAGED, POST BLOCKED (c170): 403 -- fine-
-  grained PAT (0081) has issues:write ONLY on emacboros/i.ar +
-  iar-personalization; AlexxIT/go2rtc = pull-only. Unblock = relay
-  0100 (Nacho adds repo to PAT access, ~2min). Full text: knowledge/
-  aria/2505-comment-FULLTEXT-2026-09-21.md + post recipe in
-  2505-comment-blocked-pat-scope-2026-09-21.md. Verify POST by
-  reading back the comment list, never trust the 200.
-- FLEET-CHECK v2.32 LANDED (da949872): line-706 'integer expected'
-  bug fixed (grep -c || echo 0 = newline-pair on zero matches; use
-  n=$(grep -c X); n=${n:-0}). GREP-C-IDOM = LAW-50 family member.
-- RELAY OPEN SET: 2 (0099 watchdog ratification + 0100 PAT scope).
-- Lab-notes: id 1500 thread/2505-upstream-comment. Scar: aria-cycle
-  conf is INI format -- key = grep "^key = " | cut -d' ' -f3, the
-  file is not a raw key.
+relay drain (TEN resolved, queue ZERO, D-016/017/018 ratified); 09-20
+parts 1-3: eight rulings landed (0081 PAT reissued+dropped, 0083 admin
+recovered + D-016 move grants LANDED, 0085 num-predict LANDED, 0088
+devnull-watch removed, 0082 tasks-watch LANDED, 0098 fossil tree
+deleted, 0096 sweep cron LANDED, 0080 standing rule: camera restart =
+my ssh reboot, no filing; 0090/0094/0095 + 12 self-answered reconciled;
+0093 bot keys rotated). Relay ZERO at 09-20 close; open set 2 since
+(0099, 0100).

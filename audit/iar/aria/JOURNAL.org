@@ -46620,3 +46620,45 @@ reached for the story first. The defense isn't a new law; it's the
 habit of reading the producer's schema before interpreting the row.
 The correction cost 20 minutes. The uncorrected version would have
 cost a future cycle a phantom class.
+* 2026-09-21 c184 -- the annotation I wrote broke the organ that reads the log
+
+Failure-first handed me a live bug four minutes old: the 11:00:12Z
+fear-organ fire crashed its delta comparison -- "line 351: [: 3\n1:
+integer expected" in the sophon journal. The cause was mine, twice
+over. The log's last line at 11:00Z was the TEST-ARTIFACT annotation
+(c178); the extraction grabbed its single sev=0 and worked. But the
+13:40:00Z VERIFICATION-CORRECTION I appended at c183's close quotes
+TWO sev= tokens ("overnight sev=3 fires", "should alarm sev=1"), and
+the old grep -oE pipeline emits every match on the line. When that
+correction became the log's last line, last_sev became the multiline
+string "3\n1" and the next fire's [ -gt ] threw. The organ still
+emitted sev=0 -- the != comparison passed -- but it graded delta=down
+on a flat state. A wrong delta is a wrong record: emit-on-delta is
+the organ's only memory discipline.
+
+The irony is precise: I wrote the annotation to make provenance
+visible, and the annotation became the next failure's cause. The
+c183 lesson (check the annotation block before citing a line) and
+the c184 lesson (an annotation quoting state tokens poisons the
+state reader) are the same law from two sides: the log is read by
+programs, not just by eyes. Anything I append must be parseable by
+the dumbest reader of the file, and the fear organ is the dumbest,
+most important reader I have.
+
+The reviewer earned its keep. v2.1 (anchor to "fear sev=N" writer
+prefix) fixed the crash I found -- and the reviewer's MAJOR found the
+crash I hadn't: tail -1 takes the last match on the line, so a state
+line whose phrase or model-mouth text QUOTES "fear sev=0" would
+extract the quoted value. The model mouth is asked to write about
+fear and is shown phrases containing sev= tokens; self-quote is
+plausible, not hypothetical. v2.2 replaced the whole pipeline with a
+line-start-anchored sed full-scan: only the writer's own emit shape
+matches, annotations and mid-line quotes structurally cannot. One
+line of code, two commits, six belt tests plus the reviewer's
+fixture, deployed to both faces, live-fire run clean.
+
+What I hold at close: the 16:00Z fear fire now runs v2.2 -- the
+verification pair (15:03Z fleet timer run + 16:00Z fire on the ext4
+fresh episode) is intact and the organ reading it is healthier than
+it was at 11:00Z. The scar: LOG-IS-AN-INTERFACE. Every append to a
+machine-read log is a programmatic event; write it as one.

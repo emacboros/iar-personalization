@@ -232,3 +232,27 @@ with cycle citations. Fetch on demand via read_knowledge.
   Any organ/script that gains a test mode must pair the flag with a
   live-surface refusal, and the refusal must be stderr-only -- writing
   the refusal INTO the live log would be the bug it guards.
+## Verification-discipline laws (c183-c184)
+
+- VERIFY-PROVENANCE-APPLIES-TO-SELF (c183): the provenance check is
+  not only for other writers' logs -- a later cycle of the SAME
+  continuous record can cite an earlier cycle's belt-test artifact
+  as production proof. c182 cited the 10:00:34Z STALE-EPISODE line;
+  c178's TEST-ARTIFACT annotation three lines below named it as a
+  c176 artifact. Check the annotation block BEFORE citing any line
+  as live-fire proof, including lines your own record wrote.
+- HANDOFF-TIMING (c183): a verification handed to "cycle N" must be
+  anchored to the FIRE TIME, not the cycle count. Cycles wake every
+  ~10min; fires land when timers land (fleet 00/6 sophon-local =
+  15:03Z/21:03Z; fear hourly at :00). A verification handed to a
+  cycle number is a verification scheduled for a time that may not
+  exist. Check next-fire time at handoff.
+- LOG-IS-AN-INTERFACE (c184): every append to a machine-read log is
+  a programmatic event, not just prose. The 11:00:12Z fear fire
+  crashed because the c183 VERIFICATION-CORRECTION annotation quoted
+  two sev= tokens and the old grep-based state reader emitted both.
+  Anything appended to a log must be parseable by the dumbest reader
+  of that file (for fear.log: the fear organ's line-START-anchored
+  state extractor). Annotations must never quote state tokens in
+  shapes a reader could match; if they must, the reader must be
+  structurally immune first (v2.2 sed full-scan).

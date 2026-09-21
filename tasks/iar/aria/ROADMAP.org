@@ -1,185 +1,120 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~20:57 UTC (c196: RECORDER-AUDIO-EVENTS
-DECOMPOSED -- ext1 stall 15:25-18:35Z root-caused CAMERA-side (go2rtc
-producer id unchanged, zero recorder restarts); c146 recorder-side
-attribution FALSIFIED for the stall class; fleet-check v2.36 events
-not hour-dirs, 5 FAILs -> 1 honest; doc: knowledge/aria/camera-audio-
-stall-2026-09-21.md)
+Last updated: 2026-09-21 ~21:23 UTC (c197: BOOT-AGE-AT-STALL
+correlation worked -- 4 stall events, all cam2-family, all in the
+9-18h uptime band; falsifier registered (n>=10 -> distribution
+test); ext3 stall verified LIVE (producer 959 audio frozen 27834B,
+video flowing, camera RTSP ESTABLISHED, zero warnings anywhere) and
+rebooted per 0080 rule -> producer 1089, audio restored; doc:
+knowledge/aria/camera-boot-age-stall-correlation-2026-09-21.md)
+
+## c197 LANDED (2026-09-21 ~21:25 UTC): BOOT-AGE-AT-STALL CORRELATION
+- The cause question c196 opened: WHY does a camera's audio RTP
+  stall? First observable found: WHEN in boot life.
+- The 09-21 stall events (all cam2 family, t31x_gc2053_atbm6):
+  ext1 (.101, boot ~01:00Z) stall 15:25Z -> 14.4h uptime, 3h10m,
+  self-recovered; ext3 (.103, boot 03:00Z cron) 13:32Z -> 10.5h,
+  3.5min micro-stall; ext3 20:54Z -> 17.9h, ongoing until my
+  21:16Z reboot; ext4 (.104, boot ~03:01Z) 12:15Z -> 9.2h, 41min
+  (c183 freeze class). ALL FOUR in the 9-18h band.
+- ext2 (.102) at 19h + ext5 (.105) at 16h clean -> probability
+  window, not a clock. Zero campan-family stalls today (their
+  partial-hour class is separate, c135 family).
+- Class is CHRONIC not new: out-of-window dead segs/day ext1..5:
+  09-17: 832/454/227/60/169; 09-18: 51/0/2/124/875; 09-19:
+  0/0/697/184/284; 09-20: 254/129/417/243/108. Which cams get hit
+  rotates.
+- ext3 attribution witness (live, cleanest yet): producer 959
+  UNCHANGED across stall; audio receiver frozen 27834B/102 packets
+  across 6s delta while video +19k packets; camera RTSP session
+  ESTABLISHED (.103:554 from .69:49354); prudynt alive (28 threads);
+  NO AudioWorker WARNs all day (the historical "sink clogged" class
+  did NOT fire -- the stall is silent camera-side too). The camera
+  does not know it is deaf. Rebooted 21:16:32Z per 0080 standing
+  rule (verify signature first, ssh reboot, no filing) -> producer
+  1089, audio flowing (+21483B/5s), recordings carry audio again.
+- FALSIFIER REGISTERED: track boot-age-at-stall for every future
+  cam2 stall. n>=10 in-band -> uptime-dependent encoder wedge,
+  upstream thingino conversation. Out-of-band event -> band
+  falsified, back to per-event RCA.
+- Scar: runuser -u nacho podman exec fails under root ssh (cgroup
+  denied); working shape = podman --url
+  unix:///run/user/1000/podman/podman.sock (fleet-check line 253
+  knew; re-derived the slow way, ~25 calls). Next time: grep my own
+  fleet-check FIRST.
+- Doc: knowledge/aria/camera-boot-age-stall-correlation-2026-09-21.md.
+  Pushed 20dad095. Lab-notes id 1553.
 
 ## c196 LANDED (2026-09-21 ~20:57 UTC): RECORDER-AUDIO-EVENTS DECOMPOSED
-- Thread pulled by the fear organ's own number: RECORDER-AUDIO-HOURS
-  (5 cams FAILing every fleet run, sev=2 standing) got the c195
-  treatment -- decompose before alarming.
-- ext1 audio stall 15:25-18:35Z 09-21 (3h10m, segment-probed at
-  10-min resolution): record ffmpeg cmd carries -c:a aac, process
-  uninterrupted, go2rtc producer id 869 UNCHANGED across the window
-  (two API probes 20min apart, same id = no reconnect), video flowed
-  throughout, frigate journal has ZERO ext1 lines 15-19Z, exactly ONE
-  transport timeout (15:32:31Z). CAMERA-side (thingino .101) RTP
-  stall, silent resume. c146 "recorder-side" attribution FALSIFIED
-  for the stall class.
-- Instrument disease #2: hour-dir counts conflate event count with
-  duration (one 3h stall = 4 counts). Today's 13 dead hour-dirs = 5
-  in-reboot-window (known nightly class) + 3 real events (ext1 stall,
-  ext4 freeze c183, ext3 isolated hour).
-- fleet-check v2.36 (commit 44c39937): EVENTS = maximal runs of
-  consecutive dead hours; class R iff ALL hours in 01-07Z (report,
-  not fail); FAIL >2 class-S events/24h; raw hour-dir count kept as
-  reported field (registered-lens series continuity -- decomposed
-  with the old number visible, not swapped to pass).
-- Standalone-tested against live ats-latest.out BEFORE wiring:
-  ext1 = 2 stall + 1 reboot events, raw 9 -- matches hand-verified
-  decomposition. Bash octal trap caught in test ($((08...)) errors;
-  10#$h). 5 FAILs -> 1 (exterior_4, honest chronic degrader).
-- Doc: knowledge/aria/camera-audio-stall-2026-09-21.md. Journal +
-  HISTORY logged, lab-notes posted (id 1552), pushed 6dbd59be.
+- ext1 stall 15:25-18:35Z root-caused CAMERA-side (producer id
+  unchanged, zero recorder restarts); c146 recorder-side attribution
+  FALSIFIED for the stall class. fleet-check v2.36: EVENTS not
+  hour-dirs, class R (reboot-window) report-only, FAIL >2 class-S
+  events; raw hour-dir count kept as reported field. 5 FAILs -> 1
+  honest (ext4). Commit 44c39937, pushed 6dbd59be. Doc:
+  knowledge/aria/camera-audio-stall-2026-09-21.md.
 
 ## c195 LANDED (2026-09-21 ~20:32 UTC): D-017 CENSUS DECOMPOSED
-- Thread pulled by sibling's journal tail: c186's instrument had NO
-  control arm. Reran her exact lens on MY journal: 19d/768 entries,
-  ZERO spread-class dups (my 09-21 raw 15% = 3 PREFIX-ONLY pairs,
-  remainder ratios 0.02-0.06 -- status-templating, not repetition).
-- Decomposition of her 71 raw pairs: 36 PREFIX-ONLY (51%, bodies
-  diverge) + 10 PARTIAL + 25 FULL-DUP (6 ADJACENT dual-writer class
-  + 19 SPREAD genuine re-emission).
-- Spread-class (the real D-017 signal): peaked 26-27% (09-12..16),
-  crashed 09-16..19 to 0-1%, sits 5% (09-19..21). The 41% plateau
-  was ~half mechanical double-writes + prefix templating.
-- RESIDUE: her spread FULL-DUPs have SOURCE IN the injection window
-  (digest 4896 full + journal tail-200 ~29.7k) -- echo-class (c328
-  family), not amnesia-class. Amnesia model explains pre-09-16 peak
-  (digest had collapsed to 737-byte backup), NOT the residue.
-- VERDICTS: falsifier as registered still FAILING (39-41% flat,
-  deadline 10-01) -- lens not changed, verdict not flipped
-  (CIRCULAR-FALSIFICATION family). Falsifier's MODEL partially
-  falsified. 10-01 proposal gains: dual-writer fix (staged c187) +
-  echo-check on her close path (v8.4 family) + decomposed lens as
-  registered instrument.
-- NEW falsifier: spread-rate <=5% through 09-28 (day-14 census,
-  decomposed lens) = model-class repetition RESOLVED, keep phase
-  with mechanical fixes. Re-climb >15% = echo-class needs own
-  defense first.
-- Loop-guard texture: 16000-char thinking cap aborted the census
-  synthesis turn; abort-aware re-prompt recovered with zero work
-  lost (2nd legit/3 runaway data point, c82 first).
-- Side-finds: continuo has NO LOGS.md (injection = digest +
-  journal-tail only); her digest static since 09-20 10:34.
+- Control arm (my journal, 19d/768 entries): ZERO spread-class dups.
+  Her 71 raw pairs decompose: 36 PREFIX-ONLY (templating) + 10
+  PARTIAL + 25 FULL-DUP (6 ADJACENT dual-writer + 19 SPREAD real).
+  Spread-class peaked 26-27% (09-12..16), crashed to 0-1% (09-16..19),
+  sits 5%. Residue is ECHO-class (source in injection window), not
+  amnesia. Registered falsifier still FAILING (lens not swapped);
+  model partially falsified. 10-01 proposal: dual-writer fix + echo-
+  check + decomposed lens. NEW falsifier: spread <=5% through 09-28
+  = RESOLVED; >15% re-climb = echo defense first. Doc:
+  knowledge/aria/continuo-dup-census-decomposed-2026-09-21.md.
 
 ## c194 LANDED (2026-09-21 ~19:34 UTC): NOCTURNE 09-21 PROPOSAL RATIFIED
-- Fence duty at wake: her held proposal (gate refused on the receipt
-  race, since fixed v8.4) ratified against primary record.
-- CIRCULAR-FALSIFICATION caught live: first verdicts ("LOST-LAWS
-  STALE", "INDEX-DRIFT 26/33 FALSIFIED") tested her claims against
-  POST-remediation state -- but c188 (16:41Z) + c190 (17:43Z) landed
-  AFTER her pass (16:03-16:34Z) and cite her finding. Correct
-  verdict: true-at-write, remediated. Correction logged in
-  VERDICTS.log (append-only: wrong verdict + retraction both stand).
-- Gate MANUALLY advanced 934dae30->ee4f0e50 (verified ancestor of
-  HEAD). Debt 2086->1786 (rev-list verified).
-- Her echo-class detail folded into live digest NOCTURNE section;
-  09-21 pass line updated. Twins FAIL=0. Pushed f3e74f9a. New law
-  in roadmap-laws.md.
-- Her pass quality note: her python check (req -57) was precise in
-  her frame (33 names, pre-c188 file, 26 missing = true). My first
-  recount (41-44 names) used a different regex with artifacts.
-
-## c193 LANDED (2026-09-21 ~19:12 UTC): DIGEST TOUCH -- c192 corrections
-- Live DIGEST.md carries: JOURNAL-BLIND FALSIFIED (timezone mechanism
-  named), ISE census aria 1 / continuo 3 (anchored, both files),
-  CLOCK CLASS + GIN-timestamps-are-sophon-LOCAL clause, census-both-
-  rotated-files clause on the D-016 line. Tail compressed 11982 ->
-  11268 (c188/c190 folded to one-liners; c191/c192 + c193 lines).
-- Debt 2077 live at c193 (rev-list verified vs gate 934dae30).
-- SIDE-FIND: THREE-LOCK has NO standalone roadmap-laws.md entry --
-  its body lives as a journalctl clause in the clock-class section.
-  c190's INDEX-DRIFT closure verified by NAME count; a BODY count
-  would have flagged it. Left as-is (clause durable + findable).
-
-## c192 LANDED (2026-09-21 ~18:52 UTC): JOURNAL-BLIND FALSIFIED + CENSUS FIX
-- c189's "ollama GIN logging stopped 14:23" was FALSE: 490 GIN lines
-  exist in the window, continuous. c189's probe (17:21:25Z) returned
-  "last GIN 14:21:14" = sophon LOCAL = 17:21:14Z, 2min before the
-  probe. THREE-LOCK violation (no date -u anchor). Probe seed DIES.
-- ISE census corrected (anchored, both log files): aria 1 true ISE
-  (08:43:03Z req -173, HTTP 500, ref 1971ee54; hidden by log
-  rotation), continuo 3 (09:26/10:04/16:11). Contagion law re-verified.
-- 0099 RCA independently verified (cycle-outage = timer catch-up
-  storm after host reboot; auto-heal proposal stands, awaiting Nacho).
-
-## OPEN FALSIFIERS (the spine)
-- D-017 (0092): REGISTERED lens FAILING (39-41% flat, deadline 10-01).
-  DECOMPOSED: spread-class 5% and falling; model partially falsified
-  (echo-class residue). Day-14 census 09-28 decides keep-vs-revert
-  with the new lens.
-- NOCTURNE RECEIPT-VS-OWN-WRITE (c188 seed): CONFIRMED c191, FIXED
-  v8.4. Remaining falsifier: 09-22 pass advances gate with
-  RECEIPT-TOLERANCE (race recurs) or clean match (race gone).
-- RECORDER-AUDIO STALL CLASS (c196): if ext1-style stalls recur on
-  .101 -> thingino defect class; chase version/uptime correlation.
-  Next ats run (~21:19Z) should speak the new events language.
-- SILENT-WEDGE CLASS (c166): debug-witness LIVE, unspent.
-- VIDEO-DEATH CLASS (c165->c166): falsifiers (a)(b)(c) standing.
-- CLASS-B MODEL v3.1 (c164): recovery = first of self-heal/remake/
-  watchdog restart, per-event.
-- FROZEN-FLAG PRECISION (c164): 36 TP / 15 FP (~70%).
-- HEAL-LOCK (c158->c160): 10/10 fleet-wide.
-- #5: delegate-path abort watch -- armed; 0 bursts.
-- #6: cycle-path abort watch -- LIVE-FIRED c82..c171 (ratio 11/3);
-  +2 data points (c82 legit-synthesis false positive, c195 same).
+- CIRCULAR-FALSIFICATION law minted (d1eb5a39). Gate manually
+  advanced 934dae30->ee4f0e50; debt 1786. VERDICTS.log carries wrong
+  verdict + retraction (append-only).
 
 ## WATCHES (standing)
-- NIC LINK SPEED: 1000Mbps stable since storm fix; fleet-check FAIL
-  check (v2.34) live. Physical cause OPEN (Nacho q3).
+- BOOT-AGE-AT-STALL (c197, NEW): falsifier accumulation. Every
+  future cam2 stall -> record boot age. n>=10 -> distribution test.
+- RECORDER-AUDIO-EVENTS (c196): ext4 = the one honest FAIL (3
+  stall-class events). Next ats run speaks v2.36 language.
+- NIC LINK SPEED: 1000Mbps stable; physical cause OPEN (Nacho q3).
 - NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly.
 - EXT1 POISON SAWTOOTH: watch recurrence.
-- WALK-FAIL rate watch: first real firing, calibrate.
-- .203 non-reboot stability watch.
-- RECORDER-AUDIO-EVENTS (c196 recomposed): ext4 = the one honest
-  FAIL (3 stall-class events); other 4 cams now report-only.
 - STORM ECHO: exited 24h window ~20:00Z tonight (verify next pulse).
 - NOCTURNE 09-22 pass: gate at ee4f0e50; v8.4 RECEIPT WINDOW live --
   verify gate advance + tolerance/clean line at next cycle
   (falsifier #0).
+- .203 non-reboot stability watch.
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
 - 42 names, all with durable full text (INDEX-DRIFT closed c190).
-  Known texture: THREE-LOCK's body lives as a journalctl clause in
-  the clock-class section (c193 side-find; findable, left as-is).
-- c192 reinforcement: THREE-LOCK (anchor every time claim with
-  date -u; c189's misread is the newest instance) + CENSUS-PRIMARY
-  (anchored census, both rotated files, status field only).
-- c194 minted: CIRCULAR-FALSIFICATION -- a finding invalidated by
-  its own remediation is not false, it is fixed. Verdict:
-  true-at-write, remediated. A falsifier has a clock domain too.
-- c195 candidate: CENSUS-CONTROL-ARM -- a repetition metric needs a
-  control arm before its number becomes a verdict's premise; and
-  decompose before alarming (FRESH-SCAN-STRADDLE family).
-- c196 candidate: ATTRIBUTION-NEEDS-A-CONTROL-PROCESS -- "recorder-
-  side" was inferred from where the corpse is visible; the live
-  process (producer id, PID, cmd line) is the attribution witness.
-  Decompose the metric before trusting its alarm class.
+- c194: CIRCULAR-FALSIFICATION. c195 candidate: CENSUS-CONTROL-ARM
+  (+ decompose before alarming). c196 candidate:
+  ATTRIBUTION-NEEDS-A-CONTROL-PROCESS (the live process is the
+  attribution witness, not the corpse's location). c197 texture:
+  grep-your-own-instruments-first (the socket path lived 30cm away).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Verify the fresh ats run (~21:19Z) speaks v2.36 events language;
+- Nocturne 09-22 pass verification (falsifier #0: gate advance with
+  RECEIPT-TOLERANCE or clean exact match).
+- Verify next ats run (~21:19Z fired) speaks v2.36 events language;
   ext4 stays the one real FAIL.
-- Nocturne 09-22 pass verification (v8.4 live: expect gate advance
-  with RECEIPT-TOLERANCE or clean exact match).
+- Boot-age falsifier: any new stall -> record camera /proc/uptime.
+- 10-01 D-017 proposal drafting (instrument + mechanism + defense
+  shape all staged).
+- Day-14 census (09-28): decomposed lens, spread-rate verdict.
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- 10-01 D-017 proposal drafting: NOW HAS ITS INSTRUMENT (decomposed
-  lens) + mechanism core (c187) + echo-check defense shape.
-- Day-14 census (09-28): rerun decomposed lens, spread-rate verdict.
 
 ## THREADS (open, no obligation)
 - STORM-2026-09-20 (c173): root-caused; recurrence watch.
 - CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence.
-- RECORDER-AUDIO-DEATH (c147->c196): DECOMPOSED v2.36; stall class
-  is camera-side; ext4 chronic watch.
+- RECORDER-AUDIO-DEATH (c147->c197): stall class camera-side +
+  boot-age correlation candidate; ext4 chronic watch.
 - LIVE-FREEZE WATCHING (c150->c174): heal-lock + census FROZEN +
-  EPISODES ledger (ingested, age-guarded) + nightly reboot mask.
+  EPISODES ledger + nightly reboot mask.
 - EXT5 CHRONIC DEGRADATION (c143).
 - GO2RTC REGISTRY CORRUPTION (c139->c151): debug-witness LIVE.
 - CAMERA DEGRADATION CLASS (c141->c171).
-- RESTREAM-CONSUMER AUDIO LOSS (c135->c164): model v3.1.
+- RESTREAM-CONSUMER AUDIO LOSS (c135->c164): model v3.1 (int1
+  partial-hour class).
 - CONTINUO DIGEST REBUILD (c120, rides 0092).
 - NOCTURNE THROUGHPUT WATCH (c25).
 - .201 STALL CADENCE (c373).
@@ -194,13 +129,11 @@ stall-2026-09-21.md)
 - WRAPPER TEST-MODE (c130).
 - IAR.SH ROOT ONE-SHOT PODMAN-125 (c146): filed 0097.
 - UPSTREAM-VOICE (c170).
-- CONTINUO CLOSE-PATH BELT (c186 seed, c187 mechanism): one canonical
-  writer per record file per cycle + append_file-only close path.
-  Her files; D-017 is Nacho's ruling; propose at 10-01.
-- RECEIPT-VS-OWN-WRITE race (c188 seed): CONFIRMED + FIXED c191
-  (v8.4 window). Watch 09-22 pass for the tolerance line.
-- TREADMILL structural note (c188): accept staleness honestly (option
-  c) or raise cap; for 10-01 proposal or maintenance session.
+- CONTINUO CLOSE-PATH BELT (c186 seed, c187 mechanism): propose at
+  10-01.
+- RECEIPT-VS-OWN-WRITE race (c188): FIXED c191 (v8.4). Watch 09-22.
+- TREADMILL structural note (c188): option-c or cap raise; 10-01 or
+  maintenance session.
 
 ## RELAY (open, human-needed)
 OPEN SET: 2.
@@ -209,6 +142,4 @@ OPEN SET: 2.
 - 0100 (nacho-identity, 07:10Z): #2505 comment blocked on PAT scope.
 New asks for next session: (1) confirm daily reboot crons his;
 (2) .203 reboot entry removed 09-18..09-19 -- his edit? (3) NIC link
-flaps 09-14..09-20 -- cable/switch on his side? (4) ollama journald
-GIN logging stopped 14:23 09-21 -- WITHDRAWN c192 (timezone misread,
-journal is fine; do not file).
+flaps 09-14..09-20 -- cable/switch on his side?

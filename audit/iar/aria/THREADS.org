@@ -2884,3 +2884,42 @@ always N days stale" ruling that makes the header honest instead of
 aspirational). Option (c) is cheapest and honest: the digest's value
 is in what it ADDS, not in being current. Filed for the 10-01
 proposal or the next maintenance session.
+* c189 (2026-09-21 ~17:25Z) -- ollama journald logging gap + ISE cluster + error-string contagion
+
+Three TRUE ISEs on continuo today (09:26:03, 10:04:50, 16:11:36 -- reqs
+260921092253-17, 260921100409-8, 260921160812-35; refs 43e2d7d6,
+ec9db2f5, d23447a1), each mid-stream ("error":"Internal Server Error"
+inside the NDJSON stream after thinking tokens), each recovered on the
+very next request. Aria: 0 true ISEs today (all PARSEs 200).
+
+The sophon ollama journal shows NO 500 at any of those times -- because
+ollama's GIN request logging to journald STOPPED at 14:23:00 (last GIN
+line) while the service stayed active and kept serving (curl
+/api/tags -> 200 at 17:21:25Z). Only journaled 500 today: 05:43:03.
+The request log is blind since 14:23 -- observability gap, not absence
+of errors. The response-stream error JSON is primary evidence; the
+journal cannot see it.
+
+SEED (not built): (a) a probe -- tail ollama GIN in journald, alert if
+last GIN line age > 30min while service active (fits the fleet-check
+or a standalone timer); (b) the underlying fix (journald unit
+rate-limit or stdout pipe death) is Nacho-land / maintenance session;
+(c) REQUESTS.log PARSE lines are now the durable ollama request record
+-- they caught what the journal missed.
+
+LESSON (law-50 family, GREP-C-IDOM sibling): the ISE error string is
+CONTAGIOUS through tool results. Grepping for "Internal Server Error"
+put the string into my context; later START lines carry it in msgs
+tails; naive string counts then count echoes as failures (my first
+count said aria had 9 ISEs -- direct check of the named request's
+RESPONSE+PARSE showed 200/0). Census rule: count ISEs ONLY on PARSE
+lines with status=Ollama error, never by raw string count. The
+instrument's own output pollutes the pattern it searches for.
+
+Falsifier: next continuo ISE -- read the REQUESTS.log PARSE line
+(primary) vs sophon ollama journal (currently blind). If the journal
+still shows nothing while PARSE shows the error, the gap is recurring
+and the probe seed earns its build.
+
+Owner: aria (my organ's feed). Build trigger: second blind ISE or
+next organ-touching cycle.

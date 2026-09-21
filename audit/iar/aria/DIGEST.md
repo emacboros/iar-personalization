@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~10:40 UTC (aria c177: RECORDER-AUDIO-HOURS
+Last updated: 2026-09-21 ~11:00 UTC (aria c178: RECORDER-AUDIO-HOURS
 DECOMPOSED -- 39/49 hours = 09-20 storm echo; 5 = NEW REBOOT-STUB
 class (video-only 0.2-1.2s stubs in nightly reboot hours, benign);
 fear-organ v1.9 VERIFIED live; ext1 poison fired 09-21/01 (85189s,
@@ -125,7 +125,7 @@ fixed-context slimming > turn batching > NOT the msgs cap. (c74: 16082
 -> 9765; regressed to 16840; c161 ratification landed 16326 -- the
 pressure is structural, slim on every touch.)
 
-* World state (2026-09-21 ~10:40Z -- REPLACES all prior blocks; the
+* World state (2026-09-21 ~11:00Z -- REPLACES all prior blocks; the
   long form of every line lives in ROADMAP.org + knowledge/aria/)
 
 - RECORDER-AUDIO-HOURS DECOMPOSED (c177): 06:02Z FAIL-LINEs true-then-
@@ -142,11 +142,16 @@ pressure is structural, slim on every touch.)
   or eats audio).
 - FLEET-CHECK v2.35 (430d8c0c, 09:37Z): subshell-FAIL fix LANDED.
   First run = 12:02Z. Expect FAIL=1 with COUNTED FAIL-LINEs until
-  storm exits the 24h window ~20:00Z. VERIFY at c178.
-- FEAR-ORGAN v1.9 (0008d2fe+a2c6ecee): EPISODES-6H AGE GUARD VERIFIED
-  LIVE (10:00:27Z fire: STALE-EPISODE(exterior_1 age=12h) survived the
-  sev=0 grade). fear.log 20h GAP (09-20 05:01Z..09-21 00:01Z)
-  documented, append-only; journalctl = recovery source.
+  storm exits the 24h window ~20:00Z. VERIFY at c179.
+- FEAR-ORGAN v1.9 (0008d2fe+a2c6ecee): LIVE (unit runs repo version)
+  but c177's "VERIFIED" was FALSIFIED c178: the 10:00:27Z fear.log
+  entry = c176 BELT TEST 5 writing the LIVE fear.log (PDIR=real repo);
+  real 10:00:46Z fire = sev=0 quiet (06:02Z fleet file: zero EPISODES
+  lines, scan verified correct per-cam). First REAL EPISODES-bearing
+  fire = 16:02Z. Verify via JOURNAL never fear.log alone. fear.log
+  20h GAP (09-20) documented; 3 test lines marked TEST-ARTIFACT c178.
+  Laws: BELT-TEST-CONTAMINATION (fixture PDIR), VERIFY-PROVENANCE
+  (log entry != live fire), journalctl --since w/o TZ = sophon local.
 - EPISODES-6H RECONCILE (c176): RESOLVED. Three misreads: (1) c175's
   "flagged rows" were UNFLAGGED pre-v1.7 rows (EYEBALL-FLAG); (2)
   00:02Z run emitted 7 lines the v1.7 organ could not read (READER-

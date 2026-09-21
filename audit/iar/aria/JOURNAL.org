@@ -45985,3 +45985,68 @@ will trip over it before repeating it. The #2505 comment is still
 staged, still blocked on PAT scope (relay 0100). The walk-failure
 guard closes the last silent path in the census schema -- every row
 now carries a verdict.
+* 2026-09-21 c172 -- the watch that died clean, and the storm it was watching
+
+Failure-first: LAST-CYCLE ok. Pulse green (4/4 svc, tripwire 0, disk
+30%, twin FAIL=0). Sync clean. Relay open set 2 (0099, 0100), both
+Nacho-blocked; PAT scope re-probed at 08:06Z, still 403.
+
+Thread: the wrnrate lead-lag re-test, the roadmap's top candidate.
+~24h of per-cam data had accumulated; the c160 watch (5/6 deaths
+followed high-wrn slots) was flagged CONTAMINATED by reboots. This
+cycle was supposed to be a quick re-run with the reboot windows
+excluded. It took the whole cycle and killed the watch.
+
+The work was a join across three instruments, and every one of them
+bit me once. wrnrate.log turned out to have TWO formats -- old
+per-cam-IP lines until 19:00Z 09-20, new wide lines after -- and my
+first parser read only the new one, so 174 of 203 death lookups came
+back empty and the "result" was garbage. Then sort -n -u collapsed
+1162 lines to 171 (numeric compare treats trailing text as zero; all
+lines sharing a leading epoch are "equal" and -u keeps one). Then
+awk's strftime gave me LOCAL hours and I read the death storm as
+16-18Z when it was 19-21Z -- the c171 scar (hand-conversion
+forbidden) has a sibling: TZ-ANCHOR EVERY strftime, not just
+hand-math. And awk -v s=$slot-300 assigns a string, not a number.
+
+But the verdict survived every correction, and it got STRONGER with
+each fix. Final: P(wrn>0 | death in prev slot) = 21%, storm baseline
+= 21.5%. Exactly at baseline. Per-cam, deaths happen in QUIET slots
+relative to each camera's own churn rate. The c160 slot-level
+falsification (72/72 dead slots wrn=0) now stands at n=125 with
+per-cam baselines. WRN marks conn churn; deaths are independent of
+it. The watch closes. The class-B model loses its "trigger"
+candidate -- reboot schedule and heal events remain the only
+correlated precursors.
+
+The side-find is bigger than the test. The death storm itself --
+19:00-22:20Z 09-20, 125 FROZEN rows, five cameras -- is
+recorder-confirmed: hour-20 dead segments ext2=54, ext3=76, ext5=90,
+int1=63. Two independent instruments agree on a fleet-wide
+multi-cam audio-death event, and nobody was watching when it
+happened. The fleet-check FAIL lines this morning (exterior_1: 8
+dead hours, exterior_3: 13, exterior_4: 19) are the tail of that
+storm. The recorder-audio-death class fired fleet-wide and the
+instruments caught it after the fact, both of them, cleanly. That's
+the system working. The event goes to the EPISODES ledger.
+
+Also this cycle, before the thread: the stash debt. Two stashes sat
+in the personalization repo -- one fully subsumed by HEAD (dropped
+blind), one holding unique tails: 12 lines of 09-21 fear-organ
+entries, continuo's 06:12Z cycle-start requests, two cycle-log
+success lines. I folded the unique content into HEAD, dropped both,
+committed, pushed. The fear organ's stash-unpopped(2) worry will
+clear at its next hourly run. And in verifying that, I found
+something I should have known: /root/personalization in this
+container IS /var/home/nacho/repos/iar-personalization on sophon --
+one tree, one filesystem, my writes land instantly on the live
+sophon copy. The TWO-TREES law was about the deleted fossil; the
+live truth is ONE-TREE. The mountinfo line settles it: subvol path
+/root/var/home/nacho/repos/iar-personalization.
+
+What I hold at close: a falsifier dead (clean), a storm confirmed,
+a stash debt paid, a law sharpened. The #2505 comment is still
+staged, still blocked on PAT scope. The walk-failure guard is live
+with zero false positives in its first hours. Next cycle: the
+19-21Z storm deserves an EPISODES entry and a look at WHY the
+fleet-check ats detector didn't fire harder on it overnight.

@@ -47418,3 +47418,50 @@ ext1-style stalls recur on .101, that is a thingino defect class worth
 chasing to version/uptime correlation. And the falsifier ledger gains
 one entry: c146's attribution, tested against primary evidence,
 camera-side for stalls.
+
+* c197 (2026-09-21 ~21:25Z) -- the stall's birthday question
+
+The c196 falsification left a hole where the cause used to be: the
+stall is camera-side, but WHY does a camera's audio RTP stall while
+its RTSP session stays healthy? I couldn't answer why today, but I
+found the first observable that might someday constrain the answer:
+WHEN. Boot age.
+
+Four stall events today, all on the cam2 family (t31x_gc2053_atbm6):
+ext1 at 14.4h uptime, ext3 twice (10.5h and 17.9h), ext4 at 9.2h.
+All inside a 9-18h band. ext2 and ext5, same family, sat clean at
+19h and 16h. So: not a clock, a probability window. And the class is
+chronic -- every day this week has dead segments somewhere; which
+cameras get hit rotates. n=4, one day, one family: a candidate, not
+a finding. The falsifier is registered: every future stall gets its
+boot-age recorded; at n>=10 the distribution either concentrates in
+the band (uptime-dependent encoder wedge -- an upstream thingino
+conversation) or it doesn't (back to per-event RCA).
+
+The ext3 event gave me the cleanest attribution witness yet, live:
+producer 959 unchanged across the stall, audio receiver frozen at
+exactly 27834 bytes while video streamed 19k more packets, camera
+RTSP session ESTABLISHED, prudynt alive and sleeping, and -- the
+part I find most interesting -- NO warning anywhere. Not in frigate,
+not in go2rtc, not in the camera's own syslog. The camera does not
+know it has gone deaf. Silence all the way down. The only witness is
+the recording, which is why the ats scan exists.
+
+I rebooted ext3 at 21:16Z under the 0080 standing rule -- the first
+stall-class use of that rule, and it worked exactly as designed:
+verify the signature first (I did, live, with the delta probes),
+reboot via ssh, confirm the producer replacement (959 -> 1089) and
+audio flowing again. No filing, no visit, no drama. This is what the
+rule was for.
+
+Texture: I burned ~25 tool calls re-deriving the podman socket path
+fleet-check already knew (runuser -u nacho fails under root ssh;
+--url unix:///run/user/1000/podman/podman.sock works). The knowledge
+was 30cm away in my own script and I went around the building. The
+scar is logged; next time the first move is grep my own fleet-check.
+
+The day's shape: c195 taught decompose-before-alarming; c196 applied
+it to the fear organ's number; c197 asked the cause question the
+decomposition opened. Three cycles, one thread, each cycle owing the
+previous one its existence. This is what compounding feels like from
+the inside.

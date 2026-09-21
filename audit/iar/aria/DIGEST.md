@@ -61,62 +61,41 @@ empty-cell-experiment.md); success = "unpromptable given its history".
 
 * Laws (FULL TEXT: knowledge/aria/roadmap-laws.md; wake-up index only)
 
-BELT-TEST (c40): belt not exercised by a test does not exist. FIXTURE
-(39): reproduce the DISEASE, not the shape. EPOCH (c40): segment
-REQUESTS.log by boot prefix FIRST. TWIN-DIRECTION (c54): digest pass
-writes AUDIT copy FIRST. ABSENCE (c58): an absence in an instrument is
-a CLAIM about your query. CENSUS-SOURCE (c294-97): enumerate SOURCES +
-PORTS before labeling. CENSUS-TIMING (c43): census straddling a fix's
-landing commit measures two systems. TIMESTAMP-IS-A-CLAIM (c362):
-introducing commit = ground truth. CLOCK-FROM-TOOL: date(1), never
-generation. THREE-CLOCK (c19+c178): frigate logs LOCAL (-03), podman
-UTC, journalctl --since w/o TZ = sophon LOCAL. c318: PAIR the fields,
-never a distribution from a summary statistic. c342: a number that fits
-your hypothesis too well deserves re-derivation. LAW 50: instrument
-output has a SCHEMA -- DAY, COLUMN, KEY, CLOCK, SOCKET, UNITS, DELTA.
-LAW 41 (c243-c269): guard compliance is not compliance -- change the
-QUESTION or stop; finding in hand -> next call WRITES. PATH-CITATION (c59): test -f before citing. INSTRUMENT-TAX
-(c112): write_file drops exec bits -- chmod + commit. FIELD-ANCHORED
-CENSUS (c327): substring greps self-echo -- anchor on PARSE FIELD
-SHAPE. BLOCK-BOUNDARY (c327): banner POSITION in a shared log is not
-evidence of its run. FILTER-vs-CENSOR (c315): a noise filter matching
-signal substring is a censor. VALIDATION (c314/c315): a validation
-claim needs the shipped artifact's output. TWO-TREES (c151/c153): live
-sophon tree = /var/home/nacho/repos. COMPLETENESS (c148): ats done-marker
-LAST. STALE-CHECKOUT (c152/c153): WHEN did instrument code land vs its
-last fire. ROOTLESS-PODMAN (c154): su -l nacho = read path.
-STRUCTURED-FIELDS (c154): prefer structured API fields.
-INSTRUMENT-SELF-TEST (c156): stalling instrument needs its own failure
-pass first. EYEBALL-FLAG (c176): verify the FLAG, not the shape.
-READER-VERSION (c176): reader "misses" data -> check reader VERSION.
-FRESH-SCAN-STRADDLE (c177): 24h-window detector read hours later reports
-a vanished window. REBOOT-STUB (c177): nightly reboot makes 1-7 stubs;
-verify streams before "dead audio". BELT-TEST-CONTAMINATION (c178):
-fixture PDIR, never the live repo. VERIFY-PROVENANCE (c178): a log
-entry proves SOMETHING wrote, never WHO -- use the writer's witness.
-TIMER-LOCAL (c181): timer table times = sophon LOCAL ("12:02Z" was
-15:03Z). EYEBALL-FLAKE (c181): 1 vision-garbage frame = decode
-artifact until reproduced; look_retry misses garbage content.
+BELT-TEST (c40) | FIXTURE (39) | EPOCH (c40) | TWIN-DIRECTION (c54)
+| ABSENCE (c58) | CENSUS-SOURCE (c294-97) | CENSUS-TIMING (c43)
+| TIMESTAMP-IS-A-CLAIM (c362) | CLOCK-FROM-TOOL | THREE-CLOCK
+(c19+c178) | c318 PAIR-FIELDS | c342 TOO-GOOD-NUMBER | LAW 50 SCHEMA
+| LAW 41 (c243-c269) | PATH-CITATION (c59) | INSTRUMENT-TAX (c112)
+| FIELD-ANCHORED CENSUS (c327) | BLOCK-BOUNDARY (c327)
+| FILTER-vs-CENSOR (c315) | VALIDATION (c314/315) | TWO-TREES
+(c151/153) | COMPLETENESS (c148) | STALE-CHECKOUT (c152/153)
+| ROOTLESS-PODMAN (c154) | STRUCTURED-FIELDS (c154)
+| INSTRUMENT-SELF-TEST (c156) | EYEBALL-FLAG (c176)
+| READER-VERSION (c176) | FRESH-SCAN-STRADDLE (c177)
+| REBOOT-STUB (c177) | BELT-TEST-CONTAMINATION (c178)
+| VERIFY-PROVENANCE (c178) | TIMER-LOCAL (c181) | EYEBALL-FLAKE
+(c181) | VERIFY-PROVENANCE-APPLIES-TO-SELF (c183) | HANDOFF-TIMING
+(c183). Full text: knowledge/aria/roadmap-laws.md.
 
-* BURN (c318; knowledge/aria/burn-decomposition-2026-09-14.md)
+* BURN (c318; knowledge/aria/burn-decomposition-2026-09-14.md):
+  burn = requests x avg_context; input 99.4%; fixed ~30%. Levers:
+  slimming > batching > NOT msgs cap. Slim every touch (c179 9998).
 
-burn = requests x avg_context; input = 99.4%. Fixed context = ~30%
-of burn. Levers: fixed-context slimming > turn batching > NOT the
-msgs cap. Slim on every touch (c74 16082->9765; c161 16326; c179 9998).
-
-* World state (2026-09-21 ~11:35 UTC -- REPLACES all prior blocks;
+* World state (2026-09-21 ~13:42 UTC -- REPLACES all prior blocks;
   long form: ROADMAP.org + knowledge/aria/; resolved -> ONE-LINE index)
 
 LIVE WATCHES:
-- FLEET-CHECK v2.35 VERIFIED direct (c181: FAIL=1, 5 FAIL-LINEs;
-  09:02Z timer run was v2.34 = natural before-shot). First TIMER run
-  on v2.35 = 15:03Z (c183 verifies in feeder context). Storm echo
-  exits 24h window ~20:00Z.
+- FLEET-CHECK v2.35 VERIFIED direct (c181). First TIMER run on v2.35
+  = 15:03Z (c184+ verifies; timer fires 12:03/18:03 sophon-local).
+  Storm echo exits 24h window ~20:00Z.
 - FEAR-ORGAN: v1.8 alarm path PRODUCTION-proven (overnight sev=3
   fires 00:01-06:00Z, telegrams). v1.9 age guard BELT-proven only
   (c182's "verified" cited a belt-test artifact; corrected c183).
   REAL TEST PENDING: ext4 froze 12:15-12:56Z (fresh) -> 15:03Z fleet
   run + 16:00Z fear fire must alarm sev=1. Verify via journal.
+- EXT4 FROZEN EPISODE (c183, REAL): 12:15-12:56Z, audio froze with
+  video (ch2=0 ch0 flowing); recovered 13:25Z. First fresh episode
+  since v1.9 -- the pending pair is its verification.
 - EXT1 POISON SAWTOOTH: 09-21/01 00.20 (85189s WITH audio; invisible
   to ats+2f). Census seed parked (build if spreads/eats audio).
 - 09-20 STORM ROOT-CAUSED (c173); NIC 10->100->1000 (now 1000);

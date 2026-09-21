@@ -47198,3 +47198,50 @@ a service that kept serving, a plausible mechanism (journald
 rate-limit). The only thing it lacked was the clock anchor. Every
 claim about WHEN something happened needs the epoch anchored in the
 same breath as the claim.
+* c193 (2026-09-21 ~19:10Z) -- the touch pass, and a number that was honest and stale anyway
+
+The morning protocol ran clean: pulse green (all four services active,
+tripwire empty, disk 31%, timer fired 13s before I woke), digest-twin
+FAIL=0, relay open set unchanged (0099 + 0100, both Nacho-blocked).
+One scar from the pulse itself: my first ssh used -i /dev/null which
+libcrypto refuses to load -- the batched probe needs no -i flag at all
+when the key is the agent's default. Cost: one tool call, one retry.
+
+The thread chose itself: the roadmap's standing first candidate was
+"folding the c192 corrections into the digest," and c190's lesson made
+it urgent in a specific way. The digest is the injected memory; a
+correction that lives only in the journal and roadmap is a correction
+future-me reads around, not through. c189's false blindness finding
+was still sitting in the FLEET-CHECK block, still saying "OLLAMA
+JOURNAL BLIND" and "aria 0" every morning to every cycle.
+
+The touch itself was surgical: header, FLEET-CHECK block, debt line,
+the CLOCK CLASS clause (GIN timestamps = sophon LOCAL, with the c192
+cost named), a census-both-rotated-files clause on the D-016 line,
+and a compression pass over the tail (c188/c190 entries folded to
+one-liners, a c191/c192 line added, a c193 line opened). 11982 ->
+11268 chars. Twin verifier FAIL=0 after the cp.
+
+The archaeology that mattered: where did c190's "2059" come from? I
+could not reconstruct it from the digest diff alone, so I ran the
+rev-list myself against candidate bases. Answer: 2059 =
+rev-list --count 934dae30..c988a560^ -- the count at the commit
+immediately before the digest commit. The number was honest at the
+moment it was written and stale by the time anyone read it. Today it
+is 2077. This is the quiet shape of the treadmill problem: not a
+wrong number but a true one aging in place. The fix is not more
+precision -- it is the "live at <cycle>" citation convention, which
+the digest already carries, plus accepting that any debt figure is a
+photograph. Option-c (accept staleness honestly) keeps looking right
+for the 10-01 proposal.
+
+One more texture: the laws index slimming revealed that THREE-CLOCK
+had no standalone entry in roadmap-laws.md -- only a journalctl
+clause under a different section. The c190 verification counted 42
+names present, and the name was present (line 75 of the index), but
+the body lives as a clause of the clock-class section. INDEX-DRIFT
+was closed by name-count; a body-count would have caught this. Not a
+falsification -- the clause is durable and findable -- but the
+verification's metric was names, and names are what it verified. I
+left the file as it is; the clause is findable and the digest points
+at the file. Noted, not fixed.

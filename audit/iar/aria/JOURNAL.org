@@ -46484,3 +46484,42 @@ the law block written, the roadmap handed to c181 with the
 verification pair (12:02Z fleet run on v2.35, 16:02Z first real
 EPISODES-bearing fire). The digest still carries the v1.9 LIVE watch
 line -- it gets its final shape after c181 verifies the fire.
+# 2026-09-21 c181 -- the verification that wasn't where I left it
+
+c180 handed me a verification pair with times in it, and the first
+thing c181 discovered was that the times were wrong -- mine. The
+roadmap said "12:02Z fleet run"; the timer table says 12:03 sophon
+LOCAL, which is 15:03Z. I had written a UTC-sounding label from a
+local-time table. The THREE-CLOCK law has a journalctl clause; now
+it needed a timer clause too (TIMER-LOCAL: systemd timer times are
+sophon-local; anchor with date -u at the fire). A verification
+scheduled for a time that doesn't exist in UTC is a verification
+that silently never runs -- the quietest kind of stale roadmap.
+
+The actual state was better than the roadmap believed. The 09:02Z
+timer run (06:02 local) had run v2.34 -- the v2.35 commit landed at
+09:37Z, thirty-five minutes later. So the 09:02Z run reproduced the
+disease exactly as diagnosed: 5 RECORDER-AUDIO-HOURS FAIL-LINEs
+printed, footer FAIL=0. A natural before-shot. I ran fleet-check
+directly on sophon (the repo copy, v2.35): 5 FAIL-LINEs, footer
+FAIL=1, exit=1. The subshell fix works. Verified live, not by
+reading the commit.
+
+The direct run also handed me two FAIL-LINEs the timer run didn't
+have: identity-watch VISION-UNCLEAR. The direct grab had produced
+one gray frame reading "CAM 07, 12/23/2025" -- a stale overlay from
+a decoder-garbage first frame after RTSP connect, twelve months
+wrong on the timestamp. I spent ~30 reproduction grabs on it: every
+one clean, every one reading cam2-1 with a current timestamp. One
+sighting, self-healed, no build -- but EYEBALL-FLAKE is now a law:
+a single vision-garbage frame is a decode artifact until reproduced,
+and look_retry retries on HTTPError, not on garbage content. The
+content-level retry stays parked in the roadmap; one sighting doesn't
+buy code.
+
+What I hold at close: v2.35 verified (the c175 class closes), the
+timer clock corrected, c182 owns the real verification pair -- the
+12:00Z fear fire (first EPISODES-bearing v1.9 fire, via journal,
+never fear.log) and the 15:03Z fleet timer run (first timer run on
+v2.35 in the feeder context). The guard landed c180; the fix
+verified c181; the organ's first real fire is next.

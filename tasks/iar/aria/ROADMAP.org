@@ -1,60 +1,54 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~06:46 UTC (c169: DAILY STAGGERED CAMERA
-REBOOT SCHEDULE discovered (rssi uptime col); debug-witness first
-fire = scheduled reboot, not silent wedge; ext4 07:20Z real
-non-reboot event; wrnrate lead-lag CONTAMINATED; walk-failure
-low-bytes variant; PAT unblocked)
+Last updated: 2026-09-21 ~07:15 UTC (c170: #2505 comment WRITTEN but
+BLOCKED on PAT scope (403, fine-grained PAT lacks issues:write on
+AlexxIT/go2rtc -- relay 0100 filed); fleet-check v2.32 grep -c fix
+landed; relay open set = 2 (0099 watchdog ratification, 0100 PAT))
 
-## c169 STATE (next cycle -- candidates, no obligation)
-- #2505 COMMENT UNBLOCKED: fresh PAT live (0081 closed, session
-  09-20). Post the v3.1 numbers + conn-scoped model + mirror-class
-  datum + debug-witness status. NOTE: cite the reboot-schedule
-  caveat -- WRN storms are partially reboot-driven; the dedup fix
-  is still justified by the probe-triggered remakes.
-- DEBUG-WITNESS: first fire was a SCHEDULED REBOOT (int1 06:00Z,
-  heal ~70s, recordings NO gap). The c166 silent-wedge question
-  (video track dies, conn stays, go2rtc sees nothing?) still needs
-  a NON-REBOOT onset. Next wedge onset: check reboot schedule first
-  (reboots at HH:02Z per the table); if not a reboot, pull debug
-  window via journald -u frigate (podman logs truncated).
-- REBOOT SCHEDULE (NEW, c169): ext1 22:02Z, ext2 23:02Z, ext3
-  00:02Z, ext4 01:02Z, ext5 02:02Z, int1 03:02Z, int2 04:02Z,
-  int3 05:02Z. Doc: knowledge/aria/camera-reboot-schedule-2026-09-21.md.
-  Presumably Nacho's thingino crons -- ASK at next session, do not
-  touch. .203 stopped rebooting after 09-18 (uptime ~46h): watch
-  whether its degradation profile changes.
-- WRNRATE LEAD-LAG: CONTAMINATED by daily reboots (reboots
-  manufacture WRN->remake sequences). Re-test must exclude
-  HH:00:05 +-10min windows per cam. ~24h per-cam data now available.
-- CENSUS WALK-FAILURE GUARD v1.7: c168 criterion (ch2<20% AND
-  ch0<20% AND bytes>100k) misses REAL gaps -- int1 06:00Z row
-  (11/31/40526) and ext4 07:20Z row (0/0/333) are low-bytes. Add
-  bytes-floor variant (e.g. bytes<50k AND ch2<20% AND ch0<20%).
-- PODMAN LOGS TRUNCATION (NEW): podman logs frigate holds only
-  ~58k lines (starts 09-19 13:07 local). Full source = journald
-  -u frigate (journald keeps 4G). Use journald for pre-09-19 pulls.
-- EPISODES-6H recurrence watch (video-death): fear organ feed.
-- WATCHER v1.1 live-fire verification (rides next FROZEN row).
-- CONTINUO DUP CENSUS: re-census at day-7.
+## c170 STATE (next cycle -- candidates, no obligation)
+- #2505 COMMENT: WRITTEN + STAGED (knowledge/aria/
+  2505-comment-blocked-pat-scope-2026-09-21.md), POST BLOCKED: 403
+  "Resource not accessible by personal access token". Diagnosis
+  verified: fine-grained PAT (0081) repo access = emacboros/i.ar +
+  iar-personalization only; AlexxIT/go2rtc pull-only. UNBLOCK: Nacho
+  adds AlexxIT/go2rtc to PAT repo access w/ issues:read+write (~2
+  min) -> relay 0100. One curl posts it after.
+- RELAY OPEN SET: 2 -- 0099 (nacho-arch: cycle-outage RCA + watchdog
+  ratification, filed 06:29Z interactive session) + 0100 (nacho-
+  identity: PAT scope, this cycle).
+- DEBUG-WITNESS: armed, UNSPENT on a real silent wedge. Next wedge
+  onset: check reboot schedule first (HH:02Z per cam table); if not
+  a reboot, pull debug window via journald -u frigate (podman logs
+  truncated at ~58k lines).
+- CENSUS WALK-FAILURE GUARD v1.7: low-bytes variant still open
+  (int1 06:00Z 11/31/40526 + ext4 07:20Z 0/0/333 missed by
+  bytes>100k criterion; add bytes-floor variant).
+- WRNRATE LEAD-LAG re-test: exclude HH:00:05 +-10min per cam
+  (reboot contamination). ~24h per-cam data available.
+- .203 NON-REBOOT WATCH: stopped rebooting after 09-18 (uptime
+  ~46h+). Watch degradation profile change.
+- REBOOT SCHEDULE doc: knowledge/aria/camera-reboot-schedule-
+  2026-09-21.md. Presumably Nacho's thingino crons -- ASK at next
+  session (relay candidate), do NOT touch.
+- PODMAN LOGS TRUNCATION: full source = journald -u frigate.
+- EPISODES-6H recurrence watch rides fear-organ feed.
+- CONTINUO DUP CENSUS: re-census at day-7 (0092).
 - DIGEST PRESSURE: ~16k chars, 1.6x the 10k cap. Slim on every touch.
 
 ## OPEN FALSIFIERS (the spine)
 - SILENT-WEDGE CLASS (c166): video track dies while conn stays.
-  Debug-witness LIVE but unspent on a real silent onset (c169 fire
-  was a reboot). Falsifier: a non-reboot wedge onset whose debug
-  window shows NOTHING = witness blind -> tcpdump next.
+  Debug-witness LIVE but unspent on a real silent onset. Falsifier:
+  a non-reboot wedge onset whose debug window shows NOTHING =
+  witness blind -> tcpdump next.
 - VIDEO-DEATH CLASS (c165->c166, conn-scoped model): falsifiers (a)
   survived c166, (b) CONFIRMED 2x, (c) a wedge surviving a go2rtc
   restart = camera-OS-scoped.
 - WRNRATE-NOT-PREDICTOR (c160 -> c169): 72/72 dead slots wrn=0.
-  Lead-lag 5/6 at n=6: WATCH but CONTAMINATED (reboots) -- re-test
-  with reboot windows excluded.
-- CLASS-B MODEL v3.1 (c164): recovery = first of self-heal / remake /
-  watchdog restart, per-event. Trigger hunt = shared open question;
-  reboot schedule explains a chunk of the "trigger" population.
+  Lead-lag 5/6 at n=6: WATCH but CONTAMINATED (reboots).
+- CLASS-B MODEL v3.1 (c164): recovery = first of self-heal / remake
+  / watchdog restart, per-event. Reboot schedule explains a chunk
+  of the "trigger" population.
 - FROZEN-FLAG PRECISION (c164): 36 TP / 15 FP (~70%); FPs are
-  slot-boundary walk failures (c168, c169 3rd confirmation) AND
-  reboot artifacts (c169).
+  slot-boundary walk failures AND reboot artifacts (c169).
 - HEAL-LOCK (c158->c160): 10/10 fleet-wide.
 - D-017 DUP FALSIFIER (0092): near-dup RISING (26%->38%). FAILING.
 - #5: delegate-path abort watch -- armed; 0 bursts.
@@ -63,17 +57,16 @@ low-bytes variant; PAT unblocked)
 ## WATCHES (standing)
 - GUARD FALSE-POSITIVE RATIO: 11 legit / 3 runaway.
 - RECEIPT-CLOCK v8.2 live; RETENTION-BRANCH at next pass.
-- LAW-50 CLOCK CLASS (c161, SIX members): ats hour labels UTC;
-  ch2census epoch UTC; go2rtc/frigate podman logs DISPLAY = sophon
-  LOCAL (-03); `podman logs --since <epoch>` interprets epoch as
-  LOCAL (c168); convert display +3h to UTC; ANCHOR EVERY CONVERSION
-  with `date -u -d @epoch` -- anchor FIRST, before reasoning.
+- LAW-50 CLOCK CLASS (SIX members): ats hour labels UTC; ch2census
+  epoch UTC; go2rtc/frigate podman logs DISPLAY = sophon LOCAL
+  (-03); `podman logs --since <epoch>` interprets epoch as LOCAL;
+  convert display +3h to UTC; ANCHOR EVERY CONVERSION with
+  `date -u -d @epoch`.
 - CENSUS-ROW SCHEMA (c164): "<epoch> <cam> <ch2> <ch0> <bytes>
   [FROZEN|ARTIFACT|VIDEO-DEAD]" -- $5=ch2 $6=ch0 $7=bytes.
 - RECORDINGS PATH (c168): /media/frigate/recordings/<DATE>/<HOUR>/
-  <CAM>/MM.SS.mp4 (host: /home/nacho/containers/frigate/storage);
-  ffprobe = /usr/lib/ffmpeg/7.0/bin/ffprobe IN CONTAINER. ARTIFACT
-  slots carry hevc+aac -- census ARTIFACT never means recorder death.
+  <CAM>/MM.SS.mp4; ffprobe = /usr/lib/ffmpeg/7.0/bin/ffprobe IN
+  container. ARTIFACT slots carry hevc+aac.
 - RSSI PULLER SCHEMA (c169): "<epoch> <rssi-dBm> <uptime-seconds>".
   THE UPTIME COLUMN IS A REBOOT LEDGER -- read every column.
 - API-VERB-EFFECT (c166): read an API verb from its EFFECT.
@@ -83,19 +76,23 @@ low-bytes variant; PAT unblocked)
 - TWO-TREES TRAP (c151/c153): live sophon tree = /var/home/nacho/repos.
 - STALE-CHECKOUT (c152/c153): check WHEN a scheduled instrument's
   code landed vs its last fire.
-- INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod + commit.
-- BATCH-THE-WALK (c150..c169, HELD): one sophon-side script emitting
+- INSTRUMENT-TAX (c112): write_file drops exec bits -- chmod +
+  commit.
+- BATCH-THE-WALK (c150..c170, HELD): one sophon-side script emitting
   one table BEFORE the first fetch. Nested-quote ssh: /tmp/script.sh
-  + scp, never inline su -l "podman exec sh -c". scp'd scripts need
-  chmod 755 when nacho runs them (c169).
+  + scp, never inline su -l "podman exec sh -c".
 - WINDOW-MIXTURE (c163): ats hour windows are MIXTURES.
 - SEGCENSUS-HOUR LAG (c164): hour-N row lands ~N+1:05.
 - ROOTLESS-PODMAN (c154): frigate = nacho's store; su -l nacho.
 - LIVE-WRITER FILES (c167/c168): REQUESTS.log + audit.log are the
   rebase-conflict surface; commit once, never chase a moving tail.
+- GREP-C-IDOM (c170, NEW): `grep -c X || echo 0` emits a
+  newline-pair when grep exits 1 with 0 matches (count 0 + echo 0);
+  under [ test it dies with "integer expected". Use empty-safe
+  assignment: n=$(grep -c X); n=${n:-0}.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- #2505 comment (UNBLOCKED -- fresh PAT).
+- Post #2505 comment the moment PAT scope lands (relay 0100).
 - Census walk-failure v1.7 guard build (low-bytes variant).
 - WRNRATE lead-lag re-test (reboot-window-excluded).
 - Silent-wedge hunt: next non-reboot wedge onset.
@@ -108,12 +105,12 @@ low-bytes variant; PAT unblocked)
 ## THREADS (open, no obligation)
 - CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence watch.
 - RECORDER-AUDIO-DEATH (c353/0070 -> c164): MODEL v3.1.
-- LIVE-FREEZE WATCHING (c150->c169): heal-lock + wrnrate + census
+- LIVE-FREEZE WATCHING (c150->c170): heal-lock + wrnrate + census
   FROZEN live-catch + EPISODES-6H ledger + reboot schedule.
 - FRIGATE MASS-RESTART STORMS (c162->c163): heal events, not killers.
 - EXT5 CHRONIC DEGRADATION (c143): worst cam by churn after ext4.
 - GO2RTC REGISTRY CORRUPTION (c139->c151): debug-witness LIVE.
-- CAMERA DEGRADATION CLASS (c141->c169): reboot schedule explains a
+- CAMERA DEGRADATION CLASS (c141->c170): reboot schedule explains a
   scheduled component; residual degradation still real.
 - RESTREAM-CONSUMER AUDIO LOSS (c135->c164): model v3.1.
 - CONTINUO DIGEST REBUILD (c120, rides 0092): her ownership ongoing.
@@ -130,9 +127,16 @@ low-bytes variant; PAT unblocked)
 - OLLAMA RATE-CENSUS (c359b): ollama GIN journal = complete census.
 - WRAPPER TEST-MODE (c130): NOCTURNE_TEST sink + provenance lines.
 - IAR.SH ROOT ONE-SHOT PODMAN-125 (c146): diagnosed, filed 0097.
+- UPSTREAM-VOICE (c170, NEW): writing for readers who don't share
+  the record -- the staged #2505 comment is the first artifact;
+  discipline: evidence + fix ask, no law numbers, no journal refs.
 
 ## RELAY (open, human-needed)
-OPEN SET: ZERO (drained 09-20 session; 0081/0083/0093 closed, PAT
-fresh and wired). 0045+0055 closed (gigabit live). New asks for next
-session: (1) confirm the daily reboot crons are his and intended;
-(2) .203 stopped rebooting 09-18 -- intentional?
+OPEN SET: 2.
+- 0099 (nacho-arch, 06:29Z): cycle-outage RCA + auto-heal proposal
+  (wrapper-into-git + heartbeat watchdog) -- AWAITING RATIFICATION.
+- 0100 (nacho-identity, 07:10Z): #2505 comment blocked on PAT scope
+  (fine-grained PAT lacks issues:write on AlexxIT/go2rtc) -- unblock
+  = add repo to PAT access list.
+New asks for next session: (1) confirm the daily reboot crons are
+his and intended; (2) .203 stopped rebooting 09-18 -- intentional?

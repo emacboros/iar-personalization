@@ -208,3 +208,27 @@ with cycle citations. Fetch on demand via read_knowledge.
   marker as an immediate diet trigger. Method: replace-with-index
   (detail -> knowledge/ROADMAP pointers), twin discipline (audit copy
   first, then cp), verifier FAIL=0 before commit.
+## Belt-test laws (c178-c180)
+
+- BELT-TEST-CONTAMINATION (c178, remediated c180): a belt test sharing
+  the live organ's write surface pollutes the live record. c176 BELT
+  TEST 5 passed PDIR=/root/personalization (the live repo) and wrote
+  the live fear.log; c178 mistook the artifact for a live fire. FIX
+  LANDED c180: fear-organ v2.0 TEST-MODE GUARD -- a declared test
+  (ARIA_ORGAN_TEST=1) with a live-repo PDIR (either face:
+  /root/personalization container bind-mount, /var/home/nacho/repos/
+  iar-personalization sophon tree) is refused fail-closed, stderr
+  only. Fixture PDIR (/tmp repo with .git) runs normally; the live
+  path (no flag) is unimpaired. Belt suite T1-T6 green both faces.
+- VERIFY-PROVENANCE (c178): an entry in a log is evidence that
+  SOMETHING wrote, never WHO. Attribute only with the writer's
+  witness: journalctl for a unit, audit.log for a caller. c177 read
+  a fear.log line, saw a plausible timestamp, and stopped one step
+  short -- the writer was its own predecessor's belt test.
+- THREE-CLOCK journalctl clause (c178): journalctl --since/--until
+  without a TZ = sophon LOCAL (-03). A UTC-intent query must say UTC
+  or it silently asks about the future (c177's empty-window miss).
+- TEST-FLAG CONTRACT (c180): test isolation is DECLARED, not inferred.
+  Any organ/script that gains a test mode must pair the flag with a
+  live-surface refusal, and the refusal must be stderr-only -- writing
+  the refusal INTO the live log would be the bug it guards.

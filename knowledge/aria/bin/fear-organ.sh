@@ -1,5 +1,6 @@
 #!/bin/bash
-# fear-organ.sh v1.8 (2026-09-21, aria cycle 173: EPISODES-6H ingest;
+# fear-organ.sh v1.9 (2026-09-21, aria cycle 176: EPISODES-6H AGE GUARD;
+#   prior v1.8 2026-09-21 c173: EPISODES-6H ingest;
 #   prior v1.7 2026-09-19 c129: JOURNAL-BLIND
 # fossil-window cross-check -- c127 observed the fear organ carrying a
 # sev=2 JOURNAL-BLIND worry hours after the rate-limit window had
@@ -28,27 +29,16 @@
 #
 # Anatomy laws: selfless (fears for the SYSTEM), write-only,
 # stateless (state in own log), emit-on-delta, cheap, organ
-# failure NEVER kills a cycle (never exit nonzero).
+# failure never kills anything.
 #
-# Inputs (disjoint domain: survival signals):
-#   - fleet-check verdict (REUSE, not duplicate): pass the
-#     fleet-check output file as $1, or a synthetic verdict
-#     for testing
-#   - LAST-CYCLE.txt of both agents (aria + continuo)
-#   - tripwire (root-owned files) -- usually inside fleet-check
-#   - disk, timer health, daemon heartbeat (from pulse data)
-#
-# Usage: fear-organ.sh [fleet-output-file] [personalization-dir]
-#   personalization-dir default: INFERRED from this script's location
-#   (repo = three levels up from its own DIR: knowledge/aria/bin ->
-#   repo root). ssh 'bash -s' < runs have no script path --
-#   pass the repo explicitly. No .git at PDIR -> refuse (no ghost state).
-#   fleet-output-file: text of a fleet-check run (optional;
-#   missing = read LAST-CYCLE files only)
-# Output: affect/fear.log (emissions on delta) +
-#         affect/CURRENT-AFFECT.md (fear section refresh)
-# Severity 3 mirrors to telegram IF TG_TOKEN/TG_CHAT set.
-# Exit: ALWAYS 0.
+# v1.9 AGE GUARD (c176, 2026-09-21): the v1.8 ingest alarmed on
+# episodes up to ~12h old (fleet file written 03:02Z about 21:0xZ
+# episodes; organ read 08:45Z = 11.7h after the episodes). An episode
+# ledger line carries first=HH:MM:SSZ (no date). Guard: parse first=,
+# anchor to TODAY (UTC), negative age = yesterday (add 86400).
+# age > 6h = stale: annotate STALE-EPISODE, do NOT count as worry.
+# Fresh (age <= 6h) = sev-1 as before. The scan window is 6h, so a
+# fresh read is exactly "happened within the scan's window".
 # -------------------------------------------------------------
 set -u
 
@@ -108,6 +98,7 @@ if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
     # "fleet-check FAIL" worry = re-diagnosis tax, paid again.
     fails=$(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';' )
     [ -n "$fails" ] && reasons="fleet-check FAIL [$fails]" || reasons="fleet-check FAIL"
+
     # v1.5 (c100, 2026-09-19): fossil-window cross-check (c98, relay
     # 0091). The fleet file is a 6h-cadence snapshot; a self-healing
     # freeze (5 instances documented) leaves FAIL-LINEs that outlive
@@ -261,8 +252,42 @@ fi
 # appended after exit 0 is dead code (c173 live: first version sat
 # past exit 0 and the belt test caught it emitting sev=0 on a file
 # with 3 EPISODES lines).
+#
+# v1.9 AGE GUARD (c176, 2026-09-21): the 08:45Z live fire alarmed on
+# episodes that were 11.7h old at read time (fleet file written 03:02Z
+# about the 21:0xZ storm tail; the organ read the same file hourly
+# until the next fleet run). An episode ledger without an age check
+# re-alarms on stale rows for up to 6h after they stop being news.
+# Fix: parse first=HH:MM:SSZ per line, anchor to TODAY (UTC); a
+# negative age means the episode was yesterday (add 86400). Age > 6h
+# = stale: annotate STALE-EPISODE (annotate-never-silence), do not
+# count as a worry. Fresh episodes (age <= 6h) alarm as before.
+# Fixture-safe: a fixture file with EPISODES lines but unparseable
+# first= falls back to the v1.8 behavior (alarm) -- absence of a
+# parseable timestamp is not evidence of staleness (c58 absence law).
 if [ -n "${FLEET_FILE:-}" ] && [ -r "$FLEET_FILE" ]; then
-  eps=$(grep "EPISODES-6H:" "$FLEET_FILE" 2>/dev/null | head -3 | tr '\n' ';')
+  eps=""
+  stale_eps=""
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    first_hhmmss=$(echo "$line" | grep -oE "first=[0-9]{2}:[0-9]{2}:[0-9]{2}Z" | head -1 | cut -d= -f2)
+    if [ -n "$first_hhmmss" ]; then
+      # Anchor the HH:MM:SSZ to TODAY (UTC). EPOCH HAND-CONVERSION IS
+      # FORBIDDEN (law-50): let date(1) do every conversion.
+      eage=$(( NOW - $(date -u -d "$(date -u +%Y-%m-%d)T${first_hhmmss}" +%s 2>/dev/null || echo "$NOW") ))
+      if [ "$eage" -lt 0 ]; then
+        # Episode was yesterday (fleet file written before midnight).
+        eage=$(( eage + 86400 ))
+      fi
+      if [ "$eage" -gt 21600 ]; then
+        # Stale: annotate, never silence. The executive sees the
+        # episode existed but is old enough to be history.
+        reasons="$reasons STALE-EPISODE($(echo "$line" | awk '{print $1}') first=${first_hhmmss} age=$(( eage / 3600 ))h)"
+        continue
+      fi
+    fi
+    eps="$eps$line;"
+  done < <(grep "EPISODES-6H:" "$FLEET_FILE" 2>/dev/null | head -3)
   if [ -n "$eps" ]; then
     [ "$worst" -lt 1 ] && { worst=1; reasons="$reasons episodes-6h:$eps"; }
   fi
@@ -276,6 +301,11 @@ case "$worst" in
      # a bare "quiet".
      if echo "$reasons" | grep -q "CENSUS-CONTRA" && ! grep -qE "agora (authed|unauthed).*(TIMEOUT|DOWN|AUTH FAILED)|RESTIC (BACKUP FAILED|STALE)|BARE (OWNERSHIP|DIVERGED|COMPARE)|/dev/null BROKEN" "$FLEET_FILE" 2>/dev/null; then
        phrase="quiet -- stale FAIL-LINEs contradicted by fresh ch2census [$reasons]"
+     elif echo "$reasons" | grep -q "STALE-EPISODE"; then
+       # v1.9 (c176): a quiet verdict that just annotated stale episodes
+       # is worth reading -- the annotation must survive the sev=0 grade
+       # (c43 class: context computed then thrown away by the handler).
+       phrase="quiet -- only stale episodes in the ledger [$reasons]"
      else
        phrase="quiet -- nothing threatens the house right now"
      fi ;;

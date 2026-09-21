@@ -46050,3 +46050,63 @@ staged, still blocked on PAT scope. The walk-failure guard is live
 with zero false positives in its first hours. Next cycle: the
 19-21Z storm deserves an EPISODES entry and a look at WHY the
 fleet-check ats detector didn't fire harder on it overnight.
+
+* 2026-09-21 c173 -- the storm had a name, and it was the host
+
+Failure-first: LAST-CYCLE ok. Pulse green (4/4 svc, tripwire 0, disk
+30%, twin FAIL=0). Sync clean. Relay open set 2 (0099, 0100), both
+Nacho-blocked. Task tree empty.
+
+Thread: the c172 promise -- the 19-21Z storm deserves an EPISODES
+entry and a look at why nothing fired overnight. The answer turned out
+to be bigger than an entry: the storm has a ROOT CAUSE, and it was
+never the cameras.
+
+The chain: the nic-sampler (my own 1-min cron, deployed c226) records
+link speed in column 2. I had never read that column. sophon's NIC
+dropped 1000->100Mbps on 09-17 21:01Z and stayed there 3.5 days.
+During the degraded epoch, frigate's capture ffmpeg processes
+repeatedly "exceeded fps limit" and exited -- in fleet-wide waves:
+09-20 17:15Z (8 cams), 18:07Z (6), 19:39Z (8, the big one), 20:05Z
+(8). Each wave = every capture process exits at once = the recorder
+writes video-only segments = the ats dead-segment counts. The heal:
+the NIC renegotiated to 1000Mbps at 21:39Z, and fleet-wide waves
+stopped. The ats "recorder-audio-death" FAILs this morning were the
+recorder echo of a HOST link problem. Event totals by epoch: 10Mbps
+epoch 0 events, 100Mbps epoch 111, 1000Mbps epoch 14 (all tail).
+Fleet-wide waves (>=6 cams/minute) occur ONLY in degraded epochs --
+including two I had not connected: 09-18 23:26 and 09-19 22:42, in the
+10Mbps epoch.
+
+The tail (22:00-04:01Z) is a second mechanism: hourly at :00-:02, one
+camera in sequential index order got a go2rtc producer i/o-timeout ->
+corrupt segment -> fps-limit -> restart. 6 corrupt segments. It died
+after the 05:02Z camera reboots. Cause of the hourly walk unknown --
+no sophon timer matches; camera-side hourly task is the suspect.
+
+Then the gaps, and I closed two of them live:
+
+1. EPISODES-6H was write-only. fleet-check emits the episode lines;
+   the fear organ never read them (grep confirmed). That is why the
+   storm had zero live alarm: the organ fired sev=3 on heartbeat-stale
+   (the 0099 outage) while the episode itself went unnarrated. Fix:
+   fear-organ v1.8 ingests EPISODES-6H lines as a sev-1 worry. The
+   build taught a placement law the hard way: my first version sat
+   AFTER the script's exit-0 tail -- dead code -- and the belt test
+   caught it emitting sev=0 on a file with 3 episode lines. Moved
+   before the grade block; belt-tested on sophon: 3 episode lines ->
+   sev=1 with full episode detail. Landed b55d3739.
+2. NIC speed was unwatched. The sampler records it; no detector fires
+   on degraded link. Fix: fleet-check v2.34 check -- enp10s0 speed
+   != 1000 = FAIL-LINE with the episode doc cited. Landed 6bddec76.
+   Belt note: the container has no enp10s0, so the local test
+   returned 1000 via a different path -- the real belt is the next
+   sophon fleet-check run (6h cadence); the check is 6 lines and
+   bash -n clean.
+
+What I hold at close: an episode root-caused (host link, not cameras),
+two detector gaps closed, one open (the hourly sequential walk), one
+physical question open (what moved the link 10->100->1000 -- cable,
+switch, or port). The class-A/B decomposer should learn: fleet-wide
+simultaneous recorder-audio-death = host-side capture event first.
+The episode doc is knowledge/aria/storm-2026-09-20-episode.md.

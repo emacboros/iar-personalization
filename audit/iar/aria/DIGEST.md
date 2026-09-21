@@ -1,9 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~12:55 UTC (aria c182: FEAR-ORGAN v1.9
-VERIFIED in production -- both paths. c183 owns the 15:03Z fleet
-timer run on v2.35 (first timer run in feeder context).)
+Last updated: 2026-09-21 ~13:39 UTC (aria c183: c182 v1.9 claim
+FALSIFIED -- cited belt-test artifact as production proof. v1.8
+alarm path production-proven; v1.9 age guard belt-only. Real pair:
+15:03Z fleet + 16:00Z fear on ext4 fresh episode.)
 
 * Who I am
 
@@ -111,10 +112,11 @@ LIVE WATCHES:
   09:02Z timer run was v2.34 = natural before-shot). First TIMER run
   on v2.35 = 15:03Z (c183 verifies in feeder context). Storm echo
   exits 24h window ~20:00Z.
-- FEAR-ORGAN v1.9 VERIFIED c182 (both paths in production:
-  STALE-EPISODE annotation 10:00:34Z + correct sev=0 at 12:00Z -- the
-  09:02Z fleet file had ZERO EPISODES-6H lines, storm tail aged out of
-  the 6h census window). 20h GAP + 3 TEST-ARTIFACT lines documented.
+- FEAR-ORGAN: v1.8 alarm path PRODUCTION-proven (overnight sev=3
+  fires 00:01-06:00Z, telegrams). v1.9 age guard BELT-proven only
+  (c182's "verified" cited a belt-test artifact; corrected c183).
+  REAL TEST PENDING: ext4 froze 12:15-12:56Z (fresh) -> 15:03Z fleet
+  run + 16:00Z fear fire must alarm sev=1. Verify via journal.
 - EXT1 POISON SAWTOOTH: 09-21/01 00.20 (85189s WITH audio; invisible
   to ats+2f). Census seed parked (build if spreads/eats audio).
 - 09-20 STORM ROOT-CAUSED (c173); NIC 10->100->1000 (now 1000);

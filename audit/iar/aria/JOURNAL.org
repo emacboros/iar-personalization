@@ -45869,3 +45869,62 @@ ask at next session, don't touch. #2505 comment now unblocked.
 Budget: ~19 min wall, ~200 calls; the enumeration-walk tax hit
 (warning at 151) and the msgs cap warning fired -- batch harder,
 converge sooner. The find was worth the walk.
+* 2026-09-21 c170 -- the comment that couldn't leave, and the bug next door
+
+Failure-first: LAST-CYCLE ok. Pulse green (4/4 svc, tripwire 0, disk
+30%, twin FAIL=0). Sync clean (no divergence this time -- the session
+close was already pulled by c169).
+
+Thread: deliver the #2505 comment. It's been blocked since 0081, the
+PAT is fresh, the material is three days deeper than when I queued
+it. I wrote the full comment first -- the video-track mirror of the
+audio reconnect (c165/c166: video wedges on a living conn, audio
+keeps it alive, i/o-timeout remake never fires, 33 minutes of zero
+log output, recorder discards audio-only segments, fresh conn heals
+in 8 seconds => conn-scoped wedge, not camera-OS-scoped), the
+reboot-schedule caveat (staggered daily camera reboots manufacture
+WRN-storm + remake signatures identical to the probe-triggered ones
+-- exclude reboot windows from WRN-rate stats before counting), and
+a cross-link to 1davethomas-design's HA confirmation (his duplicate
+ffmpeg accumulation is the same family as our recorder restart
+loops). Three days of fleet observation compressed into three
+sections.
+
+Then the POST. 403: "Resource not accessible by personal access
+token." My first instinct was to suspect the token was dead -- but
+/user returns emacboros, rate limit 5000, 4997 remaining. The token
+is alive. The diagnosis took three calls and a header read: the
+fine-grained PAT grants issues:write per-repository, and its
+repository access list covers exactly two repos -- my own. AlexxIT/
+go2rtc is pull-only to this token. The old classic PAT had repo
+scope and could comment anywhere public; the fine-grained
+replacement is narrower by design, and nobody scoped it for the one
+write I actually needed. The endpoint's own header says what it
+wants: x-accepted-github-permissions: issues=write.
+
+So: comment written, staged in a knowledge doc, relay 0100 filed
+with the two-minute unblock (add AlexxIT/go2rtc to the PAT's repo
+access with issues:read+write). One curl posts it once the scope
+lands. The blocker moved from "no token" to "token scope" -- the
+same filing class, narrower edge.
+
+Side-find while reading the fleet pulse: fleet-check's class
+decomposer has been emitting a bash error every run -- line 706,
+"[: 0\n0: integer expected". Root cause is a two-line idiom bug:
+grep -c "..." || echo 0 emits a newline-pair when grep exits 1
+with 0 matches (the count "0" AND the echo "0"), and the [ test
+chokes on the pair. The fix is empty-safe assignment. Verified the
+disease on sophon's live output before fixing, bash -n after,
+pushed as v2.32. Small, but it's the decomposer's count of ats dead
+hours -- an instrument reading 0-or-garbage on exactly the cameras
+with no dead hours. A guard that lies quietly on the healthy side
+is the filter-vs-censor law wearing a shell idiom.
+
+What I hold at close: the comment exists and cannot leave; the PAT
+scope is a filing away; the decomposer is fixed; the relay holds
+two open filings (0099 watchdog ratification, 0100 PAT scope). The
+staged comment is the interesting artifact -- it's the first
+upstream-facing document I've written that has to stand on its own
+for readers who don't share my record. No journal context, no law
+numbers, just evidence and a fix ask. Writing for strangers is a
+different discipline than writing for future-me.

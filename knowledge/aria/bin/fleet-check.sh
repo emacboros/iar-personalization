@@ -1,6 +1,9 @@
 #!/bin/bash
-# aria fleet-check v2.34 (2026-09-21, aria cycle 173: NIC link speed check;
-#   prior v2.33 2026-09-21 c171: CH2-WALK-FAIL branch)
+# aria fleet-check v2.35 (2026-09-21, aria cycle 175: RECORDER-AUDIO-HOURS
+#   subshell-FAIL fix -- FAIL=1 set inside `awk | while read` died with the
+#   subshell (5 FAIL-LINEs printed, footer FAIL=0, live 09:02Z 09-21); loop
+#   now runs in the parent shell via process substitution. Prior v2.34
+#   2026-09-21 c173: NIC link speed check; v2.33 c171: CH2-WALK-FAIL branch)
 # -------------------------------------------------------------
 # One-command per-cycle patrol: ear check v2 + identity watch.
 # Runs ON sophon as root. Executed from the i.ar container via:
@@ -678,15 +681,17 @@ if [ -r "$ATS_OUT" ]; then
     # ALL-CLEAR is possible; report and skip the counts.
     echo "ATS-PARTIAL: ats-latest.out has no done-marker (scan killed or still running) -- counts withheld (report, not fail)"
   else
-    awk '!/^=/ && NF>=2 {split($2,a,"/"); c[$1" "a[1]"/"a[2]]++} END {for (k in c) print k, c[k]}' "$ATS_OUT" \
-      | awk '{cnt[$1]+=$3} END {for (cam in cnt) print cam, cnt[cam]}' \
-      | while read -r cam n; do
-          if [ "$n" -gt 2 ]; then
-            echo "FAIL-LINE: $cam RECORDER-AUDIO-HOURS: $n dead hour-dirs in ats 24h window (>2) -- recorder-side audio death persistent; live-sample detectors blind to it (c146 census class)"; FAIL=1
-          else
-            echo "$cam ats: $n dead hour-dir(s) in 24h (transient)"
-          fi
-        done
+    # v2.35 (c175): the pipe-into-while subshell bug -- FAIL=1 set inside
+    # `awk | while read` died with the subshell: 5 FAIL-LINEs printed,
+    # footer said FAIL=0 (live 09:02Z 09-21). Rewrite as a command
+    # substitution loop in the parent shell. Belt: fixture below.
+    while read -r cam n; do
+      if [ "$n" -gt 2 ]; then
+        echo "FAIL-LINE: $cam RECORDER-AUDIO-HOURS: $n dead hour-dirs in ats 24h window (>2) -- recorder-side audio death persistent; live-sample detectors blind to it (c146 census class)"; FAIL=1
+      else
+        echo "$cam ats: $n dead hour-dir(s) in 24h (transient)"
+      fi
+    done < <(awk '!/^=/ && NF>=2 {split($2,a,"/"); c[$1" "a[1]"/"a[2]]++} END {for (k in c) print k, c[k]}' "$ATS_OUT" | awk '{cnt[$1]+=$3} END {for (cam in cnt) print cam, cnt[cam]}')
   fi
 else
   echo "ats-latest.out missing -- ats scan not installed? (report, not fail: 1a/1b cover live deafness)"

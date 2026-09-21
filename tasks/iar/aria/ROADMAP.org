@@ -1,8 +1,25 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~17:45 UTC (c190 MAINTENANCE PASS: Nocturne's
-09-21 proposal ratified into the live digest; INDEX-DRIFT CLOSED --
-all 33 law names + 2 candidates restored to roadmap-laws.md; debt
-2059 live. The deferred-since-c188 pass is DONE.)
+Last updated: 2026-09-21 ~18:10 UTC (c191: RECEIPT-VS-OWN-WRITE race
+CONFIRMED with full mechanism + FIXED -- nocturne-digest.sh v8.4
+RECEIPT WINDOW, commit 375b210b. Falsifier #0 for the 09-22 pass is
+now: gate advances with RECEIPT-TOLERANCE (race recurs) or clean
+exact match (race absent).)
+
+## c191 LANDED (2026-09-21 ~18:10 UTC): RECEIPT RACE CONFIRMED + FIXED
+- Mechanism (REQUESTS.log forensics): her c142 no-op rewrite executed
+  (mtime 1790008401 -> 1790008420) but the 1800s timeout injected the
+  summary prompt BEFORE the c142 result returned -- the result was
+  severed from her context. She honestly quoted the last stat she SAW
+  (1790008401, c141) with a caveat predicting the failure; the gate's
+  exact-epoch match refused a real verified write.
+- FIX: v8.4 RECEIPT WINDOW (375b210b): receipt epoch within
+  [PROP_MTIME_BEFORE, disk epoch] + exact size match. Stale receipts
+  fail lower bound, future epochs upper bound, content changes change
+  size. RECEIPT-TOLERANCE logged on delta>0. 7 fixture cases pass.
+- Her proposal content was already verified real (c190 ratification);
+  the refusal was mechanical.
+- falsifier #0 for 09-22 pass: gate advances with RECEIPT-TOLERANCE
+  (race recurs, class visible) or clean exact match (race absent).
 
 ## c190 LANDED (2026-09-21 ~17:45 UTC): MAINTENANCE PASS
 - DIGEST ratified: Nocturne's verified additions merged (camera-clock
@@ -45,8 +62,10 @@ all 33 law names + 2 candidates restored to roadmap-laws.md; debt
   class genuine). FAILING. Deadline 10-01.
 - #5: delegate-path abort watch -- armed; 0 bursts.
 - #6: cycle-path abort watch -- LIVE-FIRED c82..c171 (ratio 11/3).
-- NOCTURNE RECEIPT-VS-OWN-WRITE (c188 seed): falsifier = next
-  RECEIPT-FAIL, check no-op-write race.
+- NOCTURNE RECEIPT-VS-OWN-WRITE (c188 seed): CONFIRMED c191 (timeout
+  severs last tool result; model quotes last-seen stat honestly).
+  FIXED v8.4. Remaining falsifier: 09-22 pass advances gate with
+  RECEIPT-TOLERANCE (race recurs) or clean match (race gone).
 - OLLAMA JOURNAL-BLIND (c189): next continuo ISE, PARSE-vs-journal.
 
 ## WATCHES (standing)
@@ -60,9 +79,9 @@ all 33 law names + 2 candidates restored to roadmap-laws.md; debt
   ext5 4, int1 6 at 15:03Z) -- standing FAIL class, decomposer A-class
   dominant. Structural fix (recorder-side) is Nacho-land territory.
 - STORM ECHO: exits 24h window ~20:00Z tonight.
-- NOCTURNE 09-22 pass: gate still at 934dae30 (09-21 held); debt 2059
-  and growing; verify receipt + gate advance at next cycle (falsifier
-  #0; watch for the receipt-vs-own-write race recurring).
+- NOCTURNE 09-22 pass: gate still at 934dae30 (09-21 held); debt
+  2064 at c191 read; v8.4 RECEIPT WINDOW live -- verify gate advance
+  + tolerance/clean line at next cycle (falsifier #0).
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
 - INDEX-DRIFT CLOSED (c190): ALL laws now have entries in
@@ -71,8 +90,8 @@ all 33 law names + 2 candidates restored to roadmap-laws.md; debt
 - Laws list unchanged otherwise (42 names; see roadmap-laws.md).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Nocturne 09-22 pass verification (receipt + gate advance; watch for
-  the receipt-vs-own-write race recurring).
+- Nocturne 09-22 pass verification (v8.4 live: expect gate advance
+  with RECEIPT-TOLERANCE or clean exact match).
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - Silent-wedge hunt: next non-reboot wedge onset.
 - 10-01 D-017 proposal drafting: dual-writer fix shape (c187) is the
@@ -106,8 +125,8 @@ all 33 law names + 2 candidates restored to roadmap-laws.md; debt
 - CONTINUO CLOSE-PATH BELT (c186 seed, c187 mechanism): one canonical
   writer per record file per cycle + append_file-only close path.
   Her files; D-017 is Nacho's ruling; propose at 10-01.
-- RECEIPT-VS-OWN-WRITE race (c188 seed): nocturne gate tolerance for
-  no-op-write staleness; falsifier = next RECEIPT-FAIL.
+- RECEIPT-VS-OWN-WRITE race (c188 seed): CONFIRMED + FIXED c191
+  (v8.4 window). Watch 09-22 pass for the tolerance line.
 - TREADMILL structural note (c188): accept staleness honestly (option
   c) or raise cap; for 10-01 proposal or maintenance session.
 - OLLAMA JOURNAL-BLIND probe (c189): GIN-age alert + PARSE-as-primary.

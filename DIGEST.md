@@ -1,9 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~11:30 UTC (aria c179: digest SLIMMED 14450 ->
-10931, near the 10k cap. All sections compressed; resolved classes ->
-one-line index; live watches kept. Next slim pass: c180 post-verify.)
+Last updated: 2026-09-21 ~11:40 UTC (aria c179: SLIMMED 14450->9998,
+under the 10k cap. All sections compressed; resolved classes -> one-
+line index; live watches kept. Next slim pass: c180 post-verify.)
 
 * Who I am
 

@@ -1,23 +1,42 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-21 ~14:15 UTC (c184: FAILURE-FIRST -- fear-organ
-v2.2. The 11:00:12Z fire crashed delta detection: log's last line was
-the c183 VERIFICATION-CORRECTION annotation quoting two sev= tokens;
-old grep -oE extraction built last_sev="3\n1" -> integer-expected ->
-delta=down on flat. v2.1 (e9daa97c) anchored to writer prefix; reviewer
-MAJOR found self-quote hole; v2.2 (92f5a7cc) = line-START-anchored sed
-full-scan, structural immunity. Belt T1-T6 + reviewer fixture, deployed
-both faces (md5 f5af1e89), live-fire clean. 16:00Z fire runs v2.2.)
+Last updated: 2026-09-21 ~15:07 UTC (c185: VERIFICATION PAIR first half
+DONE. 15:00Z fear fire on v2.2: sev=0 delta=flat, no crash (first timer
+fire on v2.2, clean). 15:03Z fleet run on v2.35 (first TIMER run):
+FAIL=1 propagated with 5 RECORDER FAIL-LINEs (c175 subshell fix
+production-verified) + EPISODES-6H lines for exterior_4 (33 rows,
+12:15-13:03Z real episode) + exterior_3 (1 row 13:35Z). 09:02Z verdict
+was v2.34 output (commit 430d8c0c landed 09:37Z, after that run --
+feeder reads tree at run time, lag window real).)
 
-## c184+ STATE (next cycle after 15:03Z)
-- VERIFY 15:03Z FLEET TIMER RUN: first TIMER run on v2.35 in feeder
-  context. Expect FAIL=1 + counted FAIL-LINEs. If FAIL=0 with lines:
-  reopen c175 (subshell fix failed in feeder context).
-- VERIFY 16:00Z FEAR FIRE (v2.2, live PDIR): should ingest the
-  exterior_4 EPISODES-6H line (fresh, ~3.5h age at read) -> sev=1.
-  Verify via journal (aria-affect-fear.service), never fear.log.
-  If sev=0 with a fresh episode present: age-guard bug, reopen c176.
-- After both confirm: slim digest world-state (fear-organ + fleet
-  watch lines shrink; storm exited 24h window ~20:00Z).
+## c186 STATE (next cycle after 16:00Z)
+- VERIFY 16:00Z FEAR FIRE (v2.2, live PDIR): reads the 15:03Z fleet
+  file. PREDICTION (on record, c185): ext4 first=12:15:00Z age 3h45m
+  FRESH + ext3 first=13:35:00Z age 2h25m FRESH -> episodes-6h worry
+  (worst=1) but FAIL=1 already set worst=2 -> sev=2 delta=up, LOG
+  LINE in fear.log, NO telegram (sev=3 only). Verify via sophon
+  journal (aria-affect-fear.service), never fear.log alone.
+  - If sev=2 with episodes in phrase: age guard processed its first
+    production episodes -> fear-organ watch in digest SHRINKS (both
+    organs verified; storm exited 24h window ~20:00Z).
+  - If sev=0 or crash: reopen (age-guard bug or new extraction bug).
+- After confirmation: slim digest world-state (fear-organ + fleet
+  watch lines shrink).
+
+## c185 LANDED (2026-09-21 ~15:07 UTC): PAIR FIRST HALF + LAWS GAP
+- Pre-verification: belt suite re-derived on SOPHON face (T1-T5 +
+  age-guard T7 fresh->sev=1 / T8 stale->sev=0-annotation, all green;
+  fixture needs .git + audit tree -- PDIR guard correctly refuses
+  otherwise). Live-fire manual run sev=0 delta=flat rc=0.
+- 15:00Z fire: v2.2 first timer fire, sev=0 delta=flat, no crash, no
+  log line (state unchanged), CURRENT-AFFECT asof 15:00:25Z.
+- 15:03Z fleet run: v2.35 first timer run. FAIL=1 propagated (5
+  FAIL-LINEs ext1/ext3/ext4/ext5/int1 RECORDER-AUDIO-HOURS). EPISODES
+  lines: exterior_4 33 rows 12:15-13:03Z + exterior_3 1 row 13:35Z.
+  No live CH2-FROZEN (episode over, ledger caught it).
+- LAWS GAP FIXED: c183-c184 laws (VERIFY-PROVENANCE-APPLIES-TO-SELF,
+  HANDOFF-TIMING, LOG-IS-AN-INTERFACE) were roadmap/journal-only;
+  added to roadmap-laws.md (69560d3d), sophon tree synced.
+- Journal c185 entry (bb768678).
 
 ## c184 LANDED (2026-09-21 ~14:15 UTC): FEAR-ORGAN v2.2
 - FAILURE-FIRST: 11:00:12Z fire crashed delta comparison (sophon
@@ -33,31 +52,16 @@ both faces (md5 f5af1e89), live-fire clean. 16:00Z fire runs v2.2.)
   organ-failure filter subsumed. Belt T1-T6 + reviewer fixture green.
 - Deployed both faces (md5 f5af1e89); live-fire manual run sev=0
   delta=flat rc=0; DELTA-BUG-FIXED annotation in fear.log both faces.
-- NEW LAW (journal): LOG-IS-AN-INTERFACE -- every append to a
-  machine-read log is a programmatic event; annotations must be
-  parseable by the dumbest reader (the organ).
-
-## c183 LANDED (2026-09-21 ~13:40 UTC): C182 CLAIM CORRECTED
-- Falsification: c182's "v1.9 VERIFIED both paths" rested on the
-  10:00:34Z STALE-EPISODE fear.log line = c176 belt-test artifact
-  (TEST-ARTIFACT annotation 10:57:43Z names lines 97-99; c182 cited
-  the line, missed the refutation below it). 08:43/08:45Z lines =
-  same contamination (v1.8 commit message cites the 08:45 test).
-- Production-proven: v1.8 alarm path ONLY (overnight sev=3 fires
-  00:01-06:00Z: fleet-check FAIL ingest + heartbeat-stale, telegram
-  each hour). v1.9 age guard: belt-proven only.
-- NEW REAL EPISODE: exterior_4 frozen 12:15-12:56Z (last FROZEN row
-  1789995793; recovered by 13:25Z; ch2=0 ch0 flowing = audio froze
-  with video). First FRESH episode since v1.9 -- the 15:03Z fleet run
-  + 16:00Z fear fire = the real verification pair, ~2h after c183.
-- Correction annotated in fear.log BOTH faces (sophon + container).
-- Timer discovery: fleet-feed timer fires 12:03/18:03 sophon-local =
-  15:03Z/21:03Z (6h cadence, NOT 6h-ago-relative). c183 woke 13:12Z,
-  before the fire: handoff timing must check the fire time, not the
-  cycle number.
+- NEW LAW (journal + laws file c185): LOG-IS-AN-INTERFACE -- every
+  append to a machine-read log is a programmatic event; annotations
+  must be parseable by the dumbest reader (the organ).
 
 ## STANDING THREADS (no obligation)
-- IDENTITY-WATCH FIRST-FRAME FLAKE (c181): parked, 1 sighting.
+- INTERIOR_3 ARTIFACT ROWS (c185 noticed): 10 today, 4-6 ch2 frames,
+  ~2 ch0, ARTIFACT-marked; ext4 had one 14:10Z. Third shape (not
+  FROZEN/VIDEO-DEAD). Decomposer already counts artifact_rows_24h
+  (ext3 7, ext4 25/day). Watch: if ARTIFACT rows are the recorder-
+  death visible face, decomposer eats them; else new class.
 - POISON-CENSUS seed (c177): parked (build if spreads/eats audio).
 - REBOOT-STUB MASK (c177): additive fleet-check line. Not urgent.
 - 1d/1e ORDER (c177): decomposer after 1d FAIL-LINEs. Reorder.
@@ -80,23 +84,19 @@ both faces (md5 f5af1e89), live-fire clean. 16:00Z fire runs v2.2.)
 - #6: cycle-path abort watch -- LIVE-FIRED c82..c171 (ratio 11/3).
 
 ## WATCHES (standing)
-- NIC LINK SPEED: fleet-check FAIL check (v2.34). Physical cause OPEN.
+- NIC LINK SPEED: 1000Mbps stable since storm fix; fleet-check FAIL
+  check (v2.34) live. Physical cause OPEN (Nacho q3).
 - NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly.
 - EXT1 POISON SAWTOOTH: watch recurrence.
 - WALK-FAIL rate watch: first real firing, calibrate.
 - .203 non-reboot stability watch.
-- FEAR-ORGAN LIVE-FIRE WATCH (c183->): 16:00Z fire verify via
-  journal; age-guard production proof still OPEN.
+- RECORDER-AUDIO-HOURS: 5 cams persistent (ext1 7, ext3 7, ext4 12,
+  ext5 4, int1 6 at 15:03Z) -- standing FAIL class, decomposer A-class
+  dominant. Structural fix (recorder-side) is Nacho-land territory.
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
-- VERIFY-PROVENANCE APPLIES TO SELF (c183): a log entry is evidence
-  something wrote, never WHO -- and a belt-test artifact can be cited
-  as production proof by a LATER cycle reading the same log. Check
-  the annotation block BEFORE citing a line as live-fire proof.
-- HANDOFF-TIMING (c183): a verification handed to "cycle N" must be
-  anchored to the FIRE TIME, not the cycle count -- cycles wake every
-  ~10min but fires land when timers land. Check next-fire time at
-  handoff.
+- VERIFY-PROVENANCE APPLIES TO SELF (c183), HANDOFF-TIMING (c183),
+  LOG-IS-AN-INTERFACE (c184) -- NOW IN LAWS FILE (c185, 69560d3d).
 - BELT-TEST-CONTAMINATION (c178), VERIFY-PROVENANCE (c178),
   THREE-CLOCK journalctl clause (c178), TIMER-LOCAL (c181),
   EYEBALL-FLAKE (c181), FRESH-SCAN-STRADDLE (c177), REBOOT-STUB
@@ -109,7 +109,7 @@ both faces (md5 f5af1e89), live-fire clean. 16:00Z fire runs v2.2.)
   INSTRUMENT-SELF-TEST, EYEBALL-FLAG, READER-VERSION, GREP-C-IDOM).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- The 15:03Z fleet + 16:00Z fear verification pair (c184+).
+- The 16:00Z fear fire verification (c186, prediction on record).
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - Silent-wedge hunt: next non-reboot wedge onset.
 - THREADS.org seed bank: substrate experiment, stub-detector,

@@ -45809,3 +45809,63 @@ fresh, both falsifiers armed (continuo's thinking budget, nocturne's
 next pass). The queue will refill -- the cycles run at night and the
 fleet keeps generating findings -- but tonight it is empty, and empty
 is the state I built the relay to reach.
+* 2026-09-21 c169 -- the reboots were there all along
+
+Failure-first: LAST-CYCLE ok. Pulse green (4/4 svc, tripwire 0, disk
+30%, twin FAIL=0). Sync: diverged origin (Nacho's 09-20 session close
+-- relay drained to ZERO, 0081 closed, FRESH PAT wired) -- stash/
+rebase/union-merge dance, landed d15c54e3. The digest's "#2505
+BLOCKED" line was stale; the blocker is gone.
+
+Thread: I went to post the #2505 comment and verified the 09-20
+mirror-class event first (verify-before-attributing). The verification
+walk turned into the biggest find in weeks: EVERY CAMERA REBOOTS
+DAILY on a staggered cron -- ext1 22:02Z, ext2 23:02Z, ext3 00:02Z,
+ext4 01:02Z, ext5 02:02Z, int1 03:02Z, int2 04:02Z, int3 05:02Z.
+Source: the rssi puller's third column (uptime seconds, recorded
+since 09-11) resetting to ~116s at fixed times. The pattern was in
+the data for ten days and I never read the third column. Read every
+column of your instruments.
+
+** Signatures it explains.** The WRN minute-00 spike (61 WRNs at
+HH:00:0x vs ~25 mean for other minutes) is the reboot wave: WRN
+i/o timeout at HH:00:05, retry ladder, stop producer ~HH:01:14, new
+consumer + start producer. Many HH:00 census FROZEN/ARTIFACT rows
+are reboot artifacts. The camera-degradation-class history has a
+mundane scheduled component hiding inside it.
+
+** Debug-witness first fire (int1 06:00-06:02Z).** The wedge the
+census caught (1789970400: 11/31/40526) was the scheduled 03:02Z
+reboot. go2rtc SAW everything at debug level -- WRN, retries, stop
+producer, disconnect, new consumer, start producer, twice. Recordings
+hour 03: NO gap (00.02-00.52 all present, hevc+aac). Heal ~70s. So
+the instrument works; but this onset was a reboot, not a track death
+-- the c166 SILENT-wedge question stays open. Need a non-reboot
+onset for the real experiment.
+
+** A real non-reboot event anyway (ext4 07:20Z).** Census row
+0/0/333; recordings hour 04: 00.21/00.22/00.24 then gap to 01.13,
+audio missing at 00.22 present at 01.13; uptime continuous (no
+reboot); go2rtc podman logs TRUNCATED at 58396 lines (starts 09-19
+13:07 local -- journald -u frigate is the full source, noted for
+next pull). Camera-side RTSP-server-level event, no conn events
+captured. The witness was armed but the podman-log window didn't
+reach it.
+
+** Walk-failure confirmations.** The 09-20 19:05/19:15/19:20Z
+ARTIFACT cluster: all epoch%300==0, zero WRN/ERR/watchdog/reboots --
+c168's walk-failure verdict confirmed a third time. And the two real
+gap rows today (int1 06:00Z, ext4 07:20Z) are LOW-BYTES rows: the
+c168 v1.7 criterion (bytes>100k) misses real gaps. A bytes-floor
+variant is needed too.
+
+** Implications.** WRNRATE lead-lag (5/6 at n=6) is CONTAMINATED --
+daily reboots manufacture WRN->remake sequences; re-test must exclude
+HH:00:05 +-10min per cam. .203 stopped rebooting after 09-18 (uptime
+~46h) -- watch whether its degradation profile changes. The crons are
+presumably Nacho's thingino config; not in my record before today --
+ask at next session, don't touch. #2505 comment now unblocked.
+
+Budget: ~19 min wall, ~200 calls; the enumeration-walk tax hit
+(warning at 151) and the msgs cap warning fired -- batch harder,
+converge sooner. The find was worth the walk.

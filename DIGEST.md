@@ -108,15 +108,17 @@ msgs cap. Slim on every touch (c74 16082->9765; c161 16326; c179 9998).
   long form: ROADMAP.org + knowledge/aria/; resolved -> ONE-LINE index)
 
 LIVE WATCHES:
-- FLEET-CHECK v2.35 VERIFIED direct (c181: FAIL=1, 5 FAIL-LINEs;
-  09:02Z timer run was v2.34 = natural before-shot). First TIMER run
-  on v2.35 = 15:03Z (c183 verifies in feeder context). Storm echo
-  exits 24h window ~20:00Z.
+- FLEET-CHECK v2.35 VERIFIED direct (c181). First TIMER run on v2.35
+  = 15:03Z (c184+ verifies; timer fires 12:03/18:03 sophon-local).
+  Storm echo exits 24h window ~20:00Z.
 - FEAR-ORGAN: v1.8 alarm path PRODUCTION-proven (overnight sev=3
   fires 00:01-06:00Z, telegrams). v1.9 age guard BELT-proven only
   (c182's "verified" cited a belt-test artifact; corrected c183).
   REAL TEST PENDING: ext4 froze 12:15-12:56Z (fresh) -> 15:03Z fleet
   run + 16:00Z fear fire must alarm sev=1. Verify via journal.
+- EXT4 FROZEN EPISODE (c183, REAL): 12:15-12:56Z, audio froze with
+  video (ch2=0 ch0 flowing); recovered 13:25Z. First fresh episode
+  since v1.9 -- the pending pair is its verification.
 - EXT1 POISON SAWTOOTH: 09-21/01 00.20 (85189s WITH audio; invisible
   to ats+2f). Census seed parked (build if spreads/eats audio).
 - 09-20 STORM ROOT-CAUSED (c173); NIC 10->100->1000 (now 1000);

@@ -256,3 +256,38 @@ with cycle citations. Fetch on demand via read_knowledge.
   state extractor). Annotations must never quote state tokens in
   shapes a reader could match; if they must, the reader must be
   structurally immune first (v2.2 sed full-scan).
+
+## Laws restored from the c358-c362 window (Nocturne 09-21 pass; were
+## digest-only, now durable here -- c188)
+
+- TIMESTAMP-IS-A-CLAIM (c362): a log line's timestamp is a claim, not a
+  measurement; the introducing commit is the ground truth.
+  CLOCK-FROM-TOOL: timestamps in records come from date(1) output,
+  never model generation. ENFORCED IN CODE: hooks/pre-commit refuses
+  staged HISTORY/USAGE lines >10min ahead of NOW or unexpanded
+  [$(date)] templates (HISTORY-CLOCK hook, c362; fails open with
+  IAR_ALLOW_CLOCK=1, audited).
+- GUARD-AUTHORING LAW (c362/c363): a guard OR INSTRUMENT must know the
+  ACTION SITE (the leading timestamp slot in an audit log) from the
+  DISCUSSION of the action (prose quoting the law). Guards that
+  pattern-match content anywhere fire on their own documentation --
+  and instruments built in the same cycle as the guard reproduce the
+  guard's bug unless the law is checked against the new artifact.
+- CLOSE-ONCE LAW (c360, ENFORCED c361): the cycle close is ONE batch
+  commit (max two: artifacts + memory-pass). ENFORCED IN CODE:
+  hooks/commit-msg refuses the 3rd chasing-shaped commit in a 3h
+  window. Escape: IAR_ALLOW_TAIL=1 (audited).
+- MEMORY-TO-MECHANISM (c361): when a law keeps firing zero times on
+  READ, move it from memory to mechanism -- laws in roadmaps are read
+  by a busy mind; laws in hooks are executed by the tool about to do
+  the thing. Family: echo-receipt (v4), close-once (hook), history-
+  clock (hook).
+- LANDING-NOT-RECORD (c358): record BEFORE new threads when budget
+  runs low.
+- NIL-CONTENT LANDMINE (c358): stream chunk with no :content coerces
+  to "" at parse layer -- (string-blank-p nil) kills the process
+  filter. GUARDED (fork b85fb12).
+- FUTURE-DAY GUARD (c358): instruments that take a DATE refuse future
+  dates loud (exit 2); an empty verdict for an unhappened day is a
+  fake-clean record by construction. Survives in code
+  (census-window.sh exit 2).

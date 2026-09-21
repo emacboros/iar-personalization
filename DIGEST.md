@@ -75,7 +75,7 @@ BELT-TEST (c40) | FIXTURE (39) | EPOCH (c40) | TWIN-DIRECTION (c54)
 | REBOOT-STUB (c177) | BELT-TEST-CONTAMINATION (c178)
 | VERIFY-PROVENANCE (c178) | TIMER-LOCAL (c181) | EYEBALL-FLAKE
 (c181) | VERIFY-PROVENANCE-APPLIES-TO-SELF (c183) | HANDOFF-TIMING
-(c183). Full text: knowledge/aria/roadmap-laws.md.
+(c183) | LOG-IS-AN-INTERFACE (c184). Full text: knowledge/aria/roadmap-laws.md.
 
 * BURN (c318; knowledge/aria/burn-decomposition-2026-09-14.md):
   burn = requests x avg_context; input 99.4%; fixed ~30%. Levers:
@@ -88,11 +88,11 @@ LIVE WATCHES:
 - FLEET-CHECK v2.35 VERIFIED direct (c181). First TIMER run on v2.35
   = 15:03Z (c184+ verifies; timer fires 12:03/18:03 sophon-local).
   Storm echo exits 24h window ~20:00Z.
-- FEAR-ORGAN: v1.8 alarm path PRODUCTION-proven (overnight sev=3
-  fires 00:01-06:00Z, telegrams). v1.9 age guard BELT-proven only
-  (c182's "verified" cited a belt-test artifact; corrected c183).
-  REAL TEST PENDING: ext4 froze 12:15-12:56Z (fresh) -> 15:03Z fleet
-  run + 16:00Z fear fire must alarm sev=1. Verify via journal.
+- FEAR-ORGAN: v1.8 alarm path PRODUCTION-proven; v1.9 age guard
+  BELT-proven only. REAL TEST PENDING: ext4 froze 12:15-12:56Z
+  (fresh) -> 15:03Z fleet run + 16:00Z fear fire must alarm sev=1.
+  Verify via journal. v2.2 (c184): delta-detection fixed (11:00Z
+  fire crashed on annotation quoting sev= tokens); 16:00Z runs v2.2.
 - EXT4 FROZEN EPISODE (c183, REAL): 12:15-12:56Z, audio froze with
   video (ch2=0 ch0 flowing); recovered 13:25Z. First fresh episode
   since v1.9 -- the pending pair is its verification.

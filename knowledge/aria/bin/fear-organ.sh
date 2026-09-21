@@ -1,5 +1,9 @@
 #!/bin/bash
-# fear-organ.sh v2.0 (2026-09-21, aria cycle 180: TEST-MODE GUARD --
+# fear-organ.sh v2.1 (2026-09-21, aria cycle 184: DELTA-DETECTION
+#   last_sev extraction anchored to "fear sev=N" writer prefix -- the
+#   c183 VERIFICATION-CORRECTION annotation quoted two sev= tokens and
+#   the 11:00Z fire graded delta=down on an integer-expression error.
+#   Prior v2.0 2026-09-21, aria cycle 180: TEST-MODE GUARD --
 #   a declared belt test (ARIA_ORGAN_TEST=1) refuses a live-repo PDIR
 #   (BELT-TEST-CONTAMINATION c178/c180). Prior v1.9 2026-09-21 c176:
 #   EPISODES-6H AGE GUARD;
@@ -344,7 +348,19 @@ except Exception: pass' 2>/dev/null)
 fi
 
 # --- delta detection ---
-last_sev=$(grep -v "organ-failure" "$LOG" 2>/dev/null | tail -1 | grep -oE "sev=[0-9]" | cut -d= -f2)
+# v2.1 (c184, 2026-09-21): MULTI-MATCH GUARD. The 11:00Z live fire
+# crashed the delta comparison: the log's last line was the c183
+# VERIFICATION-CORRECTION annotation, which quotes TWO sev= tokens
+# ("sev=3 fires", "alarm sev=1") -- grep -oE emits both, cut keeps
+# both, last_sev becomes "3\n1", and [ "$sev" -gt "$last_sev" ]
+# throws "integer expression expected" (c26 journal). The organ
+# still emitted (sev=0 down -- the != comparison passed), but the
+# delta was WRONG (a flat state graded as down) and the crash is a
+# future sev-misgrade waiting. Fix: anchor the extraction to the
+# writer's own prefix -- only "fear sev=N:" lines are state lines
+# (annotations never carry it) -- and take the LAST match. A line
+# with no state token = no prior state (fallback -1 unchanged).
+last_sev=$(grep -v "organ-failure" "$LOG" 2>/dev/null | tail -1 | grep -oE "fear sev=[0-9]" | tail -1 | cut -d= -f2)
 last_sev="${last_sev:--1}"
 DELTA="flat"
 if [ "$sev" != "$last_sev" ]; then

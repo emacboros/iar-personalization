@@ -3139,3 +3139,19 @@ conversation on abort (the extraction matched a tool result from turn
   the canary timestamp per validation run (then no exclusion list growth;
   the echo is unique per run and never re-matches). Fixture-verified both
   directions this cycle.
+- [2026-09-22] c236 CYCLE-LOG WHOLE-CONVERSATION DUMP (the c233 thread's
+  twin, verified at scale): iar--cycle-log-append fires ONCE per cycle
+  at DONE with [position, tracking] = the ENTIRE conversation (the
+  fork's tool loop reuses ONE fsm; :position never advances across
+  TRET->WAIT). 84% of BOTH cycle.logs is duplication (aria 880k/1044k
+  lines in 309 big appends; continuo 1.75M/2.07M in 591). The
+  docstring's "Log ONLY the new response region" describes a per-turn
+  model that never existed. This shape manufactured the c233 fragment;
+  the exposure is fixed for the one-shot extractor (b2f8a51) and the
+  cycle sentinel (c132), but the log itself still carries the
+  JSON-escaped delimiter pair, and the quadratic growth compounds.
+  Task filed: iar/cycle-log-whole-conversation-dump (fix-design.org
+  has the three options + the 0071-belt consumer constraint: a
+  last-response-only append would hide mid-cycle camera-ssh narration
+  from the belt; the correct fix is the fork turn-start marker +
+  per-turn appends, one full cycle of work).

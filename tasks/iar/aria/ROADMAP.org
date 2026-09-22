@@ -1,11 +1,11 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~13:05 UTC (c227: continuo burn weekly
-  census -- 680M/wk 16.4% house, avg in/req RISING 30.9->40.8k = context
-  term dominant (opposite nocturne); nocturne wrapper patch DRAFTED gated
-  on 16:00Z v8.4 verification; day-14 census 09-28 = 10-01 decision point)
+Last updated: 2026-09-22 ~13:20 UTC (c228: depth-burn census -- msgs>=200
+  = 51% of aria burn, msgs>=400 = 11% (124 reqs, max 583) = soft-cap
+  territory breached; walk-and-resend + fat-tail accumulation named;
+  msgs-cap recalibration = relay ruling candidate)
 
 ## NUMBERING LAW (c217 finding; c220 mechanical belt -- READ FIRST)
-- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 226.
+- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 228.
 - MECHANICAL BELT: knowledge/aria/bin/seq-label-belt-check.sh (7ad0dc4d,
   pos+neg tested). Run AT CLOSE, AFTER your journal write: last journal
   label must equal CYCLE-SEQ. Pre-close ALARM is EXPECTED (last label =
@@ -13,6 +13,27 @@ Last updated: 2026-09-22 ~13:05 UTC (c227: continuo burn weekly
 - FORK-PARSE BELT (c224, MECHANICAL): knowledge/aria/bin/
   fork-parse-belt.sh at close whenever the gptel fork changed. Sexp-walk
   + byte-compile gates. .elc staleness = VERIFY-AGAINST-THE-ARTIFACT.
+
+## c228 (2026-09-22 ~13:20 UTC): depth-burn census (aria side)
+- Lens: per-request msgs-depth vs burn. 22 cycles, 2269 PARSE reqs,
+  145.3M PARSE-anchored input (day through 13:18Z).
+- msgs>=200 = 51% of burn (740/2269 reqs); msgs>=300 = 26%; msgs>=400
+  = 11% (124 reqs, max 583). c201 calibration ("zero >=400 ever") STALE
+  -- soft cap 400 now inside the working distribution; hard cap 600
+  fired once (03:45Z, correct landing).
+- MECHANISMS NAMED: (1) WALK-AND-RESEND -- single-call enumeration
+  re-sends all prior msgs each request; batched 05:21Z ssh-walk segment
+  = 0.5M vs 10.1M actual (95% saving). (2) FAT-TAIL ACCUMULATION --
+  median tool result 2.4-2.5k chars; per-msg growth 148-204t/msg in my
+  deep cycles vs continuo's 75t/msg (her one deep cycle 09:18Z: 142
+  reqs, 9.2M, max_msgs 287).
+- burn r=0.94 with reqs, r=0.90 with max_msgs. Injection floor 15-33%
+  of deep-cycle burn; accumulated msgs mass 67-85% = DOMINANT term.
+- Continuo day contrast: avg_msgs 73.7, msgs>=300 ~0% (1 req).
+- Doc: knowledge/aria/aria-depth-burn-census-2026-09-22.md (35d2b6f6).
+- FEEDS: 10-01 D-017 aria-side burn section (numbers not adjectives);
+  msgs-cap recalibration = mechanism ruling (relay candidate, c201
+  fence rationale stale).
 
 ## c227 (2026-09-22 ~13:05 UTC): continuo burn weekly census
 - 7d input (USAGE logs): aria 3422M (82.5%) / continuo 680M (16.4%) /
@@ -26,6 +47,7 @@ Last updated: 2026-09-22 ~13:05 UTC (c227: continuo burn weekly
   action site. Goes to 10-01 proposal as mechanism-gap item.
 - LENS TURN: aria avg 45.5k/req (249 PARSE today) -- biggest term in
   the house. Aria orientation tax needs its own census before a fix.
+  -> DONE c228 (depth-burn census).
 - Nocturne wrapper patch DRAFTED (single-write + ~40-call budget +
   batched reads; exact prompt lines in census doc). APPLICATION
   GATED on tonight's 16:00Z v8.4 first-live-fire verification
@@ -34,128 +56,58 @@ Last updated: 2026-09-22 ~13:05 UTC (c227: continuo burn weekly
 
 ## c225 (2026-09-22 ~12:30 UTC): digest maintenance pass
 - DIGEST REWRITTEN (c0db8f56): header c220 -> c225; cycle ledger now
-  carries c221-c224 (fork-parse belt, 1g bootinfo, micro-gap
-  attribution, fork port close); law index has VERIFY-AGAINST-THE-
-  ARTIFACT (c224, full text appended roadmap-laws.md 114e0d21); world
-  state watches current (micro-gap ATTRIBUTED, 0071 CLOSED, 1g live).
+  carries c221-c224; law index has VERIFY-AGAINST-THE-ARTIFACT
+  (c224, full text appended roadmap-laws.md 114e0d21).
 - Digest size 12988 -> 14140 chars (over 10k target -- next maintenance
   pass must cut; candidates: closed-index one-liners, c212-c207 ledger
   compression, CLOCK CLASS member list).
-- Laws file: VERIFY-AGAINST-THE-ARTIFACT appended (c224): verification
-  against a stale artifact verifies nothing; the fork's .elc files
-  shadowed source edits so the suite passed while source was broken.
 
 ## c224 (2026-09-22 ~12:06 UTC): fork-parse belt built + live-fired on its own author
-- FOUND LIVE: continuo's UNCOMMITTED 10:46Z edit in the loaded gptel fork
-  working tree left it UNPARSEABLE (dropped 2 closing parens, net depth +2;
-  same sort line as 0eef17e -- SECOND offense, same shape). Her journal
-  claims "verified, suite passes" -- insulation mechanism: stale .elc files
-  (10:02, HEAD content) shadow source edits; suite loads .elc, not .el.
-  "Source file newer than byte-compiled file" is the tell in every compile.
-- LANDED: repair committed 86e3881 (preserves her :key intent -- verified
-  working + compile-clean on Emacs 30.2, no deprecation). Suite 1328/1328.
-  Pushed; sophon checkout verified compile-clean. Backup fossils removed
-  both sides.
-- BUILT: knowledge/aria/bin/fork-parse-belt.sh -- sexp-walk parse gate +
-  byte-compile gate (errors fatal, warnings fine), changed-files default /
-  --all sweep. Pos+neg fixtures green (scratch fork). Full sweep 19 files
-  ~3m20s rc=0. USE AT CLOSE whenever fork changed; log via --fix-report.
-- WATCH UPDATE: fork-parse belt = MECHANICAL from next cycle (close-time,
-  like seq-label-belt-check). Continuo fork-edit watch: her edits now have
-  a gate that fires on my close; her own close path still lacks it (10-01
-  D-017 candidate). .elc staleness = HOUSE-WIDE hazard class candidate:
-  VERIFY-AGAINST-THE-ARTIFACT (suite must load source, not stale .elc).
-- SCARS: 2x 600s TIMEOUT (hung emacs eval mid-repair; --all sweep racing
-  the wall clock -- sweep is serial ~10s/file, budget ~4min). 68 calls
-  total, batched better than c223.
+- FOUND LIVE: continuo's UNCOMMITTED 10:46Z edit left loaded fork
+  UNPARSEABLE (dropped 2 closing parens; SECOND offense, same shape).
+  Insulation: stale .elc files shadowed source edits; suite passed
+  while source broken. VERIFY-AGAINST-THE-ARTIFACT law (114e0d21).
+- LANDED: repair 86e3881; suite 1328/1328; pushed; sophon verified.
+- BUILT: knowledge/aria/bin/fork-parse-belt.sh (sexp-walk + byte-compile
+  gates, pos+neg fixtures green). MECHANICAL from next cycle at close
+  whenever fork changed.
+- SCARS: 2x 600s TIMEOUT (hung emacs eval; serial sweep racing wall).
 
-## c223 (2026-09-22 ~10:56 UTC): bootinfo consumed by the composite
-- FLEET-CHECK v2.38 (2e802387): new block 1g BOOTINFO FLEET VIEW --
-  per-cam boot time + age, new-boot detection (epoch change), unscheduled-
-  reboot flag when a new boot lands outside the nightly 01-07Z stagger,
-  BOOTINFO-STALE FAIL-LINE if the puller goes silent >45min. Pos+neg
-  fixtures green; live sophon run clean: 8/8 cams, all nightly boots
-  01-07Z as designed, .203 single-epoch 74h (cron stopped since 09-18,
-  relay ask 2 still open).
-- The puller (c216) now has a CONSUMER: the composite reads its outputs
-  every 6h run. Puller silence = FAIL (blind-spot guard, c174 class).
-- WATCH UPDATE: .202 stable 07:00:09-10Z through 10:45Z pull (no new
-  reboot; double-reboot watch can downgrade if 24h clean).
-- Scar: same-tool warning fired at call 100 (census-walk tax, second
-  time this class; batch harder).
-
-## c222 (2026-09-22 ~10:37 UTC): the micro-gap attributed
-- C209 CROSS-CAM MICRO-GAP ATTRIBUTED: mobile-UI-login class, n=3/3
-  (09-20 22:39Z, 09-20 23:05Z, 09-21 23:11Z -- each preceded 30-70s by
-  a mobile Chrome login from external IPs). Mechanism verified in
-  frigate logs: live grid -> 8x /api/<cam>/latest.webp + 8x
-  /live/mse/api/ws -> camera RTSP stacks (thingino) choke -> go2rtc
-  WRN producer.go i/o timeouts -> [streams] stop producer x8 ->
-  frigate watchdogs ("exceeded fps" / "No frames in 20s") restart all
-  detect+record -> 46-88s recording holes. int2/int3 escaped the
-  09-21 event (1s producer restarts); all 8 holed on 09-20.
-- NOT a degradation class. 1f FAIL line (300s) correctly calibrated
-  (holes are 46-88s, gap-notes). The lost footage is the least
-  valuable (someone is watching live when it gaps).
-- DOC: knowledge/aria/mobile-ui-recording-holes-2026-09-22.md.
-- THREADS seeds: cross-cam simultaneity detector (1f extension, only
-  if class recurs unattributed); ext1 09-21/12 1s micro-segment storm
-  (476 segs/hour; frigate keyframe-boundary restarts; parked).
-- Falsifier: next mobile login -> hole within 90s, same shape.
-- Scar: ~15 tool calls misreading ats/segcensus formats (probed
-  nonexistent segs). Verify row format before counting.
-
-## c221 (2026-09-22 ~10:04 UTC): the fix that fixed the wrong copy
-- GPTEL FORK PORT CLOSED (ed56442): the LOADED fork still ran the
-  ORIGINAL quadratic gptel-context-remove. Continuo's fix 44bbed4
-  landed only in the vendored elpa copy (load-path shadows).
-- FOUND BROKEN: 0eef17e (continuo 09:55Z) DROPPED A CLOSING PAREN --
-  fork unparseable. COMPILE-CLEAN-IS-NOT-CORRECT confirmed with
-  production evidence: no parse gate in the fork close path.
-- LANDED: quadratic fix ported with corrected shape (vendored
-  overlayp branch carried a stray with-current-buffer on an overlay
-  object; port drops it). Paren restored. Pos+neg tests pass. Suite
-  1328/1328. Committed ed56442, pushed sophon-bare; checkout verified.
-- DECOY PATH: sophon /var/home/nacho/repos/i.ar/emacs.d/gptel-fork is
-  an EMPTY uninitialized dir (submodule shell). The real mounted fork
-  is /var/home/nacho/repos/gptel. VERIFY-PROVENANCE: check rotate.sh.
-- OPEN THREAD (filed, needs ruling): fork-parse pre-commit belt --
-  the fork is shared substrate; a hook there is a deliberate decision
-  (Nacho relay candidate if he wants it mechanical). RESOLVED c224:
-  my close-time belt is mechanical now; the in-fork hook still needs
-  a ruling (relay candidate 4).
-
-## WATCHES (standing)
-- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
-  advances w/ RECEIPT-TOLERANCE (expected delta>0) or clean match.
-  RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause that
-  day. Falsifier #0 -- a cycle after 16:1xZ reads it.
-- FEAR-ORGAN v2.4: first REAL fire on a FAIL-bearing FRESH snapshot
-  (cross-check path). Unspent.
-- DROPBEAR WATCH: enforcement MECHANICAL (belt-check v3). Next
-  3-fail burst -> camlog+cycle.log cross-walk.
-- CONTINUO STRIKE-3 CLASS: her 07:26Z + 07:40Z + 10:48Z cycles ok --
-  downgrade watch to passive (strike-reset fix 7cdb989 live). Keep
-  the c221/c224 parse-gate watch on her fork edits (my belt covers).
+## WATCHES (live)
+- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Falsifier #0.
+  Verify gate advances w/ RECEIPT-TOLERANCE (expected delta>0) or clean
+  match. RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause same
+  day. A cycle after 16:1xZ reads VERDICTS.log + her receipt.
+- FEAR-ORGAN v2.4: first REAL fire on FAIL-bearing FRESH snapshot.
+  Unspent.
+- DROPBEAR WATCH: enforcement mechanical (belt-check v3). Next 3-fail
+  burst -> camlog+cycle.log cross-walk.
 - BOOTINFO PULLER + 1g: LIVE (c223). First real fire watch:
-  unscheduled BOOT-EVENT or BOOTINFO-STALE FAIL.
+  unscheduled-reboot BOOT-EVENT or BOOTINFO-STALE FAIL.
 - .202 DOUBLE-REBOOT (c217): stable since 07:00Z; downgrade if 24h
-  clean (i.e. after 09-23 07:00Z pull).
+  clean (after 09-23 07:00Z pull).
 - MICRO-GAP (c222): ATTRIBUTED, benign. Falsifier: next mobile login
-  -> hole within 90s, same shape. No new watch unless unattributed.
+  -> hole within 90s.
 - NOCTURNE BURN (c210): fix rides 10-01 D-017 (est 19.5M -> ~7M).
+- CONTINUO STRIKE-3 CLASS: downgrade to passive (fix 7cdb989 live).
+- FORK-PARSE BELT: mechanical at close when fork changed (c224).
 
 ## NEXT CANDIDATES (ordered by pull, not by duty)
 - Nocturne 16:00Z verification (falsifier #0, v8.4 live fire) --
   the next cycle after 16:1xZ reads VERDICTS.log + her receipt.
 - Digest diet: 14140 chars, target <=10k (next maintenance pass).
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
-  shape + nocturne burn fix + close-path belt).
-- Day-14 census (09-28): decomposed lens, spread-rate verdict. (Day-10 INTERIM DONE c226: 41->38->32 declining, 80% prefix-templating, echo 8%; doc continuo-dup-census-day10-2026-09-22.md; instrument bin/continuo-dup-census.py.)
+  shape + nocturne burn fix + close-path belt + aria depth-burn
+  section from c228).
+- Msgs-cap recalibration ruling: relay filing (c228 finding -- soft
+  cap inside working distribution).
+- Day-14 census (09-28): decomposed lens, spread-rate verdict.
+  (Day-10 INTERIM DONE c226: 41->38->32 declining, 80%
+  prefix-templating, echo 8%; instrument bin/continuo-dup-census.py.)
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - Fear-organ v2.4 first REAL fire watch (hourly, fresh snapshot).
 - 1g first REAL fire watch: first unscheduled-reboot BOOT-EVENT or
-  first BOOTINFO-STALE FAIL (block built c223, never fired live).
+  first BOOTINFO-STALE FAIL.
 - Continuo seq reconciliation (her labels ~c99 vs seq 204) -- needs
   a ruling: adopt seq, or declare her numbering unnumbered-by-design.
 - Fork-parse in-fork hook ruling (c221/c224): pre-commit parse check
@@ -165,7 +117,6 @@ Last updated: 2026-09-22 ~13:05 UTC (c227: continuo burn weekly
 ## THREADS (open, no obligation)
 - MICRO-SEG STORM (c222, parked): frigate restarts segments at
   keyframe boundaries; ext1 09-21/12 had 476 segs (268 micro <5s).
-  Class unknown; watch for recurrence in 1f gap data.
 - RECORDER-AUDIO-DEATH (EPISODES lens; falsifier v3, n=15).
   CAMERA-VIDEO-DEATH. STORM-2026-09-20 (root-caused; recurrence watch).
 - LIVE-FREEZE WATCHING. EXT5 CHRONIC DEGRADATION. GO2RTC REGISTRY
@@ -192,6 +143,9 @@ belt -- want it mechanical in the fork repo (pre-commit hook), yes/no?
 (5) c222 FYI (no action needed): your mobile app causes 46-88s
 fleet recording gaps when you open the live grid -- 8 simultaneous
 streams choke the cameras. Benign; documented.
+(6) c228 FYI/ruling: msgs soft cap (400) now inside the working
+distribution (124 reqs >=400 today, max 583 vs c201 calibration max
+398) -- recalibrate, or accept soft-warns as converge pressure?
 
 ## POINTERS
 AGORA v2: knowledge/iar/agora-v2-architecture.md | D-ledger:
@@ -208,4 +162,5 @@ fleet 6h timer -> fleet-latest -> fear-organ | pullers:
 knowledge/aria/bin/0071-belt-check.sh (v3) | fork-parse belt:
 knowledge/aria/bin/fork-parse-belt.sh (c224) | seq belt:
 knowledge/aria/bin/seq-label-belt-check.sh (c220) | micro-gap doc:
-knowledge/aria/mobile-ui-recording-holes-2026-09-22.md
+knowledge/aria/mobile-ui-recording-holes-2026-09-22.md | depth-burn
+census: knowledge/aria/aria-depth-burn-census-2026-09-22.md (c228)

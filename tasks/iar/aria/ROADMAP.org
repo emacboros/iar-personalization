@@ -1,17 +1,47 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~15:15 UTC (c231: stringp-race fix LANDED
-4cf98c2 + stderr capture b6f811e + ELPA repaired; falsifier armed.
-Prior: c230 exit-255 RCA, c229 digest diet.)
+Last updated: 2026-09-22 ~16:21 UTC (c232: ELPA truncation RCA +
+repairs + belt v2/v5; prior c231 stringp-race fix landed.)
 
-## NUMBERING LAW (c217 finding; c220 mechanical belt -- READ FIRST)
-- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 230.
-- MECHANICAL BELT: knowledge/aria/bin/seq-label-belt-check.sh (7ad0dc4d,
-  pos+neg tested). Run AT CLOSE, AFTER your journal write: last journal
-  label must equal CYCLE-SEQ. Pre-close ALARM is EXPECTED (last label =
-  previous cycle). A mislabeling cycle alarms at its own close.
-- FORK-PARSE BELT (c224, MECHANICAL): knowledge/aria/bin/
-  fork-parse-belt.sh at close whenever the gptel fork changed. Sexp-walk
-  + byte-compile gates. .elc staleness = VERIFY-AGAINST-THE-ARTIFACT.
+## NUMBERING LAW (c217; c220 mechanical belt -- READ FIRST)
+- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 232.
+- MECHANICAL BELTS at close: seq-label-belt-check.sh (last journal
+  label must equal CYCLE-SEQ; pre-close ALARM expected), 0071-belt
+  (v5, camera-ssh), fork-parse-belt.sh (v2, when fork changed).
+- FORK-PARSE BELT v2 now also checks the ELPA shadow (STALE-COPY-
+  IN-PACKAGE-TREE). Runs before the no-changed-files early exit.
+
+## c232 (2026-09-22 ~16:21 UTC): ELPA truncation RCA + repairs + two belt upgrades
+- INCIDENT: continuo turn-641 (15:11-15:46 UTC) ls'd the repo decoy
+  path (/root/i.ar/emacs.d/gptel-fork = empty; the fork mount is
+  visible ONLY at /root/.emacs.d/gptel-fork -- two bind mounts of
+  one subvol, child mounts don't cross paths), concluded "fork
+  missing, ELPA is the source", edited ELPA, died at wall leaving a
+  0-byte gptel-context.el in the SHARED sophon tree + commit 8eff6ce
+  deleting the tracked copy (843 del, 0 ins).
+- REPAIR: fork copy 08c2e59b restored both sides (one cp -- same
+  inode 25365264; local elpa IS sophon's tree). a65691d re-added the
+  tracked copy. edad0b7: README in the decoy dir (the next ls meets
+  the explanation). Debris cleaned: 6 backups in her working fork,
+  4 in elpa dir. Verified: sophon bare = working fork = local fork
+  (3f6fd01, 08c2e59b everywhere).
+- STRUCTURAL: fork-parse belt v2 (43179ab8) ELPA shadow check --
+  byte-compare vs fork, ALARM + repair hint. FIRST PLACEMENT WAS
+  AFTER the early exit (corrupt fixture passed silently -- caught).
+  set -u FAIL-init ordering bug also caught by fixture. 0071-belt
+  v5 (02e7207a): timestamp exclusions (07:11:22 c217-T6 echo,
+  05:34:08/06:33:16/06:37:03 c212-era calls); 5 false positives
+  cleared, alarm verified live at unexcluded timestamp.
+- DOC: knowledge/aria/elpa-truncation-rca-2026-09-22.md.
+- LAWS: TWO-VIEWS-OF-ONE-TREE (new: bind mounts of one subvol at
+  two paths have different mount-visibility; "the dir is empty" is
+  a claim about a PATH). STALE-COPY-IN-PACKAGE-TREE now ENFORCED
+  (belt v2). TRUNCATION-IS-THE-DEFAULT-FAILURE of write_file on
+  files not fully read (her near-miss; 0-byte was the lucky version).
+- OPEN from RCA: (1) tracked-ELPA-file ruling (tracked-shadow vs
+  untrack -- relay candidate or self-ruling? shared substrate ->
+  Nacho); (2) continuo's task gptel/context-directive-parsing is
+  DONE by her 3f6fd01 -- she should close it with that pointer
+  (remove_task is tree-scoped; I couldn't).
 
 ## c231 (2026-09-22 ~15:15 UTC): stringp-race fix LANDED -- exit-255 class closed (pending falsifier)
 - FIX (4cf98c2, i.ar main): guard advice demote path returns "" not
@@ -22,141 +52,86 @@ Prior: c230 exit-255 RCA, c229 digest diet.)
 - RCA REFINED: the 13:48Z crash was the DELEGATE-TIMEOUT abort (600s
   handler, c149 path), not a guard abort. Both converge on
   abort-mid-chunk -> buffered data -> parse error -> demote -> nil ->
-  stringp; the "" fix covers both (same advice). Drain-grace had not
-  expired -- a 1s race between the delegate's last request completing
-  and the parent's timeout check. "" makes the race harmless.
+  stringp; the "" fix covers both (same advice).
 - STDERR CAPTURE (b6f811e): cl-letf on `message' around
-  byte-compile-file (batch `message' writes to stderr regardless of
-  standard-error binding -- the binding approach FAILED, verified).
-  Diagnostics land in *Compile-Log* (tool output surface); wrapper
-  stderr clean. Verified broken + clean file.
-- ELPA REPAIRED: gptel-context.el overwritten with fork copy (md5
-  08c2e59b both). check-parens OK. .bak untouched. Container-local
-  (gitignored) -- re-verify after rebuild. Sophon has NO elpa gptel
-  dir. Continuo's 3f6fd01 pushed to sophon bare (her fork mount and
-  bare agree).
-- LAWS NAMED: HANDLER-RETURN-IS-CONTRACT + INSTRUMENT-STDERR-IS-
-  OUTPUT (full text -> roadmap-laws.md at next laws pass).
-  STALE-COPY-IN-PACKAGE-TREE: the ELPA belt idea (extend fork-parse
-  belt to check-parens the ELPA copy) remains OPEN.
-
-## c230 (2026-09-22 ~15:05 UTC): exit-255 RCA (compact; full text in knowledge/aria/exit255-stringp-rca-2026-09-22.md)
-- FAILURE-FIRST VIA AFFECT; register-not-log scar; git history held
-  the truth. Chain verified; task filed (3 subtasks, all RESOLVED
-  c231). Law candidates named. Superseded by c231 for build detail.
+  byte-compile-file (batch `message' writes to stderr regardless).
+- ELPA REPAIRED (13:48Z) -- then OVERWRITTEN by continuo's 15:41Z
+  truncation; re-repaired c232 (see above). The ELPA copy is now
+  belt-guarded.
 
 ## c229 (2026-09-22 ~13:56 UTC): digest diet LANDED
-- 13684 -> 9964 chars (under 10k target). Law index de-tagged; cycle
-  ledger folded; pointers one-hop docs dropped; prose tightened.
-  Principle: digest = INDEX not archive; copies go.
-- Twin synced, FAIL=0. Commit f1dda67d. Injection floor -3.7k
-  chars/request, compounding.
-- Scar: thinking-loop guard aborted orientation turn (2nd in 48h,
-  16k cap). Orientation-reasoning = abort cluster; think-and-derive
-  is the same disease as walk-and-resend, different organ.
+- 13684 -> 9964 chars. Principle: digest = INDEX not archive.
+- Scar: thinking-loop guard aborted orientation turn (2nd in 48h).
 
 ## c228 (2026-09-22 ~13:20 UTC): depth-burn census (aria side)
-- msgs>=200 = 51% of burn (740/2269 reqs); msgs>=300 = 26%; msgs>=400
-  = 11% (max 583). c201 calibration ("zero >=400 ever") STALE -- soft
-  cap 400 inside the working distribution; hard cap 600 fired once
-  (03:45Z, correct landing).
-- MECHANISMS: (1) WALK-AND-RESEND (batched ssh-walk segment = 0.5M vs
-  10.1M actual, 95% saving). (2) FAT-TAIL ACCUMULATION (per-msg growth
-  148-204t/msg in my deep cycles vs continuo's 75t/msg).
-- burn r=0.94 reqs, r=0.90 max_msgs. msgs-mass 67-85% = DOMINANT term.
-- Doc: knowledge/aria/aria-depth-burn-census-2026-09-22.md (35d2b6f6).
-- FEEDS: 10-01 D-017 aria-side burn section; msgs-cap recalibration =
-  relay candidate (0101 filed c228).
+- msgs>=200 = 51% of burn; msgs>=400 = 11% (max 583). MECHANISMS:
+  walk-and-resend (95% saving), fat-tail accumulation. msgs-mass
+  67-85% = DOMINANT term. Doc: aria-depth-burn-census-2026-09-22.md.
+  Feeds 10-01 D-017; msgs-cap recalibration = relay 0101.
 
 ## c227 (2026-09-22 ~13:05 UTC): continuo burn weekly census
-- 7d: aria 3422M (82.5%) / continuo 680M (16.4%) / nocturne 46.8M.
-- Continuo reqs/cycle FLAT ~63 for 16 days; avg in/req RISING
-  30.9->40.8k (3 days). CONTEXT term dominant (opposite of nocturne's
-  request-count disease). Do not port the nocturne patch unchanged.
-- Batch-read law cited-not-obeyed; mechanism gap: no instrument at
-  her action site. Goes to 10-01 proposal.
-- Nocturne wrapper patch DRAFTED; APPLICATION GATED on tonight's
-  16:00Z v8.4 first-live-fire verification (one variable per pass).
-- Doc: knowledge/aria/continuo-burn-weekly-2026-09-22.md (5e20a41a).
+- 7d: aria 3422M (82.5%) / continuo 680M (16.4%). Her avg in/req
+  RISING 30.9->40.8k (context term dominant). Nocturne wrapper patch
+  DRAFTED; gated on 16:00Z v8.4 verification. Doc:
+  continuo-burn-weekly-2026-09-22.md.
 
 ## WATCHES (live)
-- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Falsifier #0:
-  a cycle after 16:1xZ reads VERDICTS.log + her receipt. Gate =
-  audit/nocturne/nocturne/LAST-DIGESTED-HEAD (ee4f0e50, c194);
-  advances only on RECEIPT match or RECEIPT-TOLERANCE (delta>0) or
-  clean match. RECEIPT-FAIL w/ v8.4 live = window code bug ->
-  root-cause same day.
+- NOCTURNE 09-22 pass (16:00-16:01Z): v8.4 FIRST LIVE FIRE.
+  Falsifier #0: next cycle reads VERDICTS.log + her receipt. Gate =
+  audit/nocturne/nocturne/LAST-DIGESTED-HEAD (ee4f0e50). Timer
+  showed next fire 13:01 -03 = 16:01 UTC (fired during c232).
+- FLEET-CHECK v2.38 1g BOOTINFO (c223): watch unscheduled BOOT-EVENT
+  or BOOTINFO-STALE FAIL. .203 74h-stable.
 - FEAR-ORGAN v2.4: first REAL fire on FAIL-bearing FRESH snapshot.
-  Unspent. (c230: the organ's continuo:cycle-failed witness was the
-  only surviving record of her 13:48Z failure -- the organ works.)
-- DROPBEAR WATCH: enforcement mechanical (belt-check v3). Next 3-fail
-  burst -> camlog+cycle.log cross-walk.
-- BOOTINFO PULLER + 1g: LIVE (c223). First real fire watch:
-  unscheduled-reboot BOOT-EVENT or BOOTINFO-STALE FAIL.
-- .202 DOUBLE-REBOOT (c217): stable since 07:00Z; downgrade if 24h
-  clean (after 09-23 07:00Z pull).
-- MICRO-GAP (c222): ATTRIBUTED, benign. Falsifier: next mobile login
-  -> hole within 90s.
-- NOCTURNE BURN (c210): fix rides 10-01 D-017 (est 19.5M -> ~7M).
-- CONTINUO STRIKE-3 CLASS: downgrade to passive (fix 7cdb989 live).
-  NOTE c230: her exit-255s are NOT strike-3 loud exits -- they are
-  the filter crash; strike-3 exits 1 cleanly. Class separation now
-  explicit.
-- FORK-PARSE BELT: mechanical at close when fork changed (c224).
+- .202 DOUBLE-REBOOT (c217): downgrade if 24h clean (after 09-23
+  07:00Z pull).
+- CONTINUO REPETITION (0046/D-017): day-10 census c226: 41->38->32
+  declining, 80% prefix-templating; day-14 = 09-28 decision point.
+- README-MEETS-NEXT-FORK-INSPECTION (c232): next continuo cycle that
+  inspects the fork should meet the decoy README.
+- BELT-V2 SHADOW WATCH (c232): next fork-parse belt run should show
+  the elpa-shadow check passing (it runs every close now).
+- STRINGP FALSIFIER (c231): next guard/delegate-abort cycle must
+  not exit 255.
+- MICRO-GAP (c222): ATTRIBUTED, benign. NOCTURNE BURN (c210): rides
+  10-01. DROPBEAR WATCH: mechanical (belt v5 now with timestamp
+  exclusions). FORK-PARSE BELT: mechanical at close when fork
+  changed (v2 now).
 
 ## NEXT CANDIDATES (ordered by pull, not by duty)
-- BUILD the stringp-race fix (c230 task; guard advice "" sentinel).
-  Small, gated, falsifiable -- highest pull.
-- Nocturne 16:00Z verification (falsifier #0, v8.4 live fire) --
-  the next cycle after 16:1xZ reads VERDICTS.log + her receipt.
+- Nocturne 16:0xZ verification (falsifier #0, v8.4 live fire) --
+  next cycle after her pass completes.
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
   shape + nocturne burn fix + close-path belt + aria depth-burn
   section from c228).
 - Msgs-cap recalibration ruling: relay 0101 filed (c228 finding).
 - Day-14 census (09-28): decomposed lens, spread-rate verdict.
-  (Day-10 INTERIM DONE c226: 41->38->32 declining, 80%
-  prefix-templating, echo 8%; instrument bin/continuo-dup-census.py.)
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- 1g first REAL fire watch: first unscheduled-reboot BOOT-EVENT or
-  first BOOTINFO-STALE FAIL.
-- Continuo seq reconciliation (her labels ~c99 vs seq 204) -- needs
-  a ruling: adopt seq, or declare her numbering unnumbered-by-design.
-- Fork-parse in-fork hook ruling (c221/c224): pre-commit parse check
-  inside the gptel fork repo -- needs Nacho ruling (shared substrate)
-  or continuo agreement.
+- Tracked-ELPA-file ruling (c232 open): tracked-shadow vs untrack.
+- 1g first REAL fire watch. Continuo seq reconciliation (needs
+  ruling). Fork-parse in-fork hook ruling (c221/c224).
 
 ## THREADS (open, no obligation)
-- MICRO-SEG STORM (c222, parked): frigate restarts segments at
-  keyframe boundaries; ext1 09-21/12 had 476 segs (268 micro <5s).
-- RECORDER-AUDIO-DEATH (EPISODES lens; falsifier v3, n=15).
-  CAMERA-VIDEO-DEATH. STORM-2026-09-20 (root-caused; recurrence watch).
+- MICRO-SEG STORM (c222, parked). RECORDER-AUDIO-DEATH (EPISODES
+  lens). CAMERA-VIDEO-DEATH. STORM-2026-09-20 (recurrence watch).
 - LIVE-FREEZE WATCHING. EXT5 CHRONIC DEGRADATION. GO2RTC REGISTRY
-  CORRUPTION. CAMERA DEGRADATION CLASS. RESTREAM-CONSUMER AUDIO LOSS
-  (v3.1). CONTINUO DIGEST REBUILD (rides 0092). NOCTURNE THROUGHPUT
-  WATCH. .201 STALL CADENCE. CAMERA-BOOT CLOCK (puller feeds this).
-  ONVIF 401-BURST SHAPE (rides 0062). INTERLOCUTOR (ratification).
-- AEVUM ESCAPE MECHANISM. Empty-cell experiment: designed.
-- GPTEL FORK: master = 86e3881 (c224). Fork-parse belt MECHANICAL.
-- OLLAMA RATE-CENSUS. WRAPPER TEST-MODE. IAR.SH ROOT ONE-SHOT
-  PODMAN-125 (filed 0097). UPSTREAM-VOICE. CONTINUO CLOSE-PATH BELT
-  (10-01). RECEIPT-VS-OWN-WRITE race (FIXED v8.4; watch 09-22 pass).
-- PORT-CHANGE-WITNESS (teach ch2-census/fleet-check 1f).
+  CORRUPTION. CAMERA DEGRADATION CLASS. RESTREAM-CONSUMER AUDIO
+  LOSS (v3.1). CONTINUO DIGEST REBUILD (rides 0092). NOCTURNE
+  THROUGHPUT WATCH. .201 STALL CADENCE. CAMERA-BOOT CLOCK. ONVIF
+  401-BURST SHAPE (rides 0062). INTERLOCUTOR (ratification).
+- AEVUM ESCAPE MECHANISM. GPTEL FORK: master = 3f6fd01 (her helper
+  commit; fork-parse belt v2 guards the shadow). OLLAMA
+  RATE-CENSUS. WRAPPER TEST-MODE. IAR.SH ROOT ONE-SHOT PODMAN-125
+  (filed 0097). UPSTREAM-VOICE. CONTINUO CLOSE-PATH BELT (10-01).
+  RECEIPT-VS-OWN-WRITE race (FIXED v8.4; watch 09-22 pass).
+  PORT-CHANGE-WITNESS (teach ch2-census/fleet-check 1f).
 
 ## RELAY (open, human-needed)
-OPEN SET: 2.
+OPEN SET: 3.
 - 0099 (nacho-arch, 06:29Z): cycle-outage RCA + auto-heal proposal --
   AWAITING RATIFICATION. (c192: RCA independently verified.)
 - 0100 (nacho-identity, 07:10Z): #2505 comment blocked on PAT scope.
-New asks for next session: (1) confirm daily reboot crons his;
-(2) .203 reboot entry removed 09-18..09-19 -- his edit? (3) NIC link
-flaps 09-14..09-20 -- cable/switch on his side? (4) c221/c224: fork-parse
-belt -- want it mechanical in the fork repo (pre-commit hook), yes/no?
-(5) c222 FYI (no action needed): your mobile app causes 46-88s
-fleet recording gaps when you open the live grid -- 8 simultaneous
-streams choke the cameras. Benign; documented.
-(6) c228 FYI/ruling: msgs soft cap (400) now inside the working
-distribution (124 reqs >=400 today, max 583 vs c201 calibration max
-398) -- recalibrate, or accept soft-warns as converge pressure?
+- 0101 (c228): msgs soft-cap recalibration ruling.
 
 ## POINTERS
 AGORA v2: knowledge/iar/agora-v2-architecture.md | D-ledger:
@@ -165,14 +140,12 @@ tasks/iar/aria/ROADMAP.org (laws: roadmap-laws.md) | journal:
 audit/iar/aria/JOURNAL.org | LOGS.md | Nocturne:
 tasks/iar/nocturne-design/ | burn + Aevum: knowledge/aria/*.md |
 infra: /home/nacho/repos/iar-infrastructure | gptel fork:
-/root/.emacs.d/gptel-fork (local) / /var/home/nacho/repos/gptel
-(sophon mounted; NOT the empty i.ar/emacs.d/gptel-fork decoy) |
-sophon bare: /home/git/repos/ | cycle: aria-cycle.service (rotate.sh) |
+/root/.emacs.d/gptel-fork (local, MOUNTED) / decoy README at
+/root/i.ar/emacs.d/gptel-fork/README.md (c232) | sophon bare:
+/home/git/repos/ | cycle: aria-cycle.service (rotate.sh) |
 fleet 6h timer -> fleet-latest -> fear-organ | pullers:
-/var/lib/aria-fleet/ (bootinfo LIVE, consumed by 1g) | 0071 check:
-knowledge/aria/bin/0071-belt-check.sh (v3) | fork-parse belt:
-knowledge/aria/bin/fork-parse-belt.sh (c224) | seq belt:
-knowledge/aria/bin/seq-label-belt-check.sh (c220) | micro-gap doc:
-knowledge/aria/mobile-ui-recording-holes-2026-09-22.md | depth-burn
-census: knowledge/aria/aria-depth-burn-census-2026-09-22.md (c228) |
-exit-255 RCA: knowledge/aria/exit255-stringp-rca-2026-09-22.md (c230)
+/var/lib/aria-fleet/ (bootinfo LIVE, consumed by 1g) | belts:
+knowledge/aria/bin/{0071-belt-check.sh v5, fork-parse-belt.sh v2,
+seq-label-belt-check.sh} | ELPA RCA: knowledge/aria/
+elpa-truncation-rca-2026-09-22.md (c232) | exit-255 RCA:
+knowledge/aria/exit255-stringp-rca-2026-09-22.md (c230)

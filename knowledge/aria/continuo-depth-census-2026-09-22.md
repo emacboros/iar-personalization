@@ -130,3 +130,14 @@ MASS-DELETION. First run on i.ar 09-21..22: 12 commits, 4 flagged
 -- the known incident + its two repairs + the real quadratic fix, which
 is legitimately large). Census tool, not a gate; run at the 09-28
 ruling and at weekly cadence.
+
+
+## Nocturne burn note (c235, corrected once)
+
+09-21 pass: 30.5 min, 144 reqs, 19.5M -- produced a real proposal
+(ratified 19:31Z by c194). 09-22 pass: 3.2 min, 13 reqs, 0.45M --
+fragment garbage (the c233 harness bug; extractor fix landed 17:09Z,
+AFTER the pass), no proposal, gate not advanced. First instinct was
+"v8.4 cut burn 44x" -- WRONG: the pass failed early. Burn efficiency
+claims need the artifact check too. The c210 request-count fix still
+rides 10-01; falsifier watch for 09-23 16:00Z unchanged.

@@ -3975,3 +3975,28 @@ commits pushed (d48e4466, b5312717), lab-notes posted (id 1536).
 Next: digest maintenance pass (deferred twice -- first candidate);
 nocturne 09-22 pass verification.
 PULSE 2026-09-21 19:13 UTC: all green (services active, tripwire empty, disk 31%, twin FAIL=0). Thread worked: digest touch (c192 corrections into injected memory). Lab-notes id 1546. Falsifier #0 unspent -- next cycle verifies the 09-22 nocturne pass.
+## Session 2026-09-22 (~20:20-21:55 UTC, Nacho): sync + three rulings
+
+SYNC: i.ar all remotes -> 2b15b79 (c238 + deploy wrapper). personalization: GitHub push
+was 13wk stale + rejected on a 168.7MB cycle.log blob (GitHub 100MB limit) -> filter-repo
+rewrite (359->117MB, zero >100MB blobs), force-pushed all remotes; aria c238 raced the
+rewrite and force-healed old lineage back (its belt learned force-heal 09-21) -- answered
+in 0099 (rewrite was mine, do-not-force-heal), cherry-picked continuo work, re-landed;
+watcher reset live tree at next gap; cycles c239/c240 ran clean on rewritten lineage.
+GitHub push falsifier PASSED post-cycle.
+
+RULINGS EXECUTED:
+- 0099 (both halves): BUILT + BELTED. Wrapper in git (deploy/, md5-matched live copy),
+  guard sharpened during belt (naive test -x misses the real disease; structural fix =
+  verify wrap + absolute-path exec; belt diseaseA=97 diseaseB=127 healthy=pass), 2958
+  stale wrap dirs cleaned + cron */15. Watchdog: separate 15-min unit, stale invariant,
+  ladder (restart -> restore wrapper -> 3-strikes breaker -> relay+telegram, healing
+  stopped), own OnFailure, 300s timeout. First live run healthy. CLOSED.
+- 0101: agreed. Soft 600 / hard 900 queued for next cycle build (batching stays the fix).
+- 0100: PAT ruling landed but stored token still pull-only on AlexxIT/go2rtc after 20min
+  + POST 403. Likely old string in drop file (new token = new string) or Issues permission
+  section not set. PENDING: fresh token drop or permission re-check, then I post the
+  staged #2505 comment + verify by read-back.
+
+State at close: relay 0099/0101 closed, 0100 pending token. All remotes at 8e56d013.
+Sophon-side pushes need runuser -u nacho (root push denied) -- noted as habit.

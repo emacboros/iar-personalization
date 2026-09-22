@@ -1,5 +1,8 @@
 #!/bin/bash
-# aria fleet-check v2.36 (2026-09-21, aria cycle 196: RECORDER-AUDIO-EVENTS
+# aria fleet-check v2.37 (2026-09-22, aria cycle 209: RECORDER-GAP CENSUS block 1f
+#   -- GAP-COUNT + LONGEST-GAP first-class from segment NAMES (no probing; the
+#   E10 recorder-hole class, invisible to ats + ear check, now organ-readable).
+#   Prior v2.36 2026-09-21, aria cycle 196: RECORDER-AUDIO-EVENTS
 #   decomposed -- events not hour-dirs, reboot-window class R report-only;
 #   c196 falsified the c146 recorder-side attribution for the stall class:
 #   ext1 15:25-18:35Z had UNCHANGED go2rtc producer id, zero recorder
@@ -759,6 +762,71 @@ if [ -r "$ATS_OUT" ] && grep -q "^== done " "$ATS_OUT"; then
     echo "class decomposer: ch2census dir missing -- decomposition unavailable (report, not fail)"
   fi
 fi
+
+# --- 1f. RECORDER-GAP CENSUS (v2.37, aria c209): GAP-COUNT + LONGEST-GAP ---
+# The E10 class (c205): frigate's recorder ffmpeg crashed mid-hour and the
+# recording has a HOLE -- video AND audio segments missing by name. Invisible
+# to ats (1d flags hours with dead-audio segs; a hole has no segs to flag)
+# and to the ear check (samples the newest 3 segs only). The boundary census
+# (audio-boundary-census.sh v1.0, c206) proved the method on ground truth;
+# this block runs its NAME-ONLY half fleet-wide: ls per hour-dir, epoch from
+# date+hour+MM.SS (bash arithmetic, no per-seg date forks), consecutive-name
+# holes >45s = a gap. NO probing: the dead-run half stays with 1d/ats and
+# the standalone census for incident work. Read-only; reversible: delete block.
+# FAIL contract: a non-reboot-window gap >300s = unambiguous recording loss
+# -> FAIL-LINE. Smaller gaps (deliberate camera reboots ~60-120s per 0080,
+# producer-replacement discards ~20s) report as ledger data, not fail.
+# Gaps STARTING inside the nightly reboot window (01-07Z, c174/c177) are
+# class R: counted, reported, never FAIL (known class).
+# KNOWN LIMIT (v1): a retention-deleted hour inside 24h reads as a hole.
+# Cross-cam signature: retention deletes are fleet-simultaneous at the same
+# boundary; a per-cam FAIL there is diagnosable from the snapshot. If the
+# first false FAIL is retention-shared, add the cross-cam guard (falsifier).
+echo "-- recorder-gap census (1f, name-only, 24h) --"
+GAP_TMP=/tmp/fc1f.$$
+NOWE=$(date +%s); GCUT=$((NOWE - 86400))
+for cam in $CAMERAS; do
+  : > "$GAP_TMP"
+  for day in $(date -u -d "-1 day" +%Y-%m-%d) $TODAY; do
+    daysec=$(date -u -d "$day" +%s 2>/dev/null) || continue
+    for h in 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23; do
+      d="$R/$day/$h/$cam"
+      [ -d "$d" ] || continue
+      for f in "$d"/*.mp4; do
+        [ -e "$f" ] || continue
+        base=${f##*/}; base=${base%.mp4}
+        mm=${base%%.*}; ss=${base#*.}
+        epoch=$((daysec + 10#$h*3600 + 10#$mm*60 + 10#$ss))
+        [ "$epoch" -ge "$GCUT" ] && [ "$epoch" -le "$NOWE" ] && echo "$epoch $base" >> "$GAP_TMP"
+      done
+    done
+  done
+  if [ ! -s "$GAP_TMP" ]; then
+    echo "$cam GAP-CENSUS: no segments in 24h (ear check owns NO-SEGMENT)"
+    continue
+  fi
+  sort -n "$GAP_TMP" | awk -v cam="$cam" '
+    NR==1 { prev=$1; prevname=$2; next }
+    {
+      d=$1-prev
+      if (d>45) {
+        gaps++
+        hstart=strftime("%H", prev, 1)
+        inr=(hstart+0>=1 && hstart+0<=7)
+        if (inr) { rgaps++ }
+        else { if (d>longest) { longest=d; ls=prevname; le=$2 } }
+        if (d>longestall) { longestall=d; lsa=prevname; lea=$2 }
+      }
+      prev=$1; prevname=$2
+    }
+    END {
+      gaps+=0; rgaps+=0; longest+=0; longestall+=0
+      printf "%s GAP-CENSUS: gaps=%d (reboot-window=%d) longest_nonR=%ds longest_any=%ds (24h, name-only)\n", cam, gaps, rgaps, longest, longestall
+      if (longest>300) printf "FAIL-LINE: %s RECORDER-GAP: %ds hole %s->%s outside reboot window -- recording loss (E10 class)\n", cam, longest, ls, le
+      else if (longest>0) printf "%s gap-note: longest non-reboot-window hole %ds (%s->%s) -- ledger data, not fail\n", cam, longest, ls, le
+    }'
+done
+rm -f "$GAP_TMP"
 
 # --- 2. IDENTITY WATCH (pixels, not metadata) ---
 echo "-- identity watch --"

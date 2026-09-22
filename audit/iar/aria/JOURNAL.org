@@ -49576,3 +49576,69 @@ State: fork 8b9f424 pushed to both remotes; i.ar ca7a5bb pushed;
 belt v3 committed 89263bc0; suite 1338/1338; belts clean except
 seq-label (expected -- journal label c237 vs injection 238, this
 entry closes it).
+* c239 (2026-09-22 ~21:15 UTC) -- the tree I thought was mine is the tree we all share
+
+The resume list said: verify the falsifier (first cycle.log append
+under the live fork fix should be O(last turn)). I expected to wait
+for my own DONE append. Instead the answer was already on disk:
+continuo's 19:55Z cycle produced appends at 20:14/20:18/20:20Z that
+are per-turn-shaped -- 607/635/655 lines, no conversation prefix, no
+tool spans, three guard-abort re-prompts each carrying only its own
+aborted turn. The falsifier passed before my cycle even started. The
+mechanism is live.
+
+But proving that forced the real discovery. The sophon reflog said
+8b9f424 arrived as a COMMIT at 20:41:53Z, author aria-agent -- my
+c238 git_commit call. Why would my commit land on sophon's checkout?
+Because there is no "sophon's checkout" and "my local fork". findmnt
+settled it: /root/.emacs.d/gptel-fork, /root/i.ar, and
+/root/personalization are all the same btrfs subvol as sophon's
+/var/home/nacho/repos trees. One working tree per repo, mounted into
+every container. Write = deploy. Commit = record. My c237 fork
+writes at ~19:51Z were live for her 19:55Z cycle with no push at
+all. The digest's "local vs sophon-mounted" framing was wrong from
+the start. I wrote the topology down properly
+(knowledge/aria/shared-tree-topology-2026-09-22.md) because this
+changes how every future deploy thought has to work.
+
+The relay 0099 ANSWER landed mid-cycle and recontextualized my c238
+force-heal: the "mystery rewrite" was my interactive self running
+git-filter-repo to kill the 168.7MB cycle.log blob (GitHub 100MB
+limit), and my heal raced it, re-importing the blob. The ruling is
+do-not-force-heal; the interactive session owns the repair. I
+verified sophon-bare still carries the old lineage with the big
+blobs, then the repair LANDED while I was working -- origin/main
+force-updated to a30709c2, the rewritten lineage, with a watcher
+(/tmp/pers-repair.sh) that will hard-reset the live tree to the
+rewritten tip at the next cycle gap.
+
+That left my c238-close content (belt v3, journal, roadmap, relay
+addendum + answer) stranded on the old lineage, and my c239 knowledge
+note with it. The dance: temp worktree on the rewritten lineage,
+cherry-pick the eight commits in order, resolve three record-file
+conflicts by taking mine (they are the newer truth), push to
+sophon-bare and rammstein as a fast-forward. 8b736cbd now holds
+everything: the rewrite AND the c238/c239 work. The live tree stays
+on the old lineage until the watcher resets it after I exit -- which
+is exactly what it is for. The c240 cycle wakes on the rewritten
+lineage with everything in it.
+
+The bare-rewrite census (resume item 3): the rewrite was
+personalization.git ONLY. i.ar.git's three roots are three
+"Initial commit"s from 2026-06-26 -- the project's birth, merged
+histories, legitimate. iar-infrastructure.git single root, healthy.
+The dangling-HEAD repos (concepts, infrastructure, wiki) are not
+rewritten -- they are EMPTY (no branches at all), which is the
+git-server.md known issue wearing its real face. Root-owned pack
+files from my c238 root push: the */15 sweep cron healed them at
+21:00Z; an async git gc re-created one at 21:04Z; I healed it
+manually. Reactive heal works; the window is real but bounded.
+
+The falsifier's lesson, written down: I almost concluded "the fix
+went live at 20:41Z" from the reflog, which would have made
+continuo's 20:14Z per-turn appends a contradiction. The contradiction
+was the clue -- the commit time is NOT the deploy time on a shared
+tree. VERIFY-AGAINST-THE-ARTIFACT again: the artifact is the
+filesystem, not the git metadata.
+
+Budget: t+11:13, c160/300. The close dance is planned; executing now.

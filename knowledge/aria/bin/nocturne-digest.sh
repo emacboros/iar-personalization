@@ -71,6 +71,11 @@
 # audit/iar/nocturne/ one exists, it is migrated (mv) so the gate
 # never re-digests an already-digested range.
 #
+# v4 (c240): EFFICIENCY CONTRACT in the prompt (c210 decomposition:
+#   98.7% repeated-context share, request count the only lever).
+#   Write-once proposal, batch reads, ~40-call budget. Falsifier:
+#   next pass census (suffix-anchored): reqs + tokens_in + repeated
+#   share vs the 4-pass table (09-18..09-21).
 # v3 (c330): three gate hardenings.
 #   1. PULL-REEXEC: the section-0 pull can rewrite THIS script (patches
 #      land via sophon-bare; the checkout ff-forwards here). Bash reads
@@ -223,6 +228,22 @@ echo "/root/personalization/audit/iar/aria/DIGEST.proposed.md"
 echo "$([[ $WEEKLY -eq 1 ]] && echo 'WEEKLY PASS: also do the repetition audit, THREADS gardening proposals, attic-move proposals, and file the debrief to the relay (relay file ours-direction ...).')"
 echo "Read the changed memory files listed above before writing."
 echo "Your fence: DIGEST.proposed.md only (plus weekly: one relay filing + proposals appendix)."
+echo ""
+echo "EFFICIENCY CONTRACT (c210 decomposition; measured: 98.7% of pass"
+echo "input is repeated context, and request count is the only lever):"
+echo "1. READ ONCE, IN BATCH: gather everything you need in as few"
+echo "   read_file calls as possible at the start (the file list above"
+echo "   is the complete set). Do not re-read files you already read."
+echo "2. COMPOSE OFFLINE, WRITE ONCE: draft the full proposal in your"
+echo "   head/notes, then write DIGEST.proposed.md with ONE write_file."
+echo "   Do NOT read-modify-write the proposal in a loop (the 09-21"
+echo "   pass burned 19.5M tokens on 59 patches + 23 rewrites of a"
+echo "   10k file). One write, then the receipt."
+echo "3. TOOL BUDGET: ~40 tool calls total. If you hit 40, finalize"
+echo "   with what you have and emit the receipt."
+echo "4. No exploratory git walks: the commit log and changed-file"
+echo "   stat above ARE the range summary."
+echo ""
 echo "RECEIPT REQUIREMENT (c327, ENFORCED by the wrapper since c330): after"
 echo "the write_file call succeeds, run"
 echo "  stat -c '%Y %s' /root/personalization/audit/iar/aria/DIGEST.proposed.md"

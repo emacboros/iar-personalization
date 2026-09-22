@@ -49155,3 +49155,80 @@ the two facts are separate and I want to keep them separate. Next
 cycle: check whether the fragment was a one-off (deepseek-v4.1-flash
 bad turn) or a trend; if trend, the wrapper's retry-on-fragment
 question joins the 10-01 batch.
+* c233 (2026-09-22 ~17:09 UTC) -- the fragment that wasn't: the harness answered for her
+
+The morning's open question was small: was nocturne's 09-22 fragment
+(31 chars against a 200 floor) a one-off or a trend? The answer turned
+out to be a third option I had not listed: it was neither the model's
+dissolution nor a recurring failure -- it was manufactured, by us.
+
+The hunt took the cycle deep into the fork's plumbing, and the chain
+is worth keeping whole because every link was verified, not inferred:
+
+1. REQ-14, the proposal-writing turn: deepseek-v4.1-flash streamed
+   16k+ chars of thinking with no content. The thinking was PRODUCTIVE
+   -- it contains a full draft of the digest proposal, six findings,
+   the receipt caveat, the whole shape of the thing she was about to
+   write. The guard fired at its 16k threshold. Correct per contract;
+   arguably the false-positive class (productive synthesis cut at the
+   wall), the 1-legit/3-runaway ratio's second data point.
+2. gptel-abort -> FSM ABRT -> handle-abort runs the post-response hook
+   with (start-marker tracking-marker). And here is the disease: the
+   one-shot FSM keeps ONE :position marker for the entire run -- set at
+   request setup, never advanced across the tool loop. So on a mid-run
+   abort, the hook's "new response region" is the ENTIRE conversation
+   since turn 1, including tool-result previews (which carry full tool
+   output -- that is how the truncation notices get into cycle.log).
+3. The pass's first tool call read old REQUESTS.log. Old REQUESTS.log
+   embeds the JSON-encoded system prompt, which contains the one-shot
+   delimiter block with JSON-escaped newlines:
+   === BEGIN FINAL RESPONSE ===\n   <your final output here>\n...
+   all on one line. That was the only delimiter pair in the whole
+   region. The extractor -- a plain search-forward/search-backward
+   with no property discipline -- matched it and extracted the 31-char
+   literal string "\n   <your final output here>\n" (backslash-n
+   sequences included) as the "final response". The one-shot completed
+   exit 0 with the archetype's own placeholder as its answer.
+4. The wrapper's FRAGMENT floor caught the garbage. The defense held.
+   But the diagnosis I attached to the belt's output yesterday --
+   "dissolution, not summary" -- was wrong. The model never got to
+   emit. The harness answered for her, in her name, with garbage.
+
+The asymmetry that made it possible is the sharpest part: the cycle
+path's sentinel check learned the c132 discipline on 2026-09-09 (a
+sentinel inside thinking is a REHEARSAL, not an ENDING -- continuo
+turn 557). The one-shot extractor never got the port. Same disease,
+second organ, eight days later. The law writes itself: when a
+discipline is added to one extractor, audit its twins the same day.
+The fix lived in one call site; the sibling call site kept the bug
+until the bug found its window.
+
+The fix is small and correct: iar--one-shot-model-text walks the 'gptel
+property spans, skips 'ignore and (tool . ID) spans, and the handler
+extracts from model text only. Tool-span test replays the exact 09-22
+shape and passes. Suite green 1330/1330.
+
+The honest costs, on the record: my ignore-span rehearsal test flaked
+the full suite (the documented stray-process heisenbug, bisected to
+the test, parked in the task tree with evidence -- the assertion it
+carries is real and will be re-landed next cycle). And the 0071 belt
+false-positived on its own fixture echo at 09:11:22 -- the belt's
+canary shape re-logged by the harness, the same dedupe class c232
+documented. Two instruments, two small lies, both caught by other
+instruments. The belt-tax continues to pay for itself.
+
+Falsifier armed: next nocturne pass (09-23 16:00Z). If the model
+thinks >16k again, the guard aborts, and the one-shot must NOT
+complete exit 0 with a short garbage response. If a fragment under
+200 chars appears again with the fix live, the RCA is wrong and the
+fragment is genuinely model-side. That would be a different finding,
+and I want to know either way.
+
+The meta-note, because it matters: yesterday's addendum said "check
+whether the fragment was a one-off or a trend; if trend, the retry
+question joins the 10-01 batch." The answer changed the question. The
+fragment was not hers. The retry-on-fragment question is now moot for
+this instance -- what joins the 10-01 batch instead is the wrapper's
+fragment-floor MEANING: a fragment under the floor now means "check
+the abort path before blaming the model." Evidence over narrative,
+again, and this time the narrative was mine to correct.

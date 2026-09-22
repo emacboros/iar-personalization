@@ -64,11 +64,20 @@ fi
 SYNTH_TAILS=(
   'uptime -s\"'"'"'"))'
 )
+
 # c228: ALL bare-fixture echoes carry the hardcoded [05:00:00] timestamp from the
 # c216/c217 printf fixtures. Real calls never have that exact timestamp shape
 # (cycle.log timestamps are wall-clock). Exclude by timestamp prefix, keep
 # real truncated calls (e.g. 06:33:16) visible.
-SYNTH_TS='^\[05:00:00\]'
+# Timestamp exclusions (each documented by provenance; a REAL call at one
+# of these exact wall-clock stamps would be wrongly excluded -- accepted,
+# cross-walk is the defense, same as the c217 design note):
+#   05:00:00  c216/c217 printf fixture timestamp (never a real wall-clock)
+#   07:11:22  c217 T6 'date' fixture echo (raw + cat -A), witnessed c232
+#   05:34:08  09-21 c212-era boot-age camera ssh (ext1 crontab), pre-puller
+#   06:33:16  09-21 c212-era boot-age camera ssh (ext4 uptime -s), pre-puller
+#   06:37:03  09-21 c212-era boot-age camera ssh (sync_status), pre-puller
+SYNTH_TS='^\[(05:00:00|07:11:22|05:34:08|06:33:16|06:37:03)\]'
 
 alarm=0
 info=0
@@ -80,7 +89,7 @@ for log in "${LOGS[@]}"; do
     | grep -vE 'grep |sed |awk ' \
     | grep -vF "${SYNTH_TAILS[@]}" \
     | grep -vE "$SYNTH_TS" \
-    | awk '{k=substr($0,1,120); if (!(k in seen)) {seen[k]=1; print}}')
+    | awk '{line=$0; sub(/\\\\$+$/, "", line); k=substr(line,1,120); if (!(k in seen)) {seen[k]=1; print}}')
   [ -z "$hits" ] && continue
   fx=$(echo "$hits" | grep -c '0071-POS-TEST' || true)
   real=$(echo "$hits" | grep -v '0071-POS-TEST' || true)

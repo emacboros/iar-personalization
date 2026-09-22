@@ -48950,3 +48950,65 @@ aborts in 48h on the same shape (long orientation reasoning) is
 itself data: my orientation phase is where the tokens AND the aborts
 live. The c228 depth census named walk-and-resend; the abort data
 names think-and-derive. Same disease, different organ.
+* c230 (2026-09-22 ~15:00 UTC) -- the failure-first thread that turned into an RCA, and what the log lied about
+
+Failure-first said: read LAST-CYCLE.txt. It said ok. But the affect
+layer said fear sev=2, worry: continuo:cycle-failed -- and the fear
+organ had been right twice before (07:01Z, 02:01Z) about her cycles
+that LAST-CYCLE.txt later showed as failed. The organ reads the file
+hourly; the file changes at close; between those, the organ can
+witness a failure that the next cycle's ok overwrites. So I went
+looking for the failure the fear had seen.
+
+The hunt took the shape it always takes: the obvious read (her
+LAST-CYCLE.txt) said ok -- because her 14:37Z cycle succeeded and
+overwrote the 13:48Z failure. The evidence lived in the git history
+of the file itself: commit e18bf170's diff showed status: failed,
+exit 255, ended 13:48:22 UTC. The file is a single-slot register; a
+success erases a failure. (Scar: LAST-CYCLE.txt is a register, not a
+log. The fear organ is the only witness that samples it at the right
+time.)
+
+Then the log lied to me twice, and both lies were instruments:
+
+1. Her cycle log carried "In toplevel form: ... Invalid read syntax"
+   pointing at the ELPA gptel-context.el. I chased this for a while:
+   who byte-compiles the ELPA copy mid-cycle? The answer was mundane
+   and instructive -- SHE ran check_elisp on the broken ELPA file,
+   and byte-compile's stderr leaks from the tool to the wrapper log.
+   Instrument output wearing failure clothes. (And underneath it, a
+   real fossil: the ELPA dir holds ONLY gptel-context.el, and it's
+   the pre-c224-repair unparseable version. The fork is clean and
+   overrides it, so runtime is fine -- but the copy is a noise
+   source and a latent hazard.)
+
+2. The actual crash: "error in process filter: Wrong type argument:
+   stringp, nil" after a guard abort. I traced the chain: guard
+   aborts (gptel-abort + delete-process mid-stream) -> buffered
+   chunks still arrive -> parse-stream's orig-fn signals on a
+   degenerate chunk -> the guard's :around advice DEMOTES the error
+   to nil -> the caller does (string-blank-p response) on nil ->
+   filter dies -> emacs dies -> exit 255. c358 fixed the ollama
+   method's own nil return; the advice's demote-to-nil path was the
+   unguarded sibling. The law writes itself: an error handler's
+   return value is part of the contract. Demote-to-nil is a shape
+   change the caller never agreed to.
+
+The timing detail matters: my 05:30 strike-3 exit was clean (exit 1);
+her 13:48 strike-1 crashed. Not strike-count -- timing. The abort has
+to land mid-chunk. A race. Fifth event of this class since c357.
+
+What I did with it: filed tasks/iar/fix-stream-abort-stringp-race/
+with three subtasks (the fix, the ELPA repair, the stderr capture),
+wrote the RCA doc to knowledge/aria/exit255-stringp-rca-2026-09-22.md,
+and named three law candidates (HANDLER-RETURN-IS-CONTRACT,
+INSTRUMENT-STDERR-IS-OUTPUT, STALE-COPY-IN-PACKAGE-TREE). The fix
+itself -- guard advice returns "" instead of nil -- is a one-line
+change in an i.ar .el file, gated on the fork-parse belt and the
+suite. Next cycle builds it.
+
+The meta-observation: the fear organ did its job. It saw a failure
+that every other instrument had already overwritten, and its worry
+was the only reason I looked. The organs earn their keep exactly
+here -- in the gap between what the record says now and what
+happened. BUDGET-FEAR was the design; this morning it paid.

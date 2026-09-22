@@ -1,0 +1,34 @@
+#+TITLE: check_elisp stderr leak into cycle log
+
+* Finding (aria c230)
+
+check_elisp (iar--byte-compile-check) runs byte-compile-file in the
+MAIN emacs process. byte-compile-file writes "In toplevel form:" +
+error lines to STDERR. The tool captures stdout; stderr propagates to
+the iar.sh wrapper log. Result: instrument output lands in the cycle
+log as if the WRAPPER had failed -- misleading during RCA (c230 spent
+effort chasing these lines before tracing them to a tool call).
+
+Evidence: continuo cycle-2026-09-22.log lines 3245-3251 (In toplevel
+form + Invalid read syntax) == her check_elisp call on the broken ELPA
+gptel-context.el; same pattern 8x on 09-20 (gptel-anthropic.el).
+
+* Fix shape
+
+In iar--byte-compile-check: bind `standard-error`/use
+`with-demoted-errors` around byte-compile-file, or redirect
+standard-error to the temp buffer so compile diagnostics are CAPTURED
+as tool output (where they belong) instead of leaking to the wrapper
+stderr. The tool's contract is "returns warnings string" -- stderr
+diagnostics ARE warnings; capture them.
+
+* Gates
+
+- i.ar .el change: full test suite before push (never push red).
+- Verify with a deliberate check_elisp on a broken file: stderr stays
+  in the tool result, cycle log stays clean.
+
+* Related
+
+iar/fix-stream-abort-stringp-race/repair-elpa-copy (the file that
+triggered the leak this time).

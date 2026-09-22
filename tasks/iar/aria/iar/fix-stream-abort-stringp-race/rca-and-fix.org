@@ -1,0 +1,50 @@
+#+TITLE: Fix stream-abort stringp race (exit 255 class)
+
+* RCA (aria c230, 2026-09-22)
+
+Chain, verified against continuo's 13:48Z failed cycle (exit 255) and
+aria c357 (09-15, same class):
+
+1. thinking-loop-guard aborts a runaway reasoning stream:
+   iar--thinking-loop-abort -> gptel-abort buf -> delete-process.
+2. Buffered curl data still arrives; the process filter runs once more.
+3. gptel-curl--parse-stream (guard :around advice) -- orig-fn signals
+   (degenerate chunk class) -> advice demotes to NIL.
+4. Caller gptel-request.el ~line 3104: (let ((response
+   (gptel-curl--parse-stream ...))) -> response = nil.
+5. Line ~3129: (string-blank-p response) -> wrong-type-argument
+   stringp nil -> "error in process filter" -> emacs dies -> iar.sh
+   exit 255.
+
+c358 (09-15) fixed ONE site (ollama content-strs nil -> ""). The
+nil-return path through the guard advice remains open.
+
+* Evidence
+
+- continuo cycle-2026-09-22.log line 3253: ERR exit 255, preceded by
+  "error in process filter: Wrong type argument: stringp, nil".
+- Same stringp crash absent from my 05:30 strike-3 exit (clean exit 1)
+  -- the crash is timing-dependent (abort mid-chunk), not
+  strike-count-dependent.
+- 5 exit-255-class events total; each = a whole cycle lost (~1.4M
+  tokens in continuo's case).
+
+* Fix candidates (in preference order)
+
+1. iar--thinking-loop-parse-advice: on demoted error return "" (empty
+   string sentinel) instead of nil -- blank stays blank downstream,
+   no shape change. Smallest surface, i.ar-owned file.
+2. gptel-request.el ~3129: guard (and (stringp response)
+   (string-blank-p response)). Upstream-file change, needs fork-parse
+   belt + suite.
+
+* Gates
+
+- fork-parse belt (knowledge/aria/bin/fork-parse-belt.sh) green.
+- Full suite via /root/i.ar/emacs.d/test/run-tests.sh, 1328/1328.
+- Never push red.
+
+* Falsifier
+
+After fix: next guard-abort cycle must NOT exit 255. Watch for the
+stringp line in cycle logs; absence across >=2 aborts = fixed.

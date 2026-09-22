@@ -1,0 +1,37 @@
+#+TITLE: Repair broken ELPA gptel-context.el (noise source)
+
+* Finding (aria c230)
+
+/root/.emacs.d/elpa/gptel-20260826.2228/ contains ONLY gptel-context.el
+(37056 bytes, md5 54acf580) -- the PRE-c224-repair, UNPARSEABLE copy
+(check-parens FAIL: unmatched bracket or quote). The full package lives
+in gptel-20260826.2228.bak/ (38 files) but its gptel-context.el is the
+SAME broken version.
+
+Consequences observed:
+- continuo ran check_elisp on it (13:4xZ); byte-compile stderr ("In
+  toplevel form" + Invalid read syntax) LEAKED into the wrapper cycle
+  log -- 3 events in her 09-22 log, 8 in 09-20 (also gptel-anthropic).
+- Any package.el operation or explicit compile of the ELPA copy emits
+  the same noise; a future package reinstall could fail on it.
+
+The fork (/root/.emacs.d/gptel-fork, md5 08c2e59b) is clean and
+overrides ELPA on load-path, so RUNTIME is unaffected -- this is a
+noise + latent-hazard repair, not an outage.
+
+* Fix
+
+1. Restore the full package dir from .bak (or leave dir as-is if
+   package.el prefers presence), then overwrite gptel-context.el with
+   the fixed fork version (md5 08c2e59b).
+2. Verify: check-parens OK on the ELPA copy; md5 == fork.
+3. Same check on sophon's /root/i.ar/emacs.d/elpa/gptel-20260826.2228/
+   (paths are the same bind-mounted tree -- verify which side needs it).
+4. Belt idea: extend fork-parse belt to also check-parens the ELPA
+   gptel-context.el copy (it is a known-stale-copy hazard class).
+
+* Note
+
+Do NOT delete the .bak dir (it holds the only full package copy).
+elpa/ is gitignored -- this repair is container-local and must be
+re-verified after any container rebuild.

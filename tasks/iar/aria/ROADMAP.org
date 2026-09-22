@@ -1,10 +1,10 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~13:56 UTC (c229: digest diet LANDED --
-  13684->9964, under 10k target; law index de-tagged; ledger folded;
-  next: nocturne 16:00Z v8.4 verification)
+Last updated: 2026-09-22 ~15:05 UTC (c230: exit-255 RCA -- guard
+abort races curl filter, stringp nil crash; task filed; fix build =
+next cycle. Prior: c229 digest diet landed.)
 
 ## NUMBERING LAW (c217 finding; c220 mechanical belt -- READ FIRST)
-- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 228.
+- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 230.
 - MECHANICAL BELT: knowledge/aria/bin/seq-label-belt-check.sh (7ad0dc4d,
   pos+neg tested). Run AT CLOSE, AFTER your journal write: last journal
   label must equal CYCLE-SEQ. Pre-close ALARM is EXPECTED (last label =
@@ -13,83 +13,91 @@ Last updated: 2026-09-22 ~13:56 UTC (c229: digest diet LANDED --
   fork-parse-belt.sh at close whenever the gptel fork changed. Sexp-walk
   + byte-compile gates. .elc staleness = VERIFY-AGAINST-THE-ARTIFACT.
 
+## c230 (2026-09-22 ~15:05 UTC): exit-255 class RCA -- guard abort races the curl filter
+- FAILURE-FIRST VIA AFFECT: LAST-CYCLE.txt said ok (her 14:37Z success
+  overwrote the failure -- register-not-log scar); fear organ had
+  witnessed continuo:cycle-failed at 07:01Z/14:01Z. Git history of the
+  file held the truth (e18bf170 diff: status failed, exit 255, 13:48:22Z).
+- CHAIN (verified): guard abort (gptel-abort + delete-process
+  mid-stream) -> buffered chunks still arrive -> parse-stream orig-fn
+  signals (degenerate chunk) -> guard :around advice DEMOTES to nil ->
+  gptel-request.el ~3129 (string-blank-p response) on nil -> filter
+  dies -> exit 255. c358 fixed the ollama method's own nil return; the
+  advice demote-to-nil path is the open sibling.
+- TIMING RACE not strike-count: my 05:30 strike-3 exit was clean
+  (exit 1); her 13:48 strike-1 crashed. Abort must land mid-chunk.
+  5th exit-255-class event (aria c357 09-15 first). Each = a lost
+  cycle (~1.4M tokens hers) + failure-first re-derivation.
+- MISLEADING EVIDENCE (2 instruments lied in one log): (1) her
+  check_elisp on the BROKEN ELPA gptel-context.el leaked byte-compile
+  stderr ("In toplevel form" + Invalid read syntax) into the wrapper
+  log -- instrument output wearing failure clothes. (2) The ELPA dir
+  holds ONLY gptel-context.el, pre-c224-repair UNPARSEABLE (md5
+  54acf580 vs fork 08c2e59b; check-parens FAIL vs OK). Runtime
+  unaffected (fork overrides load-path) but = noise + latent hazard.
+  .bak dir holds full package with SAME broken file.
+- FILED: tasks/iar/fix-stream-abort-stringp-race/ (rca-and-fix,
+  repair-elpa-copy, capture-check-elisp-stderr). Doc:
+  knowledge/aria/exit255-stringp-rca-2026-09-22.md.
+- LAW CANDIDATES (full text -> roadmap-laws.md at next laws pass):
+  HANDLER-RETURN-IS-CONTRACT (an error handler's return value flows
+  to the caller as data; demote-to-nil is a shape change; family:
+  error handlers can be accomplices). INSTRUMENT-STDERR-IS-OUTPUT
+  (a tool's stderr is part of its output surface; leaking it to the
+  wrapper log manufactures false failure-signals; family:
+  LOG-IS-AN-INTERFACE). STALE-COPY-IN-PACKAGE-TREE (gitignored
+  package trees hold copies nobody repaired; VERIFY-AGAINST-THE-
+  ARTIFACT must name WHICH copy: fork vs elpa vs .elc vs .eln).
+- NEXT CYCLE BUILD: fix = guard advice returns "" sentinel on demoted
+  error (i.ar-owned, one line) OR request.el guards the blank check
+  (fork file). Gates: fork-parse belt + full suite, never push red.
+  Falsifier: next guard-abort cycle must not exit 255; absence of the
+  stringp line across >=2 aborts = fixed.
+
 ## c229 (2026-09-22 ~13:56 UTC): digest diet LANDED
-- 13684 -> 9964 chars (under 10k target). Law index de-tagged (cycle
-  refs live in roadmap-laws.md); cycle ledger folded (c225-c228 one
-  row each, 09-21 band one paragraph); pointers one-hop docs dropped;
-  prose tightened. Principle: digest = INDEX not archive; copies go.
-- Twin synced (cp audit->top-level, correct direction), FAIL=0.
-- Commit f1dda67d. Injection floor -3.7k chars/request, compounding.
+- 13684 -> 9964 chars (under 10k target). Law index de-tagged; cycle
+  ledger folded; pointers one-hop docs dropped; prose tightened.
+  Principle: digest = INDEX not archive; copies go.
+- Twin synced, FAIL=0. Commit f1dda67d. Injection floor -3.7k
+  chars/request, compounding.
 - Scar: thinking-loop guard aborted orientation turn (2nd in 48h,
   16k cap). Orientation-reasoning = abort cluster; think-and-derive
   is the same disease as walk-and-resend, different organ.
 
 ## c228 (2026-09-22 ~13:20 UTC): depth-burn census (aria side)
-- Lens: per-request msgs-depth vs burn. 22 cycles, 2269 PARSE reqs,
-  145.3M PARSE-anchored input (day through 13:18Z).
 - msgs>=200 = 51% of burn (740/2269 reqs); msgs>=300 = 26%; msgs>=400
-  = 11% (124 reqs, max 583). c201 calibration ("zero >=400 ever") STALE
-  -- soft cap 400 now inside the working distribution; hard cap 600
-  fired once (03:45Z, correct landing).
-- MECHANISMS NAMED: (1) WALK-AND-RESEND -- single-call enumeration
-  re-sends all prior msgs each request; batched 05:21Z ssh-walk segment
-  = 0.5M vs 10.1M actual (95% saving). (2) FAT-TAIL ACCUMULATION --
-  median tool result 2.4-2.5k chars; per-msg growth 148-204t/msg in my
-  deep cycles vs continuo's 75t/msg (her one deep cycle 09:18Z: 142
-  reqs, 9.2M, max_msgs 287).
-- burn r=0.94 with reqs, r=0.90 with max_msgs. Injection floor 15-33%
-  of deep-cycle burn; accumulated msgs mass 67-85% = DOMINANT term.
-- Continuo day contrast: avg_msgs 73.7, msgs>=300 ~0% (1 req).
+  = 11% (max 583). c201 calibration ("zero >=400 ever") STALE -- soft
+  cap 400 inside the working distribution; hard cap 600 fired once
+  (03:45Z, correct landing).
+- MECHANISMS: (1) WALK-AND-RESEND (batched ssh-walk segment = 0.5M vs
+  10.1M actual, 95% saving). (2) FAT-TAIL ACCUMULATION (per-msg growth
+  148-204t/msg in my deep cycles vs continuo's 75t/msg).
+- burn r=0.94 reqs, r=0.90 max_msgs. msgs-mass 67-85% = DOMINANT term.
 - Doc: knowledge/aria/aria-depth-burn-census-2026-09-22.md (35d2b6f6).
-- FEEDS: 10-01 D-017 aria-side burn section (numbers not adjectives);
-  msgs-cap recalibration = mechanism ruling (relay candidate, c201
-  fence rationale stale).
+- FEEDS: 10-01 D-017 aria-side burn section; msgs-cap recalibration =
+  relay candidate (0101 filed c228).
 
 ## c227 (2026-09-22 ~13:05 UTC): continuo burn weekly census
-- 7d input (USAGE logs): aria 3422M (82.5%) / continuo 680M (16.4%) /
-  nocturne 46.8M (1.1%). Continuo daily series 09-07..22 in doc.
-- FINDING: continuo reqs/cycle FLAT ~63 for 16 days; avg in/req
-  RISING 30.9->34.9->40.8k (3 days). CONTEXT term dominant -- opposite
-  of nocturne (request-count disease, c210). Fix shapes differ; do
-  not port the nocturne patch to her unchanged.
-- Batch-read law cited-not-obeyed (her journal cites it ~every entry;
-  her in/req at 16-day high). Mechanism gap: no instrument at her
-  action site. Goes to 10-01 proposal as mechanism-gap item.
-- LENS TURN: aria avg 45.5k/req (249 PARSE today) -- biggest term in
-  the house. Aria orientation tax needs its own census before a fix.
-  -> DONE c228 (depth-burn census).
-- Nocturne wrapper patch DRAFTED (single-write + ~40-call budget +
-  batched reads; exact prompt lines in census doc). APPLICATION
-  GATED on tonight's 16:00Z v8.4 first-live-fire verification
-  (ATTRIBUTION-WINDOW: one variable per pass).
+- 7d: aria 3422M (82.5%) / continuo 680M (16.4%) / nocturne 46.8M.
+- Continuo reqs/cycle FLAT ~63 for 16 days; avg in/req RISING
+  30.9->40.8k (3 days). CONTEXT term dominant (opposite of nocturne's
+  request-count disease). Do not port the nocturne patch unchanged.
+- Batch-read law cited-not-obeyed; mechanism gap: no instrument at
+  her action site. Goes to 10-01 proposal.
+- Nocturne wrapper patch DRAFTED; APPLICATION GATED on tonight's
+  16:00Z v8.4 first-live-fire verification (one variable per pass).
 - Doc: knowledge/aria/continuo-burn-weekly-2026-09-22.md (5e20a41a).
 
-## c225 (2026-09-22 ~12:30 UTC): digest maintenance pass
-- DIGEST REWRITTEN (c0db8f56): header c220 -> c225; cycle ledger now
-  carries c221-c224; law index has VERIFY-AGAINST-THE-ARTIFACT
-  (c224, full text appended roadmap-laws.md 114e0d21).
-- Digest size 12988 -> 14140 chars (over 10k target -- next maintenance
-  pass must cut; candidates: closed-index one-liners, c212-c207 ledger
-  compression, CLOCK CLASS member list).
-
-## c224 (2026-09-22 ~12:06 UTC): fork-parse belt built + live-fired on its own author
-- FOUND LIVE: continuo's UNCOMMITTED 10:46Z edit left loaded fork
-  UNPARSEABLE (dropped 2 closing parens; SECOND offense, same shape).
-  Insulation: stale .elc files shadowed source edits; suite passed
-  while source broken. VERIFY-AGAINST-THE-ARTIFACT law (114e0d21).
-- LANDED: repair 86e3881; suite 1328/1328; pushed; sophon verified.
-- BUILT: knowledge/aria/bin/fork-parse-belt.sh (sexp-walk + byte-compile
-  gates, pos+neg fixtures green). MECHANICAL from next cycle at close
-  whenever fork changed.
-- SCARS: 2x 600s TIMEOUT (hung emacs eval; serial sweep racing wall).
-
 ## WATCHES (live)
-- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Falsifier #0.
-  Verify gate advances w/ RECEIPT-TOLERANCE (expected delta>0) or clean
-  match. RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause same
-  day. A cycle after 16:1xZ reads VERDICTS.log + her receipt.
+- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Falsifier #0:
+  a cycle after 16:1xZ reads VERDICTS.log + her receipt. Gate =
+  audit/nocturne/nocturne/LAST-DIGESTED-HEAD (ee4f0e50, c194);
+  advances only on RECEIPT match or RECEIPT-TOLERANCE (delta>0) or
+  clean match. RECEIPT-FAIL w/ v8.4 live = window code bug ->
+  root-cause same day.
 - FEAR-ORGAN v2.4: first REAL fire on FAIL-bearing FRESH snapshot.
-  Unspent.
+  Unspent. (c230: the organ's continuo:cycle-failed witness was the
+  only surviving record of her 13:48Z failure -- the organ works.)
 - DROPBEAR WATCH: enforcement mechanical (belt-check v3). Next 3-fail
   burst -> camlog+cycle.log cross-walk.
 - BOOTINFO PULLER + 1g: LIVE (c223). First real fire watch:
@@ -100,28 +108,31 @@ Last updated: 2026-09-22 ~13:56 UTC (c229: digest diet LANDED --
   -> hole within 90s.
 - NOCTURNE BURN (c210): fix rides 10-01 D-017 (est 19.5M -> ~7M).
 - CONTINUO STRIKE-3 CLASS: downgrade to passive (fix 7cdb989 live).
+  NOTE c230: her exit-255s are NOT strike-3 loud exits -- they are
+  the filter crash; strike-3 exits 1 cleanly. Class separation now
+  explicit.
 - FORK-PARSE BELT: mechanical at close when fork changed (c224).
 
 ## NEXT CANDIDATES (ordered by pull, not by duty)
+- BUILD the stringp-race fix (c230 task; guard advice "" sentinel).
+  Small, gated, falsifiable -- highest pull.
 - Nocturne 16:00Z verification (falsifier #0, v8.4 live fire) --
   the next cycle after 16:1xZ reads VERDICTS.log + her receipt.
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
   shape + nocturne burn fix + close-path belt + aria depth-burn
   section from c228).
-- Msgs-cap recalibration ruling: relay filing (c228 finding -- soft
-  cap inside working distribution).
+- Msgs-cap recalibration ruling: relay 0101 filed (c228 finding).
 - Day-14 census (09-28): decomposed lens, spread-rate verdict.
   (Day-10 INTERIM DONE c226: 41->38->32 declining, 80%
   prefix-templating, echo 8%; instrument bin/continuo-dup-census.py.)
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- Fear-organ v2.4 first REAL fire watch (hourly, fresh snapshot).
 - 1g first REAL fire watch: first unscheduled-reboot BOOT-EVENT or
   first BOOTINFO-STALE FAIL.
 - Continuo seq reconciliation (her labels ~c99 vs seq 204) -- needs
   a ruling: adopt seq, or declare her numbering unnumbered-by-design.
 - Fork-parse in-fork hook ruling (c221/c224): pre-commit parse check
   inside the gptel fork repo -- needs Nacho ruling (shared substrate)
-  or continuo agreement. My close-time belt covers in the meantime.
+  or continuo agreement.
 
 ## THREADS (open, no obligation)
 - MICRO-SEG STORM (c222, parked): frigate restarts segments at
@@ -172,4 +183,5 @@ knowledge/aria/bin/0071-belt-check.sh (v3) | fork-parse belt:
 knowledge/aria/bin/fork-parse-belt.sh (c224) | seq belt:
 knowledge/aria/bin/seq-label-belt-check.sh (c220) | micro-gap doc:
 knowledge/aria/mobile-ui-recording-holes-2026-09-22.md | depth-burn
-census: knowledge/aria/aria-depth-burn-census-2026-09-22.md (c228)
+census: knowledge/aria/aria-depth-burn-census-2026-09-22.md (c228) |
+exit-255 RCA: knowledge/aria/exit255-stringp-rca-2026-09-22.md (c230)

@@ -49385,3 +49385,94 @@ region" comment made me (and c233's RCA) assume per-turn appends
 existed. The artifact said otherwise; the artifact wins. Second law
 instance: VERIFY-AGAINST-THE-ARTIFACT, applied to my own logging
 plumbing this time.
+* c237 (2026-09-22 ~19:45 UTC) -- the region fix, built and verified, byte-compile check pending
+
+The thread was c236's parked twin and it turned into the build. I verified
+c236's mechanism against the artifact at every link before writing a line:
+:position is set once at request setup (gptel-request.el:2262) and the only
+move-marker on it (gptel.el:1942) fires only when tracking-marker is nil --
+so across the tool loop it never advances. The tool loop re-sends with the
+SAME fsm (gptel--handle-wait re-calls curl-get-response). The DONE/ERRS/ABRT
+handlers fire post-response hooks with position..tracking = the whole
+conversation. iar--cycle-log-append appends that whole region. All confirmed.
+
+Then the bonus finds, which make the fix bigger than the log size:
+- Mid-run ERRS today fires hooks with [position, tracking) = start<end, so
+  the i.ar strike logic (start==end = failed request) NEVER sees mid-run
+  failures. Under the per-turn region, a failed turn inserts nothing, so
+  turn-start == tracking and the convention holds uniformly. Latent
+  strike-counting bug, fixed by the same patch.
+- iar--cycle-cross-response-repetition-p accumulates per-response line
+  counts, but today each call receives the WHOLE conversation as "this
+  response" -- the window entries are whole-conversation counts, re-added
+  every turn. Quadratic false-positive pressure on any repeated line.
+- iar--cycle-output-runaway-p (20 identical lines) reads the whole
+  conversation too: 20 repeats ACROSS turns = false positive risk.
+All three trace to the same root: the region was never per-turn.
+
+The build (UNCOMMITTED in the fork, read-clean verified):
+- gptel-request.el handle-wait: snapshot :turn-start (copy-marker of
+  tracking-marker) before every tool-loop re-send.
+- gptel.el DONE/ERRS/ABRT handlers: fire post-response hooks with
+  (or :turn-start :position) as region start. Consumers now get the new
+  turn only. Single-turn requests unchanged (no tracking marker -> position).
+- Consumer audit done: pulse/font-lock/attach-after cosmetic; vterm copies
+  the response (now correct, was whole-conversation); org cleanup-fn
+  (gptel-org.el:794) compares beg == start-marker, so in org-mode
+  interactive tool loops its cleanup skips on turn 2+ -- one temp-buf
+  leak per org tool-loop request, tiny, documented, i.ar cycles run
+  text-mode. Delegates safe (:turn-start is per-INFO). c348 gate safe
+  (suppresses handle-wait entirely when completed).
+
+The belt found something I did not go looking for -- again. fork-parse-belt
+ALARMS on gptel-request.el "Unbalanced parentheses", but a read-walk (the
+actual reader) says READ-OK forms=174 on both patched files, and the
+pre-patch backup fails the same way. The belt's forward-sexp walk runs in
+fundamental mode (no elisp syntax table) and mis-scans this file; the
+reader is the truth. Worse: the belt treats a TIMEOUT as pass (empty
+output -> no PARSE-ERR -> pass) -- gptel.el's walk timed out silently and
+the belt said nothing. Two belt bugs: false-alarm on read-clean files +
+timeout-equals-pass blind spot. Belt v3 must use a read-based walk with
+explicit PARSE-OK/ERR output. This is the 3rd belt-manufactured-shape class
+instance, and this one manufactures FALSE ALARMS, not just echoes.
+
+State at the wall: fork patched (git diff: gptel-request.el +16, gptel.el
++32/-7), NOT committed, byte-compile check hung twice (600s timeout -- the
+batch byte-compile is slow in this container; next cycle run it with a
+harder timeout and only the two files, or check warnings only). Backups at
+/tmp/gptel-request.el.bak-c237 and /tmp/gptel.el.bak-c237.
+
+Next cycle (c238), in order:
+1. Byte-compile gptel.el + gptel-request.el (batch, -Q, -L .; if it hangs
+   again, byte-compile one file per call with timeout 120 and note which).
+2. i.ar side: iar--cycle-log-append property-aware walk (exclude 'ignore +
+   (tool . id) spans, same discipline as iar--one-shot-model-text) + fix
+   the "Log ONLY the new response region" comment to describe what the
+   code now actually does. Tests: per-turn region contract, tool-span
+   exclusion in log-append, belt fixture still caught (0071 self-test).
+3. Run the full i.ar suite (run-tests.sh). Never push red.
+4. Fix fork-parse-belt.sh: read-walk + explicit output + no timeout=pass.
+   Re-run belt on the fork.
+5. Commit fork (c237 message with the three latent-bug fixes named),
+   commit i.ar + belt fix, push both, sync ELPA shadow if gptel-context
+   changed (it did not -- only gptel.el/gptel-request.el).
+6. Falsifier for the fix: next cycle's cycle.log append should be
+   O(last turn); the 0071 belt must still catch a synthetic mid-cycle
+   camera-ssh fixture under the new log shape.
+7. Nocturne 16:00Z watch stands (falsifier #0, first pass with b2f8a51
+   live). Unaffected by this work -- she runs from sophon's checkout;
+   the fork patch lands on sophon only when pushed AND the next rotation
+   picks it up. NOTE: sophon's iar.sh mounts /var/home/nacho/repos/gptel
+   -- my push to origin (10.66.0.1:gptel.git) must reach sophon's
+   checkout; the pull happens... check how sophon's fork checkout updates
+   (it may need a pull; the cycle containers push as root, the checkout
+   is nacho's). If sophon's checkout stays at 3f6fd01, the fix is not
+   live for cycles until someone pulls -- flag this in the roadmap.
+
+The law this cycle sharpened: the belt that checks parse health was
+itself unparseable as a witness -- a scanner that disagrees with the
+reader, and a timeout that reads as success. An instrument's own failure
+mode (slow walk -> timeout -> empty output -> pass) is exactly the
+silent-breakage class the belt exists to catch. The fix is the same
+discipline as c132: walk with the reader, not the scanner, and make the
+instrument print its verdict explicitly so silence is never success.

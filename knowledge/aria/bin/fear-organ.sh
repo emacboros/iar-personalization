@@ -1,5 +1,16 @@
 #!/bin/bash
-# fear-organ.sh v2.3 (2026-09-21, aria cycle 203: AGE-AWARE FAIL SEV
+# fear-organ.sh v2.4 (2026-09-22, aria cycle 212: WITHIN-FILE CROSS-CHECK
+#   (c211 STALE-EPISODE carry: a FAIL-LINE quoting an episode that healed
+#   BEFORE the snapshot was written still graded sev=2 on snapshot age
+#   alone -- snapshot-freshness is not fact-freshness; third instance of
+#   the class after c202 stale-snapshot and c176 stale-episode. Fix: the
+#   ear-check section of the SAME snapshot is the live-at-write-time
+#   witness; a camera-audio FAIL-LINE whose cam has a fresh ear row
+#   (age<=120s, plausible dB) gets HEALED-AT-SNAPSHOT; if EVERY
+#   camera-audio FAIL is healed and no other FAIL class exists, the
+#   sev=2 downgrades to sev=1. Annotate-never-silence. No new probes,
+#   no new cadence -- the evidence already exists in the file.)
+#   Prior v2.3 (2026-09-21, aria cycle 203: AGE-AWARE FAIL SEV
 #   (c202 stale-at-wake: FAILs on >1h-old snapshots grade sev=1 +
 #   fleet-FAIL-stale annotation; fresh snapshots keep sev=2) +
 #   CENSUS-CONTRA label fix (c201: field 3 = aframes, field 4 = vframes;
@@ -173,6 +184,48 @@ if [ -n "$FLEET_FILE" ] && [ -r "$FLEET_FILE" ]; then
     [ -n "$fails" ] && reasons="fleet-check FAIL [$fails]" || reasons="fleet-check FAIL"
     if [ "$flage_m" -gt 60 ]; then
       reasons="$reasons fleet-FAIL-stale(${flage_m}m-old-snapshot)"
+    fi
+
+    # v2.4 (c212): WITHIN-FILE CROSS-CHECK (c211 STALE-EPISODE carry).
+    # The FLEET-FAIL branch grades sev=2 on snapshot age alone; a
+    # FAIL-LINE quoting an episode that healed before snapshot-write
+    # time still grades sev=2. The contradicting evidence already
+    # lives in the same file: the ear-check section (audio ages
+    # sampled at snapshot time). For each camera named in an
+    # audio-class FAIL-LINE, read its ear row in THIS snapshot:
+    # fresh (age<=120s) + plausible mean dB (-90..-5) = the camera
+    # could hear when the snapshot was written -> HEALED-AT-SNAPSHOT.
+    # Downgrade rule: EVERY camera-audio FAIL healed AND zero
+    # non-camera-audio FAIL-LINEs -> worst 2->1 (the worry was about
+    # healed state; annotate-never-silence, annotations ride the
+    # phrase). Absence of an ear row is NOT a heal claim (c58 law):
+    # no row = unhealed contribution. Non-camera FAILs (JOURNAL-BLIND,
+    # BARE, agora, restic, /dev/null) block the downgrade -- a live
+    # non-camera worry must not be buried at sev=1.
+    healed_cams=""
+    unhealed=0
+    for cam in $(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | grep -E "NO-AUDIO|CH2-FROZEN|RECORDER-AUDIO-(EVENTS|HOURS)" | grep -oE "(interior|exterior)_[0-9]+" | sort -u); do
+      ear=$(grep -E "^${cam} age=[0-9]+s mean/max: -?[0-9]+\.[0-9] dB" "$FLEET_FILE" 2>/dev/null | head -1)
+      if [ -n "$ear" ]; then
+        eage=$(echo "$ear" | sed -E 's/^[^ ]+ age=([0-9]+)s .*/\1/')
+        edb=$(echo "$ear" | sed -E 's/.*mean\/max: (-?[0-9]+\.[0-9]) dB.*/\1/')
+        if [ -n "$eage" ] && [ "$eage" -le 120 ] 2>/dev/null && [ -n "$edb" ] \
+           && awk -v v="$edb" 'BEGIN{exit !(v > -90 && v < -5)}' 2>/dev/null; then
+          healed_cams="$healed_cams $cam"
+          continue
+        fi
+      fi
+      unhealed=$((unhealed + 1))
+    done
+    # non-camera-audio FAIL-LINEs block the downgrade (they are live
+    # worries the ear check cannot witness about)
+    n_other=$(grep "FAIL-LINE:" "$FLEET_FILE" 2>/dev/null | grep -vcE "NO-AUDIO|CH2-FROZEN|RECORDER-AUDIO-(EVENTS|HOURS)")
+    if [ -n "$healed_cams" ]; then
+      reasons="$reasons HEALED-AT-SNAPSHOT($(echo $healed_cams))"
+    fi
+    if [ "$worst" -eq 2 ] && [ -n "$healed_cams" ] && [ "$unhealed" -eq 0 ] && [ "$n_other" -eq 0 ] 2>/dev/null; then
+      worst=1
+      reasons="$reasons fleet-FAIL-healed-at-snapshot"
     fi
 
     # v1.5 (c100, 2026-09-19): fossil-window cross-check (c98, relay

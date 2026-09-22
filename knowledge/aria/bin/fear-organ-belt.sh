@@ -1,6 +1,6 @@
 #!/bin/bash
 # fear-organ-belt.sh -- belt suite for fear-organ.sh v2.3+ (c204, 2026-09-22)
-# 26 fixtures covering: age-aware FAIL sev (v2.3 core), CENSUS-CONTRA
+# 31 fixtures covering: age-aware FAIL sev (v2.3 core), CENSUS-CONTRA
 # (audio+video fields, fresh/stale/dead census), voice-class sev=3,
 # stash-unpopped, cycle-failed, missing fleet, 27h fleet-stale,
 # emit-on-delta, stale<->fresh transitions, flap sequence.
@@ -255,6 +255,74 @@ ARIA_ORGAN_TEST=1 bash "$ORGAN" "$d/fleet-latest" "$d" >/dev/null 2>&1
 printf 'status: ok\nexit: 0\nagent: aria\nended: %s UTC\n' "$(date -u '+%Y-%m-%d %H:%M:%S')" > "$d/audit/iar/aria/LAST-CYCLE.txt"
 out=$(ARIA_ORGAN_TEST=1 bash "$ORGAN" "$d/fleet-latest" "$d" 2>/dev/null | head -1)
 echo "$out" | grep -q "sev=2 delta=flat" && { PASS=$((PASS+1)); echo "PASS: heartbeat refresh = flat"; } || { FAIL=$((FAIL+1)); echo "FAIL: heartbeat refresh: $out"; }
+
+
+# T32 (v2.4, c212): THE c211 REPLAY -- fresh snapshot, camera-audio
+# FAIL-LINEs quoting healed episodes, ear-check rows in the SAME file
+# show fresh audio. Expect: sev=1 (downgraded from 2) +
+# HEALED-AT-SNAPSHOT annotation.
+d=$(mkfix t32)
+cat > "$d/fleet-latest" <<EOF
+-- ear check --
+exterior_3 age=25s mean/max: -51.4 dB -34.4 dB
+exterior_4 age=30s mean/max: -50.6 dB -34.5 dB
+FAIL-LINE: exterior_3 age=30s NO-AUDIO (3/3 segments dead)
+FAIL-LINE: exterior_4 RECORDER-AUDIO-EVENTS: 3 stall-class event(s) in 24h (>2)
+FAIL=1
+EOF
+touch -d @$NOWEPOCH "$d/fleet-latest"
+run "$d" 1 "c211 replay: fresh snapshot + healed cam-audio FAILs = sev1 downgraded"
+grep -q "HEALED-AT-SNAPSHOT(exterior_3 exterior_4)" "$d/affect/fear.log" && { PASS=$((PASS+1)); echo "PASS: HEALED-AT-SNAPSHOT annotation present"; } || { FAIL=$((FAIL+1)); echo "FAIL: HEALED-AT-SNAPSHOT annotation missing"; }
+
+# T33 (v2.4): fresh snapshot, camera-audio FAIL + ear row STALE (age>120s)
+# = no heal claim, sev=2 stays.
+d=$(mkfix t33)
+cat > "$d/fleet-latest" <<EOF
+-- ear check --
+exterior_3 age=900s mean/max: -51.4 dB -34.4 dB
+FAIL-LINE: exterior_3 age=30s NO-AUDIO (3/3 segments dead)
+FAIL=1
+EOF
+touch -d @$NOWEPOCH "$d/fleet-latest"
+run "$d" 2 "fresh snapshot + stale ear row = sev2 (no heal claim)"
+grep -q "HEALED-AT-SNAPSHOT" "$d/affect/fear.log" && { FAIL=$((FAIL+1)); echo "FAIL: heal annotation on stale ear row"; } || { PASS=$((PASS+1)); echo "PASS: no heal annotation on stale ear row"; }
+
+# T34 (v2.4): fresh snapshot, cam FAIL healed BUT a non-camera FAIL
+# (JOURNAL-BLIND) present = downgrade BLOCKED, sev=2 stays.
+d=$(mkfix t34)
+cat > "$d/fleet-latest" <<EOF
+-- ear check --
+exterior_3 age=25s mean/max: -51.4 dB -34.4 dB
+FAIL-LINE: exterior_3 age=30s NO-AUDIO (3/3 segments dead)
+FAIL-LINE: JOURNAL-BLIND: rsyslog rate-limit dropped journal lines x1 in last 30min
+FAIL=1
+EOF
+touch -d @$NOWEPOCH "$d/fleet-latest"
+run "$d" 2 "healed cam FAIL + non-camera FAIL = sev2 (downgrade blocked)"
+grep -q "HEALED-AT-SNAPSHOT(exterior_3)" "$d/affect/fear.log" && { PASS=$((PASS+1)); echo "PASS: heal annotation present even when blocked"; } || { FAIL=$((FAIL+1)); echo "FAIL: heal annotation missing when blocked"; }
+
+# T35 (v2.4): fresh snapshot, cam FAIL, ear row present but dead dB
+# (0.0 = silence, not live audio) = no heal claim, sev=2.
+d=$(mkfix t35)
+cat > "$d/fleet-latest" <<EOF
+-- ear check --
+exterior_3 age=25s mean/max: 0.0 dB -0.0 dB
+FAIL-LINE: exterior_3 age=30s NO-AUDIO (3/3 segments dead)
+FAIL=1
+EOF
+touch -d @$NOWEPOCH "$d/fleet-latest"
+run "$d" 2 "fresh snapshot + dead-ear-row (0 dB) = sev2 (no heal claim)"
+grep -q "HEALED-AT-SNAPSHOT" "$d/affect/fear.log" && { FAIL=$((FAIL+1)); echo "FAIL: heal annotation on dead ear row"; } || { PASS=$((PASS+1)); echo "PASS: no heal annotation on dead ear row"; }
+
+# T36 (v2.4): c211 replay with NO ear-check section at all (absence
+# law) = no heal claim, sev=2 stays.
+d=$(mkfix t36)
+cat > "$d/fleet-latest" <<'EOF'
+FAIL-LINE: exterior_3 age=30s NO-AUDIO (3/3 segments dead)
+FAIL=1
+EOF
+touch -d @$NOWEPOCH "$d/fleet-latest"
+run "$d" 2 "fresh snapshot + FAIL + no ear rows = sev2 (absence is not heal)"
 
 echo ""
 echo "=== belt suite: $PASS pass, $FAIL fail ==="

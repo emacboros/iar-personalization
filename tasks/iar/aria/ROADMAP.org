@@ -1,98 +1,83 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~03:50 UTC (c210: nocturne burn DECOMPOSED --
-98.7% repeated context, request-count is the lever, fix shape staged
-for 10-01; doc knowledge/aria/nocturne-burn-decomposition-2026-09-22.md
-6a9eed3f; prior: c209 block 1f BUILT dd81ea8b)
+Last updated: 2026-09-22 ~04:30 UTC (c211: fear-organ STALE-EPISODE
+carry RCA -- snapshot-freshness is not fact-freshness; v2.4
+within-file cross-check staged; prior: c210 nocturne burn decomposed)
+
+## c211 (2026-09-22 ~04:30 UTC): FEAR-ORGAN STALE-EPISODE CARRY RCA
+- Woke to sev=2 (04:00:08Z fire): STALE-EPISODE ext3/ext4 age=6h +
+  continuo:cycle-failed. Episodes REAL (21:05-21:42Z 09-21, census
+  FROZEN rows + frigate watchdog restarts 18:55-19:35 sophon-LOCAL =
+  21:55-22:35Z UTC, ffmpeg "Queue input is backward in time" /
+  "Duplicate POC" / "RTP bad cseq" = camera-side stall class) but
+  HEALED before the fire that carried them (ear check in the same
+  snapshot: all 8 cams fresh audio).
+- RCA: FLEET-FAIL block grades sev=2 on snapshot age alone (<=60m);
+  FAIL-LINEs quoting healed episodes on a fresh snapshot misgrade.
+  The organ treats the snapshot as one atomic witness; it is several
+  lenses at different times. Third instance of freshness-of-file vs
+  freshness-of-fact (c202 stale-snapshot, c176 stale-episode).
+- v2.4 STAGED (rides next maintenance window): within-file
+  cross-check -- FAIL-LINE cam vs ear-check row in the SAME snapshot;
+  fresh audio (age<=120s) = HEALED-AT-SNAPSHOT annotation + sev
+  downgrade. No new probes/cadence. Belt fixture spec in RCA doc.
+  Doc: knowledge/aria/fear-organ-stale-episode-rca-2026-09-22.md
+  (6dab04c4). Falsifier: next fire quoting a healed episode carries
+  HEALED-AT-SNAPSHOT after v2.4 lands.
+- continuo:cycle-failed signal CORRECT (her cycle failed, healed
+  02:27Z). RSSI flat, wrnrate zero through the episode window --
+  NOT link-level. 04:05Z ext4 wrnrate=2 transient, self-cleared.
 
 ## c210 (2026-09-22 ~03:50 UTC): NOCTURNE BURN DECOMPOSED
-- BURN c318 applied to her 09-21 pass (suffix-anchored census,
-  TERMINAL-FIELD law honored): 144 reqs / 19.5M in / growth sum only
-  250k = 98.7% repeated-context. Cloud KV cache catches ~50%/turn
-  (prompt_eval_cached_count census, 15 turns, share 46-50%) ->
-  ~9.6M effectively re-paid per pass.
-- Her edit loop IS the burn: 59 python-heredoc patches + 23
-  write_file rewrites on the 10k proposal, 68/144 turns touching it.
-  iar.sh "Turns: 8" = nudge count only (c39 comment: tool-loop turns
-  uncounted); REQUESTS.log PARSE lines = honest burn unit.
-- 4-pass table (09-18..09-21): repeated share constant ~98.5%;
-  request count is the variance (64..144). REQUEST COUNT = lever.
-- FIX SHAPE (rides 10-01 D-017 proposal, no code): (1) wrapper prompt
-  "write the proposal ONCE at the end, single write_file"; (2)
-  prompt-level tool budget ~40 calls (fence warns at 100, too late);
-  (3) batched reads. Est 19.5M -> ~7M in/pass. Falsifier: same census
-  after the change.
-- Also verified: deepseek:cloud never touches local GPU (0 prompt-eval
-  lines in her window); local qwen n_ctx_slot=131072 = numParallel
-  slot split; ollama 0.33.3.
-- Doc: knowledge/aria/nocturne-burn-decomposition-2026-09-22.md
-  (6a9eed3f). Journal c210 (b0d67f4e).
+- Her 09-21 pass: 144 reqs / 19.5M in / 98.7% repeated-context.
+  Cloud KV cache ~50%/turn -> ~9.6M re-paid per pass. Edit loop IS
+  the burn (59 heredoc patches + 23 rewrites, 68/144 turns).
+  FIX SHAPE rides 10-01 D-017 proposal: single-write proposal +
+  ~40-call prompt budget + batched reads; est 19.5M -> ~7M.
+  Falsifier: same census after the change. Doc:
+  knowledge/aria/nocturne-burn-decomposition-2026-09-22.md (6a9eed3f).
 
 ## c209 LANDED (2026-09-22 ~03:15 UTC): BLOCK 1F BUILT (COMMIT-BACKED)
 - fleet-check v2.37 block 1f RECORDER-GAP CENSUS (dd81ea8b, PUSHED):
-  name-only walk (no probing), epoch from date+hour+MM.SS bash
-  arithmetic, consecutive-name holes >45s = gap. FAIL contract:
-  non-reboot-window gap >300s = FAIL-LINE (E10 class); smaller =
-  gap-note ledger data; in-window (01-07Z) = class R, never FAIL.
-  KNOWN LIMIT: retention-deleted hour reads as a hole; cross-cam
-  simultaneity is the discriminator; falsifier = first shared-FAIL
-  adds the cross-cam guard.
-- fc1f-belt.sh 6/6: healthy / in-window-R / small-non-R-note /
-  big-non-R-FAIL / inter-hour-hole / 300s-boundary. LIVE RUN on
-  sophon: FAIL=0, all 8 cams, gaps all sub-90s. First production
-  data: 62s CROSS-CAM micro-gap 09-21 11:24-12:26 (ext1/ext2/ext5/
-  int1, same window) = frigate-wide hiccup, new data point; ext4 14
-  gaps (degradation class), ext3 5, int3 0.
-- FIXTURE-VS-BLOCK scar: 3 wrong expected-lines in a row (misread
-  MM.SS as HH.MM, built future-hour fixtures, sparse fixtures) --
-  the block was right from the first run. Fixture tax ~25min.
-- CLAIM-BACKED-BY-COMMIT law text landed (roadmap-laws.md): build
-  commit FIRST, record writes AFTER; cap-killed build = PLANNED
-  not BUILT. This cycle is the proof-of-fix: claim now commit-backed.
+  name-only walk, epoch bash arithmetic, holes >45s = gap. FAIL
+  contract: non-reboot-window gap >300s = FAIL-LINE (E10 class).
+  fc1f-belt.sh 6/6. LIVE RUN: FAIL=0 all 8 cams; 62s CROSS-CAM
+  micro-gap 09-21 11:24-12:26 (4 cams) = frigate-wide hiccup, new
+  class. ext4 14 gaps/24h (degradation), int3 0 (healthy).
+- FIXTURE-VS-BLOCK scar: 3 wrong expected-lines in a row -- prove
+  the fixture wrong before touching the logic. CLAIM-BACKED-BY-COMMIT
+  law text landed (build commit FIRST, record writes AFTER).
 
 ## c208 (2026-09-22 ~02:50 UTC): THE BUILD THAT WASN'T THERE
-- c207's "block 1f BUILT" claim FALSE: fleet-check still v2.36, no
-  commit, GAP-COUNT in no .sh. Root cause: msgs hard cap (601/600,
-  tools 300/300) killed c207's build before any commit; close-path
-  writes (journal/roadmap/digest) landed BEFORE the build commit.
-  Tail-chase quantified: ~7min + ~7.5M input tokens committing audit
-  tails that grow with every tool call; cap did the stopping.
-- ALSO VERIFIED TRUE: 02:01:49Z fear fire CORRECT (sev=2 = stale FAIL
-  raised by continuo:cycle-failed; her cycle genuinely failed, healed
-  02:27Z). c204 exclusivity lesson held in production.
-- Law candidate CLAIM-BACKED-BY-COMMIT (text landed c209).
+- c207's "block 1f BUILT" claim FALSE (no commit, no code). Root
+  cause: msgs hard cap killed the build before commit; close-path
+  writes landed BEFORE the build commit. Tail-chase quantified:
+  ~7min + ~7.5M input tokens committing audit tails; cap did the
+  stopping. Law: CLAIM-BACKED-BY-COMMIT (landed c209).
 
 ## c207 (2026-09-22 ~02:15 UTC): STALE-SNAPSHOT VERIFIED LIVE-HEALED
-- Woke to sev=1 on a 299min-old fleet snapshot. LIVE VERIFICATION:
-  all 3 FAILed cams carried audio NOW. v2.3 age guard's first
-  production episode on a genuinely stale snapshot: correct.
-- 02:00Z ext2 ch2=5 row = PRODUCER REPLACEMENT, not freeze: port
-  38416->40388 at 02:05Z, go2rtc watchdog restart 23:01:22 sophon-
-  local. PORT-CHANGE-WITNESS seed (THREADS). EPISODES n=15.
+- v2.3 age guard's first production episode: all 3 FAILed cams
+  healed. 02:00Z ext2 ch2=5 = producer replacement (port
+  38416->40388). PORT-CHANGE-WITNESS seed. EPISODES n=15.
 
 ## c206 (2026-09-22 ~01:46 UTC): BATCHED AUDIO-CENSUS BUILT
 - audio-boundary-census.sh v1.0 (93b89f4d): one ssh -> inner ffprobe
-  loop -> per-seg A/D/M states + awk boundary analysis. M = missing
-  file, never "dead" (PROBE-NONEXISTENT-FILE scar structural).
-- VALIDATED against c205 ground truth exactly (ext3 h21 78 dead,
-  ext4 h21 8 dead, ext4 h00 0 dead + 80s recorder gap). Instrument
-  proven; fleet wiring landed c209.
+  loop -> per-seg A/D/M states. M = missing file, never "dead"
+  (PROBE-NONEXISTENT-FILE scar structural). Validated vs c205
+  ground truth exactly.
 
 ## c205 (2026-09-22 ~01:12 UTC): STEP FALSIFIED + FALSE-DEAD SCAR
-- c199 "+21min clock step" FALSIFIED: seg names are MM.SS within the
-  hour dir; 21.10->21.31 = 21 SECONDS. ZERO steps anywhere (0/9).
-  ntpd-step mechanism DEAD. Corrections: c199-step-recheck doc.
-- PROBE-NONEXISTENT-FILE scar: ffprobe on missing file = rc=0 empty
-  -> false "audio dead". M-state guard now structural (c206).
-- NIGHT LEDGER (n=12): E10 ext4 80s recorder gap (frigate ffmpeg
-  crash -- recorder-side class); E11 ext1 fps-limit restart; E12
-  go2rtc i/o timeouts, zero recording loss.
+- c199 "+21min clock step" FALSIFIED: seg names are MM.SS within
+  the hour dir; 21.10->21.31 = 21 SECONDS. ZERO steps (0/9).
+  PROBE-NONEXISTENT-FILE scar: ffprobe on missing file = rc=0
+  empty -> false "audio dead". M-state guard now structural.
+- NIGHT LEDGER (n=12): E10 ext4 80s recorder gap; E11 ext1
+  fps-limit restart; E12 go2rtc i/o timeouts, zero recording loss.
 
 ## c204 (2026-09-22 ~00:35 UTC): FEAR-ORGAN V2.3 FALSIFIER RESOLVED
-- 00:01:29Z live fire CORRECT: sev=2 = stash-unpopped(1); age guard
-  downgraded the stale FAIL correctly; annotation survived reassign.
-- SCAR (falsifier-misregistration): a falsifier must name its
-  signal's exclusivity conditions or it fires on correlation.
-- BELT SUITE (a2496c96): fear-organ-belt.sh 31 fixtures all pass.
+- 00:01:29Z live fire CORRECT: sev=2 = stash-unpopped(1). SCAR:
+  FALSIFIER-EXCLUSIVITY -- a falsifier must name its signal's
+  exclusivity conditions or it fires on correlation. Belt suite
+  (a2496c96): fear-organ-belt.sh 31 fixtures all pass.
 
 ## WATCHES (standing)
 - NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
@@ -101,21 +86,18 @@ for 10-01; doc knowledge/aria/nocturne-burn-decomposition-2026-09-22.md
   Falsifier #0 -- a cycle after 16:1xZ reads it.
 - STALL FALSIFIER v3 (c200-c205): episodes, not stalls. n=12.
   n>=10 -> mechanism test REACHED at next accumulation review.
-- FEAR-ORGAN v2.3: belt-proven 31/31 (c204). Watch: next live fire on
-  a stale snapshot with NO other signal grades sev=1 + annotation.
-- RECORDER-GAP CENSUS (c209): first production run clean; watch the
-  first shared cross-cam FAIL (retention signature) -> add guard.
-- NOCTURN BURN (c210 DECOMPOSED): 98.7% repeated context; lever =
-  request count (her edit loop). Fix staged for 10-01 proposal.
-  Falsifier: suffix-anchored census after prompt change.
-- PRODUCER-ID WITNESS (c202): degraded; falsifier note or removal
-  in segcensus-puller. Byte deltas = reliable witness.
+- FEAR-ORGAN v2.4 (c211 STAGED): within-file cross-check. Watch:
+  next fire quoting a healed episode on a fresh snapshot.
+- RECORDER-GAP CENSUS (c209): watch the first shared cross-cam FAIL
+  (retention signature) -> add guard.
+- NOCTURN BURN (c210): fix rides 10-01 proposal. Falsifier:
+  suffix-anchored census after prompt change.
+- PRODUCER-ID WITNESS (c202): degraded; falsifier note or removal.
 - WEAK-RSSI READ-STALL GRADIENT (c199): .104 88 warns 09-21, .103 44.
 - NIC LINK SPEED: 1000Mbps stable; physical cause OPEN (Nacho q3).
 - NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly.
-- EXT1 POISON SAWTOOTH: watch recurrence. STORM ECHO: exited window.
-- .203 non-reboot stability watch. CROSS-CAM 62s MICRO-GAP (c209):
-  09-21 11:24-12:26, 4 cams -- watch recurrence (frigate-wide class).
+- EXT1 POISON SAWTOOTH: watch recurrence. CROSS-CAM 62s MICRO-GAP
+  (c209): watch recurrence (frigate-wide class).
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
 - 42 names durable + CLAIM-BACKED-BY-COMMIT (c208/c209) +
@@ -126,11 +108,11 @@ for 10-01; doc knowledge/aria/nocturne-burn-decomposition-2026-09-22.md
 - Nocturne 09-22 pass verification (v8.4 first live fire) -- 16:00Z
   pass; verify at the cycle after 16:1xZ. Falsifier #0.
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
-  shape staged).
+  shape + nocturne burn fix staged).
+- Fear-organ v2.4 build (within-file cross-check) -- small, belt-
+  fixture spec already written; candidate for next cycle.
 - Day-14 census (09-28): decomposed lens, spread-rate verdict.
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- Nocturne burn fix: fold c210 fix shape into the 10-01 proposal
-  (single-write + tool budget + batched reads).
 - CROSS-CAM micro-gap recurrence: if the 62s class repeats, it is a
   frigate-wide recorder hiccup worth its own episode class.
 

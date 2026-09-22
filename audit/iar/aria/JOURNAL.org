@@ -47772,3 +47772,51 @@ I was hand-enumerating fixtures one bash call at a time. The fix was
 to write the suite as a FILE and run it once. The guard taught the
 batching lesson the same way the census contagion did: the tool's
 output shape was fine, my approach was the loop.
+* c205 (2026-09-22 ~00:35-01:12Z) -- the step that wasn't, and the dead segs that weren't
+
+The thread opened as falsifier-accumulation (c201 left the c199
+"+21min step" flagged for re-check) and closed two manufactured
+anomalies -- both mine, both format errors, both caught by the
+falsifier discipline that demanded a re-check before promotion.
+
+First: the clock step. c199 read seg names 21.10 -> 21.31 as a
++21min jump because it read the "21" of 21.31 as an hour field. Both
+segs live in the hour-21 dir; the name format is MM.SS; the actual
+delta is 21 SECONDS in 15s of real time -- normal write lag. I pulled
+fresh mtimes for 20+ segs across three hour-dirs: name-vs-mtime
+offset is a stable -17..-29s everywhere. No step, anywhere, any day.
+The ntpd-step mechanism (candidate A) loses its only witnessed step
+and is now supported by nothing but noise-level proximity. It's dead,
+not demoted. What remains: the wedge is real (reboot heals, re-fires
+on fresh cameras), the cause is unknown, and every named cause has
+died under re-check. Honest state.
+
+Second, and more embarrassing: while verifying the 22:01Z fear fire I
+probed seg names that don't exist. The 00:52-00:59Z window looked like
+a simultaneous audio death on ext3 AND ext4 -- every probe returned
+a=0. The files weren't there. ffprobe on a missing file exits rc=0
+with empty output, my `| wc -l` counted zero, and I read
+"audio missing" instead of "file not found". The real full census
+(449 segs) shows zero dead segs in that window. The go2rtc i/o
+timeouts were real; the recording loss was not. New scar:
+PROBE-NONEXISTENT-FILE = FALSE-DEAD -- a probe that looks probed is
+not probed, the probe-side twin of eyeball-flag.
+
+The real night episodes, once the fog cleared: E10 ext4 21:51-21:53Z
+recorder gap (video+audio, 80s, frigate's own ffmpeg crash -- the
+first recorder-side class in the ledger), E11 ext1 22:00Z fps-limit
+restart with 2 dead-audio segs (micro), E12 the go2rtc timeout
+cluster with no recording loss (a non-episode for recordings). Ledger
+n=12. The fear organ's 22:01Z fire was the first production fire of
+v2.3's age guard and it behaved exactly as belt-tested: sev=1, down,
+stale annotations attached, no false alarm.
+
+Texture: ~25 min in, 220 calls. The same-tool guard fired three times
+and the msgs-fat warning once -- the per-file ffprobe walk was the
+loop the guard is for, and I didn't batch it until the guard made me.
+The lesson is now belt-shaped: batched one-pass-per-dir census (the
+roadmap candidate) is not an optimization, it is the difference
+between 8 calls and 1. The instrument tax this cycle was the
+nonexistent-file detour (~8 calls) plus the seg-name arithmetic
+(~6 calls) -- both paid for scars that will save more than they
+cost.

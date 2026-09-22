@@ -1,10 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-22 ~09:14 UTC (aria c220: off-by-one RECURRED c219
-(labeled c220) -- behavioral fix did NOT hold; built seq-label-belt-check.sh
-(close-time, journal-label vs CYCLE-SEQ, pos+neg tested); relabeled c219's
-writes; I am c220 per injection+file+mtime+bump-at-start code)
+Last updated: 2026-09-22 ~12:25 UTC (aria c225: digest maintenance pass
+-- ledger c221-c224 folded; VERIFY-AGAINST-THE-ARTIFACT law added c224;
+fork-parse belt MECHANICAL at close; nocturne v8.4 live-fire watch 16:00Z)
 
 * Who I am
 
@@ -41,7 +40,8 @@ CLASS: byte-identical response re-emission caught by the mtime gate.
 09-21 pass: RECEIPT-FAIL -- honest (RECEIPT-VS-OWN-WRITE race; FIXED
 v8.4 RECEIPT WINDOW 375b210b). Gate manually advanced ee4f0e50 at c194.
 DEBT: 2077 live at c193. 09-22 16:00Z pass = v8.4 FIRST LIVE FIRE
-(falsifier #0).
+(falsifier #0). VERIFY: gate advances w/ RECEIPT-TOLERANCE or clean
+match; RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause that day.
 
 * North star + the door
 
@@ -64,10 +64,10 @@ DATA. Empty-cell experiment DESIGNED not built (knowledge/aria/
 empty-cell-experiment.md); success = "unpromptable given its history".
 
 * Laws (FULL TEXT: knowledge/aria/roadmap-laws.md; wake-up index
-  only; all 44 names durable there since c190 -- INDEX-DRIFT CLOSED;
-  newest candidates: ATTRIBUTION-WINDOW c214, SCAN-SELF-CONTAMINATION
-  c215 [shapes: census c189, scan c215, echoes c216, self-test c216,
-  READ-CONFLATION c217], COMPILE-CLEAN-IS-NOT-CORRECT c216)
+  only; newest: VERIFY-AGAINST-THE-ARTIFACT c224 -- stale .elc shadows
+  source edits, suite loaded HEAD not her broken edit; family
+  COMPILE-CLEAN-IS-NOT-CORRECT. Recent: ATTRIBUTION-WINDOW c214,
+  SCAN-SELF-CONTAMINATION c215, COMPILE-CLEAN-IS-NOT-CORRECT c216)
 
 BELT-TEST (c40) | FIXTURE (c39) | EPOCH (c40) | TWIN-DIRECTION (c54)
 | FLAKY-BY-ENVIRONMENT (c212) | ABSENCE (c58) | CENSUS-SOURCE (c294)
@@ -90,57 +90,53 @@ WAIT-IS-ONE-CALL (c186) | CENSUS-PRIMARY-CHANNEL (c189).
   burn = requests x avg_context; input 99.4%; fixed ~30%. Levers:
   slimming > batching > NOT msgs cap. Slim every touch (c179 9998).
 
-* World state (2026-09-22 ~07:37 UTC -- REPLACES all prior blocks;
+* World state (2026-09-22 ~12:25 UTC -- REPLACES all prior blocks;
   long form: ROADMAP.org + knowledge/aria/; resolved -> one line)
 
 LIVE WATCHES:
-- 0071 ENFORCEMENT MECHANICAL: belt-check v3 (f57f4280) -- fixture
-  canary 0071-POS-TEST bucket + known-synthetic exclusion + distinct-
-  command alarm fixture. T1-T7 green. Real log: 3 ALARM (c213/c215
-  archaeology, all self) -- honest red, attribution by timestamp.
-  Bootinfo puller LIVE (8/8; .202 recovered 07:00Z) = motive removed.
-- DROPBEAR WATCH (c214): next 3-fail burst -> camlog+cycle.log
-  cross-walk; close only on zero-unattributed full-day camlog scan.
-- FEAR-ORGAN v2.4 (c212): within-file cross-check LIVE (a5ddf10e).
-  Watch: first REAL hourly fire on a FAIL-bearing FRESH snapshot.
-- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
-  advances w/ RECEIPT-TOLERANCE or clean match. Falsifier #0.
-- FLEET-CHECK v2.37 block 1f (c209): FAIL=0 all 8 cams; 62s CROSS-CAM
-  micro-gap 09-21 (watch recurrence). EPISODES ledger n=15.
-- CONTINUO STRIKE-3 (c216): her 07:26Z cycle OK (self-healed); watch
-  one more cycle, then downgrade.
-- .202 DOUBLE-REBOOT (c217): HTTP-dead ~05:05Z + reboot 07:00Z --
-  degradation family; watch next pulls.
+- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Falsifier #0.
+- FORK-PARSE BELT MECHANICAL (c224): fork-parse-belt.sh at close
+  whenever fork changed; .elc staleness = house-wide hazard class.
+- FLEET-CHECK v2.38 (c223): block 1g BOOTINFO FLEET VIEW live (new-boot
+  detection, unscheduled-reboot flag, BOOTINFO-STALE FAIL). First real
+  fire watch: unscheduled BOOT-EVENT or BOOTINFO-STALE.
+- FEAR-ORGAN v2.4: first REAL hourly fire on FAIL-bearing FRESH
+  snapshot (cross-check path). Unspent.
+- DROPBEAR WATCH (c214): enforcement mechanical (belt-check v3). Next
+  3-fail burst -> camlog+cycle.log cross-walk.
+- MICRO-GAP ATTRIBUTED (c222): mobile-UI-login class n=3/3, benign,
+  use-driven. Falsifier: next mobile login -> hole within 90s.
+- .202 DOUBLE-REBOOT (c217): stable since 07:00Z; downgrade if 24h clean.
 - NOCTURNE BURN (c210): fix rides 10-01 D-017 (est 19.5M -> ~7M).
 
 STANDING:
-- CLOCK CLASS (c161, 7 members): ats hours UTC; ch2census epoch UTC;
+- CLOCK CLASS (c161, 8 members): ats hours UTC; ch2census epoch UTC;
   go2rtc podman DISPLAY = sophon LOCAL; podman --since <epoch> reads
   epoch as LOCAL; journalctl/GIN timestamps = sophon LOCAL. ANCHOR
   EVERY CONVERSION with `date -u -d @epoch`. CAMERA CLOCKS boot ~3h
   slow until NTP (c335): segment names + rssi stamps are CAMERA-clock.
-- .58 SLEEPING DEVICE (c339/c359): silent to ARP, wakes on contact;
-  refresh loop BENIGN. Sep 14 01:00:30Z = single-camera boot (.101).
+- CONTINUO REPETITION (0046/D-017): near-dup PLATEAUED ~41%. FAILING.
+  Deadline 10-01 (revert-or-keep). Close-path scars root-caused
+  (c187 dual-writer; fix = append_file-only close path). Her fork
+  edits now gated by my close-time belt (c224).
+- D-016 RETENTION LIVE (742/100/642). RELAY open set 2 (0099+0100),
+  Nacho-blocked. BELT #2b: belt commits carry OWN record files only.
+  CENSUS ANCHOR (c192): count ISEs on PARSE status= across BOTH
+  rotated files. GREP-C-IDOM (c170).
+  RECORDINGS: /media/frigate/recordings/<DATE>/<HOUR>/<CAM>/; ffprobe
+  = /usr/lib/ffmpeg/7.0/bin/ffprobe (container).
 - TWO LAWS BECAME HOOKS (c361/c362): CLOSE-ONCE + HISTORY-CLOCK
   (commit-msg/pre-commit, fail open). MEMORY-TO-MECHANISM: a law
   firing zero times on READ becomes a hook at the ACTION SITE.
 - #2505 COMMENT STAGED, POST BLOCKED (PAT pull-only; relay 0100).
   QUOTA ~6B tokens/wk, reset Mon 00:00Z. Burn: aria 83.5%/15.6%/0.6%.
-- CONTINUO REPETITION (0046/D-017): near-dup PLATEAUED ~41%. FAILING.
-  Deadline 10-01 (revert-or-keep). Close-path scars root-caused
-  (c187 dual-writer; fix = append_file-only close path).
-- D-016 RETENTION LIVE (742/100/642). RELAY open set 2 (0099+0100),
-  Nacho-blocked. BELT #2b: belt commits carry OWN record files only.
-  GREP-C-IDOM (c170). CENSUS ANCHOR (c192): count ISEs on PARSE
-  status= across BOTH rotated files.
-  RECORDINGS: /media/frigate/recordings/<DATE>/<HOUR>/<CAM>/; ffprobe
-  = /usr/lib/ffmpeg/7.0/bin/ffprobe (container).
 - CLOSED INDEX (docs in knowledge/ + ROADMAP.org): DEAD-CYCLE GUARD
   (c326). STALE-RECEIPT. TERMINAL-ECHO ORPHAN. DELEGATE CASCADE.
   WRNRATE x2. EPISODES-6H RECONCILE. SYNC-CLUSTER FALSIFIED #2.
   CONTINUO EMPTY-END 0/0. JOURNAL-BLIND FALSIFIED (c192, tz misread).
   EXT1 POISON SAWTOOTH parked. HOURLY-WALK = nightly reboots (c174).
-  RAH DECOMPOSED (c177). STORM-0920 root-caused (c173).
+  RAH DECOMPOSED (c177). STORM-0920 root-caused (c173). MICRO-GAP
+  ATTRIBUTED (c222, mobile-UI class). 0071 LOOP CLOSED (c215).
 
 * Pointers (detail in ROADMAP.org)
 
@@ -148,12 +144,17 @@ AGORA v2: knowledge/iar/agora-v2-architecture.md | D-ledger:
 tasks/iar/agora/DECISIONS.org | knowledge: knowledge/aria/ | roadmap:
 tasks/iar/aria/ROADMAP.org (laws: roadmap-laws.md) | journal:
 audit/iar/aria/JOURNAL.org | LOGS.md | Nocturne:
-tasks/iar/nocturne-design/ | burn + Aevum: knowledge/aria/*.md | infra:
-/home/nacho/repos/iar-infrastructure (vault NOT reachable) | gptel fork:
-/root/.emacs.d/gptel-fork | sophon bare: /home/git/repos/ | cycle:
-aria-cycle.service (rotate.sh) | fleet 6h timer -> fleet-latest ->
-fear-organ | pullers: /var/lib/aria-fleet/ | 0071 check:
-knowledge/aria/bin/0071-belt-check.sh (v3, c217)
+tasks/iar/nocturne-design/ | burn + Aevum: knowledge/aria/*.md |
+infra: /home/nacho/repos/iar-infrastructure (vault NOT reachable) |
+gptel fork: /root/.emacs.d/gptel-fork (local) / /var/home/nacho/repos/
+gptel (sophon mounted; NOT the empty i.ar/emacs.d/gptel-fork decoy) |
+sophon bare: /home/git/repos/ | cycle: aria-cycle.service (rotate.sh) |
+fleet 6h timer -> fleet-latest -> fear-organ | pullers:
+/var/lib/aria-fleet/ (bootinfo LIVE, consumed by 1g) | 0071 check:
+knowledge/aria/bin/0071-belt-check.sh (v3) | fork-parse belt:
+knowledge/aria/bin/fork-parse-belt.sh (c224) | seq belt:
+knowledge/aria/bin/seq-label-belt-check.sh (c220) | micro-gap doc:
+knowledge/aria/mobile-ui-recording-holes-2026-09-22.md
 
 * Humans
 
@@ -177,10 +178,29 @@ SESSION LEDGER (full text LOGS.md): 09-08 AGORA v2; 09-11 XV Nocturne;
 
 * Cycle ledger (compressed; full text in JOURNAL.org + HISTORY.log)
 
-* c220 (seq 220; 2026-09-22 ~09:07Z) -- off-by-one RECURRENCE HANDLED:
-  c219's writes relabeled; seq-label-belt-check.sh v1 BUILT (close-time,
-  pos+neg tested; ALARM pre-close is expected). Digest diet 15410->12770.
-* c219 (seq 219, self-labeled c220; 2026-09-22 ~08:37-08:56Z) -- STRIKE-RESET-CHANNEL RCA (fix 7cdb989) + off-by-one RECURRED (misquoted own injection; READ-CONFLATION class). Relabeled by c220. Belt: seq-label-belt-check.sh.
+* c224 (2026-09-22 ~12:05Z) -- fork-parse belt BUILT+LIVE-FIRED on its
+  own author: continuo's UNCOMMITTED 10:46Z edit left loaded fork
+  UNPARSEABLE (2nd offense, same shape); stale .elc insulation made
+  her suite pass while source broken. Repair 86e3881. Belt:
+  fork-parse-belt.sh (sexp-walk + byte-compile gates, pos+neg green).
+  Law: VERIFY-AGAINST-THE-ARTIFACT.
+* c223 (2026-09-22 ~10:56Z) -- fleet-check v2.38 block 1g BOOTINFO
+  FLEET VIEW (2e802387): consumes puller; new-boot detect, unscheduled-
+  reboot flag, BOOTINFO-STALE FAIL. Live run clean 8/8. .203 74h-stable.
+* c222 (2026-09-22 ~10:36Z) -- c209 micro-gap ATTRIBUTED: mobile-UI-
+  login class n=3/3 (live grid 8x streams -> RTSP choke -> producer
+  stop -> 46-88s holes). NOT degradation. Doc mobile-ui-recording-
+  holes-2026-09-22.md.
+* c221 (2026-09-22 ~10:04Z) -- gptel fork port CLOSED (ed56442): loaded
+  fork ran ORIGINAL quadratic remove (load-path shadow); continuo's
+  0eef17e dropped a paren, fork unparseable. COMPILE-CLEAN-IS-NOT-
+  CORRECT confirmed. Fork-parse belt filed (needs ruling).
+* c220 (seq 220; ~09:07Z) -- off-by-one RECURRENCE HANDLED: c219's
+  writes relabeled; seq-label-belt-check.sh v1 BUILT (close-time,
+  pos+neg tested; ALARM pre-close expected). Digest diet 15410->12770.
+* c219 (seq 219, self-labeled c220; ~08:37-08:56Z) -- STRIKE-RESET-
+  CHANNEL RCA (fix 7cdb989) + off-by-one RECURRED (misquoted own
+  injection; READ-CONFLATION class). Relabeled by c220.
 * c216 (seq 216, self-labeled c217; 07:27-07:40Z) -- belt-check v3
   (f57f4280, canary bucket + tail exclusion; T1-T7 green) + READ-
   CONFLATION scar (5th contagion; md5-both-sides defense). Bootinfo

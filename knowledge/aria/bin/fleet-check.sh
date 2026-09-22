@@ -1,5 +1,8 @@
 #!/bin/bash
-# aria fleet-check v2.37 (2026-09-22, aria cycle 209: RECORDER-GAP CENSUS block 1f
+# aria fleet-check v2.38 (2026-09-22, aria cycle 223: BOOTINFO FLEET VIEW block 1g
+#   -- consumes the bootinfo puller (c216): per-cam boot time + age, new-boot
+#   detection, unscheduled-reboot flag, puller-staleness FAIL. Prior v2.37
+#   2026-09-22, aria cycle 209: RECORDER-GAP CENSUS block 1f
 #   -- GAP-COUNT + LONGEST-GAP first-class from segment NAMES (no probing; the
 #   E10 recorder-hole class, invisible to ats + ear check, now organ-readable).
 #   Prior v2.36 2026-09-21, aria cycle 196: RECORDER-AUDIO-EVENTS
@@ -827,6 +830,59 @@ for cam in $CAMERAS; do
     }'
 done
 rm -f "$GAP_TMP"
+
+# --- 1g. BOOTINFO FLEET VIEW (v2.38, aria c223): consume the bootinfo puller ---
+# The bootinfo puller (c216, cron */15, curl-class) records each camera's
+# boot time in /var/lib/aria-fleet/bootinfo/<ip>.log. This block surfaces
+# the fleet boot state WITHOUT any camera ssh (0071 motive stays removed):
+#   - per-cam latest boot time + age
+#   - a NEW boot (boot time changed since the previous row) inside the
+#     last 24h = an unscheduled reboot event -> report (not fail; the
+#     nightly crons are 01-07Z staggered and BY DESIGN, c343)
+#   - a cam whose reboot cron should have fired (per the staggered
+#     schedule) but whose boot time is >26h old -> WATCH line
+#   - puller liveness: latest pull row older than 45min -> FAIL-LINE
+#     (the puller is a cron guest; its silence is a blind spot, and
+#     blind spots in this fleet have cost days -- c174)
+# Read-only toward the puller outputs; additive; reversible: delete block.
+echo "-- bootinfo fleet view (1g, puller-consumed) --"
+BID=/var/lib/aria-fleet/bootinfo
+if [ -d "$BID" ]; then
+  for f in "$BID"/192.168.2.*.log; do
+    [ -r "$f" ] || continue
+    ip=$(basename "$f" .log)
+    last=$(tail -1 "$f" 2>/dev/null)
+    [ -n "$last" ] || continue
+    ts=$(echo "$last" | awk '{print $1}')
+    bt=$(echo "$last" | awk '{print $3, $4}')
+    # distinct boot times in the log + the pull timestamp of the LAST
+    # row carrying each (a boot-time change = a reboot event)
+    nbt=$(awk '{print $3, $4}' "$f" | sort -u | wc -l)
+    prevbt=$(awk '{print $3, $4}' "$f" | uniq | tail -2 | head -1)
+    age=$(( $(date +%s) - $(date -u -d "$ts" +%s 2>/dev/null || echo 0) ))
+    if [ "$age" -gt 2700 ]; then
+      echo "FAIL-LINE: BOOTINFO-STALE: $ip last pull ${age}s ago (>45min) -- bootinfo puller not running?"; FAIL=1
+    elif [ "$nbt" -gt 1 ]; then
+      # the newest boot time vs the one before it: if they differ, the
+      # newest is a NEW boot (reboot event) -- report with the boundary
+      newbt=$(awk '{print $3, $4}' "$f" | uniq | tail -1)
+      firstts=$(grep -F "$newbt" "$f" | head -1 | awk '{print $1}')
+      bage=$(( $(date +%s) - $(date -u -d "$bt" +%s 2>/dev/null || echo 0) ))
+      echo "$ip BOOTINFO: boot=$bt age=$((bage/3600))h pulls=$nbt-epochs (newest boot first seen $firstts)"
+      # unscheduled-window check: boot times 01-07Z are the nightly crons
+      bhour=$(echo "$bt" | awk '{print $2}' | cut -d: -f1)
+      b10=$((10#$bhour))
+      if [ "$bage" -lt 86400 ] && { [ "$b10" -lt 1 ] || [ "$b10" -gt 7 ]; }; then
+        echo "$ip BOOT-EVENT: new boot $bt OUTSIDE the nightly 01-07Z window (age $((bage/3600))h) -- unscheduled reboot, watch"
+      fi
+    else
+      bage=$(( $(date +%s) - $(date -u -d "$bt" +%s 2>/dev/null || echo 0) ))
+      echo "$ip BOOTINFO: boot=$bt age=$((bage/3600))h (single epoch, stable)"
+    fi
+  done
+else
+  echo "bootinfo dir missing -- puller not installed? (report, not fail: 0071 motive returns if this stays empty)"
+fi
 
 # --- 2. IDENTITY WATCH (pixels, not metadata) ---
 echo "-- identity watch --"

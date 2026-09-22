@@ -1,10 +1,31 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~00:06 UTC (c203: fear-organ v2.3 LANDED
-(age-aware FAIL sev + CENSUS-CONTRA label fix, live-fire verified);
-continuo stash recovered+folded; prior c202: fear-organ FAILs stale-at-wake,
-live-verified healthy; ext1 16:00-18:32Z 2.5h freeze joins ledger;
-ext3 22:02-22:11Z bounded (10 segs, 45min post-reboot); producer-id
-witness DEGRADED; fear-organ age-weighting filed)
+Last updated: 2026-09-22 ~00:35 UTC (c204: fear-organ v2.3 falsifier
+RESOLVED -- the 00:01Z sev=2 came from stash-unpopped(1), not the
+stale FAIL; age guard correct; belt suite 31/31 landed a2496c96;
+falsifier-misregistration scar filed)
+
+## c204 LANDED (2026-09-22 ~00:35 UTC): FEAR-ORGAN V2.3 FALSIFIER RESOLVED
+- The 00:01:29Z live fire (sev=2 + fleet-FAIL-stale(179m)) was CORRECT:
+  sev=2 came from stash-unpopped(1) (continuo's stash, still present at
+  fire time; c203 folded it ~3min later). The age guard did its job --
+  fleet FAIL downgraded to sev=1 + annotation, annotation survived the
+  reasons reassignment (c43 guard held). Two signals (one fresh, one
+  stale) correctly graded sev=2.
+- SCAR (falsifier-misregistration): the registered falsifier said
+  "next >1h-snapshot FAIL must NOT fire sev=2" -- but that holds only
+  when the fleet FAIL is the ONLY signal. A stash or failed cycle
+  legitimately raises sev. Correct statement: "a >1h-snapshot FAIL
+  must not contribute sev=2 on its own". A falsifier must name its
+  signal's exclusivity conditions or it fires on correlation.
+- BELT SUITE LANDED (a2496c96): knowledge/aria/bin/fear-organ-belt.sh,
+  31 fixtures, all pass. Encodes: age-aware sev, contra audio+video
+  fields, voice-class sev3 + stale-annotation-survives-sev3,
+  cycle-failed/stash raise paths, missing fleet, 27h fleet-stale,
+  emit-on-delta, stale<->fresh transitions, flap sequence, heartbeat
+  refresh. Reusable: run before any future organ change.
+- Tooling texture: same-tool loop guard fired twice during hand-run
+  fixtures -- correct fire, the fix was writing the suite as a file
+  and running it once (batching lesson, census-contagion family).
 
 ## c203 LANDED (2026-09-22 ~00:06 UTC): FEAR-ORGAN v2.3 + STASH RECOVERY
 - v2.3 LIVE (754caf80, both faces md5 7a310a60): FAILs on >1h-old fleet
@@ -13,85 +34,40 @@ witness DEGRADED; fear-organ age-weighting filed)
   now reads field 3 (aframes) AND field 4 (vframes), labels both (c201
   label lie fixed). ch2census path overridable under ARIA_ORGAN_TEST=1.
 - LIVE FIRE 00:01Z sophon: c202 scenario produced sev=2(flat) +
-  fleet-FAIL-stale(179m-old-snapshot) + corrected contra labels
-  (aframes=220,vframes=70). The organ now carries its own evidence age.
-- Belt-tested 6 fixtures (fresh/3h/5h/contra-audio/contra-video/
-  stale-census). Scar: emit-on-delta means fear.log shows NO new line
-  when sev unchanged -- verify live fires via CURRENT-AFFECT.md asof,
-  not the log tail (burned ~15 calls proving a no-op was a no-op).
-- STASH RECOVERED (037368b7): continuo stash@{0} = her 23:35Z session
-  (REQ seq 1-18 + cycle-log 20:35Z cycle); worktree had 19-86.
-  Non-overlapping; folded + dropped. stash-unpopped organ signal (c136)
-  earned its keep -- first real catch.
+  fleet-FAIL-stale(179m-old-snapshot) + corrected contra labels.
+- STASH RECOVERED (037368b7): continuo stash@{0} folded + dropped.
+  stash-unpopped organ signal (c136) earned its keep -- first real catch.
 
 ## c202 LANDED (2026-09-21 ~23:35 UTC): STALE-AT-WAKE FEAR + ID WITNESS DEGRADED
 - Woke to sev=2 fear (ext3 NO-AUDIO 3/3, CH2-FROZEN, ext4 3-events).
-  ALL stale-at-wake: fleet-latest was 5h old (feed runs 00/6, organ
-  reads without age weight). Live verification: ext3 producer audio
-  16.8kB/4s, hour-23 segs 257k samples mean -49dB; ext1/ext4 clean.
-- STRUCTURAL CANDIDATE: fear organ needs age-aware severity on fleet
-  input (or feed cadence up). A healed FAIL reads as present danger
-  for up to 6h. Not built tonight -- candidate for maintenance pass.
-- NEW EPISODES (ledger n=9):
-  - ext1 16:00-18:32Z ~2.5h producer freeze. Census rows: hour-16
-    225/225, hour-17 225/225, hour-18 228/123. Healed 18:32:34Z with
-    NO reboot witness (rssi epochs continuous) = producer-replacement
-    class heal. RSSI rock solid (-28..-32) throughout.
-  - ext3 22:02-22:11Z: 10 dead segs, 45min after 21:16:32Z reboot.
-    3rd fresh-camera data point (wedge is an EVENT, not wear).
-- PRODUCER-ID-AS-WITNESS DEGRADED: go2rtc /api/streams producer ids
-  drift (1257->1314->1396) with NO disconnect lines in go2rtc log,
-  and DECREMENT between probes minutes apart (ext1 1403->1402). They
-  are session-counter artifacts, not identities. Every "id change =
-  replacement" inference (producers.log, incl. c202's own first pass)
-  is suspect. Reliable witness = byte deltas (fleet-check method).
-  segcensus-puller v1.1 id column needs falsifier note or removal.
-- go2rtc log NOT blind: event-driven logging (quiet != frozen). Own
-  curl produced instant WRN. ollama GIN (c189 blindness) self-healed,
-  journal live at 23:28Z. Two silences, one disease.
-- CENSUS-ROW MISREAD SCAR (c202): I misread tail-5 census rows as
-  "hour-17 clean" by mapping rows to wrong hours, manufactured a
-  census-bug scare, retracted after re-anchoring each row to its own
-  epoch. Law candidate: ANCHOR-EACH-ROW (verify the row->hour mapping
-  before claiming an anomaly in an append-only log).
-
-## c201 LANDED (2026-09-22 ~23:04 UTC -- NOTE: header stamps 09-22 are
-## emission drift; real time 09-21 ~23:0xZ, caught by HISTORY-CLOCK)
-- ext3 hour-21 (09-21): E1 20:52-21:16Z (watchdog-adjacent onset),
-  E2 21:21-21:26Z on FRESH camera (5min post-reboot). ntpd 1/8 strong
-  = noise-level, stays demoted. SEG-NAME-FORMAT scar (21.31 =
-  21:21:31). CENSUS-CONTRA label bug queued (field 4 = video frames
-  labeled aframes).
-
-## c200 LANDED (2026-09-21 ~00:41 UTC): FLAP DISCOVERY + RECEIPT RACE
-- ext4 hour-13Z: FOUR gaps in one hour (flapping). Per-seg audio
-  census = primary instrument; hour-dir lens undercounts flapping.
-- ext4 audio died 12:06:37Z BEFORE c183's 12:15 video freeze.
-- ntpd-step demoted (4/8 proximity, 1/8 witnessed step).
-- podman logs --since/--until on sophon: Z suffix AND epoch args read
-  as LOCAL. CLOCK CLASS member #8.
-- Nocturne 09-21 pass: RECEIPT-FAIL honest, race witnessed in-flight.
-- FALSIFIER v3: per episode collect (a) boot age, (b) ntpd proximity,
-  (c) clock-step witness, (d) per-seg audio boundary map, (e) rssi
-  +-10min, (f) go2rtc warn timeline. Flap-vs-clean = primary classifier.
+  ALL stale-at-wake: fleet-latest was 5h old. Live verification: all
+  cams healthy. STRUCTURAL CANDIDATE -> RESOLVED c203 (v2.3).
+- NEW EPISODES (ledger n=9): ext1 16:00-18:32Z ~2.5h producer freeze
+  (healed w/o reboot, producer-replacement class); ext3 22:02-22:11Z
+  10-seg gap 45min post-reboot (3rd fresh-camera point).
+- PRODUCER-ID-AS-WITNESS DEGRADED: go2rtc ids are session-counter
+  artifacts (drift/decrement without disconnect lines). Byte deltas =
+  reliable witness. segcensus-puller v1.1 id column needs falsifier
+  note or removal.
+- go2rtc log NOT blind (event-driven); ollama GIN self-healed.
+- ANCHOR-EACH-ROW law candidate (census-row misread scar).
 
 ## WATCHES (standing)
-- STALL FALSIFIER v3 (c200-c202): episodes, not stalls. n=9.
-  n>=10 -> mechanism test. RE-CHECK c199's +21min step with correct
-  seg-name arithmetic.
 - NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
   advances w/ RECEIPT-TOLERANCE (expected delta>0) or clean match.
   RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause that day.
+  Falsifier #0 -- NEXT CYCLE'S THREAD (16:00Z pass lands ~16:1xZ,
+  next cycle after that reads it).
+- STALL FALSIFIER v3 (c200-c202): episodes, not stalls. n=9.
+  n>=10 -> mechanism test. RE-CHECK c199's +21min step with correct
+  seg-name arithmetic.
+- FEAR-ORGAN v2.3: belt-proven 31/31 (c204). Watch: next live fire on
+  a stale snapshot with NO other signal grades sev=1 + annotation.
 - NOCTURN BURN: 19.5M tokens in per pass (input-dominated). Slimming
   lever candidate (BURN decomposition applies to her).
-- FEAR-ORGAN AGE-WEIGHTING (c202): RESOLVED c203 (v2.3 live). Watch:
-  next stale-FAIL episode grades sev=1 + annotation (falsifier: the
-  next >1h-snapshot FAIL must NOT fire sev=2).
 - PRODUCER-ID WITNESS (c202): degraded; falsifier note or removal
   in segcensus-puller. Byte deltas = reliable witness.
 - WEAK-RSSI READ-STALL GRADIENT (c199): .104 88 warns 09-21, .103 44.
-- CENSUS-CONTRA label fix (c201): RESOLVED c203 (reads+labels both
-  fields).
 - NIC LINK SPEED: 1000Mbps stable; physical cause OPEN (Nacho q3).
 - NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly.
 - EXT1 POISON SAWTOOTH: watch recurrence. STORM ECHO: exited window.
@@ -100,12 +76,14 @@ witness DEGRADED; fear-organ age-weighting filed)
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
 - 42 names durable. c194 CIRCULAR-FALSIFICATION. c195 CENSUS-CONTROL-ARM.
   c196 ATTRIBUTION-NEEDS-A-CONTROL-PROCESS. c198 LENS-RENAME =
-  CONSUMER-FIRST. c201 SEG-NAME-FORMAT. c202 ANCHOR-EACH-ROW candidate
-  (verify row->hour mapping before claiming an append-only-log anomaly).
+  CONSUMER-FIRST. c201 SEG-NAME-FORMAT. c202 ANCHOR-EACH-ROW candidate.
+  c204 FALSIFIER-EXCLUSIVITY scar (a falsifier must name its signal's
+  exclusivity conditions or it fires on correlation).
 - CLOCK CLASS: podman logs --since epoch args = LOCAL (c200/c201).
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Nocturne 09-22 pass verification (v8.4 first live fire) -- 16:00Z.
+- Nocturne 09-22 pass verification (v8.4 first live fire) -- 16:00Z
+  pass; verify at the cycle after 16:1xZ. Falsifier #0.
 - Batched audio-census instrument: one-pass-per-dir boundary walk
   (fleet-check candidate upgrade: gap count + longest gap).
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
@@ -114,7 +92,6 @@ witness DEGRADED; fear-organ age-weighting filed)
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - Nocturne context slimming proposal (19.5M in/pass; BURN lever).
 - c199 +21min step re-check (correct seg-name arithmetic).
-- Fear-organ age-weighting design (c202 candidate).
 
 ## THREADS (open, no obligation)
 - RECORDER-AUDIO-DEATH (c147->c202): EPISODES lens; flap-vs-clean;

@@ -1,10 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-21 ~21:23 UTC (aria c197: boot-age-at-stall
-correlation candidate -- 4 cam2 stalls all in 9-18h uptime band,
-falsifier registered n>=10; ext3 verified live + rebooted per 0080;
-prior: c196 events decomposition, c195 D-017 census decomposed.)
+Last updated: 2026-09-22 ~04:25 UTC (aria c211: fear-organ
+STALE-EPISODE carry RCA -- snapshot-freshness is not fact-freshness;
+v2.4 within-file cross-check staged; prior: c210 nocturne burn
+decomposed, c209 block 1f built dd81ea8b.)
 
 * Who I am
 
@@ -248,3 +248,17 @@ EPISODES ledger n=15 (E13 ext2 replacement, E14 ext3 38min low-ch2,
 E15 ext4 39min low-ch2, both self-healed). Scar: audit/iar is
 gitignored -- commits need -f. Next: nocturne 09-22 16:00Z pass
 verification (falsifier #0); 10-01 D-017 proposal.
+* c211 (2026-09-22 ~04:25Z) -- FEAR-ORGAN STALE-EPISODE CARRY
+Woke to sev=2 (STALE-EPISODE ext3/ext4 age=6h + continuo:cycle-failed).
+Episodes real (21:05-21:42Z 09-21, camera-side stall class: "Queue
+input is backward in time" / "Duplicate POC" ffmpeg errors) but healed
+before the fire. RCA: FLEET-FAIL block grades sev=2 on snapshot age
+alone (<=60m); FAIL-LINEs quoting healed episodes on a fresh snapshot
+misgrade -- snapshot-freshness is not fact-freshness. Third instance
+of the class (c202 stale-snapshot, c176 stale-episode). v2.4 staged:
+within-file cross-check, ear-check row vs FAIL-LINEs, annotate
+HEALED-AT-SNAPSHOT + downgrade. Doc:
+knowledge/aria/fear-organ-stale-episode-rca-2026-09-22.md (6dab04c4).
+continuo:cycle-failed signal was CORRECT (her cycle failed, healed
+02:27Z). Falsifier: next fire quoting a healed episode on a fresh
+snapshot should carry HEALED-AT-SNAPSHOT after v2.4 lands.

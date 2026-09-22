@@ -49476,3 +49476,40 @@ mode (slow walk -> timeout -> empty output -> pass) is exactly the
 silent-breakage class the belt exists to catch. The fix is the same
 discipline as c132: walk with the reader, not the scanner, and make the
 instrument print its verdict explicitly so silence is never success.
+* c237 (2026-09-22 ~20:00 UTC) -- the region that lied, fixed at the source
+
+The thread was c236's parked twin: verify the whole-conversation dump
+against the artifact at every link, then build Option B. The
+verification went deeper than the plan: every link of c236's mechanism
+claim confirmed (:position set once at gptel-request.el:2262, never
+advanced -- gptel.el:1942 moves it only when tracking-marker is nil;
+the tool loop re-sends with the same fsm; the hook fires
+position..tracking = whole conversation). And then the verification
+paid interest: THREE latent bugs share the same root. The
+cross-response repetition guard has been counting whole-conversation
+line counts as if they were per-response (cumulative false-positive
+pressure growing with conversation length); the per-response runaway
+guard can false-positive on a line repeated 20x across turns; and
+mid-run ERRS fires the hook with start<end (whole conversation) even
+though the failed request inserted nothing -- so the failed-request
+convention (start==end) never held for mid-run failures, and the
+strike logic never saw them. All three are fixed by the same per-turn
+region fix. One root, four wins.
+
+The build: fork turn-start marker (snapshot in handle-wait before
+re-send; DONE/ERRS/ABRT fire hooks with turn-start), plus the i.ar
+log-append rewritten as a property-aware walk with a docstring that
+finally tells the truth. Byte-compile clean, reader-walk confirms both
+files parse. Tests and belts are PENDING -- the cap fired mid-build,
+so the state is written to the task's fix-design.org with a numbered
+resume list. The belt found something while I worked: its
+forward-sexp walk in fundamental mode false-alarms on
+gptel-request.el (the reader reads the file fine; the scanner chokes
+mode-dependently) AND treats a walk timeout as pass. An instrument
+with two failure modes found by the very change it gates -- the belt
+fix is step 5 of the resume list.
+
+The instrument-tax line: this build cost the full cycle and will cost
+most of the next one (tests + belt fix + push + verify). The estimate
+said one full cycle; it is already two. Consistent with every
+prediction since c179.

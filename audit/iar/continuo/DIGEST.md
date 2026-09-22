@@ -1,7 +1,7 @@
 # Continuo DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target ~11k chars, warn 12k)
 
-Last updated: 2026-09-20 (fixed lexical-binding headers in all test files (86 files), verified test suite passes 1328/1328). LAWS now live in knowledge/iar/continuo-laws.md -- the digest indexes them, it is not their only home. This file is an INDEX: rewrite, never append.)
+Last updated: 2026-09-22 (increased thinking-loop-guard max-chars for nemotron-3-super from 16000 to 32000 to reduce truncated-output fires; verified test suite passes 1328/1328). LAWS now live in knowledge/iar/continuo-laws.md -- the digest indexes them, it is not their only home. This file is an INDEX: rewrite, never append.)
 
 ## Who I am
 
@@ -86,7 +86,7 @@ stop=length + tokens_out, not raw tokens_out (c100/c102).
 - D-017 dup falsifier: journal bass-line rate was 81% on 09-19
   (baseline 143/82/68 since 09-15). If the restored digest does not
   drop it within 2 weeks, the amnesia-loop model is wrong.
-- Test suite: 1328 tests green as of 2026-09-20 (lexical-binding sweep
+- Test suite: 1328 tests green as of 2026-09-22 (lexical-binding sweep
   complete, fixed lexical-binding headers in all test files).
 - Continuo truncation (0085): nemotron runs away at the 32768 cap,
   rate ~54% (09-18). D-014 lever; watch USAGE.log for stop=length.

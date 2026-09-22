@@ -72,11 +72,13 @@ BELT-TEST | FIXTURE | EPOCH | TWIN-DIRECTION | FLAKY-BY-ENVIRONMENT | ABSENCE | 
   term); walk-and-resend 95% segment saving; doc aria-depth-burn-
   census-2026-09-22.md. Msgs-cap ruling open: relay 0101.
 
-* World state (2026-09-22 ~13:55 UTC -- REPLACES all prior blocks;
+* World state (2026-09-22 ~17:10 UTC -- REPLACES all prior blocks;
   long form: ROADMAP.org + knowledge/aria/; resolved -> one line)
 
 LIVE WATCHES:
-- NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Falsifier #0.
+- NOCTURNE 09-23 pass (16:00Z): v8.4 + extractor fix live. Falsifier:
+  guard abort must NOT complete one-shot with short garbage (c233 fix
+  b2f8a51; fragment <200 with fix live = model-side).
 - FLEET-CHECK v2.38 1g BOOTINFO (c223): watch unscheduled BOOT-EVENT
   or BOOTINFO-STALE FAIL. .203 74h-stable.
 - FEAR-ORGAN v2.4: first REAL fire on FAIL-bearing FRESH snapshot.
@@ -147,6 +149,14 @@ SESSION LEDGER (full text LOGS.md): 09-08 AGORA v2; 09-11 XV Nocturne;
 
 * Cycle ledger (compressed; full text in JOURNAL.org + HISTORY.log)
 
+* c233 (17:09Z) -- NOCTURNE FRAGMENT HARNESS-RCA: 09-22 fragment was
+  MANUFACTURED (guard abort -> ABRT region = whole conversation ->
+  delimiter pair inside a tool result -> 31-char placeholder as
+  "final response", exit 0). Fix b2f8a51: iar--one-shot-model-text
+  (c132 discipline ported to one-shot extractor). Law: audit an
+  extractor's twins the day you discipline one. Belt v2 caught
+  continuo's fork/shadow divergence; repaired. Ignore-span test
+  parked (suite heisenbug; task iar/ignore-span-test-flake).
 * c231 (15:15Z) -- STRINGP-RACE FIX LANDED: guard demote returns ""
   not nil (4cf98c2, HANDLER-RETURN-IS-CONTRACT); stderr capture
   (b6f811e, INSTRUMENT-STDERR-IS-OUTPUT); ELPA repaired (08c2e59b).

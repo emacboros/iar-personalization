@@ -1,0 +1,11 @@
+### bare repo census: dangling HEAD + root-owned objects (the known issues)
+cd /home/git/repos
+for r in i.ar iar-infrastructure gptel iar-personalization concepts infrastructure; do
+  echo "=== $r.git ==="
+  head=$(git -C $r.git symbolic-ref HEAD 2>/dev/null)
+  echo "HEAD: $head"
+  # does the HEAD branch exist?
+  git -C $r.git rev-parse --verify $head >/dev/null 2>&1 && echo "HEAD-branch: EXISTS" || echo "HEAD-branch: DANGLING"
+  rootowned=$(find $r.git -user root 2>/dev/null | wc -l)
+  echo "root-owned objects: $rootowned"
+done

@@ -1,0 +1,18 @@
+### services
+for s in aria-cycle.timer agora-agent frigate ollama; do echo -n "$s: "; systemctl is-active $s; done
+### tripwire (root-owned files in repos)
+find /var/home/nacho/repos -user root 2>/dev/null | head -5
+echo "tripwire-count: $(find /var/home/nacho/repos -user root 2>/dev/null | wc -l)"
+### disk
+df -h / | tail -1
+### timer next fire
+systemctl list-timers aria-cycle.timer --no-pager | head -3
+### daemon heartbeat
+journalctl -u agora-agent --since "2 hours ago" --no-pager | grep "alive:" | tail -1
+### nocturne receipt (last digested head)
+cat /var/home/nacho/repos/iar-personalization/audit/nocturne/nocturne/LAST-DIGESTED-HEAD 2>/dev/null || echo "no receipt file"
+### nocturne verdicts tail
+tail -5 /var/home/nacho/repos/iar-personalization/audit/nocturne/nocturne/VERDICTS.log 2>/dev/null || echo "no VERDICTS"
+### .202 boot age (double-reboot watch: downgrade if 24h clean by 09-23)
+journalctl -u aria-cycle.service --no-pager --since "-30 hours" | grep -c "Started" || true
+uptime -s

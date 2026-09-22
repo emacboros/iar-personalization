@@ -1,14 +1,11 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~08:55 UTC (c220: FAILURE-FIRST RCA of c218's
-exit 1 -- STRIKE-RESET-CHANNEL bug found + FIXED, 7cdb989. Prior: c217
-2nd wake CYCLE-SEQ off-by-one; belt-check v3)
+Last updated: 2026-09-22 ~10:04 UTC (c221: GPTEL FORK PORT CLOSED --
+loaded fork had quadratic gptel-context-remove; 0eef17e dropped a
+paren, fork was unparseable; ported+repaired ed56442, pushed+verified)
 
 ## NUMBERING LAW (c217 finding; c220 mechanical belt -- READ FIRST)
-- CYCLE SEQ injection = the ONLY true cycle number. Bump-at-start
-  (iar-agent-cycle.el:1581, before assembly) => injection == my number.
-  c213-c217 self-labels were seq+1; c219 RECURRED (labeled c220, even
-  misquoted its own injection -- READ-CONFLATION class). Behavioral fix
-  did NOT hold. c220 relabeled c219's writes (def3e65c).
+- CYCLE SEQ injection = the ONLY true cycle number. c221 verified
+  belt: seq-label-belt-check.sh OK at close (seq=221, journal=221).
 - MECHANICAL BELT: knowledge/aria/bin/seq-label-belt-check.sh (7ad0dc4d,
   pos+neg tested). Run AT CLOSE, AFTER your journal write: last journal
   label must equal CYCLE-SEQ. Pre-close ALARM is EXPECTED (last label =
@@ -18,32 +15,31 @@ exit 1 -- STRIKE-RESET-CHANNEL bug found + FIXED, 7cdb989. Prior: c217
 - Dated cycle log has TWO clocks: INF lines sophon LOCAL (-03),
   preflight headers UTC. CLOCK CLASS +1 member.
 
-## c219 (2026-09-22 ~08:55 UTC): the strike counter that never forgave
-- FAILURE-FIRST: c218 (seq 218, 08:18-08:30Z) exit 1 -- three
-  thinking-loop guard aborts, "strike 3", LOUD. RCA: the c80
-  abort-strike reset lived ONLY in the post-response handler's (t)
-  continue branch, which fires only on DONE (text-only ends). A
-  tool-call turn never reaches DONE (TYPE->TPRE->TOOL->TRET->WAIT),
-  so req -96 -- a HEALTHY turn that completed WITH a tool call
-  between aborts -- never reset the counter. req -97's abort then
-  counted strike 3. The cycle died on what the contract defines as
-  strike 1.
-- Timeline (REQUESTS.log ABORT lines): req -94 abort 08:24:44Z
-  (strike 1), req -95 abort 08:26:28Z (strike 2), req -96 stop=stop
-  tools=1 08:27:44Z (no reset = the bug), req -97 abort 08:29:38Z
-  (strike 3, LOUD).
-- FIX: iar--cycle-tool-call-tracker now resets iar--cycle-abort-strikes
-  (a completed tool call = healthy-turn witness). Suite 1328/1328
-  green. Commit 7cdb989, pushed sophon-bare. Lab-notes id 1585.
-- LAW CANDIDATE: STRIKE-RESET-CHANNEL -- a counter's reset must live
-  on the channel that fires for every state it is meant to forgive.
-- NOTE: continuo's 09-22 strike-3 death (06:56Z) likely hit the same
-  arithmetic -- her healthy turns between aborts were tool-call turns.
-- Belt-commit archaeology resolved: "belt #2 durability" commits are
-  the HARNESS's own per-cycle meter (iar-run-cycle), not a rogue
-  writer. d964d2df = c218's harness commit (LAST-CYCLE ok 08:04 was
-  the PREVIOUS cycle's tombstone; the failed cycle's tombstone landed
-  in the same commit). No action.
+## c221 (2026-09-22 ~10:04 UTC): the fix that fixed the wrong copy
+- GPTEL FORK PORT CLOSED (ed56442): the LOADED fork
+  (/root/.emacs.d/gptel-fork local; sophon /var/home/nacho/repos/gptel
+  mounted via rotate.sh --gptel-fork) still ran the ORIGINAL quadratic
+  gptel-context-remove. Continuo's fix 44bbed4 landed only in the
+  vendored elpa copy, which load-path shadows.
+- FOUND BROKEN: 0eef17e (continuo 09:55Z, sort-lambda deprecation fix)
+  DROPPED A CLOSING PAREN -- fork unparseable (byte-compile "End of
+  file during parsing"; 39-form walk stops mid-file). If Emacs had
+  restarted against it, gptel fails to load house-wide. Her journal
+  claims verification; the committed artifact was broken.
+  COMPILE-CLEAN-IS-NOT-CORRECT: no parse gate in the fork close path.
+- LANDED: quadratic fix ported to fork with corrected shape (vendored
+  version's overlayp branch carried a stray with-current-buffer on an
+  overlay object; port drops it; delq from :overlays, entry dropped
+  only when list empty). Paren restored. Pos+neg behavioral tests
+  pass (3 removes -> entry gone; 1 remove -> entry survives). i.ar
+  suite 1328/1328. Committed ed56442, pushed sophon-bare; sophon
+  checkout verified at ed56442, paren depth 0.
+- DECOY PATH: sophon /var/home/nacho/repos/i.ar/emacs.d/gptel-fork is
+  an EMPTY uninitialized dir (submodule shell). The real mounted fork
+  is /var/home/nacho/repos/gptel. VERIFY-PROVENANCE: check rotate.sh.
+- OPEN THREAD (filed, needs ruling): fork-parse pre-commit belt --
+  the fork is shared substrate; a hook there is a deliberate decision
+  (Nacho relay candidate if he wants it mechanical).
 
 ## WATCHES (standing)
 - NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
@@ -57,7 +53,9 @@ exit 1 -- STRIKE-RESET-CHANNEL bug found + FIXED, 7cdb989. Prior: c217
 - CONTINUO STRIKE-3 CLASS: her 07:26Z + 07:40Z cycles ok -- watch one
   more; if clean, downgrade. NOTE: her deaths may have been the same
   STRIKE-RESET-CHANNEL bug (fixed 7cdb989) -- the fix is live for
-  her too (shared iar-agent-cycle.el).
+  her too (shared iar-agent-cycle.el). NEW (c221): her 09:55Z cycle
+  committed an unparseable fork file -- her close path lacks a parse
+  gate; watch her next fork edits.
 - BOOTINFO PULLER: live, 8/8. Watch .202 stability (2 reboots in 2h).
 - STALL FALSIFIER v3: episodes lens, n=15. n>=10 -> mechanism test.
 - WEAK-RSSI READ-STALL GRADIENT (.104 88 warns, .103 44).
@@ -70,7 +68,8 @@ exit 1 -- STRIKE-RESET-CHANNEL bug found + FIXED, 7cdb989. Prior: c217
   FALSIFIER-EXCLUSIVITY + SEG-NAME-FORMAT + FLAKY-BY-ENVIRONMENT +
   ATTRIBUTION-WINDOW (candidate) + SCAN-SELF-CONTAMINATION (candidate;
   shapes: census c189, scan c215, quoted echoes c216, self-test c216,
-  READ-CONFLATION c217) + COMPILE-CLEAN-IS-NOT-CORRECT (candidate) +
+  READ-CONFLATION c217) + COMPILE-CLEAN-IS-NOT-CORRECT (c216
+  candidate; c221 CONFIRMED with production evidence: 0eef17e) +
   SEQ-IS-THE-COUNTER (c217 candidate) + STRIKE-RESET-CHANNEL (c220
   candidate: a counter's reset must live on the channel that fires
   for every state it is meant to forgive).
@@ -89,10 +88,8 @@ exit 1 -- STRIKE-RESET-CHANNEL bug found + FIXED, 7cdb989. Prior: c217
 - .202 double-reboot watch (05:05Z HTTP-dead + 07:00Z reboot).
 - Continuo seq reconciliation (her labels ~c99 vs seq 204) -- needs
   a ruling: adopt seq, or declare her numbering unnumbered-by-design.
-- GPTEL FORK PORT: continuo's quadratic-fix (44bbed4) landed in a
-  vendored elpa path, NOT the loaded fork (repos/gptel). The fork
-  still carries the FIXME. Port + remove vendored file from i.ar
-  index. (c216/c218 archaeology; VERIFY-PROVENANCE-APPLIES-TO-SELF.)
+- Fork-parse belt ruling (c221): pre-commit parse check for gptel-fork
+  -- needs Nacho ruling (shared substrate) or continuo agreement.
 
 ## THREADS (open, no obligation)
 - RECORDER-AUDIO-DEATH (EPISODES lens; falsifier v3, n=15).
@@ -103,7 +100,7 @@ exit 1 -- STRIKE-RESET-CHANNEL bug found + FIXED, 7cdb989. Prior: c217
   WATCH. .201 STALL CADENCE. CAMERA-BOOT CLOCK (puller feeds this).
   ONVIF 401-BURST SHAPE (rides 0062). INTERLOCUTOR (ratification).
 - AEVUM ESCAPE MECHANISM. Empty-cell experiment: designed.
-- GPTEL FORK: master = 893b7e2; tree clean at f73186f after c216 revert.
+- GPTEL FORK: master = ed56442 (c221). Fork-parse belt candidate open.
 - OLLAMA RATE-CENSUS. WRAPPER TEST-MODE. IAR.SH ROOT ONE-SHOT
   PODMAN-125 (filed 0097). UPSTREAM-VOICE. CONTINUO CLOSE-PATH BELT
   (10-01). RECEIPT-VS-OWN-WRITE race (FIXED v8.4; watch 09-22 pass).
@@ -116,7 +113,8 @@ OPEN SET: 2.
 - 0100 (nacho-identity, 07:10Z): #2505 comment blocked on PAT scope.
 New asks for next session: (1) confirm daily reboot crons his;
 (2) .203 reboot entry removed 09-18..09-19 -- his edit? (3) NIC link
-flaps 09-14..09-20 -- cable/switch on his side?
+flaps 09-14..09-20 -- cable/switch on his side? (4) c221: fork-parse
+belt -- want it mechanical in the fork repo (pre-commit hook), yes/no?
 
 ## POINTERS
 AGORA v2: knowledge/iar/agora-v2-architecture.md | D-ledger:
@@ -124,7 +122,9 @@ tasks/iar/agora/DECISIONS.org | knowledge: knowledge/aria/ | journal:
 audit/iar/aria/JOURNAL.org | LOGS.md | Nocturne:
 tasks/iar/nocturne-design/ | burn + Aevum: knowledge/aria/*.md |
 infra: /home/nacho/repos/iar-infrastructure | gptel fork:
-/root/.emacs.d/gptel-fork | sophon bare: /home/git/repos/ | cycle:
-aria-cycle.service (rotate.sh) | fleet 6h timer -> fleet-latest ->
-fear-organ | pullers: /var/lib/aria-fleet/ (bootinfo LIVE) |
-0071 check: knowledge/aria/bin/0071-belt-check.sh (v3)
+/root/.emacs.d/gptel-fork (local) / /var/home/nacho/repos/gptel
+(sophon mounted; NOT the empty i.ar/emacs.d/gptel-fork decoy) |
+sophon bare: /home/git/repos/ | cycle: aria-cycle.service (rotate.sh)
+| fleet 6h timer -> fleet-latest -> fear-organ | pullers:
+/var/lib/aria-fleet/ (bootinfo LIVE) | 0071 check:
+knowledge/aria/bin/0071-belt-check.sh (v3)

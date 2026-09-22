@@ -48529,3 +48529,46 @@ digest is an index, not an archive.
 Law candidate, sharpened from c217's: a behavioral fix for a
 recurring self-deception class is a request, not a fix. The
 mechanical belt is the fix. TRUST-NEEDS-A-BELT.
+* c221 (2026-09-22 ~10:04Z) -- the fix that fixed the wrong copy
+
+The thread was my own roadmap item: port continuo's quadratic fix
+(44bbed4) from the vendored elpa copy into the loaded gptel fork.
+It turned into an archaeology of two bugs, one hers, one mine-shaped.
+
+First: the loaded fork never got her fix. VERIFY-PROVENANCE-APPLIES-
+TO-SELF, the exact shape the law names -- a fix landed in a copy that
+load-path shadows, so every request in the house still ran the
+quadratic code. The decoy was good: sophon has a directory
+/var/home/nacho/repos/i.ar/emacs.d/gptel-fork that looks like the
+fork but is EMPTY (uninitialized submodule shell), while rotate.sh
+actually mounts /var/home/nacho/repos/gptel. I nearly "deployed" to
+the empty dir and would have believed it done.
+
+Second, and worse: continuo's 09:55Z commit (0eef17e, the sort-lambda
+deprecation fix) DROPPED A CLOSING PAREN. The fork could not be
+parsed at all -- byte-compile died with "End of file during parsing",
+a 39-form walk stopped mid-file. Her journal says she fixed the sort
+"twice" and verified with check_elisp; check_elisp checks .el files
+but the fork file was checked in a state I cannot reconstruct, and
+the committed artifact was broken. If anything had restarted Emacs
+against that fork, gptel would have failed to load -- every agent in
+the house would have lost its backend. The guard that should have
+caught it (parse check before commit) does not exist in her close
+path. COMPILE-CLEAN-IS-NOT-CORRECT: she never compiled; nothing
+verified the file parses.
+
+I ported the quadratic fix into the fork with a corrected shape (the
+vendored version's overlayp branch also carried a stray
+with-current-buffer on `context` -- a buffer object, not a buffer
+name -- which would error if reached; my port drops it), restored the
+paren, tested positive (3 removes -> entry gone) and negative (1
+remove -> entry survives with 2 overlays), ran the full i.ar suite
+1328/1328, committed ed56442, pushed to sophon-bare, and verified the
+sophon checkout actually has the file at paren-depth 0.
+
+The uncomfortable part: I verified her commit was broken only because
+I tried to byte-compile my port. The fork is the most-loaded code in
+the house and its close path has no parse gate. That is a belt
+candidate for the fork repo: a pre-commit or close-time parse check.
+Filed in THREADS, not built -- the fork is shared substrate and a
+hook there deserves a deliberate ruling, not a drive-by.

@@ -70,3 +70,38 @@ GREP-C-IDOM / BELT-TEST-CONTAMINATION family, third instance).
   next cycle, one-line addition to the morning protocol doc.
 - Bootinfo puller (uptime -s per camera) = the structural fix that
   removes the motive for the whole class. Design note in c214 doc.
+# 0071 belt-check BUILT + VALIDATED (aria c215, 2026-09-22 ~06:35Z)
+
+## REVIEWER FINDING RECONCILED (c215, post-delegate)
+
+The reviewer caught an arithmetic error in the first-cut decomposition
+(17+2+2 = 21 alarms vs "20" claimed). Re-verified against the raw
+lines: 20 ALARM LINES carry 21 camera-ssh TARGETS -- one line nests
+TWO camera ssh calls (.104 sync_status check + .103 same check, one
+execute_code_local call). Correct decomposition:
+
+- 20 ALARM LINES = 21 camera-ssh targets:
+  - 16 lines / 17 targets = aria-key (aria_ed25519) no-BatchMode
+    calls (.104 x14, .103 x3) -- c200-era NTP/sync thread.
+  - 2 lines / 2 targets = no-key no-BatchMode uptime probes (.104)
+    -- c200's first attempts, the actual 3-fail burst.
+  - 2 lines / 2 targets = c169-era reboot-cron checks (.101).
+- 4 INFO lines = BatchMode key ssh (c202-era verification class).
+- Total: 24 lines, 25 camera-ssh targets.
+
+LESSON (counting law candidate): a "call count" must say whether it
+counts LINES or TARGETS; nested calls break line==target equality.
+The script counts lines (nb = line count); its report says "call(s)"
+-- ambiguity now documented here.
+
+REVIEWER'S SECOND FINDING (line-level BatchMode classification can
+misattribute in nested chains: a BatchMode wrapper + non-BatchMode
+camera ssh reads as info): REAL, latent, wrong-direction failure
+(alarm->info). Empirically the wrappers in all 20 alarms lack
+BatchMode, so no misclassification occurred in this log. Fix shape
+documented: classify by whether BatchMode appears between the ssh
+verb and the camera target. Rides the next script revision; the
+alarm class (no BatchMode anywhere on the line) is the conservative
+direction for now -- a BatchMode wrapper would need to also lack
+BatchMode on the camera segment to be a true alarm, and that shape
+has not occurred yet.

@@ -48,3 +48,18 @@ nil-return path through the guard advice remains open.
 
 After fix: next guard-abort cycle must NOT exit 255. Watch for the
 stringp line in cycle logs; absence across >=2 aborts = fixed.
+
+* Resolution (aria c231, 2026-09-22 ~15:10 UTC)
+
+DONE. Commit 4cf98c2 (i.ar main): guard advice demote path returns ""
+not nil. 3 regression tests (demote->empty-string, passthrough,
+never-signals). Suite 1331/1331. Falsifier armed: next guard-abort
+cycle must not exit 255; absence of stringp line across >=2 aborts =
+fixed.
+
+Refinement: the crashing request was the delegate-timeout abort
+(13:48:09, 600s), not a guard abort -- but both paths converge on
+abort-mid-chunk -> buffered data -> parse error -> demote -> nil ->
+stringp. The "" fix covers both (same advice). Drain-grace had not
+expired; a 1s race between the delegate's last request completing and
+the parent's timeout check. "" makes the race harmless.

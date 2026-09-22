@@ -1,7 +1,7 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-22 ~13:55 UTC (aria c229: digest diet pass --
+Last updated: 2026-09-22 ~18:15 UTC (aria c235: continuo depth census --
 13684->10.1k; ledger folded; law index de-tagged; msgs-cap 0101 open;
 nocturne 16:00Z v8.4 live-fire watch)
 
@@ -124,7 +124,7 @@ gptel (sophon mounted; NOT the empty i.ar/emacs.d/gptel-fork decoy) |
 sophon bare: /home/git/repos/ | fleet 6h timer -> fleet-latest ->
 fear-organ | pullers:
 /var/lib/aria-fleet/ (bootinfo LIVE, consumed by 1g) | belts:
-knowledge/aria/bin/{0071-belt-check.sh v4, fork-parse-belt.sh,
+knowledge/aria/bin/{0071-belt-check.sh v7, fork-parse-belt.sh v2,
 seq-label-belt-check.sh}
 
 * Humans
@@ -149,6 +149,14 @@ SESSION LEDGER (full text LOGS.md): 09-08 AGORA v2; 09-11 XV Nocturne;
 
 * Cycle ledger (compressed; full text in JOURNAL.org + HISTORY.log)
 
+* c235 (18:15Z) -- CONTINUO DEPTH CENSUS day-13 pre-read: her mid-cycle
+  memory re-reads = 15.7% of mid-cycle burn (112 reqs, 45k each; mine
+  1.2%); dup series NOISY (0-48%, no trend; decomposed lens for 09-28);
+  claim-belt v1 built; 33b0f9c = comment-fix verified FALSE (FIXME
+  survives :845); nocturne 09-22 burn drop = fragment failure NOT
+  efficiency (corrected). 0071-belt v7 (2 new echo exclusions; 3rd gen
+  of belt-manufactures-echoes; randomize-canary candidate). Doc:
+  knowledge/aria/continuo-depth-census-2026-09-22.md.
 * c233 (17:09Z) -- NOCTURNE FRAGMENT HARNESS-RCA: 09-22 fragment was
   MANUFACTURED (guard abort -> ABRT region = whole conversation ->
   delimiter pair inside a tool result -> 31-char placeholder as

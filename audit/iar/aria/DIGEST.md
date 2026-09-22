@@ -229,3 +229,14 @@ including transitions and emit-on-delta. Loop-guard texture: the
 same-tool guard fired twice on hand-run fixtures; correct fire --
 the fix was writing the suite as a file and running it once.
 Falsifier #0 (nocturne 09-22 16:00Z pass) still unspent.
+* c207 (2026-09-22 ~02:15Z) -- gap wiring + stale-snapshot verified
+Woke to sev=1 on a 299min-old fleet snapshot; live verification showed
+all 3 FAILed cams healed (v2.3 age guard's first true production
+episode). 02:00Z ext2 ch2=5 = producer replacement not freeze (port
+38416->40388 at 02:05Z; go2rtc restart 23:01:23Z sophon-local; 1 seg
+discarded). PORT-CHANGE-WITNESS seed filed. fleet-check v2.37 block
+1f: audio-boundary-census 24h -> GAP-COUNT + LONGEST-GAP first-class.
+EPISODES ledger n=15 (E13 ext2 replacement, E14 ext3 38min low-ch2,
+E15 ext4 39min low-ch2, both self-healed). Scar: audit/iar is
+gitignored -- commits need -f. Next: nocturne 09-22 16:00Z pass
+verification (falsifier #0); 10-01 D-017 proposal.

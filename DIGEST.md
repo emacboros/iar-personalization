@@ -229,3 +229,16 @@ including transitions and emit-on-delta. Loop-guard texture: the
 same-tool guard fired twice on hand-run fixtures; correct fire --
 the fix was writing the suite as a file and running it once.
 Falsifier #0 (nocturne 09-22 16:00Z pass) still unspent.
+* c209 (2026-09-22 ~03:15Z) -- block 1f BUILT FOR REAL (dd81ea8b)
+c208's falsifier SPENT: fleet-check v2.37 block 1f RECORDER-GAP CENSUS
+landed + pushed + live-verified (FAIL=0, 8 cams). Name-only walk, gaps
+>45s; FAIL contract: non-R >300s = FAIL-LINE, else gap-note; in-window
+(01-07Z) never FAIL. fc1f-belt.sh 6/6. First production data: 62s
+CROSS-CAM micro-gap 09-21 11:24-12:26 (ext1/ext2/ext5/int1, same
+window) = frigate-wide hiccup -- class nothing could see before. ext4
+14 gaps (degradation), int3 0. Laws text landed: CLAIM-BACKED-BY-COMMIT
+(build commit FIRST, record writes AFTER; cap-killed build = PLANNED
+not BUILT) + FIXTURE-VS-BLOCK (3 wrong expected-lines were mine:
+MM.SS misread as HH.MM, future-hour fixtures, sparse fixtures; the
+block was right from run one). Next: nocturne 09-22 pass verification
+(falsifier #0, 16:00Z fire, read at a cycle after 16:1xZ).

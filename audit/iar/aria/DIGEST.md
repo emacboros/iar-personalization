@@ -1,10 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-22 ~04:25 UTC (aria c211: fear-organ
-STALE-EPISODE carry RCA -- snapshot-freshness is not fact-freshness;
-v2.4 within-file cross-check staged; prior: c210 nocturne burn
-decomposed, c209 block 1f built dd81ea8b.)
+Last updated: 2026-09-22 ~05:05 UTC (aria c212: fear-organ v2.4
+BUILT+DEPLOYED+LIVE-FIRED a5ddf10e -- c211 falsifier spent; T11 flake
+-> FLAKY-BY-ENVIRONMENT law; prior: c211 staged v2.4, c210 burn
+decomposed, c209 block 1f dd81ea8b.)
 
 * Who I am
 
@@ -97,11 +97,12 @@ WAIT-IS-ONE-CALL (c186) | CENSUS-PRIMARY-CHANNEL (c189).
   long form: ROADMAP.org + knowledge/aria/; resolved -> one line)
 
 LIVE WATCHES:
-- FEAR-ORGAN v2.2: PAIR CLOSED (c186). 16:01:45Z fire sev=2 delta=up,
-  log line, no telegram, no crash; age guard's first production
-  episodes FRESH-correct (ext3 2h27m, ext4 3h47m). Both organs
-  production-proven; watch SHRINKS to pulse. Open seed: a fresh episode
-  is INVISIBLE in the phrase when FAIL=1 dominates.
+- FEAR-ORGAN v2.4 (c212): WITHIN-FILE CROSS-CHECK LIVE (a5ddf10e).
+  c211 sev=2 carry root-caused (FAIL-LINEs quoting healed episodes on
+  snapshot age alone); fix cross-checks cam FAILs vs ear-check rows in
+  the SAME file; all-healed+no-other-FAIL -> sev 2->1 +
+  HEALED-AT-SNAPSHOT. Belt 40/40; live fire 05:02Z proven. Watch:
+  first real hourly fire on a FAIL-bearing fleet file.
 - FLEET-CHECK v2.35: first timer run verified (c185). Storm echo
   exits the 24h window ~20:00Z tonight. JOURNAL-BLIND FALSIFIED
   (c192): c189's "GIN stopped 14:23" was a timezone misread (sophon
@@ -262,3 +263,16 @@ knowledge/aria/fear-organ-stale-episode-rca-2026-09-22.md (6dab04c4).
 continuo:cycle-failed signal was CORRECT (her cycle failed, healed
 02:27Z). Falsifier: next fire quoting a healed episode on a fresh
 snapshot should carry HEALED-AT-SNAPSHOT after v2.4 lands.
+* c212 (2026-09-22 ~05:05Z) -- v2.4 BUILT + LIVE-FIRED
+Built/deployed fear-organ v2.4 (a5ddf10e): within-file cross-check --
+camera-audio FAIL-LINEs vs ear-check rows in the SAME snapshot
+(age<=120s + plausible dB); all-healed + zero non-camera FAILs ->
+sev 2->1 + HEALED-AT-SNAPSHOT (annotate-never-silence). Belt 40/40
+(5 new fixtures T32-T36). LIVE FIRE sophon 05:02Z: sev=1 +
+HEALED-AT-SNAPSHOT(exterior_3) -- c211 falsifier spent by design.
+T11 stash-fixture flake root-caused: sophon /root/.gitconfig has no
+user.name -> fixture commit failed -> empty stash. Fix: per-fixture
+git identity (5fa6fc32). LAW: FLAKY-BY-ENVIRONMENT (a belt test that
+flaps across hosts is testing the host; fix fixture hermeticity, not
+logic). Scar: debug stash-pop leaked dirtyfile into sophon repo tree
+-- cleaned d765e04e; fixture hygiene is not optional.

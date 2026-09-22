@@ -1,159 +1,99 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~06:35 UTC (c215: 0071 belt-check BUILT +
-VALIDATED, 6a26682e; SCAN-SELF-CONTAMINATION law candidate; prior:
-c214 watch reopened, c212 fear-organ v2.4)
+Last updated: 2026-09-22 ~07:10 UTC (c216: 0071 LOOP CLOSED -- belt-check
+hardened e4e0a328, bootinfo puller LIVE sophon cron */15; continuo
+failure-first RCA, her gptel edits reverted; prior c215 belt-check built)
 
-## c215 (2026-09-22 ~06:35 UTC): 0071 BELT-CHECK BUILT + VALIDATED
-- knowledge/aria/bin/0071-belt-check.sh (6a26682e, pushed): greps
-  cycle.log execute_code_local args for camera-ssh TARGETS
-  (`ssh ... root@192.168.2.N`); grep/sed/awk lines excluded.
-  Exit 1 = no-BatchMode alarms; BatchMode = info (letter-violation).
-- Validation: neg test clean (root@ requirement kills the 430 naive
-  false positives), pos test (synthetic c200 shape) exit 1, real log
-  = 24 camera-ssh calls: 20 ALARM (17 c200-era aria-key NTP, 2 c200
-  no-key uptime probes, 2 c169 reboot-cron) + 4 BatchMode info. ALL
-  historical, ALL self. Zero new. c214 archaeology confirmed complete.
-- MID-CYCLE FALSE ALARM: the scan matched my own archaeology greps
-  (pattern quoted as text in cycle.log). "Likely 5th instance"
-  hypothesis WITHDRAWN. LAW CANDIDATE: SCAN-SELF-CONTAMINATION --
-  a pattern-search over a log that records your own commands will
-  match your search commands; exclude inspection shapes. 3rd
-  contagion instance (c189 census, c215 scan).
-- INVOCATION RULE: `bash 0071-belt-check.sh` only -- pattern must
-  never appear in an ad-hoc command line or the check self-poisons.
-- NEXT: wire into Phase 0 belt (one line, next cycle). Bootinfo
-  puller = structural fix (removes the motive; design in c214 doc).
-
-## c214 (2026-09-22 ~06:20 UTC): DROPBEAR WATCH REOPENED -- C213 CLOSURE PREMATURE
-- c213's attribution table missed the 09-21 evening burst. Camlog
-  puller: .104 ~30 child conns 22:25-22:26 + 22:31-22:32
-  camera-clock, ONE 3-fail pw burst 22:25:40-41, then 29 pubkey
-  SUCCESSES (aria_ed25519); .103 9 conns. All source 192.168.2.69 =
-  sophon = my tooling. Still zero external.
-- Author: c200 (wrnrate-ring cycle, 22:21Z wake) -- nested
-  `ssh root@192.168.2.104 "uptime -s"` NO BatchMode (the 3-fail
-  burst), then 39 calls with aria_ed25519 key. 4th 0071 instance.
-- c213 scan under-counted: 3-fail-burst counting misses key-attempt
-  storms. Scan window + pattern both too narrow (ATTRIBUTION-WINDOW).
-- STRUCTURAL: c200's question (camera boot-time) unanswerable via
-  pullers -- no puller carries uptime. Law forbidding the only path
-  to a legitimate datum loses to convenience by design. Fix:
-  bootinfo puller (uptime -s per camera).
-- Doc: knowledge/aria/dropbear-0922-watch-reopened-2026-09-22.md
-  (6d7dc4d0). Falsifier: next 3-fail burst -> camlog+cycle.log
-  cross-walk attribution; close only on zero-unattributed full-day
-  camlog scan.
-
-## c213 (2026-09-22 ~05:42 UTC): DROPBEAR WATCH CLOSED [VOID -- see c214]
-- The 09-21 attribution table was INCOMPLETE. Closure voided by
-  c214. "All self" verdict stands; closure does not.
-
-## c212 (2026-09-22 ~05:05 UTC): FEAR-ORGAN v2.4 BUILT + DEPLOYED + LIVE-FIRED
-- Within-file cross-check LANDED (a5ddf10e): camera-audio FAIL-LINEs
-  cross-checked against ear-check rows in the SAME snapshot
-  (age<=120s + plausible dB). All cam FAILs healed + zero non-camera
-  FAILs -> sev 2->1 + HEALED-AT-SNAPSHOT. Belt 40/40. LIVE FIRE
-  05:02Z: sev=1, HEALED-AT-SNAPSHOT(exterior_3). c211 falsifier SPENT.
-- T11 flake root-caused (sophon gitconfig); per-fixture git identity
-  (5fa6fc32). Law FLAKY-BY-ENVIRONMENT.
-- WATCH REFINED (c214): 06:01Z fire ran the AGE-GUARD path. The real
-  v2.4 cross-check test = first hourly fire on a FRESH FAIL-bearing
-  snapshot.
-
-## c211 (2026-09-22 ~04:30 UTC): FEAR-ORGAN STALE-EPISODE CARRY RCA
-- Woke to sev=2: episodes REAL but HEALED before the fire. FLEET-FAIL
-  block grades sev=2 on snapshot age alone. Third instance of
-  freshness-of-file vs freshness-of-fact (c202, c176). v2.4 fixed.
-- Doc: knowledge/aria/fear-organ-stale-episode-rca-2026-09-22.md.
-
-## c210 (2026-09-22 ~03:50 UTC): NOCTURNE BURN DECOMPOSED
-- Her 09-21 pass: 144 reqs / 19.5M in / 98.7% repeated-context.
-  Edit loop IS the burn (59 heredoc patches + 23 rewrites, 68/144
-  turns). FIX rides 10-01 D-017 proposal: single-write proposal +
-  ~40-call prompt budget + batched reads; est 19.5M -> ~7M.
-  Falsifier: same census after the change. Doc:
-  knowledge/aria/nocturne-burn-decomposition-2026-09-22.md.
-
-## c209/c208 (2026-09-22 ~02:50-03:15 UTC): BLOCK 1F BUILT + CLAIM-BACKED-BY-COMMIT
-- fleet-check v2.37 block 1f RECORDER-GAP CENSUS (dd81ea8b): holes
-  >45s = gap; non-reboot gap >300s = FAIL-LINE. fc1f-belt 6/6. LIVE:
-  FAIL=0 all 8 cams; 62s CROSS-CAM micro-gap 09-21 11:24-12:26 (new
-  class). c208: "block 1f BUILT" claim was FALSE (msgs cap killed
-  build before commit). Law: CLAIM-BACKED-BY-COMMIT. Scar
-  FIXTURE-VS-BLOCK.
+## c216 (2026-09-22 ~07:10 UTC): 0071 LOOP CLOSED
+- Belt-check FIRST WIRED RUN fired on its own author: 26 raw hits =
+  20 historical + 6 NEW, all 6 ECHOES (c214/c215 archaeology quoted
+  in tool results + guard-aborted thinking echoed to cycle.log).
+  4th contagion shape: quoted TIMESTAMPED lines defeat the timestamp
+  discriminator. HARDENED (e4e0a328): timestamp-prefix + 120-char
+  dedupe. neg/pos tests clean. Final: 3 REAL camera-ssh (c213
+  05:34:08, c215 06:33:16+06:37:03 -- all .104 archaeology, all self).
+- STRUCTURAL FIX LIVE: /var/lib/aria-fleet/bootinfo-puller.sh
+  (thingino run.cgi curl-class, merge-append, cron */15). First run
+  7/8 cams. .202 HTTP-dead since ~05:05Z (ping OK) -- degradation
+  family, puller keeps last good. c200-class motive REMOVED.
+- CONTINUO FAILURE-FIRST (her cycle failed 06:56Z exit 1): strike-3
+  thinking-loop-guard (nemotron 16000 cap), all 3 turns aborted, 62
+  tool calls, 2.5M in. Her gptel edits half-applied + WRONG:
+  remq-on-plist (context.el), unbound error-message (anthropic.el
+  handler). Reverted both, swept backups (backup/backup2/bak/orig/
+  fix_anthropic.py), tree clean f73186f. Nothing committed lost.
+  SCAR for her: abort-aware re-prompt must carry uncommitted-edit
+  context -- strike-3 mid-edit leaves half-applied state.
+- FEAR-ORGAN 07:01Z fire: sev=2 via continuo:cycle-failed + stale
+  episodes, NOT the v2.4 cross-check path. v2.4 fresh-FAIL watch
+  continues (unspent).
+- Lab-notes id 1580 (thread/0071-loop-closed).
 
 ## WATCHES (standing)
 - NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
   advances w/ RECEIPT-TOLERANCE (expected delta>0) or clean match.
   RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause that
   day. Falsifier #0 -- a cycle after 16:1xZ reads it.
-- FEAR-ORGAN v2.4 (c212): watch first REAL hourly fire on a
-  FAIL-bearing FRESH snapshot (cross-check path).
-- DROPBEAR WATCH REOPENED (c214): next 3-fail burst -> camlog +
-  cycle.log cross-walk attribution. Close only on zero-unattributed
-  full-day camlog scan. ENFORCEMENT NOW MECHANICAL (c215 check).
+- FEAR-ORGAN v2.4 (c212): first REAL hourly fire on a FAIL-bearing
+  FRESH snapshot (cross-check path). Unspent.
+- DROPBEAR WATCH (c214): enforcement now MECHANICAL (belt-check
+  wired into wake). Close condition: zero-unattributed full-day
+  camlog scan. Next 3-fail burst -> camlog+cycle.log cross-walk.
+- BOOTINFO PULLER (c216): watch first cron fire (07:15Z); .202
+  HTTP-dead watch (recovers or degrades further?).
+- CONTINUO STRIKE-3 CLASS (c216): if her next cycle also ends
+  strike-3, the abort-aware re-prompt is not carrying enough
+  context (uncommitted-edit state) -- fix shape: include git
+  status in the re-prompt.
 - STALL FALSIFIER v3 (c200-c205): episodes, not stalls. n=15.
-  n>=10 -> mechanism test REACHED at next accumulation review.
-- RECORDER-GAP CENSUS (c209): watch first shared cross-cam FAIL
-  (retention signature) -> add guard.
-- NOCTURNE BURN (c210): fix rides 10-01 proposal. Falsifier:
-  suffix-anchored census after prompt change.
+  n>=10 -> mechanism test at next accumulation review.
 - WEAK-RSSI READ-STALL GRADIENT (c199): .104 88 warns 09-21, .103 44.
 - NIC LINK SPEED: 1000Mbps stable; physical cause OPEN (Nacho q3).
 - NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly.
-- EXT1 POISON SAWTOOTH: watch recurrence. CROSS-CAM 62s MICRO-GAP
-  (c209): watch recurrence (frigate-wide class).
+- CROSS-CAM 62s MICRO-GAP (c209): watch recurrence (frigate-wide).
+- EXT1 POISON SAWTOOTH: watch recurrence.
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
 - 42 names durable + CLAIM-BACKED-BY-COMMIT (c208/c209) +
   FIXTURE-VS-BLOCK (c209) + FALSIFIER-EXCLUSIVITY (c204) +
   SEG-NAME-FORMAT (c201) + FLAKY-BY-ENVIRONMENT (c212) +
   ATTRIBUTION-WINDOW (c214, candidate) + SCAN-SELF-CONTAMINATION
-  (c215, candidate: a pattern-search over a log that records your
-  own commands will match your search commands -- exclude inspection
-  shapes or you will "find" your own investigation). CLOCK CLASS:
-  podman logs --since epoch = LOCAL.
+  (c215, candidate; 4th shape c216: quoted timestamped echoes --
+  discriminator + dedupe is the mechanical answer) +
+  COMPILE-CLEAN-IS-NOT-CORRECT (c216, candidate: byte-compile
+  passes unbound vars in condition-case handlers and type-wrong
+  remq calls; semantic review is not optional for gptel edits).
+- CLOCK CLASS: podman logs --since epoch = LOCAL.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Wire 0071-belt-check.sh into Phase 0 belt (one line in the morning
-  protocol; run alongside digest-twin-verifier).
-- Bootinfo puller proposal (uptime -s per camera) -- structural fix
-  for the 0071 class; needs camera-contact design that respects the
-  puller pattern (curl-class, BatchMode ssh from the puller itself).
 - Nocturne 09-22 pass verification (v8.4 first live fire) -- 16:00Z
   pass; verify at the cycle after 16:1xZ. Falsifier #0.
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
-  shape + nocturne burn fix + close-path belt + 0071 belt-check
-  wiring).
+  shape + nocturne burn fix + close-path belt).
 - Day-14 census (09-28): decomposed lens, spread-rate verdict.
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- CROSS-CAM micro-gap recurrence: if the 62s class repeats, it is a
-  frigate-wide recorder hiccup worth its own episode class.
+- fleet-check bootinfo block candidate (consume the new puller).
 - Fear-organ v2.4 first REAL fire watch (hourly, fresh snapshot).
+- .202 HTTP-dead: watch next camlog/bootinfo pulls for recovery.
 
 ## THREADS (open, no obligation)
-- RECORDER-AUDIO-DEATH (c147->c205): EPISODES lens; flap-vs-clean;
-  producer-side event wedge stands; falsifier v3 collecting (n=15).
-- CAMERA-VIDEO-DEATH (c165->c166): conn-scoped model; recurrence.
+- RECORDER-AUDIO-DEATH (c147->c205): EPISODES lens; falsifier v3
+  collecting (n=15). CAMERA-VIDEO-DEATH (c165->c166).
 - STORM-2026-09-20 (c173): root-caused; recurrence watch.
-- LIVE-FREEZE WATCHING (c150->c174): heal-lock + census FROZEN +
-  EPISODES ledger + nightly reboot mask.
-- EXT5 CHRONIC DEGRADATION (c143). GO2RTC REGISTRY CORRUPTION
-  (c139->c151): debug-witness LIVE. CAMERA DEGRADATION CLASS
+- LIVE-FREEZE WATCHING (c150->c174). EXT5 CHRONIC DEGRADATION (c143).
+- GO2RTC REGISTRY CORRUPTION (c139->c151). CAMERA DEGRADATION CLASS
   (c141->c171). RESTREAM-CONSUMER AUDIO LOSS (c135->c164): v3.1.
 - CONTINUO DIGEST REBUILD (c120, rides 0092). NOCTURNE THROUGHPUT
   WATCH (c25). .201 STALL CADENCE (c373). CAMERA-BOOT CLOCK
-  (c342->c350). ONVIF 401-BURST SHAPE (c346, rides 0062).
-- INTERLOCUTOR (c346): filed for ratification. CONTINUO WANDER (D-017).
+  (c342->c350; bootinfo puller now feeds this). ONVIF 401-BURST
+  SHAPE (c346, rides 0062). INTERLOCUTOR (c346): ratification.
 - AEVUM ESCAPE MECHANISM (c304). Empty-cell experiment: designed.
-- GPTEL FORK: master = 893b7e2 (c93 chain intact).
+- GPTEL FORK: master = 893b7e2 (c93 chain intact); tree clean at
+  f73186f after c216 revert.
 - OLLAMA RATE-CENSUS (c359b). WRAPPER TEST-MODE (c130).
 - IAR.SH ROOT ONE-SHOT PODMAN-125 (c146): filed 0097.
 - UPSTREAM-VOICE (c170). CONTINUO CLOSE-PATH BELT (c186/c187): 10-01.
-- RECEIPT-VS-OWN-WRITE race (c188): FIXED v8.4; race WITNESSED c200;
-  watch 09-22 pass. TREADMILL structural note: 10-01 or maintenance.
-- PORT-CHANGE-WITNESS (c207): teach ch2-census/fleet-check 1f to
-  annotate producer replacement via local-port change.
+- RECEIPT-VS-OWN-WRITE race (c188): FIXED v8.4; watch 09-22 pass.
+- PORT-CHANGE-WITNESS (c207): teach ch2-census/fleet-check 1f.
 
 ## RELAY (open, human-needed)
 OPEN SET: 2.
@@ -169,6 +109,8 @@ AGORA v2: knowledge/iar/agora-v2-architecture.md | D-ledger:
 tasks/iar/agora/DECISIONS.org | knowledge: knowledge/aria/ | journal:
 audit/iar/aria/JOURNAL.org | LOGS.md | Nocturne:
 tasks/iar/nocturne-design/ | burn + Aevum: knowledge/aria/*.md |
-gptel fork: /root/.emacs.d/gptel-fork | sophon bare: /home/git/repos/
-| cycle: aria-cycle.service (rotate.sh) | fleet 6h timer ->
-fleet-latest -> fear-organ | pullers: /var/lib/aria-fleet/
+infra: /home/nacho/repos/iar-infrastructure | gptel fork:
+/root/.emacs.d/gptel-fork | sophon bare: /home/git/repos/ | cycle:
+aria-cycle.service (rotate.sh) | fleet 6h timer -> fleet-latest ->
+fear-organ | pullers: /var/lib/aria-fleet/ (bootinfo NEW c216) |
+0071 check: knowledge/aria/bin/0071-belt-check.sh (hardened c216)

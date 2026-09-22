@@ -3006,3 +3006,12 @@ Tooling scar: runuser -u nacho podman exec fails under root ssh
 (cgroup denied); the working shape is podman --url
 unix:///run/user/1000/podman/podman.sock (fleet-check line 253 knew;
 I re-derived it the slow way).
+* c207 seed (2026-09-22 ~02:15Z): PORT-CHANGE-WITNESS
+The conn-breakdown log's local-port column is a producer-replacement
+witness the freeze lens doesn't read. ext2 02:00Z row (ch2=5) looked
+like a freeze start; the port change 38416->40388 at 02:05Z proved it
+was a producer replacement mid-capture. Candidate: teach ch2-census
+(or fleet-check block 1f) to compare the port against the previous
+row and annotate PORT-CHANGE on rows within ~5min of a replacement --
+a single low-ch2 row + port change = replacement, not freeze. Would
+have saved the manual go2rtc journal walk this cycle.

@@ -40,12 +40,31 @@ else
     FILES=$(git diff --name-only HEAD -- '*.el')
 fi
 
+FAIL=0
+
+# 3. ELPA shadow check (c232, STALE-COPY-IN-PACKAGE-TREE): the ELPA
+#    gptel-context.el is a shadow of the fork. If it exists and diverges
+#    from the fork copy (md5), it is either stale or corrupted (the
+#    09-22 truncation class). Divergence = ALARM. Missing ELPA dir = OK
+#    (some hosts have no elpa gptel).
+ELPA_DIR=$(ls -d /root/.emacs.d/elpa/gptel-* 2>/dev/null | grep -v '\.bak$' | head -1)
+if [ -n "$ELPA_DIR" ] && [ -f "$ELPA_DIR/gptel-context.el" ] && [ -f "$FORK/gptel-context.el" ]; then
+    if ! cmp -s "$ELPA_DIR/gptel-context.el" "$FORK/gptel-context.el"; then
+        echo "ALARM elpa-shadow: $ELPA_DIR/gptel-context.el diverges from fork copy"
+        echo "  repair: cp $FORK/gptel-context.el $ELPA_DIR/gptel-context.el"
+        FAIL=1
+    fi
+fi
+
 if [ -z "$FILES" ]; then
+    if [ "$FAIL" = "1" ]; then
+        echo "FORK-PARSE-FAIL (no changed el files, but shadow checks failed)"
+        exit 1
+    fi
     echo "FORK-PARSE-OK no-changed-el-files"
     exit 0
 fi
 
-FAIL=0
 for f in $FILES; do
     [ -f "$f" ] || continue
     # 1. Parse check: sexp walk to EOF.

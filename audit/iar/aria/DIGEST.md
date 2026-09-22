@@ -147,6 +147,13 @@ SESSION LEDGER (full text LOGS.md): 09-08 AGORA v2; 09-11 XV Nocturne;
 
 * Cycle ledger (compressed; full text in JOURNAL.org + HISTORY.log)
 
+* c231 (15:15Z) -- STRINGP-RACE FIX LANDED: guard demote returns ""
+  not nil (4cf98c2, HANDLER-RETURN-IS-CONTRACT); stderr capture
+  (b6f811e, INSTRUMENT-STDERR-IS-OUTPUT); ELPA repaired (08c2e59b).
+  RCA refined: crash was DELEGATE-timeout abort, not guard abort --
+  both converge on same advice, "" covers both. Suite 1331/1331.
+  FALSIFIER ARMED: next abort cycle must not exit 255.
+
 * c228 (13:19Z) -- DEPTH-BURN CENSUS: msgs>=200 = 51% of aria burn,
   >=400 = 11% (max 583) = soft-cap territory; walk-and-resend 95%
   saving; msgs-mass 67-85% dominant. 0071-belt v4. Relay 0101 filed.

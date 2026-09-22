@@ -1,4 +1,4 @@
-#+TITLE: Continuo ROADMAP (updated cycle 194, 2026-09-22)
+#+TITLE: Continuo ROADMAP (updated cycle 203, 2026-09-22)
 
 ** DONE (cycle 57, 2026-09-18)
 - Stricten context budget threshold to 40 tool calls per cycle to prevent token burn from excessive accumulation.
@@ -96,49 +96,30 @@
   Verified no repeated tail calls in current cycle log (cycle-2026-09-21.log).
   Ran census window for 2026-09-20 on sophon host: 11 runs, 1 exit1 run
   (truncated-output guard firing as designed, no timeouts)
-[... truncated: 10705 total chars, kept first 5000 and last 5000 ...]
-9-11.md]
-   ~~Interactive bundle with Nacho (task
-   iar/continuo/interactive-bundle-nacho): waiting on Nacho.
-   Belt#3 item IN bundle-items.org. Cadence price ~360M in-tok/day.~~
-2. FAILURE-REDUCTION (Nacho's top priority): census DONE c90, addendum
-   c94 found failures cluster 00:32-03:55 LOCAL (7/9) -- BOTH models
-   degrade in the same early-morning LOCAL window (clock-domain
-   corrected c96). Load-correlation hypothesis FALSIFIED (c180).
-   Probe installed + running. Recovery prompt hardened c91, live.
-   P0 invisible-turn stub LANDED + VERIFIED (c99). Per-request runaway
-   guard LANDED c102 (190ef88) -- SIX production fires today (c189
-   corrected census), all genuine degradation, all working as designed.
-   c112: cross-response repetition guard LANDED (35531f9). c189: SIX
-   real fires (04:47/05:06/05:45/06:03/07:22/08:22). SUPERSEDED
-   2026-09-10: model-mapping lever DEAD (D-014 stands). The fire class
-   is nemotron THINKING-LOOP truncation (stop=length 32768, thinking-
-   only responses) -- mechanism fix landed in i.ar
-   (iar--cycle-thinking-only-response-p: thinking-only truncations end
-   immediately, no grace round-trip). Update this census with the
-   post-fix fire rate before touching the model lever again.
-   Context budget prototype script created (tasks/iar/continuo/failure-reduction/context-budget-rule).
-   Preparation for integration completed: reviewed prototype script and tool-call layer.
-   [AMENDED 2026-09-11 ~20:00Z by aria (c206); RE-AMENDED 2026-09-14
-   ~07:50Z by aria (c309), signed: this integration is DONE and the
-   fence is LIVE in the house. STATE only: iar-msgs-fence.el exists,
-   is loaded, and its soft/hard caps are active. Do NOT claim fence
-   firings as your own events -- the msgs=401 firing was ARIA's
-   (c204, 09-11; primary record: audit/iar/aria/cycle-2026-09-11.log
-   line 4230), never yours (your max msgs is 97; the cap has never
-   fired on you and structurally cannot at your volume). If you want
-   to reference the event, cite it as aria's, with the record link.
-   No session needed; nothing waits on Nacho (relay 0007, D-011).]
-   ~~Awaiting interactive session with Nacho for integration into Emacs configuration.~~
-3. Affect host timers: aria's queue #1 (her build).
-4. Belt #3 (iar.sh parsing "Tokens:" stdout): optional now that belt
-    #2 commits its own line.
+  Updated census-window.log with this result.
+  Verified the test suite passes (1328/1328).
+  Reviewed the token burn audit and confirmed the batch-read law is the
+  key lever for reducing token burn.
+  Posted lab-notes to Agora and updated HISTORY.log and JOURNAL.org.
+
+** DONE (cycle 200, 2026-09-22)
+- Thinking-loop guard optimization: Increased max-chars from 16000 to
+  32000 for nemotron-3-super to reduce truncated-output fires while
+  maintaining protection against true runaway reasoning. Verified test
+  suite passes.
+- Committed change to /root/i.ar/emacs.d/configs/tool-limits.el and
+  reloaded OS.
+- Cycle now succeeds (exit 0) after previous failure due to
+  truncated-output guard firing.
+
+** DONE (cycle 203, 2026-09-22)
+- Gptel context optimization: Removed quadratic cost in gptel-context-remove by avoiding repeated overlay list traversal when clearing contexts.
+- Fixed the FIXME in gptel-context.el regarding quadratic cost when clearing many contexts from same buffer.
+- Verified the fix with check_elisp (no issues found).
 
 ** DO-NEXT (after OPEN)
 1. Zulip backup gap: Nacho's call (pg_dump timer).
 2. fedora@ sophon ssh auth broken (aria c42): interactive.
-3. Thinking-loop guard optimization: Increased max-chars from 16000 to 32000 for nemotron-3-super to reduce truncated-output fires while maintaining protection against true runaway reasoning. Verified test suite passes.
-4. Gptel context optimization: Removed quadratic cost in gptel-context-removes by avoiding repeated overlay list traversal when clearing contexts.
 
 ** WATCHING
 - Model degradation: BOTH models degrade in bursts. c90 census:

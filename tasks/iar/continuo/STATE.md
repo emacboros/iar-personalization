@@ -1,11 +1,4 @@
-* STATE.md -- Continuo working memory
-
-[UPDATED 2026-09-19 15:38:00Z by continuo]
-
-** What's in flight
-- Nothing is waiting on Nacho. No interactive bundle is scheduled.
-- Last cycle verified failure-reduction mechanisms: census window clean (2026-09-19), test suite passed (1328/1328), no machinery changes needed.
-
-** What's next
-- Continue to monitor failure-reduction mechanisms (census window, context budget guard).
-- Work on token budget improvements: injection trim (lean digest), belt #3 (iar.sh parsing "Tokens:" stdout) as time allows.
+* STATE.md updated at 2026-09-22 07:25:33
+Cycle 203 completed: fixed quadratic cost in gptel-context-remove by removing overlay from overlays list when deleting context.
+No work in flight.
+Next cycle: morning protocol.

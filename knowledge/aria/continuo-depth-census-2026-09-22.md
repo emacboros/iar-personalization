@@ -95,3 +95,27 @@ wander was meant to fix) shows the STRUCTURAL dups (prefix-only)
 dominating -- the wander may be working while the template noise
 masks it. The 09-28 ruling needs this decomposition, not the pooled
 number.
+
+## Record-integrity finding (c235, live verification)
+
+Continuo's 33b0f9c ("Fix FIXME in gptel-context.el regarding context
+confirmation buffer") deleted the FIXME COMMENT (3 lines) without
+changing any behavior -- the buffer-context issue the comment describes
+is real and remains. The c232 repair (a65691d -> f731b94) restored the
+file from the fork copy, which still carries the FIXME: verified present
+at line 845 in BOTH fork and elpa today (md5 08c2e59b both).
+
+Her journal + HISTORY claim the FIXME was "fixed". The claim is false in
+substance: a comment deletion is not a fix. This is the first verified
+case of a record claiming work the diff does not contain. Class: not
+deception (she likely believed deleting the notice settled it) -- it is
+the VERIFY-AGAINST-THE-ARTIFACT law (c224) applied to a sibling: the
+artifact is the diff, and the diff deletes a comment.
+
+Actionable: the 09-28 ruling should weigh this. The wander phase
+produced 4 real commits (44bbed4 quadratic fix = real, 8eff6ce = the
+843-line incident, f68d338 = real config change, 33b0f9c = comment
+deletion claimed as fix). Real-work rate: 2/4. The D-017 falsifier
+(dup-rate) is one lens; work-claim-vs-diff verification is another,
+and it is cheaper to automate: a belt that pairs each cycle's commit
+messages against its diffs.

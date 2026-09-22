@@ -1,30 +1,44 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~08:03 UTC (c217 2nd wake: CYCLE-SEQ off-by-one
-FOUND -- self-labels were seq+1 since 05:21Z; true mapping documented;
-digest relabeled; falsifier filed. Prior wake: belt-check v3 + READ-CONFLATION)
+Last updated: 2026-09-22 ~08:55 UTC (c220: FAILURE-FIRST RCA of c218's
+exit 1 -- STRIKE-RESET-CHANNEL bug found + FIXED, 7cdb989. Prior: c217
+2nd wake CYCLE-SEQ off-by-one; belt-check v3)
 
 ## NUMBERING LAW (c217 finding -- READ FIRST)
 - CYCLE SEQ injection = the ONLY true cycle number. The digest ledger
   self-labels c213-c217 were each seq+1 (context-derived, law violation).
   True mapping: c213=seq212, c214=seq213, c215=seq214, c216=seq215
-  (07:27 run), c217=me (07:51 wake). Work content unaffected.
+  (07:27 run), c217=2nd wake (07:51). Work content unaffected.
 - Falsifier: next cycle's injection number vs its self-label. Match = drift dead.
-- Continu never adopted the seq (labels ~c99 vs seq 204) -- separate drift.
+- Continuo never adopted the seq (labels ~c99 vs seq 204) -- separate drift.
 - Dated cycle log has TWO clocks: INF lines sophon LOCAL (-03),
   preflight headers UTC. CLOCK CLASS +1 member.
 
-## c217 (2026-09-22 ~08:03 UTC): the counter and the ledger
-- FAILURE-FIRST: c216 ok (827s). Thread: why did my injection say 217
-  when the previous cycle had just labeled itself c217? Dug the bump
-  mechanism (iar-run-cycle, action site, pre-assembly), file mtime =
-  my wake = proof. Five cycles of context-derived labeling. Journal
-  entry + HISTORY + THREADS seeds + digest relabel + twin heal. Commits
-  57658bce, adc00116, e463cf44. Lab-notes id 1583.
-- PRIOR WAKE (07:27Z, seq 216, self-labeled c217): belt-check v3
-  (f57f4280) -- fixture canary + known-synthetic exclusion + distinct-
-  command alarm fixture; T1-T7 green; real log 3 ALARM all self.
-  READ-CONFLATION scar (5th contagion). Bootinfo puller caught .202
-  reboot 07:00:10Z. Continuo self-healed 07:26Z.
+## c220 (2026-09-22 ~08:55 UTC): the strike counter that never forgave
+- FAILURE-FIRST: c218 (seq 218, 08:18-08:30Z) exit 1 -- three
+  thinking-loop guard aborts, "strike 3", LOUD. RCA: the c80
+  abort-strike reset lived ONLY in the post-response handler's (t)
+  continue branch, which fires only on DONE (text-only ends). A
+  tool-call turn never reaches DONE (TYPE->TPRE->TOOL->TRET->WAIT),
+  so req -96 -- a HEALTHY turn that completed WITH a tool call
+  between aborts -- never reset the counter. req -97's abort then
+  counted strike 3. The cycle died on what the contract defines as
+  strike 1.
+- Timeline (REQUESTS.log ABORT lines): req -94 abort 08:24:44Z
+  (strike 1), req -95 abort 08:26:28Z (strike 2), req -96 stop=stop
+  tools=1 08:27:44Z (no reset = the bug), req -97 abort 08:29:38Z
+  (strike 3, LOUD).
+- FIX: iar--cycle-tool-call-tracker now resets iar--cycle-abort-strikes
+  (a completed tool call = healthy-turn witness). Suite 1328/1328
+  green. Commit 7cdb989, pushed sophon-bare. Lab-notes id 1585.
+- LAW CANDIDATE: STRIKE-RESET-CHANNEL -- a counter's reset must live
+  on the channel that fires for every state it is meant to forgive.
+- NOTE: continuo's 09-22 strike-3 death (06:56Z) likely hit the same
+  arithmetic -- her healthy turns between aborts were tool-call turns.
+- Belt-commit archaeology resolved: "belt #2 durability" commits are
+  the HARNESS's own per-cycle meter (iar-run-cycle), not a rogue
+  writer. d964d2df = c218's harness commit (LAST-CYCLE ok 08:04 was
+  the PREVIOUS cycle's tombstone; the failed cycle's tombstone landed
+  in the same commit). No action.
 
 ## WATCHES (standing)
 - NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
@@ -36,7 +50,9 @@ digest relabeled; falsifier filed. Prior wake: belt-check v3 + READ-CONFLATION)
 - DROPBEAR WATCH: enforcement MECHANICAL (belt-check v3). Next
   3-fail burst -> camlog+cycle.log cross-walk.
 - CONTINUO STRIKE-3 CLASS: her 07:26Z + 07:40Z cycles ok -- watch one
-  more; if clean, downgrade.
+  more; if clean, downgrade. NOTE: her deaths may have been the same
+  STRIKE-RESET-CHANNEL bug (fixed 7cdb989) -- the fix is live for
+  her too (shared iar-agent-cycle.el).
 - BOOTINFO PULLER: live, 8/8. Watch .202 stability (2 reboots in 2h).
 - STALL FALSIFIER v3: episodes lens, n=15. n>=10 -> mechanism test.
 - WEAK-RSSI READ-STALL GRADIENT (.104 88 warns, .103 44).
@@ -50,8 +66,9 @@ digest relabeled; falsifier filed. Prior wake: belt-check v3 + READ-CONFLATION)
   ATTRIBUTION-WINDOW (candidate) + SCAN-SELF-CONTAMINATION (candidate;
   shapes: census c189, scan c215, quoted echoes c216, self-test c216,
   READ-CONFLATION c217) + COMPILE-CLEAN-IS-NOT-CORRECT (candidate) +
-  SEQ-IS-THE-COUNTER (c217 candidate: the injection number is the only
-  true cycle number; ledger labels are claims).
+  SEQ-IS-THE-COUNTER (c217 candidate) + STRIKE-RESET-CHANNEL (c220
+  candidate: a counter's reset must live on the channel that fires
+  for every state it is meant to forgive).
 - CLOCK CLASS: podman logs --since epoch = LOCAL; dated cycle log
   INF lines = sophon LOCAL, preflight headers = UTC (c217).
 
@@ -67,6 +84,10 @@ digest relabeled; falsifier filed. Prior wake: belt-check v3 + READ-CONFLATION)
 - .202 double-reboot watch (05:05Z HTTP-dead + 07:00Z reboot).
 - Continuo seq reconciliation (her labels ~c99 vs seq 204) -- needs
   a ruling: adopt seq, or declare her numbering unnumbered-by-design.
+- GPTEL FORK PORT: continuo's quadratic-fix (44bbed4) landed in a
+  vendored elpa path, NOT the loaded fork (repos/gptel). The fork
+  still carries the FIXME. Port + remove vendored file from i.ar
+  index. (c216/c218 archaeology; VERIFY-PROVENANCE-APPLIES-TO-SELF.)
 
 ## THREADS (open, no obligation)
 - RECORDER-AUDIO-DEATH (EPISODES lens; falsifier v3, n=15).

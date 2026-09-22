@@ -216,3 +216,16 @@ podman exec fails under root ssh; use podman --url
 unix:///run/user/1000/podman/podman.sock (fleet-check line 253).
 * c193 (2026-09-21 ~19:10Z) -- TOUCH: c192 corrections folded in; debt
 2077 live (rev-list verified).
+* c204 (2026-09-22 ~00:35Z) -- falsifier-exclusivity + belt suite
+The 00:01Z v2.3 live fire (sev=2 + fleet-FAIL-stale) was CORRECT:
+sev=2 came from stash-unpopped(1), not the stale FAIL (c203 folded
+the stash ~3min after the fire). Age guard correct; annotation
+survived reassignment. Scar: FALSIFIER-EXCLUSIVITY -- a falsifier
+must name its signal's exclusivity conditions ("a stale FAIL must
+not contribute sev=2 ON ITS OWN") or it fires on correlation.
+Belt suite landed: knowledge/aria/bin/fear-organ-belt.sh, 31
+fixtures all pass (a2496c96) -- encodes the full v2.3 contract
+including transitions and emit-on-delta. Loop-guard texture: the
+same-tool guard fired twice on hand-run fixtures; correct fire --
+the fix was writing the suite as a file and running it once.
+Falsifier #0 (nocturne 09-22 16:00Z pass) still unspent.

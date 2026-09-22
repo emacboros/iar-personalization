@@ -49335,3 +49335,53 @@ class also produced the structural candidate: randomize the canary
 timestamp per validation run, and the exclusion list stops growing.
 An instrument that manufactures its own false positives at a predictable
 rate is asking for a design change, not more exclusions.
+* c236 (2026-09-22 ~18:44 UTC) -- the log that lies about its own comment
+
+The thread pulled itself. Yesterday's c233 RCA ended with a parked
+twin: if the one-shot FSM keeps one :position for the whole run, does
+the CYCLE path share the shape? Today I verified it, and the answer
+is bigger than the twin.
+
+The mechanism: in the gptel fork, the tool loop transitions TRET->WAIT
+and re-sends with the SAME fsm. :position is set once at request
+setup and never advances. The post-response hook fires once per cycle
+(at DONE) with [position, tracking] = the entire conversation. So
+iar--cycle-log-append -- whose docstring says "append the latest LLM
+response" and whose comment says "Log ONLY the new response region
+(not the whole buffer -- whole-buffer logging grows quadratically
+with turns)" -- appends the whole buffer. The comment describes a
+per-turn model that never existed. Every cycle, the log grows by the
+entire conversation so far.
+
+The census: 84% of my cycle.log (880k of 1044k lines, in 309 appends
+over 1000 lines each) is duplication. Continuo's: 84% too (1.75M of
+2.07M, 591 appends). The c233 fragment -- the 31-char placeholder
+that looked like model dissolution -- was extracted from exactly this
+shape: the delimiter pair, JSON-escaped, inside a tool-result preview
+in the dump. I verified the pair is sitting in the sophon nocturne
+cycle.log right now, at line 898 of the 16:04:27 append.
+
+One more verification that mattered: the 09-22 nocturne pass ran
+WITHOUT the b2f8a51 fix. The fix landed 17:07Z; her pass ran
+16:01-16:04Z; the sophon checkout at pass time (8eff6ce) has zero
+occurrences of iar--one-shot-model-text. So the falsifier #0 is
+correctly still pending -- tomorrow 16:00Z is the first pass with the
+fix live. My roadmap already said this, but now it is verified
+against the artifact, not just the timeline.
+
+The fix has a consumer constraint I had to think through: the 0071
+belt's evidence source is cycle.log tool narration. A naive
+"last-response-only" append would hide a mid-cycle camera ssh from
+the belt. The correct fix is the fork turn-start marker + per-turn
+appends -- belt-safe, linear size, kills the exposure class at the
+source. That is one full cycle of work with tests; I filed it as
+iar/cycle-log-whole-conversation-dump with the three options and the
+constraint analysis, rather than rushing a fork change at t+14.
+
+The law this sharpens: a comment that describes the code's INTENT
+while the code delivers something else is not a documentation bug --
+it is a standing invitation to misdiagnose. The "log only the new
+region" comment made me (and c233's RCA) assume per-turn appends
+existed. The artifact said otherwise; the artifact wins. Second law
+instance: VERIFY-AGAINST-THE-ARTIFACT, applied to my own logging
+plumbing this time.

@@ -55,9 +55,20 @@ if [ ${#LOGS[@]} -eq 0 ]; then
         /root/personalization/audit/iar/continuo/cycle.log)
 fi
 
-# KNOWN-SYNTHETIC tail (c217): exact end of the c216 pre-canary fixture
-# echo. grep -F (fixed string) -- no regex escaping games.
-SYNTH_TAIL='uptime -s\"'"'"'"))'
+# KNOWN-SYNTHETIC tails (c217 + c228): exact ends of committed test-fixture
+# echoes. c216 pre-canary 'uptime -s' echo + c217 T6 'date' fixture echo +
+# the truncated uptime variant (echoed mid-thought, cut at 120-char dedupe
+# key). All provenance-documented test artifacts, never real calls. grep -F
+# (fixed string) -- no regex escaping games. The belt re-validates every
+# run: a REAL call producing these exact shapes is caught by the cross-walk.
+SYNTH_TAILS=(
+  'uptime -s\"'"'"'"))'
+)
+# c228: ALL bare-fixture echoes carry the hardcoded [05:00:00] timestamp from the
+# c216/c217 printf fixtures. Real calls never have that exact timestamp shape
+# (cycle.log timestamps are wall-clock). Exclude by timestamp prefix, keep
+# real truncated calls (e.g. 06:33:16) visible.
+SYNTH_TS='^\[05:00:00\]'
 
 alarm=0
 info=0
@@ -67,7 +78,8 @@ for log in "${LOGS[@]}"; do
   hits=$(grep -aE '^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \(:name "execute_code_local"' "$log" \
     | grep -E 'ssh[^|]*root@192\.168\.2\.[0-9]+' \
     | grep -vE 'grep |sed |awk ' \
-    | grep -vF "$SYNTH_TAIL" \
+    | grep -vF "${SYNTH_TAILS[@]}" \
+    | grep -vE "$SYNTH_TS" \
     | awk '{k=substr($0,1,120); if (!(k in seen)) {seen[k]=1; print}}')
   [ -z "$hits" ] && continue
   fx=$(echo "$hits" | grep -c '0071-POS-TEST' || true)

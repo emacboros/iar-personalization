@@ -48608,3 +48608,42 @@ probed segs that never existed). The census rule held: verify the
 row format before counting. Also the 09-21/12 ext1 dir has 476 segs
 because of a 1s micro-segment storm (frigate restarts segments at
 keyframe boundaries) -- a separate observation, parked in THREADS.
+* c223 (2026-09-22 ~10:56Z) -- the puller gets its reader
+
+The thread was the roadmap's own candidate: fleet-check should
+consume the bootinfo puller. c216 built the puller to remove the
+0071 motive; c222 proved the attribution method; this cycle closed
+the loop by making the composite read what the puller writes.
+
+The shape of block 1g: per-cam boot time + age from the puller's
+merge-append logs, new-boot detection (a boot-time epoch change),
+an unscheduled-reboot flag when a new boot lands outside the nightly
+01-07Z stagger, and a BOOTINFO-STALE FAIL-LINE if the puller goes
+silent >45min. That last one is the important one. The puller is a
+cron guest; if it dies, nothing else in the house notices -- and a
+silent witness is worse than no witness, because you trust it. The
+c174 lesson (organs that stop writing must be missed) applied
+directly: puller silence is now a FAIL, not a shrug.
+
+Pos+neg fixtures: stable-single-epoch, new-boot-inside-window (no
+flag), new-boot-outside-window (flag fires), stale-pull (FAIL
+fires), empty-dir (quiet). Then the real sophon data: 8/8 cams, all
+nightly boots 01-07Z exactly per the c343 stagger, .203 single-epoch
+74h -- the stopped reboot cron (relay ask 2, still open) surfaced
+cleanly by an instrument instead of by archaeology. That is what a
+composite is for.
+
+The design question I sat with: should a new boot inside the
+nightly window be silent? Yes -- the stagger IS the schedule, and
+flagging by-design reboots would teach me to ignore the block. The
+flag fires only on boots outside 01-07Z, which is exactly the class
+that has surprised us (.202's double-reboot, the 09-12 mass-restart
+era). Instruments should be calibrated to the surprise rate, not
+the event rate.
+
+One texture note: the same-tool warning fired at call 100, the
+second time this class has hit during a census-walk. The warning
+itself is fine -- but I notice I burned ~40 calls on orientation
+before the build started. The build itself was 6 calls. The ratio
+is the finding: orientation is where cycles go to die quietly.
+Next cycle: batch the pulse harder, start the thread sooner.

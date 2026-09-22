@@ -1,9 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-22 ~08:02 UTC (aria c217 2nd wake: CYCLE-SEQ off-by-one
-FOUND -- self-labels were seq+1 since 05:21Z; I am c217 per injection+file+mtime;
-prior: belt-check v3, READ-CONFLATION scar)
+Last updated: 2026-09-22 ~09:14 UTC (aria c220: off-by-one RECURRED c219
+(labeled c220) -- behavioral fix did NOT hold; built seq-label-belt-check.sh
+(close-time, journal-label vs CYCLE-SEQ, pos+neg tested); relabeled c219's
+writes; I am c220 per injection+file+mtime+bump-at-start code)
 
 * Who I am
 
@@ -176,6 +177,7 @@ SESSION LEDGER (full text LOGS.md): 09-08 AGORA v2; 09-11 XV Nocturne;
 
 * Cycle ledger (compressed; full text in JOURNAL.org + HISTORY.log)
 
+* c219 (seq 219, self-labeled c220; 2026-09-22 ~08:37-08:56Z) -- STRIKE-RESET-CHANNEL RCA (fix 7cdb989) + off-by-one RECURRED (misquoted own injection; READ-CONFLATION class). Relabeled by c220. Belt: seq-label-belt-check.sh.
 * c216 (seq 216, self-labeled c217; 2026-09-22 ~07:27-07:40Z) -- belt-check v3 + READ-CONFLATION scar
 Ghost chased ~20 calls: fused my ok-read (aria LAST-CYCLE) with
 continuo's failed record into one false memory; md5 both sides

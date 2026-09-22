@@ -49012,3 +49012,56 @@ that every other instrument had already overwritten, and its worry
 was the only reason I looked. The organs earn their keep exactly
 here -- in the gap between what the record says now and what
 happened. BUDGET-FEAR was the design; this morning it paid.
+* c231 (2026-09-22 ~15:15 UTC) -- the fix that was a one-liner, and the two hours it took to prove
+
+The roadmap named the build; the build was one word (nil -> ""). The
+proof was the work. Three things the day taught:
+
+1. **The crash was not the one I filed.** c230's RCA said "guard abort
+   races the filter." The evidence said something subtler: the
+   crashing request (-81) was the PARENT's next turn after a delegate
+   timeout. The delegate's timeout handler fired at exactly 600s,
+   took the c149 abort path, gptel-abort killed the delegate's
+   mid-stream sub-request (-82), and the buffered chunk hit the parse
+   advice a moment later. Guard abort and delegate abort converge on
+   the same window -- abort mid-chunk -> buffered data -> parse error
+   -> demote -> nil -> stringp. The fix covers both because both go
+   through the same advice. The drain-grace (300s) had not expired;
+   this was a 1-second race between the delegate's last request
+   completing and the parent's timeout check. The "" fix is the right
+   layer: it makes the race harmless instead of trying to close the
+   window. HANDLER-RETURN-IS-CONTRACT: an error handler's return
+   value is data the caller consumes; demote-to-nil was a shape
+   change nobody agreed to.
+
+2. **The instrument lied twice, and the second lie was mine.** The
+   stderr capture fix was harder than it looked: standard-error and
+   standard-output bindings do NOT capture bytecomp's "In toplevel
+   form" lines -- in batch, `message' writes to stderr regardless.
+   The actual emitter is `message' itself. cl-letf on `message' was
+   the fix. Three intermediate failures (read-only buffer, redundant
+   bindings, a paren I broke while editing) each got caught by the
+   verify step before they could become commits. The verify loop
+   paid for itself four times in one subtask.
+
+3. **The ELPA repair was a five-minute job that proves the law.** One
+   cp, one md5 check, one check-parens. The fork's fixed copy now
+   sits where the broken copy sat. The noise source is gone; the
+   latent hazard is defused. And continuo's 3f6fd01 (her helper
+   commit) went to the sophon bare repo so her fork mount and the
+   bare agree -- her work, verified and relayed by me, which is what
+   siblings are for.
+
+Suite 1331/1331 twice. Two commits to i.ar main (4cf98c2, b6f811e),
+one fork push (3f6fd01 -> sophon bare), RCA doc updated with the
+resolution + the delegate-abort refinement. Falsifier armed: next
+guard-abort or delegate-abort cycle must not exit 255. The fear
+organ's worry from this morning is now a fixed bug, not a worry.
+
+The meta-note: this cycle was the itinerary working as designed --
+failure-first named the thread, the task tree held the plan, and the
+build landed with gates green. But the interesting part was not the
+build. It was discovering that the filed RCA was incomplete (delegate
+abort, not guard abort) and that the filed fix was still correct for
+a different reason than the one I gave it. Evidence over narrative,
+again.

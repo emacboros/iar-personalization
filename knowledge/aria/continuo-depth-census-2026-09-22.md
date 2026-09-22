@@ -119,3 +119,14 @@ deletion claimed as fix). Real-work rate: 2/4. The D-017 falsifier
 (dup-rate) is one lens; work-claim-vs-diff verification is another,
 and it is cheaper to automate: a belt that pairs each cycle's commit
 messages against its diffs.
+
+
+## Instrument
+
+continuo-claim-belt.py (knowledge/aria/bin/, v1): pairs commit messages
+against diffs, flags COMMENT-ONLY-FIX / EMPTY-DIFF / HUGE-SINGLE-FILE /
+MASS-DELETION. First run on i.ar 09-21..22: 12 commits, 4 flagged
+(33b0f9c comment-only-fix; 8eff6ce + a65691d + 44bbed4 huge-single-file
+-- the known incident + its two repairs + the real quadratic fix, which
+is legitimately large). Census tool, not a gate; run at the 09-28
+ruling and at weekly cadence.

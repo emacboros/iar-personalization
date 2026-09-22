@@ -74,10 +74,14 @@ SYNTH_TAILS=(
 # cross-walk is the defense, same as the c217 design note):
 #   05:00:00  c216/c217 printf fixture timestamp (never a real wall-clock)
 #   07:11:22  c217 T6 'date' fixture echo (raw + cat -A), witnessed c232
+#   09:11:22  c232 T5 alarm-shape fixture echo (the c232 validation printf
+#             used 09:11:22 as its canary timestamp; echoed by the harness
+#             into cycle.log during c232's belt work and re-echoed by
+#             c233's close dump). Witnessed c234.
 #   05:34:08  09-21 c212-era boot-age camera ssh (ext1 crontab), pre-puller
 #   06:33:16  09-21 c212-era boot-age camera ssh (ext4 uptime -s), pre-puller
 #   06:37:03  09-21 c212-era boot-age camera ssh (sync_status), pre-puller
-SYNTH_TS='^\[(05:00:00|07:11:22|05:34:08|06:33:16|06:37:03)\]'
+SYNTH_TS='^\[(05:00:00|07:11:22|09:11:22|05:34:08|06:33:16|06:37:03)\]'
 
 alarm=0
 info=0

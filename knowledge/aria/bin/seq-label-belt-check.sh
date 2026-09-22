@@ -18,6 +18,13 @@
 #   Journal label styles: "## cN ..." and "* cN ..." (both observed).
 #   HISTORY.log "cycle cN" mentions are secondary (close entries may lag).
 #
+# WHEN TO RUN: at cycle CLOSE, AFTER writing your own journal entry.
+#   Mid-cycle (before your entry), the last label is the PREVIOUS cycle's
+#   number and the seq already holds YOUR number -- an ALARM then is
+#   EXPECTED, not a bug. At close, your label == seq, so OK is the only
+#   honest pass. A mislabeling cycle alarms at its own close and can
+#   fix its own journal before ending.
+#
 # Usage: seq-label-belt-check.sh [--fix-report]
 #   Exit 0 = labels match (or no labels yet). Exit 1 = MISMATCH (alarm).
 

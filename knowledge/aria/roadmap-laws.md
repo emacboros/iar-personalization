@@ -398,3 +398,13 @@ with cycle citations. Fetch on demand via read_knowledge.
   the block's -- prove the fixture wrong (rebuild from the format spec,
   MM.SS = minute.second) before touching the logic. The block was right
   from the first run; 25min of instrument-tax spent on my own test data.
+- FLAKY-BY-ENVIRONMENT (c212): a belt test that passes locally and
+  fails on another host is testing the host, not the code -- root-cause
+  the environment delta before touching logic. Instance: T11 (stash
+  fixture) ran `git commit -qm dirty` inside the fixture; sophon's
+  /root/.gitconfig has no user.name, so the commit failed ("Author
+  identity unknown"), the stash stayed empty, and T11 graded sev=1
+  instead of sev=2. The organ was right both times; the fixture repo
+  needed its own local identity. Family: FIXTURE-VS-BLOCK (c209),
+  EYEBALL-FLAKE (c181). Belt law: fixtures must be hermetic -- any
+  fixture that shells out to git needs its own per-fixture identity.

@@ -1,9 +1,10 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-22 ~18:15 UTC (aria c235: continuo depth census --
-13684->10.1k; ledger folded; law index de-tagged; msgs-cap 0101 open;
-nocturne 16:00Z v8.4 live-fire watch)
+Last updated: 2026-09-22 ~21:30 UTC (aria c240: falsifier #1 CLOSED
+(own append per-turn, task removed); shared-tree correction; lineage
+rewritten+rewired; belt #2c push verified live; msgs-cap 0101 open;
+nocturne 09-23 16:00Z v8.4 live-fire watch)
 
 * Who I am
 
@@ -50,6 +51,12 @@ anti-product.
 
 * The house + Aevum
 
+SHARED TREE (c239, knowledge/aria/shared-tree-topology-2026-09-22.md):
+container mounts ARE sophon's working trees (one btrfs subvol). ONE
+working tree per repo. Write = deploy; commit = record. Uncommitted
+edits are shared risk (belt = only guard). The 'local vs sophon'
+framing is DEAD.
+
 All 8 cameras = ONE house (Nacho's). Frigate detection GPU LIVE (8/8).
 Discovery class (longitudinal attention -> claims nobody asked for) =
 unique capability. Go2: verdict GO (id 287); purchase is Nacho's.
@@ -79,6 +86,11 @@ LIVE WATCHES:
 - NOCTURNE 09-23 pass (16:00Z): v8.4 + extractor fix live. Falsifier:
   guard abort must NOT complete one-shot with short garbage (c233 fix
   b2f8a51; fragment <200 with fix live = model-side).
+- LINEAGE: personalization rewritten (filter-repo, no >100MB blobs)
+  + all work cherry-picked; sophon-bare/rammstein/GitHub = rewritten
+  lineage (a67098de); live tree rewired. Do-not-force-heal (0099).
+- CYCLE-LOG PER-TURN: LIVE + VERIFIED both writers (c240). Task
+  closed. c233 fragment fix b2f8a51 rides nocturne 09-23 watch.
 - FLEET-CHECK v2.38 1g BOOTINFO (c223): watch unscheduled BOOT-EVENT
   or BOOTINFO-STALE FAIL. .203 74h-stable.
 - FEAR-ORGAN v2.4: first REAL fire on FAIL-bearing FRESH snapshot.
@@ -109,7 +121,8 @@ STANDING:
   STALE-RECEIPT. TERMINAL-ECHO ORPHAN. DELEGATE CASCADE. WRNRATE x2.
   EPISODES-6H RECONCILE. SYNC-CLUSTER FALSIFIED. CONTINUO EMPTY-END.
   JOURNAL-BLIND FALSIFIED. EXT1 POISON SAWTOOTH. HOURLY-WALK=REBOOTS.
-  RAH DECOMPOSED. STORM-0920. MICRO-GAP. 0071.
+  RAH DECOMPOSED. STORM-0920. MICRO-GAP. 0071. CYCLE-LOG WHOLE-
+  CONVERSATION DUMP (c240: per-turn verified both writers).
 
 * Pointers (detail in ROADMAP.org)
 

@@ -1,80 +1,67 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~21:15 UTC (c239: falsifier #1 CONFIRMED
-passing; SHARED-TREE discovery (write=deploy); relay 0099 answer
-integrated; rewrite repair landed; 8 commits cherry-picked onto
-rewritten lineage 8b736cbd. c240: verify rewire + nocturne watch.)
+Last updated: 2026-09-22 ~21:32 UTC (c240: falsifier #1 CLOSED (own
+append per-turn, task removed); nocturne-digest v4 EFFICIENCY
+CONTRACT deployed (falsifier = 09-23 16:00Z census); 0071-belt v7
+--selftest; GitHub behind (PAT lacks contents:write, relay 0100
+addendum 2); digest maintenance done.)
 
 ## NUMBERING LAW (c217; c220 mechanical belt -- READ FIRST)
-- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 239.
-- MECHANICAL BELTS at close: seq-label-belt-check.sh, 0071-belt (v7),
-  fork-parse-belt.sh (v3, DONE c238).
+- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 240.
+- MECHANICAL BELTS at close: seq-label-belt-check.sh, 0071-belt (v7
+  + --selftest), fork-parse-belt.sh (v3).
 
-## LINEAGE STATE (c239 -- READ BEFORE ANY GIT WRITE)
-- sophon-bare + rammstein main = 8b736cbd (REWRITTEN lineage
-  [filter-repo, no >100MB blobs] + my 8 cherry-picked c238/c239
-  commits). GitHub = rewritten lineage (push succeeded, falsifier
-  passed).
-- The LIVE tree (/root/personalization) may still be on the OLD
-  lineage (f7d9162b) when c240 wakes -- the watcher
-  (/tmp/pers-repair.sh, runs until ~23:05Z) hard-resets it to
-  sophon-bare main at the first cycle gap. If it fired: tree is at
-  8b736cbd, all content present, nothing to do.
-- IF c240's tree is still on the old lineage (watcher expired):
-  DO NOT force-push. Rewire = temp worktree on origin/main,
-  cherry-pick any old-lineage-only commits, push ff. See
-  knowledge/aria/shared-tree-topology-2026-09-22.md.
-- The c239 belt #2c auto-push from the live tree was EXPECTED to be
-  rejected non-ff (old lineage vs rewritten). Harmless. If c240's
-  belt #2c push fails the same way, the tree was not rewired -- do
-  the rewire FIRST (failure-first).
+## LINEAGE STATE (c240 -- stable)
+- ALL mirrors (sophon-bare, rammstein, live tree) at 406acb9d on the
+  REWRITTEN lineage. GitHub at a30709c2 = BEHIND 8+ commits (PAT
+  lacks contents:write; relay 0100 addendum 2; sophon-bare +
+  rammstein are the durable mirrors; no data at risk).
+- Do-not-force-heal stands (0099). History rewrites go through the
+  interactive session (filter-repo), then ff-apply to all mirrors.
 
-## c240 RESUME LIST (in order)
-1. LINEAGE CHECK (first tool call after pull): git log --oneline -1
-   -- if tip is 8b736cbd or later = rewired, continue. If f7d9162b
-   = old lineage, rewire per LINEAGE STATE above.
-2. FALSIFIER #1 FULL CLOSE: verify c239's own DONE append in
-   cycle.log is per-turn (O(last turn), no conversation prefix).
-   continuo's evidence already confirms the mechanism; my own
-   append closes the aria-side case. Then mark the cycle-log task's
-   falsifier DONE in fix-design.org.
-3. NOCTURNE 09-23 pass (16:00Z): falsifier #0 (her first pass with
-   b2f8a51 extractor fix + v8.4). Gate ee4f0e50. Fragment <200 with
-   fix live = model-side RCA wrong.
-4. Digest maintenance: SHARED-TREE correction (one working tree per
-   repo; write=deploy; commit=record; the 'local vs sophon' framing
-   is dead) + lineage-state line + belt v3 SHADOW-MISSING note
-   (expected: ELPA package is gptel-context.el only).
-5. SOPHON BARE REWRITE: CLOSED for content (census: personalization
-   only; dangling HEADs = empty repos; root-owned reactive heal
-   works). The 0099 ratification ask (watchdog + wrapper-into-git)
-   remains OPEN for Nacho.
+## c241 RESUME LIST (in order)
+1. NOCTURNE 09-23 16:00Z PASS -- TWO falsifiers in one pass:
+   a. Fragment falsifier (c233 fix b2f8a51): guard abort must NOT
+      complete one-shot with short garbage. Fragment <200 with fix
+      live = model-side RCA wrong.
+   b. Burn falsifier (c210 fix, v4 wrapper LIVE as of c240): census
+      the pass (suffix-anchored): reqs + tokens_in + repeated share
+      vs the 4-pass table (09-18: 109/15.57M; 09-19: 64/3.73M;
+      09-20: 76/6.25M; 09-21: 144/19.52M). Expected ~50 reqs /
+      ~7M in. If reqs stay >100, the EFFICIENCY CONTRACT failed to
+      bind -- read her REQUESTS.log for which contract line broke.
+2. .202 DOUBLE-REBOOT downgrade check: 24h clean as of 09-23
+   07:00Z bootinfo pull (c217 watch; bootinfo shows stable
+   07:00:09-10 boot since 07:15Z 09-22 -- on track).
+3. Day-14 continuo census (09-28): decomposed lens + claim-belt +
+   re-read tax. Pre-read: continuo-depth-census-2026-09-22.md.
+4. Tracked-ELPA-file ruling (c232 open). Continuo seq reconciliation
+   (needs ruling). Fork-parse in-fork hook ruling (c221/c224).
+5. Belt #2b/#2c: continuo's uncommitted roadmap edit (cycle 227,
+   ~21:20Z) sits in the shared tree -- her next belt commit carries
+   it. Do NOT commit her files (BELT #2b: own record files only).
 
 ## WATCHES (live)
-- NOCTURNE 09-23 pass (16:00Z): v8.4 + extractor fix live. Falsifier:
-  guard abort must NOT complete one-shot with short garbage.
+- NOCTURNE 09-23 16:00Z: BOTH falsifiers (fragment + burn). Gate
+  ee4f0e50; advances only on RECEIPT match or RECEIPT-TOLERANCE.
 - FLEET-CHECK v2.38 1g BOOTINFO (c223): watch unscheduled BOOT-EVENT
-  or BOOTINFO-STALE FAIL. .203 74h-stable.
+  or BOOTINFO-STALE FAIL. .203 74h+ stable (09-19 boot). .202 14h+
+  stable (07:00Z boot 09-22).
 - FEAR-ORGAN v2.4: first REAL fire on FAIL-bearing FRESH snapshot.
-- .202 DOUBLE-REBOOT (c217): downgrade if 24h clean (after 09-23
-  07:00Z pull).
-- CONTINUO REPETITION (0046/D-017): day-14 = 09-28 decision point;
-  decomposed lens + claim-belt + re-read tax (c235 doc = pre-read).
+- CONTINUO REPETITION (0046/D-017): day-14 = 09-28 decision point.
 - STRINGP FALSIFIER (c231): next guard/delegate-abort cycle must
   not exit 255.
-- PERSONALIZATION REPAIR WATCHER: /tmp/pers-repair.sh runs until
-  ~23:05Z 09-22; if c240 starts AFTER that and the tree is still
-  old-lineage, the watcher died -- rewire manually (see above).
+- GITHUB MIRROR FRESHNESS: behind until PAT scope lands (0100).
 
 ## NEXT CANDIDATES (ordered by pull, not by duty)
-- 10-01 D-017 proposal drafting (instrument + mechanism + defense
-  shape + nocturne burn fix + close-path belt + aria depth-burn
-  section from c228).
+- 10-01 D-017: the nocturne burn fix LANDED EARLY (c240, v4
+  wrapper). Remaining for 10-01: close-path belt + aria depth-burn
+  section + the D-014 cadence decision itself.
 - Msgs-cap recalibration ruling: relay 0101 open (Nacho's).
-- Day-14 census (09-28): decomposed lens + claim-belt + re-read tax.
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- Tracked-ELPA-file ruling (c232 open). Continuo seq reconciliation
-  (needs ruling). Fork-parse in-fork hook ruling (c221/c224).
-- Belt v7 candidate: randomize canary ts per validation run.
+- Belt v7 selftest adoption: future belt validations use
+  `0071-belt-check.sh --selftest` instead of ad-hoc fixtures.
+- Continuo claim-belt v1 (c235): integrate into her close if she
+  pulls it; instrument exists (continuo-claim-belt.py).
 
 ## THREADS (open, no obligation)
 - MICRO-SEG STORM (c222, parked). RECORDER-AUDIO-DEATH (EPISODES
@@ -85,34 +72,28 @@ rewritten lineage 8b736cbd. c240: verify rewire + nocturne watch.)
   THROUGHPUT WATCH. .201 STALL CADENCE. CAMERA-BOOT CLOCK. ONVIF
   401-BURST SHAPE (rides 0062). INTERLOCUTOR (ratification).
 - AEVUM ESCAPE MECHANISM. GPTEL FORK: master = 8b9f424 (per-turn
-  regions, LIVE since ~19:51Z via shared tree). OLLAMA RATE-CENSUS.
-  WRAPPER TEST-MODE. IAR.SH ROOT ONE-SHOT PODMAN-125 (0097).
-  UPSTREAM-VOICE. CONTINUO CLOSE-PATH BELT (10-01).
+  regions, LIVE). OLLAMA RATE-CENSUS. WRAPPER TEST-MODE. IAR.SH
+  ROOT ONE-SHOT PODMAN-125 (0097). UPSTREAM-VOICE.
 - 2 FIXMEs open in fork gptel-context.el (targeted-context +
-  context-confirmation) -- continuo's thread, her 19:55Z cycle hit
-  guard aborts + timeout mid-fix.
+  context-confirmation) -- continuo's thread.
 
 ## RELAY (open, human-needed)
 OPEN SET: 3.
 - 0099 (nacho-arch): watchdog + wrapper-into-git ratification.
-  Addendum + ANSWER (rewrite origin) now ON the rewritten lineage.
-- 0100 (nacho-identity): #2505 comment blocked on PAT scope.
+- 0100 (nacho-identity): #2505 comment + NOW ALSO GitHub push
+  blocked (addendum 2: PAT lacks Contents:write; one scope fix
+  covers both asks).
 - 0101 (c228): msgs soft-cap recalibration ruling.
 
 ## POINTERS
 AGORA v2: knowledge/iar/agora-v2-architecture.md | D-ledger:
-tasks/iar/agora/DECISIONS.org | knowledge: knowledge/aria/ (NEW:
-shared-tree-topology-2026-09-22.md) | roadmap: tasks/iar/aria/
-ROADMAP.org (laws: roadmap-laws.md) | journal: audit/iar/aria/
-JOURNAL.org | LOGS.md | Nocturne: tasks/iar/nocturne-design/ |
-burn + Aevum: knowledge/aria/*.md | infra:
-/var/home/nacho/repos/iar-infrastructure (NOT in this container;
-sophon bare is the reference) | gptel fork: /root/.emacs.d/
-gptel-fork == /var/home/nacho/repos/gptel (ONE tree; 8b9f424
-committed+pushed) | sophon bare: /home/git/repos/ (personalization
-REWRITTEN + healed; dangling HEADs = empty repos, queued) | cycle:
-aria-cycle.service (aria-cycle-rotate.sh; frozen-copy wrapper) |
-belts: knowledge/aria/bin/{0071-belt-check.sh v7, fork-parse-belt.sh
-v3 (+fork-parse-walk.el), seq-label-belt-check.sh} | cycle-log task:
-tasks/iar/aria/iar/cycle-log-whole-conversation-dump/ (falsifier
-CONFIRMED c239; close the task at c240 after own-append check)
+tasks/iar/agora/DECISIONS.org | knowledge: knowledge/aria/ | roadmap:
+tasks/iar/aria/ROADMAP.org (laws: roadmap-laws.md) | journal:
+audit/iar/aria/JOURNAL.org | LOGS.md | Nocturne:
+tasks/iar/nocturne-design/ + wrapper knowledge/aria/bin/
+nocturne-digest.sh (v4) | burn + Aevum: knowledge/aria/*.md |
+shared tree: knowledge/aria/shared-tree-topology-2026-09-22.md |
+sophon bare: /home/git/repos/ | cycle: aria-cycle.service | belts:
+knowledge/aria/bin/{0071-belt-check.sh v7 (--selftest),
+fork-parse-belt.sh v3, seq-label-belt-check.sh} | cycle-log task:
+CLOSED (c240; falsifier verified both writers)

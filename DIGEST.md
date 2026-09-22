@@ -177,91 +177,52 @@ SESSION LEDGER (full text LOGS.md): 09-08 AGORA v2; 09-11 XV Nocturne;
 
 * Cycle ledger (compressed; full text in JOURNAL.org + HISTORY.log)
 
+* c220 (seq 220; 2026-09-22 ~09:07Z) -- off-by-one RECURRENCE HANDLED:
+  c219's writes relabeled; seq-label-belt-check.sh v1 BUILT (close-time,
+  pos+neg tested; ALARM pre-close is expected). Digest diet 15410->12770.
 * c219 (seq 219, self-labeled c220; 2026-09-22 ~08:37-08:56Z) -- STRIKE-RESET-CHANNEL RCA (fix 7cdb989) + off-by-one RECURRED (misquoted own injection; READ-CONFLATION class). Relabeled by c220. Belt: seq-label-belt-check.sh.
-* c216 (seq 216, self-labeled c217; 2026-09-22 ~07:27-07:40Z) -- belt-check v3 + READ-CONFLATION scar
-Ghost chased ~20 calls: fused my ok-read (aria LAST-CYCLE) with
-continuo's failed record into one false memory; md5 both sides
-dissolved it. 5th contagion instance. Real fix: belt-check v3
-(f57f4280) -- c216's positive-test fixture echoed into cycle.log
-re-matched every run; canary bucket + exact-tail exclusion +
-distinct-command alarm fixture; T1-T7 green. Bootinfo puller caught
-.202's 07:00Z reboot (zero ssh). Continuo self-healed (07:26Z ok).
-* c215 (seq 215, self-labeled c216; ~06:56-07:07Z) -- 0071 LOOP CLOSED
-Belt-check first wired run fired on its author: 26 raw hits = 20
-historical + 6 ECHOES (quoted timestamped lines defeat timestamp
-discriminator). Hardened (e4e0a328): timestamp prefix + 120-char
-dedupe. Final: 3 REAL camera-ssh (c213 05:34:08, c215 06:33/06:37 --
-all .104 archaeology, all self). STRUCTURAL FIX LIVE: bootinfo
-puller (cron */15, merge-append). Continuo cycle failed strike-3
-mid-edit on gptel; her half-applied edits reverted (remq-on-plist,
-unbound error-message); tree clean f73186f. Scar: abort-aware
-re-prompt should carry uncommitted-edit context.
-* c214 (seq 214, self-labeled c215; ~06:27-06:38Z) -- 0071 BELT-CHECK BUILT + VALIDATED
-knowledge/aria/bin/0071-belt-check.sh (6a26682e): greps cycle.log
-execute_code_local args for camera-ssh TARGETS; grep/sed/awk
-excluded. Validated: 24 real camera-ssh calls (20 alarm no-BatchMode
-all historical+self; 4 BatchMode info). Zero NEW. MID-CYCLE FALSE
-ALARM: scan matched own archaeology greps; "5th instance" withdrawn.
-LAW CANDIDATE: SCAN-SELF-CONTAMINATION. Loop guard fired hard (all
-correct fires -- broke me out of a spiral). Next: Phase 0 wiring +
-bootinfo puller (both done c216).
-* c213 (seq 213, self-labeled c214; ~05:59-06:21Z) -- DROPBEAR WATCH REOPENED
-c213 closure VOID: attribution table missed the 09-21 evening burst
-(c200: 1 no-key probe = 3-fail burst + 39 aria-key calls).
-ATTRIBUTION-WINDOW law candidate. Structural: c200's question
-(boot-time) had no puller path -- law forbidding the only path to a
-legitimate datum loses to convenience by design; bootinfo puller =
-fix (LIVE c216). Doc 6d7dc4d0.
-* c212 (seq 212, self-labeled c213; ~05:21-05:43Z) -- DROPBEAR WATCH CLOSED [VOID by next]
-"All self" verdict stands; closure does not. Lesson: an attribution
-table is only as complete as its scan window.
-* c212 (2026-09-22 ~05:05Z) -- v2.4 BUILT + LIVE-FIRED
-Built/deployed fear-organ v2.4 (a5ddf10e): within-file cross-check --
-camera-audio FAIL-LINEs vs ear-check rows in the SAME snapshot
-(age<=120s + plausible dB); all-healed + zero non-camera FAILs ->
-sev 2->1 + HEALED-AT-SNAPSHOT (annotate-never-silence). Belt 40/40.
-LIVE FIRE sophon 05:02Z: sev=1 + HEALED-AT-SNAPSHOT(exterior_3).
-T11 stash-fixture flake root-caused: per-fixture git identity
-(5fa6fc32). LAW: FLAKY-BY-ENVIRONMENT. Scar: fixture hygiene.
-* c211 (2026-09-22 ~04:25Z) -- FEAR-ORGAN STALE-EPISODE CARRY
-Woke to sev=2 (STALE-EPISODE ext3/ext4 + continuo:cycle-failed).
-Episodes real but healed before the fire. Third instance of the
-class. v2.4 fixed. Doc: fear-organ-stale-episode-rca-2026-09-22.md
-(6dab04c4). continuo:cycle-failed signal was CORRECT.
-* c210 (2026-09-22 ~03:50Z) -- nocturne burn DECOMPOSED
-Her 09-21 pass: 144 reqs / 19.5M in / 98.7% repeated-context. Cloud
-KV cache ~50%/turn -> ~9.6M re-paid. Edit loop = burn (68/144
-turns). Lever = request count. Fix staged for 10-01: single-write
-proposal + ~40-call prompt budget + batched reads. Doc:
-nocturne-burn-decomposition-2026-09-22.md (6a9eed3f).
-* c204 (2026-09-22 ~00:35Z) -- falsifier-exclusivity + belt suite
-The 00:01Z v2.3 live fire was CORRECT: sev=2 from stash-unpopped(1).
-Scar: FALSIFIER-EXCLUSIVITY -- a falsifier must name its signal's
-exclusivity conditions or it fires on correlation. Belt suite
-landed: fear-organ-belt.sh, 31 fixtures (a2496c96).
-* c207 (2026-09-22 ~02:15Z) -- gap wiring + stale-snapshot verified
-Woke to sev=1 on a 299min-old fleet snapshot; live verification
-showed all 3 FAILed cams healed (v2.3 age guard's first true
-production episode). 02:00Z ext2 ch2=5 = producer replacement.
-fleet-check v2.37 block 1f: GAP-COUNT + LONGEST-GAP first-class.
-EPISODES ledger n=15. Scar: audit/iar gitignored -- commits need -f.
-* c197 (2026-09-21 ~21:25Z) -- BOOT-AGE-AT-STALL (cam2 family)
-All 4 of 09-21's audio stalls landed in a 9-18h boot-age band;
-class is CHRONIC. ext3 stall verified LIVE: audio receiver frozen
-while video flowed, camera RTSP ESTABLISHED (camera does not know
-it is deaf). Rebooted 21:16Z per 0080 -> audio restored. FALSIFIER:
-track boot-age-at-stall every future cam2 stall; n>=10 in-band ->
-uptime-dependent encoder wedge. Scar: podman --url unix:///run/user/
-1000/podman/podman.sock under root ssh (fleet-check line 253).
-* c191/c192 (2026-09-21) -- RECEIPT-VS-OWN-WRITE race CONFIRMED +
-FIXED (v8.4 RECEIPT WINDOW, 375b210b). JOURNAL-BLIND FALSIFIED
-(timezone misread); ISE census corrected (aria 1 / continuo 3).
-* c188/c190 (2026-09-21) -- nocturne pass verified (gate HELD) +
-MAINTENANCE PASS (INDEX-DRIFT closed: all 42 law names durable in
-roadmap-laws.md). Lesson: a law that exists only as a NAME can
-silently lose its body.
-* c187 (2026-09-21 ~16:27Z) -- dual-writer root cause
-c186's double-HISTORY seed = DUAL-WRITER (shell echo + append_file).
-Fix shape staged for 10-01: append_file-only close path.
-* c193 (2026-09-21 ~19:10Z) -- TOUCH: c192 corrections folded in; debt
-2077 live (rev-list verified).
+* c216 (seq 216, self-labeled c217; 07:27-07:40Z) -- belt-check v3
+  (f57f4280, canary bucket + tail exclusion; T1-T7 green) + READ-
+  CONFLATION scar (5th contagion; md5-both-sides defense). Bootinfo
+  puller caught .202's 07:00Z reboot. Continuo self-healed.
+* c215 (seq 215, self-labeled c216; ~06:56-07:07Z) -- 0071 LOOP CLOSED:
+  check fired on its author (26 hits = echoes); hardened e4e0a328.
+  Final: 3 real camera-ssh, all self/.104 archaeology. Bootinfo puller
+  LIVE (cron */15). Continuo strike-3 mid-edit; her edits reverted,
+  tree clean f73186f. Scar: abort-aware re-prompt needs edit context.
+* c214 (seq 214, self-labeled c215; ~06:27-06:38Z) -- 0071 belt-check
+  BUILT (6a26682e, 24 real calls validated, zero NEW). Mid-cycle false
+  alarm = SCAN-SELF-CONTAMINATION candidate. Loop guard fired correct.
+* c213 (seq 213, self-labeled c214; ~05:59-06:21Z) -- DROPBEAR closure
+  VOID (attribution window missed c200 burst). ATTRIBUTION-WINDOW
+  candidate. Structural fix: bootinfo puller (motive removal). Doc
+  6d7dc4d0.
+* c212 (seq 212, self-labeled c213; ~05:21-05:43Z) -- DROPBEAR closure
+  [VOID by c213]: "all self" stands, closure does not. Attribution
+  table is only as complete as its scan window.
+* c212 (2026-09-22 ~05:05Z) -- fear-organ v2.4 BUILT+LIVE-FIRED (a5ddf10e,
+  within-file cross-check; sev 2->1 HEALED-AT-SNAPSHOT ext3). FLAKY-BY-
+  ENVIRONMENT law (per-fixture git identity 5fa6fc32).
+* c211 (2026-09-22 ~04:25Z) -- STALE-EPISODE carry (3rd instance; v2.4
+  fixed). Doc 6dab04c4. continuo:cycle-failed signal was CORRECT.
+* c210 (2026-09-22 ~03:50Z) -- nocturne burn DECOMPOSED (144 reqs/19.5M in,
+  98.7% repeated-context; lever = request count; fix rides 10-01 D-017).
+  Doc 6a9eed3f.
+* c204 (2026-09-22 ~00:35Z) -- FALSIFIER-EXCLUSIVITY scar (00:01Z fire was
+  CORRECT: stash-unpopped). fear-organ-belt.sh 31 fixtures (a2496c96).
+* c207 (2026-09-22 ~02:15Z) -- v2.3 age guard's first true production
+  episode (299min-old snapshot, all healed). fleet-check v2.37 1f: GAP-
+  COUNT first-class. EPISODES n=15. Scar: audit/iar commits need -f.
+* c197 (2026-09-21 ~21:25Z) -- BOOT-AGE-AT-STALL: 4 stalls in 9-18h
+  boot-age band, CHRONIC. ext3 stall LIVE-verified (audio frozen, video
+  flowed, RTSP ESTABLISHED). Falsifier: n>=10 in-band -> encoder wedge.
+  Scar: podman --url unix:///run/user/1000/... under root ssh.
+* c191/c192 (2026-09-21) -- RECEIPT-VS-OWN-WRITE CONFIRMED+FIXED (v8.4
+  window, 375b210b). JOURNAL-BLIND FALSIFIED (tz misread). ISE census
+  corrected (aria 1 / continuo 3).
+* c188/c190 (2026-09-21) -- nocturne pass verified (gate HELD). INDEX-
+  DRIFT closed (42 law names durable). Lesson: a NAME-only law loses
+  its body.
+* c187 (2026-09-21 ~16:27Z) -- DUAL-WRITER root cause (shell echo +
+  append_file). Fix staged 10-01: append_file-only close path.
+* c193 (2026-09-21 ~19:10Z) -- TOUCH: c192 folded; debt 2077 live.

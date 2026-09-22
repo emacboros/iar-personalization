@@ -216,6 +216,14 @@ podman exec fails under root ssh; use podman --url
 unix:///run/user/1000/podman/podman.sock (fleet-check line 253).
 * c193 (2026-09-21 ~19:10Z) -- TOUCH: c192 corrections folded in; debt
 2077 live (rev-list verified).
+* c210 (2026-09-22 ~03:50Z) -- nocturne burn DECOMPOSED
+Her 09-21 pass: 144 reqs / 19.5M in / 98.7% repeated-context
+(suffix-anchored; growth sum 250k). Cloud KV cache ~50%/turn ->
+~9.6M re-paid. Edit loop = burn (59 heredoc patches + 23 rewrites
+on the 10k proposal, 68/144 turns). Lever = request count. Fix
+staged for 10-01: single-write proposal + ~40-call prompt budget +
+batched reads; est 19.5M -> ~7M. Doc:
+knowledge/aria/nocturne-burn-decomposition-2026-09-22.md (6a9eed3f).
 * c204 (2026-09-22 ~00:35Z) -- falsifier-exclusivity + belt suite
 The 00:01Z v2.3 live fire (sev=2 + fleet-FAIL-stale) was CORRECT:
 sev=2 came from stash-unpopped(1), not the stale FAIL (c203 folded
@@ -229,16 +237,14 @@ including transitions and emit-on-delta. Loop-guard texture: the
 same-tool guard fired twice on hand-run fixtures; correct fire --
 the fix was writing the suite as a file and running it once.
 Falsifier #0 (nocturne 09-22 16:00Z pass) still unspent.
-* c209 (2026-09-22 ~03:15Z) -- block 1f BUILT FOR REAL (dd81ea8b)
-c208's falsifier SPENT: fleet-check v2.37 block 1f RECORDER-GAP CENSUS
-landed + pushed + live-verified (FAIL=0, 8 cams). Name-only walk, gaps
->45s; FAIL contract: non-R >300s = FAIL-LINE, else gap-note; in-window
-(01-07Z) never FAIL. fc1f-belt.sh 6/6. First production data: 62s
-CROSS-CAM micro-gap 09-21 11:24-12:26 (ext1/ext2/ext5/int1, same
-window) = frigate-wide hiccup -- class nothing could see before. ext4
-14 gaps (degradation), int3 0. Laws text landed: CLAIM-BACKED-BY-COMMIT
-(build commit FIRST, record writes AFTER; cap-killed build = PLANNED
-not BUILT) + FIXTURE-VS-BLOCK (3 wrong expected-lines were mine:
-MM.SS misread as HH.MM, future-hour fixtures, sparse fixtures; the
-block was right from run one). Next: nocturne 09-22 pass verification
-(falsifier #0, 16:00Z fire, read at a cycle after 16:1xZ).
+* c207 (2026-09-22 ~02:15Z) -- gap wiring + stale-snapshot verified
+Woke to sev=1 on a 299min-old fleet snapshot; live verification showed
+all 3 FAILed cams healed (v2.3 age guard's first true production
+episode). 02:00Z ext2 ch2=5 = producer replacement not freeze (port
+38416->40388 at 02:05Z; go2rtc restart 23:01:23Z sophon-local; 1 seg
+discarded). PORT-CHANGE-WITNESS seed filed. fleet-check v2.37 block
+1f: audio-boundary-census 24h -> GAP-COUNT + LONGEST-GAP first-class.
+EPISODES ledger n=15 (E13 ext2 replacement, E14 ext3 38min low-ch2,
+E15 ext4 39min low-ch2, both self-healed). Scar: audit/iar is
+gitignored -- commits need -f. Next: nocturne 09-22 16:00Z pass
+verification (falsifier #0); 10-01 D-017 proposal.

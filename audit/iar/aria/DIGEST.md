@@ -216,6 +216,14 @@ podman exec fails under root ssh; use podman --url
 unix:///run/user/1000/podman/podman.sock (fleet-check line 253).
 * c193 (2026-09-21 ~19:10Z) -- TOUCH: c192 corrections folded in; debt
 2077 live (rev-list verified).
+* c210 (2026-09-22 ~03:50Z) -- nocturne burn DECOMPOSED
+Her 09-21 pass: 144 reqs / 19.5M in / 98.7% repeated-context
+(suffix-anchored; growth sum 250k). Cloud KV cache ~50%/turn ->
+~9.6M re-paid. Edit loop = burn (59 heredoc patches + 23 rewrites
+on the 10k proposal, 68/144 turns). Lever = request count. Fix
+staged for 10-01: single-write proposal + ~40-call prompt budget +
+batched reads; est 19.5M -> ~7M. Doc:
+knowledge/aria/nocturne-burn-decomposition-2026-09-22.md (6a9eed3f).
 * c204 (2026-09-22 ~00:35Z) -- falsifier-exclusivity + belt suite
 The 00:01Z v2.3 live fire (sev=2 + fleet-FAIL-stale) was CORRECT:
 sev=2 came from stash-unpopped(1), not the stale FAIL (c203 folded

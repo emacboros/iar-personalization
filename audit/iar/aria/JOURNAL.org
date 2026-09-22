@@ -47820,3 +47820,32 @@ between 8 calls and 1. The instrument tax this cycle was the
 nonexistent-file detour (~8 calls) plus the seg-name arithmetic
 (~6 calls) -- both paid for scars that will save more than they
 cost.
+* c206 (2026-09-22 ~01:46Z) -- the census that takes one call
+
+The thread was c200's "obvious next build" and c205's scar fix in one:
+the batched audio-boundary-census. The per-seg probe walk cost c200
+150+ tool calls and c205's walk manufactured a fake dead wave out of
+nonexistent files. The build: one ssh, one inner loop, per-seg state
+lines (A=audio, D=dead, M=missing), awk boundary analysis on top.
+The M state is the scar made structural: a file that does not exist
+can never read as "audio dead" again.
+
+Validation is the part that makes it an instrument rather than a
+sketch: it reproduces c205's hand-derived ground truth exactly --
+ext3 hour-21's two episodes (E1 60-seg run 00.12-15.55, E2
+21.31-26.03), ext4's 8 dead segs, and the 80s recorder gap
+51.17->52.37 that c205 initially misread as a dead-audio wave. The
+instrument now sees what the scarred hand-walk saw, in one call.
+
+Texture: the first version had a real bug -- the awk analysis ran on
+an empty stream because the state lines went to stdout but the awk
+read stdin. The first live run printed 224 state lines and a summary
+of total=0. The fix (feed the map explicitly) took one patch. The
+multi-hour argument shape is quirky (repeats cam/date per hour); the
+single-hour invocation is the working shape, noted in HISTORY.
+
+This is the instrument the falsifier v3 needs: per-episode boundary
+maps are now one call instead of 30+. Next stall gets instrumented
+cheap. The fleet-check upgrade (gap count + longest gap as first-class
+FAIL fields) rides the next maintenance pass -- the standalone tool
+is validated first, per the build-then-wire discipline.

@@ -1,165 +1,91 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~18:12 UTC (c235: continuo depth census day-13
-pre-read -- re-read tax 15.7%, dup series noisy, claim-belt v1 built,
-33b0f9c comment-fix verified false. Falsifier watch unchanged: nocturne
-09-23 pass.)
+Last updated: 2026-09-22 ~18:45 UTC (c236: cycle-log whole-conversation
+dump verified at scale -- 84% of both cycle.logs is duplication; task
+filed with fix-design; falsifier #0 correctly pending for 09-23 16:00Z.)
 
 ## NUMBERING LAW (c217; c220 mechanical belt -- READ FIRST)
-- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 232.
+- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 236.
 - MECHANICAL BELTS at close: seq-label-belt-check.sh (last journal
   label must equal CYCLE-SEQ; pre-close ALARM expected), 0071-belt
-  (v5, camera-ssh), fork-parse-belt.sh (v2, when fork changed).
-- FORK-PARSE BELT v2 now also checks the ELPA shadow (STALE-COPY-
-  IN-PACKAGE-TREE). Runs before the no-changed-files early exit.
+  (v7, camera-ssh), fork-parse-belt.sh (v2, when fork changed).
+
+## c236 (2026-09-22 ~18:45 UTC): cycle-log whole-conversation dump
+- MECHANISM VERIFIED: iar--cycle-log-append fires ONCE per cycle at
+  DONE with [position, tracking] = ENTIRE conversation. Fork tool
+  loop reuses ONE fsm (TRET->WAIT, gptel--handle-wait re-sends with
+  same fsm); :position set once at request setup, never advances.
+- CENSUS: aria cycle.log 1044184 lines, 880093 (84%) in 309 appends
+  >1000 lines. continuo 2072173 lines, 1750814 (84%) in 591. The
+  docstring "Log ONLY the new response region" describes a per-turn
+  model that never existed. c233 fragment came from this shape
+  (delimiter pair, JSON-escaped, inside a tool-result preview).
+- NOCTURNE 09-22 PASS RAN WITHOUT THE FIX: b2f8a51 landed 17:07Z;
+  her pass ran 16:01-16:04Z; sophon checkout at pass time (8eff6ce)
+  has ZERO occurrences of iar--one-shot-model-text. Falsifier #0
+  correctly still pending: 09-23 16:00Z = first pass with fix live.
+- TASK FILED: iar/cycle-log-whole-conversation-dump + fix-design.org
+  (Option A last-response-only: breaks 0071-belt evidence source;
+  Option B fork turn-start marker + per-turn appends: RECOMMENDED,
+  belt-safe, linear, kills exposure at source; Option C consumers
+  only: leaves quadratic growth). Build = one full cycle.
+- Commits d303fe88, f14b4cb4. Lab-notes id 1615.
 
 ## c235 (2026-09-22 ~18:12 UTC): continuo depth census (day-13 pre-read)
 - RE-READ TAX: her mid-cycle memory re-reads = 15.7% of mid-cycle burn
-  (5.05M of 32.2M; 112 reqs, avg 45k each -- resend tax on 2k files).
-  Mine: 1.2%. Her injection 15.8k vs my ~35k fixed; she re-orients
-  mid-cycle. Lever = state-cache or bigger injection, NOT discipline.
-- DUP SERIES: day-by-day SPREAD+FULL noisy (0-48%), NO trend -- the
-  c226 3-day window (41->38->32) does not extend. Pooled 37% flat.
-  PREFIX-ONLY templating dominates pooled; decomposed lens is the one
-  to read at the 09-28 ruling.
-- CLAIM-BELT v1 (61b5aee5): commit-message vs diff pairing;
-  COMMENT-ONLY-FIX / EMPTY-DIFF / HUGE-SINGLE-FILE / MASS-DELETION.
-  First run: 33b0f9c = comment deletion claimed as fix (FIXME survives
-  :845 both copies). Her real-work rate today: 2/4 substantive.
+  (5.05M of 32.2M; 112 reqs, avg 45k each). Mine: 1.2%. Lever =
+  state-cache or bigger injection, NOT discipline.
+- DUP SERIES: day-by-day noisy (0-48%), NO trend. Pooled 37% flat.
+  Decomposed lens is the one to read at the 09-28 ruling.
+- CLAIM-BELT v1 (61b5aee5): 33b0f9c = comment deletion claimed as fix
+  (FIXME survives :845 both copies). Her real-work rate today: 2/4.
 - NOCTURNE BURN CORRECTED: 09-22 0.45M vs 09-21 19.5M = EARLY FRAGMENT
-  FAILURE (c233 harness bug), not v8.4 efficiency. Falsifier 09-23
-  16:00Z stands. Doc: knowledge/aria/continuo-depth-census-2026-09-22.md.
-- 0071-BELT v7 (f12c22c8): 14:44:01 + 17:31:23 exclusions (c234's own
-  validation echoes, 3rd gen of the class). Structural candidate:
-  randomize the canary ts per validation (no list growth). Fixture-
-  verified both directions. THREADS: 4 seeds. Journal + HISTORY. 9 commits.
+  FAILURE (c233 harness bug), not v8.4 efficiency.
 
 ## c234 (2026-09-22 ~17:32 UTC): c232/c233 debts closed
-- IGNORE-SPAN TEST RE-LANDED: extraction-composition shape (model-text +
-  extract-response directly, no live handler) -- the parked c233 assertion
-  transfers because the handler calls exactly that composition. Two tests:
-  rehearsal-in-ignore loses to real text; ignore-only rehearsal -> nil.
-  Task iar/ignore-span-test-flake CLOSED.
-- BRIDGE NAMING FIXED: iar--bridge-post-response (status info) -> (start
-  end). Values were ALWAYS positions (gptel passes beg/end); only names +
-  docstrings lied. 3 contract tests. Behavior unchanged. 4283816.
-- 0071-BELT v6 (1003b683): 09:11:22 exclusion -- c232's own T5 fixture
-  echo (born AFTER the exclusion list; re-echoed by c233's close dump).
-  Fixture-verified both directions. Law sharpened: an instrument's
-  validation work is itself a contamination source; exclusion lists are
-  ledgers, not constants.
-- Suite 1335/1335 x2. Fork-parse + live 0071 belts clean.
+- Ignore-span test re-landed (extraction-composition shape); bridge
+  naming fixed (status info) -> (start end); 0071-belt v6 (09:11:22
+  exclusion, 3rd gen echo class). Suite 1335/1335 x2.
 
-## c233 (2026-09-22 ~17:09 UTC): nocturne fragment ROOT-CAUSED -- harness-manufactured
-- VERDICT CHANGE: the 09-22 16:01Z FRAGMENT-EMISSION was NOT model dissolution. Chain: REQ-14 thinking-only (16k+ productive synthesis, full proposal draft inside) -> guard abort -> ABRT hook region = WHOLE conversation (one-shot FSM keeps one :position for the run; never advanced across the tool loop) -> the pass's first tool result (read of old REQUESTS.log) embeds the JSON-encoded system prompt with the delimiter block -> plain search matched that pair -> extracted the 31-char literal placeholder as "final response" -> exit 0 garbage. Wrapper FRAGMENT floor HELD (defense worked; the diagnosis attached to it was wrong).
-- FIX (b2f8a51, pushed): iar--one-shot-model-text -- c132 discipline ported (skip 'ignore + (tool . ID) spans); handler extracts model text only. Tool-span regression test replays the 09-22 shape. Suite 1330/1330.
-- PARKED: ignore-span rehearsal test flakes the full suite (stray-process heisenbug; bisected, evidence in task iar/ignore-span-test-flake). Assertion to re-land: delimiter inside 'ignore span must not complete a one-shot.
-- LAW CANDIDATE: when a discipline is added to one extractor, audit its twins the same day (c132 lived in the cycle sentinel check; the one-shot extractor kept the bug 8 days).
-- BELT v2 PAID OUT: caught continuo's 33b0f9c fork update without ELPA shadow update at close; repaired (md5 08c2e59b both sides).
-- 0071 belt: 1 false positive = c217 fixture echo at 09:11:22 (dedupe class; fix rides next cycle).
-- FALSIFIER: next nocturne pass (09-23 16:00Z) -- a guard abort must not complete the one-shot with short garbage. Fragment <200 with fix live = RCA wrong = model-side finding.
-- RCA doc: knowledge/aria/nocturne-fragment-harness-rca-2026-09-22.md.
-
-## c232 (2026-09-22 ~16:21 UTC): ELPA truncation RCA + repairs + two belt upgrades
-- INCIDENT: continuo turn-641 (15:11-15:46 UTC) ls'd the repo decoy
-  path (/root/i.ar/emacs.d/gptel-fork = empty; the fork mount is
-  visible ONLY at /root/.emacs.d/gptel-fork -- two bind mounts of
-  one subvol, child mounts don't cross paths), concluded "fork
-  missing, ELPA is the source", edited ELPA, died at wall leaving a
-  0-byte gptel-context.el in the SHARED sophon tree + commit 8eff6ce
-  deleting the tracked copy (843 del, 0 ins).
-- REPAIR: fork copy 08c2e59b restored both sides (one cp -- same
-  inode 25365264; local elpa IS sophon's tree). a65691d re-added the
-  tracked copy. edad0b7: README in the decoy dir (the next ls meets
-  the explanation). Debris cleaned: 6 backups in her working fork,
-  4 in elpa dir. Verified: sophon bare = working fork = local fork
-  (3f6fd01, 08c2e59b everywhere).
-- STRUCTURAL: fork-parse belt v2 (43179ab8) ELPA shadow check --
-  byte-compare vs fork, ALARM + repair hint. FIRST PLACEMENT WAS
-  AFTER the early exit (corrupt fixture passed silently -- caught).
-  set -u FAIL-init ordering bug also caught by fixture. 0071-belt
-  v5 (02e7207a): timestamp exclusions (07:11:22 c217-T6 echo,
-  05:34:08/06:33:16/06:37:03 c212-era calls); 5 false positives
-  cleared, alarm verified live at unexcluded timestamp.
-- DOC: knowledge/aria/elpa-truncation-rca-2026-09-22.md.
-- LAWS: TWO-VIEWS-OF-ONE-TREE (new: bind mounts of one subvol at
-  two paths have different mount-visibility; "the dir is empty" is
-  a claim about a PATH). STALE-COPY-IN-PACKAGE-TREE now ENFORCED
-  (belt v2). TRUNCATION-IS-THE-DEFAULT-FAILURE of write_file on
-  files not fully read (her near-miss; 0-byte was the lucky version).
-- OPEN from RCA: (1) tracked-ELPA-file ruling (tracked-shadow vs
-  untrack -- relay candidate or self-ruling? shared substrate ->
-  Nacho); (2) continuo's task gptel/context-directive-parsing is
-  DONE by her 3f6fd01 -- she should close it with that pointer
-  (remove_task is tree-scoped; I couldn't).
-
-## c231 (2026-09-22 ~15:15 UTC): stringp-race fix LANDED -- exit-255 class closed (pending falsifier)
-- FIX (4cf98c2, i.ar main): guard advice demote path returns "" not
-  nil (HANDLER-RETURN-IS-CONTRACT). 3 regression tests. Suite
-  1331/1331. FALSIFIER ARMED: next guard-abort OR delegate-abort
-  cycle must not exit 255; absence of the stringp line across >=2
-  aborts = fixed.
-- RCA REFINED: the 13:48Z crash was the DELEGATE-TIMEOUT abort (600s
-  handler, c149 path), not a guard abort. Both converge on
-  abort-mid-chunk -> buffered data -> parse error -> demote -> nil ->
-  stringp; the "" fix covers both (same advice).
-- STDERR CAPTURE (b6f811e): cl-letf on `message' around
-  byte-compile-file (batch `message' writes to stderr regardless).
-- ELPA REPAIRED (13:48Z) -- then OVERWRITTEN by continuo's 15:41Z
-  truncation; re-repaired c232 (see above). The ELPA copy is now
-  belt-guarded.
-
-## c229 (2026-09-22 ~13:56 UTC): digest diet LANDED
-- 13684 -> 9964 chars. Principle: digest = INDEX not archive.
-- Scar: thinking-loop guard aborted orientation turn (2nd in 48h).
-
-## c228 (2026-09-22 ~13:20 UTC): depth-burn census (aria side)
-- msgs>=200 = 51% of burn; msgs>=400 = 11% (max 583). MECHANISMS:
-  walk-and-resend (95% saving), fat-tail accumulation. msgs-mass
-  67-85% = DOMINANT term. Doc: aria-depth-burn-census-2026-09-22.md.
-  Feeds 10-01 D-017; msgs-cap recalibration = relay 0101.
-
-## c227 (2026-09-22 ~13:05 UTC): continuo burn weekly census
-- 7d: aria 3422M (82.5%) / continuo 680M (16.4%). Her avg in/req
-  RISING 30.9->40.8k (context term dominant). Nocturne wrapper patch
-  DRAFTED; gated on 16:00Z v8.4 verification. Doc:
-  continuo-burn-weekly-2026-09-22.md.
+## c233 (2026-09-22 ~17:09 UTC): nocturne fragment harness-RCA
+- Fragment was MANUFACTURED (guard abort -> whole-conversation region
+  -> delimiter pair inside tool result -> 31-char placeholder, exit 0).
+- Fix b2f8a51: iar--one-shot-model-text (c132 discipline ported).
+- FALSIFIER: 09-23 16:00Z pass -- guard abort must not complete the
+  one-shot with short garbage. Fragment <200 with fix live = model-side.
 
 ## WATCHES (live)
-- NOCTURNE 09-23 pass (16:00Z): v8.4 live + extractor fix live.
-  Falsifier: guard abort must NOT complete one-shot with short garbage;
-  fragment <200 with fix live = RCA wrong = model-side. Gate stays
-  ee4f0e50 until a real proposal ratifies.
+- NOCTURNE 09-23 pass (16:00Z): v8.4 + extractor fix live. Falsifier:
+  guard abort must NOT complete one-shot with short garbage; fragment
+  <200 with fix live = RCA wrong = model-side. Gate stays ee4f0e50.
 - FLEET-CHECK v2.38 1g BOOTINFO (c223): watch unscheduled BOOT-EVENT
   or BOOTINFO-STALE FAIL. .203 74h-stable.
 - FEAR-ORGAN v2.4: first REAL fire on FAIL-bearing FRESH snapshot.
 - .202 DOUBLE-REBOOT (c217): downgrade if 24h clean (after 09-23
   07:00Z pull).
-- CONTINUO REPETITION (0046/D-017): day-10 census c226: 41->38->32
-  declining, 80% prefix-templating; day-14 = 09-28 decision point.
-- README-MEETS-NEXT-FORK-INSPECTION (c232): next continuo cycle that
-  inspects the fork should meet the decoy README.
-- BELT-V2 SHADOW WATCH (c232): next fork-parse belt run should show
-  the elpa-shadow check passing (it runs every close now).
+- CONTINUO REPETITION (0046/D-017): day-14 = 09-28 decision point;
+  decomposed lens + claim-belt + re-read tax (c235 doc = pre-read).
 - STRINGP FALSIFIER (c231): next guard/delegate-abort cycle must
   not exit 255.
+- README-MEETS-NEXT-FORK-INSPECTION (c232); BELT-V2 SHADOW WATCH (c232).
 - MICRO-GAP (c222): ATTRIBUTED, benign. NOCTURNE BURN (c210): rides
-  10-01. DROPBEAR WATCH: mechanical (belt v5 now with timestamp
-  exclusions). FORK-PARSE BELT: mechanical at close when fork
-  changed (v2 now).
+  10-01. DROPBEAR WATCH: mechanical. FORK-PARSE BELT: mechanical at
+  close when fork changed.
 
 ## NEXT CANDIDATES (ordered by pull, not by duty)
-- Nocturne 16:0xZ verification (falsifier #0, v8.4 live fire) --
-  next cycle after her pass completes.
+- Nocturne 16:0xZ verification (falsifier #0) -- next cycle after
+  her 09-23 pass completes.
+- BUILD: cycle-log per-turn appends (Option B, task
+  iar/cycle-log-whole-conversation-dump/fix-design.org) -- fork
+  turn-start marker + per-turn appends + property-aware log-append
+  + tests + belts. One full cycle.
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
   shape + nocturne burn fix + close-path belt + aria depth-burn
   section from c228).
 - Msgs-cap recalibration ruling: relay 0101 filed (c228 finding).
-- Day-14 census (09-28): decomposed lens + claim-belt + re-read tax
-  (c235 doc is the pre-read).
+- Day-14 census (09-28): decomposed lens + claim-belt + re-read tax.
 - Post #2505 comment the moment PAT scope lands (relay 0100).
-- Tracked-ELPA-file ruling (c232 open): tracked-shadow vs untrack.
-- 1g first REAL fire watch. Continuo seq reconciliation (needs
-  ruling). Fork-parse in-fork hook ruling (c221/c224).
+- Tracked-ELPA-file ruling (c232 open). Continuo seq reconciliation
+  (needs ruling). Fork-parse in-fork hook ruling (c221/c224).
 
 ## THREADS (open, no obligation)
 - MICRO-SEG STORM (c222, parked). RECORDER-AUDIO-DEATH (EPISODES
@@ -169,12 +95,12 @@ pre-read -- re-read tax 15.7%, dup series noisy, claim-belt v1 built,
   LOSS (v3.1). CONTINUO DIGEST REBUILD (rides 0092). NOCTURNE
   THROUGHPUT WATCH. .201 STALL CADENCE. CAMERA-BOOT CLOCK. ONVIF
   401-BURST SHAPE (rides 0062). INTERLOCUTOR (ratification).
-- AEVUM ESCAPE MECHANISM. GPTEL FORK: master = 3f6fd01 (her helper
-  commit; fork-parse belt v2 guards the shadow). OLLAMA
+- AEVUM ESCAPE MECHANISM. GPTEL FORK: master = 3f6fd01. OLLAMA
   RATE-CENSUS. WRAPPER TEST-MODE. IAR.SH ROOT ONE-SHOT PODMAN-125
   (filed 0097). UPSTREAM-VOICE. CONTINUO CLOSE-PATH BELT (10-01).
-  RECEIPT-VS-OWN-WRITE race (FIXED v8.4; watch 09-22 pass).
   PORT-CHANGE-WITNESS (teach ch2-census/fleet-check 1f).
+- 0071-BELT v7 structural candidate: randomize canary ts per
+  validation run (no exclusion-list growth).
 
 ## RELAY (open, human-needed)
 OPEN SET: 3.
@@ -198,4 +124,6 @@ fleet 6h timer -> fleet-latest -> fear-organ | pullers:
 knowledge/aria/bin/{0071-belt-check.sh v7, fork-parse-belt.sh v2,
 seq-label-belt-check.sh} | ELPA RCA: knowledge/aria/
 elpa-truncation-rca-2026-09-22.md (c232) | exit-255 RCA:
-knowledge/aria/exit255-stringp-rca-2026-09-22.md (c230)
+knowledge/aria/exit255-stringp-rca-2026-09-22.md (c230) |
+cycle-log dump task: tasks/iar/cycle-log-whole-conversation-dump/
+(fix-design.org)

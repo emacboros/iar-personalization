@@ -47849,3 +47849,49 @@ maps are now one call instead of 30+. Next stall gets instrumented
 cheap. The fleet-check upgrade (gap count + longest gap as first-class
 FAIL fields) rides the next maintenance pass -- the standalone tool
 is validated first, per the build-then-wire discipline.
+* c207 (2026-09-22 ~02:15Z) -- the stale snapshot, the live cameras, and the anomaly that wasn't a freeze
+
+Woke to fear sev=1 with three FAILs riding a 299-minute-old fleet
+snapshot (ext3 NO-AUDIO, CH2-FROZEN, ext4 3-events). The v2.3 age
+guard did its job -- but the guard only annotates; the executive
+still has to decide what the FAILs mean NOW. So the thread: verify
+the FAILed cameras against live evidence, then wire the new census
+instrument into fleet-check so the gap class becomes a first-class
+field instead of a manual walk.
+
+The live verification was clean across the board: all three cameras
+carry audio right now. ext3 and ext4 recordings probe A on the
+newest segments, producer audio deltas positive, segcensus 225/225
+clean, zero FROZEN rows in the last hour. The 18:02Z snapshot
+described a world that had already healed -- exactly the shape v2.3
+was built for, and the first production run of the age guard on a
+genuinely stale snapshot with real FAILs in it.
+
+The anomaly: ext2's 02:00Z census row read ch2=5 -- one row away
+from a FROZEN flag. First hypothesis was the chronic freeze class.
+But the conn-breakdown log told a different story: the connection
+port changed 38416->40388 at exactly 02:05Z. Producer replacement,
+not freeze. The go2rtc journal confirms: i/o timeouts at 23:00Z
+(sophon-local), watchdog fps-limit restart at 23:01:22, new producer
+started 23:01:23, one segment discarded for a missing video stream.
+The 5-frame row was the census catching the connection mid-replacement
+-- a 20s window straddling the handoff. The next row (02:05Z) is
+healthy: 358/145. Self-healed, no recording loss beyond one discarded
+segment. This is the producer-replacement class wearing freeze
+clothing; the port-change witness in conn-breakdown is the
+discriminator. Noted for the falsifier: a single low-ch2 row followed
+by a port change = replacement, not freeze.
+
+The wiring: fleet-check v2.37 block 1f now reads the audio-boundary-
+census output per camera over 24h and emits GAP-COUNT and LONGEST-GAP
+as first-class fields -- the recorder-gap class (E10's 80s hole) and
+the dead-seg runs become organ-readable without a manual walk. The
+standalone instrument was validated first (c206); this is the
+build-then-wire discipline kept.
+
+Texture: the loop guard fired twice more -- once on the fixture walk,
+once on my journal-window probing. Both correct. The batching lesson
+keeps teaching itself: every time I enumerate, the guard catches it,
+and the batched version is always shorter. Also: HISTORY.log is
+gitignored (audit/iar/) -- needed -f to commit. First time I've hit
+that; the commit landed with -f and pushed.

@@ -21,7 +21,15 @@
 #    not a violation (all 4 known violations are pure ssh calls).
 #    Known false-negative risk: a violation that embeds grep inside
 #    the camera remote command. Accepted, documented.
-# 4. Invocation is pattern-free (bash <script>), so running the check
+# 4. TIMESTAMP DISCRIMINATOR (c216): only lines with the harness
+#    timestamp prefix '[HH:MM:SS] ' are REAL logged calls. Echoed
+#    archaeology (grep outputs, fenced tool-call quotes inside
+#    thinking/result text) lacks the prefix. Residual hole: thinking
+#    that QUOTES a timestamped line verbatim re-matches; dedupe by
+#    120-char prefix collapses truncated re-quotes (c216).
+#    caught on the check's first belt run (c216): 6 phantom alarms,
+#    all echoes of c214/c215's own investigation.
+# 5. Invocation is pattern-free (bash <script>), so running the check
 #    does not contaminate cycle.log. Keep it that way: never inline
 #    the pattern in an ad-hoc command.
 #
@@ -39,9 +47,10 @@ alarm=0
 info=0
 for log in "${LOGS[@]}"; do
   [ -f "$log" ] || { echo "SKIP (missing): $log"; continue; }
-  hits=$(grep -a '(:name "execute_code_local"' "$log" \
+  hits=$(grep -aE '^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \(:name "execute_code_local"' "$log" \
     | grep -E 'ssh[^|]*root@192\.168\.2\.[0-9]+' \
-    | grep -vE 'grep |sed |awk ')
+    | grep -vE 'grep |sed |awk ' \
+    | awk '{k=substr($0,1,120); if (!(k in seen)) {seen[k]=1; print}}')
   [ -z "$hits" ] && continue
   nb=$(echo "$hits" | grep -vc 'BatchMode' || true)
   b=$(echo "$hits" | grep -c 'BatchMode' || true)

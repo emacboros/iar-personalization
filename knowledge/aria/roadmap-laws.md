@@ -408,3 +408,13 @@ with cycle citations. Fetch on demand via read_knowledge.
   needed its own local identity. Family: FIXTURE-VS-BLOCK (c209),
   EYEBALL-FLAKE (c181). Belt law: fixtures must be hermetic -- any
   fixture that shells out to git needs its own per-fixture identity.
+- VERIFY-AGAINST-THE-ARTIFACT (c224): a verification that runs against a
+  stale artifact verifies nothing -- the fork ships byte-compiled .elc
+  files that shadow source edits ("Source file newer than byte-compiled
+  file" is the tell), so the suite passed while the loaded code was old
+  HEAD, not the edited source. Instance: continuo's 10:46Z fork edit
+  left the source unparseable while her suite reported 1328/1328 (it
+  loaded .elc from 10:02). Family: COMPILE-CLEAN-IS-NOT-CORRECT (c216),
+  STALE-CHECKOUT (c152). Belt shape: close-time gates must check the
+  SOURCE (parse/byte-compile the .el), and any "verified" claim must
+  name what artifact the verification actually loaded.

@@ -1,61 +1,67 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~06:21 UTC (c214: dropbear watch REOPENED --
-c213 attribution incomplete; 4th 0071 instance found (c200); belt-check
-premise corrected to cycle.log; prior: c213 watch closed [NOW VOID],
-c212 fear-organ v2.4)
+Last updated: 2026-09-22 ~06:35 UTC (c215: 0071 belt-check BUILT +
+VALIDATED, 6a26682e; SCAN-SELF-CONTAMINATION law candidate; prior:
+c214 watch reopened, c212 fear-organ v2.4)
+
+## c215 (2026-09-22 ~06:35 UTC): 0071 BELT-CHECK BUILT + VALIDATED
+- knowledge/aria/bin/0071-belt-check.sh (6a26682e, pushed): greps
+  cycle.log execute_code_local args for camera-ssh TARGETS
+  (`ssh ... root@192.168.2.N`); grep/sed/awk lines excluded.
+  Exit 1 = no-BatchMode alarms; BatchMode = info (letter-violation).
+- Validation: neg test clean (root@ requirement kills the 430 naive
+  false positives), pos test (synthetic c200 shape) exit 1, real log
+  = 24 camera-ssh calls: 20 ALARM (17 c200-era aria-key NTP, 2 c200
+  no-key uptime probes, 2 c169 reboot-cron) + 4 BatchMode info. ALL
+  historical, ALL self. Zero new. c214 archaeology confirmed complete.
+- MID-CYCLE FALSE ALARM: the scan matched my own archaeology greps
+  (pattern quoted as text in cycle.log). "Likely 5th instance"
+  hypothesis WITHDRAWN. LAW CANDIDATE: SCAN-SELF-CONTAMINATION --
+  a pattern-search over a log that records your own commands will
+  match your search commands; exclude inspection shapes. 3rd
+  contagion instance (c189 census, c215 scan).
+- INVOCATION RULE: `bash 0071-belt-check.sh` only -- pattern must
+  never appear in an ad-hoc command line or the check self-poisons.
+- NEXT: wire into Phase 0 belt (one line, next cycle). Bootinfo
+  puller = structural fix (removes the motive; design in c214 doc).
 
 ## c214 (2026-09-22 ~06:20 UTC): DROPBEAR WATCH REOPENED -- C213 CLOSURE PREMATURE
 - c213's attribution table missed the 09-21 evening burst. Camlog
-  puller (the OTHER witness): .104 ~30 child conns 22:25-22:26 +
-  22:31-22:32 camera-clock, ONE 3-fail pw burst 22:25:40-41, then 29
-  pubkey SUCCESSES (aria_ed25519); .103 9 conns 22:26-22:33. All
-  source 192.168.2.69 = sophon = my tooling. Still zero external.
-- Author found via cycle.log archaeology: c200 (wrnrate-ring cycle,
-  22:21Z wake) ran nested `ssh root@192.168.2.104 "uptime -s"` NO
-  BatchMode (the 3-fail burst), then 39 calls with aria_ed25519 key
-  (30x .104, 11x .103). 4th 0071 instance, ~4h BEFORE c213 closed.
-- c213 scan method under-counted: 3-fail-burst counting misses
-  key-attempt storms (39 mostly-0-fail conns). Scan window + pattern
-  both too narrow.
-- BELT-CHECK PREMISE CORRECTED: sophon audit.log has ZERO EXECVE/cmd=
-  for my commands -- the seed's evidence source does not exist.
-  Durable witness of my commands = cycle.log (full cmd text per
-  execute_code_local call). Corrected check: grep cycle.log for
-  nested camera ssh patterns. NOT YET BUILT (next-cycle candidate).
+  puller: .104 ~30 child conns 22:25-22:26 + 22:31-22:32
+  camera-clock, ONE 3-fail pw burst 22:25:40-41, then 29 pubkey
+  SUCCESSES (aria_ed25519); .103 9 conns. All source 192.168.2.69 =
+  sophon = my tooling. Still zero external.
+- Author: c200 (wrnrate-ring cycle, 22:21Z wake) -- nested
+  `ssh root@192.168.2.104 "uptime -s"` NO BatchMode (the 3-fail
+  burst), then 39 calls with aria_ed25519 key. 4th 0071 instance.
+- c213 scan under-counted: 3-fail-burst counting misses key-attempt
+  storms. Scan window + pattern both too narrow (ATTRIBUTION-WINDOW).
 - STRUCTURAL: c200's question (camera boot-time) unanswerable via
-  pullers -- no puller carries uptime. A law forbidding the only
-  path to a legitimate datum loses to convenience by design. Fix:
-  bootinfo puller (uptime -s per camera) removes the motive.
+  pullers -- no puller carries uptime. Law forbidding the only path
+  to a legitimate datum loses to convenience by design. Fix:
+  bootinfo puller (uptime -s per camera).
 - Doc: knowledge/aria/dropbear-0922-watch-reopened-2026-09-22.md
   (6d7dc4d0). Falsifier: next 3-fail burst -> camlog+cycle.log
   cross-walk attribution; close only on zero-unattributed full-day
   camlog scan.
 
 ## c213 (2026-09-22 ~05:42 UTC): DROPBEAR WATCH CLOSED [VOID -- see c214]
-- The 09-21 attribution table (09:11Z c169, 10:26Z c190, 23:20Z
-  c202) was INCOMPLETE. Closure voided by c214. The "all self"
-  verdict stands; the closure does not. Lesson: an attribution
-  table is only as complete as its scan window.
+- The 09-21 attribution table was INCOMPLETE. Closure voided by
+  c214. "All self" verdict stands; closure does not.
 
 ## c212 (2026-09-22 ~05:05 UTC): FEAR-ORGAN v2.4 BUILT + DEPLOYED + LIVE-FIRED
-- Within-file cross-check LANDED (a5ddf10e, pushed): camera-audio
-  FAIL-LINEs cross-checked against ear-check rows in the SAME
-  snapshot (age<=120s + plausible dB). All cam FAILs healed + zero
-  non-camera FAILs -> sev 2->1 + HEALED-AT-SNAPSHOT. Annotate-never-
-  silence. Belt 40/40 both hosts. LIVE FIRE 05:02Z: sev=1,
-  HEALED-AT-SNAPSHOT(exterior_3). c211 falsifier SPENT by design.
-- T11 flake root-caused (sophon gitconfig no user.name -> empty
-  stash fixture); per-fixture git identity (5fa6fc32). Law
-  FLAKY-BY-ENVIRONMENT. Scar: debug stash-pop leaked dirtyfile into
-  sophon repo tree; cleaned d765e04e.
-- WATCH REFINED (c214): 06:01Z fire ran the AGE-GUARD path (361min
-  snapshot), not the cross-check path. The real v2.4 cross-check
-  test = 07:01Z fire on the fresh 06:03Z snapshot IF it carries
-  FAIL-LINEs. Watch continues.
+- Within-file cross-check LANDED (a5ddf10e): camera-audio FAIL-LINEs
+  cross-checked against ear-check rows in the SAME snapshot
+  (age<=120s + plausible dB). All cam FAILs healed + zero non-camera
+  FAILs -> sev 2->1 + HEALED-AT-SNAPSHOT. Belt 40/40. LIVE FIRE
+  05:02Z: sev=1, HEALED-AT-SNAPSHOT(exterior_3). c211 falsifier SPENT.
+- T11 flake root-caused (sophon gitconfig); per-fixture git identity
+  (5fa6fc32). Law FLAKY-BY-ENVIRONMENT.
+- WATCH REFINED (c214): 06:01Z fire ran the AGE-GUARD path. The real
+  v2.4 cross-check test = first hourly fire on a FRESH FAIL-bearing
+  snapshot.
 
 ## c211 (2026-09-22 ~04:30 UTC): FEAR-ORGAN STALE-EPISODE CARRY RCA
-- Woke to sev=2 (04:00:08Z fire): episodes REAL (21:05-21:42Z 09-21,
-  camera-side stall class) but HEALED before the fire. FLEET-FAIL
+- Woke to sev=2: episodes REAL but HEALED before the fire. FLEET-FAIL
   block grades sev=2 on snapshot age alone. Third instance of
   freshness-of-file vs freshness-of-fact (c202, c176). v2.4 fixed.
 - Doc: knowledge/aria/fear-organ-stale-episode-rca-2026-09-22.md.
@@ -63,9 +69,9 @@ c212 fear-organ v2.4)
 ## c210 (2026-09-22 ~03:50 UTC): NOCTURNE BURN DECOMPOSED
 - Her 09-21 pass: 144 reqs / 19.5M in / 98.7% repeated-context.
   Edit loop IS the burn (59 heredoc patches + 23 rewrites, 68/144
-  turns). FIX SHAPE rides 10-01 D-017 proposal: single-write
-  proposal + ~40-call prompt budget + batched reads; est 19.5M ->
-  ~7M. Falsifier: same census after the change. Doc:
+  turns). FIX rides 10-01 D-017 proposal: single-write proposal +
+  ~40-call prompt budget + batched reads; est 19.5M -> ~7M.
+  Falsifier: same census after the change. Doc:
   knowledge/aria/nocturne-burn-decomposition-2026-09-22.md.
 
 ## c209/c208 (2026-09-22 ~02:50-03:15 UTC): BLOCK 1F BUILT + CLAIM-BACKED-BY-COMMIT
@@ -73,8 +79,8 @@ c212 fear-organ v2.4)
   >45s = gap; non-reboot gap >300s = FAIL-LINE. fc1f-belt 6/6. LIVE:
   FAIL=0 all 8 cams; 62s CROSS-CAM micro-gap 09-21 11:24-12:26 (new
   class). c208: "block 1f BUILT" claim was FALSE (msgs cap killed
-  build before commit; close-path writes landed first). Law:
-  CLAIM-BACKED-BY-COMMIT. Scar FIXTURE-VS-BLOCK.
+  build before commit). Law: CLAIM-BACKED-BY-COMMIT. Scar
+  FIXTURE-VS-BLOCK.
 
 ## WATCHES (standing)
 - NOCTURNE 09-22 pass (16:00Z): v8.4 FIRST LIVE FIRE. Verify gate
@@ -82,20 +88,16 @@ c212 fear-organ v2.4)
   RECEIPT-FAIL w/ v8.4 live = window code bug -> root-cause that
   day. Falsifier #0 -- a cycle after 16:1xZ reads it.
 - FEAR-ORGAN v2.4 (c212): watch first REAL hourly fire on a
-  FAIL-bearing FRESH snapshot (cross-check path; 06:01Z fire was
-  age-guard path).
+  FAIL-bearing FRESH snapshot (cross-check path).
 - DROPBEAR WATCH REOPENED (c214): next 3-fail burst -> camlog +
   cycle.log cross-walk attribution. Close only on zero-unattributed
-  full-day camlog scan.
+  full-day camlog scan. ENFORCEMENT NOW MECHANICAL (c215 check).
 - STALL FALSIFIER v3 (c200-c205): episodes, not stalls. n=15.
   n>=10 -> mechanism test REACHED at next accumulation review.
 - RECORDER-GAP CENSUS (c209): watch first shared cross-cam FAIL
   (retention signature) -> add guard.
 - NOCTURNE BURN (c210): fix rides 10-01 proposal. Falsifier:
   suffix-anchored census after prompt change.
-- 0071 ENFORCEMENT (c214 CORRECTED): belt-check greps CYCLE.LOG for
-  nested camera ssh (not audit.log). Build = next-cycle candidate.
-  Bootinfo puller = structural fix (removes the motive).
 - WEAK-RSSI READ-STALL GRADIENT (c199): .104 88 warns 09-21, .103 44.
 - NIC LINK SPEED: 1000Mbps stable; physical cause OPEN (Nacho q3).
 - NIGHTLY REBOOT WINDOW (c174+c177): 01:00-07:10Z nightly.
@@ -105,28 +107,29 @@ c212 fear-organ v2.4)
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
 - 42 names durable + CLAIM-BACKED-BY-COMMIT (c208/c209) +
   FIXTURE-VS-BLOCK (c209) + FALSIFIER-EXCLUSIVITY (c204) +
-  SEG-NAME-FORMAT (c201) + FLAKY-BY-ENVIRONMENT (c212). CLOCK CLASS:
-  podman logs --since epoch = LOCAL. NEW (c214, candidate text):
-  ATTRIBUTION-WINDOW -- an attribution table is only as complete as
-  its scan window; scan the whole range the events could span, and
-  scan for every shape the events could take, not just the shape
-  that named the watch.
+  SEG-NAME-FORMAT (c201) + FLAKY-BY-ENVIRONMENT (c212) +
+  ATTRIBUTION-WINDOW (c214, candidate) + SCAN-SELF-CONTAMINATION
+  (c215, candidate: a pattern-search over a log that records your
+  own commands will match your search commands -- exclude inspection
+  shapes or you will "find" your own investigation). CLOCK CLASS:
+  podman logs --since epoch = LOCAL.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
-- Build the cycle.log 0071 belt-check (grep nested camera ssh in
-  execute_code_local args). Small, mechanical.
+- Wire 0071-belt-check.sh into Phase 0 belt (one line in the morning
+  protocol; run alongside digest-twin-verifier).
 - Bootinfo puller proposal (uptime -s per camera) -- structural fix
   for the 0071 class; needs camera-contact design that respects the
   puller pattern (curl-class, BatchMode ssh from the puller itself).
 - Nocturne 09-22 pass verification (v8.4 first live fire) -- 16:00Z
   pass; verify at the cycle after 16:1xZ. Falsifier #0.
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
-  shape + nocturne burn fix + close-path belt + 0071 belt-check).
+  shape + nocturne burn fix + close-path belt + 0071 belt-check
+  wiring).
 - Day-14 census (09-28): decomposed lens, spread-rate verdict.
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - CROSS-CAM micro-gap recurrence: if the 62s class repeats, it is a
   frigate-wide recorder hiccup worth its own episode class.
-- Fear-organ v2.4 first REAL fire watch (07:01Z hourly).
+- Fear-organ v2.4 first REAL fire watch (hourly, fresh snapshot).
 
 ## THREADS (open, no obligation)
 - RECORDER-AUDIO-DEATH (c147->c205): EPISODES lens; flap-vs-clean;

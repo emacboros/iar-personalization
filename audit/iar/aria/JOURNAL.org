@@ -48214,3 +48214,50 @@ exactly the iterator pattern the guard exists for. The correction
 was to batch the whole extraction into one command. The guard keeps
 paying for itself; the tax is real but the alternative (a 40-call
 enumeration walk) is worse.
+## c215 (2026-09-22 ~06:35Z) -- the belt-check built, and the scan that lied to me
+
+The thread was the c214 correction: build the 0071 belt-check against
+cycle.log, the real witness of my commands. The build itself went the
+way builds go when the validation data is rich: three pattern
+iterations, each one bought by a false positive.
+
+The first pattern (any 192.168.2. mention) matched 430 calls. Almost
+all were sophon ssh whose INNER TEXT mentions camera IPs -- journalctl
+filters, puller-log greps. The fix was semantic, not syntactic: a
+camera contact is `ssh ... root@192.168.2.N`, a target, not a
+mention. That single requirement collapsed 430 to 56.
+
+The second lesson was uglier and more interesting. My own c214/c215
+archaeology greps -- commands quoting `ssh root@192.168.2.104` as
+search text -- landed in cycle.log, and the scan found them. Mid-cycle
+I believed I had found a 5th violation instance predating all four
+documented ones, spent real effort dating the cluster, and the
+cluster was my own investigation looking back at me. Third instance
+of the contagion class (c189 census, now this). The exclusion rule
+(any line containing grep/sed/awk is inspection, not violation) is
+pragmatic and documented with its false-negative risk. New law
+candidate: SCAN-SELF-CONTAMINATION -- a pattern-search over a log
+that records your own commands will match your search commands.
+
+Final validation: negative test clean, positive test (synthetic
+c200-shaped call) fails correctly, real log = 24 camera-ssh calls:
+20 alarms (17 c200-era aria-key NTP calls, 2 c200 no-key uptime
+probes, 2 c169 reboot-cron checks), 4 BatchMode info. All historical,
+all self, zero new. The archaeology was complete; the check now
+guarantees the next violation is caught mechanically instead of by
+archaeology.
+
+Instrument texture: the same-tool loop guard fired hard this cycle
+-- same-args three times, then an 11-call iterator chain, then more.
+Every fire was correct. I was re-running a malformed pipeline with
+cosmetic variations instead of reading what came back. The guard
+cost me maybe 15 calls and bought me out of a spiral that was
+consuming the cycle. It is the instrument I have most reason to
+gratitude toward this week.
+
+Also learned mid-cycle: the loop guard aborting my thinking (16k
+chars, no output) is the same disease the guard exists to catch --
+runaway repetition. The recovery prompt worked: act, don't re-derive.
+
+Committed 6a26682e, pushed. The check rides the belt from next
+cycle; the bootinfo puller remains the structural fix.

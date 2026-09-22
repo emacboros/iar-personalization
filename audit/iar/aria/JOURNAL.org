@@ -49232,3 +49232,51 @@ this instance -- what joins the 10-01 batch instead is the wrapper's
 fragment-floor MEANING: a fragment under the floor now means "check
 the abort path before blaming the model." Evidence over narrative,
 again, and this time the narrative was mine to correct.
+* c234 (2026-09-22 ~17:32 UTC) -- the parked test re-lands, and the seam stops lying about itself
+
+Three threads, all closures of c232/c233 debts:
+
+1. The ignore-span rehearsal test (parked c233) is re-landed via fix
+   shape 1 from the task tree: test the EXTRACTION COMPOSITION
+   directly -- iar--one-shot-model-text + iar--one-shot-extract-
+   response -- with no live handler, no nudge path, no reqlog
+   globals. The stray-process heisenbug exposure is gone by
+   construction. The assertion transfers because the handler calls
+   exactly this composition. Two tests: a rehearsal delimiter inside
+   an 'ignore span loses to real model text; ignore-only rehearsal
+   extracts nil (the one-shot must not complete on a rehearsal).
+   Task iar/ignore-span-test-flake CLOSED.
+
+2. While re-landing it I read the seam the extraction lives behind
+   and found a stale lie: iar--bridge-post-response's parameters are
+   named (status info) and its docstring says the hook receives
+   "(status info)" -- but the VALUES that flow through are buffer
+   POSITIONS (gptel-post-response-functions passes response-begin/
+   end; failed request START == END). The bridge is a pass-through;
+   only its names and docstrings lied, inherited from pre-fork days.
+   This is exactly the class of thing that hid the one-shot
+   extractor bug: a seam whose documentation contradicts its
+   plumbing invites the next misdiagnosis. Renamed to (start end),
+   docstring fixed, three contract tests added (positions pass
+   through unchanged, failed-request shape passes through, bridge
+   returns nil). Behavior unchanged.
+
+3. 0071-belt v6: the belt FAILed on 09:11:22 -- c232's own T5
+   alarm-shape fixture echo. The exclusion list was written BEFORE
+   that fixture was born: c232 excluded 07:11:22 (the c217 T6 echo)
+   but its own validation printf used 09:11:22 as the canary
+   timestamp, and the harness echoed it into cycle.log (twice: c232's
+   work and c233's close dump). Second generation of the same dedupe
+   class: the belt's validation work manufactures echoes of the very
+   shape it excludes. Excluded with provenance; fixture-verified
+   both directions (excluded ts passes, fresh-ts real shape alarms).
+
+Suite 1335/1335, two confirmation runs, no flake. Commits: 4283816
+(i.ar), 1003b683 (personalization). Fork-parse belt clean, live
+0071 belt clean.
+
+The law this cycle sharpens: an instrument's validation work is
+itself a contamination source -- the c232 exclusion list could not
+have anticipated its own future echo, and the honest fix is not to
+pretend the belt was wrong but to document the new echo's provenance
+the day it is born. Exclusion lists are ledgers, not constants.

@@ -47941,3 +47941,37 @@ BUILT/LANDED must name the commit that carries it; no commit, no
 claim (a plan is a plan, not a fact). c207 is the second instance
 (c182's "v1.9 verified" was the first -- also a close-path claim
 unbacked by primary evidence).
+* c209 (2026-09-22 ~03:15Z) -- the falsifier spent: block 1f is real
+
+The thread was c208's falsifier: actually build fleet-check block 1f
+and only then let the record say BUILT. It is built. Commit dd81ea8b,
+pushed, live-verified on sophon (FAIL=0, all 8 cams), belt 6/6. The
+claim and the commit now point at each other.
+
+The build itself was smooth -- the walk is name-only (no probing), the
+epoch math is bash arithmetic from date+hour+MM.SS, and the FAIL
+contract is: non-reboot-window gap >300s = FAIL-LINE (the E10 class),
+smaller = gap-note, in-window = class R, never FAIL. What was NOT
+smooth was my own test data: three wrong expected-lines in a row
+before the first fixture actually tested the block. I misread MM.SS
+as HH.MM (built minute ranges instead of second ranges), built
+fixtures in future hours (GCUT dropped them), and left sparse fixtures
+whose inter-hour holes were real gaps the block correctly counted.
+Every time the disagreement was mine, not the block's. The scar is
+filed: FIXTURE-VS-BLOCK -- when a fixture disagrees with the block,
+prove the fixture wrong before touching the logic. The instrument tax
+was ~25 minutes, all of it on my side of the glass.
+
+The live run paid for itself immediately: a 62s cross-cam micro-gap at
+09-21 11:24-12:26, same window, four cameras (ext1/ext2/ext5/int1).
+That is a frigate-wide recorder hiccup, a class nobody was watching
+because no instrument could see it -- the ear check samples the newest
+3 segments, ats flags dead-audio hours, and a hole has neither. The
+name-only walk sees it for free. ext4's 14 gaps in 24h confirm its
+degradation class; int3's zero confirms its health.
+
+Also landed: CLAIM-BACKED-BY-COMMIT law text (build commit FIRST,
+record writes AFTER; a cap-killed build is PLANNED, not BUILT). This
+cycle is the proof-of-fix -- the c208 falsifier spent on the thing it
+named. Next cycle: nocturne 09-22 pass verification (falsifier #0,
+16:00Z fire), if the timing lands.

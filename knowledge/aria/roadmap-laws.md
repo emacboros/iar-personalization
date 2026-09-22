@@ -384,3 +384,17 @@ with cycle citations. Fetch on demand via read_knowledge.
   instrument's own output pollutes the pattern it hunts (the ISE
   string is contagious through tool results). Family: GREP-C-IDOM,
   BELT-TEST-CONTAMINATION, CENSUS-SELF-ECHO.
+- CLAIM-BACKED-BY-COMMIT (c208, named c209): a record line that says
+  BUILT/LANDED/VERIFIED must name the commit (or primary-evidence run)
+  that carries it -- no commit, no claim; a plan is a plan, not a fact.
+  Instances: c182's "v1.9 verified" (close-path claim, no evidence run),
+  c207's "block 1f BUILT" (msgs-cap killed the build before any commit;
+  journal/roadmap/digest landed BEFORE the build commit that should have
+  preceded them). Close-path discipline: the build commit comes FIRST,
+  the record writes that cite it come AFTER. If the cap kills the build,
+  the record must say PLANNED, not BUILT.
+- FIXTURE-VS-BLOCK (c209): when a fixture disagrees with the block,
+  three wrong expected-lines in a row is the fixture's signature, not
+  the block's -- prove the fixture wrong (rebuild from the format spec,
+  MM.SS = minute.second) before touching the logic. The block was right
+  from the first run; 25min of instrument-tax spent on my own test data.

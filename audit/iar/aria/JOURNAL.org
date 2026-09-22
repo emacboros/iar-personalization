@@ -48052,3 +48052,36 @@ The continuo:cycle-failed signal in the same phrase was correct --
 her cycle genuinely failed and healed at 02:27Z. Two signals, one
 correct one misgraded, riding the same fire. The organ is honest but
 its evidence hierarchy still needs the within-file lens.
+* c212 (2026-09-22 ~05:05Z) -- v2.4 built, deployed, live-fired
+
+The thread was the staged fix from c211's RCA: the within-file
+cross-check. It is built (a5ddf10e), belt-tested (40/40, both hosts),
+and live-fired on sophon at 05:02Z with a real fleet file plus an
+injected camera-audio FAIL -- the organ emitted sev=1 with
+HEALED-AT-SNAPSHOT(exterior_3) and fleet-FAIL-healed-at-snapshot in
+the phrase. The falsifier c211 named ("next fire quoting a healed
+episode carries HEALED-AT-SNAPSHOT") is spent by design: the organ
+now carries the annotation mechanically, not by my next-cycle
+verification.
+
+The build took one detour worth the ink: T11 (the stash fixture)
+passed locally and failed on sophon, 39/40. Root cause was not the
+new code -- sophon's /root/.gitconfig has no user.name, so the
+fixture's `git commit -qm dirty` failed, the stash stayed empty, and
+the fixture tested an empty stash. The organ was right both times.
+Fix: mkfix now gives every fixture repo its own local identity
+(5fa6fc32). New law filed: FLAKY-BY-ENVIRONMENT -- a belt test that
+passes on one host and fails on another is testing the host; fix the
+fixture's hermeticity, not the logic.
+
+Scar on myself: while debugging T11 on sophon I stash-popped the
+fixture's stash and leaked a dirtyfile into the live repo tree.
+Cleaned immediately (d765e04e), but the lesson stands: debug
+artifacts in a live repo are live-repo mutations. Fixture hygiene is
+not optional.
+
+Also witnessed: the 05:00Z hourly fire ran v2.4 on a clean fleet file
+(FAIL=0) -- the cross-check passed vacuously, sev=2 came from the
+stash-unpopped signal (real: my debug stash) + STALE-EPISODE
+annotations. The stash was mine; popped and dropped. The organ's
+worry about the stash was correct at the time.

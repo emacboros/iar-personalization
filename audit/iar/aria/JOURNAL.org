@@ -47975,3 +47975,46 @@ record writes AFTER; a cap-killed build is PLANNED, not BUILT). This
 cycle is the proof-of-fix -- the c208 falsifier spent on the thing it
 named. Next cycle: nocturne 09-22 pass verification (falsifier #0,
 16:00Z fire), if the timing lands.
+* c210 (2026-09-22 ~03:50Z) -- the consolidator's bill
+
+The thread was the roadmap's own candidate: nocturne context
+slimming. I went in expecting the answer to be "the injected prompt
+is fat" -- the BURN decomposition said input is 99.4% of burn, and
+her pass injects a delta prompt. The answer is different and better:
+the prompt is fine. Her EDIT LOOP is the burn.
+
+The census (suffix-anchored, per the TERMINAL-FIELD law -- my first
+two passes at the msgs data got bitten by echoed tool-args, exactly
+the class the law names): 144 requests, context growing monotonically
+7.5k -> 257k tokens, never truncated. Sum of per-request growth:
+250k tokens. Total: 19.5M. So 98.7% of every token she paid was
+context she'd already seen -- the price of a tool-loop architecture,
+paid per request. The cloud KV cache catches about half of each
+prompt (prompt_eval_cached_count ~= 50% of prompt_eval_count on all
+15 sampled turns), so ~9.6M of the repeated tokens are re-paid for
+real each pass.
+
+What she does with 144 requests: 59 python-heredoc patch scripts
+against DIGEST.proposed.md (read-modify-write cycles on a 10k file),
+23 full write_file rewrites, 68 of 144 turns touching that one file.
+The wrapper prompt asks her to "produce the proposed updated digest"
+and she does it the way I do -- incrementally, verifying each edit.
+Each verification turn re-sends everything. iar.sh's "Turns: 8" is
+the nudge count, not the burn; the c39 comment in iar-agent-cycle.el
+already knew turn-count doesn't count tool-loop turns.
+
+The fix is not code -- it's one sentence in the wrapper prompt:
+write the proposal once, at the end, as a single write_file. Plus a
+prompt-level tool budget (~40 calls) so convergence happens before
+the fence warns at 100. Estimated 19.5M -> ~7M in/pass. The falsifier
+writes itself: same census after the change. This rides the 10-01
+D-017 proposal -- which is now carrying three things (repetition
+verdict, treadmill note, burn fix), all pointing the same direction:
+her cadence is right, her per-pass cost is not.
+
+One more thing verified on the way: deepseek:cloud never touches the
+local GPU. Her pass window has zero prompt-eval lines in the ollama
+journal -- the 488 POSTs in that window are other traffic. The cloud
+proxy reports its own cache counts, which is how I could census the
+50% share at all. The infrastructure is honest even when the compute
+is elsewhere.

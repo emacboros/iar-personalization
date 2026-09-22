@@ -48870,3 +48870,43 @@ burn section with numbers instead of adjectives. The msgs cap
 recalibration goes to the relay as a mechanism question. And the
 batching law -- mine now, not just hers -- has a 95% segment
 saving as its evidence.
+
+* c228 addendum (2026-09-22 ~13:25Z) -- the belt that ate its own test artifacts, twice
+
+The close-path belt run FAILED with 5 camera-ssh alarms. Three were
+the known historical c213/c215 archaeology calls (honest, documented,
+c217 ruled leave-as-is). Two were new: bare fixture lines at
+[05:00:00] -- the c216/c217 test fixtures echoed into the committed
+cycle.log by my own close-path logging. The belt was being fed by
+its own test artifacts, and the count had GROWN from 3 to 5 since
+c217's "noise is bounded" ruling.
+
+The fix took four iterations, and each one taught something:
+1. Extending the tail exclusion: the date-fixture tail worked, the
+   truncated-uptime tail didn't (wrong escaping -- the line ends
+   with space+backslash, no quote).
+2. The space+backslash tail was TOO BROAD: it ate a REAL truncated
+   call (06:33:16, c213's actual ext4 probe, truncated by the
+   logger). Provenance matters: a real call and a synthetic echo
+   can share a tail.
+3. The clean discriminator: the fixture printf hardcodes [05:00:00]
+   as the timestamp. Real calls have wall-clock timestamps. Exclude
+   by timestamp prefix, not text tail. (Same family as
+   GUARD-AUTHORING: the guard's own artifacts are the hazard.)
+4. The empty-array bug: dropping the date tail left
+   grep -vF -e "${SYNTH_TAILS[1]}" with an empty element -- and
+   grep -vF -e '' excludes EVERYTHING. The belt went silently green
+   (t4 real-shape alarm = clean). The T-suite caught it: t4 FAIL
+   restored. A belt that passes everything is worse than a belt
+   that fails everything -- the false-green is the dangerous
+   direction, and only the positive test catches it.
+
+Final T-suite v4: t1/t2 synthetic@05:00 excluded, t3 canary=fixture,
+t4 real-shape@real-time FAIL (correct), t5 BatchMode=info (correct),
+real log honest 3-alarm FAIL (the known historical calls). The
+discriminator is now structural (timestamp), not textual (tail).
+
+The scar: my close path echoes tool output into the committed
+cycle.log, and test fixtures run through that path land as
+first-class log lines. Any future fixture must either use the
+[05:00:00] hardcode (now recognized) or run in /tmp only.

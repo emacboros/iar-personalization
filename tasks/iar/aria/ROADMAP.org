@@ -1,7 +1,6 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~10:04 UTC (c221: GPTEL FORK PORT CLOSED --
-loaded fork had quadratic gptel-context-remove; 0eef17e dropped a
-paren, fork was unparseable; ported+repaired ed56442, pushed+verified)
+Last updated: 2026-09-22 ~10:37 UTC (c222: MICRO-GAP ATTRIBUTED --
+mobile-UI-login class, n=3/3; doc + threads + journal; commit 475de0af)
 
 ## NUMBERING LAW (c217 finding; c220 mechanical belt -- READ FIRST)
 - CYCLE SEQ injection = the ONLY true cycle number. c221 verified
@@ -15,25 +14,38 @@ paren, fork was unparseable; ported+repaired ed56442, pushed+verified)
 - Dated cycle log has TWO clocks: INF lines sophon LOCAL (-03),
   preflight headers UTC. CLOCK CLASS +1 member.
 
+## c222 (2026-09-22 ~10:37 UTC): the micro-gap attributed
+- C209 CROSS-CAM MICRO-GAP ATTRIBUTED: mobile-UI-login class, n=3/3
+  (09-20 22:39Z, 09-20 23:05Z, 09-21 23:11Z -- each preceded 30-70s by
+  a mobile Chrome login from external IPs). Mechanism verified in
+  frigate logs: live grid -> 8x /api/<cam>/latest.webp + 8x
+  /live/mse/api/ws -> camera RTSP stacks (thingino) choke -> go2rtc
+  WRN producer.go i/o timeouts -> [streams] stop producer x8 ->
+  frigate watchdogs ("exceeded fps" / "No frames in 20s") restart all
+  detect+record -> 46-88s recording holes. int2/int3 escaped the
+  09-21 event (1s producer restarts); all 8 holed on 09-20.
+- NOT a degradation class. 1f FAIL line (300s) correctly calibrated
+  (holes are 46-88s, gap-notes). The lost footage is the least
+  valuable (someone is watching live when it gaps).
+- DOC: knowledge/aria/mobile-ui-recording-holes-2026-09-22.md.
+- THREADS seeds: cross-cam simultaneity detector (1f extension, only
+  if class recurs unattributed); ext1 09-21/12 1s micro-segment storm
+  (476 segs/hour; frigate keyframe-boundary restarts; parked).
+- Falsifier: next mobile login -> hole within 90s, same shape.
+- Scar: ~15 tool calls misreading ats/segcensus formats (probed
+  nonexistent segs). Verify row format before counting.
+
 ## c221 (2026-09-22 ~10:04 UTC): the fix that fixed the wrong copy
-- GPTEL FORK PORT CLOSED (ed56442): the LOADED fork
-  (/root/.emacs.d/gptel-fork local; sophon /var/home/nacho/repos/gptel
-  mounted via rotate.sh --gptel-fork) still ran the ORIGINAL quadratic
-  gptel-context-remove. Continuo's fix 44bbed4 landed only in the
-  vendored elpa copy, which load-path shadows.
-- FOUND BROKEN: 0eef17e (continuo 09:55Z, sort-lambda deprecation fix)
-  DROPPED A CLOSING PAREN -- fork unparseable (byte-compile "End of
-  file during parsing"; 39-form walk stops mid-file). If Emacs had
-  restarted against it, gptel fails to load house-wide. Her journal
-  claims verification; the committed artifact was broken.
-  COMPILE-CLEAN-IS-NOT-CORRECT: no parse gate in the fork close path.
-- LANDED: quadratic fix ported to fork with corrected shape (vendored
-  version's overlayp branch carried a stray with-current-buffer on an
-  overlay object; port drops it; delq from :overlays, entry dropped
-  only when list empty). Paren restored. Pos+neg behavioral tests
-  pass (3 removes -> entry gone; 1 remove -> entry survives). i.ar
-  suite 1328/1328. Committed ed56442, pushed sophon-bare; sophon
-  checkout verified at ed56442, paren depth 0.
+- GPTEL FORK PORT CLOSED (ed56442): the LOADED fork still ran the
+  ORIGINAL quadratic gptel-context-remove. Continuo's fix 44bbed4
+  landed only in the vendored elpa copy (load-path shadows).
+- FOUND BROKEN: 0eef17e (continuo 09:55Z) DROPPED A CLOSING PAREN --
+  fork unparseable. COMPILE-CLEAN-IS-NOT-CORRECT confirmed with
+  production evidence: no parse gate in the fork close path.
+- LANDED: quadratic fix ported with corrected shape (vendored
+  overlayp branch carried a stray with-current-buffer on an overlay
+  object; port drops it). Paren restored. Pos+neg tests pass. Suite
+  1328/1328. Committed ed56442, pushed sophon-bare; checkout verified.
 - DECOY PATH: sophon /var/home/nacho/repos/i.ar/emacs.d/gptel-fork is
   an EMPTY uninitialized dir (submodule shell). The real mounted fork
   is /var/home/nacho/repos/gptel. VERIFY-PROVENANCE: check rotate.sh.
@@ -51,17 +63,18 @@ paren, fork was unparseable; ported+repaired ed56442, pushed+verified)
 - DROPBEAR WATCH: enforcement MECHANICAL (belt-check v3). Next
   3-fail burst -> camlog+cycle.log cross-walk.
 - CONTINUO STRIKE-3 CLASS: her 07:26Z + 07:40Z cycles ok -- watch one
-  more; if clean, downgrade. NOTE: her deaths may have been the same
-  STRIKE-RESET-CHANNEL bug (fixed 7cdb989) -- the fix is live for
-  her too (shared iar-agent-cycle.el). NEW (c221): her 09:55Z cycle
-  committed an unparseable fork file -- her close path lacks a parse
-  gate; watch her next fork edits.
-- BOOTINFO PULLER: live, 8/8. Watch .202 stability (2 reboots in 2h).
+  more; if clean, downgrade. STRIKE-RESET-CHANNEL bug fixed 7cdb989
+  (live for her too). NEW (c221): her 09:55Z cycle committed an
+  unparseable fork file -- her close path lacks a parse gate; watch
+  her next fork edits.
+- BOOTINFO PULLER: live, 8/8. Watch .202 stability (2 reboots in 2h;
+  07:00:09-10Z stable since -- no NEW reboot through 10:15Z pull).
 - STALL FALSIFIER v3: episodes lens, n=15. n>=10 -> mechanism test.
 - WEAK-RSSI READ-STALL GRADIENT (.104 88 warns, .103 44).
 - NIC LINK SPEED: 1000Mbps stable; physical cause OPEN (Nacho q3).
-- NIGHTLY REBOOT WINDOW (01:00-07:10Z nightly). CROSS-CAM 62s
-  MICRO-GAP (c209). EXT1 POISON SAWTOOTH.
+- NIGHTLY REBOOT WINDOW (01:00-07:10Z nightly). EXT1 POISON SAWTOOTH.
+- MICRO-GAP WATCH: ATTRIBUTED (c222) -- mobile-UI-login class. No
+  standing watch; falsifier = next login -> hole within 90s.
 
 ## LAWS (cumulative index; full text knowledge/aria/roadmap-laws.md)
 - 42 names durable + CLAIM-BACKED-BY-COMMIT + FIXTURE-VS-BLOCK +
@@ -73,8 +86,9 @@ paren, fork was unparseable; ported+repaired ed56442, pushed+verified)
   SEQ-IS-THE-COUNTER (c217 candidate) + STRIKE-RESET-CHANNEL (c220
   candidate: a counter's reset must live on the channel that fires
   for every state it is meant to forgive).
-- CLOCK CLASS: podman logs --since epoch = LOCAL; dated cycle log
-  INF lines = sophon LOCAL, preflight headers = UTC (c217).
+- CLOCK CLASS: podman logs --since epoch = LOCAL; podman --since with
+  LOCAL time strings works (c222: sophon LOCAL -03 for frigate logs);
+  dated cycle log INF lines = sophon LOCAL, preflight headers = UTC.
 
 ## NEXT-CYCLE CANDIDATES (no obligation)
 - Nocturne 09-22 pass verification (v8.4 first live fire) -- 16:00Z
@@ -85,13 +99,17 @@ paren, fork was unparseable; ported+repaired ed56442, pushed+verified)
 - Post #2505 comment the moment PAT scope lands (relay 0100).
 - fleet-check bootinfo block candidate (consume the new puller).
 - Fear-organ v2.4 first REAL fire watch (hourly, fresh snapshot).
-- .202 double-reboot watch (05:05Z HTTP-dead + 07:00Z reboot).
+- .202 double-reboot watch (05:05Z HTTP-dead + 07:00Z reboot; stable
+  07:00-10:15Z per bootinfo pull).
 - Continuo seq reconciliation (her labels ~c99 vs seq 204) -- needs
   a ruling: adopt seq, or declare her numbering unnumbered-by-design.
 - Fork-parse belt ruling (c221): pre-commit parse check for gptel-fork
   -- needs Nacho ruling (shared substrate) or continuo agreement.
 
 ## THREADS (open, no obligation)
+- MICRO-SEG STORM (c222, parked): frigate restarts segments at
+  keyframe boundaries; ext1 09-21/12 had 476 segs (268 micro <5s).
+  Class unknown; watch for recurrence in 1f gap data.
 - RECORDER-AUDIO-DEATH (EPISODES lens; falsifier v3, n=15).
   CAMERA-VIDEO-DEATH. STORM-2026-09-20 (root-caused; recurrence watch).
 - LIVE-FREEZE WATCHING. EXT5 CHRONIC DEGRADATION. GO2RTC REGISTRY
@@ -115,6 +133,9 @@ New asks for next session: (1) confirm daily reboot crons his;
 (2) .203 reboot entry removed 09-18..09-19 -- his edit? (3) NIC link
 flaps 09-14..09-20 -- cable/switch on his side? (4) c221: fork-parse
 belt -- want it mechanical in the fork repo (pre-commit hook), yes/no?
+(5) c222 FYI (no action needed): your mobile app causes 46-88s
+fleet recording gaps when you open the live grid -- 8 simultaneous
+streams choke the cameras. Benign; documented.
 
 ## POINTERS
 AGORA v2: knowledge/iar/agora-v2-architecture.md | D-ledger:
@@ -127,4 +148,5 @@ infra: /home/nacho/repos/iar-infrastructure | gptel fork:
 sophon bare: /home/git/repos/ | cycle: aria-cycle.service (rotate.sh)
 | fleet 6h timer -> fleet-latest -> fear-organ | pullers:
 /var/lib/aria-fleet/ (bootinfo LIVE) | 0071 check:
-knowledge/aria/bin/0071-belt-check.sh (v3)
+knowledge/aria/bin/0071-belt-check.sh (v3) | micro-gap doc:
+knowledge/aria/mobile-ui-recording-holes-2026-09-22.md

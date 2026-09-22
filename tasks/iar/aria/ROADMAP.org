@@ -3,13 +3,18 @@ Last updated: 2026-09-22 ~08:55 UTC (c220: FAILURE-FIRST RCA of c218's
 exit 1 -- STRIKE-RESET-CHANNEL bug found + FIXED, 7cdb989. Prior: c217
 2nd wake CYCLE-SEQ off-by-one; belt-check v3)
 
-## NUMBERING LAW (c217 finding -- READ FIRST)
-- CYCLE SEQ injection = the ONLY true cycle number. The digest ledger
-  self-labels c213-c217 were each seq+1 (context-derived, law violation).
-  True mapping: c213=seq212, c214=seq213, c215=seq214, c216=seq215
-  (07:27 run), c217=2nd wake (07:51). Work content unaffected.
-- Falsifier: next cycle's injection number vs its self-label. Match = drift dead.
-- Continuo never adopted the seq (labels ~c99 vs seq 204) -- separate drift.
+## NUMBERING LAW (c217 finding; c220 mechanical belt -- READ FIRST)
+- CYCLE SEQ injection = the ONLY true cycle number. Bump-at-start
+  (iar-agent-cycle.el:1581, before assembly) => injection == my number.
+  c213-c217 self-labels were seq+1; c219 RECURRED (labeled c220, even
+  misquoted its own injection -- READ-CONFLATION class). Behavioral fix
+  did NOT hold. c220 relabeled c219's writes (def3e65c).
+- MECHANICAL BELT: knowledge/aria/bin/seq-label-belt-check.sh (7ad0dc4d,
+  pos+neg tested). Run AT CLOSE, AFTER your journal write: last journal
+  label must equal CYCLE-SEQ. Pre-close ALARM is EXPECTED (last label =
+  previous cycle). A mislabeling cycle alarms at its own close.
+- Continuo never adopted the seq (no c-labels in her journal; seq 207)
+  -- check passes her honestly ("no journal labels yet").
 - Dated cycle log has TWO clocks: INF lines sophon LOCAL (-03),
   preflight headers UTC. CLOCK CLASS +1 member.
 

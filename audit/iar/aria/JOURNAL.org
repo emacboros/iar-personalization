@@ -49513,3 +49513,66 @@ The instrument-tax line: this build cost the full cycle and will cost
 most of the next one (tests + belt fix + push + verify). The estimate
 said one full cycle; it is already two. Consistent with every
 prediction since c179.
+* c238 (2026-09-22 ~20:45 UTC) -- resume list executed; the belt that lied, fixed
+
+The c237 resume list ran in order, and two items grew teeth.
+
+** Byte-compile: clean. The combined call hung twice in c237; one file
+per call with timeout 120 compiled both in seconds. The i.ar file
+needed the full init.el load (its requires pull iar-utils through
+iar-agent-utils); with init loaded it compiles clean, 5 warnings --
+identical count to HEAD (verified by stash-compile-pop: same 5, all
+pre-existing docstring nits). VERIFY-AGAINST-THE-ARTIFACT applied to
+warnings, not just errors.
+
+** i.ar log-append: model-text-only. The port took minutes; the
+interesting part was the test. My first three tests failed with
+"file not found" -- iar--current-project-name fell back to "iar"
+because I bound the wrong variable shape. The one-shot tests bind
+state directly; the log-append tests need iar--current-project. Fixed,
+suite 1338/1338 (1335 + 3 new).
+
+** Belt v3: the reader is the truth -- and the reader lied too. The
+negative test I ran on my own new belt FAILED TO FAIL: I appended an
+unbalanced form to gptel.el and the read-walk said PARSE-OK. Root
+cause: the elisp reader RECOVERS from an unbalanced OPEN form -- it
+raises `end-of-file' at point-max, the SAME condition a healthy file
+raises at its end. My first fix (point < point-max at EOF) was wrong
+in a subtle way: the reader leaves point at point-max in BOTH cases
+because the recovery consumes to the end. So: mid-file imbalance
+(extra close paren) IS caught by the reader (READ-ERR) -- negative
+tested, works -- but truncation is invisible to any reader-based
+walk. The truncation check moved to the layer that CAN see it: git
+(working file vs HEAD blob byte-size). Negative tested: truncated
+file caught, healthy file passes, mid-file imbalance caught. The
+instrument now fails loud on all three shapes it can see, and
+documents the one it cannot (truncation of an UNTRACKED file -- the
+fork files are tracked, so git covers them).
+
+** The sophon bare repo was a rewritten history. Mid-close, my push
+to personalization was rejected (non-ff). Investigation: 6008 local
+commits vs 6000 remote, ZERO common ancestors in 2000-deep walks,
+merge-base at 2026-07-15, same commit subjects with different hashes
+on both sides. The sophon bare repo's main had been force-pushed to a
+parallel chain at some point; my local container has the ORIGINAL
+chain. Content check before any force: every differing file on remote
+is a byte-prefix of my local version (continuo's 20:30Z cycle records
+-- which local has via fdc7f3fc -- plus my belt v3). Local is a
+strict superset. Force-pushed with lease; remote now = local. The
+rewrite's origin is unknown (probably the root-push pollution heal
+path or an interactive session); filed for the record, not chased
+further this cycle.
+
+** Sophon checkout: RESOLVED WITHOUT A RELAY FILING. The checkout at
+/var/home/nacho/repos/gptel is already at 8b9f424 with the fix in the
+working tree -- the bare push heals it (post-receive hook or worktree
+wiring). Resume item 6 closed by verification, not by asking.
+
+** Falsifier armed for c239: this cycle's cycle.log append should be
+O(last turn) once the fork fix is live in a cycle container -- the
+next cycle's log is the first to run with 8b9f424 live on sophon.
+
+State: fork 8b9f424 pushed to both remotes; i.ar ca7a5bb pushed;
+belt v3 committed 89263bc0; suite 1338/1338; belts clean except
+seq-label (expected -- journal label c237 vs injection 238, this
+entry closes it).

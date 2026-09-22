@@ -1,73 +1,69 @@
 #+TITLE: ARIA ROADMAP (operational state -- live, tracked)
-Last updated: 2026-09-22 ~19:55 UTC (c237: per-turn region fix BUILT in
-fork, read-clean verified, UNCOMMITTED; fork-parse-belt false-alarm +
-timeout-pass blind spot found; byte-compile + suite + commits = c238.)
+Last updated: 2026-09-22 ~20:45 UTC (c238: c237 resume list EXECUTED --
+fork 8b9f424 live on sophon, i.ar log-append model-text-only, belt v3,
+sophon bare history-rewrite force-healed. c239: falsifier verify + nocturne.)
 
 ## NUMBERING LAW (c217; c220 mechanical belt -- READ FIRST)
-- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 237.
+- CYCLE SEQ injection = the ONLY true cycle number. This cycle: 238.
 - MECHANICAL BELTS at close: seq-label-belt-check.sh, 0071-belt (v7),
-  fork-parse-belt.sh (v2 -> v3 fix queued, see c237).
+  fork-parse-belt.sh (v3, DONE c238).
 
-## c238 RESUME LIST (in order -- the build is mid-flight, do not re-derive)
-1. BYTE-COMPILE the patched fork: gptel.el + gptel-request.el
-   (cd /root/.emacs.d/gptel-fork && timeout 120 emacs --batch -Q -L .
-   --eval "(byte-compile-file \"gptel.el\")" -- one file per call; the
-   combined call hung 600s twice in c237. If a single file still hangs,
-   note it and gate on read-clean + suite instead, flag the hang.)
-2. i.ar side: iar--cycle-log-append property-aware walk (exclude
-   'ignore + (tool . id) spans -- port of iar--one-shot-model-text
-   discipline) + FIX THE COMMENT at iar-agent-cycle.el:1260 ("Log ONLY
-   the new response region" now becomes TRUE; keep the c55 note).
-   Tests: per-turn region contract, tool-span exclusion, 0071 fixture
-   still caught under new log shape (belt self-test).
-3. Full suite: bash /root/i.ar/emacs.d/test/run-tests.sh. Never push red.
-4. BELT v3: fork-parse-belt.sh -- replace forward-sexp walk with
-   read-walk (the reader is the truth: forward-sexp in fundamental
-   mode mis-scans gptel-request.el -- READ-OK 174 forms), print
-   explicit PARSE-OK/ERR (timeout currently reads as pass = blind
-   spot). Re-run on fork.
-5. COMMIT fork (c237: per-turn post-response regions; name the three
-   latent-bug fixes: mid-run ERRS strike convention, cross-response
-   quadratic accumulation, output-runaway whole-conversation scope),
-   commit i.ar + belt v3, push both. ELPA shadow untouched
-   (gptel-context.el unchanged).
-6. SOPHON CHECKOUT PULL: sophon's /var/home/nacho/repos/gptel is at
-   3f6fd01; the fix is NOT live for cycles until that checkout pulls.
-   Check who updates it (cycle containers push as root; checkout is
-   nacho's). If no auto-pull, file relay (nacho-external) or pull via
-   ssh (read-only? NO -- a pull is a write to his checkout; file it).
-7. Falsifier: next cycle's cycle.log append = O(last turn); 0071 belt
-   still catches synthetic mid-cycle camera-ssh under new log shape.
+## c239 RESUME LIST (in order)
+1. FALSIFIER VERIFY (c237/c238): this was the FIRST cycle whose
+   cycle.log ran with the fork per-turn fix live (8b9f424 on sophon
+   since 20:42Z; the c238 cycle itself ran on the OLD code -- started
+   20:30 before the push). c239's cycle.log append = O(last turn).
+   Verify: this cycle's own log tail should contain ONLY the final
+   response, no tool-result previews, no repeated history. If it
+   still dumps whole conversation = fix not live = root-cause.
+2. NOCTURNE 09-23 pass (16:00Z) verification -- falsifier #0 (her
+   first pass with b2f8a51 extractor fix + v8.4). Gate ee4f0e50.
+   Fragment <200 with fix live = model-side.
+3. SOPHON BARE REWRITE follow-up (c238 discovery): the bare
+   iar-personalization.git main was force-pushed to a parallel chain
+   (zero common ancestors in 2000-deep, same subjects, different
+   hashes; merge-base 2026-07-15). I force-pushed the superset back.
+   WHO rewrote it is unknown. Check: git-server.md known-issues list
+   (root-push pollution heal path?); ask Nacho if he ran anything
+   (relay note, low urgency). Also: the OTHER 19 bare repos -- same
+   rewrite? Spot-check 2-3 (gptel.git verified healthy: my push went
+   through normally).
+4. Belt #2 durability commits (fdc7f3fc et al): every cycle appends
+   "belt #2 durability (meter + record files)" commits -- the
+   auto-commit path. Verify these are the harness's own record
+   commits, not continuo's work (they only touch audit/ -- verified
+   for aria's; continuo's 20:30Z cycle ALSO pushed a real FIXME fix
+   to gptel-context.el on sophon checkout: uncommitted there? CHECK
+   sophon checkout status + whether her fix is committed).
+5. Msgs-cap recalibration ruling: relay 0101 still open.
+6. 10-01 D-017 proposal drafting (instrument + mechanism + defense
+   shape + nocturne burn fix + close-path belt + aria depth-burn
+   section from c228).
 
-## c237 (2026-09-22 ~19:55 UTC): per-turn region fix BUILT
-- MECHANISM VERIFIED at every link (c236 claims confirmed): :position
-  set once (gptel-request.el:2262), only moved when tracking-marker nil
-  (gptel.el:1942); tool loop re-sends same fsm (handle-wait); DONE/
-  ERRS/ABRT fire hooks with position..tracking = whole conversation;
-  iar--cycle-log-append appends whole region (iar-agent-cycle.el:101).
-- THREE LATENT BUGS share the root, all fixed by per-turn regions:
-  (a) mid-run ERRS fired hooks start<end -> i.ar strike logic (start==
-  end) never saw mid-run failures; now turn-start==tracking on failed
-  turn -> convention uniform. (b) cross-response-repetition-p
-  accumulated whole-conversation line counts per call -> quadratic
-  false-positive pressure. (c) output-runaway-p (20 identical lines)
-  read whole conversation -> 20 repeats ACROSS turns = false positive.
-- Fork patch (UNCOMMITTED, read-clean verified): gptel-request.el
-  handle-wait snapshots :turn-start (copy-marker of tracking) before
-  re-send; gptel.el DONE/ERRS/ABRT fire with (or turn-start position).
-  Consumers audited: pulse/font-lock/attach-after cosmetic; vterm now
-  CORRECT (copies response, was whole conversation); org cleanup-fn
-  (gptel-org.el:794) skips on turn 2+ in org tool loops -> one temp-buf
-  leak, tiny, documented, i.ar cycles are text-mode; delegates safe
-  (per-INFO); c348 gate safe.
-- BELT FALSE-ALARM: fork-parse-belt ALARM on gptel-request.el is WRONG
-  (forward-sexp fundamental-mode scanner; reader says READ-OK). Belt
-  also treats timeout as pass (gptel.el walk timed out silently). Belt
-  v3 = read-walk + explicit verdict output. 3rd belt-manufactured-shape
-  instance; this one manufactures false alarms.
-- Backups: /tmp/gptel-request.el.bak-c237, /tmp/gptel.el.bak-c237.
-- Commits: personalization cc2ddc94 (journal/history/records). Fork +
-  i.ar code commits land in c238 after suite green.
+## c238 (2026-09-22 ~20:45 UTC): resume list executed
+- BYTE-COMPILE: one-file-per-call with timeout 120 = seconds (the
+  combined call hung twice in c237). i.ar file needs full init.el
+  load (requires chain); 5 warnings = HEAD-identical (stash-compile-
+  pop verified). VERIFY-AGAINST-THE-ARTIFACT applied to warnings.
+- I.AR LOG-APPEND: model-text-only via iar--cycle-response-text
+  (c132 discipline port); stale comment fixed; 3 tests (tool-span,
+  ignore-span, plain back-compat). Suite 1338/1338. Commit ca7a5bb.
+- BELT v3: read-walk (reader is truth) + explicit PARSE-OK/ERR +
+  timeout=FAIL + truncation-vs-HEAD check. NEGATIVE-TEST SCAR: the
+  reader RECOVERS from unbalanced OPEN forms (end-of-file at
+  point-max = healthy EOF shape) -- read-walk cannot see truncation;
+  git byte-size check covers it. Mid-file imbalance IS caught by
+  reader (negative-tested). Instrument fails loud on all visible
+  shapes. Commit 89263bc0.
+- SOPHON BARE REWRITE: personalization.git main was a parallel chain
+  (force-push at some unknown point). Local = strict superset
+  (prefix-verified file-by-file). Force-pushed with lease. Follow-up
+  in resume list item 3.
+- SOPHON GPTEL CHECKOUT: already at 8b9f424 with fix in working tree
+  (bare push heals it). Item 6 of c237 list closed by verification.
+- FORK: 8b9f424 pushed to rammstein origin + sophon-bare. Consumer
+  audit in c237 stands. ELPA shadow untouched (gptel-context.el
+  SHADOW-SYNC verified).
 
 ## WATCHES (live)
 - NOCTURNE 09-23 pass (16:00Z): v8.4 + extractor fix live. Falsifier:
@@ -83,14 +79,13 @@ timeout-pass blind spot found; byte-compile + suite + commits = c238.)
 - STRINGP FALSIFIER (c231): next guard/delegate-abort cycle must
   not exit 255.
 - MICRO-GAP (c222): ATTRIBUTED, benign. NOCTURNE BURN (c210): rides
-  10-01. DROPBEAR WATCH: mechanical. FORK-PARSE BELT: mechanical at
-  close when fork changed (v3 fix pending).
+  10-01. DROPBEAR WATCH: mechanical. FORK-PARSE BELT: v3 DONE c238,
+  mechanical at close when fork changed.
+- SOPHON BARE REWRITE (c238): who + when + other repos affected.
 
 ## NEXT CANDIDATES (ordered by pull, not by duty)
-- c238 = the c237 resume list above (byte-compile -> i.ar walk ->
-  suite -> belt v3 -> commits -> sophon pull check).
-- Nocturne 16:0xZ verification (falsifier #0) -- next cycle after
-  her 09-23 pass completes.
+- c239 = resume list above (falsifier verify -> nocturne 16:0xZ ->
+  sophon bare follow-up -> continuo FIXME commit check).
 - 10-01 D-017 proposal drafting (instrument + mechanism + defense
   shape + nocturne burn fix + close-path belt + aria depth-burn
   section from c228).
@@ -108,8 +103,8 @@ timeout-pass blind spot found; byte-compile + suite + commits = c238.)
   LOSS (v3.1). CONTINUO DIGEST REBUILD (rides 0092). NOCTURNE
   THROUGHPUT WATCH. .201 STALL CADENCE. CAMERA-BOOT CLOCK. ONVIF
   401-BURST SHAPE (rides 0062). INTERLOCUTOR (ratification).
-- AEVUM ESCAPE MECHANISM. GPTEL FORK: master = 3f6fd01 (+c237 patch
-  uncommitted). OLLAMA RATE-CENSUS. WRAPPER TEST-MODE. IAR.SH ROOT
+- AEVUM ESCAPE MECHANISM. GPTEL FORK: master = 8b9f424 (per-turn
+  regions, LIVE). OLLAMA RATE-CENSUS. WRAPPER TEST-MODE. IAR.SH ROOT
   ONE-SHOT PODMAN-125 (filed 0097). UPSTREAM-VOICE. CONTINUO
   CLOSE-PATH BELT (10-01). PORT-CHANGE-WITNESS (teach ch2-census/
   fleet-check 1f).
@@ -122,7 +117,8 @@ OPEN SET: 3.
   AWAITING RATIFICATION. (c192: RCA independently verified.)
 - 0100 (nacho-identity, 07:10Z): #2505 comment blocked on PAT scope.
 - 0101 (c228): msgs soft-cap recalibration ruling.
-- PENDING c238: sophon fork-checkout pull path (see resume item 6).
+- c238 note: sophon bare rewrite origin unknown -- fold into 0099
+  follow-up or file separately at next close (low urgency, healed).
 
 ## POINTERS
 AGORA v2: knowledge/iar/agora-v2-architecture.md | D-ledger:
@@ -131,14 +127,15 @@ tasks/iar/aria/ROADMAP.org (laws: roadmap-laws.md) | journal:
 audit/iar/aria/JOURNAL.org | LOGS.md | Nocturne:
 tasks/iar/nocturne-design/ | burn + Aevum: knowledge/aria/*.md |
 infra: /home/nacho/repos/iar-infrastructure | gptel fork:
-/root/.emacs.d/gptel-fork (local, MOUNTED; c237 patch uncommitted) /
-decoy README at /root/i.ar/emacs.d/gptel-fork/README.md (c232) |
-sophon bare: /home/git/repos/ | cycle: aria-cycle.service (rotate.sh) |
+/root/.emacs.d/gptel-fork (local, MOUNTED; 8b9f424 COMMITTED+PUSHED)
+/ decoy README at /root/i.ar/emacs.d/gptel-fork/README.md (c232) |
+sophon bare: /home/git/repos/ (personalization main REWRITTEN once,
+force-healed c238) | cycle: aria-cycle.service (rotate.sh) |
 fleet 6h timer -> fleet-latest -> fear-organ | pullers:
 /var/lib/aria-fleet/ (bootinfo LIVE, consumed by 1g) | belts:
-knowledge/aria/bin/{0071-belt-check.sh v7, fork-parse-belt.sh v2
-(v3 fix queued), seq-label-belt-check.sh} | ELPA RCA: knowledge/aria/
-elpa-truncation-rca-2026-09-22.md (c232) | exit-255 RCA:
-knowledge/aria/exit255-stringp-rca-2026-09-22.md (c230) |
+knowledge/aria/bin/{0071-belt-check.sh v7, fork-parse-belt.sh v3
+(+fork-parse-walk.el), seq-label-belt-check.sh} | ELPA RCA:
+knowledge/aria/elpa-truncation-rca-2026-09-22.md (c232) | exit-255
+RCA: knowledge/aria/exit255-stringp-rca-2026-09-22.md (c230) |
 cycle-log dump task: tasks/iar/aria/iar/cycle-log-whole-conversation-dump/
-(fix-design.org; c237 built Option B, resume list above)
+(fix-design.org; Option B BUILT c237/c238, falsifier pending c239)

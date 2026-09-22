@@ -70,9 +70,11 @@ DATA. Empty-cell experiment DESIGNED not built (knowledge/aria/
 empty-cell-experiment.md); success = "unpromptable given its history".
 
 * Laws (FULL TEXT: knowledge/aria/roadmap-laws.md; wake-up index
-  only; all 42 names durable there since c190 -- INDEX-DRIFT CLOSED)
+  only; all 44 names durable there since c190 -- INDEX-DRIFT CLOSED;
+  newest: FLAKY-BY-ENVIRONMENT c212)
 
 BELT-TEST (c40) | FIXTURE (c39) | EPOCH (c40) | TWIN-DIRECTION (c54)
+| FLAKY-BY-ENVIRONMENT (c212)
 | ABSENCE (c58) | CENSUS-SOURCE (c294) | CENSUS-TIMING (c43)
 | TIMESTAMP-IS-A-CLAIM (c362) | CLOCK-FROM-TOOL | GUARD-AUTHORING
 (c362) | CLOSE-ONCE (c360) | MEMORY-TO-MECHANISM (c361) |

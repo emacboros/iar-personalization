@@ -62,7 +62,7 @@ real. Corrected journal windows confirm: 13:05-13:16Z = ext4 64 warns
 | ext3 | 09-21 13:32 | 10.5h | yes (~2min) | ? |
 | ext3 | 09-21 20:54 | 17.9h | yes (~1min) | no witness |
 | ext4 | 09-21 12:15 | 9.2h | -- | -- | (freeze class, separate)
-| ext3 | 09-21 21:21 | 0.1h | yes (51s) | YES +21min |
+| ext3 | 09-21 21:21 | 0.1h | yes (51s) | no (c199 +21min was a format misread, retracted c205) |
 | ext4 | 09-21 21:45 | 17.7h | no | ? |
 | ext4 | 09-21 13:04 | 9.0h | no | no |
 | ext3 | 09-21 22:01 | ~0.8h | no (22:23 run after onset) | no |

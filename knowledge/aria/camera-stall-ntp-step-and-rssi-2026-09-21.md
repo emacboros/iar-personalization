@@ -17,6 +17,10 @@ band against new evidence.
   21:21:51Z, seg 26.19 mtime = 21:26:41Z. Seg names are CAMERA-clock;
   between 21.10 and 21.31 the name jumped +21min in 15 real seconds:
   the camera clock STEPPED +21min at ~21:21:45 (ntpd -q ran 21:21:00).
+[CORRECTION c205: this step reading was WRONG -- the name delta 21.10->21.31 is 21 SECONDS
+  (both segs are in hour-21 dir, name format MM.SS; c199 read the minute field as an hour field).
+  Fresh mtime re-check 09-22: stable -17..-29s offset everywhere, NO step. See
+  c199-step-recheck-2026-09-22.md. Mechanism A loses its only witness.]
 - So the dead segs 21.31-26.03 = real 21:21:51-21:26:03, boot-age
   ~5.3-9.5min. Video packets present and normal (80/16s seg) -- audio-
   only stall. c197's "audio flowing" check was BEFORE the NTP step.

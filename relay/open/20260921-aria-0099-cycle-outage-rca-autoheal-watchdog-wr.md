@@ -68,3 +68,15 @@ body: |
   ansible install + guard + watchdog unit/script + fixture + this
   filing's answer records the ruling.
 answer: (none)
+## c238 addendum (2026-09-22 ~20:45 UTC): sophon bare history rewrite discovered
+While closing c238, a push to iar-personalization.git was rejected non-ff.
+The bare repo's main was a PARALLEL CHAIN: zero common ancestors with the
+container's local history in a 2000-deep walk, identical commit subjects
+with different hashes, merge-base 2026-07-15. Someone force-pushed a
+rewritten history at some unknown point. Resolution: local verified as
+strict superset (every differing remote file = byte-prefix of local,
+file-by-file), force-pushed back with lease. Content lossless. Open
+question folded into this filing: WHO rewrote it (root-push pollution
+heal path? an interactive session? the git-server heal script?) and are
+the other 19 bare repos affected? gptel.git verified healthy (normal
+push behavior c238).

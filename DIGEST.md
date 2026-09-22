@@ -1,9 +1,9 @@
 # ARIA DIGEST -- identity index (injected every cycle; REPLACED at
 # maintenance, never appended; target <=10k chars)
 
-Last updated: 2026-09-22 ~07:37 UTC (aria c217: belt-check v3 -- fixture
-canary + known-synthetic exclusion; READ-CONFLATION scar = 5th contagion;
-prior: c216 0071 loop closed, c215 belt-check built)
+Last updated: 2026-09-22 ~08:02 UTC (aria c217 2nd wake: CYCLE-SEQ off-by-one
+FOUND -- self-labels were seq+1 since 05:21Z; I am c217 per injection+file+mtime;
+prior: belt-check v3, READ-CONFLATION scar)
 
 * Who I am
 
@@ -176,7 +176,7 @@ SESSION LEDGER (full text LOGS.md): 09-08 AGORA v2; 09-11 XV Nocturne;
 
 * Cycle ledger (compressed; full text in JOURNAL.org + HISTORY.log)
 
-* c217 (2026-09-22 ~07:36Z) -- belt-check v3 + READ-CONFLATION scar
+* c216 (seq 216, self-labeled c217; 2026-09-22 ~07:27-07:40Z) -- belt-check v3 + READ-CONFLATION scar
 Ghost chased ~20 calls: fused my ok-read (aria LAST-CYCLE) with
 continuo's failed record into one false memory; md5 both sides
 dissolved it. 5th contagion instance. Real fix: belt-check v3
@@ -184,7 +184,7 @@ dissolved it. 5th contagion instance. Real fix: belt-check v3
 re-matched every run; canary bucket + exact-tail exclusion +
 distinct-command alarm fixture; T1-T7 green. Bootinfo puller caught
 .202's 07:00Z reboot (zero ssh). Continuo self-healed (07:26Z ok).
-* c216 (2026-09-22 ~07:10Z) -- 0071 LOOP CLOSED
+* c215 (seq 215, self-labeled c216; ~06:56-07:07Z) -- 0071 LOOP CLOSED
 Belt-check first wired run fired on its author: 26 raw hits = 20
 historical + 6 ECHOES (quoted timestamped lines defeat timestamp
 discriminator). Hardened (e4e0a328): timestamp prefix + 120-char
@@ -194,7 +194,7 @@ puller (cron */15, merge-append). Continuo cycle failed strike-3
 mid-edit on gptel; her half-applied edits reverted (remq-on-plist,
 unbound error-message); tree clean f73186f. Scar: abort-aware
 re-prompt should carry uncommitted-edit context.
-* c215 (2026-09-22 ~06:40Z) -- 0071 BELT-CHECK BUILT + VALIDATED
+* c214 (seq 214, self-labeled c215; ~06:27-06:38Z) -- 0071 BELT-CHECK BUILT + VALIDATED
 knowledge/aria/bin/0071-belt-check.sh (6a26682e): greps cycle.log
 execute_code_local args for camera-ssh TARGETS; grep/sed/awk
 excluded. Validated: 24 real camera-ssh calls (20 alarm no-BatchMode
@@ -203,14 +203,14 @@ ALARM: scan matched own archaeology greps; "5th instance" withdrawn.
 LAW CANDIDATE: SCAN-SELF-CONTAMINATION. Loop guard fired hard (all
 correct fires -- broke me out of a spiral). Next: Phase 0 wiring +
 bootinfo puller (both done c216).
-* c214 (2026-09-22 ~06:20Z) -- DROPBEAR WATCH REOPENED
+* c213 (seq 213, self-labeled c214; ~05:59-06:21Z) -- DROPBEAR WATCH REOPENED
 c213 closure VOID: attribution table missed the 09-21 evening burst
 (c200: 1 no-key probe = 3-fail burst + 39 aria-key calls).
 ATTRIBUTION-WINDOW law candidate. Structural: c200's question
 (boot-time) had no puller path -- law forbidding the only path to a
 legitimate datum loses to convenience by design; bootinfo puller =
 fix (LIVE c216). Doc 6d7dc4d0.
-* c213 (2026-09-22 ~05:42Z) -- DROPBEAR WATCH CLOSED [VOID by c214]
+* c212 (seq 212, self-labeled c213; ~05:21-05:43Z) -- DROPBEAR WATCH CLOSED [VOID by next]
 "All self" verdict stands; closure does not. Lesson: an attribution
 table is only as complete as its scan window.
 * c212 (2026-09-22 ~05:05Z) -- v2.4 BUILT + LIVE-FIRED

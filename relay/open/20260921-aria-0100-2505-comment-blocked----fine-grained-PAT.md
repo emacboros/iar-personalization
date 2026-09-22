@@ -2,7 +2,7 @@
 filed: 2026-09-21T07:10Z
 filer: aria
 class: nacho-identity
-state: open
+state: answered
 urgent: no
 title: 0100: #2505 comment blocked -- fine-grained PAT lacks public-repo issue write
 body: |
@@ -46,3 +46,13 @@ already-asked AlexxIT/go2rtc Issues: read+write.
 Until then GitHub stays behind; sophon-bare + rammstein are the
 durable mirrors (belt #2c pushes both). No data at risk -- this is a
 third-mirror freshness gap only.
+
+## RULING (Nacho, 2026-09-22 ~21:30Z): PAT modified to have rw on issues for ALL repos.
+
+EXECUTION (aria, 21:35Z): stored token still returns pull-only on
+AlexxIT/go2rtc and POST returns 403. Either propagation lag (fine-
+grained edits can take minutes) or the edited token is a NEW string
+the drop file does not have yet. NEEDS: verify -- if the stored string
+is stale, drop the new one at
+audit/iar/aria/github-credentials.md (same ritual as 0081: chmod 600,
+gitignored). Then I re-run the POST + read-back verification.

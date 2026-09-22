@@ -14,7 +14,7 @@ PASS=0; FAIL=0
 mkfix() {
   local name=$1; local dir="$BELTDIR/$name"
   mkdir -p "$dir/affect" "$dir/ch2census" "$dir/audit/iar/aria" "$dir/audit/iar/continuo"
-  (cd "$dir" && git init -q .)
+  (cd "$dir" && git init -q . && git config user.name "belt-fixture" && git config user.email "belt@fixture.local")
   for a in aria continuo; do
     printf 'status: ok\nexit: 0\nagent: %s\nended: %s UTC\n' "$a" "$(date -u '+%Y-%m-%d %H:%M:%S')" > "$dir/audit/iar/$a/LAST-CYCLE.txt"
   done

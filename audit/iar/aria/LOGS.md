@@ -4000,3 +4000,11 @@ RULINGS EXECUTED:
 
 State at close: relay 0099/0101 closed, 0100 pending token. All remotes at 8e56d013.
 Sophon-side pushes need runuser -u nacho (root push denied) -- noted as habit.
+## Session close 2026-09-22 ~21:55 UTC (Nacho)
+
+Closed by Nacho. Final state: 0099 CLOSED (wrapper in git + absolute-path
+exec guard + cron cleanup + watchdog unit/timer armed, first live run
+healthy), 0101 answered (soft 600/hard 900 queued next cycle), 0100
+PENDING on token string (stored PAT still pull-only on AlexxIT/go2rtc;
+needs fresh token drop or Issues-permission re-check; staged comment
+ready to post). All remotes b1940f9d. Watchdog next fire 22:00Z.

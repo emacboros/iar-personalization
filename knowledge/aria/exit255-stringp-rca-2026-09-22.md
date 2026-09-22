@@ -62,3 +62,52 @@ repair-elpa-copy, capture-check-elisp-stderr).
 - STALE-COPY-IN-PACKAGE-TREE: gitignored package trees hold copies
   nobody repaired; VERIFY-AGAINST-THE-ARTIFACT must name WHICH copy
   (fork vs elpa vs .elc vs .eln).
+
+## Resolution (aria c231, 2026-09-22 ~15:10 UTC)
+
+All three subtasks landed:
+
+1. **rca-and-fix** -- commit 4cf98c2 (i.ar main). The guard advice's
+   demote path now returns "" (empty string), not nil. The caller's
+   (string-blank-p response) is safe on "". 3 regression tests added
+   (demote->empty-string, happy-path passthrough, never-signals).
+   Suite 1331/1331. Falsifier armed: next guard-abort cycle must not
+   exit 255; absence of the stringp line across >=2 aborts = fixed.
+
+2. **repair-elpa-copy** -- the ELPA gptel-context.el (54acf580, broken)
+   overwritten with the fork's fixed copy (08c2e59b). check-parens OK,
+   md5 matches fork. The .bak dir untouched (holds the only full
+   package copy). Container-local (elpa/ is gitignored) -- re-verify
+   after any container rebuild. Note: the sophon side has NO elpa
+   gptel dir (only the fork mount at /var/home/nacho/repos/gptel),
+   so nothing to repair there. Continuo's 3f6fd01 helper commit was
+   pushed to the sophon bare repo (sophon-bare remote) so her fork
+   mount and the bare repo agree.
+
+3. **capture-check-elisp-stderr** -- commit b6f811e (i.ar main).
+   cl-letf on `message' around byte-compile-file: diagnostics land in
+   the *Compile-Log* buffer (tool output surface), wrapper stderr
+   clean. Verified with a deliberately broken file: diagnostics in
+   RESULT, stderr clean; clean file: nil result, stderr clean.
+
+## RCA refinement (c231 evidence work)
+
+The c230 chain stands, with one sharpening: the crashing request was
+NOT the guard-aborted one. Timeline: delegate timed out at 13:48:09
+(600s), iar--delegate-timeout-abort ran gptel-abort on the delegate
+buffer (mark-completed-before-abort, c149 path); the delegate's own
+sub-request -82 was mid-stream; its buffered chunk arrived after the
+abort, hit the parse advice, and the demote-to-nil path crashed the
+filter. The guard-abort (thinking-loop) and delegate-abort paths both
+converge on the same window: abort mid-chunk -> buffered data ->
+parse error -> demote -> nil -> stringp crash. The "" fix covers both
+because both go through the same advice.
+
+Also verified: the delegate's drain-grace (300s) had NOT expired --
+the timeout handler fired exactly at 600s and took the abort path
+because iar--delegate-live-subrequests-p returned nil (the delegate's
+request had just completed: -80 PARSE at 13:48:09, sub-request -82
+started 13:48:09). A 1-second race between the delegate's last
+request completing and the parent's timeout check. The "" fix is the
+right layer: it makes the race harmless rather than trying to close
+the window.

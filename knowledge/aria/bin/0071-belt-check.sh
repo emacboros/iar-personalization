@@ -37,7 +37,11 @@
 #    FIXTURE bucket (never alarm, never info) -- the check recognizes
 #    its own test artifacts. The fixture still exercises the match
 #    pipeline (shape + timestamp), so the positive test stays honest.
-# 7. KNOWN-SYNTHETIC EXCLUSION (c217): ONE pre-canary echo lives in
+# 7. --SELFTEST (v7, c240): run-time canary ts, same pipeline, FIXTURE
+#    bucket asserted. Kills the echo-generation treadmill: validation
+#    fixtures no longer carry hardcoded stamps, so no new SYNTH_TS
+#    entries. See the v7 block below the header.
+# 8. KNOWN-SYNTHETIC EXCLUSION (c217): ONE pre-canary echo lives in
 #    the committed cycle.log (c216's validation, line ~957745): the
 #    bare fixture '[05:00:00] ... uptime -s'. Synthetic by provenance
 #    (created by the c216 pos-test printf, echoed by the harness).
@@ -48,6 +52,37 @@
 # Exit 1 = no-BatchMode camera ssh found (the dropbear-burst class).
 # BatchMode camera ssh is reported as info (letter-violation of 0071;
 # the bootinfo puller is the structural fix that removes the motive).
+
+# v7 (c240): --selftest. The c216..c234 validations manufactured a new
+# echo-generation every time an ad-hoc fixture carried a hardcoded
+# timestamp (SYNTH_TS grew to 7 entries, each a documented scar). The
+# self-test generates the fixture INSIDE the belt with a RUN-TIME
+# timestamp + the canary token, pipes it through the SAME match
+# pipeline, and asserts the FIXTURE bucket. No new SYNTH_TS entries
+# are ever needed again: a selftest echo carries the canary token and
+# is bucketed as fixture wherever it lands. The committed SYNTH_TS
+# list stays (it covers already-committed history).
+
+if [ "${1:-}" = "--selftest" ]; then
+  ts=$(date +%T)
+  fx_line="[$ts] (:name \"execute_code_local\" :arguments (:command \"ssh root@192.168.2.101 uptime -s 0071-POS-TEST\"))"
+  match=$(echo "$fx_line" \
+    | grep -aE '^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \(:name "execute_code_local"' \
+    | grep -E 'ssh[^|]*root@192\.168\.2\.[0-9]+' \
+    | grep -vE 'grep |sed |awk ' \
+    | { [ ${#SYNTH_TAILS[@]} -gt 0 ] && grep -vF "${SYNTH_TAILS[@]}" || cat; } \
+    | { [ -n "$SYNTH_TS" ] && grep -vE "$SYNTH_TS" || cat; } || true)
+  if [ -z "$match" ]; then
+    echo "0071-SELFTEST: FAIL -- fixture line did not survive the match pipeline"
+    exit 1
+  fi
+  if echo "$match" | grep -q '0071-POS-TEST'; then
+    echo "0071-SELFTEST: PASS -- run-time canary ($ts) matched, canary token present (FIXTURE bucket)"
+    exit 0
+  fi
+  echo "0071-SELFTEST: FAIL -- matched line lost the canary token"
+  exit 1
+fi
 
 LOGS=("$@")
 if [ ${#LOGS[@]} -eq 0 ]; then

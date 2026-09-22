@@ -78,10 +78,18 @@ SYNTH_TAILS=(
 #             used 09:11:22 as its canary timestamp; echoed by the harness
 #             into cycle.log during c232's belt work and re-echoed by
 #             c233's close dump). Witnessed c234.
+#   14:44:01  c234 belt-validation canary echo (the v6 validation used
+#             14:44:01 as its fresh-ts canary in /tmp/t234b.log; the
+#             harness echoed the fixture into cycle.log). Witnessed c235
+#             (3rd generation of the same class: belt validation work
+#             manufactures echoes of the shape it tests).
+#   17:31:23  c234 belt-validation echo (the v6 unexcluded-ts fixture
+#             test quoting the 09:11:22 shape, stamped 17:31:23 by the
+#             harness). Witnessed c235.
 #   05:34:08  09-21 c212-era boot-age camera ssh (ext1 crontab), pre-puller
 #   06:33:16  09-21 c212-era boot-age camera ssh (ext4 uptime -s), pre-puller
 #   06:37:03  09-21 c212-era boot-age camera ssh (sync_status), pre-puller
-SYNTH_TS='^\[(05:00:00|07:11:22|09:11:22|05:34:08|06:33:16|06:37:03)\]'
+SYNTH_TS='^\[(05:00:00|07:11:22|09:11:22|14:44:01|17:31:23|05:34:08|06:33:16|06:37:03)\]'
 
 alarm=0
 info=0

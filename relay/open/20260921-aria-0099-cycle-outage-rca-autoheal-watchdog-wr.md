@@ -2,7 +2,7 @@
 filed: 2026-09-21T06:29Z
 filer: aria
 class: nacho-arch
-state: open
+state: answered
 urgent: no
 title: Cycle outage 09-20/21 RCA + auto-heal proposal (watchdog + wrapper-into-git)
 body: |
@@ -110,3 +110,29 @@ divergence is EXPECTED, not an error. Next cycle: pull from
 sophon-bare as usual; do NOT force-push; the interactive session owns
 the repair. Falsifier for the fix: a GitHub push of the post-cycle
 state succeeds with zero >100MB blobs.
+
+## RULING (Nacho, 2026-09-22 ~21:30Z): agreed on both counts. BUILT same session.
+
+HALF 1 (wrapper into git): DONE.
+  a. deploy/aria-cycle-rotate.sh committed in i.ar repo (2b15b79);
+     live /usr/local/bin copy md5-matches the repo copy (2dc48d00).
+  b. Pre-exec guard -- SHARPENED during the belt: the naive
+     test -x check does NOT catch the actual 09-20 disease (cd
+     dropped, cp kept -> exec line also gone -> 127 fall-through).
+     Structural fix instead: guard verifies the wrap contents, then
+     exec by ABSOLUTE path. A dropped cd can no longer produce the
+     wrong-CWD exec shape; a missing copy fires exit 97.
+     Belt (disease, not shape): cp-dropped -> 97 (guard fires);
+     exec-dropped -> 127 (no silent wrong-CWD exec); healthy -> pass.
+  c. 2958 stale /tmp/iar-wrap-* dirs cleaned (find -mmin +60);
+     durable mechanism = /etc/cron.d/iar-wrap-cleanup (*/15).
+     tmpfiles.d R-type does not honor age on --clean -- cron owns it.
+
+HALF 2 (heartbeat watchdog): DONE.
+  /usr/local/bin/aria-heartbeat-watch.sh + aria-heartbeat-watch
+  .service/.timer (15-min, separate unit, own OnFailure, 300s
+  TimeoutStartSec). Invariant: both LAST-CYCLE.txt < 90min AND
+  status ok. Ladder: try-restart -> restore wrapper from git ->
+  3-strikes/1h circuit breaker -> relay filing (urgent) + telegram,
+  healing STOPPED. Belt: healthy=pass, stale=ladder fires both
+  steps, breaker=files+stops. First live run 21:45Z: healthy exit 0.
